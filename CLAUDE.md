@@ -29,13 +29,16 @@ A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase,
 ## Agent skills
 
 ### Issue tracker
-GitHub Issues are the task queue for autonomous work in this repo. Agents only pick up `ready-for-agent` issues, claim them with `in-progress`, and skip anything already assigned or already under an open PR. See `docs/agents/issue-tracker.md`.
+
+GitHub Issues in `caraseli02/Ecas`. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
-Use the exact label vocabulary in `docs/agents/triage-labels.md` so the agent does not invent duplicate states.
+
+Canonical strings: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
-This is a single-context repo. Read `CONTEXT.md` first, then the other harness files in the order described there. See `docs/agents/domain.md`.
+
+Single-context — `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
 
 ## Initialization / WIP rules
 - First session on a fresh branch should initialize the repo before feature work.
