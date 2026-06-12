@@ -10,6 +10,7 @@ A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase,
 - Prefer mock mode for local development and review.
 - Keep tasks small and atomic.
 - Verify before declaring success.
+- Treat initialization as a separate phase from feature work.
 
 ## Commands
 - `pnpm install`
@@ -19,6 +20,17 @@ A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase,
 - `pnpm preview`
 - `pnpm lint`
 - `pnpm pretty`
+
+## Harness state files
+- `PROGRESS.md` — current focus, in progress, blocked, next verification
+- `DECISIONS.md` — durable cross-session decisions
+- `feature_list.json` — machine-readable task state and WIP=1 control
+
+## Initialization / WIP rules
+- First session on a fresh branch should initialize the repo before feature work.
+- One loop should do one narrow task, verify it, and stop.
+- Keep only one task active at a time.
+- If the task grows beyond a few files or turns into a second unrelated fix, split it.
 
 ## Architecture shortcuts
 - API flow: `plugins/api.ts` → `composables/HttpFactory.ts` → `services/*.service.ts`
@@ -30,10 +42,6 @@ A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase,
 1. `pnpm build`
 2. `pnpm lint`
 3. Smoke-test the affected screen or route
-
-## Autonomous loop rule
-One loop should do one narrow task, verify it, and stop.
-If the task grows beyond a few files or turns into a second unrelated fix, split it.
 
 ## State
 Use `PROGRESS.md` when work spans sessions or when a loop is intentionally paused.

@@ -1,7 +1,7 @@
 # ECAS Progress
 
 ## Current focus
-- Harness hardening for autonomous micro-tasks.
+- Harness extended through lecture 8 concepts: continuity, initialization, WIP=1, and feature lists.
 
 ## In progress
 - None.

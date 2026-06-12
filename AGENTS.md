@@ -6,6 +6,7 @@ ECAS is a Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Fireb
 - The repo is a self-contained portfolio/demo app.
 - Prefer mock mode for local work and reviews.
 - Keep changes small and shippable; this repo is a good fit for autonomous micro-tasks.
+- Durable session state lives in `PROGRESS.md`, `DECISIONS.md`, and `feature_list.json`.
 
 ## The 5 questions every fresh session must answer
 1. What is this system? → this file + `README.md`
@@ -38,12 +39,40 @@ Before calling work done, run the narrowest meaningful verification:
 
 If a change touches mock data or auth flow, verify the related pages end to end, not just the compile step.
 
+## Initialization phase
+The first session on a fresh branch should act like an initialization pass, not a feature sprint.
+
+Initialization outputs:
+- a runnable environment
+- at least one verified test/build check
+- `PROGRESS.md` with current focus and next step
+- `DECISIONS.md` for durable cross-session choices
+- `feature_list.json` for machine-readable work state
+
+Do not mix initialization with feature implementation unless the task is explicitly about harness setup.
+
 ## Harness rules for autonomous loops
 - Make **one small decision + one small change + one verification** per loop.
 - Prefer tasks that touch 1 category only: build fix, lint fix, component polish, API wiring, or doc cleanup.
 - If a task needs more than ~3 files or a second unrelated fix, split it.
+- Enforce **WIP=1**: only one task may be active at a time.
 - If blocked twice, stop and report the blocker instead of widening scope.
 - Do not continue based on vibe; keep every loop grounded in a checkable outcome.
+
+## Feature list contract
+`feature_list.json` is the source of truth for task state.
+- each item needs: `id`, `description`, `validation`, `status`, `evidence`
+- allowed statuses: `not_started`, `active`, `blocked`, `passing`
+- only one item should be `active`
+- a task may move to `passing` only after its validation evidence is recorded
+
+## Session handoff
+A fresh session should read, in order:
+1. `AGENTS.md`
+2. `README.md`
+3. `PROGRESS.md`
+4. `DECISIONS.md`
+5. `feature_list.json`
 
 ## Repository map
 - `pages/` — Nuxt routes
