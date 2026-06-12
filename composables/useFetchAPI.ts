@@ -1,70 +1,26 @@
-type useFetchType = typeof useFetch;
+import type { UseFetchOptions } from '#app';
 
-export const useFetchAPI: useFetchType = async (url, params) => {
-  const cookie = useCookie('token');
-  const runtimeConfig = useRuntimeConfig();
+export function useFetchAPI(url: string, params: UseFetchOptions<unknown> = {}) {
+    const cookie = useCookie('token');
+    const runtimeConfig = useRuntimeConfig();
+    const { onRequest: userOnRequest, ...restParams } = params;
 
-  const opts = {
-    key: url,
-    baseURL: runtimeConfig.public.BASE_URL_API,
+    return useFetch(url, {
+        ...restParams,
+        baseURL: runtimeConfig.public.BASE_URL_API,
+        key: restParams.key ?? url,
+        onRequest(context) {
+            const headers = new Headers(context.options.headers as HeadersInit);
 
-    async onRequest({ options }) {
-      options.headers = options.headers || {};
+            if (cookie.value) {
+                headers.set('Authorization', `Bearer ${cookie.value}`);
+            }
 
-      if (cookie.value) {
-        options.headers['Authorization'] = `Bearer ${cookie.value}`;
-      }
-    },
+            context.options.headers = headers;
 
-    async onRequestError({ error: _error }) {
-    },
-
-    async onResponseError({ response: _response }) {
-    },
-
-    ...params,
-  };
-
-  const { data, pending, error, execute } = await useFetch(url, opts);
-
-  return {
-    data,
-    pending,
-    error,
-    execute,
-  };
-};
-
-// type FetchAPIType = (url: string, params?: unknown) => Promise<{ data: unknown; pending: Ref<boolean>; error: Ref<unknown> }>;
-
-// export const useFetchAPI: FetchAPIType = async (url, params = {}) => {
-//   const cookie = useCookie('token');
-//   const runtimeConfig = useRuntimeConfig();
-
-//   let isPending = ref(true);
-//   let error = ref(null);
-
-//   const headers = params.headers || {};
-//   if (cookie.value) {
-//     headers['x-access-token'] = cookie.value;
-//   }
-
-//   try {
-//     const data = await $fetch(url, {
-//       baseURL: runtimeConfig.public.BASE_URL_API,
-//       headers,
-//       ...params,
-//       onResponseError({ response }) {
-//         console.error(response._data.message);
-//       },
-//     });
-
-//     isPending.value = false;
-//     return { data, pending: isPending, error };
-//   } catch (err) {
-//     error.value = err;
-//     isPending.value = false;
-//     console.error(err.message);
-//     return { data: null, pending: isPending, error };
-//   }
-// };
+            if (typeof userOnRequest === 'function') {
+                return userOnRequest(context);
+            }
+        },
+    });
+}

@@ -1,112 +1,96 @@
 <template>
-  <div
-    v-if="filteredData.length"
-    class="mb-[30px] md:mb-[60px]"
-  >
-    <div class="container">
-      <button
-        class="flex items-center justify-center bg-blue-500 text-white rounded px-[15px] py-[9px] text-sm font-medium w-full md:hidden"
-        @click="showSearchFiltersModal = true"
-      >
-        <FiltersIcon class="w-6 h-6 mr-2" />
-        <span>Filters</span>
-      </button>
-      <div class="hidden items-center justify-between md:flex">
-        <div class="font-medium">
-          Filters
-        </div>
-        <div class="flex items-center">
-          <div class="flex items-center text-slate-500 select-none mr-[30px]">
-            <EyeClosedIcon
-              v-if="!showFilters"
-              class="w-5 h-5 mr-2"
-            />
-            <EyeIcon
-              v-else
-              class="w-5 h-5 mr-2"
-            />
-            <span class="text-sm leading-tight font-Inter font-medium mr-[15px]"> Filters </span>
+    <div v-if="filteredData.length" class="mb-[30px] md:mb-[60px]">
+        <div class="container">
             <button
-              class="relative w-10 h-[22px] rounded-[25px] transition-colors duration-300"
-              :class="[showFilters ? 'bg-blue-500 ' : 'bg-border']"
-              @click="showFilters = !showFilters"
+                class="flex items-center justify-center bg-blue-500 text-white rounded px-[15px] py-[9px] text-sm font-medium w-full md:hidden"
+                @click="showSearchFiltersModal = true"
             >
-              <div
-                class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full transition-all duration-300"
-                :class="[showFilters ? ' right-1' : 'right-5']"
-              />
+                <FiltersIcon class="w-6 h-6 mr-2" />
+                <span>Filters</span>
             </button>
-          </div>
-          <button class="group flex bg-blue-500 text-white rounded px-3 py-[9px] text-sm font-medium">
-            <ResetIcon class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-[360deg]" />
-            <span
-              @click="
-                Emitter.emit('reset-products-filters', true);
-                checkedOptions = [];
-              "
-            >
-              Reset Filters
-            </span>
-          </button>
-        </div>
-      </div>
-      <Transition name="slide-from-bottom">
-        <div
-          v-if="showFilters"
-          class="hidden grid-cols-3 gap-5 mt-5 md:grid lg:grid-cols-4 xl:grid-cols-6"
-        >
-          <SearchFilter
-            v-for="(filter, index) in filteredData"
-            :key="getFilterSlug(filter.feature)"
-            :filter="filter.feature"
-            @close="removeItem(index)"
-          />
-          <div class="flex flex-col items-center pt-[60px] pb-10">
-            <div class="text-sm font-medium text-slate-500 mb-5">
-              Add/Remove Filter
+            <div class="hidden items-center justify-between md:flex">
+                <div class="font-medium">Filters</div>
+                <div class="flex items-center">
+                    <div class="flex items-center text-slate-500 select-none mr-[30px]">
+                        <EyeClosedIcon v-if="!showFilters" class="w-5 h-5 mr-2" />
+                        <EyeIcon v-else class="w-5 h-5 mr-2" />
+                        <span class="text-sm leading-tight font-Inter font-medium mr-[15px]"> Filters </span>
+                        <button
+                            class="relative w-10 h-[22px] rounded-[25px] transition-colors duration-300"
+                            :class="[showFilters ? 'bg-blue-500 ' : 'bg-border']"
+                            @click="showFilters = !showFilters"
+                        >
+                            <div
+                                class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full transition-all duration-300"
+                                :class="[showFilters ? ' right-1' : 'right-5']"
+                            />
+                        </button>
+                    </div>
+                    <button class="group flex bg-blue-500 text-white rounded px-3 py-[9px] text-sm font-medium">
+                        <ResetIcon class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-[360deg]" />
+                        <span
+                            @click="
+                                Emitter.emit('reset-products-filters', true);
+                                checkedOptions = [];
+                            "
+                        >
+                            Reset Filters
+                        </span>
+                    </button>
+                </div>
             </div>
-            <button
-              class="flex items-center justify-center w-14 h-14 bg-blue-500 rounded-full transition-transform duration-300 hover:rotate-[360deg]"
-              @click="showAddRemoveFilterModal = true"
-            >
-              <PlusIcon class="w-[30px] h-[30px] text-white" />
-            </button>
-          </div>
+            <Transition name="slide-from-bottom">
+                <div v-if="showFilters" class="hidden grid-cols-3 gap-5 mt-5 md:grid lg:grid-cols-4 xl:grid-cols-6">
+                    <SearchFilter
+                        v-for="(filter, index) in filteredData"
+                        :key="getFilterSlug(filter.feature)"
+                        :filter="filter.feature"
+                        @close="removeItem(index)"
+                    />
+                    <div class="flex flex-col items-center pt-[60px] pb-10">
+                        <div class="text-sm font-medium text-slate-500 mb-5">Add/Remove Filter</div>
+                        <button
+                            class="flex items-center justify-center w-14 h-14 bg-blue-500 rounded-full transition-transform duration-300 hover:rotate-[360deg]"
+                            @click="showAddRemoveFilterModal = true"
+                        >
+                            <PlusIcon class="w-[30px] h-[30px] text-white" />
+                        </button>
+                    </div>
+                </div>
+            </Transition>
         </div>
-      </Transition>
     </div>
-  </div>
-  <Teleport to="body">
-    <Transition name="slide-from-bottom">
-      <LayoutSearchFiltersModal
-        v-if="showSearchFiltersModal"
-        @close="showSearchFiltersModal = false"
-        @show-add-filters-modal="showAddRemoveFilterModal = true"
-      />
-    </Transition>
-    <Transition name="slide-from-top">
-      <LayoutAddRemoveSearchFilter
-        v-if="showAddRemoveFilterModal && productFiltersData"
-        :filters="productFiltersData"
-        @update-visible-filters="productFiltersData = $event"
-        @close="showAddRemoveFilterModal = false"
-      />
-    </Transition>
-    <Transition name="fade">
-      <div
-        v-if="showAddRemoveFilterModal"
-        class="fixed z-[70] top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer"
-        @click="showAddRemoveFilterModal = false"
-      />
-    </Transition>
-    <Transition name="fade">
-      <div
-        v-if="showSearchFiltersModal"
-        class="absolute z-[60] top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer md:hidden"
-        @click="showSearchFiltersModal = false"
-      />
-    </Transition>
-  </Teleport>
+    <Teleport to="body">
+        <Transition name="slide-from-bottom">
+            <LayoutSearchFiltersModal
+                v-if="showSearchFiltersModal"
+                @close="showSearchFiltersModal = false"
+                @show-add-filters-modal="showAddRemoveFilterModal = true"
+            />
+        </Transition>
+        <Transition name="slide-from-top">
+            <LayoutAddRemoveSearchFilter
+                v-if="showAddRemoveFilterModal && productFiltersData"
+                :filters="productFiltersData"
+                @update-visible-filters="productFiltersData = $event"
+                @close="showAddRemoveFilterModal = false"
+            />
+        </Transition>
+        <Transition name="fade">
+            <div
+                v-if="showAddRemoveFilterModal"
+                class="fixed z-[70] top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer"
+                @click="showAddRemoveFilterModal = false"
+            />
+        </Transition>
+        <Transition name="fade">
+            <div
+                v-if="showSearchFiltersModal"
+                class="absolute z-[60] top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer md:hidden"
+                @click="showSearchFiltersModal = false"
+            />
+        </Transition>
+    </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -116,110 +100,119 @@ import FiltersIcon from '@/assets/icons/filters.svg';
 import EyeIcon from '@/assets/icons/eye.svg';
 import EyeClosedIcon from '@/assets/icons/eye-closed.svg';
 import ResetIcon from '@/assets/icons/reset.svg';
-import type { FilterOptions, ProductFilters, ProductFiltersWrapper, SearchData } from '~/model/products/response/ProductSearchResponse';
+import type {
+    FilterOptions,
+    ProductFilters,
+    ProductFiltersWrapper,
+    SearchData,
+    SearchFiltersCategories,
+} from '~/model/products/response/ProductSearchResponse';
 
 const props = defineProps<{
-  filters: ProductFilters | null;
-  atPage: number | 1;
-  perPage: number | 10;
-  keyword: string | '';
+    filters: ProductFilters | null;
+    atPage: number | 1;
+    perPage: number | 10;
+    keyword: string | '';
 }>();
-
-watch(
-  () => props.filters,
-  () => {
-    productFiltersData.value = parseFilters(props.filters);
-    filterData();
-  },
-  { deep: true },
-);
 
 const showSearchFiltersModal = ref(false);
 const showAddRemoveFilterModal = ref(false);
-const productFiltersData = ref(props.filters);
-const filteredData = ref([] as ProductFiltersWrapper[]);
 
-const showFilters = ref(true);
-const checkedOptions = ref([]);
+const parseFilters = (filters: ProductFilters | null): ProductFiltersWrapper[] | null => {
+    if (!filters) {
+        return null;
+    }
 
-const parseFilters = (filters: unknown) => {
-  const data: ProductFiltersWrapper[] = [];
-  let index = 0;
+    const data: ProductFiltersWrapper[] = [];
+    let index = 0;
 
-  if (filters) {
-    const dataArray = Object.entries(filters as unknown as ProductFilters);
+    const dataArray = Object.entries(filters);
 
     dataArray.forEach((item) => {
-      const key = item[0];
-      const value = item[1];
+        const key = item[0];
+        const value = item[1];
 
-      data.push({
-        feature: { [key]: value },
-        checked: value[0].checked || index < 11,
-      });
+        data.push({
+            feature: { [key]: value },
+            checked: value[0]?.checked || index < 11,
+        });
 
-      index++;
+        index++;
     });
-  }
 
-  return data;
+    return data;
 };
+
+const productFiltersData = ref<ProductFiltersWrapper[] | null>(props.filters ? parseFilters(props.filters) : null);
+const filteredData = ref<ProductFiltersWrapper[]>([]);
+
+const showFilters = ref(true);
+const checkedOptions = ref<SearchFiltersCategories[]>([]);
 
 productFiltersData.value = parseFilters(props.filters);
 
 const filterData = () => {
-  filteredData.value = productFiltersData.value.filter(item => item.checked);
+    filteredData.value = productFiltersData.value?.filter((item) => item.checked) ?? [];
 };
 
 const removeItem = (index: number) => {
-  filteredData.value.splice(index, 1);
+    filteredData.value.splice(index, 1);
 };
 
 const getFilterSlug = (filter: ProductFilters) => {
-  return filter[Object.keys(filter)[0]][0]?.FeatureID;
+    return filter[Object.keys(filter)[0]][0]?.FeatureID;
 };
 
 filterData();
 
+watch(
+    () => props.filters,
+    () => {
+        productFiltersData.value = parseFilters(props.filters);
+        filterData();
+    },
+    { deep: true }
+);
+
 Emitter.on('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
-  productFiltersData.value = parseFilters(value.products.filters);
-  checkedOptions.value = [];
-  filterData();
+    productFiltersData.value = parseFilters(value.products.filters);
+    checkedOptions.value = [];
+    filterData();
 });
 
-Emitter.on('add-filter-option', async (options: FilterOptions) => {
-  for (const option of options) {
-    const item = checkedOptions.value.find(
-      x => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
-    );
+Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
+    for (const option of options) {
+        const item = checkedOptions.value.find(
+            (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue
+        );
 
-    if (item) {
-      continue;
+        if (item) {
+            continue;
+        }
+
+        checkedOptions.value.push(option.rawFilter);
     }
 
-    checkedOptions.value.push(option.rawFilter);
-  }
-
-  Emitter.emit('register-filter-option', checkedOptions.value);
+    Emitter.emit('register-filter-option', checkedOptions.value);
 });
 
-Emitter.on('remove-filter-option', async (options: FilterOptions) => {
-  for (const option of options) {
-    const itemIndex = checkedOptions.value.findIndex(
-      x => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
-    );
+Emitter.on('remove-filter-option', async (options: FilterOptions[]) => {
+    for (const option of options) {
+        const itemIndex = checkedOptions.value.findIndex(
+            (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue
+        );
 
-    if (itemIndex < 0) {
-      continue;
+        if (itemIndex < 0) {
+            continue;
+        }
+
+        checkedOptions.value.splice(itemIndex, 1);
     }
 
-    checkedOptions.value.splice(itemIndex, 1);
-  }
-
-  Emitter.emit('register-filter-option', checkedOptions.value);
+    Emitter.emit('register-filter-option', checkedOptions.value);
 });
 
 watch([productFiltersData], async ([_productFiltersData]) => {
-  filterData();
+    filterData();
 });
 </script>

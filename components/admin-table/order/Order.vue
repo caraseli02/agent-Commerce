@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import moment from 'moment/moment';
 import type { Table } from '@tanstack/vue-table';
+import type { DebouncedFunc } from 'lodash-es';
 import { columns } from './columns';
 import { OrderStatus } from '~/types';
 import type { OrderInterface, OrderTableColumns } from '~/types';
 import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.enum';
 
 interface TabFilter {
-  label: string;
-  value: string;
-  key?: unknown;
-  total_items: number;
-  items?: OrderInterface[];
+    label: string;
+    value?: string;
+    key?: OrderStatus[] | string[];
+    total_items: number;
+    items?: OrderInterface[];
 }
 
 const { $api } = useNuxtApp();
@@ -24,77 +25,77 @@ const error = ref(false);
 const listItems = ref<OrderTableColumns[]>([]);
 
 const fetchAndSetOrdersList = async (page: number, perPage: number, filters = {}, sort = {}) => {
-  error.value = false;
+    error.value = false;
 
-  // FIX to use userID
-  const result = await $api.orders.fetchOrders(page, perPage, filters, sort);
+    // FIX to use userID
+    const result = await $api.orders.fetchOrders(page, perPage, filters, sort);
 
-  if (!result || result.status !== 'success') {
+    if (!result || result.status !== 'success') {
+        loading.value = false;
+        error.value = true;
+        totalItems.value = 0;
+        pageCount.value = 0;
+        listItems.value = [];
+        return;
+    }
+
+    totalItems.value = result.data.total_items;
+    pageCount.value = result.data.page_count;
+    listItems.value = result.data.items as unknown as OrderInterface[];
     loading.value = false;
-    error.value = true;
-    totalItems.value = 0;
-    pageCount.value = 0;
-    listItems.value = [];
-    return;
-  }
-
-  totalItems.value = result.data.total_items;
-  pageCount.value = result.data.page_count;
-  listItems.value = result.data.items as unknown as OrderInterface[];
-  loading.value = false;
-  activeOrderFilter.value.total_items = totalItems.value;
-  return result.data;
+    activeOrderFilter.value.total_items = totalItems.value;
+    return result.data;
 };
 
 const orderFilters = ref<TabFilter[]>([
-  {
-    label: 'All orders',
-    total_items: 0,
-  },
-  {
-    label: 'Active',
-    value: 'status',
-    key: [OrderStatus.Completed, OrderStatus.Canceled],
-    total_items: 0,
-  },
-  {
-    label: 'Last 24h',
-    value: OrderTableColumnsEnum.CREATED_AT,
-    key: [moment.utc().subtract(24, 'hours').format('DD/MM/YYYY HH:mm:ss')],
-    total_items: 0,
-  },
-  {
-    label: 'Awaiting Processing',
-    value: 'status',
-    key: [
-      OrderStatus.VerificationRequired,
-      OrderStatus.Processing,
-      OrderStatus.Pending,
-      OrderStatus.AwaitingFulfillment,
-      OrderStatus.AwaitingShipment,
-      OrderStatus.AwaitingPickup,
-      OrderStatus.AwaitingPayment,
-    ],
-    total_items: 0,
-  },
-  {
-    label: 'Fulfilled',
-    value: 'status',
-    key: [OrderStatus.Shipped, OrderStatus.PartiallyShipped],
-    total_items: 0,
-  },
-  {
-    label: 'Completed',
-    value: 'status',
-    key: [OrderStatus.Completed],
-    total_items: 0,
-  },
-  {
-    label: 'Canceled',
-    value: 'status',
-    key: [OrderStatus.Canceled],
-    total_items: 0,
-  },
+    {
+        label: 'All orders',
+        total_items: 0,
+    },
+    {
+        label: 'Active',
+        value: 'status',
+        key: [OrderStatus.Completed, OrderStatus.Canceled],
+        total_items: 0,
+    },
+    {
+        label: 'Last 24h',
+        value: OrderTableColumnsEnum.CREATED_AT,
+        key: [moment.utc().subtract(24, 'hours').format('DD/MM/YYYY HH:mm:ss')],
+        total_items: 0,
+    },
+    {
+        label: 'Awaiting Processing',
+        value: 'status',
+        key: [
+            'Verification Required',
+            OrderStatus.Processing,
+            OrderStatus.Pending,
+            'Awaiting Fulfillment',
+            'Awaiting Shipment',
+            'Awaiting Pickup',
+            'Awaiting Payment',
+        ],
+        total_items: 0,
+    },
+    {
+        label: 'Fulfilled',
+        value: 'status',
+        key: ['Shipped', 'Partially Shipped'],
+        total_items: 0,
+    },
+    {
+        label: 'Completed',
+        value: 'status',
+        key: [OrderStatus.Completed],
+        total_items: 0,
+    },
+    {
+        label: 'Canceled',
+        value: 'status',
+        key: [OrderStatus.Canceled],
+        total_items: 0,
+    },
 ] as TabFilter[]);
 
 const activeOrderFilter = ref<TabFilter>(orderFilters.value[0]);
@@ -102,149 +103,138 @@ const filterHighlightWidth = ref(0);
 const filterHightlightLeft = ref(0);
 
 const getServerFiltersByTab = (filter: TabFilter) => {
-  const filterObj = {} as Record<string, string>;
-  const filterKeys = Array.isArray(filter?.key) ? filter.key : filter?.key ? [filter.key] : [];
+    const filterObj = {} as Record<string, string>;
+    const filterKeys = Array.isArray(filter?.key) ? filter.key : filter?.key ? [filter.key] : [];
 
-  if (!filter?.value || !filterKeys.length) {
+    if (!filter?.value || !filterKeys.length) {
+        return filterObj;
+    }
+
+    if (filter.value === 'startDate' || filter.value === OrderTableColumnsEnum.CREATED_AT) {
+        const rawDate = String(filterKeys[0] || '');
+        const parsedDate = moment.utc(rawDate, moment.ISO_8601, true).isValid()
+            ? moment.utc(rawDate)
+            : moment.utc(rawDate, 'DD/MM/YYYY HH:mm:ss', true);
+
+        filterObj.startDate = parsedDate.isValid() ? parsedDate.toISOString() : rawDate;
+        return filterObj;
+    }
+
+    filterObj[filter.value] = filterKeys.map((key) => String(key)).join(',');
+
     return filterObj;
-  }
-
-  if (filter.value === 'startDate' || filter.value === OrderTableColumnsEnum.CREATED_AT) {
-    const rawDate = String(filterKeys[0] || '');
-    const parsedDate = moment.utc(rawDate, moment.ISO_8601, true).isValid()
-      ? moment.utc(rawDate)
-      : moment.utc(rawDate, 'DD/MM/YYYY HH:mm:ss', true);
-
-    filterObj.startDate = parsedDate.isValid() ? parsedDate.toISOString() : rawDate;
-    return filterObj;
-  }
-
-  filterObj[filter.value] = filterKeys.map(key => String(key)).join(',');
-
-  return filterObj;
 };
 
 const loadTabFilters = async () => {
-  loadingFilters.value = true;
-  for (const filter of orderFilters.value) {
-    const filterObj = getServerFiltersByTab(filter);
-    const data = await fetchAndSetOrdersList(pageCount.value, 10, filterObj, {});
-    filter.total_items = data?.total_items ?? 0;
-  }
-  setTimeout(() => {
-    loadingFilters.value = false;
-  }, 500);
-  fetchAndSetOrdersList(1, 10);
+    loadingFilters.value = true;
+    for (const filter of orderFilters.value) {
+        const filterObj = getServerFiltersByTab(filter);
+        const data = await fetchAndSetOrdersList(pageCount.value, 10, filterObj, {});
+        filter.total_items = data?.total_items ?? 0;
+    }
+    setTimeout(() => {
+        loadingFilters.value = false;
+    }, 500);
+    fetchAndSetOrdersList(1, 10);
 };
 
 const setActiveFilterHighlight = () => {
-  const activeFilter = activeOrderFilter.value;
-  const index = orderFilters.value.findIndex(filter => filter.label === activeFilter.label);
+    const activeFilter = activeOrderFilter.value;
+    const index = orderFilters.value.findIndex((filter) => filter.label === activeFilter.label);
 
-  if (index !== -1) {
-    const filterElement = document.querySelectorAll('.ordersFilter')[index] as HTMLElement;
+    if (index !== -1) {
+        const filterElement = document.querySelectorAll('.ordersFilter')[index] as HTMLElement;
 
-    if (filterElement) {
-      filterHighlightWidth.value = filterElement.clientWidth;
-      filterHightlightLeft.value = filterElement.offsetLeft;
+        if (filterElement) {
+            filterHighlightWidth.value = filterElement.clientWidth;
+            filterHightlightLeft.value = filterElement.offsetLeft;
+        }
     }
-  }
 };
 
 watch(
-  activeOrderFilter,
-  async () => {
-    setActiveFilterHighlight();
-
-    const filter = {} as unknown;
-    if (activeOrderFilter.value.key?.length) {
-      filter['status'] = activeOrderFilter.value.key.join(',');
-    }
-
-    // await fetchAndSetOrdersList(1, 10, filter, {});
-  },
-  { deep: true },
+    activeOrderFilter,
+    async () => {
+        setActiveFilterHighlight();
+    },
+    { deep: true }
 );
 
 const onTabChange = async (filter: TabFilter, table: Table<OrderTableColumns>) => {
-  activeOrderFilter.value = filter;
-  table.resetColumnFilters();
-  if (filter.value) {
-    table.getColumn(filter.value)?.setFilterValue(filter.key);
-  }
-  await fetchAndSetOrdersList(1, 10, getServerFiltersByTab(filter), {});
+    activeOrderFilter.value = filter;
+    table.resetColumnFilters();
+    if (filter.value) {
+        table.getColumn(filter.value)?.setFilterValue(filter.key);
+    }
+    await fetchAndSetOrdersList(1, 10, getServerFiltersByTab(filter), {});
 };
+
+const debouncedFetchAndSetOrdersList = fetchAndSetOrdersList as unknown as DebouncedFunc<
+    (page: number, perPage: number, filters?: unknown, sort?: unknown) => Promise<void>
+>;
 
 loadTabFilters();
 
 onMounted(() => {
-  setTimeout(() => {
-    setActiveFilterHighlight();
-    loading.value = false;
-  }, 1000);
+    setTimeout(() => {
+        setActiveFilterHighlight();
+        loading.value = false;
+    }, 1000);
 });
 </script>
 
 <template>
-  <div
-    class="relative h-full flex-1 flex-col space-y-8 flex w-[393px] md:w-[640px] lg:w-[896px] xl:w-[1312px] 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-white"
-  >
-    <DataTable
-      :fetch-fn="fetchAndSetOrdersList"
-      :page-count="pageCount"
-      :data="listItems"
-      :columns="columns"
-      :loading="loading"
-      :total-items="totalItems"
+    <div
+        class="relative h-full flex-1 flex-col space-y-8 flex w-[393px] md:w-[640px] lg:w-[896px] xl:w-[1312px] 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-white"
     >
-      <template #header="{ table, makeRefresh }">
-        <DataTableHeadControls
-          :error="error"
-          title="Orders List"
-          :table="table"
-          @refresh="makeRefresh()"
+        <DataTable
+            :fetch-fn="debouncedFetchAndSetOrdersList"
+            :page-count="pageCount"
+            :data="listItems"
+            :columns="columns"
+            :loading="loading"
+            :total-items="totalItems"
         >
-          <!-- <UiButton class="flex-1 md:flex-grow-0 flex gap-2" size="sm">
+            <template #header="{ table, makeRefresh }">
+                <DataTableHeadControls :error="error" title="Orders List" :table="table" @refresh="makeRefresh()">
+                    <!-- <UiButton class="flex-1 md:flex-grow-0 flex gap-2" size="sm">
                       <PlusIcon class="h-6 w-6" />
                       Create New
                     </UiButton> -->
-        </DataTableHeadControls>
-      </template>
-      <template #toolbar="{ table }">
-        <AdminTableOrderToolbar :table="table" />
-      </template>
-      <template #tabs="{ table }">
-        <div class="relative flex items-center gap-8 rounded-xl pl-2 overflow-x-auto hide-scrollbar mb-6">
-          <button
-            v-for="(filter, index) in orderFilters"
-            :key="index"
-            class="ordersFilter flex items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 transition-colors duration-300 md:py-8"
-            :class="[filter.label === activeOrderFilter.label ? 'text-blue-500' : 'hover:text-blue-500']"
-            @click="onTabChange(filter, table)"
-          >
-            <span>
-              {{ filter.label }}
-            </span>
-            <span
-              class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-300"
-              :class="filter.label === activeOrderFilter.label ? 'text-white bg-blue-500' : 'text-slate-500 bg-gray-100'"
-            >
-              {{ filter.total_items || '0' }}
-            </span>
-          </button>
-          <div
-            class="absolute bottom-0 bg-blue-500 h-1 rounded-t-lg transition-all duration-300"
-            :style="{
-              width: filterHighlightWidth + 'px',
-              left: filterHightlightLeft + 'px',
-            }"
-          />
-        </div>
-      </template>
-    </DataTable>
-    <UiSkeleton
-      v-if="loadingFilters"
-      class="w-full h-full absolute inset-0 top-24 z-20 animate-none"
-    />
-  </div>
+                </DataTableHeadControls>
+            </template>
+            <template #toolbar="{ table }">
+                <AdminTableOrderToolbar :table="table" />
+            </template>
+            <template #tabs="{ table }">
+                <div class="relative flex items-center gap-8 rounded-xl pl-2 overflow-x-auto hide-scrollbar mb-6">
+                    <button
+                        v-for="(filter, index) in orderFilters"
+                        :key="index"
+                        class="ordersFilter flex items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 transition-colors duration-300 md:py-8"
+                        :class="[filter.label === activeOrderFilter.label ? 'text-blue-500' : 'hover:text-blue-500']"
+                        @click="onTabChange(filter, table)"
+                    >
+                        <span>
+                            {{ filter.label }}
+                        </span>
+                        <span
+                            class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-300"
+                            :class="filter.label === activeOrderFilter.label ? 'text-white bg-blue-500' : 'text-slate-500 bg-gray-100'"
+                        >
+                            {{ filter.total_items || '0' }}
+                        </span>
+                    </button>
+                    <div
+                        class="absolute bottom-0 bg-blue-500 h-1 rounded-t-lg transition-all duration-300"
+                        :style="{
+                            width: filterHighlightWidth + 'px',
+                            left: filterHightlightLeft + 'px',
+                        }"
+                    />
+                </div>
+            </template>
+        </DataTable>
+        <UiSkeleton v-if="loadingFilters" class="w-full h-full absolute inset-0 top-24 z-20 animate-none" />
+    </div>
 </template>
