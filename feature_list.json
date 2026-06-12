@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "purpose": "Machine-readable feature list for the ECAS harness",
+  "policy": {
+    "wip_limit": 1,
+    "active_feature_count": 1,
+    "status_values": ["not_started", "active", "blocked", "passing"]
+  },
+  "features": [
+    {
+      "id": "H01",
+      "description": "Keep AGENTS.md compact and router-like",
+      "validation": "AGENTS.md answers the fresh-session questions and stays short",
+      "status": "passing",
+      "evidence": ["AGENTS.md"]
+    },
+    {
+      "id": "H02",
+      "description": "Persist cross-session state in PROGRESS.md",
+      "validation": "A new session can read current focus, blocked items, and verification baseline",
+      "status": "passing",
+      "evidence": ["PROGRESS.md"]
+    },
+    {
+      "id": "H03",
+      "description": "Record durable design decisions in DECISIONS.md",
+      "validation": "Important architectural choices are written down outside chat",
+      "status": "passing",
+      "evidence": ["DECISIONS.md"]
+    },
+    {
+      "id": "H04",
+      "description": "Separate initialization from implementation",
+      "validation": "Initialization steps are clearly defined before feature work begins",
+      "status": "passing",
+      "evidence": ["AGENTS.md", "CLAUDE.md"]
+    },
+    {
+      "id": "H05",
+      "description": "Keep only one task active at a time",
+      "validation": "WIP=1 is enforced in the harness instructions",
+      "status": "passing",
+      "evidence": ["AGENTS.md", "CLAUDE.md"]
+    }
+  ]
+}
