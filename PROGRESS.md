@@ -1,7 +1,7 @@
 # ECAS Progress
 
 ## Current focus
-- GitHub issue loop is wired up for autonomous pickup, claim, and TDD-driven execution.
+- GitHub issue loop is wired up with PM-selected issues and local worker execution.
 
 ## In progress
 - Issue #19 is available as the first ready-for-agent task.

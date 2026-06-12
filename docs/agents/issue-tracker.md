@@ -4,12 +4,17 @@ ECAS uses **GitHub Issues** as the task queue for autonomous work.
 
 ## Pickup rules
 
-- Only issues with the `ready-for-agent` label are eligible.
-- Before editing code, claim the issue:
-  - add the `in-progress` label
-  - assign the issue to the working account
-  - leave a short comment with the branch name
-- If an issue is already assigned or already has an active PR, skip it.
+### PM / human role
+- Choose one scoped issue from `ready-for-agent`.
+- Claim it by adding `in-progress` and assigning it.
+- Leave a short comment with the branch name.
+- Do not queue a second issue until the first one is done.
+
+### Local worker role
+- Only work issues that are already assigned and labeled `in-progress`.
+- Never choose your own issue from the queue.
+- If the assigned issue is missing or already closed, stop and report idle.
+- If an issue already has an active PR, skip it.
 - WIP is 1: never work two issues in parallel.
 
 ## Why this matters
