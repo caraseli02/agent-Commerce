@@ -1,8 +1,8 @@
 // ~/composables/usePaymentCards.ts
 import { ref, watch } from 'vue';
 import _ from 'lodash';
-import { useNuxtApp } from '#app';
 import { useUser } from './useUser';
+import { useNuxtApp } from '#app';
 import type { StripeCardInterface } from '~/types';
 
 const card = ref<StripeCardInterface | null>(null);

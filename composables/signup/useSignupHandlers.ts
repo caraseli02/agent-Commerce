@@ -314,8 +314,7 @@ export const useSignupHandlers = () => {
 
                 await logout();
                 nextStep();
-            } catch (_error) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch {
                 toast({ variant: 'destructive', title: 'Error', description: 'Registration failed' });
             } finally {
                 clearFormData();

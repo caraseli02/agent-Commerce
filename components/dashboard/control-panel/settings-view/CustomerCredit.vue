@@ -208,8 +208,7 @@ const getCustomerCredit = async () => {
         } else {
             chartSeries.value[0] = 0;
         }
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         if (!isMockMode.value) {
             setTimeout(() => {
                 loading.value = false;

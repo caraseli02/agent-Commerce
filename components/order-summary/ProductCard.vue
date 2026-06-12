@@ -69,10 +69,6 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
 import type { ProductInterface } from '@/model/products/response/ProductResponse';
-
-type SimilarProductCard = ProductInterface & {
-    priceRon?: number;
-};
 import CheckCircleHollowSmall from '@/assets/icons/check-circle-hollow-small.svg';
 import HeartOutlineBig from '@/assets/icons/heart-outline-big.svg';
 import HeartSolidBig from '@/assets/icons/heart-solid-big.svg';
@@ -80,6 +76,10 @@ import ShareOutline from '@/assets/icons/share-outline.svg';
 import BoxIcon from '@/assets/icons/box.svg';
 import InformationIcon from '~/assets/icons/information.svg';
 import CartIcon from '@/assets/icons/cart-huge.svg';
+
+type SimilarProductCard = ProductInterface & {
+    priceRon?: number;
+};
 
 export default defineComponent({
     name: 'ProductCard',

@@ -209,8 +209,7 @@ const getBillingInformation = async () => {
         }
         addresses.value = response.data.billingAddress;
         addAddressModal.value = false;
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         if (!isMockMode.value) {
             return;
         }

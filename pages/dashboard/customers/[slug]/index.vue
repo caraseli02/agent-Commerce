@@ -144,8 +144,7 @@ const getCustomerCredit = async () => {
         setTimeout(() => {
             isLoading.value = false;
         }, 500);
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         if (isMockMode.value) {
             credit.value = customerCreditHelper({
                 limit: 12000,

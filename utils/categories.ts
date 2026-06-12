@@ -3,10 +3,6 @@ import { useToast } from '@/components/ui/toast/use-toast';
 
 type IMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
 
-type ApiError = {
-    description?: string;
-};
-
 /**
  * Finds the parent ID for a given category ID in a recursive category structure.
  */

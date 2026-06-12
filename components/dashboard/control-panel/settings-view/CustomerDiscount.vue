@@ -94,8 +94,7 @@ const getCustomerSettings = async () => {
         const discount = response.status === 'success' ? response.data.value : 10;
         customerDiscount.value = discount;
         customerDiscountBuffer.value = discount;
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         loading.value = false;
         error.value = !isMockMode.value;
 
