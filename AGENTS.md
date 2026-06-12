@@ -6,7 +6,8 @@ ECAS is a Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Fireb
 - The repo is a self-contained portfolio/demo app.
 - Prefer mock mode for local work and reviews.
 - Keep changes small and shippable; this repo is a good fit for autonomous micro-tasks.
-- Durable session state lives in `PROGRESS.md`, `DECISIONS.md`, and `feature_list.json`.
+- GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues and claim one issue at a time.
+- Durable session state lives in `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md`.
 
 ## The 5 questions every fresh session must answer
 1. What is this system? → this file + `README.md`

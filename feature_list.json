@@ -41,6 +41,13 @@
       "validation": "WIP=1 is enforced in the harness instructions",
       "status": "passing",
       "evidence": ["AGENTS.md", "CLAUDE.md"]
+    },
+    {
+      "id": "H06",
+      "description": "Drive autonomous work from GitHub Issues",
+      "validation": "`ready-for-agent` issues exist, an `in-progress` claim state exists, and the loop can pick a single issue without duplication",
+      "status": "passing",
+      "evidence": ["CONTEXT.md", "docs/agents/issue-tracker.md", "docs/agents/triage-labels.md", "gh issue #19", "gh label in-progress", "cronjob:77c73e447150"]
     }
   ]
 }
