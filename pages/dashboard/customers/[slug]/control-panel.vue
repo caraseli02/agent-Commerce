@@ -144,8 +144,7 @@ const getCustomerCredit = async () => {
         error.value = false;
         emptyData.value = false;
         credit.value = customerCreditHelper(response.data);
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         isLoading.value = false;
 
         if (isMockMode.value) {
@@ -206,8 +205,7 @@ const fetchInformation = async () => {
         }
         accountType.value = response.data.accountType ?? AccountType.Personal;
         customerName.value = `${response.data.contactDetails?.firstName ?? ''} ${response.data.contactDetails?.lastName ?? ''}`.trim();
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         if (isMockMode.value) {
             accountType.value = AccountType.Personal;
             customerName.value = 'Demo Customer';

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useNuxtApp, useRoute } from '#app';
 import { ArrowLeft, LayoutDashboard, PackageOpenIcon, ShoppingCart, TruckIcon, Undo2Icon } from 'lucide-vue-next';
 
 import moment from 'moment';
 import { storeToRefs } from 'pinia';
+import { useNuxtApp, useRoute } from '#app';
 import { OrderType } from '~/types';
 import type {
     OrderInterface,
@@ -39,6 +39,7 @@ const customerDetails = ref({
 const date = ref<string>('' as string);
 const orderPaySum = ref<PaymentSummaryInterface>({} as PaymentSummaryInterface);
 const paymentMethod = ref<PaymentInfo>();
+const paymentMethodRecord = computed(() => paymentMethod.value as Record<string, unknown> | undefined);
 const addresses = ref<{
     shippingAddress: {
         name1: string;
@@ -246,7 +247,7 @@ onMounted(() => {
                 :date="date"
                 :shipping-method="shippingMethod?.service?.courierName"
                 :pickup-date="stockOrder?.shippingDetails?.statusTracking?.estimatedPickUpDate"
-                :payment-method="paymentMethod as Record<string, unknown> | undefined"
+                :payment-method="paymentMethodRecord"
                 :on-download-document="downloadDocument"
             />
             <OrderConfirmDetails

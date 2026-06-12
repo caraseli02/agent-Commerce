@@ -42,12 +42,12 @@ import {
     getInputStringValue,
     toInputObject,
 } from '~~/types';
+import { useToast } from '@/components/ui/toast/use-toast';
+import { useSignupState } from '@/composables/signup/useSignupState';
 
 interface ValidateAddressResult {
     data: { valid: boolean };
 }
-import { useToast } from '@/components/ui/toast/use-toast';
-import { useSignupState } from '@/composables/signup/useSignupState';
 
 const { $api } = useNuxtApp();
 
@@ -422,8 +422,7 @@ const handleSubmit = async () => {
 
             await logout();
             // TODO: Notification banner
-        } catch (_error) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch {
             toast({
                 variant: 'destructive',
                 title: 'Error',

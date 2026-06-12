@@ -128,8 +128,8 @@
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance.js';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useRuntimeConfig } from '#app';
 import { storeToRefs } from 'pinia';
+import { useRuntimeConfig } from '#app';
 import { OrderType, type CheckoutOrderDraft } from '~/types';
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
 import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';

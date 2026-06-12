@@ -64,10 +64,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
-import { useHead, useNuxtApp, useRouter, useRuntimeConfig } from '#app';
 import { InfoIcon, LoaderIcon } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
+import { useHead, useNuxtApp, useRouter, useRuntimeConfig } from '#app';
 import OrderStockType from '~/components/order-summary/OrderStockType.vue';
 
 // Types and Interfaces
@@ -75,7 +75,6 @@ import type { CartProductsInterface } from '~/model/cart/response/cart.interface
 import { OrderType, PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails } from '~/types';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import type { UserInterface } from '~/types/auth/user-interface';
-import type { BackorderShippingTypesInterface, SmallOrderChargeInterface } from '~/types/general-settings/general-settings';
 
 // Composables
 import { useUser } from '~/composables/useUser';
@@ -89,7 +88,7 @@ import { useCheckoutStore } from '~/store/checkout';
 
 // Utilities
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import type { ShippingOrderPricingOption, ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
+import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 
 // Setup and Initialization
 const router = useRouter();
@@ -127,7 +126,7 @@ const orderItems = computed(() => {
 });
 
 // Payment Processing
-const { card, cards, isNewCardSelected, fetchCards } = usePaymentCards();
+const { card, cards, fetchCards } = usePaymentCards();
 const paymentType = ref({ type: 0, selected: false });
 
 // Order Processing
@@ -296,8 +295,7 @@ watch(checkout, async (newVal) => {
                 }
             );
             stopButtonTrigger.value = false;
-        } catch (_error) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch {
             isLoadingCheckout.value = false;
         }
         isLoadingCheckout.value = false;

@@ -209,8 +209,7 @@ const getShippingInformation = async () => {
         }
         addresses.value = response.data.shippingAddress;
         addAddressModal.value = false;
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         if (!isMockMode.value) {
             return;
         }

@@ -15,7 +15,6 @@ export interface AccountTypeInfo {
     badge: { bg: string; text: string };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getAccountTypeById = (enumValue: number): string | null => {
     const keys = (Object.keys(AccountType) as Array<keyof typeof AccountType>).filter((key) => AccountType[key] === enumValue);
     return keys.length > 0 ? keys[0] : null;

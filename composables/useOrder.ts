@@ -1,11 +1,11 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useNuxtApp, useRuntimeConfig } from '#app';
 import { storeToRefs } from 'pinia';
 import { useUser } from './useUser';
+import { useNuxtApp, useRuntimeConfig } from '#app';
 import { useCartStore } from '~/store/cartStore';
-import { AccountRole, AccountType, OrderType, PaymentTypeEnum } from '~/types';
-import type { OrderRequestInterface, PaymentDetails } from '~/types';
+import { AccountRole, AccountType, PaymentTypeEnum } from '~/types';
+import type { OrderRequestInterface, PaymentDetails, OrderType } from '~/types';
 import type { PlaceOrderInterface } from '~/model/order/response/PlaceOrder';
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
 import type { BackorderShippingTypesInterface, SmallOrderChargeInterface } from '~/types/general-settings/general-settings';
@@ -145,7 +145,7 @@ export function useOrder() {
                 const orderId = response.data.orderId;
                 await handleOrderResponse(response, orderId, paymentDetails.type);
             }
-        } catch (_error) {
+        } catch {
             await router.push({ path: '/checkout/fail' });
         } finally {
             await cartStore.updateAndReturnCart();

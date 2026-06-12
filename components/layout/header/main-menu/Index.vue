@@ -104,6 +104,7 @@
 <script setup lang="ts">
 import CardPlaceholderSmall from 'assets/icons/card-placeholder-small.svg';
 import { useRouter } from 'vue-router';
+import type { Component } from 'vue';
 import SemiconductorsIcon from '@/assets/icons/header/semiconductors.svg';
 import PassiveIcon from '@/assets/icons/header/passive.svg';
 import ElectromechanicsIcon from '@/assets/icons/header/electromechanics.svg';
@@ -116,7 +117,6 @@ import CaretLeft from '@/assets/icons/caret-left.svg';
 import { showNavModal } from '~~/config/modal/nav';
 import type { NavCategoryView, TaxonomyInterface } from '~/types/dashboard/categories';
 import { mapLabelsToIds } from '~/helpers/categories.helper';
-import type { Component } from 'vue';
 
 const router = useRouter();
 

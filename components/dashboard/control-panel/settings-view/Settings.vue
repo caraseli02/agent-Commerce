@@ -206,8 +206,7 @@ const getCustomerSettings = async () => {
             alert.email = alertSettings[alert.key]?.email || false;
             alert.app = alertSettings[alert.key]?.app || false;
         });
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         if (!isMockMode.value) {
             return;
         }
@@ -241,8 +240,7 @@ const markSettingAsRead = async (item: { key: string; email?: boolean; app?: boo
     }
     try {
         await $api.controlPanel.markSettingsAsRead(item, type, props.id);
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         if (!isMockMode.value) {
             return;
         }
@@ -260,8 +258,7 @@ const resetPassword = async (email: string) => {
         if (response.status !== 'success') {
             return;
         }
-    } catch (_err) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch {
         if (!isMockMode.value) {
             return;
         }

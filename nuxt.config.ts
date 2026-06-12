@@ -103,6 +103,10 @@ export default defineNuxtConfig({
         '/checkout/**': { appMiddleware: ['auth'] },
         '/product/categories': { appMiddleware: ['auth'] },
     },
+    devServer: {
+        host: '0.0.0.0',
+        port: 3000,
+    },
 
     experimental: {
         appManifest: false,
@@ -154,10 +158,6 @@ export default defineNuxtConfig({
             ['kebabCase', 'stringToKebab'], // => stringToKebab
             ['isDate', 'isLodashDate'], // => _isLodashDate
         ],
-    },
-    devServer: {
-        host: '0.0.0.0',
-        port: 3000,
     },
 
     shadcn: {
