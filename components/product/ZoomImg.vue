@@ -3,28 +3,23 @@ import { onMounted } from 'vue';
 import { useZoomImageWheel } from '@zoom-image/vue';
 
 defineProps<{
-  url: string;
+    url: string;
 }>();
 
 const imageWheelContainerRef = ref<HTMLDivElement>();
 const { createZoomImage } = useZoomImageWheel();
 
 onMounted(() => {
-  createZoomImage(imageWheelContainerRef.value);
+    if (imageWheelContainerRef.value) {
+        createZoomImage(imageWheelContainerRef.value);
+    }
 });
 </script>
 
 <template>
-  <div
-    ref="imageWheelContainerRef"
-    class="imageContainer"
-  >
-    <img
-      class="image"
-      alt="Large Pic"
-      :src="url"
-    >
-  </div>
+    <div ref="imageWheelContainerRef" class="imageContainer">
+        <img class="image" alt="Large Pic" :src="url" />
+    </div>
 </template>
 
 <style>

@@ -1,131 +1,122 @@
 <template>
-  <div
-    class="items-stretch shadow-xs bg-white flex w-full xl:max-w-[514px] flex-col rounded-xl h-[233px] md:h-[192px] xl:h-[240px] pb-1.5 relative"
-  >
-    <Swiper
-      v-if="slides && slides.length > 0"
-      :modules="[A11y, Pagination]"
-      :slides-per-view="1"
-      :space-between="15"
-      :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
-      class="homeFeaturedProducts--swiper w-[100%] h-[100%] block"
+    <div
+        class="items-stretch shadow-xs bg-white flex w-full xl:max-w-[514px] flex-col rounded-xl h-[233px] md:h-[192px] xl:h-[240px] pb-1.5 relative"
     >
-      <SwiperSlide
-        v-for="(item, index) in slides"
-        :key="index"
-      >
-        <section
-          class="items-stretch bg-gray-700 w-full flex flex-col justify-center px-8 py-2 rounded-t-xl max-md:max-w-full max-md:px-5"
+        <Swiper
+            v-if="slides && slides.length > 0"
+            :modules="[A11y, Pagination]"
+            :slides-per-view="1"
+            :space-between="15"
+            :grab-cursor="true"
+            :pagination="{
+                bulletElement: 'button',
+                clickable: true,
+            }"
+            class="homeFeaturedProducts--swiper w-[100%] h-[100%] block"
         >
-          <div class="justify-between items-stretch flex gap-5 max-md:max-w-full max-md:flex-wrap">
-            <div class="text-white text-sm leading-6 grow shrink basis-auto">
-              {{ item.title }}
-            </div>
-            <div
-              class="text-white text-sm leading-[22px] whitespace-nowrap justify-center items-stretch border px-2 rounded-[100px] border-solid border-white"
-            >
-              {{ item.discount }}
-            </div>
-          </div>
-        </section>
-        <div
-          class="justify-between items-stretch self-stretch xl:max-w-[530px] flex flex-col md:flex-row xl:flex-col pt-3 px-8 max-md:px-5 gap-3"
-        >
-          <div class="max-md:max-w-full">
-            <div class="gap-5 flex max-md:items-stretch max-md:gap-0 h-[100px]">
-              <div class="flex flex-col items-stretch w-[22%] max-md:w-full max-md:ml-0">
-                <SvgoCardPlaceholderSmall class="w-[100px] h-[100px]" />
-              </div>
-              <div class="flex flex-col items-stretch w-[78%] ml-5 max-md:w-full max-md:ml-0">
-                <div
-                  class="items-stretch flex flex-col text-xs text-zinc-800 font-medium mt-2.5 min-w-[200px] md:min-w-[352px] lg:min-w-[592px] xl:min-w-0"
+            <SwiperSlide v-for="(item, index) in slides" :key="index">
+                <section
+                    class="items-stretch bg-gray-700 w-full flex flex-col justify-center px-8 py-2 rounded-t-xl max-md:max-w-full max-md:px-5"
                 >
-                  <div class="text-base leading-6">
-                    {{ item.productCode }}
-                  </div>
-                  <div class="leading-[20px] mt-1">
-                    {{ item.description }}
-                  </div>
-                  <div class="overflow-hidden text-slate-500 text-ellipsis leading-[16px] mt-1">
-                    {{ item.details }}
-                  </div>
+                    <div class="justify-between items-stretch flex gap-5 max-md:max-w-full max-md:flex-wrap">
+                        <div class="text-white text-sm leading-6 grow shrink basis-auto">
+                            {{ item.title }}
+                        </div>
+                        <div
+                            class="text-white text-sm leading-[22px] whitespace-nowrap justify-center items-stretch border px-2 rounded-[100px] border-solid border-white"
+                        >
+                            {{ item.discount }}
+                        </div>
+                    </div>
+                </section>
+                <div
+                    class="justify-between items-stretch self-stretch xl:max-w-[530px] flex flex-col md:flex-row xl:flex-col pt-3 px-8 max-md:px-5 gap-3"
+                >
+                    <div class="max-md:max-w-full">
+                        <div class="gap-5 flex max-md:items-stretch max-md:gap-0 h-[100px]">
+                            <div class="flex flex-col items-stretch w-[22%] max-md:w-full max-md:ml-0">
+                                <SvgoCardPlaceholderSmall class="w-[100px] h-[100px]" />
+                            </div>
+                            <div class="flex flex-col items-stretch w-[78%] ml-5 max-md:w-full max-md:ml-0">
+                                <div
+                                    class="items-stretch flex flex-col text-xs text-zinc-800 font-medium mt-2.5 min-w-[200px] md:min-w-[352px] lg:min-w-[592px] xl:min-w-0"
+                                >
+                                    <div class="text-base leading-6">
+                                        {{ item.productCode }}
+                                    </div>
+                                    <div class="leading-[20px] mt-1">
+                                        {{ item.description }}
+                                    </div>
+                                    <div class="overflow-hidden text-slate-500 text-ellipsis leading-[16px] mt-1">
+                                        {{ item.details }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="justify-between items-end flex flex-row md:flex-col xl:flex-row w-full gap-5 max-md:max-w-full max-md:flex-wrap"
+                    >
+                        <section class="justify-center items-stretch flex flex-col whitespace-nowrap md:self-end">
+                            <div class="text-zinc-800 text-sm leading-4 line-through">
+                                {{ item.originalPrice }}
+                            </div>
+                            <div class="items-stretch flex justify-between gap-1 text-red-500 mt-1">
+                                <div class="text-base font-bold leading-5 grow">
+                                    {{ item.salePrice }}
+                                </div>
+                                <div class="text-sm leading-5 grow">
+                                    {{ `(${item.quantity}+)` }}
+                                </div>
+                            </div>
+                        </section>
+                        <button
+                            class="justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90"
+                            @click="addToCart(item)"
+                        >
+                            <svg
+                                class="aspect-square object-contain object-center w-6 overflow-hidden shrink-0 max-w-full"
+                                width="25"
+                                height="24"
+                                viewBox="0 0 25 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M11.5 20.5C11.5 21.3284 10.8284 22 10 22C9.17157 22 8.5 21.3284 8.5 20.5C8.5 19.6716 9.17157 19 10 19C10.8284 19 11.5 19.6716 11.5 20.5Z"
+                                    stroke="white"
+                                    stroke-width="1.5"
+                                />
+                                <path
+                                    d="M20.5 20.5C20.5 21.3284 19.8284 22 19 22C18.1716 22 17.5 21.3284 17.5 20.5C17.5 19.6716 18.1716 19 19 19C19.8284 19 20.5 19.6716 20.5 20.5Z"
+                                    stroke="white"
+                                    stroke-width="1.5"
+                                />
+                                <path
+                                    d="M6.5 4H18.5C20.7091 4 22.5 5.79086 22.5 8V13C22.5 15.2091 20.7091 17 18.5 17H10.5C8.29086 17 6.5 15.2091 6.5 13V4ZM6.5 4C6.5 2.89543 5.60457 2 4.5 2H2.5M6.5 8H22"
+                                    stroke="white"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                            <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">Add to cart</div>
+                        </button>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div
-            class="justify-between items-end flex flex-row md:flex-col xl:flex-row w-full gap-5 max-md:max-w-full max-md:flex-wrap"
-          >
-            <section class="justify-center items-stretch flex flex-col whitespace-nowrap md:self-end">
-              <div class="text-zinc-800 text-sm leading-4 line-through">
-                {{ item.originalPrice }}
-              </div>
-              <div class="items-stretch flex justify-between gap-1 text-red-500 mt-1">
-                <div class="text-base font-bold leading-5 grow">
-                  {{ item.salePrice }}
-                </div>
-                <div class="text-sm leading-5 grow">
-                  {{ `(${item.quantity}+)` }}
-                </div>
-              </div>
-            </section>
-            <button
-              class="justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90"
-              @click="addToCart(item)"
-            >
-              <svg
-                class="aspect-square object-contain object-center w-6 overflow-hidden shrink-0 max-w-full"
-                width="25"
-                height="24"
-                viewBox="0 0 25 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M11.5 20.5C11.5 21.3284 10.8284 22 10 22C9.17157 22 8.5 21.3284 8.5 20.5C8.5 19.6716 9.17157 19 10 19C10.8284 19 11.5 19.6716 11.5 20.5Z"
-                  stroke="white"
-                  stroke-width="1.5"
-                />
-                <path
-                  d="M20.5 20.5C20.5 21.3284 19.8284 22 19 22C18.1716 22 17.5 21.3284 17.5 20.5C17.5 19.6716 18.1716 19 19 19C19.8284 19 20.5 19.6716 20.5 20.5Z"
-                  stroke="white"
-                  stroke-width="1.5"
-                />
-                <path
-                  d="M6.5 4H18.5C20.7091 4 22.5 5.79086 22.5 8V13C22.5 15.2091 20.7091 17 18.5 17H10.5C8.29086 17 6.5 15.2091 6.5 13V4ZM6.5 4C6.5 2.89543 5.60457 2 4.5 2H2.5M6.5 8H22"
-                  stroke="white"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">
-                Add to cart
-              </div>
-            </button>
-          </div>
-        </div>
-      </SwiperSlide>
-    </Swiper>
-    <section
-      v-else
-      class="absolute inset-0 flex flex-col items-center justify-center text-center"
-    >
-      <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-      <div class="w-full">
-        No results.
-      </div>
-    </section>
-  </div>
+            </SwiperSlide>
+        </Swiper>
+        <section v-else class="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
+            <div class="w-full">No results.</div>
+        </section>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper';
 import type { ProductBannerInterface } from '~/model/dashboard/customer-information/customer-information';
+import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { addToCartHelper } from '~/helpers/prices.helper';
 import { useCartStore } from '~/store/cartStore';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
@@ -133,17 +124,17 @@ import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 const cartStore = useCartStore();
 
 defineProps<{
-  slides: Array<ProductBannerInterface>;
+    slides: Array<ProductBannerInterface>;
 }>();
 
 const addToCart = async (product: ProductBannerInterface) => {
-  const stock = product.quantity;
+    const stock = product.quantity;
 
-  const response = (await addToCartHelper(product as unknown, stock)) as unknown;
+    const response = (await addToCartHelper(product as unknown as ProductInterface, stock)) as { status: string };
 
-  if (response.status === 'success') {
-    await cartStore.updateAndReturnCart();
-  }
+    if (response.status === 'success') {
+        await cartStore.updateAndReturnCart();
+    }
 };
 </script>
 

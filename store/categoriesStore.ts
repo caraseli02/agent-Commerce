@@ -1,19 +1,20 @@
 import { defineStore } from 'pinia';
+import type { CategoriesMap } from '~/types/dashboard/categories';
 
 export const useCategoriesStore = defineStore({
-  id: 'categories-store',
-  state: () => {
-    return {
-      categoriesMap: null as unknown | null,
-    };
-  },
-  actions: {
-    updateCategories(object: unknown) {
-      this.categoriesMap = object;
+    id: 'categories-store',
+    state: () => {
+        return {
+            categoriesMap: null as CategoriesMap | null,
+        };
     },
-  },
-  getters: {},
-  persist: {
-    storage: piniaPluginPersistedstate.localStorage(),
-  },
+    actions: {
+        updateCategories(object: CategoriesMap) {
+            this.categoriesMap = object;
+        },
+    },
+    getters: {},
+    persist: {
+        storage: piniaPluginPersistedstate.localStorage(),
+    },
 });

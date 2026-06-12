@@ -1,18 +1,17 @@
 <template>
-  <div class="min-w-[171px]">
-    {{ formattedDate }}
-  </div>
+    <div class="min-w-[171px]">
+        {{ formattedDate }}
+    </div>
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps } from 'vue';
 import moment from 'moment';
 
 const props = defineProps<{
-  inputDateString: string;
+    inputDateString: string;
 }>();
 
 const formattedDate = computed(() => {
-  return moment(props.inputDateString).format('DD MMMM YYYY HH:mm');
+    return moment(props.inputDateString).format('DD MMMM YYYY HH:mm');
 });
 </script>
