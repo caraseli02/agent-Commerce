@@ -1,4 +1,4 @@
-import { $fetch, type FetchOptions } from 'ohmyfetch';
+import type { FetchOptions } from 'ofetch';
 import { defineNuxtPlugin } from '#app';
 import ProductService from '~/services/products.service';
 import AuthService from '~/services/auth.service';
@@ -40,6 +40,7 @@ export interface IApiInstance {
 declare module '#app' {
   interface NuxtApp {
     $api: IApiInstance;
+    $apiClient: typeof apiFetcher;
   }
 }
 
@@ -65,6 +66,26 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const fetchOptions: FetchOptions = {
     baseURL,
+    onRequest({ options }) {
+      const token = useCookie('token').value;
+      if (!token) return;
+
+      const headers = (options.headers ||= {});
+      if (headers instanceof Headers) {
+        headers.set('Authorization', `Bearer ${token}`);
+        return;
+      }
+
+      (headers as Record<string, string>).Authorization = `Bearer ${token}`;
+    },
+    async onResponseError({ response }) {
+      if (response.status !== 401) return;
+
+      await nuxtApp.runWithContext(async () => {
+        await useAuthStore().signOut();
+        await navigateTo('/?signin=true');
+      });
+    },
   };
 
   /** create a new instance of $fetcher with custom option */
@@ -93,6 +114,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   return {
     provide: {
       api: modules,
+      apiClient: apiFetcher,
     },
   };
 });
