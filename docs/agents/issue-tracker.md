@@ -1,29 +1,40 @@
-# Issue tracker
+# Issue tracker: GitHub
 
-ECAS uses **GitHub Issues** as the task queue for autonomous work.
+Issues and PRDs for this repo live as GitHub issues in `caraseli02/Ecas`. Use the `gh` CLI for all operations.
+
+## Conventions
+
+- **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
+- **Read an issue**: `gh issue view <number> --comments`
+- **List issues**: `gh issue list --state open --json number,title,body,labels,comments` with appropriate `--label` and `--state` filters.
+- **Comment on an issue**: `gh issue comment <number> --body "..."`
+- **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
+- **Close**: `gh issue close <number> --comment "..."`
+
+`gh` infers the repo from `git remote` when run inside this clone.
 
 ## Pickup rules
 
-### PM / human role
-- Choose one scoped issue from `ready-for-agent`.
-- Claim it by adding `in-progress` and assigning it.
-- Leave a short comment with the branch name.
-- Do not queue a second issue until the first one is done.
-
-### Local worker role
-- Only work issues that are already assigned and labeled `in-progress`.
-- Never choose your own issue from the queue.
-- If the assigned issue is missing or already closed, stop and report idle.
-- If an issue already has an active PR, skip it.
+- Only issues with the `ready-for-agent` label are eligible.
+- Before editing code, claim the issue:
+  - add the `in-progress` label
+  - assign the issue to the working account
+  - leave a short comment with the branch name
+- If an issue is already assigned or already has an active PR, skip it.
 - WIP is 1: never work two issues in parallel.
 
-## Why this matters
+## When a skill says "publish to the issue tracker"
 
-This repo uses issues as the shared source of truth so the agent does not duplicate work or drift across tasks.
+Create a GitHub issue.
+
+## When a skill says "fetch the relevant ticket"
+
+Run `gh issue view <number> --comments`.
 
 ## Suggested issue body
 
 Each issue should include:
+
 - problem statement
 - acceptance criteria
 - verification command

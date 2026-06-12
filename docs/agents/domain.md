@@ -1,18 +1,39 @@
 # Domain docs
 
+How the engineering skills should consume this repo's domain documentation when exploring the codebase.
+
 ECAS is a **single-context** repo.
 
-## Consumer rules
+## Before exploring, read these
 
-- Read `CONTEXT.md` first for the project summary and autonomous-loop rules.
-- Read `AGENTS.md` for the harness/router.
-- Read `PROGRESS.md` for current focus.
-- Read `DECISIONS.md` for durable choices.
-- Read `feature_list.json` for machine-readable work state.
+- **`CONTEXT.md`** at the repo root
+- **`docs/adr/`** — read ADRs that touch the area you're about to work in
+- **`AGENTS.md`** — harness/router for autonomous loops
+- **`PROGRESS.md`** — current focus and verification baseline
+- **`DECISIONS.md`** — durable cross-session choices
+- **`feature_list.json`** — machine-readable work state
 
-## Layout
+If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The producer skill (`/grill-with-docs`) creates them lazily when terms or decisions actually get resolved.
 
-- `CONTEXT.md` — top-level domain context
-- `docs/adr/` — architectural decisions if/when they are needed
+## File structure
 
-If a future subsystem needs its own glossary or rules, add a dedicated context file and link it here.
+```
+/
+├── CONTEXT.md
+├── docs/adr/                          ← architectural decisions (add as needed)
+├── DECISIONS.md
+├── PROGRESS.md
+└── feature_list.json
+```
+
+## Use the glossary's vocabulary
+
+When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
+
+If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/grill-with-docs`).
+
+## Flag ADR conflicts
+
+If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
+
+> _Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…_

@@ -1,10 +1,13 @@
 # ECAS Progress
 
 ## Current focus
-- GitHub issue loop is wired up with PM-selected issues and local worker execution.
+- GitHub issue loop is wired up for autonomous pickup, claim, and TDD-driven execution.
 
 ## In progress
-- Issue #19 is available as the first ready-for-agent task.
+- None.
+
+## Recently completed
+- Issue #19 — gallery layout regression check (`tests/gallery-layout.spec.ts`).
 
 ## Blocked
 - None.

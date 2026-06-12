@@ -45,16 +45,9 @@
     {
       "id": "H06",
       "description": "Drive autonomous work from GitHub Issues",
-      "validation": "`ready-for-agent` issues exist, an `in-progress` claim state exists, and the PM/worker split prevents duplicate work",
+      "validation": "`ready-for-agent` issues exist, an `in-progress` claim state exists, and the loop can pick a single issue without duplication",
       "status": "passing",
-      "evidence": ["CONTEXT.md", "docs/agents/issue-tracker.md", "docs/agents/triage-labels.md", "cronjob:77c73e447150"]
-    },
-    {
-      "id": "H07",
-      "description": "Separate PM control from local worker execution",
-      "validation": "Local workers only execute assigned in-progress issues while the PM selects and claims queue items",
-      "status": "passing",
-      "evidence": ["AGENTS.md", "CLAUDE.md", "CONTEXT.md", "docs/agents/issue-tracker.md"]
+      "evidence": ["CONTEXT.md", "docs/agents/issue-tracker.md", "docs/agents/triage-labels.md", "gh issue #19", "gh label in-progress", "cronjob:77c73e447150"]
     }
   ]
 }
