@@ -7,6 +7,7 @@
 - None.
 
 ## Recently completed
+- Issue #25 — ADR 0001 global 401 session redirect (`docs/adr/0001-global-401-session-redirect.md`).
 - Issue #19 — gallery layout regression check (`tests/gallery-layout.spec.ts`).
 
 ## Blocked
