@@ -1,4 +1,3 @@
-import type { FetchOptions } from 'ofetch';
 import HttpFactory from '@/composables/HttpFactory';
 import type { SearchSimilarProductRequest } from '~/model/products/request/SearchSimilarProductRequest';
 import type { NewProductResponse } from '~/model/products/response/NewProductResponse';
@@ -23,8 +22,7 @@ class ProductService extends HttpFactory {
                 ? {
                       headers: { Authorization: `Bearer ${token}` },
                   }
-                : {},
-            { handle401: false }
+                : {}
         );
     }
 
@@ -39,8 +37,7 @@ class ProductService extends HttpFactory {
                 ? {
                       headers: { Authorization: `Bearer ${token}` },
                   }
-                : {},
-            { handle401: false }
+                : {}
         );
     }
 
@@ -55,8 +52,7 @@ class ProductService extends HttpFactory {
                 ? {
                       headers: { Authorization: `Bearer ${token}` },
                   }
-                : {},
-            { handle401: false }
+                : {}
         );
     }
 
@@ -99,8 +95,7 @@ class ProductService extends HttpFactory {
         }
 
         const token = this.authStore.getToken();
-        const fetchExtras: FetchOptions = { params: filters };
-
+        const fetchExtras: Record<string, unknown> | undefined = { params: filters };
         if (token) {
             fetchExtras.headers = { Authorization: `Bearer ${token}` };
         }
@@ -111,8 +106,7 @@ class ProductService extends HttpFactory {
             {
                 filters: featuresFilters,
             },
-            fetchExtras,
-            { handle401: false }
+            fetchExtras
         );
     }
 
@@ -127,8 +121,7 @@ class ProductService extends HttpFactory {
                 ? {
                       headers: { Authorization: `Bearer ${token}` },
                   }
-                : {},
-            { handle401: false }
+                : {}
         );
     }
 }
