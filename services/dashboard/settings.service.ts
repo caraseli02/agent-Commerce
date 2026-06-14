@@ -14,33 +14,14 @@ class SettingsClientService extends HttpFactory {
     private authStore = useAuthStore();
 
     async updateShipping(address: ShippingAddressInterface[]) {
-        const token = this.authStore.getToken();
-
-        return await this.call<AccountAdminSettings>(
-            'PATCH',
-            `${this.USER_PATH}/shipping-address`,
-            { address: address },
-            {
-                headers: { Authorization: `Bearer ${token}` },
-            }
-        );
+        return await this.call<AccountAdminSettings>('PATCH', `${this.USER_PATH}/shipping-address`, { address: address });
     }
 
     async updateBilling(address: BillingAddressInterface[]) {
-        const token = this.authStore.getToken();
-
-        return await this.call<AccountAdminSettings>(
-            'PATCH',
-            `${this.USER_PATH}/billing-address`,
-            { address: address },
-            {
-                headers: { Authorization: `Bearer ${token}` },
-            }
-        );
+        return await this.call<AccountAdminSettings>('PATCH', `${this.USER_PATH}/billing-address`, { address: address });
     }
 
     async updateDetails(payload: object) {
-        const token = this.authStore.getToken();
         const userId = this.authStore.getUserDetails.firebaseId;
         const accountType = this.authStore.getUserDetails.accountType;
 
@@ -49,27 +30,16 @@ class SettingsClientService extends HttpFactory {
             `${this.DASHBOARD_PATH}${this.CONTROL_PANEL_PATH}/${userId}/${
                 accountType === AccountType.Personal ? 'personal' : 'organization'
             }`,
-            payload,
-            {
-                headers: { Authorization: `Bearer ${token}` },
-            }
+            payload
         );
     }
 
     async updateCardAsDefault(cardId: string) {
-        const token = this.authStore.getToken();
-
-        return await this.call<unknown>('POST', `${this.USER_PATH}/card/default/${cardId}`, null, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        return await this.call<unknown>('POST', `${this.USER_PATH}/card/default/${cardId}`, null);
     }
 
     async deleteCard(cardId: string) {
-        const token = this.authStore.getToken();
-
-        return await this.call<{ status: string; data: unknown }>('DELETE', `${this.USER_PATH}/card/${cardId}`, null, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        return await this.call<{ status: string; data: unknown }>('DELETE', `${this.USER_PATH}/card/${cardId}`, null);
     }
 }
 

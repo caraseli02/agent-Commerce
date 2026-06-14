@@ -9,20 +9,16 @@ class SmartPricingService extends HttpFactory {
     private authStore = useAuthStore();
 
     async fetchPriceSettings() {
-        const token = this.authStore.getToken();
         const user = this.authStore.userDetails;
 
         if (user && user.role === AccountRole.Client) {
             return null;
         }
 
-        return await this.call<PriceSettingsResponseInterface>('GET', `${this.MAIN}/price-settings`, null, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        return await this.call<PriceSettingsResponseInterface>('GET', `${this.MAIN}/price-settings`, null);
     }
 
     async setNewPriceRange(range: { min: number | null; max: number | null; label: string | null }) {
-        const token = this.authStore.getToken();
         const data = {
             type: PriceSettingsTypeEnum.Range,
             range: {
@@ -31,53 +27,39 @@ class SmartPricingService extends HttpFactory {
             },
             label: range.label,
         };
-        return await this.call<{ status: string; data: { id: string } }>('POST', `${this.MAIN}/price-setting`, data, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        return await this.call<{ status: string; data: { id: string } }>('POST', `${this.MAIN}/price-setting`, data);
     }
 
     async setNewQuantityRange(quantity: { values: number[]; label: string | null }) {
-        const token = this.authStore.getToken();
         const data = {
             type: PriceSettingsTypeEnum.Quantity,
             values: quantity.values,
             label: quantity.label,
         };
-        return await this.call<{ status: string; data: { id: string } }>('POST', `${this.MAIN}/price-setting`, data, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        return await this.call<{ status: string; data: { id: string } }>('POST', `${this.MAIN}/price-setting`, data);
     }
 
     async setNewMarginRange(margin: { values: number[]; label: string | null }) {
-        const token = this.authStore.getToken();
         const data = {
             type: PriceSettingsTypeEnum.Margins,
             values: margin.values,
             label: margin.label,
         };
-        return await this.call<{ status: string; data: { id: string } }>('POST', `${this.MAIN}/price-setting`, data, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        return await this.call<{ status: string; data: { id: string } }>('POST', `${this.MAIN}/price-setting`, data);
     }
 
     async deleteSmartPricingEntity(type: PriceSettingsTypeEnum, id: string) {
-        const token = this.authStore.getToken();
         const data = {
             type: type,
         };
-        return await this.call<{ status: string; data: string }>('DELETE', `${this.MAIN}/price-setting/${id}`, data, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        return await this.call<{ status: string; data: string }>('DELETE', `${this.MAIN}/price-setting/${id}`, data);
     }
 
     async editPriceRange(data: object, id: string) {
-        const token = this.authStore.getToken();
         return await this.call<{
             status: string;
             data: { id: string };
-        }>('PATCH', `${this.MAIN}/price-setting/${id}`, data, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        }>('PATCH', `${this.MAIN}/price-setting/${id}`, data);
     }
 }
 
