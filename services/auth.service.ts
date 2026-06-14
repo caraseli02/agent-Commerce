@@ -7,12 +7,10 @@ import type {
   FirebasePersonalAccount as SignupPersonalPayload,
   UserDetailsResponse,
 } from '~~/types';
-import { useAuthStore } from '~/store/authStore';
 import useFirebaseAuth from '~/composables/useFirebaseAuth';
 
 class AuthService extends HttpFactory {
   private RESOURCE = '/auth';
-  private authStore = useAuthStore();
 
   async login(payload: LoginRequest): Promise<ProductResponse | FirebaseError | unknown> {
     try {
@@ -50,12 +48,7 @@ class AuthService extends HttpFactory {
   }
 
   async fetchUserDetails(userId: string) {
-    const authStore = useAuthStore();
-    const token = authStore.getToken();
-
-    return await this.call<UserDetailsResponse>('GET', `user/${userId}/details`, null, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    return await this.call<UserDetailsResponse>('GET', `user/${userId}/details`, null);
   }
 }
 
