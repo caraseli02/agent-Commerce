@@ -43,13 +43,13 @@ import {
     toInputObject,
 } from '~~/types';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { registerClassic, registerFirebase } from '~/composables/api/auth';
 import { useSignupState } from '@/composables/signup/useSignupState';
 
 interface ValidateAddressResult {
     data: { valid: boolean };
 }
 
-const { $api } = useNuxtApp();
 
 const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirmationEmail } = useFormValidation();
 
@@ -253,7 +253,7 @@ const registerClassicSignup = async (payload: SignupPersonalPayload | SignupBusi
     payload.isAlreadyRegisteredWithFirebase = false;
     payload.account.profileDetails.password = profileDetails.value.password.value;
 
-    return await $api.auth.registerClassic(payload);
+    return await registerClassic(payload);
 };
 
 const registerFirebaseSignup = async (payload: SignupPersonalPayload | SignupBusinessPayload): Promise<unknown> => {
@@ -261,7 +261,7 @@ const registerFirebaseSignup = async (payload: SignupPersonalPayload | SignupBus
     payload.account.firebaseId = userInfo?.user_id;
     payload.isAlreadyRegisteredWithFirebase = true;
 
-    return await $api.auth.registerFirebase(payload);
+    return await registerFirebase(payload);
 };
 
 const handleSubmit = async () => {

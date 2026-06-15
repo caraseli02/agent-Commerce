@@ -1,5 +1,6 @@
 import { useSignupState } from './useSignupState';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { registerClassic, registerFirebase } from '~/composables/api/auth';
 import {
     AccountType,
     type FirebaseBusinessAccount,
@@ -31,7 +32,6 @@ export const useSignupHandlers = () => {
 
     const { toast } = useToast();
     const { validateAddress } = $api.orders;
-    const { registerClassic, registerFirebase } = $api.auth;
     const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirmationEmail } = useFormValidation();
     const { logout } = useFirebaseAuth();
     const firebaseToken = null; // Implement retrieval of Firebase token
