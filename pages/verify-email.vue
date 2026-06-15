@@ -17,10 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp } from '#app';
 import { toast } from '~/components/ui/toast';
+import { verifyEmail as verifyEmailRequest } from '~/composables/api/auth';
 
-const { $api } = useNuxtApp();
 const route = useRoute();
 const router = useRouter();
 
@@ -29,7 +28,7 @@ const verifyEmail = async () => {
     return false;
   }
 
-  const response = (await $api.auth.verifyEmail(route.query.oobCode as string)) as { status: string };
+  const response = (await verifyEmailRequest(route.query.oobCode as string)) as { status: string };
 
   if (response.status !== 'success') {
     toast({

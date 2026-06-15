@@ -130,6 +130,7 @@ import type { UserInterface } from '~/types/auth/user-interface';
 import { useCartStore } from '~/store/cartStore';
 import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
 import { usePricingStore } from '~/store/pricingStore';
+import { fetchUserDetails as fetchAuthUserDetails, login as authLogin } from '~/composables/api/auth';
 
 const { checkForInputErrors } = useFormValidation();
 const { $api } = useNuxtApp();
@@ -287,7 +288,7 @@ const handleSignIn = async () => {
     const safeRedirect = getSafeRedirectFromQuery();
 
     try {
-        const response = (await $api.auth.login(payload)) as SigninResponse;
+        const response = (await authLogin(payload)) as SigninResponse;
         const { token, user } = normalizeSigninResponse(response);
 
         if (!token) {
@@ -334,7 +335,7 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface) =
 
     if (userId) {
         try {
-            const detailsResponse = await $api.auth.fetchUserDetails(userId);
+            const detailsResponse = await fetchAuthUserDetails(userId);
 
             if (detailsResponse.status === 'success') {
                 userDetails = detailsResponse.data as UserInterface;
