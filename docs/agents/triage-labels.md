@@ -12,9 +12,14 @@ The skills speak in terms of five canonical triage roles. This file maps those r
 
 When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the corresponding label string from this table.
 
-## Operational label (not a triage role)
+## Operational labels (not triage roles)
 
-- `in-progress` — claimed by an agent; used by pickup rules in `issue-tracker.md`
+- `in-progress` — claimed by the planner/generator loop; used by pickup rules in `issue-tracker.md`
+- `blocked` — concrete blocker found by generator or evaluator; include a comment with the repair instruction or human decision needed
+
+Optional future label:
+
+- `ready-for-evaluator` — use only if the repo adopts an explicit evaluator queue. Until then, evaluators discover open PRs linked to `in-progress` issues.
 
 ## Rule
 

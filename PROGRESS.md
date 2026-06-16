@@ -3,6 +3,8 @@
 ## Current focus
 
 -   Baseline verification is green after the issue #69 cleanup.
+-   Quality-gate work is prioritized before normal autonomous feature work resumes.
+-   The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
 
 ## In progress
 
