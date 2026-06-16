@@ -5,9 +5,9 @@ import { ArrowDownWideNarrowIcon, ArrowUpWideNarrowIcon, ChevronsUpDownIcon } fr
 import { cn } from '@/lib/utils';
 
 interface DataTableColumnHeaderProps {
-    column: Column<unknown, unknown>;
-    title: string;
-    table?: Table<unknown>;
+  column: Column<unknown, unknown>;
+  title: string;
+  table?: Table<unknown>;
 }
 
 defineProps<DataTableColumnHeaderProps>();
@@ -15,25 +15,32 @@ defineProps<DataTableColumnHeaderProps>();
 
 <script lang="ts">
 export default {
-    inheritAttrs: false,
+  inheritAttrs: false,
 };
 </script>
 
 <template>
-    <div v-if="column.getCanSort()" :class="cn('flex items-center space-x-2 rounded-xl hover:bg-transparent', $attrs.class ?? '')">
-        <span>{{ title }}</span>
-        <ArrowDownWideNarrowIcon
-            v-if="column.getIsSorted() === 'desc'"
-            class="ml-2 h-4 w-4 cursor-pointer"
-            @click="column.toggleSorting(undefined)"
-        />
-        <ArrowUpWideNarrowIcon
-            v-else-if="column.getIsSorted() === 'asc'"
-            class="ml-2 h-4 w-4 cursor-pointer"
-            @click="column.toggleSorting(true)"
-        />
-        <ChevronsUpDownIcon v-else class="ml-2 h-4 w-4 cursor-pointer" @click="column.toggleSorting(false)" />
-        <!-- <UiDropdownMenu>
+  <div
+    v-if="column.getCanSort()"
+    :class="cn('flex items-center space-x-2 rounded-xl hover:bg-transparent', $attrs.class ?? '')"
+  >
+    <span>{{ title }}</span>
+    <ArrowDownWideNarrowIcon
+      v-if="column.getIsSorted() === 'desc'"
+      class="ml-2 h-4 w-4 cursor-pointer"
+      @click="column.toggleSorting(undefined)"
+    />
+    <ArrowUpWideNarrowIcon
+      v-else-if="column.getIsSorted() === 'asc'"
+      class="ml-2 h-4 w-4 cursor-pointer"
+      @click="column.toggleSorting(true)"
+    />
+    <ChevronsUpDownIcon
+      v-else
+      class="ml-2 h-4 w-4 cursor-pointer"
+      @click="column.toggleSorting(false)"
+    />
+    <!-- <UiDropdownMenu>
           <UiDropdownMenuTrigger as-child>
             <UiButton variant="ghost" size="sm" class="-ml-3 font-medium h-8 text-neutral-700 data-[state=open]:bg-accent">
               <span>{{ title }}</span>
@@ -58,9 +65,13 @@ export default {
             </UiDropdownMenuItem>
           </UiDropdownMenuContent>
         </UiDropdownMenu> -->
-    </div>
-    <!-- <UiInput v-if="column.getCanFilter()" placeholder="Filter tasks..." class="h-8 w-[150px] lg:w-[250px]" /> -->
-    <div v-else class="text-neutral-700" :class="$attrs.class">
-        {{ title }}
-    </div>
+  </div>
+  <!-- <UiInput v-if="column.getCanFilter()" placeholder="Filter tasks..." class="h-8 w-[150px] lg:w-[250px]" /> -->
+  <div
+    v-else
+    class="text-neutral-700"
+    :class="$attrs.class"
+  >
+    {{ title }}
+  </div>
 </template>

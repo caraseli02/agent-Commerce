@@ -10,50 +10,51 @@ const cards = ref<StripeCardInterface[]>([]);
 const isNewCardSelected = ref<boolean>(false);
 
 export function usePaymentCards() {
-    const { $api } = useNuxtApp();
-    const { user } = useUser();
+  const { $api } = useNuxtApp();
+  const { user } = useUser();
 
-    const fetchCards = async () => {
-        const response = (await $api.user.userCards()) as {
-            status: string;
-            data: StripeCardInterface[];
-        };
-
-        if (response.status === 'success') {
-            if (response.data.length) {
-                cards.value = response.data;
-                card.value = _.cloneDeep(cards.value.find((savedCard) => savedCard.default) ?? null);
-                isNewCardSelected.value = false;
-            } else {
-                isNewCardSelected.value = true;
-            }
-        }
+  const fetchCards = async () => {
+    const response = (await $api.user.userCards()) as {
+      status: string;
+      data: StripeCardInterface[];
     };
 
-    watch(
-        card,
-        (nextCard) => {
-            card.value = nextCard;
-        },
-        { deep: true }
-    );
+    if (response.status === 'success') {
+      if (response.data.length) {
+        cards.value = response.data;
+        card.value = _.cloneDeep(cards.value.find(savedCard => savedCard.default) ?? null);
+        isNewCardSelected.value = false;
+      }
+      else {
+        isNewCardSelected.value = true;
+      }
+    }
+  };
 
-    watch(
-        user,
-        (newUser) => {
-            if (!newUser) {
-                cards.value = [];
-                card.value = null;
-                isNewCardSelected.value = false;
-            }
-        },
-        { immediate: true }
-    );
+  watch(
+    card,
+    (nextCard) => {
+      card.value = nextCard;
+    },
+    { deep: true },
+  );
 
-    return {
-        card,
-        cards,
-        isNewCardSelected,
-        fetchCards,
-    };
+  watch(
+    user,
+    (newUser) => {
+      if (!newUser) {
+        cards.value = [];
+        card.value = null;
+        isNewCardSelected.value = false;
+      }
+    },
+    { immediate: true },
+  );
+
+  return {
+    card,
+    cards,
+    isNewCardSelected,
+    fetchCards,
+  };
 }

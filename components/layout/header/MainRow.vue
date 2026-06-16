@@ -1,176 +1,224 @@
 <template>
-    <div
-        class="bg-blue-500 py-3 shadow-m"
-        :class="[
-            isScrolled
-                ? showMobileSearch
-                    ? 'md:py-2 lg:py-3 xl:py-[14px]'
-                    : 'md:py-[11px] lg:py-[15px] xl:py-[14px]'
-                : 'md:py-[18px] lg:py-[22px] xl:py-[14px]',
-        ]"
-    >
-        <div class="container">
-            <div class="relative">
-                <div class="flex items-center justify-between gap-4 lg:gap-[35px] xl:gap-[78px]" :class="[isScrolled ? 'md:gap-0' : '']">
-                    <div class="flex items-center">
-                        <div class="flex items-center" :class="[isScrolled ? 'md:mr-[29px] lg:mr-0' : 'md:mr-4 lg:mr-6']">
-                            <LayoutHeaderMainMenuItems :is-scrolled="isScrolled" />
-                            <NuxtLink to="/" class="flex items-center" :class="[isScrolled ? 'md:ml-4 lg:ml-6 ml-0' : 'md:hidden']">
-                                <!-- Use full Logo on mobile to avoid truncation, but smaller -->
-                                <Logo class="w-[85px] h-5 grayscale brightness-0 invert md:hidden" />
-                                <Logo
-                                    class="hidden w-[82px] grayscale brightness-0 invert lg:w-[102px] md:flex"
-                                    :class="[isScrolled ? '' : 'md:hidden']"
-                                />
-                            </NuxtLink>
-                        </div>
-                        <ul v-if="!isScrolled" class="hidden items-center gap-4 md:flex md:gap-6">
-                            <li v-for="(navItem, index) in navItems" :key="index" class="">
-                                <NuxtLink :to="navItem.to" class="flex leading-normal font-medium text-white">
-                                    {{ navItem.label }}
-                                </NuxtLink>
-                            </li>
-                        </ul>
-                    </div>
-                    <LayoutHeaderSearch
-                        v-if="isScrolled"
-                        :show-results="true"
-                        :is-visible="showMobileSearch"
-                        :is-scrolled="isScrolled"
-                        class="flex-1 max-md:hidden xl:block"
-                        :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
-                        @blur="showMobileSearch = false"
-                    />
-                    <div class="flex items-center gap-7 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9" :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']">
-                        <button
-                            class="items-center xl:hidden"
-                            :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex') : 'md:hidden']"
-                            @click="showMobileSearch = true"
-                        >
-                            <SearchIcon class="w-6 h-6 text-white xl:mr-2" />
-                            <span class="hidden leading-normal font-medium text-white xl:inline-block"> Search </span>
-                        </button>
-                        <button
-                            class="flex flex-col items-center"
-                            :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden xl:flex' : 'lg:flex xl:flex') : '']"
-                            @click="openFavoritesCartModal('favorites')"
-                        >
-                            <HeartIcon class="w-6 h-6 text-white xl:mb-1" />
-                            <span class="hidden font-medium text-xs leading-[1.33] text-white xl:inline-block"> Favorites </span>
-                        </button>
-                        <div
-                            class="relative"
-                            :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex') : 'flex items-center']"
-                        >
-                            <ClientOnly>
-                                <LazyNotifications
-                                    :notifications="notifications"
-                                    :unread-notifications="unreadNotifications"
-                                    @delete="deleteNotification"
-                                    @mark-as-read="markNotificationAsRead"
-                                />
-                            </ClientOnly>
-                        </div>
-                        <button class="flex items-center md:hidden" @click="openAccountModal()">
-                            <UserIcon class="w-6 h-6 text-white" />
-                        </button>
-                        <button
-                            class="hidden items-center flex-col md:flex"
-                            :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:flex' : 'md:flex') : '']"
-                            @click="openAccountModal()"
-                        >
-                            <UserIcon class="w-6 h-6 text-white xl:mb-1" />
-                            <span class="hidden text-xs leading-[1.33] font-medium text-white xl:inline-block"> My Account </span>
-                        </button>
-                        <button
-                            class="relative items-center text-left"
-                            :class="[isScrolled ? '' : 'md:hidden', showMobileSearch ? 'hidden md:flex' : 'flex']"
-                            @click="openFavoritesCartModal('shopping-cart')"
-                        >
-                            <div class="flex items-center -mr-2.5 md:-mr-5 xl:-mr-5">
-                                <CartIcon class="w-6 h-6 text-white lg" :class="[cartItems > 0 ? 'mr-0' : 'mr-4']" />
-                                <span
-                                    v-if="cartItems > 0"
-                                    class="flex -translate-y-2 -translate-x-2.5 items-center justify-center h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
-                                    :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]']"
-                                >
-                                    <span> {{ cartItems }} </span>
-                                </span>
-                            </div>
-                            <div v-if="totalCartPrice" class="flex-col text-white flex-shrink-0 ml-6 max-md:hidden">
-                                <div class="leading-[1.25] font-medium mb-0.5">{{ totalCartPrice }} Lei</div>
-                                <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-                <Transition name="fade">
-                    <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 -translate-y-1/2 left-0 w-full md:hidden">
-                        <div class="flex items-center border border-border bg-white h-10 rounded-lg px-3">
-                            <label class="relative z-10 flex-1 flex items-center justify-between h-10">
-                                <form action="" @submit.prevent="showMobileSearch = false">
-                                    <input
-                                        ref="searchDOM"
-                                        v-model="searchVal"
-                                        type="search"
-                                        placeholder="Search products"
-                                        class="bg-transparent flex-1 w-full py-2 h-10 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
-                                        @input="onInput"
-                                        @keypress.enter="
-                                            $router.push('/search');
-                                            searchVal = '';
-                                        "
-                                        @blur="showMobileSearch = false"
-                                    />
-                                </form>
-                                <XIcon class="flex-shrink-0 w-5 h-5 text-slate-500" @click="showMobileSearch = false" />
-                            </label>
-                        </div>
-                    </div>
-                </Transition>
-                <Transition name="fade">
-                    <LayoutHeaderSearchResults
-                        v-if="searchVal"
-                        :products="productList"
-                        :keyword="searchVal"
-                        :is-scrolled="isScrolled"
-                        :is-loading="isLoading"
-                    />
-                </Transition>
+  <div
+    class="bg-blue-500 py-3 shadow-m"
+    :class="[
+      isScrolled
+        ? showMobileSearch
+          ? 'md:py-2 lg:py-3 xl:py-[14px]'
+          : 'md:py-[11px] lg:py-[15px] xl:py-[14px]'
+        : 'md:py-[18px] lg:py-[22px] xl:py-[14px]',
+    ]"
+  >
+    <div class="container">
+      <div class="relative">
+        <div
+          class="flex items-center justify-between gap-4 lg:gap-[35px] xl:gap-[78px]"
+          :class="[isScrolled ? 'md:gap-0' : '']"
+        >
+          <div class="flex items-center">
+            <div
+              class="flex items-center"
+              :class="[isScrolled ? 'md:mr-[29px] lg:mr-0' : 'md:mr-4 lg:mr-6']"
+            >
+              <LayoutHeaderMainMenuItems :is-scrolled="isScrolled" />
+              <NuxtLink
+                to="/"
+                class="flex items-center"
+                :class="[isScrolled ? 'md:ml-4 lg:ml-6 ml-0' : 'md:hidden']"
+              >
+                <!-- Use full Logo on mobile to avoid truncation, but smaller -->
+                <Logo class="w-[85px] h-5 grayscale brightness-0 invert md:hidden" />
+                <Logo
+                  class="hidden w-[82px] grayscale brightness-0 invert lg:w-[102px] md:flex"
+                  :class="[isScrolled ? '' : 'md:hidden']"
+                />
+              </NuxtLink>
             </div>
+            <ul
+              v-if="!isScrolled"
+              class="hidden items-center gap-4 md:flex md:gap-6"
+            >
+              <li
+                v-for="(navItem, index) in navItems"
+                :key="index"
+                class=""
+              >
+                <NuxtLink
+                  :to="navItem.to"
+                  class="flex leading-normal font-medium text-white"
+                >
+                  {{ navItem.label }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+          <LayoutHeaderSearch
+            v-if="isScrolled"
+            :show-results="true"
+            :is-visible="showMobileSearch"
+            :is-scrolled="isScrolled"
+            class="flex-1 max-md:hidden xl:block"
+            :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
+            @blur="showMobileSearch = false"
+          />
+          <div
+            class="flex items-center gap-7 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9"
+            :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']"
+          >
+            <button
+              class="items-center xl:hidden"
+              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex') : 'md:hidden']"
+              @click="showMobileSearch = true"
+            >
+              <SearchIcon class="w-6 h-6 text-white xl:mr-2" />
+              <span class="hidden leading-normal font-medium text-white xl:inline-block"> Search </span>
+            </button>
+            <button
+              class="flex flex-col items-center"
+              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden xl:flex' : 'lg:flex xl:flex') : '']"
+              @click="openFavoritesCartModal('favorites')"
+            >
+              <HeartIcon class="w-6 h-6 text-white xl:mb-1" />
+              <span class="hidden font-medium text-xs leading-[1.33] text-white xl:inline-block"> Favorites </span>
+            </button>
+            <div
+              class="relative"
+              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex') : 'flex items-center']"
+            >
+              <ClientOnly>
+                <LazyNotifications
+                  :notifications="notifications"
+                  :unread-notifications="unreadNotifications"
+                  @delete="deleteNotification"
+                  @mark-as-read="markNotificationAsRead"
+                />
+              </ClientOnly>
+            </div>
+            <button
+              class="flex items-center md:hidden"
+              @click="openAccountModal()"
+            >
+              <UserIcon class="w-6 h-6 text-white" />
+            </button>
+            <button
+              class="hidden items-center flex-col md:flex"
+              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:flex' : 'md:flex') : '']"
+              @click="openAccountModal()"
+            >
+              <UserIcon class="w-6 h-6 text-white xl:mb-1" />
+              <span class="hidden text-xs leading-[1.33] font-medium text-white xl:inline-block"> My Account </span>
+            </button>
+            <button
+              class="relative items-center text-left"
+              :class="[isScrolled ? '' : 'md:hidden', showMobileSearch ? 'hidden md:flex' : 'flex']"
+              @click="openFavoritesCartModal('shopping-cart')"
+            >
+              <div class="flex items-center -mr-2.5 md:-mr-5 xl:-mr-5">
+                <CartIcon
+                  class="w-6 h-6 text-white lg"
+                  :class="[cartItems > 0 ? 'mr-0' : 'mr-4']"
+                />
+                <span
+                  v-if="cartItems > 0"
+                  class="flex -translate-y-2 -translate-x-2.5 items-center justify-center h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
+                  :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]']"
+                >
+                  <span> {{ cartItems }} </span>
+                </span>
+              </div>
+              <div
+                v-if="totalCartPrice"
+                class="flex-col text-white flex-shrink-0 ml-6 max-md:hidden"
+              >
+                <div class="leading-[1.25] font-medium mb-0.5">
+                  {{ totalCartPrice }} Lei
+                </div>
+                <div class="text-[10px] leading-[1.6]">
+                  (ex VAT)
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
-    </div>
-    <Teleport to="body">
-        <Transition name="slide-from-left">
-            <LayoutHeaderMainMenu v-if="showNavModal" />
+        <Transition name="fade">
+          <div
+            v-if="showMobileSearch && isMobile"
+            class="absolute z-50 top-1/2 -translate-y-1/2 left-0 w-full md:hidden"
+          >
+            <div class="flex items-center border border-border bg-white h-10 rounded-lg px-3">
+              <label class="relative z-10 flex-1 flex items-center justify-between h-10">
+                <form
+                  action=""
+                  @submit.prevent="showMobileSearch = false"
+                >
+                  <input
+                    ref="searchDOM"
+                    v-model="searchVal"
+                    type="search"
+                    placeholder="Search products"
+                    class="bg-transparent flex-1 w-full py-2 h-10 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
+                    @input="onInput"
+                    @keypress.enter="
+                      $router.push('/search');
+                      searchVal = '';
+                    "
+                    @blur="showMobileSearch = false"
+                  >
+                </form>
+                <XIcon
+                  class="flex-shrink-0 w-5 h-5 text-slate-500"
+                  @click="showMobileSearch = false"
+                />
+              </label>
+            </div>
+          </div>
         </Transition>
         <Transition name="fade">
-            <div
-                v-if="showAccountModal || favoritesCartModal.show"
-                class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] transition-opacity duration-300 cursor-pointer md:block"
-                :class="[
-                    showAccountModal || favoritesCartModal.show
-                        ? 'backdrop-blur-[7.5px]'
-                        : 'backdrop-blur-none opacity-0 pointer-events-none',
-                ]"
-                @click="
-                    closeAccountModal();
-                    favoritesCartModal.show = false;
-                "
-            />
+          <LayoutHeaderSearchResults
+            v-if="searchVal"
+            :products="productList"
+            :keyword="searchVal"
+            :is-scrolled="isScrolled"
+            :is-loading="isLoading"
+          />
         </Transition>
-        <Transition name="slide-from-right">
-            <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
-        </Transition>
-        <Transition name="slide-from-right">
-            <CartModal
-                v-if="favoritesCartModal.show"
-                :tab="favoritesCartModal.tab"
-                :data="items"
-                @close="favoritesCartModal.show = false"
-            />
-        </Transition>
-    </Teleport>
+      </div>
+    </div>
+  </div>
+  <Teleport to="body">
+    <Transition name="slide-from-left">
+      <LayoutHeaderMainMenu v-if="showNavModal" />
+    </Transition>
+    <Transition name="fade">
+      <div
+        v-if="showAccountModal || favoritesCartModal.show"
+        class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] transition-opacity duration-300 cursor-pointer md:block"
+        :class="[
+          showAccountModal || favoritesCartModal.show
+            ? 'backdrop-blur-[7.5px]'
+            : 'backdrop-blur-none opacity-0 pointer-events-none',
+        ]"
+        @click="
+          closeAccountModal();
+          favoritesCartModal.show = false;
+        "
+      />
+    </Transition>
+    <Transition name="slide-from-right">
+      <LayoutAccountModal
+        v-if="showAccountModal"
+        @close="closeAccountModal"
+      />
+    </Transition>
+    <Transition name="slide-from-right">
+      <CartModal
+        v-if="favoritesCartModal.show"
+        :tab="favoritesCartModal.tab"
+        :data="items"
+        @close="favoritesCartModal.show = false"
+      />
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -196,12 +244,12 @@ import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
 
 interface NotificationListResponse {
-    status: string;
-    description: Notification[];
+  status: string;
+  description: Notification[];
 }
 
 interface NotificationActionResponse {
-    status: string;
+  status: string;
 }
 
 const { $api } = useNuxtApp();
@@ -217,18 +265,18 @@ const hasToken = computed(() => Boolean(authStore.getToken()));
 const totalCartPrice = ref(0);
 
 const subtotal = () => {
-    getCartSubtotal.value.then((res) => {
-        totalCartPrice.value = res;
-    });
+  getCartSubtotal.value.then((res) => {
+    totalCartPrice.value = res;
+  });
 };
 
 subtotal();
 
 defineProps({
-    isScrolled: {
-        type: Boolean,
-        required: true,
-    },
+  isScrolled: {
+    type: Boolean,
+    required: true,
+  },
 });
 
 const route = useRoute();
@@ -238,8 +286,8 @@ const isMobile = ref(false);
 const signinQuery = computed(() => route.query.signin);
 const showAccountModal = ref(false);
 const favoritesCartModal = ref({
-    show: false,
-    tab: 'favorites' as 'favorites' | 'shopping-cart',
+  show: false,
+  tab: 'favorites' as 'favorites' | 'shopping-cart',
 });
 
 const cartItems = ref(0);
@@ -247,46 +295,46 @@ const cart = ref<CartInterface | null>(null);
 const category = ref<string | null>(route.query?.category?.toString() || null);
 
 const closeAccountModal = async () => {
-    showAccountModal.value = false;
+  showAccountModal.value = false;
 
-    if (route.query.signin) {
-        const rest = { ...route.query };
-        delete rest.signin;
-        delete rest.redirect;
-        await router.replace({ query: rest });
-    }
+  if (route.query.signin) {
+    const rest = { ...route.query };
+    delete rest.signin;
+    delete rest.redirect;
+    await router.replace({ query: rest });
+  }
 };
 
 const openAccountModal = () => {
-    favoritesCartModal.value.show = false;
-    showAccountModal.value = true;
+  favoritesCartModal.value.show = false;
+  showAccountModal.value = true;
 };
 
 const openFavoritesCartModal = (tab: 'favorites' | 'shopping-cart') => {
-    showAccountModal.value = false;
-    favoritesCartModal.value = {
-        show: true,
-        tab,
-    };
+  showAccountModal.value = false;
+  favoritesCartModal.value = {
+    show: true,
+    tab,
+  };
 };
 
 const navItems = [
-    {
-        label: 'News',
-        to: '/',
-    },
-    {
-        label: 'How to Buy',
-        to: '/',
-    },
-    {
-        label: 'About',
-        to: '/',
-    },
-    {
-        label: 'Contact',
-        to: '/',
-    },
+  {
+    label: 'News',
+    to: '/',
+  },
+  {
+    label: 'How to Buy',
+    to: '/',
+  },
+  {
+    label: 'About',
+    to: '/',
+  },
+  {
+    label: 'Contact',
+    to: '/',
+  },
 ];
 
 const searchVal = ref('');
@@ -297,59 +345,59 @@ const productList = ref<ProductInterface[]>([]);
 const isLoading = ref(false);
 
 Emitter.on('remove-cart-and-notifications', async (isSignout: boolean) => {
-    if (isSignout) {
-        cartStore.emptyCart();
-        cartItems.value = 0;
-        totalCartPrice.value = 0;
-        items.value = {} as CartInterface;
-    }
+  if (isSignout) {
+    cartStore.emptyCart();
+    cartItems.value = 0;
+    totalCartPrice.value = 0;
+    items.value = {} as CartInterface;
+  }
 });
 
 Emitter.on('update-cart', async (data: CartInterface) => {
-    if (data && data.products) {
-        items.value = data;
-        cartItems.value = items.value.products.length;
-        cart.value = items.value;
-        subtotal();
-    }
+  if (data && data.products) {
+    items.value = data;
+    cartItems.value = items.value.products.length;
+    cart.value = items.value;
+    subtotal();
+  }
 });
 
 Emitter.on('open-account-modal', async () => {
-    openAccountModal();
+  openAccountModal();
 });
 
 const fetchList = async () => {
-    const data = (await getCart.value) as CartInterface | null;
+  const data = (await getCart.value) as CartInterface | null;
 
-    if (!data?.products?.length) {
-        return;
-    }
+  if (!data?.products?.length) {
+    return;
+  }
 
-    items.value = data;
-    cartItems.value = data.products.length;
-    cart.value = data;
+  items.value = data;
+  cartItems.value = data.products.length;
+  cart.value = data;
 };
 
 const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<ProductInterface[]> => {
-    isLoading.value = true;
+  isLoading.value = true;
 
-    const response = (await $api.product.fetchSearchProduct(keyword, category.value, page, perPage)) as ProductSearchResponse;
-    const products = response.data;
+  const response = (await $api.product.fetchSearchProduct(keyword, category.value, page, perPage)) as ProductSearchResponse;
+  const products = response.data;
 
-    if (!products?.items?.items) {
-        isLoading.value = false;
-        return [];
-    }
-
-    Emitter.emit('product-keyword-change', { keyword, products });
-
+  if (!products?.items?.items) {
     isLoading.value = false;
-    return products.items.items as unknown as ProductInterface[];
+    return [];
+  }
+
+  Emitter.emit('product-keyword-change', { keyword, products });
+
+  isLoading.value = false;
+  return products.items.items as unknown as ProductInterface[];
 };
 
 const onInput = _.debounce(async () => {
-    productList.value = await searchProduct(searchVal.value);
-    isLoading.value = false;
+  productList.value = await searchProduct(searchVal.value);
+  isLoading.value = false;
 }, 200);
 
 const error = ref(false);
@@ -357,88 +405,91 @@ const error = ref(false);
 const notifications = ref<Notification[]>([] as Notification[]);
 
 const fetchNofications = async () => {
-    error.value = false;
-    isLoading.value = true;
-    unreadNotifications.value = 0;
-    notifications.value = [];
+  error.value = false;
+  isLoading.value = true;
+  unreadNotifications.value = 0;
+  notifications.value = [];
 
-    if (!hasToken.value) {
-        isLoading.value = false;
-        return;
+  if (!hasToken.value) {
+    isLoading.value = false;
+    return;
+  }
+
+  const response = (await $api.notifications.fetchGetNotifications()) as unknown as NotificationListResponse;
+  if (response.status !== 'success') {
+    isLoading.value = false;
+    error.value = true;
+
+    return;
+  }
+  else {
+    isLoading.value = false;
+  }
+
+  notifications.value = response.description;
+  response.description.forEach((notification) => {
+    if (notification.seen === false) {
+      unreadNotifications.value++;
     }
-
-    const response = (await $api.notifications.fetchGetNotifications()) as unknown as NotificationListResponse;
-    if (response.status !== 'success') {
-        isLoading.value = false;
-        error.value = true;
-
-        return;
-    } else {
-        isLoading.value = false;
-    }
-
-    notifications.value = response.description;
-    response.description.forEach((notification) => {
-        if (notification.seen === false) {
-            unreadNotifications.value++;
-        }
-    });
+  });
 };
 
 const markNotificationAsRead = async (notification: Notification, index: number) => {
-    if (notifications.value[index].seen !== true) {
-        unreadNotifications.value--;
-    }
-    const response = (await $api.notifications.fetchMarkNotificationAsRead(notification.id)) as NotificationActionResponse;
-    if (response.status !== 'success') {
-        return;
-    }
-    notifications.value[index].seen = true;
+  if (notifications.value[index].seen !== true) {
+    unreadNotifications.value--;
+  }
+  const response = (await $api.notifications.fetchMarkNotificationAsRead(notification.id)) as NotificationActionResponse;
+  if (response.status !== 'success') {
+    return;
+  }
+  notifications.value[index].seen = true;
 };
 const deleteNotification = async (notification: Notification, index: number) => {
-    const response = (await $api.notifications.deleteNotificationById(notification.id)) as NotificationActionResponse;
-    if (response.status !== 'success') {
-        return;
-    }
-    notifications.value.splice(index, 1);
+  const response = (await $api.notifications.deleteNotificationById(notification.id)) as NotificationActionResponse;
+  if (response.status !== 'success') {
+    return;
+  }
+  notifications.value.splice(index, 1);
 };
 
 watch(showMobileSearch, (newVal) => {
-    if (newVal) {
-        nextTick(() => {
-            searchDOM.value?.focus();
-        });
-    } else {
-        searchVal.value = '';
-    }
+  if (newVal) {
+    nextTick(() => {
+      searchDOM.value?.focus();
+    });
+  }
+  else {
+    searchVal.value = '';
+  }
 });
 
 watch(signinQuery, (newVal) => {
-    if (newVal === 'true') {
-        showAccountModal.value = true;
-    }
+  if (newVal === 'true') {
+    showAccountModal.value = true;
+  }
 });
 
 onMounted(() => {
-    isMobile.value = window.innerWidth <= 1024;
-    if (signinQuery.value === 'true') {
-        showAccountModal.value = true;
-    }
-    Promise.all([fetchNofications(), fetchList()]);
+  isMobile.value = window.innerWidth <= 1024;
+  if (signinQuery.value === 'true') {
+    showAccountModal.value = true;
+  }
+  Promise.all([fetchNofications(), fetchList()]);
 });
 
 watch(
-    () => authStore.token?.value,
-    async (newVal) => {
-        if (newVal) {
-            await closeAccountModal();
-            await fetchNofications();
-            await fetchList();
-        } else {
-            notifications.value = [];
-            unreadNotifications.value = 0;
-        }
-    },
-    { deep: true }
+  () => authStore.token?.value,
+  async (newVal) => {
+    if (newVal) {
+      await closeAccountModal();
+      await fetchNofications();
+      await fetchList();
+    }
+    else {
+      notifications.value = [];
+      unreadNotifications.value = 0;
+    }
+  },
+  { deep: true },
 );
 </script>

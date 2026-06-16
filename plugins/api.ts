@@ -19,97 +19,97 @@ import DocumentService from '~/services/dashboard/document.service';
 
 /** ApiInstance interface provides us with good typing */
 export interface IApiInstance {
-    product: ProductService;
-    user: UserService;
-    userDashboard: UserDashboardService;
-    favouriteFolder: FavouriteFolderService;
-    cart: CartService;
-    customerProfile: CustomerProfileService;
-    notifications: NotificationsService;
-    controlPanel: ControlPanelService;
-    orders: OrdersService;
-    documents: DocumentService;
-    generalSettings: GeneralSettings;
-    categories: CategoriesService;
-    customerDashboard: CustomerDashboard & { getMetadata: () => Promise<unknown> };
-    settingsClient: SettingsClientService;
-    smartPricing: SmartPricingService;
+  product: ProductService;
+  user: UserService;
+  userDashboard: UserDashboardService;
+  favouriteFolder: FavouriteFolderService;
+  cart: CartService;
+  customerProfile: CustomerProfileService;
+  notifications: NotificationsService;
+  controlPanel: ControlPanelService;
+  orders: OrdersService;
+  documents: DocumentService;
+  generalSettings: GeneralSettings;
+  categories: CategoriesService;
+  customerDashboard: CustomerDashboard & { getMetadata: () => Promise<unknown> };
+  settingsClient: SettingsClientService;
+  smartPricing: SmartPricingService;
 }
 
 declare module '#app' {
-    interface NuxtApp {
-        $api: IApiInstance;
-        $apiClient: $Fetch;
-    }
+  interface NuxtApp {
+    $api: IApiInstance;
+    $apiClient: $Fetch;
+  }
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
-    const config = nuxtApp.$config.public;
+  const config = nuxtApp.$config.public;
 
-    const baseURL = (() => {
-        if (!config.MOCK_MODE) {
-            return config.BASE_URL_API;
-        }
+  const baseURL = (() => {
+    if (!config.MOCK_MODE) {
+      return config.BASE_URL_API;
+    }
 
-        if (import.meta.client) {
-            return '/api';
-        }
+    if (import.meta.client) {
+      return '/api';
+    }
 
-        const event = nuxtApp.ssrContext?.event;
-        const protoHeader = event?.node.req.headers['x-forwarded-proto'];
-        const protocol = Array.isArray(protoHeader) ? protoHeader[0] : protoHeader || 'http';
-        const host = event?.node.req.headers.host || 'localhost:3000';
+    const event = nuxtApp.ssrContext?.event;
+    const protoHeader = event?.node.req.headers['x-forwarded-proto'];
+    const protocol = Array.isArray(protoHeader) ? protoHeader[0] : protoHeader || 'http';
+    const host = event?.node.req.headers.host || 'localhost:3000';
 
-        return `${protocol}://${host}/api`;
-    })();
+    return `${protocol}://${host}/api`;
+  })();
 
-    const fetchOptions: FetchOptions = {
-        baseURL,
-        onRequest({ options }) {
-            const token = useCookie('token').value;
-            if (!token) return;
+  const fetchOptions: FetchOptions = {
+    baseURL,
+    onRequest({ options }) {
+      const token = useCookie('token').value;
+      if (!token) return;
 
-            const headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers as HeadersInit | undefined);
+      const headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers as HeadersInit | undefined);
 
-            headers.set('Authorization', `Bearer ${token}`);
-            options.headers = headers;
-        },
-        async onResponseError({ response }) {
-            if (response.status !== 401) return;
+      headers.set('Authorization', `Bearer ${token}`);
+      options.headers = headers;
+    },
+    async onResponseError({ response }) {
+      if (response.status !== 401) return;
 
-            await nuxtApp.runWithContext(async () => {
-                await useAuthStore().signOut();
-                await navigateTo('/?signin=true');
-            });
-        },
-    };
+      await nuxtApp.runWithContext(async () => {
+        await useAuthStore().signOut();
+        await navigateTo('/?signin=true');
+      });
+    },
+  };
 
-    /** create a new instance of $fetcher with custom option */
-    const apiFetcher = $fetch.create(fetchOptions);
+  /** create a new instance of $fetcher with custom option */
+  const apiFetcher = $fetch.create(fetchOptions);
 
-    /** an object containing all repositories we need to expose */
-    const modules: IApiInstance = {
-        product: new ProductService(apiFetcher),
-        user: new UserService(apiFetcher),
-        userDashboard: new UserDashboardService(apiFetcher),
-        favouriteFolder: new FavouriteFolderService(apiFetcher),
-        cart: new CartService(apiFetcher),
-        customerProfile: new CustomerProfileService(apiFetcher),
-        notifications: new NotificationsService(apiFetcher),
-        controlPanel: new ControlPanelService(apiFetcher),
-        orders: new OrdersService(apiFetcher),
-        documents: new DocumentService(apiFetcher),
-        generalSettings: new GeneralSettings(apiFetcher),
-        categories: new CategoriesService(apiFetcher),
-        customerDashboard: new CustomerDashboard(apiFetcher),
-        settingsClient: new SettingsClientService(apiFetcher),
-        smartPricing: new SmartPricingService(apiFetcher),
-    };
+  /** an object containing all repositories we need to expose */
+  const modules: IApiInstance = {
+    product: new ProductService(apiFetcher),
+    user: new UserService(apiFetcher),
+    userDashboard: new UserDashboardService(apiFetcher),
+    favouriteFolder: new FavouriteFolderService(apiFetcher),
+    cart: new CartService(apiFetcher),
+    customerProfile: new CustomerProfileService(apiFetcher),
+    notifications: new NotificationsService(apiFetcher),
+    controlPanel: new ControlPanelService(apiFetcher),
+    orders: new OrdersService(apiFetcher),
+    documents: new DocumentService(apiFetcher),
+    generalSettings: new GeneralSettings(apiFetcher),
+    categories: new CategoriesService(apiFetcher),
+    customerDashboard: new CustomerDashboard(apiFetcher),
+    settingsClient: new SettingsClientService(apiFetcher),
+    smartPricing: new SmartPricingService(apiFetcher),
+  };
 
-    return {
-        provide: {
-            api: modules,
-            apiClient: apiFetcher,
-        },
-    };
+  return {
+    provide: {
+      api: modules,
+      apiClient: apiFetcher,
+    },
+  };
 });

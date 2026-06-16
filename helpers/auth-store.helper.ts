@@ -4,19 +4,19 @@ import { useAuthStore } from '~/store/authStore';
 import { fetchUserDetails } from '~/composables/api/auth';
 
 export const updateStoreDetails = async () => {
-    const authStore = useAuthStore();
-    const { getUserDetails } = storeToRefs(authStore);
-    const firebaseId = getUserDetails.value.firebaseId;
-    if (!firebaseId) {
-        return;
-    }
+  const authStore = useAuthStore();
+  const { getUserDetails } = storeToRefs(authStore);
+  const firebaseId = getUserDetails.value.firebaseId;
+  if (!firebaseId) {
+    return;
+  }
 
-    const response = await fetchUserDetails(firebaseId);
+  const response = await fetchUserDetails(firebaseId);
 
-    if (response.status !== 'success') {
-        return;
-    }
+  if (response.status !== 'success') {
+    return;
+  }
 
-    const userDetails = response.data;
-    authStore.addUserDetail(userDetails as UserInterface);
+  const userDetails = response.data;
+  authStore.addUserDetail(userDetails as UserInterface);
 };
