@@ -3,28 +3,35 @@
 Project-level guidance for Claude Code working in **ECAS**.
 
 ## What ECAS is
+
 A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase, Stripe hooks, and local Nitro mock endpoints.
 
 ## How to work here
-- Use **pnpm** for dependency and script commands.
-- Prefer mock mode for local development and review.
-- Keep tasks small and atomic.
-- Verify before declaring success.
-- Treat initialization as a separate phase from feature work.
+
+-   Use **pnpm** for dependency and script commands.
+-   Prefer mock mode for local development and review.
+-   Keep tasks small and atomic.
+-   Verify before declaring success.
+-   Treat initialization as a separate phase from feature work.
 
 ## Commands
-- `pnpm install`
-- `pnpm dev`
-- `pnpm build`
-- `pnpm generate`
-- `pnpm preview`
-- `pnpm lint`
-- `pnpm pretty`
+
+-   `pnpm install`
+-   `pnpm dev`
+-   `pnpm build`
+-   `pnpm generate`
+-   `pnpm preview`
+-   `pnpm lint`
+-   `pnpm typecheck`
+-   `pnpm test`
+-   `pnpm pretty`
+-   `./init.sh`
 
 ## Harness state files
-- `PROGRESS.md` — current focus, in progress, blocked, next verification
-- `DECISIONS.md` — durable cross-session decisions
-- `feature_list.json` — machine-readable task state and WIP=1 control
+
+-   `PROGRESS.md` — current focus, in progress, blocked, next verification
+-   `DECISIONS.md` — durable cross-session decisions
+-   `feature_list.json` — machine-readable task state and WIP=1 control
 
 ## Agent skills
 
@@ -40,22 +47,42 @@ Canonical strings: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-h
 
 Single-context — `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
 
+### Session lifecycle
+
+Startup, sprint contract, WIP=1, blocker protocol, and clean handoff live in `docs/agents/session-lifecycle.md`.
+
+### Verification
+
+Done gates, full-pipeline checks, browser/runtime evidence, and evaluator rubric live in `docs/agents/verification.md`.
+
+### Harness audit
+
+Course coverage and known watch points live in `docs/agents/harness-audit.md`.
+
 ## Initialization / WIP rules
-- First session on a fresh branch should initialize the repo before feature work.
-- One loop should do one narrow task, verify it, and stop.
-- Keep only one task active at a time.
-- If the task grows beyond a few files or turns into a second unrelated fix, split it.
+
+-   First session on a fresh branch should initialize the repo before feature work.
+-   One loop should do one narrow task, verify it, and stop.
+-   Keep only one task active at a time.
+-   If the task grows beyond a few files or turns into a second unrelated fix, split it.
 
 ## Architecture shortcuts
-- API flow: `plugins/api.ts` → `composables/HttpFactory.ts` → `services/*.service.ts`
-- Mock backend: `server/api/`
-- Auth/session state: Firebase + Pinia + token cookie
-- UI: shadcn-vue / Radix-style primitives + Tailwind
+
+-   API flow: `plugins/api.ts` → `composables/HttpFactory.ts` → `services/*.service.ts`
+-   Mock backend: `server/api/`
+-   Auth/session state: Firebase + Pinia + token cookie
+-   UI: shadcn-vue / Radix-style primitives + Tailwind
 
 ## Verification order
+
 1. `pnpm build`
 2. `pnpm lint`
-3. Smoke-test the affected screen or route
+3. `pnpm typecheck`
+4. `pnpm test`
+5. Smoke-test the affected screen or route
+
+Use `docs/agents/verification.md` before declaring done.
 
 ## State
+
 Use `PROGRESS.md` when work spans sessions or when a loop is intentionally paused.
