@@ -15,13 +15,17 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/Ecas`. Use th
 
 ## Pickup rules
 
-- Only issues with the `ready-for-agent` label are eligible.
-- Before editing code, claim the issue:
+- Only issues with the `ready-for-agent` label are eligible for planner pickup.
+- Before editing code, the planner claims exactly one issue:
+  - remove `ready-for-agent`
   - add the `in-progress` label
   - assign the issue to the working account
   - leave a short comment with the branch name
 - If an issue is already assigned or already has an active PR, skip it.
 - WIP is 1: never work two issues in parallel.
+- The generator may only implement the issue already claimed by the planner.
+- The generator opens or updates a PR, but does not declare final completion.
+- The evaluator independently checks the PR and moves the issue toward `ready-for-human` only after evidence passes.
 
 ## When a skill says "publish to the issue tracker"
 
@@ -38,7 +42,21 @@ Each issue should include:
 - problem statement
 - acceptance criteria
 - verification command
+- related lectures/source docs when the issue comes from harness work
+- evaluator expectations: evidence the evaluator must check before marking review-ready
 - notes about mock/live mode if relevant
+
+## PR body requirement
+
+Every generator PR should include:
+
+- Related issue and `Closes #<issue>`
+- Related lectures/source docs when applicable
+- Verification evidence from local pre-flight checks
+- Runtime/browser evidence when UI, route, auth, cart, checkout, mock API, or state flow changed
+- Risks, known failures, or explicit `none`
+
+The evaluator report is separate from the generator PR body and should use `docs/agents/autonomous-workflow.md`.
 
 ## Claim comment example
 

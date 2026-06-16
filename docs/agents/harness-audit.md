@@ -14,9 +14,9 @@ This file maps ECAS repo artifacts to the course recommendations from Learn Harn
 | L06 — initialization phase               | `init.sh`, `docs/agents/session-lifecycle.md`                                                         | Covered                             |
 | L07 — WIP=1 and task boundaries          | GitHub issue claim rules + `feature_list.json` policy                                                 | Covered                             |
 | L08 — feature lists as primitives        | `feature_list.json` with status/evidence rules                                                        | Covered                             |
-| L09 — no premature victory               | `docs/agents/verification.md` done gates                                                              | Covered                             |
+| L09 — no premature victory               | `docs/agents/verification.md` done gates + `docs/agents/autonomous-workflow.md` role separation       | Covered                             |
 | L10 — full-pipeline verification         | build/lint/typecheck/test plus browser/runtime smoke path                                             | Covered                             |
-| L11 — observability inside harness       | sprint contract, task trace, PR evidence checklist                                                    | Covered                             |
+| L11 — observability inside harness       | sprint contract, task trace, PR evidence checklist, evaluator verdict format                         | Covered                             |
 | L12 — clean handoff                      | clean-state checklist in `docs/agents/session-lifecycle.md`                                           | Covered                             |
 | Projects 01–06                           | baseline harness, readable workspace, continuity, feedback, review, capstone                          | Covered as a practical repo harness |
 | Resource templates                       | `AGENTS.md`, `CLAUDE.md`, `feature_list.json`, progress, init, handoff, clean-state, evaluator rubric | Covered/adapted                     |

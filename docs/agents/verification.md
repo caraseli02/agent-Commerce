@@ -31,6 +31,7 @@ A task is not done until all are true:
 -   No unrelated refactor was bundled into the task.
 -   `feature_list.json` / `PROGRESS.md` are updated when durable state changed.
 -   The PR body contains evidence, not just a confidence statement.
+-   An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.
 
 ## Anti-premature-victory rules
 
@@ -42,7 +43,7 @@ A task is not done until all are true:
 
 ## Evaluator rubric
 
-Use this for self-review or independent review before asking Vlad to review.
+Use this for independent review before asking Vlad to review. The evaluator must not be the same run/agent that generated the implementation.
 
 | Dimension             | 0                          | 1                          | 2                                          |
 | --------------------- | -------------------------- | -------------------------- | ------------------------------------------ |
