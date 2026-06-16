@@ -50,10 +50,10 @@ interface ValidateAddressResult {
     data: { valid: boolean };
 }
 
-
 const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirmationEmail } = useFormValidation();
 
 const authStore = useAuthStore();
+const { $api } = useNuxtApp();
 
 const { toast } = useToast();
 

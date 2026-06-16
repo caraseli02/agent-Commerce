@@ -10,27 +10,15 @@ class ProductService extends HttpFactory {
     private RESOURCE = '/products';
 
     async fetchSingleProduct(id: string): Promise<ProductDetailResponse> {
-        return await this.call<ProductDetailResponse>(
-            'GET',
-            `${this.RESOURCE}/${id}`,
-            null,
-        );
+        return await this.call<ProductDetailResponse>('GET', `${this.RESOURCE}/${id}`, null);
     }
 
     async fetchProductTab(path: string): Promise<ProductResponse> {
-        return await this.call<ProductResponse>(
-            'GET',
-            `${this.RESOURCE}/${path}`,
-            null,
-        );
+        return await this.call<ProductResponse>('GET', `${this.RESOURCE}/${path}`, null);
     }
 
     async fetchNewProducts(): Promise<NewProductResponse> {
-        return await this.call<NewProductResponse>(
-            'GET',
-            `${this.RESOURCE}/new-products`,
-            null,
-        );
+        return await this.call<NewProductResponse>('GET', `${this.RESOURCE}/new-products`, null);
     }
 
     async fetchSearchProduct(
@@ -84,11 +72,7 @@ class ProductService extends HttpFactory {
     }
 
     async fetchProductByCriteria(payload: SearchSimilarProductRequest): Promise<SearchSimilarProductResponse> {
-        return await this.call<SearchSimilarProductResponse>(
-            'POST',
-            `${this.RESOURCE}/filters/search`,
-            payload,
-        );
+        return await this.call<SearchSimilarProductResponse>('POST', `${this.RESOURCE}/filters/search`, payload);
     }
 }
 
