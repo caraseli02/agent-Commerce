@@ -19,7 +19,8 @@ export async function login(payload: LoginRequest): Promise<ProductResponse | Fi
       method: 'POST',
       body: payload,
     });
-  } catch (err) {
+  }
+  catch (err) {
     if (err instanceof FirebaseError) {
       return err;
     }

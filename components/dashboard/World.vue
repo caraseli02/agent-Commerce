@@ -1,57 +1,64 @@
 <template>
-    <ClientOnly>
-        <div class="rounded-xl w-full h-[244px] lg:h-[259px] xl:h-[316px]">
-            <LMap
-                id="mapid"
-                ref="map"
-                :zoom="zoom"
-                :min-zoom="1"
-                :max-zoom="5"
-                :center="[51, 0]"
-                :max-bounds="[
-                    [100.673, -200.023],
-                    [-60.995, 210.2421],
-                ]"
-                :options="{
-                    scrollWheelZoom: true,
-                    doubleClickZoom: true,
-                    zoomControl: false,
-                    attributionControl: false,
-                    minZoom: 1,
-                    maxZoom: 5,
-                }"
-                :use-global-leaflet="false"
-            >
-                <LControlZoom position="topright" />
-                <LTileLayer url="" :no-wrap="true" />
-                <LGeoJson
-                    :geojson="LeafletMapData"
-                    :options-style="style as (feature?: CountryMapFeature) => { fillColor: string; fillOpacity: number }"
-                    :options="{
-                        onEachFeature: onEachFeature,
-                    }"
-                />
-                <LMarker v-if="tooltipCountry?.latLng" :lat-lng="[tooltipCountry.latLng.lat, tooltipCountry.latLng.lng]" :draggable="false">
-                    <!-- <LIcon :tooltip-anchor="[0, -5]" :icon-size="20" /> -->
-                    <LTooltip
-                        :options="{
-                            direction: 'top',
-                            permanent: false,
-                            sticky: true,
-                            offset: [0, 0],
-                            className: 'dashboard--map-tooltip',
-                        }"
-                        :content="`${tooltipCountry.label} <span class='font-semibold'>${tooltipCountry.count}</span>`"
-                    >
-                        {{ tooltipCountry.label }}
-                        <span class="font-semibold">
-                            {{ tooltipCountry.count }}
-                        </span>
-                    </LTooltip>
-                </LMarker>
-            </LMap>
-        </div>
-    </ClientOnly>
+  <ClientOnly>
+    <div class="rounded-xl w-full h-[244px] lg:h-[259px] xl:h-[316px]">
+      <LMap
+        id="mapid"
+        ref="map"
+        :zoom="zoom"
+        :min-zoom="1"
+        :max-zoom="5"
+        :center="[51, 0]"
+        :max-bounds="[
+          [100.673, -200.023],
+          [-60.995, 210.2421],
+        ]"
+        :options="{
+          scrollWheelZoom: true,
+          doubleClickZoom: true,
+          zoomControl: false,
+          attributionControl: false,
+          minZoom: 1,
+          maxZoom: 5,
+        }"
+        :use-global-leaflet="false"
+      >
+        <LControlZoom position="topright" />
+        <LTileLayer
+          url=""
+          :no-wrap="true"
+        />
+        <LGeoJson
+          :geojson="LeafletMapData"
+          :options-style="style as (feature?: CountryMapFeature) => { fillColor: string; fillOpacity: number }"
+          :options="{
+            onEachFeature: onEachFeature,
+          }"
+        />
+        <LMarker
+          v-if="tooltipCountry?.latLng"
+          :lat-lng="[tooltipCountry.latLng.lat, tooltipCountry.latLng.lng]"
+          :draggable="false"
+        >
+          <!-- <LIcon :tooltip-anchor="[0, -5]" :icon-size="20" /> -->
+          <LTooltip
+            :options="{
+              direction: 'top',
+              permanent: false,
+              sticky: true,
+              offset: [0, 0],
+              className: 'dashboard--map-tooltip',
+            }"
+            :content="`${tooltipCountry.label} <span class='font-semibold'>${tooltipCountry.count}</span>`"
+          >
+            {{ tooltipCountry.label }}
+            <span class="font-semibold">
+              {{ tooltipCountry.count }}
+            </span>
+          </LTooltip>
+        </LMarker>
+      </LMap>
+    </div>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
@@ -59,59 +66,60 @@ import type { PropType } from 'vue';
 import { LeafletMapData } from '@/data/geojson';
 
 interface CountryMapFeature {
-    properties: { name: string };
+  properties: { name: string };
 }
 
 interface LeafletLayerEvent {
-    target: { feature: CountryMapFeature };
-    latlng: { lat: number; lng: number };
+  target: { feature: CountryMapFeature };
+  latlng: { lat: number; lng: number };
 }
 
 interface LeafletLayer {
-    on: (handlers: { click: (e: LeafletLayerEvent) => void }) => void;
+  on: (handlers: { click: (e: LeafletLayerEvent) => void }) => void;
 }
 
 const props = defineProps({
-    countries: {
-        type: Array as PropType<
-            {
-                label: string;
-                count: number;
-                theme: string;
-            }[]
-        >,
-        required: true,
-    },
+  countries: {
+    type: Array as PropType<
+      {
+        label: string;
+        count: number;
+        theme: string;
+      }[]
+    >,
+    required: true,
+  },
 });
 
 const zoom = ref(4);
 
 const getColor = (countryName: string) => {
-    const country = props.countries.find((country) => country.label === countryName);
-    if (country) {
-        return country.theme;
-    } else {
-        return '#D9D9D9';
-    }
+  const country = props.countries.find(country => country.label === countryName);
+  if (country) {
+    return country.theme;
+  }
+  else {
+    return '#D9D9D9';
+  }
 };
 const style = (feature: CountryMapFeature) => {
-    return {
-        fillColor: getColor(feature.properties.name),
-        fillOpacity: 1,
-    };
+  return {
+    fillColor: getColor(feature.properties.name),
+    fillOpacity: 1,
+  };
 };
 const tooltipCountry = ref<(typeof props.countries)[number] & { latLng?: { lat: number; lng: number } }>();
 const highlightFeatureClick = (e: LeafletLayerEvent) => {
-    const clickedCountryName = e.target.feature.properties.name;
-    const country = props.countries.find((c) => c.label === clickedCountryName);
-    if (country) {
-        tooltipCountry.value = { ...country, latLng: e.latlng };
-    }
+  const clickedCountryName = e.target.feature.properties.name;
+  const country = props.countries.find(c => c.label === clickedCountryName);
+  if (country) {
+    tooltipCountry.value = { ...country, latLng: e.latlng };
+  }
 };
 const onEachFeature = (_: CountryMapFeature, layer: LeafletLayer) => {
-    layer.on({
-        click: highlightFeatureClick,
-    });
+  layer.on({
+    click: highlightFeatureClick,
+  });
 };
 </script>
 
