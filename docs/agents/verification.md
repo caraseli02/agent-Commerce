@@ -76,3 +76,7 @@ A useful failure message says:
 1. what went wrong
 2. why it matters
 3. where to look next
+
+## Smoke gate
+
+-   Run `pnpm smoke` against `pnpm dev` to verify the core routes load without crashing.
