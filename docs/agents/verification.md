@@ -33,7 +33,7 @@ A task is not done until all are true:
 -   Browser/runtime evidence exists for UI or route changes.
 -   No unrelated refactor was bundled into the task.
 -   `feature_list.json` / `PROGRESS.md` are updated when durable state changed.
--   The PR body contains evidence, not just a confidence statement.
+-   The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.
 -   An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.
 
 ## Anti-premature-victory rules
