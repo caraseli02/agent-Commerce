@@ -4,11 +4,26 @@
 
 ## Related lectures
 
--   Lecture 09 — Worker/checker separation and no premature victory
--   Lecture 10 — Full-pipeline verification evidence
--   Lecture 11 — Process observability, sprint contracts, evaluator rubric
--   Lecture 12 — Clean handoff and known-risk reporting
--   Resource templates — session handoff and evaluator rubric
+-   Lecture 08 — Feature lists are harness primitives
+-   Lecture 09 — Completion requires evidence, not confidence
+-   Lecture 12 — Clean handoff requires accurate progress/state artifacts
+
+## Validation rules
+
+-   Allowed statuses only: `not_started`, `active`, `blocked`, `passing`.
+-   WIP limit is 1: the count of `active` features must never exceed `policy.wip_limit`.
+-   `active_feature_count` must match the real number of active features if it exists, or be removed as redundant.
+-   Every `passing` feature must include a non-empty `evidence` array.
+
+## Command evidence
+
+-   `./scripts/validate-feature-list.sh`
+-   Current-state output on `feature_list.json`: `feature_list.json OK: 9 feature(s), 0 active, 9 passing.`
+
+## Failure mode example
+
+-   A feature marked `passing` with an empty `evidence` array is rejected with a message that points to the specific feature and tells the agent to add evidence before claiming completion.
+-   Two `active` features are rejected because the harness WIP limit is 1.
 
 ## Template evidence
 
@@ -19,7 +34,7 @@
 ## Review flow
 
 1. Vlad reviews the related lecture list above.
-2. Vlad checks the PR body for exact verification commands and outcomes.
+2. Vlad checks the validation rules and exact command evidence.
 3. Vlad checks browser/runtime evidence when UI or routes changed.
 4. Vlad checks the known-risks section and the evaluator rubric score.
 5. Vlad decides whether the PR is review-ready or needs repair.
