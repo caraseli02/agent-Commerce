@@ -5,10 +5,13 @@
 -   Baseline verification is green after the issue #69 cleanup.
 -   Quality-gate work is prioritized before normal autonomous feature work resumes.
 -   The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
+-   The retry path now prefers a standing `/goal` controller over a separate mega-loop: evaluator failures stay on `in-progress` and feed back into the same goal.
+-   The completion trigger is event-driven: when Dev says the PR is ready, the controller immediately hands it to the evaluator instead of waiting for the next cron tick.
+-   Issue #73 is active in a fresh worktree: add the ECAS PR checklist/template.
 
 ## In progress
 
--   None.
+-   Issue #73 — PR template with related lectures, evidence, risks, and evaluator rubric.
 
 ## Recently completed
 
