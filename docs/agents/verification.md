@@ -11,14 +11,17 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
     - `pnpm lint`
     - `pnpm typecheck`
     - `pnpm test`
-2. **Targeted test**
+2. **Harness-state validator**
+    - Run `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
+    - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
+3. **Targeted test**
     - Add or update a focused Vitest test when behavior can be checked without the browser.
     - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-3. **Browser/runtime smoke**
+4. **Browser/runtime smoke**
     - Start `pnpm dev` when UI/routes are affected.
     - Exercise the affected page or server route.
     - Capture screenshot or exact route/flow evidence in the PR.
-4. **Integration check**
+5. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
 ## Done gate
@@ -30,7 +33,8 @@ A task is not done until all are true:
 -   Browser/runtime evidence exists for UI or route changes.
 -   No unrelated refactor was bundled into the task.
 -   `feature_list.json` / `PROGRESS.md` are updated when durable state changed.
--   The PR body contains evidence, not just a confidence statement.
+-   The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.
+-   For harness-state validator work, make the PR body itself repeat the related lectures list, validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
 -   An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.
 
 ## Anti-premature-victory rules
