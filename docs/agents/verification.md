@@ -34,6 +34,7 @@ A task is not done until all are true:
 -   No unrelated refactor was bundled into the task.
 -   `feature_list.json` / `PROGRESS.md` are updated when durable state changed.
 -   The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.
+-   For harness-state validator work, make the PR body itself repeat the related lectures list, validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
 -   An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.
 
 ## Anti-premature-victory rules
