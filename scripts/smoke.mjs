@@ -8,10 +8,11 @@ const maxRoutes = Number(process.env.SMOKE_MAX_ROUTES ?? 3);
 const preferredOrder = ['/', '/products', '/product-blocks', '/shop', '/cart', '/checkout', '/about', '/contact', '/blog'];
 
 function toRoute(filePath) {
-    const rel = filePath.replace(/^pages\//, '').replace(/\\/g, '/');
-    if (!rel.endsWith('.vue')) return null;
+    const rel = path.relative(process.cwd(), filePath).replace(/\\/g, '/');
+    if (!rel.startsWith('pages/') || !rel.endsWith('.vue')) return null;
     if (rel.includes('[') || rel.includes(']')) return null;
-    const noExt = rel.slice(0, -4);
+
+    const noExt = rel.slice('pages/'.length, -4);
     if (noExt === 'index') return '/';
     if (noExt.endsWith('/index')) return `/${noExt.slice(0, -6)}`;
     return `/${noExt}`;
@@ -59,8 +60,9 @@ for (const route of routes) {
             failures.push(`${route} -> ${response.status}`);
         }
     } catch (error) {
-        console.log(`FAIL ${route} -> ${error instanceof Error ? error.message : String(error)}`);
-        failures.push(`${route} -> ${error instanceof Error ? error.message : String(error)}`);
+        const message = error instanceof Error ? error.message : String(error);
+        console.log(`FAIL ${route} -> ${message}`);
+        failures.push(`${route} -> ${message}`);
     }
 }
 
