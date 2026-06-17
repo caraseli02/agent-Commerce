@@ -15,16 +15,18 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/Ecas`. Use th
 
 ## Pickup rules
 
+- The controller loop should behave like a standing `/goal`: keep one issue alive until evaluator pass, blocker, or human intervention.
 - Only issues with the `ready-for-agent` label are eligible for planner pickup.
 - Before editing code, the planner claims exactly one issue:
-  - remove `ready-for-agent`
-  - add the `in-progress` label
-  - assign the issue to the working account
-  - leave a short comment with the branch name
+    - remove `ready-for-agent`
+    - add the `in-progress` label
+    - assign the issue to the working account
+    - leave a short comment with the branch name
 - If an issue is already assigned or already has an active PR, skip it.
 - WIP is 1: never work two issues in parallel.
 - The generator may only implement the issue already claimed by the planner.
 - The generator opens or updates a PR, but does not declare final completion.
+- If an `in-progress` issue has an open PR, do not select new work. Wait for evaluator, or repair that same PR when the evaluator fails it.
 - The evaluator independently checks the PR and moves the issue toward `ready-for-human` only after evidence passes.
 
 ## When a skill says "publish to the issue tracker"

@@ -14,12 +14,12 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 
 ## Operational labels (not triage roles)
 
-- `in-progress` — claimed by the planner/generator loop; used by pickup rules in `issue-tracker.md`
+- `in-progress` — claimed by the planner/generator loop; used by pickup rules in `issue-tracker.md`. If an open PR exists, WIP remains occupied until evaluator pass, blocker, or repair on that same PR.
 - `blocked` — concrete blocker found by generator or evaluator; include a comment with the repair instruction or human decision needed
 
 Optional future label:
 
-- `ready-for-evaluator` — use only if the repo adopts an explicit evaluator queue. Until then, evaluators discover open PRs linked to `in-progress` issues.
+- `ready-for-evaluator` — use only if the repo adopts an explicit evaluator queue. Until then, evaluators discover open PRs linked to `in-progress` issues, and evaluator failures repair the same issue/branch rather than re-entering `ready-for-agent`.
 
 ## Rule
 
