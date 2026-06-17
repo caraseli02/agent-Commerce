@@ -2,12 +2,25 @@
 
 ECAS autonomous work follows the Learn Harness Engineering recommendation to separate planning, generation, and evaluation. The generator must not be the final judge of completion.
 
+## Goal-shaped controller loop
+
+The autonomous loop should behave like a standing `/goal` even when cron wakes individual stages:
+
+- Keep exactly one issue active at a time.
+- A planner claim moves `ready-for-agent` → `in-progress`.
+- A generator opens or updates the PR for that same issue/branch.
+- The ship path triggers evaluator review immediately after the PR head changes; do not wait for the next scheduled evaluator tick when a PR is ready.
+- If the evaluator returns `FAIL`, keep the issue `in-progress`, keep the same branch/PR, and produce a focused repair brief from the evaluator comment.
+- Do not promote or select a new issue while an `in-progress` issue has an open PR unless that issue is passed/blocked and state cleanup is complete.
+
+This is the runtime equivalent of: “work the currently claimed ECAS issue until it is evaluator-approved or blocked.”
+
 ## Roles
 
-| Role | Responsibility | Must not do |
-| --- | --- | --- |
-| Planner | Select one eligible issue, claim it, write the work brief, define verification expectations | Edit implementation code or declare the issue complete |
-| Generator | Implement the claimed issue, run local pre-flight checks, open or update a PR | Select new work, broaden scope, or self-certify final completion |
+| Role      | Responsibility                                                                                                    | Must not do                                                       |
+| --------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Planner   | Select one eligible issue, claim it, write the work brief, define verification expectations                       | Edit implementation code or declare the issue complete            |
+| Generator | Implement the claimed issue, run local pre-flight checks, open or update a PR                                     | Select new work, broaden scope, or self-certify final completion  |
 | Evaluator | Independently verify the PR against the issue, related lectures, runtime evidence, and clean-handoff requirements | Implement unrelated fixes or accept generator confidence as proof |
 
 ## Queue state model
@@ -17,8 +30,9 @@ Default minimal flow:
 1. `ready-for-agent` — scoped issue is eligible for planner pickup.
 2. `in-progress` — planner claimed the issue and generator may work only on that issue.
 3. Open PR exists — generator output is ready for independent evaluation.
-4. `ready-for-human` — evaluator passed the PR and it is ready for Vlad's review.
-5. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence.
+4. Evaluator `FAIL` — same issue/branch/PR receives a repair brief; WIP remains 1.
+5. `ready-for-human` — evaluator passed the PR and it is ready for Vlad's review.
+6. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence.
 
 Use this minimal flow unless the project explicitly adds a `ready-for-evaluator` label. An evaluator can discover work by scanning open PRs linked to `in-progress` issues.
 
@@ -65,27 +79,41 @@ Required checks:
 Verdicts:
 
 - `PASS — ready-for-human`: add or keep `ready-for-human`; comment with evidence summary.
-- `FAIL — needs generator fix`: comment with exact failing check and repair instruction; keep `in-progress`.
+- `FAIL — needs generator fix`: comment with exact failing check and repair instruction; keep `in-progress` and repair the same PR/branch.
 - `BLOCKED — needs human decision`: add/use blocker communication with the concrete missing decision.
+
+## Repair loop rule
+
+When an `in-progress` issue already has an open PR, controller logic must route by evaluator state:
+
+- No current-head evaluator verdict: wait for evaluator; do not run generator again.
+- `PASS`: wait for human review/merge or state cleanup; do not select new work until WIP is clear.
+- `FAIL`: generate a focused repair brief from the evaluator comment and update the same branch/PR.
+- `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
 
 ## Evaluator report format
 
 ```md
 ## Evaluator verdict
+
 PASS | FAIL | BLOCKED
 
 ## Issue / PR
+
 - Issue: #N
 - PR: #N
 
 ## Related lectures / sources checked
+
 - Lecture XX — <title>
 
 ## Evidence reviewed
+
 - `<command>`: pass/fail + summary
 - Runtime/browser evidence: route/flow/screenshot/log, or N/A with reason
 
 ## Rubric
+
 - Scope control: 0/1/2
 - Acceptance criteria: 0/1/2
 - Verification evidence: 0/1/2
@@ -94,6 +122,7 @@ PASS | FAIL | BLOCKED
 - Total: X/10
 
 ## Required follow-up
+
 - none, or exact repair instruction
 ```
 

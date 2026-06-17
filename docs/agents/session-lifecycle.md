@@ -28,12 +28,12 @@ Before editing files, write a short contract in the issue or PR notes:
 ```md
 ## Sprint contract
 
--   Issue: #<number>
--   Scope: <one small behavior>
--   Files expected: <likely files or directories>
--   Out of scope: <explicit exclusions>
--   Verification: <commands + browser/runtime check>
--   Stop condition: pass verification or report blocker after 2 focused attempts
+- Issue: #<number>
+- Scope: <one small behavior>
+- Files expected: <likely files or directories>
+- Out of scope: <explicit exclusions>
+- Verification: <commands + browser/runtime check>
+- Stop condition: pass verification or report blocker after 2 focused attempts
 ```
 
 This makes the process observable and prevents scope creep.
@@ -48,12 +48,12 @@ This makes the process observable and prevents scope creep.
 
 ## 4. During work
 
--   Prefer TDD when a behavior can be expressed as a test.
--   Make one small decision, one small change, then one verification run.
--   If the task grows past roughly three files or crosses unrelated concerns, split it.
--   Do not refactor adjacent code until the core behavior is verified.
--   Record durable decisions in `DECISIONS.md`, not in chat only.
--   Update `feature_list.json` when feature/task state changes.
+- Prefer TDD when a behavior can be expressed as a test.
+- Make one small decision, one small change, then one verification run.
+- If the task grows past roughly three files or crosses unrelated concerns, split it.
+- Do not refactor adjacent code until the core behavior is verified.
+- Record durable decisions in `DECISIONS.md`, not in chat only.
+- Update `feature_list.json` when feature/task state changes.
 
 ## 5. Blocker protocol
 
@@ -64,12 +64,12 @@ Blocker note format:
 ```md
 ## Blocked
 
--   Issue: #<number>
--   Branch: <branch>
--   Failing command/check: `<command>`
--   Observed error: <short exact symptom>
--   Tried: <attempt 1>, <attempt 2>
--   Best next move: <recommended human/stronger-model action>
+- Issue: #<number>
+- Branch: <branch>
+- Failing command/check: `<command>`
+- Observed error: <short exact symptom>
+- Tried: <attempt 1>, <attempt 2>
+- Best next move: <recommended human/stronger-model action>
 ```
 
 ## 6. Clean-state checklist before handoff
@@ -87,12 +87,13 @@ pnpm test
 
 Also verify:
 
--   `git status --short` contains only intentional files.
--   No temporary debug files are left under `tmp/`, project root, or source folders.
--   No new `console.log`, commented-out code, or TODO markers were introduced unless explicitly intended.
--   `PROGRESS.md` states current focus, blockers, and next verification.
--   `feature_list.json` evidence is updated if task state changed.
--   PR body includes verification evidence and any known risks.
+- `git status --short` contains only intentional files.
+- No temporary debug files are left under `tmp/`, project root, or source folders.
+- No new `console.log`, commented-out code, or TODO markers were introduced unless explicitly intended.
+- `PROGRESS.md` states current focus, blockers, and next verification.
+- `feature_list.json` evidence is updated if task state changed.
+- PR body includes verification evidence and any known risks.
+- If a PR was created or updated, evaluator handoff was triggered for the new PR head before starting any new issue.
 
 ## 7. Handoff template
 
@@ -101,17 +102,17 @@ Use this in PRs, issue comments, or session summaries:
 ```md
 ## Handoff
 
--   Issue/PR: #<number> / #<number>
--   Branch: <branch>
--   Scope completed: <short summary>
--   Files changed: <key files>
--   Verification run:
-    -   `pnpm build`: <pass/fail>
-    -   `pnpm lint`: <pass/fail>
-    -   `pnpm typecheck`: <pass/fail>
-    -   `pnpm test`: <pass/fail>
-    -   Browser/runtime smoke: <pass/fail/not applicable>
--   Evidence: <screenshots, route checked, test output, logs>
--   Known risks: <none or list>
--   Next best action: <review/merge/follow-up issue/blocker>
+- Issue/PR: #<number> / #<number>
+- Branch: <branch>
+- Scope completed: <short summary>
+- Files changed: <key files>
+- Verification run:
+    - `pnpm build`: <pass/fail>
+    - `pnpm lint`: <pass/fail>
+    - `pnpm typecheck`: <pass/fail>
+    - `pnpm test`: <pass/fail>
+    - Browser/runtime smoke: <pass/fail/not applicable>
+- Evidence: <screenshots, route checked, test output, logs>
+- Known risks: <none or list>
+- Next best action: <review/merge/follow-up issue/blocker>
 ```
