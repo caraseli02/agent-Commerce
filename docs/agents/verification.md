@@ -76,3 +76,9 @@ A useful failure message says:
 1. what went wrong
 2. why it matters
 3. where to look next
+
+## Smoke gate
+
+-   Run `pnpm smoke` against `pnpm dev` to verify the core routes load without crashing.
+-   v1 smoke matrix: homepage (`/`) plus one representative product or gallery route selected from `pages/`.
+-   Treat this as the minimal runtime check before broader auth/cart/checkout/dashboard verification.
