@@ -35,14 +35,10 @@ jobs:
             - name: Build
               run: pnpm build
 
-            # Baseline debt still exists in the repo, so lint is reported but does not block CI yet.
             - name: Lint
-              continue-on-error: true
               run: pnpm lint
 
-            # Baseline debt still exists in the repo, so typecheck is reported but does not block CI yet.
             - name: Typecheck
-              continue-on-error: true
               run: pnpm typecheck
 
             - name: Test

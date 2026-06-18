@@ -24,6 +24,18 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 5. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
+## Local gate ownership
+
+- **Pre-commit:** `lint-staged` runs Prettier on staged files only.
+- **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test`.
+- **CI:** the same full gate as pre-push, with every command required to pass.
+
+## If a local gate fails
+
+1. Stop and fix the failing command before pushing.
+2. If `lint-staged` rewrites files, restage those changes and rerun the hook.
+3. If the failure is outside the current scope, record the exact command and output in `PROGRESS.md` and do not widen the task.
+
 ## Done gate
 
 A task is not done until all are true:
