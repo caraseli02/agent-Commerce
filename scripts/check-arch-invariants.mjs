@@ -120,7 +120,7 @@ async function main() {
   }
 
   if (violations.length > 0) {
-    console.error('Architecture invariant failed: raw Bearer Authorization headers are only allowed in plugins/api.ts or composables/api/.');
+    console.error('Architecture invariant failed: manual bearer auth headers are only allowed in plugins/api.ts or composables/api/.');
     console.error('Why it matters: ECAS routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.');
     console.error('Where to look next: move the request into plugins/api.ts, composables/api/, or a service that uses the injected $api/$apiClient layer instead of hand-building auth headers.');
 
