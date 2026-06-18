@@ -54,9 +54,11 @@ Every generator PR should include:
 
 - Related issue and `Closes #<issue>`
 - Related lectures/source docs when applicable
-- Verification evidence from local pre-flight checks
-- Runtime/browser evidence when UI, route, auth, cart, checkout, mock API, or state flow changed
+- Verification evidence from local pre-flight checks, including exact command outcomes
+- Runtime/browser evidence when UI, route, auth, cart, checkout, mock API, or state flow changed, with links or paths to the exact proof
 - Risks, known failures, or explicit `none`
+
+If a PR uses temporary evidence artifacts during review, the PR body should say where they live and whether they will be removed before merge.
 
 The evaluator report is separate from the generator PR body and should use `docs/agents/autonomous-workflow.md`.
 

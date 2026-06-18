@@ -29,6 +29,28 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 7. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
+## Evidence policy
+
+Use this policy to keep PRs reviewable and avoid scattering one-off artifacts across the repo.
+
+- **Command output** stays in the PR body or PR comments when it is part of the proof. Keep the exact command and the relevant pass/fail output together.
+- **Screenshots, logs, and runtime notes** belong in the PR body or linked PR comments when they help an evaluator verify the change without hunting through the diff.
+- **Durable evidence** may be committed only when it is part of the repo's long-lived docs, tests, or fixtures. If the artifact is only proof of a run, do not commit it.
+- **Temporary artifacts** belong in `tmp/` during capture and should be removed before handoff unless the issue explicitly asks to retain them.
+- **Tracked `tmp/` files** are discouraged by default. If a `tmp/` artifact must be kept for review, document why it is retained and clean it up in the same task or follow-up.
+- **Runtime links** in PR text should point at the exact route, log, or screenshot that proves the changed behavior.
+
+Example evidence block for a future PR:
+
+```md
+## Evidence
+
+- `pnpm verify`: pass
+- Runtime smoke: `/products/19` loaded successfully in `pnpm dev`
+- Screenshot: `tmp/screenshots/products-19-after.png` (removed before merge)
+- Notes: product media fallback renders correctly on mobile and desktop
+```
+
 ## Local gate ownership
 
 - **Pre-commit:** `lint-staged` runs Prettier on staged files only.
