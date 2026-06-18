@@ -40,6 +40,7 @@ Use **pnpm** for this repo.
 - `pnpm typecheck` — Nuxt/TypeScript typecheck
 - `pnpm test` — Vitest suite
 - `pnpm pretty` — Prettier format-all
+- `pnpm verify` — canonical non-mutating verification command
 
 ### One-command initialization
 
@@ -51,11 +52,8 @@ Before calling work done, run the narrowest meaningful verification, then climb 
 
 Default full gate:
 
-1. `pnpm build`
-2. `pnpm lint`
-3. `pnpm typecheck`
-4. `pnpm test`
-5. Smoke-test the affected flow in the browser or via the relevant page/server route
+1. `pnpm verify`
+2. If the issue needs additional runtime evidence, smoke-test the affected flow in the browser or via the relevant page/server route
 
 If a change touches UI, mock data, auth, cart, checkout, or server routes, verify the related flow end to end, not just the compile step.
 

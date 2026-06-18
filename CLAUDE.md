@@ -25,6 +25,7 @@ A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase,
 -   `pnpm typecheck`
 -   `pnpm test`
 -   `pnpm pretty`
+-   `pnpm verify`
 -   `./init.sh`
 
 ## Harness state files
@@ -75,11 +76,8 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 ## Verification order
 
-1. `pnpm build`
-2. `pnpm lint`
-3. `pnpm typecheck`
-4. `pnpm test`
-5. Smoke-test the affected screen or route
+1. `pnpm verify`
+2. Add a targeted smoke-test only if the issue needs extra runtime evidence beyond the canonical command
 
 Use `docs/agents/verification.md` before declaring done.
 
