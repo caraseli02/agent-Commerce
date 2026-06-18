@@ -6,22 +6,22 @@ Use this doc to decide whether an ECAS task is actually done. It implements the 
 
 Run the narrowest meaningful check first, then climb until the changed behavior is proven.
 
-1. **Static/runtime baseline**
-    - `pnpm build`
-    - `pnpm lint`
-    - `pnpm typecheck`
-    - `pnpm test`
+1. **Canonical full gate**
+    - `pnpm verify`
+    - This is the default answer to “Can this PR be considered verified?”
 2. **Harness-state validator**
     - Run `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
     - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
-3. **Targeted test**
+3. **Targeted baseline check**
+    - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
+4. **Targeted test**
     - Add or update a focused Vitest test when behavior can be checked without the browser.
     - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-4. **Browser/runtime smoke**
-    - Start `pnpm dev` when UI/routes are affected.
+5. **Browser/runtime smoke**
+    - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
     - Exercise the affected page or server route.
     - Capture screenshot or exact route/flow evidence in the PR.
-5. **Integration check**
+6. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
 ## Done gate

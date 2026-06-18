@@ -75,6 +75,7 @@ pnpm generate
 pnpm preview
 pnpm lint
 pnpm pretty
+pnpm verify
 ```
 
 ## Key review flows
