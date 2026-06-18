@@ -92,6 +92,7 @@ Also verify:
 - No new `console.log`, commented-out code, or TODO markers were introduced unless explicitly intended.
 - `PROGRESS.md` states current focus, blockers, and next verification.
 - `feature_list.json` evidence is updated if task state changed.
+- Any temporary evidence captured during the session is either committed as durable documentation or removed from `tmp/` and the working tree before handoff.
 - PR body includes verification evidence and any known risks.
 - If a PR was created or updated, evaluator handoff was triggered for the new PR head before starting any new issue.
 
