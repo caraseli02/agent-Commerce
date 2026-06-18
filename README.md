@@ -143,5 +143,5 @@ docs/            supporting audit/media materials
 
 - Package manager for this repo is **pnpm**
 - `.env` is ignored; use `.env.example` as the template
-- `pnpm lint` currently reports legacy backlog outside this MVP cleanup pass
+- Local gates are documented in `docs/agents/verification.md`; pre-commit formats staged files, pre-push runs the full verification set, and CI mirrors pre-push
 - For portfolio demos, validate the key review flows above before capturing screenshots or video
