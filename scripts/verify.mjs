@@ -104,6 +104,7 @@ async function main() {
   await run('pnpm', ['typecheck']);
   await run('pnpm', ['test']);
   await run('bash', ['./scripts/validate-feature-list.sh']);
+  await run('node', ['scripts/check-arch-invariants.mjs']);
   await runWithPreview();
   console.log('pnpm verify passed.');
 }

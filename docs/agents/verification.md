@@ -12,16 +12,21 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 2. **Harness-state validator**
     - Run `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
     - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
-3. **Targeted baseline check**
+3. **Architecture-invariant gate**
+    - `node scripts/check-arch-invariants.mjs`
+    - This runs inside `pnpm verify` after the harness-state validator.
+    - It enforces the ECAS API boundary for authenticated requests: raw `Authorization: Bearer ...` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
+    - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
+4. **Targeted baseline check**
     - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
-4. **Targeted test**
+5. **Targeted test**
     - Add or update a focused Vitest test when behavior can be checked without the browser.
     - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-5. **Browser/runtime smoke**
+6. **Browser/runtime smoke**
     - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
     - Exercise the affected page or server route.
     - Capture screenshot or exact route/flow evidence in the PR.
-6. **Integration check**
+7. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
 ## Local gate ownership
