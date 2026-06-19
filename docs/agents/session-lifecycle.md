@@ -94,7 +94,7 @@ Also verify:
 -   `PROGRESS.md` states current focus, blockers, and next verification.
 -   `feature_list.json` evidence is updated if task state changed.
 -   Any temporary evidence captured during the session is either committed as durable documentation or removed from `tmp/` and the working tree before handoff.
--   PR body includes verification evidence and any known risks.
+-   PR body includes verification evidence, any known risks, and — for harness-state validator work — the exact related lectures/source docs list from the issue body.
 -   If a PR was created or updated, evaluator handoff was triggered for the new PR head before starting any new issue.
 
 ## 7. Handoff template
