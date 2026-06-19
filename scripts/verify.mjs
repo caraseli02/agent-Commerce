@@ -82,10 +82,7 @@ async function runWithPreview() {
       preview.kill('SIGTERM');
     }
 
-    const exit = await Promise.race([
-      previewExit,
-      new Promise(resolve => setTimeout(() => resolve(null), 5000)),
-    ]);
+    const exit = await Promise.race([previewExit, new Promise(resolve => setTimeout(() => resolve(null), 5000))]);
 
     if (exit === null && !preview.killed) {
       preview.kill('SIGKILL');
@@ -105,6 +102,7 @@ async function main() {
   await run('pnpm', ['test']);
   await run('bash', ['./scripts/validate-feature-list.sh']);
   await run('node', ['scripts/check-arch-invariants.mjs']);
+  await run('node', ['scripts/check-clean-state.mjs']);
   await runWithPreview();
   console.log('pnpm verify passed.');
 }
