@@ -90,7 +90,7 @@ Also verify:
 
 -   `git status --short` contains only intentional files.
 -   No temporary debug files are left under `tmp/`, project root, or source folders.
--   No new `console.log`, commented-out code, or TODO/FIXME markers were introduced unless explicitly intended; `node scripts/check-clean-state.mjs` checks the changed source files for those regressions.
+-   No new `console.log`, commented-out code, or TODO/FIXME markers were introduced unless explicitly intended; `node scripts/check-clean-state.mjs` checks the changed source files for those regressions and only performs the `PROGRESS.md` shape checks it can verify mechanically.
 -   `PROGRESS.md` states current focus, blockers, and next verification.
 -   `feature_list.json` evidence is updated if task state changed.
 -   Any temporary evidence captured during the session is either committed as durable documentation or removed from `tmp/` and the working tree before handoff.

@@ -15,7 +15,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 3. **Clean-state handoff validator**
     - `node scripts/check-clean-state.mjs`
     - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions.
-    - It also treats stale session-state shape as a failure signal where practical, so agents have one executable check before they hand work off.
+    - It also treats stale session-state shape as a failure signal where practical: the validator only checks the `PROGRESS.md` handoff shape it can verify mechanically, while deeper task-state semantics stay with `./scripts/validate-feature-list.sh` and human review.
 4. **Architecture-invariant gate**
     - `node scripts/check-arch-invariants.mjs`
     - This runs inside `pnpm verify` after the harness-state validator.

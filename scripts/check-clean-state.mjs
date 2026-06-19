@@ -7,7 +7,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 const execFileAsync = promisify(execFile);
-const rootDir = path.dirname(fileURLToPath(new URL('..', import.meta.url)));
+const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const sourceExtensions = new Set(['.js', '.mjs', '.ts', '.vue', '.json']);
 const tempPathPattern = /(^|\/)(tmp|temp|debug|scratch)(\/|$)|\.(log|tmp|bak|orig|swp|swo)$/i;
@@ -104,7 +104,7 @@ async function main() {
   }
 
   const base = await runGit(['merge-base', 'origin/main', 'HEAD']);
-  const changedFiles = await getChangedFiles();
+  const changedFiles = await getChangedFiles(base);
   const trackedTempArtifacts = changedFiles.filter(filePath => tempPathPattern.test(filePath));
   if (trackedTempArtifacts.length > 0) {
     fail(`tracked temporary/debug artifacts are present in the branch diff: ${trackedTempArtifacts.join(', ')}.`);
