@@ -12,50 +12,54 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 2. **Harness-state validator**
     - Run `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
     - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
-3. **Architecture-invariant gate**
+3. **Clean-state handoff validator**
+    - `node scripts/check-clean-state.mjs`
+    - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions. It intentionally skips scanning `scripts/check-clean-state.mjs` itself so the validator does not self-flag its own pattern definitions.
+    - It also treats stale session-state shape as a failure signal where practical: the validator only checks the `PROGRESS.md` handoff shape it can verify mechanically, while deeper task-state semantics stay with `./scripts/validate-feature-list.sh` and human review.
+4. **Architecture-invariant gate**
     - `node scripts/check-arch-invariants.mjs`
     - This runs inside `pnpm verify` after the harness-state validator.
-    - It enforces the ECAS API boundary for authenticated requests: raw `Authorization: Bearer ...` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
+    - It enforces the ECAS API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
     - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
-4. **Targeted baseline check**
+5. **Targeted baseline check**
     - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
-5. **Targeted test**
+6. **Targeted test**
     - Add or update a focused Vitest test when behavior can be checked without the browser.
     - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-6. **Browser/runtime smoke**
+7. **Browser/runtime smoke**
     - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
     - Exercise the affected page or server route.
     - Capture screenshot or exact route/flow evidence in the PR.
-7. **Integration check**
+8. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
 ## Evidence policy
 
 Use this policy to keep PRs reviewable and avoid scattering one-off artifacts across the repo.
 
-- **Command output** stays in the PR body or PR comments when it is part of the proof. Keep the exact command and the relevant pass/fail output together.
-- **Screenshots, logs, and runtime notes** belong in the PR body or linked PR comments when they help an evaluator verify the change without hunting through the diff.
-- **Durable evidence** may be committed only when it is part of the repo's long-lived docs, tests, or fixtures. If the artifact is only proof of a run, do not commit it.
-- **Temporary artifacts** belong in `tmp/` during capture and should be removed before handoff unless the issue explicitly asks to retain them.
-- **Tracked `tmp/` files** are discouraged by default. If a `tmp/` artifact must be kept for review, document why it is retained and clean it up in the same task or follow-up.
-- **Runtime links** in PR text should point at the exact route, log, or screenshot that proves the changed behavior.
+-   **Command output** stays in the PR body or PR comments when it is part of the proof. Keep the exact command and the relevant pass/fail output together.
+-   **Screenshots, logs, and runtime notes** belong in the PR body or linked PR comments when they help an evaluator verify the change without hunting through the diff.
+-   **Durable evidence** may be committed only when it is part of the repo's long-lived docs, tests, or fixtures. If the artifact is only proof of a run, do not commit it.
+-   **Temporary artifacts** belong in `tmp/` during capture and should be removed before handoff unless the issue explicitly asks to retain them.
+-   **Tracked `tmp/` files** are discouraged by default. If a `tmp/` artifact must be kept for review, document why it is retained and clean it up in the same task or follow-up.
+-   **Runtime links** in PR text should point at the exact route, log, or screenshot that proves the changed behavior.
 
 Example evidence block for a future PR:
 
 ```md
 ## Evidence
 
-- `pnpm verify`: pass
-- Runtime smoke: `/products/19` loaded successfully in `pnpm dev`
-- Screenshot: `tmp/screenshots/products-19-after.png` (removed before merge)
-- Notes: product media fallback renders correctly on mobile and desktop
+-   `pnpm verify`: pass
+-   Runtime smoke: `/products/19` loaded successfully in `pnpm dev`
+-   Screenshot: `tmp/screenshots/products-19-after.png` (removed before merge)
+-   Notes: product media fallback renders correctly on mobile and desktop
 ```
 
 ## Local gate ownership
 
-- **Pre-commit:** `lint-staged` runs Prettier on staged files only.
-- **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test`.
-- **CI:** the same full gate as pre-push, with every command required to pass.
+-   **Pre-commit:** `lint-staged` runs Prettier on staged files only.
+-   **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test`.
+-   **CI:** the same full gate as pre-push, with every command required to pass.
 
 ## If a local gate fails
 
@@ -73,7 +77,7 @@ A task is not done until all are true:
 -   No unrelated refactor was bundled into the task.
 -   `feature_list.json` / `PROGRESS.md` are updated when durable state changed.
 -   The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.
--   For harness-state validator work, make the PR body itself repeat the related lectures list, validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
+-   For harness-state validator work, make the PR body itself repeat the related lectures list exactly as listed in the issue body, the validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
 -   An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.
 
 ## Anti-premature-victory rules
