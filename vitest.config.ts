@@ -14,5 +14,6 @@ export default defineConfig({
   },
   test: {
     include: ['tests/**/*.spec.ts'],
+    exclude: ['tests/e2e/**', 'node_modules/**', '.nuxt/**', '.output/**'],
   },
 });
