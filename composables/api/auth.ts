@@ -62,10 +62,15 @@ export async function verifyEmail(code: string) {
   });
 }
 
-export async function fetchUserDetails(userId: string) {
+export async function fetchUserDetails(userId: string, token?: string) {
   const { $apiClient } = useNuxtApp();
 
   return await $apiClient<UserDetailsResponse>(`user/${userId}/details`, {
     method: 'GET',
+    ...(token
+      ? {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      : {}),
   });
 }

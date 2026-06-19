@@ -6,10 +6,10 @@ export default defineEventHandler((event) => {
   const user = getMockUserFromAuthHeader(headers.authorization);
 
   if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
+    return {
+      status: 'success',
+      data: [],
+    };
   }
 
   if (user.role !== AccountRole.Client) {

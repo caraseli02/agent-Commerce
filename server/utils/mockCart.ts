@@ -5,6 +5,7 @@ import type { DiscountInterface } from '~/types/auth/account-settings';
 
 const CART_TTL_MS = 60 * 60 * 1000;
 const MAX_CARTS = 250;
+const GUEST_CART_USER_ID = 'guest-user-session';
 
 type StoredCart = {
   cart: CartInterface;
@@ -52,7 +53,7 @@ type ProductEntityLike = {
 
 const calculatePricing = (productEntity: ProductEntityLike | null | undefined, stock = 0, backorderStock = 0) => {
   const activePrice
-    = productEntity?.priceHistory?.find?.(entry => entry?.active)?.price ?? productEntity?.priceHistory?.[0]?.price ?? 0;
+        = productEntity?.priceHistory?.find?.(entry => entry?.active)?.price ?? productEntity?.priceHistory?.[0]?.price ?? 0;
   const initialUnitPrice = Number(activePrice) || 0;
   const unitPriceAfterDiscounts = initialUnitPrice;
   const subtotal = unitPriceAfterDiscounts * (Number(stock) + Number(backorderStock));
@@ -182,7 +183,7 @@ export const findMockCartById = (cartId?: string | null) => {
 export const requireMockCartUserId = (authorizationHeader?: string | null) => {
   const userId = parseMockUserIdFromToken(authorizationHeader);
   // Support guest users by falling back to a fixed guest ID if no token is present
-  return userId || 'guest-user-session';
+  return userId || GUEST_CART_USER_ID;
 };
 
 export const addProductsToMockCart = (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
@@ -211,6 +212,29 @@ export const addProductsToMockCart = (cart: CartInterface, products: Partial<Car
     cartsByUserId.set(cart.userId, { cart, updatedAt: nowMs() });
   }
   return cart;
+};
+
+export const mergeGuestCartIntoMockCart = (userId?: string | null) => {
+  const normalizedUserId = String(userId || '').trim();
+
+  if (!normalizedUserId || normalizedUserId === GUEST_CART_USER_ID) {
+    return null;
+  }
+
+  purgeExpiredCarts();
+
+  const guestCart = cartsByUserId.get(GUEST_CART_USER_ID)?.cart;
+  const guestProducts = (guestCart?.products || []).filter(product => product.id);
+
+  if (!guestProducts.length) {
+    return getMockCartForUser(normalizedUserId);
+  }
+
+  const userCart = getMockCartForUser(normalizedUserId);
+  addProductsToMockCart(userCart, guestProducts);
+  cartsByUserId.delete(GUEST_CART_USER_ID);
+
+  return userCart;
 };
 
 export const setProductsInMockCart = (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {

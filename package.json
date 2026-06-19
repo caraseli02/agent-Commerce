@@ -11,6 +11,7 @@
         "pretty": "prettier --write .",
         "typecheck": "nuxt typecheck",
         "test": "vitest run",
+        "test:e2e": "playwright test",
         "verify": "node scripts/verify.mjs",
         "prepare": "husky",
         "smoke": "node scripts/smoke.mjs"

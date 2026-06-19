@@ -158,7 +158,7 @@ export function useOrder() {
 
   const handleOrderResponse = async (response: PlaceOrderInterface, orderId: string, paymentType: PaymentTypeEnum) => {
     if (config.public.MOCK_MODE) {
-      await router.push({ path: '/order-summary/' + orderId, query: { new: 'true' } });
+      await router.push({ path: '/checkout/success', query: { id: orderId } });
       return;
     }
 
