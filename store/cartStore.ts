@@ -43,7 +43,7 @@ export const useCartStore = defineStore({
       const cartResponse = await $api.cart.fetchCartList();
 
       if (!cartResponse) {
-        return Promise<null>;
+        return null;
       }
 
       this.cart = cartResponse.data;
@@ -77,7 +77,7 @@ export const useCartStore = defineStore({
         const cartResponse = await $api.cart.fetchCartList();
 
         if (!cartResponse) {
-          return Promise<null>;
+          return null;
         }
 
         return cartResponse.data;

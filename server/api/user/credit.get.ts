@@ -5,10 +5,19 @@ export default defineEventHandler((event) => {
   const user = getMockUserFromAuthHeader(headers.authorization);
 
   if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
+    return {
+      status: 'success',
+      data: {
+        limit: 0,
+        spent: 0,
+        available: 0,
+        dueDate: '',
+        tillDue: '',
+        term: '',
+        freeze: false,
+        active: false,
+      },
+    };
   }
 
   const credit = user.adminSettings?.customerCredit;
