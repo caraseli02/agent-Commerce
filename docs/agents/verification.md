@@ -14,7 +14,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
     - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
 3. **Clean-state handoff validator**
     - `node scripts/check-clean-state.mjs`
-    - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions.
+    - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions. It intentionally skips scanning `scripts/check-clean-state.mjs` itself so the validator does not self-flag its own pattern definitions.
     - It also treats stale session-state shape as a failure signal where practical: the validator only checks the `PROGRESS.md` handoff shape it can verify mechanically, while deeper task-state semantics stay with `./scripts/validate-feature-list.sh` and human review.
 4. **Architecture-invariant gate**
     - `node scripts/check-arch-invariants.mjs`

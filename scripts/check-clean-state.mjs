@@ -10,6 +10,7 @@ const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const sourceExtensions = new Set(['.js', '.mjs', '.ts', '.vue', '.json']);
+const validatorSelfPath = 'scripts/check-clean-state.mjs';
 const tempPathPattern = /(^|\/)(tmp|temp|debug|scratch)(\/|$)|\.(log|tmp|bak|orig|swp|swo)$/i;
 const consoleLogPattern = /\bconsole\.log\s*\(/;
 const todoPattern = /\b(?:TODO|FIXME)\b/;
@@ -112,7 +113,7 @@ async function main() {
 
   await checkProgressStateShape();
 
-  const scanTargets = changedFiles.filter(isSourceFile);
+  const scanTargets = changedFiles.filter(filePath => isSourceFile(filePath) && filePath !== validatorSelfPath);
   const violations = [];
 
   for (const filePath of scanTargets) {
