@@ -1,4 +1,5 @@
 import { createMockToken, getMockUserByCredentials } from '~/server/utils/mockUsers';
+import { mergeGuestCartIntoMockCart } from '~/server/utils/mockCart';
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as { email?: string; clientCode?: string; password?: string };
@@ -9,6 +10,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const token = createMockToken(match.user._id || 'mock-customer-1');
+  mergeGuestCartIntoMockCart(match.user._id);
 
   return {
     status: 'success',

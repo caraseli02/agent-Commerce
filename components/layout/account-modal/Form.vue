@@ -346,7 +346,7 @@ const handleSignIn = async () => {
     authStore.addToken(token);
     cookieToken.value = token;
 
-    const userDetails = await fetchUserDetails(parsedTokenResponse.user_id || user?._id, user);
+    const userDetails = await fetchUserDetails(parsedTokenResponse.user_id || user?._id, user, token);
     if (!userDetails) {
       throw new Error('Failed to resolve user details');
     }
@@ -376,12 +376,12 @@ watch(enter, (v) => {
   if (v) handleSignIn();
 });
 
-const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface) => {
+const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, token?: string) => {
   let userDetails = fallbackUser || null;
 
   if (userId) {
     try {
-      const detailsResponse = await fetchAuthUserDetails(userId);
+      const detailsResponse = await fetchAuthUserDetails(userId, token);
 
       if (detailsResponse.status === 'success') {
         userDetails = detailsResponse.data as UserInterface;

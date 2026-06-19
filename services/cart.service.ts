@@ -21,8 +21,9 @@ class CartService extends HttpFactory {
   async addEntityToCart(payload: AddToCartRequestInterface) {
     const user = this.authStore.getCurrentUser;
     const token = this.authStore.getToken();
+    const config = useRuntimeConfig();
 
-    if (!token) {
+    if (!token && !config.public.MOCK_MODE) {
       await this.router.push('/');
       Emitter.emit('open-account-modal');
     }
@@ -41,8 +42,9 @@ class CartService extends HttpFactory {
   async updateEntityFromCart(payload: UpdateProductCartRequestInterface) {
     const user = this.authStore.getCurrentUser;
     const token = this.authStore.getToken();
+    const config = useRuntimeConfig();
 
-    if (!token) {
+    if (!token && !config.public.MOCK_MODE) {
       await this.router.push('/');
       Emitter.emit('open-account-modal');
     }
