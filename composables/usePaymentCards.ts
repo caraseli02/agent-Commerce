@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import _ from 'lodash';
 import { useUser } from './useUser';
-import { useNuxtApp } from '#app';
+import { userCards as fetchUserCards } from '~/composables/api/user';
 import type { StripeCardInterface } from '~/types';
 
 const card = ref<StripeCardInterface | null>(null);
@@ -10,11 +10,10 @@ const cards = ref<StripeCardInterface[]>([]);
 const isNewCardSelected = ref<boolean>(false);
 
 export function usePaymentCards() {
-  const { $api } = useNuxtApp();
   const { user } = useUser();
 
   const fetchCards = async () => {
-    const response = (await $api.user.userCards()) as {
+    const response = (await fetchUserCards()) as {
       status: string;
       data: StripeCardInterface[];
     };

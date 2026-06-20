@@ -3,7 +3,8 @@ import { ref, reactive, computed } from 'vue';
 import Emitter from 'tiny-emitter/instance.js';
 import moment from 'moment';
 import useFirebaseAuth from '~/composables/useFirebaseAuth';
-import { useNuxtApp, useRouter, useRoute } from '#app';
+import { useRouter, useRoute } from '#app';
+import { userCards as fetchUserCards } from '~/composables/api/user';
 import type { StripeCardInterface, UserInfoJWT } from '~/types';
 import type { UserInterface } from '~/types/auth/user-interface';
 import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
@@ -47,8 +48,7 @@ export const useAuthStore = defineStore(
     }
 
     async function addUserCards() {
-      const { $api } = useNuxtApp();
-      const cardsResponse = await $api.user.userCards();
+      const cardsResponse = await fetchUserCards();
 
       if (!cardsResponse) {
         return null;

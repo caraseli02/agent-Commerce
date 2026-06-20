@@ -31,8 +31,8 @@
 
 <script setup lang="ts">
 import { toast } from '~/components/ui/toast';
+import { resetPasswordLink as requestResetPasswordLink } from '~/composables/api/user';
 
-const { $api } = useNuxtApp();
 const router = useRouter();
 
 const form = ref({
@@ -46,7 +46,7 @@ const handleSubmit = () => {
 };
 
 const resetPassword = async (email: string) => {
-  const response = (await $api.user.resetPasswordLink(email)) as { status: string };
+  const response = (await requestResetPasswordLink(email)) as { status: string };
 
   if (response.status !== 'success') {
     toast({

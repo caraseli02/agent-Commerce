@@ -50,8 +50,8 @@
 
 <script setup lang="ts">
 import { toast } from '~/components/ui/toast';
+import { resetPassword as submitPasswordReset } from '~/composables/api/user';
 
-const { $api } = useNuxtApp();
 const router = useRouter();
 const route = useRoute();
 
@@ -77,7 +77,7 @@ const handleSubmit = () => {
 };
 
 const resetPassword = async (email: string, newPassword: string, repeatPassowrd: string, code: string) => {
-  const response = (await $api.user.resetPassword(email, newPassword, code)) as { status: string };
+  const response = (await submitPasswordReset(email, newPassword, code)) as { status: string };
 
   if (response.status !== 'success') {
     toast({

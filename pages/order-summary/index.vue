@@ -78,7 +78,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { InfoIcon, LoaderIcon } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
-import { useHead, useNuxtApp, useRouter, useRuntimeConfig } from '#app';
+import { useHead, useRouter, useRuntimeConfig } from '#app';
 import OrderStockType from '~/components/order-summary/OrderStockType.vue';
 
 // Types and Interfaces
@@ -92,6 +92,7 @@ import { useUser } from '~/composables/useUser';
 import { useCart } from '~/composables/useCart';
 import { usePaymentCards } from '~/composables/usePaymentCards';
 import { useOrder } from '~/composables/useOrder';
+import { fetchCustomerCredit } from '~/composables/api/user';
 
 // Stores
 import { useAuthStore } from '~/store/authStore';
@@ -103,7 +104,6 @@ import type { ShippingOrderPricingResponse } from '~/types/order-summary/shippin
 
 // Setup and Initialization
 const router = useRouter();
-const { $api } = useNuxtApp();
 useHead({ title: 'Order Summary' });
 
 // User Information
@@ -186,7 +186,7 @@ const getCustomerCredit = async () => {
   const idToUse = userId.value || 'guest-user-session';
 
   try {
-    const response = (await $api.user.fetchCustomerCredit(idToUse)) as {
+    const response = (await fetchCustomerCredit(idToUse)) as {
       status: string;
       data?: CustomerCreditInterface;
     };
