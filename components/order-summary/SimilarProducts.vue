@@ -21,8 +21,7 @@
 
 <script setup lang="ts">
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
-
-const { $api } = useNuxtApp();
+import { fetchProductTab } from '~/composables/api/products';
 
 const props = defineProps({
   loading: {
@@ -35,7 +34,7 @@ const props = defineProps({
 const productList = ref<ProductInterface[]>([]);
 
 async function getProductTab() {
-  const { data } = await $api.product.fetchProductTab('top-searched');
+  const { data } = await fetchProductTab('top-searched');
 
   if (data) {
     productList.value = data as unknown as ProductInterface[];

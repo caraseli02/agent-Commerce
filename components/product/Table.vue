@@ -2,10 +2,9 @@
 import CheckIcon from '@/assets/icons/check.svg';
 import type { ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
 import type { ProductFilters, SearchDataItems } from '~/model/products/response/ProductSearchResponse';
-import { useNuxtApp } from '#app/nuxt';
+import { fetchSearchProduct } from '~/composables/api/products';
 import { useProductStore } from '~/store/productStore';
 
-const { $api } = useNuxtApp();
 const router = useRouter();
 const productStore = useProductStore();
 
@@ -58,7 +57,7 @@ const searchSimilarProducts = async () => {
   isLoading.value = true;
 
   checkedFeatures.value = features.filter(item => item.checked);
-  const { data } = await $api.product.fetchSearchProduct('', null, 1, 10, {}, {}, checkedFeatures.value);
+  const { data } = await fetchSearchProduct('', null, 1, 10, {}, {}, checkedFeatures.value);
 
   totalSimilarProducts.value = !checkedFeatures.value.length ? 0 : data.items.total_items;
   similarProducts.value = data.items;

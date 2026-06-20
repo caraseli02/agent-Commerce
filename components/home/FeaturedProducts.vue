@@ -35,8 +35,7 @@
 <script setup lang="ts">
 import BlackFridayItem from '@/assets/media/home/black-friday-item.png';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
-
-const { $api } = useNuxtApp();
+import { fetchProductTab } from '~/composables/api/products';
 
 const productList = ref<ProductInterface[]>([]);
 
@@ -44,7 +43,7 @@ const filters = ['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched'];
 
 async function getProductTab() {
   try {
-    const response = await $api.product.fetchProductTab('featured');
+    const response = await fetchProductTab('featured');
     const data = response?.data || response;
 
     if (Array.isArray(data)) {

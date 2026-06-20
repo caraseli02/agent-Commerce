@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import { fetchProductTab } from '~/composables/api/products';
 
 const props = defineProps<{
   filters: string[];
@@ -49,12 +50,10 @@ const setActiveFilter = (filter: string) => {
   activeFilter.value = textUtil.slugify(filter);
 };
 
-const { $api } = useNuxtApp();
-
 watch(activeFilter, async (value) => {
   if (!value) return;
   try {
-    const response = await $api.product.fetchProductTab(value);
+    const response = await fetchProductTab(value);
     const data = response?.data || response;
 
     if (Array.isArray(data)) {
