@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import path from 'node:path';
 import process from 'node:process';
 
+const mode = process.argv.includes('--handoff') ? 'handoff' : process.argv.includes('--full') ? 'full' : 'fast';
 const previewUrl = 'http://127.0.0.1:3000';
 const previewArgs = ['.output/server/index.mjs'];
 
 function run(command, args, options = {}) {
   return new Promise((resolve, reject) => {
+    console.log(`$ ${command} ${args.join(' ')}`);
     const child = spawn(command, args, {
       stdio: 'inherit',
       env: process.env,
@@ -24,6 +27,10 @@ function run(command, args, options = {}) {
       reject(new Error(`${command} ${args.join(' ')} exited with ${signal ? `signal ${signal}` : `code ${code}`}`));
     });
   });
+}
+
+function runBin(binary, args, options = {}) {
+  return run(path.join('node_modules', '.bin', binary), args, options);
 }
 
 async function waitForPreview(url, timeoutMs = 60_000) {
@@ -70,7 +77,7 @@ async function runWithPreview() {
 
   try {
     await waitForPreview(previewUrl);
-    await run('pnpm', ['smoke'], {
+    await run('node', ['scripts/smoke.mjs'], {
       env: {
         ...process.env,
         SMOKE_BASE_URL: previewUrl,
@@ -96,15 +103,32 @@ async function runWithPreview() {
 }
 
 async function main() {
-  await run('pnpm', ['build']);
-  await run('pnpm', ['lint']);
-  await run('pnpm', ['typecheck']);
-  await run('pnpm', ['test']);
+  await runBin('nuxt', ['build']);
+  await runBin('eslint', [
+    '.',
+    '--ignore-pattern',
+    'node_modules',
+    '--ignore-pattern',
+    '.nuxt',
+    '--ignore-pattern',
+    '.output',
+    '--ignore-pattern',
+    'dist',
+  ]);
+  await runBin('nuxt', ['typecheck']);
+  await runBin('vitest', ['run']);
   await run('bash', ['./scripts/validate-feature-list.sh']);
-  await run('node', ['scripts/check-arch-invariants.mjs']);
-  await run('node', ['scripts/check-clean-state.mjs']);
-  await runWithPreview();
-  console.log('pnpm verify passed.');
+
+  if (mode === 'full' || mode === 'handoff') {
+    await run('node', ['scripts/check-arch-invariants.mjs']);
+    await runWithPreview();
+  }
+
+  if (mode === 'handoff') {
+    await run('node', ['scripts/check-clean-state.mjs']);
+  }
+
+  console.log(`pnpm verify${mode === 'fast' ? '' : `:${mode}`} passed.`);
 }
 
 main().catch((error) => {
