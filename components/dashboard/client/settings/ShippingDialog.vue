@@ -7,12 +7,10 @@ import { z } from 'zod';
 import { countries } from '@/data/countries';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import type { AccountType } from '~/types';
-import { useNuxtApp } from '#app';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
 import { useToast } from '~/components/ui/toast';
-
-const { $api } = useNuxtApp();
+import { addShippingAsCustomer, updateShippingAsCustomer } from '~/composables/api/user';
 
 const props = defineProps<{
   address: ShippingAddressInterface | null;
@@ -101,7 +99,7 @@ const onSubmit = handleSubmit(async (values) => {
     region: values.county,
     default: props.address?.default || false,
   };
-  const response = props.address ? await $api.user.updateShippingAsCustomer(payload) : await $api.user.addShippingAsCustomer(payload);
+  const response = props.address ? await updateShippingAsCustomer(payload) : await addShippingAsCustomer(payload);
 
   if (response.status === 'success') {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions

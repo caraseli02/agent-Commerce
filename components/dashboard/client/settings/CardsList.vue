@@ -33,6 +33,8 @@
 <script setup lang="ts">
 import _ from 'lodash';
 import type { StripeCardInterface } from '~/types';
+import { useNuxtApp } from '#app';
+import { userCards as fetchUserCards } from '~/composables/api/user';
 
 const card = ref<unknown | null>({});
 const cards = ref<StripeCardInterface[]>([]);
@@ -75,7 +77,7 @@ const { $api } = useNuxtApp();
 const isLoading = ref(false);
 const fetchCards = async () => {
   isLoading.value = true;
-  const response = (await $api.user.userCards()) as unknown as {
+  const response = (await fetchUserCards()) as unknown as {
     status: string;
     data: StripeCardInterface[];
   };

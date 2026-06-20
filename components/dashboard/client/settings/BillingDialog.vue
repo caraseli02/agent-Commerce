@@ -8,12 +8,10 @@ import { ref, watch } from 'vue';
 import { countries } from '@/data/countries';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import type { AccountType } from '~/types';
-import { useNuxtApp } from '#app';
 import type { BillingAddressInterface, ShippingAddressInterface } from '~/types/auth/user-interface';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
 import { useToast } from '~/components/ui/toast';
-
-const { $api } = useNuxtApp();
+import { addBillingAsCustomer, updateBillingAsCustomer } from '~/composables/api/user';
 
 const props = defineProps<{
   address: BillingAddressInterface | null;
@@ -105,7 +103,7 @@ const onSubmit = handleSubmit(async (values) => {
     default: props.address?.default || false,
   };
 
-  const response = props.address ? await $api.user.updateBillingAsCustomer(payload) : await $api.user.addBillingAsCustomer(payload);
+  const response = props.address ? await updateBillingAsCustomer(payload) : await addBillingAsCustomer(payload);
 
   if (response.status === 'success') {
     emit('addBillingAddress', payload);

@@ -1,7 +1,7 @@
 import { $fetch, type $Fetch, type FetchOptions } from 'ofetch';
 import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
-import UserService from '~/services/user.service';
+
 import UserDashboardService from '~/services/dashboard/user.service';
 import FavouriteFolderService from '~/services/favourite-folder.service';
 import CustomerProfileService from '~/services/dashboard/customer-profile.service';
@@ -18,7 +18,6 @@ import DocumentService from '~/services/dashboard/document.service';
 
 /** ApiInstance interface provides us with good typing */
 export interface IApiInstance {
-  user: UserService;
   userDashboard: UserDashboardService;
   favouriteFolder: FavouriteFolderService;
   cart: CartService;
@@ -87,7 +86,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   /** an object containing all repositories we need to expose */
   const modules: IApiInstance = {
-    user: new UserService(apiFetcher),
     userDashboard: new UserDashboardService(apiFetcher),
     favouriteFolder: new FavouriteFolderService(apiFetcher),
     cart: new CartService(apiFetcher),

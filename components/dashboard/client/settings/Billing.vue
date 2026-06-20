@@ -6,10 +6,8 @@ import BillingDialog from './BillingDialog.vue';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
-import { useNuxtApp } from '#app';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
-
-const { $api } = useNuxtApp();
+import { deleteBillingAsCustomer, updateBillingAsCustomer } from '~/composables/api/user';
 
 interface AddressData {
   icon: string;
@@ -76,7 +74,7 @@ const handleEdit = async (editedAddress: AddressData) => {
 };
 
 const handleDelete = async (deletedAddress: AddressData) => {
-  await $api.user.deleteBillingAsCustomer(deletedAddress._id);
+  await deleteBillingAsCustomer(deletedAddress._id);
   await updateStoreDetails();
 };
 
@@ -87,7 +85,7 @@ const handleSetDefault = async (changedAddress: AddressData) => {
 
 const handleChange = async (address: ShippingAddressInterface) => {
   if (getUserDetails.value.firebaseId) {
-    await $api.user.updateBillingAsCustomer(address);
+    await updateBillingAsCustomer(address);
     await updateStoreDetails();
   }
 };
