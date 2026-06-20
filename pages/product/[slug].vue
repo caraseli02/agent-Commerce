@@ -107,9 +107,7 @@ import { MoreVertical, PrinterIcon } from 'lucide-vue-next';
 
 import type { ProductDetail } from '~~/model/products/response/ProductDetailResponse';
 import type { ProductImageInterface, ProductInterface } from '~~/model/products/response/ProductResponse';
-import { useNuxtApp } from '#app';
-
-const { $api } = useNuxtApp();
+import { fetchSingleProduct } from '~/composables/api/products';
 
 useHead({
   title: 'Product',
@@ -122,7 +120,7 @@ const productSlug = computed(() => {
 });
 
 const product = ref<ProductDetail | null>(null);
-const { data } = await $api.product.fetchSingleProduct(productSlug.value);
+const { data } = await fetchSingleProduct(productSlug.value);
 product.value = data;
 
 const images = computed((): ProductImageInterface[] => {

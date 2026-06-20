@@ -44,12 +44,10 @@ import Emitter from 'tiny-emitter/instance.js';
 import { cloneDeep } from 'lodash-es';
 import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useNuxtApp } from '#app';
 import type { ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
 import type { ProductFilters, SearchData } from '~/model/products/response/ProductSearchResponse';
+import { fetchSearchProduct } from '~/composables/api/products';
 import { useProductStore } from '~/store/productStore';
-
-const { $api } = useNuxtApp();
 
 useHead({
   title: 'Search',
@@ -119,7 +117,7 @@ async function getProduct(
   filter: ProductParametricDataFeaturesInterface[] = [],
   ignoreCategory = false,
 ) {
-  const { data } = await $api.product.fetchSearchProduct(
+  const { data } = await fetchSearchProduct(
     keyword,
     ignoreCategory ? null : category.value,
     atPage,
@@ -134,7 +132,7 @@ async function getProduct(
 }
 
 async function changePath() {
-  const { data } = await $api.product.fetchSearchProduct(
+  const { data } = await fetchSearchProduct(
     resolveKeyword(),
     route.query.category?.toString() ?? null,
     atPage.value,

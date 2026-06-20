@@ -239,6 +239,7 @@ import type { Notification } from '~/types/dashboard/notification';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import type { ProductSearchResponse } from '~/model/products/response/ProductSearchResponse';
 import type { CartInterface } from '~/model/cart/response/cart.interface';
+import { fetchSearchProduct } from '~/composables/api/products';
 import { useCartStore } from '~/store/cartStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
@@ -381,7 +382,7 @@ const fetchList = async () => {
 const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<ProductInterface[]> => {
   isLoading.value = true;
 
-  const response = (await $api.product.fetchSearchProduct(keyword, category.value, page, perPage)) as ProductSearchResponse;
+  const response = (await fetchSearchProduct(keyword, category.value, page, perPage)) as ProductSearchResponse;
   const products = response.data;
 
   if (!products?.items?.items) {
