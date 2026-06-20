@@ -1,5 +1,15 @@
 // useCategories.ts
 import { computed, ref } from 'vue';
+import {
+  createCategory as createCategoryRequest,
+  deleteCategories as deleteCategoriesRequest,
+  duplicateCategory as duplicateCategoryRequest,
+  getCategories as getCategoriesRequest,
+  mergeCategories as mergeCategoriesRequest,
+  moveCategories as moveCategoriesRequest,
+  toggleCategoryStatus as toggleCategoryStatusRequest,
+  updateCategory as updateCategoryRequest,
+} from '~/composables/api/categories';
 import type { ICreatePayload, TaxonomyInterface } from '~/types/dashboard/categories';
 import { categories as demoCategories } from '~/data/categories';
 
@@ -53,19 +63,18 @@ const setDemoTaxonomy = () => {
 };
 
 export const useCategories = () => {
-  const { $api } = useNuxtApp();
   const config = useRuntimeConfig();
 
   const getCategories = async () => {
     isLoading.value = true;
     selectedCategories.value = [];
     try {
-      if (config.public.MOCK_MODE || typeof $api.categories?.get !== 'function') {
+      if (config.public.MOCK_MODE) {
         setDemoTaxonomy();
         return;
       }
 
-      const response = await $api.categories.get();
+      const response = await getCategoriesRequest();
       categories.value = response.data.data;
       taxonomyId.value = response.data._id;
       isLocked.value = response.data.locked;
@@ -99,7 +108,7 @@ export const useCategories = () => {
   };
 
   const createCategory = async (payload: ICreatePayload) => {
-    const response = await $api.categories.create(taxonomyId.value, payload);
+    const response = await createCategoryRequest(taxonomyId.value, payload);
     if (response.status === 'success') {
       await getCategories();
       return response.status;
@@ -107,14 +116,14 @@ export const useCategories = () => {
   };
 
   const deleteCategories = async (categoryIds: string[]) => {
-    const response = await $api.categories.delete(taxonomyId.value, categoryIds);
+    const response = await deleteCategoriesRequest(taxonomyId.value, categoryIds);
     if (response.status === 'success') {
       await getCategories();
     }
   };
 
   const updateCategory = async (categoryId: string, payload: ICreatePayload) => {
-    const response = await $api.categories.update(taxonomyId.value, categoryId, payload);
+    const response = await updateCategoryRequest(taxonomyId.value, categoryId, payload);
     if (response.status === 'success') {
       await getCategories();
     }
@@ -122,7 +131,7 @@ export const useCategories = () => {
   };
 
   const toggleCategoryStatus = async (categoryId: string) => {
-    const response = await $api.categories.toggleStatus(taxonomyId.value, categoryId);
+    const response = await toggleCategoryStatusRequest(taxonomyId.value, categoryId);
     if (response.status === 'success') {
       await getCategories();
       return response.status;
@@ -130,21 +139,21 @@ export const useCategories = () => {
   };
 
   const duplicateCategory = async (sourceId: string, parentId?: string) => {
-    const response = await $api.categories.duplicate(taxonomyId.value, sourceId, parentId);
+    const response = await duplicateCategoryRequest(taxonomyId.value, sourceId, parentId);
     if (response.status === 'success') {
       await getCategories();
     }
   };
 
   const mergeCategories = async (sourceIds: string[], targetID: string) => {
-    const response = await $api.categories.merge(taxonomyId.value, sourceIds, targetID);
+    const response = await mergeCategoriesRequest(taxonomyId.value, sourceIds, targetID);
     if (response.status === 'success') {
       await getCategories();
     }
   };
 
   const moveCategories = async (categoryIds: string[], parentId: string) => {
-    const response = await $api.categories.move(taxonomyId.value, categoryIds, parentId);
+    const response = await moveCategoriesRequest(taxonomyId.value, categoryIds, parentId);
     if (response.status === 'success') {
       await getCategories();
     }

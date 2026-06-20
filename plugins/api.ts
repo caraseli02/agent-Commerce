@@ -11,7 +11,6 @@ import SettingsClientService from '~/services/dashboard/settings.service';
 import OrdersService from '~/services/dashboard/orders.service';
 import CartService from '~/services/cart.service';
 import GeneralSettings from '~/services/general-settings.service';
-import CategoriesService from '~/services/categories.service';
 import CustomerDashboard from '~/services/dashboard/client.service';
 import SmartPricingService from '~/services/dashboard/smart-pricing.service';
 import DocumentService from '~/services/dashboard/document.service';
@@ -27,7 +26,6 @@ export interface IApiInstance {
   orders: OrdersService;
   documents: DocumentService;
   generalSettings: GeneralSettings;
-  categories: CategoriesService;
   customerDashboard: CustomerDashboard & { getMetadata: () => Promise<unknown> };
   settingsClient: SettingsClientService;
   smartPricing: SmartPricingService;
@@ -95,7 +93,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     orders: new OrdersService(apiFetcher),
     documents: new DocumentService(apiFetcher),
     generalSettings: new GeneralSettings(apiFetcher),
-    categories: new CategoriesService(apiFetcher),
     customerDashboard: new CustomerDashboard(apiFetcher),
     settingsClient: new SettingsClientService(apiFetcher),
     smartPricing: new SmartPricingService(apiFetcher),
