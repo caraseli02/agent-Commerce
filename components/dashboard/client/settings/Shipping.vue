@@ -6,10 +6,8 @@ import ShippingDialog from './ShippingDialog.vue';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
-import { useNuxtApp } from '#app';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
-
-const { $api } = useNuxtApp();
+import { deleteShippingAsCustomer, updateShippingAsCustomer } from '~/composables/api/user';
 
 interface AddressData {
   icon: string;
@@ -77,7 +75,7 @@ const handleEdit = async (editedAddress: AddressData) => {
 };
 
 const handleDelete = async (deletedAddress: AddressData) => {
-  await $api.user.deleteShippingAsCustomer(deletedAddress._id);
+  await deleteShippingAsCustomer(deletedAddress._id);
   await updateStoreDetails();
 };
 
@@ -88,7 +86,7 @@ const handleSetDefault = async (changedAddress: AddressData) => {
 
 const handleChange = async (address: ShippingAddressInterface) => {
   if (getUserDetails.value.firebaseId) {
-    await $api.user.updateShippingAsCustomer(address);
+    await updateShippingAsCustomer(address);
     await updateStoreDetails();
   }
 };

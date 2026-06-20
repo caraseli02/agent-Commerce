@@ -162,6 +162,7 @@ import CheckIcon from '@/assets/icons/check.svg';
 import SecurityUserIcon from '@/assets/icons/dashboard/security-user.svg';
 import { useNuxtApp } from '#app';
 import { AlertAndNotificationLabelsEnum, MarketingPreferencesEnum } from '~/types/auth/account-settings';
+import { resetPasswordLink as requestResetPasswordLink } from '~/composables/api/user';
 
 const { $api } = useNuxtApp();
 const config = useRuntimeConfig();
@@ -282,7 +283,7 @@ const resetPassword = async (email: string) => {
     return;
   }
   try {
-    const response = (await $api.user.resetPasswordLink(email)) as { status: string };
+    const response = (await requestResetPasswordLink(email)) as { status: string };
 
     if (response.status !== 'success') {
       return;

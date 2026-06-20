@@ -63,9 +63,8 @@ import Emitter from 'tiny-emitter/instance';
 import SearchIcon from '@/assets/icons/search.svg';
 import type { ProductInterface } from '~~/model/products/response/ProductResponse';
 import type { SearchData } from '~~/model/products/response/ProductSearchResponse';
-import { useNuxtApp } from '#app';
+import { fetchSearchProduct } from '~/composables/api/products';
 
-const { $api } = useNuxtApp();
 const route = useRoute();
 
 const props = defineProps({
@@ -100,7 +99,7 @@ const onInput = _.debounce(async () => {
 const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<ProductInterface[] | null> => {
   isLoading.value = true;
 
-  const response = (await $api.product.fetchSearchProduct(keyword, category.value, page, perPage)) as { data?: SearchData };
+  const response = (await fetchSearchProduct(keyword, category.value, page, perPage)) as { data?: SearchData };
   const data = response.data;
 
   if (!data) {

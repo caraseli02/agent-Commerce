@@ -1,8 +1,7 @@
 import { $fetch, type $Fetch, type FetchOptions } from 'ofetch';
 import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
-import ProductService from '~/services/products.service';
-import UserService from '~/services/user.service';
+
 import UserDashboardService from '~/services/dashboard/user.service';
 import FavouriteFolderService from '~/services/favourite-folder.service';
 import CustomerProfileService from '~/services/dashboard/customer-profile.service';
@@ -12,15 +11,12 @@ import SettingsClientService from '~/services/dashboard/settings.service';
 import OrdersService from '~/services/dashboard/orders.service';
 import CartService from '~/services/cart.service';
 import GeneralSettings from '~/services/general-settings.service';
-import CategoriesService from '~/services/categories.service';
 import CustomerDashboard from '~/services/dashboard/client.service';
 import SmartPricingService from '~/services/dashboard/smart-pricing.service';
 import DocumentService from '~/services/dashboard/document.service';
 
 /** ApiInstance interface provides us with good typing */
 export interface IApiInstance {
-  product: ProductService;
-  user: UserService;
   userDashboard: UserDashboardService;
   favouriteFolder: FavouriteFolderService;
   cart: CartService;
@@ -30,7 +26,6 @@ export interface IApiInstance {
   orders: OrdersService;
   documents: DocumentService;
   generalSettings: GeneralSettings;
-  categories: CategoriesService;
   customerDashboard: CustomerDashboard & { getMetadata: () => Promise<unknown> };
   settingsClient: SettingsClientService;
   smartPricing: SmartPricingService;
@@ -89,8 +84,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   /** an object containing all repositories we need to expose */
   const modules: IApiInstance = {
-    product: new ProductService(apiFetcher),
-    user: new UserService(apiFetcher),
     userDashboard: new UserDashboardService(apiFetcher),
     favouriteFolder: new FavouriteFolderService(apiFetcher),
     cart: new CartService(apiFetcher),
@@ -100,7 +93,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     orders: new OrdersService(apiFetcher),
     documents: new DocumentService(apiFetcher),
     generalSettings: new GeneralSettings(apiFetcher),
-    categories: new CategoriesService(apiFetcher),
     customerDashboard: new CustomerDashboard(apiFetcher),
     settingsClient: new SettingsClientService(apiFetcher),
     smartPricing: new SmartPricingService(apiFetcher),

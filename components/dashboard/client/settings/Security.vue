@@ -2,8 +2,7 @@
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useAuthStore } from '~/store/authStore';
-
-const { $api } = useNuxtApp();
+import { resetPasswordLink as requestResetPasswordLink } from '~/composables/api/user';
 
 const authStore = useAuthStore();
 const { getUserDetails } = storeToRefs(authStore);
@@ -11,7 +10,7 @@ const email = ref<string>(getUserDetails.value.contactDetails.email);
 
 async function sendResetPasswordLink() {
   if (email.value) {
-    const response = (await $api.user.resetPasswordLink(email.value)) as { status: string; data: unknown };
+    const response = (await requestResetPasswordLink(email.value)) as { status: string; data: unknown };
     if (response.status !== 'success') {
       return;
     }
