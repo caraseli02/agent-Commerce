@@ -79,11 +79,8 @@ A session is not complete until both task verification and clean-state checks pa
 Run/check:
 
 ```bash
-pnpm build
-pnpm lint
-pnpm typecheck
-pnpm test
-node scripts/check-clean-state.mjs
+pnpm verify
+pnpm verify:handoff
 ```
 
 Also verify:
@@ -91,7 +88,7 @@ Also verify:
 -   `git status --short` contains only intentional files.
 -   No temporary debug files are left under `tmp/`, project root, or source folders.
 -   No new `console.log`, commented-out code, or TODO/FIXME markers were introduced unless explicitly intended; `node scripts/check-clean-state.mjs` checks the changed source files for those regressions and only performs the `PROGRESS.md` shape checks it can verify mechanically, while skipping itself so it does not self-flag.
--   `PROGRESS.md` states current focus, blockers, and next verification.
+-   GitHub Issues remain the primary task queue. `PROGRESS.md` states the active issue/PR, current focus, blockers, and next verification as the short cross-session mirror.
 -   `feature_list.json` evidence is updated if task state changed.
 -   Any temporary evidence captured during the session is either committed as durable documentation or removed from `tmp/` and the working tree before handoff.
 -   PR body includes verification evidence, any known risks, and — for harness-state validator work — the exact related lectures/source docs list from the issue body.
