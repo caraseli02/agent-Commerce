@@ -2,9 +2,13 @@ import { $fetch, type $Fetch, type FetchOptions } from 'ofetch';
 import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
 
+import {
+  deleteNotificationById,
+  fetchGetNotifications,
+  markNotificationAsRead,
+} from '~/composables/api/notifications';
 import UserDashboardService from '~/services/dashboard/user.service';
 import CustomerProfileService from '~/services/dashboard/customer-profile.service';
-import NotificationsService from '~/services/notifications.service';
 import ControlPanelService from '~/services/dashboard/control-panel.service';
 import SettingsClientService from '~/services/dashboard/settings.service';
 import OrdersService from '~/services/dashboard/orders.service';
@@ -18,7 +22,11 @@ export interface IApiInstance {
   userDashboard: UserDashboardService;
   cart: CartService;
   customerProfile: CustomerProfileService;
-  notifications: NotificationsService;
+  notifications: {
+    fetchGetNotifications: typeof fetchGetNotifications;
+    fetchMarkNotificationAsRead: typeof markNotificationAsRead;
+    deleteNotificationById: typeof deleteNotificationById;
+  };
   controlPanel: ControlPanelService;
   orders: OrdersService;
   documents: DocumentService;
@@ -83,7 +91,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     userDashboard: new UserDashboardService(apiFetcher),
     cart: new CartService(apiFetcher),
     customerProfile: new CustomerProfileService(apiFetcher),
-    notifications: new NotificationsService(apiFetcher),
+    notifications: {
+      fetchGetNotifications,
+      fetchMarkNotificationAsRead: markNotificationAsRead,
+      deleteNotificationById,
+    },
     controlPanel: new ControlPanelService(apiFetcher),
     orders: new OrdersService(apiFetcher),
     documents: new DocumentService(apiFetcher),
