@@ -2,6 +2,15 @@ import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import moment from 'moment';
 import { useAuthStore } from '~/store/authStore';
+import {
+  fetchCustomerActiveOrders,
+  fetchFavorites,
+  fetchMonthHotSale,
+  fetchRecentlyBought,
+  fetchReturns,
+  fetchTotalOrders,
+  fetchViewHistory,
+} from '~/composables/api/customer-dashboard';
 import type {
   CustomerDashboardActivityData,
   ProductBannerInterface,
@@ -38,14 +47,13 @@ const hotSales = ref<ProductBannerInterface[]>([]);
 const myCard = ref<StripeCardInterface>({} as StripeCardInterface);
 
 export const useCustomerDashboard = () => {
-  const { $api } = useNuxtApp();
   const userDetails = useAuthStore().userDetails;
   const userCards = useAuthStore().userCards;
   const authStore = useAuthStore();
   const { getUserDetails } = storeToRefs(authStore);
 
   const activeOrders = async () => {
-    const { data, status } = await $api.customerDashboard.fetchCustomerActiveOrders();
+    const { data, status } = await fetchCustomerActiveOrders();
     if (status && data && data.total) {
       ordersIds.value = data.total.map((object) => {
         return { shortId: object.shortId, id: object._id };
@@ -55,9 +63,9 @@ export const useCustomerDashboard = () => {
 
   const activityWidgets = async () => {
     myActivityData.value = {} as CustomerDashboardActivityData;
-    const favorites = await $api.customerDashboard.fetchFavorites();
-    const totalOrders = await $api.customerDashboard.fetchTotalOrders();
-    const returns = await $api.customerDashboard.fetchReturns();
+    const favorites = await fetchFavorites();
+    const totalOrders = await fetchTotalOrders();
+    const returns = await fetchReturns();
 
     if (favorites.status === 'success') {
       myActivityData.value.favorites = {
@@ -82,7 +90,7 @@ export const useCustomerDashboard = () => {
   };
 
   const recentlyBougth = async () => {
-    const response = await $api.customerDashboard.fetchRecentlyBought();
+    const response = await fetchRecentlyBought();
     if (response.status === 'success' && response.data && typeof response.data === 'object' && 'total' in response.data) {
       myRecentlyBougth.value = (response.data as { total: ProductInterface[] }).total;
     }
@@ -127,14 +135,14 @@ export const useCustomerDashboard = () => {
   };
 
   const viewHistory = async () => {
-    const history = await $api.customerDashboard.fetchViewHistory();
+    const history = await fetchViewHistory();
     if (history.status === 'success') {
       myViewHistory.value = history.data.map((item: ViewHistoryProductInterface) => item.productInfo);
     }
   };
 
   const monthHotSale = async () => {
-    const hotSale = await $api.customerDashboard.fetchMonthHotSale();
+    const hotSale = await fetchMonthHotSale();
     if (hotSale.status === 'success') {
       myMonthHotSale.value = hotSale.data;
       await hotSalesFunction();
