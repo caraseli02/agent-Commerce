@@ -37,6 +37,7 @@ import type { OrderInterface } from '~~/types';
 import DashboardIcon from '@/assets/icons/dashboard/dashboard-grid.svg';
 import { UserPermissionsEnum } from '~/types/auth/permissions';
 import { useAuthStore } from '@/store/authStore';
+import { getMetadata } from '~/composables/api/customer-dashboard';
 
 type ApiKeysMap = {
   [key: string]: string;
@@ -160,9 +161,8 @@ const filterHightlightLeft = ref(0);
 // );
 
 const updateOrderFiltersWithCounts = async () => {
-  const { $api } = useNuxtApp();
   try {
-    const response = (await $api.customerDashboard.getMetadata()) as ApiResponse;
+    const response = (await getMetadata()) as ApiResponse;
     const counts = response.data;
 
     orderFilters.value.forEach((filter) => {
