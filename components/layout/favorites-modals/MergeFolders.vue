@@ -97,9 +97,7 @@ import MergeIcon from '@/assets/icons/merge.svg';
 import FolderIcon from '@/assets/icons/folder.svg';
 import type { FavoriteItem, FormSelectOption } from '~~/types';
 import type { FavouriteFolderMoveInterface } from '~/model/favourite-folder/request/favourite-folder.interface';
-import { useNuxtApp } from '#app';
-
-const { $api } = useNuxtApp();
+import { moveEntityToFavouriteList } from '~/composables/api/favorites';
 
 const props = defineProps({
   folders: {
@@ -138,7 +136,7 @@ const mergeItemToTarget = async (sourceId: string) => {
     targetFolderId: folder.value.value,
   };
 
-  await $api.favouriteFolder.moveEntityToFavouriteList(payload);
+  await moveEntityToFavouriteList(payload);
 };
 
 const mergeItems = async () => {

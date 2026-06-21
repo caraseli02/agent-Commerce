@@ -116,10 +116,8 @@ import XIcon from '@/assets/icons/x.svg';
 import CopyIcon from '@/assets/icons/copy.svg';
 import FolderArrowIcon from '@/assets/icons/folder-arrow.svg';
 import FolderIcon from '@/assets/icons/folder.svg';
-import { useNuxtApp } from '#app';
 import type { FavouriteFolderMoveInterface } from '~/model/favourite-folder/request/favourite-folder.interface';
-
-const { $api } = useNuxtApp();
+import { copyEntityToFavouriteList, moveEntityToFavouriteList } from '~/composables/api/favorites';
 
 const props = defineProps({
   items: {
@@ -165,7 +163,7 @@ const copyItemToTarget = async (sourceId: string) => {
     targetFolderId: folder.value.value,
   };
 
-  await $api.favouriteFolder.copyEntityToFavouriteList(payload);
+  await copyEntityToFavouriteList(payload);
 };
 
 const moveItemToTarget = async (sourceId: string) => {
@@ -178,7 +176,7 @@ const moveItemToTarget = async (sourceId: string) => {
     targetFolderId: folder.value.value,
   };
 
-  await $api.favouriteFolder.moveEntityToFavouriteList(payload);
+  await moveEntityToFavouriteList(payload);
 };
 
 const copyItems = async () => {

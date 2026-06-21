@@ -82,14 +82,12 @@
 <script setup lang="ts">
 import { BoxIcon, HeartIcon, Share2Icon } from 'lucide-vue-next';
 import { A11y, Zoom } from 'swiper';
-import { useNuxtApp } from '#app';
 
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import type { FavouriteFolderRequestInterface } from '~/model/favourite-folder/request/favourite-folder.interface';
 import type { ProductDetail } from '~/model/products/response/ProductDetailResponse';
 import type { ProductImageInterface } from '~/model/products/response/ProductResponse';
-
-const { $api } = useNuxtApp();
+import { addEntityToFavouriteList } from '~/composables/api/favorites';
 
 const props = defineProps<{
   images: ProductImageInterface[];
@@ -110,6 +108,6 @@ const addToFavourite = async (product: ProductDetail) => {
     isFolder: false,
     products: { id: product._id, stock: product.stock || 1 },
   };
-  await $api.favouriteFolder.addEntityToFavouriteList(payload);
+  await addEntityToFavouriteList(payload);
 };
 </script>

@@ -228,13 +228,8 @@ import CopyIcon from '@/assets/icons/copy.svg';
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import MergeIcon from '@/assets/icons/merge.svg';
 import FolderArrowIcon from '@/assets/icons/folder-arrow.svg';
-import { useNuxtApp } from '#app';
-import type {
-  FavouriteFolderResponse,
-  FavouriteFolderResponseInterface,
-} from '~/model/favourite-folder/response/favourite-folder.interface';
-
-const { $api } = useNuxtApp();
+import type { FavouriteFolderResponse, FavouriteFolderResponseInterface } from '~/model/favourite-folder/response/favourite-folder.interface';
+import { fetchFavouriteList } from '~/composables/api/favorites';
 
 const searchVal = ref('');
 const deleteItems = ref(false);
@@ -270,7 +265,7 @@ const getFirstProduct = (products: FavouriteFolderResponseInterface['products'])
 };
 
 const fetchList = async () => {
-  const { data } = (await $api.favouriteFolder.fetchFavouriteList()) as FavouriteFolderResponse;
+  const { data } = (await fetchFavouriteList()) as FavouriteFolderResponse;
 
   items.value = (data as FavouriteFolderResponseInterface[]).map((item: FavouriteFolderResponseInterface): FavoriteItem => {
     const firstProduct = getFirstProduct(item.products);

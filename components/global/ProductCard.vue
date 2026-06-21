@@ -95,6 +95,7 @@ import type { FavouriteFolderRequestInterface } from '~/model/favourite-folder/r
 import type { AddToCartRequestInterface } from '~/model/cart/request/cart.interface';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { addEntityToFavouriteList } from '~/composables/api/favorites';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';
@@ -103,8 +104,8 @@ const authStore = useAuthStore();
 const cartStore = useCartStore();
 
 const { getUserDetails } = storeToRefs(authStore);
-
 const { $api } = useNuxtApp();
+
 const props = defineProps({
   product: {
     type: Object as PropType<ProductInterface>,
@@ -125,7 +126,7 @@ const addToFavourite = async (product: ProductInterface) => {
     products: { id: product._id ?? '', stock: product.stock || 1 },
   };
 
-  await $api.favouriteFolder.addEntityToFavouriteList(payload);
+  await addEntityToFavouriteList(payload);
 };
 
 const addToCart = async (product: ProductInterface, stockToAdd = 1) => {
