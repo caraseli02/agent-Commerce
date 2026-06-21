@@ -239,21 +239,16 @@ import type { Notification } from '~/types/dashboard/notification';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import type { ProductSearchResponse } from '~/model/products/response/ProductSearchResponse';
 import type { CartInterface } from '~/model/cart/response/cart.interface';
+import {
+  deleteNotificationById,
+  fetchGetNotifications,
+  markNotificationAsRead as fetchMarkNotificationAsRead,
+} from '~/composables/api/notifications';
 import { fetchSearchProduct } from '~/composables/api/products';
 import { useCartStore } from '~/store/cartStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
 
-interface NotificationListResponse {
-  status: string;
-  description: Notification[];
-}
-
-interface NotificationActionResponse {
-  status: string;
-}
-
-const { $api } = useNuxtApp();
 const cartStore = useCartStore();
 const { getCart, getCartSubtotal } = storeToRefs(cartStore);
 
@@ -416,7 +411,7 @@ const fetchNofications = async () => {
     return;
   }
 
-  const response = (await $api.notifications.fetchGetNotifications()) as unknown as NotificationListResponse;
+  const response = await fetchGetNotifications();
   if (response.status !== 'success') {
     isLoading.value = false;
     error.value = true;
@@ -439,14 +434,14 @@ const markNotificationAsRead = async (notification: Notification, index: number)
   if (notifications.value[index].seen !== true) {
     unreadNotifications.value--;
   }
-  const response = (await $api.notifications.fetchMarkNotificationAsRead(notification.id)) as NotificationActionResponse;
+  const response = await fetchMarkNotificationAsRead(notification.id);
   if (response.status !== 'success') {
     return;
   }
   notifications.value[index].seen = true;
 };
 const deleteNotification = async (notification: Notification, index: number) => {
-  const response = (await $api.notifications.deleteNotificationById(notification.id)) as NotificationActionResponse;
+  const response = await deleteNotificationById(notification.id);
   if (response.status !== 'success') {
     return;
   }
