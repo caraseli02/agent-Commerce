@@ -171,12 +171,11 @@ import type { UserPermissionsEnum } from '~/types/auth/permissions';
 import { useAuthStore } from '~~/store/authStore';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { useCartStore } from '~/store/cartStore';
-import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
 import { usePricingStore } from '~/store/pricingStore';
 import { fetchUserDetails as fetchAuthUserDetails, login as authLogin } from '~/composables/api/auth';
+import { fetchSettings as fetchGeneralSettings } from '~/composables/api/settings';
 
 const { checkForInputErrors } = useFormValidation();
-const { $api } = useNuxtApp();
 const config = useRuntimeConfig();
 const route = useRoute();
 const cartStore = useCartStore();
@@ -402,12 +401,9 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
 
   if (userDetails) {
     try {
-      const response = (await $api.generalSettings.fetchSettings()) as {
-        data: GeneralSettingsInterface;
-        status: string;
-      };
+      const response = await fetchGeneralSettings();
       if (response.status === 'success') {
-        authStore.addGeneralSettings(response.data as GeneralSettingsInterface);
+        authStore.addGeneralSettings(response.data);
       }
     }
     catch (error) {

@@ -4,21 +4,16 @@ import AlertsItem from './AlertsItem.vue';
 import { AlertAndNotificationType } from '~/types/dashboard/control-panel';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
-import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
-import { useNuxtApp } from '#app';
+import { fetchSettings as fetchGeneralSettings } from '~/composables/api/settings';
 
-const { $api } = useNuxtApp();
 const authStore = useAuthStore();
 
 const { getUserDetails } = storeToRefs(authStore);
 
 const getCustomerSettings = async () => {
   if (getUserDetails) {
-    const response = (await $api.generalSettings.fetchSettings()) as {
-      data: GeneralSettingsInterface;
-      status: string;
-    };
-    authStore.addGeneralSettings(response.data as GeneralSettingsInterface);
+    const response = await fetchGeneralSettings();
+    authStore.addGeneralSettings(response.data);
   }
 };
 
