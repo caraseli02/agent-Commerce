@@ -7,7 +7,6 @@ import {
   fetchGetNotifications,
   markNotificationAsRead,
 } from '~/composables/api/notifications';
-import UserDashboardService from '~/services/dashboard/user.service';
 import CustomerProfileService from '~/services/dashboard/customer-profile.service';
 import ControlPanelService from '~/services/dashboard/control-panel.service';
 import SettingsClientService from '~/services/dashboard/settings.service';
@@ -19,7 +18,6 @@ import DocumentService from '~/services/dashboard/document.service';
 
 /** ApiInstance interface provides us with good typing */
 export interface IApiInstance {
-  userDashboard: UserDashboardService;
   cart: CartService;
   customerProfile: CustomerProfileService;
   notifications: {
@@ -88,7 +86,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   /** an object containing all repositories we need to expose */
   const modules: IApiInstance = {
-    userDashboard: new UserDashboardService(apiFetcher),
     cart: new CartService(apiFetcher),
     customerProfile: new CustomerProfileService(apiFetcher),
     notifications: {

@@ -9,7 +9,7 @@ import { AccountStatusEnum, type CustomerTableColumns } from '~/types/auth/user-
 import { CustomerTableColumnsEnum } from '~/components/admin-table/customer/columns.enum';
 import AccountType from '~/components/dataTable/AccountType.vue';
 import { AccountType as AccountTypeEnum } from '~/types';
-import UserDashboardService from '~/services/dashboard/user.service';
+import { activateUser, deactivateUser, deleteUser } from '~/composables/api/dashboard-admin';
 import { formatNumberWithCommas } from '~/utils/numbers';
 
 export const columns: ColumnDef<CustomerTableColumns>[] = [
@@ -67,7 +67,6 @@ export const columns: ColumnDef<CustomerTableColumns>[] = [
     cell: ({ row }) =>
       h(RowActions, {
         row: row,
-        service: UserDashboardService,
         discount: row.original?.adminSettings?.discount?.value,
         lock: row.original.status === AccountStatusEnum.Inactive,
         options: [
@@ -79,17 +78,17 @@ export const columns: ColumnDef<CustomerTableColumns>[] = [
           {
             label: 'Delete',
             enable: true,
-            actionFn: 'deleteUser',
+            actionFn: deleteUser,
           },
           {
             label: 'Unlock account',
             enable: row.original.status === AccountStatusEnum.Inactive,
-            actionFn: 'activateUser',
+            actionFn: activateUser,
           },
           {
             label: 'Lock account',
             enable: row.original.status === AccountStatusEnum.Active,
-            actionFn: 'deactivateUser',
+            actionFn: deactivateUser,
           },
         ] as ActionOptionsConfiguration[],
       }),

@@ -90,10 +90,9 @@ import type { DashboardCustomerTableItem } from '~/types';
 import type { CountryInterface } from '~/types/dashboard/control-panel';
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import UserIcon from '@/assets/icons/dashboard/user.svg';
-import { useNuxtApp } from '#app';
+import { activateUser, deactivateUser } from '~/composables/api/dashboard-admin';
 import { countries } from '~/data/countries';
 
-const { $api } = useNuxtApp();
 const country = ref<CountryInterface | undefined>();
 
 const props = defineProps({
@@ -115,7 +114,7 @@ type ApiStatusResponse = { status: string };
 const deactivateAccountAsAdmin = async (id: string) => {
   emits('close');
   emits('changeLockStatus');
-  const response = (await $api.userDashboard.deactivateUser(id)) as ApiStatusResponse;
+  const response = (await deactivateUser(id)) as ApiStatusResponse;
 
   if (response.status !== 'success') {
     return;
@@ -124,7 +123,7 @@ const deactivateAccountAsAdmin = async (id: string) => {
 const activateAccountAsAdmin = async (id: string) => {
   emits('close');
   emits('changeLockStatus');
-  const response = (await $api.userDashboard.activateUser(id)) as ApiStatusResponse;
+  const response = (await activateUser(id)) as ApiStatusResponse;
   if (response.status !== 'success') {
     return;
   }

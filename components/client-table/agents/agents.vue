@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import _ from 'lodash';
 import { columns } from './columns';
+import { fetchCustomersList } from '~/composables/api/dashboard-admin';
 import type { CustomerTableColumns, UserInterface } from '~/types/auth/user-interface';
 
 const emit = defineEmits<{
   showTotalItems: [val: number];
 }>();
-
-const { $api } = useNuxtApp();
 const totalItems = ref(0);
 const pageCount = ref(0);
 const loading = ref(true);
@@ -20,7 +19,7 @@ const fetchAndSetCustomersList = _.debounce(async (page: number, perPage: number
 
   // FIX to use userID
 
-  const data = await $api.userDashboard.fetchCustomersList(page, perPage, filters, sort);
+  const data = await fetchCustomersList(page, perPage, filters, sort);
 
   if (!data || data.status !== 'success') {
     loading.value = false;

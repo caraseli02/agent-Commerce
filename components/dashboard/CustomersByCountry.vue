@@ -118,12 +118,10 @@
 </template>
 
 <script setup lang="ts">
+import { fetchCustomersByCountryWidget } from '~/composables/api/dashboard-admin';
 import type { CustomersByCountryInterface } from '~/model/dashboard/response/CustomerInterfaceResponse';
-import { useNuxtApp } from '#app';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-
-const { $api } = useNuxtApp();
 
 type CountryDataItem = CustomersByCountryInterface['data'][number];
 
@@ -136,7 +134,7 @@ const fetchAndSetCustomersByCountry = async () => {
   loading.value = true;
   error.value = false;
 
-  const data = await $api.userDashboard.fetchCustomersByCountryWidget();
+  const data = await fetchCustomersByCountryWidget();
 
   if (!data || data.status !== 'success') {
     loading.value = false;
