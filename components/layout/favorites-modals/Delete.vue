@@ -87,6 +87,7 @@ import TrashIcon from '@/assets/icons/trash-can.svg';
 import type { FavoriteItem } from '~~/types';
 import { useNuxtApp } from '#app';
 import { useCartStore } from '~/store/cartStore';
+import { removeEntityFromFavouriteList } from '~/composables/api/favorites';
 
 const { $api } = useNuxtApp();
 const cartStore = useCartStore();
@@ -124,7 +125,7 @@ const isFolder = computed(() => {
 const deleteItem = async (items: FavoriteItem[] = []) => {
   if (!props.deleteFromCart) {
     for (const item of items) {
-      await $api.favouriteFolder.removeEntityFromFavouriteList(item.id);
+      await removeEntityFromFavouriteList(item.id);
     }
   }
   else {

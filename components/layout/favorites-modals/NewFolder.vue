@@ -77,9 +77,7 @@
 import XIcon from '@/assets/icons/x.svg';
 import FolderPlusIcon from '@/assets/icons/folder-plus.svg';
 import type { FavouriteFolderRequestInterface } from '~/model/favourite-folder/request/favourite-folder.interface';
-import { useNuxtApp } from '#app';
-
-const { $api } = useNuxtApp();
+import { addEntityToFavouriteList } from '~/composables/api/favorites';
 
 defineEmits(['close']);
 
@@ -100,6 +98,6 @@ const createFolder = async () => {
     isFolder: true,
     products: [],
   };
-  await $api.favouriteFolder.addEntityToFavouriteList(payload);
+  await addEntityToFavouriteList(payload);
 };
 </script>
