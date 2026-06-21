@@ -301,6 +301,7 @@ import { AccountType, getAccountTypeById } from '~/types';
 import type { DashboardCustomerTableItem } from '~/types';
 import type { CountryInterface } from '~/types/dashboard/control-panel';
 import ThreeDotMenu from '~/components/shared/tables/micro/row-items/ThreeDotMenu.vue';
+import { deleteUser } from '~/composables/api/dashboard-admin';
 import { countries } from '~/data/countries';
 
 type CustomerProfileUser = UserInterface & { lastActivityDate?: string };
@@ -384,7 +385,7 @@ const fetchInformation = async () => {
 };
 
 const deleteAccountAsAdmin = async (id: string) => {
-  const response = (await $api.userDashboard.deleteUser(id)) as { status?: string };
+  const response = (await deleteUser(id)) as { status?: string };
   if (response.status !== 'success') {
     return;
   }

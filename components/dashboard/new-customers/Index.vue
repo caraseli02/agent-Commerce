@@ -109,14 +109,12 @@ import Avatar from 'assets/icons/dashboard/avatar.png';
 import ArrowUpIcon from '@/assets/icons/dashboard/arrow-up.svg';
 import ChevronIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import ArrowRightIcon from '@/assets/icons/dashboard/arrow-right.svg';
+import { fetchNewCustomersWidget } from '~/composables/api/dashboard-admin';
 import { AccountStatusEnum, type UserInterface } from '~/types/auth/user-interface';
-import { useNuxtApp } from '#app';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { AccountType, getAccountTypeById } from '~/types';
 import type { DashboardCustomerTableItem } from '~/types';
-
-const { $api } = useNuxtApp();
 
 const showOptions = ref(false);
 const selectedOption = ref('This Week');
@@ -137,7 +135,7 @@ const fetchAndSetNewCustomers = async (_time = 7) => {
   loading.value = true;
   error.value = false;
 
-  const data = await $api.userDashboard.fetchNewCustomersWidget();
+  const data = await fetchNewCustomersWidget();
 
   if (!data || !data.data || data.status !== 'success') {
     loading.value = false;

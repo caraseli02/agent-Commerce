@@ -118,10 +118,8 @@ import ChevronIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import ArrowRightIcon from '@/assets/icons/dashboard/arrow-right.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
+import { fetchTotalCustomersWidget } from '~/composables/api/dashboard-admin';
 import type { TotalCustomersInterface } from '~/model/dashboard/response/CustomerInterfaceResponse';
-import { useNuxtApp } from '#app';
-
-const { $api } = useNuxtApp();
 
 const chartOptions: ApexOptions = {
   chart: {
@@ -201,7 +199,7 @@ const fetchAndSetTotalCustomers = async (time = 7) => {
   loading.value = true;
   error.value = false;
 
-  const data = await $api.userDashboard.fetchTotalCustomersWidget(time);
+  const data = await fetchTotalCustomersWidget(time);
 
   if (!data || data.status !== 'success') {
     loading.value = false;

@@ -7,10 +7,10 @@ import CellDate from '~/components/dataTable/CellDate.vue';
 import { renderColumnHeader } from '~/components/dataTable/renderColumnHeader';
 import { AccountStatusEnum, type CustomerTableColumns } from '~/types/auth/user-interface';
 import { AgentsTableColumnsEnum } from '~/components/client-table/agents/columns.enum';
-import UserDashboardService from '~/services/dashboard/user.service';
 import StatusWithColor from '~/components/dataTable/StatusWithColor.vue';
 import { useAuthStore } from '~/store/authStore';
 import { AccountRole } from '~/types';
+import { activateUser, deactivateUser, deleteUser } from '~/composables/api/dashboard-admin';
 
 const statusName: Record<AccountStatusEnum, string> = {
   [AccountStatusEnum.Inactive]: 'Inactive',
@@ -72,7 +72,6 @@ export const columns: ColumnDef<CustomerTableColumns>[] = [
     cell: ({ row }) =>
       h(RowActions, {
         row: row,
-        service: UserDashboardService,
         discount: row.original?.adminSettings?.discount?.value,
         lock: row.original.status === AccountStatusEnum.Inactive,
         options: [
@@ -84,22 +83,22 @@ export const columns: ColumnDef<CustomerTableColumns>[] = [
           {
             label: 'Delete',
             enable: getUserDetails.value?.role === AccountRole.Admin,
-            actionFn: 'deleteUser',
+            actionFn: deleteUser,
           },
           {
             label: 'Unlock account',
             enable: row.original.status === AccountStatusEnum.Inactive,
-            actionFn: 'activateUser',
+            actionFn: activateUser,
           },
           {
             label: 'Lock account',
             enable: row.original.status === AccountStatusEnum.Active,
-            actionFn: 'deactivateUser',
+            actionFn: deactivateUser,
           },
           {
             label: 'Activate account',
             enable: row.original.status === AccountStatusEnum.Pending,
-            actionFn: 'activateUser',
+            actionFn: activateUser,
           },
         ] as ActionOptionsConfiguration[],
       }),
