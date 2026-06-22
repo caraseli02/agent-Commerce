@@ -25,7 +25,7 @@ const features = reactive<ProductParametricDataFeaturesInterface[]>(
   props.features?.map((item) => {
     item.checked = false;
     return item;
-  }),
+  })
 );
 
 const totalSimilarProducts = ref<number>(0);
@@ -56,7 +56,7 @@ watch(features, async () => {
 const searchSimilarProducts = async () => {
   isLoading.value = true;
 
-  checkedFeatures.value = features.filter(item => item.checked);
+  checkedFeatures.value = features.filter((item) => item.checked);
   const { data } = await fetchSearchProduct('', null, 1, 10, {}, {}, checkedFeatures.value);
 
   totalSimilarProducts.value = !checkedFeatures.value.length ? 0 : data.items.total_items;
@@ -91,10 +91,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    ref="elDOM"
-    class="max-w-[1392px] mx-auto relative bg-white rounded-xl font-Inter pt-7 pb-[25px] shadow-m md:py-[15px]"
-  >
+  <div ref="elDOM" class="max-w-[1392px] mx-auto relative bg-white rounded-xl font-Inter pt-7 pb-[25px] shadow-m md:py-[15px]">
     <div
       class="flex flex-col items-center mb-[30px] md:flex-row md:justify-between md:items-end md:mb-10 md:border-b md:border-gray-200 md:px-[15px] lg:px-5"
     >
@@ -126,10 +123,7 @@ onMounted(() => {
         @click="searchSimilarProducts"
       >
         <span v-if="isLoading"> Loading... </span>
-        <span
-          v-else
-          @click="showSimilarProducts()"
-        > Show similar products ({{ totalSimilarProducts }}) </span>
+        <span v-else @click="showSimilarProducts()"> Show similar products ({{ totalSimilarProducts }}) </span>
       </button>
     </div>
     <div class="mb-[25px]">
@@ -151,10 +145,7 @@ onMounted(() => {
               class="flex items-center justify-center w-[18px] h-[18px] rounded border transition-colors duration-300"
               :class="[item.checked ? 'bg-blue-500 border-blue-500' : 'border-border group-hover:border-gray-300']"
             >
-              <CheckIcon
-                v-if="item.checked"
-                class="w-4 text-white"
-              />
+              <CheckIcon v-if="item.checked" class="w-4 text-white" />
             </div>
           </td>
         </tr>
@@ -168,10 +159,7 @@ onMounted(() => {
         @click="searchSimilarProducts"
       >
         <span v-if="isLoading"> Loading... </span>
-        <span
-          v-else
-          @click="showSimilarProducts()"
-        > Show similar products ({{ totalSimilarProducts }}) </span>
+        <span v-else @click="showSimilarProducts()"> Show similar products ({{ totalSimilarProducts }}) </span>
       </button>
     </div>
   </div>

@@ -24,8 +24,7 @@ async function walk(dir, acc = []) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       await walk(full, acc);
-    }
-    else if (entry.isFile()) {
+    } else if (entry.isFile()) {
       acc.push(full);
     }
   }
@@ -34,7 +33,7 @@ async function walk(dir, acc = []) {
 
 const files = await walk(path.join(process.cwd(), 'pages'));
 const staticRoutes = [...new Set(files.map(toRoute).filter(Boolean))];
-const ranked = preferredOrder.filter(route => staticRoutes.includes(route));
+const ranked = preferredOrder.filter((route) => staticRoutes.includes(route));
 for (const route of staticRoutes) {
   if (ranked.length >= maxRoutes) break;
   if (!ranked.includes(route)) ranked.push(route);
@@ -60,8 +59,7 @@ for (const route of routes) {
     if (!ok) {
       failures.push(`${route} -> ${response.status}`);
     }
-  }
-  catch (error) {
+  } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.log(`FAIL ${route} -> ${message}`);
     failures.push(`${route} -> ${message}`);

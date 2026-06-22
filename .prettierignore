@@ -6,3 +6,10 @@ node_modules
 .output
 .env
 dist
+pnpm-lock.yaml
+assets/lottie
+chart-designs
+tmp
+.agents
+.claude
+skills

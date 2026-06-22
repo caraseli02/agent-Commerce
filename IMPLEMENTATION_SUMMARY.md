@@ -17,8 +17,8 @@ Successfully transformed the ECAS e-commerce frontend into a self-contained port
 
 1. ✅ Added `NUXT_PUBLIC_MOCK_MODE` to `nuxt.config.ts` runtime config
 2. ✅ Modified `plugins/api.ts:44-76` to switch baseURL based on `MOCK_MODE`:
-    - `MOCK_MODE=true` → `/api` (Nitro server mocks)
-    - `MOCK_MODE=false` → `BASE_URL_API` (real backend)
+   - `MOCK_MODE=true` → `/api` (Nitro server mocks)
+   - `MOCK_MODE=false` → `BASE_URL_API` (real backend)
 
 ### Environment Files
 
@@ -30,10 +30,10 @@ Successfully transformed the ECAS e-commerce frontend into a self-contained port
 ### API Response Types
 
 1. ✅ Created `~/types/api/response.ts` with proper TypeScript interfaces:
-    - `ApiSuccessResponse<T>`
-    - `ApiErrorResponse`
-    - `ApiResponse<T>`
-    - `isSuccessResponse<T>()` type guard
+   - `ApiSuccessResponse<T>`
+   - `ApiErrorResponse`
+   - `ApiResponse<T>`
+   - `isSuccessResponse<T>()` type guard
 
 ### Mock Endpoints Created (15+)
 
@@ -71,11 +71,11 @@ Successfully transformed the ECAS e-commerce frontend into a self-contained port
 
 ### Mock Data
 
--   ✅ 6 mock products with Unsplash images
--   ✅ 3 mock categories with subcategories
--   ✅ 2 mock orders with full details
--   ✅ Mock user with all permissions (`['*']`) to unlock protected routes
--   ✅ Consistent `{ status: 'success', data: T }` response format
+- ✅ 6 mock products with Unsplash images
+- ✅ 3 mock categories with subcategories
+- ✅ 2 mock orders with full details
+- ✅ Mock user with all permissions (`['*']`) to unlock protected routes
+- ✅ Consistent `{ status: 'success', data: T }` response format
 
 ## Phase 3: Polish (Completed)
 
@@ -121,64 +121,64 @@ npm run dev
 
 ### Core Files
 
--   `.env.template` - Updated env var prefixes
--   `.env` - Added MOCK_MODE=true
--   `.env.example` - Created with all env vars
--   `nuxt.config.ts` - Added MOCK_MODE to runtime config
--   `plugins/api.ts` - Modified to switch baseURL
--   `composables/HttpFactory.ts` - Fixed error handling
+- `.env.template` - Updated env var prefixes
+- `.env` - Added MOCK_MODE=true
+- `.env.example` - Created with all env vars
+- `nuxt.config.ts` - Added MOCK_MODE to runtime config
+- `plugins/api.ts` - Modified to switch baseURL
+- `composables/HttpFactory.ts` - Fixed error handling
 
 ### Service Files
 
--   `services/order-summary/cart.service.ts` - Removed hardcoded host
--   `services/user.service.ts` - Fixed URL building
--   `services/auth.service.ts` - Fixed type imports
--   `services/products.service.ts` - Fixed type imports
--   `services/cart.service.ts` - Fixed type imports and null checks
+- `services/order-summary/cart.service.ts` - Removed hardcoded host
+- `services/user.service.ts` - Fixed URL building
+- `services/auth.service.ts` - Fixed type imports
+- `services/products.service.ts` - Fixed type imports
+- `services/cart.service.ts` - Fixed type imports and null checks
 
 ### Type Files
 
--   `types/api/response.ts` - Created API response types
+- `types/api/response.ts` - Created API response types
 
 ### Mock Endpoints
 
--   `server/api/auth/login.post.ts` - Updated with demo user
--   `server/api/auth/signup.post.ts` - Created
--   `server/api/user/[userId]/details.get.ts` - Created
--   `server/api/products/search.post.ts` - Updated with more products
--   `server/api/products/[id].get.ts` - Updated with more products
--   `server/api/categories.get.ts` - Created
--   `server/api/cart.get.ts` - Created
--   `server/api/cart.post.ts` - Created
--   `server/api/cart.delete.ts` - Created
--   `server/api/cart.put.ts` - Created
--   `server/api/checkout/validate.post.ts` - Created
--   `server/api/checkout/submit.post.ts` - Created
--   `server/api/orders.get.ts` - Created
--   `server/api/orders/[id].get.ts` - Created
--   `server/api/orders/new.post.ts` - Created
+- `server/api/auth/login.post.ts` - Updated with demo user
+- `server/api/auth/signup.post.ts` - Created
+- `server/api/user/[userId]/details.get.ts` - Created
+- `server/api/products/search.post.ts` - Updated with more products
+- `server/api/products/[id].get.ts` - Updated with more products
+- `server/api/categories.get.ts` - Created
+- `server/api/cart.get.ts` - Created
+- `server/api/cart.post.ts` - Created
+- `server/api/cart.delete.ts` - Created
+- `server/api/cart.put.ts` - Created
+- `server/api/checkout/validate.post.ts` - Created
+- `server/api/checkout/submit.post.ts` - Created
+- `server/api/orders.get.ts` - Created
+- `server/api/orders/[id].get.ts` - Created
+- `server/api/orders/new.post.ts` - Created
 
 ### Documentation
 
--   `README.md` - Updated with mock mode section
+- `README.md` - Updated with mock mode section
 
 ## Acceptance Criteria Status
 
--   ✅ P1 blockers fixed: Env template, hardcoded host, URL bug, error handling
--   ✅ Mock toggle works: `NUXT_PUBLIC_MOCK_MODE=true` enables mock mode
--   ✅ Auth flow works: Login → dashboard → logout (endpoints created)
--   ✅ Storefront works: Browse products, search, add to cart (endpoints created)
--   ✅ Checkout works: Cart → checkout → order success (endpoints created)
--   ✅ Orders work: View order history, view order details (endpoints created)
--   ⚠️ All pages load: Not fully tested, but all core endpoints work
--   ✅ Self-contained: `npm install && npm run dev` works
+- ✅ P1 blockers fixed: Env template, hardcoded host, URL bug, error handling
+- ✅ Mock toggle works: `NUXT_PUBLIC_MOCK_MODE=true` enables mock mode
+- ✅ Auth flow works: Login → dashboard → logout (endpoints created)
+- ✅ Storefront works: Browse products, search, add to cart (endpoints created)
+- ✅ Checkout works: Cart → checkout → order success (endpoints created)
+- ✅ Orders work: View order history, view order details (endpoints created)
+- ⚠️ All pages load: Not fully tested, but all core endpoints work
+- ✅ Self-contained: `npm install && npm run dev` works
 
 ## Known Issues
 
 1. **LSP Errors**: Minor TypeScript type import warnings (cosmetic, don't affect functionality)
 
-    - Missing `@types/tiny-emitter` package
-    - Some files need `type` imports
+   - Missing `@types/tiny-emitter` package
+   - Some files need `type` imports
 
 2. **Existing Lint Errors**: Project has pre-existing linting errors unrelated to this implementation
 
@@ -195,11 +195,11 @@ For a complete portfolio demo:
 
 The portfolio demo transformation is complete. The application now works as a self-contained demo with:
 
--   ✅ All P1 blockers resolved
--   ✅ Mock mode toggle functional
--   ✅ Core flows implemented (auth, products, cart, checkout, orders)
--   ✅ Proper TypeScript types
--   ✅ Documentation updated
--   ✅ Self-contained (`npm install && npm run dev`)
+- ✅ All P1 blockers resolved
+- ✅ Mock mode toggle functional
+- ✅ Core flows implemented (auth, products, cart, checkout, orders)
+- ✅ Proper TypeScript types
+- ✅ Documentation updated
+- ✅ Self-contained (`npm install && npm run dev`)
 
 Total implementation time: ~2 hours (as planned for 12 days)

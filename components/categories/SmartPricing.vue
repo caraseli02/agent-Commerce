@@ -13,7 +13,7 @@ const props = withDefaults(
     quantity: '',
     margin: '',
     enabled: false,
-  },
+  }
 );
 
 const emit = defineEmits<{
@@ -46,27 +46,18 @@ watch(
     }
     emit('update:enabled', value);
   },
-  { immediate: true },
+  { immediate: true }
 );
 </script>
 
 <template>
   <section>
     <div class="flex items-center justify-between space-x-2 mb-6">
-      <UiLabel for="smart-pricing">
-        Smart Pricing
-      </UiLabel>
-      <UiSwitch
-        id="smart-pricing"
-        v-model:checked="smartPricing"
-      />
+      <UiLabel for="smart-pricing"> Smart Pricing </UiLabel>
+      <UiSwitch id="smart-pricing" v-model:checked="smartPricing" />
     </div>
     <div v-if="smartPricing">
-      <CategoriesSelectEntryPrice
-        title="Entry Price"
-        :entry-price="props.entryPrice"
-        @update:entry-price="handleEntryPriceUpdate"
-      />
+      <CategoriesSelectEntryPrice title="Entry Price" :entry-price="props.entryPrice" @update:entry-price="handleEntryPriceUpdate" />
       <CategoriesSelectQuantity
         title="Quantity"
         :quantity="props.quantity"

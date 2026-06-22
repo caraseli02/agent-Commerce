@@ -10,10 +10,7 @@
           >
             $
           </span>
-          <label
-            for="minPrice"
-            class="sr-only"
-          >Minimum Price</label>
+          <label for="minPrice" class="sr-only">Minimum Price</label>
           <input
             id="minPrice"
             v-model="minPrice"
@@ -22,7 +19,7 @@
             placeholder="Min"
             aria-label="Minimum Price"
             @input="updateRange"
-          >
+          />
         </div>
         <span class="text-sm leading-none text-zinc-800">-</span>
         <div
@@ -33,10 +30,7 @@
           >
             $
           </span>
-          <label
-            for="maxPrice"
-            class="sr-only"
-          >Maximum Price</label>
+          <label for="maxPrice" class="sr-only">Maximum Price</label>
           <input
             id="maxPrice"
             v-model="maxPrice"
@@ -45,7 +39,7 @@
             placeholder="Max"
             aria-label="Maximum Price"
             @input="updateRange"
-          >
+          />
         </div>
       </div>
     </div>
@@ -77,12 +71,11 @@ watch(
       minPrice.value = newRange?.range?.min ?? null;
       maxPrice.value = newRange?.range?.max ?? null;
       label.value = newRange?.label ?? '';
-    }
-    else {
+    } else {
       pricingStore.type = 'add';
     }
   },
-  { immediate: true }, // Initialize immediately when the component loads
+  { immediate: true } // Initialize immediately when the component loads
 );
 
 function updateRange() {

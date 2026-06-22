@@ -60,8 +60,7 @@ export const useCartStore = defineStore({
       const item = this.cart?.products?.find((product: CartProductsInterface) => product.id === itemId);
       if (item?.liked) {
         item.liked = false;
-      }
-      else if (item && !item?.liked) {
+      } else if (item && !item?.liked) {
         item.liked = true;
       }
     },
@@ -107,7 +106,7 @@ export const useCartStore = defineStore({
     },
     getOrderClientSecret: (state): string => state.orderClientSecret as string,
     getPreviousCheckoutError: (state): CheckoutError => state.previousCheckoutError as CheckoutError,
-    itemsDiscount: state => state.cart?.products?.[0]?.discount.value,
+    itemsDiscount: (state) => state.cart?.products?.[0]?.discount.value,
   },
   persist: {
     storage: piniaPluginPersistedstate.localStorage(),

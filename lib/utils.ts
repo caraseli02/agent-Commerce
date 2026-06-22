@@ -49,19 +49,15 @@ export function transformFiltersToObject(filters: Filter[]): Record<string, unkn
     if (filter.id === 'userName') {
       // Change the key to 'name'
       transformedFilters['name'] = filter.value;
-    }
-    else if (filter.id === 'createdAt') {
+    } else if (filter.id === 'createdAt') {
       transformedFilters['startDate'] = (filter.value as string[])[0];
       transformedFilters['endDate'] = (filter.value as string[])[1];
-    }
-    else if (filter.type === FiltersType.Range) {
+    } else if (filter.type === FiltersType.Range) {
       transformedFilters[`${filter.id}From`] = (filter.value as string[])[0] || 'unknown';
       transformedFilters[`${filter.id}To`] = (filter.value as string[])[1] || 'unknown';
-    }
-    else if (Array.isArray(filter.value)) {
+    } else if (Array.isArray(filter.value)) {
       transformedFilters[filter.id] = filter.value.join(',');
-    }
-    else {
+    } else {
       transformedFilters[filter.id] = filter.value;
     }
   }

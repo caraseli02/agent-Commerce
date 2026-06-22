@@ -17,7 +17,7 @@ const delegatedProps = computed(() => {
     :class="
       cn(
         'mt-2 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300',
-        props.class,
+        props.class
       )
     "
     v-bind="delegatedProps"

@@ -1,13 +1,7 @@
 <template>
-  <div
-    class="relative"
-    :class="[error ? 'mb-4' : '']"
-  >
+  <div class="relative" :class="[error ? 'mb-4' : '']">
     <label class="flex flex-col relative">
-      <div
-        v-if="label"
-        class="text-sm text-slate-500 mb-1"
-      >
+      <div v-if="label" class="text-sm text-slate-500 mb-1">
         {{ label }}
       </div>
       <div class="relative">
@@ -15,10 +9,7 @@
           v-if="icon"
           class="absolute top-1/2 -translate-y-1/2 left-px w-11 h-[40px] bg-[#F5F5F5] flex items-center justify-center rounded-l-lg border-r border-border"
         >
-          <component
-            :is="icon"
-            class="w-5 h-5 text-slate-500"
-          />
+          <component :is="icon" class="w-5 h-5 text-slate-500" />
         </div>
         <input
           :value="modelValue"
@@ -35,14 +26,11 @@
           ]"
           :disabled="disabled"
           @input="handleInput"
-        >
+        />
       </div>
     </label>
     <Transition name="fade">
-      <div
-        v-if="error"
-        class="absolute -bottom-1 left-0 translate-y-full pointer-events-none text-xs leading-normal text-rose-500"
-      >
+      <div v-if="error" class="absolute -bottom-1 left-0 translate-y-full pointer-events-none text-xs leading-normal text-rose-500">
         {{ error }}
       </div>
     </Transition>

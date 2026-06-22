@@ -9,7 +9,7 @@ export function useCategoriesNavigation() {
   const isOpen = useState<boolean>('main-menu-is-open', () => false);
   const selectedCategories = useState<TaxonomyInterface[]>('main-menu-selected-categories', () => []);
   const currentCategory = computed(() =>
-    selectedCategories.value.length > 0 ? selectedCategories.value[selectedCategories.value.length - 1] : null,
+    selectedCategories.value.length > 0 ? selectedCategories.value[selectedCategories.value.length - 1] : null
   );
 
   const router = useRouter();
@@ -21,8 +21,7 @@ export function useCategoriesNavigation() {
       isOpen.value = false;
       selectedCategories.value = [];
       router.push(`/search?category=${category.id}`);
-    }
-    else {
+    } else {
       selectedCategories.value.push(category);
     }
   }

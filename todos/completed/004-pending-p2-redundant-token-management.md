@@ -3,11 +3,11 @@ status: completed
 priority: p2
 issue_id: 004
 tags:
-    - code-review
-    - p2
-    - performance
-    - redundancy
-    - token-management
+  - code-review
+  - p2
+  - performance
+  - redundancy
+  - token-management
 dependencies: []
 ---
 
@@ -53,28 +53,28 @@ async call<T>(method: string, url: string, data?: object | null, extras = {}): P
 
 ```typescript
 class CategoriesService extends HttpFactory {
-    private RESOURCE = '/taxonomy';
+  private RESOURCE = '/taxonomy';
 
-    async create(taxonomyId: string, payload: ICreatePayload) {
-        const token = this.authStore.getToken(); // ❌ Second fetch - redundant!
-        return await this.call('POST', `${this.RESOURCE}/${taxonomyId}/category`, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-    }
+  async create(taxonomyId: string, payload: ICreatePayload) {
+    const token = this.authStore.getToken(); // ❌ Second fetch - redundant!
+    return await this.call('POST', `${this.RESOURCE}/${taxonomyId}/category`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
 
-    async delete(taxonomyId: string, categoryIds: string[]) {
-        const token = this.authStore.getToken(); // ❌ Second fetch - redundant!
-        return await this.call(
-            'DELETE',
-            `${this.RESOURCE}/${taxonomyId}/category`,
-            { categoryIds },
-            {
-                headers: { Authorization: `Bearer ${token}` },
-            }
-        );
-    }
+  async delete(taxonomyId: string, categoryIds: string[]) {
+    const token = this.authStore.getToken(); // ❌ Second fetch - redundant!
+    return await this.call(
+      'DELETE',
+      `${this.RESOURCE}/${taxonomyId}/category`,
+      { categoryIds },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+  }
 
-    // ... 4 more methods with same redundant token fetch
+  // ... 4 more methods with same redundant token fetch
 }
 ```
 
@@ -92,21 +92,21 @@ This is an incomplete refactoring - one of the two layers should handle token fe
 
 **Scope**:
 
--   All 6 methods in `CategoriesService`
--   Every category API call
--   24 lines of redundant code (36% of file)
+- All 6 methods in `CategoriesService`
+- Every category API call
+- 24 lines of redundant code (36% of file)
 
 **Likelihood**: 100% - Every call performs double fetch
 
 **Performance Impact**:
 
--   Extra store access: 6 per call
--   Extra function call overhead: negligible (< 1ms)
--   Total overhead per category operation: ~6ms
+- Extra store access: 6 per call
+- Extra function call overhead: negligible (< 1ms)
+- Total overhead per category operation: ~6ms
 
 **Memory Impact**:
 
--   Minimal (extra local variable)
+- Minimal (extra local variable)
 
 **Bundle Impact**: None
 
@@ -125,12 +125,12 @@ Remove `const token = this.authStore.getToken();` from all 6 methods and update 
 
 ```typescript
 class CategoriesService extends HttpFactory {
-    private RESOURCE = '/taxonomy';
-    private authStore = useAuthStore();
+  private RESOURCE = '/taxonomy';
+  private authStore = useAuthStore();
 
-    async create(taxonomyId: string, payload: ICreatePayload) {
-        return await this.call('POST', `${this.RESOURCE}/${taxonomyId}/category`, payload);
-    }
+  async create(taxonomyId: string, payload: ICreatePayload) {
+    return await this.call('POST', `${this.RESOURCE}/${taxonomyId}/category`, payload);
+  }
 }
 ```
 
@@ -138,29 +138,29 @@ class CategoriesService extends HttpFactory {
 
 ```typescript
 class CategoriesService extends HttpFactory {
-    private RESOURCE = '/taxonomy';
-    private authStore = useAuthStore();
+  private RESOURCE = '/taxonomy';
+  private authStore = useAuthStore();
 
-    async create(taxonomyId: string, payload: ICreatePayload) {
-        const token = this.authStore.getToken();
-        return await this.call('POST', `${this.RESOURCE}/${taxonomyId}/category`, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-    }
+  async create(taxonomyId: string, payload: ICreatePayload) {
+    const token = this.authStore.getToken();
+    return await this.call('POST', `${this.RESOURCE}/${taxonomyId}/category`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
 }
 ```
 
 **Pros**:
 
--   ✅ Eliminates redundant token fetch (if Option A)
--   ✅ Reduces code by 24 lines
--   ✅ Better separation of concerns
--   ✅ More consistent with architecture
+- ✅ Eliminates redundant token fetch (if Option A)
+- ✅ Reduces code by 24 lines
+- ✅ Better separation of concerns
+- ✅ More consistent with architecture
 
 **Cons**:
 
--   ⚠️ Requires changing 6 methods
--   ⚠️ May need to verify authorization still works
+- ⚠️ Requires changing 6 methods
+- ⚠️ May need to verify authorization still works
 
 **Risk**: Low - Straightforward refactoring
 
@@ -176,38 +176,38 @@ Add memoization to `HttpFactory` token fetching to avoid repeated store access.
 
 ```typescript
 class HttpFactory {
-    private readonly $fetch: FetchInstance;
-    private authStore = useAuthStore();
-    private tokenCache: string | null = null; // ← Add cache
+  private readonly $fetch: FetchInstance;
+  private authStore = useAuthStore();
+  private tokenCache: string | null = null; // ← Add cache
 
-    private getToken(): string {
-        if (!this.tokenCache) {
-            this.tokenCache = this.authStore.getToken();
-        }
-        return this.tokenCache;
+  private getToken(): string {
+    if (!this.tokenCache) {
+      this.tokenCache = this.authStore.getToken();
     }
+    return this.tokenCache;
+  }
 
-    async call<T>(method: string, url: string, data?: object | null, extras = {}): Promise<T> {
-        const token = this.getToken(); // ← Use cached version
-        if (!token) {
-            throw new Error('No authentication token available');
-        }
-        // ...
+  async call<T>(method: string, url: string, data?: object | null, extras = {}): Promise<T> {
+    const token = this.getToken(); // ← Use cached version
+    if (!token) {
+      throw new Error('No authentication token available');
     }
+    // ...
+  }
 }
 ```
 
 **Pros**:
 
--   ✅ Eliminates redundant store access across all services
--   ✅ Reduces token fetch overhead by caching
--   ✅ Single source of truth for token management
--   ✅ Benefits all services using HttpFactory
+- ✅ Eliminates redundant store access across all services
+- ✅ Reduces token fetch overhead by caching
+- ✅ Single source of truth for token management
+- ✅ Benefits all services using HttpFactory
 
 **Cons**:
 
--   ⚠️ Adds complexity to base class
--   ⚠️ Cache invalidation needed on login/logout
+- ⚠️ Adds complexity to base class
+- ⚠️ Cache invalidation needed on login/logout
 
 **Risk**: Medium - More complex, need to invalidate cache correctly
 
@@ -219,14 +219,14 @@ Leave the redundant token fetching as-is and accept the minor performance overhe
 
 **Pros**:
 
--   ✅ No changes required
--   ✅ Minimal risk
+- ✅ No changes required
+- ✅ Minimal risk
 
 **Cons**:
 
--   ❌ Perpetuates code redundancy
--   ❌ Wastes performance
--   ❌ Violates DRY principle
+- ❌ Perpetuates code redundancy
+- ❌ Wastes performance
+- ❌ Violates DRY principle
 
 **Risk**: None - Safe but not optimal
 
@@ -236,22 +236,22 @@ Leave the redundant token fetching as-is and accept the minor performance overhe
 
 Rationale:
 
--   Simplest fix
--   Eliminates 24 lines of redundant code
--   Improves code clarity
--   Minimal risk
--   Performance gain (~6ms per operation)
+- Simplest fix
+- Eliminates 24 lines of redundant code
+- Improves code clarity
+- Minimal risk
+- Performance gain (~6ms per operation)
 
 # Technical Details
 
 **Affected Files**:
 
--   `services/categories.service.ts` (lines 9, 16, 24, 28, 35, 42, 54 - 24 lines to potentially remove)
+- `services/categories.service.ts` (lines 9, 16, 24, 28, 35, 42, 54 - 24 lines to potentially remove)
 
 **Affected Components**:
 
--   `composables/useCategories.ts` (uses CategoriesService)
--   Any component using categories API
+- `composables/useCategories.ts` (uses CategoriesService)
+- Any component using categories API
 
 **Database Changes**: None
 
@@ -259,32 +259,32 @@ Rationale:
 
 **Performance Metrics** (after fix):
 
--   Token fetches per category API call: 1 (down from 2)
--   Reduction in code: 24 lines
--   Estimated performance improvement: ~6ms per operation
+- Token fetches per category API call: 1 (down from 2)
+- Reduction in code: 24 lines
+- Estimated performance improvement: ~6ms per operation
 
 # Acceptance Criteria
 
 **If Implementing Solution 1 (Option A - Remove All)**:
 
--   [ ] All `const token = this.authStore.getToken();` lines removed from `CategoriesService` (6 lines)
--   [ ] All method calls updated to not pass `headers` parameter
--   [ ] No TypeScript errors
--   [ ] Application compiles successfully
--   [ ] Categories can be created successfully
--   [ ] Categories can be deleted successfully
--   [ ] Categories can be updated successfully
--   [ ] Categories can be searched successfully
--   [ ] Performance benchmark shows improvement (optional)
--   [ ] No runtime errors
+- [ ] All `const token = this.authStore.getToken();` lines removed from `CategoriesService` (6 lines)
+- [ ] All method calls updated to not pass `headers` parameter
+- [ ] No TypeScript errors
+- [ ] Application compiles successfully
+- [ ] Categories can be created successfully
+- [ ] Categories can be deleted successfully
+- [ ] Categories can be updated successfully
+- [ ] Categories can be searched successfully
+- [ ] Performance benchmark shows improvement (optional)
+- [ ] No runtime errors
 
 **If Implementing Solution 1 (Option B - Keep Token)**:
 
--   [ ] Token fetch remains in all 6 methods
--   [ ] Authorization headers still passed correctly
--   [ ] No TypeScript errors
--   [ ] Application compiles successfully
--   [ ] All category operations work correctly
+- [ ] Token fetch remains in all 6 methods
+- [ ] Authorization headers still passed correctly
+- [ ] No TypeScript errors
+- [ ] Application compiles successfully
+- [ ] All category operations work correctly
 
 # Work Log
 
@@ -308,6 +308,6 @@ Rationale:
 
 ## Related Links
 
--   PR: https://github.com/caraseli02/Ecas/pull/1
--   Plan: docs/plans/2026-02-14-refactor-backend-to-mock-cleanup-plan.md
--   Related: Token management improvements in other services (user.service.ts, cart.service.ts)
+- PR: https://github.com/caraseli02/Ecas/pull/1
+- Plan: docs/plans/2026-02-14-refactor-backend-to-mock-cleanup-plan.md
+- Related: Token management improvements in other services (user.service.ts, cart.service.ts)

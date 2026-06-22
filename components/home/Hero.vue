@@ -6,19 +6,12 @@
       <div class="block md:hidden relative overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm mb-5 min-h-[320px]">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-50 to-blue-50/40" />
         <div class="relative z-10 flex flex-col justify-center h-full px-6 py-9">
-          <h1 class="text-3xl font-bold text-zinc-800 leading-tight mb-4">
-            Electronic Components,<br>Sourced Reliably
-          </h1>
+          <h1 class="text-3xl font-bold text-zinc-800 leading-tight mb-4">Electronic Components,<br />Sourced Reliably</h1>
           <p class="text-sm leading-6 text-slate-500 mb-7 max-w-xs">
             Browse thousands of parts from trusted manufacturers. Check stock, compare specs, and order with confidence.
           </p>
-          <NuxtLink
-            to="/search"
-            class="w-fit"
-          >
-            <UiButton class="w-fit px-6 py-2.5 text-sm font-medium shadow-sm">
-              Explore Products
-            </UiButton>
+          <NuxtLink to="/search" class="w-fit">
+            <UiButton class="w-fit px-6 py-2.5 text-sm font-medium shadow-sm"> Explore Products </UiButton>
           </NuxtLink>
         </div>
       </div>
@@ -30,19 +23,10 @@
           :key="index"
           class="flex min-h-[118px] flex-col items-start justify-center rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-4 shadow-sm lg:min-h-[108px] lg:flex-row lg:items-center lg:gap-3 xl:px-5"
         >
-          <component
-            :is="feature.icon"
-            class="w-8 h-8 mb-3 flex-shrink-0 md:w-10 md:h-10 lg:mb-0 xl:w-11 xl:h-11"
-          />
+          <component :is="feature.icon" class="w-8 h-8 mb-3 flex-shrink-0 md:w-10 md:h-10 lg:mb-0 xl:w-11 xl:h-11" />
           <div class="flex flex-col text-left text-slate-500 leading-[1.25]">
-            <div
-              class="text-sm font-semibold mb-1.5 text-slate-800 lg:text-[15px] xl:text-base"
-              v-html="feature.title"
-            />
-            <div
-              class="text-[11px] md:text-xs lg:text-[13px]"
-              v-html="feature.description"
-            />
+            <div class="text-sm font-semibold mb-1.5 text-slate-800 lg:text-[15px] xl:text-base" v-html="feature.title" />
+            <div class="text-[11px] md:text-xs lg:text-[13px]" v-html="feature.description" />
           </div>
         </div>
       </div>
@@ -64,18 +48,18 @@ const features = ref([
     icon: ProductsBoxIcon,
   },
   {
-    title: 'Fast <br class=\'md:hidden\' /><span class=\'hidden md:inline\'>and Secure</span> Delivery',
+    title: "Fast <br class='md:hidden' /><span class='hidden md:inline'>and Secure</span> Delivery",
     description: 'Reliable Couriers',
     icon: FastDeliveryIcon,
   },
   {
-    title: '<span class=\'md:hidden\'>Custom Development</span><span class=\'hidden md:inline\'>Research and Development</span>',
-    description: '<span class=\'md:hidden\'>Quality Growth</span><span class=\'hidden md:inline\'>Software & Hardware</span>',
+    title: "<span class='md:hidden'>Custom Development</span><span class='hidden md:inline'>Research and Development</span>",
+    description: "<span class='md:hidden'>Quality Growth</span><span class='hidden md:inline'>Software & Hardware</span>",
     icon: CustomDevelopmentIcon,
   },
   {
-    title: '<span class=\'hidden md:inline\'>Skilled</span> Customer Support',
-    description: 'Available <span class=\'md:hidden\'>24/7</span><span class=\'hidden md:inline\'>online & on phone</span>',
+    title: "<span class='hidden md:inline'>Skilled</span> Customer Support",
+    description: "Available <span class='md:hidden'>24/7</span><span class='hidden md:inline'>online & on phone</span>",
     icon: CustomerSupportIcon,
   },
 ]);

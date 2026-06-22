@@ -17,14 +17,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <SliderRoot
-    :class="cn('relative flex w-full touch-none select-none items-center rounded-full', props.class)"
-    v-bind="forwarded"
-  >
-    <SliderTrack
-      :step="10"
-      class="relative h-2 w-full grow overflow-hidden rounded-full bg-light-500 dark:bg-slate-800"
-    >
+  <SliderRoot :class="cn('relative flex w-full touch-none select-none items-center rounded-full', props.class)" v-bind="forwarded">
+    <SliderTrack :step="10" class="relative h-2 w-full grow overflow-hidden rounded-full bg-light-500 dark:bg-slate-800">
       <SliderRange class="absolute h-full bg-blue-500 dark:bg-slate-50" />
     </SliderTrack>
     <SliderThumb

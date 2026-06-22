@@ -1,21 +1,12 @@
 <template>
-  <div
-    class="relative"
-    :class="[error ? 'mb-4' : '']"
-  >
+  <div class="relative" :class="[error ? 'mb-4' : '']">
     <label class="flex flex-col relative !focus:rounded-lg">
-      <div
-        v-if="label"
-        class="text-sm text-gray-500 mb-1"
-      >
+      <div v-if="label" class="text-sm text-gray-500 mb-1">
         {{ label }}
       </div>
       <div
         class="relative border w-full transition-colors duration-300 !focus:rounded-lg"
-        :class="[
-          error ? 'border-rose-500' : 'border-border focus-within:border-blue-500',
-          size === 'lg' ? 'rounded-lg' : 'rounded',
-        ]"
+        :class="[error ? 'border-rose-500' : 'border-border focus-within:border-blue-500', size === 'lg' ? 'rounded-lg' : 'rounded']"
       >
         <input
           :value="modelValue"
@@ -24,24 +15,12 @@
           class="bg-transparent pl-3 pr-10 text-sm !placeholder:text-gray-500 w-full focus:outline-none !focus:rounded-lg active:rounded-lg"
           :class="[size === 'lg' ? 'py-2.5' : 'py-2']"
           @input="handleInput"
-        >
-        <div
-          class="flex cursor-pointer"
-          @click="showPassword = !showPassword"
-        >
-          <EyeClosedIcon
-            v-if="!showPassword"
-            class="absolute top-1/2 -translate-y-1/2 right-2.5 w-6 h-6 text-gray-500"
-          />
-          <EyeIcon
-            v-else
-            class="absolute top-1/2 -translate-y-1/2 right-2.5 w-6 h-6 text-gray-500"
-          />
+        />
+        <div class="flex cursor-pointer" @click="showPassword = !showPassword">
+          <EyeClosedIcon v-if="!showPassword" class="absolute top-1/2 -translate-y-1/2 right-2.5 w-6 h-6 text-gray-500" />
+          <EyeIcon v-else class="absolute top-1/2 -translate-y-1/2 right-2.5 w-6 h-6 text-gray-500" />
         </div>
-        <div
-          v-if="handleStrength"
-          class="flex flex-col mt-[15px]"
-        >
+        <div v-if="handleStrength" class="flex flex-col mt-[15px]">
           <div class="grid grid-cols-5 gap-2.5 mb-[5px]">
             <div
               v-for="num in 5"
@@ -55,10 +34,7 @@
       </div>
     </label>
     <Transition name="fade">
-      <div
-        v-if="error"
-        class="absolute -bottom-1 left-0 translate-y-full pointer-events-none text-xs leading-normal text-rose-500"
-      >
+      <div v-if="error" class="absolute -bottom-1 left-0 translate-y-full pointer-events-none text-xs leading-normal text-rose-500">
         {{ error }}
       </div>
     </Transition>

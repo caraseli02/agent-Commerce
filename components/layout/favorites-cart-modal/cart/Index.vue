@@ -19,9 +19,7 @@
     >
       <div class="flex items-center justify-between leading-[1.25] font-semibold mb-4 md:text-xl md:leading-[1.2] md:mb-6">
         <div>Subtotal</div>
-        <div class="text-right">
-          {{ cartSubtotal.toFixed(2) }} Lei
-        </div>
+        <div class="text-right">{{ cartSubtotal.toFixed(2) }} Lei</div>
       </div>
       <NuxtLink
         class="flex items-center justify-center gap-2 bg-blue-500 text-white rounded-lg px-[15px] py-2 leading-[1.75] font-medium w-full"
@@ -59,7 +57,7 @@ const mapCartItems = () => {
       image: item.productEntity?.details?.ProductImage?.ProductImageSmall,
       productEntity: item.productEntity ?? ({} as FavoriteItem['productEntity']),
       quantity: Number(item.stock) + Number(item.backorder_stock || 0),
-    }),
+    })
   );
 };
 
@@ -68,11 +66,11 @@ watch(
   () => {
     mapCartItems();
   },
-  { deep: true },
+  { deep: true }
 );
 
 const deleteProduct = (object: { id: string }) => {
-  items.value = items.value.filter(product => product.id !== object.id);
+  items.value = items.value.filter((product) => product.id !== object.id);
   mapCartItems();
 };
 

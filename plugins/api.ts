@@ -2,11 +2,7 @@ import { $fetch, type $Fetch, type FetchOptions } from 'ofetch';
 import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
 
-import {
-  deleteNotificationById,
-  fetchGetNotifications,
-  markNotificationAsRead,
-} from '~/composables/api/notifications';
+import { deleteNotificationById, fetchGetNotifications, markNotificationAsRead } from '~/composables/api/notifications';
 import CustomerProfileService from '~/services/dashboard/customer-profile.service';
 import ControlPanelService from '~/services/dashboard/control-panel.service';
 import SettingsClientService from '~/services/dashboard/settings.service';

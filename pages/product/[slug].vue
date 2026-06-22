@@ -1,50 +1,25 @@
 <template>
   <div class="pt-5 md:pt-0">
-    <ProductBreadcrumbs
-      v-if="product"
-      :product="product"
-    />
+    <ProductBreadcrumbs v-if="product" :product="product" />
     <div class="container mb-[30px] lg:mb-10">
       <div class="w-full flex items-center justify-end md:gap-0w mb-3">
         <UiDropdownMenu :modal="false">
           <UiDropdownMenuTrigger as-child>
-            <UiButton
-              variant="ghost"
-              class="flex h-10 w-10 p-0 text-slate-500 sm:hidden"
-            >
+            <UiButton variant="ghost" class="flex h-10 w-10 p-0 text-slate-500 sm:hidden">
               <MoreVertical class="h-5 w-5" />
               <span class="sr-only">Product actions</span>
             </UiButton>
           </UiDropdownMenuTrigger>
-          <UiDropdownMenuContent
-            align="end"
-            class="w-[220px] sm:hidden"
-          >
-            <UiDropdownMenuItem @click="askDialog?.open()">
-              Ask about the product
-            </UiDropdownMenuItem>
-            <UiDropdownMenuItem @click="reportErrorDialog?.open()">
-              Report an error
-            </UiDropdownMenuItem>
-            <UiDropdownMenuItem @click="printPage">
-              Print this page
-            </UiDropdownMenuItem>
+          <UiDropdownMenuContent align="end" class="w-[220px] sm:hidden">
+            <UiDropdownMenuItem @click="askDialog?.open()"> Ask about the product </UiDropdownMenuItem>
+            <UiDropdownMenuItem @click="reportErrorDialog?.open()"> Report an error </UiDropdownMenuItem>
+            <UiDropdownMenuItem @click="printPage"> Print this page </UiDropdownMenuItem>
           </UiDropdownMenuContent>
         </UiDropdownMenu>
 
-        <ProductAskDialog
-          ref="askDialog"
-          trigger-class="hidden sm:inline-flex"
-        />
-        <DialogReportError
-          ref="reportErrorDialog"
-          trigger-class="hidden sm:inline-flex"
-        />
-        <UiButton
-          variant="link"
-          class="hidden sm:inline-flex text-slate-300 gap-1"
-          @click="printPage"
-        >
+        <ProductAskDialog ref="askDialog" trigger-class="hidden sm:inline-flex" />
+        <DialogReportError ref="reportErrorDialog" trigger-class="hidden sm:inline-flex" />
+        <UiButton variant="link" class="hidden sm:inline-flex text-slate-300 gap-1" @click="printPage">
           <PrinterIcon class="w-[22px] h-[22px]" />
           <span class="text-xs leading-tight">Print this page</span>
         </UiButton>
@@ -60,21 +35,10 @@
           :product="product"
           @show-zoom-modal="showZoomGallery = true"
         />
-        <ProductDetails
-          v-if="product"
-          class="col-span-2 lg:col-span-1"
-          :product="product"
-        />
-        <ProductQuantity
-          v-if="product"
-          class="col-span-2 2xl:col-span-1"
-          :product="product as unknown as ProductInterface"
-        />
+        <ProductDetails v-if="product" class="col-span-2 lg:col-span-1" :product="product" />
+        <ProductQuantity v-if="product" class="col-span-2 2xl:col-span-1" :product="product as unknown as ProductInterface" />
       </div>
-      <LazyProductTable
-        v-if="product"
-        :features="product?.details?.ParametricData?.Features"
-      />
+      <LazyProductTable v-if="product" :features="product?.details?.ParametricData?.Features" />
     </div>
     <ProductBanners />
     <NewProducts> Similar Products </NewProducts>
@@ -85,11 +49,7 @@
         <EcxlusiveOffer />
       </div>
     </div>
-    <ProductBlocks
-      :rows-number="2"
-      class="mb-7 lg:mb-[38px] xl:mb-[58px]"
-      :filters="filters"
-    />
+    <ProductBlocks :rows-number="2" class="mb-7 lg:mb-[38px] xl:mb-[58px]" :filters="filters" />
     <News />
     <Manufacturers />
     <ProductZoomGallery

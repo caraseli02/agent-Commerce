@@ -27,10 +27,8 @@ class SettingsClientService extends HttpFactory {
 
     return await this.call<DetailsResponse>(
       'POST',
-      `${this.DASHBOARD_PATH}${this.CONTROL_PANEL_PATH}/${userId}/${
-        accountType === AccountType.Personal ? 'personal' : 'organization'
-      }`,
-      payload,
+      `${this.DASHBOARD_PATH}${this.CONTROL_PANEL_PATH}/${userId}/${accountType === AccountType.Personal ? 'personal' : 'organization'}`,
+      payload
     );
   }
 

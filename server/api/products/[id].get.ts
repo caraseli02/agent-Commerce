@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const normalizedId = String(productId || '').toLowerCase();
 
   const tabHandlers: Record<string, () => unknown[]> = {
-    'featured': () => mockProducts.slice(0, 8),
+    featured: () => mockProducts.slice(0, 8),
     'best-sellers': () => mockProducts.slice(8, 16),
     'hot-deals': () => mockProducts.slice(16, 24),
     'top-searched': () => mockProducts.slice(0, 8),
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  const product = (mockProducts as ProductInterface[]).find(p => p._id === productId || p.path === productId);
+  const product = (mockProducts as ProductInterface[]).find((p) => p._id === productId || p.path === productId);
 
   if (!product) {
     throw createError({

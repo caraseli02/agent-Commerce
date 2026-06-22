@@ -69,24 +69,14 @@ function checkCartItem(itemId: string) {
   >
     <div class="flex flex-row truncate">
       <label class="flex cursor-pointer mr-4">
-        <input
-          :value="item.selected"
-          type="checkbox"
-          class="sr-only"
-          @change="checkCartItem(item.id)"
-        >
+        <input :value="item.selected" type="checkbox" class="sr-only" @change="checkCartItem(item.id)" />
         <div
           class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
           :class="[
-            item.selected
-              ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-              : 'bg-white  border-border group-hover:border-gray-300',
+            item.selected ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
           ]"
         >
-          <CheckIcon
-            v-if="item.selected"
-            class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-          />
+          <CheckIcon v-if="item.selected" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
         </div>
       </label>
       <div class="max-w-[220px] lg:max-w-[245px] flex">
@@ -94,38 +84,25 @@ function checkCartItem(itemId: string) {
           v-if="stockItem"
           class="truncate text-neutral-700 text-sm leading-6 font-normal self-center justify-self-center"
           :class="expanded && shortStock ? 'hidden sm:block' : 'block'"
-        >{{ item.productEntity?.name }}</span>
-        <span
-          v-else
-          class="block truncate text-rose-500 text-sm font-normal leading-6 self-center justify-self-center"
-        >{{
+          >{{ item.productEntity?.name }}</span
+        >
+        <span v-else class="block truncate text-rose-500 text-sm font-normal leading-6 self-center justify-self-center">{{
           item.productEntity?.alias
         }}</span>
       </div>
-      <div
-        v-if="shortStock"
-        class="flex flex-row"
-      >
-        <OrangeCheckCircle
-          class="w-5 ml-2 sm:ml-4"
-          :class="expanded ? 'ml-0' : ''"
-        />
-        <span
-          class="text-orange-500 text-sm font-medium leading-6 self-center pl-2"
-          :class="expanded ? 'flex sm:hidden' : 'hidden'"
-        >{{ item.productEntity?.stock }} in stock</span>
+      <div v-if="shortStock" class="flex flex-row">
+        <OrangeCheckCircle class="w-5 ml-2 sm:ml-4" :class="expanded ? 'ml-0' : ''" />
+        <span class="text-orange-500 text-sm font-medium leading-6 self-center pl-2" :class="expanded ? 'flex sm:hidden' : 'hidden'"
+          >{{ item.productEntity?.stock }} in stock</span
+        >
       </div>
-      <GreenCheckCircle
-        v-if="!shortStock && stockItem"
-        class="w-5 ml-2 sm:ml-4"
-      />
-      <div
-        v-if="!stockItem"
-        class="flex flex-row items-center ml-4"
-      >
+      <GreenCheckCircle v-if="!shortStock && stockItem" class="w-5 ml-2 sm:ml-4" />
+      <div v-if="!stockItem" class="flex flex-row items-center ml-4">
         <WarningErrorHuge class="hidden lg:block" />
         <WarningError class="block lg:hidden" />
-        <span class="hidden sm:flex text-sm font-medium leading-6 text-rose-500 ml-2">{{ item.backorder_stock }} items will be on back order.</span>
+        <span class="hidden sm:flex text-sm font-medium leading-6 text-rose-500 ml-2"
+          >{{ item.backorder_stock }} items will be on back order.</span
+        >
       </div>
       <div
         v-if="stockItem && item.discount.value && discounts?.productDiscount"
@@ -136,18 +113,9 @@ function checkCartItem(itemId: string) {
     </div>
     <div>
       <div class="hidden xl:flex flex-row gap-4 ml-4">
-        <DemoTooltip
-          theme="black"
-          position="top"
-        >
-          <button
-            class="relative flex group"
-            @click="cartStore.makeCartItemFavorite(item.id)"
-          >
-            <HeartSolid
-              v-show="item.liked"
-              class="absolute r-0 top-[1px] text-blue-500"
-            />
+        <DemoTooltip theme="black" position="top">
+          <button class="relative flex group" @click="cartStore.makeCartItemFavorite(item.id)">
+            <HeartSolid v-show="item.liked" class="absolute r-0 top-[1px] text-blue-500" />
             <HeartOutline class="w-5 h-5 text-slate-500 group-hover:text-blue-500 transition duration-150" />
           </button>
           <template #content>

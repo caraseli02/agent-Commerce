@@ -48,18 +48,11 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
 <template>
   <UiPopover>
     <UiPopoverTrigger as-child>
-      <UiButton
-        variant="outline"
-        size="sm"
-        class="!ml-0 border-dashed text-neutral-700"
-      >
+      <UiButton variant="outline" size="sm" class="!ml-0 border-dashed text-neutral-700">
         <PlusCircleIcon class="mr-2 h-4 w-4" />
         {{ title }}
         <template v-if="selectedValues.size > 0">
-          <UiSeparator
-            orientation="vertical"
-            class="mx-2 h-4"
-          />
+          <UiSeparator orientation="vertical" class="mx-2 h-4" />
           <!-- <UiBadge
             variant="secondary"
             class="rounded bg-light-300 px-1 font-normal lg:hidden"
@@ -85,37 +78,22 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
               </UiBadge>
             </template>
           </div> -->
-          <UiBadge
-            variant="secondary"
-            class="rounded bg-light-300 px-1 py-[3px] font-normal"
-          >
+          <UiBadge variant="secondary" class="rounded bg-light-300 px-1 py-[3px] font-normal">
             {{ props.column?.getFilterValue() }}
           </UiBadge>
         </template>
       </UiButton>
     </UiPopoverTrigger>
-    <UiPopoverContent
-      class="w-[280px] flex flex-col gap-2 p-2"
-      align="start"
-    >
+    <UiPopoverContent class="w-[280px] flex flex-col gap-2 p-2" align="start">
       <div class="flex gap-3 justify-between">
-        <UiInput
-          v-model="searchText"
-          placeholder="Filter name or email..."
-          class="h-9 w-full text-neutral-700 border-gray-300"
-        />
+        <UiInput v-model="searchText" placeholder="Filter name or email..." class="h-9 w-full text-neutral-700 border-gray-300" />
         <!-- <UiInput
         placeholder="Filter name or email..."
         :model-value=modelValue
         class="h-8 w-full"
         @input="emit('onInput',$event.target.value)"
       /> -->
-        <UiButton
-          variant="secondary"
-          size="icon"
-          class="h-9 min-w-9"
-          @click="addToSearch()"
-        >
+        <UiButton variant="secondary" size="icon" class="h-9 min-w-9" @click="addToSearch()">
           <SearchIcon class="w-5 h-5" />
         </UiButton>
       </div>

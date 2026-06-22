@@ -33,10 +33,7 @@ const statusType = [
         class="h-9 w-full md:w-[150px] lg:w-[250px]"
         @input="table.getColumn(AgentsTableColumnsEnum.NAME)?.setFilterValue($event.target.value)"
       />
-      <DataTableFilterDate
-        title="Date"
-        :column="table.getColumn(AgentsTableColumnsEnum.CREATED_AT)"
-      />
+      <DataTableFilterDate title="Date" :column="table.getColumn(AgentsTableColumnsEnum.CREATED_AT)" />
       <DataTableFilterRange
         v-if="table.getColumn(AgentsTableColumnsEnum.ORDERS_COUNT)"
         :column="table.getColumn(AgentsTableColumnsEnum.ORDERS_COUNT)"

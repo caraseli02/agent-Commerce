@@ -47,10 +47,7 @@ const paymentStatusOptionsCompat = paymentStatusOptions as unknown as StringFace
         title="Type"
         :options="paymentTypeOptionsCompat"
       />
-      <DataTableFilterDate
-        title="Date"
-        :column="table.getColumn(TransactionTableColumnsEnum.CREATED_AT)"
-      />
+      <DataTableFilterDate title="Date" :column="table.getColumn(TransactionTableColumnsEnum.CREATED_AT)" />
       <DataTableFilterFaceted
         v-if="table.getColumn(TransactionTableColumnsEnum.STATUS)"
         :column="table.getColumn(TransactionTableColumnsEnum.STATUS)"

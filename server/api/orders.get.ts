@@ -16,9 +16,7 @@ const parseStartDate = (value?: string) => {
   }
 
   const [, day, month, year, hours = '00', minutes = '00', seconds = '00'] = match;
-  const parsedFallback = new Date(
-    Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hours), Number(minutes), Number(seconds)),
-  );
+  const parsedFallback = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hours), Number(minutes), Number(seconds)));
 
   return Number.isNaN(parsedFallback.getTime()) ? null : parsedFallback;
 };
@@ -40,11 +38,11 @@ export default defineEventHandler((event) => {
   if (query.status) {
     const statusFilters = String(query.status)
       .split(',')
-      .map(status => status.trim())
+      .map((status) => status.trim())
       .filter(Boolean);
 
     if (statusFilters.length > 0) {
-      items = items.filter(order => statusFilters.includes(String(order.status)));
+      items = items.filter((order) => statusFilters.includes(String(order.status)));
     }
   }
 

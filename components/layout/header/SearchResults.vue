@@ -7,23 +7,12 @@
     }"
   >
     <div v-if="isLoading">
-      <p class="p-2 rounded text-slate-500 transition-colors duration-300">
-        Loading...
-      </p>
+      <p class="p-2 rounded text-slate-500 transition-colors duration-300">Loading...</p>
     </div>
     <div v-else>
-      <div
-        v-if="props.products.length > 0"
-        class="grid grid-cols-1 max-h-[340px] overflow-auto scrollbar-thin pr-1.5"
-      >
-        <template
-          v-for="product in props.products"
-          :key="product._id"
-        >
-          <NuxtLink
-            :to="`/product/${product._id}`"
-            class="p-2 rounded-lg text-slate-500 transition-colors duration-300 hover:bg-light-300"
-          >
+      <div v-if="props.products.length > 0" class="grid grid-cols-1 max-h-[340px] overflow-auto scrollbar-thin pr-1.5">
+        <template v-for="product in props.products" :key="product._id">
+          <NuxtLink :to="`/product/${product._id}`" class="p-2 rounded-lg text-slate-500 transition-colors duration-300 hover:bg-light-300">
             <div
               class="flex items-center justify-between gap-1 text-xs leading-[1.67] font-medium text-neutral-700 mb-1 lg:text-sm lg:leading-[1.43]"
             >
@@ -46,9 +35,7 @@
         </template>
       </div>
       <div v-else>
-        <p class="p-2 rounded text-slate-500 transition-colors duration-300 hover:bg-gray-100 hover:text-blue-500">
-          No data found
-        </p>
+        <p class="p-2 rounded text-slate-500 transition-colors duration-300 hover:bg-gray-100 hover:text-blue-500">No data found</p>
       </div>
     </div>
   </div>

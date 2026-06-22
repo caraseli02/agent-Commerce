@@ -7,7 +7,7 @@ export const orderType = [
 ];
 
 export function getOrderTypeInfo(Order: number): OrderTypeInfo | null {
-  return orderType.find(item => item.value === Order) as unknown as OrderTypeInfo | null;
+  return orderType.find((item) => item.value === Order) as unknown as OrderTypeInfo | null;
 }
 
 export const statusColors = {

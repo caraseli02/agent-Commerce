@@ -58,11 +58,11 @@ const props = defineProps<{
 const getTrackingStatus = (order: OrderInterface): TrackingStatus => {
   const trackingHistory = order?.shippingDetails?.statusTracking?.history ?? [];
 
-  if (trackingHistory.some(status => status.code === 0)) {
+  if (trackingHistory.some((status) => status.code === 0)) {
     return TrackingStatus.Fulfilled;
   }
 
-  if (trackingHistory.some(status => status.code === 20050)) {
+  if (trackingHistory.some((status) => status.code === 20050)) {
     return TrackingStatus.Transit;
   }
 
@@ -108,7 +108,7 @@ const statusColor = computed(
       packaging: 'bg-blue-500',
       transit: 'bg-blue-500',
       fulfilled: 'bg-emerald-500',
-    }[processedOrder.value.trackingStatus] || 'bg-purple-500'),
+    }[processedOrder.value.trackingStatus] || 'bg-purple-500')
 );
 
 const statusIcons = {
@@ -163,46 +163,27 @@ const handleMoreOptions = () => {
             class="flex justify-between md:justify-start gap-3 items-center self-stretch my-auto text-slate-500 w-full md:w-auto text-base sm:text-2xl"
           >
             <span class="font-normal">AWB:</span>
-            <p
-              v-if="processedOrder.awb"
-              class="flex items-center gap-2"
-            >
+            <p v-if="processedOrder.awb" class="flex items-center gap-2">
               {{ processedOrder.awb }}
               <CopyClipboard :text="processedOrder.awb" />
             </p>
-            <p
-              v-else
-              class="flex items-center gap-2 text-sm text-neutral-700"
-            >
-              <span
-                class="bg-orange-500 flex shrink-0 self-stretch my-auto w-3 h-3 rounded-full"
-                aria-hidden="true"
-              />
+            <p v-else class="flex items-center gap-2 text-sm text-neutral-700">
+              <span class="bg-orange-500 flex shrink-0 self-stretch my-auto w-3 h-3 rounded-full" aria-hidden="true" />
               Pending
             </p>
           </div>
         </div>
 
         <div class="flex justify-end gap-4 items-start w-full md:w-auto max-md:gap-4">
-          <UiBadge
-            class="flex gap-3 items-center font-normal px-3 py-1 text-sm rounded-md h-8"
-            variant="outline"
-          >
+          <UiBadge class="flex gap-3 items-center font-normal px-3 py-1 text-sm rounded-md h-8" variant="outline">
             <div class="text-zinc-800">
               <span>{{ processedOrder.amount.toFixed(2) }}</span>
               <span> Lei</span>
             </div>
-            <UiSeparator
-              class="h-4 bg-grey-300"
-              orientation="vertical"
-            />
+            <UiSeparator class="h-4 bg-grey-300" orientation="vertical" />
 
             <span class="capitalize flex gap-1">
-              <span
-                :class="billingStatusColor"
-                class="flex shrink-0 self-stretch my-auto w-3 h-3 rounded-full"
-                aria-hidden="true"
-              />
+              <span :class="billingStatusColor" class="flex shrink-0 self-stretch my-auto w-3 h-3 rounded-full" aria-hidden="true" />
               {{ billingStatusLabel }}
             </span>
           </UiBadge>
@@ -246,9 +227,7 @@ const handleMoreOptions = () => {
     <section class="flex flex-col gap-6 px-4 py-6 rounded-xl border border-solid bg-light-100 border-grey-300">
       <div class="flex md:flex-wrap gap-10 justify-between md:items-center text-sm leading-6 max-md:gap-4">
         <div class="flex flex-col md:flex-row md:items-center max-md:gap-1 w-full md:w-auto">
-          <h2 class="font-medium text-zinc-800">
-            Order {{ processedOrder.status === OrderStatus.Pending ? 'received' : 'updated' }}
-          </h2>
+          <h2 class="font-medium text-zinc-800">Order {{ processedOrder.status === OrderStatus.Pending ? 'received' : 'updated' }}</h2>
           <DotIcon class="hidden md:block text-stone-300" />
           <time class="flex gap-1 text-gray-500">
             <span>{{ formattedDate.day }}</span>
@@ -259,24 +238,17 @@ const handleMoreOptions = () => {
         <UiBadge
           :class="
             cn(
-              'flex items-start md:items-center justify-end md:justify-start gap-2 bg-light-100 text-neutral-700 font-normal p-0 text-sm rounded-md w-full md:w-auto',
+              'flex items-start md:items-center justify-end md:justify-start gap-2 bg-light-100 text-neutral-700 font-normal p-0 text-sm rounded-md w-full md:w-auto'
             )
           "
         >
-          <span
-            :class="statusColor"
-            class="flex shrink-0 self-stretch w-3 h-3 rounded-full mt-1"
-            aria-hidden="true"
-          />
+          <span :class="statusColor" class="flex shrink-0 self-stretch w-3 h-3 rounded-full mt-1" aria-hidden="true" />
           <span class="capitalize">{{ processedOrder.status }}</span>
         </UiBadge>
       </div>
 
       <div class="relative flex justify-between flex-wrap gap-3 items-center min-h-[36px]">
-        <template
-          v-for="status in trackingStatusOrder"
-          :key="status"
-        >
+        <template v-for="status in trackingStatusOrder" :key="status">
           <component
             :is="statusIcons[status]"
             class="w-6 h-6 md:w-8 md:h-8 lg:w-9 lg:h-9 shrink-0 z-10 bg-light-100 p-1"

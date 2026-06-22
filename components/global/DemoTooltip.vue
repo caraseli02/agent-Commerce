@@ -15,10 +15,10 @@
           position === 'left'
             ? 'top-1/2 -left-2 -translate-x-full -translate-y-1/2'
             : position === 'top'
-              ? '-top-2 left-1/2 -translate-x-1/2 -translate-y-full'
-              : position === 'bottom'
-                ? '-bottom-2 translate-y-full left-1/2 -translate-x-1/2'
-                : '',
+            ? '-top-2 left-1/2 -translate-x-1/2 -translate-y-full'
+            : position === 'bottom'
+            ? '-bottom-2 translate-y-full left-1/2 -translate-x-1/2'
+            : '',
           theme === 'gray' ? 'bg-slate-500' : 'bg-[#1B1B28]',
         ]"
       >
@@ -34,10 +34,10 @@
             position === 'left'
               ? 'top-1/2 -right-3 -translate-y-1/2'
               : position === 'top'
-                ? '-bottom-2 left-1/2 -translate-x-1/2 rotate-90'
-                : position === 'bottom'
-                  ? '-top-2 left-1/2 -translate-x-1/2 -rotate-90'
-                  : '',
+              ? '-bottom-2 left-1/2 -translate-x-1/2 rotate-90'
+              : position === 'bottom'
+              ? '-top-2 left-1/2 -translate-x-1/2 -rotate-90'
+              : '',
           ]"
         >
           <path

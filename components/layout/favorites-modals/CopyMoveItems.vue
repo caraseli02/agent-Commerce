@@ -5,14 +5,8 @@
     >
       <div class="flex items-center justify-between px-[15px] mb-[34px] md:px-2.5">
         <div class="flex items-center text-slate-500">
-          <CopyIcon
-            v-if="action === 'copy'"
-            class="w-6 h-6 mr-2"
-          />
-          <FolderArrowIcon
-            v-else
-            class="w-6 h-6 mr-2"
-          />
+          <CopyIcon v-if="action === 'copy'" class="w-6 h-6 mr-2" />
+          <FolderArrowIcon v-else class="w-6 h-6 mr-2" />
           <span class="font-medium">
             {{ action === 'copy' ? 'Copy items to folder' : 'Move items' }}
           </span>
@@ -26,39 +20,21 @@
       </div>
       <template v-if="!success">
         <div class="mb-[150px]">
-          <div class="text-sm font-medium px-[15px] mb-[15px] md:px-2.5">
-            Selected items:
-          </div>
+          <div class="text-sm font-medium px-[15px] mb-[15px] md:px-2.5">Selected items:</div>
           <div class="grid grid-cols-1 gap-2.5 max-h-[132px] px-[15px] overflow-y-auto scrollbar-thin mb-[15px] md:px-2.5">
-            <template
-              v-for="(item, index) in itemsCopy"
-              :key="index"
-            >
+            <template v-for="(item, index) in itemsCopy" :key="index">
               <LayoutFavoritesCartModalFavoritesFolderItem
                 v-if="item.type === 'folder'"
                 :folder="item"
                 in-modal
                 @select="item.selected = !item.selected"
               />
-              <LayoutFavoritesCartModalFavoritesProductItem
-                v-else
-                :product="item"
-                in-modal
-                @select="item.selected = !item.selected"
-              />
+              <LayoutFavoritesCartModalFavoritesProductItem v-else :product="item" in-modal @select="item.selected = !item.selected" />
             </template>
           </div>
           <div class="px-[15px] md:px-2.5">
-            <div class="text-sm font-medium mb-5">
-              {{ action === 'copy' ? 'Copy' : 'Move' }} selected items to:
-            </div>
-            <FormSelect
-              v-model="folder"
-              label="Select destination folder"
-              placeholder="Select Folder"
-              checkboxes
-              :options="options"
-            />
+            <div class="text-sm font-medium mb-5">{{ action === 'copy' ? 'Copy' : 'Move' }} selected items to:</div>
+            <FormSelect v-model="folder" label="Select destination folder" placeholder="Select Folder" checkboxes :options="options" />
           </div>
         </div>
         <div class="flex items-center justify-center gap-2.5 px-[15px] md:px-2.5">
@@ -71,39 +47,17 @@
           >
             {{ action === 'copy' ? 'Copy items' : 'Move items' }}
           </button>
-          <button
-            class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500"
-            @click="$emit('close')"
-          >
+          <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
             Cancel
           </button>
         </div>
       </template>
-      <div
-        v-else
-        class="flex flex-col items-center flex-1 justify-center px-[15px]"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 100 100"
-          class="w-[100px] h-[100px] mb-[25px]"
-        >
-          <path
-            fill="#00D395"
-            d="M50 10c22.076 0 40 17.924 40 40S72.076 90 50 90 10 72.076 10 50s17.924-40 40-40Z"
-          />
-          <path
-            stroke="#fff"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="5"
-            d="m37.555 49.41 9.948 8.82L65.01 41.758"
-          />
+      <div v-else class="flex flex-col items-center flex-1 justify-center px-[15px]">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 100 100" class="w-[100px] h-[100px] mb-[25px]">
+          <path fill="#00D395" d="M50 10c22.076 0 40 17.924 40 40S72.076 90 50 90 10 72.076 10 50s17.924-40 40-40Z" />
+          <path stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="m37.555 49.41 9.948 8.82L65.01 41.758" />
         </svg>
-        <div class="text-xl text-center">
-          Done
-        </div>
+        <div class="text-xl text-center">Done</div>
       </div>
     </div>
   </div>
@@ -146,7 +100,7 @@ onMounted(() => {
 });
 
 const processTargetFolders = () => {
-  options.value = props.targetFolders.map(folder => ({
+  options.value = props.targetFolders.map((folder) => ({
     value: folder.id,
     label: folder.title,
     icon: FolderIcon,

@@ -1,15 +1,8 @@
 <template>
-  <div
-    v-if="getOrderClientSecret"
-    class="container flex items-center flex-col gap-8 my-10 min-h-[50vh]"
-  >
+  <div v-if="getOrderClientSecret" class="container flex items-center flex-col gap-8 my-10 min-h-[50vh]">
     <template v-if="cartStore.previousCheckoutError">
-      <section
-        class="w-full bg-light-100 border-[1.5px] border-red-500 rounded-lg p-6 flex flex-col justify-center items-center gap-4"
-      >
-        <h4 class="text-2xl font-medium">
-          Payment failed
-        </h4>
+      <section class="w-full bg-light-100 border-[1.5px] border-red-500 rounded-lg p-6 flex flex-col justify-center items-center gap-4">
+        <h4 class="text-2xl font-medium">Payment failed</h4>
         <AlertTriangleIcon class="text-red-500 w-10 h-10 stroke-2" />
         <p>Reason: {{ getPreviousCheckoutError?.message || 'Something went wrong' }}</p>
       </section>
@@ -24,19 +17,14 @@
         >
           <span class="text-sm leading-[1.42857] font-medium"> Cancel order </span>
         </UiButton>
-        <UiButton
-          class="w-fit"
-          @click="cartStore.previousCheckoutError = null"
-        >
+        <UiButton class="w-fit" @click="cartStore.previousCheckoutError = null">
           <span class="text-sm leading-[1.42857] font-medium"> Try Again </span>
         </UiButton>
       </div>
     </template>
     <PaymentSessionCardForm v-else />
   </div>
-  <div v-else>
-    No data available
-  </div>
+  <div v-else>No data available</div>
 </template>
 
 <script setup lang="ts">

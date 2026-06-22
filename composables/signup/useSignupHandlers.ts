@@ -145,13 +145,12 @@ export const useSignupHandlers = () => {
         email: contactDetails.value.email,
         confirmEmail: contactDetails.value.confirmEmail,
       });
-    }
-    else {
+    } else {
       fieldsToValidate.push(
         contactDetails.value.firstName,
         contactDetails.value.lastName,
         contactDetails.value.companyEmail,
-        contactDetails.value.confirmCompanyEmail,
+        contactDetails.value.confirmCompanyEmail
       );
       hasError = checkContactConfirmationEmail({
         email: contactDetails.value.companyEmail,
@@ -243,8 +242,7 @@ export const useSignupHandlers = () => {
             },
           },
         };
-      }
-      else {
+      } else {
         payload = {
           account: {
             accountType: mapType(selectedType.value),
@@ -308,8 +306,7 @@ export const useSignupHandlers = () => {
       try {
         if (firebaseToken) {
           await registerFirebase(payload);
-        }
-        else {
+        } else {
           await registerClassic(payload);
         }
 
@@ -317,11 +314,9 @@ export const useSignupHandlers = () => {
 
         await logout();
         nextStep();
-      }
-      catch {
+      } catch {
         toast({ variant: 'destructive', title: 'Error', description: 'Registration failed' });
-      }
-      finally {
+      } finally {
         clearFormData();
       }
     }

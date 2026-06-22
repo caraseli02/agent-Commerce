@@ -53,9 +53,7 @@ const orders = [
       address: baseAddress,
       statusTracking: {
         awb: 'MOP524103008',
-        history: [
-          { code: 100, dateTime: '', unixDateTime: 0, statusTextParts: { ro: { name: '', reason: '' } }, comment: { ro: '' } },
-        ],
+        history: [{ code: 100, dateTime: '', unixDateTime: 0, statusTextParts: { ro: { name: '', reason: '' } }, comment: { ro: '' } }],
       },
     },
     paymentDetails: { status: PaymentStatusEnum.Paid },
@@ -104,9 +102,7 @@ const orders = [
       address: baseAddress,
       statusTracking: {
         awb: 'MOP524103010',
-        history: [
-          { code: 0, dateTime: '', unixDateTime: 0, statusTextParts: { ro: { name: '', reason: '' } }, comment: { ro: '' } },
-        ],
+        history: [{ code: 0, dateTime: '', unixDateTime: 0, statusTextParts: { ro: { name: '', reason: '' } }, comment: { ro: '' } }],
       },
     },
     paymentDetails: { status: PaymentStatusEnum.Paid },
@@ -116,16 +112,10 @@ const orders = [
 
 <template>
   <div class="flex flex-col gap-6 pt-6 max-w-[1392px] mx-auto w-full container">
-    <h1 class="text-2xl font-bold text-zinc-800">
-      Order Tracking Examples
-    </h1>
+    <h1 class="text-2xl font-bold text-zinc-800">Order Tracking Examples</h1>
 
     <div class="grid gap-6">
-      <OrderTracking
-        v-for="order in orders"
-        :key="order._id"
-        :order="order"
-      />
+      <OrderTracking v-for="order in orders" :key="order._id" :order="order" />
     </div>
   </div>
 </template>

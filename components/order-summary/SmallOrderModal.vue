@@ -9,12 +9,8 @@
           We offer free delivery and free handling for all online orders of $40.00 or more excluding VAT.
         </p>
         <div>
-          <p class="text-neutral-700 text-xs font-normal leading-5">
-            Orders under $40.00 are subject to a
-          </p>
-          <p class="italic text-neutral-700 text-xs font-normal leading-5">
-            Small Order Handling Charge.
-          </p>
+          <p class="text-neutral-700 text-xs font-normal leading-5">Orders under $40.00 are subject to a</p>
+          <p class="italic text-neutral-700 text-xs font-normal leading-5">Small Order Handling Charge.</p>
         </div>
       </div>
       <div class="flex flex-col gap-2">

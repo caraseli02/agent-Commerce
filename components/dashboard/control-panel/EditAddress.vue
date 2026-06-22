@@ -4,9 +4,7 @@
       class="relative flex flex-col z-10 w-[358px] max-w-[calc(100vw-32px)] max-h-[85vh] pt-4 pb-6 bg-white rounded-xl pointer-events-auto shadow-xs md:w-[640px] md:pt-6 md:pb-9"
     >
       <div class="flex items-start justify-between px-4 mb-9 md:px-6">
-        <div class="font-semibold leading-[1.5]">
-          Edit Shipping Details
-        </div>
+        <div class="font-semibold leading-[1.5]">Edit Shipping Details</div>
         <button
           class="w-8 h-8 bg-gray-100 flex items-center justify-center text-slate-500 rounded-lg ml-auto mb-4 transition-colors duration-300 hover:text-blue-500"
           @click="$emit('close')"
@@ -46,13 +44,7 @@
             size="lg"
             class="relative z-10"
           />
-          <FormInput
-            v-model="data.city.value"
-            :error="data.city.error"
-            label="City"
-            size="lg"
-            placeholder="Bucharest"
-          />
+          <FormInput v-model="data.city.value" :error="data.city.error" label="City" size="lg" placeholder="Bucharest" />
           <FormInput
             v-model="data.name1.value"
             :error="data.name1.error"
@@ -60,20 +52,8 @@
             size="lg"
             placeholder="5073 Mark Brown Rd"
           />
-          <FormInput
-            v-model="data.name2.value"
-            :error="data.name2.error"
-            label="Address Line 2"
-            size="lg"
-            placeholder="NE Dalton"
-          />
-          <FormInput
-            v-model="data.postcode.value"
-            :error="data.postcode.error"
-            label="Postcode"
-            size="lg"
-            placeholder="W1A5AB"
-          />
+          <FormInput v-model="data.name2.value" :error="data.name2.error" label="Address Line 2" size="lg" placeholder="NE Dalton" />
+          <FormInput v-model="data.postcode.value" :error="data.postcode.error" label="Postcode" size="lg" placeholder="W1A5AB" />
           <FormInput
             v-model="data.phone.value"
             :error="data.phone.error"
@@ -95,10 +75,7 @@
             <TrashIcon class="w-6 h-6 mr-2" />
             <span class="font-medium leading-[1.75]"> Delete </span>
           </button>
-          <button
-            class="flex px-[41px] py-2 rounded-lg bg-gray-100 leading-[1.75] text-slate-500 font-medium"
-            @click="$emit('close')"
-          >
+          <button class="flex px-[41px] py-2 rounded-lg bg-gray-100 leading-[1.75] text-slate-500 font-medium" @click="$emit('close')">
             Cancel
           </button>
           <button
@@ -220,9 +197,9 @@ watch(
         value: { label: '', value: '' },
         error: '',
       };
-      regions.value
-                = countries
-          .find(e => e.value === newVal.value.value)
+      regions.value =
+        countries
+          .find((e) => e.value === newVal.value.value)
           ?.regions.map((e) => {
             return {
               label: e.name,
@@ -230,7 +207,7 @@ watch(
             };
           }) || [];
     }
-  },
+  }
 );
 
 // Other data and function definitions here...
@@ -239,8 +216,7 @@ const handleSave = () => {
   // Emit the edit event, debounced
   if (props.type === 'shipping') {
     emit('edit-shipping-address', { address: data.value, index: props.index });
-  }
-  else {
+  } else {
     emit('edit-billing-address', { address: data.value, index: props.index });
   }
 };

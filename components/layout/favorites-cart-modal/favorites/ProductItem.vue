@@ -1,26 +1,9 @@
 <template>
-  <div
-    class="flex flex-col pb-4"
-    :class="[inModal ? '' : 'border-b border-gray-200 mx-2 last:border-b-0']"
-  >
-    <div
-      class="flex"
-      :class="[inModal ? 'items-center' : 'items-start']"
-    >
-      <NuxtLink
-        :to="`/product/${product.id}`"
-        class="flex flex-shrink-0 mr-2.5 md:mr-[15px]"
-      >
-        <label
-          v-if="inModal"
-          class="flex cursor-pointer mr-2.5"
-        >
-          <input
-            :value="productItem.selected"
-            type="checkbox"
-            class="sr-only"
-            @change="$emit('select')"
-          >
+  <div class="flex flex-col pb-4" :class="[inModal ? '' : 'border-b border-gray-200 mx-2 last:border-b-0']">
+    <div class="flex" :class="[inModal ? 'items-center' : 'items-start']">
+      <NuxtLink :to="`/product/${product.id}`" class="flex flex-shrink-0 mr-2.5 md:mr-[15px]">
+        <label v-if="inModal" class="flex cursor-pointer mr-2.5">
+          <input :value="productItem.selected" type="checkbox" class="sr-only" @change="$emit('select')" />
           <div
             class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
             :class="[
@@ -29,30 +12,19 @@
                 : 'bg-white  border-border group-hover:border-gray-300',
             ]"
           >
-            <CheckIcon
-              v-if="productItem.selected"
-              class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-            />
+            <CheckIcon v-if="productItem.selected" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
           </div>
         </label>
         <ImageWithFallback
           :src="typeof productItem.image === 'string' ? productItem.image : undefined"
           :alt="productItem.title"
           :class="[
-            inModal
-              ? 'w-9 h-9 mr-2'
-              : 'w-12 h-12 border border-border rounded-lg overflow-hidden object-cover mr-3 md:w-14 md:h-14',
+            inModal ? 'w-9 h-9 mr-2' : 'w-12 h-12 border border-border rounded-lg overflow-hidden object-cover mr-3 md:w-14 md:h-14',
           ]"
         />
         <div :class="[inModal ? '<truncate' : '']">
-          <div
-            class="flex items-center"
-            :class="[inModal ? '' : 'mb-1']"
-          >
-            <div
-              class="font-semibold mr-2"
-              :class="[inModal ? 'text-xs leading-tight' : 'text-sm leading-[1.71]']"
-            >
+          <div class="flex items-center" :class="[inModal ? '' : 'mb-1']">
+            <div class="font-semibold mr-2" :class="[inModal ? 'text-xs leading-tight' : 'text-sm leading-[1.71]']">
               {{ productItem.title }}
             </div>
             <button
@@ -62,17 +34,11 @@
             >
               <CopyIcon class="w-[18px] h-[18px]" />
             </button>
-            <button
-              v-if="!inModal"
-              class="flex text-slate-500 transition-colors duration-300 mr-2 hover:text-blue-500"
-            >
+            <button v-if="!inModal" class="flex text-slate-500 transition-colors duration-300 mr-2 hover:text-blue-500">
               <InfoIcon class="w-4 h-4" />
             </button>
           </div>
-          <div
-            class="text-sm leading-[1.43] font-semibold font-Inter"
-            :class="[productDiscount ? 'text-red' : '']"
-          >
+          <div class="text-sm leading-[1.43] font-semibold font-Inter" :class="[productDiscount ? 'text-red' : '']">
             <strong>
               {{
                 currentConfigurationDiscountPrice
@@ -93,21 +59,10 @@
       </button>
     </div>
 
-    <div
-      v-if="!inModal"
-      class="flex items-end justify-between"
-    >
-      <div
-        v-if="!inCart"
-        class="flex items-center"
-      >
+    <div v-if="!inModal" class="flex items-end justify-between">
+      <div v-if="!inCart" class="flex items-center">
         <label class="flex cursor-pointer mr-[15px]">
-          <input
-            :value="productItem.selected"
-            type="checkbox"
-            class="sr-only"
-            @change="$emit('select')"
-          >
+          <input :value="productItem.selected" type="checkbox" class="sr-only" @change="$emit('select')" />
           <div
             class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
             :class="[
@@ -116,10 +71,7 @@
                 : 'bg-white  border-border group-hover:border-gray-300',
             ]"
           >
-            <CheckIcon
-              v-if="productItem.selected"
-              class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-            />
+            <CheckIcon v-if="productItem.selected" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
           </div>
         </label>
         <div class="flex items-center bg-green-500">
@@ -127,10 +79,7 @@
           <span class="text-[11px] leading-tight font-semibold font-Inter"> 16,000 in stock </span>
         </div>
       </div>
-      <div
-        v-else
-        class="font-Inter font-semibold leading-[1.25]"
-      >
+      <div v-else class="font-Inter font-semibold leading-[1.25]">
         {{ product ? (currentConfigurationDiscountPrice * (quantity || 1)).toFixed(2) : 0 }} Lei
       </div>
       <QuantityButtons
@@ -147,12 +96,7 @@
   </div>
   <Teleport to="body">
     <Transition name="slide-from-top">
-      <LayoutFavoritesModalsDelete
-        v-if="deleteItem"
-        :products="[productItem]"
-        :delete-from-cart="true"
-        @close="deleteItem = false"
-      />
+      <LayoutFavoritesModalsDelete v-if="deleteItem" :products="[productItem]" :delete-from-cart="true" @close="deleteItem = false" />
     </Transition>
     <Transition name="slide-from-top">
       <LayoutFavoritesModalsCopyMoveItems
@@ -258,6 +202,6 @@ watch(
   (_value) => {
     getPricesConfiguration();
   },
-  { deep: true },
+  { deep: true }
 );
 </script>

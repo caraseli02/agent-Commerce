@@ -37,18 +37,11 @@ const activeFilterValues = computed((): string[] => {
 <template>
   <UiPopover class="">
     <UiPopoverTrigger as-child>
-      <UiButton
-        variant="outline"
-        size="sm"
-        class="!ml-0 border-dashed text-neutral-700 hover:bg-light-300"
-      >
+      <UiButton variant="outline" size="sm" class="!ml-0 border-dashed text-neutral-700 hover:bg-light-300">
         <PlusCircleIcon class="mr-2 h-4 w-4" />
         {{ title }}
         <template v-if="selectedValues.size > 0">
-          <UiSeparator
-            orientation="vertical"
-            class="mx-2 h-4 bg-grey-300"
-          />
+          <UiSeparator orientation="vertical" class="mx-2 h-4 bg-grey-300" />
           <UiBadge
             variant="secondary"
             class="bg-light-300 text-neutral-700 rounded-sm px-1 py-[3px] font-normal lg:hidden hover:bg-light-500"
@@ -106,15 +99,9 @@ const activeFilterValues = computed((): string[] => {
         </template>
       </UiButton>
     </UiPopoverTrigger>
-    <UiPopoverContent
-      class="w-[215px] p-0"
-      align="start"
-    >
+    <UiPopoverContent class="w-[215px] p-0" align="start">
       <UiCommand>
-        <UiCommandInput
-          v-if="statusColors"
-          :placeholder="title"
-        />
+        <UiCommandInput v-if="statusColors" :placeholder="title" />
         <UiCommandList>
           <UiCommandEmpty>No results found.</UiCommandEmpty>
           <UiCommandGroup>
@@ -128,8 +115,7 @@ const activeFilterValues = computed((): string[] => {
                     const isSelected = selectedValues.has(option.value);
                     if (isSelected) {
                       selectedValues.delete(option.value);
-                    }
-                    else {
+                    } else {
                       selectedValues.add(option.value);
                     }
                     const filterValues = Array.from(selectedValues);
@@ -141,9 +127,7 @@ const activeFilterValues = computed((): string[] => {
                   :class="
                     cn(
                       'mr-3 flex h-4 w-4 items-center justify-center rounded',
-                      selectedValues.has(option.value)
-                        ? 'bg-blue-500 text-white'
-                        : 'opacity-50 [&_svg]:invisible border border-grey-600',
+                      selectedValues.has(option.value) ? 'bg-blue-500 text-white' : 'opacity-50 [&_svg]:invisible border border-grey-600'
                     )
                   "
                 >
@@ -161,10 +145,7 @@ const activeFilterValues = computed((): string[] => {
                   :class="option?.color"
                   class="h-3 w-3 mr-2 rounded-full text-xs text-white flex justify-center items-center"
                 />
-                <option.icon
-                  v-if="option.icon"
-                  class="mr-2 h-4 w-4 text-muted-foreground"
-                />
+                <option.icon v-if="option.icon" class="mr-2 h-4 w-4 text-muted-foreground" />
                 <span class="inline truncate cursor-pointer">{{ option.label }}</span>
               </UiCommandItem>
             </template>
@@ -178,8 +159,7 @@ const activeFilterValues = computed((): string[] => {
                     const isSelected = selectedValues.has(value);
                     if (isSelected) {
                       selectedValues.delete(value);
-                    }
-                    else {
+                    } else {
                       selectedValues.add(value);
                     }
                     const filterValues = Array.from(selectedValues);
@@ -191,19 +171,13 @@ const activeFilterValues = computed((): string[] => {
                   :class="
                     cn(
                       'mr-3 flex h-4 w-4 items-center justify-center rounded',
-                      selectedValues.has(value)
-                        ? 'bg-blue-500 text-white'
-                        : 'opacity-50 [&_svg]:invisible border border-grey-600',
+                      selectedValues.has(value) ? 'bg-blue-500 text-white' : 'opacity-50 [&_svg]:invisible border border-grey-600'
                     )
                   "
                 >
                   <CheckIcon :class="cn('h-4 w-4')" />
                 </div>
-                <span
-                  v-if="color"
-                  :class="color"
-                  class="h-3 w-3 mr-2 rounded-full text-xs text-white flex justify-center items-center"
-                />
+                <span v-if="color" :class="color" class="h-3 w-3 mr-2 rounded-full text-xs text-white flex justify-center items-center" />
                 <span class="inline truncate cursor-pointer">{{ value }}</span>
                 <!-- <span v-if="facets?.get(option.value)" class="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
                                 {{ facets.get(option.value) }}

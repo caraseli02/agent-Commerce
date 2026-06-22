@@ -18,11 +18,11 @@ This creates an open-redirect risk in the login flow.
 
 ## Findings
 
--   `components/layout/account-modal/Form.vue:290` reads `route.query.redirect`.
--   `components/layout/account-modal/Form.vue:291` only checks `startsWith('/')`.
--   Values like `//example.com` pass that check.
--   `components/layout/account-modal/Form.vue:292` forwards the value into `navigateTo(...)`.
--   The change is newly introduced with the cart redirect flow update.
+- `components/layout/account-modal/Form.vue:290` reads `route.query.redirect`.
+- `components/layout/account-modal/Form.vue:291` only checks `startsWith('/')`.
+- Values like `//example.com` pass that check.
+- `components/layout/account-modal/Form.vue:292` forwards the value into `navigateTo(...)`.
+- The change is newly introduced with the cart redirect flow update.
 
 ## Proposed Solutions
 
@@ -32,14 +32,14 @@ This creates an open-redirect risk in the login flow.
 
 **Pros:**
 
--   Blocks protocol-relative redirects
--   Simple and low-risk fix
--   Easy to test
+- Blocks protocol-relative redirects
+- Simple and low-risk fix
+- Easy to test
 
 **Cons:**
 
--   Needs a small helper and tests
--   May reject some previously tolerated formats
+- Needs a small helper and tests
+- May reject some previously tolerated formats
 
 **Effort:** 30-60 minutes
 
@@ -53,13 +53,13 @@ This creates an open-redirect risk in the login flow.
 
 **Pros:**
 
--   Strongest control over destinations
--   Easier to audit allowed targets
+- Strongest control over destinations
+- Easier to audit allowed targets
 
 **Cons:**
 
--   More refactor work
--   Less flexible for future deep links
+- More refactor work
+- Less flexible for future deep links
 
 **Effort:** 1-2 hours
 
@@ -73,13 +73,13 @@ This creates an open-redirect risk in the login flow.
 
 **Pros:**
 
--   Removes URL tampering vector
--   Keeps redirects internal by construction
+- Removes URL tampering vector
+- Keeps redirects internal by construction
 
 **Cons:**
 
--   More moving parts
--   Requires updating entry points that trigger sign-in
+- More moving parts
+- Requires updating entry points that trigger sign-in
 
 **Effort:** 2-4 hours
 
@@ -93,29 +93,29 @@ This creates an open-redirect risk in the login flow.
 
 **Affected files:**
 
--   `components/layout/account-modal/Form.vue:290`
--   `components/layout/account-modal/Form.vue:291`
--   `components/layout/account-modal/Form.vue:292`
+- `components/layout/account-modal/Form.vue:290`
+- `components/layout/account-modal/Form.vue:291`
+- `components/layout/account-modal/Form.vue:292`
 
 **Related components:**
 
--   `pages/cart.vue` (source of `redirect` query)
--   `components/layout/header/MainRow.vue` (sign-in modal query lifecycle)
+- `pages/cart.vue` (source of `redirect` query)
+- `components/layout/header/MainRow.vue` (sign-in modal query lifecycle)
 
 **Database changes (if any):**
 
--   Migration needed? No
+- Migration needed? No
 
 ## Resources
 
--   **Review target:** local uncommitted changes on `main` (2026-02-25)
+- **Review target:** local uncommitted changes on `main` (2026-02-25)
 
 ## Acceptance Criteria
 
--   [ ] Redirect validation rejects `//host`, `http://...`, and other external forms
--   [ ] Internal redirects like `/cart` continue to work
--   [ ] Login still falls back to role-based redirect when `redirect` is invalid
--   [ ] Regression check covers both mock and non-mock sign-in paths
+- [ ] Redirect validation rejects `//host`, `http://...`, and other external forms
+- [ ] Internal redirects like `/cart` continue to work
+- [ ] Login still falls back to role-based redirect when `redirect` is invalid
+- [ ] Regression check covers both mock and non-mock sign-in paths
 
 ## Work Log
 
@@ -125,15 +125,15 @@ This creates an open-redirect risk in the login flow.
 
 **Actions:**
 
--   Reviewed new login redirect logic in `components/layout/account-modal/Form.vue`
--   Confirmed validation only checks `startsWith('/')`
--   Identified protocol-relative open-redirect acceptance case (`//...`)
--   Documented remediation options
+- Reviewed new login redirect logic in `components/layout/account-modal/Form.vue`
+- Confirmed validation only checks `startsWith('/')`
+- Identified protocol-relative open-redirect acceptance case (`//...`)
+- Documented remediation options
 
 **Learnings:**
 
--   The cart redirect feature is useful, but it needs stricter destination validation.
+- The cart redirect feature is useful, but it needs stricter destination validation.
 
 ## Notes
 
--   Suggested minimal guard: `redirect.startsWith('/') && !redirect.startsWith('//')`.
+- Suggested minimal guard: `redirect.startsWith('/') && !redirect.startsWith('//')`.

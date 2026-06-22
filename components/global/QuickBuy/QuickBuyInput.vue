@@ -28,23 +28,9 @@ onMounted(() => {
 
 <template>
   <div class="flex w-full items-center gap-1.5">
-    <UiInput
-      v-model="localCode"
-      type="text"
-      placeholder="Product Code"
-      @input="emitUpdate"
-    />
-    <QuantityButtons
-      v-model="localQuantity"
-      class="w-full"
-      size="lg"
-    />
-    <UiButton
-      variant="ghost"
-      size="icon"
-      class="min-w-8 min-h-8"
-      @click="emit('removeProduct', index)"
-    >
+    <UiInput v-model="localCode" type="text" placeholder="Product Code" @input="emitUpdate" />
+    <QuantityButtons v-model="localQuantity" class="w-full" size="lg" />
+    <UiButton variant="ghost" size="icon" class="min-w-8 min-h-8" @click="emit('removeProduct', index)">
       <Trash2 class="w-4 h-4" />
     </UiButton>
   </div>

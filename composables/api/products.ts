@@ -39,15 +39,14 @@ export async function fetchSearchProduct(
   perPage = 10,
   sort: Record<string, unknown> = {},
   additionalfilters: Record<string, unknown> = {},
-  featuresFilters: ProductParametricDataFeaturesInterface[] = [],
+  featuresFilters: ProductParametricDataFeaturesInterface[] = []
 ): Promise<ProductSearchResponse> {
   const { $apiClient } = useNuxtApp();
   let filters: Record<string, unknown> = {};
 
   if (!keyword || keyword === '') {
     filters = { page, perPage, ...sort };
-  }
-  else {
+  } else {
     keyword = keyword.trim();
 
     filters = {
@@ -72,16 +71,13 @@ export async function fetchSearchProduct(
     filters = { ...filters, ...additionalfilters };
   }
 
-  return await $apiClient<ProductSearchResponse>(
-    `${RESOURCE}/search`,
-    {
-      method: 'POST',
-      body: {
-        filters: featuresFilters,
-      },
-      params: filters,
+  return await $apiClient<ProductSearchResponse>(`${RESOURCE}/search`, {
+    method: 'POST',
+    body: {
+      filters: featuresFilters,
     },
-  );
+    params: filters,
+  });
 }
 
 export async function fetchProductByCriteria(payload: SearchSimilarProductRequest): Promise<SearchSimilarProductResponse> {

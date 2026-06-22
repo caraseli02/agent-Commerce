@@ -44,7 +44,7 @@ describe('mock API flow boundaries', () => {
       },
     })) as { data: { _id: string; products: Array<{ id: string }> } };
 
-    expect(cartResponse.data.products.some(product => product.id === 'prod-2')).toBe(true);
+    expect(cartResponse.data.products.some((product) => product.id === 'prod-2')).toBe(true);
 
     const orderResponse = (await orderHandler({
       headers: { authorization: `Bearer ${token}` },

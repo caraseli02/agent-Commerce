@@ -1,12 +1,7 @@
 <template v-if="products">
   <section class="mb-10 md:mb-[60px]">
-    <div
-      v-if="totalItems"
-      class="container"
-    >
-      <div class="font-semibold font-Inter mb-[15px] md:hidden">
-        Products Found ({{ totalItems }})
-      </div>
+    <div v-if="totalItems" class="container">
+      <div class="font-semibold font-Inter mb-[15px] md:hidden">Products Found ({{ totalItems }})</div>
       <div
         class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 mb-6 md:grid-cols-[auto,auto] md:justify-start md:gap-x-6 md:gap-y-4 md:px-5 md:py-5 md:mb-8 lg:flex lg:flex-wrap lg:items-center lg:gap-4"
       >
@@ -53,7 +48,7 @@
                     class="sr-only"
                     @change="showShowOptions = false"
                     @click="option?.key && emits('show-filter', option?.key)"
-                  >
+                  />
                   <span class="flex w-full text-left text-sm rounded-[5px]">
                     {{ option.name }}
                   </span>
@@ -77,11 +72,10 @@
         </label>
         <label class="flex items-center lg:mr-auto">
           <span class="text-sm flex-shrink-0 mr-2.5">Sort by</span>
-          <div class="relative min-w-[215px] flex items-center bg-white border border-border rounded px-2.5 py-[3px] transition-colors duration-300 group focus-within:border-blue-500">
-            <button
-              class="flex items-center justify-between flex-1"
-              @click="showSortByOptions = !showSortByOptions"
-            >
+          <div
+            class="relative min-w-[215px] flex items-center bg-white border border-border rounded px-2.5 py-[3px] transition-colors duration-300 group focus-within:border-blue-500"
+          >
+            <button class="flex items-center justify-between flex-1" @click="showSortByOptions = !showSortByOptions">
               <span class="text-sm text-left mr-2.5">{{ sortBy.label }}</span>
               <ChevronDownIcon
                 class="w-6 h-6 text-slate-500 transition-transform duration-300"
@@ -121,12 +115,7 @@
                 emits('sort-order-change', order);
               "
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="w-6 h-6"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6">
                 <path
                   fill="currentColor"
                   d="M6.21 11h11.58c1.076 0 1.614-1.396.855-2.208L12.857 2.38a1.165 1.165 0 0 0-.854-.38c-.309 0-.617.127-.851.38L5.355 8.792C4.596 9.604 5.134 11 6.21 11Z"
@@ -184,16 +173,10 @@
         </label>
       </div>
       <div class="flex items-center justify-center mb-8 md:justify-between xl:mb-8">
-        <div class="hidden font-Inter font-semibold md:block">
-          Products Found ({{ totalItems }})
-        </div>
+        <div class="hidden font-Inter font-semibold md:block">Products Found ({{ totalItems }})</div>
         <div class="flex items-center">
           <Transition name="fade">
-            <button
-              v-if="atPage !== 1"
-              class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500"
-              @click="atPage--"
-            >
+            <button v-if="atPage !== 1" class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500" @click="atPage--">
               <ChevronRightIcon class="w-1.5 h-3 rotate-180 mr-4" />
             </button>
           </Transition>
@@ -209,12 +192,7 @@
             class="flex items-center justify-center"
           >
             <template #breakViewContent>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 12 4"
-                class="w-3 h-2 translate-y-1"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 4" class="w-3 h-2 translate-y-1">
                 <path
                   fill="#5E6278"
                   d="M1.943 3.11c-.302 0-.56-.107-.776-.319a1.03 1.03 0 0 1-.318-.775 1.019 1.019 0 0 1 .318-.766c.215-.212.474-.318.776-.318.291 0 .545.106.76.318a1.045 1.045 0 0 1 .174 1.317c-.1.166-.232.299-.398.398a1.035 1.035 0 0 1-.536.144Zm4.06 0c-.301 0-.56-.107-.775-.319a1.03 1.03 0 0 1-.319-.775 1.019 1.019 0 0 1 .319-.766c.215-.212.474-.318.775-.318.292 0 .545.106.76.318a1.045 1.045 0 0 1 .175 1.317c-.1.166-.232.299-.398.398a1.035 1.035 0 0 1-.537.144Zm4.06 0c-.301 0-.56-.107-.775-.319a1.03 1.03 0 0 1-.318-.775 1.019 1.019 0 0 1 .318-.766c.216-.212.474-.318.776-.318.291 0 .545.106.76.318a1.045 1.045 0 0 1 .174 1.317c-.1.166-.232.299-.397.398a1.035 1.035 0 0 1-.537.144Z"
@@ -234,11 +212,7 @@
         </div>
       </div>
       <div class="grid grid-cols-1 gap-5 mb-8 md:mb-10 lg:gap-6 xl:gap-5 xl:mb-8">
-        <SearchItem
-          v-for="item in paginatedProductsList"
-          :key="item._id"
-          :item="item"
-        />
+        <SearchItem v-for="item in paginatedProductsList" :key="item._id" :item="item" />
       </div>
       <div class="flex flex-col items-center gap-[25px] md:hidden">
         <label class="flex items-center">
@@ -282,11 +256,7 @@
         </label>
         <div class="flex items-center">
           <Transition name="fade">
-            <button
-              v-if="atPage !== 1"
-              class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500"
-              @click="atPage--"
-            >
+            <button v-if="atPage !== 1" class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500" @click="atPage--">
               <ChevronRightIcon class="w-1.5 h-3 rotate-180 mr-4" />
             </button>
           </Transition>
@@ -302,12 +272,7 @@
             class="flex items-center justify-center"
           >
             <template #breakViewContent>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 12 4"
-                class="w-3 h-2 translate-y-1"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 4" class="w-3 h-2 translate-y-1">
                 <path
                   fill="#5E6278"
                   d="M1.943 3.11c-.302 0-.56-.107-.776-.319a1.03 1.03 0 0 1-.318-.775 1.019 1.019 0 0 1 .318-.766c.215-.212.474-.318.776-.318.291 0 .545.106.76.318a1.045 1.045 0 0 1 .174 1.317c-.1.166-.232.299-.398.398a1.035 1.035 0 0 1-.536.144Zm4.06 0c-.301 0-.56-.107-.775-.319a1.03 1.03 0 0 1-.319-.775 1.019 1.019 0 0 1 .319-.766c.215-.212.474-.318.775-.318.292 0 .545.106.76.318a1.045 1.045 0 0 1 .175 1.317c-.1.166-.232.299-.398.398a1.035 1.035 0 0 1-.537.144Zm4.06 0c-.301 0-.56-.107-.775-.319a1.03 1.03 0 0 1-.318-.775 1.019 1.019 0 0 1 .318-.766c.216-.212.474-.318.776-.318.291 0 .545.106.76.318a1.045 1.045 0 0 1 .174 1.317c-.1.166-.232.299-.397.398a1.035 1.035 0 0 1-.537.144Z"
@@ -328,9 +293,7 @@
       </div>
     </div>
     <div v-else>
-      <div class="text-center font-Inter mb-[15px]">
-        No products found
-      </div>
+      <div class="text-center font-Inter mb-[15px]">No products found</div>
     </div>
   </section>
 </template>
@@ -355,7 +318,7 @@ watch(
   () => {
     setProductsList();
   },
-  { deep: true },
+  { deep: true }
 );
 
 const show = ref({ name: 'All products', key: {} });
@@ -409,21 +372,21 @@ watch(
   async ([_atPage]) => {
     emits('at-page', _atPage);
   },
-  { deep: true },
+  { deep: true }
 );
 </script>
 
 <style lang="scss">
 .searchProducts--pagination-item {
-    @apply cursor-pointer flex items-center justify-center w-8 h-8 mx-1 text-sm font-Inter font-semibold rounded-md bg-gray-100 text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white focus-visible:bg-blue-500 focus-visible:text-white #{!important};
+  @apply cursor-pointer flex items-center justify-center w-8 h-8 mx-1 text-sm font-Inter font-semibold rounded-md bg-gray-100 text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white focus-visible:bg-blue-500 focus-visible:text-white #{!important};
 }
 
 .searchProducts--pagination-item-active .searchProducts--pagination-item {
-    @apply bg-blue-500 text-white #{!important};
+  @apply bg-blue-500 text-white #{!important};
 }
 
 .searchProducts--pagination-item_prev,
 .searchProducts--pagination-item_next {
-    @apply hidden #{!important};
+  @apply hidden #{!important};
 }
 </style>

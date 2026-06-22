@@ -1,9 +1,7 @@
 <template>
   <section class="mb-10 xl:mb-[70px]">
     <div class="container">
-      <h2 class="text-xl font-semibold mb-5">
-        Top Manufacturers
-      </h2>
+      <h2 class="text-xl font-semibold mb-5">Top Manufacturers</h2>
       <Swiper
         :modules="[A11y, Autoplay]"
         :autoplay="{
@@ -26,16 +24,8 @@
         }"
         class="homeManufacturers--swiper swiper-visible mb-2.5 lg:px-[14px] xl:px-9 xl:mb-[15px]"
       >
-        <SwiperSlide
-          v-for="(logo, index) in logos"
-          :key="index"
-          class="max-w-max md:max-w-max"
-        >
-          <img
-            :src="logo"
-            alt="Logo"
-            class="h-6 object-contain md:h-[30px] lg:h-10 xl:h-[55px]"
-          >
+        <SwiperSlide v-for="(logo, index) in logos" :key="index" class="max-w-max md:max-w-max">
+          <img :src="logo" alt="Logo" class="h-6 object-contain md:h-[30px] lg:h-10 xl:h-[55px]" />
         </SwiperSlide>
       </Swiper>
       <NuxtLink
@@ -63,12 +53,12 @@ const logos = [MicrochipLogo, TDKLogo, DigiKeyLogo, QuectelLogo, MaximIntegrated
 
 <style lang="scss">
 .homeManufacturers--swiper {
-    @apply lg:px-[14px] xl:pl-[38px] xl:pr-0 #{!important};
+  @apply lg:px-[14px] xl:pl-[38px] xl:pr-0 #{!important};
 }
 .homeManufacturers--swiper .swiper-slide:last-child {
-    margin-right: 0 !important;
+  margin-right: 0 !important;
 }
 .homeManufacturers--swiper .swiper-wrapper {
-    @apply md:justify-between #{!important};
+  @apply md:justify-between #{!important};
 }
 </style>

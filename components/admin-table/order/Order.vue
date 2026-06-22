@@ -120,7 +120,7 @@ const getServerFiltersByTab = (filter: TabFilter) => {
     return filterObj;
   }
 
-  filterObj[filter.value] = filterKeys.map(key => String(key)).join(',');
+  filterObj[filter.value] = filterKeys.map((key) => String(key)).join(',');
 
   return filterObj;
 };
@@ -140,7 +140,7 @@ const loadTabFilters = async () => {
 
 const setActiveFilterHighlight = () => {
   const activeFilter = activeOrderFilter.value;
-  const index = orderFilters.value.findIndex(filter => filter.label === activeFilter.label);
+  const index = orderFilters.value.findIndex((filter) => filter.label === activeFilter.label);
 
   if (index !== -1) {
     const filterElement = document.querySelectorAll('.ordersFilter')[index] as HTMLElement;
@@ -157,7 +157,7 @@ watch(
   async () => {
     setActiveFilterHighlight();
   },
-  { deep: true },
+  { deep: true }
 );
 
 const onTabChange = async (filter: TabFilter, table: Table<OrderTableColumns>) => {
@@ -196,12 +196,7 @@ onMounted(() => {
       :total-items="totalItems"
     >
       <template #header="{ table, makeRefresh }">
-        <DataTableHeadControls
-          :error="error"
-          title="Orders List"
-          :table="table"
-          @refresh="makeRefresh()"
-        >
+        <DataTableHeadControls :error="error" title="Orders List" :table="table" @refresh="makeRefresh()">
           <!-- <UiButton class="flex-1 md:flex-grow-0 flex gap-2" size="sm">
                       <PlusIcon class="h-6 w-6" />
                       Create New
@@ -240,9 +235,6 @@ onMounted(() => {
         </div>
       </template>
     </DataTable>
-    <UiSkeleton
-      v-if="loadingFilters"
-      class="w-full h-full absolute inset-0 top-24 z-20 animate-none"
-    />
+    <UiSkeleton v-if="loadingFilters" class="w-full h-full absolute inset-0 top-24 z-20 animate-none" />
   </div>
 </template>

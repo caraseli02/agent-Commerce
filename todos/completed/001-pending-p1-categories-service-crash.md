@@ -3,10 +3,10 @@ status: completed
 priority: p1
 issue_id: 001
 tags:
-    - code-review
-    - security
-    - p1
-    - runtime-error
+  - code-review
+  - security
+  - p1
+  - runtime-error
 dependencies: []
 ---
 
@@ -75,19 +75,19 @@ During refactoring, the token fetching pattern was added but the property declar
 
 **Scope**:
 
--   All category operations (create, delete, update, toggle status, merge, move)
--   Any component using `composables/useCategories.ts`
--   API calls to taxonomy endpoints
+- All category operations (create, delete, update, toggle status, merge, move)
+- Any component using `composables/useCategories.ts`
+- API calls to taxonomy endpoints
 
 **Likelihood**: 100% - Will crash on first API call
 
 **User Impact**:
 
--   Categories cannot be created
--   Categories cannot be deleted
--   Categories cannot be updated
--   Categories cannot be searched
--   Dashboard category management completely broken
+- Categories cannot be created
+- Categories cannot be deleted
+- Categories cannot be updated
+- Categories cannot be searched
+- Dashboard category management completely broken
 
 # Proposed Solutions
 
@@ -106,10 +106,10 @@ class CategoriesService extends HttpFactory {
 
 **Pros**:
 
--   ✅ Fixes all 6 methods simultaneously
--   ✅ Follows established pattern from other services
--   ✅ Minimal change
--   ✅ Zero risk
+- ✅ Fixes all 6 methods simultaneously
+- ✅ Follows established pattern from other services
+- ✅ Minimal change
+- ✅ Zero risk
 
 **Cons**: None
 
@@ -126,14 +126,14 @@ Remove `const token = this.authStore.getToken();` from all 6 methods and let `Ht
 
 **Pros**:
 
--   ✅ Eliminates redundant token fetching
--   ✅ Better separation of concerns
--   ✅ Consistent with new HttpFactory token handling
+- ✅ Eliminates redundant token fetching
+- ✅ Better separation of concerns
+- ✅ Consistent with new HttpFactory token handling
 
 **Cons**:
 
--   ⚠️ Requires updating all 6 methods
--   ⚠️ Need to verify HttpFactory token handling is complete
+- ⚠️ Requires updating all 6 methods
+- ⚠️ Need to verify HttpFactory token handling is complete
 
 **Risk**: Medium - More changes required
 
@@ -147,9 +147,9 @@ Add property declaration AND remove redundant token fetching from methods.
 
 **Pros**:
 
--   ✅ Fixes crash
--   ✅ Eliminates redundancy
--   ✅ Best long-term solution
+- ✅ Fixes crash
+- ✅ Eliminates redundancy
+- ✅ Best long-term solution
 
 **Cons**: Medium effort
 
@@ -161,21 +161,21 @@ Add property declaration AND remove redundant token fetching from methods.
 
 Rationale:
 
--   Fixes the critical runtime error with minimal change
--   Follows established patterns
--   Can be merged independently of other changes
--   Lowest risk option
+- Fixes the critical runtime error with minimal change
+- Follows established patterns
+- Can be merged independently of other changes
+- Lowest risk option
 
 # Technical Details
 
 **Affected Files**:
 
--   `services/categories.service.ts` (lines 9-64)
+- `services/categories.service.ts` (lines 9-64)
 
 **Affected Components**:
 
--   `composables/useCategories.ts` (uses the service)
--   Any component importing `useCategories`
+- `composables/useCategories.ts` (uses the service)
+- Any component importing `useCategories`
 
 **Database Changes**: None
 
@@ -183,14 +183,14 @@ Rationale:
 
 # Acceptance Criteria
 
--   [ ] `private authStore = useAuthStore();` is added after `private RESOURCE = '/taxonomy';`
--   [ ] All 6 methods (`create`, `delete`, `update`, `toggleStatus`, `merge`, `move`) reference `this.authStore`
--   [ ] No TypeScript errors
--   [ ] Application compiles successfully
--   [ ] Can create category without runtime errors
--   [ ] Can delete category without runtime errors
--   [ ] Can update category without runtime errors
--   [ ] Categories are searchable without runtime errors
+- [ ] `private authStore = useAuthStore();` is added after `private RESOURCE = '/taxonomy';`
+- [ ] All 6 methods (`create`, `delete`, `update`, `toggleStatus`, `merge`, `move`) reference `this.authStore`
+- [ ] No TypeScript errors
+- [ ] Application compiles successfully
+- [ ] Can create category without runtime errors
+- [ ] Can delete category without runtime errors
+- [ ] Can update category without runtime errors
+- [ ] Categories are searchable without runtime errors
 
 # Work Log
 
@@ -214,12 +214,12 @@ Rationale:
 
 ## Related Links
 
--   PR: https://github.com/caraseli02/Ecas/pull/1
--   Plan: docs/plans/2026-02-14-refactor-backend-to-mock-cleanup-plan.md
--   Similar Pattern: `services/user.service.ts:11` (correct implementation)
+- PR: https://github.com/caraseli02/Ecas/pull/1
+- Plan: docs/plans/2026-02-14-refactor-backend-to-mock-cleanup-plan.md
+- Similar Pattern: `services/user.service.ts:11` (correct implementation)
 
 # Resources
 
--   Reference Service: `services/user.service.ts:11` (correct pattern)
--   Reference Service: `services/cart.service.ts:13` (correct pattern)
--   Reference Service: `services/products.service.ts:12` (correct pattern)
+- Reference Service: `services/user.service.ts:11` (correct pattern)
+- Reference Service: `services/cart.service.ts:13` (correct pattern)
+- Reference Service: `services/products.service.ts:12` (correct pattern)

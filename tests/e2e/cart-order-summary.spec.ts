@@ -28,7 +28,7 @@ const submitCustomerSignIn = async (page: Page) => {
   const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
   await expect(signInButton).toBeVisible();
   await Promise.all([
-    page.waitForResponse(response => response.url().includes('/api/auth/login') && response.request().method() === 'POST'),
+    page.waitForResponse((response) => response.url().includes('/api/auth/login') && response.request().method() === 'POST'),
     signInButton.click(),
   ]);
 };
@@ -43,7 +43,7 @@ const addProductToCart = async (page: Page) => {
   await expect(addToCartButton).toBeEnabled();
 
   const cartPostPromise = page.waitForResponse(
-    response => response.url().includes('/api/cart') && response.request().method() === 'POST',
+    (response) => response.url().includes('/api/cart') && response.request().method() === 'POST'
   );
   await addToCartButton.click();
   const cartPostResponse = await cartPostPromise;
@@ -108,7 +108,7 @@ test.describe('Product Detail → Checkout Confirmation', () => {
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
     await expect(secureCheckoutButton).toBeEnabled();
     const [placeOrderResponse] = await Promise.all([
-      page.waitForResponse(response => response.url().includes('/api/orders/new') && response.request().method() === 'POST'),
+      page.waitForResponse((response) => response.url().includes('/api/orders/new') && response.request().method() === 'POST'),
       page.waitForURL(/\/checkout\/success\?id=/),
       secureCheckoutButton.click(),
     ]);
@@ -120,9 +120,7 @@ test.describe('Product Detail → Checkout Confirmation', () => {
     expect(placeOrderJson.status).toBe('success');
     expect(orderId).toMatch(/^ord-/);
     expect(page.url()).toContain(`/checkout/success?id=${orderId}`);
-    await page.waitForResponse(
-      response => response.url().includes(`/api/orders/${orderId}`) && response.request().method() === 'GET',
-    );
+    await page.waitForResponse((response) => response.url().includes(`/api/orders/${orderId}`) && response.request().method() === 'GET');
     await expect(page.getByText(/payment confirmed/i)).toBeVisible();
     await expect(page.getByRole('heading', { name: /success/i })).toBeVisible();
     await expect(page.getByText(/order reference/i)).toBeVisible();

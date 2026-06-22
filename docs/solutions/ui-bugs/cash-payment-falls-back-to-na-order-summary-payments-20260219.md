@@ -4,9 +4,9 @@ date: 2026-02-19
 problem_type: ui_bug
 component: payments
 symptoms:
-    - 'Checkout with Cash succeeded, but order summary showed payment text as N/A'
-    - 'Cash orders were rendered as Bank fallback in payment info output'
-    - 'Demo checkout looked incomplete despite successful order placement'
+  - 'Checkout with Cash succeeded, but order summary showed payment text as N/A'
+  - 'Cash orders were rendered as Bank fallback in payment info output'
+  - 'Demo checkout looked incomplete despite successful order placement'
 root_cause: logic_error
 resolution_type: code_fix
 severity: medium
@@ -21,22 +21,22 @@ Cash payment was enabled in demo settings and checkout completed successfully, b
 
 ## Environment
 
--   Module: Payments / Order Summary
--   Affected Component:
-    -   `/Users/vladislavcaraseli/Documents/Ecas/helpers/payment-info.helper.ts`
--   Date: 2026-02-19
+- Module: Payments / Order Summary
+- Affected Component:
+  - `/Users/vladislavcaraseli/Documents/Ecas/helpers/payment-info.helper.ts`
+- Date: 2026-02-19
 
 ## Symptoms
 
--   User selected Cash as payment type and placed an order successfully.
--   Order summary payment block did not show cash information.
--   UI fell through to default output with `type: PaymentTypeEnum.Bank` and `text: 'N/A'`.
+- User selected Cash as payment type and placed an order successfully.
+- Order summary payment block did not show cash information.
+- UI fell through to default output with `type: PaymentTypeEnum.Bank` and `text: 'N/A'`.
 
 ## What Didn't Work
 
 **Attempted Solution 1:** Enabling Cash in payment method configuration only.
 
--   **Why it failed:** Configuration made Cash selectable, but display mapping logic still had no `Cash` branch.
+- **Why it failed:** Configuration made Cash selectable, but display mapping logic still had no `Cash` branch.
 
 **Direct solution:** The issue was fixed by adding explicit handling for `PaymentTypeEnum.Cash` in the payment info helper.
 
@@ -66,16 +66,16 @@ case PaymentTypeEnum.Cash: {
 
 ## Verification
 
--   Placed checkout order with Cash in mock mode.
--   Confirmed order summary uses cash-specific label instead of `N/A`.
--   Confirmed other payment types continue to render as before.
+- Placed checkout order with Cash in mock mode.
+- Confirmed order summary uses cash-specific label instead of `N/A`.
+- Confirmed other payment types continue to render as before.
 
 ## Prevention
 
--   When adding/enabling a new payment enum, update all enum switch consumers (UI render helpers, summaries, badges).
--   Add a regression check that iterates all enabled payment types and validates summary text output.
--   Prefer exhaustive enum handling patterns to catch missing branches during review.
+- When adding/enabling a new payment enum, update all enum switch consumers (UI render helpers, summaries, badges).
+- Add a regression check that iterates all enabled payment types and validates summary text output.
+- Prefer exhaustive enum handling patterns to catch missing branches during review.
 
 ## Related Issues
 
--   `/Users/vladislavcaraseli/Documents/Ecas/todos/021-complete-p2-handle-cash-payment-display-in-order-summary.md`
+- `/Users/vladislavcaraseli/Documents/Ecas/todos/021-complete-p2-handle-cash-payment-display-in-order-summary.md`

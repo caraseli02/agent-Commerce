@@ -19,17 +19,8 @@
       class="flex items-center w-full transition-all duration-300"
       :class="[isCollapsedOnDesktop ? 'px-6 pt-6 pb-[96px] justify-center' : 'px-4 pt-6 pb-[50px] justify-between md:pb-[60px]']"
     >
-      <NuxtLink
-        v-if="isCollapsedOnDesktop"
-        to="/"
-        class="flex"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 30 28"
-          class="w-[30px]"
-        >
+      <NuxtLink v-if="isCollapsedOnDesktop" to="/" class="flex">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 28" class="w-[30px]">
           <path
             fill="#fff"
             d="M7.16 0C2.388 0 0 2.434 0 7.65v12.697C0 25.565 2.547 28 7.16 28h15.998c3.66 0 6.206-1.738 6.842-5.914l-.159-.172H8.115c-.953 0-1.431-.174-1.75-.52-.158-.176-.317-.696-.317-1.393V8c0-.697 0-1.248.318-1.567.433-.433.634-.346 1.75-.346H29.84c.159 0 .159-.174.159-.174-.636-4.174-3.181-5.912-6.842-5.912L7.161 0Z"
@@ -41,12 +32,7 @@
         </svg>
       </NuxtLink>
       <template v-else>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 142 28"
-          class="w-[142px]"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 142 28" class="w-[142px]">
           <path
             fill="#fff"
             d="M1.078 15.902c0 .346.154.52.307.691l.153.174c.308.344.613.344.92.344h16.689c.92 0 1.38-.69 1.38-1.554v-3.458c0-.171-.307-.69-.46-.69-.306-.347-.613-.347-.92-.347H2.61c-.306 0-.766 0-1.073.347l-.153.17a1.42 1.42 0 0 0-.307.866v3.457Z"
@@ -72,16 +58,10 @@
             d="m90.373 17.945 4.134 7.668c.556 1.031-.069 2.387-1.1 2.387h-8.188c-1.027 0-1.653-1.342-1.107-2.375l4.054-7.668c.508-.963 1.69-.97 2.207-.012Z"
           />
         </svg>
-        <button
-          class="flex items-center justify-center p-1 bg-[#2F3241] rounded-lg md:hidden"
-          @click="$emit('close')"
-        >
+        <button class="flex items-center justify-center p-1 bg-[#2F3241] rounded-lg md:hidden" @click="$emit('close')">
           <XIcon class="w-6 h-6 text-gray-100" />
         </button>
-        <button
-          class="flex max-md:hidden"
-          @click="$emit('close')"
-        >
+        <button class="flex max-md:hidden" @click="$emit('close')">
           <CollapseIcon class="w-6 h-6" />
         </button>
       </template>
@@ -91,14 +71,8 @@
       class="w-full overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-custom mr-3 pb-4"
       :class="[isCollapsedOnDesktop ? 'mb-5' : 'h-full flex-1']"
     >
-      <ul
-        class="grid grid-cols-1"
-        :class="[isCollapsedOnDesktop ? 'gap-2.5 pl-5 pr-1' : 'gap-1 pl-5 pr-2']"
-      >
-        <li
-          v-for="(item, index) in nav"
-          :key="index"
-        >
+      <ul class="grid grid-cols-1" :class="[isCollapsedOnDesktop ? 'gap-2.5 pl-5 pr-1' : 'gap-1 pl-5 pr-2']">
+        <li v-for="(item, index) in nav" :key="index">
           <NuxtLink
             v-if="item.to"
             :to="item.to"
@@ -108,14 +82,8 @@
             @mouseleave="hoveredNavItem = null"
           >
             <div class="flex items-center">
-              <component
-                :is="item.icon"
-                class="w-6 h-6"
-              />
-              <span
-                v-if="!isCollapsedOnDesktop"
-                class="text-sm leading-[1.43] font-medium ml-3"
-              >
+              <component :is="item.icon" class="w-6 h-6" />
+              <span v-if="!isCollapsedOnDesktop" class="text-sm leading-[1.43] font-medium ml-3">
                 {{ item.label }}
               </span>
             </div>
@@ -139,21 +107,12 @@
             @mouseleave="hoveredNavItem = null"
           >
             <div class="flex items-center">
-              <component
-                :is="item.icon"
-                class="w-6 h-6"
-              />
-              <span
-                v-if="!isCollapsedOnDesktop"
-                class="text-sm leading-[1.43] font-medium ml-3"
-              >
+              <component :is="item.icon" class="w-6 h-6" />
+              <span v-if="!isCollapsedOnDesktop" class="text-sm leading-[1.43] font-medium ml-3">
                 {{ item.label }}
               </span>
             </div>
-            <div
-              v-if="!isCollapsedOnDesktop"
-              class="flex items-center"
-            >
+            <div v-if="!isCollapsedOnDesktop" class="flex items-center">
               <div
                 v-if="item.count"
                 class="px-2 rounded-md font-Inter text-xs font-medium leading-[2] text-gray-100 mr-4 transition-colors duration-300 group-hover:bg-[#1B1B28]"
@@ -168,10 +127,7 @@
             </div>
           </button>
           <Transition name="fade">
-            <div
-              v-if="item.dropdown?.show && !isCollapsedOnDesktop"
-              class="py-2 bg-[#2F3241] rounded-lg mt-1"
-            >
+            <div v-if="item.dropdown?.show && !isCollapsedOnDesktop" class="py-2 bg-[#2F3241] rounded-lg mt-1">
               <NuxtLink
                 v-for="(dropdownItem, dropdownIndex) in item.dropdown.items"
                 :key="dropdownIndex"
@@ -179,10 +135,7 @@
                 class="group flex items-center justify-between text-gray-100 px-3 py-2 transition-colors duration-300 hover:text-[#009FFF]"
               >
                 <div class="flex items-center">
-                  <component
-                    :is="dropdownItem.icon"
-                    class="w-6 h-6 mr-3"
-                  />
+                  <component :is="dropdownItem.icon" class="w-6 h-6 mr-3" />
                   <span class="text-sm leading-[1.43] font-medium">
                     {{ dropdownItem.label }}
                   </span>
@@ -212,11 +165,7 @@
     >
       <PlusIcon class="w-8 h-8 text-gray-100 transition-colors duration-300 group-hover:text-[#009FFF]" />
     </button>
-    <button
-      v-if="isCollapsedOnDesktop"
-      class="mt-5 max-md:hidden"
-      @click="$emit('close')"
-    >
+    <button v-if="isCollapsedOnDesktop" class="mt-5 max-md:hidden" @click="$emit('close')">
       <Collapse2Icon class="w-6 h-6" />
     </button>
     <div class="flex justify-center pt-8 pb-5">
@@ -224,33 +173,17 @@
         class="relative flex items-center justify-between bg-[#2F3241] rounded-[100px] p-1 w-11"
         @click="themeMode === 'dark' ? (themeMode = 'light') : (themeMode = 'dark')"
       >
-        <MoonIcon
-          class="w-4 h-4 text-gray-100 transition-opacity duration-300"
-          :class="[themeMode === 'light' ? '' : 'opacity-0']"
-        />
+        <MoonIcon class="w-4 h-4 text-gray-100 transition-opacity duration-300" :class="[themeMode === 'light' ? '' : 'opacity-0']" />
         <div
           class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#009FFF] transition-all duration-300"
           :class="[themeMode === 'dark' ? 'right-6' : 'right-1']"
         />
-        <SunIcon
-          class="w-4 h-4 text-gray-100 transition-opacity duration-300"
-          :class="[themeMode === 'dark' ? '' : 'opacity-0']"
-        />
+        <SunIcon class="w-4 h-4 text-gray-100 transition-opacity duration-300" :class="[themeMode === 'dark' ? '' : 'opacity-0']" />
       </button>
     </div>
-    <div
-      class="w-full pt-5 px-4 pb-4 text-center"
-      :class="[isCollapsedOnDesktop ? 'mt-2' : 'border-t border-[#2F3241]']"
-    >
-      <div
-        v-if="!isCollapsedOnDesktop"
-        class="text-xs text-[#C2C5CD] leading-normal mb-1"
-      >
-        © {{ new Date().getFullYear() }} DEMO.APP
-      </div>
-      <div class="text-xs leading-normal text-slate-500">
-        V 1.0.0
-      </div>
+    <div class="w-full pt-5 px-4 pb-4 text-center" :class="[isCollapsedOnDesktop ? 'mt-2' : 'border-t border-[#2F3241]']">
+      <div v-if="!isCollapsedOnDesktop" class="text-xs text-[#C2C5CD] leading-normal mb-1">© {{ new Date().getFullYear() }} DEMO.APP</div>
+      <div class="text-xs leading-normal text-slate-500">V 1.0.0</div>
     </div>
     <Transition name="fade">
       <div
@@ -269,10 +202,7 @@
           viewBox="0 0 5 8"
           class="absolute top-1/2 left-px -translate-x-full -translate-y-1/2 w-2"
         >
-          <path
-            fill="#1B1B28"
-            d="M5 8V0L1.496 2.336a2 2 0 0 0 0 3.328L5 8Z"
-          />
+          <path fill="#1B1B28" d="M5 8V0L1.496 2.336a2 2 0 0 0 0 3.328L5 8Z" />
         </svg>
       </div>
     </Transition>
@@ -529,14 +459,12 @@ const handleNavScroll = (event: Event) => {
   const target = event.target as HTMLElement;
   if (target.scrollTop > 0) {
     showTopNavLayer.value = true;
-  }
-  else if (!target.scrollTop) {
+  } else if (!target.scrollTop) {
     showTopNavLayer.value = false;
   }
   if (target.scrollHeight - target.scrollTop === target.clientHeight) {
     showBottomNavLayer.value = false;
-  }
-  else {
+  } else {
     showBottomNavLayer.value = true;
   }
 };
@@ -556,21 +484,21 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .scrollbar-custom {
-    &::-webkit-scrollbar-thumb {
-        background-color: #383b4d !important;
-        border-radius: 100px !important;
-    }
+  &::-webkit-scrollbar-thumb {
+    background-color: #383b4d !important;
+    border-radius: 100px !important;
+  }
 
-    @supports (scrollbar-color: red blue) {
-        scrollbar-color: #383b4d transparent;
-    }
+  @supports (scrollbar-color: red blue) {
+    scrollbar-color: #383b4d transparent;
+  }
 }
 
 .collapsed {
-    & + main {
-        & > div {
-            @apply 2xl:px-6;
-        }
+  & + main {
+    & > div {
+      @apply 2xl:px-6;
     }
+  }
 }
 </style>

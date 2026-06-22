@@ -14,19 +14,12 @@
       }"
       class="homeExclusiveOffer--swiper w-full h-full"
     >
-      <SwiperSlide
-        v-for="(item, index) in slides"
-        :key="index"
-      >
-        <div
-          class="relative z-20 px-[15px] pt-[25px] pb-[15px] text-white h-full md:pt-5 lg:px-5 lg:py-[30px] xl:px-[30px] xl:pt-[35px]"
-        >
+      <SwiperSlide v-for="(item, index) in slides" :key="index">
+        <div class="relative z-20 px-[15px] pt-[25px] pb-[15px] text-white h-full md:pt-5 lg:px-5 lg:py-[30px] xl:px-[30px] xl:pt-[35px]">
           <h3 class="font-semibold mb-[5px] md:text-2xl md:mb-2.5 lg:mb-[5px] xl:text-[32px] xl:mb-[15px]">
             {{ item.title }}
           </h3>
-          <p
-            class="text-[11px] mb-[26px] md:text-base md:mb-12 lg:max-w-[434px] lg:mb-[30px] xl:text-lg xl:max-w-[350px] xl:mb-[61px]"
-          >
+          <p class="text-[11px] mb-[26px] md:text-base md:mb-12 lg:max-w-[434px] lg:mb-[30px] xl:text-lg xl:max-w-[350px] xl:mb-[61px]">
             {{ item.description }}
           </p>
           <button class="flex bg-blue-500 rounded px-3 py-1.5 text-[13px] font-medium md:px-6 md:py-2 md:text-sm xl:py-[9px]">
@@ -36,13 +29,9 @@
             :src="item.item"
             alt="Img"
             class="absolute bottom-7 left-1/2 -translate-x-1/2 w-[205px] object-contain md:w-[188px] md:left-[unset] md:translate-x-0 md:right-[30px] lg:w-[185px] lg:right-5 xl:w-[300px] xl:right-[15px] xl:bottom-[75px]"
-          >
+          />
         </div>
-        <img
-          :src="item.bg"
-          alt="Background"
-          class="absolute top-0 left-0 w-full h-full object-cover rounded-md"
-        >
+        <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" />
         <div
           class="absolute z-10 top-0 left-0 w-full h-full opacity-75 rounded-md pointer-events-none"
           :style="{
@@ -77,13 +66,13 @@ const slides = ref([
 
 <style lang="scss">
 .homeExclusiveOffer--swiper .swiper-pagination {
-    @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:-translate-x-24 xl:translate-x-0 #{!important};
+  @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:-translate-x-24 xl:translate-x-0 #{!important};
 }
 .homeExclusiveOffer--swiper .swiper-pagination-bullet {
-    @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
-    margin-right: 0 !important;
+  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  margin-right: 0 !important;
 }
 .homeExclusiveOffer--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-    @apply w-[25px] bg-white #{!important};
+  @apply w-[25px] bg-white #{!important};
 }
 </style>

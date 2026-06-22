@@ -14,9 +14,7 @@
         </button>
       </div>
       <div class="px-5 mb-10">
-        <div class="text-sm text-slate-500 mb-5">
-          Select a language, shipping region and currency to update your experience on demo.app
-        </div>
+        <div class="text-sm text-slate-500 mb-5">Select a language, shipping region and currency to update your experience on demo.app</div>
         <FormSelect
           v-model="language"
           label="Language"
@@ -39,16 +37,8 @@
         />
       </div>
       <div class="flex items-center justify-center gap-2.5 mt-auto pb-[50px]">
-        <button
-          class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white"
-          @click="$emit('close')"
-        >
-          Save
-        </button>
-        <button
-          class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500"
-          @click="$emit('close')"
-        >
+        <button class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white" @click="$emit('close')">Save</button>
+        <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
           Cancel
         </button>
       </div>

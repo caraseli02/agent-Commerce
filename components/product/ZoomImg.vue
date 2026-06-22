@@ -17,30 +17,23 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    ref="imageWheelContainerRef"
-    class="imageContainer"
-  >
-    <img
-      class="image"
-      alt="Large Pic"
-      :src="url"
-    >
+  <div ref="imageWheelContainerRef" class="imageContainer">
+    <img class="image" alt="Large Pic" :src="url" />
   </div>
 </template>
 
 <style>
 .imageContainer {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .image {
-    max-width: 100%;
-    max-height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 </style>
 

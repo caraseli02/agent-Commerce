@@ -49,10 +49,10 @@ const table = useVueTable({
   manualSorting: true,
   pageCount: props.pageCount,
   // For Server Request
-  onSortingChange: updaterOrValue => valueUpdater(updaterOrValue, sorting),
-  onColumnFiltersChange: updaterOrValue => valueUpdater(updaterOrValue, columnFilters),
-  onColumnVisibilityChange: updaterOrValue => valueUpdater(updaterOrValue, columnVisibility),
-  onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, rowSelection),
+  onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+  onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
+  onColumnVisibilityChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnVisibility),
+  onRowSelectionChange: (updaterOrValue) => valueUpdater(updaterOrValue, rowSelection),
   getCoreRowModel: getCoreRowModel(),
   // getFilteredRowModel: getFilteredRowModel(),
   // getSortedRowModel: getSortedRowModel(),
@@ -71,9 +71,9 @@ watch(
       rightIndex,
       pageSize,
       transformFiltersToObject(table.getState().columnFilters),
-      transformSortingKeys(table.getState().sorting[0]),
+      transformSortingKeys(table.getState().sorting[0])
     );
-  },
+  }
 );
 
 const refresh = ref(false);
@@ -85,7 +85,7 @@ watch(refresh, async () => {
     rightIndex,
     pageSize,
     transformFiltersToObject(table.getState().columnFilters),
-    transformSortingKeys(table.getState().sorting[0]),
+    transformSortingKeys(table.getState().sorting[0])
   );
   setTimeout(() => {
     refresh.value = false;
@@ -97,14 +97,9 @@ watchDebounced(
   () => {
     const { pageSize } = table.getState().pagination;
     table.setPageIndex(0);
-    props.fetchFn(
-      1,
-      pageSize,
-      transformFiltersToObject(table.getState().columnFilters),
-      transformSortingKeys(table.getState().sorting[0]),
-    );
+    props.fetchFn(1, pageSize, transformFiltersToObject(table.getState().columnFilters), transformSortingKeys(table.getState().sorting[0]));
   },
-  { debounce: 500, maxWait: 1000 },
+  { debounce: 500, maxWait: 1000 }
 );
 
 // watch(
@@ -133,35 +128,15 @@ const loadingSize = computed(async () => {
 
 <template>
   <div class="space-y-4 mt-5 font-Poppins text-neutral-700 relative">
-    <slot
-      name="tabs"
-      :table="table"
-    />
-    <slot
-      name="header"
-      :make-refresh="() => (refresh = true)"
-      :table="table"
-    />
-    <slot
-      name="toolbar"
-      :table="table"
-    />
+    <slot name="tabs" :table="table" />
+    <slot name="header" :make-refresh="() => (refresh = true)" :table="table" />
+    <slot name="toolbar" :table="table" />
     <div class="rounded-xl border relative min-h-[650px]">
       <UiTable>
         <UiTableHeader class="bg-light-200">
-          <UiTableRow
-            v-for="headerGroup in table.getHeaderGroups()"
-            :key="headerGroup.id"
-          >
-            <UiTableHead
-              v-for="header in headerGroup.headers"
-              :key="header.id"
-            >
-              <FlexRender
-                v-if="!header.isPlaceholder"
-                :render="header.column.columnDef.header"
-                :props="header.getContext()"
-              />
+          <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+            <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
+              <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
             </UiTableHead>
           </UiTableRow>
         </UiTableHeader>
@@ -173,41 +148,22 @@ const loadingSize = computed(async () => {
               class="hover:bg-light-200"
               :data-state="row.getIsSelected() && 'selected'"
             >
-              <UiTableCell
-                v-for="cell in row.getVisibleCells()"
-                :key="cell.id"
-              >
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()"
-                />
+              <UiTableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
               </UiTableCell>
             </UiTableRow>
           </template>
 
-          <div
-            v-else
-            class="w-full min-h-[600px]"
-          >
+          <div v-else class="w-full min-h-[600px]">
             <section class="absolute inset-0 flex flex-col items-center justify-center text-center">
               <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-              <div class="w-full">
-                No results.
-              </div>
+              <div class="w-full">No results.</div>
             </section>
           </div>
         </UiTableBody>
       </UiTable>
-      <UiSkeleton
-        v-if="refresh || loading"
-        :style="{ height: loadingSize }"
-        class="w-full rounded absolute inset-0 top-[49px] z-10"
-      />
+      <UiSkeleton v-if="refresh || loading" :style="{ height: loadingSize }" class="w-full rounded absolute inset-0 top-[49px] z-10" />
     </div>
-    <DataTablePagination
-      :total-items="totalItems"
-      :page-count="props.pageCount"
-      :table="table"
-    />
+    <DataTablePagination :total-items="totalItems" :page-count="props.pageCount" :table="table" />
   </div>
 </template>

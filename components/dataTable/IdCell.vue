@@ -1,26 +1,12 @@
 <template>
   <div class="min-w-[128px] flex justify-between items-center text-neutral-700">
-    <NuxtLink
-      v-if="props.orderId && !showInvoiceLink"
-      :to="orderLink"
-    >
-      <UiButton
-        variant="link"
-        class="text-sm hover:text-blue-500"
-      >{{ IdCell ?? 'N/A' }}</UiButton>
+    <NuxtLink v-if="props.orderId && !showInvoiceLink" :to="orderLink">
+      <UiButton variant="link" class="text-sm hover:text-blue-500">{{ IdCell ?? 'N/A' }}</UiButton>
     </NuxtLink>
-    <UiButton
-      v-else-if="invoiceId"
-      variant="link"
-      class="text-sm hover:text-blue-500"
-      @click="download"
-    >
+    <UiButton v-else-if="invoiceId" variant="link" class="text-sm hover:text-blue-500" @click="download">
       {{ IdCell ?? 'N/A' }}
     </UiButton>
-    <NuxtLink
-      v-if="notes"
-      to="#"
-    >
+    <NuxtLink v-if="notes" to="#">
       <UiTooltipProvider>
         <UiTooltip>
           <UiTooltipTrigger>
@@ -40,20 +26,8 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
-              <path
-                d="M4.6665 5.33301H11.3332"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M4.6665 8.66699H8.6665"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M4.6665 5.33301H11.3332" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M4.6665 8.66699H8.6665" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </UiTooltipTrigger>
           <UiTooltipContent>

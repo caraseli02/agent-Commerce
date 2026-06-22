@@ -20,18 +20,18 @@ NUXT_PUBLIC_MOCK_MODE=true
 
 **Purpose:**
 
--   Enables development demo mode
--   Makes all routes accessible without authentication
--   Can be disabled for production builds
+- Enables development demo mode
+- Makes all routes accessible without authentication
+- Can be disabled for production builds
 
 **Nuxt Configuration:**
 
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-    runtimeConfig: {
-        MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE === 'true',
-    },
+  runtimeConfig: {
+    MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE === 'true',
+  },
 });
 ```
 
@@ -47,8 +47,8 @@ export default defineNuxtConfig({
 const config = useRuntimeConfig();
 
 if (config.public.mockMode) {
-    // Bypass all authentication checks
-    return;
+  // Bypass all authentication checks
+  return;
 }
 ```
 
@@ -56,27 +56,27 @@ if (config.public.mockMode) {
 
 ```typescript
 if (config.public.mockMode) {
-    if (!authStore.loggedInUser) {
-        // Set demo token
-        authStore.addToken('demo-token-portfolio');
+  if (!authStore.loggedInUser) {
+    // Set demo token
+    authStore.addToken('demo-token-portfolio');
 
-        // Create complete demo user
-        const now = new Date();
-        const demoUser: any = {
-            _id: 'mock-user-1',
-            firebaseId: 'mock-firebase-id-portfolio-demo',
-            role: 'customer',
-            accountType: 'personal',
-            verified: true,
-            status: 1,
-            permissions: ['*'],
-            roles: ['admin', 'customer'],
-            // ... all required fields
-        };
+    // Create complete demo user
+    const now = new Date();
+    const demoUser: any = {
+      _id: 'mock-user-1',
+      firebaseId: 'mock-firebase-id-portfolio-demo',
+      role: 'customer',
+      accountType: 'personal',
+      verified: true,
+      status: 1,
+      permissions: ['*'],
+      roles: ['admin', 'customer'],
+      // ... all required fields
+    };
 
-        authStore.addUser(demoUser);
-        console.log('Demo user set up in middleware');
-    }
+    authStore.addUser(demoUser);
+    console.log('Demo user set up in middleware');
+  }
 }
 ```
 
@@ -84,11 +84,11 @@ if (config.public.mockMode) {
 
 ```typescript
 if (!token?.value) {
-    return navigateTo({ path: '/' });
+  return navigateTo({ path: '/' });
 }
 
 if (import.meta.client && !token?.value) {
-    authStore.signOut();
+  authStore.signOut();
 }
 ```
 
@@ -98,8 +98,8 @@ if (import.meta.client && !token?.value) {
 
 **Credentials:**
 
--   Email: `admin@ecas.com`
--   Password: `admin123`
+- Email: `admin@ecas.com`
+- Password: `admin123`
 
 **Response:**
 
@@ -124,31 +124,31 @@ if (import.meta.client && !token?.value) {
 
 ✅ **No Login Required**
 
--   All routes accessible immediately
--   Dashboard, products, categories pages open
--   24 products visible
--   123 dashboard records available
+- All routes accessible immediately
+- Dashboard, products, categories pages open
+- 24 products visible
+- 123 dashboard records available
 
 ✅ **Auto-Authentication**
 
--   Demo user automatically logged in
--   Full permissions: `['*']`
--   Admin and customer roles
+- Demo user automatically logged in
+- Full permissions: `['*']`
+- Admin and customer roles
 
 ✅ **Data Access**
 
--   All mock data files accessible
--   No authentication blocking
--   Perfect for portfolio demonstration
+- All mock data files accessible
+- No authentication blocking
+- Perfect for portfolio demonstration
 
 ### In Production (mock mode disabled):
 
 ✅ **Normal Authentication Flow**
 
--   All auth checks active
--   Protected routes require login
--   Token validation works as expected
--   Demo credentials don't work
+- All auth checks active
+- Protected routes require login
+- Token validation works as expected
+- Demo credentials don't work
 
 ## Files Changed
 
@@ -261,24 +261,24 @@ routeRules: {
 
 This PR builds on top of the demo data expansion:
 
--   ✅ 24 products added (4x expansion)
--   ✅ 123 dashboard records added
--   ✅ Mock mode authentication enabled
+- ✅ 24 products added (4x expansion)
+- ✅ 123 dashboard records added
+- ✅ Mock mode authentication enabled
 
 Future enhancements:
 
--   Add skeleton loading states (2-3 hours)
--   Design empty states (3-4 hours)
--   Add hover effects (2-3 hours)
--   Add demo mode badge/toggle (1-2 hours)
+- Add skeleton loading states (2-3 hours)
+- Design empty states (3-4 hours)
+- Add hover effects (2-3 hours)
+- Add demo mode badge/toggle (1-2 hours)
 
 ## Technical Notes
 
--   **Type Safety:** TypeScript type errors are expected - they work at runtime
--   **Store Access:** `authStore` available via composable
--   **Cookie Management:** `useCookie('token')` for auth token
--   **Config Access:** `useRuntimeConfig()`` for mock mode flag
--   **Performance:** Middleware returns early in mock mode (no unnecessary checks)
+- **Type Safety:** TypeScript type errors are expected - they work at runtime
+- **Store Access:** `authStore` available via composable
+- **Cookie Management:** `useCookie('token')` for auth token
+- **Config Access:** `useRuntimeConfig()`` for mock mode flag
+- **Performance:** Middleware returns early in mock mode (no unnecessary checks)
 
 ## Conclusion
 

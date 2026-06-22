@@ -19,15 +19,9 @@ const taxonomyPath = computed(() => {
     <div class="container">
       <div class="border-b border-gray-200 pt-[15px] pb-[14px]">
         <div class="flex items-center gap-1 text-slate-500">
-          <template
-            v-for="(path, index) in taxonomyPath"
-            :key="index"
-          >
+          <template v-for="(path, index) in taxonomyPath" :key="index">
             <CaretRightIcon class="w-4 h-4" />
-            <NuxtLink
-              to="/"
-              class="text-xs leading-[1.33] font-Inter transition-colors duration-300 hover:text-blue-500"
-            >
+            <NuxtLink to="/" class="text-xs leading-[1.33] font-Inter transition-colors duration-300 hover:text-blue-500">
               {{ path }}
             </NuxtLink>
           </template>

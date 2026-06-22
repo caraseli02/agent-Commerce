@@ -21,11 +21,11 @@
 } */
 
 .swiper-visible.swiper {
-    @apply overflow-visible;
+  @apply overflow-visible;
 }
 
 .max-h-vh {
-    max-height: calc(100 * var(--vh));
+  max-height: calc(100 * var(--vh));
 }
 
 /* .hide-scrollbar {
@@ -37,17 +37,17 @@
 } */
 
 .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @media screen and (min-width: 1024px) {
-    .lg\:line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+  .lg\:line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }

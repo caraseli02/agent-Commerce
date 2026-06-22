@@ -14,14 +14,9 @@
         </button>
         <LayoutAccountModalDetails v-if="loggedInUser" />
       </div>
-      <div
-        v-if="!loggedInUser"
-        class="flex-1 flex flex-col justify-between px-1"
-      >
+      <div v-if="!loggedInUser" class="flex-1 flex flex-col justify-between px-1">
         <section>
-          <div class="text-neutral-70 font-semibold">
-            Choose a demo role
-          </div>
+          <div class="text-neutral-70 font-semibold">Choose a demo role</div>
           <p class="text-xs leading-5 text-slate-500 mt-1 mb-6">
             Start with Customer Demo for the cleanest walkthrough, or open Admin Preview to inspect the back-office UI.
           </p>
@@ -30,23 +25,14 @@
         <p class="flex flex-wrap md:flex-nowrap justify-center items-center gap-2 text-slate-500 text-xs pt-6">
           <SvgoMenuHelp class="text-slate-500 w-4 h-4 !text-xs" />
           For assistance please contact
-          <a
-            href="mailto:support@demo.app"
-            class="text-blue-500 hover:text-blue-400 hover:underline"
-          > support@demo.app </a>
+          <a href="mailto:support@demo.app" class="text-blue-500 hover:text-blue-400 hover:underline"> support@demo.app </a>
         </p>
       </div>
-      <section
-        v-else
-        class="flex flex-col justify-between h-full"
-      >
+      <section v-else class="flex flex-col justify-between h-full">
         <div class="flex-1 flex flex-col gap-6">
           <!-- <LayoutAccountModalMessage /> -->
           <LayoutAccountModalCredits class="mx-2" />
-          <LayoutAccountModalLinks
-            class="mx-2"
-            @close="emit('close')"
-          />
+          <LayoutAccountModalLinks class="mx-2" @close="emit('close')" />
         </div>
         <div class="mx-2 text-xs text-gray-300 text-center mt-auto pb-2.5 pt-6 flex flex-col gap-6">
           <button
@@ -55,18 +41,13 @@
           >
             <div class="flex items-center gap-2">
               <SignOutIcon class="w-6 h-6" />
-              <div class="text-blue-500 text-base font-medium leading-7 self-stretch grow whitespace-nowrap">
-                Sign Out
-              </div>
+              <div class="text-blue-500 text-base font-medium leading-7 self-stretch grow whitespace-nowrap">Sign Out</div>
             </div>
           </button>
           <p class="flex justify-center items-center gap-2 text-slate-500">
             <SvgoMenuHelp class="text-slate-500 w-4 h-4 text-xs" />
             For assistance please contact
-            <a
-              href="mailto:support@demo.app"
-              class="text-blue-500 hover:text-blue-400 hover:underline"
-            > support@demo.app </a>
+            <a href="mailto:support@demo.app" class="text-blue-500 hover:text-blue-400 hover:underline"> support@demo.app </a>
           </p>
         </div>
       </section>
@@ -116,7 +97,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .min-height {
-    min-height: 100vh;
-    min-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 </style>

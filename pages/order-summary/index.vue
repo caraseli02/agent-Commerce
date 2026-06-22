@@ -3,31 +3,18 @@
     <UiSkeleton class="h-full w-full absolute inset-0 z-50" />
     <LoaderIcon class="absolute top-[50%] left-[50%] z-50 animate-spin" />
   </div>
-  <div
-    v-else
-    class="pt-[30px] lg:pt-10"
-  >
+  <div v-else class="pt-[30px] lg:pt-10">
     <div class="grid grid-cols-1">
       <div class="container px-4">
-        <div
-          v-if="!userId"
-          class="mb-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4 text-blue-800"
-        >
+        <div v-if="!userId" class="mb-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4 text-blue-800">
           <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
             <InfoIcon class="w-6 h-6" />
           </div>
           <div class="flex-1">
-            <p class="font-bold text-sm md:text-base">
-              Viewing Summary as Guest
-            </p>
+            <p class="font-bold text-sm md:text-base">Viewing Summary as Guest</p>
             <p class="text-xs md:text-sm opacity-90">
               Review your items and configuration here. To finalize the order and apply business discounts, please
-              <NuxtLink
-                :to="signinHref"
-                class="underline hover:text-blue-900 transition-colors font-bold"
-              >
-                Sign In
-              </NuxtLink>
+              <NuxtLink :to="signinHref" class="underline hover:text-blue-900 transition-colors font-bold"> Sign In </NuxtLink>
             </p>
           </div>
         </div>
@@ -35,11 +22,7 @@
         <div class="gap-6 xl:grid xl:grid-cols-[1fr,392px]">
           <div class="flex flex-col gap-9 max-w-[992px]">
             <OrderSummaryBackOrderWarning v-if="showWarning" />
-            <OrderSummaryTable
-              :loading="loading"
-              @update-subtotal="updateSubtotal($event, order)"
-              @delete-selected="deleteSelected"
-            />
+            <OrderSummaryTable :loading="loading" @update-subtotal="updateSubtotal($event, order)" @delete-selected="deleteSelected" />
             <div class="hidden lg:flex flex-col">
               <OrderSummarySimilarProducts :loading="loading" />
               <OrderSummaryBannerImageCard class="hidden xl:flex" />
@@ -54,10 +37,7 @@
               @update-payment-details="order.paymentDetails = $event"
             />
             <OrderSummaryNoteSection />
-            <OrderSummary
-              :order="order"
-              :general-settings="generalSettings"
-            />
+            <OrderSummary :order="order" :general-settings="generalSettings" />
             <OrderSummaryCheckoutButtons
               :is-checkout-disabled="isCheckoutDisabled"
               :is-guest-checkout="!userId"
@@ -119,8 +99,7 @@ const orderItems = computed(() => {
     const quantity = Number(item.stock || 0) + Number(item.backorder_stock || 0);
     const discountPrice = item.productEntity
       ? Number(
-          parseProductPriceConfiguration(item.productEntity, user.value as UserInterface, quantity)
-            ?.currentConfigurationDiscountPrice || 0,
+          parseProductPriceConfiguration(item.productEntity, user.value as UserInterface, quantity)?.currentConfigurationDiscountPrice || 0
         )
       : 0;
     const effectiveUnitPrice = Number(discountPrice || item.unitPriceAfterDiscounts || item.initialUnitPrice || 0);
@@ -204,11 +183,9 @@ const getCustomerCredit = async () => {
         active: creditData.active ?? false,
       };
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to fetch customer credit:', error);
-  }
-  finally {
+  } finally {
     loading.value = false;
   }
 };
@@ -242,14 +219,14 @@ const applyMockCheckoutDefaults = () => {
   }
 
   if (!order.value.deliveryMethod) {
-    const firstDeliveryMethod = shippingPreferences.value?.list?.find(option => option?.service);
+    const firstDeliveryMethod = shippingPreferences.value?.list?.find((option) => option?.service);
     if (firstDeliveryMethod) {
       order.value.deliveryMethod = firstDeliveryMethod;
     }
   }
 
   if (!order.value.backorderOption && (order.value.type === OrderType.Back || order.value.type === OrderType.Mixed)) {
-    const firstBackorderOption = generalSettings.value?.orderSettings?.backorderShippingTypes?.find(option => option.active);
+    const firstBackorderOption = generalSettings.value?.orderSettings?.backorderShippingTypes?.find((option) => option.active);
     if (firstBackorderOption) {
       order.value.backorderOption = firstBackorderOption;
     }
@@ -264,7 +241,7 @@ const applyMockCheckoutDefaults = () => {
       return;
     }
 
-    const firstCard = cards.value.find(savedCard => savedCard.id);
+    const firstCard = cards.value.find((savedCard) => savedCard.id);
     if (firstCard) {
       order.value.paymentDetails = {
         type: PaymentTypeEnum.Card,
@@ -305,11 +282,10 @@ watch(checkout, async (newVal) => {
           products: order.value.products,
           subtotal: Number(order.value.subtotal || 0),
           total: Number(order.value.total || 0),
-        },
+        }
       );
       stopButtonTrigger.value = false;
-    }
-    catch {
+    } catch {
       isLoadingCheckout.value = false;
     }
     isLoadingCheckout.value = false;
@@ -330,11 +306,11 @@ Emitter.on('note', (noteText: string) => {
 });
 
 Emitter.on('delete-product-item', (object: { id: string }) => {
-  cartItems.value = cartItems.value.filter(product => product.id !== object.id);
+  cartItems.value = cartItems.value.filter((product) => product.id !== object.id);
 });
 
 const deleteSelected = () => {
-  cartItems.value = cartItems.value.filter(item => !item.selected);
+  cartItems.value = cartItems.value.filter((item) => !item.selected);
 };
 
 const updateSubtotal = async (items: CartProductsInterface[], checkoutOrder: CheckoutOrderDraft) => {
@@ -352,7 +328,7 @@ watch(
     syncOrderTotals();
     applyMockCheckoutDefaults();
   },
-  { deep: true },
+  { deep: true }
 );
 
 watch(
@@ -361,7 +337,7 @@ watch(
     syncOrderTotals();
     applyMockCheckoutDefaults();
   },
-  { deep: true },
+  { deep: true }
 );
 
 watch(
@@ -369,7 +345,7 @@ watch(
   () => {
     syncOrderTotals();
     applyMockCheckoutDefaults();
-  },
+  }
 );
 
 // Initialization

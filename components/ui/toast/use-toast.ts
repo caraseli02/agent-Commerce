@@ -32,21 +32,21 @@ type ActionType = typeof actionTypes;
 
 type Action =
   | {
-    type: ActionType['ADD_TOAST'];
-    toast: ToasterToast;
-  }
+      type: ActionType['ADD_TOAST'];
+      toast: ToasterToast;
+    }
   | {
-    type: ActionType['UPDATE_TOAST'];
-    toast: Partial<ToasterToast>;
-  }
+      type: ActionType['UPDATE_TOAST'];
+      toast: Partial<ToasterToast>;
+    }
   | {
-    type: ActionType['DISMISS_TOAST'];
-    toastId?: ToasterToast['id'];
-  }
+      type: ActionType['DISMISS_TOAST'];
+      toastId?: ToasterToast['id'];
+    }
   | {
-    type: ActionType['REMOVE_TOAST'];
-    toastId?: ToasterToast['id'];
-  };
+      type: ActionType['REMOVE_TOAST'];
+      toastId?: ToasterToast['id'];
+    };
 
 interface State {
   toasts: ToasterToast[];
@@ -79,7 +79,7 @@ function dispatch(action: Action) {
       break;
 
     case actionTypes.UPDATE_TOAST:
-      state.value.toasts = state.value.toasts.map(t => (t.id === action.toast.id ? { ...t, ...action.toast } : t));
+      state.value.toasts = state.value.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t));
       break;
 
     case actionTypes.DISMISS_TOAST: {
@@ -87,27 +87,26 @@ function dispatch(action: Action) {
 
       if (toastId) {
         addToRemoveQueue(toastId);
-      }
-      else {
+      } else {
         state.value.toasts.forEach((toast) => {
           addToRemoveQueue(toast.id);
         });
       }
 
-      state.value.toasts = state.value.toasts.map(t =>
+      state.value.toasts = state.value.toasts.map((t) =>
         t.id === toastId || toastId === undefined
           ? {
               ...t,
               open: false,
             }
-          : t,
+          : t
       );
       break;
     }
 
     case actionTypes.REMOVE_TOAST:
       if (action.toastId === undefined) state.value.toasts = [];
-      else state.value.toasts = state.value.toasts.filter(t => t.id !== action.toastId);
+      else state.value.toasts = state.value.toasts.filter((t) => t.id !== action.toastId);
 
       break;
   }

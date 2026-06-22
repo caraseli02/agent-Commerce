@@ -15,30 +15,30 @@ Migrate ECAS e-commerce frontend from external backend API (`https://dev-backend
 
 Chose **Mock data + Firebase auth** approach because:
 
--   Immediate ability to run and test UI without database setup
--   Lowest complexity—no DB schema design or migration required
--   Firebase is already configured and used for auth in current codebase
--   Incremental: can replace mocks with real DB connection later without architecture changes
+- Immediate ability to run and test UI without database setup
+- Lowest complexity—no DB schema design or migration required
+- Firebase is already configured and used for auth in current codebase
+- Incremental: can replace mocks with real DB connection later without architecture changes
 
 Other approaches considered:
 
--   **Firebase auth + Firestore:** Real data from day one but requires Firestore schema design and learning Firestore queries
--   **Proxy + gradual migration:** Safer rollback but adds complexity of hybrid architecture
+- **Firebase auth + Firestore:** Real data from day one but requires Firestore schema design and learning Firestore queries
+- **Proxy + gradual migration:** Safer rollback but adds complexity of hybrid architecture
 
 ## Key Decisions
 
--   **Data source:** Start with hardcoded mock data in Nuxt server routes; defer DB decision (Firebase Firestore vs PostgreSQL) until after UI is validated
--   **Auth:** Keep existing Firebase auth implementation (`authStore` + Firebase SDK) – this is already working
--   **Route structure:** Implement Nuxt server API routes in `/server/api` matching current service endpoints structure for easy migration
--   **Migration priority:** Implement read-only endpoints first (products, profile) then transactional (cart, orders)
--   **Response format:** Maintain existing `{ status: string, data: T }` pattern so frontend services don't need changes
+- **Data source:** Start with hardcoded mock data in Nuxt server routes; defer DB decision (Firebase Firestore vs PostgreSQL) until after UI is validated
+- **Auth:** Keep existing Firebase auth implementation (`authStore` + Firebase SDK) – this is already working
+- **Route structure:** Implement Nuxt server API routes in `/server/api` matching current service endpoints structure for easy migration
+- **Migration priority:** Implement read-only endpoints first (products, profile) then transactional (cart, orders)
+- **Response format:** Maintain existing `{ status: string, data: T }` pattern so frontend services don't need changes
 
 ## Open Questions
 
--   What mock data is needed? (Products sample data? User profiles? Categories?)
--   Should auth middleware be server-side or keep existing client-side approach?
--   Which specific endpoints are highest priority for the first working iteration?
--   Do you want to preserve the exact external API contract, or can we simplify it?
+- What mock data is needed? (Products sample data? User profiles? Categories?)
+- Should auth middleware be server-side or keep existing client-side approach?
+- Which specific endpoints are highest priority for the first working iteration?
+- Do you want to preserve the exact external API contract, or can we simplify it?
 
 ## Next Steps
 

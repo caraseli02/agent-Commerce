@@ -14,39 +14,19 @@
           boxShadow: '0px 0px 4px rgba(51, 51, 51, 0.25)',
         }"
       >
-        <LayoutFavoritesCartModalFavoritesSearch
-          v-if="!showMenu"
-          v-model="searchVal"
-          class="mr-5"
-        />
-        <button
-          class="flex flex-shrink-0 text-slate-500 transition-colors duration-300 hover:text-blue-500"
-          @click="showMenu = !showMenu"
-        >
+        <LayoutFavoritesCartModalFavoritesSearch v-if="!showMenu" v-model="searchVal" class="mr-5" />
+        <button class="flex flex-shrink-0 text-slate-500 transition-colors duration-300 hover:text-blue-500" @click="showMenu = !showMenu">
           <DotsVerticalIcon class="w-6 h-6" />
         </button>
-        <label
-          v-if="showMenu"
-          class="flex cursor-pointer ml-[15px] mr-7"
-        >
-          <input
-            :value="allItemsSelected"
-            type="checkbox"
-            class="sr-only"
-            @change="handleSelectAll"
-          >
+        <label v-if="showMenu" class="flex cursor-pointer ml-[15px] mr-7">
+          <input :value="allItemsSelected" type="checkbox" class="sr-only" @change="handleSelectAll" />
           <div
             class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
             :class="[
-              allItemsSelected
-                ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-                : 'bg-white  border-border group-hover:border-gray-300',
+              allItemsSelected ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
             ]"
           >
-            <CheckIcon
-              v-if="allItemsSelected"
-              class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-            />
+            <CheckIcon v-if="allItemsSelected" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
           </div>
         </label>
         <Swiper
@@ -228,7 +208,10 @@ import CopyIcon from '@/assets/icons/copy.svg';
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import MergeIcon from '@/assets/icons/merge.svg';
 import FolderArrowIcon from '@/assets/icons/folder-arrow.svg';
-import type { FavouriteFolderResponse, FavouriteFolderResponseInterface } from '~/model/favourite-folder/response/favourite-folder.interface';
+import type {
+  FavouriteFolderResponse,
+  FavouriteFolderResponseInterface,
+} from '~/model/favourite-folder/response/favourite-folder.interface';
 import { fetchFavouriteList } from '~/composables/api/favorites';
 
 const searchVal = ref('');
@@ -290,19 +273,19 @@ const fetchList = async () => {
 const showMenu = ref(false);
 
 const allItemsSelected = computed(() => {
-  return items.value.every(e => e.selected);
+  return items.value.every((e) => e.selected);
 });
 
 const onlyFoldersSelected = computed(() => {
   return (
-    items.value.some(e => e.type === 'folder' && e.selected)
-    && items.value.filter(e => e.type === 'folder' && e.selected).length > 1
-    && !items.value.some(e => e.type === 'product' && e.selected)
+    items.value.some((e) => e.type === 'folder' && e.selected) &&
+    items.value.filter((e) => e.type === 'folder' && e.selected).length > 1 &&
+    !items.value.some((e) => e.type === 'product' && e.selected)
   );
 });
 
 const hasSelectedItem = computed(() => {
-  return items.value.some(e => e.selected);
+  return items.value.some((e) => e.selected);
 });
 
 await fetchList();
@@ -315,8 +298,7 @@ const handleSelectAll = () => {
         selected: false,
       };
     });
-  }
-  else {
+  } else {
     items.value = items.value?.map((e) => {
       return {
         ...e,
@@ -327,7 +309,7 @@ const handleSelectAll = () => {
 };
 
 const selectedItemsLength = computed(() => {
-  return items.value.filter(e => e.selected).length;
+  return items.value.filter((e) => e.selected).length;
 });
 
 const folderWithActiveOptions = ref<FavoriteItem>();
@@ -337,8 +319,7 @@ provide('folder-with-active-options', folderWithActiveOptions);
 const handleShowOptions = (item: FavoriteItem) => {
   if (folderWithActiveOptions.value?.id === item.id) {
     folderWithActiveOptions.value = undefined;
-  }
-  else {
+  } else {
     folderWithActiveOptions.value = item;
   }
 };
@@ -352,6 +333,6 @@ watch(selectedItemsLength, (newVal) => {
 
 <style lang="scss">
 .favoritesModal--swiper .swiper-slide {
-    @apply w-[42px] #{!important};
+  @apply w-[42px] #{!important};
 }
 </style>

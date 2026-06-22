@@ -16,11 +16,11 @@ Route protection currently treats any non-empty `token` cookie as authenticated.
 
 ## Findings
 
--   `middleware/auth.ts:7` only checks `Boolean(token?.value)` and does not validate token structure/session/user.
--   `middleware/router.global.ts:19` returns early when `loggedInUser` is missing, so no permission check runs.
--   Runtime verification:
--   `GET /dashboard/orders` with no cookie returns `302` to `/?signin=true`.
--   `GET /dashboard/orders` with `Cookie: token=not-a-real-token` returns `200` and renders page content.
+- `middleware/auth.ts:7` only checks `Boolean(token?.value)` and does not validate token structure/session/user.
+- `middleware/router.global.ts:19` returns early when `loggedInUser` is missing, so no permission check runs.
+- Runtime verification:
+- `GET /dashboard/orders` with no cookie returns `302` to `/?signin=true`.
+- `GET /dashboard/orders` with `Cookie: token=not-a-real-token` returns `200` and renders page content.
 
 ## Proposed Solutions
 
@@ -30,13 +30,13 @@ Route protection currently treats any non-empty `token` cookie as authenticated.
 
 **Pros:**
 
--   Small change
--   Stops bypass immediately
--   Aligns route access with actual login state
+- Small change
+- Stops bypass immediately
+- Aligns route access with actual login state
 
 **Cons:**
 
--   Requires reliable user hydration after valid login
+- Requires reliable user hydration after valid login
 
 **Effort:** 1-2 hours
 
@@ -50,12 +50,12 @@ Route protection currently treats any non-empty `token` cookie as authenticated.
 
 **Pros:**
 
--   Stronger gate even before store hydration
+- Stronger gate even before store hydration
 
 **Cons:**
 
--   Extra coupling to mock token format
--   Still needs user existence/permission checks
+- Extra coupling to mock token format
+- Still needs user existence/permission checks
 
 **Effort:** 2-3 hours
 
@@ -69,19 +69,19 @@ To be filled during triage.
 
 **Affected files:**
 
--   `middleware/auth.ts:7`
--   `middleware/router.global.ts:19`
+- `middleware/auth.ts:7`
+- `middleware/router.global.ts:19`
 
 ## Resources
 
--   Runtime verification during review on 2026-02-19 (`NITRO_PORT=3106`).
+- Runtime verification during review on 2026-02-19 (`NITRO_PORT=3106`).
 
 ## Acceptance Criteria
 
--   [ ] Arbitrary `token` cookie no longer grants access to `/dashboard/**` routes.
--   [ ] Logged-out users always redirect to `/?signin=true` for protected routes.
--   [ ] Valid logged-in sessions remain functional.
--   [ ] No redirect loops are introduced.
+- [ ] Arbitrary `token` cookie no longer grants access to `/dashboard/**` routes.
+- [ ] Logged-out users always redirect to `/?signin=true` for protected routes.
+- [ ] Valid logged-in sessions remain functional.
+- [ ] No redirect loops are introduced.
 
 ## Work Log
 
@@ -91,13 +91,13 @@ To be filled during triage.
 
 **Actions:**
 
--   Reproduced protected-route access with fake cookie.
--   Traced bypass to auth middleware + global middleware interaction.
+- Reproduced protected-route access with fake cookie.
+- Traced bypass to auth middleware + global middleware interaction.
 
 **Learnings:**
 
--   Protected-route gate currently validates cookie existence, not auth state.
+- Protected-route gate currently validates cookie existence, not auth state.
 
 ## Notes
 
--   Merge-blocking authentication bypass.
+- Merge-blocking authentication bypass.

@@ -30,8 +30,7 @@ const formatMoney = (amount?: number, currency?: string) => {
       currency: normalizedCurrency,
       maximumFractionDigits: 2,
     }).format(value);
-  }
-  catch {
+  } catch {
     return `${value.toFixed(2)} ${normalizedCurrency}`;
   }
 };
@@ -93,11 +92,9 @@ const loadOrder = async () => {
     }
 
     fetchError.value = 'Payment was confirmed, but the order details are not available yet.';
-  }
-  catch {
+  } catch {
     fetchError.value = 'Payment was confirmed, but we could not load the order details just yet.';
-  }
-  finally {
+  } finally {
     loading.value = false;
   }
 };
@@ -109,9 +106,7 @@ onMounted(() => {
 
 <template>
   <div class="container py-8">
-    <section
-      class="overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 shadow-sm"
-    >
+    <section class="overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 shadow-sm">
       <div class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
         <div class="space-y-6">
           <div
@@ -122,12 +117,10 @@ onMounted(() => {
           </div>
 
           <div class="space-y-3">
-            <h1 class="text-3xl font-semibold tracking-tight text-slate-900 md:text-5xl">
-              Success — your order is locked in.
-            </h1>
+            <h1 class="text-3xl font-semibold tracking-tight text-slate-900 md:text-5xl">Success — your order is locked in.</h1>
             <p class="max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
-              This payment went through. Review the live order details, keep the reference handy, and jump back into shopping
-              whenever you want.
+              This payment went through. Review the live order details, keep the reference handy, and jump back into shopping whenever you
+              want.
             </p>
           </div>
 
@@ -139,39 +132,27 @@ onMounted(() => {
             Loading the confirmed order details...
           </div>
 
-          <div
-            v-else-if="fetchError"
-            class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-5 text-sm leading-6 text-amber-900"
-          >
+          <div v-else-if="fetchError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-5 text-sm leading-6 text-amber-900">
             {{ fetchError }}
           </div>
 
-          <div
-            v-else
-            class="grid gap-3 md:grid-cols-3"
-          >
+          <div v-else class="grid gap-3 md:grid-cols-3">
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Order reference
-              </p>
+              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order reference</p>
               <p class="mt-2 text-lg font-semibold text-slate-900">
                 {{ order?.shortId || order?._id }}
               </p>
             </div>
 
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Total paid
-              </p>
+              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Total paid</p>
               <p class="mt-2 text-lg font-semibold text-slate-900">
                 {{ formatMoney(order?.total, order?.currency) }}
               </p>
             </div>
 
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Confirmed at
-              </p>
+              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Confirmed at</p>
               <p class="mt-2 text-lg font-semibold text-slate-900">
                 {{ orderDate }}
               </p>
@@ -187,20 +168,14 @@ onMounted(() => {
             </NuxtLink>
 
             <NuxtLink to="/">
-              <UiButton
-                class="w-full gap-2 sm:w-auto"
-                variant="secondary"
-              >
+              <UiButton class="w-full gap-2 sm:w-auto" variant="secondary">
                 <ShoppingBag class="h-4 w-4" />
                 Continue shopping
               </UiButton>
             </NuxtLink>
 
             <NuxtLink to="/dashboard/client?tab=orders">
-              <UiButton
-                class="w-full gap-2 sm:w-auto"
-                variant="secondary"
-              >
+              <UiButton class="w-full gap-2 sm:w-auto" variant="secondary">
                 <LayoutDashboard class="h-4 w-4" />
                 Dashboard
               </UiButton>
@@ -210,26 +185,18 @@ onMounted(() => {
 
         <div class="space-y-4 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
           <div class="space-y-1">
-            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-              What happens next
-            </p>
-            <h2 class="text-xl font-semibold text-slate-900">
-              The order is ready for handoff.
-            </h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">What happens next</p>
+            <h2 class="text-xl font-semibold text-slate-900">The order is ready for handoff.</h2>
           </div>
 
           <div class="space-y-3 text-sm leading-6 text-slate-600">
             <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p class="font-medium text-slate-900">
-                Payment method
-              </p>
+              <p class="font-medium text-slate-900">Payment method</p>
               <p>{{ paymentLabel }}</p>
             </div>
 
             <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p class="font-medium text-slate-900">
-                Shipping method
-              </p>
+              <p class="font-medium text-slate-900">Shipping method</p>
               <p>{{ order?.shippingDetails?.stockorderShippingType?.service?.courierName || 'Selected at checkout' }}</p>
             </div>
 
@@ -237,14 +204,10 @@ onMounted(() => {
               <div class="flex items-start gap-3">
                 <TruckIcon class="mt-0.5 h-4 w-4 text-slate-500" />
                 <div>
-                  <p class="font-medium text-slate-900">
-                    Fulfilment update
-                  </p>
+                  <p class="font-medium text-slate-900">Fulfilment update</p>
                   <p>
                     {{
-                      estimatedPickup
-                        ? `Estimated pickup ${estimatedPickup}.`
-                        : 'Tracking updates will appear as fulfilment progresses.'
+                      estimatedPickup ? `Estimated pickup ${estimatedPickup}.` : 'Tracking updates will appear as fulfilment progresses.'
                     }}
                   </p>
                 </div>

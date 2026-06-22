@@ -102,11 +102,7 @@ const updateCustomPropertiesEnabled = (value: boolean) => {
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger as-child>
-      <UiButton
-        variant="ghost"
-        size="icon"
-        :disabled="selectedCategories.length > 1 || isLocked"
-      >
+      <UiButton variant="ghost" size="icon" :disabled="selectedCategories.length > 1 || isLocked">
         <PencilLine class="w-5 h-5 text-slate-500" />
       </UiButton>
     </UiDialogTrigger>
@@ -116,23 +112,11 @@ const updateCustomPropertiesEnabled = (value: boolean) => {
       </UiDialogHeader>
       <div class="grid gap-4 py-4">
         <div class="flex flex-col items-start gap-4">
-          <UiLabel
-            for="title"
-            class="text-right"
-          >
-            Title
-          </UiLabel>
-          <UiInput
-            id="title"
-            v-model="title"
-            class="col-span-3"
-          />
+          <UiLabel for="title" class="text-right"> Title </UiLabel>
+          <UiInput id="title" v-model="title" class="col-span-3" />
         </div>
         <div class="flex flex-col items-start gap-4">
-          <UiLabel
-            for="title"
-            class="text-right"
-          >
+          <UiLabel for="title" class="text-right">
             ID: <b>{{ category.id }}</b>
           </UiLabel>
         </div>
@@ -163,18 +147,8 @@ const updateCustomPropertiesEnabled = (value: boolean) => {
         />
       </div>
       <UiDialogFooter>
-        <UiButton
-          variant="secondary"
-          @click="isOpen = false"
-        >
-          Cancel
-        </UiButton>
-        <UiButton
-          :disabled="isLocked"
-          @click="makeUpdate()"
-        >
-          Update
-        </UiButton>
+        <UiButton variant="secondary" @click="isOpen = false"> Cancel </UiButton>
+        <UiButton :disabled="isLocked" @click="makeUpdate()"> Update </UiButton>
       </UiDialogFooter>
     </UiDialogContent>
   </UiDialog>

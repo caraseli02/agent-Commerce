@@ -24,11 +24,7 @@ const toggleAndClose = (id: string) => {
   </div>
   <UiPopover v-model:open="isOpen">
     <UiPopoverTrigger as-child>
-      <UiButton
-        variant="secondary"
-        class="bg-dark-50"
-        size="icon"
-      >
+      <UiButton variant="secondary" class="bg-dark-50" size="icon">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -41,29 +37,13 @@ const toggleAndClose = (id: string) => {
           stroke-linejoin="round"
           class="lucide lucide-ellipsis-vertical"
         >
-          <circle
-            cx="12"
-            cy="12"
-            r="1"
-          />
-          <circle
-            cx="12"
-            cy="5"
-            r="1"
-          />
-          <circle
-            cx="12"
-            cy="19"
-            r="1"
-          />
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="12" cy="5" r="1" />
+          <circle cx="12" cy="19" r="1" />
         </svg>
       </UiButton>
     </UiPopoverTrigger>
-    <UiPopoverContent
-      side="left"
-      :collision-padding="10"
-      class="flex gap-1 flex-col items-start p-2 w-40"
-    >
+    <UiPopoverContent side="left" :collision-padding="10" class="flex gap-1 flex-col items-start p-2 w-40">
       <UiButton
         :disabled="isLocked"
         class="gap-1 w-full justify-start"
@@ -75,13 +55,7 @@ const toggleAndClose = (id: string) => {
         Duplicate
       </UiButton>
       <CategoriesMoveDialog :category-ids="[category.id]" />
-      <UiButton
-        :disabled="isLocked"
-        class="gap-1 w-full justify-start"
-        size="sm"
-        variant="ghost"
-        @click="toggleAndClose(category.id)"
-      >
+      <UiButton :disabled="isLocked" class="gap-1 w-full justify-start" size="sm" variant="ghost" @click="toggleAndClose(category.id)">
         <template v-if="category.isPublished">
           <FileMinus class="w-4 h-4" />
           Unpublish
@@ -93,12 +67,7 @@ const toggleAndClose = (id: string) => {
       </UiButton>
       <UiAlertDialog>
         <UiAlertDialogTrigger as-child>
-          <UiButton
-            :disabled="isLocked"
-            class="gap-1 w-full justify-start"
-            size="sm"
-            variant="ghost"
-          >
+          <UiButton :disabled="isLocked" class="gap-1 w-full justify-start" size="sm" variant="ghost">
             <Trash2Icon class="w-4 h-4" />
             Delete
           </UiButton>
@@ -112,9 +81,7 @@ const toggleAndClose = (id: string) => {
           </UiAlertDialogHeader>
           <UiAlertDialogFooter>
             <UiAlertDialogCancel>Cancel</UiAlertDialogCancel>
-            <UiAlertDialogAction @click="deleteCategories([category.id])">
-              Continue
-            </UiAlertDialogAction>
+            <UiAlertDialogAction @click="deleteCategories([category.id])"> Continue </UiAlertDialogAction>
           </UiAlertDialogFooter>
         </UiAlertDialogContent>
       </UiAlertDialog>

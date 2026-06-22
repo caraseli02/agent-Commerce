@@ -25,8 +25,8 @@ const modelValue = useVModel(props, 'modelValue', emits, {
     :class="
       cn(
         'focus-visible:!outline-[0.5px] focus-visible:outline-blue-500 pl-2 flex h-11 w-full rounded-md border border-gray-300',
-        props.class,
+        props.class
       )
     "
-  >
+  />
 </template>

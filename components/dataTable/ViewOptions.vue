@@ -9,24 +9,18 @@ interface DataTableViewOptionsProps {
 const props = defineProps<DataTableViewOptionsProps>();
 
 const columns = computed(() =>
-  props.table.getAllColumns().filter(column => typeof column.accessorFn !== 'undefined' && column.getCanHide()),
+  props.table.getAllColumns().filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
 );
 </script>
 
 <template>
   <UiDropdownMenu :modal="false">
     <UiDropdownMenuTrigger as-child>
-      <UiButton
-        class="bg-light-300 text-neutral-700 hover:bg-light-500"
-        size="icon"
-      >
+      <UiButton class="bg-light-300 text-neutral-700 hover:bg-light-500" size="icon">
         <EyeIcon class="w-4 h-4" />
       </UiButton>
     </UiDropdownMenuTrigger>
-    <UiDropdownMenuContent
-      align="end"
-      class="w-[150px]"
-    >
+    <UiDropdownMenuContent align="end" class="w-[150px]">
       <UiDropdownMenuLabel>Toggle columns</UiDropdownMenuLabel>
       <UiDropdownMenuSeparator />
 

@@ -138,7 +138,7 @@ describe('checkout order composable flow boundary', () => {
             },
           },
         ],
-      },
+      }
     );
 
     expect(sentOrders).toHaveLength(1);

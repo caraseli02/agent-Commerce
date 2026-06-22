@@ -11,21 +11,19 @@ export const handleFilterChange = (
   filter: string,
   event: FilterInputEvent,
   raw: boolean,
-  hidden = false,
+  hidden = false
 ) => {
   const value = raw ? event : (event as Event & { target?: { value?: string } }).target?.value;
 
-  const existingFilterIndex = activeFilters.findIndex(item => item.filter === filter);
+  const existingFilterIndex = activeFilters.findIndex((item) => item.filter === filter);
 
   if (existingFilterIndex < 0) {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     value !== '' && typeof value !== 'undefined' && activeFilters.push({ filter: filter, value: value, hidden: hidden });
-  }
-  else {
+  } else {
     if (value === '' || typeof value === 'undefined') {
       activeFilters.splice(existingFilterIndex, 1);
-    }
-    else {
+    } else {
       activeFilters[existingFilterIndex].value = value;
     }
   }

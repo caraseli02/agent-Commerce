@@ -7,51 +7,24 @@
       >
         <XIcon class="w-6 h-6" />
       </button>
-      <div
-        v-if="user.active"
-        class="text-sm leading-[2.29] text-center mb-9"
-      >
-        Lock account:
-      </div>
-      <div
-        v-else
-        class="text-sm leading-[2.29] text-center mb-9"
-      >
-        Unlock account:
-      </div>
+      <div v-if="user.active" class="text-sm leading-[2.29] text-center mb-9">Lock account:</div>
+      <div v-else class="text-sm leading-[2.29] text-center mb-9">Unlock account:</div>
       <div class="flex items-center mb-[78px]">
         <div
           class="relative flex items-center justify-center rounded-full overflow-hidden w-11 h-11 flex-shrink-0 mr-4"
           :class="[!user.avatar ? 'bg-gray-100' : '']"
         >
-          <img
-            v-if="user.avatar"
-            :src="user.avatar"
-            :alt="user.name"
-            class="w-full h-full rounded-full object-cover"
-          >
-          <UserIcon
-            v-else
-            class="w-7 h-7 text-gray-500"
-          />
+          <img v-if="user.avatar" :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover" />
+          <UserIcon v-else class="w-7 h-7 text-gray-500" />
         </div>
         <div>
           <div class="flex items-center gap-3 mb-1">
-            <div
-              class="text-sm leading-[1.43] font-semibold truncate transition-colors duration-300 group-hover/link:text-blue-500"
-            >
+            <div class="text-sm leading-[1.43] font-semibold truncate transition-colors duration-300 group-hover/link:text-blue-500">
               {{ user.name }}
             </div>
             <div class="flex items-center gap-3 cursor-default">
-              <img
-                v-if="country && country.label"
-                :src="country.icon"
-                :alt="country.label"
-                class="w-8 rounded mr-2"
-              >
-              <div class="bg-blue-500 px-2 rounded-[25px] text-xs leading-[1.67] font-semibold text-white">
-                10%
-              </div>
+              <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" />
+              <div class="bg-blue-500 px-2 rounded-[25px] text-xs leading-[1.67] font-semibold text-white">10%</div>
             </div>
           </div>
           <div class="text-xs leading-[1.33] text-slate-500 truncate">
@@ -60,10 +33,7 @@
         </div>
       </div>
       <div class="grid grid-cols-[auto,1fr] gap-4">
-        <button
-          class="flex px-8 py-2 rounded-lg bg-gray-100 text-sm leading-[1.71] text-slate-500 font-medium"
-          @click="$emit('close')"
-        >
+        <button class="flex px-8 py-2 rounded-lg bg-gray-100 text-sm leading-[1.71] text-slate-500 font-medium" @click="$emit('close')">
           Cancel
         </button>
         <button
@@ -104,7 +74,7 @@ const props = defineProps({
 
 const userCountry = async () => {
   if (props.user) {
-    country.value = countries.find(c => c.value === props.user.address?.country) as CountryInterface | undefined;
+    country.value = countries.find((c) => c.value === props.user.address?.country) as CountryInterface | undefined;
   }
 };
 await userCountry();

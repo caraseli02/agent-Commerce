@@ -1,17 +1,10 @@
 <template>
   <div class="flex flex-col">
     <div class="flex lg:hidden">
-      <ProductBlocks
-        v-if="!props.loading"
-        order-summary-view
-        :fetched-products="productList"
-        class="mb-7 lg:mb-[38px] xl:mb-[58px] !px-0"
-      >
+      <ProductBlocks v-if="!props.loading" order-summary-view :fetched-products="productList" class="mb-7 lg:mb-[38px] xl:mb-[58px] !px-0">
         <template #header>
           <section class="flex justify-between items-center px-2">
-            <div class="text-xl font-semibold">
-              Similar Products
-            </div>
+            <div class="text-xl font-semibold">Similar Products</div>
           </section>
         </template>
       </ProductBlocks>

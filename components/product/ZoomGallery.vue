@@ -42,24 +42,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <UiDialog
-    :open="isOpen"
-    @update:open="isOpen = $event"
-  >
+  <UiDialog :open="isOpen" @update:open="isOpen = $event">
     <UiDialogContent class="w-full max-w-sm md:max-w-3xl">
       <UiDialogHeader>
         <UiDialogTitle>{{ alias }}</UiDialogTitle>
       </UiDialogHeader>
       <div class="w-full mx-auto sm:w-auto">
-        <UiCarousel
-          class="relative w-full max-w-xl"
-          @init-api="(val) => (emblaMainApi = val)"
-        >
+        <UiCarousel class="relative w-full max-w-xl" @init-api="(val) => (emblaMainApi = val)">
           <UiCarouselContent>
-            <UiCarouselItem
-              v-for="(_, index) in 10"
-              :key="index"
-            >
+            <UiCarouselItem v-for="(_, index) in 10" :key="index">
               <div class="rounded-lg border bg-background shadow-sm">
                 <div class="flex aspect-square items-center justify-center p-4">
                   <ClientOnly>
@@ -78,10 +69,7 @@ onMounted(() => {
           <UiCarouselNext />
         </UiCarousel>
 
-        <UiCarousel
-          class="relative w-full max-w-xl mt-2"
-          @init-api="(val) => (emblaThumbnailApi = val)"
-        >
+        <UiCarousel class="relative w-full max-w-xl mt-2" @init-api="(val) => (emblaThumbnailApi = val)">
           <UiCarouselContent class="flex gap-1 ml-0">
             <UiCarouselItem
               v-for="(img, index) in images.map((item) => item.ProductImageSmall)"
@@ -89,16 +77,13 @@ onMounted(() => {
               class="pl-0 basis-1/4 cursor-pointer rounded flex justify-center items-center"
               @click="onThumbClick(index)"
             >
-              <div
-                class="p-1"
-                :class="index === selectedIndex ? '' : 'opacity-50'"
-              >
+              <div class="p-1" :class="index === selectedIndex ? '' : 'opacity-50'">
                 <img
                   :src="img"
                   alt="Image"
                   class="w-[60px] h-[50x] object-contain transition-opacity duration-300 lg:w-[56px] lg:h-[48px]"
                   :class="[index !== selectedIndex ? 'opacity-50' : '']"
-                >
+                />
               </div>
             </UiCarouselItem>
           </UiCarouselContent>

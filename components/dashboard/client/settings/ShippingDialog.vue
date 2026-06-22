@@ -66,7 +66,7 @@ const formSchema = toTypedSchema(
       .string()
       .min(1, 'Postcode is required')
       .default(props.address?.postcode || ''),
-  }),
+  })
 );
 
 const { handleSubmit, setFieldValue } = useForm({
@@ -84,7 +84,7 @@ watch(
     setFieldValue('addressLine1', newAddress?.name1 || '');
     setFieldValue('addressLine2', newAddress?.name2 || '');
     setFieldValue('postcode', newAddress?.postcode || '');
-  },
+  }
 );
 
 const onSubmit = handleSubmit(async (values) => {
@@ -106,8 +106,7 @@ const onSubmit = handleSubmit(async (values) => {
     !props.address && emit('addShippingAddress', payload);
     await updateStoreDetails();
     onCloseDialog();
-  }
-  else {
+  } else {
     toast({
       variant: 'destructive',
       title: 'Error',
@@ -117,7 +116,7 @@ const onSubmit = handleSubmit(async (values) => {
 });
 
 const findRegionByName = (regions: Country['regions'], name: string) => {
-  const region = regions?.find(region => region?.name === name);
+  const region = regions?.find((region) => region?.name === name);
   if (region) {
     return {
       label: region.name,
@@ -138,17 +137,16 @@ const showErrorMsg = ref(true);
 watch(country, (newCountry) => {
   if (newCountry) {
     setFieldValue('country', newCountry.value);
-    country.value = countries.find(c => c.value === newCountry.value) as Country;
-    regions.value
-            = newCountry.regions.map((e) => {
+    country.value = countries.find((c) => c.value === newCountry.value) as Country;
+    regions.value =
+      newCountry.regions.map((e) => {
         return {
           label: e.name,
           value: e.name,
         };
       }) || [];
     region.value = { label: props.address?.city ?? '', value: props.address?.city ?? '' };
-  }
-  else {
+  } else {
     region.value = undefined;
   }
 });
@@ -156,8 +154,7 @@ watch(country, (newCountry) => {
 watch(region, (newRegion) => {
   if (newRegion) {
     setFieldValue('county', newRegion.value);
-  }
-  else {
+  } else {
     region.value = undefined;
   }
 });
@@ -169,9 +166,9 @@ const onCloseDialog = () => {
 
 watch(isOpen, (newVla) => {
   if (newVla) {
-    country.value = countries.find(c => c.value === (props.address?.country || 'US')) as Country;
+    country.value = countries.find((c) => c.value === (props.address?.country || 'US')) as Country;
     region.value = findRegionByName(country.value?.regions, props.address?.region ?? '');
-    regions.value = country.value?.regions.map(e => ({ label: e.name, value: e.name })) || [];
+    regions.value = country.value?.regions.map((e) => ({ label: e.name, value: e.name })) || [];
   }
 });
 </script>
@@ -179,30 +176,17 @@ watch(isOpen, (newVla) => {
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger as-child>
-      <UiButton
-        size="icon"
-        class="rounded-full"
-        variant="ghost"
-      >
+      <UiButton size="icon" class="rounded-full" variant="ghost">
         <PlusCircleIcon class="aspect-square w-10 h-10 stroke-1 text-blue-500" />
       </UiButton>
     </UiDialogTrigger>
-    <UiDialogContent
-      ref="dialog"
-      class="max-w-[350px] sm:max-w-[640px] rounded-xl"
-    >
+    <UiDialogContent ref="dialog" class="max-w-[350px] sm:max-w-[640px] rounded-xl">
       <UiDialogHeader>
         <UiDialogTitle>{{ (address?._id ? 'Edit ' : 'Add ') + 'Shipping Address' }}</UiDialogTitle>
       </UiDialogHeader>
       <section class="flex flex-col self-stretch bg-white rounded-xl shadow-sm max-md:px-5 max-h-[85vh] overflow-y-auto">
-        <form
-          class="mt-5 flex flex-col gap-y-6 gap-x-9"
-          @submit="onSubmit"
-        >
-          <FormField
-            v-slot="{ componentField }"
-            name="addressAlias"
-          >
+        <form class="mt-5 flex flex-col gap-y-6 gap-x-9" @submit="onSubmit">
+          <FormField v-slot="{ componentField }" name="addressAlias">
             <FormItem>
               <FormLabel>Address Alias</FormLabel>
               <FormControl>
@@ -210,12 +194,7 @@ watch(isOpen, (newVla) => {
                   <div class="flex items-center justify-center w-11 h-11 rounded-l-lg bg-stone-50 border border-grey-300">
                     <Building2Icon class="w-5 h-5" />
                   </div>
-                  <UiInput
-                    class="rounded-l-[0px] border-l-0"
-                    type="text"
-                    v-bind="componentField"
-                    placeholder="Address Alias 1"
-                  />
+                  <UiInput class="rounded-l-[0px] border-l-0" type="text" v-bind="componentField" placeholder="Address Alias 1" />
                 </section>
               </FormControl>
               <FormMessage v-if="showErrorMsg" />
@@ -258,88 +237,49 @@ watch(isOpen, (newVla) => {
             </FormField>
           </section>
 
-          <FormField
-            v-slot="{ componentField }"
-            name="city"
-          >
+          <FormField v-slot="{ componentField }" name="city">
             <FormItem>
               <FormLabel>City</FormLabel>
               <FormControl>
-                <UiInput
-                  type="text"
-                  placeholder="Bucharest"
-                  v-bind="componentField"
-                />
+                <UiInput type="text" placeholder="Bucharest" v-bind="componentField" />
               </FormControl>
               <FormMessage v-if="showErrorMsg" />
             </FormItem>
           </FormField>
 
-          <FormField
-            v-slot="{ componentField }"
-            name="addressLine1"
-          >
+          <FormField v-slot="{ componentField }" name="addressLine1">
             <FormItem>
               <FormLabel>Address Line 1</FormLabel>
               <FormControl>
-                <UiInput
-                  type="text"
-                  placeholder="Address Line 1"
-                  v-bind="componentField"
-                />
+                <UiInput type="text" placeholder="Address Line 1" v-bind="componentField" />
               </FormControl>
               <FormMessage v-if="showErrorMsg" />
             </FormItem>
           </FormField>
 
-          <FormField
-            v-slot="{ componentField }"
-            name="addressLine2"
-          >
+          <FormField v-slot="{ componentField }" name="addressLine2">
             <FormItem>
               <FormLabel>Address Line 2</FormLabel>
               <FormControl>
-                <UiInput
-                  type="text"
-                  placeholder="Address Line 2"
-                  v-bind="componentField"
-                />
+                <UiInput type="text" placeholder="Address Line 2" v-bind="componentField" />
               </FormControl>
               <FormMessage v-if="showErrorMsg" />
             </FormItem>
           </FormField>
 
-          <FormField
-            v-slot="{ componentField }"
-            name="postcode"
-          >
+          <FormField v-slot="{ componentField }" name="postcode">
             <FormItem>
               <FormLabel>Postcode</FormLabel>
               <FormControl>
-                <UiInput
-                  type="text"
-                  placeholder="Postcode"
-                  v-bind="componentField"
-                />
+                <UiInput type="text" placeholder="Postcode" v-bind="componentField" />
               </FormControl>
               <FormMessage v-if="showErrorMsg" />
             </FormItem>
           </FormField>
 
           <div class="flex justify-end gap-4 col-span-2 sticky bottom-0 bg-white pt-2">
-            <UiButton
-              variant="secondary"
-              type="reset"
-              @click="onCloseDialog()"
-            >
-              Cancel
-            </UiButton>
-            <UiButton
-              type="submit"
-              class="w-60"
-            >
-              Save
-            </UiButton>
+            <UiButton variant="secondary" type="reset" @click="onCloseDialog()"> Cancel </UiButton>
+            <UiButton type="submit" class="w-60"> Save </UiButton>
           </div>
         </form>
       </section>
@@ -349,6 +289,6 @@ watch(isOpen, (newVla) => {
 
 <style scoped lang="postcss">
 label {
-    @apply text-slate-500;
+  @apply text-slate-500;
 }
 </style>

@@ -1,34 +1,17 @@
 <template>
   <div class="flex items-center space-x-4">
     <!-- SVG Icon Preview -->
-    <div
-      v-if="svgPreview"
-      class="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-md"
-    >
+    <div v-if="svgPreview" class="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-md">
       <!-- eslint-disable vue/no-v-html -->
       <div v-html="svgPreview" />
     </div>
-    <SvgoCardPlaceholderSmall
-      v-else
-      class="w-10 h-10"
-    />
+    <SvgoCardPlaceholderSmall v-else class="w-10 h-10" />
 
     <!-- Upload Button -->
-    <UiButton
-      size="lg"
-      @click="triggerFileUpload"
-    >
-      Upload SVG icon
-    </UiButton>
+    <UiButton size="lg" @click="triggerFileUpload"> Upload SVG icon </UiButton>
 
     <!-- Hidden File Input -->
-    <input
-      ref="fileInput"
-      type="file"
-      accept=".svg"
-      class="hidden"
-      @change="handleFileUpload"
-    >
+    <input ref="fileInput" type="file" accept=".svg" class="hidden" @change="handleFileUpload" />
   </div>
 </template>
 
@@ -70,8 +53,7 @@ const handleFileUpload = (event) => {
     };
 
     reader.readAsText(file);
-  }
-  else {
+  } else {
     errorMessage.value = 'Please upload a valid SVG file.';
   }
 };

@@ -5,16 +5,8 @@
   >
     <ProductCardStock :stock="product.stock" />
     <div class="relative">
-      <img
-        v-if="hasValidImage"
-        :src="productImageLarge"
-        :alt="product.name"
-        class="object-contain mx-auto max-h-[120px]"
-      >
-      <div
-        v-else
-        class="w-full flex items-center justify-center"
-      >
+      <img v-if="hasValidImage" :src="productImageLarge" :alt="product.name" class="object-contain mx-auto max-h-[120px]" />
+      <div v-else class="w-full flex items-center justify-center">
         <svgo-card-placehoder />
       </div>
       <div
@@ -50,10 +42,7 @@
           }}
         </template>
       </div>
-      <div
-        class="flex gap-1 items-center"
-        :class="[productDiscount ? 'text-rose-500' : '']"
-      >
+      <div class="flex gap-1 items-center" :class="[productDiscount ? 'text-rose-500' : '']">
         <strong>
           {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : priceConfiguration?.price.toFixed(2) || '-' }}
         </strong>
@@ -64,10 +53,7 @@
     </div>
     <div class="absolute right-0 flex flex-col gap-3 md:top-[32px]">
       <div class="pr-3 flex flex-col gap-2.5 md:pr-4">
-        <button
-          class="flex justify-end text-gray-500"
-          @click="addToFavourite(product)"
-        >
+        <button class="flex justify-end text-gray-500" @click="addToFavourite(product)">
           <SvgoCardHeartIcon class="w-6 h-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
         </button>
         <button class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500">

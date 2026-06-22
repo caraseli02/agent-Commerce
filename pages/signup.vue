@@ -1,9 +1,6 @@
 <template>
   <div class="min-h-screen md:flex">
-    <SignupSteps
-      :current-step="currentStep"
-      :selected-type="selectedType"
-    />
+    <SignupSteps :current-step="currentStep" :selected-type="selectedType" />
     <SignupSelectMenu
       v-if="currentStep === 0"
       :selected-type="selectedType"
@@ -23,16 +20,8 @@
       @back="backToSelectMenu()"
       @continue="handlePersonalDetailsContinue"
     />
-    <SignupContactDetails
-      v-if="currentStep === 2"
-      @back="currentStep--"
-      @continue="handleContactDetailsContinue"
-    />
-    <SignupProfileDetails
-      v-if="currentStep === 3"
-      @back="currentStep--"
-      @continue="handleSubmit"
-    />
+    <SignupContactDetails v-if="currentStep === 2" @back="currentStep--" @continue="handleContactDetailsContinue" />
+    <SignupProfileDetails v-if="currentStep === 3" @back="currentStep--" @continue="handleSubmit" />
     <SignupFinish v-if="currentStep === 4" />
   </div>
 </template>
@@ -118,8 +107,7 @@ const handleBusinessDetailsContinue = async () => {
         hasError = checkForInputErrors([businessDetails.value.vatNumber]);
       }
     }
-  }
-  else if (selectedType.value === 'sole-trader') {
+  } else if (selectedType.value === 'sole-trader') {
     hasError = checkForInputErrors([
       businessDetails.value.fullCompanyName,
       businessDetails.value.companyRegistrationNumber,
@@ -197,22 +185,21 @@ const handleContactDetailsContinue = () => {
 
   if (selectedType.value === 'personal') {
     inputsToCheck.push(contactDetails.value.email, contactDetails.value.confirmEmail);
-  }
-  else if (selectedType.value === 'business' || selectedType.value === 'sole-trader') {
+  } else if (selectedType.value === 'business' || selectedType.value === 'sole-trader') {
     inputsToCheck.push(
       contactDetails.value.firstName,
       contactDetails.value.lastName,
       contactDetails.value.companyEmail,
-      contactDetails.value.confirmCompanyEmail,
+      contactDetails.value.confirmCompanyEmail
     );
   }
 
-  const hasError
-        = checkForInputErrors(inputsToCheck)
-          || checkContactConfirmationEmail({
-            email: contactDetails.value.email,
-            confirmEmail: contactDetails.value.confirmEmail,
-          });
+  const hasError =
+    checkForInputErrors(inputsToCheck) ||
+    checkContactConfirmationEmail({
+      email: contactDetails.value.email,
+      confirmEmail: contactDetails.value.confirmEmail,
+    });
 
   if (!hasError) {
     currentStep.value++;
@@ -229,8 +216,7 @@ function mapType(selected: string): AccountType {
     case 'business':
       if (selectedBusinessType.value === 'executive') {
         return AccountType.Business;
-      }
-      else if (selectedBusinessType.value === 'agent') {
+      } else if (selectedBusinessType.value === 'agent') {
         return AccountType.Agent;
       }
       break;
@@ -256,8 +242,7 @@ const backToSelectMenu = async () => {
 
     if (key === 'country' || key === 'region') {
       (field as CountryType).value.error = '';
-    }
-    else {
+    } else {
       (field as StringInputObject).error = '';
     }
   });
@@ -284,8 +269,7 @@ const handleSubmit = async () => {
 
   if (firebaseToken) {
     inputsToCheck = [profileDetails.value.accountEmail, profileDetails.value.confirmAccountEmail];
-  }
-  else {
+  } else {
     inputsToCheck = [
       profileDetails.value.accountEmail,
       profileDetails.value.confirmAccountEmail,
@@ -294,12 +278,12 @@ const handleSubmit = async () => {
     ];
   }
 
-  const hasError
-        = checkForInputErrors(inputsToCheck)
-          || checkProfileConfirmationEmail({
-            accountEmail: profileDetails.value.accountEmail,
-            confirmAccountEmail: profileDetails.value.confirmAccountEmail,
-          });
+  const hasError =
+    checkForInputErrors(inputsToCheck) ||
+    checkProfileConfirmationEmail({
+      accountEmail: profileDetails.value.accountEmail,
+      confirmAccountEmail: profileDetails.value.confirmAccountEmail,
+    });
 
   if (!hasError) {
     let payload: SignupBusinessPayload | SignupPersonalPayload | null = null;
@@ -364,8 +348,7 @@ const handleSubmit = async () => {
       };
 
       payload = Object.assign({}, personalPayload);
-    }
-    else {
+    } else {
       const businessPayload: SignupBusinessPayload = {
         account: {
           accountType: mapType(selectedType.value),
@@ -439,16 +422,14 @@ const handleSubmit = async () => {
 
       await logout();
       // TODO: Notification banner
-    }
-    catch {
+    } catch {
       toast({
         variant: 'destructive',
         title: 'Error',
         description: 'An error occurred while creating your account',
       });
       return;
-    }
-    finally {
+    } finally {
       clearFormData();
     }
 

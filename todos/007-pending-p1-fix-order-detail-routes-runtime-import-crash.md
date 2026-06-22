@@ -16,18 +16,18 @@ This blocks key demo order detail flows and creates a broken portfolio walkthrou
 
 ## Findings
 
--   Reproduced crash on:
-    -   `http://localhost:3000/order-summary/abc`
-    -   `http://localhost:3000/dashboard/orders/abc`
--   Console error:
-    -   `does not provide an export named 'BankInfo'`
--   Primary source:
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/Details.vue:4`
-    -   `import { BankInfo, CardInfo, PaymentTypeEnum } from '~/types';`
--   Additional adjacent files in the same stack still import interfaces from `~/types` as runtime values:
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/BackItems.vue:3`
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/StackItems.vue:4`
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/PaySummary.vue:3`
+- Reproduced crash on:
+  - `http://localhost:3000/order-summary/abc`
+  - `http://localhost:3000/dashboard/orders/abc`
+- Console error:
+  - `does not provide an export named 'BankInfo'`
+- Primary source:
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/Details.vue:4`
+  - `import { BankInfo, CardInfo, PaymentTypeEnum } from '~/types';`
+- Additional adjacent files in the same stack still import interfaces from `~/types` as runtime values:
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/BackItems.vue:3`
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/StackItems.vue:4`
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/PaySummary.vue:3`
 
 ## Proposed Solutions
 
@@ -37,12 +37,12 @@ This blocks key demo order detail flows and creates a broken portfolio walkthrou
 
 **Pros:**
 
--   Fast, low-risk unblock
--   Minimal diff
+- Fast, low-risk unblock
+- Minimal diff
 
 **Cons:**
 
--   Other latent crashes may remain in nearby flows
+- Other latent crashes may remain in nearby flows
 
 **Effort:** 30-60 minutes
 
@@ -56,13 +56,13 @@ This blocks key demo order detail flows and creates a broken portfolio walkthrou
 
 **Pros:**
 
--   Fixes root class of issues in this feature area
--   Reduces repeated crash/fix cycle
+- Fixes root class of issues in this feature area
+- Reduces repeated crash/fix cycle
 
 **Cons:**
 
--   Larger patch
--   Needs quick regression pass
+- Larger patch
+- Needs quick regression pass
 
 **Effort:** 1-2 hours
 
@@ -76,13 +76,13 @@ This blocks key demo order detail flows and creates a broken portfolio walkthrou
 
 **Pros:**
 
--   Prevents recurrence
--   Improves codebase consistency
+- Prevents recurrence
+- Improves codebase consistency
 
 **Cons:**
 
--   Wider scope than demo-first ask
--   Could surface many unrelated files
+- Wider scope than demo-first ask
+- Could surface many unrelated files
 
 **Effort:** 2-4 hours
 
@@ -96,27 +96,27 @@ To be filled during triage.
 
 **Affected flows:**
 
--   `/order-summary/:id`
--   `/dashboard/orders/:id`
+- `/order-summary/:id`
+- `/dashboard/orders/:id`
 
 **Known affected files:**
 
--   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/Details.vue`
--   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/BackItems.vue`
--   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/StackItems.vue`
--   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/PaySummary.vue`
+- `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/Details.vue`
+- `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/BackItems.vue`
+- `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/StackItems.vue`
+- `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/PaySummary.vue`
 
 ## Resources
 
--   Browser evidence collected via `agent-browser` sessions `review_route1` and `review_route2`.
+- Browser evidence collected via `agent-browser` sessions `review_route1` and `review_route2`.
 
 ## Acceptance Criteria
 
--   [x] `/order-summary/:id` renders without Nuxt error page
--   [x] `/dashboard/orders/:id` renders without Nuxt error page
--   [x] No `does not provide an export named 'BankInfo'` console/runtime error
--   [x] All type-only imports in order-confirm stack use `import type`
--   [x] Smoke check passes for `/order-summary/abc` and `/dashboard/orders/abc`
+- [x] `/order-summary/:id` renders without Nuxt error page
+- [x] `/dashboard/orders/:id` renders without Nuxt error page
+- [x] No `does not provide an export named 'BankInfo'` console/runtime error
+- [x] All type-only imports in order-confirm stack use `import type`
+- [x] Smoke check passes for `/order-summary/abc` and `/dashboard/orders/abc`
 
 ## Work Log
 
@@ -126,14 +126,14 @@ To be filled during triage.
 
 **Actions:**
 
--   Opened order detail routes with browser automation
--   Captured runtime module export failure
--   Traced crash to non-type import in order-confirm details stack
+- Opened order detail routes with browser automation
+- Captured runtime module export failure
+- Traced crash to non-type import in order-confirm details stack
 
 **Learnings:**
 
--   A few remaining value imports of interfaces are still enough to hard-crash route init.
+- A few remaining value imports of interfaces are still enough to hard-crash route init.
 
 ## Notes
 
--   This is a merge/demo blocker (P1).
+- This is a merge/demo blocker (P1).

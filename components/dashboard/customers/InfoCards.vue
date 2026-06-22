@@ -3,174 +3,92 @@
     <div class="flex items-start justify-between bg-white rounded-xl p-4 shadow-xs md:p-6">
       <div class="flex items-center">
         <div class="mr-4">
-          <EmojiSadIcon
-            v-if="emptyData || error.lastOrder"
-            class="w-[52px] h-[52px]"
-          />
-          <div
-            v-else
-            class="flex items-center justify-center w-14 h-14 bg-blue-500/25 rounded-full"
-          >
+          <EmojiSadIcon v-if="emptyData || error.lastOrder" class="w-[52px] h-[52px]" />
+          <div v-else class="flex items-center justify-center w-14 h-14 bg-blue-500/25 rounded-full">
             <div class="flex items-center justify-center w-10 h-10 bg-blue-500 rounded-full">
               <LastOrderIcon class="w-6 h-6 text-white" />
             </div>
           </div>
         </div>
         <div>
-          <div class="text-sm font-semibold text-slate-500 mb-3">
-            Last Order
-          </div>
-          <SkeletonLoader
-            v-if="isLoading.lastOrder"
-            class="w-[160px] h-6 -mt-1"
-          />
-          <div
-            v-else-if="emptyData || error.lastOrder || !lastOrder"
-            class="text-sm font-medium leading-[1.714] text-gray-500"
-          >
+          <div class="text-sm font-semibold text-slate-500 mb-3">Last Order</div>
+          <SkeletonLoader v-if="isLoading.lastOrder" class="w-[160px] h-6 -mt-1" />
+          <div v-else-if="emptyData || error.lastOrder || !lastOrder" class="text-sm font-medium leading-[1.714] text-gray-500">
             No data available
           </div>
-          <div
-            v-else-if="!emptyData && !error.lastOrder"
-            class="text-xl font-semibold text-blue-500 leading-[1.2]"
-          >
+          <div v-else-if="!emptyData && !error.lastOrder" class="text-xl font-semibold text-blue-500 leading-[1.2]">
             {{ `#${lastOrder?.shortId}` || '-' }}
           </div>
         </div>
       </div>
-      <WarningIcon
-        v-if="error.lastOrder"
-        class="w-6 h-6"
-      />
+      <WarningIcon v-if="error.lastOrder" class="w-6 h-6" />
     </div>
     <div class="flex items-start justify-between bg-white rounded-xl p-4 shadow-xs md:p-6">
       <div class="flex items-center">
         <div class="mr-4">
-          <EmojiSadIcon
-            v-if="emptyData || error.totalSpent"
-            class="w-[52px] h-[52px]"
-          />
-          <div
-            v-else
-            class="flex items-center justify-center w-14 h-14 bg-[#00D395] bg-opacity-25 rounded-full"
-          >
+          <EmojiSadIcon v-if="emptyData || error.totalSpent" class="w-[52px] h-[52px]" />
+          <div v-else class="flex items-center justify-center w-14 h-14 bg-[#00D395] bg-opacity-25 rounded-full">
             <div class="flex items-center justify-center w-10 h-10 bg-[#00D395] rounded-full">
               <MoneyBagIcon class="w-6 h-6 text-white" />
             </div>
           </div>
         </div>
         <div>
-          <div class="text-sm font-semibold text-slate-500 mb-3">
-            Total Spent
-          </div>
-          <SkeletonLoader
-            v-if="isLoading.totalSpent"
-            class="w-[160px] h-6 -mt-1"
-          />
-          <div
-            v-else-if="emptyData || error.totalSpent"
-            class="text-sm font-medium leading-[1.714] text-gray-500"
-          >
-            No data available
-          </div>
-          <div
-            v-else-if="!emptyData && !error.totalSpent"
-            class="text-xl font-semibold leading-[1.2]"
-          >
+          <div class="text-sm font-semibold text-slate-500 mb-3">Total Spent</div>
+          <SkeletonLoader v-if="isLoading.totalSpent" class="w-[160px] h-6 -mt-1" />
+          <div v-else-if="emptyData || error.totalSpent" class="text-sm font-medium leading-[1.714] text-gray-500">No data available</div>
+          <div v-else-if="!emptyData && !error.totalSpent" class="text-xl font-semibold leading-[1.2]">
             {{ totalSpent?.toFixed(2) || 0 }} Lei
           </div>
         </div>
       </div>
-      <WarningIcon
-        v-if="error.totalSpent"
-        class="w-6 h-6"
-      />
+      <WarningIcon v-if="error.totalSpent" class="w-6 h-6" />
     </div>
     <div class="flex items-start justify-between bg-white rounded-xl p-4 shadow-xs md:p-6">
       <div class="flex items-center">
         <div class="mr-4">
-          <EmojiSadIcon
-            v-if="emptyData || error.avgOrderValue"
-            class="w-[52px] h-[52px]"
-          />
-          <div
-            v-else
-            class="flex items-center justify-center w-14 h-14 bg-[#FFB100] bg-opacity-25 rounded-full"
-          >
+          <EmojiSadIcon v-if="emptyData || error.avgOrderValue" class="w-[52px] h-[52px]" />
+          <div v-else class="flex items-center justify-center w-14 h-14 bg-[#FFB100] bg-opacity-25 rounded-full">
             <div class="flex items-center justify-center w-10 h-10 bg-[#FFB100] rounded-full">
               <CardIcon class="w-6 h-6 text-white" />
             </div>
           </div>
         </div>
         <div>
-          <div class="text-sm font-semibold text-slate-500 mb-3">
-            Average Order Value
-          </div>
-          <SkeletonLoader
-            v-if="isLoading.avgOrderValue"
-            class="w-[160px] h-6 -mt-1"
-          />
-          <div
-            v-else-if="emptyData || error.avgOrderValue"
-            class="text-sm font-medium leading-[1.714] text-gray-500"
-          >
+          <div class="text-sm font-semibold text-slate-500 mb-3">Average Order Value</div>
+          <SkeletonLoader v-if="isLoading.avgOrderValue" class="w-[160px] h-6 -mt-1" />
+          <div v-else-if="emptyData || error.avgOrderValue" class="text-sm font-medium leading-[1.714] text-gray-500">
             No data available
           </div>
-          <div
-            v-else-if="!emptyData && !error.avgOrderValue"
-            class="text-xl font-semibold leading-[1.2]"
-          >
+          <div v-else-if="!emptyData && !error.avgOrderValue" class="text-xl font-semibold leading-[1.2]">
             {{ avgOrderValue?.toFixed(2) || 0 }}
           </div>
         </div>
       </div>
-      <WarningIcon
-        v-if="error.avgOrderValue"
-        class="w-6 h-6"
-      />
+      <WarningIcon v-if="error.avgOrderValue" class="w-6 h-6" />
     </div>
     <div class="flex items-start justify-between bg-white rounded-xl p-4 shadow-xs md:p-6">
       <div class="flex items-center">
         <div class="mr-4">
-          <EmojiSadIcon
-            v-if="emptyData || error.abandonedCheckout"
-            class="w-[52px] h-[52px]"
-          />
-          <div
-            v-else
-            class="flex items-center justify-center w-14 h-14 bg-rose-500 bg-opacity-25 rounded-full"
-          >
+          <EmojiSadIcon v-if="emptyData || error.abandonedCheckout" class="w-[52px] h-[52px]" />
+          <div v-else class="flex items-center justify-center w-14 h-14 bg-rose-500 bg-opacity-25 rounded-full">
             <div class="flex items-center justify-center w-10 h-10 bg-rose-500 rounded-full">
               <AbandonedCheckoutIcon class="w-6 h-6 text-white" />
             </div>
           </div>
         </div>
         <div>
-          <div class="text-sm font-semibold text-slate-500 mb-3">
-            Abandoned Checkout
-          </div>
-          <SkeletonLoader
-            v-if="isLoading.abandonedCheckout"
-            class="w-[160px] h-6 -mt-1"
-          />
-          <div
-            v-else-if="emptyData || error.abandonedCheckout"
-            class="text-sm font-medium leading-[1.714] text-gray-500"
-          >
+          <div class="text-sm font-semibold text-slate-500 mb-3">Abandoned Checkout</div>
+          <SkeletonLoader v-if="isLoading.abandonedCheckout" class="w-[160px] h-6 -mt-1" />
+          <div v-else-if="emptyData || error.abandonedCheckout" class="text-sm font-medium leading-[1.714] text-gray-500">
             No data available
           </div>
-          <div
-            v-else-if="!emptyData && !error.abandonedCheckout"
-            class="text-xl font-semibold leading-[1.2]"
-          >
+          <div v-else-if="!emptyData && !error.abandonedCheckout" class="text-xl font-semibold leading-[1.2]">
             {{ abandonedCheckout || 0 }}
           </div>
         </div>
       </div>
-      <WarningIcon
-        v-if="error.abandonedCheckout"
-        class="w-6 h-6"
-      />
+      <WarningIcon v-if="error.abandonedCheckout" class="w-6 h-6" />
     </div>
   </div>
 </template>
@@ -227,8 +145,7 @@ const fetchLastOrder = async () => {
     error.value.lastOrder = true;
 
     return;
-  }
-  else {
+  } else {
     isLoading.value.lastOrder = false;
   }
 
@@ -249,8 +166,7 @@ const fetchTotalSpent = async () => {
     isLoading.value.totalSpent = false;
     error.value.totalSpent = true;
     return;
-  }
-  else {
+  } else {
     isLoading.value.totalSpent = false;
     totalSpent.value = Number(response.data);
   }
@@ -272,8 +188,7 @@ const fetchAvgOrderValue = async () => {
     error.value.avgOrderValue = true;
 
     return;
-  }
-  else {
+  } else {
     isLoading.value.avgOrderValue = false;
   }
 
@@ -296,8 +211,7 @@ const fetchAbandonedCheckout = async () => {
     error.value.abandonedCheckout = true;
 
     return;
-  }
-  else {
+  } else {
     isLoading.value.abandonedCheckout = false;
   }
 

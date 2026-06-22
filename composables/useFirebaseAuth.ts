@@ -26,8 +26,7 @@ export default function () {
       });
 
       return signIn;
-    }
-    catch {
+    } catch {
       // Error handled silently
       return { error: Error };
     }

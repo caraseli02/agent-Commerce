@@ -9,8 +9,8 @@ definePageMeta({
 });
 
 const pricingStore = usePricingStore();
-const { showEntryModal, showMarginModal, showQuantityModal, editEntryPriceModal, editMarginModal, editQuantityModal }
-    = storeToRefs(pricingStore);
+const { showEntryModal, showMarginModal, showQuantityModal, editEntryPriceModal, editMarginModal, editQuantityModal } =
+  storeToRefs(pricingStore);
 
 const selectedTab = ref('entryPrice');
 
@@ -40,7 +40,7 @@ watch(
       { value: 'margin', label: 'Gross/Net Margin', badge: pricingStore.margin?.length || 0 },
     ];
   },
-  { immediate: true },
+  { immediate: true }
 );
 </script>
 
@@ -49,9 +49,7 @@ watch(
     <SmartPricingBreadcrumbs title="Smart Pricing" />
     <div class="container m-0 overflow-hidden pb-10 bg-white min-h-screen mb-4 rounded-xl">
       <section class="flex items-center w-full justify-between mt-6 mb-9">
-        <h4 class="text-xl font-semibold">
-          Smart Pricing
-        </h4>
+        <h4 class="text-xl font-semibold">Smart Pricing</h4>
         <UiPopover>
           <UiPopoverTrigger>
             <UiButton class="gap-2">
@@ -59,10 +57,7 @@ watch(
               <ChevronDown class="w-4 h-4" />
             </UiButton>
           </UiPopoverTrigger>
-          <UiPopoverContent
-            align="end"
-            class="w-[220px] flex flex-col"
-          >
+          <UiPopoverContent align="end" class="w-[220px] flex flex-col">
             <UiButton
               class="justify-start hover:text-blue-500"
               variant="ghost"
@@ -101,14 +96,8 @@ watch(
       </section>
       <UiTabs v-model="selectedTab">
         <UiTabsList class="bg-white mb-12 p-0 w-full justify-start overflow-y-hidden min-h-[50px]">
-          <template
-            v-for="tab in tabs"
-            :key="tab.value"
-          >
-            <UiTabsTrigger
-              class="pb-5 data-[state=active]:shadow-none data-[state=active]:text-blue-500 relative"
-              :value="tab.value"
-            >
+          <template v-for="tab in tabs" :key="tab.value">
+            <UiTabsTrigger class="pb-5 data-[state=active]:shadow-none data-[state=active]:text-blue-500 relative" :value="tab.value">
               {{ tab.label }}
               <UiBadge
                 variant="secondary"
@@ -117,29 +106,17 @@ watch(
               >
                 {{ tab.badge }}
               </UiBadge>
-              <div
-                v-if="selectedTab === tab.value"
-                class="w-full h-1 bg-blue-500 absolute bottom-0 rounded-full"
-              />
+              <div v-if="selectedTab === tab.value" class="w-full h-1 bg-blue-500 absolute bottom-0 rounded-full" />
             </UiTabsTrigger>
           </template>
         </UiTabsList>
-        <UiTabsContent
-          class="flex flex-col gap-8 m-0"
-          value="entryPrice"
-        >
+        <UiTabsContent class="flex flex-col gap-8 m-0" value="entryPrice">
           <SmartPricingContentPrice v-if="pricingStore.range" />
         </UiTabsContent>
-        <UiTabsContent
-          class="flex flex-col gap-8 m-0"
-          value="quantity"
-        >
+        <UiTabsContent class="flex flex-col gap-8 m-0" value="quantity">
           <SmartPricingContentQuantity v-if="pricingStore.quantity" />
         </UiTabsContent>
-        <UiTabsContent
-          class="flex flex-col gap-8 m-0"
-          value="margin"
-        >
+        <UiTabsContent class="flex flex-col gap-8 m-0" value="margin">
           <SmartPricingContentMargin v-if="pricingStore.margin" />
         </UiTabsContent>
       </UiTabs>

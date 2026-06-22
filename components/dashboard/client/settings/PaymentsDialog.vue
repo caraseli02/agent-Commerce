@@ -15,7 +15,7 @@ const formSchema = toTypedSchema(
     cardNumber: z.string().min(16, 'Card Number is required').max(16, 'Card Number should be 16 digits'),
     expiryDate: z.string().min(1, 'Expiry Date is required'),
     cvv: z.string().min(3, 'CVV is required').max(4, 'CVV should be 3 or 4 digits'),
-  }),
+  })
 );
 
 const { handleSubmit } = useForm({
@@ -49,7 +49,7 @@ watch(
     cardFields.value.phoneNumber = '  ';
     cardFields.value.expiryDate = '';
     cardFields.value.cvv = '';
-  },
+  }
 );
 
 watch(
@@ -57,13 +57,13 @@ watch(
   (newCardInfo) => {
     cardFields.value.cardNumber = '';
     cardFields.value.phoneNumber = newCardInfo?.billing_details?.phone || '';
-    cardFields.value.expiryDate
-            = (newCardInfo?.card?.exp_month < 10 ? '0' + newCardInfo?.card?.exp_month : newCardInfo?.card?.exp_month)
-              + '/'
-              + String(newCardInfo?.card?.exp_year).slice(-2);
+    cardFields.value.expiryDate =
+      (newCardInfo?.card?.exp_month < 10 ? '0' + newCardInfo?.card?.exp_month : newCardInfo?.card?.exp_month) +
+      '/' +
+      String(newCardInfo?.card?.exp_year).slice(-2);
     cardFields.value.cvv = '';
   },
-  { immediate: true }, // Log immediately on mount if cardInfo is already available
+  { immediate: true } // Log immediately on mount if cardInfo is already available
 );
 
 const showErrorMsg = ref(true);
@@ -72,11 +72,7 @@ const showErrorMsg = ref(true);
 <template>
   <UiDialog v-model:open="localIsOpen">
     <UiDialogTrigger as-child>
-      <UiButton
-        class="rounded-full"
-        size="icon"
-        variant="ghost"
-      >
+      <UiButton class="rounded-full" size="icon" variant="ghost">
         <PlusCircleIcon class="aspect-square w-10 h-10 stroke-1 text-blue-500" />
       </UiButton>
     </UiDialogTrigger>
@@ -178,6 +174,6 @@ const showErrorMsg = ref(true);
 
 <style scoped lang="postcss">
 label {
-    @apply text-slate-500;
+  @apply text-slate-500;
 }
 </style>

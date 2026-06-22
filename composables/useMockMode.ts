@@ -11,13 +11,13 @@ export const useMockMode = () => {
   const config = useRuntimeConfig();
 
   /**
-     * CRITICAL: Multiple validation layers to prevent production activation
-     * Mock mode is ONLY enabled if ALL conditions are met:
-     * 1. Environment variable explicitly set to 'true'
-     * 2. Running in development mode
-     * 3. On whitelisted domain (localhost, 127.0.0.1, dev domains)
-     * 4. Not in CI environment
-     */
+   * CRITICAL: Multiple validation layers to prevent production activation
+   * Mock mode is ONLY enabled if ALL conditions are met:
+   * 1. Environment variable explicitly set to 'true'
+   * 2. Running in development mode
+   * 3. On whitelisted domain (localhost, 127.0.0.1, dev domains)
+   * 4. Not in CI environment
+   */
   const isMockMode = computed(() => {
     // Layer 1: Environment variable check
     const envMockMode = Boolean(config.public.MOCK_MODE);
@@ -42,10 +42,10 @@ export const useMockMode = () => {
   });
 
   /**
-     * Development-safe mock mode getter with security assertions
-     *
-     * @throws {Error} If mock mode is attempted in production
-     */
+   * Development-safe mock mode getter with security assertions
+   *
+   * @throws {Error} If mock mode is attempted in production
+   */
   const getMockMode = (): boolean => {
     if (!isMockMode.value) {
       return false;
@@ -71,10 +71,10 @@ export const useMockMode = () => {
   };
 
   /**
-     * Assert that mock mode is active
-     *
-     * @throws {Error} If mock mode is not enabled
-     */
+   * Assert that mock mode is active
+   *
+   * @throws {Error} If mock mode is not enabled
+   */
   const assertMockMode = (message = 'Mock mode is not enabled'): void => {
     if (!getMockMode()) {
       throw new Error(message);
@@ -82,10 +82,10 @@ export const useMockMode = () => {
   };
 
   /**
-     * Assert that mock mode is NOT active
-     *
-     * @throws {Error} If mock mode is enabled
-     */
+   * Assert that mock mode is NOT active
+   *
+   * @throws {Error} If mock mode is enabled
+   */
   const assertNotMockMode = (message = 'Mock mode should not be enabled'): void => {
     if (getMockMode()) {
       throw new Error(message);
@@ -93,12 +93,12 @@ export const useMockMode = () => {
   };
 
   /**
-     * Safe wrapper for mock mode dependent code
-     *
-     * @param fn - Function to execute if mock mode is enabled
-     * @param defaultValue - Value to return if mock mode is disabled
-     * @returns Result of fn or defaultValue
-     */
+   * Safe wrapper for mock mode dependent code
+   *
+   * @param fn - Function to execute if mock mode is enabled
+   * @param defaultValue - Value to return if mock mode is disabled
+   * @returns Result of fn or defaultValue
+   */
   const withMockMode = <T>(fn: () => T, defaultValue: T): T => {
     if (getMockMode()) {
       return fn();
@@ -107,12 +107,12 @@ export const useMockMode = () => {
   };
 
   /**
-     * Execute different code paths based on mock mode
-     *
-     * @param mockFn - Function to execute in mock mode
-     * @param realFn - Function to execute in real mode
-     * @returns Result of appropriate function
-     */
+   * Execute different code paths based on mock mode
+   *
+   * @param mockFn - Function to execute in mock mode
+   * @param realFn - Function to execute in real mode
+   * @returns Result of appropriate function
+   */
   const mockModeBranch = <T>(mockFn: () => T, realFn: () => T): T => {
     return getMockMode() ? mockFn() : realFn();
   };

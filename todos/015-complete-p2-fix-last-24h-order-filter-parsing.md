@@ -14,11 +14,11 @@ The "Last 24h" tab sends `startDate` in `DD/MM/YYYY HH:mm:ss`, while `/api/order
 
 ## Findings
 
--   `components/admin-table/order/Order.vue:63` formats `startDate` as `DD/MM/YYYY HH:mm:ss`.
--   `server/api/orders.get.ts:33` uses `new Date(query.startDate)` and only filters if parse succeeds.
--   Repro:
-    -   `/api/orders?...&startDate=2026-02-17T00:00:00.000Z` => filtered result (`0` with current mock dates).
-    -   `/api/orders?...&startDate=17/02/2026 00:00:00` => unfiltered result (`30`).
+- `components/admin-table/order/Order.vue:63` formats `startDate` as `DD/MM/YYYY HH:mm:ss`.
+- `server/api/orders.get.ts:33` uses `new Date(query.startDate)` and only filters if parse succeeds.
+- Repro:
+  - `/api/orders?...&startDate=2026-02-17T00:00:00.000Z` => filtered result (`0` with current mock dates).
+  - `/api/orders?...&startDate=17/02/2026 00:00:00` => unfiltered result (`30`).
 
 ## Proposed Solutions
 
@@ -28,12 +28,12 @@ The "Last 24h" tab sends `startDate` in `DD/MM/YYYY HH:mm:ss`, while `/api/order
 
 **Pros:**
 
--   Smallest and safest fix.
--   Keeps API parser simple.
+- Smallest and safest fix.
+- Keeps API parser simple.
 
 **Cons:**
 
--   Relies on every caller sending ISO.
+- Relies on every caller sending ISO.
 
 **Effort:** < 1 hour
 
@@ -47,11 +47,11 @@ The "Last 24h" tab sends `startDate` in `DD/MM/YYYY HH:mm:ss`, while `/api/order
 
 **Pros:**
 
--   More resilient API for multiple callers.
+- More resilient API for multiple callers.
 
 **Cons:**
 
--   Adds format-guessing logic in backend.
+- Adds format-guessing logic in backend.
 
 **Effort:** 1-2 hours
 
@@ -65,18 +65,18 @@ Apply Option 1 now (demo-first), optionally keep Option 2 as hardening if needed
 
 **Affected files:**
 
--   `components/admin-table/order/Order.vue`
--   `server/api/orders.get.ts`
+- `components/admin-table/order/Order.vue`
+- `server/api/orders.get.ts`
 
 ## Resources
 
--   Review session on branch `main` (local working tree)
+- Review session on branch `main` (local working tree)
 
 ## Acceptance Criteria
 
--   [x] "Last 24h" tab passes ISO `startDate`.
--   [x] `/api/orders` applies date filtering for this tab.
--   [x] Tab count differs from "All orders" when dataset makes it applicable.
+- [x] "Last 24h" tab passes ISO `startDate`.
+- [x] `/api/orders` applies date filtering for this tab.
+- [x] Tab count differs from "All orders" when dataset makes it applicable.
 
 ## Work Log
 
@@ -86,12 +86,12 @@ Apply Option 1 now (demo-first), optionally keep Option 2 as hardening if needed
 
 **Actions:**
 
--   Cross-checked tab filter payload and API parser behavior.
--   Reproduced mismatch via direct endpoint calls.
+- Cross-checked tab filter payload and API parser behavior.
+- Reproduced mismatch via direct endpoint calls.
 
 **Learnings:**
 
--   Date format drift between frontend and API silently breaks filtering.
+- Date format drift between frontend and API silently breaks filtering.
 
 ### 2026-02-18 - Fix Implemented
 
@@ -99,7 +99,7 @@ Apply Option 1 now (demo-first), optionally keep Option 2 as hardening if needed
 
 **Actions:**
 
--   Added tab-level filter builder to send `startDate` correctly and consistently.
--   Wired tab changes to trigger server fetch with computed filters.
--   Added API fallback parser for `DD/MM/YYYY HH:mm:ss` for backward compatibility.
--   Verified both ISO and legacy `startDate` now parse and filter consistently.
+- Added tab-level filter builder to send `startDate` correctly and consistently.
+- Wired tab changes to trigger server fetch with computed filters.
+- Added API fallback parser for `DD/MM/YYYY HH:mm:ss` for backward compatibility.
+- Verified both ISO and legacy `startDate` now parse and filter consistently.

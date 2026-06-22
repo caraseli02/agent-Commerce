@@ -20,14 +20,13 @@ const selectedValues = ref<Set<string>>(new Set());
 
 function filterOptions(list: unknown[], term: string) {
   const options = list as DataTableFacetedFilter['options'];
-  return options.filter(option => option.label.toLowerCase().includes(term.toLowerCase()));
+  return options.filter((option) => option.label.toLowerCase().includes(term.toLowerCase()));
 }
 
 function setFilterValue(value: string[] | undefined) {
   if (value) {
     selectedValues.value = new Set(value);
-  }
-  else {
+  } else {
     selectedValues.value = new Set();
   }
 }
@@ -36,30 +35,16 @@ function setFilterValue(value: string[] | undefined) {
 <template>
   <UiPopover>
     <UiPopoverTrigger as-child>
-      <UiButton
-        variant="outline"
-        size="sm"
-        class="h-9 border-dashed font-medium"
-      >
+      <UiButton variant="outline" size="sm" class="h-9 border-dashed font-medium">
         <PlusCircleIcon class="mr-2 h-4 w-4" />
         {{ title }}
         <template v-if="selectedValues.size > 0">
-          <UiSeparator
-            orientation="vertical"
-            class="mx-2 h-4"
-          />
-          <UiBadge
-            variant="secondary"
-            class="rounded-sm px-1 font-normal lg:hidden"
-          >
+          <UiSeparator orientation="vertical" class="mx-2 h-4" />
+          <UiBadge variant="secondary" class="rounded-sm px-1 font-normal lg:hidden">
             {{ selectedValues.size }}
           </UiBadge>
           <div class="hidden space-x-1 lg:flex">
-            <UiBadge
-              v-if="selectedValues.size > 2"
-              variant="secondary"
-              class="rounded-sm px-1 font-normal"
-            >
+            <UiBadge v-if="selectedValues.size > 2" variant="secondary" class="rounded-sm px-1 font-normal">
               {{ selectedValues.size }} selected
             </UiBadge>
 
@@ -82,10 +67,7 @@ function setFilterValue(value: string[] | undefined) {
         </template>
       </UiButton>
     </UiPopoverTrigger>
-    <UiPopoverContent
-      class="w-[200px] p-0"
-      align="start"
-    >
+    <UiPopoverContent class="w-[200px] p-0" align="start">
       <UiCommand :filter-function="filterOptions">
         <UiCommandInput :placeholder="title" />
         <UiCommandList>
@@ -100,8 +82,7 @@ function setFilterValue(value: string[] | undefined) {
                   const isSelected = selectedValues.has(option.value);
                   if (isSelected) {
                     selectedValues.delete(option.value);
-                  }
-                  else {
+                  } else {
                     selectedValues.add(option.value);
                   }
                   const filterValues = Array.from(selectedValues);
@@ -113,24 +94,14 @@ function setFilterValue(value: string[] | undefined) {
                 :class="
                   cn(
                     'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                    selectedValues.has(option.value)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'opacity-50 [&_svg]:invisible',
+                    selectedValues.has(option.value) ? 'bg-primary text-primary-foreground' : 'opacity-50 [&_svg]:invisible'
                   )
                 "
               >
                 <CheckIcon :class="cn('h-4 w-4')" />
               </div>
-              <component
-                :is="option.icon"
-                v-if="option.icon"
-                class="mr-2 h-4 w-4 text-muted-foreground"
-              />
-              <span
-                v-if="option.color"
-                :class="option.color"
-                class="h-4 w-4 mr-2 rounded-full text-xs flex justify-center items-center"
-              />
+              <component :is="option.icon" v-if="option.icon" class="mr-2 h-4 w-4 text-muted-foreground" />
+              <span v-if="option.color" :class="option.color" class="h-4 w-4 mr-2 rounded-full text-xs flex justify-center items-center" />
               <span>{{ option.label }}</span>
               <!-- <span
                                 v-if="facets?.get(option.value)"
@@ -144,11 +115,7 @@ function setFilterValue(value: string[] | undefined) {
           <template v-if="selectedValues.size > 0">
             <UiSeparator />
             <UiCommandGroup>
-              <UiCommandItem
-                :value="{ label: 'remove' }"
-                class="justify-center text-center"
-                @select="setFilterValue(undefined)"
-              >
+              <UiCommandItem :value="{ label: 'remove' }" class="justify-center text-center" @select="setFilterValue(undefined)">
                 {{ 'remove' }}
               </UiCommandItem>
             </UiCommandGroup>

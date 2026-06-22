@@ -14,9 +14,9 @@ The new desktop category panel hides the banner as requested, but the selected-c
 
 ## Findings
 
--   In `components/layout/header/main-menu/DektopPopoverContainer.vue:59-93`, selected state renders a single grid of direct children only.
--   Reference UI expects hierarchical content density (deeper subcategory breakdown) and additional bottom utility row/partner blocks.
--   Functional behavior is improved, but visual/IA parity is incomplete.
+- In `components/layout/header/main-menu/DektopPopoverContainer.vue:59-93`, selected state renders a single grid of direct children only.
+- Reference UI expects hierarchical content density (deeper subcategory breakdown) and additional bottom utility row/partner blocks.
+- Functional behavior is improved, but visual/IA parity is incomplete.
 
 ## Proposed Solutions
 
@@ -26,12 +26,12 @@ The new desktop category panel hides the banner as requested, but the selected-c
 
 **Pros:**
 
--   Single component ownership.
--   Direct path to visual parity.
+- Single component ownership.
+- Direct path to visual parity.
 
 **Cons:**
 
--   Larger template complexity.
+- Larger template complexity.
 
 **Effort:** Medium
 
@@ -45,12 +45,12 @@ The new desktop category panel hides the banner as requested, but the selected-c
 
 **Pros:**
 
--   Better maintainability.
--   Easier iteration/testing per section.
+- Better maintainability.
+- Easier iteration/testing per section.
 
 **Cons:**
 
--   Slightly more refactor overhead.
+- Slightly more refactor overhead.
 
 **Effort:** Medium
 
@@ -62,18 +62,18 @@ The new desktop category panel hides the banner as requested, but the selected-c
 
 Affected files:
 
--   `/Users/vladislavcaraseli/Documents/Ecas/components/layout/header/main-menu/DektopPopoverContainer.vue:59`
+- `/Users/vladislavcaraseli/Documents/Ecas/components/layout/header/main-menu/DektopPopoverContainer.vue:59`
 
 ## Resources
 
--   Design reference screenshot provided in review thread.
+- Design reference screenshot provided in review thread.
 
 ## Acceptance Criteria
 
--   [ ] Selected-category state visually matches approved desktop reference.
--   [ ] Deeper taxonomy content (beyond one level) is represented clearly.
--   [ ] Footer actions/utilities are present in selected state where required.
--   [ ] Banner remains hidden once a category is selected.
+- [ ] Selected-category state visually matches approved desktop reference.
+- [ ] Deeper taxonomy content (beyond one level) is represented clearly.
+- [ ] Footer actions/utilities are present in selected state where required.
+- [ ] Banner remains hidden once a category is selected.
 
 ## Work Log
 
@@ -83,13 +83,13 @@ Affected files:
 
 **Actions:**
 
--   Reviewed selected-state container implementation against requested target layout.
--   Flagged structural mismatch as important follow-up.
+- Reviewed selected-state container implementation against requested target layout.
+- Flagged structural mismatch as important follow-up.
 
 **Learnings:**
 
--   Behavior fix landed, but design parity requires a second pass.
+- Behavior fix landed, but design parity requires a second pass.
 
 ## Notes
 
--   Keep scoped to category panel only (no banner redesign).
+- Keep scoped to category panel only (no banner redesign).

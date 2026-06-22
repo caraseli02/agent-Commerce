@@ -92,22 +92,10 @@ const setDefault = () => {
         >
           <CheckCircle class="w-5 aspect-square" />
         </UiButton>
-        <UiButton
-          size="icon"
-          class="rounded-full"
-          aria-label="Edit address"
-          variant="secondary"
-          @click="editAddress"
-        >
+        <UiButton size="icon" class="rounded-full" aria-label="Edit address" variant="secondary" @click="editAddress">
           <FilePenLineIcon class="w-5 aspect-square" />
         </UiButton>
-        <UiButton
-          size="icon"
-          class="rounded-full"
-          aria-label="Delete address"
-          variant="secondary"
-          @click="deleteAddress"
-        >
+        <UiButton size="icon" class="rounded-full" aria-label="Delete address" variant="secondary" @click="deleteAddress">
           <Trash2Icon class="w-5 aspect-square" />
         </UiButton>
       </div>

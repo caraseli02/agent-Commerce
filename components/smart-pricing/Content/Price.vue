@@ -19,7 +19,7 @@ watch(
   (newRange) => {
     entryPriceList.value = newRange;
   },
-  { deep: true },
+  { deep: true }
 );
 
 const deleteItem = async (itemValue: SmartPricingOption) => {
@@ -28,11 +28,11 @@ const deleteItem = async (itemValue: SmartPricingOption) => {
     return;
   }
   pricingStore.removePriceRange(itemValue._id);
-  entryPriceList.value = entryPriceList.value.filter(i => i._id !== itemValue._id);
+  entryPriceList.value = entryPriceList.value.filter((i) => i._id !== itemValue._id);
 };
 
 function deleteAllSelected() {
-  const selectedItems = entryPriceList.value.filter(i => i.selected);
+  const selectedItems = entryPriceList.value.filter((i) => i.selected);
 
   selectedItems.map(async (price) => {
     const response = await $api.smartPricing.deleteSmartPricingEntity(PriceSettingsTypeEnum.Range, price._id);
@@ -40,7 +40,7 @@ function deleteAllSelected() {
       return;
     }
     pricingStore.removePriceRange(price._id);
-    entryPriceList.value = entryPriceList.value.filter(i => i._id !== price._id);
+    entryPriceList.value = entryPriceList.value.filter((i) => i._id !== price._id);
   });
 }
 
@@ -49,37 +49,25 @@ const editItem = async (itemValue: SmartPricingOption) => {
     console.error('Pricing is not defined');
     return;
   }
-  const filteredItems = pricing.value.filter(i => i._id === itemValue._id);
+  const filteredItems = pricing.value.filter((i) => i._id === itemValue._id);
   pricingStore.editEntryPriceModal = filteredItems.length > 0 ? filteredItems[0] : null;
   showEntryModal.value = true;
 };
 
-const selectedCount = computed(() => entryPriceList.value.filter(i => i.selected).length);
+const selectedCount = computed(() => entryPriceList.value.filter((i) => i.selected).length);
 </script>
 
 <template>
   <div class="w-full h-30 bg-light-200 flex flex-col sm:flex-row justify-between items-center p-3 gap-2">
     <div class="relative w-full max-w-sm items-center">
-      <UiInput
-        id="search"
-        type="text"
-        placeholder="Search..."
-        class="pr-10 placeholder:text-grey-600"
-      />
+      <UiInput id="search" type="text" placeholder="Search..." class="pr-10 placeholder:text-grey-600" />
       <span class="absolute end-0 inset-y-0 flex items-center justify-center px-2">
         <SearchIcon class="size-5 text-grey-600" />
       </span>
     </div>
-    <div
-      v-if="selectedCount > 0"
-      class="self-end flex items-center"
-    >
+    <div v-if="selectedCount > 0" class="self-end flex items-center">
       <span class="text-neutral-700 mr-2 text-sm">{{ selectedCount }} {{ selectedCount > 1 ? 'items' : 'item' }} selected</span>
-      <UiButton
-        class="gap-1"
-        variant="secondary"
-        @click="deleteAllSelected"
-      >
+      <UiButton class="gap-1" variant="secondary" @click="deleteAllSelected">
         <Trash2Icon class="w-4 h-4" />
         Delete
       </UiButton>

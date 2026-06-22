@@ -40,10 +40,7 @@ const accountTypeOptions = accountType as unknown as StringFacetedFilterOption[]
         :column="table.getColumn(CustomerTableColumnsEnum.COMPANY)"
         title="Company"
       />
-      <DataTableFilterDate
-        title="Date"
-        :column="table.getColumn(CustomerTableColumnsEnum.CREATED_AT)"
-      />
+      <DataTableFilterDate title="Date" :column="table.getColumn(CustomerTableColumnsEnum.CREATED_AT)" />
       <DataTableFilterRange
         v-if="table.getColumn(CustomerTableColumnsEnum.SPENT)"
         :column="table.getColumn(CustomerTableColumnsEnum.SPENT)"

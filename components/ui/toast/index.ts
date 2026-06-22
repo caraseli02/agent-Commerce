@@ -18,8 +18,7 @@ export const toastVariants = cva(
     variants: {
       variant: {
         default: 'border bg-white text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50',
-        destructive:
-                    'destructive group border-red-500 bg-red-500 text-zinc-50 dark:border-red-900 dark:bg-red-900 dark:text-zinc-50',
+        destructive: 'destructive group border-red-500 bg-red-500 text-zinc-50 dark:border-red-900 dark:bg-red-900 dark:text-zinc-50',
         success: 'group border-teal-500 bg-teal-500 text-zinc-50 dark:border-teal-700 dark:bg-teal-700 dark:text-zinc-50',
         warning: 'group border-orange-400 bg-orange-400 text-zinc-50 dark:border-orange-400 dark:bg-orange-400 dark:text-zinc-50',
       },
@@ -27,7 +26,7 @@ export const toastVariants = cva(
     defaultVariants: {
       variant: 'default',
     },
-  },
+  }
 );
 
 type ToastVariants = VariantProps<typeof toastVariants>;

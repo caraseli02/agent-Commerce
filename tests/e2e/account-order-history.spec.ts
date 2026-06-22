@@ -5,7 +5,7 @@ const signInAsCustomer = async (page: import('@playwright/test').Page) => {
   const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
   await expect(signInButton).toBeVisible();
   await Promise.all([
-    page.waitForResponse(response => response.url().includes('/api/auth/login') && response.request().method() === 'POST'),
+    page.waitForResponse((response) => response.url().includes('/api/auth/login') && response.request().method() === 'POST'),
     signInButton.click(),
   ]);
   await expect(page).toHaveURL(/\/dashboard\/client\?tab=home/);
@@ -22,7 +22,7 @@ test.describe('Order History / Account View', () => {
     await signInAsCustomer(page);
 
     await Promise.all([
-      page.waitForResponse(response => response.url().includes('/api/orders') && response.request().method() === 'GET'),
+      page.waitForResponse((response) => response.url().includes('/api/orders') && response.request().method() === 'GET'),
       page.goto('/dashboard/client?tab=orders'),
     ]);
 

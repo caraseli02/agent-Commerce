@@ -6,7 +6,7 @@ import type { TaxonomyInterface } from '~/types/dashboard/categories';
 const { selectedCategories, onCategoryClick } = useCategoriesNavigation();
 const { categories, getCategories } = useCategories();
 
-const isSelected = (categoryId: string) => selectedCategories.value.some(category => (category as TaxonomyInterface).id === categoryId);
+const isSelected = (categoryId: string) => selectedCategories.value.some((category) => (category as TaxonomyInterface).id === categoryId);
 const hasSelection = computed(() => selectedCategories.value.length > 0);
 const currentCategory = computed((): TaxonomyInterface | null => {
   if (!selectedCategories.value.length) {
@@ -29,7 +29,7 @@ const selectedDetailColumns = computed(() => {
     };
   });
 });
-const breadcrumbTrail = computed(() => selectedCategories.value.map(category => (category as TaxonomyInterface).name));
+const breadcrumbTrail = computed(() => selectedCategories.value.map((category) => (category as TaxonomyInterface).name));
 const formatItemCount = (count?: number) => `${Number(count ?? 0).toLocaleString()} items`;
 const handleRootClick = (category: TaxonomyInterface) => onCategoryClick(category, true);
 const handleChildClick = (category: TaxonomyInterface) => onCategoryClick(category, false);
@@ -54,10 +54,7 @@ onMounted(async () => {
           @click="handleRootClick(category)"
         >
           <div class="flex items-center gap-3 min-w-0">
-            <CardPlaceholderSmall
-              class="w-6 h-6 flex-shrink-0"
-              :class="isSelected(category.id) ? 'text-blue-500' : 'text-[#2D3340]'"
-            />
+            <CardPlaceholderSmall class="w-6 h-6 flex-shrink-0" :class="isSelected(category.id) ? 'text-blue-500' : 'text-[#2D3340]'" />
             <div class="min-w-0">
               <div
                 class="text-[13px] leading-[1.2] font-semibold truncate"
@@ -80,17 +77,11 @@ onMounted(async () => {
         </button>
       </div>
       <LayoutHeaderMainMenuBannerNew v-if="!hasSelection" />
-      <div
-        v-else
-        class="h-full bg-white rounded-xl border border-[#E1E4EA] overflow-hidden flex flex-col"
-      >
+      <div v-else class="h-full bg-white rounded-xl border border-[#E1E4EA] overflow-hidden flex flex-col">
         <div class="h-12 px-5 border-b border-[#E8EBEF] flex items-center justify-between">
           <div class="text-[15px] leading-none font-medium text-[#5E6572] truncate">
             <span class="text-[#8A90A0]">Main Category</span>
-            <span
-              v-for="(crumb, index) in breadcrumbTrail"
-              :key="`${crumb}-${index}`"
-            >
+            <span v-for="(crumb, index) in breadcrumbTrail" :key="`${crumb}-${index}`">
               <span class="mx-2 text-[#B1B6C2]">&gt;</span>
               <span :class="index === breadcrumbTrail.length - 1 ? 'text-[#2D3340] font-semibold' : ''">{{ crumb }}</span>
             </span>
@@ -104,24 +95,12 @@ onMounted(async () => {
         </div>
 
         <div class="flex-1 overflow-y-auto p-5">
-          <div
-            v-if="selectedDetailColumns.length"
-            class="grid grid-cols-4 gap-x-8 gap-y-5"
-          >
-            <div
-              v-for="column in selectedDetailColumns"
-              :key="column.id"
-              class="space-y-2.5"
-            >
+          <div v-if="selectedDetailColumns.length" class="grid grid-cols-4 gap-x-8 gap-y-5">
+            <div v-for="column in selectedDetailColumns" :key="column.id" class="space-y-2.5">
               <h4 class="text-[14px] leading-[1.3] font-semibold text-[#2D3340] truncate">
                 {{ column.title }}
               </h4>
-              <button
-                v-for="entry in column.entries"
-                :key="entry.id"
-                class="text-left group block w-full"
-                @click="handleChildClick(entry)"
-              >
+              <button v-for="entry in column.entries" :key="entry.id" class="text-left group block w-full" @click="handleChildClick(entry)">
                 <div class="text-[13px] leading-[1.3] font-medium text-[#464D5A] group-hover:text-blue-500 truncate">
                   {{ entry.name }}
                 </div>
@@ -129,40 +108,26 @@ onMounted(async () => {
                   {{ formatItemCount(entry.productCount) }}
                 </div>
               </button>
-              <button
-                class="text-[13px] font-medium text-blue-500 hover:text-blue-600"
-                @click="handleChildClick(column.source)"
-              >
+              <button class="text-[13px] font-medium text-blue-500 hover:text-blue-600" @click="handleChildClick(column.source)">
                 View all
               </button>
             </div>
           </div>
-          <div
-            v-else
-            class="text-[14px] text-[#7B8290]"
-          >
-            No subcategories available.
-          </div>
+          <div v-else class="text-[14px] text-[#7B8290]">No subcategories available.</div>
         </div>
         <div class="px-5 py-3 border-t border-[#E8EBEF] bg-[#FBFCFD]">
           <div class="flex items-center gap-4">
-            <button
-              class="text-[13px] leading-none font-medium text-[#2D3340] hover:text-blue-500 inline-flex items-center gap-2"
-            >
+            <button class="text-[13px] leading-none font-medium text-[#2D3340] hover:text-blue-500 inline-flex items-center gap-2">
               <GemIcon class="w-4 h-4" />
               View our discounted offers
             </button>
             <LayoutHeaderMainMenuOffersSvgs />
             <div class="ml-auto flex items-center gap-4">
-              <button
-                class="text-xs leading-none font-medium text-[#6F7685] hover:text-blue-500 inline-flex items-center gap-1.5"
-              >
+              <button class="text-xs leading-none font-medium text-[#6F7685] hover:text-blue-500 inline-flex items-center gap-1.5">
                 <Building2Icon class="w-4 h-4" />
                 Contact Sales
               </button>
-              <button
-                class="text-xs leading-none font-medium text-[#6F7685] hover:text-blue-500 inline-flex items-center gap-1.5"
-              >
+              <button class="text-xs leading-none font-medium text-[#6F7685] hover:text-blue-500 inline-flex items-center gap-1.5">
                 <HeadsetIcon class="w-4 h-4" />
                 Support
               </button>

@@ -8,13 +8,7 @@ import { textUtil } from '../utils/text';
 import { useTrimText } from '../composables/text';
 import { mapNamesToPath, mapPathArrayOfNames, findCategory } from '../helpers/categories.helper';
 import { initializeQuantities, parseProductPriceConfiguration } from '../helpers/prices.helper';
-import {
-  getCountryTypeValue,
-  getInputStringValue,
-  isFormSelectOption,
-  resolveFormValue,
-  toInputObject,
-} from '../types/global/form';
+import { getCountryTypeValue, getInputStringValue, isFormSelectOption, resolveFormValue, toInputObject } from '../types/global/form';
 import type { CartInterface } from '../model/cart/response/cart.interface';
 import type { ProductInterface } from '../model/products/response/ProductResponse';
 import type { TaxonomyInterface } from '../types/dashboard/categories';
@@ -177,9 +171,7 @@ describe('quality gate 6 pure logic coverage', () => {
         userId: 'user-1',
         startDate: '',
         endDate: '',
-        products: [
-          { id: 'product-1', stock: 3, backorder_stock: 2, isFolder: false },
-        ],
+        products: [{ id: 'product-1', stock: 3, backorder_stock: 2, isFolder: false }],
       } as CartInterface;
 
       initializeQuantities(sampleProduct, cart, quantity, initialRequestedQuantity, { price: 100, quantity: 5 });
@@ -188,7 +180,13 @@ describe('quality gate 6 pure logic coverage', () => {
 
       const emptyQuantity = ref(0);
       const emptyRequestedQuantity = ref(0);
-      initializeQuantities(sampleProduct, { userId: 'user-1', startDate: '', endDate: '', products: [] }, emptyQuantity, emptyRequestedQuantity, { price: 100, quantity: 5 });
+      initializeQuantities(
+        sampleProduct,
+        { userId: 'user-1', startDate: '', endDate: '', products: [] },
+        emptyQuantity,
+        emptyRequestedQuantity,
+        { price: 100, quantity: 5 }
+      );
       expect(emptyQuantity.value).toBe(0);
       expect(emptyRequestedQuantity.value).toBe(0);
     });

@@ -85,12 +85,12 @@ onMounted(async () => {
             sortOrder: order.value === 0 ? 'desc' : 'asc',
           },
           additionalFilters.value,
-          newValues[1],
+          newValues[1]
         );
         showSimilarOnly.value = false;
       }
     },
-    { deep: true },
+    { deep: true }
   );
 
   if (!products.value && !showSimilarOnly.value) {
@@ -103,7 +103,7 @@ onMounted(async () => {
         sortOrder: order.value === 0 ? 'desc' : 'asc',
       },
       additionalFilters.value,
-      [],
+      []
     );
   }
 });
@@ -115,7 +115,7 @@ async function getProduct(
   sort = {},
   additionalFilters = {},
   filter: ProductParametricDataFeaturesInterface[] = [],
-  ignoreCategory = false,
+  ignoreCategory = false
 ) {
   const { data } = await fetchSearchProduct(
     keyword,
@@ -124,7 +124,7 @@ async function getProduct(
     perPage,
     sort,
     additionalFilters,
-    filter,
+    filter
   );
 
   products.value = data;
@@ -141,7 +141,7 @@ async function changePath() {
       sortBy: sortBy.value.name,
       sortOrder: order.value === 0 ? 'desc' : 'asc',
     },
-    additionalFilters.value,
+    additionalFilters.value
   );
 
   products.value = data;
@@ -157,7 +157,7 @@ const handleSortOrderChange = async () => {
       sortBy: sortBy.value.name,
       sortOrder: order.value === 0 ? 'desc' : 'asc',
     },
-    additionalFilters.value,
+    additionalFilters.value
   );
 };
 
@@ -170,7 +170,7 @@ const handleSortChange = async () => {
       sortBy: sortBy.value.name,
       sortOrder: order.value === 0 ? 'desc' : 'asc',
     },
-    additionalFilters.value,
+    additionalFilters.value
   );
 };
 
@@ -193,10 +193,10 @@ watch(
         sortBy: sortBy.value.name,
         sortOrder: order.value === 0 ? 'desc' : 'asc',
       },
-      additionalFilters.value,
+      additionalFilters.value
     );
   },
-  { deep: true },
+  { deep: true }
 );
 
 watch(additionalFilters, async (filter) => {
@@ -208,7 +208,7 @@ watch(additionalFilters, async (filter) => {
       sortBy: sortBy.value.name,
       sortOrder: order.value === 0 ? 'desc' : 'asc',
     },
-    filter,
+    filter
   );
 });
 
@@ -228,7 +228,7 @@ Emitter.on('register-filter-option', async (filter: ProductParametricDataFeature
       sortOrder: order.value === 0 ? 'desc' : 'asc',
     },
     additionalFilters.value,
-    filter,
+    filter
   );
 });
 

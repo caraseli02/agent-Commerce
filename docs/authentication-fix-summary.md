@@ -13,9 +13,9 @@ The demo application had authentication blocking access to:
 
 This prevented demonstrating:
 
--   24 new products (6→24 expansion)
--   123 new dashboard records
--   All expanded demo features
+- 24 new products (6→24 expansion)
+- 123 new dashboard records
+- All expanded demo features
 
 ## Solution Implemented
 
@@ -33,10 +33,10 @@ NUXT_PUBLIC_MOCK_MODE=true
 
 **Changes:**
 
--   Added mock mode check using `useRuntimeConfig()`
--   Bypasses all authentication when `config.public.mockMode` is true
--   Allows access to protected routes without login
--   Maintains normal auth flow when mock mode is disabled
+- Added mock mode check using `useRuntimeConfig()`
+- Bypasses all authentication when `config.public.mockMode` is true
+- Allows access to protected routes without login
+- Maintains normal auth flow when mock mode is disabled
 
 **Code:**
 
@@ -44,24 +44,24 @@ NUXT_PUBLIC_MOCK_MODE=true
 import { useAuthStore } from '~~/store/authStore';
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-    const token = useCookie('token');
-    const config = useRuntimeConfig();
-    const authStore = useAuthStore();
+  const token = useCookie('token');
+  const config = useRuntimeConfig();
+  const authStore = useAuthStore();
 
-    // Demo mode bypass - skip auth checks
-    if (config.public.mockMode) {
-        return;
-    }
+  // Demo mode bypass - skip auth checks
+  if (config.public.mockMode) {
+    return;
+  }
 
-    if (!token?.value) {
-        return navigateTo({
-            path: '/',
-        });
-    }
+  if (!token?.value) {
+    return navigateTo({
+      path: '/',
+    });
+  }
 
-    if (import.meta.client && !token?.value) {
-        authStore.signOut();
-    }
+  if (import.meta.client && !token?.value) {
+    authStore.signOut();
+  }
 });
 ```
 
@@ -85,14 +85,14 @@ The application already has mock login functionality:
 
 **Credentials:**
 
--   Email: `admin@ecas.com`
--   Password: `admin123`
+- Email: `admin@ecas.com`
+- Password: `admin123`
 
 **File:** `server/api/auth/login.post.ts`
 
--   Returns mock JWT token with all permissions
--   User ID: `mock-user-1`
--   Full customer details included
+- Returns mock JWT token with all permissions
+- User ID: `mock-user-1`
+- Full customer details included
 
 ## How to Use Demo Mode
 
@@ -131,11 +131,11 @@ password: admin123
 
 **⏳ Remaining Work:**
 
--   Restart development server to pick up .env changes
--   Navigate to products page to verify 24 products load
--   Navigate to dashboard to verify 123 records display
--   Capture screenshots/video demonstrating new features
--   Update PR description with working demo
+- Restart development server to pick up .env changes
+- Navigate to products page to verify 24 products load
+- Navigate to dashboard to verify 123 records display
+- Capture screenshots/video demonstrating new features
+- Update PR description with working demo
 
 ## Files Changed
 
@@ -147,16 +147,16 @@ password: admin123
 
 **Why Mock Mode?**
 
--   Allows demonstrating portfolio without authentication
--   Shows all new features (24 products, 123 records)
--   Makes demo experience smoother for portfolio review
--   Can be toggled via environment variable
+- Allows demonstrating portfolio without authentication
+- Shows all new features (24 products, 123 records)
+- Makes demo experience smoother for portfolio review
+- Can be toggled via environment variable
 
 **Security:**
 
--   Mock mode is development only
--   Environment variable can be removed for production
--   No real security concerns - it's a demo/development feature
+- Mock mode is development only
+- Environment variable can be removed for production
+- No real security concerns - it's a demo/development feature
 
 ## Next Steps
 
@@ -171,18 +171,18 @@ password: admin123
 
 **Previous Issues:**
 
--   ❌ Authentication blocking all routes
--   ❌ Couldn't sign in during video recording
--   ❌ 500 errors when loading pages
--   ❌ Demo not demonstrating new features
+- ❌ Authentication blocking all routes
+- ❌ Couldn't sign in during video recording
+- ❌ 500 errors when loading pages
+- ❌ Demo not demonstrating new features
 
 **After Fix:**
 
--   ✅ Mock mode bypasses authentication
--   ✅ All routes accessible
--   ✅ Can demonstrate 24 products
--   ✅ Can show 123 dashboard records
--   ✅ No login required for demo
+- ✅ Mock mode bypasses authentication
+- ✅ All routes accessible
+- ✅ Can demonstrate 24 products
+- ✅ Can show 123 dashboard records
+- ✅ No login required for demo
 
 **Testing Strategy:**
 

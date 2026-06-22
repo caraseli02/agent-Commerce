@@ -3,10 +3,7 @@
     class="relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm font-Inter md:p-5 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-6 xl:grid-cols-[minmax(0,9fr)_minmax(0,6fr)_minmax(0,5fr)] xl:gap-6"
   >
     <div class="flex items-start">
-      <NuxtLink
-        :to="`/product/${item._id}`"
-        class="flex flex-shrink-0 mr-2.5 md:mr-[15px]"
-      >
+      <NuxtLink :to="`/product/${item._id}`" class="flex flex-shrink-0 mr-2.5 md:mr-[15px]">
         <ImageWithFallback
           :src="item.details?.ProductImage?.ProductImageLarge"
           :alt="item.name"
@@ -16,36 +13,21 @@
       <div>
         <div class="md:flex md:items-start md:justify-between md:gap-4 md:mb-4 max-w-[480px]">
           <div class="flex items-center mb-2.5 md:mb-0 md:mr-5 md:flex-1 min-w-0">
-            <NuxtLink
-              :to="`/product/${item._id}`"
-              class="block min-w-0 flex-1 text-xl leading-tight font-semibold truncate"
-            >
+            <NuxtLink :to="`/product/${item._id}`" class="block min-w-0 flex-1 text-xl leading-tight font-semibold truncate">
               {{ item.name }}
             </NuxtLink>
             <div class="ml-1 flex flex-shrink-0 items-center gap-1">
-              <button
-                class="flex p-1"
-                type="button"
-                aria-label="Copy product name"
-              >
+              <button class="flex p-1" type="button" aria-label="Copy product name">
                 <CopyClipboard
                   :text="item.name || 'N/A'"
                   class="w-[22px] h-[22px] text-slate-500 transition-colors duration-300 hover:text-blue-500"
                 />
               </button>
               <div class="flex items-center gap-2 md:hidden">
-                <button
-                  class="flex p-1 text-gray-500 transition-colors duration-300 hover:text-blue"
-                  type="button"
-                  aria-label="Favorite"
-                >
+                <button class="flex p-1 text-gray-500 transition-colors duration-300 hover:text-blue" type="button" aria-label="Favorite">
                   <HeartIcon class="w-6 h-6" />
                 </button>
-                <button
-                  class="flex p-1 text-gray-500 transition-colors duration-300 hover:text-blue"
-                  type="button"
-                  aria-label="Share"
-                >
+                <button class="flex p-1 text-gray-500 transition-colors duration-300 hover:text-blue" type="button" aria-label="Share">
                   <ShareIcon class="w-6 h-6" />
                 </button>
               </div>
@@ -96,11 +78,7 @@
         <section class="grid grid-cols-2 gap-x-4 gap-y-1.5 md:flex md:gap-4 min-w-fit">
           <div class="flex flex-col items-start gap-1">
             <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1"> Qty </span>
-            <span
-              v-for="[qty] in bulkQuantities"
-              :key="qty"
-              class="text-[13px] leading-tight font-medium"
-            > {{ qty }}+ </span>
+            <span v-for="[qty] in bulkQuantities" :key="qty" class="text-[13px] leading-tight font-medium"> {{ qty }}+ </span>
           </div>
           <div class="flex flex-col items-start gap-1">
             <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1"> Price (Ex VAT)</span>
@@ -116,9 +94,7 @@
         </section>
       </div>
       <div class="grid grid-cols-2 pt-3 mb-4 md:grid-cols-[70%,30%] md:mb-5 lg:grid-cols-[40%,60%] lg:mb-0">
-        <div class="text-sm font-medium font-Poppins text-blue text-blue-500">
-          View More
-        </div>
+        <div class="text-sm font-medium font-Poppins text-blue text-blue-500">View More</div>
       </div>
     </div>
     <div class="flex gap-2.5 pt-1 md:col-span-2 xl:col-span-1 xl:items-end">
@@ -203,7 +179,7 @@ watch(
   async () => {
     await fetchCart();
   },
-  { deep: true },
+  { deep: true }
 );
 
 const getPricesConfiguration = () => {

@@ -1,67 +1,29 @@
 <template>
   <div class="relative flex flex-col bg-white rounded-xl p-4 shadow-xs md:p-6">
-    <div
-      class="flex items-start justify-between"
-      :class="[emptyData || error ? 'mb-[93px] md:mb-[85px]' : isLoading ? 'mb-6' : 'mb-5']"
-    >
-      <div class="leading-normal font-semibold">
-        Net Margin
-      </div>
-      <WarningIcon
-        v-if="error"
-        class="w-6 h-6"
-      />
-      <div
-        v-else
-        class="flex items-center justify-center bg-[#00D395] rounded-full w-10 h-10"
-      >
+    <div class="flex items-start justify-between" :class="[emptyData || error ? 'mb-[93px] md:mb-[85px]' : isLoading ? 'mb-6' : 'mb-5']">
+      <div class="leading-normal font-semibold">Net Margin</div>
+      <WarningIcon v-if="error" class="w-6 h-6" />
+      <div v-else class="flex items-center justify-center bg-[#00D395] rounded-full w-10 h-10">
         <StatusIcon class="w-6 h-6" />
       </div>
     </div>
-    <div
-      v-if="emptyData || error"
-      class="flex flex-col items-center justify-center flex-1 mb-[69px] md:mb-[61px]"
-    >
+    <div v-if="emptyData || error" class="flex flex-col items-center justify-center flex-1 mb-[69px] md:mb-[61px]">
       <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-      <div class="text-sm font-medium text-gray-500">
-        No data available
-      </div>
+      <div class="text-sm font-medium text-gray-500">No data available</div>
     </div>
     <template v-else>
       <div class="mb-6">
-        <SkeletonLoader
-          v-if="isLoading"
-          class="w-full h-20 mb-6"
-        />
-        <div
-          v-else
-          class="mb-[17px]"
-        >
+        <SkeletonLoader v-if="isLoading" class="w-full h-20 mb-6" />
+        <div v-else class="mb-[17px]">
           <ClientOnly>
-            <apexchart
-              width="100%"
-              height="80"
-              :options="chartOptions"
-              :series="series"
-            />
+            <apexchart width="100%" height="80" :options="chartOptions" :series="series" />
           </ClientOnly>
         </div>
-        <SkeletonLoader
-          v-if="isLoading"
-          class="w-full h-[46px]"
-        />
-        <div
-          v-else
-          class="text-[28px] leading-normal font-semibold"
-        >
-          1,200,539.77 Lei
-        </div>
+        <SkeletonLoader v-if="isLoading" class="w-full h-[46px]" />
+        <div v-else class="text-[28px] leading-normal font-semibold">1,200,539.77 Lei</div>
       </div>
       <div class="flex items-center justify-center">
-        <button
-          disabled
-          class="flex items-center disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <button disabled class="flex items-center disabled:cursor-not-allowed disabled:opacity-60">
           <span class="text-sm font-medium left-[1.43] text-slate-500 mr-2">
             <span class="md:hidden lg:inline-block"> View </span> more
           </span>

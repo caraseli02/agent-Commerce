@@ -5,11 +5,7 @@
             <span class="text-[11px] font-Inter leading-tight font-semibold text-white"> {{ product.stock }} in stock </span>
         </div> -->
     <ProductCardStock :stock="product.stock" />
-    <UiButton
-      variant="link"
-      class="flex justify-end text-xs my-3 pr-0 lg:hidden px-0"
-      @click="showLargeQuantitiesModal = true"
-    >
+    <UiButton variant="link" class="flex justify-end text-xs my-3 pr-0 lg:hidden px-0" @click="showLargeQuantitiesModal = true">
       For larger quantities ask
       <span
         to="/"
@@ -20,12 +16,8 @@
     </UiButton>
     <div class="lg:grid lg:grid-cols-2">
       <div class="lg:order-2 lg:pl-6">
-        <div
-          class="flex items-center justify-between gap-3 text-xs leading-tight text-slate-500 rounded-lg bg-slate-50 px-3 py-2.5"
-        >
-          <div class="flex-shrink-0">
-            Quantity
-          </div>
+        <div class="flex items-center justify-between gap-3 text-xs leading-tight text-slate-500 rounded-lg bg-slate-50 px-3 py-2.5">
+          <div class="flex-shrink-0">Quantity</div>
           <div>Price ( Ex VAT )</div>
         </div>
         <div class="font-Inter mb-4 lg:mb-[25px]">
@@ -36,12 +28,8 @@
             :class="currentPriceConfiguration?.quantity === bulkQuantity[0] ? 'bg-light-100' : ''"
             @click="quantity = bulkQuantity[0] + 1"
           >
-            <div class="text-slate-500">
-              {{ bulkQuantity[0] }}+
-            </div>
-            <div :class="['text-neutral-700', productDiscount ? 'text-red' : '']">
-              {{ bulkQuantity[1].toFixed(2) }} Lei
-            </div>
+            <div class="text-slate-500">{{ bulkQuantity[0] }}+</div>
+            <div :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</div>
           </div>
         </div>
         <UiButton
@@ -71,33 +59,17 @@
           </div>
           <div class="flex items-center h-6">
             <span class="text-slate-500 mr-[5px]">Minimum Order:</span>
-            <span class="font-Inter text-neutral-700 font-medium">{{
-              minPriceConfiguration ? minPriceConfiguration.quantity : 1
-            }}</span>
+            <span class="font-Inter text-neutral-700 font-medium">{{ minPriceConfiguration ? minPriceConfiguration.quantity : 1 }}</span>
           </div>
         </div>
         <div class="flex items-center justify-between font-Inter mb-4 lg:justify-start lg:items-end">
           <div class="lg:mr-[15px]">
-            <div
-              v-if="productDiscount"
-              class="text-sm leading-tight line-through"
-            >
-              {{
-                minPriceConfiguration
-                  ? `${minPriceConfiguration.price.toFixed(2)} Lei (${minPriceConfiguration.quantity}+)`
-                  : '-'
-              }}
+            <div v-if="productDiscount" class="text-sm leading-tight line-through">
+              {{ minPriceConfiguration ? `${minPriceConfiguration.price.toFixed(2)} Lei (${minPriceConfiguration.quantity}+)` : '-' }}
             </div>
-            <div
-              class="text-xl leading-tight font-semibold"
-              :class="[productDiscount ? 'text-rose-500' : '']"
-            >
+            <div class="text-xl leading-tight font-semibold" :class="[productDiscount ? 'text-rose-500' : '']">
               <span>
-                {{
-                  discountPrice
-                    ? `${discountPrice.toFixed(2)} Lei`
-                    : `${minPriceConfiguration?.price.toFixed(2)} Lei` || '-'
-                }}
+                {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : `${minPriceConfiguration?.price.toFixed(2)} Lei` || '-' }}
               </span>
               {{ currentPriceConfiguration ? `(${currentPriceConfiguration.quantity}+)` : '-' }}
             </div>
@@ -125,10 +97,9 @@
         @click="addToCart(props.product)"
       >
         <CartIcon class="w-6 h-6 mr-2" />
-        <span
-          v-if="minPriceConfiguration && quantity"
-          class="text-sm font-medium"
-        >{{ quantity > minPriceConfiguration.quantity ? 'Update' : 'Add to' }} cart</span>
+        <span v-if="minPriceConfiguration && quantity" class="text-sm font-medium"
+          >{{ quantity > minPriceConfiguration.quantity ? 'Update' : 'Add to' }} cart</span
+        >
       </button>
     </div>
   </div>

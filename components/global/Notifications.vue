@@ -1,22 +1,11 @@
 <template>
-  <UiSheet
-    :key="userDetails?._id"
-    v-model:open="showNotifications"
-  >
+  <UiSheet :key="userDetails?._id" v-model:open="showNotifications">
     <UiSheetTrigger>
       <button class="flex items-center -mr-2.5 xl:-mr-4">
         <div class="flex items-center">
           <div class="flex items-center flex-col">
-            <BellIcon
-              :class="adminView ? 'text-slate-500' : 'text-white'"
-              class="w-6 h-6 xl:mb-1"
-            />
-            <span
-              v-if="!adminView"
-              class="hidden font-medium text-xs leading-[1.33] text-white xl:inline-block"
-            >
-              Notifications
-            </span>
+            <BellIcon :class="adminView ? 'text-slate-500' : 'text-white'" class="w-6 h-6 xl:mb-1" />
+            <span v-if="!adminView" class="hidden font-medium text-xs leading-[1.33] text-white xl:inline-block"> Notifications </span>
           </div>
           <span
             v-if="unreadNotifications > 0"
@@ -36,15 +25,8 @@
     <LazyUiSheetContent class="md:max-h-[calc(100vh-48px)] w-full h-full md:min-w-[440px] p-0 md:m-6 overflow-hidden rounded-xl">
       <div class="relative flex flex-col gap-[60px] pt-4 px-3 shadow-s">
         <div class="flex items-center justify-between">
-          <p class="text-2xl font-medium">
-            Notifications
-          </p>
-          <UiButton
-            class="z-10 hover:z-10 hover:bg-slate-200 w-8 h-8"
-            size="icon"
-            variant="secondary"
-            @click="showNotifications = false"
-          >
+          <p class="text-2xl font-medium">Notifications</p>
+          <UiButton class="z-10 hover:z-10 hover:bg-slate-200 w-8 h-8" size="icon" variant="secondary" @click="showNotifications = false">
             <XIcon />
           </UiButton>
         </div>
@@ -53,14 +35,8 @@
           <UiTabsList
             class="bg-white min-h-9 ml-2 p-0 w-full justify-start scrollbar-none overflow-x-scroll lg:overscroll-x-none overflow-y-hidden rounded-none"
           >
-            <template
-              v-for="tab in tabs"
-              :key="tab.value"
-            >
-              <UiTabsTrigger
-                class="pb-3 data-[state=active]:shadow-none data-[state=active]:text-blue-500 relative"
-                :value="tab.value"
-              >
+            <template v-for="tab in tabs" :key="tab.value">
+              <UiTabsTrigger class="pb-3 data-[state=active]:shadow-none data-[state=active]:text-blue-500 relative" :value="tab.value">
                 {{ tab.label }}
                 <UiBadge
                   :key="tab.badge"
@@ -70,10 +46,7 @@
                 >
                   {{ tab.badge }}
                 </UiBadge>
-                <div
-                  v-if="selectedTab === tab.value"
-                  class="w-full h-1 bg-blue-500 absolute bottom-0 rounded-t-full"
-                />
+                <div v-if="selectedTab === tab.value" class="w-full h-1 bg-blue-500 absolute bottom-0 rounded-t-full" />
               </UiTabsTrigger>
             </template>
           </UiTabsList>
@@ -90,14 +63,8 @@
         >
           <div class="flex items-center justify-between w-full py-3 px-2">
             <div class="flex items-center">
-              <NotificationIcon
-                class="w-5 h-5 mr-2"
-                :class="getNotificationClass(notification.title)"
-              />
-              <span
-                v-if="!notification.seen"
-                class="flex w-2 h-2 flex-shrink-0 bg-blue-500 rounded-full mr-2"
-              />
+              <NotificationIcon class="w-5 h-5 mr-2" :class="getNotificationClass(notification.title)" />
+              <span v-if="!notification.seen" class="flex w-2 h-2 flex-shrink-0 bg-blue-500 rounded-full mr-2" />
               <span class="capitalize text-sm leading-[1.43] font-medium">
                 {{ notification.title }}
               </span>
@@ -123,10 +90,7 @@
         </NuxtLink>
       </div>
       <div class="flex justify-between py-4 shadow-s z-10 sticky bg-white bottom-0 px-4">
-        <NuxtLink
-          to="/"
-          class="flex items-center text-blue-500"
-        >
+        <NuxtLink to="/" class="flex items-center text-blue-500">
           <span class="text-sm leading-[1.43] font-medium mr-2"> View all </span>
           <ArrowRight class="w-5 h-5 text-blue-500" />
         </NuxtLink>
@@ -175,9 +139,9 @@ const updateTabs = () => {
   selectedTab.value = 'all';
   const accountType = getAccountTypeById(userDetails.value?.accountType as number);
   const allCount = props.notifications.length;
-  const usersCount = props.notifications.filter(n => n.group === NotificationsGroups.Users).length;
-  const ordersCount = props.notifications.filter(n => n.group === NotificationsGroups.Orders).length;
-  const systemCount = props.notifications.filter(n => n.group === NotificationsGroups.System).length;
+  const usersCount = props.notifications.filter((n) => n.group === NotificationsGroups.Users).length;
+  const ordersCount = props.notifications.filter((n) => n.group === NotificationsGroups.Orders).length;
+  const systemCount = props.notifications.filter((n) => n.group === NotificationsGroups.System).length;
 
   tabs.value = [
     { value: 'all', label: 'All', badge: allCount },

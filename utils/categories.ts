@@ -72,8 +72,7 @@ export const filterByQuery = (items: TaxonomyInterface[], query: string): Taxono
     for (const category of categories) {
       if (category.name.toLowerCase().includes(query.toLowerCase())) {
         results.push(category);
-      }
-      else {
+      } else {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         category?.subcategory && search(category.subcategory, query);
       }
@@ -111,17 +110,16 @@ export const apiRequest = async (url: string, method: IMethod, token: string, bo
       description: response.description,
     });
     return response;
-  }
-  catch (error: unknown) {
-    const description
-            = error instanceof Error
-              ? error.message
-              : typeof error === 'object'
-                && error !== null
-                && 'description' in error
-                && typeof (error as { description?: unknown }).description === 'string'
-                ? (error as { description: string }).description
-                : 'An error occurred during the request.';
+  } catch (error: unknown) {
+    const description =
+      error instanceof Error
+        ? error.message
+        : typeof error === 'object' &&
+          error !== null &&
+          'description' in error &&
+          typeof (error as { description?: unknown }).description === 'string'
+        ? (error as { description: string }).description
+        : 'An error occurred during the request.';
     toast({
       title: 'Error',
       description,

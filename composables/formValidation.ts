@@ -13,20 +13,17 @@ export const useFormValidation = () => {
 
         if (!emailRegex.test(value) && !clientCodeRegex.test(value)) {
           e.error = 'Please provide a valid email address or a valid client code';
-        }
-        else {
+        } else {
           e.error = '';
         }
-      }
-      else if (!e.value) {
+      } else if (!e.value) {
         e.error = 'Please fill out this field';
-      }
-      else {
+      } else {
         e.error = '';
       }
     });
 
-    if (obj.find(e => e.error)) {
+    if (obj.find((e) => e.error)) {
       hasError = true;
     }
 

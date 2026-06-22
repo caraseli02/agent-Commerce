@@ -35,9 +35,9 @@ export const usePricingStore = defineStore({
       }
 
       this.pricing = pricingResponse.data;
-      this.range = smartPricingRange(this.pricing.filter(price => price.type === PriceSettingsTypeEnum.Range));
-      this.quantity = smartPricingQuantity(this.pricing.filter(quantity => quantity.type === PriceSettingsTypeEnum.Quantity));
-      this.margin = smartPricingMargin(this.pricing.filter(margin => margin.type === PriceSettingsTypeEnum.Margins));
+      this.range = smartPricingRange(this.pricing.filter((price) => price.type === PriceSettingsTypeEnum.Range));
+      this.quantity = smartPricingQuantity(this.pricing.filter((quantity) => quantity.type === PriceSettingsTypeEnum.Quantity));
+      this.margin = smartPricingMargin(this.pricing.filter((margin) => margin.type === PriceSettingsTypeEnum.Margins));
       return this.pricing;
     },
     emptyPricing() {
@@ -53,13 +53,13 @@ export const usePricingStore = defineStore({
       this.margin.push({ value: margin.values, label: margin.label ?? '', selected: false, _id });
     },
     removePriceRange(_id: string) {
-      this.range = this.range.filter(range => range._id !== _id);
+      this.range = this.range.filter((range) => range._id !== _id);
     },
     removeQuantityRange(_id: string) {
-      this.quantity = this.quantity.filter(quantity => quantity._id !== _id);
+      this.quantity = this.quantity.filter((quantity) => quantity._id !== _id);
     },
     removeMarginRange(_id: string) {
-      this.margin = this.margin.filter(margin => margin._id !== _id);
+      this.margin = this.margin.filter((margin) => margin._id !== _id);
     },
     editPriceRange(range: { min: number | null; max: number | null }, label: string | null, _id: string) {
       this.range = this.range.map((r) => {

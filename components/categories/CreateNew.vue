@@ -57,7 +57,7 @@ async function makeCreate() {
 
 watch(isOpen, () => {
   if (isOpen.value) {
-    selected.value = categoriesOptions.value.find(c => c.id === selectedCategories.value[0])?.id || '';
+    selected.value = categoriesOptions.value.find((c) => c.id === selectedCategories.value[0])?.id || '';
     title.value = '';
   }
 });
@@ -66,9 +66,7 @@ watch(isOpen, () => {
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger as-child>
-      <UiButton :disabled="selectedCategories.length > 1 || isLocked">
-        + Create New
-      </UiButton>
+      <UiButton :disabled="selectedCategories.length > 1 || isLocked"> + Create New </UiButton>
     </UiDialogTrigger>
     <UiDialogContent class="sm:max-w-[640px]">
       <UiDialogHeader>
@@ -76,25 +74,11 @@ watch(isOpen, () => {
       </UiDialogHeader>
       <div class="grid gap-4 py-4">
         <div class="flex flex-col items-start gap-4">
-          <UiLabel
-            for="title"
-            class="text-right"
-          >
-            Title
-          </UiLabel>
-          <UiInput
-            id="title"
-            v-model="title"
-            class="col-span-3"
-          />
+          <UiLabel for="title" class="text-right"> Title </UiLabel>
+          <UiInput id="title" v-model="title" class="col-span-3" />
         </div>
         <div class="flex flex-col items-start gap-4">
-          <UiLabel
-            for="destination"
-            class="text-right"
-          >
-            Destination Category
-          </UiLabel>
+          <UiLabel for="destination" class="text-right"> Destination Category </UiLabel>
           <UiSelect v-model="selected">
             <UiSelectTrigger>
               <UiSelectValue placeholder="Select a Category" />
@@ -102,11 +86,7 @@ watch(isOpen, () => {
             <UiSelectContent>
               <UiSelectGroup>
                 <UiSelectLabel>Category</UiSelectLabel>
-                <UiSelectItem
-                  v-for="item in categoriesOptions"
-                  :key="item.id"
-                  :value="item.id"
-                >
+                <UiSelectItem v-for="item in categoriesOptions" :key="item.id" :value="item.id">
                   {{ item.name }}
                 </UiSelectItem>
               </UiSelectGroup>
@@ -129,18 +109,8 @@ watch(isOpen, () => {
         />
       </div>
       <UiDialogFooter>
-        <UiButton
-          variant="secondary"
-          @click="isOpen = false"
-        >
-          Cancel
-        </UiButton>
-        <UiButton
-          :disabled="isLocked"
-          @click="makeCreate()"
-        >
-          Create
-        </UiButton>
+        <UiButton variant="secondary" @click="isOpen = false"> Cancel </UiButton>
+        <UiButton :disabled="isLocked" @click="makeCreate()"> Create </UiButton>
       </UiDialogFooter>
     </UiDialogContent>
   </UiDialog>

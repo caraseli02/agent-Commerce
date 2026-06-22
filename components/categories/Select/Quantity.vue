@@ -20,7 +20,7 @@ const props = withDefaults(
   {
     quantity: '',
     filterLength: null,
-  },
+  }
 );
 
 const pricingStore = usePricingStore();
@@ -52,30 +52,16 @@ watchEffect(() => {
 <template>
   <section class="flex flex-col gap-1 entry-price">
     <span class="text-grey-600 text-sm">{{ title }}</span>
-    <UiPopover
-      v-model:open="open"
-      class="w-full"
-    >
+    <UiPopover v-model:open="open" class="w-full">
       <UiPopoverTrigger as-child>
-        <UiButton
-          variant="outline"
-          role="combobox"
-          :aria-expanded="open"
-          class="w-full justify-between"
-        >
+        <UiButton variant="outline" role="combobox" :aria-expanded="open" class="w-full justify-between">
           {{ selectedLabel }}
           <CaretSortIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </UiButton>
       </UiPopoverTrigger>
-      <UiPopoverContent
-        disabled-portal
-        class="w-full p-0"
-      >
+      <UiPopoverContent disabled-portal class="w-full p-0">
         <UiCommand class="w-full">
-          <UiCommandInput
-            class="h-9"
-            placeholder="Search quantity..."
-          />
+          <UiCommandInput class="h-9" placeholder="Search quantity..." />
           <UiCommandEmpty>No options found.</UiCommandEmpty>
           <UiCommandList>
             <UiCommandGroup>
@@ -88,14 +74,8 @@ watchEffect(() => {
               >
                 {{ framework.label }}
                 <div class="flex items-center gap-1 p-0.5">
-                  <div
-                    v-for="val in framework.value"
-                    :key="val"
-                  >
-                    <UiBadge
-                      class="bg-light-300"
-                      variant="secondary"
-                    >
+                  <div v-for="val in framework.value" :key="val">
+                    <UiBadge class="bg-light-300" variant="secondary">
                       {{ val }}
                     </UiBadge>
                   </div>
@@ -112,20 +92,20 @@ watchEffect(() => {
 
 <style scoped>
 .entry-price > [data-radix-popper-content-wrapper] {
-    width: 100% !important;
-    padding: 0 24px;
+  width: 100% !important;
+  padding: 0 24px;
 }
 
 .entry-price > [data-radix-popper-content-wrapper] > div {
-    width: 100% !important;
+  width: 100% !important;
 }
 
 .entry-price > [data-radix-popper-content-wrapper] {
-    max-width: none !important;
+  max-width: none !important;
 }
 
 .UiCommand {
-    width: 100%;
-    box-sizing: border-box;
+  width: 100%;
+  box-sizing: border-box;
 }
 </style>

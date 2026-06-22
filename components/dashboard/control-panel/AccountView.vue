@@ -1,9 +1,7 @@
 <template>
   <div>
     <div class="mb-9 md:flex md:items-center md:justify-between">
-      <h2 class="text-xl leading-[1.4] font-semibold max-md:mb-9">
-        Account Details
-      </h2>
+      <h2 class="text-xl leading-[1.4] font-semibold max-md:mb-9">Account Details</h2>
       <div class="grid grid-cols-2 gap-3 md:grid-cols-[repeat(2,auto)]">
         <button
           class="flex items-center justify-center w-full text-left px-4 py-2 rounded-md transition-colors duration-300 bg-[#F2F2F2] text-slate-500 hover:text-white hover:bg-blue-500 xl:px-6"
@@ -120,10 +118,7 @@
         size="lg"
       />
     </div>
-    <div
-      v-if="isEditing"
-      class="grid grid-cols-[auto,1fr] gap-4 mt-9 xl:w-1/2 xl:ml-auto xl:pl-4"
-    >
+    <div v-if="isEditing" class="grid grid-cols-[auto,1fr] gap-4 mt-9 xl:w-1/2 xl:ml-auto xl:pl-4">
       <button
         class="flex items-center justify-center w-full text-left px-[31px] py-2 rounded-lg transition-colors duration-300 bg-[#F2F2F2] text-slate-500 md:px-[91px] xl:px-[61px]"
         @click="isEditing = false"
@@ -253,9 +248,9 @@ watch(
         value: { label: '', value: '' },
         error: '',
       };
-      regions.value
-                = countries
-          .find(e => e.value === newVal.value.value)
+      regions.value =
+        countries
+          .find((e) => e.value === newVal.value.value)
           ?.regions.map((e) => {
             return {
               label: e.name,
@@ -263,7 +258,7 @@ watch(
             };
           }) || [];
     }
-  },
+  }
 );
 
 const updateAccountDetails = async () => {

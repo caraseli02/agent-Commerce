@@ -25,7 +25,7 @@ const fetchAndSetOrdersList = async (
   page: number,
   perPage: number,
   filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {},
+  sort: Record<string, unknown> = {}
 ) => {
   error.value = false;
 
@@ -60,9 +60,7 @@ await fetchAndSetOrdersList(1, 10);
 </script>
 
 <template>
-  <div
-    class="h-full flex-1 flex-col space-y-8 flex w-[358px] md:w-[736px] lg:w-[976px] xl:w-[1392px] shadow-xs p-2 pt-6 md:p-6 rounded-xl"
-  >
+  <div class="h-full flex-1 flex-col space-y-8 flex w-[358px] md:w-[736px] lg:w-[976px] xl:w-[1392px] shadow-xs p-2 pt-6 md:p-6 rounded-xl">
     <DataTable
       v-if="!loading"
       :fetch-fn="debouncedFetchAndSetOrdersList"
@@ -73,12 +71,7 @@ await fetchAndSetOrdersList(1, 10);
       :total-items="totalItems"
     >
       <template #header="{ table, makeRefresh }">
-        <DataTableHeadControls
-          :error="error"
-          title="Orders List"
-          :table="table"
-          @refresh="makeRefresh()"
-        >
+        <DataTableHeadControls :error="error" title="Orders List" :table="table" @refresh="makeRefresh()">
           <!-- <UiButton class="flex-1 md:flex-grow-0 flex gap-2" size="sm">
                       <PlusIcon class="h-6 w-6" />
                       Create New

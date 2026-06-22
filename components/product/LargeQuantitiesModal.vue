@@ -11,7 +11,7 @@ const formSchema = toTypedSchema(
     productCode: z.string().min(1, 'Product code is required'),
     email: z.string().email('Invalid email address'),
     details: z.string().optional(),
-  }),
+  })
 );
 
 const { handleSubmit, setFieldValue } = useForm({
@@ -21,8 +21,7 @@ const { handleSubmit, setFieldValue } = useForm({
   },
 });
 
-const onSubmit = handleSubmit((_values) => {
-});
+const onSubmit = handleSubmit((_values) => {});
 
 const isOpen = defineModel<boolean>();
 </script>
@@ -30,22 +29,11 @@ const isOpen = defineModel<boolean>();
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogContent class="border-none shadow-s max-w-[358px] md:max-w-md rounded-xl">
-      <form
-        class="flex flex-col gap-4 w-full bg-white shadow-sm"
-        @submit="onSubmit"
-      >
-        <h4
-          id="price-enquiry-title"
-          class="text-lg font-semibold leading-7 text-gray-800 mb-6"
-        >
-          Price Enquiry
-        </h4>
+      <form class="flex flex-col gap-4 w-full bg-white shadow-sm" @submit="onSubmit">
+        <h4 id="price-enquiry-title" class="text-lg font-semibold leading-7 text-gray-800 mb-6">Price Enquiry</h4>
 
         <!-- Quantity Field -->
-        <FormField
-          v-slot="{ value }"
-          name="quantity"
-        >
+        <FormField v-slot="{ value }" name="quantity">
           <FormItem class="flex justify-between items-center relative">
             <FormLabel>Quantity</FormLabel>
             <UiNumberField
@@ -74,66 +62,40 @@ const isOpen = defineModel<boolean>();
         </FormField>
 
         <!-- Product Code Field -->
-        <FormField
-          v-slot="{ componentField }"
-          name="productCode"
-        >
+        <FormField v-slot="{ componentField }" name="productCode">
           <FormItem>
             <FormLabel>Product Code</FormLabel>
             <FormControl>
-              <UiInput
-                type="text"
-                placeholder="Enter product code"
-                v-bind="componentField"
-              />
+              <UiInput type="text" placeholder="Enter product code" v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
         <!-- Email Field -->
-        <FormField
-          v-slot="{ componentField }"
-          name="email"
-        >
+        <FormField v-slot="{ componentField }" name="email">
           <FormItem>
             <FormLabel>Email Address</FormLabel>
             <FormControl>
-              <UiInput
-                type="email"
-                placeholder="Enter email address"
-                v-bind="componentField"
-              />
+              <UiInput type="email" placeholder="Enter email address" v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
         <!-- Additional Details Field -->
-        <FormField
-          v-slot="{ componentField }"
-          name="details"
-        >
+        <FormField v-slot="{ componentField }" name="details">
           <FormItem>
             <FormLabel>Additional Details (Optional)</FormLabel>
             <FormControl>
-              <UiTextarea
-                class="min-h-[140px] bg-light-100"
-                placeholder="Type your note here..."
-                v-bind="componentField"
-              />
+              <UiTextarea class="min-h-[140px] bg-light-100" placeholder="Type your note here..." v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
         <!-- Submit Button -->
-        <UiButton
-          type="submit"
-          class="mt-6 w-full"
-        >
-          Submit
-        </UiButton>
+        <UiButton type="submit" class="mt-6 w-full"> Submit </UiButton>
       </form>
     </UiDialogContent>
   </UiDialog>

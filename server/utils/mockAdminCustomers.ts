@@ -31,18 +31,18 @@ export const getPaginatedAdminMockCustomers = (event: Parameters<typeof getQuery
 
   if (searchTerm) {
     items = items.filter((user) => {
-      const fullName
-                = user.accountType === 0
-                  ? `${user.personalDetails?.firstName || ''} ${user.personalDetails?.lastName || ''}`
-                  : `${user.contactDetails?.firstName || ''} ${user.contactDetails?.lastName || ''}`;
+      const fullName =
+        user.accountType === 0
+          ? `${user.personalDetails?.firstName || ''} ${user.personalDetails?.lastName || ''}`
+          : `${user.contactDetails?.firstName || ''} ${user.contactDetails?.lastName || ''}`;
       return (
-        fullName.toLowerCase().includes(searchTerm)
-        || String(user.contactDetails?.email || '')
+        fullName.toLowerCase().includes(searchTerm) ||
+        String(user.contactDetails?.email || '')
+          .toLowerCase()
+          .includes(searchTerm) ||
+        String(user.companyDetails?.name || '')
           .toLowerCase()
           .includes(searchTerm)
-          || String(user.companyDetails?.name || '')
-            .toLowerCase()
-            .includes(searchTerm)
       );
     });
   }
@@ -72,7 +72,7 @@ export const getCustomersTotalWidgetMock = () => {
 
 export const getReturningCustomersWidgetMock = () => {
   const customers = getAdminMockCustomers();
-  const returning = customers.filter(customer => Number(customer.ordersCount || 0) > 1);
+  const returning = customers.filter((customer) => Number(customer.ordersCount || 0) > 1);
   const points = [5, 6, 7, 8, 9, 10, returning.length];
 
   return {

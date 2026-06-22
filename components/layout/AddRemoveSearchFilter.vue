@@ -23,32 +23,22 @@
             type="search"
             placeholder="Search parameters"
             class="bg-transparent flex-1 pl-2 pr-8 py-[9px] w-full text-sm placeholder:text-gray-500 focus:outline-none"
-          >
+          />
           <Transition name="fade">
-            <XIcon
-              v-if="searchValue"
-              class="w-[18px] h-[18px] text-gray-500 cursor-pointer"
-              @click="searchValue = ''"
-            />
+            <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
           </Transition>
         </label>
       </div>
       <div class="mb-[34px] lg:mb-[42px]">
         <div class="grid grid-cols-[repeat(2,1fr),auto] gap-2 px-6 mb-2 md:px-8">
-          <button
-            class="flex items-center"
-            @click="parametersOrder ? (parametersOrder = 0) : (parametersOrder = 1)"
-          >
+          <button class="flex items-center" @click="parametersOrder ? (parametersOrder = 0) : (parametersOrder = 1)">
             <span class="text-sm font-medium tracking-[0.6px] mr-2"> Parameters </span>
             <CaretIcon
               class="w-5 h-5 text-slate-500 transition-transform duration-300"
               :class="[parametersOrder ? 'rotate-90' : '-rotate-90']"
             />
           </button>
-          <button
-            class="flex items-center"
-            @click="productsOrder ? (productsOrder = 0) : (productsOrder = 1)"
-          >
+          <button class="flex items-center" @click="productsOrder ? (productsOrder = 0) : (productsOrder = 1)">
             <span class="text-sm font-medium tracking-[0.6px] mr-2"> Products </span>
             <CaretIcon
               class="w-5 h-5 text-slate-500 transition-transform duration-300"
@@ -58,10 +48,7 @@
           <div class="w-[18px] h-[18px]" />
         </div>
         <div class="pr-1">
-          <div
-            v-if="items.length > 0"
-            class="max-h-[40vh] overflow-y-auto scrollbar-thin overscroll-contain pl-4 pr-3 md:pl-6"
-          >
+          <div v-if="items.length > 0" class="max-h-[40vh] overflow-y-auto scrollbar-thin overscroll-contain pl-4 pr-3 md:pl-6">
             <div
               v-for="item in filteredItems"
               :key="item.parameter"
@@ -77,33 +64,20 @@
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                 :class="[
-                  item.checked
-                    ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-                    : 'bg-white  border-border group-hover:border-gray-300',
+                  item.checked ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
                 ]"
               >
-                <CheckIcon
-                  v-if="item.checked"
-                  class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-                />
+                <CheckIcon v-if="item.checked" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="flex justify-center gap-2.5 px-4 md:px-6">
-        <button
-          class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500"
-          @click="$emit('close')"
-        >
+        <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
           Cancel
         </button>
-        <button
-          class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white"
-          @click="saveFilters()"
-        >
-          Save
-        </button>
+        <button class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white" @click="saveFilters()">Save</button>
       </div>
     </div>
   </div>
@@ -131,9 +105,7 @@ const parametersOrder = ref(0);
 const productsOrder = ref(0);
 
 const filteredItems = computed(() => {
-  const itemsToReturn = items.value.filter((e: AddFilterInterface) =>
-    e.parameter.toLowerCase().includes(searchValue.value.toLowerCase()),
-  );
+  const itemsToReturn = items.value.filter((e: AddFilterInterface) => e.parameter.toLowerCase().includes(searchValue.value.toLowerCase()));
 
   if (productsOrder.value) {
     itemsToReturn.sort((a, b) => {
@@ -147,8 +119,7 @@ const filteredItems = computed(() => {
       }
       return 0;
     });
-  }
-  else if (parametersOrder.value) {
+  } else if (parametersOrder.value) {
     itemsToReturn.sort((a, b) => {
       if (a.parameter > b.parameter) {
         return parametersOrder.value;

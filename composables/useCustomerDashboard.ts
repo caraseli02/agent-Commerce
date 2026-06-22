@@ -125,10 +125,10 @@ export const useCustomerDashboard = () => {
 
     // get default shipping address
     if (details?.shippingAddress) {
-      shipping.value = details?.shippingAddress.find(address => address.default) || details?.shippingAddress[0];
+      shipping.value = details?.shippingAddress.find((address) => address.default) || details?.shippingAddress[0];
     }
     if (details?.billingAddress) {
-      billing.value = details?.billingAddress.find(address => address.default) || details?.billingAddress[0];
+      billing.value = details?.billingAddress.find((address) => address.default) || details?.billingAddress[0];
     }
     myAddresses.value.push(shipping.value);
     myAddresses.value.push(billing.value);
@@ -172,7 +172,7 @@ export const useCustomerDashboard = () => {
   };
 
   const getDefaultCard = async () => {
-    myCard.value = userCards?.filter(card => card.default)[0] as StripeCardInterface;
+    myCard.value = userCards?.filter((card) => card.default)[0] as StripeCardInterface;
   };
 
   return {

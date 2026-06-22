@@ -61,9 +61,9 @@ const data = ref<OrderRequestInterfaceResponse>({} as OrderRequestInterfaceRespo
 const shippingMethod = computed(() => data.value.data?.order.shippingDetails.stockorderShippingType);
 
 const hasMixedItems = computed(() => {
-  const stockIds = new Set(stockOrderItems.value.map(item => item.id));
+  const stockIds = new Set(stockOrderItems.value.map((item) => item.id));
 
-  return backorderItems.value.some(item => stockIds.has(item.id));
+  return backorderItems.value.some((item) => stockIds.has(item.id));
 });
 
 // eslint-disable-next-line vue/return-in-computed-property
@@ -97,9 +97,9 @@ const paymentSummary = computed(() => {
 
     if (data.value.data?.children?.length > 0) {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      orderPaySum.value.stockItemsTotal = data.value.data.children.find(child => child.type === OrderType.Stock)?.total;
+      orderPaySum.value.stockItemsTotal = data.value.data.children.find((child) => child.type === OrderType.Stock)?.total;
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      orderPaySum.value.backorderItemsTotal = data.value.data.children.find(child => child.type === OrderType.Back)?.total;
+      orderPaySum.value.backorderItemsTotal = data.value.data.children.find((child) => child.type === OrderType.Back)?.total;
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       orderPaySum.value.payableNow = orderPaySum.value.stockItemsTotal;
     }
@@ -123,14 +123,14 @@ const getOrderInformation = async () => {
     orderTypeValue.value = response.data.order.type;
     stockOrder.value = (
       response.data.order.type === OrderType.Mixed
-        ? response.data.children.find(child => child.type === OrderType.Stock) ?? response.data.order
+        ? response.data.children.find((child) => child.type === OrderType.Stock) ?? response.data.order
         : response.data.order
     ) as OrderRequestInterface;
 
     stockOrderItems.value = stockOrder.value.products || [];
     backOrder.value = (
       response.data.order.type === OrderType.Mixed
-        ? response.data.children.find(child => child.type === OrderType.Back) ?? response.data.order
+        ? response.data.children.find((child) => child.type === OrderType.Back) ?? response.data.order
         : response.data.order
     ) as OrderRequestInterface;
     backorderItems.value = backOrder.value.products || [];
@@ -140,16 +140,11 @@ const getOrderInformation = async () => {
     }
 
     if (orderTypeValue.value === OrderType.Mixed) {
-      const mixedPayment = paymentInfoHelper(
-        stockOrder.value as unknown as OrderInterface,
-        getUserDetails.value,
-        userCards.value || [],
-      );
+      const mixedPayment = paymentInfoHelper(stockOrder.value as unknown as OrderInterface, getUserDetails.value, userCards.value || []);
       if (mixedPayment) {
         paymentMethod.value = mixedPayment;
       }
-    }
-    else {
+    } else {
       const orderPayment = paymentInfoHelper(response.data.order, getUserDetails.value, userCards.value || []);
       if (orderPayment) {
         paymentMethod.value = orderPayment;
@@ -166,9 +161,7 @@ const getOrderInformation = async () => {
       },
       billingAddress: {
         name1: response.data.order.shippingDetails.billingAddress.name1,
-        name2: response.data.order.shippingDetails.billingAddress.name2
-          ? response.data.order.shippingDetails.billingAddress.name2
-          : '',
+        name2: response.data.order.shippingDetails.billingAddress.name2 ? response.data.order.shippingDetails.billingAddress.name2 : '',
         postcode: response.data.order.shippingDetails.billingAddress.postcode,
         country: response.data.order.shippingDetails.billingAddress.country,
       },
@@ -204,7 +197,7 @@ const downloadDocument = async () => {
 };
 
 const getOrderTypeValueByOrder = () => {
-  return orderType.find(type => type.value === orderTypeValue.value) || orderType[0];
+  return orderType.find((type) => type.value === orderTypeValue.value) || orderType[0];
 };
 
 onMounted(() => {
@@ -222,33 +215,20 @@ onMounted(() => {
       :pickup-date="stockOrder?.shippingDetails?.statusTracking?.estimatedPickUpDate"
     />
     <section class="w-full flex justify-between">
-      <NuxtLink
-        v-if="false"
-        class="w-fit"
-        to="/dashboard/client?tab=orders"
-      >
-        <UiButton
-          class="gap-2"
-          variant="secondary"
-        >
+      <NuxtLink v-if="false" class="w-fit" to="/dashboard/client?tab=orders">
+        <UiButton class="gap-2" variant="secondary">
           <ArrowLeft class="w-4 h-4 stroke-2" />
           Back
         </UiButton>
       </NuxtLink>
-      <NuxtLink
-        v-if="true"
-        to="/"
-      >
+      <NuxtLink v-if="true" to="/">
         <UiButton class="gap-2">
           <ShoppingCart class="w-4 h-4 stroke-2" />
           Continue Shopping
         </UiButton>
       </NuxtLink>
       <NuxtLink to="/dashboard/client?tab=home">
-        <UiButton
-          class="gap-2"
-          variant="secondary"
-        >
+        <UiButton class="gap-2" variant="secondary">
           <LayoutDashboard class="w-4 h-4 stroke-2" />
           Dashboard
         </UiButton>
@@ -271,11 +251,7 @@ onMounted(() => {
         :has-mixed-items="hasMixedItems"
       />
       <UiSeparator class="bg-grey-100" />
-      <OrderConfirmAddress
-        v-if="addresses"
-        :shipping-address="addresses.shippingAddress"
-        :billing-address="addresses.billingAddress"
-      />
+      <OrderConfirmAddress v-if="addresses" :shipping-address="addresses.shippingAddress" :billing-address="addresses.billingAddress" />
       <OrderConfirmStackItems
         v-if="stockOrder && (orderTypeValue === OrderType.Stock || orderTypeValue === OrderType.Mixed)"
         :data="stockOrder"
@@ -288,57 +264,32 @@ onMounted(() => {
       />
       <section class="flex flex-col lg:flex-row gap-9">
         <div class="flex flex-col order-3 lg:order-1 w-full self-stretch text-sm leading-6 text-neutral-700">
-          <h2 class="w-full font-semibold max-md:max-w-full">
-            Customer Notes
-          </h2>
+          <h2 class="w-full font-semibold max-md:max-w-full">Customer Notes</h2>
           <textarea
             disabled
             :placeholder="notes[0] && notes[0].message ? notes[0].message : 'No message provided'"
             class="min-h-[204px] justify-center px-3 pt-3 pb-16 mt-4 rounded-lg border border-solid bg-light-100 border-grey-300 max-md:pb-10 max-md:max-w-full"
           />
         </div>
-        <OrderConfirmPaySummary
-          v-if="paymentSummary"
-          :order-pay-sum="orderPaySum"
-        />
+        <OrderConfirmPaySummary v-if="paymentSummary" :order-pay-sum="orderPaySum" />
       </section>
-      <div
-        v-if="getUserDetails?.role === 2"
-        class="flex flex-wrap md:flex-nowrap justify-between gap-12 md:gap-2"
-      >
+      <div v-if="getUserDetails?.role === 2" class="flex flex-wrap md:flex-nowrap justify-between gap-12 md:gap-2">
         <OrderConfirmCompanyDetails />
         <OrderConfirmBankDetails />
       </div>
       <UiSeparator class="bg-grey-100" />
-      <div
-        v-if="paymentSummary"
-        class="flex flex-col gap-6"
-      >
-        <h4 class="font-semibold text-sm">
-          Need Help?
-        </h4>
+      <div v-if="paymentSummary" class="flex flex-col gap-6">
+        <h4 class="font-semibold text-sm">Need Help?</h4>
         <section class="flex gap-6 flex-wrap">
-          <UiButton
-            size="xs"
-            class="gap-2 px-0"
-            variant="link"
-          >
+          <UiButton size="xs" class="gap-2 px-0" variant="link">
             <TruckIcon class="w-5 h-5 stroke-1.5" />
             Delivery Info
           </UiButton>
-          <UiButton
-            size="xs"
-            class="gap-2 px-0"
-            variant="link"
-          >
+          <UiButton size="xs" class="gap-2 px-0" variant="link">
             <Undo2Icon class="w-5 h-5 stroke-1.5" />
             Returns
           </UiButton>
-          <UiButton
-            size="xs"
-            class="gap-2 px-0"
-            variant="link"
-          >
+          <UiButton size="xs" class="gap-2 px-0" variant="link">
             <PackageOpenIcon class="w-5 h-5 stroke-1.5" />
             Order Issues
           </UiButton>

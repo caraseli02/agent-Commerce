@@ -15,12 +15,12 @@ export interface SanitizeOptions {
   sanitizeHTML?: boolean;
   maxDepth?: number;
   /**
-     * Keys that should always be removed from mock data
-     */
+   * Keys that should always be removed from mock data
+   */
   blockedKeys?: string[];
   /**
-     * Keys that should be masked (values replaced with [MASKED])
-     */
+   * Keys that should be masked (values replaced with [MASKED])
+   */
   maskedKeys?: string[];
 }
 
@@ -85,11 +85,11 @@ export function sanitizeMockData<T>(data: T, options: SanitizeOptions = {}): T {
   // Handle arrays
   if (Array.isArray(data)) {
     const sanitized = data
-      .map(item =>
+      .map((item) =>
         sanitizeMockData(item, {
           ...options,
           maxDepth: maxDepth - 1,
-        }),
+        })
       )
       .filter((item) => {
         // Remove null/undefined items if removeNulls is enabled
@@ -120,13 +120,13 @@ export function sanitizeMockData<T>(data: T, options: SanitizeOptions = {}): T {
         const value = record[key];
 
         // Security: Check for blocked keys
-        const isBlocked = blockedKeys.some(bk => key.toLowerCase().includes(bk.toLowerCase()));
+        const isBlocked = blockedKeys.some((bk) => key.toLowerCase().includes(bk.toLowerCase()));
         if (isBlocked) {
           continue;
         }
 
         // Security: Check for masked keys
-        const isMasked = maskedKeys.some(mk => key.toLowerCase().includes(mk.toLowerCase()));
+        const isMasked = maskedKeys.some((mk) => key.toLowerCase().includes(mk.toLowerCase()));
         if (isMasked && typeof value === 'string') {
           sanitized[key] = '[MASKED]';
           continue;
@@ -141,8 +141,7 @@ export function sanitizeMockData<T>(data: T, options: SanitizeOptions = {}): T {
         // Sanitize HTML strings
         if (sanitizeHTML && typeof value === 'string') {
           sanitized[key] = sanitizeHTMLContent(value);
-        }
-        else {
+        } else {
           sanitized[key] = sanitizedValue;
         }
       }
@@ -222,7 +221,7 @@ export function validateMockDataStructure(data: unknown): boolean {
       const value = record[key];
 
       // Check for blocked keys
-      if (BLOCKED_KEYS.some(bk => key.toLowerCase().includes(bk.toLowerCase()))) {
+      if (BLOCKED_KEYS.some((bk) => key.toLowerCase().includes(bk.toLowerCase()))) {
         console.error(`SECURITY: Blocked key found in mock data: ${key}`);
         return false;
       }

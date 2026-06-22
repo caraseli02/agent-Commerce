@@ -16,10 +16,10 @@ redirect them to the session/login flow.
 
 ## Consequences
 
--   Public routes must not return `401` for guests.
--   Protected experiences will be exited immediately on unauthorized responses.
--   Session expiry and missing auth now have one consistent behavior across the
-    app.
+- Public routes must not return `401` for guests.
+- Protected experiences will be exited immediately on unauthorized responses.
+- Session expiry and missing auth now have one consistent behavior across the
+  app.
 
 ## Future
 

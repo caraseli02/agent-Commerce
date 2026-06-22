@@ -38,13 +38,13 @@ NUXT_PUBLIC_MOCK_MODE_ENABLED=true
 
 ```typescript
 export default defineNuxtConfig({
-    runtimeConfig: {
-        public: {
-            MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE || 'false',
-            MOCK_MODE_ENABLED: process.env.NUXT_PUBLIC_MOCK_MODE_ENABLED || 'false',
-            // ... other config
-        },
+  runtimeConfig: {
+    public: {
+      MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE || 'false',
+      MOCK_MODE_ENABLED: process.env.NUXT_PUBLIC_MOCK_MODE_ENABLED || 'false',
+      // ... other config
     },
+  },
 });
 ```
 
@@ -58,9 +58,9 @@ Run the setup script:
 
 This will:
 
--   Install pre-commit hooks to prevent committing mock mode or secrets
--   Install pre-push hooks for production branch protection
--   Update .gitignore to prevent committing .env files
+- Install pre-commit hooks to prevent committing mock mode or secrets
+- Install pre-push hooks for production branch protection
+- Update .gitignore to prevent committing .env files
 
 ## 📋 Core Security Features
 
@@ -82,9 +82,9 @@ const { isMockMode, getMockMode, assertMockMode } = useMockMode();
 ```typescript
 // Check if mock mode is enabled
 if (isMockMode.value) {
-    // Use mock data
+  // Use mock data
 } else {
-    // Use real data
+  // Use real data
 }
 
 // Assert that mock mode is active
@@ -102,17 +102,17 @@ The `sanitizeMockData` utility provides comprehensive sanitization:
 import { sanitizeMockData } from '~/utils/sanitizeMockData';
 
 const mockData = {
-    id: '1',
-    name: '<script>alert("XSS")</script>',
-    password: 'secret123',
-    nullValue: null,
-    emptyArray: [],
+  id: '1',
+  name: '<script>alert("XSS")</script>',
+  password: 'secret123',
+  nullValue: null,
+  emptyArray: [],
 };
 
 const sanitized = sanitizeMockData(mockData, {
-    removeNulls: true,
-    removeEmptyArrays: true,
-    sanitizeHTML: true,
+  removeNulls: true,
+  removeEmptyArrays: true,
+  sanitizeHTML: true,
 });
 
 // Result:
@@ -139,9 +139,9 @@ logErrorSafely(new Error('Authentication failed: password=secret123'), 'AuthCont
 
 // Sanitize error messages manually
 const sanitized = sanitizeErrorMessage(error, {
-    removeStackTraces: true,
-    removeFilePaths: true,
-    maskSensitiveData: true,
+  removeStackTraces: true,
+  removeFilePaths: true,
+  maskSensitiveData: true,
 });
 ```
 
@@ -149,26 +149,26 @@ const sanitized = sanitizeErrorMessage(error, {
 
 ### Before Implementation
 
--   [ ] Review `docs/security/MOCK_MODE_SECURITY.md` thoroughly
--   [ ] Ensure `.env` is in `.gitignore`
--   [ ] Set up git hooks
--   [ ] Review team on security best practices
+- [ ] Review `docs/security/MOCK_MODE_SECURITY.md` thoroughly
+- [ ] Ensure `.env` is in `.gitignore`
+- [ ] Set up git hooks
+- [ ] Review team on security best practices
 
 ### During Implementation
 
--   [ ] Use `useMockMode` composable for all mock mode checks
--   [ ] Sanitize all mock data before returning
--   [ ] Use `logErrorSafely` for all error logging
--   [ ] Implement CSRF protection for mock endpoints
--   [ ] Add security headers to all mock endpoints
+- [ ] Use `useMockMode` composable for all mock mode checks
+- [ ] Sanitize all mock data before returning
+- [ ] Use `logErrorSafely` for all error logging
+- [ ] Implement CSRF protection for mock endpoints
+- [ ] Add security headers to all mock endpoints
 
 ### After Implementation
 
--   [ ] Run comprehensive security tests
--   [ ] Test mock mode in development environment
--   [ ] Verify mock mode is disabled in production builds
--   [ ] Review git logs for any security issues
--   [ ] Update documentation
+- [ ] Run comprehensive security tests
+- [ ] Test mock mode in development environment
+- [ ] Verify mock mode is disabled in production builds
+- [ ] Review git logs for any security issues
+- [ ] Update documentation
 
 ## 🧪 Testing
 
@@ -194,26 +194,26 @@ NUXT_PUBLIC_MOCK_MODE=false npm run dev
 import { describe, it, expect } from 'vitest';
 
 describe('Mock Mode Security', () => {
-    it('should not enable mock mode in production', () => {
-        process.env.NODE_ENV = 'production';
-        process.env.NUXT_PUBLIC_MOCK_MODE = 'false';
+  it('should not enable mock mode in production', () => {
+    process.env.NODE_ENV = 'production';
+    process.env.NUXT_PUBLIC_MOCK_MODE = 'false';
 
-        const { isMockMode } = useMockMode();
+    const { isMockMode } = useMockMode();
 
-        expect(isMockMode.value).toBe(false);
-    });
+    expect(isMockMode.value).toBe(false);
+  });
 
-    it('should sanitize mock data', () => {
-        const mockData = {
-            password: 'secret123',
-            description: '<script>alert("XSS")</script>',
-        };
+  it('should sanitize mock data', () => {
+    const mockData = {
+      password: 'secret123',
+      description: '<script>alert("XSS")</script>',
+    };
 
-        const sanitized = sanitizeMockData(mockData);
+    const sanitized = sanitizeMockData(mockData);
 
-        expect(sanitized.password).toBeUndefined();
-        expect(sanitized.description).not.toContain('<script>');
-    });
+    expect(sanitized.password).toBeUndefined();
+    expect(sanitized.description).not.toContain('<script>');
+  });
 });
 ```
 
@@ -262,16 +262,16 @@ logErrorSafely(error, 'Context');
 import { sanitizeMockData } from '~/utils/sanitizeMockData';
 
 const sanitized = sanitizeMockData(mockData, {
-    sanitizeHTML: true,
+  sanitizeHTML: true,
 });
 ```
 
 ## 📚 Additional Resources
 
--   Full security requirements: `docs/security/MOCK_MODE_SECURITY.md`
--   Mock mode composable: `composables/useMockMode.ts`
--   Data sanitization: `utils/sanitizeMockData.ts`
--   Error sanitization: `utils/errorSanitizer.ts`
+- Full security requirements: `docs/security/MOCK_MODE_SECURITY.md`
+- Mock mode composable: `composables/useMockMode.ts`
+- Data sanitization: `utils/sanitizeMockData.ts`
+- Error sanitization: `utils/errorSanitizer.ts`
 
 ## 🆘 Support
 
@@ -285,12 +285,12 @@ If you encounter security issues:
 
 ## ⚠️ Critical Reminders
 
--   **NEVER** enable mock mode in production
--   **ALWAYS** sanitize mock data before returning
--   **NEVER** commit `.env` files
--   **ALWAYS** use `logErrorSafely` for error logging
--   **NEVER** hardcode credentials or API keys
--   **ALWAYS** review code with security mindset
+- **NEVER** enable mock mode in production
+- **ALWAYS** sanitize mock data before returning
+- **NEVER** commit `.env` files
+- **ALWAYS** use `logErrorSafely` for error logging
+- **NEVER** hardcode credentials or API keys
+- **ALWAYS** review code with security mindset
 
 ---
 

@@ -18,10 +18,10 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/Ecas`. Use th
 - The controller loop should behave like a standing `/goal`: keep one issue alive until evaluator pass, blocker, or human intervention.
 - Only issues with the `ready-for-agent` label are eligible for planner pickup.
 - Before editing code, the planner claims exactly one issue:
-    - remove `ready-for-agent`
-    - add the `in-progress` label
-    - assign the issue to the working account
-    - leave a short comment with the branch name
+  - remove `ready-for-agent`
+  - add the `in-progress` label
+  - assign the issue to the working account
+  - leave a short comment with the branch name
 - If an issue is already assigned or already has an active PR, skip it.
 - WIP is 1: never work two issues in parallel.
 - The generator may only implement the issue already claimed by the planner.

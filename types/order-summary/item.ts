@@ -70,17 +70,17 @@ export interface OrderInterface {
   deliveryMethod: ShippingOrderPricingOption;
 
   /**
-     * If the order has a parent, it means that the order is
-     * attached to the parent order (which is a Mixed Order).
-     * A Mixed Order is a composition between a Stock Order and a Back Order.
-     * The order cannot have a parent if the type is Mixed.
-     */
+   * If the order has a parent, it means that the order is
+   * attached to the parent order (which is a Mixed Order).
+   * A Mixed Order is a composition between a Stock Order and a Back Order.
+   * The order cannot have a parent if the type is Mixed.
+   */
   parent?: string;
 }
 
 export type OrderTableColumns = Pick<
   OrderInterface,
-    '_id' | 'shortId' | 'type' | 'user' | 'createdAt' | 'status' | 'total' | 'paymentDetails'
+  '_id' | 'shortId' | 'type' | 'user' | 'createdAt' | 'status' | 'total' | 'paymentDetails'
 >;
 
 export interface OrderRequestInterface {
@@ -365,7 +365,7 @@ export enum OrderType {
 
 // The 'as T' is a type assertion to help TypeScript
 export const getOrderById = <T extends { [index: string]: number }>(enumValue: number): string | null => {
-  const keys = Object.keys(OrderType as unknown as T).filter(x => (OrderType as unknown as T)[x] === enumValue);
+  const keys = Object.keys(OrderType as unknown as T).filter((x) => (OrderType as unknown as T)[x] === enumValue);
   return keys.length > 0 ? keys[0] : null;
 };
 

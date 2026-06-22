@@ -2,11 +2,7 @@
   <div class="relative bg-white rounded-xl shadow-m h-[298px] p-4 pt-7">
     <div class="grid h-full grid-cols-[1fr_auto] gap-3">
       <div class="flex min-w-0 flex-col justify-between">
-        <button
-          type="button"
-          class="flex w-full justify-center"
-          @click="emit('showZoomModal')"
-        >
+        <button type="button" class="flex w-full justify-center" @click="emit('showZoomModal')">
           <ImageWithFallback
             :src="props.images[activeImageIndex]?.ProductImageLarge"
             alt="Product image"
@@ -35,10 +31,7 @@
             :style="{ width: '56px', height: '48px' }"
             class="lg:!w-[56px] lg:!h-[48px] lg:!max-w-[56px] lg:!max-h-[48px] first:ml-2"
           >
-            <button
-              class="flex"
-              @click="handleSlideTo(index)"
-            >
+            <button class="flex" @click="handleSlideTo(index)">
               <div class="swiper-zoom-container">
                 <ImageWithFallback
                   :src="image?.ProductImageSmall"
@@ -60,18 +53,10 @@
         >
           <HeartIcon class="w-6 h-6" />
         </button>
-        <button
-          class="flex justify-end text-slate-200 transition-colors duration-300 hover:text-blue-500"
-          type="button"
-          aria-label="Share"
-        >
+        <button class="flex justify-end text-slate-200 transition-colors duration-300 hover:text-blue-500" type="button" aria-label="Share">
           <Share2Icon class="w-6 h-6" />
         </button>
-        <button
-          class="flex justify-end text-slate-200 transition-colors duration-300 hover:text-blue-500"
-          type="button"
-          aria-label="Box"
-        >
+        <button class="flex justify-end text-slate-200 transition-colors duration-300 hover:text-blue-500" type="button" aria-label="Box">
           <BoxIcon class="w-6 h-6" />
         </button>
       </div>

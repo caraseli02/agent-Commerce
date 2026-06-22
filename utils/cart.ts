@@ -1,7 +1,7 @@
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
 
 export const mapCartItems = (cartProducts: CartProductsInterface[] = []) => {
-  return cartProducts.map(product => ({
+  return cartProducts.map((product) => ({
     id: product.id,
     stock: product.stock,
     backorder_stock: product.backorder_stock || 0,

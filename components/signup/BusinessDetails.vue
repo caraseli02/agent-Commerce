@@ -3,9 +3,7 @@
     <div class="container h-full">
       <div class="flex flex-col h-full md:max-w-[410px] md:mx-auto">
         <div class="flex items-center mb-5">
-          <div class="font-medium mr-2 md:text-xl">
-            Business Details
-          </div>
+          <div class="font-medium mr-2 md:text-xl">Business Details</div>
           <QuestionIcon class="w-5 h-5 text-gray-500" />
         </div>
         <div class="mb-[30px]">
@@ -41,18 +39,8 @@
               search
               class="relative z-10"
             />
-            <FormInput
-              v-model="details.city.value"
-              :error="details.city.error"
-              label="City"
-              placeholder="City"
-            />
-            <FormInput
-              v-model="details.postcode.value"
-              :error="details.postcode.error"
-              label="Postcode"
-              placeholder="Postcode"
-            />
+            <FormInput v-model="details.city.value" :error="details.city.error" label="City" placeholder="City" />
+            <FormInput v-model="details.postcode.value" :error="details.postcode.error" label="Postcode" placeholder="Postcode" />
             <FormInput
               v-model="details.addressLine1.value"
               :error="details.addressLine1.error"
@@ -66,11 +54,7 @@
               placeholder="Address Line 2"
             />
             <div class="flex items-center space-x-2">
-              <UiCheckbox
-                id="vat show"
-                :checked="vatPayer"
-                @update:checked="vatPayer = $event"
-              />
+              <UiCheckbox id="vat show" :checked="vatPayer" @update:checked="vatPayer = $event" />
               <label
                 for="vat show"
                 class="text-slate-500 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -87,17 +71,11 @@
             />
           </div>
           <div class="flex items-center justify-between">
-            <button
-              class="flex items-center rounded bg-gray-100 px-[22px] py-[11px] text-slate-500"
-              @click="$emit('back')"
-            >
+            <button class="flex items-center rounded bg-gray-100 px-[22px] py-[11px] text-slate-500" @click="$emit('back')">
               <ChevronRightIcon class="w-3 h-3 mr-2 rotate-180" />
               <span class="text-sm font-medium">Back</span>
             </button>
-            <button
-              class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white"
-              @click="$emit('continue')"
-            >
+            <button class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white" @click="$emit('continue')">
               <span class="text-sm font-medium mr-2">Continue</span>
               <ChevronRightIcon class="w-3 h-3" />
             </button>
@@ -105,10 +83,7 @@
         </div>
         <div class="text-xs text-center text-slate-500 mt-auto">
           For assistance please contact
-          <a
-            href="mailto:support@demo.app"
-            class="text-blue-500"
-          >support@demo.app</a>
+          <a href="mailto:support@demo.app" class="text-blue-500">support@demo.app</a>
         </div>
       </div>
     </div>
@@ -144,9 +119,9 @@ watch(details.value.country, (newVal) => {
       label: '',
       icon: '',
     };
-    regions.value
-            = countries
-        .find(e => e.label === newVal.value.value?.label)
+    regions.value =
+      countries
+        .find((e) => e.label === newVal.value.value?.label)
         ?.regions.map((e) => {
           return {
             label: e.name,

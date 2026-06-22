@@ -5,9 +5,7 @@
         <div class="text-xs font-semibold leading-tight truncate w-[140px] mb-[5px]">
           {{ FeatureName }}
         </div>
-        <div class="text-xs leading-tight">
-          ({{ totalProducts }})
-        </div>
+        <div class="text-xs leading-tight">({{ totalProducts }})</div>
       </div>
       <button
         class="rounded w-[22px] h-[22px] bg-[#F2F2F2] flex items-center justify-center text-gray-500 transition-colors duration-300 hover:text-slate-500"
@@ -24,7 +22,7 @@
           placeholder="Type here"
           class="w-full border border-border bg-white rounded px-2.5 pt-[5px] pb-1.5 pr-10 text-xs placeholder:text-gray-500 transition-colors duration-300 focus:outline-none focus:border-blue-500"
           @input="onInput"
-        >
+        />
         <FiltersIcon class="absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
       </label>
     </div>
@@ -35,49 +33,30 @@
           :key="option.rawFilter.FeatureValue"
           class="group flex items-start justify-between cursor-pointer px-2.5"
         >
-          <input
-            type="checkbox"
-            class="sr-only"
-            @click="toggleOption(option)"
-          >
+          <input type="checkbox" class="sr-only" @click="toggleOption(option)" />
           <span class="text-xs font-Inter transition-colors duration-300 group-hover:text-blue-500">
             {{ `${useTrimText(option.value + option.unit)} (${option.rawFilter.count})` }}
           </span>
           <div
             class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
             :class="[
-              option.checked
-                ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-                : 'bg-white  border-border group-hover:border-gray-300',
+              option.checked ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
             ]"
           >
-            <CheckIcon
-              v-if="option.checked"
-              class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-            />
+            <CheckIcon v-if="option.checked" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
           </div>
         </label>
       </div>
     </div>
-    <button
-      class="group flex items-center justify-between bg-gray-100 pr-[15px] py-2 pl-2.5"
-      @click="handleAll"
-    >
+    <button class="group flex items-center justify-between bg-gray-100 pr-[15px] py-2 pl-2.5" @click="handleAll">
       <span class="text-xs transition-colors duration-300 group-hover:text-blue-500">
         {{ selectedAll ? 'Unselect All' : 'Select All' }}
       </span>
       <div
         class="flex items-center justify-center w-[18px] h-[18px] rounded border transition-colors duration-300"
-        :class="[
-          selectedAll
-            ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-            : 'bg-white  border-border group-hover:border-gray-300',
-        ]"
+        :class="[selectedAll ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300']"
       >
-        <CheckIcon
-          v-if="selectedAll"
-          class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-        />
+        <CheckIcon v-if="selectedAll" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
       </div>
     </button>
   </div>
@@ -105,7 +84,7 @@ watch(
     }
     options.value = parseOptions();
   },
-  { deep: true },
+  { deep: true }
 );
 
 const searchValue = ref('');
@@ -116,8 +95,7 @@ const options = ref([] as FilterOptions[]);
 const onInput = () => {
   if (searchValue.value.trim() === '') {
     options.value = parseOptions();
-  }
-  else {
+  } else {
     options.value = parseOptions().filter((option) => {
       return option.value.toLowerCase().includes(searchValue.value.toLowerCase());
     });
@@ -135,9 +113,9 @@ const parseOptions = (): FilterOptions[] => {
     return [];
   }
 
-  const filtered = props.filter[key].filter(item => item.FeatureName === key) || [];
+  const filtered = props.filter[key].filter((item) => item.FeatureName === key) || [];
 
-  return filtered.map(item => ({
+  return filtered.map((item) => ({
     value: item.FeatureValue,
     unit: item.FeatureUnit,
     checked: item.checked || false,
@@ -152,8 +130,7 @@ const toggleOption = (option: FilterOptions) => {
 
   if (option.checked) {
     Emitter.emit('add-filter-option', [option]);
-  }
-  else {
+  } else {
     Emitter.emit('remove-filter-option', [option]);
   }
 };
@@ -163,7 +140,7 @@ const FeatureName = computed(() => {
 });
 
 const selectedAll = computed(() => {
-  return options.value.every(e => e.checked);
+  return options.value.every((e) => e.checked);
 });
 
 const totalProducts = computed(() => {
@@ -180,8 +157,7 @@ const handleAll = () => {
 
   if (selectedAll.value) {
     Emitter.emit('add-filter-option', options.value);
-  }
-  else {
+  } else {
     Emitter.emit('remove-filter-option', options.value);
   }
 };

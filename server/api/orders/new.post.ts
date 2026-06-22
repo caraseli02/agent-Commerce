@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const cart = findMockCartById(cartId);
   const orderPayload = {
     ...body,
-    products: Array.isArray(body.products) && body.products.length ? body.products : (cart?.products || []),
+    products: Array.isArray(body.products) && body.products.length ? body.products : cart?.products || [],
   };
 
   const { orderId } = createRuntimeOrder(orderPayload, user);
@@ -33,11 +33,11 @@ export default defineEventHandler(async (event) => {
       status: PaymentStatusEnum.Paid,
       useExistingPaymentMethod: Boolean(body.stripeCardId),
       result:
-                paymentType === PaymentTypeEnum.Card
-                  ? {
-                      status: 'succeeded',
-                    }
-                  : undefined,
+        paymentType === PaymentTypeEnum.Card
+          ? {
+              status: 'succeeded',
+            }
+          : undefined,
       clientSecret: undefined,
     },
   };

@@ -15,7 +15,7 @@ const props = withDefaults(
     width: '',
     height: '',
     enabled: false,
-  },
+  }
 );
 
 const customProperties = ref(props.enabled);
@@ -58,77 +58,32 @@ watch(
   (value) => {
     emit('update:enabled', value);
   },
-  { immediate: true },
+  { immediate: true }
 );
 </script>
 
 <template>
   <section>
     <div class="flex items-center justify-between space-x-2 mb-6">
-      <UiLabel for="airplane-mode">
-        Custom Properties
-      </UiLabel>
-      <UiSwitch
-        id="airplane-mode"
-        v-model:checked="customProperties"
-      />
+      <UiLabel for="airplane-mode"> Custom Properties </UiLabel>
+      <UiSwitch id="airplane-mode" v-model:checked="customProperties" />
     </div>
     <div v-if="customProperties">
       <div class="flex flex-col items-start gap-4">
-        <UiLabel
-          for="avg-weight"
-          class="text-right"
-        >
-          Average Item Weight
-        </UiLabel>
-        <UiInput
-          id="avg-weight"
-          v-model="avgWeightValue"
-          class="col-span-3"
-          @input="onInput($event, 'weight')"
-        />
+        <UiLabel for="avg-weight" class="text-right"> Average Item Weight </UiLabel>
+        <UiInput id="avg-weight" v-model="avgWeightValue" class="col-span-3" @input="onInput($event, 'weight')" />
       </div>
       <div class="flex flex-col items-start gap-4 mt-5">
-        <UiLabel
-          for="item-length"
-          class="text-right"
-        >
-          Item Length
-        </UiLabel>
-        <UiInput
-          id="item-length"
-          v-model="lengthValue"
-          class="col-span-3"
-          @input="onInput($event, 'length')"
-        />
+        <UiLabel for="item-length" class="text-right"> Item Length </UiLabel>
+        <UiInput id="item-length" v-model="lengthValue" class="col-span-3" @input="onInput($event, 'length')" />
       </div>
       <div class="flex flex-col items-start gap-4 mt-5">
-        <UiLabel
-          for="item-width"
-          class="text-right"
-        >
-          Item Width
-        </UiLabel>
-        <UiInput
-          id="item-width"
-          v-model="widthValue"
-          class="col-span-3"
-          @input="onInput($event, 'width')"
-        />
+        <UiLabel for="item-width" class="text-right"> Item Width </UiLabel>
+        <UiInput id="item-width" v-model="widthValue" class="col-span-3" @input="onInput($event, 'width')" />
       </div>
       <div class="flex flex-col items-start gap-4 mt-5">
-        <UiLabel
-          for="item-height"
-          class="text-right"
-        >
-          Item Height
-        </UiLabel>
-        <UiInput
-          id="item-height"
-          v-model="heightValue"
-          class="col-span-3"
-          @input="onInput($event, 'height')"
-        />
+        <UiLabel for="item-height" class="text-right"> Item Height </UiLabel>
+        <UiInput id="item-height" v-model="heightValue" class="col-span-3" @input="onInput($event, 'height')" />
       </div>
     </div>
   </section>

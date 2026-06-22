@@ -98,17 +98,13 @@ export default defineComponent({
       const progress = spent / limit;
       if (progress < 0.5) {
         barValues = [progress * 2, 0, 0, 0];
-      }
-      else if (progress >= 0.5 && progress <= 1 / 2 + 1 / 6) {
+      } else if (progress >= 0.5 && progress <= 1 / 2 + 1 / 6) {
         barValues = [1, (progress - 0.5) * 6, 0, 0];
-      }
-      else if (progress > 1 / 2 + 1 / 6 && progress <= 1 / 2 + 1 / 6 + 1 / 6) {
+      } else if (progress > 1 / 2 + 1 / 6 && progress <= 1 / 2 + 1 / 6 + 1 / 6) {
         barValues = [1, 1, (progress - (1 / 2 + 1 / 6)) * 6, 0];
-      }
-      else if (progress > 1 / 2 + 1 / 6 + 1 / 6 && progress <= 1) {
+      } else if (progress > 1 / 2 + 1 / 6 + 1 / 6 && progress <= 1) {
         barValues = [1, 1, 1, (progress - (1 / 2 + 1 / 6 + 1 / 6)) * 6];
-      }
-      else if (progress > 1) {
+      } else if (progress > 1) {
         barValues = [1, 1, 1, 1];
       }
       this.chartSeriesOne = [

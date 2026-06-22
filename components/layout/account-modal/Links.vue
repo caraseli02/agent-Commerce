@@ -6,10 +6,7 @@
       class="hover:bg-zinc-100 text-neutral-800 hover:text-blue-500 items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
       @click="emit('close')"
     >
-      <component
-        :is="IconApps"
-        class="w-6 h-6"
-      />
+      <component :is="IconApps" class="w-6 h-6" />
       <div class="transition-all text-sm font-medium leading-6 whitespace-nowrap">Dashboard</div>
     </NuxtLink>
     <button
@@ -18,10 +15,7 @@
       class="w-full items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg hover:bg-zinc-100 text-neutral-800 hover:text-blue-500"
       @click="emit('close'), menuItem.action()"
     >
-      <component
-        :is="menuItem.icon"
-        class="w-6 h-6"
-      />
+      <component :is="menuItem.icon" class="w-6 h-6" />
       <div class="transition-all text-sm font-medium leading-6 whitespace-nowrap">
         {{ menuItem.text }}
       </div>
@@ -40,10 +34,7 @@
       :class="menuItem.disabled ? 'text-neutral-200 cursor-not-allowed' : 'hover:bg-zinc-100 text-neutral-800 hover:text-blue-500'"
       @click="emit('close')"
     >
-      <component
-        :is="menuItem.icon"
-        class="w-6 h-6"
-      />
+      <component :is="menuItem.icon" class="w-6 h-6" />
       <div
         v-if="menuItem.disabled"
         class="transition-all text-sm font-medium leading-6 whitespace-nowrap flex items-center justify-between flex-1"
@@ -51,10 +42,7 @@
         <span>{{ menuItem.text }}</span>
         <span class="text-[10px] bg-zinc-100 text-zinc-400 px-1.5 py-0.5 rounded ml-2 font-bold tracking-tight">COMING SOON</span>
       </div>
-      <div
-        v-else
-        class="transition-all text-sm font-medium leading-6 whitespace-nowrap"
-      >
+      <div v-else class="transition-all text-sm font-medium leading-6 whitespace-nowrap">
         {{ menuItem.text }}
       </div>
     </NuxtLink>

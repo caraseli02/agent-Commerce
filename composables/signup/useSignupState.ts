@@ -185,8 +185,7 @@ export const useSignupState = () => {
     (Object.keys(personalDetails.value) as Array<keyof SignupPersonalDetails>).forEach((key) => {
       if (key === 'country' || key === 'region') {
         clearSelectInputObject(personalDetails.value[key]);
-      }
-      else {
+      } else {
         clearStringInputObject(personalDetails.value[key]);
       }
     });
@@ -194,14 +193,12 @@ export const useSignupState = () => {
     (Object.keys(businessDetails.value) as Array<keyof SignupBusinessDetails>).forEach((key) => {
       if (key === 'country' || key === 'region') {
         clearCountryType(businessDetails.value[key]);
-      }
-      else if (key === 'vatNumber') {
+      } else if (key === 'vatNumber') {
         const vatNumber = businessDetails.value.vatNumber;
         if (vatNumber) {
           clearStringInputObject(vatNumber);
         }
-      }
-      else {
+      } else {
         clearStringInputObject(businessDetails.value[key]);
       }
     });

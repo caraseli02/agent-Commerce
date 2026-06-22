@@ -6,20 +6,9 @@ import process from 'node:process';
 const rootDir = path.resolve(new URL('..', import.meta.url).pathname);
 
 const sourceExtensions = new Set(['.js', '.mjs', '.ts', '.vue']);
-const ignoredDirectories = new Set([
-  '.git',
-  '.husky',
-  '.nuxt',
-  '.output',
-  'coverage',
-  'dist',
-  'node_modules',
-]);
+const ignoredDirectories = new Set(['.git', '.husky', '.nuxt', '.output', 'coverage', 'dist', 'node_modules']);
 
-const approvedAuthHeaderPaths = [
-  'plugins/api.ts',
-  'composables/api/',
-];
+const approvedAuthHeaderPaths = ['plugins/api.ts', 'composables/api/'];
 
 const legacyAuthHeaderExceptions = new Map([
   [
@@ -57,7 +46,7 @@ async function collectSourceFiles(directory) {
     const fullPath = path.join(directory, entry.name);
     if (entry.isDirectory()) {
       if (!ignoredDirectories.has(entry.name)) {
-        files.push(...await collectSourceFiles(fullPath));
+        files.push(...(await collectSourceFiles(fullPath)));
       }
       continue;
     }
@@ -91,7 +80,7 @@ function findAuthHeaderViolations(relativePath, contents) {
   if (legacyException) {
     return {
       violations: matches.slice(legacyException.allowedMatches),
-      legacyMatches: matches.slice(0, legacyException.allowedMatches).map(match => ({
+      legacyMatches: matches.slice(0, legacyException.allowedMatches).map((match) => ({
         ...match,
         reason: legacyException.reason,
       })),
@@ -111,18 +100,24 @@ async function main() {
     const contents = await readFile(file, 'utf8');
     const result = findAuthHeaderViolations(relativePath, contents);
 
-    violations.push(...result.violations.map(violation => ({ relativePath, ...violation })));
-    legacyMatches.push(...result.legacyMatches.map(match => ({ relativePath, ...match })));
+    violations.push(...result.violations.map((violation) => ({ relativePath, ...violation })));
+    legacyMatches.push(...result.legacyMatches.map((match) => ({ relativePath, ...match })));
   }
 
   for (const match of legacyMatches) {
-    console.warn(`architecture invariant warning: ${match.relativePath}:${match.lineNumber} is a known legacy auth-header exception (${match.reason}).`);
+    console.warn(
+      `architecture invariant warning: ${match.relativePath}:${match.lineNumber} is a known legacy auth-header exception (${match.reason}).`
+    );
   }
 
   if (violations.length > 0) {
     console.error('Architecture invariant failed: manual bearer auth headers are only allowed in plugins/api.ts or composables/api/.');
-    console.error('Why it matters: ECAS routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.');
-    console.error('Where to look next: move the request into plugins/api.ts, composables/api/, or a service that uses the injected $api/$apiClient layer instead of hand-building auth headers.');
+    console.error(
+      'Why it matters: ECAS routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.'
+    );
+    console.error(
+      'Where to look next: move the request into plugins/api.ts, composables/api/, or a service that uses the injected $api/$apiClient layer instead of hand-building auth headers.'
+    );
 
     for (const violation of violations) {
       console.error(`- ${violation.relativePath}:${violation.lineNumber} contains forbidden manual auth header: ${violation.text}`);
@@ -131,7 +126,9 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Architecture invariants OK: scanned ${files.length} source file(s); manual Bearer auth headers are confined to approved API boundary files.`);
+  console.log(
+    `Architecture invariants OK: scanned ${files.length} source file(s); manual Bearer auth headers are confined to approved API boundary files.`
+  );
 }
 
 main().catch((error) => {

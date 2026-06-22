@@ -3,10 +3,10 @@ status: completed
 priority: p2
 issue_id: 003
 tags:
-    - code-review
-    - p2
-    - dead-code
-    - code-quality
+  - code-review
+  - p2
+  - dead-code
+  - code-quality
 dependencies: []
 ---
 
@@ -16,10 +16,10 @@ The component `components/dataTable/RowActions.vue` contains 20 lines of unreach
 
 1. **Lines 37-43**: Duplicate `DataTableRowActionsProps` interface (exact same content as lines 14-20)
 2. **Lines 27-44**: Unreachable code after first `</script>` tag (lines 35, 36 are last valid lines)
-    - Duplicate `useRuntimeConfig()` call
-    - Duplicate `fetchOptions` object
-    - Duplicate `apiFetcher` creation
-    - `actionService` variable assignment
+   - Duplicate `useRuntimeConfig()` call
+   - Duplicate `fetchOptions` object
+   - Duplicate `apiFetcher` creation
+   - `actionService` variable assignment
 
 This code will never execute and adds confusion.
 
@@ -100,7 +100,7 @@ new props.service(apiFetcher); // ❌ Never used }
 
 ```vue
 <template>
-    <section class="flex justify-end items-center gap-3"></section>
+  <section class="flex justify-end items-center gap-3"></section>
 </template>
 ```
 
@@ -116,9 +116,9 @@ During the refactoring from direct API calls to service layer, the old fetcher c
 
 **Scope**:
 
--   One component file
--   No functional impact (code is unreachable, so doesn't affect behavior)
--   Confusion for developers reading the code
+- One component file
+- No functional impact (code is unreachable, so doesn't affect behavior)
+- Confusion for developers reading the code
 
 **Likelihood**: 100% - Code is definitively unreachable
 
@@ -128,9 +128,9 @@ During the refactoring from direct API calls to service layer, the old fetcher c
 
 **Development Impact**:
 
--   Confusion when reading the code
--   Wasted developer cognitive load
--   Potential merge conflicts if someone tries to edit the unreachable section
+- Confusion when reading the code
+- Wasted developer cognitive load
+- Potential merge conflicts if someone tries to edit the unreachable section
 
 # Proposed Solutions
 
@@ -164,10 +164,10 @@ Delete lines 37-56 entirely (20 lines).
 
 **Pros**:
 
--   ✅ Removes all 20 lines of dead code
--   ✅ Eliminates confusion
--   ✅ Cleaner component file
--   ✅ Easiest solution
+- ✅ Removes all 20 lines of dead code
+- ✅ Eliminates confusion
+- ✅ Cleaner component file
+- ✅ Easiest solution
 
 **Cons**: None
 
@@ -181,14 +181,14 @@ Keep the duplicate code as "historical reference" with a comment.
 
 **Pros**:
 
--   ✅ Shows evolution of the code
--   ✅ Educational for new developers
+- ✅ Shows evolution of the code
+- ✅ Educational for new developers
 
 **Cons**:
 
--   ❌ Increases confusion
--   ❌ Violates DRY principle
--   ❌ Clutters codebase
+- ❌ Increases confusion
+- ❌ Violates DRY principle
+- ❌ Clutters codebase
 
 **Risk**: Low - Maintains code quality issues
 
@@ -200,14 +200,14 @@ Move lines 37-56 to a commented-out section with explanatory comment.
 
 **Pros**:
 
--   ✅ Keeps code visible for reference
--   ✅ Explicitly marked as unused
--   ✅ Can be re-enabled if needed
+- ✅ Keeps code visible for reference
+- ✅ Explicitly marked as unused
+- ✅ Can be re-enabled if needed
 
 **Cons**:
 
--   ❌ Still clutters file
--   ❌ Commented code is hard to read
+- ❌ Still clutters file
+- ❌ Commented code is hard to read
 
 **Risk**: Low - Alternative to removal
 
@@ -217,21 +217,21 @@ Move lines 37-56 to a commented-out section with explanatory comment.
 
 Rationale:
 
--   Code is definitively unreachable
--   Serves no purpose
--   Creates confusion
--   Simplest solution
--   No functional impact
+- Code is definitively unreachable
+- Serves no purpose
+- Creates confusion
+- Simplest solution
+- No functional impact
 
 # Technical Details
 
 **Affected Files**:
 
--   `components/dataTable/RowActions.vue` (lines 37-56 - 20 lines to delete)
+- `components/dataTable/RowActions.vue` (lines 37-56 - 20 lines to delete)
 
 **Affected Components**:
 
--   `components/dataTable/RowActions.vue`
+- `components/dataTable/RowActions.vue`
 
 **Database Changes**: None
 
@@ -241,14 +241,14 @@ Rationale:
 
 # Acceptance Criteria
 
--   [ ] Lines 37-56 deleted from `components/dataTable/RowActions.vue`
--   [ ] No TypeScript errors after removal
--   [ ] Application compiles successfully
--   [ ] Component still functions correctly
--   [ ] Template rendering unchanged
--   [ ] No console errors
--   [ ] No broken imports or references
--   [ ] No merge conflicts introduced
+- [ ] Lines 37-56 deleted from `components/dataTable/RowActions.vue`
+- [ ] No TypeScript errors after removal
+- [ ] Application compiles successfully
+- [ ] Component still functions correctly
+- [ ] Template rendering unchanged
+- [ ] No console errors
+- [ ] No broken imports or references
+- [ ] No merge conflicts introduced
 
 # Work Log
 
@@ -272,6 +272,6 @@ Rationale:
 
 ## Related Links
 
--   PR: https://github.com/caraseli02/Ecas/pull/1
--   Plan: docs/plans/2026-02-14-refactor-backend-to-mock-cleanup-plan.md
--   Related: Other refactoring in this PR removed old code patterns
+- PR: https://github.com/caraseli02/Ecas/pull/1
+- Plan: docs/plans/2026-02-14-refactor-backend-to-mock-cleanup-plan.md
+- Related: Other refactoring in this PR removed old code patterns

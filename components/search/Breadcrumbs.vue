@@ -1,10 +1,7 @@
 <template :key="route.fullPath">
   <div class="mb-[30px] md:mb-10 xl:mb-8">
     <div class="container">
-      <div
-        v-if="categoryLabels.length > 0"
-        class="flex items-center justify-between border-b border-gray-200 py-2.5"
-      >
+      <div v-if="categoryLabels.length > 0" class="flex items-center justify-between border-b border-gray-200 py-2.5">
         <div class="flex items-center gap-1">
           <!-- Breadcrumb links -->
           <NuxtLink
@@ -15,10 +12,7 @@
             :class="{ 'font-semibold': index === categoryLabels.length - 1 }"
             @click="changePath(index)"
           >
-            <CaretRightIcon
-              v-if="index > 0"
-              class="hidden w-4 h-4 md:flex"
-            />
+            <CaretRightIcon v-if="index > 0" class="hidden w-4 h-4 md:flex" />
             {{ categoryObj.name }}
           </NuxtLink>
         </div>

@@ -11,10 +11,7 @@ getCategories();
 
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <UiSkeleton
-    v-if="isLoading"
-    class="w-full h-[calc(100vh-450px)] 2xl:max-h-[calc(100vh-450px)]"
-  />
+  <UiSkeleton v-if="isLoading" class="w-full h-[calc(100vh-450px)] 2xl:max-h-[calc(100vh-450px)]" />
   <UiAccordion
     v-for="category in filteredAndSortedData"
     v-else
@@ -24,11 +21,7 @@ getCategories();
     class="w-full border-b last:border-b-0 flex flex-col gap-1 bg-white first:rounded-t-lg last:rounded-b-lg min-w-[700px]"
     collapsible
   >
-    <UiAccordionItem
-      v-slot="{ open }"
-      :value="category.name"
-      class="relative border-none"
-    >
+    <UiAccordionItem v-slot="{ open }" :value="category.name" class="relative border-none">
       <div
         class="flex items-center gap-1 px-3 hover:bg-light-200"
         :class="{ 'bg-light-200 border-b': open || selectedCategories.includes(category.id) }"
@@ -50,23 +43,14 @@ getCategories();
                 class="h-5 w-5 stroke-1"
                 v-html="category.icon"
               />
-              <CardPlaceholderSmall
-                v-else-if="category.icon === 'N/A'"
-                class="w-5 aspect-square stroke-1"
-              />
-              <CardPlaceholderSmall
-                v-else
-                class="w-5 aspect-square stroke-1"
-              />
+              <CardPlaceholderSmall v-else-if="category.icon === 'N/A'" class="w-5 aspect-square stroke-1" />
+              <CardPlaceholderSmall v-else class="w-5 aspect-square stroke-1" />
             </figure>
             <p
               class="my-auto text-sm font-medium leading-4 text-neutral-700 max-md:max-w-full min-w-[260px] flex flex-col justify-between h-full py-0.5"
             >
               {{ category.name }}
-              <span
-                v-if="category.productCount"
-                class="text-xs text-slate-500"
-              >{{ category.productCount }} items</span>
+              <span v-if="category.productCount" class="text-xs text-slate-500">{{ category.productCount }} items</span>
             </p>
             <div class="flex items-center text-sm">
               <span
@@ -79,16 +63,8 @@ getCategories();
           <CategoriesRowActions :category="category" />
         </section>
       </div>
-      <UiAccordionContent
-        :class="{ 'last:border-b': open }"
-        class="pt-0 ml-0 pb-0 border-none"
-      >
-        <CategoriesRecursive
-          v-if="category.subcategory"
-          :parent-id="category.id"
-          :items="category.subcategory"
-          :depth="1"
-        />
+      <UiAccordionContent :class="{ 'last:border-b': open }" class="pt-0 ml-0 pb-0 border-none">
+        <CategoriesRecursive v-if="category.subcategory" :parent-id="category.id" :items="category.subcategory" :depth="1" />
       </UiAccordionContent>
     </UiAccordionItem>
   </UiAccordion>

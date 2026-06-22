@@ -22,6 +22,6 @@ interface Firebase {
 }
 
 interface Identities {
-  'email': [string];
+  email: [string];
   'google.com': [string];
 }
