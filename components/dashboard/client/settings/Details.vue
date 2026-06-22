@@ -9,12 +9,10 @@ import { Button } from '@/components/ui/button';
 import { countries } from '@/data/countries';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { updateDetails } from '~/composables/api/client-settings';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
-import { useNuxtApp } from '#app';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
-
-const { $api } = useNuxtApp();
 
 const authStore = useAuthStore();
 const { getUserDetails } = storeToRefs(authStore);
@@ -212,7 +210,7 @@ const onSubmit = handleSubmit(async (values) => {
         mobile: personalValues.mobile,
       },
     };
-    const response = await $api.settingsClient.updateDetails(payloadPersonal);
+    const response = await updateDetails(payloadPersonal);
     if (response.status === 'success') {
       // noop
     }
@@ -244,7 +242,7 @@ const onSubmit = handleSubmit(async (values) => {
         mobile: businessValues.mobile,
       },
     };
-    const response = await $api.settingsClient.updateDetails(payloadBusiness);
+    const response = await updateDetails(payloadBusiness);
     if (response.status === 'success') {
       // noop
     }

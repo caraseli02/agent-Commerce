@@ -72,10 +72,10 @@
 <script setup lang="ts">
 import moment from 'moment';
 import { ref } from 'vue';
-import { useNuxtApp } from '#app';
 import { usePaymentStore } from '~/store/paymentStore';
 import { PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails, type StripeCardInterface } from '~/types';
 import { usePaymentCards } from '~/composables/usePaymentCards';
+import { updateCardAsDefault } from '~/composables/api/client-settings';
 
 const paymentStore = usePaymentStore();
 
@@ -121,7 +121,6 @@ function cardExpired(savedCard: StripeCardInterface) {
   return expDate.diff(now, 'months') < 0;
 }
 
-const { $api } = useNuxtApp();
 const setCardAsDefault = async (cardInfo: StripeCardInterface) => {
   cards.value = cards.value.map((savedCard) => {
     return {
@@ -129,7 +128,7 @@ const setCardAsDefault = async (cardInfo: StripeCardInterface) => {
       default: savedCard.id === cardInfo.id,
     };
   });
-  const response = (await $api.settingsClient.updateCardAsDefault(cardInfo.id)) as { status: string };
+  const response = (await updateCardAsDefault(cardInfo.id)) as { status: string };
   if (response.status === 'success') {
     selectPaymentOption({ type: PaymentTypeEnum.Card, info: cardInfo });
   }

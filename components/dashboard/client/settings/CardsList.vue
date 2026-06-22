@@ -25,8 +25,8 @@
 <script setup lang="ts">
 import _ from 'lodash';
 import type { StripeCardInterface } from '~/types';
-import { useNuxtApp } from '#app';
 import { userCards as fetchUserCards } from '~/composables/api/user';
+import { deleteCard, updateCardAsDefault } from '~/composables/api/client-settings';
 
 const card = ref<unknown | null>({});
 const cards = ref<StripeCardInterface[]>([]);
@@ -52,20 +52,19 @@ const setCardAsDefault = async (cardInfo: StripeCardInterface) => {
     };
   });
   selectedCard.value = cardInfo;
-  const response = (await $api.settingsClient.updateCardAsDefault(cardInfo.id)) as { status: string };
+  const response = (await updateCardAsDefault(cardInfo.id)) as { status: string };
   if (response.status === 'success') {
     // noop
   }
 };
 
 const selectedCardToDelete = async (cardInfo: StripeCardInterface) => {
-  const response = await $api.settingsClient.deleteCard(cardInfo.id);
+  const response = await deleteCard(cardInfo.id);
   if (response.status === 'success') {
     cards.value = cards.value.filter((card: StripeCardInterface) => card.id !== cardInfo.id);
   }
 };
 
-const { $api } = useNuxtApp();
 const isLoading = ref(false);
 const fetchCards = async () => {
   isLoading.value = true;
