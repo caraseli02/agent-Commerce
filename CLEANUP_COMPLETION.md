@@ -118,13 +118,11 @@ async fetchUserData() {
 }
 ```
 
-**Correct**: Components use services via `$api` injection
+**Correct**: Components use product composables directly
 
 ```vue
 <script setup lang="ts">
-const { $api } = useNuxtApp();
-
-const data = await $api.product.fetchSingleProduct(id);
+const data = await fetchSingleProduct(id);
 </script>
 ```
 
@@ -246,9 +244,7 @@ The following items from the original plan were deprioritized as nice-to-have:
 
     ```vue
     <script setup lang="ts">
-    const { $api } = useNuxtApp();
-
-    const response = await $api.product.create(productData);
+    const response = await fetchSingleProduct(productId);
     </script>
     ```
 

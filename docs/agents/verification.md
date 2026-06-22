@@ -6,31 +6,40 @@ Use this doc to decide whether an ECAS task is actually done. It implements the 
 
 Run the narrowest meaningful check first, then climb until the changed behavior is proven.
 
-1. **Canonical full gate**
+1. **Fast default gate**
     - `pnpm verify`
-    - This is the default answer to “Can this PR be considered verified?”
-2. **Harness-state validator**
+    - Runs `build`, `lint`, `typecheck`, `test`, and `feature_list.json` validation.
+    - This is the normal loop gate for everyday ECAS work.
+2. **Full local gate**
+    - `pnpm verify:full`
+    - Adds architecture invariants and preview smoke on top of the fast gate.
+    - Use this when the change touches API boundaries, auth/cart/checkout/mock routes, or page-level runtime behavior.
+3. **Pre-handoff gate**
+    - `pnpm verify:handoff`
+    - Adds clean-state validation to the full gate and expects a clean working tree.
+    - Use this before final PR/session handoff, after intentional files are committed or otherwise clean.
+4. **Harness-state validator**
     - Run `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
     - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
-3. **Clean-state handoff validator**
+5. **Clean-state handoff validator**
     - `node scripts/check-clean-state.mjs`
     - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions. It intentionally skips scanning `scripts/check-clean-state.mjs` itself so the validator does not self-flag its own pattern definitions.
     - It also treats stale session-state shape as a failure signal where practical: the validator only checks the `PROGRESS.md` handoff shape it can verify mechanically, while deeper task-state semantics stay with `./scripts/validate-feature-list.sh` and human review.
-4. **Architecture-invariant gate**
+6. **Architecture-invariant gate**
     - `node scripts/check-arch-invariants.mjs`
-    - This runs inside `pnpm verify` after the harness-state validator.
+    - This runs inside `pnpm verify:full` and `pnpm verify:handoff`.
     - It enforces the ECAS API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
     - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
-5. **Targeted baseline check**
+7. **Targeted baseline check**
     - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
-6. **Targeted test**
+8. **Targeted test**
     - Add or update a focused Vitest test when behavior can be checked without the browser.
     - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-7. **Browser/runtime smoke**
+9. **Browser/runtime smoke**
     - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
     - Exercise the affected page or server route.
     - Capture screenshot or exact route/flow evidence in the PR.
-8. **Integration check**
+10. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
 ## Evidence policy
@@ -50,6 +59,7 @@ Example evidence block for a future PR:
 ## Evidence
 
 -   `pnpm verify`: pass
+-   `pnpm verify:full`: pass when runtime/API-boundary evidence was needed
 -   Runtime smoke: `/products/19` loaded successfully in `pnpm dev`
 -   Screenshot: `tmp/screenshots/products-19-after.png` (removed before merge)
 -   Notes: product media fallback renders correctly on mobile and desktop
@@ -58,7 +68,8 @@ Example evidence block for a future PR:
 ## Local gate ownership
 
 -   **Pre-commit:** `lint-staged` runs Prettier on staged files only.
--   **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test`.
+-   **Pre-push:** `pnpm verify`.
+-   **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
 -   **CI:** the same full gate as pre-push, with every command required to pass.
 
 ## If a local gate fails
@@ -75,7 +86,7 @@ A task is not done until all are true:
 -   Relevant verification commands passed or a failure is explicitly explained as pre-existing/not applicable.
 -   Browser/runtime evidence exists for UI or route changes.
 -   No unrelated refactor was bundled into the task.
--   `feature_list.json` / `PROGRESS.md` are updated when durable state changed.
+-   `feature_list.json` / `PROGRESS.md` are updated when durable state changed. GitHub Issues are the primary work tracker; `PROGRESS.md` is the current-state mirror for active issue/PR, blockers, and verification baseline.
 -   The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.
 -   For harness-state validator work, make the PR body itself repeat the related lectures list exactly as listed in the issue body, the validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
 -   An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.

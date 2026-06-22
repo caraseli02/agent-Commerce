@@ -26,6 +26,8 @@ A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase,
 -   `pnpm test`
 -   `pnpm pretty`
 -   `pnpm verify`
+-   `pnpm verify:full`
+-   `pnpm verify:handoff`
 -   `./init.sh`
 
 ## Harness state files
@@ -77,10 +79,11 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 ## Verification order
 
 1. `pnpm verify`
-2. Add a targeted smoke-test only if the issue needs extra runtime evidence beyond the canonical command
+2. Use `pnpm verify:full` when architecture/runtime smoke evidence is needed
+3. Use `pnpm verify:handoff` before final session/PR handoff from a clean working tree
 
 Use `docs/agents/verification.md` before declaring done.
 
 ## State
 
-Use `PROGRESS.md` when work spans sessions or when a loop is intentionally paused.
+GitHub Issues are the primary task queue. Keep `PROGRESS.md` current as the short session mirror for active issue/PR, blockers, and baseline status.

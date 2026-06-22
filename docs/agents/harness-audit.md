@@ -15,8 +15,8 @@ This file maps ECAS repo artifacts to the course recommendations from Learn Harn
 | L07 — WIP=1 and task boundaries          | GitHub issue claim rules + `feature_list.json` policy                                                 | Covered                             |
 | L08 — feature lists as primitives        | `feature_list.json` with status/evidence rules                                                        | Covered                             |
 | L09 — no premature victory               | `docs/agents/verification.md` done gates + `docs/agents/autonomous-workflow.md` role separation       | Covered                             |
-| L10 — full-pipeline verification         | build/lint/typecheck/test plus browser/runtime smoke path                                             | Covered                             |
-| L11 — observability inside harness       | sprint contract, task trace, PR evidence checklist, evaluator verdict format                         | Covered                             |
+| L10 — full-pipeline verification         | fast default gate plus explicit full/handoff gates for architecture, smoke, and clean state           | Covered                             |
+| L11 — observability inside harness       | sprint contract, task trace, PR evidence checklist, evaluator verdict format                          | Covered                             |
 | L12 — clean handoff                      | clean-state checklist in `docs/agents/session-lifecycle.md`                                           | Covered                             |
 | Projects 01–06                           | baseline harness, readable workspace, continuity, feedback, review, capstone                          | Covered as a practical repo harness |
 | Resource templates                       | `AGENTS.md`, `CLAUDE.md`, `feature_list.json`, progress, init, handoff, clean-state, evaluator rubric | Covered/adapted                     |
@@ -25,10 +25,10 @@ This file maps ECAS repo artifacts to the course recommendations from Learn Harn
 
 These are not blockers, but should be revisited when the repo grows:
 
-1. **E2E depth** — browser smoke checks are required, but the repo does not yet have a dedicated Playwright/Cypress suite.
-2. **Mechanical feature-list enforcement** — `feature_list.json` is documented as source of truth, but there is no validator script yet.
+1. **Gate weight** — keep `pnpm verify` fast enough for normal loops; reserve `pnpm verify:full` and `pnpm verify:handoff` for runtime-sensitive work and final handoff.
+2. **Runtime smoke depth** — `pnpm smoke` checks representative static routes, but auth/cart/checkout/dashboard changes still need targeted runtime evidence.
 3. **Telemetry depth** — runtime logs and PR evidence are required, but no app-level tracing stack exists.
-4. **Baseline debt** — current `main` passes `pnpm build` and `pnpm test`, but `pnpm lint` and `pnpm typecheck` fail on pre-existing issues recorded in `PROGRESS.md`.
+4. **Source-of-truth hygiene** — GitHub Issues are the primary work tracker; `PROGRESS.md` must stay current as the short session mirror and should not drift behind merged PRs.
 5. **Issue loop model quality** — local model workers should stay on tiny tasks; cloud model escalation remains appropriate for broad diagnosis/review.
 
 ## Rule for future updates
