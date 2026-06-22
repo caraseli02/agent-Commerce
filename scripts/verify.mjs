@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import path from 'node:path';
 import process from 'node:process';
 
 const mode = process.argv.includes('--handoff') ? 'handoff' : process.argv.includes('--full') ? 'full' : 'fast';
@@ -27,10 +26,6 @@ function run(command, args, options = {}) {
             reject(new Error(`${command} ${args.join(' ')} exited with ${signal ? `signal ${signal}` : `code ${code}`}`));
         });
     });
-}
-
-function runBin(binary, args, options = {}) {
-    return run(path.join('node_modules', '.bin', binary), args, options);
 }
 
 async function waitForPreview(url, timeoutMs = 60_000) {
@@ -101,20 +96,10 @@ async function runWithPreview() {
 }
 
 async function main() {
-    await runBin('nuxt', ['build']);
-    await runBin('eslint', [
-        '.',
-        '--ignore-pattern',
-        'node_modules',
-        '--ignore-pattern',
-        '.nuxt',
-        '--ignore-pattern',
-        '.output',
-        '--ignore-pattern',
-        'dist',
-    ]);
-    await runBin('nuxt', ['typecheck']);
-    await runBin('vitest', ['run']);
+    await run('pnpm', ['build']);
+    await run('pnpm', ['lint']);
+    await run('pnpm', ['typecheck']);
+    await run('pnpm', ['test']);
     await run('bash', ['./scripts/validate-feature-list.sh']);
 
     if (mode === 'full' || mode === 'handoff') {

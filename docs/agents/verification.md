@@ -70,7 +70,7 @@ Example evidence block for a future PR:
 -   **Pre-commit:** `lint-staged` runs Prettier on staged files only.
 -   **Pre-push:** `pnpm verify`.
 -   **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
--   **CI:** the same full gate as pre-push, with every command required to pass.
+-   **CI:** the same fast gate as pre-push, with every command required to pass.
 
 ## If a local gate fails
 
