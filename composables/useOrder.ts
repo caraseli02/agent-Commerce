@@ -43,7 +43,7 @@ export function useOrder() {
     smallOrder: SmallOrderChargeInterface | null,
     paymentDetails: PaymentDetails,
     note: string,
-    orderSummary?: CheckoutOrderSummary,
+    orderSummary?: CheckoutOrderSummary
   ) => {
     if (!user.value || !user.value?.contactDetails || !deliveryMethod || !paymentDetails) {
       checkout.value = false;
@@ -141,16 +141,13 @@ export function useOrder() {
 
       if (response.status !== 'success') {
         await router.push({ path: '/checkout/fail' });
-      }
-      else {
+      } else {
         const orderId = response.data.orderId;
         await handleOrderResponse(response, orderId, paymentDetails.type);
       }
-    }
-    catch {
+    } catch {
       await router.push({ path: '/checkout/fail' });
-    }
-    finally {
+    } finally {
       await cartStore.updateAndReturnCart();
       checkout.value = false;
     }
@@ -194,8 +191,7 @@ export function useOrder() {
           await router.push({ path: '/order-summary/' + orderId, query: { new: 'true' } });
           break;
       }
-    }
-    else if (paymentType === PaymentTypeEnum.Credit || paymentType === PaymentTypeEnum.Bank || paymentType === PaymentTypeEnum.Cash) {
+    } else if (paymentType === PaymentTypeEnum.Credit || paymentType === PaymentTypeEnum.Bank || paymentType === PaymentTypeEnum.Cash) {
       await router.push({ path: '/order-summary/' + orderId, query: { new: 'true' } });
     }
   };

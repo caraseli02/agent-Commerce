@@ -20,32 +20,14 @@ async function sendResetPasswordLink() {
 
 <template>
   <section class="flex flex-col items-start self-stretch p-4 md:p-6 bg-white rounded-xl shadow-l">
-    <h2 class="text-xl font-semibold leading-7 text-neutral-800">
-      Security
-    </h2>
-    <p class="mt-4 text-sm leading-5 text-neutral-800">
-      Send a password reset link.
-    </p>
+    <h2 class="text-xl font-semibold leading-7 text-neutral-800">Security</h2>
+    <p class="mt-4 text-sm leading-5 text-neutral-800">Send a password reset link.</p>
     <div class="flex flex-col md:flex-row items-end gap-4 self-stretch mt-8 max-md:flex-wrap">
       <div class="flex flex-col gap-1 flex-1 justify-between text-sm leading-5 w-full">
-        <UiLabel
-          for="accountEmail"
-          class="text-slate-500 max-md:max-w-full"
-        >
-          Account Email
-        </UiLabel>
-        <UiInput
-          id="accountEmail"
-          v-model:model-value="email"
-          :placeholder="getUserDetails.contactDetails.email"
-          :v-bind="email"
-        />
+        <UiLabel for="accountEmail" class="text-slate-500 max-md:max-w-full"> Account Email </UiLabel>
+        <UiInput id="accountEmail" v-model:model-value="email" :placeholder="getUserDetails.contactDetails.email" :v-bind="email" />
       </div>
-      <UiButton
-        class="w-full md:w-fit"
-        size="lg"
-        @click="sendResetPasswordLink()"
-      >
+      <UiButton class="w-full md:w-fit" size="lg" @click="sendResetPasswordLink()">
         <svg
           class="shrink-0 my-auto w-6 aspect-square"
           width="24"
@@ -80,27 +62,12 @@ async function sendResetPasswordLink() {
         <span class="ml-2">Send Password Reset</span>
       </UiButton>
     </div>
-    <hr class="self-stretch mt-8 w-full border border-grey-100 border-solid stroke-[1px] stroke-gray-200 max-md:max-w-full">
-    <h2 class="mt-8 text-xl font-semibold leading-7 text-neutral-800">
-      Third party applications logins
-    </h2>
-    <p class="mt-4 text-sm leading-5 text-neutral-800">
-      Connect or disable third party application logins here.
-    </p>
-    <UiButton
-      class="min-w-[320px] border-blue-500 mt-8"
-      size="lg"
-      variant="outline"
-    >
+    <hr class="self-stretch mt-8 w-full border border-grey-100 border-solid stroke-[1px] stroke-gray-200 max-md:max-w-full" />
+    <h2 class="mt-8 text-xl font-semibold leading-7 text-neutral-800">Third party applications logins</h2>
+    <p class="mt-4 text-sm leading-5 text-neutral-800">Connect or disable third party application logins here.</p>
+    <UiButton class="min-w-[320px] border-blue-500 mt-8" size="lg" variant="outline">
       <div class="flex gap-2 justify-center">
-        <svg
-          class="shrink-0 w-6 aspect-square"
-          width="25"
-          height="25"
-          viewBox="0 0 25 25"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg class="shrink-0 w-6 aspect-square" width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_1127_52623)">
             <path
               d="M22.2879 12.7237C22.2879 12.0654 22.2296 11.4404 22.1296 10.832H12.7129V14.5904H18.1046C17.8629 15.8237 17.1546 16.8654 16.1046 17.5737V20.0737H19.3212C21.2046 18.332 22.2879 15.7654 22.2879 12.7237Z"
@@ -121,12 +88,7 @@ async function sendResetPasswordLink() {
           </g>
           <defs>
             <clipPath id="clip0_1127_52623">
-              <rect
-                width="20"
-                height="20"
-                fill="white"
-                transform="translate(2.5 2.5)"
-              />
+              <rect width="20" height="20" fill="white" transform="translate(2.5 2.5)" />
             </clipPath>
           </defs>
         </svg>

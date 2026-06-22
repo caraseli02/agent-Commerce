@@ -14,17 +14,11 @@
         </div>
         <span class="text-neutral-700 text-sm font-medium leading-6">{{ itemsDiscount?.toFixed(2) }} Lei</span>
       </div>
-      <div
-        v-if="smallOrder"
-        class="flex flex-row justify-between w-full"
-      >
+      <div v-if="smallOrder" class="flex flex-row justify-between w-full">
         <div class="flex flex-col gap-1">
           <div class="flex flex-row gap-2 items-center">
             <span class="text-slate-500 text-sm font-normal leading-6">Handling Charge</span>
-            <button
-              class="group"
-              @click="showSmallOrderModal = true"
-            >
+            <button class="group" @click="showSmallOrderModal = true">
               <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
             </button>
           </div>
@@ -35,34 +29,21 @@
         </div>
       </div>
       <Transition name="fade-bottom">
-        <div
-          v-if="showSmallOrderModal"
-          v-click-outside="() => (showSmallOrderModal = false)"
-          class="absolute bottom-[200px] left-0"
-        >
+        <div v-if="showSmallOrderModal" v-click-outside="() => (showSmallOrderModal = false)" class="absolute bottom-[200px] left-0">
           <OrderSummarySmallOrderModal />
         </div>
       </Transition>
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-col gap-1">
-          <div
-            v-if="shipping"
-            class="flex flex-row gap-2 items-center"
-          >
+          <div v-if="shipping" class="flex flex-row gap-2 items-center">
             <span class="text-slate-500 text-sm font-normal leading-6">Shipping</span>
             <button class="group">
               <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
             </button>
           </div>
-          <span
-            v-if="shipping"
-            class="text-neutral-700 italic text-sm font-normal leading-6"
-          >{{ shippingText }}</span>
+          <span v-if="shipping" class="text-neutral-700 italic text-sm font-normal leading-6">{{ shippingText }}</span>
         </div>
-        <div
-          v-if="shipping"
-          class="flex flex-col justify-end"
-        >
+        <div v-if="shipping" class="flex flex-col justify-end">
           <span class="text-neutral-700 text-sm font-medium leading-6">{{ formattedShippingPrice }}</span>
         </div>
       </div>

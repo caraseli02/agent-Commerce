@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="cards.length > 0"
-    class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-h-[480px] h-fit overflow-y-auto"
-  >
+  <div v-if="cards.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-h-[480px] h-fit overflow-y-auto">
     <template v-if="!isLoading">
       <OrderSummaryPayByCard
         v-for="item in cards"
@@ -21,12 +18,7 @@
         @edit-card="handleEditCard"
       />
     </template>
-    <UiSkeleton
-      v-for="i in 3"
-      v-else
-      :key="i"
-      class="w-[432px] h-[92px]"
-    />
+    <UiSkeleton v-for="i in 3" v-else :key="i" class="w-[432px] h-[92px]" />
   </div>
 </template>
 
@@ -86,8 +78,7 @@ const fetchCards = async () => {
     if (response.data.length) {
       cards.value = response.data;
       card.value = _.cloneDeep(cards.value.find((card: StripeCardInterface) => card.default));
-    }
-    else {
+    } else {
       isNewCardSelected.value = true;
     }
   }

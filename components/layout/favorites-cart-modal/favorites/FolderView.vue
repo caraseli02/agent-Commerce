@@ -6,26 +6,15 @@
     }"
   >
     <template v-if="!editing">
-      <button
-        class="flex text-slate-500 mr-[15px] transition-colors duration-300 hover:text-blue-500"
-        @click="$emit('back')"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          class="w-6 h-6"
-        >
+      <button class="flex text-slate-500 mr-[15px] transition-colors duration-300 hover:text-blue-500" @click="$emit('back')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6">
           <path
             fill="currentColor"
             d="M6.373 12c.001-.298.12-.584.328-.797l7.5-7.5a1.127 1.127 0 1 1 1.594 1.594L9.092 12l6.703 6.703a1.127 1.127 0 1 1-1.594 1.594l-7.5-7.5A1.144 1.144 0 0 1 6.373 12Z"
           />
         </svg>
       </button>
-      <div
-        v-if="!showMenu"
-        class="flex items-center"
-      >
+      <div v-if="!showMenu" class="flex items-center">
         <FolderOpenIcon class="w-7 h-7 text-slate-500 mr-[15px]" />
         <span class="text-sm leading-tight font-semibold font-Inter truncate">
           {{ folder.title }}
@@ -111,28 +100,19 @@
         :class="[showMenu ? 'translate-x-2' : '']"
       />
     </template>
-    <div
-      v-else
-      class="flex items-center justify-center gap-[15px] w-full"
-    >
+    <div v-else class="flex items-center justify-center gap-[15px] w-full">
       <label class="w-full flex-1">
         <input
           ref="newNameInputDOM"
           v-model="newName"
           type="text"
           class="bg-white w-full px-2.5 pt-[11px] pb-2.5 text-sm leading-snug font-Inter border border-border rounded text-neutral-700 transition-colors duration-300 placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
-        >
+        />
       </label>
-      <button
-        class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-blue-500"
-        @click="editing = false"
-      >
+      <button class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-blue-500" @click="editing = false">
         <CheckIcon class="w-6 h-6" />
       </button>
-      <button
-        class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-rose-500"
-        @click="editing = false"
-      >
+      <button class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-rose-500" @click="editing = false">
         <XIcon class="w-5 h-5" />
       </button>
     </div>
@@ -148,10 +128,7 @@
         <strong class="font-semibold">175.413,75 Lei</strong>
       </div>
     </div>
-    <div
-      v-if="(products.filter((e) => e.type === 'folder') || []).length > 0"
-      class="grid grid-cols-1 gap-5 px-[15px] mb-10"
-    >
+    <div v-if="(products.filter((e) => e.type === 'folder') || []).length > 0" class="grid grid-cols-1 gap-5 px-[15px] mb-10">
       <LayoutFavoritesCartModalFavoritesFolderItem
         v-for="(item, index) in products.filter((e) => e.type === 'folder')"
         :key="index"
@@ -171,17 +148,10 @@
   </div>
   <Teleport to="body">
     <Transition name="slide-from-top">
-      <LayoutFavoritesModalsDelete
-        v-if="deleteItem"
-        :products="[folder]"
-        @close="deleteItem = false"
-      />
+      <LayoutFavoritesModalsDelete v-if="deleteItem" :products="[folder]" @close="deleteItem = false" />
     </Transition>
     <Transition name="slide-from-top">
-      <LayoutFavoritesModalsNewFolder
-        v-if="newFolder"
-        @close="newFolder = false"
-      />
+      <LayoutFavoritesModalsNewFolder v-if="newFolder" @close="newFolder = false" />
     </Transition>
     <Transition name="slide-from-top">
       <LayoutFavoritesModalsCopyMoveItems
@@ -279,11 +249,11 @@ const moveItems = ref(false);
 const products = ref<FavoriteItem[]>([]);
 
 const hasSelectedItem = computed(() => {
-  return props.folder.items?.some(e => e.selected);
+  return props.folder.items?.some((e) => e.selected);
 });
 
 const selectedItemsLength = computed(() => {
-  return props.folder.items?.filter(e => e.selected).length;
+  return props.folder.items?.filter((e) => e.selected).length;
 });
 
 const parseProducts = (items: FavouriteFolderResponseInterface[] | undefined): FavoriteItem[] => {
@@ -342,7 +312,7 @@ watch(
       ? folderItems
       : parseProducts(folderItems as unknown as FavouriteFolderResponseInterface[]);
   },
-  { deep: true },
+  { deep: true }
 );
 
 watch(selectedItemsLength, (newVal) => {

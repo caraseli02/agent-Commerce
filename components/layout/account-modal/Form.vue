@@ -1,9 +1,7 @@
 <template>
   <div class="mx-auto">
     <div class="mb-5">
-      <p class="text-xs text-slate-500 mb-2">
-        Demo role
-      </p>
+      <p class="text-xs text-slate-500 mb-2">Demo role</p>
       <div class="grid grid-cols-2 gap-2 p-1 rounded-lg bg-slate-100">
         <button
           type="button"
@@ -35,36 +33,20 @@
         placeholder="you@company.com OR P-XXXXXX"
         :error="email.error"
       />
-      <FormPassword
-        v-model="password.value"
-        size="lg"
-        label="Password"
-        :error="password.error"
-        placeholder="Your Password"
-      />
+      <FormPassword v-model="password.value" size="lg" label="Password" :error="password.error" placeholder="Your Password" />
     </div>
     <div class="flex items-center justify-between mb-[36px]">
       <label class="flex items-center cursor-pointer">
-        <input
-          v-model="rememberMe"
-          type="checkbox"
-          class="sr-only"
-        >
+        <input v-model="rememberMe" type="checkbox" class="sr-only" />
         <div
           class="flex items-center justify-center w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2"
           :class="[rememberMe ? 'bg-blue-500 border-blue-500' : 'border-[#CBCDD7]']"
         >
-          <CheckIcon
-            v-if="rememberMe"
-            class="w-4 text-white"
-          />
+          <CheckIcon v-if="rememberMe" class="w-4 text-white" />
         </div>
         <span class="text-xs text-slate-500 select-none"> Remember me </span>
       </label>
-      <NuxtLink
-        to="/actions?mode=forgotPassword"
-        class="flex text-xs font-medium text-gray-500 hover:text-blue-500"
-      >
+      <NuxtLink to="/actions?mode=forgotPassword" class="flex text-xs font-medium text-gray-500 hover:text-blue-500">
         Forgot password?
       </NuxtLink>
     </div>
@@ -73,16 +55,8 @@
       :disabled="isLoading"
       @click="handleSignIn"
     >
-      <div
-        v-if="isLoading"
-        aria-label="Loading..."
-        role="status"
-        class="mr-3"
-      >
-        <svg
-          class="h-6 w-6 animate-spin"
-          viewBox="3 3 18 18"
-        >
+      <div v-if="isLoading" aria-label="Loading..." role="status" class="mr-3">
+        <svg class="h-6 w-6 animate-spin" viewBox="3 3 18 18">
           <path
             class="fill-gray-200"
             d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"
@@ -93,16 +67,10 @@
           />
         </svg>
       </div>
-      <SignINIcon
-        v-else
-        class="w-6 h-6 mr-2"
-      />
+      <SignINIcon v-else class="w-6 h-6 mr-2" />
       <span class="text-sm font-medium"> Sign In </span>
     </button>
-    <div
-      v-if="errorResponse.show"
-      class="bg-rose-600 p-2 my-3 rounded"
-    >
+    <div v-if="errorResponse.show" class="bg-rose-600 p-2 my-3 rounded">
       <p class="text-white">
         {{ errorResponse.description }}
       </p>
@@ -110,10 +78,7 @@
     <div class="mx-auto text-sm font-medium text-gray-500 mb-[25px]">
       <span class="text-slate-500 font-normal text-sm">This demo uses preconfigured accounts. Pick a role above to get started.</span>
     </div>
-    <div
-      v-if="!config.public.MOCK_MODE"
-      class="flex items-center mt-12 mb-6"
-    >
+    <div v-if="!config.public.MOCK_MODE" class="flex items-center mt-12 mb-6">
       <div class="h-px flex-1 bg-gray-100" />
       <span class="text-xs text-gray-400 flex-shrink-0 mx-[18px]"> Or continue with </span>
       <div class="h-px flex-1 bg-gray-100" />
@@ -123,12 +88,7 @@
       class="group flex items-center justify-center w-full border border-border py-2 rounded-lg mb-5 transition-colors duration-300 hover:border-blue-500"
       @click="loginWithGoogle"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        class="w-6 h-6 mr-2 transition-all duration-300"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 mr-2 transition-all duration-300">
         <g clip-path="url(#clip0_154_2471)">
           <path
             fill="#4285F4"
@@ -149,10 +109,7 @@
         </g>
         <defs>
           <clipPath id="clip0_154_2471">
-            <path
-              fill="#fff"
-              d="M2 2h20v20H2z"
-            />
+            <path fill="#fff" d="M2 2h20v20H2z" />
           </clipPath>
         </defs>
       </svg>
@@ -231,7 +188,7 @@ watch(
   (role) => {
     setDemoCredentialsByRole(role);
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const isClientCodeFormat = (value: string) => {
@@ -262,7 +219,7 @@ const buildTokenPayloadFromMockUser = (user: UserInterface): UserInfoJWT => {
     exp: now + 60 * 60,
     firebase: {
       identities: {
-        'email': [safeEmail],
+        email: [safeEmail],
         'google.com': [safeEmail],
       },
       sign_in_provider: 'password',
@@ -322,8 +279,7 @@ const handleSignIn = async () => {
 
   if (isClientCodeFormat(email.value.value)) {
     payload['clientCode'] = email.value.value;
-  }
-  else {
+  } else {
     payload['email'] = email.value.value;
   }
 
@@ -338,8 +294,8 @@ const handleSignIn = async () => {
       throw response;
     }
 
-    const parsedTokenResponse
-            = config.public.MOCK_MODE && user ? buildTokenPayloadFromMockUser(user) : (useParser().parseJwt(token) as UserInfoJWT);
+    const parsedTokenResponse =
+      config.public.MOCK_MODE && user ? buildTokenPayloadFromMockUser(user) : (useParser().parseJwt(token) as UserInfoJWT);
 
     authStore.addUser(parsedTokenResponse);
     authStore.addToken(token);
@@ -352,19 +308,17 @@ const handleSignIn = async () => {
 
     emits('signed-in');
     await navigateTo(safeRedirect || getRoleRedirectPath(userDetails.role));
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     const apiError = error as { response?: { status?: number }; statusCode?: number };
     const statusCode = apiError.response?.status || apiError.statusCode || 500;
     errorResponse.code = statusCode;
     errorResponse.status = statusCode === 401 ? 'Invalid credentials' : 'Sign-in failed';
-    errorResponse.description
-            = statusCode === 401
+    errorResponse.description =
+      statusCode === 401
         ? 'Invalid email/client code or password. Please check your credentials and try again.'
         : 'Unable to sign in right now. Please try again.';
     errorResponse.show = true;
-  }
-  finally {
+  } finally {
     isLoading.value = false;
   }
 };
@@ -385,8 +339,7 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
       if (detailsResponse.status === 'success') {
         userDetails = detailsResponse.data as UserInterface;
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
   }
@@ -405,8 +358,7 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
       if (response.status === 'success') {
         authStore.addGeneralSettings(response.data);
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
   }
@@ -429,8 +381,7 @@ const loginWithGoogle = async () => {
     authStore.addFirebaseToken(token);
     cookieToken.value = token;
     return navigateTo('/');
-  }
-  else {
+  } else {
     cookieToken.value = token;
     await fetchUserDetails(parsedToken.user_id);
   }

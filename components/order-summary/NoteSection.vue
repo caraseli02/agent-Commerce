@@ -2,10 +2,7 @@
   <div class="p-4 xl:p-6 flex flex-col gap-6 bg-[#FFF] rounded-xl shadow-xs mb-6">
     <div class="flex flex-row justify-between w-full">
       <span class="text-neutral-700 text-base font-medium leading-6">Add a note for this order</span>
-      <button
-        class="group"
-        @click="textBoxOpen = !textBoxOpen"
-      >
+      <button class="group" @click="textBoxOpen = !textBoxOpen">
         <EditBig class="text-[#5E6278] group-hover:text-[#007FFF] transition duration-300" />
       </button>
     </div>
@@ -62,21 +59,21 @@ export default defineComponent({
 
 <style scoped>
 .no-focus:focus {
-    outline: none;
-    border-color: #d4d4d4;
+  outline: none;
+  border-color: #d4d4d4;
 }
 
 .thin-scrollbar::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 .thin-scrollbar::-webkit-scrollbar-track {
-    background: #f9f9f9;
+  background: #f9f9f9;
 }
 
 .thin-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #d4d4d4;
-    border-radius: 20px;
-    border: 3px solid #f9f9f9;
+  background-color: #d4d4d4;
+  border-radius: 20px;
+  border: 3px solid #f9f9f9;
 }
 </style>

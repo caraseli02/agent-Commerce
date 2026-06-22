@@ -62,9 +62,9 @@ const actions = [
   {
     title: 'Cancel Order',
     enable:
-            props.order?.status !== OrderStatus.Completed
-            && props.order?.status !== OrderStatus.Canceled
-            && props.order?.paymentDetails?.status !== PaymentStatusEnum.Paid,
+      props.order?.status !== OrderStatus.Completed &&
+      props.order?.status !== OrderStatus.Canceled &&
+      props.order?.paymentDetails?.status !== PaymentStatusEnum.Paid,
     icon: PackageXIcon,
     value: 'cancel_order',
     action: cancelOrder,
@@ -74,31 +74,19 @@ const actions = [
 
 <template>
   <section class="flex justify-end gap-3 mt-3 mb-9">
-    <UiButton
-      class="gap-2"
-      variant="secondary"
-    >
+    <UiButton class="gap-2" variant="secondary">
       <HandCoinsIcon class="w-5 h-5 stroke-1.5" />
       Returns
     </UiButton>
-    <UiButton
-      class="gap-2"
-      variant="secondary"
-    >
+    <UiButton class="gap-2" variant="secondary">
       <Undo2Icon class="w-5 h-5 stroke-1.5" />
       Returns
     </UiButton>
     <UiPopover>
       <UiPopoverTrigger>
-        <UiButton
-          variant="outline"
-          class="flex justify-between w-24 md:w-[200px]"
-        >
+        <UiButton variant="outline" class="flex justify-between w-24 md:w-[200px]">
           <div class="flex items-center gap-2">
-            <component
-              :is="SettingsIcon"
-              class="w-6 h-6 stroke-1"
-            />
+            <component :is="SettingsIcon" class="w-6 h-6 stroke-1" />
             <span class="text-sm hidden md:block">More Actions</span>
           </div>
           <ChevronDownIcon class="w-5 h-5" />
@@ -114,10 +102,7 @@ const actions = [
           :value="btn.value"
           @click="btn.action"
         >
-          <component
-            :is="btn.icon"
-            class="w-6 h-6 stroke-1"
-          />
+          <component :is="btn.icon" class="w-6 h-6 stroke-1" />
           <span>{{ btn.title }}</span>
         </UiButton>
       </UiPopoverContent>

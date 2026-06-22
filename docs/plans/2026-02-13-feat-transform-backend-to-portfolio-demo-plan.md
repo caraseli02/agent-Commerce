@@ -43,29 +43,29 @@ UI Components → Services → plugins/api.ts
 
 1. **Env template mismatch**: `.env.template` uses `FIREBASE_API_KEY` but `nuxt.config.ts:70` expects `NUXT_PUBLIC_FIREBASE_API_KEY`
 
-    - **Fix**: Update `.env.template` to use `NUXT_PUBLIC_*` prefix
+   - **Fix**: Update `.env.template` to use `NUXT_PUBLIC_*` prefix
 
 2. **Hardcoded backend host**: `services/order-summary/cart.service.ts:7` uses `https://dev-backend.ecasmag.ro`
 
-    - **Fix**: Use `this.baseURL` from `HttpFactory`
+   - **Fix**: Use `this.baseURL` from `HttpFactory`
 
 3. **URL building bug**: `services/user.service.ts:16` passes full URL to `useFetchAPI`
 
-    - **Fix**: Pass relative path only
+   - **Fix**: Pass relative path only
 
 4. **Error swallowing**: `composables/HttpFactory.ts:23` catches and returns errors
-    - **Fix**: Throw errors properly
+   - **Fix**: Throw errors properly
 
 ## Acceptance Criteria
 
--   [ ] **P1 blockers fixed**: Env template, hardcoded host, URL bug, error handling
--   [ ] **Mock toggle works**: `NUXT_PUBLIC_MOCK_MODE=true` enables mock mode
--   [ ] **Auth flow works**: Login → dashboard → logout
--   [ ] **Storefront works**: Browse products, search, add to cart
--   [ ] **Checkout works**: Cart → checkout → order success
--   [ ] **Orders work**: View order history, view order details
--   [ ] **All pages load**: Every route loads without console errors
--   [ ] **Self-contained**: `npm install && npm run dev` works
+- [ ] **P1 blockers fixed**: Env template, hardcoded host, URL bug, error handling
+- [ ] **Mock toggle works**: `NUXT_PUBLIC_MOCK_MODE=true` enables mock mode
+- [ ] **Auth flow works**: Login → dashboard → logout
+- [ ] **Storefront works**: Browse products, search, add to cart
+- [ ] **Checkout works**: Cart → checkout → order success
+- [ ] **Orders work**: View order history, view order details
+- [ ] **All pages load**: Every route loads without console errors
+- [ ] **Self-contained**: `npm install && npm run dev` works
 
 ## Implementation Phases
 
@@ -73,14 +73,14 @@ UI Components → Services → plugins/api.ts
 
 **Tasks:**
 
--   [ ] Update `.env.template` with `NUXT_PUBLIC_*` prefix
--   [ ] Add `MOCK_MODE` to `nuxt.config.ts` runtime config
--   [ ] Fix hardcoded host in `services/order-summary/cart.service.ts:7`
--   [ ] Fix URL building bug in `services/user.service.ts:16`
--   [ ] Fix error handling in `composables/HttpFactory.ts:23`
--   [ ] Modify `plugins/api.ts:44-76` to switch baseURL based on `MOCK_MODE`
--   [ ] Create `.env` file with `NUXT_PUBLIC_MOCK_MODE=true`
--   [ ] Test: Verify mock mode toggle works
+- [ ] Update `.env.template` with `NUXT_PUBLIC_*` prefix
+- [ ] Add `MOCK_MODE` to `nuxt.config.ts` runtime config
+- [ ] Fix hardcoded host in `services/order-summary/cart.service.ts:7`
+- [ ] Fix URL building bug in `services/user.service.ts:16`
+- [ ] Fix error handling in `composables/HttpFactory.ts:23`
+- [ ] Modify `plugins/api.ts:44-76` to switch baseURL based on `MOCK_MODE`
+- [ ] Create `.env` file with `NUXT_PUBLIC_MOCK_MODE=true`
+- [ ] Test: Verify mock mode toggle works
 
 **Success criteria:** App runs in mock mode, all P1 blockers resolved
 
@@ -90,15 +90,15 @@ UI Components → Services → plugins/api.ts
 
 **Tasks:**
 
--   [ ] Create API response types: `~/types/api/response.ts`
--   [ ] Implement auth endpoints (login, signup, user, logout)
--   [ ] Implement product endpoints (search, detail, categories)
--   [ ] Implement cart endpoints (get, add, remove, clear)
--   [ ] Implement checkout endpoints (validate, submit)
--   [ ] Implement order endpoints (list, detail, cancel)
--   [ ] Create mock user with admin permissions
--   [ ] Create mock products (10-20 with Unsplash images)
--   [ ] Test: Login → browse → cart → checkout → orders → dashboard
+- [ ] Create API response types: `~/types/api/response.ts`
+- [ ] Implement auth endpoints (login, signup, user, logout)
+- [ ] Implement product endpoints (search, detail, categories)
+- [ ] Implement cart endpoints (get, add, remove, clear)
+- [ ] Implement checkout endpoints (validate, submit)
+- [ ] Implement order endpoints (list, detail, cancel)
+- [ ] Create mock user with admin permissions
+- [ ] Create mock products (10-20 with Unsplash images)
+- [ ] Test: Login → browse → cart → checkout → orders → dashboard
 
 **Endpoints to mock (~15):**
 
@@ -125,25 +125,25 @@ GET     /api/orders/[id]
 ```typescript
 // server/api/auth/login.post.ts
 export default defineEventHandler(async (event) => {
-    const body = (await readBody(event)) as { email: string; password: string };
+  const body = (await readBody(event)) as { email: string; password: string };
 
-    if (body.email === 'admin@ecas.com' && body.password === 'admin123') {
-        return {
-            status: 'success',
-            data: {
-                token: 'mock-jwt-token-portfolio-demo',
-                user: {
-                    id: 'mock-user-1',
-                    email: 'admin@ecas.com',
-                    name: 'Portfolio Demo User',
-                    permissions: ['*'],
-                    roles: ['admin', 'customer'],
-                },
-            },
-        };
-    }
+  if (body.email === 'admin@ecas.com' && body.password === 'admin123') {
+    return {
+      status: 'success',
+      data: {
+        token: 'mock-jwt-token-portfolio-demo',
+        user: {
+          id: 'mock-user-1',
+          email: 'admin@ecas.com',
+          name: 'Portfolio Demo User',
+          permissions: ['*'],
+          roles: ['admin', 'customer'],
+        },
+      },
+    };
+  }
 
-    throw createError({ status: 401, statusText: 'Invalid credentials' });
+  throw createError({ status: 401, statusText: 'Invalid credentials' });
 });
 ```
 
@@ -152,28 +152,28 @@ export default defineEventHandler(async (event) => {
 ```typescript
 // server/api/products/search.post.ts
 const mockProducts = [
-    {
-        id: 'prod-1',
-        name: 'Premium Wireless Headphones',
-        priceHistory: [{ price: 299.99, active: true, createdAt: '2024-01-15T10:30:00Z' }],
-        details: {
-            description: 'High-quality wireless headphones',
-            images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'],
-        },
+  {
+    id: 'prod-1',
+    name: 'Premium Wireless Headphones',
+    priceHistory: [{ price: 299.99, active: true, createdAt: '2024-01-15T10:30:00Z' }],
+    details: {
+      description: 'High-quality wireless headphones',
+      images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'],
     },
-    // ... more products
+  },
+  // ... more products
 ];
 
 export default defineEventHandler(async (event) => {
-    const body = (await readBody(event)) as { query?: string };
+  const body = (await readBody(event)) as { query?: string };
 
-    let products = mockProducts;
+  let products = mockProducts;
 
-    if (body.query) {
-        products = products.filter((p) => p.name.toLowerCase().includes(body.query!.toLowerCase()));
-    }
+  if (body.query) {
+    products = products.filter((p) => p.name.toLowerCase().includes(body.query!.toLowerCase()));
+  }
 
-    return { status: 'success', data: products };
+  return { status: 'success', data: products };
 });
 ```
 
@@ -185,11 +185,11 @@ export default defineEventHandler(async (event) => {
 
 **Tasks:**
 
--   [ ] Manual smoke test of all flows
--   [ ] Fix console errors
--   [ ] Update README with mock mode instructions
--   [ ] Create `.env.example` file
--   [ ] Verify all pages load without errors
+- [ ] Manual smoke test of all flows
+- [ ] Fix console errors
+- [ ] Update README with mock mode instructions
+- [ ] Create `.env.example` file
+- [ ] Verify all pages load without errors
 
 **README update:**
 
@@ -251,20 +251,20 @@ export function isSuccessResponse<T>(response: ApiResponse<T>): response is ApiS
 import type { ProductInterface } from '~/types/product/product-interface';
 
 export default [
-    {
-        id: 'prod-1',
-        name: 'Premium Wireless Headphones',
-        // Match ProductInterface structure
-    },
+  {
+    id: 'prod-1',
+    name: 'Premium Wireless Headphones',
+    // Match ProductInterface structure
+  },
 ] as ProductInterface[];
 ```
 
 **Keep it simple:**
 
--   Inline data in endpoints (don't create separate data files)
--   Use Unsplash for images
--   No caching, no latency, no validation (frontend does that)
--   Return data directly, no utility functions
+- Inline data in endpoints (don't create separate data files)
+- Use Unsplash for images
+- No caching, no latency, no validation (frontend does that)
+- Return data directly, no utility functions
 
 ## Testing Strategy
 
@@ -283,16 +283,16 @@ export default [
 
 ## Success Metrics
 
--   All P1 blockers fixed
--   Mock toggle functional
--   Core flows work (auth, products, cart, checkout, orders)
--   All pages load without console errors
--   Self-contained: `npm install && npm run dev`
+- All P1 blockers fixed
+- Mock toggle functional
+- Core flows work (auth, products, cart, checkout, orders)
+- All pages load without console errors
+- Self-contained: `npm install && npm run dev`
 
 ## Timeline: 2 Weeks
 
--   Week 1: Foundation + P1 fixes (4 days)
--   Week 2: Core flows + polish (8 days)
+- Week 1: Foundation + P1 fixes (4 days)
+- Week 2: Core flows + polish (8 days)
 
 **Total:** 12 working days
 
@@ -300,14 +300,14 @@ export default [
 
 **Internal:**
 
--   Audit document: `ECAS_BACKEND_TO_MOCK_MVP_AUDIT.md`
--   API plugin: `plugins/api.ts:44-76`
--   Environment config: `nuxt.config.ts:68-81`
+- Audit document: `ECAS_BACKEND_TO_MOCK_MVP_AUDIT.md`
+- API plugin: `plugins/api.ts:44-76`
+- Environment config: `nuxt.config.ts:68-81`
 
 **External:**
 
--   Nuxt 3 Server Routes: https://nuxt.com/docs/guide/directory-structure/server
--   Nuxt 3 Runtime Config: https://nuxt.com/docs/guide/going-further/runtime-config
+- Nuxt 3 Server Routes: https://nuxt.com/docs/guide/directory-structure/server
+- Nuxt 3 Runtime Config: https://nuxt.com/docs/guide/going-further/runtime-config
 
 ## Appendix: P1 Blocker Fixes
 

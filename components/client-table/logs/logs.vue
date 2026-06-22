@@ -29,7 +29,7 @@ const fetchAndSetActivityLogs = async (
   page: number,
   perPage: number,
   filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {},
+  sort: Record<string, unknown> = {}
 ) => {
   error.value = false;
 
@@ -72,12 +72,7 @@ await fetchAndSetActivityLogs(1, 10);
       :total-items="totalItems"
     >
       <template #header="{ table, makeRefresh }">
-        <DataTableHeadControls
-          :error="error"
-          title="Activity Log"
-          :table="table"
-          @refresh="makeRefresh()"
-        >
+        <DataTableHeadControls :error="error" title="Activity Log" :table="table" @refresh="makeRefresh()">
           <!-- <UiButton class="flex-1 md:flex-grow-0 flex gap-2" size="sm">
 <PlusIcon class="h-6 w-6" />
 Create New

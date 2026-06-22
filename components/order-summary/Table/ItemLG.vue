@@ -8,11 +8,7 @@
       >
         {{ index }}
       </div>
-      <img
-        :src="String(item.cover ?? '')"
-        :alt="item.title"
-        class="w-[65px] h-[65px]"
-      >
+      <img :src="String(item.cover ?? '')" :alt="item.title" class="w-[65px] h-[65px]" />
       <div>
         <div class="mb-1 flex flex-col items-start 2xl:flex-row 2xl:items-center">
           <div class="font-semibold leading-tight mr-2.5">
@@ -22,13 +18,9 @@
             CUSTOM1234
           </button>
         </div>
-        <div class="text-xs leading-tight truncate mb-1">
-          Diode: rectifying; SMD; 100V; 0.15...
-        </div>
+        <div class="text-xs leading-tight truncate mb-1">Diode: rectifying; SMD; 100V; 0.15...</div>
         <div class="flex flex-col 2xl:flex-row 2xl:items-center">
-          <div class="text-xs leading-tight mb-[5px] mr-2.5 2xl:mb-0">
-            Manufacturer: Microchip
-          </div>
+          <div class="text-xs leading-tight mb-[5px] mr-2.5 2xl:mb-0">Manufacturer: Microchip</div>
           <div class="flex items-center bg-green-500">
             <CheckIcon class="w-4 h-4 mr-1" />
             <span class="text-xs leading-tight font-semibold"> 16,000 in stock </span>
@@ -36,23 +28,15 @@
         </div>
       </div>
       <div class="flex flex-col font-semibold">
-        <span
-          v-if="item.discount"
-          class="text-sm text-slate-500 mb-0.5"
-        > $150,00 </span>
+        <span v-if="item.discount" class="text-sm text-slate-500 mb-0.5"> $150,00 </span>
         <span :class="[item.discount ? 'bg-green-500 mb-2.5' : '']"> $120,00 </span>
-        <div
-          v-if="item.discount"
-          class="flex bg-rose-500 rounded-[25px] px-1.5 py-0.5 text-xs font-extrabold text-white self-start ml-4"
-        >
+        <div v-if="item.discount" class="flex bg-rose-500 rounded-[25px] px-1.5 py-0.5 text-xs font-extrabold text-white self-start ml-4">
           {{ item.discount }}%
         </div>
       </div>
       <div>19%</div>
       <QuantityButtons v-model="quantity" />
-      <div class="font-semibold">
-        $3000,00
-      </div>
+      <div class="font-semibold">$3000,00</div>
       <div class="flex items-center gap-[15px] text-slate-500">
         <button class="flex transition-colors duration-300 hover:text-blue-500">
           <D3Icon class="w-6 h-6" />

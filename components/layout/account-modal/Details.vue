@@ -11,14 +11,8 @@
         <div class="text-neutral-700 text-sm font-medium leading-5 whitespace-nowrap">
           {{ fullname || 'Loading...' }}
         </div>
-        <DemoTooltip
-          theme="black"
-          position="top"
-        >
-          <component
-            :is="getIconBadgeByAccountType()"
-            class="w-5 h-5 hover:text-blue-500"
-          />
+        <DemoTooltip theme="black" position="top">
+          <component :is="getIconBadgeByAccountType()" class="w-5 h-5 hover:text-blue-500" />
           <template #content>
             <span class="text-sm">{{
               getUserDetails.accountType ? AccountType[getUserDetails.accountType] : AccountRole[getUserDetails.role]
@@ -30,9 +24,7 @@
         {{ getUserDetails?.contactDetails.email || 'Loading...' }}
       </div>
       <div class="items-center flex gap-2 mt-1 pr-20">
-        <div class="text-stone-500 text-xs font-medium leading-5 self-stretch whitespace-nowrap">
-          Client code:
-        </div>
+        <div class="text-stone-500 text-xs font-medium leading-5 self-stretch whitespace-nowrap">Client code:</div>
         <div class="text-stone-500 text-xs font-medium leading-5">
           {{ getUserDetails?.clientCode || 'N/A' }}
         </div>
@@ -66,10 +58,9 @@ onMounted(() => {
 
   if (getUserDetails.value.role === AccountRole.Client && getUserDetails.value.accountType === AccountType.Business) {
     accountTypeIcon.value = BuildingIcon;
-  }
-  else if (
-    getUserDetails.value.role === AccountRole.Client
-    && (getUserDetails.value.accountType === AccountType.SoleTrader || getUserDetails.value.accountType === AccountType.Agent)
+  } else if (
+    getUserDetails.value.role === AccountRole.Client &&
+    (getUserDetails.value.accountType === AccountType.SoleTrader || getUserDetails.value.accountType === AccountType.Agent)
   ) {
     accountTypeIcon.value = briefcaseIcon;
   }
@@ -98,8 +89,7 @@ const fullname = computed(() => {
     // eslint-disable-next-line vue/no-side-effects-in-computed-properties
     accountTypeIcon.value = UserIcon;
     return `${getUserDetails.value?.personalDetails?.firstName} ${getUserDetails.value?.personalDetails?.lastName}`;
-  }
-  else {
+  } else {
     return `${getUserDetails.value?.contactDetails?.firstName} ${getUserDetails.value?.contactDetails?.lastName}`;
   }
 });
@@ -114,7 +104,7 @@ const avatarInitials = computed(() => {
   const parts = sourceName.split(/\s+/).filter(Boolean);
   return parts
     .slice(0, 2)
-    .map(part => part[0]?.toUpperCase() || '')
+    .map((part) => part[0]?.toUpperCase() || '')
     .join('');
 });
 </script>

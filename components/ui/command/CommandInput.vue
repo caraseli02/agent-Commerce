@@ -24,10 +24,7 @@ const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <div
-    class="flex items-center border-b px-3"
-    cmdk-input-wrapper
-  >
+  <div class="flex items-center border-b px-3" cmdk-input-wrapper>
     <Search class="mr-2 h-4 w-4 shrink-0 opacity-50" />
     <ComboboxInput
       v-bind="{ ...forwardedProps, ...$attrs }"
@@ -35,7 +32,7 @@ const forwardedProps = useForwardProps(delegatedProps);
       :class="
         cn(
           'flex text-gray-600 h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-slate-400',
-          props.class,
+          props.class
         )
       "
     />

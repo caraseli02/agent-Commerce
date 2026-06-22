@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="elDOM"
-    class="fixed z-[60] top-0 left-0 w-full h-screen pointer-events-none"
-  >
+  <div ref="elDOM" class="fixed z-[60] top-0 left-0 w-full h-screen pointer-events-none">
     <div class="relative z-10 flex flex-col ml-auto w-full h-full bg-white max-h-vh overflow-hidden pointer-events-auto md:w-[440px]">
       <div
         class="flex flex-col"
@@ -25,10 +22,7 @@
             :class="[activeNavItem === textUtil.slugify(item.label) ? 'text-blue-500' : 'text-neutral-700 after:opacity-0']"
             @click="setActiveNav(item.label)"
           >
-            <component
-              :is="item.icon"
-              class="w-5 h-5 mr-2"
-            />
+            <component :is="item.icon" class="w-5 h-5 mr-2" />
             <span class="text-sm font-medium">
               {{ item.label }}
             </span>
@@ -44,11 +38,7 @@
       </div>
       <div class="flex-1 h-[calc(100%-102px)]">
         <Favorites v-if="activeNavItem === 'favorites'" />
-        <Cart
-          v-else-if="activeNavItem === 'shopping-cart'"
-          :data="data"
-          @close="$emit('close')"
-        />
+        <Cart v-else-if="activeNavItem === 'shopping-cart'" :data="data" @close="$emit('close')" />
       </div>
     </div>
   </div>

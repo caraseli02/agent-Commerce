@@ -21,10 +21,9 @@ export function usePaymentCards() {
     if (response.status === 'success') {
       if (response.data.length) {
         cards.value = response.data;
-        card.value = _.cloneDeep(cards.value.find(savedCard => savedCard.default) ?? null);
+        card.value = _.cloneDeep(cards.value.find((savedCard) => savedCard.default) ?? null);
         isNewCardSelected.value = false;
-      }
-      else {
+      } else {
         isNewCardSelected.value = true;
       }
     }
@@ -35,7 +34,7 @@ export function usePaymentCards() {
     (nextCard) => {
       card.value = nextCard;
     },
-    { deep: true },
+    { deep: true }
   );
 
   watch(
@@ -47,7 +46,7 @@ export function usePaymentCards() {
         isNewCardSelected.value = false;
       }
     },
-    { immediate: true },
+    { immediate: true }
   );
 
   return {

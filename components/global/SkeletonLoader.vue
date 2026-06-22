@@ -1,15 +1,11 @@
 <template>
   <div :class="[bgClass, loaderClass, 'relative overflow-hidden']">
-    <div
-      class="shimmer absolute top-0 right-0 bottom-0 left-0"
-      :style="shimmerStyle"
-    />
+    <div class="shimmer absolute top-0 right-0 bottom-0 left-0" :style="shimmerStyle" />
     <slot />
   </div>
 </template>
 
-<script lang="ts">
-</script>
+<script lang="ts"></script>
 
 <script setup lang="ts">
 import { computed, toRefs } from 'vue';
@@ -32,19 +28,22 @@ const isHexColor = (hexColor: string) => {
   return typeof hexColor === 'string' && hexColor.startsWith('#') && hex.length === 6 && !isNaN(Number('0x' + hex));
 };
 
-const hexToRgb = (hex: string) => `${hex.match(/\w\w/g)?.map(x => +`0x${x}`)}`;
+const hexToRgb = (hex: string) => `${hex.match(/\w\w/g)?.map((x) => +`0x${x}`)}`;
 
-const props = withDefaults(defineProps<{
-  type?: LoaderTypesValues;
-  bgClass?: string;
-  cssClass?: string;
-  shimmerColor?: string;
-}>(), {
-  type: 'rectangle',
-  bgClass: 'bg-gray-100',
-  cssClass: '',
-  shimmerColor: '#FFFFFF',
-});
+const props = withDefaults(
+  defineProps<{
+    type?: LoaderTypesValues;
+    bgClass?: string;
+    cssClass?: string;
+    shimmerColor?: string;
+  }>(),
+  {
+    type: 'rectangle',
+    bgClass: 'bg-gray-100',
+    cssClass: '',
+    shimmerColor: '#FFFFFF',
+  }
+);
 
 const { type, bgClass, cssClass, shimmerColor } = toRefs(props);
 
@@ -61,13 +60,13 @@ const loaderClass = computed(() => (cssClass.value ? cssClass.value : LOADER_CSS
 
 <style lang="scss">
 .shimmer {
-    transform: translateX(-100%);
-    animation: shimmer 1.4s infinite;
+  transform: translateX(-100%);
+  animation: shimmer 1.4s infinite;
 }
 
 @keyframes shimmer {
-    100% {
-        transform: translateX(100%);
-    }
+  100% {
+    transform: translateX(100%);
+  }
 }
 </style>

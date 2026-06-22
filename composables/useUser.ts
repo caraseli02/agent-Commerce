@@ -23,12 +23,12 @@ export function useUser() {
   const getShipping = () => {
     if (!user.value) return fallbackAddress;
 
-    const addressList
-            = user.value.accountType === AccountType.Personal
-              ? user.value.personalDetails?.shippingAddress
-              : user.value.companyDetails?.shippingAddress;
+    const addressList =
+      user.value.accountType === AccountType.Personal
+        ? user.value.personalDetails?.shippingAddress
+        : user.value.companyDetails?.shippingAddress;
 
-    const address = (addressList as ShippingAddressInterface[])?.find(addr => addr.default) || addressList?.[0];
+    const address = (addressList as ShippingAddressInterface[])?.find((addr) => addr.default) || addressList?.[0];
 
     return address ? { ...address, alias: address.alias || 'Address' } : fallbackAddress;
   };
@@ -36,12 +36,12 @@ export function useUser() {
   const getBilling = () => {
     if (!user.value) return fallbackAddress;
 
-    const addressList
-            = user.value.accountType === AccountType.Personal
-              ? user.value.personalDetails?.billingAddress
-              : user.value.companyDetails?.billingAddress;
+    const addressList =
+      user.value.accountType === AccountType.Personal
+        ? user.value.personalDetails?.billingAddress
+        : user.value.companyDetails?.billingAddress;
 
-    const address = (addressList as ShippingAddressInterface[])?.find(addr => addr.default) || addressList?.[0];
+    const address = (addressList as ShippingAddressInterface[])?.find((addr) => addr.default) || addressList?.[0];
 
     return address ? { ...address, alias: address.alias || 'Address' } : fallbackAddress;
   };

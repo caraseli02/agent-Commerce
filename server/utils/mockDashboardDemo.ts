@@ -70,7 +70,7 @@ const normalizeUserId = (userId?: string) => String(userId || DEFAULT_USER_ID);
 export const resolveCustomerId = (userId?: string) => {
   const normalizedUserId = normalizeUserId(userId);
 
-  if (mockCustomers.some(customer => customer._id === normalizedUserId)) {
+  if (mockCustomers.some((customer) => customer._id === normalizedUserId)) {
     return normalizedUserId;
   }
 
@@ -80,7 +80,7 @@ export const resolveCustomerId = (userId?: string) => {
 export const getDemoCustomer = (userId?: string) => {
   const customerId = resolveCustomerId(userId);
 
-  return mockCustomers.find(customer => customer._id === customerId) || mockCustomers[0];
+  return mockCustomers.find((customer) => customer._id === customerId) || mockCustomers[0];
 };
 
 export const getDemoAddresses = (userId?: string) => {
@@ -222,7 +222,7 @@ const mapOrderItems = (order: MockDashboardOrder) => {
   };
 
   return (order.itemsDetails || []).map((item: MockDashboardOrderItem) => {
-    const product = mockProducts.find(entry => entry._id === item.productId) || mockProducts[0];
+    const product = mockProducts.find((entry) => entry._id === item.productId) || mockProducts[0];
     const quantity = Number(item.quantity || 1);
     const price = Number(item.price || 0);
 
@@ -243,7 +243,7 @@ const mapOrderItems = (order: MockDashboardOrder) => {
 
 const mapOrderToContract = (order: MockDashboardOrder, index: number, userId?: string) => {
   const customerId = order.customerId || resolveCustomerId(userId);
-  const customer = mockCustomers.find(entry => entry._id === customerId) || getDemoCustomer(userId);
+  const customer = mockCustomers.find((entry) => entry._id === customerId) || getDemoCustomer(userId);
   const name = splitName(customer.name);
 
   return {
@@ -362,9 +362,9 @@ export const findDemoOrder = (id?: string, userId?: string) => {
 
   return orders.find((order) => {
     return (
-      String(order._id || '').toLowerCase() === searchId
-      || String(order.shortId || '').toLowerCase() === searchId
-      || String(order.shortId || '')
+      String(order._id || '').toLowerCase() === searchId ||
+      String(order.shortId || '').toLowerCase() === searchId ||
+      String(order.shortId || '')
         .replace('#', '')
         .toLowerCase() === searchId
     );
@@ -375,7 +375,7 @@ export const getDemoTransactions = (userId?: string) => {
   const customerId = resolveCustomerId(userId);
 
   return mockTransactions
-    .filter(transaction => transaction.customerId === customerId)
+    .filter((transaction) => transaction.customerId === customerId)
     .slice(0, 10)
     .map((transaction, index) => ({
       _id: transaction._id,
@@ -395,13 +395,13 @@ export const getClientDashboardData = (userId?: string) => {
   const customerOrders = getDemoOrdersForUser(userId);
   const recentOrders = customerOrders.slice(0, 5);
   const totalOrders = customerOrders.length;
-  const deliveredOrders = customerOrders.filter(order => order.status === 'Delivered').length;
+  const deliveredOrders = customerOrders.filter((order) => order.status === 'Delivered').length;
   const returns = Math.min(2, Math.max(0, totalOrders - deliveredOrders));
 
   const recentlyBought = recentOrders
-    .flatMap(order => order.products || [])
+    .flatMap((order) => order.products || [])
     .slice(0, 5)
-    .map(item => item.productEntity)
+    .map((item) => item.productEntity)
     .filter(Boolean);
 
   const viewHistory = mockProducts.slice(0, 8).map((product, index) => ({
@@ -425,7 +425,7 @@ export const getClientDashboardData = (userId?: string) => {
   }));
 
   return {
-    activeOrders: recentOrders.slice(0, 4).map(order => ({
+    activeOrders: recentOrders.slice(0, 4).map((order) => ({
       _id: order._id,
       shortId: order.shortId,
     })),
@@ -471,10 +471,7 @@ export const getOrderWidgetTotal = (type?: string) => {
     case 'gross-margin':
       return orders.reduce((sum, order) => sum + Number(order.total || 0), 0) * 0.27;
     case 'total-stock-value':
-      return mockProducts.reduce(
-        (sum, product) => sum + Number(product.stock || 0) * Number(product.priceHistory?.[0]?.price || 0),
-        0,
-      );
+      return mockProducts.reduce((sum, product) => sum + Number(product.stock || 0) * Number(product.priceHistory?.[0]?.price || 0), 0);
     case 'average-order-value': {
       const total = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
       return orders.length ? total / orders.length : 0;
@@ -484,9 +481,8 @@ export const getOrderWidgetTotal = (type?: string) => {
     case 'products-sold':
       return orders.reduce(
         (sum, order) =>
-          sum
-          + (order.products || []).reduce((itemsSum: number, item: DemoOrderProduct) => itemsSum + Number(item.stock || 0), 0),
-        0,
+          sum + (order.products || []).reduce((itemsSum: number, item: DemoOrderProduct) => itemsSum + Number(item.stock || 0), 0),
+        0
       );
     case 'returns':
       return 9;

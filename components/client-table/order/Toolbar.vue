@@ -40,10 +40,7 @@ const orderTypeOptions = orderType as unknown as StringFacetedFilterOption[];
         :column="table.getColumn(OrderTableColumnsEnum.USER_NAME)"
         title="Name"
       />
-      <DataTableFilterDate
-        title="Date"
-        :column="table.getColumn(OrderTableColumnsEnum.CREATED_AT)"
-      />
+      <DataTableFilterDate title="Date" :column="table.getColumn(OrderTableColumnsEnum.CREATED_AT)" />
       <DataTableFilterFaceted
         v-if="table.getColumn(OrderTableColumnsEnum.STATUS)"
         :column="table.getColumn(OrderTableColumnsEnum.STATUS)"

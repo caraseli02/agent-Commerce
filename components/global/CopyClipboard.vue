@@ -1,8 +1,5 @@
 <template>
-  <component
-    :is="defaultIcon"
-    @click="onCopyClick"
-  />
+  <component :is="defaultIcon" @click="onCopyClick" />
 </template>
 
 <script setup lang="ts">

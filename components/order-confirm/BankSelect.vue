@@ -26,21 +26,13 @@ onMounted(() => {
   value.value = banks[0].value;
 });
 
-const selectedBank = computed(() => banks.find(bank => bank.value === value.value));
+const selectedBank = computed(() => banks.find((bank) => bank.value === value.value));
 </script>
 
 <template>
   <UiPopover v-model:open="open">
-    <UiPopoverTrigger
-      class="border-grey-300"
-      as-child
-    >
-      <UiButton
-        variant="outline"
-        role="combobox"
-        :aria-expanded="open"
-        class="min-w-[326px] justify-between"
-      >
+    <UiPopoverTrigger class="border-grey-300" as-child>
+      <UiButton variant="outline" role="combobox" :aria-expanded="open" class="min-w-[326px] justify-between">
         <p class="flex justify-between w-full text-grey-600 pr-2">
           <span>{{ selectedBank?.label }}</span>
           <span>{{ selectedBank?.currency }}</span>
@@ -50,10 +42,7 @@ const selectedBank = computed(() => banks.find(bank => bank.value === value.valu
     </UiPopoverTrigger>
     <UiPopoverContent class="min-w-[326px] p-0 border-grey-300">
       <UiCommand>
-        <UiCommandInput
-          class="h-9"
-          placeholder="Search bank..."
-        />
+        <UiCommandInput class="h-9" placeholder="Search bank..." />
         <UiCommandEmpty>No bank found.</UiCommandEmpty>
         <UiCommandList>
           <UiCommandGroup>

@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col pt-[30px] px-[15px] pb-10 md:pt-[130px] md:px-4 md:pb-5 md:flex-1 lg:max-w-[410px] lg:mx-auto lg:pb-10">
     <div class="flex items-center mb-5">
-      <div class="font-medium mr-2 md:text-xl">
-        Select account type
-      </div>
+      <div class="font-medium mr-2 md:text-xl">Select account type</div>
       <QuestionIcon class="w-5 h-5 text-gray-500" />
     </div>
     <div class="grid grid-cols-3 gap-3 mb-[30px] md:mb-10">
@@ -34,9 +32,7 @@
     </div>
     <template v-if="props.selectedType === 'business'">
       <div class="flex items-center mb-5">
-        <div class="font-medium mr-2 md:text-xl">
-          Business Account Type
-        </div>
+        <div class="font-medium mr-2 md:text-xl">Business Account Type</div>
         <QuestionIcon class="w-5 h-5 text-gray-500" />
       </div>
       <div class="mb-[86px] md:mb-[70px]">
@@ -98,18 +94,9 @@
       </a>
     </div>
     <div class="flex items-center justify-center gap-5 md:hidden">
-      <NuxtLink
-        to="/"
-        class="text-sm transition-colors duration-300 hover:text-blue-500"
-      > Terms </NuxtLink>
-      <NuxtLink
-        to="/"
-        class="text-sm transition-colors duration-300 hover:text-blue-500"
-      > Help </NuxtLink>
-      <NuxtLink
-        to="/"
-        class="text-sm transition-colors duration-300 hover:text-blue-500"
-      > Contact </NuxtLink>
+      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Terms </NuxtLink>
+      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Help </NuxtLink>
+      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Contact </NuxtLink>
     </div>
     <div class="text-sm text-center mb-[60px] mt-auto max-md:hidden lg:mb-10">
       Already have an account?
@@ -125,9 +112,7 @@
         Sign in
       </NuxtLink>
     </div>
-    <div class="text-sm text-slate-500 text-center max-md:hidden">
-      © {{ new Date().getFullYear() }} DEMO.APP
-    </div>
+    <div class="text-sm text-slate-500 text-center max-md:hidden">© {{ new Date().getFullYear() }} DEMO.APP</div>
   </div>
 </template>
 
@@ -163,6 +148,6 @@ watch(
   },
   {
     immediate: true,
-  },
+  }
 );
 </script>

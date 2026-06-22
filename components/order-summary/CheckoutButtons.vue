@@ -36,7 +36,9 @@
         </UiButton>
       </div>
     </div>
-    <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 sm:gap-6 lg:justify-between lg:gap-4">
+    <div
+      class="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 sm:gap-6 lg:justify-between lg:gap-4"
+    >
       <BadgeVisa />
       <BadgeMaster />
       <BadgeApplePay />

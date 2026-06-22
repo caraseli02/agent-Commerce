@@ -14,13 +14,8 @@
       }"
       class="homeFeaturedProducts--swiper w-[100%] h-[100%] block"
     >
-      <SwiperSlide
-        v-for="(item, index) in slides"
-        :key="index"
-      >
-        <section
-          class="items-stretch bg-gray-700 w-full flex flex-col justify-center px-8 py-2 rounded-t-xl max-md:max-w-full max-md:px-5"
-        >
+      <SwiperSlide v-for="(item, index) in slides" :key="index">
+        <section class="items-stretch bg-gray-700 w-full flex flex-col justify-center px-8 py-2 rounded-t-xl max-md:max-w-full max-md:px-5">
           <div class="justify-between items-stretch flex gap-5 max-md:max-w-full max-md:flex-wrap">
             <div class="text-white text-sm leading-6 grow shrink basis-auto">
               {{ item.title }}
@@ -57,9 +52,7 @@
               </div>
             </div>
           </div>
-          <div
-            class="justify-between items-end flex flex-row md:flex-col xl:flex-row w-full gap-5 max-md:max-w-full max-md:flex-wrap"
-          >
+          <div class="justify-between items-end flex flex-row md:flex-col xl:flex-row w-full gap-5 max-md:max-w-full max-md:flex-wrap">
             <section class="justify-center items-stretch flex flex-col whitespace-nowrap md:self-end">
               <div class="text-zinc-800 text-sm leading-4 line-through">
                 {{ item.originalPrice }}
@@ -103,22 +96,15 @@
                   stroke-linejoin="round"
                 />
               </svg>
-              <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">
-                Add to cart
-              </div>
+              <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">Add to cart</div>
             </button>
           </div>
         </div>
       </SwiperSlide>
     </Swiper>
-    <section
-      v-else
-      class="absolute inset-0 flex flex-col items-center justify-center text-center"
-    >
+    <section v-else class="absolute inset-0 flex flex-col items-center justify-center text-center">
       <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-      <div class="w-full">
-        No results.
-      </div>
+      <div class="w-full">No results.</div>
     </section>
   </div>
 </template>
@@ -150,23 +136,23 @@ const addToCart = async (product: ProductBannerInterface) => {
 
 <style lang="scss">
 .homeFeaturedProducts--swiper {
-    @apply px-0 pt-0 pb-[30px] #{!important};
+  @apply px-0 pt-0 pb-[30px] #{!important};
 }
 
 .homeFeaturedProducts--swiper .swiper-slide {
-    @apply h-auto #{!important};
+  @apply h-auto #{!important};
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination {
-    @apply bottom-0 space-x-1.5 md:space-x-2 #{!important};
+  @apply bottom-0 space-x-1.5 md:space-x-2 #{!important};
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet {
-    @apply w-1.5 h-1.5 bg-light-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
-    margin-right: 0 !important;
+  @apply w-1.5 h-1.5 bg-light-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  margin-right: 0 !important;
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-    @apply w-[25px] bg-gray-300 #{!important};
+  @apply w-[25px] bg-gray-300 #{!important};
 }
 </style>

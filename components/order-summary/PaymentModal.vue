@@ -3,9 +3,7 @@
     class="flex flex-col items-center justify-between min-h-screen w-full shadow-xs bg-white max-w-[358px] md:max-w-[400px] px-4 md:px-6 py-0 rounded-l-xl h-full overflow-hidden scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-slate-700 scrollbar-track-slate-300"
   >
     <div class="sticky top-0 justify-between items-start self-stretch flex gap-5 bg-white z-10 min-h-16 pt-6">
-      <div class="text-zinc-800 text-base font-semibold leading-7 my-auto">
-        Payment Method
-      </div>
+      <div class="text-zinc-800 text-base font-semibold leading-7 my-auto">Payment Method</div>
       <button
         class="justify-center items-center bg-zinc-100 self-stretch flex aspect-square flex-col w-8 h-8 px-1 rounded-lg"
         @click="
@@ -23,25 +21,15 @@
         @click="isNewCardSelected = true"
         @select-payment-option="selectPaymentOption({ type: PaymentTypeEnum.Card, info: null })"
       />
-      <h4
-        v-if="cards.length > 1"
-        class="text-zinc-800 text-sm font-medium leading-6 self-stretch mt-2"
-      >
-        Saved cards
-      </h4>
-      <div
-        v-for="savedCard in cards"
-        :key="savedCard.id"
-        class="pt-4"
-      >
+      <h4 v-if="cards.length > 1" class="text-zinc-800 text-sm font-medium leading-6 self-stretch mt-2">Saved cards</h4>
+      <div v-for="savedCard in cards" :key="savedCard.id" class="pt-4">
         <OrderSummaryPayByCard
           view="payment"
           :cards="true"
           :card-info="savedCard"
           :card-type="savedCard.card?.brand ?? savedCard.card?.display_brand"
           :is-selected="
-            !isNewCardSelected
-              && (payment.card?.id ? payment.card.id === savedCard.id : order.paymentDetails?.card?.id === savedCard.id)
+            !isNewCardSelected && (payment.card?.id ? payment.card.id === savedCard.id : order.paymentDetails?.card?.id === savedCard.id)
           "
           :has-card="true"
           :is-expired="cardExpired(savedCard)"
@@ -53,13 +41,7 @@
     </div>
     <div class="sticky bottom-0 flex flex-col justify-center items-center w-full justify-self-end bg-white z-10 pb-6">
       <div class="items-stretch self-center flex gap-3 mt-10">
-        <svg
-          width="41"
-          height="40"
-          viewBox="0 0 41 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg width="41" height="40" viewBox="0 0 41 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             fill-rule="evenodd"
             clip-rule="evenodd"
@@ -67,9 +49,7 @@
             fill="#00C088"
           />
         </svg>
-        <div class="text-zinc-800 text-sm leading-6 self-center grow whitespace-nowrap my-auto">
-          Secure credit card payment
-        </div>
+        <div class="text-zinc-800 text-sm leading-6 self-center grow whitespace-nowrap my-auto">Secure credit card payment</div>
       </div>
       <button
         class="justify-center items-center self-stretch bg-blue-500 flex w-full flex-col mt-4 px-16 py-2 h-11 rounded-lg"
@@ -80,20 +60,8 @@
       >
         <span class="flex items-center gap-2">
           <div class="text-white text-base font-medium leading-7 grow whitespace-nowrap">Continue</div>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M14 8L18 12M18 12L14 16M18 12L6 12"
-              stroke="white"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 8L18 12M18 12L14 16M18 12L6 12" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </span>
       </button>
@@ -141,8 +109,7 @@ function exitCardModal(cancelled: boolean) {
       card.value.customer = payment.value.card.customer;
       card.value.default = payment.value.card.default ?? false;
       emits('change-is-new-card-selected', false);
-    }
-    else {
+    } else {
       emits('change-is-new-card-selected', true);
     }
   }

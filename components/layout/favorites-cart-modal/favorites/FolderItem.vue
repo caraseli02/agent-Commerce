@@ -4,55 +4,32 @@
       class="relative flex items-center rounded-md"
       :class="[editing ? 'py-2.5' : 'py-[13px]', inModal ? 'py-0' : 'bg-[#F2F2F2] border border-gray-200 pl-2.5 pr-[5px]']"
     >
-      <label
-        v-if="!editing"
-        class="flex cursor-pointer mr-2.5"
-      >
-        <input
-          :value="folder.selected"
-          type="checkbox"
-          class="sr-only"
-          @change="$emit('select')"
-        >
+      <label v-if="!editing" class="flex cursor-pointer mr-2.5">
+        <input :value="folder.selected" type="checkbox" class="sr-only" @change="$emit('select')" />
         <div
           class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
           :class="[
-            folder.selected
-              ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-              : 'bg-white  border-border group-hover:border-gray-300',
+            folder.selected ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
           ]"
         >
-          <CheckIcon
-            v-if="folder.selected"
-            class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-          />
+          <CheckIcon v-if="folder.selected" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
         </div>
       </label>
-      <button
-        class="flex"
-        @click="$emit('open')"
-      >
+      <button class="flex" @click="$emit('open')">
         <FolderIcon
           class="w-9 h-9 mr-[15px] transition-colors duration-300"
           :class="[editing ? 'text-blue-500 ml-[5px]' : 'text-slate-500']"
         />
       </button>
-      <label
-        v-if="editing"
-        class="w-full pr-[5px]"
-      >
+      <label v-if="editing" class="w-full pr-[5px]">
         <input
           ref="newNameInputDOM"
           v-model="newName"
           type="text"
           class="bg-white w-full px-2.5 pt-[11px] pb-2.5 text-sm leading-snug font-Inter border border-border rounded text-neutral-700 transition-colors duration-300 placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
-        >
+        />
       </label>
-      <button
-        v-else
-        class="text-left"
-        @click="$emit('open')"
-      >
+      <button v-else class="text-left" @click="$emit('open')">
         <div class="text-sm leading-tight font-semibold font-Inter mb-[3px]">
           {{ folder.title }}
         </div>
@@ -84,27 +61,15 @@
         />
       </Transition>
     </div>
-    <div
-      v-if="editing"
-      class="flex items-center justify-center gap-[15px] mt-[25px] mb-[15px]"
-    >
-      <button
-        class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-blue-500"
-        @click="editing = false"
-      >
+    <div v-if="editing" class="flex items-center justify-center gap-[15px] mt-[25px] mb-[15px]">
+      <button class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-blue-500" @click="editing = false">
         <CheckIcon class="w-6 h-6" />
       </button>
-      <button
-        class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-rose-500"
-        @click="editing = false"
-      >
+      <button class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-rose-500" @click="editing = false">
         <XIcon class="w-5 h-5" />
       </button>
     </div>
-    <div
-      v-else-if="showOptions"
-      class="flex items-center justify-center gap-[15px] mt-[25px] mb-[15px]"
-    >
+    <div v-else-if="showOptions" class="flex items-center justify-center gap-[15px] mt-[25px] mb-[15px]">
       <button
         class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full text-slate-500 transition-colors duration-300 hover:text-blue-500"
       >
@@ -131,11 +96,7 @@
   </div>
   <Teleport to="body">
     <Transition name="slide-from-top">
-      <LayoutFavoritesModalsDelete
-        v-if="deleteItem"
-        :products="[folder]"
-        @close="deleteItem = false"
-      />
+      <LayoutFavoritesModalsDelete v-if="deleteItem" :products="[folder]" @close="deleteItem = false" />
     </Transition>
     <Transition name="fade">
       <div
@@ -199,6 +160,6 @@ watch(
     if (activeFolder && activeFolder.id !== props.folder.id) {
       showOptions.value = false;
     }
-  },
+  }
 );
 </script>

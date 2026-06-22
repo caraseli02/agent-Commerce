@@ -5,11 +5,7 @@
       Products
     </h2>
     <div class="relative flex items-center gap-4 xl:gap-6 mb-6 md:mb-0 overflow-x-auto max-w-full pb-1">
-      <p
-        v-for="(filter, index) in filters"
-        :key="index"
-        class="relative overflow-hidden shrink-0"
-      >
+      <p v-for="(filter, index) in filters" :key="index" class="relative overflow-hidden shrink-0">
         <button
           class="relative text-sm font-medium pb-[13px] transition-colors duration-300 hover:text-blue-500 md:text-base md:pb-3 whitespace-nowrap"
           :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-500' : 'text-slate-500 after:opacity-0']"
@@ -58,13 +54,10 @@ watch(activeFilter, async (value) => {
 
     if (Array.isArray(data)) {
       emit('newProducts', data);
-    }
-    else {
+    } else {
       emit('newProducts', []);
     }
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  catch (_error) {
+  } catch {
     emit('newProducts', []);
   }
 });

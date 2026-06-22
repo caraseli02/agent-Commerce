@@ -142,9 +142,7 @@ export default defineNuxtConfig({
   eslint: {
     checker: false,
     config: {
-      stylistic: {
-        semi: true,
-      },
+      stylistic: false,
     },
   },
 
@@ -162,13 +160,13 @@ export default defineNuxtConfig({
 
   shadcn: {
     /**
-         * Prefix for all the imported component
-         */
+     * Prefix for all the imported component
+     */
     prefix: 'Ui',
     /**
-         * Directory that the component lives in.
-         * @default "./components/ui"
-         */
+     * Directory that the component lives in.
+     * @default "./components/ui"
+     */
     componentDir: './components/ui',
   },
 
@@ -182,11 +180,11 @@ export default defineNuxtConfig({
 
   viewport: {
     breakpoints: {
-      'xs': 390,
-      'sm': 640,
-      'md': 768,
-      'lg': 1024,
-      'xl': 1280,
+      xs: 390,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
       '2xl': 1536,
     },
   },

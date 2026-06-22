@@ -36,15 +36,8 @@
       class="flex items-center w-full text-left p-2 gap-3 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
       @click="deactivateClicked"
     >
-      <SvgoDashboardDeactivate
-        v-if="profile.active"
-        viewBox="0 0 20 20"
-        class="w-5 h-5 text-current"
-      />
-      <UserUnlockIcon
-        v-else
-        class="w-5 h-5 text-current"
-      />
+      <SvgoDashboardDeactivate v-if="profile.active" viewBox="0 0 20 20" class="w-5 h-5 text-current" />
+      <UserUnlockIcon v-else class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium"> {{ deactivateText }} </span>
     </button>
     <button

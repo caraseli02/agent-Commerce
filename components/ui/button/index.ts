@@ -10,9 +10,8 @@ export const buttonVariants = cva(
         default: 'bg-blue-500 text-slate-50 hover:bg-blue-600 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90',
         destructive: 'bg-red-500 text-slate-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90',
         outline:
-                    'border border-slate-200 bg-white hover:bg-light-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50',
-        secondary:
-                    'bg-light-400 text-neutral-700 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80',
+          'border border-slate-200 bg-white hover:bg-light-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50',
+        secondary: 'bg-light-400 text-neutral-700 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80',
         ghost: 'hover:bg-light-500 dark:hover:bg-slate-800 dark:hover:text-slate-50',
         link: 'text-slate-900 underline-offset-4 hover:underline-none hover:text-blue-500 dark:text-slate-50 font-light',
       },
@@ -28,7 +27,7 @@ export const buttonVariants = cva(
       variant: 'default',
       size: 'default',
     },
-  },
+  }
 );
 
 export type ButtonVariants = VariantProps<typeof buttonVariants>;

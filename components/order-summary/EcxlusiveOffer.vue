@@ -14,10 +14,7 @@
       }"
       class="orderSummaryExclusiveOffer--swiper w-full h-full"
     >
-      <SwiperSlide
-        v-for="(item, index) in slides"
-        :key="index"
-      >
+      <SwiperSlide v-for="(item, index) in slides" :key="index">
         <div
           class="relative z-20 flex h-full flex-col justify-end px-5 pt-8 pb-14 text-white md:pt-8 md:pr-10 md:pb-14 lg:pt-[150px] lg:pr-6 lg:pb-12 xl:px-8"
         >
@@ -36,13 +33,9 @@
             :src="item.item"
             alt="Img"
             class="absolute bottom-8 left-1/2 -translate-x-1/2 w-[205px] object-contain md:w-[200px] md:left-[unset] md:translate-x-0 md:right-10 lg:w-[165px] lg:right-1/2 lg:translate-x-1/2 lg:top-5"
-          >
+          />
         </div>
-        <img
-          :src="item.bg"
-          alt="Background"
-          class="absolute top-0 left-0 w-full h-full object-cover rounded-md"
-        >
+        <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" />
         <div
           class="absolute z-10 top-0 left-0 w-full h-full opacity-75 rounded-md pointer-events-none"
           :style="{
@@ -68,7 +61,8 @@ const slides = ref([
   },
   {
     title: 'Shortlist faster with buyer-ready detail',
-    description: 'Keep pricing tiers, stock, and shipping decisions in one view so reviewers can understand the procurement flow immediately.',
+    description:
+      'Keep pricing tiers, stock, and shipping decisions in one view so reviewers can understand the procurement flow immediately.',
     bg: SlideBg,
     item: ItemImage,
   },
@@ -89,13 +83,13 @@ const slides = ref([
 
 <style lang="scss">
 .orderSummaryExclusiveOffer--swiper .swiper-pagination {
-    @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:left-1/2 lg:-translate-x-1/2 #{!important};
+  @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:left-1/2 lg:-translate-x-1/2 #{!important};
 }
 .orderSummaryExclusiveOffer--swiper .swiper-pagination-bullet {
-    @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
-    margin-right: 0 !important;
+  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  margin-right: 0 !important;
 }
 .orderSummaryExclusiveOffer--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-    @apply w-[25px] bg-white #{!important};
+  @apply w-[25px] bg-white #{!important};
 }
 </style>

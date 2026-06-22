@@ -65965,7 +65965,7 @@ export const LeafletMapData: LeafletMapDataType = {
     {
       type: 'Feature',
       properties: {
-        name: 'Côte d\'Ivoire',
+        name: "Côte d'Ivoire",
       },
       geometry: {
         type: 'MultiPolygon',

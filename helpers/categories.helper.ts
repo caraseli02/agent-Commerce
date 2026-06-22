@@ -32,13 +32,13 @@ export const mapPathArrayOfNames = (path: string, categoriesMap: CategoriesMap) 
 
   return path
     .split('/')
-    .filter(id => id)
-    .map(id => idToNameMap[id])
+    .filter((id) => id)
+    .map((id) => idToNameMap[id])
     .filter((entry): entry is { id: string; name: string } => Boolean(entry));
 };
 
 export const mapNamesToPath = (namesArray: string[], categoriesMap: CategoriesMap) => {
-  const ids = namesArray.map(name => categoriesMap[name] ?? null);
+  const ids = namesArray.map((name) => categoriesMap[name] ?? null);
   return ids.filter(Boolean).join('/');
 };
 

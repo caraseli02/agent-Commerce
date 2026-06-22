@@ -4,24 +4,19 @@
       <div class="container">
         <div class="text-white md:flex md:items-center md:justify-between">
           <div class="mb-[9px] md:mb-0 xl:flex xl:items-center">
-            <div class="text-sm font-semibold md:text-base xl:text-2xl xl:font-normal xl:mr-[90px]">
-              Subscribe to our Newsletter
-            </div>
+            <div class="text-sm font-semibold md:text-base xl:text-2xl xl:font-normal xl:mr-[90px]">Subscribe to our Newsletter</div>
             <p class="text-xs xl:text-base">
               ...and receive a
               <strong class="font-semibold">10% discount</strong> on your first order.
             </p>
           </div>
-          <form
-            class="flex rounded-md shadow-xs"
-            @submit.prevent
-          >
+          <form class="flex rounded-md shadow-xs" @submit.prevent>
             <label class="flex items-center flex-1">
               <input
                 v-model="email"
                 type="email"
                 class="bg-white w-full px-4 text-neutral-700 text-sm py-[11px] font-medium rounded-l-md rounded-r-none md:w-[250px] lg:w-[280px] 2xl:w-[350px]"
-              >
+              />
             </label>
             <button class="flex items-center flex-shrink-0 bg-blue-500 px-[14px] py-[11px] text-sm font-medium rounded-r-md">
               Subscribe
@@ -34,16 +29,11 @@
       <div class="container">
         <div class="mb-[74px] md:flex md:items-start md:gap-[45px] md:mb-8 lg:justify-between lg:mb-[60px]">
           <div class="mb-[30px] md:mb-0">
-            <NuxtLink
-              to="/"
-              class="flex"
-            >
+            <NuxtLink to="/" class="flex">
               <Logo class="w-[121px] mb-5 md:mb-[87px] lg:mb-[67px]" />
             </NuxtLink>
             <div>
-              <div class="text-sm mb-2.5 lg:text-base">
-                Follow Us
-              </div>
+              <div class="text-sm mb-2.5 lg:text-base">Follow Us</div>
               <div class="flex items-center gap-2">
                 <a
                   href="#"
@@ -89,11 +79,7 @@
             </div>
           </div>
           <div class="grid grid-cols-2 gap-5 md:flex md:flex-wrap md:gap-x-[30px] lg:gap-x-[50px]">
-            <div
-              v-for="(items, label, index) in navItems"
-              :key="index"
-              class="md:max-w-max md:last:ml-[94px] lg:last:ml-0"
-            >
+            <div v-for="(items, label, index) in navItems" :key="index" class="md:max-w-max md:last:ml-[94px] lg:last:ml-0">
               <div class="mb-2 md:mb-[15px]">
                 <div class="text-sm font-semibold mb-0.5 md:text-base md:mb-1.5">
                   {{ label }}
@@ -101,10 +87,7 @@
                 <div class="w-[38px] h-0.5 bg-blue-500 rounded-full md:h-1" />
               </div>
               <ul class="grid grid-cols-1 gap-[3px] md:gap-1.5">
-                <li
-                  v-for="(navItem, navItemIndex) in items"
-                  :key="navItemIndex"
-                >
+                <li v-for="(navItem, navItemIndex) in items" :key="navItemIndex">
                   <NuxtLink
                     v-if="navItem.to.startsWith('/')"
                     :to="navItem.to"
@@ -125,9 +108,7 @@
           </div>
         </div>
         <div>
-          <p class="text-[15px] text-center text-slate-500">
-            &copy; {{ new Date().getFullYear() }} DEMO.APP
-          </p>
+          <p class="text-[15px] text-center text-slate-500">&copy; {{ new Date().getFullYear() }} DEMO.APP</p>
         </div>
       </div>
     </div>
@@ -143,7 +124,7 @@ import DiscordIcon from '@/assets/icons/social/discord.svg';
 import TelegramIcon from '@/assets/icons/social/telegram.svg';
 
 const navItems = {
-  'General': [
+  General: [
     {
       label: 'About Us',
       to: '/',

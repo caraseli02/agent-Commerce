@@ -15,11 +15,7 @@ const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <AccordionItem
-    v-slot="{ open }"
-    v-bind="forwardedProps"
-    :class="cn(props.class)"
-  >
+  <AccordionItem v-slot="{ open }" v-bind="forwardedProps" :class="cn(props.class)">
     <slot :open="open" />
   </AccordionItem>
 </template>

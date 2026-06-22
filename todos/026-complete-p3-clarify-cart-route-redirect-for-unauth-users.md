@@ -14,8 +14,8 @@ dependencies: []
 
 ## Findings
 
--   Route file: `pages/cart.vue` redirects to `/order-summary`.
--   Middleware protects `/order-summary/**` (per project routing rules), so unauth users likely end on home + sign-in prompt.
+- Route file: `pages/cart.vue` redirects to `/order-summary`.
+- Middleware protects `/order-summary/**` (per project routing rules), so unauth users likely end on home + sign-in prompt.
 
 ## Proposed Solutions
 
@@ -25,11 +25,11 @@ dependencies: []
 
 **Pros:**
 
--   Clearer user intent
+- Clearer user intent
 
 **Cons:**
 
--   Slight extra branching
+- Slight extra branching
 
 **Effort:** Small
 
@@ -43,11 +43,11 @@ dependencies: []
 
 **Pros:**
 
--   Better UX
+- Better UX
 
 **Cons:**
 
--   Still eventually redirects
+- Still eventually redirects
 
 **Effort:** Small
 
@@ -59,8 +59,8 @@ To be filled during triage.
 
 ## Acceptance Criteria
 
--   [ ] Unauthenticated `/cart` navigation has a clear outcome (sign-in prompt)
--   [ ] Authenticated `/cart` navigation lands on an appropriate cart/order page
+- [ ] Unauthenticated `/cart` navigation has a clear outcome (sign-in prompt)
+- [ ] Authenticated `/cart` navigation lands on an appropriate cart/order page
 
 ## Work Log
 
@@ -70,7 +70,7 @@ To be filled during triage.
 
 **Actions:**
 
--   Observed `/cart` redirect flow and how it interacts with auth-protected `/order-summary/**`
+- Observed `/cart` redirect flow and how it interacts with auth-protected `/order-summary/**`
 
 ### 2026-02-22 - Completed
 
@@ -78,5 +78,5 @@ To be filled during triage.
 
 **Actions:**
 
--   Updated `pages/cart.vue` to redirect unauth users to `/?signin=true`
--   Kept auth users redirecting to `/order-summary`
+- Updated `pages/cart.vue` to redirect unauth users to `/?signin=true`
+- Kept auth users redirecting to `/order-summary`

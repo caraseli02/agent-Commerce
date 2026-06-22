@@ -16,13 +16,13 @@ This breaks the customer control-panel account flow in the demo.
 
 ## Findings
 
--   Reproduced crash route:
-    -   `http://localhost:3000/dashboard/customers/demo/control-panel/account`
--   Console/runtime error:
-    -   `does not provide an export named 'PaymentStatusOption'`
--   Source file:
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/client-table/transaction/options.ts:1`
-    -   `PaymentStatusOption` and `PaymentTypeOption` are imported as runtime values from `/Users/vladislavcaraseli/Documents/Ecas/types/order-summary/item.ts`
+- Reproduced crash route:
+  - `http://localhost:3000/dashboard/customers/demo/control-panel/account`
+- Console/runtime error:
+  - `does not provide an export named 'PaymentStatusOption'`
+- Source file:
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/client-table/transaction/options.ts:1`
+  - `PaymentStatusOption` and `PaymentTypeOption` are imported as runtime values from `/Users/vladislavcaraseli/Documents/Ecas/types/order-summary/item.ts`
 
 ## Proposed Solutions
 
@@ -32,12 +32,12 @@ This breaks the customer control-panel account flow in the demo.
 
 **Pros:**
 
--   Fast unblock
--   Tiny safe change
+- Fast unblock
+- Tiny safe change
 
 **Cons:**
 
--   Only addresses this specific import site
+- Only addresses this specific import site
 
 **Effort:** 10-20 minutes
 
@@ -51,11 +51,11 @@ This breaks the customer control-panel account flow in the demo.
 
 **Pros:**
 
--   Prevents the next similar route crash in same module
+- Prevents the next similar route crash in same module
 
 **Cons:**
 
--   Slightly larger scope than minimum
+- Slightly larger scope than minimum
 
 **Effort:** 30-60 minutes
 
@@ -69,11 +69,11 @@ This breaks the customer control-panel account flow in the demo.
 
 **Pros:**
 
--   Clear long-term structure
+- Clear long-term structure
 
 **Cons:**
 
--   Overkill for demo timing
+- Overkill for demo timing
 
 **Effort:** 2-3 hours
 
@@ -87,22 +87,22 @@ To be filled during triage.
 
 **Primary file:**
 
--   `/Users/vladislavcaraseli/Documents/Ecas/components/client-table/transaction/options.ts`
+- `/Users/vladislavcaraseli/Documents/Ecas/components/client-table/transaction/options.ts`
 
 **Related types:**
 
--   `/Users/vladislavcaraseli/Documents/Ecas/types/order-summary/item.ts`
+- `/Users/vladislavcaraseli/Documents/Ecas/types/order-summary/item.ts`
 
 ## Resources
 
--   Browser evidence collected via `agent-browser` session `rv2_dashboard_customers_demo_control-panel_account`.
+- Browser evidence collected via `agent-browser` session `rv2_dashboard_customers_demo_control-panel_account`.
 
 ## Acceptance Criteria
 
--   [x] `/dashboard/customers/demo/control-panel/account` no longer crashes
--   [x] No `PaymentStatusOption` export error in console
--   [x] Transaction options file uses `import type` for interface symbols
--   [x] Customer control-panel account view is navigable in demo mode
+- [x] `/dashboard/customers/demo/control-panel/account` no longer crashes
+- [x] No `PaymentStatusOption` export error in console
+- [x] Transaction options file uses `import type` for interface symbols
+- [x] Customer control-panel account view is navigable in demo mode
 
 ## Work Log
 
@@ -112,14 +112,14 @@ To be filled during triage.
 
 **Actions:**
 
--   Executed route sweep across customer dashboard routes
--   Isolated crashing route and traced module export error
--   Located offending import site in transaction options
+- Executed route sweep across customer dashboard routes
+- Isolated crashing route and traced module export error
+- Located offending import site in transaction options
 
 **Learnings:**
 
--   One missed interface import is enough to take down a nested dashboard route.
+- One missed interface import is enough to take down a nested dashboard route.
 
 ## Notes
 
--   This is a demo flow blocker (P1).
+- This is a demo flow blocker (P1).

@@ -72,9 +72,7 @@ const isLoading = ref(false);
   <div class="bg-white rounded-md shadow-xs py-6 px-8">
     <div class="flex flex-col items-center mb-[13px] px-[15px] md:px-2.5">
       <QuickBuyIcon class="mr-2" />
-      <h2 class="text-3xl font-semibold text-neutral-700">
-        Quick Buy
-      </h2>
+      <h2 class="text-3xl font-semibold text-neutral-700">Quick Buy</h2>
     </div>
     <p class="text-xs text-center text-slate-500 px-[15px] mb-6 md:px-2.5 md:mb-[15px] lg:mb-6 xl:text-sm xl:mb-[24px]">
       Are you in a hurry? Use the Quick Buy feature!
@@ -105,17 +103,10 @@ const isLoading = ref(false);
         </div>
         <UiDialogFooter class="w-full">
           <div class="flex gap-2.5 w-full">
-            <UiButton
-              variant="secondary"
-              @click="addProduct"
-            >
+            <UiButton variant="secondary" @click="addProduct">
               <PlusIcon class="w-5 h-5" />
             </UiButton>
-            <UiButton
-              :disabled="isLoading"
-              class="w-full"
-              @click="addToCart"
-            >
+            <UiButton :disabled="isLoading" class="w-full" @click="addToCart">
               <CartIcon class="w-6 h-6 mr-2" />
               <span class="text-sm font-medium">Add to cart</span>
             </UiButton>

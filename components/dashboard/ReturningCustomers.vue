@@ -1,27 +1,16 @@
 <template>
   <div class="relative flex flex-col bg-white rounded-xl p-4 shadow-xs md:p-6">
     <div class="flex items-start justify-between">
-      <div class="leading-normal font-semibold">
-        Returning Customers
-      </div>
-      <div
-        v-if="error"
-        class="flex justify-end w-10 h-10"
-      >
+      <div class="leading-normal font-semibold">Returning Customers</div>
+      <div v-if="error" class="flex justify-end w-10 h-10">
         <WarningIcon class="w-6 h-6" />
       </div>
-      <div
-        v-else
-        class="flex items-center justify-center bg-rose-500 rounded-full w-10 h-10"
-      >
+      <div v-else class="flex items-center justify-center bg-rose-500 rounded-full w-10 h-10">
         <PeopleIcon class="w-6 h-6" />
       </div>
     </div>
     <template v-if="series.length > 0">
-      <SkeletonLoader
-        v-if="loading"
-        class="w-full h-[54px] my-7"
-      />
+      <SkeletonLoader v-if="loading" class="w-full h-[54px] my-7" />
       <template v-else>
         <div class="flex items-center justify-between -my-1.5">
           <div class="text-4xl leading-normal font-semibold">
@@ -29,54 +18,29 @@
           </div>
           <div>
             <ClientOnly>
-              <apexchart
-                width="170"
-                :options="chartOptions"
-                :series="series"
-              />
+              <apexchart width="170" :options="chartOptions" :series="series" />
             </ClientOnly>
           </div>
         </div>
       </template>
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <SkeletonLoader
-            v-if="loading"
-            class="w-[60px] h-5 mr-1"
-          />
+          <SkeletonLoader v-if="loading" class="w-[60px] h-5 mr-1" />
           <template v-else>
-            <ArrowUpIcon
-              v-if="delta > 0"
-              class="w-4 h-4 mr-1"
-            />
-            <ArrowDownIcon
-              v-else-if="delta < 0"
-              class="w-4 h-4 mr-1"
-            />
-            <div
-              class="text-sm leading-[1.43] font-medium mr-1"
-              :class="'text-[' + [color] + ']'"
-            >
+            <ArrowUpIcon v-if="delta > 0" class="w-4 h-4 mr-1" />
+            <ArrowDownIcon v-else-if="delta < 0" class="w-4 h-4 mr-1" />
+            <div class="text-sm leading-[1.43] font-medium mr-1" :class="'text-[' + [color] + ']'">
               {{ `${delta}%` }}
             </div>
           </template>
-          <button
-            class="flex items-center"
-            @click="showOptions = !showOptions"
-          >
+          <button class="flex items-center" @click="showOptions = !showOptions">
             <span class="text-sm left-[1.43] text-slate-500 font-medium mr-1">
               {{ selectedOption.label }}
             </span>
-            <ChevronIcon
-              class="w-5 h-5 text-slate-500 transition-transform duration-300"
-              :class="[showOptions ? 'rotate-180' : '']"
-            />
+            <ChevronIcon class="w-5 h-5 text-slate-500 transition-transform duration-300" :class="[showOptions ? 'rotate-180' : '']" />
           </button>
         </div>
-        <button
-          disabled
-          class="flex items-center disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <button disabled class="flex items-center disabled:cursor-not-allowed disabled:opacity-60">
           <span class="text-sm font-medium left-[1.43] text-slate-500 mr-1">
             <span class="md:hidden lg:inline-block"> View </span> more
           </span>
@@ -84,14 +48,9 @@
         </button>
       </div>
     </template>
-    <div
-      v-else
-      class="flex flex-col items-center justify-center flex-1 max-lg:mt-11 max-lg:mb-3"
-    >
+    <div v-else class="flex flex-col items-center justify-center flex-1 max-lg:mt-11 max-lg:mb-3">
       <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-      <div class="text-sm font-medium leading-normal text-gray-500">
-        No data available
-      </div>
+      <div class="text-sm font-medium leading-normal text-gray-500">No data available</div>
     </div>
     <Transition name="fade-full">
       <div

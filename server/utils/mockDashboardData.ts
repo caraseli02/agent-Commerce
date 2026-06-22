@@ -1185,7 +1185,7 @@ export const mockSupportTickets = [
     customerId: 'customer-001',
     customerName: 'John Smith',
     subject: 'Product not received',
-    description: 'Order ORD-2024-0005 was marked as delivered but I haven\'t received it.',
+    description: "Order ORD-2024-0005 was marked as delivered but I haven't received it.",
     status: 'open',
     priority: 'high',
     createdAt: '2024-03-09T10:00:00.000Z',

@@ -4,15 +4,8 @@
       class="relative hidden border-[1.5px] border-blue-500 rounded-lg items-center h-11 overflow-hidden md:flex"
       :class="[isScrolled ? 'lg:border-border' : '']"
     >
-      <SearchIcon
-        v-if="!isScrolled"
-        class="hidden w-4 h-4 flex-shrink-0 text-gray-500 self-center ml-3 md:inline-block"
-      />
-      <form
-        action=""
-        class="w-full flex"
-        @submit.prevent
-      >
+      <SearchIcon v-if="!isScrolled" class="hidden w-4 h-4 flex-shrink-0 text-gray-500 self-center ml-3 md:inline-block" />
+      <form action="" class="w-full flex" @submit.prevent>
         <input
           ref="searchDOM"
           v-model="searchVal"
@@ -27,7 +20,7 @@
             showSearchResults = false;
             $emit('blur');
           "
-        >
+        />
       </form>
       <div
         v-if="!isScrolled"
@@ -125,8 +118,7 @@ const focus = computed(() => props.isVisible);
 watch(searchVal, (val) => {
   if (val) {
     showSearchResults.value = true;
-  }
-  else {
+  } else {
     showSearchResults.value = false;
   }
 });

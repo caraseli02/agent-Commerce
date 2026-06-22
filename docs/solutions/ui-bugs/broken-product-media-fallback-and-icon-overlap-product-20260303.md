@@ -4,8 +4,8 @@ date: 2026-03-03
 problem_type: ui_bug
 component: rails_view
 symptoms:
-  - "Product detail showed broken image UI (missing/invalid media URL)"
-  - "Gallery action icons (favorite/share/box) overlapped the product image"
+  - 'Product detail showed broken image UI (missing/invalid media URL)'
+  - 'Gallery action icons (favorite/share/box) overlapped the product image'
 root_cause: logic_error
 resolution_type: code_fix
 severity: medium
@@ -30,6 +30,7 @@ On product detail pages, optional media could render as a broken image icon, and
 - The gallery action icon column (heart/share/box) sat on top of the product image area (visual overlap), especially noticeable on mobile.
 
 Evidence screenshots:
+
 - `/Users/vladislavcaraseli/Documents/Ecas/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-mobile.png`
 - `/Users/vladislavcaraseli/Documents/Ecas/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-desktop.png`
 
@@ -65,6 +66,7 @@ Refactor the gallery card in `components/product/Gallery.vue` from an absolutely
 ```
 
 Related small fixes applied during refactor:
+
 - Swiper breakpoint key corrected to `slidesPerView`
 - Thumbnail height class typo fixed (`h-[50x]` → `h-[50px]`)
 - Added `aria-label`s for icon buttons

@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div
-      v-if="activeView !== ControlPanelTabsEnum.Settings"
-      class="bg-white rounded-xl px-4 py-6 shadow-xs md:px-6"
-    >
+    <div v-if="activeView !== ControlPanelTabsEnum.Settings" class="bg-white rounded-xl px-4 py-6 shadow-xs md:px-6">
       <DashboardControlPanelOrganizationView
         v-if="activeView === ControlPanelTabsEnum.Organization && customerDetails.accountType !== AccountType.Personal"
         :id="customerSlug"
@@ -19,10 +16,7 @@
         :id="customerSlug"
         :account-type="customerDetails.accountType ?? AccountType.Personal"
       />
-      <ClientTableTransaction
-        v-else-if="activeView === ControlPanelTabsEnum.TransactionHistory"
-        :user-id="customerSlug"
-      />
+      <ClientTableTransaction v-else-if="activeView === ControlPanelTabsEnum.TransactionHistory" :user-id="customerSlug" />
       <DashboardControlPanelBillingView
         v-else-if="activeView === ControlPanelTabsEnum.Billing"
         :id="customerSlug"
@@ -57,14 +51,12 @@ onMounted(() => {
     router.replace({
       path: `/dashboard/customers/${route.params.slug}/control-panel/${ControlPanelTabsEnum.Organization}`,
     });
-  }
-  else {
+  } else {
     if (customerDetails.value.accountType === AccountType.Personal && route.params.view === ControlPanelTabsEnum.Organization) {
       router.replace({
         path: `/dashboard/customers/${route.params.slug}/control-panel/${ControlPanelTabsEnum.Account}`,
       });
-    }
-    else if (customerDetails.value.accountType !== AccountType.Personal && route.params.view === ControlPanelTabsEnum.Account) {
+    } else if (customerDetails.value.accountType !== AccountType.Personal && route.params.view === ControlPanelTabsEnum.Account) {
       router.replace({
         path: `/dashboard/customers/${route.params.slug}/control-panel/${ControlPanelTabsEnum.Organization}`,
       });
@@ -87,8 +79,7 @@ const fetchInformation = async () => {
     }
 
     customerDetails.value = response.data;
-  }
-  catch {
+  } catch {
     if (isMockMode.value) {
       customerDetails.value = {
         _id: customerSlug.value,

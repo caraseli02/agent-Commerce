@@ -29,7 +29,7 @@ const resolveMockProduct = (idOrCode: string) => {
     return null;
   }
 
-  return mockProducts.find(product => product._id === normalized || product.code === normalized) || null;
+  return mockProducts.find((product) => product._id === normalized || product.code === normalized) || null;
 };
 
 const normalizeIncomingProductId = (idOrCode?: string | null) => {
@@ -52,8 +52,7 @@ type ProductEntityLike = {
 };
 
 const calculatePricing = (productEntity: ProductEntityLike | null | undefined, stock = 0, backorderStock = 0) => {
-  const activePrice
-        = productEntity?.priceHistory?.find?.(entry => entry?.active)?.price ?? productEntity?.priceHistory?.[0]?.price ?? 0;
+  const activePrice = productEntity?.priceHistory?.find?.((entry) => entry?.active)?.price ?? productEntity?.priceHistory?.[0]?.price ?? 0;
   const initialUnitPrice = Number(activePrice) || 0;
   const unitPriceAfterDiscounts = initialUnitPrice;
   const subtotal = unitPriceAfterDiscounts * (Number(stock) + Number(backorderStock));
@@ -83,8 +82,8 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
   const backorder_stock = input.updateOnlyAvailableStock
     ? previousBackorder
     : mode === 'add'
-      ? previousBackorder + incomingBackorder
-      : incomingBackorder || 0;
+    ? previousBackorder + incomingBackorder
+    : incomingBackorder || 0;
 
   const productEntity = resolvedEntity || previous.productEntity;
   const pricing = calculatePricing(productEntity, stock, backorder_stock);
@@ -146,7 +145,7 @@ export const getMockCartForUser = (userId: string) => {
             isFolder: false,
           },
           undefined,
-          'set',
+          'set'
         ),
       ]
     : [];
@@ -195,19 +194,18 @@ export const addProductsToMockCart = (cart: CartInterface, products: Partial<Car
     }
 
     const incoming = normalizeIncomingProductId(String(raw.id));
-    const index = list.findIndex(item => item.id === incoming.id);
+    const index = list.findIndex((item) => item.id === incoming.id);
     const existing = index >= 0 ? list[index] : undefined;
     const normalized = normalizeCartProduct({ ...raw, id: incoming.id }, existing, 'add');
 
     if (index >= 0) {
       list[index] = normalized;
-    }
-    else {
+    } else {
       list.push(normalized);
     }
   }
 
-  cart.products = list.filter(item => item.id);
+  cart.products = list.filter((item) => item.id);
   if (cart.userId) {
     cartsByUserId.set(cart.userId, { cart, updatedAt: nowMs() });
   }
@@ -224,7 +222,7 @@ export const mergeGuestCartIntoMockCart = (userId?: string | null) => {
   purgeExpiredCarts();
 
   const guestCart = cartsByUserId.get(GUEST_CART_USER_ID)?.cart;
-  const guestProducts = (guestCart?.products || []).filter(product => product.id);
+  const guestProducts = (guestCart?.products || []).filter((product) => product.id);
 
   if (!guestProducts.length) {
     return getMockCartForUser(normalizedUserId);
@@ -246,19 +244,18 @@ export const setProductsInMockCart = (cart: CartInterface, products: Partial<Car
     }
 
     const incoming = normalizeIncomingProductId(String(raw.id));
-    const index = list.findIndex(item => item.id === incoming.id);
+    const index = list.findIndex((item) => item.id === incoming.id);
     const existing = index >= 0 ? list[index] : undefined;
     const normalized = normalizeCartProduct({ ...raw, id: incoming.id }, existing, 'set');
 
     if (index >= 0) {
       list[index] = normalized;
-    }
-    else {
+    } else {
       list.push(normalized);
     }
   }
 
-  cart.products = list.filter(item => item.id);
+  cart.products = list.filter((item) => item.id);
   if (cart.userId) {
     cartsByUserId.set(cart.userId, { cart, updatedAt: nowMs() });
   }
@@ -266,8 +263,8 @@ export const setProductsInMockCart = (cart: CartInterface, products: Partial<Car
 };
 
 export const removeProductsFromMockCart = (cart: CartInterface, ids: string[] = []) => {
-  const normalizedIds = ids.map(id => String(id)).filter(Boolean);
-  cart.products = (cart.products || []).filter(product => !normalizedIds.includes(product.id));
+  const normalizedIds = ids.map((id) => String(id)).filter(Boolean);
+  cart.products = (cart.products || []).filter((product) => !normalizedIds.includes(product.id));
   if (cart.userId) {
     cartsByUserId.set(cart.userId, { cart, updatedAt: nowMs() });
   }

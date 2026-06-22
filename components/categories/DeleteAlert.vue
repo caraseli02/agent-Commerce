@@ -7,9 +7,7 @@ const { showDeleteAlert } = useCategories();
     <UiAlertDialogContent>
       <UiAlertDialogHeader>
         <UiAlertDialogTitle>Delete category</UiAlertDialogTitle>
-        <UiAlertDialogDescription>
-          Are you sure you want to delete this category? This action cannot be undone.
-        </UiAlertDialogDescription>
+        <UiAlertDialogDescription> Are you sure you want to delete this category? This action cannot be undone. </UiAlertDialogDescription>
       </UiAlertDialogHeader>
       <UiAlertDialogFooter>
         <UiAlertDialogCancel>Cancel</UiAlertDialogCancel>

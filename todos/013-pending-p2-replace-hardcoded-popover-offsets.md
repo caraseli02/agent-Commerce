@@ -14,9 +14,9 @@ Desktop popover positioning uses hardcoded fixed `top` offsets tied to `isScroll
 
 ## Findings
 
--   `components/layout/header/main-menu/DesktopPopover.vue:31` uses `fixed` + `top-[98px]` / `top-[153px]`.
--   Any header spacing/font/announcement-bar change can desync popover alignment.
--   This increases maintenance cost and can cause overlap/gap regressions.
+- `components/layout/header/main-menu/DesktopPopover.vue:31` uses `fixed` + `top-[98px]` / `top-[153px]`.
+- Any header spacing/font/announcement-bar change can desync popover alignment.
+- This increases maintenance cost and can cause overlap/gap regressions.
 
 ## Proposed Solutions
 
@@ -26,12 +26,12 @@ Desktop popover positioning uses hardcoded fixed `top` offsets tied to `isScroll
 
 **Pros:**
 
--   Accurate across breakpoints.
--   Resilient to header changes.
+- Accurate across breakpoints.
+- Resilient to header changes.
 
 **Cons:**
 
--   Requires reactive measurement wiring.
+- Requires reactive measurement wiring.
 
 **Effort:** Small-Medium
 
@@ -45,12 +45,12 @@ Desktop popover positioning uses hardcoded fixed `top` offsets tied to `isScroll
 
 **Pros:**
 
--   Simpler CSS model.
--   Fewer JS calculations.
+- Simpler CSS model.
+- Fewer JS calculations.
 
 **Cons:**
 
--   Depends on parent stacking/overflow constraints.
+- Depends on parent stacking/overflow constraints.
 
 **Effort:** Small
 
@@ -62,17 +62,17 @@ Desktop popover positioning uses hardcoded fixed `top` offsets tied to `isScroll
 
 Affected files:
 
--   `/Users/vladislavcaraseli/Documents/Ecas/components/layout/header/main-menu/DesktopPopover.vue:31`
+- `/Users/vladislavcaraseli/Documents/Ecas/components/layout/header/main-menu/DesktopPopover.vue:31`
 
 ## Resources
 
--   Review context: current desktop category/menu regression fixes.
+- Review context: current desktop category/menu regression fixes.
 
 ## Acceptance Criteria
 
--   [ ] Popover top alignment remains correct for scrolled/unscrolled states.
--   [ ] No hardcoded pixel offsets tied to current header height.
--   [ ] Verified at desktop breakpoints (`lg`, `xl`, `2xl`).
+- [ ] Popover top alignment remains correct for scrolled/unscrolled states.
+- [ ] No hardcoded pixel offsets tied to current header height.
+- [ ] Verified at desktop breakpoints (`lg`, `xl`, `2xl`).
 
 ## Work Log
 
@@ -82,12 +82,12 @@ Affected files:
 
 **Actions:**
 
--   Inspected popover positioning implementation and identified hardcoded viewport offsets.
+- Inspected popover positioning implementation and identified hardcoded viewport offsets.
 
 **Learnings:**
 
--   Dynamic anchoring is needed to prevent future layout drift.
+- Dynamic anchoring is needed to prevent future layout drift.
 
 ## Notes
 
--   Treat as layout reliability fix, not visual polish only.
+- Treat as layout reliability fix, not visual polish only.

@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h2 class="text-xl leading-[1.4] font-semibold mb-9">
-      Billing
-    </h2>
+    <h2 class="text-xl leading-[1.4] font-semibold mb-9">Billing</h2>
     <div class="grid grid-cols-1 gap-6">
       <div
         v-for="(address, index) in addresses"
@@ -16,32 +14,26 @@
               <div class="font-semibold leading-normal md:mr-6">
                 {{ address.alias || 'Address Alias ' + (index + 1) }}
               </div>
-              <div
-                v-if="address.default"
-                class="flex items-center gap-1 bg-[#00D395] rounded-[100px] px-2 py-1 text-white max-md:hidden"
-              >
+              <div v-if="address.default" class="flex items-center gap-1 bg-[#00D395] rounded-[100px] px-2 py-1 text-white max-md:hidden">
                 <CheckIcon class="w-4 h-4" />
                 <span class="text-xs font-medium leading-[1.3333]">Default</span>
               </div>
             </div>
             <div class="text-sm leading-[1.42857] text-slate-500">
               {{
-                address.name1
-                  + ', '
-                  + (address.name2 ? address.name2 + ', ' : '')
-                  + address.region
-                  + ', '
-                  + (address.postcode ? address.postcode + ', ' : '')
-                  + address.country
+                address.name1 +
+                ', ' +
+                (address.name2 ? address.name2 + ', ' : '') +
+                address.region +
+                ', ' +
+                (address.postcode ? address.postcode + ', ' : '') +
+                address.country
               }}
             </div>
           </div>
         </div>
         <div class="flex items-center justify-between">
-          <div
-            v-if="address.default"
-            class="flex items-center gap-1 bg-[#00D395] rounded-[100px] px-2 py-1 text-white md:hidden"
-          >
+          <div v-if="address.default" class="flex items-center gap-1 bg-[#00D395] rounded-[100px] px-2 py-1 text-white md:hidden">
             <CheckIcon class="w-4 h-4" />
             <span class="text-xs font-medium leading-[1.3333]">Default</span>
           </div>
@@ -76,28 +68,9 @@
         class="flex items-center justify-center p-3 border border-dashed border-blue-500 rounded-xl md:p-4"
         @click="addAddressModal = true"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 40 40"
-          class="w-8 h-8 text-blue-500 md:w-10 md:h-10"
-        >
-          <path
-            stroke="#007FFF"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="3"
-            d="M20 12v16m8-8H12"
-          />
-          <rect
-            width="38"
-            height="38"
-            x="1"
-            y="1"
-            stroke="#007FFF"
-            stroke-width="2"
-            rx="19"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 40 40" class="w-8 h-8 text-blue-500 md:w-10 md:h-10">
+          <path stroke="#007FFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12v16m8-8H12" />
+          <rect width="38" height="38" x="1" y="1" stroke="#007FFF" stroke-width="2" rx="19" />
         </svg>
       </button>
     </div>
@@ -208,8 +181,7 @@ const handleAddAddress = async (val: AddAddressPayload) => {
       description: 'Invalid address',
     });
     return;
-  }
-  else {
+  } else {
     addresses.value.push(newAddress.value);
     if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
       return;
@@ -234,8 +206,7 @@ const getBillingInformation = async () => {
     }
     addresses.value = response.data.billingAddress;
     addAddressModal.value = false;
-  }
-  catch {
+  } catch {
     if (!isMockMode.value) {
       return;
     }
@@ -280,8 +251,7 @@ const handleEditAddress = async (object: EditAddressPayload) => {
       description: 'Invalid address',
     });
     return;
-  }
-  else {
+  } else {
     if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
       return;
     }

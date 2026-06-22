@@ -11,9 +11,9 @@ Migrate ECAS from external API to self-contained Nuxt server using mock data app
 
 ### 1.1 Configure Nuxt Server Routes
 
--   [x] Uncomment server config in `nuxt.config.ts` (host: '0.0.0.0', port: '3000')
--   [x] Verify Nitro is handling requests correctly
--   [x] Update `NUXT_PUBLIC_BASE_URL_API` to point to Nuxt server (`http://localhost:3000`)
+- [x] Uncomment server config in `nuxt.config.ts` (host: '0.0.0.0', port: '3000')
+- [x] Verify Nitro is handling requests correctly
+- [x] Update `NUXT_PUBLIC_BASE_URL_API` to point to Nuxt server (`http://localhost:3000`)
 
 **Files:** `nuxt.config.ts`
 
@@ -25,10 +25,10 @@ Migrate ECAS from external API to self-contained Nuxt server using mock data app
 
 Create `/server/api/auth/` routes:
 
--   [x] `POST /api/auth/login` - Return mock user with JWT token
--   [x] `POST /api/auth/register` - Return success response
--   [x] `POST /api/auth/firebase/register` - Handle Firebase registration
--   [x] `GET /api/auth/user/:id/details` - Return user profile mock
+- [x] `POST /api/auth/login` - Return mock user with JWT token
+- [x] `POST /api/auth/register` - Return success response
+- [x] `POST /api/auth/firebase/register` - Handle Firebase registration
+- [x] `GET /api/auth/user/:id/details` - Return user profile mock
 
 **Response format:** `{ status: 'success', data: { token, user } }`
 
@@ -38,10 +38,10 @@ Create `/server/api/auth/` routes:
 
 Create `/server/api/products/` routes:
 
--   [x] `GET /api/products/new-products` - Return array of sample products
--   [x] `GET /api/products/:id` - Return single product by ID
--   [x] `GET /api/products/search` - Return search results (accept keyword, filters)
--   [x] `GET /api/products/:path` - Return product by path
+- [x] `GET /api/products/new-products` - Return array of sample products
+- [x] `GET /api/products/:id` - Return single product by ID
+- [x] `GET /api/products/search` - Return search results (accept keyword, filters)
+- [x] `GET /api/products/:path` - Return product by path
 
 **Mock data needed:** 5-10 sample products with images, prices, descriptions
 
@@ -51,7 +51,7 @@ Create `/server/api/products/` routes:
 
 Create `/server/api/general-settings/` route:
 
--   [x] `GET /api/general-settings` - Return layout, order, product settings
+- [x] `GET /api/general-settings` - Return layout, order, product settings
 
 **Mock data:** Basic settings structure (delivery types, payment methods)
 
@@ -61,17 +61,17 @@ Create `/server/api/general-settings/` route:
 
 ### 3.1 Update Service Configuration
 
--   [ ] Modify `HttpFactory` to use Nuxt server URL
--   [ ] Test authentication flow (login → token stored → access protected routes)
--   [ ] Test product listing and detail pages
--   [ ] Test profile loading
+- [ ] Modify `HttpFactory` to use Nuxt server URL
+- [ ] Test authentication flow (login → token stored → access protected routes)
+- [ ] Test product listing and detail pages
+- [ ] Test profile loading
 
 ### 3.2 Debug & Fix
 
--   [ ] Fix any API response format mismatches
--   [ ] Verify middleware authentication works correctly
--   [ ] Check localStorage/cookie persistence
--   [ ] Test in browser console for network errors
+- [ ] Fix any API response format mismatches
+- [ ] Verify middleware authentication works correctly
+- [ ] Check localStorage/cookie persistence
+- [ ] Test in browser console for network errors
 
 ---
 
@@ -79,11 +79,11 @@ Create `/server/api/general-settings/` route:
 
 Implement when core is working:
 
--   [ ] User profile endpoints (`/api/user/*`)
--   [ ] Cart endpoints (`/api/cart/*`)
--   [ ] Orders endpoints (`/api/orders/*`)
--   [ ] Categories navigation (`/api/categories/*`)
--   [ ] Notifications (`/api/notification/*`)
+- [ ] User profile endpoints (`/api/user/*`)
+- [ ] Cart endpoints (`/api/cart/*`)
+- [ ] Orders endpoints (`/api/orders/*`)
+- [ ] Categories navigation (`/api/categories/*`)
+- [ ] Notifications (`/api/notification/*`)
 
 ---
 
@@ -109,20 +109,20 @@ export default defineEventHandler(async (event) => {
 ```typescript
 // /server/api/auth/login.post.ts
 export default defineEventHandler(async (event) => {
-    const body = await readBody(event);
+  const body = await readBody(event);
 
-    // Mock successful login
-    return {
-        status: 'success',
-        data: {
-            token: 'mock-jwt-token',
-            user: {
-                id: '1',
-                email: body.email,
-                name: 'Test User',
-            },
-        },
-    };
+  // Mock successful login
+  return {
+    status: 'success',
+    data: {
+      token: 'mock-jwt-token',
+      user: {
+        id: '1',
+        email: body.email,
+        name: 'Test User',
+      },
+    },
+  };
 });
 ```
 
@@ -152,12 +152,12 @@ export default defineEventHandler(async (event) => {
 
 Run `npm run dev` and verify:
 
--   [ ] Homepage loads without errors
--   [ ] Can click on product → detail page loads
--   [ ] Login form submits → redirects to dashboard
--   [ ] Dashboard shows user data
--   [ ] Navigation between pages works
--   [ ] Console has no 404 or 500 errors
+- [ ] Homepage loads without errors
+- [ ] Can click on product → detail page loads
+- [ ] Login form submits → redirects to dashboard
+- [ ] Dashboard shows user data
+- [ ] Navigation between pages works
+- [ ] Console has no 404 or 500 errors
 
 **Note:** Server endpoints created successfully. User needs to manually run `npm run dev` and test the application to verify functionality.
 

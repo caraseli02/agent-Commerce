@@ -11,42 +11,19 @@
   >
     <div class="container">
       <div class="relative">
-        <div
-          class="flex items-center justify-between gap-4 lg:gap-[35px] xl:gap-[78px]"
-          :class="[isScrolled ? 'md:gap-0' : '']"
-        >
+        <div class="flex items-center justify-between gap-4 lg:gap-[35px] xl:gap-[78px]" :class="[isScrolled ? 'md:gap-0' : '']">
           <div class="flex items-center">
-            <div
-              class="flex items-center"
-              :class="[isScrolled ? 'md:mr-[29px] lg:mr-0' : 'md:mr-4 lg:mr-6']"
-            >
+            <div class="flex items-center" :class="[isScrolled ? 'md:mr-[29px] lg:mr-0' : 'md:mr-4 lg:mr-6']">
               <LayoutHeaderMainMenuItems :is-scrolled="isScrolled" />
-              <NuxtLink
-                to="/"
-                class="flex items-center"
-                :class="[isScrolled ? 'md:ml-4 lg:ml-6 ml-0' : 'md:hidden']"
-              >
+              <NuxtLink to="/" class="flex items-center" :class="[isScrolled ? 'md:ml-4 lg:ml-6 ml-0' : 'md:hidden']">
                 <!-- Use full Logo on mobile to avoid truncation, but smaller -->
                 <Logo class="w-[85px] h-5 grayscale brightness-0 invert md:hidden" />
-                <Logo
-                  class="hidden w-[82px] grayscale brightness-0 invert lg:w-[102px] md:flex"
-                  :class="[isScrolled ? '' : 'md:hidden']"
-                />
+                <Logo class="hidden w-[82px] grayscale brightness-0 invert lg:w-[102px] md:flex" :class="[isScrolled ? '' : 'md:hidden']" />
               </NuxtLink>
             </div>
-            <ul
-              v-if="!isScrolled"
-              class="hidden items-center gap-4 md:flex md:gap-6"
-            >
-              <li
-                v-for="(navItem, index) in navItems"
-                :key="index"
-                class=""
-              >
-                <NuxtLink
-                  :to="navItem.to"
-                  class="flex leading-normal font-medium text-white"
-                >
+            <ul v-if="!isScrolled" class="hidden items-center gap-4 md:flex md:gap-6">
+              <li v-for="(navItem, index) in navItems" :key="index" class="">
+                <NuxtLink :to="navItem.to" class="flex leading-normal font-medium text-white">
                   {{ navItem.label }}
                 </NuxtLink>
               </li>
@@ -61,10 +38,7 @@
             :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
             @blur="showMobileSearch = false"
           />
-          <div
-            class="flex items-center gap-7 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9"
-            :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']"
-          >
+          <div class="flex items-center gap-7 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9" :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']">
             <button
               class="items-center xl:hidden"
               :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex') : 'md:hidden']"
@@ -81,10 +55,7 @@
               <HeartIcon class="w-6 h-6 text-white xl:mb-1" />
               <span class="hidden font-medium text-xs leading-[1.33] text-white xl:inline-block"> Favorites </span>
             </button>
-            <div
-              class="relative"
-              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex') : 'flex items-center']"
-            >
+            <div class="relative" :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex') : 'flex items-center']">
               <ClientOnly>
                 <LazyNotifications
                   :notifications="notifications"
@@ -94,10 +65,7 @@
                 />
               </ClientOnly>
             </div>
-            <button
-              class="flex items-center md:hidden"
-              @click="openAccountModal()"
-            >
+            <button class="flex items-center md:hidden" @click="openAccountModal()">
               <UserIcon class="w-6 h-6 text-white" />
             </button>
             <button
@@ -114,10 +82,7 @@
               @click="openFavoritesCartModal('shopping-cart')"
             >
               <div class="flex items-center -mr-2.5 md:-mr-5 xl:-mr-5">
-                <CartIcon
-                  class="w-6 h-6 text-white lg"
-                  :class="[cartItems > 0 ? 'mr-0' : 'mr-4']"
-                />
+                <CartIcon class="w-6 h-6 text-white lg" :class="[cartItems > 0 ? 'mr-0' : 'mr-4']" />
                 <span
                   v-if="cartItems > 0"
                   class="flex -translate-y-2 -translate-x-2.5 items-center justify-center h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
@@ -126,31 +91,18 @@
                   <span> {{ cartItems }} </span>
                 </span>
               </div>
-              <div
-                v-if="totalCartPrice"
-                class="flex-col text-white flex-shrink-0 ml-6 max-md:hidden"
-              >
-                <div class="leading-[1.25] font-medium mb-0.5">
-                  {{ totalCartPrice }} Lei
-                </div>
-                <div class="text-[10px] leading-[1.6]">
-                  (ex VAT)
-                </div>
+              <div v-if="totalCartPrice" class="flex-col text-white flex-shrink-0 ml-6 max-md:hidden">
+                <div class="leading-[1.25] font-medium mb-0.5">{{ totalCartPrice }} Lei</div>
+                <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
               </div>
             </button>
           </div>
         </div>
         <Transition name="fade">
-          <div
-            v-if="showMobileSearch && isMobile"
-            class="absolute z-50 top-1/2 -translate-y-1/2 left-0 w-full md:hidden"
-          >
+          <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 -translate-y-1/2 left-0 w-full md:hidden">
             <div class="flex items-center border border-border bg-white h-10 rounded-lg px-3">
               <label class="relative z-10 flex-1 flex items-center justify-between h-10">
-                <form
-                  action=""
-                  @submit.prevent="showMobileSearch = false"
-                >
+                <form action="" @submit.prevent="showMobileSearch = false">
                   <input
                     ref="searchDOM"
                     v-model="searchVal"
@@ -163,12 +115,9 @@
                       searchVal = '';
                     "
                     @blur="showMobileSearch = false"
-                  >
+                  />
                 </form>
-                <XIcon
-                  class="flex-shrink-0 w-5 h-5 text-slate-500"
-                  @click="showMobileSearch = false"
-                />
+                <XIcon class="flex-shrink-0 w-5 h-5 text-slate-500" @click="showMobileSearch = false" />
               </label>
             </div>
           </div>
@@ -194,9 +143,7 @@
         v-if="showAccountModal || favoritesCartModal.show"
         class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] transition-opacity duration-300 cursor-pointer md:block"
         :class="[
-          showAccountModal || favoritesCartModal.show
-            ? 'backdrop-blur-[7.5px]'
-            : 'backdrop-blur-none opacity-0 pointer-events-none',
+          showAccountModal || favoritesCartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none',
         ]"
         @click="
           closeAccountModal();
@@ -205,18 +152,10 @@
       />
     </Transition>
     <Transition name="slide-from-right">
-      <LayoutAccountModal
-        v-if="showAccountModal"
-        @close="closeAccountModal"
-      />
+      <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
     </Transition>
     <Transition name="slide-from-right">
-      <CartModal
-        v-if="favoritesCartModal.show"
-        :tab="favoritesCartModal.tab"
-        :data="items"
-        @close="favoritesCartModal.show = false"
-      />
+      <CartModal v-if="favoritesCartModal.show" :tab="favoritesCartModal.tab" :data="items" @close="favoritesCartModal.show = false" />
     </Transition>
   </Teleport>
 </template>
@@ -417,8 +356,7 @@ const fetchNofications = async () => {
     error.value = true;
 
     return;
-  }
-  else {
+  } else {
     isLoading.value = false;
   }
 
@@ -453,8 +391,7 @@ watch(showMobileSearch, (newVal) => {
     nextTick(() => {
       searchDOM.value?.focus();
     });
-  }
-  else {
+  } else {
     searchVal.value = '';
   }
 });
@@ -480,12 +417,11 @@ watch(
       await closeAccountModal();
       await fetchNofications();
       await fetchList();
-    }
-    else {
+    } else {
       notifications.value = [];
       unreadNotifications.value = 0;
     }
   },
-  { deep: true },
+  { deep: true }
 );
 </script>

@@ -27,8 +27,7 @@ export const parseProductPriceConfiguration = (product: ProductInterface, userDe
         break;
       }
     }
-  }
-  else {
+  } else {
     unitPrice = minimumOrderQuantityConfiguration?.price || 0;
     currentPriceConfiguration = minimumOrderQuantityConfiguration;
   }
@@ -57,7 +56,7 @@ export const initializeQuantities = (
   data: CartInterface,
   quantity: Ref<number>,
   initialRequestedQuantity: Ref<number>,
-  minPriceConfiguration: PriceConfigurationSettingsInterface,
+  minPriceConfiguration: PriceConfigurationSettingsInterface
 ) => {
   if (!data.products?.length) {
     return;

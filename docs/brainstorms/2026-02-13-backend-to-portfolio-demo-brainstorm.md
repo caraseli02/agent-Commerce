@@ -23,27 +23,27 @@ Three factors drove the choice of **Static JSON Interceptors**:
 
 Alternative considered (rejected):
 
--   **Mock Service Worker**: Would provide more realistic network simulation but adds significant setup complexity for minimal portfolio value.
+- **Mock Service Worker**: Would provide more realistic network simulation but adds significant setup complexity for minimal portfolio value.
 
 ## Key Decisions
 
--   **Mock toggle via env flag**: Use `NUXT_PUBLIC_MOCK_MODE=true` to enable static responses. Keeps production code path intact.
--   **Single interceptor point**: Extend `composables/useFetchAPI.ts` to check `mockMode` and return static JSON before any network request. This intercepts all 163+ UI call sites without touching individual services.
--   **Minimal state persistence**: Use a simple session-based auth state (just enough to unlock dashboard routes). No localStorage, no cart persistence across reloads.
--   **Page-by-page static responses**: Create organized JSON files (e.g., `mocks/products.json`, `mocks/orders.json`) that return sufficient data to populate each UI surface. Data doesn't need to be consistent across endpoints—it's for visual showcase only.
--   **Fix P1 blockers first**: Address the env template mismatch, hardcoded host, and URL building bugs identified in the audit before implementing mocks. These will break even static responses.
+- **Mock toggle via env flag**: Use `NUXT_PUBLIC_MOCK_MODE=true` to enable static responses. Keeps production code path intact.
+- **Single interceptor point**: Extend `composables/useFetchAPI.ts` to check `mockMode` and return static JSON before any network request. This intercepts all 163+ UI call sites without touching individual services.
+- **Minimal state persistence**: Use a simple session-based auth state (just enough to unlock dashboard routes). No localStorage, no cart persistence across reloads.
+- **Page-by-page static responses**: Create organized JSON files (e.g., `mocks/products.json`, `mocks/orders.json`) that return sufficient data to populate each UI surface. Data doesn't need to be consistent across endpoints—it's for visual showcase only.
+- **Fix P1 blockers first**: Address the env template mismatch, hardcoded host, and URL building bugs identified in the audit before implementing mocks. These will break even static responses.
 
 ## Open Questions
 
--   Should auth be simulated (login works, unlocks routes) or bypassed (dashboard always accessible)? For portfolio showcase, simulated login feels more authentic but bypassed reduces complexity.
--   Admin dashboards have complex data shapes (analytics widgets, audit logs). What's the minimum data needed to make them visually compelling? May need audit of admin pages to identify critical widgets.
--   Should error states be showcased (404 pages, API errors) or focus only on happy paths? Portfolio value in showing error handling vs. time tradeoff.
+- Should auth be simulated (login works, unlocks routes) or bypassed (dashboard always accessible)? For portfolio showcase, simulated login feels more authentic but bypassed reduces complexity.
+- Admin dashboards have complex data shapes (analytics widgets, audit logs). What's the minimum data needed to make them visually compelling? May need audit of admin pages to identify critical widgets.
+- Should error states be showcased (404 pages, API errors) or focus only on happy paths? Portfolio value in showing error handling vs. time tradeoff.
 
 ## Next Steps
 
 → `/workflows:plan` for:
 
--   Detailed mock endpoint list per page
--   Static JSON structure and file organization
--   Implementation checklist aligned to 3-5 week timeline
--   P1 blocker fixes sequencing
+- Detailed mock endpoint list per page
+- Static JSON structure and file organization
+- Implementation checklist aligned to 3-5 week timeline
+- P1 blocker fixes sequencing

@@ -8,33 +8,33 @@ A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase,
 
 ## How to work here
 
--   Use **pnpm** for dependency and script commands.
--   Prefer mock mode for local development and review.
--   Keep tasks small and atomic.
--   Verify before declaring success.
--   Treat initialization as a separate phase from feature work.
+- Use **pnpm** for dependency and script commands.
+- Prefer mock mode for local development and review.
+- Keep tasks small and atomic.
+- Verify before declaring success.
+- Treat initialization as a separate phase from feature work.
 
 ## Commands
 
--   `pnpm install`
--   `pnpm dev`
--   `pnpm build`
--   `pnpm generate`
--   `pnpm preview`
--   `pnpm lint`
--   `pnpm typecheck`
--   `pnpm test`
--   `pnpm pretty`
--   `pnpm verify`
--   `pnpm verify:full`
--   `pnpm verify:handoff`
--   `./init.sh`
+- `pnpm install`
+- `pnpm dev`
+- `pnpm build`
+- `pnpm generate`
+- `pnpm preview`
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm pretty`
+- `pnpm verify`
+- `pnpm verify:full`
+- `pnpm verify:handoff`
+- `./init.sh`
 
 ## Harness state files
 
--   `PROGRESS.md` — current focus, in progress, blocked, next verification
--   `DECISIONS.md` — durable cross-session decisions
--   `feature_list.json` — machine-readable task state and WIP=1 control
+- `PROGRESS.md` — current focus, in progress, blocked, next verification
+- `DECISIONS.md` — durable cross-session decisions
+- `feature_list.json` — machine-readable task state and WIP=1 control
 
 ## Agent skills
 
@@ -64,17 +64,17 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 ## Initialization / WIP rules
 
--   First session on a fresh branch should initialize the repo before feature work.
--   One loop should do one narrow task, verify it, and stop.
--   Keep only one task active at a time.
--   If the task grows beyond a few files or turns into a second unrelated fix, split it.
+- First session on a fresh branch should initialize the repo before feature work.
+- One loop should do one narrow task, verify it, and stop.
+- Keep only one task active at a time.
+- If the task grows beyond a few files or turns into a second unrelated fix, split it.
 
 ## Architecture shortcuts
 
--   API flow: `plugins/api.ts` → `composables/HttpFactory.ts` → `services/*.service.ts`
--   Mock backend: `server/api/`
--   Auth/session state: Firebase + Pinia + token cookie
--   UI: shadcn-vue / Radix-style primitives + Tailwind
+- API flow: `plugins/api.ts` → `composables/HttpFactory.ts` → `services/*.service.ts`
+- Mock backend: `server/api/`
+- Auth/session state: Firebase + Pinia + token cookie
+- UI: shadcn-vue / Radix-style primitives + Tailwind
 
 ## Verification order
 

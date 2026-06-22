@@ -1,20 +1,9 @@
 <template>
   <div class="bg-white rounded-xl p-4 shadow-xs md:p-6">
-    <div
-      class="flex items-center justify-between"
-      :class="[emptyData || error ? 'mb-4' : 'mb-6']"
-    >
-      <div class="text-sm font-semibold">
-        Default Shipping Address
-      </div>
-      <div
-        v-if="!error"
-        class="relative"
-      >
-        <button
-          class="flex"
-          @click="showOptions = !showOptions"
-        >
+    <div class="flex items-center justify-between" :class="[emptyData || error ? 'mb-4' : 'mb-6']">
+      <div class="text-sm font-semibold">Default Shipping Address</div>
+      <div v-if="!error" class="relative">
+        <button class="flex" @click="showOptions = !showOptions">
           <DotsVerticalIcon class="w-6 h-6 text-[#9296AA] transition-colors duration-300 hover:text-blue-500" />
         </button>
         <Transition name="fade-full">
@@ -40,29 +29,15 @@
           </div>
         </Transition>
       </div>
-      <WarningIcon
-        v-else
-        class="w-6 h-6"
-      />
+      <WarningIcon v-else class="w-6 h-6" />
     </div>
-    <div
-      v-if="emptyData || error"
-      class="flex items-center md:justify-center"
-    >
+    <div v-if="emptyData || error" class="flex items-center md:justify-center">
       <EmojiSadIcon class="w-[52px] h-[52px] mr-4" />
-      <div class="text-sm font-medium text-gray-500">
-        No data available
-      </div>
+      <div class="text-sm font-medium text-gray-500">No data available</div>
     </div>
-    <div
-      v-else
-      class="flex items-start"
-    >
+    <div v-else class="flex items-start">
       <BusinessIcon class="w-11 h-11 text-[#00D395] flex-shrink-0 mr-4" />
-      <SkeletonLoader
-        v-if="isLoading"
-        class="w-full h-16 md:h-11"
-      />
+      <SkeletonLoader v-if="isLoading" class="w-full h-16 md:h-11" />
       <div v-else>
         <div class="text-sm font-semibold mb-1">
           {{ shippingInformation?.find((x) => x.default)?.name1 || 'N/A' }}
@@ -116,8 +91,7 @@ const fetchShippingInformation = async () => {
     error.value = true;
 
     return;
-  }
-  else {
+  } else {
     isLoading.value = false;
   }
 

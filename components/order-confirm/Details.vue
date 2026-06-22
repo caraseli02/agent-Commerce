@@ -21,7 +21,7 @@ const props = defineProps<{
 
 const isCardInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.Card && (props.paymentMethod.info as CardInfo).provider);
 const isCreditInfo = computed(
-  () => props.paymentMethod.type === PaymentTypeEnum.Credit && (props.paymentMethod.info as CustomerCreditInterface).limit,
+  () => props.paymentMethod.type === PaymentTypeEnum.Credit && (props.paymentMethod.info as CustomerCreditInterface).limit
 );
 const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.Bank && (props.paymentMethod.info as BankInfo).text);
 </script>
@@ -46,29 +46,20 @@ const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.B
     </div>
     <div class="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
       <div class="flex flex-col max-md:mt-9 max-md:max-w-full">
-        <h2 class="text-base font-semibold leading-7 text-neutral-700 max-md:max-w-full">
-          Payment Method
-        </h2>
+        <h2 class="text-base font-semibold leading-7 text-neutral-700 max-md:max-w-full">Payment Method</h2>
 
-        <div
-          v-if="isCardInfo"
-          class="flex gap-2 self-start pr-8 mt-9 max-md:pr-5"
-        >
+        <div v-if="isCardInfo" class="flex gap-2 self-start pr-8 mt-9 max-md:pr-5">
           <p class="text-sm font-medium leading-6 text-gray-500">
             {{ (props.paymentMethod.info as CardInfo).provider }}
           </p>
-          <p class="text-sm font-medium leading-6 text-gray-500">
-            ** {{ (props.paymentMethod.info as CardInfo).last4.slice(-2) }}
-          </p>
-          <div
-            class="flex justify-center items-center px-1 py-2 bg-violet-100 rounded border border-gray-300 border-solid shadow-xl"
-          >
+          <p class="text-sm font-medium leading-6 text-gray-500">** {{ (props.paymentMethod.info as CardInfo).last4.slice(-2) }}</p>
+          <div class="flex justify-center items-center px-1 py-2 bg-violet-100 rounded border border-gray-300 border-solid shadow-xl">
             <img
               loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/e53ea3231ba188441a6034265f4f0ada066f8bb4f5df5f996b3b263a866e52a9?apiKey=20497529553648aab918fa2d322ece87&"
               alt="Visa logo"
               class="w-6 aspect-[3.03] fill-blue-700"
-            >
+            />
           </div>
         </div>
 
@@ -89,9 +80,7 @@ const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.B
                   <p class="mt-1 font-medium text-neutral-800">
                     {{ (props.paymentMethod.info as CustomerCreditInterface).limit }}
                   </p>
-                  <h3 class="mt-4">
-                    Till Due
-                  </h3>
+                  <h3 class="mt-4">Till Due</h3>
                   <p class="mt-1 font-medium text-neutral-800">
                     {{ (props.paymentMethod.info as CustomerCreditInterface).tillDue }}
                   </p>
@@ -101,9 +90,7 @@ const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.B
                   <p class="mt-1 font-medium text-neutral-800">
                     {{ (props.paymentMethod.info as CustomerCreditInterface).term }}
                   </p>
-                  <h3 class="mt-4">
-                    Total Spent
-                  </h3>
+                  <h3 class="mt-4">Total Spent</h3>
                   <p class="mt-1 font-medium text-neutral-800">
                     {{ (props.paymentMethod.info as CustomerCreditInterface).spent }}
                   </p>
@@ -113,9 +100,7 @@ const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.B
                   <p class="mt-1 font-medium text-neutral-800">
                     {{ (props.paymentMethod.info as CustomerCreditInterface).dueDate }}
                   </p>
-                  <h3 class="mt-4">
-                    Available
-                  </h3>
+                  <h3 class="mt-4">Available</h3>
                   <p class="mt-1 font-medium text-red-500">
                     {{ (props.paymentMethod.info as CustomerCreditInterface).available }}
                   </p>
@@ -130,9 +115,7 @@ const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.B
             Bank Transfer
             <InfoIcon class="w-4 h-4 stroke-1 text-slate-500" />
           </UiDropdownMenuTrigger>
-          <UiDropdownMenuContent class="p-4">
-            Bank Transfer
-          </UiDropdownMenuContent>
+          <UiDropdownMenuContent class="p-4"> Bank Transfer </UiDropdownMenuContent>
         </UiDropdownMenu>
       </div>
     </div>

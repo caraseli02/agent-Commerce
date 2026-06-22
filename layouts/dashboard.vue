@@ -1,15 +1,8 @@
 <template>
   <div class="flex flex-col h-full min-h-screen overflow-y-auto app-scroll">
-    <DashboardHeader
-      :is-collapsed-on-desktop="isSideNavCollapsedOnDesktop"
-      @show-side-nav="showSideNav = true"
-    />
+    <DashboardHeader :is-collapsed-on-desktop="isSideNavCollapsedOnDesktop" @show-side-nav="showSideNav = true" />
     <transition name="slide-from-left">
-      <DashboardAside
-        v-if="showSideNav"
-        class="w-full md:hidden"
-        @close="showSideNav = false"
-      />
+      <DashboardAside v-if="showSideNav" class="w-full md:hidden" @close="showSideNav = false" />
     </transition>
     <DashboardAside
       class="w-[280px] max-md:hidden md:z-30 md:transition-all md:duration-300 md:delay-50"
@@ -24,12 +17,7 @@
       <slot />
       <div class="flex justify-center text-center text-xs leading-normal text-slate-500 mt-2 mb-6 md:mt-0">
         Made with <HeartIcon class="w-[18px] h-[18px] mx-1 mt-px" /> by
-        <a
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="ml-1 transition-colors duration-300 hover:text-blue-500"
-        >
+        <a href="#" target="_blank" rel="noopener noreferrer" class="ml-1 transition-colors duration-300 hover:text-blue-500">
           Nezo Digital
         </a>
       </div>
@@ -50,10 +38,10 @@ const showSideNav = ref(false);
 html,
 body,
 div#__nuxt {
-    @apply h-full;
+  @apply h-full;
 }
 
 .app-scroll {
-    @apply scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-300;
+  @apply scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thin scrollbar-thumb-slate-500 scrollbar-track-slate-300;
 }
 </style>

@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="modelValue > 0"
-    class="flex bg-stone-50 bg-opacity-95 rounded-lg max-w-max"
-  >
+  <div v-if="modelValue > 0" class="flex bg-stone-50 bg-opacity-95 rounded-lg max-w-max">
     <button
       :disabled="Number(modelValue) === object.min || modelValue === 1"
       class="flex items-center justify-center bg-gray-100 text-slate-500 px-2.5 transition-colors duration-300 disabled:text-border"
@@ -11,10 +8,7 @@
     >
       <MinusIcon class="w-6 h-6 flex-shrink-0" />
     </button>
-    <label
-      :key="modelValue"
-      class="flex"
-    >
+    <label :key="modelValue" class="flex">
       <input
         v-if="modelValue > -1"
         :value="Number(modelValue) < object.min && type === OrderType.Stock ? Number(object.min) : Number(modelValue)"
@@ -25,7 +19,7 @@
         :class="[size === 'sm' ? 'h-9' : 'h-[42px]']"
         @focusout.once="($event) => inputHandlerModified($event)"
         @mouseleave.once="($event) => inputHandlerModified($event)"
-      >
+      />
     </label>
     <button
       class="flex items-center justify-center bg-gray-100 px-2.5"
@@ -36,10 +30,7 @@
       <PlusIcon class="w-6 h-6 flex-shrink-0 text-slate-500" />
     </button>
   </div>
-  <UiSkeleton
-    v-if="modelValue === 0"
-    class="w-[140px] h-[42px]"
-  />
+  <UiSkeleton v-if="modelValue === 0" class="w-[140px] h-[42px]" />
 </template>
 
 <script setup lang="ts">
@@ -104,8 +95,7 @@ const inputHandler = async (quantity: number) => {
         isFolder: false,
         backorder_stock: quantity,
       } as CartProductsInterface;
-    }
-    else {
+    } else {
       product = {
         id: props.object.id,
         isFolder: false,
@@ -123,8 +113,7 @@ const inputHandler = async (quantity: number) => {
       // Emit the new value to the parent after the successful update
       emits('update:modelValue', quantity);
     }
-  }
-  else {
+  } else {
     // Emit the new value to the parent after the successful update
     emits('update:modelValue', quantity);
   }
@@ -148,7 +137,7 @@ watch(
       emits('update:modelValue', props.object.min);
     }
   },
-  { immediate: true, deep: true },
+  { immediate: true, deep: true }
 );
 </script>
 

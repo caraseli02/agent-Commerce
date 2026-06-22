@@ -29,7 +29,7 @@ function collectElements(root: RootNode, tag: string): ElementNode[] {
 }
 
 function getStaticAttrValue(element: ElementNode, name: string): string | undefined {
-  const attr = element.props.find(prop => prop.type === NodeTypes.ATTRIBUTE && prop.name === name);
+  const attr = element.props.find((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === name);
 
   return attr?.type === NodeTypes.ATTRIBUTE ? attr.value?.content : undefined;
 }
@@ -85,7 +85,7 @@ describe('product gallery layout regression', () => {
     expect(getStaticAttrValue(imageNodes[1], 'class-name')).toContain('w-[60px]');
     expect(getStaticAttrValue(imageNodes[1], 'class-name')).toContain('h-[50px]');
     expect(getStaticAttrValue(imageNodes[1], 'class-name')).toContain('object-contain');
-    const thumbnailClass = imageNodes[1].props.find(prop => getDirectiveArgContent(prop) === 'class');
+    const thumbnailClass = imageNodes[1].props.find((prop) => getDirectiveArgContent(prop) === 'class');
     expect(thumbnailClass ? getDirectiveExpContent(thumbnailClass) ?? '' : '').toContain('opacity-50');
   });
 });

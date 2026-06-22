@@ -16,11 +16,7 @@ defineProps({
       >
         {{ item.id }}
       </span>
-      <StockStatus
-        :stock-item="stockItem"
-        :short-stock="shortStock"
-        :stock="item.productEntity?.stock"
-      />
+      <StockStatus :stock-item="stockItem" :short-stock="shortStock" :stock="item.productEntity?.stock" />
     </div>
     <div class="flex flex-col xl:flex-row max-w-[220px] sm:max-w-[350px] lg:max-w-[180px] xl:max-w-[260px] truncate">
       <span class="text-slate-500 text-xs font-normal leading-4">Description:&nbsp;</span>

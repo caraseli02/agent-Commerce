@@ -3,10 +3,10 @@ status: completed
 priority: p1
 issue_id: 002
 tags:
-    - code-review
-    - p1
-    - broken-feature
-    - refactor
+  - code-review
+  - p1
+  - broken-feature
+  - refactor
 dependencies: []
 ---
 
@@ -42,7 +42,7 @@ const duplicateCategory = async (sourceId: string, targetId?: string) => {
 let payload = {};
 
 if (targetId) {
-    payload = { parentId: targetId }; // ❌ Never used!
+  payload = { parentId: targetId }; // ❌ Never used!
 }
 ```
 
@@ -56,25 +56,25 @@ if (targetId) {
 
 **Function Purpose (based on name)**:
 
--   Should duplicate a category from `sourceId` to `targetId`
--   Or duplicate `sourceId` if no `targetId` provided
+- Should duplicate a category from `sourceId` to `targetId`
+- Or duplicate `sourceId` if no `targetId` provided
 
 **Actual Behavior**:
 
--   Refreshes categories list (`getCategories()`)
--   Doesn't perform any duplicate operation
--   Ignores `sourceId` and `targetId` parameters
+- Refreshes categories list (`getCategories()`)
+- Doesn't perform any duplicate operation
+- Ignores `sourceId` and `targetId` parameters
 
 **Interface Definition**:
 
 ```typescript
 // composables/useCategories.ts:4
 export interface ICreatePayload {
-    name: string;
-    alias?: string;
-    aliasType?: string;
-    parentId?: string;
-    status?: string;
+  name: string;
+  alias?: string;
+  aliasType?: string;
+  parentId?: string;
+  status?: string;
 }
 ```
 
@@ -83,8 +83,8 @@ export interface ICreatePayload {
 ```typescript
 // services/categories.service.ts:46-54
 class CategoriesService extends HttpFactory {
-    // No `duplicate()` method defined!
-    // Has: create, delete, update, toggleStatus, merge, move
+  // No `duplicate()` method defined!
+  // Has: create, delete, update, toggleStatus, merge, move
 }
 ```
 
@@ -98,18 +98,18 @@ The function was likely partially refactored during the service layer migration 
 
 **Scope**:
 
--   Category duplication feature in UI
--   Any user attempting to duplicate categories
--   Data integrity (might have expected duplicates that don't exist)
+- Category duplication feature in UI
+- Any user attempting to duplicate categories
+- Data integrity (might have expected duplicates that don't exist)
 
 **Likelihood**: 100% - Function will not work as expected
 
 **User Impact**:
 
--   Cannot duplicate categories
--   Function executes but doesn't duplicate anything
--   Misleading UX (button exists but doesn't work)
--   Potential confusion for users
+- Cannot duplicate categories
+- Function executes but doesn't duplicate anything
+- Misleading UX (button exists but doesn't work)
+- Potential confusion for users
 
 # Proposed Solutions
 
@@ -133,22 +133,22 @@ Update `composables/useCategories.ts`:
 
 ```typescript
 const duplicateCategory = async (sourceId: string, targetId?: string) => {
-    const sourceIds = targetId ? [sourceId] : undefined;
-    const response = await $api.categories.duplicate(taxonomyId.value, sourceIds);
-    if (response.status === 'success') await getCategories();
+  const sourceIds = targetId ? [sourceId] : undefined;
+  const response = await $api.categories.duplicate(taxonomyId.value, sourceIds);
+  if (response.status === 'success') await getCategories();
 };
 ```
 
 **Pros**:
 
--   ✅ Feature actually works as intended
--   ✅ Proper API pattern
--   ✅ Follows service layer architecture
+- ✅ Feature actually works as intended
+- ✅ Proper API pattern
+- ✅ Follows service layer architecture
 
 **Cons**:
 
--   ⚠️ Requires mock endpoint update
--   ⚠️ Requires backend endpoint (if real API exists)
+- ⚠️ Requires mock endpoint update
+- ⚠️ Requires backend endpoint (if real API exists)
 
 **Risk**: Medium - Needs new API endpoint
 
@@ -165,13 +165,13 @@ Delete lines 104-117.
 
 **Pros**:
 
--   ✅ Eliminates broken code
--   ✅ No misleading UX
--   ✅ Cleaner codebase
+- ✅ Eliminates broken code
+- ✅ No misleading UX
+- ✅ Cleaner codebase
 
 **Cons**:
 
--   ⚠️ Loses duplicate functionality (if needed)
+- ⚠️ Loses duplicate functionality (if needed)
 
 **Risk**: Low - Removing non-functional code
 
@@ -185,14 +185,14 @@ Implement client-side category duplication without backend endpoint by copying t
 
 **Pros**:
 
--   ✅ No backend changes needed
--   ✅ Works with mock mode
--   ✅ Immediate UX improvement
+- ✅ No backend changes needed
+- ✅ Works with mock mode
+- ✅ Immediate UX improvement
 
 **Cons**:
 
--   ⚠️ Complex implementation
--   ⚠️ May not match backend behavior
+- ⚠️ Complex implementation
+- ⚠️ May not match backend behavior
 
 **Risk**: High - Complex logic, harder to test
 
@@ -206,21 +206,21 @@ Implement client-side category duplication without backend endpoint by copying t
 
 Rationale:
 
--   Current implementation is completely broken
--   Adding new endpoint requires backend work
--   Removing is cleaner if feature isn't needed
--   Need to clarify business requirements
+- Current implementation is completely broken
+- Adding new endpoint requires backend work
+- Removing is cleaner if feature isn't needed
+- Need to clarify business requirements
 
 # Technical Details
 
 **Affected Files**:
 
--   `composables/useCategories.ts` (lines 104-117 - 14 lines)
--   `services/categories.service.ts` (would need new method)
+- `composables/useCategories.ts` (lines 104-117 - 14 lines)
+- `services/categories.service.ts` (would need new method)
 
 **Affected Components**:
 
--   Category management UI components (that use duplicateCategory function)
+- Category management UI components (that use duplicateCategory function)
 
 **Database Changes**: None
 
@@ -230,22 +230,22 @@ Rationale:
 
 **If Implementing Solution 1 (Add Endpoint)**:
 
--   [ ] New `duplicate()` method added to `CategoriesService`
--   [ ] Composable updated to call `$api.categories.duplicate()`
--   [ ] No TypeScript errors
--   [ ] Application compiles successfully
--   [ ] Can duplicate category successfully
--   [ ] Duplicated category appears in list
--   [ ] Original category remains unchanged
+- [ ] New `duplicate()` method added to `CategoriesService`
+- [ ] Composable updated to call `$api.categories.duplicate()`
+- [ ] No TypeScript errors
+- [ ] Application compiles successfully
+- [ ] Can duplicate category successfully
+- [ ] Duplicated category appears in list
+- [ ] Original category remains unchanged
 
 **If Implementing Solution 2 (Remove Function)**:
 
--   [ ] Lines 104-117 removed
--   [ ] No references to `duplicateCategory` in codebase
--   [ ] No TypeScript errors
--   [ ] Application compiles successfully
--   [ ] Category management UI still works
--   [ ] No console errors about missing functions
+- [ ] Lines 104-117 removed
+- [ ] No references to `duplicateCategory` in codebase
+- [ ] No TypeScript errors
+- [ ] Application compiles successfully
+- [ ] Category management UI still works
+- [ ] No console errors about missing functions
 
 # Work Log
 
@@ -269,6 +269,6 @@ Rationale:
 
 ## Related Links
 
--   PR: https://github.com/caraseli02/Ecas/pull/1
--   Plan: docs/plans/2026-02-14-refactor-backend-to-mock-cleanup-plan.md
--   Similar Pattern: Other category operations use proper service methods
+- PR: https://github.com/caraseli02/Ecas/pull/1
+- Plan: docs/plans/2026-02-14-refactor-backend-to-mock-cleanup-plan.md
+- Similar Pattern: Other category operations use proper service methods

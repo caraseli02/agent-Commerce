@@ -41,14 +41,9 @@ defineProps<{
         </UiButton>
       </div>
     </template>
-    <section
-      v-else
-      class="absolute inset-0 flex flex-col items-center justify-center text-center"
-    >
+    <section v-else class="absolute inset-0 flex flex-col items-center justify-center text-center">
       <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-      <div class="w-full">
-        No results.
-      </div>
+      <div class="w-full">No results.</div>
     </section>
   </div>
 </template>

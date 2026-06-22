@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="rounded-lg"
-    :class="expanded ? 'custom-shadow' : ''"
-  >
+  <div class="rounded-lg" :class="expanded ? 'custom-shadow' : ''">
     <OrderSummaryTableItemHeader
       :short-stock="shortStock"
       :stock-item="stockItem"
@@ -93,34 +90,34 @@ onMounted(setupMediaQuery);
 <style scoped>
 .expand-enter-from,
 .expand-leave-to {
-    opacity: 0.5;
-    max-height: 0;
-    overflow: hidden;
+  opacity: 0.5;
+  max-height: 0;
+  overflow: hidden;
 }
 
 .expand-enter-to,
 .expand-leave-from {
-    opacity: 1;
-    max-height: 1000px;
-    /* Adjust this value as needed */
+  opacity: 1;
+  max-height: 1000px;
+  /* Adjust this value as needed */
 }
 
 .expand-enter-active,
 .expand-leave-active {
-    transition: max-height 0.5s cubic-bezier(0, 0.3, 0.6, 1), opacity 0.5s ease;
+  transition: max-height 0.5s cubic-bezier(0, 0.3, 0.6, 1), opacity 0.5s ease;
 }
 
 .item {
-    transform-origin: top;
+  transform-origin: top;
 }
 
 .header-transition {
-    transition-property: box-shadow, border-radius, opacity;
-    transition-timing-function: cubic-bezier(0, 0.3, 0.6, 1);
-    transition-duration: 150ms;
+  transition-property: box-shadow, border-radius, opacity;
+  transition-timing-function: cubic-bezier(0, 0.3, 0.6, 1);
+  transition-duration: 150ms;
 }
 
 .custom-shadow {
-    box-shadow: 0px 3px 8px 0px rgba(133, 133, 133, 0.25);
+  box-shadow: 0px 3px 8px 0px rgba(133, 133, 133, 0.25);
 }
 </style>

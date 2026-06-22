@@ -4,9 +4,7 @@
   >
     <div class="mb-4">
       <div class="flex items-start justify-between">
-        <h2 class="text-xl leading-[1.4] font-semibold">
-          Customer Credit
-        </h2>
+        <h2 class="text-xl leading-[1.4] font-semibold">Customer Credit</h2>
         <button
           class="flex items-center justify-center rounded-lg w-8 h-8 bg-gray-100 text-slate-500 transition-colors duration-300 hover:text-blue-500"
           @click="$emit('toggle-editing')"
@@ -15,9 +13,7 @@
         </button>
       </div>
     </div>
-    <p class="text-sm leading-[1.71] mb-8">
-      Change to customer credit account.
-    </p>
+    <p class="text-sm leading-[1.71] mb-8">Change to customer credit account.</p>
     <div class="flex flex-col flex-1">
       <div class="grid grid-cols-1 gap-2 mb-8">
         <div class="flex items-center justify-between pb-2 border-b border-gray-200 text-sm leading-[1.42]">
@@ -69,9 +65,7 @@
       </div>
       <div class="mb-6">
         <div class="relative z-10">
-          <div class="text-sm text-slate-500 mb-1">
-            Credit Term
-          </div>
+          <div class="text-sm text-slate-500 mb-1">Credit Term</div>
           <button
             class="flex items-center justify-between px-3 text-sm w-full border py-[9px] rounded-lg h-11 transition-colors duration-300 focus:outline-none"
             :class="[showCreditTermOptions ? 'border-blue-500' : 'border-border']"
@@ -126,14 +120,9 @@
                 </span>
                 <div
                   class="flex items-center justify-center w-[18px] h-[18px] rounded-full border-2 transition-colors duration-300"
-                  :class="[
-                    option.value === creditTerm?.value ? 'border-blue-500' : 'border-border group-hover:border-dark',
-                  ]"
+                  :class="[option.value === creditTerm?.value ? 'border-blue-500' : 'border-border group-hover:border-dark']"
                 >
-                  <div
-                    v-if="option.value === creditTerm?.value"
-                    class="w-2.5 h-2.5 bg-blue-500 rounded-full"
-                  />
+                  <div v-if="option.value === creditTerm?.value" class="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                 </div>
               </button>
             </div>
@@ -141,26 +130,19 @@
         </div>
       </div>
       <div class="mb-10">
-        <div class="text-sm text-slate-500 mb-1">
-          Credit Amount
-        </div>
+        <div class="text-sm text-slate-500 mb-1">Credit Amount</div>
         <div class="flex border border-border rounded-lg h-11 overflow-hidden">
           <input
             v-model="creditAmount"
             type="number"
             placeholder="Discount (i.e. 5, 10, 17)"
             class="bg-transparent px-2 text-sm w-full transition-colors duration-300 focus:outline-none"
-          >
-          <div class="text-xl leading-[1.3] px-3 py-2 border-r border-border bg-[#F5F5F5]">
-            Lei
-          </div>
+          />
+          <div class="text-xl leading-[1.3] px-3 py-2 border-r border-border bg-[#F5F5F5]">Lei</div>
         </div>
       </div>
       <div class="grid grid-cols-[auto,1fr] gap-4">
-        <button
-          class="flex px-8 py-2 rounded-lg bg-gray-100 leading-[1.75] text-slate-500 font-medium"
-          @click="$emit('cancel')"
-        >
+        <button class="flex px-8 py-2 rounded-lg bg-gray-100 leading-[1.75] text-slate-500 font-medium" @click="$emit('cancel')">
           Cancel
         </button>
         <button
@@ -255,8 +237,7 @@ const getCustomerCredit = async () => {
     }
 
     creditObjectToEdit.value = response.status === 'success' ? response.data : mockCreditDefaults();
-  }
-  catch {
+  } catch {
     if (!isMockMode.value) {
       return;
     }

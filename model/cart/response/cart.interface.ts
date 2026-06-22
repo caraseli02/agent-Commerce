@@ -28,8 +28,8 @@ export interface CartInterface {
 
 export interface CartProductsInterface {
   /**
-     * Product id
-     */
+   * Product id
+   */
   id: string;
 
   /** Number of pieces wanted for a specific product */
@@ -48,28 +48,28 @@ export interface CartProductsInterface {
   isFolder: boolean;
 
   /**
-     * Price before unknown discount per unit
-     */
+   * Price before unknown discount per unit
+   */
   initialUnitPrice: number;
 
   /**
-     * Price after unknown discount per unit
-     */
+   * Price after unknown discount per unit
+   */
   unitPriceAfterDiscounts: number;
 
   /**
-     * Price after applying shipping and other taxes
-     */
+   * Price after applying shipping and other taxes
+   */
   total: number;
 
   /**
-     * Price after applying discounts
-     */
+   * Price after applying discounts
+   */
   subtotal: number;
 
   /**
-     * Value of the applied discount
-     */
+   * Value of the applied discount
+   */
   discount: DiscountInterface;
 
   /** The entire product retrieved from database */

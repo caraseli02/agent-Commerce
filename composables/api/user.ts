@@ -24,8 +24,7 @@ export async function resetPasswordLink(email: string): Promise<ProductResponse 
       method: 'POST',
       body: { email },
     });
-  }
-  catch (err) {
+  } catch (err) {
     if (err instanceof FirebaseError) {
       return err;
     }
@@ -46,8 +45,7 @@ export async function resetPassword(email: string, newPassword: string, code: st
         code,
       },
     });
-  }
-  catch (err) {
+  } catch (err) {
     if (err instanceof FirebaseError) {
       return err;
     }

@@ -26,7 +26,7 @@ const fetchAndSetTransactionListRaw = async (
   page: number,
   perPage: number,
   filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {},
+  sort: Record<string, unknown> = {}
 ) => {
   loading.value = true;
   error.value = false;
@@ -56,8 +56,7 @@ const fetchAndSetTransactionListRaw = async (
     loading.value = false;
 
     return data.data;
-  }
-  catch (err) {
+  } catch (err) {
     console.error('Failed to load transactions', err);
     loading.value = false;
     error.value = true;
@@ -87,12 +86,7 @@ await fetchAndSetTransactionListRaw(1, 10);
       :loading="loading"
     >
       <template #header="{ table, makeRefresh }">
-        <DataTableHeadControls
-          :error="error"
-          title="Transaction History"
-          :table="table"
-          @refresh="makeRefresh()"
-        >
+        <DataTableHeadControls :error="error" title="Transaction History" :table="table" @refresh="makeRefresh()">
           <!-- <UiButton class="flex-1 md:flex-grow-0 flex gap-2" size="sm">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path

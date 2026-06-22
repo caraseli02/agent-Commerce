@@ -20,10 +20,7 @@
         "
       >
         <div class="flex items-center justify-center w-8 h-8 rounded bg-gray-100 mr-2 xl:w-10 xl:h-10 xl:mr-2.5">
-          <component
-            :is="category.icon"
-            class="w-[22px] h-[22px]"
-          />
+          <component :is="category.icon" class="w-[22px] h-[22px]" />
         </div>
         <div>
           <div class="text-sm font-semibold leading-normal mb-px xl:text-base xl:mb-1.5">
@@ -78,10 +75,7 @@
         }"
         class="headerSubmenu--swiper w-full"
       >
-        <SwiperSlide
-          v-for="(item, index) in slides"
-          :key="index"
-        >
+        <SwiperSlide v-for="(item, index) in slides" :key="index">
           <div
             class="flex flex-col items-center justify-center text-center bg-blue-500/50 border border-blue-500/50 shadow-m py-1.5 h-full rounded-md backdrop-blur-[5px] md:py-[15px] lg:pt-[25px] xl:py-[35px]"
           >
@@ -99,13 +93,13 @@
         :src="ItemImage"
         alt="Img"
         class="absolute z-20 top-[38px] right-[15px] w-[111px] object-contain md:w-[160px] md:top-[61px] lg:w-[240px] lg:top-[78px] lg:right-5 xl:w-[376px] xl:top-[52px] xl:right-[30px]"
-      >
+      />
       <img
         :src="SlideBg"
         alt="Background"
         class="absolute z-10 top-0 left-0 w-full h-full object-cover"
         :class="[isBannerExpanded ? 'rounded-b-md' : 'rounded-br-md max-md:rounded-bl-md']"
-      >
+      />
       <div
         class="absolute z-10 top-0 left-0 w-full h-full opacity-75 pointer-events-none"
         :class="[isBannerExpanded ? 'rounded-b-md' : 'rounded-br-md max-md:rounded-bl-md']"
@@ -143,10 +137,7 @@
       :class="[selectedCategory ? '' : 'opacity-0 pointer-events-none -translate-x-10']"
     >
       <div class="flex items-center justify-between border-b border-gray-200 px-[15px] py-2.5">
-        <button
-          class="flex"
-          @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
-        >
+        <button class="flex" @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)">
           <CaretLeft class="w-6 h-6" />
         </button>
         <div class="text-sm font-semibold text-blue-500">
@@ -155,10 +146,7 @@
       </div>
       <div class="flex flex-col flex-1">
         <div class="flex-1 overflow-y-auto scrollbar-thin">
-          <div
-            v-if="selectedCategory && !selectedSubCategory"
-            class="flex flex-wrap gap-x-2.5 gap-y-[15px] p-2.5 lg:p-[15px]"
-          >
+          <div v-if="selectedCategory && !selectedSubCategory" class="flex flex-wrap gap-x-2.5 gap-y-[15px] p-2.5 lg:p-[15px]">
             <button
               v-for="(subCategory, index) in selectedCategory.subcategory"
               :key="index"
@@ -207,10 +195,7 @@
     >
       <div>
         <div class="flex items-center justify-between border-b border-gray-200 px-[15px] pt-5 pb-2.5 xl:pr-0">
-          <button
-            class="flex"
-            @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
-          >
+          <button class="flex" @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)">
             <CaretLeft class="w-6 h-6" />
           </button>
           <div class="text-sm font-semibold text-blue-500">
@@ -219,10 +204,7 @@
         </div>
         <div class="flex flex-col flex-1">
           <div class="flex-1 overflow-y-auto scrollbar-thin">
-            <div
-              v-if="selectedCategory"
-              class="flex flex-wrap gap-2.5 pt-[15px] px-[25px] pb-5"
-            >
+            <div v-if="selectedCategory" class="flex flex-wrap gap-2.5 pt-[15px] px-[25px] pb-5">
               <button
                 v-for="(subCategory, index) in selectedCategory.subcategory"
                 :key="index"
@@ -243,19 +225,14 @@
                 </div>
               </button>
             </div>
-            <div
-              v-if="selectedCategory && selectedSubCategory"
-              class="grid grid-cols-3 gap-x-5 gap-y-2 px-[25px] pb-5"
-            >
+            <div v-if="selectedCategory && selectedSubCategory" class="grid grid-cols-3 gap-x-5 gap-y-2 px-[25px] pb-5">
               <NuxtLink
                 v-for="(subCategory, index) in selectedSubCategory.subcategory"
                 :key="index"
                 :to="`/search?category=${subCategory.id}`"
                 class="relative flex items-start text-[#6E6E6E] text-left px-[5px] transition-colors duration-300 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-[15px] before:w-0.5 before:bg-blue-500 before:rounded-full before:opacity-0 before:transition-opacity before:duration-300 hover:text-blue-500 hover:before:opacity-100"
               >
-                <div class="text-sm font-medium truncate mr-[5px]">
-                  {{ subCategory.name }} ({{ subCategory.productCount }})
-                </div>
+                <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }})</div>
                 <!--                                <div -->
                 <!--                                    v-if="index === 3 || index === 5" -->
                 <!--                                    class="bg-blue-500 text-white rounded-full px-[5px] py-px font-Inter font-semibold text-xs leading-tight" -->
@@ -313,8 +290,7 @@ const handleCategoryClick = (category: NavCategoryView) => {
   if ((category.subcategory?.length ?? 0) === 0) {
     // Redirect to the category link if it's the last level
     router.push(`/search?category=${category.id}`);
-  }
-  else {
+  } else {
     // Otherwise, set the selected category or subcategory as usual
     selectedCategory.value = category;
     selectedSubCategory.value = null;
@@ -322,13 +298,13 @@ const handleCategoryClick = (category: NavCategoryView) => {
 };
 
 const iconMap = {
-  'Semiconductors': SemiconductorsIcon,
-  'Passive': PassiveIcon,
-  'Electromechanics': ElectromechanicsIcon,
+  Semiconductors: SemiconductorsIcon,
+  Passive: PassiveIcon,
+  Electromechanics: ElectromechanicsIcon,
   'Cables & Connectors': CablesAndConnectorsIcon,
   'Power Supply': PowerSupplyIcon,
-  'Cases': CasesIcon,
-  'Tools': ToolsIcon,
+  Cases: CasesIcon,
+  Tools: ToolsIcon,
   'Industrial Furniture': IndustrialFurnitureIcon,
 };
 
@@ -336,7 +312,7 @@ const { categories, getCategories } = useCategories();
 const allCategories = ref<NavCategoryView[]>([]);
 
 const mapCategories = (sourceArray: TaxonomyInterface[]): NavCategoryView[] => {
-  return sourceArray.map(item => ({
+  return sourceArray.map((item) => ({
     name: item.name.trim(),
     productCount: item.productCount,
     icon: (iconMap[item.name.trim() as keyof typeof iconMap] || DefaultIcon) as Component,
@@ -410,8 +386,7 @@ const slides = ref([
 const handleClickOutside = () => {
   if (!props.isStatic && window.innerWidth >= 768) {
     showNavModal.value = false;
-  }
-  else if ((props.isStatic && selectedCategory) || selectedSubCategory) {
+  } else if ((props.isStatic && selectedCategory) || selectedSubCategory) {
     selectedCategory.value = null;
     selectedSubCategory.value = null;
   }
@@ -422,8 +397,7 @@ const handleTogglerMouseEnter = (event: MouseEvent) => {
   const svg = (event.target as HTMLInputElement).querySelector('svg');
   if (isBannerExpanded.value) {
     svg?.classList.add('animateToRight');
-  }
-  else {
+  } else {
     svg?.classList.add('animateToLeft');
   }
 
@@ -452,95 +426,95 @@ onMounted(async () => {
 
 <style lang="scss">
 .headerSubmenu--swiper {
-    @apply z-20 pb-[22px] mt-auto md:pb-[38px] #{!important};
+  @apply z-20 pb-[22px] mt-auto md:pb-[38px] #{!important};
 }
 
 .headerSubmenu--swiper .swiper-slide {
-    @apply h-auto #{!important};
+  @apply h-auto #{!important};
 }
 
 .headerSubmenu--swiper .swiper-pagination {
-    @apply flex justify-center w-full h-2 bottom-1.5 space-x-1.5 md:space-x-2 md:bottom-[15px] #{!important};
+  @apply flex justify-center w-full h-2 bottom-1.5 space-x-1.5 md:space-x-2 md:bottom-[15px] #{!important};
 }
 
 .headerSubmenu--swiper .swiper-pagination-bullet {
-    @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
-    margin-right: 0 !important;
+  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  margin-right: 0 !important;
 }
 
 .headerSubmenu--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-    @apply w-[25px] bg-white #{!important};
+  @apply w-[25px] bg-white #{!important};
 }
 </style>
 
 <style lang="scss">
 .animateToRight {
-    animation: toRightFromLeft 0.5s forwards linear;
+  animation: toRightFromLeft 0.5s forwards linear;
 }
 
 .animateToLeft {
-    animation: toLeftFromRight 0.5s forwards linear;
+  animation: toLeftFromRight 0.5s forwards linear;
 }
 
 @keyframes toLeftFromRight {
-    49% {
-        @apply -translate-x-full rotate-180;
-        -webkit-transform: translateX(-100%) rotate(180deg);
-    }
+  49% {
+    @apply -translate-x-full rotate-180;
+    -webkit-transform: translateX(-100%) rotate(180deg);
+  }
 
-    50% {
-        @apply opacity-0 translate-x-full rotate-180;
-        -webkit-transform: translateX(100%) rotate(180deg);
-    }
+  50% {
+    @apply opacity-0 translate-x-full rotate-180;
+    -webkit-transform: translateX(100%) rotate(180deg);
+  }
 
-    51% {
-        @apply opacity-100;
-    }
+  51% {
+    @apply opacity-100;
+  }
 }
 
 @keyframes toRightFromLeft {
-    49% {
-        @apply translate-x-full;
-        -webkit-transform: translateX(100%);
-    }
+  49% {
+    @apply translate-x-full;
+    -webkit-transform: translateX(100%);
+  }
 
-    50% {
-        @apply opacity-0 -translate-x-full;
-        -webkit-transform: translateX(-100%);
-    }
+  50% {
+    @apply opacity-0 -translate-x-full;
+    -webkit-transform: translateX(-100%);
+  }
 
-    51% {
-        @apply opacity-100;
-    }
+  51% {
+    @apply opacity-100;
+  }
 }
 
 .sideNav--toggler_active {
-    @keyframes toLeftFromRight {
-        49% {
-            @apply -translate-x-full;
-        }
-
-        50% {
-            @apply opacity-0 translate-x-full;
-        }
-
-        51% {
-            @apply opacity-100;
-        }
+  @keyframes toLeftFromRight {
+    49% {
+      @apply -translate-x-full;
     }
 
-    @keyframes toRightFromLeft {
-        49% {
-            @apply translate-x-full;
-        }
-
-        50% {
-            @apply opacity-0 -translate-x-full;
-        }
-
-        51% {
-            @apply opacity-100;
-        }
+    50% {
+      @apply opacity-0 translate-x-full;
     }
+
+    51% {
+      @apply opacity-100;
+    }
+  }
+
+  @keyframes toRightFromLeft {
+    49% {
+      @apply translate-x-full;
+    }
+
+    50% {
+      @apply opacity-0 -translate-x-full;
+    }
+
+    51% {
+      @apply opacity-100;
+    }
+  }
 }
 </style>

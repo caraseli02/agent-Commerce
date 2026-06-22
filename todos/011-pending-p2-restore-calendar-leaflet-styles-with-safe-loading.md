@@ -14,9 +14,9 @@ Global stylesheet entries for Leaflet and V-Calendar were removed from Nuxt conf
 
 ## Findings
 
--   `nuxt.config.ts:59-64` no longer includes `leaflet/dist/leaflet.css` and `v-calendar/style.css`.
--   Removing global imports hides the loading error but shifts risk to runtime pages that depend on those styles.
--   The fix addresses symptom (404) instead of root cause (asset resolution/path/module config).
+- `nuxt.config.ts:59-64` no longer includes `leaflet/dist/leaflet.css` and `v-calendar/style.css`.
+- Removing global imports hides the loading error but shifts risk to runtime pages that depend on those styles.
+- The fix addresses symptom (404) instead of root cause (asset resolution/path/module config).
 
 ## Proposed Solutions
 
@@ -26,12 +26,12 @@ Global stylesheet entries for Leaflet and V-Calendar were removed from Nuxt conf
 
 **Pros:**
 
--   Preserves expected library visuals.
--   Avoids page-level regressions.
+- Preserves expected library visuals.
+- Avoids page-level regressions.
 
 **Cons:**
 
--   Requires debugging why imports were 404ing.
+- Requires debugging why imports were 404ing.
 
 **Effort:** Medium
 
@@ -45,13 +45,13 @@ Global stylesheet entries for Leaflet and V-Calendar were removed from Nuxt conf
 
 **Pros:**
 
--   Smaller global CSS footprint.
--   Limits blast radius.
+- Smaller global CSS footprint.
+- Limits blast radius.
 
 **Cons:**
 
--   Must guarantee every usage path imports styles.
--   Easy to miss routes.
+- Must guarantee every usage path imports styles.
+- Easy to miss routes.
 
 **Effort:** Medium
 
@@ -63,18 +63,18 @@ Global stylesheet entries for Leaflet and V-Calendar were removed from Nuxt conf
 
 Affected files:
 
--   `/Users/vladislavcaraseli/Documents/Ecas/nuxt.config.ts:59`
+- `/Users/vladislavcaraseli/Documents/Ecas/nuxt.config.ts:59`
 
 ## Resources
 
--   Review context: current working tree code review
+- Review context: current working tree code review
 
 ## Acceptance Criteria
 
--   [ ] Leaflet map pages render with correct marker/layout styles.
--   [ ] V-Calendar widgets render with expected base styles.
--   [ ] No 404 errors remain for stylesheet assets.
--   [ ] Regression screenshots added for map/calendar views.
+- [ ] Leaflet map pages render with correct marker/layout styles.
+- [ ] V-Calendar widgets render with expected base styles.
+- [ ] No 404 errors remain for stylesheet assets.
+- [ ] Regression screenshots added for map/calendar views.
 
 ## Work Log
 
@@ -84,13 +84,13 @@ Affected files:
 
 **Actions:**
 
--   Inspected Nuxt config diff and identified removed third-party stylesheet entries.
--   Assessed potential downstream UI regression impact.
+- Inspected Nuxt config diff and identified removed third-party stylesheet entries.
+- Assessed potential downstream UI regression impact.
 
 **Learnings:**
 
--   Style import removal is a risky workaround for unresolved asset loading issues.
+- Style import removal is a risky workaround for unresolved asset loading issues.
 
 ## Notes
 
--   Keep this tracked as regression prevention before merge.
+- Keep this tracked as regression prevention before merge.

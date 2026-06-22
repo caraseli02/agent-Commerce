@@ -1,30 +1,16 @@
 <template>
   <div class="flex flex-col p-4 xl:p-6 rounded-xl bg-white items-start shadow-xs gap-4 mb-6 h-fit">
-    <div
-      v-if="stockOrder || backOrder"
-      class="flex flex-col gap-6"
-    >
-      <h2 class="text-neutral-500 text-base font-medium leading-6">
-        Order Type
-      </h2>
+    <div v-if="stockOrder || backOrder" class="flex flex-col gap-6">
+      <h2 class="text-neutral-500 text-base font-medium leading-6">Order Type</h2>
       <div class="flex flex-row gap-3">
-        <div
-          v-if="stockOrder && backOrder"
-          class="px-3 py-[3px] justify-center flex rounded bg-blue-50"
-        >
+        <div v-if="stockOrder && backOrder" class="px-3 py-[3px] justify-center flex rounded bg-blue-50">
           <span class="text-blue-500 text-sm font-medium leading-5">Mixed Order</span>
         </div>
         <template v-else>
-          <div
-            v-if="stockOrder"
-            class="px-3 py-[3px] justify-center flex rounded bg-green-50"
-          >
+          <div v-if="stockOrder" class="px-3 py-[3px] justify-center flex rounded bg-green-50">
             <span class="text-green-500 text-sm font-medium leading-5">Stock Order</span>
           </div>
-          <div
-            v-if="backOrder"
-            class="px-3 py-[3px] justify-center flex rounded bg-orange-50"
-          >
+          <div v-if="backOrder" class="px-3 py-[3px] justify-center flex rounded bg-orange-50">
             <span class="text-orange-500 text-sm font-medium leading-5">Back Order</span>
           </div>
         </template>
@@ -33,24 +19,15 @@
     <div class="gap-2 flex flex-col w-full">
       <div class="h-[1px] rounded-lg bg-neutral-100 block" />
       <div class="flex flex-col">
-        <button
-          class="flex flex-row justify-between py-2 group header-transition"
-          @click="expandShippingAndBilling"
-        >
+        <button class="flex flex-row justify-between py-2 group header-transition" @click="expandShippingAndBilling">
           <span
             class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
             :class="shippingAndBillingExpanded ? 'text-blue-500' : 'text-neutral-700'"
-          >Shipping and Billing</span>
+            >Shipping and Billing</span
+          >
           <div class="flex flex-row gap-6">
-            <div
-              v-if="shippingAndBillingMissingInfoWarning"
-              class="flex flex-row gap-2 items-center"
-            >
-              <DemoTooltip
-                theme="black"
-                position="top"
-                class="flex sm:hidden lg:flex"
-              >
+            <div v-if="shippingAndBillingMissingInfoWarning" class="flex flex-row gap-2 items-center">
+              <DemoTooltip theme="black" position="top" class="flex sm:hidden lg:flex">
                 <WarningErrorYellow />
                 <template #content>
                   <span class="capitalize">Missing Info</span>
@@ -66,33 +43,23 @@
           </div>
         </button>
         <Transition name="expand">
-          <OrderSummaryShippingAndBillingSection
-            v-if="shippingAndBillingExpanded"
-            :order="order"
-            class="item"
-          />
+          <OrderSummaryShippingAndBillingSection v-if="shippingAndBillingExpanded" :order="order" class="item" />
         </Transition>
       </div>
       <div class="h-[1px] rounded-lg bg-neutral-100 block" />
       <div class="flex flex-col">
-        <button
-          class="flex flex-row justify-between py-2 group"
-          @click="expandShippingPreferences"
-        >
+        <button class="flex flex-row justify-between py-2 group" @click="expandShippingPreferences">
           <span
             class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
             :class="shippingPreferencesExpanded ? 'text-blue-500' : 'text-neutral-700'"
-          >Shipping Preferences</span>
+            >Shipping Preferences</span
+          >
           <div class="flex flex-row gap-6">
             <div
               v-if="!shippingPreferencesExpanded && ((mixedOrBackOrder && !order.backorderOption) || !order.deliveryMethod)"
               class="flex flex-row gap-2 items-center"
             >
-              <DemoTooltip
-                theme="black"
-                position="top"
-                class="flex sm:hidden lg:flex"
-              >
+              <DemoTooltip theme="black" position="top" class="flex sm:hidden lg:flex">
                 <WarningErrorHuge />
                 <template #content>
                   <span class="capitalize">Mandatory</span>
@@ -119,24 +86,15 @@
         </Transition>
       </div>
       <div class="h-[1px] rounded-lg bg-neutral-100 block" />
-      <button
-        class="flex flex-row justify-between py-2 group"
-        @click="expandPaymentMethod"
-      >
+      <button class="flex flex-row justify-between py-2 group" @click="expandPaymentMethod">
         <span
           class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
           :class="paymentMethodExpanded ? 'text-blue-500' : 'text-neutral-700'"
-        >Payment Method</span>
+          >Payment Method</span
+        >
         <div class="flex flex-row gap-6">
-          <div
-            v-if="paymentMethodWarning"
-            class="flex flex-row gap-2 items-center"
-          >
-            <DemoTooltip
-              theme="black"
-              position="top"
-              class="flex sm:hidden lg:flex"
-            >
+          <div v-if="paymentMethodWarning" class="flex flex-row gap-2 items-center">
+            <DemoTooltip theme="black" position="top" class="flex sm:hidden lg:flex">
               <WarningErrorHuge />
               <template #content>
                 <span class="capitalize">Mandatory</span>
@@ -160,11 +118,7 @@
           @update-payment-details="emits('update-payment-details', $event)"
         />
       </Transition>
-      <AppModal
-        v-if="!config.public.MOCK_MODE"
-        v-model="showCardsModal"
-        side="right"
-      >
+      <AppModal v-if="!config.public.MOCK_MODE" v-model="showCardsModal" side="right">
         <OrderSummaryPaymentModal :order="order" />
       </AppModal>
     </div>
@@ -209,8 +163,8 @@ const cartStore = useCartStore();
 
 const stockOrder = computed(() => {
   return (
-    (cartStore.cart?.products?.filter((item: CartProductsInterface) => item.productEntity?.stock !== undefined && item.stock > 0)
-      .length ?? 0) > 0
+    (cartStore.cart?.products?.filter((item: CartProductsInterface) => item.productEntity?.stock !== undefined && item.stock > 0).length ??
+      0) > 0
   );
 });
 
@@ -239,16 +193,16 @@ const orderType = computed((): OrderType => {
 const shippingAndBillingMissingInfoWarning = computed(() => {
   if (props.order.shippingDetails?.address && props.order.shippingDetails?.billingAddress) {
     return (
-      !props.order.shippingDetails.address.name1
-      || !props.order.shippingDetails.address.city
-      || !props.order.shippingDetails.address.region
-      || !props.order.shippingDetails.address.postcode
-      || !props.order.shippingDetails.address.country
-      || !props.order.shippingDetails.billingAddress.name1
-      || !props.order.shippingDetails.billingAddress.city
-      || !props.order.shippingDetails.billingAddress.region
-      || !props.order.shippingDetails.billingAddress.postcode
-      || !props.order.shippingDetails.billingAddress.country
+      !props.order.shippingDetails.address.name1 ||
+      !props.order.shippingDetails.address.city ||
+      !props.order.shippingDetails.address.region ||
+      !props.order.shippingDetails.address.postcode ||
+      !props.order.shippingDetails.address.country ||
+      !props.order.shippingDetails.billingAddress.name1 ||
+      !props.order.shippingDetails.billingAddress.city ||
+      !props.order.shippingDetails.billingAddress.region ||
+      !props.order.shippingDetails.billingAddress.postcode ||
+      !props.order.shippingDetails.billingAddress.country
     );
   }
 });
@@ -301,30 +255,30 @@ const { showCardsModal } = storeToRefs(paymentStore);
 <style scoped>
 .expand-enter-from,
 .expand-leave-to {
-    opacity: 0.5;
-    max-height: 0;
-    overflow: hidden;
+  opacity: 0.5;
+  max-height: 0;
+  overflow: hidden;
 }
 
 .expand-enter-to,
 .expand-leave-from {
-    opacity: 1;
-    max-height: 1000px;
-    /* Adjust this value as needed */
+  opacity: 1;
+  max-height: 1000px;
+  /* Adjust this value as needed */
 }
 
 .expand-enter-active,
 .expand-leave-active {
-    transition: max-height 0.5s cubic-bezier(0, 0.3, 0.6, 1), opacity 0.5s ease;
+  transition: max-height 0.5s cubic-bezier(0, 0.3, 0.6, 1), opacity 0.5s ease;
 }
 
 .item {
-    transform-origin: top;
+  transform-origin: top;
 }
 
 .header-transition {
-    transition-property: box-shadow, border-radius, opacity;
-    transition-timing-function: cubic-bezier(0, 0.3, 0.6, 1);
-    transition-duration: 150ms;
+  transition-property: box-shadow, border-radius, opacity;
+  transition-timing-function: cubic-bezier(0, 0.3, 0.6, 1);
+  transition-duration: 150ms;
 }
 </style>

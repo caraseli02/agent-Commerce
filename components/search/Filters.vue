@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="filteredData.length"
-    class="mb-[30px] md:mb-[60px]"
-  >
+  <div v-if="filteredData.length" class="mb-[30px] md:mb-[60px]">
     <div class="container">
       <button
         class="flex items-center justify-center bg-blue-500 text-white rounded px-[15px] py-[9px] text-sm font-medium w-full md:hidden"
@@ -12,19 +9,11 @@
         <span>Filters</span>
       </button>
       <div class="hidden items-center justify-between md:flex">
-        <div class="font-medium">
-          Filters
-        </div>
+        <div class="font-medium">Filters</div>
         <div class="flex items-center">
           <div class="flex items-center text-slate-500 select-none mr-[30px]">
-            <EyeClosedIcon
-              v-if="!showFilters"
-              class="w-5 h-5 mr-2"
-            />
-            <EyeIcon
-              v-else
-              class="w-5 h-5 mr-2"
-            />
+            <EyeClosedIcon v-if="!showFilters" class="w-5 h-5 mr-2" />
+            <EyeIcon v-else class="w-5 h-5 mr-2" />
             <span class="text-sm leading-tight font-Inter font-medium mr-[15px]"> Filters </span>
             <button
               class="relative w-10 h-[22px] rounded-[25px] transition-colors duration-300"
@@ -51,10 +40,7 @@
         </div>
       </div>
       <Transition name="slide-from-bottom">
-        <div
-          v-if="showFilters"
-          class="hidden grid-cols-3 gap-5 mt-5 md:grid lg:grid-cols-4 xl:grid-cols-6"
-        >
+        <div v-if="showFilters" class="hidden grid-cols-3 gap-5 mt-5 md:grid lg:grid-cols-4 xl:grid-cols-6">
           <SearchFilter
             v-for="(filter, index) in filteredData"
             :key="getFilterSlug(filter.feature)"
@@ -62,9 +48,7 @@
             @close="removeItem(index)"
           />
           <div class="flex flex-col items-center pt-[60px] pb-10">
-            <div class="text-sm font-medium text-slate-500 mb-5">
-              Add/Remove Filter
-            </div>
+            <div class="text-sm font-medium text-slate-500 mb-5">Add/Remove Filter</div>
             <button
               class="flex items-center justify-center w-14 h-14 bg-blue-500 rounded-full transition-transform duration-300 hover:rotate-[360deg]"
               @click="showAddRemoveFilterModal = true"
@@ -168,7 +152,7 @@ const checkedOptions = ref<SearchFiltersCategories[]>([]);
 productFiltersData.value = parseFilters(props.filters);
 
 const filterData = () => {
-  filteredData.value = productFiltersData.value?.filter(item => item.checked) ?? [];
+  filteredData.value = productFiltersData.value?.filter((item) => item.checked) ?? [];
 };
 
 const removeItem = (index: number) => {
@@ -187,7 +171,7 @@ watch(
     productFiltersData.value = parseFilters(props.filters);
     filterData();
   },
-  { deep: true },
+  { deep: true }
 );
 
 Emitter.on('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
@@ -199,7 +183,7 @@ Emitter.on('product-keyword-change', async (value: { keyword: string; products: 
 Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
   for (const option of options) {
     const item = checkedOptions.value.find(
-      x => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
+      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue
     );
 
     if (item) {
@@ -215,7 +199,7 @@ Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
 Emitter.on('remove-filter-option', async (options: FilterOptions[]) => {
   for (const option of options) {
     const itemIndex = checkedOptions.value.findIndex(
-      x => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
+      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue
     );
 
     if (itemIndex < 0) {

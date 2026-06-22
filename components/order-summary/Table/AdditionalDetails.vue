@@ -1,10 +1,7 @@
 <template>
   <div class="relative px-4 flex flex-row justify-between xl:justify-start xl:gap-6">
     <!-- Packaging toggle button and details display -->
-    <button
-      class="flex flex-col gap-2 items-center group xl:flex-row"
-      @click="togglePackagingDetails"
-    >
+    <button class="flex flex-col gap-2 items-center group xl:flex-row" @click="togglePackagingDetails">
       <PackageBox class="text-slate-500 group-hover:text-blue-500 transition duration-150 block xl:hidden" />
       <PackageBoxSmall class="text-slate-500 group-hover:text-blue-500 transition duration-150 hidden xl:block" />
       <span class="text-slate-500 text-xs font-normal leading-5 group-hover:text-blue-500 transition duration-150">Packaging</span>
@@ -15,21 +12,15 @@
         v-click-outside="togglePackagingDetails"
         class="absolute border-[1px] p-3 xl:bottom-7 bottom-[76px] z-10 max-w-[216px] min-h-[176px] bg-[#FFF] rounded-xl shadow-l flex flex-col gap-3"
       >
-        <h2 class="text-neutral-700 text-sm font-medium leading-6">
-          Packaging Details
-        </h2>
+        <h2 class="text-neutral-700 text-sm font-medium leading-6">Packaging Details</h2>
         <p class="text-neutral-700 text-xs font-normal leading-5">
-          A tube is a rigid extruded plastic package designed to fit the profile of the part and protect the leads. Tubes ship
-          with the exact number of parts ordered and a rubber plug or plastic peg in each end to prevent the parts from sliding
-          out.
+          A tube is a rigid extruded plastic package designed to fit the profile of the part and protect the leads. Tubes ship with the
+          exact number of parts ordered and a rubber plug or plastic peg in each end to prevent the parts from sliding out.
         </p>
       </div>
     </Transition>
     <!-- Delivery toggle button and details display -->
-    <button
-      class="flex flex-col gap-2 items-center group xl:flex-row"
-      @click="toggleDeliveryDetails"
-    >
+    <button class="flex flex-col gap-2 items-center group xl:flex-row" @click="toggleDeliveryDetails">
       <DeliveryTruck class="text-slate-500 group-hover:text-blue-500 transition duration-150 block xl:hidden" />
       <DeliveryTruckSmall class="text-slate-500 group-hover:text-blue-500 transition duration-150 hidden xl:block" />
       <span class="text-slate-500 text-xs font-normal leading-5 group-hover:text-blue-500 transition duration-150">Delivery</span>
@@ -40,9 +31,7 @@
         v-click-outside="toggleDeliveryDetails"
         class="absolute border-[1px] p-3 xl:bottom-7 bottom-[76px] xl:left-12 left-[calc(25%-40px)] z-10 max-w-[240px] min-h-[176px] bg-[#FFF] rounded-xl shadow-l flex flex-col gap-3"
       >
-        <h2 class="text-neutral-700 text-sm font-medium leading-6">
-          Delivery Details
-        </h2>
+        <h2 class="text-neutral-700 text-sm font-medium leading-6">Delivery Details</h2>
         <p class="text-neutral-700 text-xs font-normal leading-5">
           Standard delivery time is min. 30 working days. The date needs confirmation. Contact us for enquiry.
         </p>
@@ -54,21 +43,12 @@
       </div>
     </Transition>
     <!-- Like and delete buttons -->
-    <button
-      class="relative flex flex-col gap-2 xl:hidden items-center group"
-      @click="cartStore.makeCartItemFavorite(item.id)"
-    >
-      <HeartSolid
-        v-show="item.liked"
-        class="absolute top-[1px] text-blue-500"
-      />
+    <button class="relative flex flex-col gap-2 xl:hidden items-center group" @click="cartStore.makeCartItemFavorite(item.id)">
+      <HeartSolid v-show="item.liked" class="absolute top-[1px] text-blue-500" />
       <HeartOutline class="w-5 h-5 text-slate-500 group-hover:text-blue-500 transition duration-150" />
       <span class="text-slate-500 text-xs font-normal leading-5 group-hover:text-blue-500 transition duration-150">Favourites</span>
     </button>
-    <button
-      class="flex flex-col gap-2 xl:hidden items-center group"
-      @click="emits('deleteItem')"
-    >
+    <button class="flex flex-col gap-2 xl:hidden items-center group" @click="emits('deleteItem')">
       <TrashOutlineBig class="text-slate-500 group-hover:text-rose-500 transition duration-150" />
       <span class="text-slate-500 text-xs font-normal leading-5 group-hover:text-rose-500 transition duration-150">Delete</span>
     </button>

@@ -37,12 +37,11 @@ async function waitForPreview(url, timeoutMs = 60_000) {
         await response.text();
         return;
       }
-    }
-    catch {
+    } catch {
       // Keep polling until the preview server is ready.
     }
 
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   throw new Error(`Timed out waiting for preview server at ${url}`);
@@ -78,13 +77,12 @@ async function runWithPreview() {
         SMOKE_BASE_URL: previewUrl,
       },
     });
-  }
-  finally {
+  } finally {
     if (!preview.killed) {
       preview.kill('SIGTERM');
     }
 
-    const exit = await Promise.race([previewExit, new Promise(resolve => setTimeout(() => resolve(null), 5000))]);
+    const exit = await Promise.race([previewExit, new Promise((resolve) => setTimeout(() => resolve(null), 5000))]);
 
     if (exit === null && !preview.killed) {
       preview.kill('SIGKILL');

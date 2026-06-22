@@ -29,11 +29,12 @@ This plan focuses only on **visual/demo UX** (not deep business logic).
 
 - Product media toolbar + gallery lives in `components/product/Gallery.vue` (icons are absolutely positioned on the right).
 - Product “manufacturer logo”/side image currently uses a plain `<img>` in `components/product/Details.vue`:
-    - `:src="product.details?.ProductImage.ProductImageLarge"` can be missing/invalid → broken image UI.
+  - `:src="product.details?.ProductImage.ProductImageLarge"` can be missing/invalid → broken image UI.
 - The project already has `components/global/ImageWithFallback.vue` used across search and gallery.
 - Data shape: `model/products/response/ProductDetailResponse.ts` → `product.details.ProductImage` is a `ProductImageInterface` (product imagery), not a guaranteed manufacturer logo.
 
 Related prior work:
+
 - Existing plan: `docs/plans/2026-02-25-fix-portfolio-demo-ui-flow-blockers-plan.md` (mentions product media resilience)
 - Learnings: `docs/solutions/ui-bugs/portfolio-demo-demo-readiness-fixes-system-20260225.md`
 
@@ -45,15 +46,15 @@ In `components/product/Details.vue`:
 
 - Replace the plain `<img>` with `ImageWithFallback` so missing media never renders a broken image icon.
 - If the intent is to show a **manufacturer logo** (not the product image), introduce a safe mapping:
-    - Option 1 (fast, demo-friendly): map known manufacturers → local assets (or a single neutral “brand” placeholder).
-    - Option 2 (data-driven): extend mock/product data to include `manufacturerLogoUrl` and use that field.
+  - Option 1 (fast, demo-friendly): map known manufacturers → local assets (or a single neutral “brand” placeholder).
+  - Option 2 (data-driven): extend mock/product data to include `manufacturerLogoUrl` and use that field.
 
 ### B) Fix action icons overlapping product image in the gallery card
 
 In `components/product/Gallery.vue`:
 
 - Move the icon column into a dedicated “toolbar” area that does not overlap media:
-    - Prefer a small right-side column (`grid grid-cols-[1fr_auto]`) or a top-right toolbar row.
+  - Prefer a small right-side column (`grid grid-cols-[1fr_auto]`) or a top-right toolbar row.
 - Ensure the media area has enough padding / layout separation so the image never sits under the icons.
 - Keep interactions intact and ensure tap targets are at least 44×44px (especially on mobile).
 
@@ -85,8 +86,8 @@ In `components/product/Gallery.vue`:
 - [x] Update `components/product/Details.vue` to use `ImageWithFallback` (or equivalent) for the right-side image.
 - [x] Refactor `components/product/Gallery.vue` layout to separate icons from media (no overlap).
 - [x] Quick manual QA:
-    - [x] `/product/prod-19` at `375px`, `768px`, `1440px`
-    - [x] A product with valid images (if available) and one with missing images
+  - [x] `/product/prod-19` at `375px`, `768px`, `1440px`
+  - [x] A product with valid images (if available) and one with missing images
 
 ## References
 

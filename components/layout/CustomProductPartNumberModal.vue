@@ -27,7 +27,7 @@
             readonly
             type="text"
             class="bg-transparent w-full px-2.5 py-[5px] border border-border rounded h-[42px] text-xl font-semibold leading-tight text-neutral-700 focus:outline-none"
-          >
+          />
         </label>
         <ArrowDownIcon class="w-6 h-6 my-[15px]" />
         <label class="block w-full mb-[43px]">
@@ -36,39 +36,25 @@
             type="text"
             placeholder="Type your custom part number here"
             class="bg-transparent w-full px-2.5 py-[9px] border border-border rounded h-[42px] text-sm focus:outline-none"
-          >
+          />
         </label>
         <div class="flex gap-2.5">
-          <button
-            class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white"
-            @click="submitSuccess = true"
-          >
+          <button class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white" @click="submitSuccess = true">
             Save
           </button>
-          <button
-            class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500"
-            @click="$emit('close')"
-          >
+          <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
             Cancel
           </button>
         </div>
       </div>
       <Transition name="fade">
-        <div
-          v-if="submitSuccess"
-          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-        >
+        <div v-if="submitSuccess" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
           <CheckIcon class="w-[140px] h-[140px] bg-green-500 mb-5" />
-          <div class="text-2xl text-slate-500">
-            Saved
-          </div>
+          <div class="text-2xl text-slate-500">Saved</div>
         </div>
       </Transition>
     </div>
-    <div
-      class="absolute top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer"
-      @click="$emit('close')"
-    />
+    <div class="absolute top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer" @click="$emit('close')" />
   </div>
 </template>
 

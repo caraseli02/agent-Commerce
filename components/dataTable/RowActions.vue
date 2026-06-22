@@ -51,17 +51,8 @@ const callAction = (option: ActionOptionsConfiguration) => {
 
 <template>
   <section class="flex justify-end items-center gap-3">
-    <UiBadge
-      v-if="discount"
-      class="h-[22px] text-xs !pt-[3px]"
-      variant="outline"
-    >
-      {{ discount }}%
-    </UiBadge>
-    <LockKeyholeIcon
-      v-if="lock"
-      class="w-5 h-5 text-slate-500 transition-colors duration-300 hover:text-blue-500"
-    />
+    <UiBadge v-if="discount" class="h-[22px] text-xs !pt-[3px]" variant="outline"> {{ discount }}% </UiBadge>
+    <LockKeyholeIcon v-if="lock" class="w-5 h-5 text-slate-500 transition-colors duration-300 hover:text-blue-500" />
     <svg
       class="text-slate-500 hover:text-blue-500 cursor-pointer"
       width="20"
@@ -117,34 +108,13 @@ const callAction = (option: ActionOptionsConfiguration) => {
         stroke-width="1.5"
         stroke-linejoin="round"
       />
-      <path
-        d="M14.1663 5.83301L5.83301 5.83301"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-      <path
-        d="M14.1663 10L5.83301 10"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-      <path
-        d="M9.99967 14.167L5.83301 14.167"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
+      <path d="M14.1663 5.83301L5.83301 5.83301" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M14.1663 10L5.83301 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M9.99967 14.167L5.83301 14.167" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
     <UiDropdownMenu :modal="false">
       <UiDropdownMenuTrigger as-child>
-        <UiButton
-          variant="ghost"
-          class="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-        >
+        <UiButton variant="ghost" class="flex h-8 w-8 p-0 data-[state=open]:bg-muted">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -157,48 +127,20 @@ const callAction = (option: ActionOptionsConfiguration) => {
             stroke-linejoin="round"
             class="lucide lucide-ellipsis-vertical h-4 w-4 text-slate-500 hover:text-blue-500 cursor-pointer"
           >
-            <circle
-              cx="12"
-              cy="12"
-              r="1"
-            />
-            <circle
-              cx="12"
-              cy="5"
-              r="1"
-            />
-            <circle
-              cx="12"
-              cy="19"
-              r="1"
-            />
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="12" cy="5" r="1" />
+            <circle cx="12" cy="19" r="1" />
           </svg>
           <span class="sr-only">Open menu</span>
         </UiButton>
       </UiDropdownMenuTrigger>
-      <UiDropdownMenuContent
-        align="end"
-        class="w-[167px]"
-      >
-        <template
-          v-for="(option, index) of props.options"
-          :key="index"
-        >
-          <UiDropdownMenuItem
-            v-if="!option.navigateToRoute"
-            :disabled="!option.enable || !option.actionFn"
-            @click="callAction(option)"
-          >
+      <UiDropdownMenuContent align="end" class="w-[167px]">
+        <template v-for="(option, index) of props.options" :key="index">
+          <UiDropdownMenuItem v-if="!option.navigateToRoute" :disabled="!option.enable || !option.actionFn" @click="callAction(option)">
             {{ option.label }}
           </UiDropdownMenuItem>
-          <UiDropdownMenuItem
-            v-if="!option.actionFn"
-            :disabled="!option.enable || !option.navigateToRoute"
-          >
-            <NuxtLink
-              class="w-full h-full"
-              :to="option.navigateToRoute"
-            >{{ option.label }}</NuxtLink>
+          <UiDropdownMenuItem v-if="!option.actionFn" :disabled="!option.enable || !option.navigateToRoute">
+            <NuxtLink class="w-full h-full" :to="option.navigateToRoute">{{ option.label }}</NuxtLink>
           </UiDropdownMenuItem>
         </template>
 

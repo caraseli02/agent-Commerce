@@ -22,7 +22,7 @@ const hasUserDetails = computed(() => Boolean(getUserDetails.value));
 const accountType = computed(() => getUserDetails.value?.accountType ?? AccountType.Business);
 const isPersonalAccount = computed(() => accountType.value === AccountType.Personal);
 const activeAddress = computed(() =>
-  isPersonalAccount.value ? getUserDetails.value?.personalDetails?.address : getUserDetails.value?.companyDetails?.address,
+  isPersonalAccount.value ? getUserDetails.value?.personalDetails?.address : getUserDetails.value?.companyDetails?.address
 );
 
 interface Country {
@@ -42,11 +42,11 @@ interface Region {
 
 const openEdit = ref(false);
 const country = ref<undefined | Country>(
-  activeAddress.value?.country ? (countries.find(c => c.value === activeAddress.value?.country) as Country) : undefined,
+  activeAddress.value?.country ? (countries.find((c) => c.value === activeAddress.value?.country) as Country) : undefined
 );
 
 const findRegionByName = (regions: Country['regions'] | undefined, name: string | undefined) => {
-  const region = regions?.find(region => region.name === name);
+  const region = regions?.find((region) => region.name === name);
   if (region) {
     return {
       label: region.name,
@@ -58,7 +58,7 @@ const findRegionByName = (regions: Country['regions'] | undefined, name: string 
 
 const region = ref<undefined | Region>(findRegionByName(country.value?.regions, activeAddress.value?.region));
 
-const regions = ref<Region[]>(country.value?.regions.map(e => ({ label: e.name, value: e.name })) || []);
+const regions = ref<Region[]>(country.value?.regions.map((e) => ({ label: e.name, value: e.name })) || []);
 
 const baseSchema = z.object({
   country: z
@@ -132,7 +132,7 @@ const formSchema = toTypedSchema(
       })
       .min(1)
       .default(getUserDetails.value?.personalDetails?.lastName || ''),
-  }),
+  })
 );
 
 const formBusinessSchema = toTypedSchema(
@@ -178,7 +178,7 @@ const formBusinessSchema = toTypedSchema(
       .default(getUserDetails.value?.companyDetails?.bank_iban || '')
       .transform((e: string) => (e === '' ? undefined : e))
       .optional(),
-  }),
+  })
 );
 
 const { handleSubmit, setFieldValue, meta } = useForm({
@@ -216,8 +216,7 @@ const onSubmit = handleSubmit(async (values) => {
     if (response.status === 'success') {
       // noop
     }
-  }
-  else {
+  } else {
     const businessValues = values as unknown as z.infer<typeof baseSchema> & {
       companyName: string;
       registrationNumber: string;
@@ -259,17 +258,16 @@ const onSubmit = handleSubmit(async (values) => {
 watch(country, (newCountry) => {
   if (newCountry) {
     setFieldValue('country', newCountry.value);
-    country.value = countries.find(c => c.value === newCountry.value) as Country;
-    regions.value
-            = newCountry.regions.map((e) => {
+    country.value = countries.find((c) => c.value === newCountry.value) as Country;
+    regions.value =
+      newCountry.regions.map((e) => {
         return {
           label: e.name,
           value: e.name,
         };
       }) || [];
     region.value = findRegionByName(country.value?.regions, activeAddress.value?.region);
-  }
-  else {
+  } else {
     region.value = undefined;
   }
 });
@@ -277,23 +275,17 @@ watch(country, (newCountry) => {
 watch(region, (newRegion) => {
   if (newRegion) {
     setFieldValue('county', newRegion.value);
-  }
-  else {
+  } else {
     region.value = undefined;
   }
 });
 </script>
 
 <template>
-  <div
-    v-if="hasUserDetails"
-    class="bg-white shadow-l rounded-xl"
-  >
+  <div v-if="hasUserDetails" class="bg-white shadow-l rounded-xl">
     <section class="flex flex-col self-stretch p-4 md:p-6 bg-white rounded-xl shadow-sm">
       <header class="flex flex-col md:flex-row gap-2.5 justify-between w-full max-md:flex-wrap max-md:max-w-full">
-        <h2 class="self-start text-xl font-semibold leading-7 text-neutral-700">
-          Account Details
-        </h2>
+        <h2 class="self-start text-xl font-semibold leading-7 text-neutral-700">Account Details</h2>
         <div class="flex flex-col md:flex-row gap-3 text-sm font-medium leading-6 text-gray-500">
           <UiButton
             :class="openEdit ? 'text-white' : 'text-slate-500'"
@@ -303,128 +295,68 @@ watch(region, (newRegion) => {
             <FilePenLineIcon class="w-5 h-5 stroke-1.5 mr-2" />
             <span>Edit</span>
           </UiButton>
-          <UiButton
-            class="text-slate-500"
-            variant="secondary"
-          >
+          <UiButton class="text-slate-500" variant="secondary">
             <CopyIcon class="w-5 h-5 stroke-1.5 mr-2" />
             <span>Copy Details</span>
           </UiButton>
         </div>
       </header>
-      <form
-        class="mt-9 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-9"
-        @submit="onSubmit"
-      >
-        <FormField
-          v-if="getUserDetails.accountType !== AccountType.Personal"
-          v-slot="{ componentField }"
-          name="companyName"
-        >
+      <form class="mt-9 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-9" @submit="onSubmit">
+        <FormField v-if="getUserDetails.accountType !== AccountType.Personal" v-slot="{ componentField }" name="companyName">
           <FormItem>
             <FormLabel>Company Name</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="Company Name"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="Company Name" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-if="getUserDetails.accountType !== AccountType.Personal"
-          v-slot="{ componentField }"
-          name="registrationNumber"
-        >
+        <FormField v-if="getUserDetails.accountType !== AccountType.Personal" v-slot="{ componentField }" name="registrationNumber">
           <FormItem>
             <FormLabel>Company Registration Number</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="ABC123456"
-                v-bind="componentField"
-                :disabled="true"
-              />
+              <Input type="text" placeholder="ABC123456" v-bind="componentField" :disabled="true" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-if="getUserDetails.accountType !== AccountType.Personal"
-          v-slot="{ componentField }"
-          name="taxId"
-        >
+        <FormField v-if="getUserDetails.accountType !== AccountType.Personal" v-slot="{ componentField }" name="taxId">
           <FormItem>
             <FormLabel>Tax ID</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="ABC123456"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="ABC123456" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-if="getUserDetails.accountType !== AccountType.Personal"
-          v-slot="{ componentField }"
-          name="vatNumber"
-        >
+        <FormField v-if="getUserDetails.accountType !== AccountType.Personal" v-slot="{ componentField }" name="vatNumber">
           <FormItem>
             <FormLabel>V.A.T Number</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="ABC123456"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="ABC123456" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-if="getUserDetails.accountType === AccountType.Personal"
-          v-slot="{ componentField }"
-          name="firstName"
-        >
+        <FormField v-if="getUserDetails.accountType === AccountType.Personal" v-slot="{ componentField }" name="firstName">
           <FormItem>
             <FormLabel>First Name</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="First Name"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="First Name" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-if="getUserDetails.accountType === AccountType.Personal"
-          v-slot="{ componentField }"
-          name="lastName"
-        >
+        <FormField v-if="getUserDetails.accountType === AccountType.Personal" v-slot="{ componentField }" name="lastName">
           <FormItem>
             <FormLabel>Last Name</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="Last Name"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="Last Name" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -469,198 +401,105 @@ watch(region, (newRegion) => {
           </FormItem>
         </FormField>
 
-        <FormField
-          v-slot="{ componentField }"
-          name="city"
-        >
+        <FormField v-slot="{ componentField }" name="city">
           <FormItem>
             <FormLabel>City</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="City"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="City" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-slot="{ componentField }"
-          name="addressLine1"
-        >
+        <FormField v-slot="{ componentField }" name="addressLine1">
           <FormItem>
             <FormLabel>Address Line 1</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="Address Line 1"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="Address Line 1" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-slot="{ componentField }"
-          name="addressLine2"
-        >
+        <FormField v-slot="{ componentField }" name="addressLine2">
           <FormItem>
             <FormLabel>Address Line 2</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="Address Line 2"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="Address Line 2" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-slot="{ componentField }"
-          name="postcode"
-        >
+        <FormField v-slot="{ componentField }" name="postcode">
           <FormItem>
             <FormLabel>Postcode</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="Postcode"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="Postcode" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-slot="{ componentField }"
-          name="phoneNumber"
-        >
+        <FormField v-slot="{ componentField }" name="phoneNumber">
           <FormItem>
             <FormLabel>Phone Number</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="+1 (555) 867-5309"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="+1 (555) 867-5309" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
-        <FormField
-          v-slot="{ componentField }"
-          name="mobile"
-        >
+        <FormField v-slot="{ componentField }" name="mobile">
           <FormItem>
             <FormLabel>Mobile Number</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="+1 (555) 867-5309"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="+1 (555) 867-5309" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
-        <FormField
-          v-if="getUserDetails.accountType !== AccountType.Personal"
-          v-slot="{ componentField }"
-          name="bankName"
-        >
+        <FormField v-if="getUserDetails.accountType !== AccountType.Personal" v-slot="{ componentField }" name="bankName">
           <FormItem>
             <FormLabel>Bank Name</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                v-bind="componentField"
-                placeholder="Bank Name"
-                :disabled="!openEdit"
-              />
+              <Input type="text" v-bind="componentField" placeholder="Bank Name" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-if="getUserDetails.accountType !== AccountType.Personal"
-          v-slot="{ componentField }"
-          name="iban"
-        >
+        <FormField v-if="getUserDetails.accountType !== AccountType.Personal" v-slot="{ componentField }" name="iban">
           <FormItem>
             <FormLabel>IBAN</FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="ABCD 1234 5678 9012 3456 78"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="text" placeholder="ABCD 1234 5678 9012 3456 78" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <FormField
-          v-slot="{ componentField }"
-          name="email"
-        >
+        <FormField v-slot="{ componentField }" name="email">
           <FormItem>
             <FormLabel>{{ getUserDetails.accountType !== AccountType.Personal ? 'Company Email' : 'Email' }}</FormLabel>
             <FormControl>
-              <Input
-                type="email"
-                placeholder="youremail@gmail.com"
-                v-bind="componentField"
-                :disabled="!openEdit"
-              />
+              <Input type="email" placeholder="youremail@gmail.com" v-bind="componentField" :disabled="!openEdit" />
             </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
-        <div
-          v-if="openEdit"
-          class="flex flex-col md:flex-row justify-end gap-4 md:col-span-2"
-        >
-          <Button
-            variant="secondary"
-            type="reset"
-            @click="openEdit = !openEdit"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            class="md:w-60"
-          >
-            Save
-          </Button>
+        <div v-if="openEdit" class="flex flex-col md:flex-row justify-end gap-4 md:col-span-2">
+          <Button variant="secondary" type="reset" @click="openEdit = !openEdit"> Cancel </Button>
+          <Button type="submit" class="md:w-60"> Save </Button>
         </div>
       </form>
     </section>
   </div>
-  <div
-    v-else
-    class="bg-white shadow-l rounded-xl p-6 text-sm text-slate-500"
-  >
-    Loading account details...
-  </div>
+  <div v-else class="bg-white shadow-l rounded-xl p-6 text-sm text-slate-500">Loading account details...</div>
 </template>
 
 <style scoped lang="postcss">
 label {
-    @apply text-slate-500;
+  @apply text-slate-500;
 }
 </style>

@@ -1,9 +1,7 @@
 <template>
   <section class="mb-7 md:mb-[38px] xl:mb-[58px]">
     <div class="container">
-      <h2 class="text-xl font-semibold mb-[11px] md:mb-4">
-        News
-      </h2>
+      <h2 class="text-xl font-semibold mb-[11px] md:mb-4">News</h2>
       <Swiper
         :modules="[A11y, Pagination]"
         :slides-per-view="3"
@@ -23,19 +21,9 @@
         }"
         class="homeNews--swiper"
       >
-        <SwiperSlide
-          v-for="(item, index) in news"
-          :key="index"
-        >
-          <NuxtLink
-            :to="`/`"
-            class="flex flex-col rounded-md bg-white shadow-xs"
-          >
-            <img
-              :src="item.cover"
-              alt="Cover"
-              class="aspect-[1.69] rounded-t-md md:aspect-[1.76] lg:aspect-[2.11]"
-            >
+        <SwiperSlide v-for="(item, index) in news" :key="index">
+          <NuxtLink :to="`/`" class="flex flex-col rounded-md bg-white shadow-xs">
+            <img :src="item.cover" alt="Cover" class="aspect-[1.69] rounded-t-md md:aspect-[1.76] lg:aspect-[2.11]" />
             <div
               class="flex flex-col items-center text-center font-Inter p-[5px] md:px-[15px] md:pt-2.5 md:pb-[15px] md:items-start md:text-left xl:p-[15px]"
             >
@@ -139,16 +127,16 @@ const news = ref([
 
 <style lang="scss">
 .homeNews--swiper {
-    @apply px-1 pt-1 pb-[30px] #{!important};
+  @apply px-1 pt-1 pb-[30px] #{!important};
 }
 .homeNews--swiper .swiper-pagination {
-    @apply bottom-0  space-x-1.5 md:space-x-2 #{!important};
+  @apply bottom-0  space-x-1.5 md:space-x-2 #{!important};
 }
 .homeNews--swiper .swiper-pagination-bullet {
-    @apply w-1.5 h-1.5 bg-gray-200  rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
-    margin-right: 0 !important;
+  @apply w-1.5 h-1.5 bg-gray-200  rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  margin-right: 0 !important;
 }
 .homeNews--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-    @apply w-[25px] bg-gray-300 #{!important};
+  @apply w-[25px] bg-gray-300 #{!important};
 }
 </style>

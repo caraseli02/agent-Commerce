@@ -4,31 +4,18 @@
     :class="[isCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:w-[calc(100%-280px)]']"
   >
     <div class="max-w-full mx-auto flex items-center justify-between px-4 py-3 transition-all duration-300 md:py-4 2xl:px-6">
-      <button
-        class="flex md:opacity-0 md:pointer-events-none md:hidden"
-        @click="$emit('show-side-nav')"
-      >
+      <button class="flex md:opacity-0 md:pointer-events-none md:hidden" @click="$emit('show-side-nav')">
         <BurgerIcon class="w-6 h-6 text-slate-500" />
       </button>
-      <DashboardSearch
-        v-model="searchValue"
-        placeholder="Search"
-        class="w-[400px] max-md:hidden"
-      />
+      <DashboardSearch v-model="searchValue" placeholder="Search" class="w-[400px] max-md:hidden" />
       <div class="flex items-center">
-        <button
-          class="flex mr-4 md:mr-8 md:hidden"
-          @click="showMobileSearch = !showMobileSearch"
-        >
+        <button class="flex mr-4 md:mr-8 md:hidden" @click="showMobileSearch = !showMobileSearch">
           <SearchIcon class="w-6 h-6 text-slate-500" />
         </button>
         <button class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 mr-8 max-md:hidden">
           <PlusIcon class="w-6 h-6 text-slate-500" />
         </button>
-        <button
-          v-if="$route.name === 'dashboard-customers-slug'"
-          class="flex mr-4 md:mr-8"
-        >
+        <button v-if="$route.name === 'dashboard-customers-slug'" class="flex mr-4 md:mr-8">
           <SettingsIcon class="w-6 h-6 text-slate-500" />
         </button>
         <div class="relative flex items-center">
@@ -54,14 +41,7 @@
                     class="flex items-center text-slate-500 transition-colors duration-300 hover:text-blue-500 md:hidden"
                     @click="showNotifications = false"
                   >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-4 h-4 mr-2"
-                    >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2">
                       <path
                         d="M6.3826 3.95312L2.33594 7.99979L6.3826 12.0465"
                         stroke="currentColor"
@@ -106,22 +86,18 @@
                           :class="[
                             notification.title === 'Others'
                               ? 'text-slate-500'
-                              : notification.title === 'Password change'
-                                || notification.title === 'Reset password'
-                                ? 'text-blue-500'
-                                : notification.title === 'Removed'
-                                  ? 'text-rose-500'
-                                  : notification.title === 'Completed'
-                                    ? 'text-[#00D395]'
-                                    : notification.title === 'Pending'
-                                      ? 'text-[#FFB100]'
-                                      : 'text-[#A460BC]',
+                              : notification.title === 'Password change' || notification.title === 'Reset password'
+                              ? 'text-blue-500'
+                              : notification.title === 'Removed'
+                              ? 'text-rose-500'
+                              : notification.title === 'Completed'
+                              ? 'text-[#00D395]'
+                              : notification.title === 'Pending'
+                              ? 'text-[#FFB100]'
+                              : 'text-[#A460BC]',
                           ]"
                         />
-                        <span
-                          v-if="!notification.seen"
-                          class="flex w-2 h-2 flex-shrink-0 bg-blue-500 rounded-full mr-2"
-                        />
+                        <span v-if="!notification.seen" class="flex w-2 h-2 flex-shrink-0 bg-blue-500 rounded-full mr-2" />
                         <span class="capitalize text-sm leading-[1.43] font-medium">
                           {{ notification.title }}
                         </span>
@@ -162,10 +138,7 @@
                   </NuxtLink>
                 </div>
                 <div class="flex justify-center py-4 shadow-s relative z-10">
-                  <NuxtLink
-                    to="/"
-                    class="flex items-center text-blue-500"
-                  >
+                  <NuxtLink to="/" class="flex items-center text-blue-500">
                     <span class="text-sm leading-[1.43] font-medium mr-2"> View all </span>
                     <svg
                       width="16"
@@ -198,19 +171,10 @@
             </Transition>
           </div>
           <div class="relative">
-            <button
-              class="flex items-center text-left"
-              @click="showOptions = !showOptions"
-            >
+            <button class="flex items-center text-left" @click="showOptions = !showOptions">
               <div class="relative lg:mr-4">
-                <img
-                  src="@/assets/icons/dashboard/avatar.png"
-                  alt="Avatar"
-                  class="w-11 h-11 rounded-full object-cover"
-                >
-                <div
-                  class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white"
-                />
+                <img src="@/assets/icons/dashboard/avatar.png" alt="Avatar" class="w-11 h-11 rounded-full object-cover" />
+                <div class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white" />
               </div>
               <div class="flex flex-col max-lg:hidden">
                 <div class="leading-normal font-medium">
@@ -264,27 +228,17 @@
           >
             <div class="flex items-center border border-border bg-white rounded-lg pr-3">
               <label class="relative z-10 flex-1 flex items-center">
-                <form
-                  action=""
-                  @submit.prevent
-                >
+                <form action="" @submit.prevent>
                   <input
                     v-model="searchValue"
                     type="search"
                     placeholder="Search"
                     class="bg-transparent flex-1 w-full px-3 py-2.5 text-sm leading-[1.43] placeholder:text-gray-500 focus:outline-none"
-                  >
+                  />
                 </form>
               </label>
-              <SearchIcon
-                v-if="!searchValue"
-                class="flex-shrink-0 w-5 h-5 text-gray-500"
-              />
-              <button
-                v-else
-                class="flex"
-                @click.stop="searchValue = ''"
-              >
+              <SearchIcon v-if="!searchValue" class="flex-shrink-0 w-5 h-5 text-gray-500" />
+              <button v-else class="flex" @click.stop="searchValue = ''">
                 <XIcon class="flex-shrink-0 w-5 h-5 text-gray-500" />
               </button>
             </div>
@@ -360,23 +314,22 @@ const fetchNofications = async () => {
   error.value = false;
   isLoading.value = true;
 
-    type NotificationsResponse = { status: string; description: Notification[] };
-    const response = (await $api.notifications.fetchGetNotifications()) as unknown as NotificationsResponse;
-    if (response.status !== 'success') {
-      isLoading.value = false;
-      error.value = true;
+  type NotificationsResponse = { status: string; description: Notification[] };
+  const response = (await $api.notifications.fetchGetNotifications()) as unknown as NotificationsResponse;
+  if (response.status !== 'success') {
+    isLoading.value = false;
+    error.value = true;
 
-      return;
+    return;
+  } else {
+    isLoading.value = false;
+  }
+  notifications.value = response.description;
+  notifications.value.forEach((notification) => {
+    if (notification.seen === false) {
+      unreadNotifications.value++;
     }
-    else {
-      isLoading.value = false;
-    }
-    notifications.value = response.description;
-    notifications.value.forEach((notification) => {
-      if (notification.seen === false) {
-        unreadNotifications.value++;
-      }
-    });
+  });
 };
 
 const handleSignOut = async () => {
@@ -425,19 +378,19 @@ Promise.all([fetchNofications()]);
 
 <style lang="scss">
 .notifications-scroll {
-    scrollbar-width: thin;
+  scrollbar-width: thin;
 
-    &::-webkit-scrollbar {
-        @apply w-1;
-    }
+  &::-webkit-scrollbar {
+    @apply w-1;
+  }
 
-    &::-webkit-scrollbar-track {
-        @apply bg-[#f5f5f5];
-    }
+  &::-webkit-scrollbar-track {
+    @apply bg-[#f5f5f5];
+  }
 
-    &::-webkit-scrollbar-thumb {
-        background: #d4d4d4;
-        @apply rounded-[100px] border-[#f5f5f5];
-    }
+  &::-webkit-scrollbar-thumb {
+    background: #d4d4d4;
+    @apply rounded-[100px] border-[#f5f5f5];
+  }
 }
 </style>

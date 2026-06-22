@@ -19,11 +19,11 @@ const priceRange = ref<PriceRangeType>({ min: null, max: null, label: null });
 // Handle the "Create" button click
 const handleCreate = async () => {
   if (
-    priceRange.value.min === null
-    || priceRange.value.max === null
-    || priceRange.value.min >= priceRange.value.max
-    || priceRange.value.min < 0
-    || priceRange.value.max < 0
+    priceRange.value.min === null ||
+    priceRange.value.max === null ||
+    priceRange.value.min >= priceRange.value.max ||
+    priceRange.value.min < 0 ||
+    priceRange.value.max < 0
   ) {
     // Add your logic here to handle the creation without the price range values
     return;
@@ -40,8 +40,7 @@ const handleCreate = async () => {
       return;
     }
     await pricingStore.updateAndReturnPricing();
-  }
-  else if (pricingStore.type === 'add') {
+  } else if (pricingStore.type === 'add') {
     const response = await $api.smartPricing.setNewPriceRange({
       min: priceRange.value.min,
       max: priceRange.value.max,
@@ -70,20 +69,9 @@ const handleCreate = async () => {
       </div>
       <UiDialogFooter class="gap-4 sm:justify-start">
         <UiDialogClose as-child>
-          <UiButton
-            type="button"
-            variant="secondary"
-          >
-            Cancel
-          </UiButton>
+          <UiButton type="button" variant="secondary"> Cancel </UiButton>
         </UiDialogClose>
-        <UiButton
-          class="w-full"
-          type="button"
-          @click="handleCreate()"
-        >
-          Create
-        </UiButton>
+        <UiButton class="w-full" type="button" @click="handleCreate()"> Create </UiButton>
       </UiDialogFooter>
     </UiDialogContent>
   </UiDialog>

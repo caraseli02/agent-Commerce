@@ -9,5 +9,5 @@ export const accountType = [
 ];
 
 export function getCustomerTypeInfo(type: number): AccountTypeInfo | null {
-  return accountType.find(item => item.value === type) as unknown as AccountTypeInfo | null;
+  return accountType.find((item) => item.value === type) as unknown as AccountTypeInfo | null;
 }

@@ -16,7 +16,7 @@ export interface AccountTypeInfo {
 }
 
 export const getAccountTypeById = (enumValue: number): string | null => {
-  const keys = (Object.keys(AccountType) as Array<keyof typeof AccountType>).filter(key => AccountType[key] === enumValue);
+  const keys = (Object.keys(AccountType) as Array<keyof typeof AccountType>).filter((key) => AccountType[key] === enumValue);
   return keys.length > 0 ? keys[0] : null;
 };
 

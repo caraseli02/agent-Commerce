@@ -23,11 +23,7 @@ class OrdersService extends HttpFactory {
   }
 
   async sendOrder(order: OrderRequestInterface) {
-    return await this.call<unknown>(
-      'POST',
-      `${this.ORDERS_RESOURCE}/new`,
-      { ...order },
-    );
+    return await this.call<unknown>('POST', `${this.ORDERS_RESOURCE}/new`, { ...order });
   }
 
   async createAndRetrieveSetupIntent() {
@@ -39,11 +35,7 @@ class OrdersService extends HttpFactory {
   }
 
   async getShippingPricesForOrder(order: unknown) {
-    return await this.call<unknown>(
-      'POST',
-      `${this.ORDERS_RESOURCE}/price`,
-      { order },
-    );
+    return await this.call<unknown>('POST', `${this.ORDERS_RESOURCE}/price`, { order });
   }
 
   async validateAddress(address: ShippingAddressInterface) {
@@ -59,11 +51,7 @@ class OrdersService extends HttpFactory {
   }
 
   async changeStatus(id: string, status: OrderStatus) {
-    return await this.call<unknown>(
-      'POST',
-      `${this.ORDERS_RESOURCE}/${id}`,
-      { status },
-    );
+    return await this.call<unknown>('POST', `${this.ORDERS_RESOURCE}/${id}`, { status });
   }
 
   async retryFailedShippingOrders(id: string) {

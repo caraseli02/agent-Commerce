@@ -1,9 +1,7 @@
 <template>
   <div class="py-20 md:py-[120px] lg:py-[150px] xl:pb-[276px]">
     <div class="container max-w-[406px]">
-      <h1 class="text-xl leading-[1.4] font-semibold text-center mb-10">
-        Verify your email
-      </h1>
+      <h1 class="text-xl leading-[1.4] font-semibold text-center mb-10">Verify your email</h1>
       <div class="grid gap-4 mt-4">
         <button
           class="flex items-center justify-center p-2 rounded-lg bg-blue-500 leading-[1.67] h-12 text-white font-medium"

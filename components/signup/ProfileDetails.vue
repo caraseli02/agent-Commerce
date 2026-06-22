@@ -3,23 +3,13 @@
     <div class="container h-full">
       <div class="flex flex-col h-full md:max-w-[410px] md:mx-auto">
         <div class="flex items-center mb-5">
-          <div class="font-medium mr-2 md:text-xl">
-            Profile Details
-          </div>
+          <div class="font-medium mr-2 md:text-xl">Profile Details</div>
           <QuestionIcon class="w-5 h-5 text-gray-500" />
         </div>
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
-            <label
-              v-if="!firebaseToken"
-              class="flex items-center cursor-pointer"
-            >
-              <input
-                :value="details.useContactEmail"
-                type="checkbox"
-                class="sr-only"
-                @change="useContactEmailCheck"
-              >
+            <label v-if="!firebaseToken" class="flex items-center cursor-pointer">
+              <input :value="details.useContactEmail" type="checkbox" class="sr-only" @change="useContactEmailCheck" />
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2.5"
                 :class="[
@@ -28,17 +18,11 @@
                     : 'bg-white  border-border group-hover:border-gray-300',
                 ]"
               >
-                <CheckIcon
-                  v-if="details.useContactEmail"
-                  class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-                />
+                <CheckIcon v-if="details.useContactEmail" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
               </div>
               <span class="text-sm text-slate-500"> Use Contact E-mail </span>
             </label>
-            <div
-              v-if="firebaseToken"
-              class="bg-amber-400 px-3 py-1 rounded"
-            >
+            <div v-if="firebaseToken" class="bg-amber-400 px-3 py-1 rounded">
               <small>You are logged in with Google, so you are not allowed to change your email account.</small>
             </div>
             <FormInput
@@ -73,9 +57,7 @@
               placeholder="Repeat Password"
             />
             <div class="flex items-center justify-between my-[15px]">
-              <div class="text-sm leading-tight text-slate-500">
-                Subscribe to our newsletter
-              </div>
+              <div class="text-sm leading-tight text-slate-500">Subscribe to our newsletter</div>
               <button
                 class="relative w-10 h-[22px] rounded-[25px] transition-colors duration-300"
                 :class="[details.subscribeToNewsletter ? 'bg-blue-500 ' : 'bg-border']"
@@ -88,12 +70,7 @@
               </button>
             </div>
             <label class="flex items-start cursor-pointer">
-              <input
-                :value="details.agreeToTerms"
-                type="checkbox"
-                class="sr-only"
-                @change="details.agreeToTerms = !details.agreeToTerms"
-              >
+              <input :value="details.agreeToTerms" type="checkbox" class="sr-only" @change="details.agreeToTerms = !details.agreeToTerms" />
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2.5"
                 :class="[
@@ -102,26 +79,14 @@
                     : 'bg-white  border-border group-hover:border-gray-300',
                 ]"
               >
-                <CheckIcon
-                  v-if="details.agreeToTerms"
-                  class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-                />
+                <CheckIcon v-if="details.agreeToTerms" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
               </div>
               <span class="text-xs text-slate-500">
                 I have read and agreed to Demo's
-                <NuxtLink
-                  to="/"
-                  class="text-blue-500 font-medium"
-                >Terms of Service</NuxtLink>,
-                <NuxtLink
-                  to="/"
-                  class="text-blue-500 font-medium"
-                >Privacy Policy</NuxtLink>
+                <NuxtLink to="/" class="text-blue-500 font-medium">Terms of Service</NuxtLink>,
+                <NuxtLink to="/" class="text-blue-500 font-medium">Privacy Policy</NuxtLink>
                 and
-                <NuxtLink
-                  to="/"
-                  class="text-blue-500 font-medium"
-                >Cookie Policy</NuxtLink>.
+                <NuxtLink to="/" class="text-blue-500 font-medium">Cookie Policy</NuxtLink>.
               </span>
             </label>
           </div>
@@ -131,10 +96,7 @@
                         </p>
                     </div> -->
           <div class="flex items-center justify-between">
-            <button
-              class="flex items-center rounded bg-gray-100 px-[22px] py-[11px] text-slate-500"
-              @click="$emit('back')"
-            >
+            <button class="flex items-center rounded bg-gray-100 px-[22px] py-[11px] text-slate-500" @click="$emit('back')">
               <ChevronRightIcon class="w-3 h-3 mr-2 rotate-180" />
               <span class="text-sm font-medium">Back</span>
             </button>
@@ -150,10 +112,7 @@
         </div>
         <div class="text-xs text-center text-slate-500 mt-auto">
           For assistance please contact
-          <a
-            href="mailto:support@demo.app"
-            class="text-blue-500"
-          > support@demo.app </a>
+          <a href="mailto:support@demo.app" class="text-blue-500"> support@demo.app </a>
         </div>
       </div>
     </div>
@@ -189,8 +148,7 @@ const useContactEmailCheck = () => {
     if (selectedType.value === 'business' || selectedType.value === 'sole-trader') {
       details.value.accountEmail.value = details.value.useContactEmail ? contact.value.companyEmail.value : '';
       details.value.confirmAccountEmail.value = details.value.useContactEmail ? contact.value.companyEmail.value : '';
-    }
-    else {
+    } else {
       details.value.accountEmail.value = details.value.useContactEmail ? contact.value.email.value : '';
       details.value.confirmAccountEmail.value = details.value.useContactEmail ? contact.value.email.value : '';
     }

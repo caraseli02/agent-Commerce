@@ -24,12 +24,7 @@ const options = computed(() => {
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger class="w-full">
-      <UiButton
-        :disabled="isLocked"
-        class="gap-1 w-full justify-start"
-        size="sm"
-        variant="ghost"
-      >
+      <UiButton :disabled="isLocked" class="gap-1 w-full justify-start" size="sm" variant="ghost">
         <MoveIcon class="w-4 h-4" />
         Move
       </UiButton>
@@ -40,12 +35,7 @@ const options = computed(() => {
       </UiDialogHeader>
       <div class="grid gap-4 py-4">
         <div class="flex flex-col items-start gap-4">
-          <UiLabel
-            for="destination"
-            class="text-right"
-          >
-            Destination Category
-          </UiLabel>
+          <UiLabel for="destination" class="text-right"> Destination Category </UiLabel>
           <UiSelect v-model="selected">
             <UiSelectTrigger>
               <UiSelectValue placeholder="Select a Category" />
@@ -53,11 +43,7 @@ const options = computed(() => {
             <UiSelectContent>
               <UiSelectGroup>
                 <UiSelectLabel>Category</UiSelectLabel>
-                <UiSelectItem
-                  v-for="item in options"
-                  :key="item.id"
-                  :value="item.id"
-                >
+                <UiSelectItem v-for="item in options" :key="item.id" :value="item.id">
                   {{ item.name }}
                 </UiSelectItem>
               </UiSelectGroup>
@@ -66,21 +52,8 @@ const options = computed(() => {
         </div>
       </div>
       <UiDialogFooter>
-        <UiButton
-          :disabled="isLocked"
-          variant="secondary"
-          type="submit"
-          @click="isOpen = false"
-        >
-          Cancel
-        </UiButton>
-        <UiButton
-          :disabled="isLocked"
-          type="submit"
-          @click="handleMove"
-        >
-          Move
-        </UiButton>
+        <UiButton :disabled="isLocked" variant="secondary" type="submit" @click="isOpen = false"> Cancel </UiButton>
+        <UiButton :disabled="isLocked" type="submit" @click="handleMove"> Move </UiButton>
       </UiDialogFooter>
     </UiDialogContent>
   </UiDialog>

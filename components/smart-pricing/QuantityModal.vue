@@ -24,14 +24,13 @@ watch(
             max: Number(value.split(' - ')[1] || 0),
           }));
         }
-      }
-      else {
+      } else {
         pricingStore.type = 'add';
         quantityList.value = [{ id: 1, min: 0, max: 0 }];
       }
     }
   },
-  { deep: true },
+  { deep: true }
 );
 
 function addQuantity() {
@@ -39,11 +38,11 @@ function addQuantity() {
 }
 
 function removeQuantity(id: number) {
-  quantityList.value = quantityList.value.filter(q => q.id !== id);
+  quantityList.value = quantityList.value.filter((q) => q.id !== id);
 }
 
 function updateQuantity(id: number, quantity: { min: number; max: number }) {
-  const index = quantityList.value.findIndex(q => q.id === id);
+  const index = quantityList.value.findIndex((q) => q.id === id);
   if (index !== -1) {
     quantityList.value[index] = { ...quantityList.value[index], ...quantity };
   }
@@ -52,7 +51,7 @@ function updateQuantity(id: number, quantity: { min: number; max: number }) {
 const createNewQuantityTemplate = async () => {
   if (
     quantityList.value.find(
-      item => Number(item.min) >= Number(item.max) || Number(item.min) < 0 || Number(item.max) < 0 || Number(item.max) === 0,
+      (item) => Number(item.min) >= Number(item.max) || Number(item.min) < 0 || Number(item.max) < 0 || Number(item.max) === 0
     )
   ) {
     // Add your logic here to handle the creation without the price range values
@@ -62,7 +61,7 @@ const createNewQuantityTemplate = async () => {
     const editedQuantityObject = {
       label: editQuantityModal.value.label,
       type: PriceSettingsTypeEnum.Quantity,
-      values: quantityList.value.map(item => Number(item.max)),
+      values: quantityList.value.map((item) => Number(item.max)),
     };
 
     const response = await $api.smartPricing.editPriceRange(editedQuantityObject, editQuantityModal.value._id ?? '');
@@ -71,9 +70,8 @@ const createNewQuantityTemplate = async () => {
       return;
     }
     await pricingStore.updateAndReturnPricing();
-  }
-  else if (type.value === 'add') {
-    const maxValues = quantityList.value.map(item => item.max);
+  } else if (type.value === 'add') {
+    const maxValues = quantityList.value.map((item) => item.max);
 
     const response = await $api.smartPricing.setNewQuantityRange({
       values: maxValues,
@@ -106,12 +104,7 @@ const createNewQuantityTemplate = async () => {
         />
       </section>
       <UiDialogFooter class="sm:justify-start">
-        <UiButton
-          type="button"
-          class="min-w-10 h-10 p-0"
-          variant="secondary"
-          @click="addQuantity()"
-        >
+        <UiButton type="button" class="min-w-10 h-10 p-0" variant="secondary" @click="addQuantity()">
           <PlusIcon class="w-6 h-6" />
         </UiButton>
         <UiButton

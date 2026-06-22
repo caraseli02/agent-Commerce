@@ -3,7 +3,7 @@ import { PriceSettingsTypeEnum, type PriceSettingsInterface, type SmartPricingOp
 export const smartPricingRange = (pricing: PriceSettingsInterface[] | []): SmartPricingOption[] => {
   return pricing
     ? pricing
-        .filter(smartPricing => smartPricing.type === PriceSettingsTypeEnum.Range)
+        .filter((smartPricing) => smartPricing.type === PriceSettingsTypeEnum.Range)
         .map((item, index) => ({
           selected: false,
           value: item.range ? [`$${item.range.min} - $${item.range.max}`] : [],
@@ -15,7 +15,7 @@ export const smartPricingRange = (pricing: PriceSettingsInterface[] | []): Smart
 
 export const smartPricingQuantity = (pricing: PriceSettingsInterface[] | []): SmartPricingOption[] => {
   return pricing
-    .filter(smartPricing => smartPricing.type === PriceSettingsTypeEnum.Quantity)
+    .filter((smartPricing) => smartPricing.type === PriceSettingsTypeEnum.Quantity)
     .map((item, index) => ({
       selected: false,
       value: item.values
@@ -33,10 +33,10 @@ export const smartPricingQuantity = (pricing: PriceSettingsInterface[] | []): Sm
 
 export const smartPricingMargin = (pricing: PriceSettingsInterface[] | []): SmartPricingOption[] => {
   return pricing
-    .filter(smartPricing => smartPricing.type === PriceSettingsTypeEnum.Margins)
+    .filter((smartPricing) => smartPricing.type === PriceSettingsTypeEnum.Margins)
     .map((item, index) => ({
       selected: false,
-      value: item.values ? item.values.map(value => `${value}%`) : [],
+      value: item.values ? item.values.map((value) => `${value}%`) : [],
       label: item.label || `NM-${index}`,
       _id: item._id,
     }));

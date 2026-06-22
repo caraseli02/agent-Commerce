@@ -24,8 +24,7 @@ export default defineNuxtPlugin((nuxtApp) => {
             if (!el.contains(clickedEl)) {
               binding.value();
             }
-          }
-          else {
+          } else {
             latch = true;
           }
         },

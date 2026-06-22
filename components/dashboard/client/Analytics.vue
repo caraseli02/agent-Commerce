@@ -3,34 +3,16 @@
     <div
       class="relative items-stretch shadow-xs bg-white flex w-full lg:w-fit md:min-w-[476px] xl:min-w-[472px] h-[240px] flex-col rounded-xl overflow-hidden pr-2"
     >
-      <div
-        v-if="isMobile"
-        class="flex justify-between items-center px-4 py-2 absolute right-0 z-10"
-      >
-        <UiButton
-          size="xs"
-          variant="ghost"
-          class="text-lg rounded-full"
-          @click="shiftMonths(-1)"
-        >
+      <div v-if="isMobile" class="flex justify-between items-center px-4 py-2 absolute right-0 z-10">
+        <UiButton size="xs" variant="ghost" class="text-lg rounded-full" @click="shiftMonths(-1)">
           <ChevronLeftIcon class="w-4 h-4 stroke-1" />
         </UiButton>
-        <UiButton
-          size="xs"
-          variant="ghost"
-          class="text-lg rounded-full"
-          @click="shiftMonths(1)"
-        >
+        <UiButton size="xs" variant="ghost" class="text-lg rounded-full" @click="shiftMonths(1)">
           <ChevronRightIcon class="w-4 h-4 stroke-1" />
         </UiButton>
       </div>
       <div class="max-w-[358px] md:max-w-[476px] md:min-w-fit mt-4 ml-1">
-        <apexchart
-          height="215"
-          type="bar"
-          :options="chartOptions"
-          :series="computedSeries"
-        />
+        <apexchart height="215" type="bar" :options="chartOptions" :series="computedSeries" />
       </div>
     </div>
   </ClientOnly>
@@ -164,8 +146,7 @@ function shiftMonths(direction: number) {
   let newIdx = currentIndex.value + direction;
   if (newIdx < 0) {
     newIdx = Math.ceil(12 / 6) - 1; // wrap around to last period
-  }
-  else if (newIdx >= Math.ceil(12 / 6)) {
+  } else if (newIdx >= Math.ceil(12 / 6)) {
     newIdx = 0; // wrap around to first period
   }
   currentIndex.value = newIdx;
@@ -174,12 +155,12 @@ function shiftMonths(direction: number) {
 
 <style scoped>
 button {
-    background: none;
-    border: none;
-    cursor: pointer;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 button:hover {
-    color: blue;
+  color: blue;
 }
 </style>

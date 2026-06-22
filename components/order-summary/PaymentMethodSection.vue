@@ -2,10 +2,7 @@
   <div class="flex flex-col gap-6">
     <div class="flex flex-row justify-between items-center">
       <span class="text-neutral-700 text-sm font-medium leading-6">Select Payment</span>
-      <button
-        v-if="!config.public.MOCK_MODE"
-        class="group"
-      >
+      <button v-if="!config.public.MOCK_MODE" class="group">
         <SettingCog class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
       </button>
     </div>
@@ -71,10 +68,7 @@
             v-if="order.paymentDetails?.type === 3"
             class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
           />
-          <RadioButton
-            v-else
-            class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-slate-500 transition duration-300"
-          />
+          <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-slate-500 transition duration-300" />
           <BankIcon />
         </div>
         <div>
@@ -93,10 +87,7 @@
             v-if="order.paymentDetails?.type === 1"
             class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
           />
-          <RadioButton
-            v-else
-            class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-slate-500 transition duration-300"
-          />
+          <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-slate-500 transition duration-300" />
           <PieChart />
         </div>
         <div class="flex flex-row justify-between w-full">
@@ -104,19 +95,13 @@
           <div class="flex flex-row gap-2">
             <span class="text-neutral-700 text-sm font-normal leading-6">Available:</span>
             <button @click="showCreditInfoModal = true">
-              <span class="text-blue-500 text-sm font-semibold leading-6">{{
-                accountCredit?.available?.toFixed(2) || 0
-              }}</span>
+              <span class="text-blue-500 text-sm font-semibold leading-6">{{ accountCredit?.available?.toFixed(2) || 0 }}</span>
             </button>
           </div>
         </div>
       </button>
       <Transition name="fade-bottom">
-        <div
-          v-if="showCreditInfoModal"
-          v-click-outside="() => (showCreditInfoModal = false)"
-          class="absolute bottom-[160px] right-0"
-        >
+        <div v-if="showCreditInfoModal" v-click-outside="() => (showCreditInfoModal = false)" class="absolute bottom-[160px] right-0">
           <OrderSummaryCreditInfoModal :account-credit="accountCredit" />
         </div>
       </Transition>
@@ -131,10 +116,7 @@
             v-if="order.paymentDetails?.type === 2"
             class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
           />
-          <RadioButton
-            v-else
-            class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-slate-500 transition duration-300"
-          />
+          <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-slate-500 transition duration-300" />
           <MoneyIcon />
         </div>
         <div>

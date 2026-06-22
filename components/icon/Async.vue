@@ -15,6 +15,6 @@ const iconComponent = defineAsyncComponent(() =>
       throw new Error(`Icon "${props.name}" not found.`);
     }
     return SelectedIcon;
-  }),
+  })
 );
 </script>

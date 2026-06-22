@@ -12,29 +12,22 @@ export default defineEventHandler(async (event) => {
 
   let filteredProducts = mockProducts as ProductInterface[];
 
-  const keywordSource
-        = body.keyword
-          || String(
-            query.keyword
-            || query.code
-            || query.description
-            || query.alias
-            || query.name
-            || query.manufacturer
-            || query.manufacturerCode
-            || '',
-          );
+  const keywordSource =
+    body.keyword ||
+    String(
+      query.keyword || query.code || query.description || query.alias || query.name || query.manufacturer || query.manufacturerCode || ''
+    );
   const keyword = String(keywordSource || '')
     .trim()
     .toLowerCase();
 
   if (keyword) {
     filteredProducts = (mockProducts as ProductInterface[]).filter(
-      p =>
-        p.name.toLowerCase().includes(keyword)
-        || p.description?.toLowerCase().includes(keyword)
-        || p.manufacturer?.toLowerCase().includes(keyword)
-        || p.code?.toLowerCase().includes(keyword),
+      (p) =>
+        p.name.toLowerCase().includes(keyword) ||
+        p.description?.toLowerCase().includes(keyword) ||
+        p.manufacturer?.toLowerCase().includes(keyword) ||
+        p.code?.toLowerCase().includes(keyword)
     );
   }
 
@@ -42,7 +35,7 @@ export default defineEventHandler(async (event) => {
     .trim()
     .toLowerCase();
   if (category) {
-    filteredProducts = filteredProducts.filter(p => p.category?.toLowerCase() === category);
+    filteredProducts = filteredProducts.filter((p) => p.category?.toLowerCase() === category);
   }
 
   const sortBy = String(query.sortBy || '').trim();

@@ -118,7 +118,7 @@ const orderFilters = ref<TabFilter[]>([
 
 const computedOrderFilters = computed(() => {
   return orderFilters.value.filter(
-    filter => !filter.requiredPermission || loggedInUser.value?.permissions.includes(filter.requiredPermission),
+    (filter) => !filter.requiredPermission || loggedInUser.value?.permissions.includes(filter.requiredPermission)
   );
 });
 
@@ -172,8 +172,7 @@ const updateOrderFiltersWithCounts = async () => {
         filter.total_items = count;
       }
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to fetch counts from API:', error);
   }
 };
@@ -181,7 +180,7 @@ const updateOrderFiltersWithCounts = async () => {
 const route = useRoute();
 const checkForActiveTab = () => {
   const tabLabel = route.query.tab;
-  const tab = orderFilters.value.find(filter => filter.value === tabLabel);
+  const tab = orderFilters.value.find((filter) => filter.value === tabLabel);
   if (tab) {
     activeOrderFilter.value = tab;
     // setTimeout(() => {

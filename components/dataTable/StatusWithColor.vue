@@ -1,9 +1,6 @@
 <template>
   <div class="flex min-w-[140px] items-center">
-    <span
-      :class="statusColor"
-      class="h-3 w-3 mr-2 rounded-full text-xs text-white flex justify-center items-center"
-    />
+    <span :class="statusColor" class="h-3 w-3 mr-2 rounded-full text-xs text-white flex justify-center items-center" />
     {{ status }}
   </div>
 </template>

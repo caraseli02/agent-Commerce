@@ -1,25 +1,13 @@
 <template>
   <div class="fixed z-[60] top-0 left-0 w-screen h-screen flex flex-col bg-white md:hidden">
     <div class="flex items-center justify-between px-5 pt-[15px] pb-[15px] border-b border-gray-200 mb-[15px] md:hidden">
-      <div
-        v-if="!selectedCategory"
-        class="text-lg font-semibold text-slate-500"
-      >
-        Products
-      </div>
+      <div v-if="!selectedCategory" class="text-lg font-semibold text-slate-500">Products</div>
       <template v-else>
-        <button
-          class="flex"
-          @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
-        >
+        <button class="flex" @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)">
           <CaretLeft class="w-6 h-6" />
         </button>
         <div class="flex items-center text-blue-500">
-          <component
-            :is="selectedCategory.icon"
-            v-if="!selectedSubCategory"
-            class="w-[22px] h-[22px] mr-1.5"
-          />
+          <component :is="selectedCategory.icon" v-if="!selectedSubCategory" class="w-[22px] h-[22px] mr-1.5" />
           <div class="text-sm font-semibold">
             {{ selectedSubCategory ? selectedSubCategory.name : selectedCategory.name }}
           </div>
@@ -46,10 +34,7 @@
           "
         >
           <div class="flex items-center justify-center w-[34px] h-[34px] rounded bg-gray-100 mr-2">
-            <component
-              :is="category.icon"
-              class="w-7 h-7"
-            />
+            <component :is="category.icon" class="w-7 h-7" />
           </div>
           <div>
             <div class="text-[15px] font-semibold mb-px">
@@ -136,13 +121,13 @@ import { mapLabelsToIds } from '~/helpers/categories.helper';
 const router = useRouter();
 
 const iconMap = {
-  'Semiconductors': SemiconductorsIcon,
-  'Passive': PassiveIcon,
-  'Electromechanics': ElectromechanicsIcon,
+  Semiconductors: SemiconductorsIcon,
+  Passive: PassiveIcon,
+  Electromechanics: ElectromechanicsIcon,
   'Cables & Connectors': CablesAndConnectorsIcon,
   'Power Supply': PowerSupplyIcon,
-  'Cases': CasesIcon,
-  'Tools': ToolsIcon,
+  Cases: CasesIcon,
+  Tools: ToolsIcon,
   'Industrial Furniture': IndustrialFurnitureIcon,
 };
 
@@ -153,8 +138,7 @@ const handleCategoryClick = (category: NavCategoryView) => {
     // Redirect to the category link if it's the last level
     router.push(`/search?category=${category.id}`);
     showNavModal.value = false;
-  }
-  else {
+  } else {
     // Otherwise, set the selected category or subcategory as usual
     selectedCategory.value = category;
     selectedSubCategory.value = null;
@@ -165,7 +149,7 @@ const { categories, getCategories } = useCategories();
 const allCategories = ref<NavCategoryView[]>([]);
 
 const mapCategories = (sourceArray: TaxonomyInterface[]): NavCategoryView[] => {
-  return sourceArray.map(item => ({
+  return sourceArray.map((item) => ({
     name: item.name.trim(),
     productCount: item.productCount,
     icon: (iconMap[item.name.trim() as keyof typeof iconMap] || DefaultIcon) as Component,

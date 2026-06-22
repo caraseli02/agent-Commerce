@@ -22,13 +22,9 @@ const props = defineProps<{
   <div class="flex gap-9 max-md:flex-col max-md:gap-0">
     <div class="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
       <div class="flex flex-col grow max-md:mt-9 max-md:max-w-full">
-        <h2 class="text-base font-semibold leading-7 text-neutral-700 max-md:max-w-full">
-          Shipping Address
-        </h2>
+        <h2 class="text-base font-semibold leading-7 text-neutral-700 max-md:max-w-full">Shipping Address</h2>
         <div class="flex gap-5 mt-9 w-full max-md:flex-wrap max-md:max-w-full">
-          <h3 class="text-sm font-semibold leading-6 text-neutral-700">
-            Address Alias 1
-          </h3>
+          <h3 class="text-sm font-semibold leading-6 text-neutral-700">Address Alias 1</h3>
           <div
             v-if="props.shippingAddress.default"
             class="flex gap-1 items-center py-0.5 pr-1.5 pl-1 text-xs font-medium leading-none whitespace-nowrap bg-white border border-emerald-500 border-solid rounded-[100px] text-zinc-800"
@@ -50,18 +46,14 @@ const props = defineProps<{
     </div>
     <div class="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
       <div class="flex flex-col px- text-sm font-medium leading-5 text-gray-500 max-md:mt-9 max-md:max-w-full">
-        <h2 class="text-base font-semibold leading-7 text-neutral-700 max-md:max-w-full">
-          Billing Address
-        </h2>
+        <h2 class="text-base font-semibold leading-7 text-neutral-700 max-md:max-w-full">Billing Address</h2>
         <p class="mt-9 max-md:max-w-full">
           {{ props.billingAddress.name1 }}
         </p>
         <p class="mt-2 max-md:max-w-full">
           {{ props.billingAddress.name2 }}
         </p>
-        <p class="mt-2 max-md:max-w-full">
-          {{ props.billingAddress.postcode }}, {{ props.billingAddress.country }}
-        </p>
+        <p class="mt-2 max-md:max-w-full">{{ props.billingAddress.postcode }}, {{ props.billingAddress.country }}</p>
       </div>
     </div>
   </div>

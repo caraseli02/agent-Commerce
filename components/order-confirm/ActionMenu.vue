@@ -102,7 +102,7 @@ const formSchema = toTypedSchema(
     }),
     reference: z.string().optional(),
     comments: z.string().optional(),
-  }),
+  })
 );
 
 // Use Vee-Validate form composable
@@ -151,16 +151,10 @@ const onSubmit = handleSubmit(async (values) => {
         class="flex overflow-hidden justify-center items-center self-stretch p-1 my-auto w-8 h-8 rounded-md bg-zinc-100"
         aria-label="Additional options"
       >
-        <DotsVerticalIcon
-          alt=""
-          class="object-contain self-stretch my-auto w-6 aspect-square"
-        />
+        <DotsVerticalIcon alt="" class="object-contain self-stretch my-auto w-6 aspect-square" />
       </UiButton>
     </UiPopoverTrigger>
-    <UiPopoverContent
-      class="w-fit flex flex-col gap-2 p-2 border-none"
-      align="end"
-    >
+    <UiPopoverContent class="w-fit flex flex-col gap-2 p-2 border-none" align="end">
       <UiButton
         :disabled="props.order?.status === OrderStatus.Completed || props.order?.status === OrderStatus.Canceled"
         class="hover:text-blue-500 hover:bg-light-300 justify-start gap-2 min-w-[164px]"
@@ -175,18 +169,15 @@ const onSubmit = handleSubmit(async (values) => {
       </UiButton>
       <UiButton
         :disabled="
-          props.order?.status === OrderStatus.Completed
-            || props.order?.status === OrderStatus.Canceled
-            || props.order?.paymentDetails?.status === PaymentStatusEnum.Paid
+          props.order?.status === OrderStatus.Completed ||
+          props.order?.status === OrderStatus.Canceled ||
+          props.order?.paymentDetails?.status === PaymentStatusEnum.Paid
         "
         class="hover:text-blue-500 hover:bg-light-300 justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
       >
-        <PackageCheck
-          class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square"
-          @click="cancelOrder()"
-        />
+        <PackageCheck class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" @click="cancelOrder()" />
         Cancel Order
       </UiButton>
       <UiButton
@@ -194,9 +185,9 @@ const onSubmit = handleSubmit(async (values) => {
         variant="ghost"
         size="sm"
         :disabled="
-          props.order?.status === OrderStatus.Canceled
-            || props.order.paymentDetails?.type !== PaymentTypeEnum.Bank
-            || props.order.paymentDetails?.status === PaymentStatusEnum.Paid
+          props.order?.status === OrderStatus.Canceled ||
+          props.order.paymentDetails?.type !== PaymentTypeEnum.Bank ||
+          props.order.paymentDetails?.status === PaymentStatusEnum.Paid
         "
         @click="isOpen = true"
       >
@@ -216,36 +207,15 @@ const onSubmit = handleSubmit(async (values) => {
   </UiPopover>
   <UiDialog v-model:open="isOpen">
     <UiDialogContent class="border-none shadow-s rounded-xl max-w-[358px] md:max-w-[480px]">
-      <section
-        data-layername="property1Desktop"
-        class="flex flex-col gap-10 bg-white rounded-xl shadow-sm max-w-[480px]"
-      >
+      <section data-layername="property1Desktop" class="flex flex-col gap-10 bg-white rounded-xl shadow-sm max-w-[480px]">
         <header class="flex gap-10 justify-between items-center w-full">
-          <h2
-            data-layername="markAsPaid"
-            class="self-stretch my-auto text-base font-semibold leading-7 text-zinc-800"
-          >
-            Mark as Paid
-          </h2>
+          <h2 data-layername="markAsPaid" class="self-stretch my-auto text-base font-semibold leading-7 text-zinc-800">Mark as Paid</h2>
         </header>
-        <form
-          class="flex flex-col gap-4 w-full text-sm"
-          @submit="onSubmit"
-        >
+        <form class="flex flex-col gap-4 w-full text-sm" @submit="onSubmit">
           <div class="flex gap-3 items-start w-full">
-            <FormField
-              v-slot="{ componentField }"
-              :validate-on-blur="!isFieldDirty"
-              class="flex flex-col"
-              name="amountPaid"
-            >
+            <FormField v-slot="{ componentField }" :validate-on-blur="!isFieldDirty" class="flex flex-col" name="amountPaid">
               <div class="flex flex-col w-full">
-                <FormLabel
-                  for="amountPaid"
-                  class="leading-none text-slate-500"
-                >
-                  Amount Paid
-                </FormLabel>
+                <FormLabel for="amountPaid" class="leading-none text-slate-500"> Amount Paid </FormLabel>
                 <FormControl>
                   <UiInput
                     v-bind="componentField"
@@ -259,64 +229,29 @@ const onSubmit = handleSubmit(async (values) => {
                 <FormMessage />
               </div>
             </FormField>
-            <FormField
-              v-slot="{ componentField }"
-              name="currency"
-            >
+            <FormField v-slot="{ componentField }" name="currency">
               <FormItem class="relative">
-                <FormLabel
-                  for="currency"
-                  data-layername="dropDownField"
-                  class="leading-none text-slate-500"
-                >
-                  Currency
-                </FormLabel>
+                <FormLabel for="currency" data-layername="dropDownField" class="leading-none text-slate-500"> Currency </FormLabel>
                 <UiSelect v-bind="componentField">
                   <FormControl>
-                    <UiSelectTrigger
-                      disabled
-                      class="border-grey-300 border max-w-[125px] w-[125px]"
-                    >
-                      <UiSelectValue
-                        class="items-start text-start"
-                        placeholder="Currency"
-                      />
+                    <UiSelectTrigger disabled class="border-grey-300 border max-w-[125px] w-[125px]">
+                      <UiSelectValue class="items-start text-start" placeholder="Currency" />
                     </UiSelectTrigger>
                   </FormControl>
                   <UiSelectContent>
                     <UiSelectGroup>
-                      <UiSelectItem
-                        class="pl-2"
-                        value="usd"
-                      >
-                        USD
-                      </UiSelectItem>
-                      <UiSelectItem
-                        class="pl-2"
-                        value="eur"
-                      >
-                        EUR
-                      </UiSelectItem>
-                      <UiSelectItem
-                        class="pl-2"
-                        value="ron"
-                      >
-                        RON
-                      </UiSelectItem>
+                      <UiSelectItem class="pl-2" value="usd"> USD </UiSelectItem>
+                      <UiSelectItem class="pl-2" value="eur"> EUR </UiSelectItem>
+                      <UiSelectItem class="pl-2" value="ron"> RON </UiSelectItem>
                     </UiSelectGroup>
                   </UiSelectContent>
                 </UiSelect>
               </FormItem>
             </FormField>
           </div>
-          <FormField
-            v-slot="{ componentField, value }"
-            name="dop"
-          >
+          <FormField v-slot="{ componentField, value }" name="dop">
             <FormItem class="flex flex-col gap-2">
-              <FormLabel class="text-slate-500">
-                Payment Date
-              </FormLabel>
+              <FormLabel class="text-slate-500"> Payment Date </FormLabel>
               <UiPopover>
                 <UiPopoverTrigger as-child>
                   <FormControl>
@@ -336,43 +271,26 @@ const onSubmit = handleSubmit(async (values) => {
               <FormMessage />
             </FormItem>
           </FormField>
-          <FormField
-            v-slot="{ componentField }"
-            name="reference"
-            :validate-on-blur="!isFieldDirty"
-          >
+          <FormField v-slot="{ componentField }" name="reference" :validate-on-blur="!isFieldDirty">
             <FormItem>
               <FormLabel>Payment Reference</FormLabel>
               <FormControl>
-                <UiInput
-                  type="text"
-                  placeholder="Payment Reference"
-                  v-bind="componentField"
-                />
+                <UiInput type="text" placeholder="Payment Reference" v-bind="componentField" />
               </FormControl>
               <FormMessage />
             </FormItem>
           </FormField>
-          <FormField
-            v-slot="{ componentField }"
-            name="comments"
-          >
+          <FormField v-slot="{ componentField }" name="comments">
             <FormItem>
               <FormLabel>Comments</FormLabel>
               <FormControl>
-                <UiTextarea
-                  placeholder="Comments..."
-                  class="resize-none min-h-32 border-grey-300 bg-light-100"
-                  v-bind="componentField"
-                />
+                <UiTextarea placeholder="Comments..." class="resize-none min-h-32 border-grey-300 bg-light-100" v-bind="componentField" />
               </FormControl>
               <FormMessage />
             </FormItem>
           </FormField>
           <div class="flex gap-4 items-center mt-10 w-full text-base font-medium leading-7 text-white whitespace-nowrap">
-            <UiButton class="h-12 w-full">
-              Submit
-            </UiButton>
+            <UiButton class="h-12 w-full"> Submit </UiButton>
           </div>
         </form>
       </section>

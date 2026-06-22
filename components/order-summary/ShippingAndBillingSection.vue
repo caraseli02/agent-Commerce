@@ -4,11 +4,7 @@
       <div class="flex flex-row justify-between">
         <div class="flex flex-row items-center gap-3">
           <span class="text-neutral-700 text-sm font-medium leading-6">Billing Information</span>
-          <DemoTooltip
-            v-if="billingInfoMissing"
-            theme="black"
-            position="top"
-          >
+          <DemoTooltip v-if="billingInfoMissing" theme="black" position="top">
             <WarningErrorYellow />
             <template #content>
               <span class="capitalize">Missing Info</span>
@@ -17,10 +13,7 @@
           <GreenCheckCircle v-else />
         </div>
         <div class="flex flex-row gap-4">
-          <DemoTooltip
-            theme="black"
-            position="top"
-          >
+          <DemoTooltip theme="black" position="top">
             <button>
               <EditSmall
                 class="text-[#5E6278] hover:text-[#007FFF] transition duration-150"
@@ -31,10 +24,7 @@
               <span class="capitalize">Edit</span>
             </template>
           </DemoTooltip>
-          <DemoTooltip
-            theme="black"
-            position="top"
-          >
+          <DemoTooltip theme="black" position="top">
             <!--                        <button> -->
             <!--                            <SettingCog class="text-[#5E6278] hover:text-[#007FFF] transition duration-150" /> -->
             <!--                        </button> -->
@@ -61,11 +51,7 @@
       <div class="flex flex-row justify-between">
         <div class="flex flex-row items-center gap-3">
           <span class="text-neutral-700 text-sm font-medium leading-6">Shipping Information</span>
-          <DemoTooltip
-            v-if="shippingInfoMissing"
-            theme="black"
-            position="top"
-          >
+          <DemoTooltip v-if="shippingInfoMissing" theme="black" position="top">
             <WarningErrorYellow />
             <template #content>
               <span class="capitalize">Missing Info</span>
@@ -74,10 +60,7 @@
           <GreenCheckCircle v-else />
         </div>
         <div class="flex flex-row gap-4">
-          <DemoTooltip
-            theme="black"
-            position="top"
-          >
+          <DemoTooltip theme="black" position="top">
             <button>
               <EditSmall
                 class="text-[#5E6278] hover:text-[#007FFF] transition duration-150"
@@ -88,10 +71,7 @@
               <span class="capitalize">Edit</span>
             </template>
           </DemoTooltip>
-          <DemoTooltip
-            theme="black"
-            position="top"
-          >
+          <DemoTooltip theme="black" position="top">
             <!--                        <button> -->
             <!--                            <SettingCog class="text-[#5E6278] hover:text-[#007FFF] transition duration-150" /> -->
             <!--                        </button> -->
@@ -162,20 +142,20 @@ export default defineComponent({
   computed: {
     billingInfoMissing() {
       return (
-        !this.order.shippingDetails?.billingAddress?.name1
-        || !this.order.shippingDetails?.billingAddress?.city
-        || !this.order.shippingDetails?.billingAddress?.region
-        || !this.order.shippingDetails?.billingAddress?.postcode
-        || !this.order.shippingDetails?.billingAddress?.country
+        !this.order.shippingDetails?.billingAddress?.name1 ||
+        !this.order.shippingDetails?.billingAddress?.city ||
+        !this.order.shippingDetails?.billingAddress?.region ||
+        !this.order.shippingDetails?.billingAddress?.postcode ||
+        !this.order.shippingDetails?.billingAddress?.country
       );
     },
     shippingInfoMissing() {
       return (
-        !this.order.shippingDetails?.address?.name1
-        || !this.order.shippingDetails?.address?.city
-        || !this.order.shippingDetails?.address?.region
-        || !this.order.shippingDetails?.address?.postcode
-        || !this.order.shippingDetails?.address?.country
+        !this.order.shippingDetails?.address?.name1 ||
+        !this.order.shippingDetails?.address?.city ||
+        !this.order.shippingDetails?.address?.region ||
+        !this.order.shippingDetails?.address?.postcode ||
+        !this.order.shippingDetails?.address?.country
       );
     },
   },

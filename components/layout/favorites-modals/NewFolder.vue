@@ -23,7 +23,7 @@
             type="text"
             placeholder="Enter Folder Name"
             class="bg-transparent w-full px-2.5 py-[5px] border border-border rounded h-[42px] text-sm leading-tight text-neutral-700 focus:outline-none"
-          >
+          />
         </label>
         <div class="flex items-center justify-center gap-2.5">
           <button
@@ -35,39 +35,17 @@
           >
             Create Folder
           </button>
-          <button
-            class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500"
-            @click="$emit('close')"
-          >
+          <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
             Cancel
           </button>
         </div>
       </template>
-      <div
-        v-else
-        class="flex flex-col items-center flex-1 justify-center"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 100 100"
-          class="w-[100px] h-[100px] mb-[25px]"
-        >
-          <path
-            fill="#00D395"
-            d="M50 10c22.076 0 40 17.924 40 40S72.076 90 50 90 10 72.076 10 50s17.924-40 40-40Z"
-          />
-          <path
-            stroke="#fff"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="5"
-            d="m37.555 49.41 9.948 8.82L65.01 41.758"
-          />
+      <div v-else class="flex flex-col items-center flex-1 justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 100 100" class="w-[100px] h-[100px] mb-[25px]">
+          <path fill="#00D395" d="M50 10c22.076 0 40 17.924 40 40S72.076 90 50 90 10 72.076 10 50s17.924-40 40-40Z" />
+          <path stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="m37.555 49.41 9.948 8.82L65.01 41.758" />
         </svg>
-        <div class="text-xl text-center">
-          Done
-        </div>
+        <div class="text-xl text-center">Done</div>
       </div>
     </div>
   </div>

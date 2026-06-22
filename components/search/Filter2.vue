@@ -16,15 +16,9 @@
             Max. forward impulse current
             <span class="text-xs font-normal ml-[5px]">(18945)</span>
           </div>
-          <ChevronDownIcon
-            class="w-6 h-6 transition-all duration-300"
-            :class="[showOptions ? 'rotate-180' : '']"
-          />
+          <ChevronDownIcon class="w-6 h-6 transition-all duration-300" :class="[showOptions ? 'rotate-180' : '']" />
         </button>
-        <div
-          v-if="showOptions"
-          class="flex-1 flex flex-col"
-        >
+        <div v-if="showOptions" class="flex-1 flex flex-col">
           <div class="pl-2.5 pr-[15px] mb-2.5">
             <label
               class="flex relative border border-border rounded overflow-hidden transition-colors duration-300 focus-within:border-blue-500"
@@ -34,7 +28,7 @@
                 type="search"
                 placeholder="Type here"
                 class="w-full px-2.5 pt-[5px] pb-1.5 pr-10 h-8 text-xs placeholder:text-gray-500 focus:outline-none"
-              >
+              />
               <FiltersIcon class="absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
             </label>
           </div>
@@ -45,11 +39,7 @@
                 :key="index"
                 class="group flex items-center justify-between cursor-pointer px-2.5"
               >
-                <input
-                  v-model="option.checked"
-                  type="checkbox"
-                  class="sr-only"
-                >
+                <input v-model="option.checked" type="checkbox" class="sr-only" />
                 <span class="text-xs font-Inter transition-colors duration-300 group-hover:text-blue-500">
                   {{ option.label }} ({{ option.quantity }})
                 </span>
@@ -61,10 +51,7 @@
                       : 'bg-white  border-border group-hover:border-gray-300',
                   ]"
                 >
-                  <CheckIcon
-                    v-if="option.checked"
-                    class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-                  />
+                  <CheckIcon v-if="option.checked" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
                 </div>
               </label>
             </div>
@@ -133,7 +120,7 @@ const options = ref([
 ]);
 
 const filteredOptions = computed(() => {
-  return options.value.filter(e => e.label.toLowerCase().includes(searchValue.value.toLowerCase()));
+  return options.value.filter((e) => e.label.toLowerCase().includes(searchValue.value.toLowerCase()));
 });
 
 const isSwiped = ref(false);
@@ -151,8 +138,7 @@ const onDrag = (event: { direction?: string }) => {
   if (event.direction === 'left') {
     isSwiped.value = true;
     swipedFilter.value = props.id;
-  }
-  else {
+  } else {
     isSwiped.value = false;
     swipedFilter.value = undefined;
   }
@@ -174,8 +160,7 @@ const onTouchStart = (event: TouchEvent) => {
 watch(swipedFilter, (newVal) => {
   if (typeof newVal === 'undefined') {
     isSwiped.value = false;
-  }
-  else if (typeof newVal === 'number' && newVal !== props.id) {
+  } else if (typeof newVal === 'number' && newVal !== props.id) {
     isSwiped.value = false;
   }
 });

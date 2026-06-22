@@ -41,7 +41,7 @@ type DemoCategoryNode = {
 
 const mapDemoCategoryNode = (node: DemoCategoryNode, parentPath = ''): TaxonomyInterface => {
   const path = parentPath ? `${parentPath}/${node._id}` : node._id;
-  const children = (node.items || []).map(item => mapDemoCategoryNode(item, path));
+  const children = (node.items || []).map((item) => mapDemoCategoryNode(item, path));
 
   return {
     id: node._id,
@@ -57,7 +57,7 @@ const mapDemoCategoryNode = (node: DemoCategoryNode, parentPath = ''): TaxonomyI
 };
 
 const setDemoTaxonomy = () => {
-  categories.value = (demoCategories as DemoCategoryNode[]).map(category => mapDemoCategoryNode(category));
+  categories.value = (demoCategories as DemoCategoryNode[]).map((category) => mapDemoCategoryNode(category));
   taxonomyId.value = 'demo-taxonomy';
   isLocked.value = false;
 };
@@ -78,15 +78,13 @@ export const useCategories = () => {
       categories.value = response.data.data;
       taxonomyId.value = response.data._id;
       isLocked.value = response.data.locked;
-    }
-    catch (error) {
+    } catch (error) {
       if (config.public.MOCK_MODE) {
         setDemoTaxonomy();
         return;
       }
       console.error('Failed to fetch counts from API:', error);
-    }
-    finally {
+    } finally {
       isLoading.value = false;
     }
   };
@@ -163,8 +161,7 @@ export const useCategories = () => {
     const selectedIndex = selectedCategories.value.indexOf(categoryId);
     if (selectedIndex !== -1) {
       selectedCategories.value.splice(selectedIndex, 1);
-    }
-    else {
+    } else {
       selectedCategories.value.push(categoryId);
     }
   };

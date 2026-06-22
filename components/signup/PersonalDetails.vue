@@ -3,25 +3,13 @@
     <div class="container h-full">
       <div class="flex flex-col h-full md:max-w-[410px] md:mx-auto">
         <div class="flex items-center mb-5">
-          <div class="font-medium mr-2 md:text-xl">
-            Personal Details
-          </div>
+          <div class="font-medium mr-2 md:text-xl">Personal Details</div>
           <QuestionIcon class="w-5 h-5 text-gray-500" />
         </div>
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
-            <FormInput
-              v-model="details.firstName.value"
-              :error="details.firstName.error"
-              label="First Name"
-              placeholder="First Name"
-            />
-            <FormInput
-              v-model="details.lastName.value"
-              :error="details.lastName.error"
-              label="Last Name"
-              placeholder="Last Name"
-            />
+            <FormInput v-model="details.firstName.value" :error="details.firstName.error" label="First Name" placeholder="First Name" />
+            <FormInput v-model="details.lastName.value" :error="details.lastName.error" label="Last Name" placeholder="Last Name" />
             <FormSelect
               v-model="details.country.value"
               :error="details.country.error"
@@ -41,18 +29,8 @@
               search
               class="relative z-10"
             />
-            <FormInput
-              v-model="details.city.value"
-              :error="details.city.error"
-              label="City"
-              placeholder="City"
-            />
-            <FormInput
-              v-model="details.postcode.value"
-              :error="details.postcode.error"
-              label="Postcode"
-              placeholder="Postcode"
-            />
+            <FormInput v-model="details.city.value" :error="details.city.error" label="City" placeholder="City" />
+            <FormInput v-model="details.postcode.value" :error="details.postcode.error" label="Postcode" placeholder="Postcode" />
             <FormInput
               v-model="details.addressLine1.value"
               :error="details.addressLine1.error"
@@ -67,17 +45,11 @@
             />
           </div>
           <div class="flex items-center justify-between">
-            <button
-              class="flex items-center rounded bg-gray-100 px-[22px] py-[11px] text-slate-500"
-              @click="$emit('back')"
-            >
+            <button class="flex items-center rounded bg-gray-100 px-[22px] py-[11px] text-slate-500" @click="$emit('back')">
               <ChevronRightIcon class="w-3 h-3 mr-2 rotate-180" />
               <span class="text-sm font-medium">Back</span>
             </button>
-            <button
-              class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white"
-              @click="$emit('continue')"
-            >
+            <button class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white" @click="$emit('continue')">
               <span class="text-sm font-medium mr-2">Continue</span>
               <ChevronRightIcon class="w-3 h-3" />
             </button>
@@ -85,10 +57,7 @@
         </div>
         <div class="text-xs text-center text-slate-500 mt-auto">
           For assistance please contact
-          <a
-            href="mailto:support@demo.app"
-            class="text-blue-500"
-          >support@demo.app</a>
+          <a href="mailto:support@demo.app" class="text-blue-500">support@demo.app</a>
         </div>
       </div>
     </div>
@@ -113,9 +82,9 @@ watch(details.value.country, (newVal) => {
       value: undefined,
       error: '',
     };
-    regions.value
-            = countries
-        .find(e => e.label === newVal.value?.label)
+    regions.value =
+      countries
+        .find((e) => e.label === newVal.value?.label)
         ?.regions.map((e) => {
           return {
             label: e.name,

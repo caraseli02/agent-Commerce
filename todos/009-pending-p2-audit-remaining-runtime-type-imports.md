@@ -14,15 +14,15 @@ The current branch still contains multiple imports where interface/type symbols 
 
 ## Findings
 
--   Static scan shows remaining suspicious imports, for example:
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/BackItems.vue:3`
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/StackItems.vue:4`
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/PaySummary.vue:3`
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/dashboard/client/PaymentCard.vue:56`
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/dashboard/client/settings/Payments.vue:4`
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/dashboard/client/settings/PaymentsDialog.vue:7`
-    -   `/Users/vladislavcaraseli/Documents/Ecas/components/dashboard/client/settings/CardsList.vue:27`
--   This risk is proven by already reproduced crashes from the same class (`BankInfo`, `PaymentStatusOption`).
+- Static scan shows remaining suspicious imports, for example:
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/BackItems.vue:3`
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/StackItems.vue:4`
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/PaySummary.vue:3`
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/dashboard/client/PaymentCard.vue:56`
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/dashboard/client/settings/Payments.vue:4`
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/dashboard/client/settings/PaymentsDialog.vue:7`
+  - `/Users/vladislavcaraseli/Documents/Ecas/components/dashboard/client/settings/CardsList.vue:27`
+- This risk is proven by already reproduced crashes from the same class (`BankInfo`, `PaymentStatusOption`).
 
 ## Proposed Solutions
 
@@ -32,12 +32,12 @@ The current branch still contains multiple imports where interface/type symbols 
 
 **Pros:**
 
--   Fast and pragmatic for demo readiness
--   Reduces follow-up crash churn
+- Fast and pragmatic for demo readiness
+- Reduces follow-up crash churn
 
 **Cons:**
 
--   Relies on naming heuristics
+- Relies on naming heuristics
 
 **Effort:** 1-2 hours
 
@@ -51,12 +51,12 @@ The current branch still contains multiple imports where interface/type symbols 
 
 **Pros:**
 
--   Maximum consistency
+- Maximum consistency
 
 **Cons:**
 
--   Very large diff in dirty branch
--   Higher chance of noisy conflicts
+- Very large diff in dirty branch
+- Higher chance of noisy conflicts
 
 **Effort:** 3-6 hours
 
@@ -70,26 +70,26 @@ To be filled during triage.
 
 **Pattern to eliminate:**
 
--   `import { SomeInterface } from '~/types'`
--   when `SomeInterface` is not a runtime export
+- `import { SomeInterface } from '~/types'`
+- when `SomeInterface` is not a runtime export
 
 **Verification target routes after sweep:**
 
--   `/order-summary/:id`
--   `/dashboard/orders/:id`
--   `/dashboard/customers/:slug/control-panel/account`
--   `/dashboard/settings`
+- `/order-summary/:id`
+- `/dashboard/orders/:id`
+- `/dashboard/customers/:slug/control-panel/account`
+- `/dashboard/settings`
 
 ## Resources
 
--   Static scan commands executed during review:
-    -   `rg` queries against `components/`, `pages/`, `composables/`, `services/`, `store/`.
+- Static scan commands executed during review:
+  - `rg` queries against `components/`, `pages/`, `composables/`, `services/`, `store/`.
 
 ## Acceptance Criteria
 
--   [x] No remaining obvious interface/value imports in touched demo modules
--   [x] Route smoke tests pass for key dashboard/order flows
--   [x] No new `does not provide an export named ...` runtime errors in those routes
+- [x] No remaining obvious interface/value imports in touched demo modules
+- [x] Route smoke tests pass for key dashboard/order flows
+- [x] No new `does not provide an export named ...` runtime errors in those routes
 
 ## Work Log
 
@@ -99,14 +99,14 @@ To be filled during triage.
 
 **Actions:**
 
--   Ran static scans for runtime imports of interface-like symbols
--   Cross-checked with observed runtime crashes
--   Collected representative affected files
+- Ran static scans for runtime imports of interface-like symbols
+- Cross-checked with observed runtime crashes
+- Collected representative affected files
 
 **Learnings:**
 
--   The codebase currently has a systemic pattern that can regress quickly without a targeted sweep.
+- The codebase currently has a systemic pattern that can regress quickly without a targeted sweep.
 
 ## Notes
 
--   Priority set to P2 because some key routes already work, but risk remains high in untested paths.
+- Priority set to P2 because some key routes already work, but risk remains high in untested paths.

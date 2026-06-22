@@ -1,12 +1,6 @@
 <template>
-  <div
-    v-if="cartStore.mappedCartItems.length"
-    class="flex flex-col gap-6 mb-6"
-  >
-    <OrderSummaryTableHead
-      @check-all="checkAll"
-      @delete-selected="deleteSelected"
-    />
+  <div v-if="cartStore.mappedCartItems.length" class="flex flex-col gap-6 mb-6">
+    <OrderSummaryTableHead @check-all="checkAll" @delete-selected="deleteSelected" />
     <div v-if="stockItems && stockItems.length">
       <span class="text-neutral-700 text-base font-semibold leading-6">Stock Items: {{ stockItems.length }}</span>
     </div>
@@ -50,9 +44,7 @@ onMounted(() => {
 });
 
 const stockItems = computed(() => {
-  return (
-    cartStore.cart?.products?.filter((item: CartProductsInterface) => item.productEntity?.stock !== undefined && item.stock > 0) ?? []
-  );
+  return cartStore.cart?.products?.filter((item: CartProductsInterface) => item.productEntity?.stock !== undefined && item.stock > 0) ?? [];
 });
 
 const backOrderItems = computed(() => {

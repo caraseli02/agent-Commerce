@@ -9,10 +9,7 @@
     <p class="text-gray-600 mb-8 max-w-md">
       {{ error.message || "We can't seem to find the page you're looking for." }}
     </p>
-    <button
-      class="px-6 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors"
-      @click="handleError"
-    >
+    <button class="px-6 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors" @click="handleError">
       Go back home
     </button>
   </div>

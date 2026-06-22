@@ -1,9 +1,6 @@
 <template>
   <div class="flex items-center justify-between w-full">
-    <NuxtLink
-      :to="`/dashboard/customers/${item.firebaseId}`"
-      class="group/link flex items-center w-[calc(70%)] sm:w-[calc(80%)]"
-    >
+    <NuxtLink :to="`/dashboard/customers/${item.firebaseId}`" class="group/link flex items-center w-[calc(70%)] sm:w-[calc(80%)]">
       <div
         class="relative flex items-center justify-center rounded-full overflow-hidden w-10 h-10 flex-shrink-0 mr-3"
         :class="[
@@ -13,65 +10,30 @@
             : 'after:absolute after:top-0 after:left-0 after:w-full after:h-full after:rounded-full after:border-2 after:border-blue-500 after:opacity-0 after:transition-opacity after:duration-300 group-hover/link:after:opacity-100',
         ]"
       >
-        <SkeletonLoader
-          v-if="loading"
-          type="circle"
-          class="w-full h-full"
-        />
+        <SkeletonLoader v-if="loading" type="circle" class="w-full h-full" />
         <template v-else>
-          <img
-            v-if="item.avatar"
-            :src="item.avatar"
-            :alt="`${item.name}`"
-            class="w-full h-full rounded-full object-cover"
-          >
-          <UserIcon
-            v-else
-            class="w-7 h-7 text-gray-500"
-          />
+          <img v-if="item.avatar" :src="item.avatar" :alt="`${item.name}`" class="w-full h-full rounded-full object-cover" />
+          <UserIcon v-else class="w-7 h-7 text-gray-500" />
         </template>
       </div>
       <div :class="[loading ? 'w-full' : 'truncate']">
-        <SkeletonLoader
-          v-if="loading"
-          class="block w-2/3 h-4 mb-2"
-        />
-        <div
-          v-else
-          class="text-sm leading-[1.43] font-semibold truncate transition-colors duration-300 group-hover/link:text-blue-500"
-        >
+        <SkeletonLoader v-if="loading" class="block w-2/3 h-4 mb-2" />
+        <div v-else class="text-sm leading-[1.43] font-semibold truncate transition-colors duration-300 group-hover/link:text-blue-500">
           {{ `${item.name}` }}
         </div>
-        <SkeletonLoader
-          v-if="loading"
-          class="w-full h-4"
-        />
-        <div
-          v-else
-          class="text-xs leading-[1.67] text-slate-500 truncate"
-        >{{ item.email }}</div>
+        <SkeletonLoader v-if="loading" class="w-full h-4" />
+        <div v-else class="text-xs leading-[1.67] text-slate-500 truncate">{{ item.email }}</div>
       </div>
     </NuxtLink>
-    <div
-      v-if="!loading"
-      class="relative flex"
-    >
-      <DemoTooltip
-        v-if="!item.active"
-        theme="black"
-        :position="'top'"
-        class="self-start mx-3"
-      >
+    <div v-if="!loading" class="relative flex">
+      <DemoTooltip v-if="!item.active" theme="black" :position="'top'" class="self-start mx-3">
         <LockKeyholeIcon class="w-4 h-4 text-slate-500 transition-colors duration-300 hover:text-blue-500" />
         <template #content>
           <span class="capitalize">Account Locked</span>
         </template>
       </DemoTooltip>
 
-      <button
-        class="flex text-[#9296AA] transition-colors duration-300 hover:text-blue-500"
-        @click="showOptions = !showOptions"
-      >
+      <button class="flex text-[#9296AA] transition-colors duration-300 hover:text-blue-500" @click="showOptions = !showOptions">
         <MoreVerticalIcon class="w-6 h-6" />
       </button>
       <Transition name="fade-bottom">

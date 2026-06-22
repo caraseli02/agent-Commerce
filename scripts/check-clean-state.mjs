@@ -14,8 +14,8 @@ const validatorSelfPath = 'scripts/check-clean-state.mjs';
 const tempPathPattern = /(^|\/)(tmp|temp|debug|scratch)(\/|$)|\.(log|tmp|bak|orig|swp|swo)$/i;
 const consoleLogPattern = /\bconsole\.log\s*\(/;
 const todoPattern = /\b(?:TODO|FIXME)\b/;
-const commentedCodePattern
-  = /^\s*(?:\/\/|\/\*)\s*(?:const|let|var|function|class|if|for|while|return|export|import|[A-Za-z_$][\w$]*\s*=|[A-Za-z_$][\w$]*\s*\()/;
+const commentedCodePattern =
+  /^\s*(?:\/\/|\/\*)\s*(?:const|let|var|function|class|if|for|while|return|export|import|[A-Za-z_$][\w$]*\s*=|[A-Za-z_$][\w$]*\s*\()/;
 
 function fail(message) {
   console.error(`clean-state validation failed: ${message}`);
@@ -31,8 +31,7 @@ async function runGit(args) {
     });
 
     return stdout.trim();
-  }
-  catch (error) {
+  } catch (error) {
     const details = error instanceof Error && 'stderr' in error && typeof error.stderr === 'string' ? error.stderr.trim() : null;
     fail(`unable to run git ${args.join(' ')}${details ? `: ${details}` : ''}`);
   }
@@ -66,11 +65,9 @@ async function scanFile(base, filePath) {
     const addedLine = line.slice(1);
     if (consoleLogPattern.test(addedLine)) {
       hits.push(`${filePath}:${newLineNumber} contains console.log`);
-    }
-    else if (todoPattern.test(addedLine)) {
+    } else if (todoPattern.test(addedLine)) {
       hits.push(`${filePath}:${newLineNumber} contains TODO/FIXME`);
-    }
-    else if (commentedCodePattern.test(addedLine)) {
+    } else if (commentedCodePattern.test(addedLine)) {
       hits.push(`${filePath}:${newLineNumber} looks like commented-out code`);
     }
 
@@ -84,7 +81,7 @@ async function checkProgressStateShape() {
   const contents = await readFile(path.join(rootDir, 'PROGRESS.md'), 'utf8');
   const requiredHeadings = ['## Current focus', '## In progress', '## Blocked / known baseline failures', '## Verification baseline'];
 
-  const missingHeadings = requiredHeadings.filter(heading => !contents.includes(heading));
+  const missingHeadings = requiredHeadings.filter((heading) => !contents.includes(heading));
   if (missingHeadings.length > 0) {
     fail(`PROGRESS.md is missing required clean-state sections: ${missingHeadings.join(', ')}.`);
   }
@@ -106,14 +103,14 @@ async function main() {
 
   const base = await runGit(['merge-base', 'origin/main', 'HEAD']);
   const changedFiles = await getChangedFiles(base);
-  const trackedTempArtifacts = changedFiles.filter(filePath => tempPathPattern.test(filePath));
+  const trackedTempArtifacts = changedFiles.filter((filePath) => tempPathPattern.test(filePath));
   if (trackedTempArtifacts.length > 0) {
     fail(`tracked temporary/debug artifacts are present in the branch diff: ${trackedTempArtifacts.join(', ')}.`);
   }
 
   await checkProgressStateShape();
 
-  const scanTargets = changedFiles.filter(filePath => isSourceFile(filePath) && filePath !== validatorSelfPath);
+  const scanTargets = changedFiles.filter((filePath) => isSourceFile(filePath) && filePath !== validatorSelfPath);
   const violations = [];
 
   for (const filePath of scanTargets) {
@@ -123,10 +120,10 @@ async function main() {
   if (violations.length > 0) {
     console.error('clean-state validation failed: changed source files introduced debug or handoff-regression patterns.');
     console.error(
-      'Why it matters: handoff validators should catch accidental debug output, stale TODOs, and commented-out code before a PR is handed off.',
+      'Why it matters: handoff validators should catch accidental debug output, stale TODOs, and commented-out code before a PR is handed off.'
     );
     console.error(
-      'Where to look next: remove the temporary artifact or replace the commented/debug line with durable code, then rerun the check.',
+      'Where to look next: remove the temporary artifact or replace the commented/debug line with durable code, then rerun the check.'
     );
 
     for (const violation of violations) {
@@ -137,7 +134,7 @@ async function main() {
   }
 
   process.stdout.write(
-    `Clean-state validation OK: no dirty working tree, no tracked temp artifacts, and ${scanTargets.length} changed source file(s) passed the debug-pattern scan.\n`,
+    `Clean-state validation OK: no dirty working tree, no tracked temp artifacts, and ${scanTargets.length} changed source file(s) passed the debug-pattern scan.\n`
   );
 }
 

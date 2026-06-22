@@ -7,5 +7,5 @@ export const useAppStore = defineStore(
 
     return { showAppInBeta };
   },
-  { persist: true },
+  { persist: true }
 );

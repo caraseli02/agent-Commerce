@@ -1,22 +1,12 @@
 <template>
   <div class="relative z-20 grid grid-cols-1 gap-4 mb-9 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
-    <div
-      v-for="(card, indexOfWidget) in cards"
-      :key="indexOfWidget"
-      class="group bg-white rounded-xl p-4 pr-2 shadow-xs md:p-6 md:pr-4"
-    >
+    <div v-for="(card, indexOfWidget) in cards" :key="indexOfWidget" class="group bg-white rounded-xl p-4 pr-2 shadow-xs md:p-6 md:pr-4">
       <div
         class="flex items-start w-full mb-8 xl:mb-12"
         :class="[isLoading[indexOfWidget] ? 'justify-center md:justify-between' : 'justify-between']"
       >
-        <div
-          v-if="isLoading[indexOfWidget]"
-          class="flex items-center justify-center gap-4"
-        >
-          <SkeletonLoader
-            class="w-14 h-14"
-            type="circle"
-          />
+        <div v-if="isLoading[indexOfWidget]" class="flex items-center justify-center gap-4">
+          <SkeletonLoader class="w-14 h-14" type="circle" />
           <div>
             <SkeletonLoader class="w-[120px] h-5 mb-3" />
             <SkeletonLoader class="w-[180px] h-6 xl:w-full 2xl:w-[180px]" />
@@ -42,10 +32,7 @@
                     background: card.menu.selected.theme || card.theme,
                   }"
                 >
-                  <component
-                    :is="card.menu.selected.icon"
-                    class="relative z-10 w-6 h-6 text-white"
-                  />
+                  <component :is="card.menu.selected.icon" class="relative z-10 w-6 h-6 text-white" />
                   <div
                     class="absolute top-0 left-0 w-full h-full rounded-full group-hover:animate-ping-once"
                     :style="{
@@ -60,10 +47,7 @@
                 <div class="text-sm font-semibold text-slate-500">
                   {{ card.menu.selected.label }}
                 </div>
-                <WarningIcon
-                  v-if="error[indexOfWidget]"
-                  class="w-5 h-5"
-                />
+                <WarningIcon v-if="error[indexOfWidget]" class="w-5 h-5" />
               </div>
               <div
                 v-if="error[indexOfWidget] || card.menu.selected.value === null || card.menu.selected.value === undefined"
@@ -71,10 +55,7 @@
               >
                 No data available
               </div>
-              <div
-                v-else
-                class="text-xl font-semibold leading-[1.2] md:text-2xl md:leading-none"
-              >
+              <div v-else class="text-xl font-semibold leading-[1.2] md:text-2xl md:leading-none">
                 {{ card.menu.selected.value || 0 }}
               </div>
             </div>
@@ -109,15 +90,10 @@
                   <div
                     class="flex items-center justify-center w-[18px] h-[18px] rounded-full border-2 transition-colors duration-300"
                     :class="[
-                      option.label === card.menu.selected.label
-                        ? 'border-blue-500'
-                        : 'border-border group-hover/option:border-dark',
+                      option.label === card.menu.selected.label ? 'border-blue-500' : 'border-border group-hover/option:border-dark',
                     ]"
                   >
-                    <div
-                      v-if="option.label === card.menu.selected.label"
-                      class="w-2.5 h-2.5 bg-blue-500 rounded-full"
-                    />
+                    <div v-if="option.label === card.menu.selected.label" class="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                   </div>
                 </button>
               </div>
@@ -126,20 +102,11 @@
         </template>
       </div>
       <div class="flex items-center justify-between">
-        <div
-          v-if="card.menu.selected.noDropdownLabel"
-          class="text-sm font-medium leading-[1.43] text-slate-500"
-        >
+        <div v-if="card.menu.selected.noDropdownLabel" class="text-sm font-medium leading-[1.43] text-slate-500">
           {{ card.menu.selected.noDropdownLabel }}
         </div>
-        <div
-          v-else
-          class="relative"
-        >
-          <button
-            class="flex items-center"
-            @click="card.range.showOptions = !card.range.showOptions"
-          >
+        <div v-else class="relative">
+          <button class="flex items-center" @click="card.range.showOptions = !card.range.showOptions">
             <span class="text-sm left-[1.43] text-slate-500 font-medium mr-1">
               {{ card.range.selected.label }}
             </span>
@@ -173,10 +140,7 @@
             </div>
           </Transition>
         </div>
-        <button
-          disabled
-          class="flex items-center text-slate-500 mr-2 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <button disabled class="flex items-center text-slate-500 mr-2 disabled:cursor-not-allowed disabled:opacity-60">
           <span class="text-sm font-medium left-[1.43] mr-2"> More </span>
           <ArrowRightIcon class="w-4 h-4" />
         </button>
@@ -257,19 +221,18 @@ const options = [
 
 const setWidgetValueFormat = async (widgetType: string, response: string | number) => {
   if (
-    widgetType === 'gross-revenue'
-    || widgetType === 'gross-margin'
-    || widgetType === 'total-stock-value'
-    || widgetType === 'revenue-growth'
-    || widgetType === 'average-order-value'
+    widgetType === 'gross-revenue' ||
+    widgetType === 'gross-margin' ||
+    widgetType === 'total-stock-value' ||
+    widgetType === 'revenue-growth' ||
+    widgetType === 'average-order-value'
   ) {
-    response
-            = Number(response).toLocaleString('en', {
+    response =
+      Number(response).toLocaleString('en', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }) + ' Lei';
-  }
-  else {
+  } else {
     response = Number(response).toLocaleString('en');
   }
   return response;
@@ -289,8 +252,7 @@ const getTotalOrders = async () => {
     isLoading.value[0] = false;
     error.value[0] = true;
     return;
-  }
-  else {
+  } else {
     isLoading.value[0] = false;
   }
   totalOrders.value = await setWidgetValueFormat('total-orders', firstWidget.data.total);
@@ -301,8 +263,7 @@ const getGrossRevenue = async () => {
     isLoading.value[1] = false;
     error.value[1] = true;
     return;
-  }
-  else {
+  } else {
     isLoading.value[1] = false;
   }
   grossRevenue.value = await setWidgetValueFormat('gross-revenue', secondWidget.data.total);
@@ -313,8 +274,7 @@ const getAvgOrderValue = async () => {
     isLoading.value[2] = false;
     error.value[2] = true;
     return;
-  }
-  else {
+  } else {
     isLoading.value[2] = false;
   }
   avgOrderValue.value = await setWidgetValueFormat('average-order-value', thirdWidget.data.total);
@@ -325,8 +285,7 @@ const getProductsSold = async () => {
     isLoading.value[3] = false;
     error.value[3] = true;
     return;
-  }
-  else {
+  } else {
     isLoading.value[3] = false;
   }
   productsSold.value = await setWidgetValueFormat('products-sold', fourthWidget.data.total);
@@ -479,8 +438,7 @@ const getWidgedData = async (data: WidgetCard, index: number) => {
   const selectedValue = cards.value[index].menu.selected.value;
   if (isRef(selectedValue)) {
     selectedValue.value = formattedTotal;
-  }
-  else {
+  } else {
     cards.value[index].menu.selected.value = formattedTotal;
   }
 };

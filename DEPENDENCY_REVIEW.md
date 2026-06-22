@@ -13,10 +13,10 @@ Your project has **41 security vulnerabilities** (1 critical, 16 high, 18 modera
 
 ### Risk Assessment: HIGH
 
--   Critical security vulnerability in Koa (Open Redirect)
--   Multiple high-severity vulnerabilities in core dependencies
--   Firebase 9.x is 3 major versions behind (security & API implications)
--   TailwindCSS 3.x approaching end-of-life patterns
+- Critical security vulnerability in Koa (Open Redirect)
+- Multiple high-severity vulnerabilities in core dependencies
+- Firebase 9.x is 3 major versions behind (security & API implications)
+- TailwindCSS 3.x approaching end-of-life patterns
 
 ---
 
@@ -42,20 +42,20 @@ Your project has **41 security vulnerabilities** (1 critical, 16 high, 18 modera
 
 ### Moderate (18)
 
--   `@babel/helpers` & `@babel/runtime` - RegExp complexity
--   `@grpc/grpc-js` - Memory allocation issues
--   `@eslint/plugin-kit` - ReDoS vulnerability
--   `lodash` - Prototype pollution
--   `nanoid` - Predictable results
--   `undici` - Insufficient random values
--   `esbuild` - Development server security
--   `js-yaml` - Prototype pollution
--   `nanotar` - Path traversal
--   And 9 more...
+- `@babel/helpers` & `@babel/runtime` - RegExp complexity
+- `@grpc/grpc-js` - Memory allocation issues
+- `@eslint/plugin-kit` - ReDoS vulnerability
+- `lodash` - Prototype pollution
+- `nanoid` - Predictable results
+- `undici` - Insufficient random values
+- `esbuild` - Development server security
+- `js-yaml` - Prototype pollution
+- `nanotar` - Path traversal
+- And 9 more...
 
 ### Low (6)
 
--   Various transitive dependencies
+- Various transitive dependencies
 
 ---
 
@@ -96,29 +96,29 @@ These can be safely updated now:
 
 ```json
 {
-    "@formkit/auto-animate": "^0.9.0",
-    "@nuxt/eslint": "^1.15.1",
-    "@nuxtjs/color-mode": "^4.0.0",
-    "@nuxtjs/leaflet": "^1.3.2",
-    "@nuxtjs/tailwindcss": "^6.14.0",
-    "@tanstack/vue-table": "^8.21.3",
-    "@types/lodash": "^4.17.23",
-    "@types/uuid": "^10.0.0",
-    "@vee-validate/zod": "^4.15.1",
-    "@zoom-image/core": "^0.42.0",
-    "@zoom-image/vue": "^0.2.32",
-    "autoprefixer": "^10.4.24",
-    "class-variance-authority": "^0.7.1",
-    "embla-carousel-vue": "^8.6.0",
-    "lodash": "^4.17.23",
-    "nuxt-viewport": "^2.3.1",
-    "pinia-plugin-persistedstate": "^4.7.1",
-    "postcss": "^8.5.6",
-    "radix-vue": "^1.9.17",
-    "sass": "^1.97.3",
-    "tailwind-merge": "^3.4.0",
-    "vee-validate": "^4.15.1",
-    "vue3-apexcharts": "^1.10.0"
+  "@formkit/auto-animate": "^0.9.0",
+  "@nuxt/eslint": "^1.15.1",
+  "@nuxtjs/color-mode": "^4.0.0",
+  "@nuxtjs/leaflet": "^1.3.2",
+  "@nuxtjs/tailwindcss": "^6.14.0",
+  "@tanstack/vue-table": "^8.21.3",
+  "@types/lodash": "^4.17.23",
+  "@types/uuid": "^10.0.0",
+  "@vee-validate/zod": "^4.15.1",
+  "@zoom-image/core": "^0.42.0",
+  "@zoom-image/vue": "^0.2.32",
+  "autoprefixer": "^10.4.24",
+  "class-variance-authority": "^0.7.1",
+  "embla-carousel-vue": "^8.6.0",
+  "lodash": "^4.17.23",
+  "nuxt-viewport": "^2.3.1",
+  "pinia-plugin-persistedstate": "^4.7.1",
+  "postcss": "^8.5.6",
+  "radix-vue": "^1.9.17",
+  "sass": "^1.97.3",
+  "tailwind-merge": "^3.4.0",
+  "vee-validate": "^4.15.1",
+  "vue3-apexcharts": "^1.10.0"
 }
 ```
 
@@ -189,17 +189,17 @@ npm run build
 
 Firebase v9→v12 has major breaking changes:
 
--   Auth API changes
--   Firestore query changes
--   Breaking changes in nuxt-vuefire
+- Auth API changes
+- Firestore query changes
+- Breaking changes in nuxt-vuefire
 
 **Steps:**
 
 1. Create feature branch: `git checkout -b fx_upgrade-firebase`
 2. Update packages:
-    ```bash
-    npm install firebase@^12.9.0 nuxt-vuefire@^1.1.0
-    ```
+   ```bash
+   npm install firebase@^12.9.0 nuxt-vuefire@^1.1.0
+   ```
 3. Update auth service code
 4. Update Firestore queries
 5. Test all Firebase features thoroughly
@@ -210,9 +210,9 @@ Firebase v9→v12 has major breaking changes:
 
 TailwindCSS 4.0 is a complete architectural change:
 
--   No `tailwind.config.js` - uses CSS-based configuration
--   Breaking changes in plugin system
--   Shadcn components need updates
+- No `tailwind.config.js` - uses CSS-based configuration
+- Breaking changes in plugin system
+- Shadcn components need updates
 
 **Steps:**
 
@@ -229,9 +229,9 @@ TailwindCSS 4.0 is a complete architectural change:
 
 Nuxt 3→4 is a major version with:
 
--   App directory structure changes
--   API changes
--   Module compatibility issues
+- App directory structure changes
+- API changes
+- Module compatibility issues
 
 **Steps:**
 
@@ -247,23 +247,23 @@ Nuxt 3→4 is a major version with:
 
 ### Configuration Files
 
--   [ ] `nuxt.config.ts` - PostCSS, module configurations
--   [ ] `tailwind.config.js` - Will need migration to v4
--   [ ] `package.json` - All dependency versions
--   [ ] `.eslintrc` - If ESLint 10 changes config format
+- [ ] `nuxt.config.ts` - PostCSS, module configurations
+- [ ] `tailwind.config.js` - Will need migration to v4
+- [ ] `package.json` - All dependency versions
+- [ ] `.eslintrc` - If ESLint 10 changes config format
 
 ### Source Code Areas
 
--   [ ] `services/` - Firebase auth calls
--   [ ] `composables/` - Any Firebase composables
--   [ ] `components/` - Shadcn UI components
--   [ ] `store/` - Pinia store definitions
--   [ ] `plugins/` - Firebase initialization
+- [ ] `services/` - Firebase auth calls
+- [ ] `composables/` - Any Firebase composables
+- [ ] `components/` - Shadcn UI components
+- [ ] `store/` - Pinia store definitions
+- [ ] `plugins/` - Firebase initialization
 
 ### CI/CD
 
--   [ ] `.github/workflows/` - Node version compatibility
--   [ ] `.docker/nuxt/Dockerfile` - Currently using Node 20 (compatible)
+- [ ] `.github/workflows/` - Node version compatibility
+- [ ] `.docker/nuxt/Dockerfile` - Currently using Node 20 (compatible)
 
 ---
 
@@ -271,10 +271,10 @@ Nuxt 3→4 is a major version with:
 
 ### Current Dependency Count
 
--   **Total:** 70+ packages
--   **Direct dependencies:** 37
--   **Dev dependencies:** 16
--   **Outdated:** 40+
+- **Total:** 70+ packages
+- **Direct dependencies:** 37
+- **Dev dependencies:** 16
+- **Outdated:** 40+
 
 ### Unused Dependencies Check
 
@@ -290,15 +290,15 @@ depcheck
 
 **Potential candidates for removal:**
 
--   `moment` - Deprecated, use `date-fns` exclusively (already installed)
--   `ohmyfetch` - Deprecated, use native `fetch` or `$fetch` from Nuxt
+- `moment` - Deprecated, use `date-fns` exclusively (already installed)
+- `ohmyfetch` - Deprecated, use native `fetch` or `$fetch` from Nuxt
 
 ### Duplicated Dependencies
 
 Some packages may have duplicates:
 
--   `date-fns` vs `moment` (choose one)
--   Multiple animation libraries (`@formkit/auto-animate`, etc.)
+- `date-fns` vs `moment` (choose one)
+- Multiple animation libraries (`@formkit/auto-animate`, etc.)
 
 ---
 
@@ -308,35 +308,35 @@ Some packages may have duplicates:
 
 ```json
 {
-    "devDependencies": {
-        "@nuxt/eslint": "^1.15.1",
-        "@nuxtjs/color-mode": "^4.0.0",
-        "@nuxtjs/leaflet": "^1.3.2",
-        "@types/lodash": "^4.17.23",
-        "@types/uuid": "^10.0.0",
-        "autoprefixer": "^10.4.24",
-        "nuxt": "^3.21.1",
-        "postcss": "^8.5.6",
-        "sass": "^1.97.3",
-        "typescript": "^5.9.3"
-    },
-    "dependencies": {
-        "@formkit/auto-animate": "^0.9.0",
-        "@nuxtjs/tailwindcss": "^6.14.0",
-        "@tanstack/vue-table": "^8.21.3",
-        "@vee-validate/zod": "^4.15.1",
-        "@zoom-image/core": "^0.42.0",
-        "@zoom-image/vue": "^0.2.32",
-        "class-variance-authority": "^0.7.1",
-        "embla-carousel-vue": "^8.6.0",
-        "lodash": "^4.17.23",
-        "nuxt-viewport": "^2.3.1",
-        "pinia-plugin-persistedstate": "^4.7.1",
-        "radix-vue": "^1.9.17",
-        "tailwind-merge": "^3.4.0",
-        "vee-validate": "^4.15.1",
-        "vue3-apexcharts": "^1.10.0"
-    }
+  "devDependencies": {
+    "@nuxt/eslint": "^1.15.1",
+    "@nuxtjs/color-mode": "^4.0.0",
+    "@nuxtjs/leaflet": "^1.3.2",
+    "@types/lodash": "^4.17.23",
+    "@types/uuid": "^10.0.0",
+    "autoprefixer": "^10.4.24",
+    "nuxt": "^3.21.1",
+    "postcss": "^8.5.6",
+    "sass": "^1.97.3",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@formkit/auto-animate": "^0.9.0",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@tanstack/vue-table": "^8.21.3",
+    "@vee-validate/zod": "^4.15.1",
+    "@zoom-image/core": "^0.42.0",
+    "@zoom-image/vue": "^0.2.32",
+    "class-variance-authority": "^0.7.1",
+    "embla-carousel-vue": "^8.6.0",
+    "lodash": "^4.17.23",
+    "nuxt-viewport": "^2.3.1",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "radix-vue": "^1.9.17",
+    "tailwind-merge": "^3.4.0",
+    "vee-validate": "^4.15.1",
+    "vue3-apexcharts": "^1.10.0"
+  }
 }
 ```
 
@@ -366,11 +366,11 @@ FROM node:22-alpine AS base
 
 ## Resources
 
--   [Nuxt 4 Migration Guide](https://nuxt.com/docs/getting-started/upgrade)
--   [TailwindCSS v4 Upgrade](https://tailwindcss.com/docs/upgrade-guide)
--   [Firebase v9 to v10+](https://firebase.google.com/docs/web/modular-upgrade)
--   [Pinia v3 Changes](https://pinia.vuejs.org/introduction.html)
--   [VueUse v11+ Migration](https://vueuse.org/guide/migration.html)
+- [Nuxt 4 Migration Guide](https://nuxt.com/docs/getting-started/upgrade)
+- [TailwindCSS v4 Upgrade](https://tailwindcss.com/docs/upgrade-guide)
+- [Firebase v9 to v10+](https://firebase.google.com/docs/web/modular-upgrade)
+- [Pinia v3 Changes](https://pinia.vuejs.org/introduction.html)
+- [VueUse v11+ Migration](https://vueuse.org/guide/migration.html)
 
 ---
 

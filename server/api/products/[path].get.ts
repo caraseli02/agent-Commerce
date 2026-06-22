@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const normalizedPath = String(path || '').toLowerCase();
 
   const tabHandlers: Record<string, () => unknown[]> = {
-    'featured': () => mockProducts.slice(0, 8),
+    featured: () => mockProducts.slice(0, 8),
     'best-sellers': () => mockProducts.slice(8, 16),
     'hot-deals': () => mockProducts.slice(16, 24),
     'top-searched': () => mockProducts.slice(0, 8),
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  const product = (mockProducts as ProductInterface[]).find(p => p.path === path);
+  const product = (mockProducts as ProductInterface[]).find((p) => p.path === path);
 
   if (!product) {
     throw createError({

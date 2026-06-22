@@ -28,9 +28,9 @@ export const columns: ColumnDef<CustomerTableColumns>[] = [
     cell: ({ row }) =>
       h(UserInfo, {
         name:
-                    row.original.accountType === AccountTypeEnum.Personal
-                      ? `${row.original.personalDetails?.firstName} ${row.original.personalDetails?.lastName}`
-                      : `${row.original.contactDetails?.firstName} ${row.original.contactDetails?.lastName}`,
+          row.original.accountType === AccountTypeEnum.Personal
+            ? `${row.original.personalDetails?.firstName} ${row.original.personalDetails?.lastName}`
+            : `${row.original.contactDetails?.firstName} ${row.original.contactDetails?.lastName}`,
         email: row.original.contactDetails?.email,
         navigateToRoute: `/dashboard/customers/${row.original.firebaseId}`,
       }),
@@ -53,8 +53,7 @@ export const columns: ColumnDef<CustomerTableColumns>[] = [
   {
     accessorKey: CustomerTableColumnsEnum.SPENT,
     header: ({ column }) => renderColumnHeader(column, 'Spent'),
-    cell: ({ row }) =>
-      h('div', { class: 'inline overflow-hidden' }, formatNumberWithCommas((row.original.spent ?? 0) as number, 'lei')),
+    cell: ({ row }) => h('div', { class: 'inline overflow-hidden' }, formatNumberWithCommas((row.original.spent ?? 0) as number, 'lei')),
   },
   {
     accessorKey: CustomerTableColumnsEnum.ORDERS_COUNT,

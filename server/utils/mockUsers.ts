@@ -183,7 +183,7 @@ export const getMockUserById = (userId?: string | null) => {
     return null;
   }
 
-  const match = mockUsers.find(entry => entry.user._id === userId);
+  const match = mockUsers.find((entry) => entry.user._id === userId);
   return match?.user || null;
 };
 
@@ -194,9 +194,8 @@ export const getMockUserByCredentials = (credentials: { email?: string; clientCo
     const normalizedClientCode = String(credentials.clientCode || '').toUpperCase();
 
     return (
-      hasValidPassword
-      && (entry.credentials.email.toLowerCase() === normalizedEmail
-        || entry.credentials.clientCode.toUpperCase() === normalizedClientCode)
+      hasValidPassword &&
+      (entry.credentials.email.toLowerCase() === normalizedEmail || entry.credentials.clientCode.toUpperCase() === normalizedClientCode)
     );
   });
 };

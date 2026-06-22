@@ -1,8 +1,6 @@
 <template>
   <div class="items-stretch shadow-xs bg-white flex flex-col p-6 rounded-xl max-md:px-5">
-    <div class="text-zinc-800 text-base font-semibold leading-6 max-md:max-w-full">
-      My Activity
-    </div>
+    <div class="text-zinc-800 text-base font-semibold leading-6 max-md:max-w-full">My Activity</div>
     <div class="mt-9 max-md:max-w-full">
       <div class="gap-4 md:gap-5 flex max-md:flex-col max-md:items-stretch">
         <div class="flex flex-col items-stretch w-[33%] min-h-[114px] justify-between max-md:w-full max-md:ml-0">
@@ -11,9 +9,7 @@
               <div
                 class="justify-center items-center bg-red-500 bg-opacity-30 flex aspect-square flex-col p-2 w-13 h-13 md:w-11 md:h-11 md:p-1 lg:w-14 lg:h-14 lg:p-2 rounded-[100px] self-start"
               >
-                <div
-                  class="justify-center items-center bg-red-500 flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]"
-                >
+                <div class="justify-center items-center bg-red-500 flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]">
                   <svg
                     class="w-5 h-5 lg:w-6 lg:h-6 aspect-square object-contain object-center overflow-hidden"
                     viewBox="0 0 24 24"
@@ -30,14 +26,8 @@
                 </div>
               </div>
               <div class="items-stretch flex grow basis-[0%] flex-col text-sm whitespace-nowrap">
-                <div class="text-neutral-800 font-semibold leading-5">
-                  My Favorites
-                </div>
-                <div
-                  v-for="(val, key, index) in data.favorites"
-                  :key="index"
-                  class="items-stretch flex justify-between gap-3 mt-0.5"
-                >
+                <div class="text-neutral-800 font-semibold leading-5">My Favorites</div>
+                <div v-for="(val, key, index) in data.favorites" :key="index" class="items-stretch flex justify-between gap-3 mt-0.5">
                   <div class="text-slate-500 leading-6 capitalize">
                     {{ key }}
                   </div>
@@ -48,9 +38,7 @@
               </div>
             </div>
             <div class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 transition-all cursor-pointer">
-              <button class="text-sm font-medium leading-5 grow">
-                Favorites
-              </button>
+              <button class="text-sm font-medium leading-5 grow">Favorites</button>
               <SvgoArrowLeft16
                 class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"
               />
@@ -64,9 +52,7 @@
               <div
                 class="justify-center items-center bg-blue-500 bg-opacity-30 flex aspect-square flex-col p-2 w-13 h-13 md:w-11 md:h-11 md:p-1 lg:w-14 lg:h-14 lg:p-2 rounded-[100px]"
               >
-                <div
-                  class="justify-center items-center bg-blue-500 flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]"
-                >
+                <div class="justify-center items-center bg-blue-500 flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]">
                   <svg
                     class="w-5 h-5 lg:w-6 lg:h-6 aspect-square object-contain object-center justify-center items-center overflow-hidden"
                     viewBox="0 0 24 24"
@@ -110,9 +96,7 @@
               </div>
               <div class="items-stretch flex grow basis-[0%] flex-col text-sm self-start">
                 <div class="items-stretch flex gap-2 font-semibold self-start">
-                  <div class="text-neutral-800 leading-5 grow">
-                    Total Orders
-                  </div>
+                  <div class="text-neutral-800 leading-5 grow">Total Orders</div>
                   <div class="text-zinc-800 leading-5">
                     {{ data.totalOrders }}
                   </div>
@@ -124,12 +108,7 @@
               </div>
             </div>
             <div class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 cursor-pointer">
-              <UiButton
-                variant="ghost"
-                size="xs"
-                class="text-sm font-medium leading-5 gap-2"
-                @click="openSettingTab"
-              >
+              <UiButton variant="ghost" size="xs" class="text-sm font-medium leading-5 gap-2" @click="openSettingTab">
                 Orders
                 <SvgoArrowLeft16
                   class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"
@@ -145,9 +124,7 @@
               <div
                 class="justify-center items-center bg-slate-500 bg-opacity-30 flex aspect-square flex-col p-2 w-13 h-13 md:w-11 md:h-11 md:p-1 lg:w-14 lg:h-14 lg:p-2 rounded-[100px]"
               >
-                <div
-                  class="justify-center items-center bg-slate-500 flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]"
-                >
+                <div class="justify-center items-center bg-slate-500 flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]">
                   <svg
                     class="aspect-square object-contain object-center overflow-hidden w-5 h-5 lg:w-6 lg:h-6"
                     viewBox="0 0 24 24"
@@ -166,9 +143,7 @@
               </div>
               <div class="items-stretch flex grow basis-[0%] flex-col">
                 <div class="items-stretch flex gap-2 text-sm font-semibold whitespace-nowrap">
-                  <div class="text-neutral-800 leading-5 shrink basis-auto">
-                    Returns
-                  </div>
+                  <div class="text-neutral-800 leading-5 shrink basis-auto">Returns</div>
                   <div class="text-zinc-800 leading-5">
                     {{ data.returns }}
                   </div>
@@ -190,16 +165,12 @@
                       stroke-linejoin="round"
                     />
                   </svg>
-                  <div class="text-slate-500 text-sm leading-5">
-                    File a return
-                  </div>
+                  <div class="text-slate-500 text-sm leading-5">File a return</div>
                 </div>
               </div>
             </div>
             <div class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 cursor-pointer">
-              <button class="text-sm font-medium leading-5 grow whitespace-nowrap">
-                All Returns
-              </button>
+              <button class="text-sm font-medium leading-5 grow whitespace-nowrap">All Returns</button>
               <SvgoArrowLeft16
                 class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"
               />
