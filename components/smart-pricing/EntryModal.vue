@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import PriceRange from './PriceRange.vue';
-import { useNuxtApp } from '#app';
 import { usePricingStore } from '~/store/pricingStore';
+import { editPriceRange, setNewPriceRange } from '~/composables/api/smart-pricing';
 
 const pricingStore = usePricingStore();
 const { showEntryModal, editEntryPriceModal } = storeToRefs(pricingStore);
-
-const { $api } = useNuxtApp();
 
 type PriceRangeType = {
   min: number | null;
@@ -34,14 +32,14 @@ const handleCreate = async () => {
       ...editEntryPriceModal.value,
       range: { min: priceRange.value.min, max: priceRange.value.max },
     };
-    const response = await $api.smartPricing.editPriceRange(editedEntryPriceObject, editEntryPriceModal.value?._id);
+    const response = await editPriceRange(editedEntryPriceObject, editEntryPriceModal.value?._id ?? '');
     if (response.status !== 'success') {
       // Add your logic here to handle the creation error
       return;
     }
     await pricingStore.updateAndReturnPricing();
   } else if (pricingStore.type === 'add') {
-    const response = await $api.smartPricing.setNewPriceRange({
+    const response = await setNewPriceRange({
       min: priceRange.value.min,
       max: priceRange.value.max,
       label: priceRange.value.label || `EP-${pricingStore.range?.length + 1}`,

@@ -2,10 +2,8 @@
 import { PlusIcon } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { usePricingStore } from '~/store/pricingStore';
-import { useNuxtApp } from '#app';
 import { PriceSettingsTypeEnum } from '~/model/prices/price-settings.interface';
-
-const { $api } = useNuxtApp();
+import { editPriceRange, setNewQuantityRange } from '~/composables/api/smart-pricing';
 
 const pricingStore = usePricingStore();
 const { showQuantityModal, editQuantityModal, type } = storeToRefs(pricingStore);
@@ -64,7 +62,7 @@ const createNewQuantityTemplate = async () => {
       values: quantityList.value.map((item) => Number(item.max)),
     };
 
-    const response = await $api.smartPricing.editPriceRange(editedQuantityObject, editQuantityModal.value._id ?? '');
+    const response = await editPriceRange(editedQuantityObject, editQuantityModal.value._id ?? '');
     if (response.status !== 'success') {
       // Add your logic here to handle the creation error
       return;
@@ -73,7 +71,7 @@ const createNewQuantityTemplate = async () => {
   } else if (type.value === 'add') {
     const maxValues = quantityList.value.map((item) => item.max);
 
-    const response = await $api.smartPricing.setNewQuantityRange({
+    const response = await setNewQuantityRange({
       values: maxValues,
       label: `QTY-${pricingStore.quantity?.length + 1}`,
     });

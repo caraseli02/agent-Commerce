@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
-import { useNuxtApp } from '#app';
 import { type PriceSettingsInterface, type SmartPricingOption, PriceSettingsTypeEnum } from '~/model/prices/price-settings.interface';
 import { smartPricingMargin, smartPricingQuantity, smartPricingRange } from '~/helpers/smart-pricing.helper';
+import { fetchPriceSettings } from '~/composables/api/smart-pricing';
 
 export type SmartPricingListItem = SmartPricingOption;
 
@@ -27,8 +27,7 @@ export const usePricingStore = defineStore({
       this.pricing = pricing;
     },
     async updateAndReturnPricing() {
-      const { $api } = useNuxtApp();
-      const pricingResponse = await $api.smartPricing.fetchPriceSettings();
+      const pricingResponse = await fetchPriceSettings();
 
       if (!pricingResponse || pricingResponse.status !== 'success') {
         return null;
@@ -76,10 +75,8 @@ export const usePricingStore = defineStore({
   },
   getters: {
     getPricing: async (state) => {
-      const { $api } = useNuxtApp();
-
       if (!state.pricing) {
-        const pricingResponse = await $api.smartPricing.fetchPriceSettings();
+        const pricingResponse = await fetchPriceSettings();
 
         if (!pricingResponse) {
           return null;

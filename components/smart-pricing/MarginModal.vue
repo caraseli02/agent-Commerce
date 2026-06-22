@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { PlusIcon, Trash2Icon } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
-import { useNuxtApp } from '#app';
 import { usePricingStore } from '~/store/pricingStore';
 import { PriceSettingsTypeEnum } from '~/model/prices/price-settings.interface';
+import { editPriceRange, setNewMarginRange } from '~/composables/api/smart-pricing';
 
 interface MarginFormItem {
   id: number;
@@ -12,8 +12,6 @@ interface MarginFormItem {
 
 const pricingStore = usePricingStore();
 const { showMarginModal, editMarginModal } = storeToRefs(pricingStore);
-
-const { $api } = useNuxtApp();
 
 const marginList = ref<MarginFormItem[]>([{ id: 1, value: '' }]);
 
@@ -57,13 +55,13 @@ const createNewMarginTemplate = async () => {
       values: marginList.value.map((item) => Number(item.value)),
     };
 
-    const response = await $api.smartPricing.editPriceRange(editedMarginObject, editMarginModal.value._id);
+    const response = await editPriceRange(editedMarginObject, editMarginModal.value._id);
     if (response.status !== 'success') {
       return;
     }
     await pricingStore.updateAndReturnPricing();
   } else if (pricingStore.type === 'add') {
-    const response = await $api.smartPricing.setNewMarginRange({
+    const response = await setNewMarginRange({
       values: marginList.value.map((item) => Number(item.value)),
       label: `NM-${pricingStore.margin.length}`,
     });

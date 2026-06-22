@@ -4,12 +4,10 @@ import { storeToRefs } from 'pinia';
 import { usePricingStore } from '~/store/pricingStore';
 import type { SmartPricingOption } from '~/model/prices/price-settings.interface';
 import { PriceSettingsTypeEnum } from '~/model/prices/price-settings.interface';
-import { useNuxtApp } from '#app';
+import { deleteSmartPricingEntity } from '~/composables/api/smart-pricing';
 
 const pricingStore = usePricingStore();
 const { showMarginModal, pricing, margin } = storeToRefs(pricingStore);
-
-const { $api } = useNuxtApp();
 
 const marginList = ref<SmartPricingOption[]>([...pricingStore.margin]);
 
@@ -22,7 +20,7 @@ watch(
 );
 
 const deleteItem = async (itemValue: SmartPricingOption) => {
-  const response = await $api.smartPricing.deleteSmartPricingEntity(PriceSettingsTypeEnum.Margins, itemValue._id);
+  const response = await deleteSmartPricingEntity(PriceSettingsTypeEnum.Margins, itemValue._id);
   if (response.status !== 'success') {
     return;
   }
@@ -34,7 +32,7 @@ function deleteAllSelected() {
   const selectedItems = marginList.value.filter((i) => i.selected);
 
   selectedItems.map(async (item) => {
-    const response = await $api.smartPricing.deleteSmartPricingEntity(PriceSettingsTypeEnum.Margins, item._id);
+    const response = await deleteSmartPricingEntity(PriceSettingsTypeEnum.Margins, item._id);
     if (response.status !== 'success') {
       return;
     }

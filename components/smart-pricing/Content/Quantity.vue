@@ -3,15 +3,12 @@ import { SearchIcon, Trash2Icon } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { usePricingStore } from '~/store/pricingStore';
 import type { SmartPricingOption } from '~/model/prices/price-settings.interface';
-
-import { useNuxtApp } from '#app';
 import { PriceSettingsTypeEnum } from '~/model/prices/price-settings.interface';
+import { deleteSmartPricingEntity } from '~/composables/api/smart-pricing';
 
 const pricingStore = usePricingStore();
 
 const { showQuantityModal, pricing, quantity } = storeToRefs(pricingStore);
-
-const { $api } = useNuxtApp();
 
 const quantityList = ref<SmartPricingOption[]>([...pricingStore.quantity]);
 
@@ -24,7 +21,7 @@ watch(
 );
 
 const deleteItem = async (itemValue: SmartPricingOption) => {
-  const response = await $api.smartPricing.deleteSmartPricingEntity(PriceSettingsTypeEnum.Quantity, itemValue._id);
+  const response = await deleteSmartPricingEntity(PriceSettingsTypeEnum.Quantity, itemValue._id);
   if (response.status !== 'success') {
     return;
   }
@@ -36,7 +33,7 @@ function deleteAllSelected() {
   const selectedItems = quantityList.value.filter((i) => i.selected);
 
   selectedItems.map(async (item) => {
-    const response = await $api.smartPricing.deleteSmartPricingEntity(PriceSettingsTypeEnum.Quantity, item._id);
+    const response = await deleteSmartPricingEntity(PriceSettingsTypeEnum.Quantity, item._id);
     if (response.status !== 'success') {
       return;
     }
