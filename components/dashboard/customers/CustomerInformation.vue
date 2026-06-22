@@ -195,7 +195,7 @@ import Avatar from '@/assets/icons/dashboard/avatar.png';
 import DotsVerticalIcon from '@/assets/icons/dots-vertical.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import { useNuxtApp } from '#app';
+import { fetchCustomerInformation } from '~/composables/api/customer-profile';
 import { AccountStatusEnum, type AddressInterface, type UserInterface } from '~/types/auth/user-interface';
 import { AccountType, getAccountTypeById } from '~/types';
 import type { DashboardCustomerTableItem } from '~/types';
@@ -231,8 +231,6 @@ const props = defineProps({
 });
 const customerInformation = ref<CustomerProfileUser>({} as CustomerProfileUser);
 const customerDetails = ref<DashboardCustomerTableItem>({} as DashboardCustomerTableItem);
-const { $api } = useNuxtApp();
-
 const fetchInformation = async () => {
   error.value = false;
   isLoading.value = true;
@@ -240,7 +238,7 @@ const fetchInformation = async () => {
   if (!props.id) {
     return;
   }
-  const response = (await $api.customerProfile.fetchCustomerInformation(props.id)) as unknown as CustomerInformationResponse;
+  const response = (await fetchCustomerInformation(props.id)) as unknown as CustomerInformationResponse;
 
   if (response.status !== 'success') {
     isLoading.value = false;

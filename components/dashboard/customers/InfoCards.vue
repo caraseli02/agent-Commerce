@@ -100,6 +100,12 @@ import CardIcon from '@/assets/icons/dashboard/card.svg';
 import AbandonedCheckoutIcon from '@/assets/icons/dashboard/abandoned-checkout.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
+import {
+  fetchCustomerAbandonedCheckout,
+  fetchCustomerAvgOrderValue,
+  fetchCustomerLastOrder,
+  fetchCustomerTotalSpent,
+} from '~/composables/api/customer-profile';
 import type { OrderInterface } from '~/types';
 
 const error = ref({
@@ -127,15 +133,13 @@ const totalSpent = ref(0);
 const avgOrderValue = ref(0);
 const abandonedCheckout = ref(0);
 
-const { $api } = useNuxtApp();
-
 const fetchLastOrder = async () => {
   error.value.lastOrder = false;
   isLoading.value.lastOrder = true;
   if (!props.id) {
     return;
   }
-  const response = (await $api.customerProfile.fetchCustomerLastOrder(props.id)) as {
+  const response = (await fetchCustomerLastOrder(props.id)) as {
     status: string;
     data: OrderInterface;
   };
@@ -158,7 +162,7 @@ const fetchTotalSpent = async () => {
   if (!props.id) {
     return;
   }
-  const response = (await $api.customerProfile.fetchCustomerTotalSpent(props.id)) as {
+  const response = (await fetchCustomerTotalSpent(props.id)) as {
     status: string;
     data: number;
   };
@@ -178,7 +182,7 @@ const fetchAvgOrderValue = async () => {
   if (!props.id) {
     return;
   }
-  const response = (await $api.customerProfile.fetchCustomerAvgOrderValue(props.id)) as {
+  const response = (await fetchCustomerAvgOrderValue(props.id)) as {
     status: string;
     data: number;
   };
@@ -201,7 +205,7 @@ const fetchAbandonedCheckout = async () => {
   if (!props.id) {
     return;
   }
-  const response = (await $api.customerProfile.fetchCustomerAbandonedCheckout(props.id)) as {
+  const response = (await fetchCustomerAbandonedCheckout(props.id)) as {
     status: string;
     data: number;
   };

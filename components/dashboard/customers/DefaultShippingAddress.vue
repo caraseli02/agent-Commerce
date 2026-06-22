@@ -57,6 +57,7 @@ import EyeIcon from '@/assets/icons/dashboard/eye.svg';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
+import { fetchCustomerShippingInformation } from '~/composables/api/customer-profile';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 
 const showOptions = ref(false);
@@ -73,15 +74,13 @@ const props = defineProps({
 });
 
 const shippingInformation = ref([] as ShippingAddressInterface[]);
-const { $api } = useNuxtApp();
-
 const fetchShippingInformation = async () => {
   error.value = false;
   isLoading.value = true;
   if (!props.id) {
     return;
   }
-  const response = (await $api.customerProfile.fetchCustomerShippingInformation(props.id)) as {
+  const response = (await fetchCustomerShippingInformation(props.id)) as {
     status: string;
     data: ShippingAddressInterface[];
   };

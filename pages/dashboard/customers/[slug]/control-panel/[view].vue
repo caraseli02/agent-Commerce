@@ -31,10 +31,8 @@
 import { ControlPanelTabsEnum } from '~/types/dashboard/control-panel';
 import type { ControlPanelTabs } from '~/types/dashboard/control-panel';
 import type { UserInterface } from '~/types/auth/user-interface';
-import { useNuxtApp } from '#app';
 import { AccountType } from '~/types';
-
-const { $api } = useNuxtApp();
+import { fetchCustomerInformation } from '~/composables/api/customer-profile';
 
 const route = useRoute();
 const router = useRouter();
@@ -69,7 +67,7 @@ const fetchInformation = async () => {
     return;
   }
   try {
-    const response = (await $api.customerProfile.fetchCustomerInformation(customerSlug.value)) as unknown as {
+    const response = (await fetchCustomerInformation(customerSlug.value)) as unknown as {
       status: string;
       data: UserInterface;
     };

@@ -87,12 +87,13 @@
 </template>
 
 <script setup lang="ts">
-import type { UserInterface } from '~/types/auth/user-interface';
 import { useNuxtApp } from '#app';
+import type { UserInterface } from '~/types/auth/user-interface';
 import { ControlPanelLabels, ControlPanelTabsEnum } from '~/types/dashboard/control-panel';
 import { AccountType } from '~/types';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { customerCreditHelper } from '~/helpers/customer-credit.helper';
+import { fetchCustomerInformation } from '~/composables/api/customer-profile';
 
 const route = useRoute();
 const router = useRouter();
@@ -100,6 +101,7 @@ const customerSlug = computed(() => String(route.params.slug ?? ''));
 const customerName = ref('');
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
+const { $api } = useNuxtApp();
 
 useHead({
   title: 'Dashboard Control Panel',
@@ -107,7 +109,6 @@ useHead({
 
 const viewHighlightWidth = ref(0);
 const viewHightlightLeft = ref(0);
-const { $api } = useNuxtApp();
 const activeView = computed(() => String(route.params.view ?? ''));
 
 const error = ref(false);
@@ -187,7 +188,7 @@ const fetchInformation = async () => {
     return;
   }
   try {
-    const response = (await $api.customerProfile.fetchCustomerInformation(customerSlug.value)) as unknown as {
+    const response = (await fetchCustomerInformation(customerSlug.value)) as unknown as {
       status: string;
       data: UserInterface;
     };
