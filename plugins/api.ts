@@ -3,7 +3,6 @@ import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
 
 import { deleteNotificationById, fetchGetNotifications, markNotificationAsRead } from '~/composables/api/notifications';
-import CustomerProfileService from '~/services/dashboard/customer-profile.service';
 import ControlPanelService from '~/services/dashboard/control-panel.service';
 import OrdersService from '~/services/dashboard/orders.service';
 import CartService from '~/services/cart.service';
@@ -13,7 +12,6 @@ import DocumentService from '~/services/dashboard/document.service';
 /** ApiInstance interface provides us with good typing */
 export interface IApiInstance {
   cart: CartService;
-  customerProfile: CustomerProfileService;
   notifications: {
     fetchGetNotifications: typeof fetchGetNotifications;
     fetchMarkNotificationAsRead: typeof markNotificationAsRead;
@@ -79,7 +77,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   /** an object containing all repositories we need to expose */
   const modules: IApiInstance = {
     cart: new CartService(apiFetcher),
-    customerProfile: new CustomerProfileService(apiFetcher),
     notifications: {
       fetchGetNotifications,
       fetchMarkNotificationAsRead: markNotificationAsRead,

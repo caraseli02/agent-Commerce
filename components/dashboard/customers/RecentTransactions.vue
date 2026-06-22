@@ -69,6 +69,7 @@ import ArrowRightIcon from '@/assets/icons/dashboard/arrow-right.svg';
 import ArrowSquareRightIcon from '@/assets/icons/dashboard/arrow-square-right.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
+import { fetchCustomerRecentTransactions } from '~/composables/api/customer-profile';
 import { PaymentStatusEnum } from '~/types';
 import type { TransactionInterface } from '~/types/dashboard/transaction';
 
@@ -83,8 +84,6 @@ const props = defineProps({
 });
 const recentTransactions = ref<TransactionInterface[]>({} as TransactionInterface[]);
 
-const { $api } = useNuxtApp();
-
 interface OrderInfo {
   amount: string;
   status: string;
@@ -98,7 +97,7 @@ const fetchRecentTransactions = async () => {
   if (!props.id) {
     return;
   }
-  const response = (await $api.customerProfile.fetchCustomerRecentTransactions(props.id)) as unknown as {
+  const response = (await fetchCustomerRecentTransactions(props.id)) as unknown as {
     status: string;
     data: TransactionInterface[];
   };
