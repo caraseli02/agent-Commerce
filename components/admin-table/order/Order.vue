@@ -6,6 +6,16 @@ import { columns } from './columns';
 import { OrderStatus } from '~/types';
 import type { OrderInterface, OrderTableColumns } from '~/types';
 import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.enum';
+import { fetchOrders } from '~/composables/api/orders';
+
+interface OrdersListResponse {
+  status: string;
+  data: {
+    total_items: number;
+    page_count: number;
+    items: OrderInterface[];
+  };
+}
 
 interface TabFilter {
   label: string;
@@ -15,20 +25,18 @@ interface TabFilter {
   items?: OrderInterface[];
 }
 
-const { $api } = useNuxtApp();
-
 const totalItems = ref(0);
 const pageCount = ref(0);
 const loading = ref(true);
 const loadingFilters = ref(true);
 const error = ref(false);
 const listItems = ref<OrderTableColumns[]>([]);
+const { $apiClient } = useNuxtApp();
 
 const fetchAndSetOrdersList = async (page: number, perPage: number, filters = {}, sort = {}) => {
   error.value = false;
 
-  // FIX to use userID
-  const result = await $api.orders.fetchOrders(page, perPage, filters, sort);
+  const result = (await fetchOrders(page, perPage, filters, sort, $apiClient)) as OrdersListResponse;
 
   if (!result || result.status !== 'success') {
     loading.value = false;
@@ -173,9 +181,8 @@ const debouncedFetchAndSetOrdersList = fetchAndSetOrdersList as unknown as Debou
   (page: number, perPage: number, filters?: unknown, sort?: unknown) => Promise<void>
 >;
 
-loadTabFilters();
-
 onMounted(() => {
+  loadTabFilters();
   setTimeout(() => {
     setActiveFilterHighlight();
     loading.value = false;

@@ -168,9 +168,9 @@ import ChevronIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import { WidgetTypeEnum } from '~/types/dashboard/orders';
-import { useNuxtApp } from '#app';
+import { fetchWidget } from '~/composables/api/orders';
 
-type WidgetApiType = Parameters<ReturnType<typeof useNuxtApp>['$api']['orders']['fetchWidget']>[0];
+type WidgetApiType = Parameters<typeof fetchWidget>[0];
 type WidgetLabel = keyof typeof WidgetTypeEnum;
 
 interface RangeOption {
@@ -206,8 +206,7 @@ interface WidgetResponse {
   };
 }
 
-const { $api } = useNuxtApp();
-
+const { $apiClient } = useNuxtApp();
 const start = startOfISOWeek(Date.now());
 const thisWeekDifference = differenceInDays(Date.now(), start);
 
@@ -247,7 +246,7 @@ const avgOrderValue = ref('');
 const productsSold = ref('');
 
 const getTotalOrders = async () => {
-  const firstWidget = (await $api.orders.fetchWidget('total-orders' as WidgetApiType, thisWeekDifference)) as WidgetResponse;
+  const firstWidget = (await fetchWidget('total-orders' as WidgetApiType, thisWeekDifference, $apiClient)) as WidgetResponse;
   if (firstWidget.status !== 'success') {
     isLoading.value[0] = false;
     error.value[0] = true;
@@ -258,7 +257,7 @@ const getTotalOrders = async () => {
   totalOrders.value = await setWidgetValueFormat('total-orders', firstWidget.data.total);
 };
 const getGrossRevenue = async () => {
-  const secondWidget = (await $api.orders.fetchWidget('gross-revenue' as WidgetApiType, thisWeekDifference)) as WidgetResponse;
+  const secondWidget = (await fetchWidget('gross-revenue' as WidgetApiType, thisWeekDifference, $apiClient)) as WidgetResponse;
   if (secondWidget.status !== 'success') {
     isLoading.value[1] = false;
     error.value[1] = true;
@@ -269,7 +268,7 @@ const getGrossRevenue = async () => {
   grossRevenue.value = await setWidgetValueFormat('gross-revenue', secondWidget.data.total);
 };
 const getAvgOrderValue = async () => {
-  const thirdWidget = (await $api.orders.fetchWidget('average-order-value' as WidgetApiType, thisWeekDifference)) as WidgetResponse;
+  const thirdWidget = (await fetchWidget('average-order-value' as WidgetApiType, thisWeekDifference, $apiClient)) as WidgetResponse;
   if (thirdWidget.status !== 'success') {
     isLoading.value[2] = false;
     error.value[2] = true;
@@ -280,7 +279,7 @@ const getAvgOrderValue = async () => {
   avgOrderValue.value = await setWidgetValueFormat('average-order-value', thirdWidget.data.total);
 };
 const getProductsSold = async () => {
-  const fourthWidget = (await $api.orders.fetchWidget('products-sold' as WidgetApiType, thisWeekDifference)) as WidgetResponse;
+  const fourthWidget = (await fetchWidget('products-sold' as WidgetApiType, thisWeekDifference, $apiClient)) as WidgetResponse;
   if (fourthWidget.status !== 'success') {
     isLoading.value[3] = false;
     error.value[3] = true;
@@ -291,10 +290,12 @@ const getProductsSold = async () => {
   productsSold.value = await setWidgetValueFormat('products-sold', fourthWidget.data.total);
 };
 
-getTotalOrders();
-getGrossRevenue();
-getAvgOrderValue();
-getProductsSold();
+if (import.meta.client) {
+  getTotalOrders();
+  getGrossRevenue();
+  getAvgOrderValue();
+  getProductsSold();
+}
 
 const cards = ref<WidgetCard[]>([
   {
@@ -430,7 +431,7 @@ const cards = ref<WidgetCard[]>([
 const getWidgedData = async (data: WidgetCard, index: number) => {
   const type = WidgetTypeEnum[data.menu.selected.label];
   const range = type !== 'active-cart-sessions' && type !== 'total-stock-value' ? data.range.selected.value : -1;
-  const response = (await $api.orders.fetchWidget(type as unknown as WidgetApiType, range)) as WidgetResponse;
+  const response = (await fetchWidget(type as unknown as WidgetApiType, range, $apiClient)) as WidgetResponse;
   if (response.status !== 'success') {
     return;
   }

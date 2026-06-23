@@ -187,8 +187,9 @@ import { useNuxtApp } from '#app';
 import type { AddressInterface, CompanyDetails, ContactDetails, UserInterface } from '~/types/auth/user-interface';
 import { getRegionByCountry } from '~/helpers/form.helper';
 import { toast } from '~/components/ui/toast';
+import { validateAddress } from '~/composables/api/orders';
 
-const { $api } = useNuxtApp();
+const { $api, $apiClient } = useNuxtApp();
 const props = defineProps({
   id: {
     type: String,
@@ -335,15 +336,18 @@ const updateAccountDetails = async () => {
   newAddress.name2 = form.value.name2?.value || '';
   newAddress.postcode = form.value.postcode?.value;
 
-  const result = (await $api.orders.validateAddress({
-    country: newAddress.country,
-    region: newAddress.region,
-    city: newAddress.city,
-    postcode: newAddress.postcode,
-    name1: newAddress.name1,
-    name2: newAddress.name2,
-    default: false,
-  })) as ValidateAddressResult;
+  const result = (await validateAddress(
+    {
+      country: newAddress.country,
+      region: newAddress.region,
+      city: newAddress.city,
+      postcode: newAddress.postcode,
+      name1: newAddress.name1,
+      name2: newAddress.name2,
+      default: false,
+    },
+    $apiClient
+  )) as ValidateAddressResult;
 
   if (!result.data.valid) {
     toast({
