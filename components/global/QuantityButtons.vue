@@ -40,12 +40,9 @@ import MinusIcon from '@/assets/icons/minus.svg';
 import { ProductAction } from '~/model/cart/response/cart.interface';
 import type { CartProductsInterface, ProductActionObject } from '~/model/cart/response/cart.interface';
 import type { UpdateProductCartRequestInterface } from '~/model/cart/request/cart.interface';
-import { useNuxtApp } from '#app';
-import { useCartStore } from '~/store/cartStore';
+import { useCart } from '~/composables/useCart';
 import { OrderType } from '~/types';
-
-const { $api } = useNuxtApp();
-const cartStore = useCartStore();
+const { updateCartItem } = useCart();
 
 const props = defineProps({
   modelValue: {
@@ -106,10 +103,8 @@ const inputHandler = async (quantity: number) => {
 
     payload.products.push(product);
 
-    const object = (await $api.cart.updateEntityFromCart(payload)) as { status?: string };
+    const object = (await updateCartItem(payload)) as { status?: string };
     if (object.status === 'success') {
-      await cartStore.updateAndReturnCart();
-
       // Emit the new value to the parent after the successful update
       emits('update:modelValue', quantity);
     }
@@ -182,12 +177,9 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import MinusIcon from '@/assets/icons/minus.svg';
 import { CartProductsInterface, ProductAction, ProductActionObject } from '~/model/cart/response/cart.interface';
 import { UpdateProductCartRequestInterface } from '~/model/cart/request/cart.interface';
-import { useNuxtApp } from '#app';
-import { useCartStore } from '~/store/cartStore';
+import { useCart } from '~/composables/useCart';
 import { OrderType } from '~/types';
-
-const { $api } = useNuxtApp();
-const cartStore = useCartStore();
+const { updateCartItem } = useCart();
 
 const props = defineProps({
     modelValue: {
@@ -248,10 +240,7 @@ const inputHandler = async (quantity: number) => {
 
         payload.products.push(product);
 
-        const object = await $api.cart.updateEntityFromCart(payload);
-        if (object.status === 'success') {
-            await cartStore.updateAndReturnCart();
-        }
+        await updateCartItem(payload);
     }
 };
 

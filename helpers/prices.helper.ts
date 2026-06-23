@@ -7,7 +7,6 @@ import type {
 } from '~/model/products/response/ProductResponse';
 import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
 import type { AddToCartRequestInterface } from '~/model/cart/request/cart.interface';
-import { useNuxtApp } from '#app';
 
 export const parseProductPriceConfiguration = (product: ProductInterface, userDetails: UserInterface, quantity = 0) => {
   let unitPrice = 0;
@@ -70,7 +69,8 @@ export const initializeQuantities = (
 };
 
 export const addToCartHelper = async (product: ProductInterface, stock: number) => {
-  const { $api } = useNuxtApp();
+  const { useCart } = await import('~/composables/useCart');
+  const { addToCart } = useCart();
   const payload = {
     userId: '',
     products: [
@@ -82,5 +82,5 @@ export const addToCartHelper = async (product: ProductInterface, stock: number) 
     ],
   } as AddToCartRequestInterface;
 
-  return await $api.cart.addEntityToCart(payload);
+  return await addToCart(payload);
 };

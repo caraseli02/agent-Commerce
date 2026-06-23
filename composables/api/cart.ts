@@ -1,4 +1,4 @@
-import { useNuxtApp } from '#app';
+import { useNuxtApp, useRuntimeConfig } from '#app';
 import { useAuthStore } from '~/store/authStore';
 import type {
   AddToCartRequestInterface,
@@ -16,9 +16,10 @@ function getCurrentUserId() {
 
 export async function fetchCartList() {
   const { $apiClient } = useNuxtApp();
+  const config = useRuntimeConfig();
   const token = useCookie('token').value;
 
-  if (!token) {
+  if (!token && !config.public.MOCK_MODE) {
     return null;
   }
 
