@@ -133,12 +133,10 @@ import { ProductAction } from '~/model/cart/response/cart.interface';
 import type { ProductActionObject } from '~/model/cart/response/cart.interface';
 import type { PriceConfigurationSettingsInterface } from '~/model/products/response/ProductResponse';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { removeEntityFromCart } from '~/composables/api/cart';
 import { useAuthStore } from '~/store/authStore';
-import { useNuxtApp } from '#app';
 import { useCartStore } from '~/store/cartStore';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-
-const { $api } = useNuxtApp();
 
 const props = defineProps({
   product: {
@@ -193,7 +191,7 @@ const deleteItemFromCart = async () => {
   };
   emits('delete-product', props.product);
 
-  await $api.cart.removeEntityFromCart(payload);
+  await removeEntityFromCart(payload);
   await cartStore.updateAndReturnCart();
 };
 
