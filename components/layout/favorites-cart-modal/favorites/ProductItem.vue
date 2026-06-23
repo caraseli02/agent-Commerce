@@ -133,9 +133,8 @@ import { ProductAction } from '~/model/cart/response/cart.interface';
 import type { ProductActionObject } from '~/model/cart/response/cart.interface';
 import type { PriceConfigurationSettingsInterface } from '~/model/products/response/ProductResponse';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import { removeEntityFromCart } from '~/composables/api/cart';
+import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
-import { useCartStore } from '~/store/cartStore';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 
 const props = defineProps({
@@ -159,7 +158,7 @@ const deleteItem = ref(false);
 const copyItems = ref(false);
 
 const authStore = useAuthStore();
-const cartStore = useCartStore();
+const { removeFromCart } = useCart();
 
 const { getUserDetails } = storeToRefs(authStore);
 
@@ -191,8 +190,7 @@ const deleteItemFromCart = async () => {
   };
   emits('delete-product', props.product);
 
-  await removeEntityFromCart(payload);
-  await cartStore.updateAndReturnCart();
+  await removeFromCart(payload);
 };
 
 watch(

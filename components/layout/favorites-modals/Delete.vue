@@ -67,10 +67,9 @@
 import type { PropType } from 'vue';
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import type { FavoriteItem } from '~~/types';
-import { useCartStore } from '~/store/cartStore';
-import { removeEntityFromCart } from '~/composables/api/cart';
+import { useCart } from '~/composables/useCart';
 import { removeEntityFromFavouriteList } from '~/composables/api/favorites';
-const cartStore = useCartStore();
+const { removeFromCart } = useCart();
 const isOpen = defineModel<boolean>();
 
 const props = defineProps({
@@ -114,14 +113,13 @@ const deleteItem = async (items: FavoriteItem[] = []) => {
       removeOnlyBackstockQuantity: props.removeOnlyBackstockQuantity ?? false,
     };
 
-    const removed = (await removeEntityFromCart(payload)) as { status?: string };
+    const removed = (await removeFromCart(payload)) as { status?: string };
 
     if (removed.status === 'success') {
       // Emitter.emit('delete-product-item', {
       //     id: items[0].id,
       // });
       emits('removed');
-      await cartStore.updateAndReturnCart();
     }
   }
 };

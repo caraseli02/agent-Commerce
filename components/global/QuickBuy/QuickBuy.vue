@@ -5,10 +5,9 @@ import QuickBuyIcon from '@/assets/icons/quick-buy-2.svg';
 import CartIcon from '@/assets/icons/cart.svg';
 import type { AddToCartRequestInterface } from '~/model/cart/request/cart.interface';
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
-import { addEntityToCart } from '~/composables/api/cart';
-import { useCartStore } from '~/store/cartStore';
+import { useCart } from '~/composables/useCart';
 import type { QuickBuyItem } from '~/types/product';
-const cartStore = useCartStore();
+const { addToCart: addCartItem } = useCart();
 const products = ref<Omit<QuickBuyItem, 'index'>[]>([
   { code: '', quantity: 1 },
   { code: '', quantity: 1 },
@@ -48,9 +47,8 @@ const addToCart = async () => {
     userId: '',
     products: productsPayload,
   };
-  const object = (await addEntityToCart(payload)) as { status?: string };
+  const object = (await addCartItem(payload)) as { status?: string };
   if (object.status === 'success') {
-    await cartStore.updateAndReturnCart();
     isOpen.value = false;
   }
   isLoading.value = false;

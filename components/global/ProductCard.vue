@@ -80,14 +80,13 @@ import type { FavouriteFolderRequestInterface } from '~/model/favourite-folder/r
 import type { AddToCartRequestInterface } from '~/model/cart/request/cart.interface';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import { addEntityToCart } from '~/composables/api/cart';
 import { addEntityToFavouriteList } from '~/composables/api/favorites';
+import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
-import { useCartStore } from '~/store/cartStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';
 
 const authStore = useAuthStore();
-const cartStore = useCartStore();
+const { addToCart: addCartItem } = useCart();
 
 const { getUserDetails } = storeToRefs(authStore);
 
@@ -131,8 +130,7 @@ const addToCart = async (product: ProductInterface, stockToAdd = 1) => {
     ],
   };
 
-  await addEntityToCart(payload);
-  await cartStore.updateAndReturnCart();
+  await addCartItem(payload);
 };
 const productImageLarge = computed(() => {
   return props.product.details?.ProductImage?.ProductImageLarge || '';

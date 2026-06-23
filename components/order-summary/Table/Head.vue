@@ -42,7 +42,7 @@ import { computed, ref } from 'vue';
 import HeartOutline from '@/assets/icons/heart-outline.svg';
 import HeartSolid from '@/assets/icons/heart-solid.svg';
 import TrashOutline from '@/assets/icons/trash-outline.svg';
-import { removeEntityFromCart } from '~/composables/api/cart';
+import { useCart } from '~/composables/useCart';
 import { useCartStore } from '~/store/cartStore';
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
 
@@ -52,6 +52,7 @@ const liked = ref(false);
 const isOpen = ref(false);
 
 const cartStore = useCartStore();
+const { removeFromCart } = useCart();
 
 // Methods to toggle states and emit events
 const toggleCheckAll = () => {
@@ -72,11 +73,7 @@ const deleteSelected = async () => {
   const itemsToDelete =
     cartStore.cart?.products?.filter((product: CartProductsInterface) => product.selected).map((product) => product.id) ?? [];
 
-  const removed = (await removeEntityFromCart({ products: itemsToDelete })) as { status: string };
-
-  if (removed.status === 'success') {
-    await cartStore.updateAndReturnCart();
-  }
+  await removeFromCart({ products: itemsToDelete });
 };
 
 const selectedItems = computed(() => cartStore.cart?.products?.filter((product: CartProductsInterface) => product.selected).length ?? 0);

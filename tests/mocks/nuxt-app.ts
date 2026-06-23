@@ -63,14 +63,14 @@ export const useNuxtApp = () => ({
     cart: {
       addEntityToCart: async () => {
         if (!legacyCartApiEnabled) {
-          throw new Error('Legacy $api.cart.addEntityToCart should not be used');
+          throw new Error('Legacy cart API addEntityToCart should not be used');
         }
 
         return null;
       },
       fetchCartList: async () => {
         if (!legacyCartApiEnabled) {
-          throw new Error('Legacy $api.cart.fetchCartList should not be used');
+          throw new Error('Legacy cart API fetchCartList should not be used');
         }
 
         return mockCartResponse;

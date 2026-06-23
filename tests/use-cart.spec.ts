@@ -99,6 +99,27 @@ describe('useCart public cart interface', () => {
     expect(emittedCarts).toEqual([refreshedCart]);
   });
 
+  it('refreshes the stored cart after a mock guest adds an item', async () => {
+    __setMockCookie('token', undefined);
+    __setMockRuntimeConfig({ public: { MOCK_MODE: true } });
+    const { useCart } = await import('../composables/useCart');
+    const { useCartStore } = await import('../store/cartStore');
+    const cartStore = useCartStore();
+    const { addToCart, cartItems, cartId } = useCart();
+
+    const result = await addToCart({ products: [product], userId: '' });
+
+    expect(result).toMatchObject({ status: 'success' });
+    expect(apiRequests).toMatchObject([
+      { resource: '/cart', method: 'POST' },
+      { resource: '/cart', method: 'GET' },
+    ]);
+    expect(cartStore.cart?._id).toBe('cart-after-add');
+    expect(cartId.value).toBe('cart-after-add');
+    expect(cartItems.value).toHaveLength(1);
+    expect(emittedCarts).toEqual([refreshedCart]);
+  });
+
   it('updates a cart item through the cart API and refreshes the stored cart', async () => {
     const { useCart } = await import('../composables/useCart');
     const { useCartStore } = await import('../store/cartStore');
@@ -149,5 +170,24 @@ describe('useCart public cart interface', () => {
     expect(routerPush).toHaveBeenCalledWith('/');
     expect(openedAccountModals).toEqual([true]);
     expect(apiRequests).toEqual([]);
+  });
+
+  it('routes the shared add-to-cart helper through the public cart composable', async () => {
+    const { addToCartHelper } = await import('../helpers/prices.helper');
+
+    const result = await addToCartHelper({ _id: 'prod-2' } as never, 3);
+
+    expect(result).toMatchObject({ status: 'success' });
+    expect(apiRequests).toMatchObject([
+      {
+        resource: '/cart',
+        method: 'POST',
+        body: {
+          userId: '',
+          products: [{ id: 'prod-2', stock: 3, isFolder: false }],
+        },
+      },
+      { resource: '/cart', method: 'GET' },
+    ]);
   });
 });

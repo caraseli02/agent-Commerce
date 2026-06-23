@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { ref } from 'vue';
 import { PaymentTypeEnum } from '../types';
-import { __setMockCartResponse, __setMockOrdersApi, __setMockRuntimeConfig } from './mocks/nuxt-app';
+import { __setMockApiClient, __setMockCartResponse, __setMockOrdersApi, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const routerPush = vi.fn();
 const sentOrders: unknown[] = [];
@@ -68,6 +68,13 @@ describe('checkout order composable flow boundary', () => {
     sentOrders.length = 0;
     __setMockRuntimeConfig({ public: { MOCK_MODE: true } });
     __setMockCartResponse({ status: 'success', data: { _id: 'cart-after-checkout', products: [] } });
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string }): Promise<T> => {
+      if (resource === '/cart' && options?.method === 'GET') {
+        return { status: 'success', data: { _id: 'cart-after-checkout', products: [] } } as T;
+      }
+
+      throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
+    });
     __setMockOrdersApi({
       validateAddress: async () => ({ data: { valid: true } }),
       sendOrder: async (order: unknown) => {
