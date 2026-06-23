@@ -71,6 +71,7 @@ Example evidence block for a future PR:
 - **Pre-push:** `pnpm verify`.
 - **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
 - **CI:** the same fast gate as pre-push, with every command required to pass.
+- **Evaluator pass check:** before marking a PR review-ready, confirm `gh pr view --json mergeable,mergeStateStatus` and do not pass any PR that is `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`.
 
 ## If a local gate fails
 
@@ -85,6 +86,7 @@ A task is not done until all are true:
 - Acceptance criteria from the issue are satisfied.
 - Relevant verification commands passed or a failure is explicitly explained as pre-existing/not applicable.
 - Browser/runtime evidence exists for UI or route changes.
+- The evaluator confirmed the PR is mergeable and not in a conflict state before granting PASS.
 - No unrelated refactor was bundled into the task.
 - `feature_list.json` / `PROGRESS.md` are updated when durable state changed. GitHub Issues are the primary work tracker; `PROGRESS.md` is the current-state mirror for active issue/PR, blockers, and verification baseline.
 - The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.

@@ -71,6 +71,7 @@ Required checks:
 
 - Compare PR diff against the issue acceptance criteria.
 - Confirm no unrelated broad refactor or second issue was included.
+- Check GitHub mergeability before PASS: run `gh pr view --json mergeable,mergeStateStatus` and require the PR to be mergeable. If `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`, verdict must be `FAIL — needs generator fix` until the branch is rebased or conflicts are resolved.
 - Run or inspect evidence for the relevant verification ladder in `docs/agents/verification.md`.
 - Require browser/runtime evidence for UI, route, auth, cart, checkout, mock API, or state-flow changes.
 - Verify the PR body includes related lectures/source docs when applicable.
@@ -78,7 +79,7 @@ Required checks:
 
 Verdicts:
 
-- `PASS — ready-for-human`: add or keep `ready-for-human`; comment with evidence summary.
+- `PASS — ready-for-human`: add or keep `ready-for-human`; comment with evidence summary. A PR with merge conflicts must never receive PASS.
 - `FAIL — needs generator fix`: comment with exact failing check and repair instruction; keep `in-progress` and repair the same PR/branch.
 - `BLOCKED — needs human decision`: add/use blocker communication with the concrete missing decision.
 
