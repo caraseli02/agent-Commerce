@@ -20,6 +20,7 @@ import { useAuthStore } from '~/store/authStore';
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
 import { toast } from '~/components/ui/toast';
 import { orderType } from '~/components/admin-table/order/options';
+import { downloadDocument as downloadDocumentApi } from '~/composables/api/documents';
 
 const authStore = useAuthStore();
 const { getUserDetails, userCards } = storeToRefs(authStore);
@@ -185,7 +186,7 @@ const downloadDocument = async () => {
     });
     return;
   }
-  const result = await $api.documents.downloadDocument(stockOrder.value.paymentDetails.invoiceId);
+  const result = await downloadDocumentApi(stockOrder.value.paymentDetails.invoiceId);
 
   if (!result) {
     toast({

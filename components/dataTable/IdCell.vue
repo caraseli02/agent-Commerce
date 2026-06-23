@@ -63,7 +63,7 @@ const orderLink = computed(() => {
 });
 
 const download = async () => {
-  // await $api.documents.downloadDocument(props.invoiceId);
+  // await downloadDocument(props.invoiceId);
 };
 </script>
 

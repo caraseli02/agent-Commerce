@@ -12,7 +12,7 @@ import UserInfo from '~/components/dataTable/UserInfo.vue';
 import CellDate from '~/components/dataTable/CellDate.vue';
 import { renderColumnHeader } from '~/components/dataTable/renderColumnHeader';
 import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.enum';
-import DocumentService from '~/services/dashboard/document.service';
+import { downloadDocument } from '~/composables/api/documents';
 import { useAuthStore } from '~/store/authStore';
 
 const authStore = useAuthStore();
@@ -71,7 +71,6 @@ export const columns: ColumnDef<OrderTableColumns>[] = [
     cell: ({ row }) =>
       h(RowActions, {
         row: row,
-        service: DocumentService,
         options: [
           {
             label: 'View order',
@@ -81,7 +80,7 @@ export const columns: ColumnDef<OrderTableColumns>[] = [
           {
             label: 'Download invoice',
             enable: getUserDetails.value?.role === AccountRole.Client && !!row.original?.paymentDetails?.invoiceId,
-            actionFn: 'downloadDocument',
+            actionFn: downloadDocument,
             actionParameter: row.original.paymentDetails?.invoiceId,
           },
         ] as ActionOptionsConfiguration[],
