@@ -1,9 +1,8 @@
-import { defineStore, storeToRefs } from 'pinia';
+import { defineStore } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
-import { useNuxtApp } from '#app';
-import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import { useAuthStore } from '~/store/authStore';
+import { fetchCartList } from '~/composables/api/cart';
 import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
+import { calculateCartSubtotal, mapCartItems } from '~/utils/cart';
 
 type CheckoutError = {
   message?: string;
@@ -39,8 +38,7 @@ export const useCartStore = defineStore({
       this.previousCheckoutError = null;
     },
     async updateAndReturnCart() {
-      const { $api } = useNuxtApp();
-      const cartResponse = await $api.cart.fetchCartList();
+      const cartResponse = await fetchCartList();
 
       if (!cartResponse) {
         return null;
@@ -69,41 +67,8 @@ export const useCartStore = defineStore({
     mappedCartItems: (state) => {
       return mapCartItems(state.cart?.products);
     },
-    getCart: async (state) => {
-      const { $api } = useNuxtApp();
-
-      if (!state.cart) {
-        const cartResponse = await $api.cart.fetchCartList();
-
-        if (!cartResponse) {
-          return null;
-        }
-
-        return cartResponse.data;
-      }
-
-      return state.cart as CartInterface;
-    },
-    getCartSubtotal: async (state) => {
-      state.cartSubtotal = 0;
-      const authStore = useAuthStore();
-      const { getUserDetails } = storeToRefs(authStore);
-      state?.cart?.products?.forEach((cartProduct: CartProductsInterface) => {
-        if (!cartProduct.productEntity) {
-          return;
-        }
-
-        const discountsHelper = parseProductPriceConfiguration(cartProduct.productEntity, getUserDetails.value, cartProduct.stock);
-
-        const discountPrice = discountsHelper?.currentConfigurationDiscountPrice || 0;
-        const stockTotal = Number(discountPrice) * Number(cartProduct.stock);
-        const backorderTotal = Number(discountPrice) * Number(cartProduct.backorder_stock);
-        const allItemsTotal = stockTotal + backorderTotal;
-        state.cartSubtotal += allItemsTotal;
-      });
-
-      return Number(state.cartSubtotal.toFixed(2));
-    },
+    getCart: (state) => state.cart as CartInterface | null,
+    getCartSubtotal: (state) => calculateCartSubtotal(state.cart?.products),
     getOrderClientSecret: (state): string => state.orderClientSecret as string,
     getPreviousCheckoutError: (state): CheckoutError => state.previousCheckoutError as CheckoutError,
     itemsDiscount: (state) => state.cart?.products?.[0]?.discount.value,

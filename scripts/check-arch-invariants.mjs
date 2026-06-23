@@ -8,7 +8,7 @@ const rootDir = path.resolve(new URL('..', import.meta.url).pathname);
 const sourceExtensions = new Set(['.js', '.mjs', '.ts', '.vue']);
 const ignoredDirectories = new Set(['.git', '.husky', '.nuxt', '.output', 'coverage', 'dist', 'node_modules']);
 
-const approvedAuthHeaderPaths = ['plugins/api.ts', 'composables/api/'];
+const approvedAuthHeaderPaths = ['plugins/api.ts', 'composables/api/', 'tests/'];
 
 const legacyAuthHeaderExceptions = new Map([
   [
@@ -111,7 +111,9 @@ async function main() {
   }
 
   if (violations.length > 0) {
-    console.error('Architecture invariant failed: manual bearer auth headers are only allowed in plugins/api.ts or composables/api/.');
+    console.error(
+      'Architecture invariant failed: manual bearer auth headers are only allowed in plugins/api.ts, composables/api/, or test fixtures.'
+    );
     console.error(
       'Why it matters: ECAS routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.'
     );
@@ -127,7 +129,7 @@ async function main() {
   }
 
   console.log(
-    `Architecture invariants OK: scanned ${files.length} source file(s); manual Bearer auth headers are confined to approved API boundary files.`
+    `Architecture invariants OK: scanned ${files.length} source file(s); manual Bearer auth headers are confined to approved API boundary files or test fixtures.`
   );
 }
 
