@@ -127,4 +127,39 @@ test.describe('Product Detail → Checkout Confirmation', () => {
     await expect(page.getByText(/total paid/i)).toBeVisible();
     await expect(page.getByRole('link', { name: /view order details/i })).toBeVisible();
   });
+
+  test('signed-in customer is routed to checkout failure when order placement fails', async ({ page }) => {
+    await navigateTo(page, '/product/prod-2');
+    await closeBetaDialog(page);
+    await expect(page.getByText('Professional Laptop Ultra', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+
+    await addProductToCart(page);
+
+    await navigateTo(page, '/order-summary');
+    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    await submitCustomerSignIn(page);
+    await expect(page).toHaveURL(/\/order-summary$/);
+
+    await page.route('**/api/orders/new', async (route) => {
+      if (route.request().method() !== 'POST') {
+        await route.continue();
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'failed',
+          description: 'Mock checkout failure',
+        }),
+      });
+    });
+
+    const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
+    await expect(secureCheckoutButton).toBeEnabled();
+    await Promise.all([page.waitForURL(/\/checkout\/fail/), secureCheckoutButton.click()]);
+    await expect(page).toHaveURL(/\/checkout\/fail/);
+    await expect(page.getByText(/no data available/i)).toBeVisible();
+  });
 });

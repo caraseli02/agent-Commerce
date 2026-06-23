@@ -69,6 +69,15 @@ describe('useCart public cart interface', () => {
         return { status: 'success', data: refreshedCart } as T;
       }
 
+      if (resource === '/orders/price' && options?.method === 'POST') {
+        return {
+          status: 'success',
+          data: {
+            list: [{ service: { id: 1 }, price: { total: 9.99 } }],
+          },
+        } as T;
+      }
+
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
   });
@@ -163,6 +172,22 @@ describe('useCart public cart interface', () => {
     expect(routerPush).toHaveBeenCalledWith('/');
     expect(openedAccountModals).toEqual([true]);
     expect(apiRequests).toEqual([]);
+  });
+
+  it('fetches order shipping prices through the orders API adapter', async () => {
+    const { useCart } = await import('../composables/useCart');
+    const { fetchShippingPrices } = useCart();
+
+    const result = await fetchShippingPrices({ products: [{ id: 'prod-2' }] });
+
+    expect(result).toMatchObject({ list: [{ service: { id: 1 } }] });
+    expect(apiRequests).toContainEqual({
+      resource: '/orders/price',
+      method: 'POST',
+      body: {
+        order: { products: [{ id: 'prod-2' }] },
+      },
+    });
   });
 
   it('routes the shared add-to-cart helper through the public cart composable', async () => {

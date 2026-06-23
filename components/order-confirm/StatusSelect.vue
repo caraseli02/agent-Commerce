@@ -40,10 +40,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useNuxtApp } from '#app';
 import { toast } from '~/components/ui/toast';
-
-const { $api } = useNuxtApp();
+import { changeStatus } from '~/composables/api/orders';
 
 const props = defineProps<{
   orderId: string;
@@ -70,7 +68,7 @@ watch(selected, (newValue, oldVal) => {
 const confirmChange = async () => {
   isOpen.value = false; // Close dialog
 
-  const result = (await $api.orders.changeStatus(props.orderId, selected.value)) as unknown as {
+  const result = (await changeStatus(props.orderId, selected.value)) as unknown as {
     status: string;
     description: string;
   };

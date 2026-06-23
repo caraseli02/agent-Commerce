@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useUser } from './useUser';
-import { useNuxtApp, useRuntimeConfig } from '#app';
+import { useRuntimeConfig } from '#app';
 import { useCartStore } from '~/store/cartStore';
 import { AccountRole, AccountType, PaymentTypeEnum } from '~/types';
 import type { OrderRequestInterface, PaymentDetails, OrderType } from '~/types';
@@ -12,6 +12,7 @@ import type { BackorderShippingTypesInterface, SmallOrderChargeInterface } from 
 import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
 import { useCheckoutStore } from '~/store/checkout';
 import { toast } from '~/components/ui/toast';
+import { sendOrder, validateAddress } from '~/composables/api/orders';
 
 interface AddressValidationResponse {
   data: {
@@ -30,7 +31,6 @@ export function useOrder() {
   const config = useRuntimeConfig();
   const { user, getShipping, getBilling } = useUser();
   const cartStore = useCartStore();
-  const { $api } = useNuxtApp();
   const checkoutStore = useCheckoutStore();
   const { checkout } = storeToRefs(checkoutStore);
   const orderRequestObject = ref<OrderRequestInterface>({} as OrderRequestInterface);
@@ -107,7 +107,7 @@ export function useOrder() {
       }
     }
 
-    const resultShipping = (await $api.orders.validateAddress({
+    const resultShipping = (await validateAddress({
       country: orderRequestObject.value.shippingDetails.address.country,
       region: orderRequestObject.value.shippingDetails.address.region,
       city: orderRequestObject.value.shippingDetails.address.city,
@@ -117,7 +117,7 @@ export function useOrder() {
       default: false,
     })) as AddressValidationResponse;
 
-    const resultBilling = (await $api.orders.validateAddress({
+    const resultBilling = (await validateAddress({
       country: orderRequestObject.value.shippingDetails.billingAddress.country,
       region: orderRequestObject.value.shippingDetails.billingAddress.region,
       city: orderRequestObject.value.shippingDetails.billingAddress.city,
@@ -137,7 +137,7 @@ export function useOrder() {
     }
 
     try {
-      const response = (await $api.orders.sendOrder(orderRequestObject.value)) as PlaceOrderInterface;
+      const response = (await sendOrder(orderRequestObject.value)) as PlaceOrderInterface;
 
       if (response.status !== 'success') {
         await router.push({ path: '/checkout/fail' });

@@ -1,6 +1,7 @@
 import { useSignupState } from './useSignupState';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { registerClassic, registerFirebase } from '~/composables/api/auth';
+import { validateAddress } from '~/composables/api/orders';
 import {
   AccountType,
   type FirebaseBusinessAccount,
@@ -14,8 +15,6 @@ import {
 interface ValidateAddressResult {
   data: { valid: boolean };
 }
-
-const { $api } = useNuxtApp();
 
 export const useSignupHandlers = () => {
   const {
@@ -31,7 +30,6 @@ export const useSignupHandlers = () => {
   } = useSignupState();
 
   const { toast } = useToast();
-  const { validateAddress } = $api.orders;
   const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirmationEmail } = useFormValidation();
   const { logout } = useFirebaseAuth();
   const firebaseToken = null; // Implement retrieval of Firebase token
@@ -79,7 +77,7 @@ export const useSignupHandlers = () => {
 
     hasError = checkForInputErrors(fieldsToValidate);
 
-    const addressResult = (await $api.orders.validateAddress({
+    const addressResult = (await validateAddress({
       country: getCountryTypeValue(businessDetails.value.country),
       region: getCountryTypeValue(businessDetails.value.region),
       city: businessDetails.value.city.value,

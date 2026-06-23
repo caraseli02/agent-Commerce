@@ -3,14 +3,13 @@ import { ArrowRight, BarcodeIcon, InfoIcon, MapPin } from 'lucide-vue-next';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { ref } from 'vue';
 import moment from 'moment/moment';
-import { useNuxtApp } from '#app';
 import { AccountRole, OrderStatus, PaymentTypeEnum, type OrderInterface, type ShippingCourierCreateOrderResponse } from '~/types';
 import { toast } from '~/components/ui/toast';
 import { useAuthStore } from '~/store/authStore';
 import { orderType, statusColors } from '~/components/admin-table/order/options';
 import { paymentStatusOptions } from '~/components/client-table/transaction/options';
+import { retryFailedShippingOrders } from '~/composables/api/orders';
 
-const { $api } = useNuxtApp();
 const authStore = useAuthStore();
 
 const props = defineProps<{
@@ -36,7 +35,7 @@ const smallerThanSm = breakpoints.smaller('sm'); // sm and larger
 const smAndLarger = breakpoints.greaterOrEqual('sm'); // sm and larger
 
 const generateAWB = async () => {
-  const result = (await $api.orders.retryFailedShippingOrders(props.order._id)) as {
+  const result = (await retryFailedShippingOrders(props.order._id)) as {
     status: string;
     data: ShippingCourierCreateOrderResponse;
   };
