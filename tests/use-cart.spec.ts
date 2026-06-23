@@ -3,13 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
 import { mapCartItems } from '../utils/cart';
 import type { CartInterface, CartProductsInterface } from '../model/cart/response/cart.interface';
-import {
-  __setLegacyCartApiEnabled,
-  __setMockApiClient,
-  __setMockCookie,
-  __setMockRouterPush,
-  __setMockRuntimeConfig,
-} from './mocks/nuxt-app';
+import { __setMockApiClient, __setMockCookie, __setMockRouterPush, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const product = {
   id: 'prod-2',
@@ -56,7 +50,6 @@ describe('useCart public cart interface', () => {
     __setMockCookie('token', 'mock-token');
     __setMockRuntimeConfig({ public: { MOCK_MODE: true } });
     __setMockRouterPush(routerPush);
-    __setLegacyCartApiEnabled(false);
     __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
       apiRequests.push({ resource, method: options?.method, body: options?.body });
 
@@ -189,5 +182,11 @@ describe('useCart public cart interface', () => {
       },
       { resource: '/cart', method: 'GET' },
     ]);
+  });
+
+  it('does not expose the removed legacy cart module on the app API', async () => {
+    const { useNuxtApp } = await import('#app');
+
+    expect(useNuxtApp().$api).not.toHaveProperty('cart');
   });
 });
