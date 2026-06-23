@@ -2,8 +2,16 @@
 import type { DebouncedFunc } from 'lodash';
 import { columns } from './columns';
 import type { OrderInterface, OrderTableColumns } from '~/types';
+import { fetchOrders } from '~/composables/api/orders';
 
-const { $api } = useNuxtApp();
+interface OrdersListResponse {
+  status: string;
+  data: {
+    total_items: number;
+    page_count: number;
+    items: OrderInterface[];
+  };
+}
 
 const props = defineProps({
   userId: {
@@ -15,6 +23,7 @@ const emit = defineEmits<{
   showTotalItems: [val: number];
 }>();
 
+const { $apiClient } = useNuxtApp();
 const totalItems = ref(0);
 const pageCount = ref(0);
 const loading = ref(true);
@@ -33,8 +42,7 @@ const fetchAndSetOrdersList = async (
     filters.userId = props.userId;
   }
 
-  // FIX to use userID
-  const data = await $api.orders.fetchOrders(page, perPage, filters, sort);
+  const data = (await fetchOrders(page, perPage, filters, sort, $apiClient)) as OrdersListResponse;
 
   if (!data || data.status !== 'success') {
     loading.value = false;

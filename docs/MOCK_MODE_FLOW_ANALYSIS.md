@@ -2142,7 +2142,7 @@ This document provides a comprehensive user flow analysis for transforming the E
 8. ✅ `CustomerProfileService` - Customer profile CRUD
 9. ✅ `NotificationsService` - User notifications
 10. ✅ `ControlPanelService` - Admin control panel
-11. ✅ `OrdersService` - Order management
+11. ✅ Orders HTTP adapter - Order management
 12. ✅ `GeneralSettings` - App-wide settings
 13. ✅ `CustomerDashboard` - Customer dashboard
 14. ✅ `SettingsClientService` - Settings management

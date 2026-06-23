@@ -1,12 +1,17 @@
 import { useNuxtApp } from '#app';
+import type { $Fetch } from 'ofetch';
 import type { OrderStatus, MarkAsPaidRequestInterface, OrderRequestInterface } from '~/types';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 
 const RESOURCE = '/orders';
 const ORDERS_DASHBOARD_RESOURCE = '/dashboard/orders/admin';
 
-export async function fetchWidget(type: string, time: number) {
-  const { $apiClient } = useNuxtApp();
+function getApiClient(apiClient?: $Fetch) {
+  return apiClient ?? useNuxtApp().$apiClient;
+}
+
+export async function fetchWidget(type: string, time: number, apiClient?: $Fetch) {
+  const $apiClient = getApiClient(apiClient);
 
   return await $apiClient<unknown>(`${ORDERS_DASHBOARD_RESOURCE}/${type}`, {
     method: 'GET',
@@ -16,8 +21,8 @@ export async function fetchWidget(type: string, time: number) {
   });
 }
 
-export async function fetchOrders(page: number, perPage: number, filters = {}, sort = {}) {
-  const { $apiClient } = useNuxtApp();
+export async function fetchOrders(page: number, perPage: number, filters = {}, sort = {}, apiClient?: $Fetch) {
+  const $apiClient = getApiClient(apiClient);
 
   return await $apiClient<unknown>(RESOURCE, {
     method: 'GET',
@@ -31,7 +36,7 @@ export async function fetchOrders(page: number, perPage: number, filters = {}, s
 }
 
 export async function sendOrder(order: OrderRequestInterface) {
-  const { $apiClient } = useNuxtApp();
+  const $apiClient = getApiClient();
 
   return await $apiClient<unknown>(`${RESOURCE}/new`, {
     method: 'POST',
@@ -39,8 +44,8 @@ export async function sendOrder(order: OrderRequestInterface) {
   });
 }
 
-export async function getOrderById(id: string) {
-  const { $apiClient } = useNuxtApp();
+export async function getOrderById(id: string, apiClient?: $Fetch) {
+  const $apiClient = getApiClient(apiClient);
 
   return await $apiClient<unknown>(`${RESOURCE}/${id}`, {
     method: 'GET',
@@ -48,7 +53,7 @@ export async function getOrderById(id: string) {
 }
 
 export async function getShippingPricesForOrder(order: unknown) {
-  const { $apiClient } = useNuxtApp();
+  const $apiClient = getApiClient();
 
   return await $apiClient<unknown>(`${RESOURCE}/price`, {
     method: 'POST',
@@ -58,8 +63,8 @@ export async function getShippingPricesForOrder(order: unknown) {
   });
 }
 
-export async function validateAddress(address: ShippingAddressInterface) {
-  const { $apiClient } = useNuxtApp();
+export async function validateAddress(address: ShippingAddressInterface, apiClient?: $Fetch) {
+  const $apiClient = getApiClient(apiClient);
 
   return await $apiClient<unknown>(`${RESOURCE}/validate-address`, {
     method: 'POST',
@@ -68,7 +73,7 @@ export async function validateAddress(address: ShippingAddressInterface) {
 }
 
 export async function cancelOrder(id: string) {
-  const { $apiClient } = useNuxtApp();
+  const $apiClient = getApiClient();
 
   return await $apiClient<unknown>(`${RESOURCE}/${id}/cancel`, {
     method: 'POST',
@@ -76,7 +81,7 @@ export async function cancelOrder(id: string) {
 }
 
 export async function markAsPaid(id: string, payload: MarkAsPaidRequestInterface) {
-  const { $apiClient } = useNuxtApp();
+  const $apiClient = getApiClient();
 
   return await $apiClient<unknown>(`${RESOURCE}/${id}/paid`, {
     method: 'POST',
@@ -85,7 +90,7 @@ export async function markAsPaid(id: string, payload: MarkAsPaidRequestInterface
 }
 
 export async function changeStatus(id: string, status: OrderStatus) {
-  const { $apiClient } = useNuxtApp();
+  const $apiClient = getApiClient();
 
   return await $apiClient<unknown>(`${RESOURCE}/${id}`, {
     method: 'POST',
@@ -96,7 +101,7 @@ export async function changeStatus(id: string, status: OrderStatus) {
 }
 
 export async function retryFailedShippingOrders(id: string) {
-  const { $apiClient } = useNuxtApp();
+  const $apiClient = getApiClient();
 
   return await $apiClient<unknown>(`${RESOURCE}/${id}/shipping/retry`, {
     method: 'POST',

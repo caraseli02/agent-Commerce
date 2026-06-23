@@ -117,6 +117,7 @@ import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 import type { AddAddressPayload, EditAddressPayload, ShippingAddressesData, ValidateAddressResult } from '~/types/dashboard/control-panel';
 import { resolveFormValue } from '~/types/global/form';
 import { toast } from '~/components/ui/toast';
+import { validateAddress } from '~/composables/api/orders';
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -125,7 +126,7 @@ const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const addAddressModal = ref(false);
 const editAddressModal = ref<ShippingAddressInterface | null>(null);
 const indexOfEditAddressModal = ref(0);
-const { $api } = useNuxtApp();
+const { $api, $apiClient } = useNuxtApp();
 const defaultAddressIndex = ref(0);
 const props = defineProps({
   id: {
@@ -172,7 +173,7 @@ const handleAddAddress = async (val: AddAddressPayload) => {
   newAddress.value.postcode = val.address.postcode.value;
   newAddress.value.default = false;
 
-  const result = (await $api.orders.validateAddress({ ...newAddress.value })) as ValidateAddressResult;
+  const result = (await validateAddress({ ...newAddress.value }, $apiClient)) as ValidateAddressResult;
 
   if (!result.data.valid) {
     toast({
@@ -242,7 +243,7 @@ const handleEditAddress = async (object: EditAddressPayload) => {
     phone: object.address.phone.value,
   } as ShippingAddressInterface;
 
-  const result = (await $api.orders.validateAddress(addressToBeVerified)) as ValidateAddressResult;
+  const result = (await validateAddress(addressToBeVerified, $apiClient)) as ValidateAddressResult;
 
   if (!result.data.valid) {
     toast({
