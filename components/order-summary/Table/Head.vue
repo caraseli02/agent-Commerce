@@ -39,10 +39,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useNuxtApp } from '#app';
 import HeartOutline from '@/assets/icons/heart-outline.svg';
 import HeartSolid from '@/assets/icons/heart-solid.svg';
 import TrashOutline from '@/assets/icons/trash-outline.svg';
+import { removeEntityFromCart } from '~/composables/api/cart';
 import { useCartStore } from '~/store/cartStore';
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
 
@@ -68,12 +68,11 @@ const toggleFavs = () => {
   });
 };
 
-const { $api } = useNuxtApp();
 const deleteSelected = async () => {
   const itemsToDelete =
     cartStore.cart?.products?.filter((product: CartProductsInterface) => product.selected).map((product) => product.id) ?? [];
 
-  const removed = (await $api.cart.removeEntityFromCart({ products: itemsToDelete })) as { status: string };
+  const removed = (await removeEntityFromCart({ products: itemsToDelete })) as { status: string };
 
   if (removed.status === 'success') {
     await cartStore.updateAndReturnCart();

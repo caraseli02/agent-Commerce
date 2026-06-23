@@ -4,12 +4,10 @@ import { ref, onMounted } from 'vue';
 import QuickBuyIcon from '@/assets/icons/quick-buy-2.svg';
 import CartIcon from '@/assets/icons/cart.svg';
 import type { AddToCartRequestInterface } from '~/model/cart/request/cart.interface';
-import { useNuxtApp } from '#app';
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import { addEntityToCart } from '~/composables/api/cart';
 import { useCartStore } from '~/store/cartStore';
 import type { QuickBuyItem } from '~/types/product';
-
-const { $api } = useNuxtApp();
 const cartStore = useCartStore();
 const products = ref<Omit<QuickBuyItem, 'index'>[]>([
   { code: '', quantity: 1 },
@@ -50,7 +48,7 @@ const addToCart = async () => {
     userId: '',
     products: productsPayload,
   };
-  const object = (await $api.cart.addEntityToCart(payload)) as { status?: string };
+  const object = (await addEntityToCart(payload)) as { status?: string };
   if (object.status === 'success') {
     await cartStore.updateAndReturnCart();
     isOpen.value = false;

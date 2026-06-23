@@ -76,11 +76,11 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useNuxtApp } from '#app';
 import type { FavouriteFolderRequestInterface } from '~/model/favourite-folder/request/favourite-folder.interface';
 import type { AddToCartRequestInterface } from '~/model/cart/request/cart.interface';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { addEntityToCart } from '~/composables/api/cart';
 import { addEntityToFavouriteList } from '~/composables/api/favorites';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
@@ -90,7 +90,6 @@ const authStore = useAuthStore();
 const cartStore = useCartStore();
 
 const { getUserDetails } = storeToRefs(authStore);
-const { $api } = useNuxtApp();
 
 const props = defineProps({
   product: {
@@ -132,7 +131,7 @@ const addToCart = async (product: ProductInterface, stockToAdd = 1) => {
     ],
   };
 
-  await $api.cart.addEntityToCart(payload);
+  await addEntityToCart(payload);
   await cartStore.updateAndReturnCart();
 };
 const productImageLarge = computed(() => {

@@ -67,11 +67,9 @@
 import type { PropType } from 'vue';
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import type { FavoriteItem } from '~~/types';
-import { useNuxtApp } from '#app';
 import { useCartStore } from '~/store/cartStore';
+import { removeEntityFromCart } from '~/composables/api/cart';
 import { removeEntityFromFavouriteList } from '~/composables/api/favorites';
-
-const { $api } = useNuxtApp();
 const cartStore = useCartStore();
 const isOpen = defineModel<boolean>();
 
@@ -116,7 +114,7 @@ const deleteItem = async (items: FavoriteItem[] = []) => {
       removeOnlyBackstockQuantity: props.removeOnlyBackstockQuantity ?? false,
     };
 
-    const removed = (await $api.cart.removeEntityFromCart(payload)) as { status?: string };
+    const removed = (await removeEntityFromCart(payload)) as { status?: string };
 
     if (removed.status === 'success') {
       // Emitter.emit('delete-product-item', {

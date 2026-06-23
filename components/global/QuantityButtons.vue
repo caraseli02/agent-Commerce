@@ -40,11 +40,9 @@ import MinusIcon from '@/assets/icons/minus.svg';
 import { ProductAction } from '~/model/cart/response/cart.interface';
 import type { CartProductsInterface, ProductActionObject } from '~/model/cart/response/cart.interface';
 import type { UpdateProductCartRequestInterface } from '~/model/cart/request/cart.interface';
-import { useNuxtApp } from '#app';
+import { updateEntityFromCart } from '~/composables/api/cart';
 import { useCartStore } from '~/store/cartStore';
 import { OrderType } from '~/types';
-
-const { $api } = useNuxtApp();
 const cartStore = useCartStore();
 
 const props = defineProps({
@@ -106,7 +104,7 @@ const inputHandler = async (quantity: number) => {
 
     payload.products.push(product);
 
-    const object = (await $api.cart.updateEntityFromCart(payload)) as { status?: string };
+    const object = (await updateEntityFromCart(payload)) as { status?: string };
     if (object.status === 'success') {
       await cartStore.updateAndReturnCart();
 
@@ -182,11 +180,9 @@ import PlusIcon from '@/assets/icons/plus.svg';
 import MinusIcon from '@/assets/icons/minus.svg';
 import { CartProductsInterface, ProductAction, ProductActionObject } from '~/model/cart/response/cart.interface';
 import { UpdateProductCartRequestInterface } from '~/model/cart/request/cart.interface';
-import { useNuxtApp } from '#app';
+import { updateEntityFromCart } from '~/composables/api/cart';
 import { useCartStore } from '~/store/cartStore';
 import { OrderType } from '~/types';
-
-const { $api } = useNuxtApp();
 const cartStore = useCartStore();
 
 const props = defineProps({
@@ -248,7 +244,7 @@ const inputHandler = async (quantity: number) => {
 
         payload.products.push(product);
 
-        const object = await $api.cart.updateEntityFromCart(payload);
+        const object = await updateEntityFromCart(payload);
         if (object.status === 'success') {
             await cartStore.updateAndReturnCart();
         }
