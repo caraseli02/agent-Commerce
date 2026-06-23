@@ -6,6 +6,7 @@ import { __setMockApiClient, __setMockOrdersApi, __setMockRuntimeConfig } from '
 
 const routerPush = vi.fn();
 const sentOrders: unknown[] = [];
+const apiRequests: Array<{ resource: string; method?: string; body?: unknown }> = [];
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: routerPush }),
@@ -66,10 +67,28 @@ describe('checkout order composable flow boundary', () => {
     setActivePinia(createPinia());
     routerPush.mockReset();
     sentOrders.length = 0;
+    apiRequests.length = 0;
     __setMockRuntimeConfig({ public: { MOCK_MODE: true } });
-    __setMockApiClient(async <T>(resource: string, options?: { method?: string }): Promise<T> => {
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
+      apiRequests.push({ resource, method: options?.method, body: options?.body });
+
       if (resource === '/cart' && options?.method === 'GET') {
         return { status: 'success', data: { _id: 'cart-after-checkout', products: [] } } as T;
+      }
+
+      if (resource === '/orders/validate-address' && options?.method === 'POST') {
+        return { data: { valid: true } } as T;
+      }
+
+      if (resource === '/orders/new' && options?.method === 'POST') {
+        sentOrders.push(options.body);
+        return {
+          status: 'success',
+          data: {
+            orderId: 'ord-composable-1',
+            result: { status: 'succeeded' },
+          },
+        } as T;
       }
 
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
@@ -87,6 +106,36 @@ describe('checkout order composable flow boundary', () => {
         };
       },
     });
+  });
+
+  it('submits checkout through the orders API adapter', async () => {
+    __setMockOrdersApi({});
+    const { useOrder } = await import('../composables/useOrder');
+    const { makeCheckout } = useOrder();
+
+    await makeCheckout(
+      1,
+      'mock-cart-mock-customer-1',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      { type: PaymentTypeEnum.Cash },
+      '',
+      {
+        subtotal: 1499.99,
+        total: 1509.98,
+        products: [],
+      }
+    );
+
+    expect(apiRequests).toMatchObject([
+      { resource: '/orders/validate-address', method: 'POST' },
+      { resource: '/orders/validate-address', method: 'POST' },
+      { resource: '/orders/new', method: 'POST' },
+      { resource: '/cart', method: 'GET' },
+    ]);
+    expect(sentOrders).toHaveLength(1);
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/success', query: { id: 'ord-composable-1' } });
   });
 
   it('builds a checkout order from summary data and routes mock payment to confirmation', async () => {

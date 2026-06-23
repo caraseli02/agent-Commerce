@@ -2,11 +2,11 @@
 import { ArrowRight, CheckCircle2, LayoutDashboard, LoaderIcon, ShoppingBag, TruckIcon } from 'lucide-vue-next';
 import moment from 'moment';
 import { useCartStore } from '~/store/cartStore';
+import { getOrderById } from '~/composables/api/orders';
 import { PaymentTypeEnum } from '~/types';
 import type { OrderInterface, OrderRequestInterfaceResponse } from '~/types';
 
 const route = useRoute();
-const { $api } = useNuxtApp();
 const cartStore = useCartStore();
 
 const loading = ref(true);
@@ -81,7 +81,7 @@ const loadOrder = async () => {
   fetchError.value = '';
 
   try {
-    const response = (await $api.orders.getOrderById(routeOrderId.value)) as OrderRequestInterfaceResponse;
+    const response = (await getOrderById(routeOrderId.value)) as OrderRequestInterfaceResponse;
 
     if (response.status === 'success' && response.data?.order) {
       order.value = response.data.order;

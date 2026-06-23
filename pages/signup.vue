@@ -44,6 +44,7 @@ import {
 } from '~~/types';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { registerClassic, registerFirebase } from '~/composables/api/auth';
+import { validateAddress } from '~/composables/api/orders';
 import { useSignupState } from '@/composables/signup/useSignupState';
 
 interface ValidateAddressResult {
@@ -53,7 +54,6 @@ interface ValidateAddressResult {
 const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirmationEmail } = useFormValidation();
 
 const authStore = useAuthStore();
-const { $api } = useNuxtApp();
 
 const { toast } = useToast();
 
@@ -119,7 +119,7 @@ const handleBusinessDetailsContinue = async () => {
     ]);
   }
 
-  const result = (await $api.orders.validateAddress({
+  const result = (await validateAddress({
     country: getCountryTypeValue(businessDetails.value.country),
     region: getCountryTypeValue(businessDetails.value.region),
     city: businessDetails.value.city.value,
@@ -155,7 +155,7 @@ const handlePersonalDetailsContinue = async () => {
     personalDetails.value.addressLine1,
   ]);
 
-  const result = (await $api.orders.validateAddress({
+  const result = (await validateAddress({
     country: getInputStringValue(personalDetails.value.country),
     region: getInputStringValue(personalDetails.value.region),
     city: personalDetails.value.city.value,

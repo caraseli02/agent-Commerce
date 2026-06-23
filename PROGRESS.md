@@ -2,8 +2,8 @@
 
 ## Current focus
 
-- HTTP migration epic #23 is active for the cart lane.
-- Current generator work is issue #49: wire `useCart` and `cartStore` to `composables/api/cart` on branch `codex/cart-usecart-store`.
+- HTTP migration epic #23 is active for the orders lane.
+- Current generator work is issue #52: migrate checkout-critical orders calls to `composables/api/orders` on branch `codex/52-orders-checkout`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,7 +12,7 @@
 
 ## In progress
 
-- Issue #49 — cart store/composable migration PR is being prepared from `codex/cart-usecart-store`.
+- Issue #52 — orders checkout API adapter migration and checkout E2E failure coverage. PR is being prepared from `codex/52-orders-checkout`.
 
 ## Recently completed
 
@@ -24,7 +24,8 @@
 
 ## Blocked / known baseline failures
 
-- `pnpm verify:full` currently fails at `node scripts/check-arch-invariants.mjs` because `tests/e2e/cart-order-summary.spec.ts:68` contains a forbidden manual bearer auth header. The #49 focused tests and default `pnpm verify` pass under a sanitized pnpm environment.
+- No app-code baseline failures from this session.
+- Local note: this worktree sits under a parent pnpm workspace, so direct `pnpm verify`/`pnpm verify:full` can trigger pnpm package-manager self-install loops. The equivalent gate commands passed when run with `pnpm --config.manage-package-manager-versions=false`.
 
 ## Verification baseline
 

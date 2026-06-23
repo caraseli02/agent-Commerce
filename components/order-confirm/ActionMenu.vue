@@ -11,8 +11,7 @@ import { cn } from '@/lib/utils';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from '~/components/ui/toast';
 import { OrderStatus, PaymentStatusEnum, PaymentTypeEnum, type MarkAsPaidRequestInterface, type OrderInterface } from '~/types';
-
-const { $api } = useNuxtApp();
+import { cancelOrder as cancelOrderApi, changeStatus as changeStatusApi, markAsPaid as markAsPaidApi } from '~/composables/api/orders';
 
 // Define props to initialize the form values
 const props = defineProps<{
@@ -25,7 +24,7 @@ const props = defineProps<{
 }>();
 
 const markAsPaid = async (payload: MarkAsPaidRequestInterface) => {
-  const response = (await $api.orders.markAsPaid(props.order?._id, payload)) as {
+  const response = (await markAsPaidApi(props.order?._id, payload)) as {
     status: string;
     description: string;
   };
@@ -48,7 +47,7 @@ const markAsPaid = async (payload: MarkAsPaidRequestInterface) => {
 };
 
 const changeStatus = async (status: OrderStatus) => {
-  const response = (await $api.orders.changeStatus(props.order?._id, status)) as {
+  const response = (await changeStatusApi(props.order?._id, status)) as {
     status: string;
     description: string;
   };
@@ -72,7 +71,7 @@ const changeStatus = async (status: OrderStatus) => {
 };
 
 const cancelOrder = async () => {
-  const response = (await $api.orders.cancelOrder(props.order?._id)) as { status: string; description: string };
+  const response = (await cancelOrderApi(props.order?._id)) as { status: string; description: string };
 
   if (response.status !== 'success') {
     toast({

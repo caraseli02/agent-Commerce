@@ -31,8 +31,8 @@
 import { storeToRefs } from 'pinia';
 import { AlertTriangleIcon } from 'lucide-vue-next';
 import { useCartStore } from '~/store/cartStore';
+import { cancelOrder as cancelOrderApi } from '~/composables/api/orders';
 
-const { $api } = useNuxtApp();
 const route = useRoute();
 const router = useRouter();
 
@@ -48,7 +48,7 @@ const cancelOrder = async () => {
     return;
   }
 
-  await $api.orders.cancelOrder(orderId.value);
+  await cancelOrderApi(orderId.value);
 
   cartStore.emptyOrderClientSecret();
   cartStore.emptyPreviousCheckoutError();

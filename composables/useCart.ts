@@ -1,8 +1,9 @@
 // ~/composables/useCart.ts
 import { computed, ref } from 'vue';
 import Emitter from 'tiny-emitter/instance.js';
-import { useNuxtApp, useRouter, useRuntimeConfig } from '#app';
+import { useRouter, useRuntimeConfig } from '#app';
 import { addEntityToCart, removeEntityFromCart, updateEntityFromCart } from '~/composables/api/cart';
+import { getShippingPricesForOrder } from '~/composables/api/orders';
 import type {
   AddToCartRequestInterface,
   DeleteProductCartRequestInterface,
@@ -14,7 +15,6 @@ import type { ShippingOrderPricingResponse } from '~/types/order-summary/shippin
 import { calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
 
 export function useCart() {
-  const { $api } = useNuxtApp();
   const router = useRouter();
 
   const cartStore = useCartStore();
@@ -77,7 +77,7 @@ export function useCart() {
   };
 
   const fetchShippingPrices = async (order: unknown) => {
-    const response = (await $api.orders.getShippingPricesForOrder(order)) as {
+    const response = (await getShippingPricesForOrder(order)) as {
       status: string;
       description: string;
       data: ShippingOrderPricingResponse;

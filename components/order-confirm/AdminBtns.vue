@@ -12,8 +12,7 @@ import {
 import type { PropType } from 'vue';
 import { OrderStatus, PaymentStatusEnum, type OrderInterface } from '~/types';
 import { toast } from '~/components/ui/toast';
-
-const { $api } = useNuxtApp();
+import { cancelOrder as cancelOrderApi } from '~/composables/api/orders';
 
 const props = defineProps({
   order: {
@@ -23,7 +22,7 @@ const props = defineProps({
 });
 
 const cancelOrder = async () => {
-  const response = (await $api.orders.cancelOrder(props.order?._id)) as { status: string; description: string };
+  const response = (await cancelOrderApi(props.order?._id)) as { status: string; description: string };
 
   if (response.status !== 'success') {
     toast({

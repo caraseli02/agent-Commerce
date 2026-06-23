@@ -4,7 +4,7 @@ import { ArrowLeft, LayoutDashboard, PackageOpenIcon, ShoppingCart, TruckIcon, U
 
 import moment from 'moment';
 import { storeToRefs } from 'pinia';
-import { useNuxtApp, useRoute } from '#app';
+import { useRoute } from '#app';
 import { OrderType } from '~/types';
 import type {
   OrderInterface,
@@ -21,11 +21,10 @@ import type { CartProductsInterface } from '~/model/cart/response/cart.interface
 import { toast } from '~/components/ui/toast';
 import { orderType } from '~/components/admin-table/order/options';
 import { downloadDocument as downloadDocumentApi } from '~/composables/api/documents';
+import { getOrderById } from '~/composables/api/orders';
 
 const authStore = useAuthStore();
 const { getUserDetails, userCards } = storeToRefs(authStore);
-
-const { $api } = useNuxtApp();
 
 const route = useRoute();
 const isNew = route.query.new === 'true';
@@ -117,7 +116,7 @@ const backOrder = ref<OrderRequestInterface>({} as OrderRequestInterface);
 
 const getOrderInformation = async () => {
   const orderId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-  const response = (await $api.orders.getOrderById(orderId)) as OrderRequestInterfaceResponse;
+  const response = (await getOrderById(orderId)) as OrderRequestInterfaceResponse;
 
   if (response.status === 'success' && response.data.order) {
     data.value = response;
