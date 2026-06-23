@@ -2,7 +2,8 @@
 
 ## Current focus
 
-- Harness verification is being simplified after the latest merged PR so normal loops do not run every handoff/runtime check by default.
+- HTTP migration epic #23 is active for the cart lane.
+- Current generator work is issue #49: wire `useCart` and `cartStore` to `composables/api/cart` on branch `codex/cart-usecart-store`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -11,7 +12,7 @@
 
 ## In progress
 
-- Harness cleanup — split the heavy verification gate into fast, full, and handoff commands; refresh stale harness docs.
+- Issue #49 — cart store/composable migration PR is being prepared from `codex/cart-usecart-store`.
 
 ## Recently completed
 
@@ -23,7 +24,7 @@
 
 ## Blocked / known baseline failures
 
-- None.
+- `pnpm verify:full` currently fails at `node scripts/check-arch-invariants.mjs` because `tests/e2e/cart-order-summary.spec.ts:68` contains a forbidden manual bearer auth header. The #49 focused tests and default `pnpm verify` pass under a sanitized pnpm environment.
 
 ## Verification baseline
 

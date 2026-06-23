@@ -121,9 +121,7 @@ const fetchList = async () => {
 };
 
 const subtotal = () => {
-  getCartSubtotal.value.then((res) => {
-    totalCartPrice.value = res;
-  });
+  totalCartPrice.value = getCartSubtotal.value;
 };
 
 subtotal();

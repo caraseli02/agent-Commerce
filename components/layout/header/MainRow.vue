@@ -200,9 +200,7 @@ const hasToken = computed(() => Boolean(authStore.getToken()));
 const totalCartPrice = ref(0);
 
 const subtotal = () => {
-  getCartSubtotal.value.then((res) => {
-    totalCartPrice.value = res;
-  });
+  totalCartPrice.value = getCartSubtotal.value;
 };
 
 subtotal();

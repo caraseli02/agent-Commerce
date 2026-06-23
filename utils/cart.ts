@@ -20,3 +20,23 @@ export const mapCartItems = (cartProducts: CartProductsInterface[] = []) => {
     selected: false,
   }));
 };
+
+export const calculateCartSubtotal = (cartProducts: CartProductsInterface[] = []) => {
+  const subtotal = cartProducts.reduce((total, item) => {
+    const stockTotal = Number(item.unitPriceAfterDiscounts) * Number(item.stock || 0);
+    const backorderTotal = Number(item.unitPriceAfterDiscounts) * Number(item.backorder_stock || 0);
+    return total + stockTotal + backorderTotal;
+  }, 0);
+
+  return Number(subtotal.toFixed(2));
+};
+
+export const calculateCartDiscount = (cartProducts: CartProductsInterface[] = []) => {
+  const discount = cartProducts.reduce((total, item) => {
+    const initialTotal = Number(item.initialUnitPrice) * Number(item.stock || 0);
+    const discountedTotal = Number(item.unitPriceAfterDiscounts) * Number(item.stock || 0);
+    return total + initialTotal - discountedTotal;
+  }, 0);
+
+  return Number(discount.toFixed(2));
+};
