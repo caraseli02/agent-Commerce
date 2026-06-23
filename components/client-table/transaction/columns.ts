@@ -8,7 +8,7 @@ import { renderColumnHeader } from '~/components/dataTable/renderColumnHeader';
 import { paymentStatusOptions, paymentTypeOptions } from '~/components/client-table/transaction/options';
 import { TransactionTableColumnsEnum } from '~/components/client-table/transaction/columns.enum';
 import type { TransactionInterface } from '~/types/dashboard/transaction';
-import DocumentService from '~/services/dashboard/document.service';
+import { downloadDocument } from '~/composables/api/documents';
 import { formatNumberWithCommas } from '~/utils/numbers';
 // import { useAuthStore } from '~/store/authStore';
 // import { storeToRefs } from 'pinia';
@@ -84,12 +84,11 @@ export const columns: ColumnDef<TransactionInterface>[] = [
     cell: ({ row }) =>
       h(RowActions, {
         row: row,
-        service: DocumentService,
         options: [
           {
             label: 'Download invoice',
             // enable: getUserDetails.value.role === AccountRole.Client && row.original?.invoiceId,
-            actionFn: 'downloadDocument',
+            actionFn: downloadDocument,
             actionParameter: row.original.invoiceId,
           },
         ] as unknown as ActionOptionsConfiguration[],
