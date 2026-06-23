@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import type { CartInterface } from '../model/cart/response/cart.interface';
-import { __setLegacyCartApiEnabled, __setMockApiClient, __setMockCookie } from './mocks/nuxt-app';
+import { __setMockApiClient, __setMockCookie } from './mocks/nuxt-app';
 
 const sampleCart = {
   _id: 'cart-test-1',
@@ -30,7 +30,6 @@ describe('cart store flow boundary', () => {
     setActivePinia(createPinia());
     apiRequests.length = 0;
     __setMockCookie('token', 'mock-token');
-    __setLegacyCartApiEnabled(false);
     __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
       apiRequests.push({ resource, method: options?.method });
 
