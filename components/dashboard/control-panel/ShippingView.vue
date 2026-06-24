@@ -118,6 +118,7 @@ import type { AddAddressPayload, EditAddressPayload, ShippingAddressesData, Vali
 import { resolveFormValue } from '~/types/global/form';
 import { toast } from '~/components/ui/toast';
 import { validateAddress } from '~/composables/api/orders';
+import { addShipping, deleteShipping, fetchShipping, updateShipping } from '~/composables/api/control-panel';
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -126,7 +127,7 @@ const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const addAddressModal = ref(false);
 const editAddressModal = ref<ShippingAddressInterface | null>(null);
 const indexOfEditAddressModal = ref(0);
-const { $api, $apiClient } = useNuxtApp();
+const { $apiClient } = useNuxtApp();
 const defaultAddressIndex = ref(0);
 const props = defineProps({
   id: {
@@ -156,7 +157,7 @@ const setAsDefault = async (address: ShippingAddressInterface) => {
   if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
     return;
   }
-  await $api.controlPanel.updateShipping(address, route.params.slug as string);
+  await updateShipping(address, route.params.slug as string, $apiClient);
 };
 
 const handleAddAddress = async (val: AddAddressPayload) => {
@@ -187,7 +188,7 @@ const handleAddAddress = async (val: AddAddressPayload) => {
     if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
       return;
     }
-    await $api.controlPanel.addShipping(newAddress.value, route.params.slug as string);
+    await addShipping(newAddress.value, route.params.slug as string, $apiClient);
     await getShippingInformation();
   }
 };
@@ -197,7 +198,7 @@ const getShippingInformation = async () => {
     return;
   }
   try {
-    const response = (await $api.controlPanel.fetchShipping(props.id, props.accountType)) as {
+    const response = (await fetchShipping(props.id, props.accountType, $apiClient)) as {
       status: string;
       data: ShippingAddressesData;
     };
@@ -266,7 +267,7 @@ const handleEditAddress = async (object: EditAddressPayload) => {
     addresses.value[object.index].phone = object.address.phone.value;
     addresses.value[object.index]._id = object.address._id.value;
 
-    await $api.controlPanel.updateShipping(addresses.value[object.index], route.params.slug as string);
+    await updateShipping(addresses.value[object.index], route.params.slug as string, $apiClient);
     await getShippingInformation();
   }
 };
@@ -285,7 +286,7 @@ const handleDeleteAddress = async (index: number) => {
     addresses.value[0].default = true;
   }
 
-  await $api.controlPanel.deleteShipping(addresses.value[index]?._id || '', route.params.slug as string);
+  await deleteShipping(addresses.value[index]?._id || '', route.params.slug as string, $apiClient);
   addresses.value.splice(index, 1);
   await getShippingInformation();
 };
