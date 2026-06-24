@@ -2,8 +2,8 @@
 
 ## Current focus
 
-- HTTP migration epic #23 is active for the orders lane.
-- Current generator work is issue #53: migrate dashboard/control-panel orders calls to `composables/api/orders` on branch `codex/53-dashboard-orders`.
+- HTTP migration epic #23 is active for the control-panel lane.
+- Current generator work is issue #54: create `composables/api/control-panel.ts` and migrate Shipping/Billing views on branch `codex/54-control-panel-a`; PR #214 is open.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,10 +12,11 @@
 
 ## In progress
 
-- Issue #53 — dashboard orders API adapter migration. PR is being prepared from `codex/53-dashboard-orders`.
+- Issue #54 — control-panel API adapter migration part A. PR #214 is open from `codex/54-control-panel-a`.
 
 ## Recently completed
 
+- Issue #53 — dashboard/control-panel orders calls migrated to `composables/api/orders`; prerequisite for #54 is closed.
 - Issue #52 — orders checkout API adapter migration and checkout E2E failure coverage; PR #212 merged and issue closed before issue #53 pickup.
 - Latest open PR was merged before this cleanup pass.
 - Issue #73 — PR template with related lectures, evidence, risks, and evaluator rubric.
@@ -36,7 +37,7 @@
 - `pnpm verify` — fast default gate: build, lint, typecheck, test, feature-list validation
 - `pnpm verify:full` — adds architecture invariants and preview smoke when needed
 - `pnpm verify:handoff` — clean-tree handoff gate before PR/session completion
-- Issue #53 evidence: TDD boundary test covers removal of `$api.orders` / `OrdersService`; `rg '\$api\.orders|OrdersService' -n` returns zero matches; dashboard orders production smoke passed for list and detail pages with no server-side errors.
+- Issue #54 evidence so far: `tests/control-panel-api.spec.ts` covers the new control-panel API adapter; `rg '\$api\.controlPanel' components/dashboard/control-panel/ShippingView.vue components/dashboard/control-panel/BillingView.vue` returns zero matches; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` and `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify:full` pass.
 
 ## Notes
 

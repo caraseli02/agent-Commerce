@@ -118,6 +118,7 @@ import type { AddAddressPayload, BillingAddressesData, EditAddressPayload, Valid
 import { resolveFormValue } from '~/types/global/form';
 import { toast } from '~/components/ui/toast';
 import { validateAddress } from '~/composables/api/orders';
+import { addBilling, deleteBilling, fetchBilling, updateBilling } from '~/composables/api/control-panel';
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -126,7 +127,7 @@ const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const addAddressModal = ref(false);
 const editAddressModal = ref<BillingAddressInterface | null>(null);
 const indexOfEditAddressModal = ref(0);
-const { $api, $apiClient } = useNuxtApp();
+const { $apiClient } = useNuxtApp();
 const defaultAddressIndex = ref(0);
 const props = defineProps({
   id: {
@@ -156,7 +157,7 @@ const setAsDefault = async (address: BillingAddressInterface) => {
   if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
     return;
   }
-  await $api.controlPanel.updateBilling(address, route.params.slug as string);
+  await updateBilling(address, route.params.slug as string, $apiClient);
 };
 
 const handleAddAddress = async (val: AddAddressPayload) => {
@@ -187,7 +188,7 @@ const handleAddAddress = async (val: AddAddressPayload) => {
     if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
       return;
     }
-    await $api.controlPanel.addBilling(newAddress.value, route.params.slug as string);
+    await addBilling(newAddress.value, route.params.slug as string, $apiClient);
     await getBillingInformation();
   }
 };
@@ -197,7 +198,7 @@ const getBillingInformation = async () => {
     return;
   }
   try {
-    const response = (await $api.controlPanel.fetchBilling(props.id, props.accountType)) as {
+    const response = (await fetchBilling(props.id, props.accountType, $apiClient)) as {
       status: string;
       data: BillingAddressesData;
     };
@@ -267,7 +268,7 @@ const handleEditAddress = async (object: EditAddressPayload) => {
     addresses.value[object.index].phone = object.address.phone.value;
     addresses.value[object.index]._id = object.address._id.value;
 
-    await $api.controlPanel.updateBilling(addresses.value[object.index], route.params.slug as string);
+    await updateBilling(addresses.value[object.index], route.params.slug as string, $apiClient);
     await getBillingInformation();
   }
 };
@@ -280,7 +281,7 @@ const handleDeleteAddress = async (index: number) => {
   if (defaultAddressIndex.value === index) {
     addresses.value[0].default = true;
   }
-  await $api.controlPanel.deleteBilling(addresses.value[index]?._id || '', route.params.slug as string);
+  await deleteBilling(addresses.value[index]?._id || '', route.params.slug as string, $apiClient);
   addresses.value.splice(index, 1);
 };
 </script>
