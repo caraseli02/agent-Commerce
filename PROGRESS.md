@@ -3,7 +3,7 @@
 ## Current focus
 
 - HTTP migration epic #23 is active for the control-panel lane.
-- Current generator work is issue #54: create `composables/api/control-panel.ts` and migrate Shipping/Billing views on branch `codex/54-control-panel-a`.
+- Current generator work is issue #54: create `composables/api/control-panel.ts` and migrate Shipping/Billing views on branch `codex/54-control-panel-a`; PR #214 is open.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,7 +12,7 @@
 
 ## In progress
 
-- Issue #54 — control-panel API adapter migration part A. PR is being prepared from `codex/54-control-panel-a`.
+- Issue #54 — control-panel API adapter migration part A. PR #214 is open from `codex/54-control-panel-a`.
 
 ## Recently completed
 
