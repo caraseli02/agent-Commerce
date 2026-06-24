@@ -36,6 +36,7 @@ async function collectSourceFiles(dir: string): Promise<string[]> {
 describe('orders HTTP migration boundary', () => {
   it('removes the legacy orders service registry from app code', async () => {
     const files = (await Promise.all(sourceRoots.map((root) => collectSourceFiles(join(repoRoot, root))))).flat();
+    expect(files.length).toBeGreaterThan(0);
 
     const offenders: string[] = [];
 
