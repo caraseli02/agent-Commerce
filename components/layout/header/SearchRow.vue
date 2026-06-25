@@ -108,7 +108,7 @@ const openFavoritesCartModal = (tab: 'favorites' | 'shopping-cart') => {
 };
 
 const fetchList = async () => {
-  const data = (await getCart.value) as CartInterface | null;
+  const data = getCart.value as CartInterface | null;
 
   if (!data || !data.products?.length) {
     return;
