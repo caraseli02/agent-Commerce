@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Row } from '@tanstack/vue-table';
 import { LockKeyholeIcon } from 'lucide-vue-next';
-import { useNuxtApp } from '#app';
 
 export interface ActionOptionsConfiguration {
   label: string;
@@ -18,13 +17,11 @@ interface RowOriginalWithId {
 interface DataTableRowActionsProps {
   row: Row<RowOriginalWithId>;
   options: ActionOptionsConfiguration[];
-  service?: unknown;
   discount?: number;
   lock?: boolean;
 }
 
 const props = defineProps<DataTableRowActionsProps>();
-const { $api } = useNuxtApp();
 
 const callAction = (option: ActionOptionsConfiguration) => {
   if (!option.actionFn) {
@@ -35,14 +32,6 @@ const callAction = (option: ActionOptionsConfiguration) => {
 
   if (typeof option.actionFn === 'function') {
     return option.actionFn(actionArg);
-  }
-
-  if (props.service) {
-    const service = $api[props.service as keyof typeof $api] as unknown as Record<string, (...args: unknown[]) => unknown> | undefined;
-    const action = service?.[option.actionFn];
-    if (typeof action === 'function') {
-      return action(actionArg);
-    }
   }
 
   return undefined;

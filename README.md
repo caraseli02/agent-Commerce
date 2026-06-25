@@ -143,7 +143,7 @@ When `NUXT_PUBLIC_MOCK_MODE=true`:
 components/      UI and feature components
 pages/           Nuxt routes
 layouts/         app shells
-services/        API service layer
+composables/api/ Plain domain API adapters around the Nuxt $fetch client
 server/api/      Nitro mock endpoints
 store/           Pinia stores
 types/           shared TypeScript types

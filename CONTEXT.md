@@ -17,3 +17,11 @@ ECAS is a Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Fireb
 - `PROGRESS.md` — current focus and verification baseline
 - `DECISIONS.md` — durable decisions
 - `feature_list.json` — machine-readable harness state
+
+## API access
+
+- `plugins/api.ts` creates the authenticated `$fetch` client with `$fetch.create()` and provides it as `$apiClient`.
+- `composables/useAPI.ts` is the SSR-friendly read helper for page/composable data loading.
+- `composables/api/*` contains plain domain API functions for mutations and orchestration helpers that need the shared `$apiClient`.
+- Domain composables such as `useCart`, `useOrder`, and `useCustomerDashboard` are the public interface for UI flows that need business rules or state coordination.
+- Do not add a class-based service registry, `HttpFactory`, `useFetchAPI`, or component-level `$api.<domain>` calls.
