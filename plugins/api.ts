@@ -2,20 +2,8 @@ import { $fetch, type $Fetch, type FetchOptions } from 'ofetch';
 import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
 
-import { deleteNotificationById, fetchGetNotifications, markNotificationAsRead } from '~/composables/api/notifications';
-
-/** ApiInstance interface provides us with good typing */
-export interface IApiInstance {
-  notifications: {
-    fetchGetNotifications: typeof fetchGetNotifications;
-    fetchMarkNotificationAsRead: typeof markNotificationAsRead;
-    deleteNotificationById: typeof deleteNotificationById;
-  };
-}
-
 declare module '#app' {
   interface NuxtApp {
-    $api: IApiInstance;
     $apiClient: $Fetch;
   }
 }
@@ -64,18 +52,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   /** create a new instance of $fetcher with custom option */
   const apiFetcher = $fetch.create(fetchOptions);
 
-  /** an object containing all repositories we need to expose */
-  const modules: IApiInstance = {
-    notifications: {
-      fetchGetNotifications,
-      fetchMarkNotificationAsRead: markNotificationAsRead,
-      deleteNotificationById,
-    },
-  };
-
   return {
     provide: {
-      api: modules,
       apiClient: apiFetcher,
     },
   };

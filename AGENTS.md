@@ -121,7 +121,6 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 - `layouts/` — app shells
 - `components/` — feature and UI components
 - `composables/` — shared composition logic
-- `services/` — API service classes
 - `store/` — Pinia stores
 - `plugins/` — app plugins and API wiring
 - `server/api/` — Nitro mock endpoints
@@ -129,7 +128,7 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 
 ## Architecture notes
 
-- API calls go through `plugins/api.ts` → `composables/HttpFactory.ts` → `services/*.service.ts`.
+- API access goes through `plugins/api.ts` for the shared `$apiClient`, `composables/useAPI.ts` for SSR-friendly reads, and plain domain functions in `composables/api/*` for mutations/orchestration.
 - Auth uses Firebase plus local token/session state.
 - `server/api/` is the mock backend for portfolio/demo work.
 - UI uses shadcn-vue / Radix-style primitives with Tailwind.

@@ -145,13 +145,11 @@ import CartIcon from '@/assets/icons/cart.svg';
 import HeartIcon from '@/assets/icons/heart.svg';
 import ShareIcon from '@/assets/icons/share.svg';
 import type { ProductActionObject } from '~/model/cart/response/cart.interface';
-import { useNuxtApp } from '#app';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
 import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 
-const { $api: _$api } = useNuxtApp();
 const quantity = ref(1);
 const initialRequestedQuantity = ref(0);
 

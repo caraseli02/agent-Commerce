@@ -42,9 +42,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/store/authStore';
 
-// $api available for future use
-const { $api: _$api } = useNuxtApp();
-
 const authStore = useAuthStore();
 
 const props = defineProps<{

@@ -56,8 +56,6 @@ import { useCartStore } from '~/store/cartStore';
 
 const cartStore = useCartStore();
 
-const { $api: _$api } = useNuxtApp();
-
 const { getCart, getCartSubtotal } = storeToRefs(cartStore);
 const totalCartPrice = ref(0);
 

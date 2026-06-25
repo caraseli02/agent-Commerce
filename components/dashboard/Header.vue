@@ -265,6 +265,11 @@ import XIcon from '@/assets/icons/dashboard/x.svg';
 import type { Notification } from '~/types/dashboard/notification';
 import { useAuthStore } from '~/store/authStore';
 import type { UserInterface } from '~/types/auth/user-interface';
+import {
+  deleteNotificationById,
+  fetchGetNotifications,
+  markNotificationAsRead as markNotificationAsReadById,
+} from '~/composables/api/notifications';
 
 defineProps({
   isCollapsedOnDesktop: {
@@ -283,7 +288,6 @@ const emit = defineEmits<{
 const showMobileSearch = ref(false);
 const searchValue = ref('');
 const notifications = ref<Notification[]>([] as Notification[]);
-const { $api } = useNuxtApp();
 const error = ref(false);
 const isLoading = ref(false);
 const showOptions = ref(false);
@@ -315,7 +319,7 @@ const fetchNofications = async () => {
   isLoading.value = true;
 
   type NotificationsResponse = { status: string; description: Notification[] };
-  const response = (await $api.notifications.fetchGetNotifications()) as unknown as NotificationsResponse;
+  const response = (await fetchGetNotifications()) as unknown as NotificationsResponse;
   if (response.status !== 'success') {
     isLoading.value = false;
     error.value = true;
@@ -354,7 +358,7 @@ const markNotificationAsRead = async (notification: Notification, index: number)
     unreadNotifications.value--;
   }
 
-  const response = (await $api.notifications.fetchMarkNotificationAsRead(notification.id)) as { status: string };
+  const response = (await markNotificationAsReadById(notification.id)) as { status: string };
 
   if (response.status !== 'success') {
     return;
@@ -364,7 +368,7 @@ const markNotificationAsRead = async (notification: Notification, index: number)
 };
 
 const deleteNotification = async (notification: Notification, index: number) => {
-  const response = (await $api.notifications.deleteNotificationById(notification.id)) as { status: string };
+  const response = (await deleteNotificationById(notification.id)) as { status: string };
 
   if (response.status !== 'success') {
     return;
