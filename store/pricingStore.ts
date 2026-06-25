@@ -74,19 +74,7 @@ export const usePricingStore = defineStore({
     },
   },
   getters: {
-    getPricing: async (state) => {
-      if (!state.pricing) {
-        const pricingResponse = await fetchPriceSettings();
-
-        if (!pricingResponse) {
-          return null;
-        }
-
-        return pricingResponse.data;
-      }
-
-      return state.pricing;
-    },
+    getPricing: (state) => state.pricing,
   },
   persist: {
     storage: piniaPluginPersistedstate.localStorage(),

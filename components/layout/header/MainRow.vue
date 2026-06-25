@@ -300,7 +300,7 @@ Emitter.on('open-account-modal', async () => {
 });
 
 const fetchList = async () => {
-  const data = (await getCart.value) as CartInterface | null;
+  const data = getCart.value as CartInterface | null;
 
   if (!data?.products?.length) {
     return;
