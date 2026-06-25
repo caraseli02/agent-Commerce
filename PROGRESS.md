@@ -3,7 +3,7 @@
 ## Current focus
 
 - HTTP migration epic #23 is active for the control-panel lane.
-- Current generator work is issue #55: finish the remaining control-panel API migration and remove the legacy control-panel service registry on branch `codex/55-control-panel-b`; PR #215 is open.
+- Issue #55 finished generator work on branch `codex/55-control-panel-b`; PR #215 is open, checks passed, and the issue is labeled `ready-for-human`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,7 +12,11 @@
 
 ## In progress
 
-- Issue #55 — migrate the remaining control-panel API surface away from `$api.controlPanel`, delete `services/dashboard/control-panel.service.ts`, and remove `ControlPanelService` from `plugins/api.ts`. PR #215 is open from `codex/55-control-panel-b`.
+- No generator issue is currently in progress. Do not start issue #42 until PR #215 for issue #55 is merged.
+
+## Ready for human review
+
+- Issue #55 — migrate the remaining control-panel API surface away from `$api.controlPanel`, delete `services/dashboard/control-panel.service.ts`, and remove `ControlPanelService` from `plugins/api.ts`. PR #215 is open from `codex/55-control-panel-b`, linked to #55, non-draft, mergeable, and passing remote checks.
 
 ## Recently completed
 
