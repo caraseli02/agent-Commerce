@@ -3,8 +3,7 @@ import _ from 'lodash';
 import type { DebouncedFunc } from 'lodash';
 import { columns } from './columns';
 import type { TransactionInterface } from '~/types/dashboard/transaction';
-
-const { $api } = useNuxtApp();
+import { fetchTransactions } from '~/composables/api/control-panel';
 
 const props = defineProps({
   userId: {
@@ -36,7 +35,7 @@ const fetchAndSetTransactionListRaw = async (
       filters.userId = props.userId;
     }
 
-    const data = await $api.controlPanel.fetchTransactions(page, perPage, filters, sort);
+    const data = await fetchTransactions(page, perPage, filters, sort);
 
     if (!data || data.status !== 'success') {
       loading.value = false;

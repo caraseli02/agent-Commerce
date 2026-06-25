@@ -118,11 +118,10 @@
 <script setup lang="ts">
 import CheckIcon from '@/assets/icons/check.svg';
 import SecurityUserIcon from '@/assets/icons/dashboard/security-user.svg';
-import { useNuxtApp } from '#app';
 import { AlertAndNotificationLabelsEnum, MarketingPreferencesEnum } from '~/types/auth/account-settings';
 import { resetPasswordLink as requestResetPasswordLink } from '~/composables/api/user';
+import { fetchCustomerSettings, markSettingsAsRead } from '~/composables/api/control-panel';
 
-const { $api } = useNuxtApp();
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const alertsAndNotifications = ref([
@@ -168,7 +167,7 @@ const getCustomerSettings = async () => {
     return;
   }
   try {
-    const response = await $api.controlPanel.fetchCustomerSettings(props.id);
+    const response = await fetchCustomerSettings(props.id);
 
     if (response.status !== 'success' && !isMockMode.value) {
       return;
@@ -225,7 +224,7 @@ const markSettingAsRead = async (item: { key: string; email?: boolean; app?: boo
     return;
   }
   try {
-    await $api.controlPanel.markSettingsAsRead(item, type, props.id);
+    await markSettingsAsRead(item, type, props.id);
   } catch {
     if (!isMockMode.value) {
       return;

@@ -87,13 +87,14 @@
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp } from '#app';
+import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { ControlPanelLabels, ControlPanelTabsEnum } from '~/types/dashboard/control-panel';
 import { AccountType } from '~/types';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { customerCreditHelper } from '~/helpers/customer-credit.helper';
 import { fetchCustomerInformation } from '~/composables/api/customer-profile';
+import { fetchCustomerCredit } from '~/composables/api/control-panel';
 
 const route = useRoute();
 const router = useRouter();
@@ -101,7 +102,6 @@ const customerSlug = computed(() => String(route.params.slug ?? ''));
 const customerName = ref('');
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
-const { $api } = useNuxtApp();
 
 useHead({
   title: 'Dashboard Control Panel',
@@ -121,7 +121,7 @@ const getCustomerCredit = async () => {
   }
   isLoading.value = true;
   try {
-    const response = (await $api.controlPanel.fetchCustomerCredit(customerSlug.value)) as {
+    const response = (await fetchCustomerCredit(customerSlug.value)) as {
       status: string;
       data: CustomerCreditInterface;
     };

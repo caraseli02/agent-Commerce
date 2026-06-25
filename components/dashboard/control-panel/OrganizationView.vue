@@ -188,8 +188,9 @@ import type { AddressInterface, CompanyDetails, ContactDetails, UserInterface } 
 import { getRegionByCountry } from '~/helpers/form.helper';
 import { toast } from '~/components/ui/toast';
 import { validateAddress } from '~/composables/api/orders';
+import { updateAccountDetails as updateControlPanelAccountDetails } from '~/composables/api/control-panel';
 
-const { $api, $apiClient } = useNuxtApp();
+const { $apiClient } = useNuxtApp();
 const props = defineProps({
   id: {
     type: String,
@@ -377,6 +378,6 @@ const updateAccountDetails = async () => {
   if (!props.id || props.account.accountType === null || typeof props.account.accountType === 'undefined') {
     return;
   }
-  await $api.controlPanel.updateAccountDetails(props.id, payload as UserInterface, props.account.accountType);
+  await updateControlPanelAccountDetails(props.id, payload as UserInterface, props.account.accountType);
 };
 </script>

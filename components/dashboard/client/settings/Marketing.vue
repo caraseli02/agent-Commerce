@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '~/store/authStore';
-import { useNuxtApp } from '#app';
-
-const { $api } = useNuxtApp();
+import { markSettingsAsRead } from '~/composables/api/control-panel';
 
 const authStore = useAuthStore();
 
@@ -19,7 +17,7 @@ watch(newsletterSubscription, async (newValue) => {
   if (newValue === null || !getUserDetails?.value.firebaseId) {
     return;
   }
-  const response = await $api.controlPanel.markSettingsAsRead(
+  const response = await markSettingsAsRead(
     {
       key: 'newsletter',
       ['app']: newValue,
