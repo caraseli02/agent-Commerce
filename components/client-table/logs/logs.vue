@@ -3,6 +3,7 @@ import _ from 'lodash';
 import type { DebouncedFunc } from 'lodash';
 import { columns } from './columns';
 import type { LogsItem } from '~/components/client-table/logs/columns.enum';
+import { fetchActivityLogs } from '~/composables/api/control-panel';
 
 const emit = defineEmits<{
   showTotalItems: [val: number];
@@ -18,7 +19,6 @@ interface PaginatedActivityLogsResponse {
   };
 }
 
-const { $api } = useNuxtApp();
 const totalItems = ref(0);
 const pageCount = ref(0);
 const loading = ref(true);
@@ -33,7 +33,7 @@ const fetchAndSetActivityLogs = async (
 ) => {
   error.value = false;
 
-  const data = (await $api.controlPanel.fetchActivityLogs(page, perPage, filters, sort)) as PaginatedActivityLogsResponse | null;
+  const data = (await fetchActivityLogs(page, perPage, filters, sort)) as PaginatedActivityLogsResponse | null;
 
   if (!data || data.status !== 'success') {
     loading.value = false;

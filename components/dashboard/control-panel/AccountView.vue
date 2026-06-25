@@ -144,11 +144,9 @@ import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import CopyIcon from '@/assets/icons/dashboard/copy.svg';
 import { countries } from '@/data/countries';
 import type { FormSelectOption } from '~~/types';
-import { useNuxtApp } from '#app';
 import type { AddressInterface, ContactDetails, PersonalDetails, UserInterface } from '~/types/auth/user-interface';
 import { getRegionByCountry } from '~/helpers/form.helper';
-
-const { $api } = useNuxtApp();
+import { updateAccountDetails as updateControlPanelAccountDetails } from '~/composables/api/control-panel';
 
 const props = defineProps({
   id: {
@@ -285,6 +283,6 @@ const updateAccountDetails = async () => {
   if (!props.id || props.account.accountType === null || typeof props.account.accountType === 'undefined') {
     return;
   }
-  await $api.controlPanel.updateAccountDetails(props.id, payload as UserInterface, props.account.accountType);
+  await updateControlPanelAccountDetails(props.id, payload as UserInterface, props.account.accountType);
 };
 </script>

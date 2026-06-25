@@ -74,9 +74,9 @@
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance.js';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import { useNuxtApp } from '#app';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { customerCreditHelper } from '~/helpers/customer-credit.helper';
+import { fetchCustomerCredit } from '~/composables/api/control-panel';
 
 const customerName = ref('');
 const updateBreadcrumbs = ref(false);
@@ -98,7 +98,6 @@ definePageMeta({
 const error = ref(false);
 const emptyData = ref(false);
 const isLoading = ref(true);
-const { $api } = useNuxtApp();
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 
@@ -111,7 +110,7 @@ const getCustomerCredit = async () => {
     return;
   }
   try {
-    const response = (await $api.controlPanel.fetchCustomerCredit(customerSlug.value)) as {
+    const response = (await fetchCustomerCredit(customerSlug.value)) as {
       status: string;
       data: CustomerCreditInterface;
     };

@@ -165,9 +165,14 @@ import XIcon from '@/assets/icons/dashboard/x.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import FreezeIcon from '@/assets/icons/dashboard/freeze.svg';
 import CalendarIcon from '@/assets/icons/dashboard/calendar.svg';
-import { useNuxtApp } from '#app';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { useMockMode } from '~/composables/useMockMode';
+import {
+  fetchCustomerCredit,
+  toggleCloseCustomerCredit,
+  toggleFreezeCustomerCredit,
+  updateCustomerCredit,
+} from '~/composables/api/control-panel';
 
 interface CreditTermOption {
   label: string;
@@ -196,7 +201,6 @@ const creditTermOptions = ref<CreditTermOption[]>([
   { label: '45 Days', value: 45 },
   { label: '60 Days', value: 60 },
 ]);
-const { $api } = useNuxtApp();
 const { isMockMode } = useMockMode();
 const props = defineProps<{
   id: string;
@@ -230,7 +234,7 @@ const getCustomerCredit = async () => {
     return;
   }
   try {
-    const response = (await $api.controlPanel.fetchCustomerCredit(props.id)) as unknown as CustomerCreditResponse;
+    const response = (await fetchCustomerCredit(props.id)) as unknown as CustomerCreditResponse;
 
     if (response.status !== 'success' && !isMockMode.value) {
       return;
@@ -269,7 +273,7 @@ const updateCreditTerm = async (term?: number, value?: number) => {
     return;
   }
 
-  const response = (await $api.controlPanel.updateCustomerCredit(term ?? 0, String(value ?? 0), props.id)) as ApiStatusResponse;
+  const response = (await updateCustomerCredit(term ?? 0, String(value ?? 0), props.id)) as ApiStatusResponse;
   if (response.status !== 'success') {
     return;
   }
@@ -286,7 +290,7 @@ const switchFreeze = async () => {
     return;
   }
 
-  const response = (await $api.controlPanel.toggleFreezeCustomerCredit(props.id)) as ApiStatusResponse;
+  const response = (await toggleFreezeCustomerCredit(props.id)) as ApiStatusResponse;
   if (response.status !== 'success') {
     return;
   }
@@ -301,7 +305,7 @@ const switchClose = async () => {
     return;
   }
 
-  const response = (await $api.controlPanel.toggleCloseCustomerCredit(props.id)) as ApiStatusResponse;
+  const response = (await toggleCloseCustomerCredit(props.id)) as ApiStatusResponse;
   if (response.status !== 'success') {
     return;
   }

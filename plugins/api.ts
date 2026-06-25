@@ -3,7 +3,6 @@ import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
 
 import { deleteNotificationById, fetchGetNotifications, markNotificationAsRead } from '~/composables/api/notifications';
-import ControlPanelService from '~/services/dashboard/control-panel.service';
 
 /** ApiInstance interface provides us with good typing */
 export interface IApiInstance {
@@ -12,7 +11,6 @@ export interface IApiInstance {
     fetchMarkNotificationAsRead: typeof markNotificationAsRead;
     deleteNotificationById: typeof deleteNotificationById;
   };
-  controlPanel: ControlPanelService;
 }
 
 declare module '#app' {
@@ -73,7 +71,6 @@ export default defineNuxtPlugin((nuxtApp) => {
       fetchMarkNotificationAsRead: markNotificationAsRead,
       deleteNotificationById,
     },
-    controlPanel: new ControlPanelService(apiFetcher),
   };
 
   return {

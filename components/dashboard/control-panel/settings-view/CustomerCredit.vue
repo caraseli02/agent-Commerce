@@ -100,8 +100,8 @@ import moment from 'moment';
 import ProgressBar from './ProgressBar.vue';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import { useNuxtApp } from '#app';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import { fetchCustomerCredit } from '~/composables/api/control-panel';
 
 defineEmits(['toggle-editing']);
 
@@ -146,7 +146,6 @@ const chartOptions = ref({
   },
   labels: [''],
 });
-const { $api } = useNuxtApp();
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 
@@ -165,7 +164,7 @@ const getCustomerCredit = async () => {
     return;
   }
   try {
-    const response = (await $api.controlPanel.fetchCustomerCredit(props.id)) as {
+    const response = (await fetchCustomerCredit(props.id)) as {
       status: string;
       data: CustomerCreditInterface;
     };

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { useNuxtApp } from '#app';
 import { useAuthStore } from '~/store/authStore';
+import { markSettingsAsRead } from '~/composables/api/control-panel';
 
 const authStore = useAuthStore();
 const { getUserDetails } = storeToRefs(authStore);
@@ -11,7 +11,6 @@ const props = defineProps<{
   alertKey: string;
 }>();
 
-const { $api } = useNuxtApp();
 const emailModel = defineModel<boolean>('email');
 const appModel = defineModel<boolean>('app');
 
@@ -20,7 +19,7 @@ async function handleChange(title: string, type: string, value: boolean) {
     return;
   }
 
-  await $api.controlPanel.markSettingsAsRead(
+  await markSettingsAsRead(
     {
       key: props.alertKey,
       [type]: value,

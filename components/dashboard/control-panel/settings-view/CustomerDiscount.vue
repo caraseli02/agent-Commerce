@@ -60,14 +60,13 @@
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import PercentageIcon from '@/assets/icons/dashboard/percentage.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import { useNuxtApp } from '#app';
 import type { DiscountInterface } from '~/types/auth/account-settings';
+import { fetchCustomerDiscount, updateCustomerDiscount } from '~/composables/api/control-panel';
 
 const customerDiscountBuffer = ref<number>(0);
 const customerDiscount = ref<number>(0);
 const loading = ref(true);
 const error = ref(false);
-const { $api } = useNuxtApp();
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const props = defineProps({
@@ -81,7 +80,7 @@ const getCustomerSettings = async () => {
     return;
   }
   try {
-    const response = (await $api.controlPanel.fetchCustomerDiscount(props.id)) as { status: string; data: DiscountInterface };
+    const response = (await fetchCustomerDiscount(props.id)) as { status: string; data: DiscountInterface };
 
     if (response.status !== 'success' && !isMockMode.value) {
       error.value = true;
@@ -113,7 +112,7 @@ const updateDiscount = async (discount: number | 0) => {
     error.value = false;
     return;
   }
-  const response = (await $api.controlPanel.updateCustomerDiscount(discount, props.id)) as { status: string };
+  const response = (await updateCustomerDiscount(discount, props.id)) as { status: string };
 
   if (response.status !== 'success') {
     return;
