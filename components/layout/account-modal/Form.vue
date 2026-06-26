@@ -285,7 +285,7 @@ const handleSignIn = async () => {
   const safeRedirect = getSafeRedirectFromQuery();
 
   try {
-    const response = (await authLogin(payload)) as SigninResponse;
+    const response = (await authLogin(payload)) as unknown as SigninResponse;
     const { token, user } = normalizeSigninResponse(response);
 
     if (!token) {

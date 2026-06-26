@@ -72,25 +72,34 @@ const handleSubmit = () => {
 };
 
 const resetPassword = async (email: string, newPassword: string, repeatPassowrd: string, code: string) => {
-  const response = (await submitPasswordReset(email, newPassword, code)) as { status: string };
+  try {
+    const response = (await submitPasswordReset(email, newPassword, code)) as { status: string };
 
-  if (response.status !== 'success') {
+    if (response.status !== 'success') {
+      toast({
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+      await router.push('/');
+      return;
+    }
+
+    toast({
+      title: 'Success',
+      description: 'Password reset successfully.',
+      variant: 'success',
+    });
+    await router.push('/');
+    return;
+  } catch {
     toast({
       title: 'Error',
       description: 'Something went wrong. Please try again.',
       variant: 'destructive',
     });
     await router.push('/');
-    return;
   }
-
-  toast({
-    title: 'Success',
-    description: 'Password reset successfully.',
-    variant: 'success',
-  });
-  await router.push('/');
-  return;
 };
 
 useHead({
