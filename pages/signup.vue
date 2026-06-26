@@ -59,7 +59,7 @@ const { toast } = useToast();
 
 const { logout } = useFirebaseAuth();
 
-const firebaseToken = authStore.token?.value;
+const firebaseToken = authStore.getToken();
 const userInfo = authStore.loggedInUser;
 
 const {

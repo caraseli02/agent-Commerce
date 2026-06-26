@@ -26,16 +26,4 @@ export default defineNuxtRouteMiddleware((to) => {
 
     return navigateTo(signinPath);
   }
-
-  if (authStore.token.value && authStore.token.value !== authToken) {
-    if (import.meta.client) {
-      authStore.signOut();
-    }
-
-    return navigateTo(signinPath);
-  }
-
-  if (!authStore.token.value) {
-    authStore.addToken(authToken);
-  }
 });

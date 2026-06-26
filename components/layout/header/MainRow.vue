@@ -409,7 +409,7 @@ onMounted(() => {
 });
 
 watch(
-  () => authStore.token?.value,
+  () => authStore.getToken(),
   async (newVal) => {
     if (newVal) {
       await closeAccountModal();
