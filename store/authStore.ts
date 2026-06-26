@@ -79,7 +79,7 @@ export const useAuthStore = defineStore(
       Emitter.emit('remove-cart-and-notifications', true);
 
       if (import.meta.client) {
-        localStorage.clear();
+        localStorage.removeItem('auth-store');
       }
     }
 
