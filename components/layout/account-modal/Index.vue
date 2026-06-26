@@ -72,9 +72,7 @@ const handleSignedIn = () => {
   emit('close');
 };
 
-const token = useCookie('token');
 const handleSignOut = async () => {
-  token.value = '';
   authStore.signOut();
   await authStore.firebaseSignOut();
   setTimeout(() => {

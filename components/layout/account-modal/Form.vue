@@ -196,8 +196,6 @@ const isClientCodeFormat = (value: string) => {
   return regex.test(value);
 };
 
-const cookieToken = useCookie('token', { maxAge: 60 * 60 });
-
 const normalizeSigninResponse = (response: SigninResponse | null | undefined) => {
   const token = response?.token || response?.data?.token;
   const user = response?.user || response?.data?.user;
@@ -299,7 +297,6 @@ const handleSignIn = async () => {
 
     authStore.addUser(parsedTokenResponse);
     authStore.addToken(token);
-    cookieToken.value = token;
 
     const userDetails = await fetchUserDetails(parsedTokenResponse.user_id || user?._id, user, token);
     if (!userDetails) {
@@ -379,10 +376,8 @@ const loginWithGoogle = async () => {
   // eslint-disable-next-line no-prototype-builtins
   if (!parsedToken.hasOwnProperty('permissions')) {
     authStore.addFirebaseToken(token);
-    cookieToken.value = token;
     return navigateTo('/');
   } else {
-    cookieToken.value = token;
     await fetchUserDetails(parsedToken.user_id);
   }
 };

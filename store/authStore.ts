@@ -1,9 +1,7 @@
 import { defineStore } from 'pinia';
-import { ref, reactive, computed } from 'vue';
+import { ref, computed } from 'vue';
 import Emitter from 'tiny-emitter/instance.js';
-import moment from 'moment';
 import useFirebaseAuth from '~/composables/useFirebaseAuth';
-import { useRouter, useRoute } from '#app';
 import { userCards as fetchUserCards } from '~/composables/api/user';
 import type { StripeCardInterface, UserInfoJWT } from '~/types';
 import type { UserInterface } from '~/types/auth/user-interface';
@@ -14,7 +12,7 @@ export const useAuthStore = defineStore(
   () => {
     // Initial state
     const initialState = {
-      token: { value: '', createdAt: '' },
+      token: '',
       loggedInUser: null as UserInfoJWT | null,
       userDetails: null as UserInterface | null,
       firebaseTempToken: null as string | null,
@@ -22,10 +20,14 @@ export const useAuthStore = defineStore(
       generalSettings: null as GeneralSettingsInterface | null,
     };
 
+    const tokenCookie = useCookie<string | null>('token', { maxAge: 60 * 60 });
+
     // Reactive state variables
-    const token = reactive<{ value: string; createdAt: string }>({
-      value: initialState.token.value,
-      createdAt: initialState.token.createdAt,
+    const token = computed<string>({
+      get: () => tokenCookie.value ?? initialState.token,
+      set: (value: string) => {
+        tokenCookie.value = value || null;
+      },
     });
     const loggedInUser = ref<UserInfoJWT | null>(initialState.loggedInUser);
     const userDetails = ref<UserInterface | null>(initialState.userDetails);
@@ -36,7 +38,6 @@ export const useAuthStore = defineStore(
     // Actions
     function addToken(tokenValue: string) {
       token.value = tokenValue;
-      token.createdAt = new Date().toISOString();
     }
 
     function addUser(user: UserInfoJWT) {
@@ -73,7 +74,6 @@ export const useAuthStore = defineStore(
       loggedInUser.value = null;
       userDetails.value = null;
       token.value = '';
-      token.createdAt = '';
       generalSettings.value = null;
 
       Emitter.emit('remove-cart-and-notifications', true);
@@ -90,40 +90,13 @@ export const useAuthStore = defineStore(
       loggedInUser.value = null;
       userDetails.value = null;
       token.value = '';
-      token.createdAt = '';
       generalSettings.value = null;
     }
 
     function getToken() {
-      const config = useRuntimeConfig();
-      if (config.public.MOCK_MODE) {
-        return token.value ? (token.value as unknown as UserInfoJWT) : null;
-      }
-
-      if (import.meta.server) return null;
-
-      const router = useRouter();
-      const route = useRoute();
-
-      if (!token || !token.createdAt) {
-        return null;
-      }
-
-      const time = moment().diff(moment(token.createdAt), 'minutes');
-
-      if (time > 59) {
-        signOut();
-
-        if (route.path.includes('dashboard') || route.path.includes('order') || route.path.includes('checkout')) {
-          router.push('/');
-          Emitter.emit('open-account-modal');
-        }
-
-        return null;
-      }
-
-      return token.value as unknown as UserInfoJWT;
+      return token.value || null;
     }
+
 
     // Getters
     const getCurrentUser = computed(() => loggedInUser.value);
@@ -132,8 +105,7 @@ export const useAuthStore = defineStore(
 
     // $reset function to reset state to initial values
     function $reset() {
-      token.value = initialState.token.value;
-      token.createdAt = initialState.token.createdAt;
+      token.value = initialState.token;
       loggedInUser.value = initialState.loggedInUser;
       userDetails.value = initialState.userDetails;
       firebaseTempToken.value = initialState.firebaseTempToken;
@@ -173,6 +145,7 @@ export const useAuthStore = defineStore(
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
+      pick: ['loggedInUser', 'userDetails', 'firebaseTempToken', 'userCards', 'generalSettings'],
     },
   }
 );
