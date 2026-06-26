@@ -19,7 +19,7 @@
     >
       <div class="flex items-center justify-between leading-[1.25] font-semibold mb-4 md:text-xl md:leading-[1.2] md:mb-6">
         <div>Subtotal</div>
-        <div class="text-right">{{ cartSubtotal.toFixed(2) }} Lei</div>
+        <div class="text-right">{{ getCartSubtotal.toFixed(2) }} Lei</div>
       </div>
       <NuxtLink
         class="flex items-center justify-center gap-2 bg-blue-500 text-white rounded-lg px-[15px] py-2 leading-[1.75] font-medium w-full"
@@ -41,7 +41,7 @@ import type { FavoriteItem } from '~/types/favorites/item';
 import { useCartStore } from '~/store/cartStore';
 
 const cartStore = useCartStore();
-const { cartSubtotal, cart } = storeToRefs(cartStore);
+const { getCartSubtotal, cart } = storeToRefs(cartStore);
 
 const items = ref<FavoriteItem[]>([]);
 
