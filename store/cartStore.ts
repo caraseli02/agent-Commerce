@@ -17,7 +17,6 @@ export const useCartStore = defineStore({
       cart: null as CartInterface | null,
       orderClientSecret: null as string | null,
       previousCheckoutError: null as CheckoutError | null,
-      cartSubtotal: 0,
     };
   },
   actions: {

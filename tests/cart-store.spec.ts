@@ -69,7 +69,6 @@ describe('cart store flow boundary', () => {
     const { useCartStore } = await import('../store/cartStore');
     const cartStore = useCartStore();
 
-    cartStore.cartSubtotal = 123;
     cartStore.setCart({
       ...sampleCart,
       products: [
@@ -83,7 +82,6 @@ describe('cart store flow boundary', () => {
     });
 
     expect(cartStore.getCartSubtotal).toBe(30);
-    expect(cartStore.cartSubtotal).toBe(123);
     expect(apiRequests).toEqual([]);
   });
 });
