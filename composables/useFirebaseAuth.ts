@@ -14,7 +14,7 @@ export default function () {
 
   const user = useState<User | null>('google.com', () => null);
 
-  const registerUser = async (): Promise<FirebaseResults | { error: ErrorConstructor }> => {
+  const registerUser = async (): Promise<FirebaseResults | { error: Error }> => {
     try {
       const provider = new GoogleAuthProvider();
       const signIn = await signInWithPopup($auth, provider).then((result) => {
@@ -26,9 +26,9 @@ export default function () {
       });
 
       return signIn;
-    } catch {
-      // Error handled silently
-      return { error: Error };
+    } catch (error) {
+      console.error('Failed to sign in with Google', error);
+      return { error: new Error('Sign-in failed') };
     }
   };
 

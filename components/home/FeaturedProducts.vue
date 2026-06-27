@@ -44,7 +44,8 @@ async function getProductTab() {
     } else {
       productList.value = [];
     }
-  } catch {
+  } catch (error) {
+    console.error('Failed to load featured products', error);
     productList.value = [];
   }
 }
