@@ -312,7 +312,8 @@ export const useSignupHandlers = () => {
 
         await logout();
         nextStep();
-      } catch {
+      } catch (error) {
+        console.error('Failed to submit signup form', error);
         toast({ variant: 'destructive', title: 'Error', description: 'Registration failed' });
       } finally {
         clearFormData();

@@ -241,7 +241,8 @@ const getCustomerCredit = async () => {
     }
 
     creditObjectToEdit.value = response.status === 'success' ? response.data : mockCreditDefaults();
-  } catch {
+  } catch (error) {
+    console.error('Failed to load customer credit for editing', error);
     if (!isMockMode.value) {
       return;
     }

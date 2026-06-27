@@ -137,7 +137,8 @@ const getCustomerCredit = async () => {
     error.value = false;
     emptyData.value = false;
     credit.value = customerCreditHelper(response.data);
-  } catch {
+  } catch (caughtError) {
+    console.error('Failed to load customer credit', caughtError);
     isLoading.value = false;
 
     if (isMockMode.value) {
@@ -198,7 +199,8 @@ const fetchInformation = async () => {
     }
     accountType.value = response.data.accountType ?? AccountType.Personal;
     customerName.value = `${response.data.contactDetails?.firstName ?? ''} ${response.data.contactDetails?.lastName ?? ''}`.trim();
-  } catch {
+  } catch (caughtError) {
+    console.error('Failed to load customer profile information', caughtError);
     if (isMockMode.value) {
       accountType.value = AccountType.Personal;
       customerName.value = 'Demo Customer';

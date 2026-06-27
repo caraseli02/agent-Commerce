@@ -119,6 +119,7 @@
 import CheckIcon from '@/assets/icons/check.svg';
 import SecurityUserIcon from '@/assets/icons/dashboard/security-user.svg';
 import { AlertAndNotificationLabelsEnum, MarketingPreferencesEnum } from '~/types/auth/account-settings';
+import { toast } from '~/components/ui/toast';
 import { resetPasswordLink as requestResetPasswordLink } from '~/composables/api/user';
 import { fetchCustomerSettings, markSettingsAsRead } from '~/composables/api/control-panel';
 
@@ -191,7 +192,8 @@ const getCustomerSettings = async () => {
       alert.email = alertSettings[alert.key]?.email || false;
       alert.app = alertSettings[alert.key]?.app || false;
     });
-  } catch {
+  } catch (error) {
+    console.error('Failed to load customer settings', error);
     if (!isMockMode.value) {
       return;
     }
@@ -225,7 +227,13 @@ const markSettingAsRead = async (item: { key: string; email?: boolean; app?: boo
   }
   try {
     await markSettingsAsRead(item, type, props.id);
-  } catch {
+  } catch (error) {
+    console.error('Failed to mark setting as read', error);
+    toast({
+      variant: 'destructive',
+      title: 'Error',
+      description: 'Could not save setting changes',
+    });
     if (!isMockMode.value) {
       return;
     }
@@ -243,7 +251,13 @@ const resetPassword = async (email: string) => {
     if (response.status !== 'success') {
       return;
     }
-  } catch {
+  } catch (error) {
+    console.error('Failed to send password reset link', error);
+    toast({
+      variant: 'destructive',
+      title: 'Error',
+      description: 'Could not send password reset link',
+    });
     if (!isMockMode.value) {
       return;
     }

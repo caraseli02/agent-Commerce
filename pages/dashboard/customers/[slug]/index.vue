@@ -130,7 +130,8 @@ const getCustomerCredit = async () => {
     setTimeout(() => {
       isLoading.value = false;
     }, 500);
-  } catch {
+  } catch (caughtError) {
+    console.error('Failed to load customer credit', caughtError);
     if (isMockMode.value) {
       credit.value = customerCreditHelper({
         limit: 12000,
