@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { toast } from '~/components/ui/toast';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useAuthStore } from '~/store/authStore';
@@ -10,9 +11,21 @@ const email = ref<string>(getUserDetails.value.contactDetails.email);
 
 async function sendResetPasswordLink() {
   if (email.value) {
-    const response = (await requestResetPasswordLink(email.value)) as { status: string; data: unknown };
-    if (response.status !== 'success') {
-      return;
+    try {
+      const response = (await requestResetPasswordLink(email.value)) as { status: string; data: unknown };
+      if (response.status !== 'success') {
+        toast({
+          title: 'Error',
+          description: 'Something went wrong. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
     }
   }
 }

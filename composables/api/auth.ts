@@ -1,4 +1,3 @@
-import { FirebaseError } from 'firebase/app';
 import { useNuxtApp } from '#app';
 import useFirebaseAuth from '~/composables/useFirebaseAuth';
 import type { LoginRequest } from '~/model/auth/request/LoginRequest';
@@ -11,21 +10,13 @@ import type {
 
 const RESOURCE = '/auth';
 
-export async function login(payload: LoginRequest): Promise<ProductResponse | FirebaseError | unknown> {
+export async function login(payload: LoginRequest): Promise<ProductResponse> {
   const { $apiClient } = useNuxtApp();
 
-  try {
-    return await $apiClient<ProductResponse>(`${RESOURCE}/login`, {
-      method: 'POST',
-      body: payload,
-    });
-  } catch (err) {
-    if (err instanceof FirebaseError) {
-      return err;
-    }
-
-    return err;
-  }
+  return await $apiClient<ProductResponse>(`${RESOURCE}/login`, {
+    method: 'POST',
+    body: payload,
+  });
 }
 
 export async function registerFirebase(payload: SignupPersonalPayload | SignupBusinessPayload) {

@@ -39,25 +39,34 @@ const handleSubmit = () => {
 };
 
 const resetPassword = async (email: string) => {
-  const response = (await requestResetPasswordLink(email)) as { status: string };
+  try {
+    const response = (await requestResetPasswordLink(email)) as { status: string };
 
-  if (response.status !== 'success') {
+    if (response.status !== 'success') {
+      toast({
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+      await router.push('/');
+      return;
+    }
+
+    toast({
+      title: 'Success',
+      description: 'An email link has been sent to your account.',
+      variant: 'success',
+    });
+    await router.push('/');
+    return;
+  } catch {
     toast({
       title: 'Error',
       description: 'Something went wrong. Please try again.',
       variant: 'destructive',
     });
     await router.push('/');
-    return;
   }
-
-  toast({
-    title: 'Success',
-    description: 'An email link has been sent to your account.',
-    variant: 'success',
-  });
-  await router.push('/');
-  return;
 };
 
 useHead({

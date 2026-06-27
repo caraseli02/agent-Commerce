@@ -1,4 +1,3 @@
-import { FirebaseError } from 'firebase/app';
 import { useNuxtApp } from '#app';
 import type { PaginatedUserRequest } from '~/model/user/request/PaginatedUserRequest';
 import type { ProductResponse } from '~/model/products/response/ProductResponse';
@@ -16,42 +15,26 @@ export async function fetchPaginatedUser(params: PaginatedUserRequest) {
   });
 }
 
-export async function resetPasswordLink(email: string): Promise<ProductResponse | FirebaseError | unknown> {
+export async function resetPasswordLink(email: string): Promise<ProductResponse> {
   const { $apiClient } = useNuxtApp();
 
-  try {
-    return await $apiClient<ProductResponse>(`${RESOURCE}/password/email/reset`, {
-      method: 'POST',
-      body: { email },
-    });
-  } catch (err) {
-    if (err instanceof FirebaseError) {
-      return err;
-    }
-
-    return err;
-  }
+  return await $apiClient<ProductResponse>(`${RESOURCE}/password/email/reset`, {
+    method: 'POST',
+    body: { email },
+  });
 }
 
-export async function resetPassword(email: string, newPassword: string, code: string): Promise<ProductResponse | FirebaseError | unknown> {
+export async function resetPassword(email: string, newPassword: string, code: string): Promise<ProductResponse> {
   const { $apiClient } = useNuxtApp();
 
-  try {
-    return await $apiClient<ProductResponse>(`${RESOURCE}/password/reset`, {
-      method: 'POST',
-      body: {
-        email,
-        newPassword,
-        code,
-      },
-    });
-  } catch (err) {
-    if (err instanceof FirebaseError) {
-      return err;
-    }
-
-    return err;
-  }
+  return await $apiClient<ProductResponse>(`${RESOURCE}/password/reset`, {
+    method: 'POST',
+    body: {
+      email,
+      newPassword,
+      code,
+    },
+  });
 }
 
 export async function fetchCustomerCredit(_id: string) {
