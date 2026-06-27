@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
 import Emitter from 'tiny-emitter/instance.js';
 import { fetchCartList } from '~/composables/api/cart';
 import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
@@ -10,69 +11,83 @@ type CheckoutError = {
   code?: string;
 };
 
-export const useCartStore = defineStore({
-  id: 'cart-store',
-  state: () => {
-    return {
-      cart: null as CartInterface | null,
-      orderClientSecret: null as string | null,
-      previousCheckoutError: null as CheckoutError | null,
-    };
-  },
-  actions: {
-    setCart(cart: CartInterface) {
-      this.cart = cart;
-      Emitter.emit('update-cart', cart);
-    },
-    setOrderClientSecret(secret: string) {
-      this.orderClientSecret = secret;
-    },
-    setPreviousCheckoutError(error: CheckoutError) {
-      this.previousCheckoutError = error;
-    },
-    emptyOrderClientSecret() {
-      this.orderClientSecret = null;
-    },
-    emptyPreviousCheckoutError() {
-      this.previousCheckoutError = null;
-    },
-    async updateAndReturnCart() {
-      const cartResponse = await fetchCartList();
+export const useCartStore = defineStore('cart-store', () => {
+  const cart = ref<CartInterface | null>(null);
+  const orderClientSecret = ref<string | null>(null);
+  const previousCheckoutError = ref<CheckoutError | null>(null);
 
-      if (!cartResponse) {
-        return null;
-      }
+  const setCart = (nextCart: CartInterface) => {
+    cart.value = nextCart;
+    Emitter.emit('update-cart', nextCart);
+  };
 
-      this.cart = cartResponse.data;
+  const setOrderClientSecret = (secret: string) => {
+    orderClientSecret.value = secret;
+  };
 
-      Emitter.emit('update-cart', this.cart);
+  const setPreviousCheckoutError = (error: CheckoutError) => {
+    previousCheckoutError.value = error;
+  };
 
-      return this.cart as CartInterface;
-    },
-    emptyCart() {
-      this.cart = null;
-      this.orderClientSecret = null;
-    },
-    makeCartItemFavorite(itemId: string) {
-      const item = this.cart?.products?.find((product: CartProductsInterface) => product.id === itemId);
-      if (item?.liked) {
-        item.liked = false;
-      } else if (item && !item?.liked) {
-        item.liked = true;
-      }
-    },
-  },
-  getters: {
-    mappedCartItems: (state) => {
-      return mapCartItems(state.cart?.products);
-    },
-    getCart: (state) => state.cart as CartInterface | null,
-    getCartSubtotal: (state) => calculateCartSubtotal(state.cart?.products),
-    getOrderClientSecret: (state): string => state.orderClientSecret as string,
-    getPreviousCheckoutError: (state): CheckoutError => state.previousCheckoutError as CheckoutError,
-    itemsDiscount: (state) => state.cart?.products?.[0]?.discount.value,
-  },
-  persist: {
-    storage: piniaPluginPersistedstate.localStorage(),
-  },
-});
+  const emptyOrderClientSecret = () => {
+    orderClientSecret.value = null;
+  };
+
+  const emptyPreviousCheckoutError = () => {
+    previousCheckoutError.value = null;
+  };
+
+  const updateAndReturnCart = async () => {
+    const cartResponse = await fetchCartList();
+
+    if (!cartResponse) {
+      return null;
+    }
+
+    cart.value = cartResponse.data;
+    Emitter.emit('update-cart', cart.value);
+
+    return cart.value as CartInterface;
+  };
+
+  const emptyCart = () => {
+    cart.value = null;
+    orderClientSecret.value = null;
+  };
+
+  const makeCartItemFavorite = (itemId: string) => {
+    const item = cart.value?.products?.find((product: CartProductsInterface) => product.id === itemId);
+    if (item?.liked) {
+      item.liked = false;
+    } else if (item && !item?.liked) {
+      item.liked = true;
+    }
+  };
+
+  const mappedCartItems = computed(() => mapCartItems(cart.value?.products));
+  const getCart = computed(() => cart.value as CartInterface | null);
+  const getCartSubtotal = computed(() => calculateCartSubtotal(cart.value?.products));
+  const getOrderClientSecret = computed(() => orderClientSecret.value as string);
+  const getPreviousCheckoutError = computed(() => previousCheckoutError.value as CheckoutError);
+  const itemsDiscount = computed(() => cart.value?.products?.[0]?.discount.value);
+
+  return {
+    cart,
+    orderClientSecret,
+    previousCheckoutError,
+    setCart,
+    setOrderClientSecret,
+    setPreviousCheckoutError,
+    emptyOrderClientSecret,
+    emptyPreviousCheckoutError,
+    updateAndReturnCart,
+    emptyCart,
+    makeCartItemFavorite,
+    mappedCartItems,
+    getCart,
+    getCartSubtotal,
+    getOrderClientSecret,
+    getPreviousCheckoutError,
+    itemsDiscount,
+  };
+}, { persist: { storage: piniaPluginPersistedstate.localStorage() } });

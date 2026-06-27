@@ -76,7 +76,7 @@ import { fetchCustomerCredit } from '~/composables/api/user';
 
 // Stores
 import { useAuthStore } from '~/store/authStore';
-import { useCheckoutStore } from '~/store/checkout';
+import { useCheckoutStore } from '~/store/checkoutStore';
 
 // Utilities
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';

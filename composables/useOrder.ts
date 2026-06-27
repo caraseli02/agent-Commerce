@@ -10,7 +10,7 @@ import type { PlaceOrderInterface } from '~/model/order/response/PlaceOrder';
 import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
 import type { BackorderShippingTypesInterface, SmallOrderChargeInterface } from '~/types/general-settings/general-settings';
 import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
-import { useCheckoutStore } from '~/store/checkout';
+import { useCheckoutStore } from '~/store/checkoutStore';
 import { toast } from '~/components/ui/toast';
 import { sendOrder, validateAddress } from '~/composables/api/orders';
 

@@ -57,7 +57,7 @@ import BadgeMaster from '@/assets/icons/badge-master.svg';
 import BadgeApplePay from '@/assets/icons/badge-applepay.svg';
 import BadgeGooglePay from '@/assets/icons/badge-googlepay.svg';
 import BadgeStripe from '@/assets/icons/badge-stripe.svg';
-import { useCheckoutStore } from '~/store/checkout';
+import { useCheckoutStore } from '~/store/checkoutStore';
 
 defineProps<{
   isCheckoutDisabled: boolean;
