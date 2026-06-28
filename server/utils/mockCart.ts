@@ -1,4 +1,5 @@
 import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
+import { getCookie, setCookie, type H3Event } from 'h3';
 import { mockProducts } from '~/server/utils/mockProducts';
 import { parseMockUserIdFromToken } from '~/server/utils/mockUsers';
 import type { DiscountInterface } from '~/types/auth/account-settings';
@@ -6,6 +7,7 @@ import type { DiscountInterface } from '~/types/auth/account-settings';
 const CART_TTL_MS = 60 * 60 * 1000;
 const MAX_CARTS = 250;
 const GUEST_CART_USER_ID = 'guest-user-session';
+const GUEST_SESSION_COOKIE = 'guest-session-id';
 
 type StoredCart = {
   cart: CartInterface;
@@ -16,6 +18,21 @@ const cartsByUserId = new Map<string, StoredCart>();
 
 const nowIso = () => new Date().toISOString();
 const nowMs = () => Date.now();
+
+const normalizeGuestSessionId = (guestSessionId?: string | null) => {
+  const normalized = String(guestSessionId || '').trim();
+
+  if (!normalized) {
+    return '';
+  }
+
+  return normalized.startsWith(`${GUEST_CART_USER_ID}-`) ? normalized.slice(GUEST_CART_USER_ID.length + 1) : normalized;
+};
+
+const buildGuestCartUserId = (guestSessionId?: string | null) => {
+  const normalized = normalizeGuestSessionId(guestSessionId);
+  return normalized ? `${GUEST_CART_USER_ID}-${normalized}` : '';
+};
 
 const buildDefaultDiscount = (): DiscountInterface => ({
   value: 0,
@@ -179,10 +196,26 @@ export const findMockCartById = (cartId?: string | null) => {
   return null;
 };
 
-export const requireMockCartUserId = (authorizationHeader?: string | null) => {
+export const requireMockCartUserId = (event: H3Event, authorizationHeader?: string | null) => {
   const userId = parseMockUserIdFromToken(authorizationHeader);
-  // Support guest users by falling back to a fixed guest ID if no token is present
-  return userId || GUEST_CART_USER_ID;
+
+  if (userId) {
+    return userId;
+  }
+
+  const existingGuestSessionId = getCookie(event, GUEST_SESSION_COOKIE);
+  if (existingGuestSessionId) {
+    return buildGuestCartUserId(existingGuestSessionId) || GUEST_CART_USER_ID;
+  }
+
+  const guestSessionId = crypto.randomUUID();
+  setCookie(event, GUEST_SESSION_COOKIE, guestSessionId, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+  });
+
+  return buildGuestCartUserId(guestSessionId) || GUEST_CART_USER_ID;
 };
 
 export const addProductsToMockCart = (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
@@ -212,25 +245,33 @@ export const addProductsToMockCart = (cart: CartInterface, products: Partial<Car
   return cart;
 };
 
-export const mergeGuestCartIntoMockCart = (userId?: string | null) => {
+export const mergeGuestCartIntoMockCart = (userId?: string | null, guestSessionId?: string | null) => {
   const normalizedUserId = String(userId || '').trim();
+  const guestUserId = buildGuestCartUserId(guestSessionId);
 
-  if (!normalizedUserId || normalizedUserId === GUEST_CART_USER_ID) {
+  if (!normalizedUserId) {
     return null;
   }
 
   purgeExpiredCarts();
 
-  const guestCart = cartsByUserId.get(GUEST_CART_USER_ID)?.cart;
-  const guestProducts = (guestCart?.products || []).filter((product) => product.id);
-
-  if (!guestProducts.length) {
+  if (!guestUserId) {
     return getMockCartForUser(normalizedUserId);
   }
 
+  const guestCartEntry = cartsByUserId.get(guestUserId);
+  if (!guestCartEntry?.cart) {
+    return getMockCartForUser(normalizedUserId);
+  }
+
+  const guestProducts = (guestCartEntry.cart.products || []).filter((product) => product.id);
   const userCart = getMockCartForUser(normalizedUserId);
-  addProductsToMockCart(userCart, guestProducts);
-  cartsByUserId.delete(GUEST_CART_USER_ID);
+
+  if (guestProducts.length) {
+    addProductsToMockCart(userCart, guestProducts);
+  }
+
+  cartsByUserId.delete(guestUserId);
 
   return userCart;
 };

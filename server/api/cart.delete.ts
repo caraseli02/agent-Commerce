@@ -4,7 +4,7 @@ import { getMockCartForUser, removeProductsFromMockCart, requireMockCartUserId }
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Partial<DeleteProductCartRequestInterface>;
   const headers = getHeaders(event);
-  const userId = requireMockCartUserId(headers.authorization);
+  const userId = requireMockCartUserId(event, headers.authorization);
 
   const cart = getMockCartForUser(userId);
   removeProductsFromMockCart(cart, body.products || []);
