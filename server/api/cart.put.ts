@@ -4,7 +4,7 @@ import { getMockCartForUser, requireMockCartUserId, setProductsInMockCart } from
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Partial<UpdateProductCartRequestInterface>;
   const headers = getHeaders(event);
-  const userId = requireMockCartUserId(headers.authorization);
+  const userId = requireMockCartUserId(event, headers.authorization);
 
   const cart = getMockCartForUser(userId);
   setProductsInMockCart(cart, body.products || []);
