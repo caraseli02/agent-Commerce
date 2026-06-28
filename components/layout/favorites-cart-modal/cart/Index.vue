@@ -37,7 +37,7 @@
 import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
 import type { PropType } from 'vue';
-import { removeEntityFromCart } from '~/composables/api/cart';
+import { useCart } from '~/composables/useCart';
 import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
 import type { FavoriteItem } from '~/types/favorites/item';
 import { useCartStore } from '~/store/cartStore';
@@ -52,6 +52,7 @@ const props = defineProps({
 defineEmits(['close']);
 
 const cartStore = useCartStore();
+const { removeFromCart } = useCart();
 const { getCartSubtotal, cart } = storeToRefs(cartStore);
 
 const items = ref<FavoriteItem[]>([]);
@@ -89,13 +90,10 @@ watch(
 );
 
 const deleteProduct = async (object: { id: string }) => {
-  const response = await removeEntityFromCart({ products: [object.id] });
-
-  if (response?.data) {
-    cartStore.setCart(response.data);
-    return;
+  try {
+    await removeFromCart({ products: [object.id] });
+  } catch (error) {
+    console.error('Failed to remove cart item', error);
   }
-
-  items.value = items.value.filter((product) => product.id !== object.id);
 };
 </script>
