@@ -36,16 +36,25 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { PropType } from 'vue';
+import { removeEntityFromCart } from '~/composables/api/cart';
+import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
 import type { FavoriteItem } from '~/types/favorites/item';
 import { useCartStore } from '~/store/cartStore';
+
+const props = defineProps({
+  data: {
+    type: Object as PropType<CartInterface>,
+    required: true,
+  },
+});
+
+defineEmits(['close']);
 
 const cartStore = useCartStore();
 const { getCartSubtotal, cart } = storeToRefs(cartStore);
 
 const items = ref<FavoriteItem[]>([]);
-
-defineEmits(['close']);
 
 const mapCartItems = () => {
   items.value = (cart.value?.products || []).map(
@@ -62,19 +71,31 @@ const mapCartItems = () => {
 };
 
 watch(
+  () => props.data,
+  (nextCart) => {
+    if (nextCart) {
+      cartStore.setCart(nextCart);
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+watch(
   cart,
   () => {
     mapCartItems();
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 
-const deleteProduct = (object: { id: string }) => {
-  items.value = items.value.filter((product) => product.id !== object.id);
-  mapCartItems();
-};
+const deleteProduct = async (object: { id: string }) => {
+  const response = await removeEntityFromCart({ products: [object.id] });
 
-onMounted(() => {
-  mapCartItems();
-});
+  if (response?.data) {
+    cartStore.setCart(response.data);
+    return;
+  }
+
+  items.value = items.value.filter((product) => product.id !== object.id);
+};
 </script>
