@@ -11,9 +11,19 @@
         </div>
         <NewIcon class="w-[18px] h-[18px] xl:w-7 xl:h-7 xl:mr-2.5" />
       </div>
-      <NuxtImg :src="Banner1" alt="Banner" class="absolute z-20 bottom-0 right-0 w-24 object-contain lg:w-[130px] xl:w-[160px]" loading="lazy"/>
+      <img
+        :src="Banner1"
+        alt="Banner"
+        class="absolute z-20 bottom-0 right-0 w-24 object-contain lg:w-[130px] xl:w-[160px]"
+        loading="lazy"
+      />
       <div class="absolute z-10 top-0 left-0 w-full h-full bg-white/20 backdrop-blur-lg rounded-md" />
-      <NuxtImg :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md -scale-x-100" loading="lazy"/>
+      <img
+        :src="BannerBg"
+        alt="Background"
+        class="absolute top-0 left-0 w-full h-full object-cover rounded-md -scale-x-100"
+        loading="lazy"
+      />
     </button>
     <button
       class="relative flex flex-col rounded-md overflow-hidden p-[7px] pb-[30px] md:order-3 md:px-1.5 md:pt-2.5 lg:p-[15px] xl:order-2 xl:pt-5"
@@ -25,11 +35,16 @@
           Treston 3D <br />
           Configurator
         </div>
-        <NuxtImg :src="TrestonLogo" alt="Logo" class="w-11 xl:w-[75px]" loading="lazy"/>
+        <img :src="TrestonLogo" alt="Logo" class="w-11 xl:w-[75px]" loading="lazy" />
       </div>
-      <NuxtImg :src="Banner2" alt="Banner" class="absolute z-20 bottom-0 right-0 w-20 object-contain lg:w-[120px] xl:w-[150px]" loading="lazy"/>
+      <img
+        :src="Banner2"
+        alt="Banner"
+        class="absolute z-20 bottom-0 right-0 w-20 object-contain lg:w-[120px] xl:w-[150px]"
+        loading="lazy"
+      />
       <div class="absolute z-10 top-0 left-0 w-full h-full bg-white/20 backdrop-blur-lg rounded-md" />
-      <NuxtImg :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy"/>
+      <img :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
     </button>
     <button
       class="relative flex flex-col col-span-2 rounded-md overflow-hidden px-[15px] py-6 md:order-2 md:col-span-1 md:px-1.5 md:py-2.5 lg:p-[15px] xl:order-3 xl:pt-5"
@@ -37,12 +52,19 @@
       <div class="relative z-20 text-sm font-semibold text-left text-white md:text-[10px] lg:pr-5 lg:text-[13px] xl:text-[17px]">
         Automatic Optical Inspection
       </div>
-      <NuxtImg
+      <img
         :src="Banner3"
         alt="Banner"
-        class="absolute z-20 bottom-0 right-2 w-[88px] object-contain md:right-0 md:w-[76px] lg:w-[113px] xl:right-1 xl:w-[140px]" loading="lazy"/>
+        class="absolute z-20 bottom-0 right-2 w-[88px] object-contain md:right-0 md:w-[76px] lg:w-[113px] xl:right-1 xl:w-[140px]"
+        loading="lazy"
+      />
       <div class="absolute z-10 top-0 left-0 w-full h-full bg-[#FFB800] bg-opacity-[0.65] backdrop-blur-sm rounded-md" />
-      <NuxtImg :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md -scale-x-100" loading="lazy"/>
+      <img
+        :src="BannerBg"
+        alt="Background"
+        class="absolute top-0 left-0 w-full h-full object-cover rounded-md -scale-x-100"
+        loading="lazy"
+      />
     </button>
   </div>
 </template>

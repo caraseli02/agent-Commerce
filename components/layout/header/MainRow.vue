@@ -38,7 +38,7 @@
             :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
             @blur="showMobileSearch = false"
           />
-          <div class="flex items-center gap-7 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9" :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']">
+          <div class="flex items-center gap-5 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9" :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']">
             <button
               class="items-center xl:hidden"
               :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex') : 'md:hidden']"
@@ -81,7 +81,7 @@
               :class="[isScrolled ? '' : 'md:hidden', showMobileSearch ? 'hidden md:flex' : 'flex']"
               @click="openFavoritesCartModal('shopping-cart')"
             >
-              <div class="flex items-center -mr-2.5 md:-mr-5 xl:-mr-5">
+              <div class="flex items-center md:-mr-5 xl:-mr-5">
                 <CartIcon class="w-6 h-6 text-white lg" :class="[cartItems > 0 ? 'mr-0' : 'mr-4']" />
                 <span
                   v-if="cartItems > 0"

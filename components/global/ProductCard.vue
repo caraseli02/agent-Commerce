@@ -5,7 +5,14 @@
   >
     <ProductCardStock :stock="product.stock" />
     <div class="relative">
-      <NuxtImg v-if="hasValidImage" :src="productImageLarge" :alt="product.name" class="object-contain mx-auto max-h-[120px]" loading="lazy"/>
+      <img
+        v-if="hasValidImage"
+        :src="productImageLarge"
+        :alt="product.name"
+        class="object-contain mx-auto max-h-[120px]"
+        loading="lazy"
+        @error="imageLoadFailed = true"
+      />
       <div v-else class="w-full flex items-center justify-center">
         <svgo-card-placehoder />
       </div>
@@ -102,6 +109,7 @@ const discountsHelper = parseProductPriceConfiguration(props.product, getUserDet
 const priceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(discountsHelper?.minimumOrderQuantityConfiguration);
 const discountPrice = ref(discountsHelper?.discountPrice || 0);
 const productDiscount = ref(discountsHelper?.productDiscount || 0);
+const imageLoadFailed = ref(false);
 
 const addToFavourite = async (product: ProductInterface) => {
   const payload: FavouriteFolderRequestInterface = {
@@ -136,6 +144,10 @@ const productImageLarge = computed(() => {
   return props.product.details?.ProductImage?.ProductImageLarge || '';
 });
 const hasValidImage = computed(() => {
-  return productImageLarge.value && !productImageLarge.value.includes('not_valid_image');
+  return productImageLarge.value && !productImageLarge.value.includes('not_valid_image') && !imageLoadFailed.value;
+});
+
+watch(productImageLarge, () => {
+  imageLoadFailed.value = false;
 });
 </script>

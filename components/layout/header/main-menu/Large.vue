@@ -89,15 +89,19 @@
           </div>
         </SwiperSlide>
       </Swiper>
-      <NuxtImg
+      <img
         :src="ItemImage"
         alt="Img"
-        class="absolute z-20 top-[38px] right-[15px] w-[111px] object-contain md:w-[160px] md:top-[61px] lg:w-[240px] lg:top-[78px] lg:right-5 xl:w-[376px] xl:top-[52px] xl:right-[30px]" loading="lazy"/>
-      <NuxtImg
+        class="absolute z-20 top-[38px] right-[15px] w-[111px] object-contain md:w-[160px] md:top-[61px] lg:w-[240px] lg:top-[78px] lg:right-5 xl:w-[376px] xl:top-[52px] xl:right-[30px]"
+        loading="lazy"
+      />
+      <img
         :src="SlideBg"
         alt="Background"
         class="absolute z-10 top-0 left-0 w-full h-full object-cover"
-        :class="[isBannerExpanded ? 'rounded-b-md' : 'rounded-br-md max-md:rounded-bl-md']" loading="lazy"/>
+        :class="[isBannerExpanded ? 'rounded-b-md' : 'rounded-br-md max-md:rounded-bl-md']"
+        loading="lazy"
+      />
       <div
         class="absolute z-10 top-0 left-0 w-full h-full opacity-75 pointer-events-none"
         :class="[isBannerExpanded ? 'rounded-b-md' : 'rounded-br-md max-md:rounded-bl-md']"
