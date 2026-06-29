@@ -207,4 +207,180 @@ describe('checkout order composable flow boundary', () => {
     });
     expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/success', query: { id: 'ord-composable-1' } });
   });
+
+  it('surfaces a checkout error when the order API returns a failure response', async () => {
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
+      if (resource === '/orders/new' && options?.method === 'POST') {
+        return {
+          status: 'failed',
+          data: {
+            message: 'Card was declined',
+            type: 'payment_error',
+            code: 'card_declined',
+          },
+        } as T;
+      }
+
+      if (resource === '/cart' && options?.method === 'GET') {
+        return { status: 'success', data: { _id: 'cart-after-checkout', products: [] } } as T;
+      }
+
+      if (resource === '/orders/validate-address' && options?.method === 'POST') {
+        return { data: { valid: true } } as T;
+      }
+
+      throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
+    });
+
+    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../composables/useOrder');
+    const { makeCheckout } = useOrder();
+
+    await makeCheckout(
+      1,
+      'mock-cart-mock-customer-1',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      { type: PaymentTypeEnum.Cash },
+      '',
+      {
+        subtotal: 1499.99,
+        total: 1509.98,
+        products: [],
+      }
+    );
+
+    const cartStore = useCartStore();
+    expect(cartStore.previousCheckoutError).toMatchObject({
+      message: 'Card was declined',
+      type: 'payment_error',
+      code: 'card_declined',
+    });
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
+  });
+
+  it('surfaces a checkout error when order submission throws', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
+      if (resource === '/orders/new' && options?.method === 'POST') {
+        throw new Error('Gateway unreachable');
+      }
+
+      if (resource === '/cart' && options?.method === 'GET') {
+        return { status: 'success', data: { _id: 'cart-after-checkout', products: [] } } as T;
+      }
+
+      if (resource === '/orders/validate-address' && options?.method === 'POST') {
+        return { data: { valid: true } } as T;
+      }
+
+      throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
+    });
+
+    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../composables/useOrder');
+    const { makeCheckout } = useOrder();
+
+    await makeCheckout(
+      1,
+      'mock-cart-mock-customer-1',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      { type: PaymentTypeEnum.Cash },
+      '',
+      {
+        subtotal: 1499.99,
+        total: 1509.98,
+        products: [],
+      }
+    );
+
+    const cartStore = useCartStore();
+    expect(cartStore.previousCheckoutError).toMatchObject({
+      message: 'Gateway unreachable',
+      type: 'Error',
+      code: 'Error',
+    });
+    expect(consoleError).toHaveBeenCalledWith('Checkout failed', expect.any(Error));
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
+    consoleError.mockRestore();
+  });
+
+  it('surfaces a checkout error when card payment is canceled', async () => {
+    __setMockRuntimeConfig({ public: { MOCK_MODE: false } });
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
+      if (resource === '/orders/new' && options?.method === 'POST') {
+        return {
+          status: 'success',
+          data: {
+            orderId: 'ord-composable-1',
+            result: { status: 'canceled' },
+          },
+        } as T;
+      }
+
+      if (resource === '/cart' && options?.method === 'GET') {
+        return { status: 'success', data: { _id: 'cart-after-checkout', products: [] } } as T;
+      }
+
+      if (resource === '/orders/validate-address' && options?.method === 'POST') {
+        return { data: { valid: true } } as T;
+      }
+
+      throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
+    });
+
+    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../composables/useOrder');
+    const { makeCheckout } = useOrder();
+
+    await makeCheckout(
+      1,
+      'mock-cart-mock-customer-1',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      {
+        type: PaymentTypeEnum.Card,
+        card: {
+          id: 'card-demo-1',
+          type: 'card',
+          billing_details: {
+            name1: 'Demo Street 10',
+            name2: 'Floor 2',
+            country: 'US',
+            region: 'California',
+            city: 'San Francisco',
+            postcode: '94105',
+            default: true,
+          },
+          card: {
+            brand: 'visa',
+            last4: '4242',
+            exp_month: 12,
+            exp_year: 2030,
+            type: 'credit',
+            is_expired: false,
+          },
+        },
+      },
+      '',
+      {
+        subtotal: 1499.99,
+        total: 1509.98,
+        products: [],
+      }
+    );
+
+    const cartStore = useCartStore();
+    expect(cartStore.previousCheckoutError).toMatchObject({
+      message: 'Payment was canceled. Please try again.',
+      type: 'payment_canceled',
+      code: 'canceled',
+    });
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
+  });
 });

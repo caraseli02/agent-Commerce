@@ -35,6 +35,63 @@ export function useOrder() {
   const { checkout } = storeToRefs(checkoutStore);
   const orderRequestObject = ref<OrderRequestInterface>({} as OrderRequestInterface);
 
+  type CheckoutFailure = {
+    message?: string;
+    type?: string;
+    code?: string;
+  };
+
+  const checkoutFailPath = { path: '/checkout/fail' } as const;
+
+  const goToCheckoutFail = async (error: CheckoutFailure) => {
+    cartStore.setPreviousCheckoutError(error);
+    await router.push(checkoutFailPath);
+  };
+
+  const buildCheckoutFailure = (
+    response: { status?: string; message?: string; data?: unknown } | null | undefined,
+    fallbackMessage: string,
+    fallbackType: string
+  ): CheckoutFailure => {
+    const data = ((response?.data ?? {}) as {
+      message?: unknown;
+      type?: unknown;
+      code?: unknown;
+      error?: unknown;
+      errorCode?: unknown;
+      status?: unknown;
+      result?: { status?: unknown };
+    });
+    const messageCandidate = data.message ?? data.error ?? response?.message;
+    const message = typeof messageCandidate === 'string' && messageCandidate.trim() ? messageCandidate : fallbackMessage;
+
+    return {
+      message,
+      type: typeof data.type === 'string' && data.type ? data.type : response?.status ?? fallbackType,
+      code:
+        (typeof data.code === 'string' && data.code ? data.code : undefined) ??
+        (typeof data.errorCode === 'string' && data.errorCode ? data.errorCode : undefined) ??
+        (typeof data.status === 'string' && data.status ? data.status : undefined) ??
+        (typeof data.result?.status === 'string' && data.result.status ? data.result.status : undefined),
+    };
+  };
+
+  const buildCheckoutException = (error: unknown): CheckoutFailure => {
+    if (error instanceof Error) {
+      return {
+        message: error.message || 'Unable to complete checkout. Please try again.',
+        type: error.name || 'checkout_exception',
+        code: error.name || 'checkout_exception',
+      };
+    }
+
+    return {
+      message: 'Unable to complete checkout. Please try again.',
+      type: 'checkout_exception',
+      code: typeof error === 'string' && error ? error : 'unknown_error',
+    };
+  };
+
   const makeCheckout = async (
     orderType: OrderType,
     cartId: string,
@@ -140,13 +197,14 @@ export function useOrder() {
       const response = (await sendOrder(orderRequestObject.value)) as PlaceOrderInterface;
 
       if (response.status !== 'success') {
-        await router.push({ path: '/checkout/fail' });
+        await goToCheckoutFail(buildCheckoutFailure(response, 'Unable to complete checkout. Please try again.', 'checkout_failed'));
       } else {
         const orderId = response.data.orderId;
         await handleOrderResponse(response, orderId, paymentDetails.type);
       }
-    } catch {
-      await router.push({ path: '/checkout/fail' });
+    } catch (error) {
+      console.error('Checkout failed', error);
+      await goToCheckoutFail(buildCheckoutException(error));
     } finally {
       await cartStore.updateAndReturnCart();
       checkout.value = false;
@@ -177,7 +235,11 @@ export function useOrder() {
           }
           break;
         case 'canceled':
-          await router.push({ path: '/checkout/fail' });
+          await goToCheckoutFail({
+            message: 'Payment was canceled. Please try again.',
+            type: 'payment_canceled',
+            code: 'canceled',
+          });
           break;
         case 'requires_action':
           if (result.next_action?.redirect_to_url?.url) {
