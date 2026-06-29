@@ -12,7 +12,7 @@
       >
         <SkeletonLoader v-if="loading" type="circle" class="w-full h-full" />
         <template v-else>
-          <img v-if="item.avatar" :src="item.avatar" :alt="`${item.name}`" class="w-full h-full rounded-full object-cover" />
+          <NuxtImg v-if="item.avatar" :src="item.avatar" :alt="`${item.name}`" class="w-full h-full rounded-full object-cover" loading="lazy"/>
           <UserIcon v-else class="w-7 h-7 text-gray-500" />
         </template>
       </div>

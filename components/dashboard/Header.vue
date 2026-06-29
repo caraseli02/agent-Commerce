@@ -173,7 +173,7 @@
           <div class="relative">
             <button class="flex items-center text-left" @click="showOptions = !showOptions">
               <div class="relative lg:mr-4">
-                <img src="@/assets/icons/dashboard/avatar.png" alt="Avatar" class="w-11 h-11 rounded-full object-cover" />
+                <NuxtImg :src="DashboardAvatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover" loading="lazy"/>
                 <div class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white" />
               </div>
               <div class="flex flex-col max-lg:hidden">
@@ -254,6 +254,7 @@ import moment from 'moment';
 import { storeToRefs } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
 import { AccountRole, AccountType } from '../../types';
+import DashboardAvatar from '@/assets/icons/dashboard/avatar.png';
 import BurgerIcon from '@/assets/icons/dashboard/burger.svg';
 import SearchIcon from '@/assets/icons/dashboard/search.svg';
 import PlusIcon from '@/assets/icons/dashboard/plus.svg';

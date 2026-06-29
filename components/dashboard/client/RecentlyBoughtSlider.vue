@@ -32,7 +32,7 @@
               class="justify-center items-center border-neutral-300 flex flex-col w-[60px] h-[60px] md:w-[80px] md:h-[80px] rounded-lg border-2 border-solid"
             >
               <svgo-card-placeholder-small class="w-8 h-8" />
-              <img v-if="item.photo" :src="item.photo" />
+              <NuxtImg v-if="item.photo" :src="item.photo" loading="lazy"/>
             </div>
             <div class="items-stretch flex flex-col whitespace-nowrap flex-1 self-start max-w-[240px] overflow-hidden">
               <div class="text-neutral-800 text-sm font-semibold leading-4 text-ellipsis overflow-hidden">

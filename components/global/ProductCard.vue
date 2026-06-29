@@ -5,7 +5,7 @@
   >
     <ProductCardStock :stock="product.stock" />
     <div class="relative">
-      <img v-if="hasValidImage" :src="productImageLarge" :alt="product.name" class="object-contain mx-auto max-h-[120px]" />
+      <NuxtImg v-if="hasValidImage" :src="productImageLarge" :alt="product.name" class="object-contain mx-auto max-h-[120px]" loading="lazy"/>
       <div v-else class="w-full flex items-center justify-center">
         <svgo-card-placehoder />
       </div>

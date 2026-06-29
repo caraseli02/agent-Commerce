@@ -9,7 +9,7 @@
     <div class="flex flex-col gap-2">
       <div class="pl-9 pr-4 flex flex-row">
         <div class="w-[233px] flex items-center justify-center">
-          <img :src="item.details.ProductImage.ProductImageLarge" class="w-[120px] h-[120px]" />
+          <NuxtImg :src="item.details.ProductImage.ProductImageLarge" class="w-[120px] h-[120px]" loading="lazy"/>
         </div>
         <div class="flex flex-col items-start gap-3">
           <button class="relative flex group" @click="addToFavs">

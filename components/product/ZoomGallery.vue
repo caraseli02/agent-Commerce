@@ -78,12 +78,11 @@ onMounted(() => {
               @click="onThumbClick(index)"
             >
               <div class="p-1" :class="index === selectedIndex ? '' : 'opacity-50'">
-                <img
+                <NuxtImg
                   :src="img"
                   alt="Image"
                   class="w-[60px] h-[50x] object-contain transition-opacity duration-300 lg:w-[56px] lg:h-[48px]"
-                  :class="[index !== selectedIndex ? 'opacity-50' : '']"
-                />
+                  :class="[index !== selectedIndex ? 'opacity-50' : '']" loading="lazy"/>
               </div>
             </UiCarouselItem>
           </UiCarouselContent>

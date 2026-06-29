@@ -14,7 +14,7 @@
           class="relative flex items-center justify-center rounded-full overflow-hidden w-11 h-11 flex-shrink-0 mr-4"
           :class="[!user.avatar ? 'bg-gray-100' : '']"
         >
-          <img v-if="user.avatar" :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover" />
+          <NuxtImg v-if="user.avatar" :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover" loading="lazy"/>
           <UserIcon v-else class="w-7 h-7 text-gray-500" />
         </div>
         <div>
@@ -23,7 +23,7 @@
               {{ user.name }}
             </div>
             <div class="flex items-center gap-3 cursor-default">
-              <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" />
+              <NuxtImg v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" loading="lazy"/>
               <div class="bg-blue-500 px-2 rounded-[25px] text-xs leading-[1.67] font-semibold text-white">10%</div>
             </div>
           </div>

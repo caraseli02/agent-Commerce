@@ -17,10 +17,9 @@
       </div>
     </div>
     <div>
-      <img
+      <NuxtImg
         class="min-w-[280px] min-h-[240px]"
-        src="https://s3-alpha-sig.figma.com/img/204b/13fb/8057d3e11618c55f96820cf11d3fa1da?Expires=1702252800&Signature=Pm-s1n6JTrmzgIBACjDwHw-LJTZ4M7zPchLd~8R6msunJflNx~l8NO9Qq8eeAZdlvCpaZ0nof6twvS9GMeiYOCT6MBHanYaxh70B5iOxIY5WeByn8IkWJPFatly74OBRYVtxFU1BgNRblOVafs-rBipuI6k1ZmfHkycsv4HMz83zRJTD63lvBceP1qDZQk4Bc7sw4kCi5EoWlTj3LQvgtRLzB0ObdL~H-Qeejl13xJaUGuXHGuFE7~6MtYRQRoAezzhqyTCe9amFOuSuVi03sLelKu3Ug4vJMUVFNXmsgoDjWgU0Hw~fSfH6CbwgjK3EtLJB12v9MVezSQ9C~UH05Q__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4"
-      />
+        src="https://s3-alpha-sig.figma.com/img/204b/13fb/8057d3e11618c55f96820cf11d3fa1da?Expires=1702252800&Signature=Pm-s1n6JTrmzgIBACjDwHw-LJTZ4M7zPchLd~8R6msunJflNx~l8NO9Qq8eeAZdlvCpaZ0nof6twvS9GMeiYOCT6MBHanYaxh70B5iOxIY5WeByn8IkWJPFatly74OBRYVtxFU1BgNRblOVafs-rBipuI6k1ZmfHkycsv4HMz83zRJTD63lvBceP1qDZQk4Bc7sw4kCi5EoWlTj3LQvgtRLzB0ObdL~H-Qeejl13xJaUGuXHGuFE7~6MtYRQRoAezzhqyTCe9amFOuSuVi03sLelKu3Ug4vJMUVFNXmsgoDjWgU0Hw~fSfH6CbwgjK3EtLJB12v9MVezSQ9C~UH05Q__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4" loading="lazy"/>
     </div>
   </div>
 </template>

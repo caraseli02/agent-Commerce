@@ -25,7 +25,7 @@
         class="homeManufacturers--swiper swiper-visible mb-2.5 lg:px-[14px] xl:px-9 xl:mb-[15px]"
       >
         <SwiperSlide v-for="(logo, index) in logos" :key="index" class="max-w-max md:max-w-max">
-          <img :src="logo" alt="Logo" class="h-6 object-contain md:h-[30px] lg:h-10 xl:h-[55px]" />
+          <NuxtImg :src="logo" alt="Logo" class="h-6 object-contain md:h-[30px] lg:h-10 xl:h-[55px]" loading="lazy"/>
         </SwiperSlide>
       </Swiper>
       <NuxtLink
