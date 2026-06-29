@@ -1,6 +1,6 @@
 <template>
   <div :class="className" class="relative inline-block">
-    <img v-if="currentSrc !== 'fallback'" :src="currentSrc" :alt="alt" :class="mediaClass" loading="lazy" @error="handleError" />
+    <NuxtImg v-if="currentSrc !== 'fallback'" :src="currentSrc" :alt="alt" :class="mediaClass" loading="lazy" @error="handleError"/>
     <div
       v-else
       class="w-full h-full flex items-center justify-center bg-slate-100 rounded-lg overflow-hidden relative border border-slate-200"

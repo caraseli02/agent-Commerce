@@ -18,7 +18,7 @@ onMounted(() => {
 
 <template>
   <div ref="imageWheelContainerRef" class="imageContainer">
-    <img class="image" alt="Large Pic" :src="url" />
+    <NuxtImg class="image" alt="Large Pic" :src="url" loading="lazy"/>
   </div>
 </template>
 

@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     '@nuxtjs/leaflet',
     'shadcn-nuxt',
     '@nuxtjs/color-mode',
+    '@nuxt/image',
     '@nuxt/eslint',
     '~/modules/shadcn-components-dir-fix',
   ],
@@ -93,6 +94,18 @@ export default defineNuxtConfig({
       BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',
       MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE === 'true',
       HOST: '0.0.0.0',
+    },
+  },
+
+  image: {
+    format: ['avif', 'webp'],
+    screens: {
+      xs: 390,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      '2xl': 1536,
     },
   },
 

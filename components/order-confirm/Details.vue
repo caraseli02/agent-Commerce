@@ -54,12 +54,11 @@ const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.B
           </p>
           <p class="text-sm font-medium leading-6 text-gray-500">** {{ (props.paymentMethod.info as CardInfo).last4.slice(-2) }}</p>
           <div class="flex justify-center items-center px-1 py-2 bg-violet-100 rounded border border-gray-300 border-solid shadow-xl">
-            <img
+            <NuxtImg
               loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/e53ea3231ba188441a6034265f4f0ada066f8bb4f5df5f996b3b263a866e52a9?apiKey=20497529553648aab918fa2d322ece87&"
               alt="Visa logo"
-              class="w-6 aspect-[3.03] fill-blue-700"
-            />
+              class="w-6 aspect-[3.03] fill-blue-700"/>
           </div>
         </div>
 

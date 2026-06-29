@@ -35,6 +35,7 @@
               :src="BlackFridayItem"
               alt="Black Friday Product"
               class="h-[100px] w-[120px] md:h-auto md:w-[290px] md:max-h-[240px] xl:w-full"
+              loading="lazy"
             />
             <div class="flex-1 flex gap-4 flex-col justify-center xl:justify-start xl:items-start">
               <div class="font-semibold text-sm xl:text-xl">Exclusive Black Friday</div>

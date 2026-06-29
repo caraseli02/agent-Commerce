@@ -47,7 +47,7 @@ const setDefault = () => {
     <div class="flex gap-4 justify-between w-full max-md:flex-wrap max-md:max-w-full">
       <div class="flex gap-4 max-md:flex-wrap">
         <Building2 class="shrink-0 my-auto w-8 aspect-square stroke-1" />
-        <!-- <img :src="addressData.icon" :alt="addressData.alias" class="shrink-0 my-auto w-8 aspect-square" /> -->
+        <!-- <NuxtImg :src="addressData.icon" :alt="addressData.alias" class="shrink-0 my-auto w-8 aspect-square" loading="lazy"/> -->
         <div class="flex flex-col max-md:max-w-full">
           <div class="flex gap-5 max-md:flex-wrap">
             <h2 class="text-base font-semibold leading-6 text-neutral-800">

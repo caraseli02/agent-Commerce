@@ -27,6 +27,7 @@
           :src="modelValue.icon"
           :alt="modelValue.label"
           class="w-8 rounded mr-2"
+          loading="lazy"
         />
         <component :is="modelValue.icon" v-else-if="modelValue?.icon" class="w-6 h-6 text-slate-500 mr-2" />
         <span :class="[disabled ? 'text-gray-500' : 'text-slate-500']">
@@ -112,7 +113,13 @@
             :class="[option.value === modelValue?.value ? 'text-blue-500' : '']"
             @click="inputHandler(option)"
           >
-            <img v-if="option?.icon && typeof option.icon === 'string'" :src="option?.icon" :alt="option.label" class="w-8 rounded mr-2" />
+            <img
+              v-if="option?.icon && typeof option.icon === 'string'"
+              :src="option?.icon"
+              :alt="option.label"
+              class="w-8 rounded mr-2"
+              loading="lazy"
+            />
             <component :is="option.icon" v-else-if="option?.icon" class="w-6 h-6 mr-2" />
             <span>
               {{ option.label }}
