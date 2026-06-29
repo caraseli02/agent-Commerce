@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import _ from 'lodash';
-import type { DebouncedFunc } from 'lodash';
 import { columns } from './columns';
 import type { TransactionInterface } from '~/types/dashboard/transaction';
 import { fetchTransactions } from '~/composables/api/control-panel';
@@ -66,9 +64,7 @@ const fetchAndSetTransactionListRaw = async (
   }
 };
 
-const fetchAndSetTransactionList = _.debounce(fetchAndSetTransactionListRaw, 250) as DebouncedFunc<
-  (page: number, perPage: number, filters?: unknown, sort?: unknown) => Promise<void>
->;
+const fetchAndSetTransactionList = _debounce(fetchAndSetTransactionListRaw, 250);
 
 await fetchAndSetTransactionListRaw(1, 10);
 </script>

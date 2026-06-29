@@ -41,7 +41,6 @@
 
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance.js';
-import { cloneDeep } from 'lodash-es';
 import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
@@ -237,7 +236,7 @@ Emitter.on('reset-products-filters', async (value: boolean) => {
     return;
   }
 
-  const obj = cloneDeep(filters.value);
+  const obj = _cloneDeep(filters.value);
   if (!obj) {
     return;
   }

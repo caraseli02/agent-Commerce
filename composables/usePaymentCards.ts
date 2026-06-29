@@ -1,6 +1,6 @@
 // ~/composables/usePaymentCards.ts
 import { ref, watch } from 'vue';
-import _ from 'lodash';
+import { _cloneDeep } from '#imports';
 import { useUser } from './useUser';
 import { userCards as fetchUserCards } from '~/composables/api/user';
 import type { StripeCardInterface } from '~/types';
@@ -21,7 +21,7 @@ export function usePaymentCards() {
     if (response.status === 'success') {
       if (response.data.length) {
         cards.value = response.data;
-        card.value = _.cloneDeep(cards.value.find((savedCard) => savedCard.default) ?? null);
+        card.value = _cloneDeep(cards.value.find((savedCard) => savedCard.default) ?? null);
         isNewCardSelected.value = false;
       } else {
         isNewCardSelected.value = true;

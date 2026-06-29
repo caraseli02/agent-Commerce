@@ -51,7 +51,6 @@
 </template>
 
 <script setup lang="ts">
-import _ from 'lodash';
 import Emitter from 'tiny-emitter/instance';
 import SearchIcon from '@/assets/icons/search.svg';
 import type { ProductInterface } from '~~/model/products/response/ProductResponse';
@@ -84,7 +83,7 @@ const productList = ref<ProductInterface[]>([]);
 const showSearchResults = ref(true);
 const category = ref<string | null>(route.query?.category?.toString() || null);
 
-const onInput = _.debounce(async () => {
+const onInput = _debounce(async () => {
   productList.value = (await searchProduct(searchVal.value)) || [];
   isLoading.value = false;
 }, 200);

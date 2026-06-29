@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import moment from 'moment/moment';
 import type { Table } from '@tanstack/vue-table';
-import type { DebouncedFunc } from 'lodash-es';
 import { columns } from './columns';
 import { OrderStatus } from '~/types';
 import type { OrderInterface, OrderTableColumns } from '~/types';
@@ -33,7 +32,12 @@ const error = ref(false);
 const listItems = ref<OrderTableColumns[]>([]);
 const { $apiClient } = useNuxtApp();
 
-const fetchAndSetOrdersList = async (page: number, perPage: number, filters = {}, sort = {}) => {
+const fetchAndSetOrdersList = async (
+  page: number,
+  perPage: number,
+  filters: Record<string, unknown> = {},
+  sort: Record<string, unknown> = {}
+) => {
   error.value = false;
 
   const result = (await fetchOrders(page, perPage, filters, sort, $apiClient)) as OrdersListResponse;
@@ -177,9 +181,7 @@ const onTabChange = async (filter: TabFilter, table: Table<OrderTableColumns>) =
   await fetchAndSetOrdersList(1, 10, getServerFiltersByTab(filter), {});
 };
 
-const debouncedFetchAndSetOrdersList = fetchAndSetOrdersList as unknown as DebouncedFunc<
-  (page: number, perPage: number, filters?: unknown, sort?: unknown) => Promise<void>
->;
+const debouncedFetchAndSetOrdersList = fetchAndSetOrdersList;
 
 onMounted(() => {
   loadTabFilters();

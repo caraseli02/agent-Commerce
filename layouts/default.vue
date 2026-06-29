@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import _ from 'lodash';
+import { _debounce } from '#imports';
 import { Toaster } from '@/components/ui/toast';
 
 const isScrolled = ref(false);
@@ -34,13 +34,13 @@ const calcViewportHeight = () => {
     document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
     window.addEventListener(
       'resize',
-      _.debounce(function () {
+      _debounce(function () {
         document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
       }, 100)
     );
     window.addEventListener(
       'orientationchange',
-      _.debounce(function () {
+      _debounce(function () {
         document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
       }, 100)
     );

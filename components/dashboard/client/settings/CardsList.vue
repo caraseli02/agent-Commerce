@@ -23,7 +23,6 @@
 </template>
 
 <script setup lang="ts">
-import _ from 'lodash';
 import type { StripeCardInterface } from '~/types';
 import { userCards as fetchUserCards } from '~/composables/api/user';
 import { deleteCard, updateCardAsDefault } from '~/composables/api/client-settings';
@@ -76,7 +75,7 @@ const fetchCards = async () => {
   if (response.status === 'success') {
     if (response.data.length) {
       cards.value = response.data;
-      card.value = _.cloneDeep(cards.value.find((card: StripeCardInterface) => card.default));
+      card.value = _cloneDeep(cards.value.find((card: StripeCardInterface) => card.default));
     } else {
       isNewCardSelected.value = true;
     }
