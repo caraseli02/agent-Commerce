@@ -32,10 +32,11 @@
                 View More
               </div>
             </div>
-            <NuxtImg
+            <img
               loading="lazy"
               :src="BannerItem"
-              class="aspect-[1.16] object-contain object-center w-[100px] overflow-hidden self-center shrink-0 max-w-full my-auto"/>
+              class="aspect-[1.16] object-contain object-center w-[100px] overflow-hidden self-center shrink-0 max-w-full my-auto"
+            />
           </div>
         </div>
       </SwiperSlide>
@@ -55,10 +56,11 @@
                 View More
               </div>
             </div>
-            <NuxtImg
+            <img
               loading="lazy"
               :src="BannerItem"
-              class="aspect-[1.16] object-contain object-center w-[100px] overflow-hidden self-center shrink-0 max-w-full my-auto"/>
+              class="aspect-[1.16] object-contain object-center w-[100px] overflow-hidden self-center shrink-0 max-w-full my-auto"
+            />
           </div>
         </div>
       </SwiperSlide>

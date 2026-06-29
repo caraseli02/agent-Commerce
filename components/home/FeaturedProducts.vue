@@ -3,10 +3,12 @@
     <template #banner>
       <div class="md:pt-6 md:pr-0 h-[calc(100%-30px)] mx-2 md:mx-3 xl:mx-0 xl:mr-3 xl:min-w-[330px] xl:min-h-[592px]">
         <div class="flex h-full gap-4 md:gap-[40px] bg-white rounded-xl shadow-xs p-6 md:m-0 xl:flex-col xl:w-[330px] xl:mb-[30px]">
-          <NuxtImg
+          <img
             :src="BlackFridayItem"
             alt="Black Friday Product"
-            class="h-[100px] w-[120px] md:h-auto md:w-[290px] md:max-h-[240px] xl:w-full" loading="lazy"/>
+            class="h-[100px] w-[120px] md:h-auto md:w-[290px] md:max-h-[240px] xl:w-full"
+            loading="lazy"
+          />
           <div class="flex-1 flex gap-4 flex-col justify-center xl:justify-start xl:items-start">
             <div class="font-semibold text-sm xl:text-xl">Exclusive Black Friday</div>
             <p class="text-xs text-slate-500 md:text-[13px] xl:text-base">

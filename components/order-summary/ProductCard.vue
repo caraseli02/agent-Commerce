@@ -9,7 +9,15 @@
     <div class="flex flex-col gap-2">
       <div class="pl-9 pr-4 flex flex-row">
         <div class="w-[233px] flex items-center justify-center">
-          <NuxtImg :src="item.details.ProductImage.ProductImageLarge" class="w-[120px] h-[120px]" loading="lazy"/>
+          <img
+            v-if="hasValidImage"
+            :src="item.details.ProductImage.ProductImageLarge"
+            :alt="item.name"
+            class="w-[120px] h-[120px] object-contain"
+            loading="lazy"
+            @error="imageLoadFailed = true"
+          />
+          <svgo-card-placehoder v-else class="w-[120px] h-[120px]" />
         </div>
         <div class="flex flex-col items-start gap-3">
           <button class="relative flex group" @click="addToFavs">
@@ -97,6 +105,7 @@ export default defineComponent({
   data() {
     return {
       liked: false,
+      imageLoadFailed: false,
     };
   },
   computed: {
@@ -105,6 +114,11 @@ export default defineComponent({
     },
     itemDiscount(): number {
       return this.item.adminSettings?.discount?.value || 0;
+    },
+    hasValidImage(): boolean {
+      const productImageLarge = this.item.details?.ProductImage?.ProductImageLarge || '';
+
+      return Boolean(productImageLarge && !productImageLarge.includes('not_valid_image') && !this.imageLoadFailed);
     },
   },
   methods: {

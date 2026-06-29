@@ -25,12 +25,14 @@
           <button class="flex bg-blue-500 rounded px-3 py-1.5 text-[13px] font-medium md:px-6 md:py-2 md:text-sm xl:py-[9px]">
             View More
           </button>
-          <NuxtImg
+          <img
             :src="item.item"
             alt="Img"
-            class="absolute bottom-7 left-1/2 -translate-x-1/2 w-[205px] object-contain md:w-[188px] md:left-[unset] md:translate-x-0 md:right-[30px] lg:w-[185px] lg:right-5 xl:w-[300px] xl:right-[15px] xl:bottom-[75px]" loading="lazy"/>
+            class="absolute bottom-7 left-1/2 -translate-x-1/2 w-[205px] object-contain md:w-[188px] md:left-[unset] md:translate-x-0 md:right-[30px] lg:w-[185px] lg:right-5 xl:w-[300px] xl:right-[15px] xl:bottom-[75px]"
+            loading="lazy"
+          />
         </div>
-        <NuxtImg :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy"/>
+        <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
         <div
           class="absolute z-10 top-0 left-0 w-full h-full opacity-75 rounded-md pointer-events-none"
           :style="{

@@ -173,7 +173,7 @@
           <div class="relative">
             <button class="flex items-center text-left" @click="showOptions = !showOptions">
               <div class="relative lg:mr-4">
-                <NuxtImg :src="DashboardAvatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover" loading="lazy"/>
+                <img :src="DashboardAvatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover" loading="lazy" />
                 <div class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white" />
               </div>
               <div class="flex flex-col max-lg:hidden">
