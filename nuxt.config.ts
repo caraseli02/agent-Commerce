@@ -10,6 +10,7 @@ dotenv.config({ path: '.env' });
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
+    '@nuxt/fonts',
     'nuxt-svgo',
     'nuxt-swiper',
     '@pinia/nuxt',
@@ -43,30 +44,20 @@ export default defineNuxtConfig({
       },
     ],
   },
+  fonts: {
+    families: [
+      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700] },
+      { name: 'Poppins', provider: 'google', weights: [400, 500, 600, 700] },
+    ],
+  },
+
   app: {
     head: {
       titleTemplate: '%s - Demo',
-      link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        {
-          rel: 'preconnect',
-          href: 'https://fonts.gstatic.com',
-          crossorigin: 'anonymous',
-        },
-        {
-          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap',
-          rel: 'stylesheet',
-        },
-      ],
       meta: [
         {
           name: 'viewport',
           content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
-        },
-      ],
-      script: [
-        {
-          src: 'https://cdn.jsdelivr.net/npm/tw-elements/dist/js/tw-elements.min.es.js',
         },
       ],
     },
