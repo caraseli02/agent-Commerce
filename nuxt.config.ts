@@ -1,10 +1,8 @@
 import dotenv from 'dotenv';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const _ = require('lodash');
-
+let svgPrefixCounter = 0;
 const svgPrefix = {};
-svgPrefix.toString = () => `${_.uniqueId()}_`;
+svgPrefix.toString = () => `${++svgPrefixCounter}_`;
 
 dotenv.config({ path: '.env' });
 // https://nuxt.com/docs/api/configuration/nuxt-config
