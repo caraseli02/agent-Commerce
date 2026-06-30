@@ -1,7 +1,6 @@
 <script setup lang="ts" generic="TData, TValue">
 import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/vue-table';
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
-import type { DebouncedFunc } from 'lodash';
 import { watchDebounced } from '@vueuse/core';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import { transformFiltersToObject, transformSortingKeys, valueUpdater } from '~/lib/utils';
@@ -9,7 +8,7 @@ import { transformFiltersToObject, transformSortingKeys, valueUpdater } from '~/
 interface Props {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  fetchFn: DebouncedFunc<(page: number, perPage: number, filters?: unknown, sort?: unknown) => Promise<void>>;
+  fetchFn: (page: number, perPage: number, filters?: Record<string, unknown>, sort?: Record<string, unknown>) => unknown;
   pageCount: number;
   totalItems: number;
   loading: boolean;

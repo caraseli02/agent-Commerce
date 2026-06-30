@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import _ from 'lodash';
 import { columns } from './columns';
 import { fetchCustomersList } from '~/composables/api/dashboard-admin';
 import type { CustomerTableColumns, UserInterface } from '~/types/auth/user-interface';
@@ -13,7 +12,7 @@ const loading = ref(true);
 const error = ref(false);
 const listItems = ref<CustomerTableColumns[]>([]);
 
-const fetchAndSetCustomersList = _.debounce(async (page: number, perPage: number, filters = {}, sort = {}) => {
+const fetchAndSetCustomersList = _debounce(async (page: number, perPage: number, filters = {}, sort = {}) => {
   error.value = false;
   loading.value = true;
 

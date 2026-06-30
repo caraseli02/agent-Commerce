@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { DebouncedFunc } from 'lodash';
 import { columns } from './columns';
 import type { OrderInterface, OrderTableColumns } from '~/types';
 import { fetchOrders } from '~/composables/api/orders';
@@ -60,9 +59,7 @@ const fetchAndSetOrdersList = async (
   emit('showTotalItems', data.data.total_items);
 };
 
-const debouncedFetchAndSetOrdersList = fetchAndSetOrdersList as unknown as DebouncedFunc<
-  (page: number, perPage: number, filters?: unknown, sort?: unknown) => Promise<void>
->;
+const debouncedFetchAndSetOrdersList = fetchAndSetOrdersList;
 
 await fetchAndSetOrdersList(1, 10);
 </script>

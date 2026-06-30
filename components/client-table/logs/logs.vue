@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import _ from 'lodash';
-import type { DebouncedFunc } from 'lodash';
 import { columns } from './columns';
 import type { LogsItem } from '~/components/client-table/logs/columns.enum';
 import { fetchActivityLogs } from '~/composables/api/control-panel';
@@ -51,9 +49,7 @@ const fetchAndSetActivityLogs = async (
   emit('showTotalItems', data.data.total_items);
 };
 
-const debouncedFetchAndSetActivityLogs = _.debounce(fetchAndSetActivityLogs, 500) as DebouncedFunc<
-  (page: number, perPage: number, filters?: unknown, sort?: unknown) => Promise<void>
->;
+const debouncedFetchAndSetActivityLogs = _debounce(fetchAndSetActivityLogs, 500);
 
 await fetchAndSetActivityLogs(1, 10);
 </script>

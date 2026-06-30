@@ -161,7 +161,6 @@
 </template>
 
 <script setup lang="ts">
-import _ from 'lodash';
 import Emitter from 'tiny-emitter/instance';
 import { storeToRefs } from 'pinia';
 import Logo from '@/assets/media/logo.svg';
@@ -328,7 +327,7 @@ const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<P
   return products.items.items as unknown as ProductInterface[];
 };
 
-const onInput = _.debounce(async () => {
+const onInput = _debounce(async () => {
   productList.value = await searchProduct(searchVal.value);
   isLoading.value = false;
 }, 200);
