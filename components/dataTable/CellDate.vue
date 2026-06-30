@@ -5,13 +5,13 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import { format } from 'date-fns';
 
 const props = defineProps<{
   inputDateString: string;
 }>();
 
 const formattedDate = computed(() => {
-  return moment(props.inputDateString).format('DD MMMM YYYY HH:mm');
+  return format(new Date(props.inputDateString), 'dd MMMM yyyy HH:mm');
 });
 </script>

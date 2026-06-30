@@ -184,7 +184,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import { format } from 'date-fns';
 import Emitter from 'tiny-emitter/instance.js';
 import { LockKeyholeIcon } from 'lucide-vue-next';
 import Avatar from '@/assets/icons/dashboard/avatar.png';
@@ -263,7 +263,7 @@ const fetchInformation = async () => {
 };
 
 const getCurrentDate = (date: string) => {
-  return moment(date).format('DD MMM YYYY, HH:mm');
+  return format(new Date(date), 'dd MMM yyyy, HH:mm');
 };
 
 await fetchInformation();

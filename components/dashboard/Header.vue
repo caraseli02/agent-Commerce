@@ -250,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import { differenceInDays, differenceInHours } from 'date-fns';
 import { storeToRefs } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
 import { AccountRole, AccountType } from '../../types';
@@ -347,11 +347,11 @@ const handleSignOut = async () => {
 
 const route = useRoute();
 const getCurrentDate = (date: string) => {
-  const currentDate = moment();
-  const receivedDate = moment(date);
-  return currentDate.diff(receivedDate, 'hours') < 24
-    ? currentDate.diff(receivedDate, 'hours') + 'h'
-    : currentDate.diff(receivedDate, 'days') + 'd';
+  const currentDate = new Date();
+  const receivedDate = new Date(date);
+  return differenceInHours(currentDate, receivedDate) < 24
+    ? differenceInHours(currentDate, receivedDate) + 'h'
+    : differenceInDays(currentDate, receivedDate) + 'd';
 };
 
 const markNotificationAsRead = async (notification: Notification, index: number) => {

@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import moment from 'moment';
+import { format } from 'date-fns';
 import { useAuthStore } from '~/store/authStore';
 import {
   fetchCustomerActiveOrders,
@@ -150,7 +150,7 @@ export const useCustomerDashboard = () => {
   };
 
   const hotSalesFunction = async () => {
-    const currMonthName = moment().format('MMMM');
+    const currMonthName = format(new Date(), 'MMMM');
 
     hotSales.value = myMonthHotSale.value.map((slide): ProductBannerInterface => {
       const discountPrice = parseProductPriceConfiguration(slide, getUserDetails.value, slide.stock);

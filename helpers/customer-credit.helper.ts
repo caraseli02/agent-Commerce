@@ -1,4 +1,4 @@
-import moment from 'moment/moment';
+import { format } from 'date-fns';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 
 export const customerCreditHelper = (credit: CustomerCreditInterface) => {
@@ -27,7 +27,7 @@ export const customerCreditHelper = (credit: CustomerCreditInterface) => {
       maximumFractionDigits: 2,
     }).format(credit.available);
 
-    dueDate = moment(credit.dueDate).format('DD MMMM YYYY');
+    dueDate = format(new Date(credit.dueDate), 'dd MMMM yyyy');
 
     tillDue = credit.tillDue;
 

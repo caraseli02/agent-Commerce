@@ -128,7 +128,6 @@
 </template>
 
 <script lang="ts" setup>
-import moment from 'moment/moment';
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRuntimeConfig } from '#app';
@@ -185,8 +184,9 @@ function selectPaymentOption(option: { type: PaymentTypeEnum; info?: StripeCardI
 }
 
 function cardExpired(savedCard: StripeCardInterface) {
-  const expDate = moment([savedCard.card.exp_year, savedCard.card.exp_month]);
-  const now = moment([Number(moment().format('y')), Number(moment().format('M'))]);
-  return expDate.diff(now, 'months') < 0;
+  const expDate = new Date(savedCard.card.exp_year, savedCard.card.exp_month);
+  const now = new Date();
+  const currentMonth = new Date(now.getFullYear(), now.getMonth());
+  return expDate < currentMonth;
 }
 </script>

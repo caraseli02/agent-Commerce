@@ -101,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import { differenceInDays, differenceInHours } from 'date-fns';
 import { XIcon, ArrowRight, Settings, ChevronRight } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import BellIcon from '@/assets/icons/header/bell.svg';
@@ -184,11 +184,11 @@ const first50 = computed(() => {
 });
 
 const getCurrentDate = (date: string) => {
-  const currentDate = moment();
-  const receivedDate = moment(date);
-  return currentDate.diff(receivedDate, 'hours') < 24
-    ? currentDate.diff(receivedDate, 'hours') + 'h'
-    : currentDate.diff(receivedDate, 'days') + 'd';
+  const currentDate = new Date();
+  const receivedDate = new Date(date);
+  return differenceInHours(currentDate, receivedDate) < 24
+    ? differenceInHours(currentDate, receivedDate) + 'h'
+    : differenceInDays(currentDate, receivedDate) + 'd';
 };
 
 const markNotificationAsRead = async (notification: Notification, index: number) => {

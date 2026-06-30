@@ -160,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment/moment';
+import { addDays, format } from 'date-fns';
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import FreezeIcon from '@/assets/icons/dashboard/freeze.svg';
@@ -223,7 +223,7 @@ const applyCreditUpdate = (term?: number, value?: number) => {
   }
   if (term !== undefined) {
     creditObjectToEdit.value.term = term;
-    creditObjectToEdit.value.dueDate = moment().add(term, 'days').toISOString();
+    creditObjectToEdit.value.dueDate = addDays(new Date(), term).toISOString();
     creditObjectToEdit.value.tillDue = String(term);
   }
   creditObjectToEdit.value.available = creditObjectToEdit.value.limit - creditObjectToEdit.value.spent;
@@ -257,7 +257,7 @@ const getAmountFormat = (money: number) => {
 };
 
 const getCurrentDate = (date: string) => {
-  return moment(date).format('DD MMM YYYY');
+  return format(new Date(date), 'dd MMM yyyy');
 };
 
 const updateCreditTerm = async (term?: number, value?: number) => {

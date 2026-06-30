@@ -300,7 +300,7 @@
 
 <script setup lang="ts">
 import Pagination from 'vuejs-paginate-next';
-import moment from 'moment';
+import { subHours } from 'date-fns';
 import CheckIcon from '@/assets/icons/check.svg';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
@@ -326,7 +326,7 @@ const showShowOptions = ref(false);
 const showOptions = ref([
   {
     name: 'New products only',
-    key: { startDate: moment().subtract(24, 'hours') },
+    key: { startDate: subHours(new Date(), 24).toISOString() },
   },
   { name: 'Available in stock', key: { stockFrom: 1 } },
   { name: 'Sales only' },
