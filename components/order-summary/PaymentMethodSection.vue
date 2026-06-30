@@ -184,7 +184,7 @@ function selectPaymentOption(option: { type: PaymentTypeEnum; info?: StripeCardI
 }
 
 function cardExpired(savedCard: StripeCardInterface) {
-  const expDate = new Date(savedCard.card.exp_year, savedCard.card.exp_month);
+  const expDate = new Date(savedCard.card.exp_year, savedCard.card.exp_month - 1);
   const now = new Date();
   const currentMonth = new Date(now.getFullYear(), now.getMonth());
   return expDate < currentMonth;
