@@ -16,7 +16,7 @@
         <SkeletonLoader v-if="isLoading" class="w-full h-20 mb-6" />
         <div v-else class="mb-[17px]">
           <ClientOnly>
-            <apexchart width="100%" height="80" :options="chartOptions" :series="series" />
+            <ApexChart width="100%" height="80" :options="chartOptions" :series="series" />
           </ClientOnly>
         </div>
         <SkeletonLoader v-if="isLoading" class="w-full h-[46px]" />
@@ -35,11 +35,14 @@
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
 import type { ApexOptions } from 'apexcharts';
 import StatusIcon from '@/assets/icons/dashboard/status-up.svg';
 import ArrowRightIcon from '@/assets/icons/dashboard/arrow-right.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
+
+const ApexChart = defineAsyncComponent(() => import('vue3-apexcharts'));
 
 const chartOptions: ApexOptions = {
   chart: {

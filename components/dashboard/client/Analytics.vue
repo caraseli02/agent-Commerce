@@ -12,15 +12,19 @@
         </UiButton>
       </div>
       <div class="max-w-[358px] md:max-w-[476px] md:min-w-fit mt-4 ml-1">
-        <apexchart height="215" type="bar" :options="chartOptions" :series="computedSeries" />
+        <ApexChart height="215" type="bar" :options="chartOptions" :series="computedSeries" />
       </div>
     </div>
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
+import type { ApexOptions } from 'apexcharts';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-vue-next';
+
+const ApexChart = defineAsyncComponent(() => import('vue3-apexcharts'));
 
 const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 const fullData = [23, 44, 35, 30, 49, 60, 70, 91, 85, 48, 60, 70];
@@ -56,7 +60,6 @@ const computedSeries = computed(() => {
     },
   ];
 });
-
 const chartOptions = computed(() => ({
   chart: {
     type: 'bar',
@@ -140,7 +143,8 @@ const chartOptions = computed(() => ({
       radius: 12,
     },
   },
-}));
+}) as ApexOptions);
+
 
 function shiftMonths(direction: number) {
   let newIdx = currentIndex.value + direction;
