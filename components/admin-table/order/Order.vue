@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import moment from 'moment/moment';
+import { subHours } from 'date-fns';
 import type { Table } from '@tanstack/vue-table';
 import { columns } from './columns';
 import { OrderStatus } from '~/types';
@@ -73,7 +73,7 @@ const orderFilters = ref<TabFilter[]>([
   {
     label: 'Last 24h',
     value: OrderTableColumnsEnum.CREATED_AT,
-    key: [moment.utc().subtract(24, 'hours').format('DD/MM/YYYY HH:mm:ss')],
+    key: [subHours(new Date(), 24).toISOString()],
     total_items: 0,
   },
   {
@@ -123,12 +123,7 @@ const getServerFiltersByTab = (filter: TabFilter) => {
   }
 
   if (filter.value === 'startDate' || filter.value === OrderTableColumnsEnum.CREATED_AT) {
-    const rawDate = String(filterKeys[0] || '');
-    const parsedDate = moment.utc(rawDate, moment.ISO_8601, true).isValid()
-      ? moment.utc(rawDate)
-      : moment.utc(rawDate, 'DD/MM/YYYY HH:mm:ss', true);
-
-    filterObj.startDate = parsedDate.isValid() ? parsedDate.toISOString() : rawDate;
+    filterObj.startDate = String(filterKeys[0] || '');
     return filterObj;
   }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowRight, CheckCircle2, LayoutDashboard, LoaderIcon, ShoppingBag, TruckIcon } from 'lucide-vue-next';
-import moment from 'moment';
+import { format } from 'date-fns';
 import { useCartStore } from '~/store/cartStore';
 import { getOrderById } from '~/composables/api/orders';
 import { PaymentTypeEnum } from '~/types';
@@ -57,13 +57,13 @@ const orderDate = computed(() => {
     return 'Just now';
   }
 
-  return moment(order.value.createdAt).format('DD MMM YYYY, HH:mm');
+  return format(new Date(order.value.createdAt), 'dd MMM yyyy, HH:mm');
 });
 
 const estimatedPickup = computed(() => {
   const pickupDate = order.value?.shippingDetails?.statusTracking?.estimatedPickUpDate;
 
-  return pickupDate ? moment(pickupDate).format('DD MMM YYYY') : '';
+  return pickupDate ? format(new Date(pickupDate), 'dd MMM yyyy') : '';
 });
 
 const orderSummaryHref = computed(() => {

@@ -39,7 +39,7 @@
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Due Date</span>
           <!-- <span class="text-neutral-700 text-xs font-medium leading-5">{{ accountCredit.dueDate }}</span> -->
-          <span class="text-neutral-700 text-xs font-medium leading-5">{{ moment(accountCredit.dueDate).format('DD MMM YYYY') }}</span>
+          <span class="text-neutral-700 text-xs font-medium leading-5">{{ formattedDueDate }}</span>
           <!-- placeholder (uncomment the above line) -->
         </div>
         <div class="flex flex-col gap-1">
@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment/moment';
+import { format } from 'date-fns';
 import SettingCog from '@/assets/icons/setting-cog.svg';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 
@@ -70,8 +70,8 @@ export default defineComponent({
     },
   },
   computed: {
-    moment() {
-      return moment;
+    formattedDueDate() {
+      return format(new Date(this.accountCredit.dueDate), 'dd MMM yyyy');
     },
   },
 });

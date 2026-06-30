@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import { format } from 'date-fns';
 import ProgressBar from './ProgressBar.vue';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
@@ -235,7 +235,7 @@ const getCustomerCredit = async () => {
 await getCustomerCredit();
 
 const getCurrentDate = (date: string) => {
-  return moment(date).format('DD MMM YYYY');
+  return format(new Date(date), 'dd MMM yyyy');
 };
 
 const getAmountFormat = (money: number) => {

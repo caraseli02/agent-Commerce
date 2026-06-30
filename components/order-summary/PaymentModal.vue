@@ -70,7 +70,6 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
 import { ref } from 'vue';
 import { usePaymentStore } from '~/store/paymentStore';
 import { PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails, type StripeCardInterface } from '~/types';
@@ -116,9 +115,10 @@ function exitCardModal(cancelled: boolean) {
 }
 
 function cardExpired(savedCard: StripeCardInterface) {
-  const expDate = moment([savedCard.card.exp_year, savedCard.card.exp_month]);
-  const now = moment([Number(moment().format('y')), Number(moment().format('M'))]);
-  return expDate.diff(now, 'months') < 0;
+  const expDate = new Date(savedCard.card.exp_year, savedCard.card.exp_month - 1);
+  const now = new Date();
+  const currentMonth = new Date(now.getFullYear(), now.getMonth());
+  return expDate < currentMonth;
 }
 
 const setCardAsDefault = async (cardInfo: StripeCardInterface) => {

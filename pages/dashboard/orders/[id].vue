@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ChevronLeft, PackageOpenIcon, TruckIcon, Undo2Icon } from 'lucide-vue-next';
 
-import moment from 'moment';
+import { format } from 'date-fns';
 import { storeToRefs } from 'pinia';
 import { OrderType } from '~/types';
 import type {
@@ -171,7 +171,7 @@ const getOrderInformation = async () => {
       email: response?.data?.order.user.contactDetails.email,
       phone: response?.data?.order.shippingDetails.phone,
     };
-    date.value = moment(response.data.order.createdAt).format('DD MMMM YYYY, HH:mm');
+    date.value = response.data.order.createdAt ? format(new Date(response.data.order.createdAt), 'dd MMMM yyyy, HH:mm') : '';
   }
 };
 
