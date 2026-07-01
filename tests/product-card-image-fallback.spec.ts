@@ -67,4 +67,24 @@ describe('storefront product card image fallback', () => {
     expect(getStaticAttrValue(fallbackImage, 'class-name')).toContain('object-contain');
     expect(source).toContain("!src.includes('not_valid_image')");
   });
+
+  it('keeps the mobile card compact while preserving desktop card behavior', () => {
+    const source = readFileSync(productCardPath, 'utf8');
+    const { descriptor } = parseSfc(source);
+
+    expect(descriptor.template).toBeTruthy();
+
+    const ast = baseParse(descriptor.template!.content);
+    const rootLink = collectElements(ast, 'NuxtLink')[0];
+    const cartButton = collectElements(ast, 'button').find((button) => getStaticAttrValue(button, 'aria-label') === 'Add product to cart');
+
+    expect(getStaticAttrValue(rootLink, 'class')).toContain('grid-cols-[108px_minmax(0,1fr)]');
+    expect(getStaticAttrValue(rootLink, 'class')).toContain('md:flex');
+    expect(getStaticAttrValue(rootLink, 'class')).toContain('md:min-h-[280px]');
+
+    expect(cartButton).toBeTruthy();
+    expect(getStaticAttrValue(cartButton!, 'class')).toContain('col-start-2');
+    expect(getStaticAttrValue(cartButton!, 'class')).toContain('md:absolute');
+    expect(getStaticAttrValue(cartButton!, 'type')).toBe('button');
+  });
 });

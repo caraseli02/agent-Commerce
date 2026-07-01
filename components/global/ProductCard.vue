@@ -1,11 +1,15 @@
 <template>
   <NuxtLink
     :to="`/product/${product._id}`"
-    class="flex flex-col gap-2 relative font-Inter bg-white rounded-xl shadow-xs overflow-hidden h-full px-2.5 pt-[34px] pb-2 md:px-4 md:pt-10 md:pb-3 xl:pt-[34px] min-h-[280px]"
+    class="relative grid grid-cols-[108px_minmax(0,1fr)] gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:h-full md:min-h-[280px] md:flex-col md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px]"
   >
     <ProductCardStock :stock="product.stock" />
-    <div class="relative">
-      <ImageWithFallback :src="productCardImageSrc" :alt="product.name" class-name="mx-auto h-[120px] w-full max-w-full object-contain" />
+    <div class="relative row-span-2 self-center md:row-span-auto md:self-auto">
+      <ImageWithFallback
+        :src="productCardImageSrc"
+        :alt="product.name"
+        class-name="mx-auto h-24 w-full max-w-full object-contain md:h-[120px]"
+      />
       <div
         v-if="productDiscount"
         class="ring-1 ring-rose-500 rounded-full text-sm !leading-[1.5rem] font-semibold text-rose-500 px-2 absolute top-2 left-0"
@@ -14,12 +18,12 @@
       </div>
     </div>
 
-    <section class="flex flex-col gap-1">
+    <section class="flex min-w-0 flex-col gap-1 pr-24 md:pr-0">
       <div class="flex gap-2 items-center">
         <h3 class="font-semibold text-neutral-700 inline truncate">
           {{ product.name }}
         </h3>
-        <button class="flex">
+        <button class="flex" type="button" aria-label="View product information" @click.prevent>
           <svgo-info-circle class="w-4 h-4 text-slate-500" />
         </button>
       </div>
@@ -28,7 +32,7 @@
         <p class="hidden text-xs text-slate-500 truncate md:block">{{ product.description }}</p>
       </div>
     </section>
-    <div class="mt-auto h-full min-h-[39px]">
+    <div class="col-start-2 h-auto min-h-0 pr-14 md:col-start-auto md:mt-auto md:h-full md:min-h-[39px] md:pr-0">
       <div class="min-h-[14px] leading-tight line-through text-xs">
         <template v-if="productDiscount">
           {{
@@ -48,25 +52,42 @@
         </span>
       </div>
     </div>
-    <div class="absolute right-0 flex flex-col gap-3 md:top-[32px]">
-      <div class="pr-3 flex flex-col gap-2.5 md:pr-4">
-        <button class="flex justify-end text-gray-500" @click="addToFavourite(product)">
+    <div class="absolute right-3 top-3 flex flex-row gap-1.5 md:right-0 md:top-[32px] md:flex-col md:gap-3">
+      <div class="flex gap-1.5 md:flex-col md:gap-2.5 md:pr-4">
+        <button
+          class="flex justify-end text-gray-500"
+          type="button"
+          aria-label="Add product to favorites"
+          @click.prevent="addToFavourite(product)"
+        >
           <SvgoCardHeartIcon class="w-6 h-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
         </button>
-        <button class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500">
+        <button
+          class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500"
+          type="button"
+          aria-label="Share product"
+          @click.prevent
+        >
           <SvgoCardShareIcon class="w-6 h-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
         </button>
-        <button class="justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500">
+        <button
+          class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500"
+          type="button"
+          aria-label="Open product 3D view"
+          @click.prevent
+        >
           <SvgoCardD3Icon class="w-6 h-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
         </button>
       </div>
     </div>
-    <div
-      class="absolute bottom-0 right-0 bg-blue-500 rounded-br-xl rounded-tl-xl px-6 py-3"
+    <button
+      type="button"
+      aria-label="Add product to cart"
+      class="col-start-2 flex h-10 w-12 items-center justify-center justify-self-end rounded-lg bg-blue-500 md:absolute md:bottom-0 md:right-0 md:h-auto md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
       @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
     >
       <SvgoCart class="w-6 h-6 text-white" />
-    </div>
+    </button>
   </NuxtLink>
 </template>
 
