@@ -5,14 +5,14 @@
       :class="[isScrolled ? 'lg:border-border' : '']"
     >
       <SearchIcon v-if="!isScrolled" class="hidden w-4 h-4 flex-shrink-0 text-gray-500 self-center ml-3 md:inline-block" />
-      <form action="" class="w-full flex" @submit.prevent>
+      <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent>
         <input
           ref="searchDOM"
           v-model="searchVal"
           type="search"
           placeholder="Search products"
           autocomplete="off"
-          class="flex-1 text-sm leading-[1.29] text-slate-500 h-11 py-3 w-full placeholder:text-gray-500 focus:outline-none"
+          class="h-full w-full flex-1 text-sm leading-5 text-slate-500 placeholder:text-gray-500 focus:outline-none"
           :class="[isScrolled ? 'px-3' : 'px-2']"
           @input="onInput"
           @keypress.enter="handleEnterButton"
@@ -24,7 +24,7 @@
       </form>
       <div
         v-if="!isScrolled"
-        class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 cursor-pointer px-4 py-3"
+        class="flex h-full items-center justify-center bg-blue-500 hover:bg-blue-600 cursor-pointer px-4"
         @click="handleEnterButton"
       >
         <SearchIcon class="w-5 h-5 text-white" />
