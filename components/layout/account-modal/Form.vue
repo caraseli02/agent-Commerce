@@ -33,8 +33,11 @@
         placeholder="you@company.com OR P-XXXXXX"
         :error="email.error"
       />
-      <FormPassword v-model="password.value" size="lg" label="Password" :error="password.error" placeholder="Your Password" />
+      <FormPassword v-model="password.value" size="lg" label="Password" :error="password.error" placeholder="Hidden for demo sign-in" />
     </div>
+    <p class="-mt-2 mb-4 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs leading-5 text-slate-600">
+      Demo passwords stay hidden. Pick a role and sign in, or enter a password manually.
+    </p>
     <div class="flex items-center justify-between mb-[36px]">
       <label class="flex items-center cursor-pointer">
         <input v-model="rememberMe" type="checkbox" class="sr-only" />
@@ -76,7 +79,7 @@
       </p>
     </div>
     <div class="mx-auto text-sm font-medium text-gray-500 mb-[25px]">
-      <span class="text-slate-500 font-normal text-sm">This demo uses preconfigured accounts. Pick a role above to get started.</span>
+      <span class="text-slate-500 font-normal text-sm">This demo uses preconfigured accounts without showing passwords in the panel.</span>
     </div>
     <div v-if="!config.public.MOCK_MODE" class="flex items-center mt-12 mb-6">
       <div class="h-px flex-1 bg-gray-100" />
@@ -178,7 +181,7 @@ const { registerUser, getParsedFirebaseJWTToken, getUserToken } = useFirebaseAut
 
 const setDemoCredentialsByRole = (role: LoginRole) => {
   email.value.value = LOGIN_CREDENTIALS[role].email;
-  password.value.value = LOGIN_CREDENTIALS[role].password;
+  password.value.value = '';
   email.value.error = '';
   password.value.error = '';
 };
@@ -195,6 +198,8 @@ const isClientCodeFormat = (value: string) => {
   const regex = /^[PBAS]-\d{6}$/;
   return regex.test(value);
 };
+
+const resolvePasswordForSignin = () => password.value.value || LOGIN_CREDENTIALS[selectedLoginRole.value].password;
 
 const normalizeSigninResponse = (response: SigninResponse | null | undefined) => {
   const token = response?.token || response?.data?.token;
@@ -265,14 +270,20 @@ const handleSignIn = async () => {
   errorResponse.status = '';
   errorResponse.code = 0;
 
-  const hasError = checkForInputErrors([email.value, password.value]);
+  const passwordForSignin = resolvePasswordForSignin();
+  const passwordForValidation = {
+    ...password.value,
+    value: passwordForSignin,
+  };
+  const hasError = checkForInputErrors([email.value, passwordForValidation]);
 
   if (hasError) {
+    password.value.error = passwordForValidation.error;
     return;
   }
 
   const payload = {
-    password: password.value.value,
+    password: passwordForSignin,
   } as { password: string; email?: string; clientCode?: string };
 
   if (isClientCodeFormat(email.value.value)) {
