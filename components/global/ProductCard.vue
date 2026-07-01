@@ -5,17 +5,7 @@
   >
     <ProductCardStock :stock="product.stock" />
     <div class="relative">
-      <img
-        v-if="hasValidImage"
-        :src="productImageLarge"
-        :alt="product.name"
-        class="object-contain mx-auto max-h-[120px]"
-        loading="lazy"
-        @error="imageLoadFailed = true"
-      />
-      <div v-else class="w-full flex items-center justify-center">
-        <svgo-card-placehoder />
-      </div>
+      <ImageWithFallback :src="productCardImageSrc" :alt="product.name" class-name="mx-auto h-[120px] w-full max-w-full object-contain" />
       <div
         v-if="productDiscount"
         class="ring-1 ring-rose-500 rounded-full text-sm !leading-[1.5rem] font-semibold text-rose-500 px-2 absolute top-2 left-0"
@@ -91,6 +81,7 @@ import { addEntityToFavouriteList } from '~/composables/api/favorites';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';
+import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 
 const authStore = useAuthStore();
 const { addToCart: addCartItem } = useCart();
@@ -109,7 +100,6 @@ const discountsHelper = parseProductPriceConfiguration(props.product, getUserDet
 const priceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(discountsHelper?.minimumOrderQuantityConfiguration);
 const discountPrice = ref(discountsHelper?.discountPrice || 0);
 const productDiscount = ref(discountsHelper?.productDiscount || 0);
-const imageLoadFailed = ref(false);
 
 const addToFavourite = async (product: ProductInterface) => {
   const payload: FavouriteFolderRequestInterface = {
@@ -143,11 +133,8 @@ const addToCart = async (product: ProductInterface, stockToAdd = 1) => {
 const productImageLarge = computed(() => {
   return props.product.details?.ProductImage?.ProductImageLarge || '';
 });
-const hasValidImage = computed(() => {
-  return productImageLarge.value && !productImageLarge.value.includes('not_valid_image') && !imageLoadFailed.value;
-});
-
-watch(productImageLarge, () => {
-  imageLoadFailed.value = false;
+const productCardImageSrc = computed(() => {
+  const src = productImageLarge.value.trim();
+  return src && !src.includes('not_valid_image') ? src : undefined;
 });
 </script>
