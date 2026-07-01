@@ -3,7 +3,7 @@
 ## Current focus
 
 - Portfolio Demo MVP issue loop is active.
-- Current generator work is issue #246: equalize featured product card heights on branch `codex/246-featured-card-heights`.
+- Current generator work is issue #247: fix carousel indicator dot rendering on branch `codex/247-carousel-dot-indicators`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,10 +12,11 @@
 
 ## In progress
 
-- Issue #246 — featured product card height alignment is implemented locally. Visual smoke and default repo verify pass.
+- Issue #247 — product carousel pagination dot rendering is implemented locally. Visual smoke and default repo verify pass.
 
 ## Recently completed
 
+- Issue #246 — featured product card height alignment; PR #271 merged.
 - Issue #244 — home search input/icon vertical alignment; PR #270 merged.
 - Issue #253 — demo passwords stay hidden in the account panel while role-based sign-in still works; PR #268 merged.
 - Issue #261 — Admin Smoke Path E2E signs in through Admin Preview, loads `/dashboard/orders`, `/dashboard/customers`, and `/dashboard/customers/customer-001/control-panel/account`; PR #269 merged.
@@ -52,6 +53,7 @@
 - Issue #261 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 pnpm exec playwright test tests/e2e/admin-smoke-path.spec.ts` passes. The test signs in through Admin Preview, verifies redirect to `/dashboard/orders`, verifies an admin order row, loads `/dashboard/customers`, and loads `/dashboard/customers/customer-001/control-panel/account`. Implementation also fixed the mock auth details endpoint so configured demo users preserve their customer/admin roles after sign-in.
 - Issue #244 evidence: browser smoke on `http://127.0.0.1:3001/` at 1280px measured 0px vertical center delta between the home search outline, placeholder input box, left search icon, and submit icon; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 - Issue #246 evidence: browser smoke on `http://127.0.0.1:3001/` measured featured product cards at 1280px with two visible rows of four cards each, every card 291px tall and 0px row height delta; at 390px, all visible featured cards measured 174px tall with 0px height delta. Title/info icon center delta measured 0px; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
+- Issue #247 evidence: browser smoke on `http://127.0.0.1:3001/` measured product carousel bullets at 1280px as inactive 8x8 circles and active 10x10 circle, and at 390px as inactive 6x6 circles and active 7.5x7.5 circle. Forced click on the next bullet updated active state and `aria-current`; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 - Issue #238 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/product-card-image-fallback.spec.ts` passes; mobile browser smoke on `http://127.0.0.1:3001/` at 390px confirms the storefront product card renders as a 358x174 grid card, keeps the cart CTA inside the card and 86px below the title, keeps mobile actions visible, and confirms `/search?keyword=capacitor` renders its empty state with no product cards in mock data; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 
 ## Notes
