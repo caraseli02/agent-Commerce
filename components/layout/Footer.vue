@@ -10,15 +10,25 @@
               <strong class="font-semibold">10% discount</strong> on your first order.
             </p>
           </div>
-          <form class="flex rounded-md shadow-xs" @submit.prevent>
-            <label class="flex items-center flex-1">
+          <form
+            class="mt-4 flex w-full max-w-md flex-col gap-2 rounded-md shadow-xs sm:mt-0 sm:flex-row sm:gap-0 md:w-auto"
+            @submit.prevent
+          >
+            <label class="flex min-w-0 flex-1 flex-col">
+              <span class="sr-only">Newsletter email address</span>
               <input
+                id="footer-newsletter-email"
                 v-model="email"
                 type="email"
-                class="bg-white w-full px-4 text-neutral-700 text-sm py-[11px] font-medium rounded-l-md rounded-r-none md:w-[250px] lg:w-[280px] 2xl:w-[350px]"
+                placeholder="Enter your email address"
+                autocomplete="email"
+                class="w-full rounded-md bg-white px-4 py-[11px] text-sm font-medium text-neutral-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-200 sm:rounded-l-md sm:rounded-r-none md:w-[250px] lg:w-[280px] 2xl:w-[350px]"
               />
             </label>
-            <button class="flex items-center flex-shrink-0 bg-blue-500 px-[14px] py-[11px] text-sm font-medium rounded-r-md">
+            <button
+              type="submit"
+              class="flex w-full flex-shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-blue-500 px-[14px] py-[11px] text-sm font-medium sm:w-auto sm:rounded-l-none sm:rounded-r-md"
+            >
               Subscribe
             </button>
           </form>
