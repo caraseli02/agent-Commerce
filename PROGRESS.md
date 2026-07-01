@@ -3,7 +3,7 @@
 ## Current focus
 
 - Portfolio Demo MVP issue loop is active.
-- Current generator work is issue #247: fix carousel indicator dot rendering on branch `codex/247-carousel-dot-indicators`.
+- Current generator work is issue #239: make newsletter signup responsive and accessible on branch `codex/239-newsletter-responsive-a11y`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,10 +12,11 @@
 
 ## In progress
 
-- Issue #247 — product carousel pagination dot rendering is implemented locally. Visual smoke and default repo verify pass.
+- Issue #239 — footer newsletter responsive/accessibility polish is implemented locally. Visual smoke and default repo verify pass.
 
 ## Recently completed
 
+- Issue #247 — carousel indicator dot rendering; PR #272 merged.
 - Issue #246 — featured product card height alignment; PR #271 merged.
 - Issue #244 — home search input/icon vertical alignment; PR #270 merged.
 - Issue #253 — demo passwords stay hidden in the account panel while role-based sign-in still works; PR #268 merged.
@@ -54,6 +55,7 @@
 - Issue #244 evidence: browser smoke on `http://127.0.0.1:3001/` at 1280px measured 0px vertical center delta between the home search outline, placeholder input box, left search icon, and submit icon; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 - Issue #246 evidence: browser smoke on `http://127.0.0.1:3001/` measured featured product cards at 1280px with two visible rows of four cards each, every card 291px tall and 0px row height delta; at 390px, all visible featured cards measured 174px tall with 0px height delta. Title/info icon center delta measured 0px; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 - Issue #247 evidence: browser smoke on `http://127.0.0.1:3001/` measured product carousel bullets at 1280px as inactive 8x8 circles and active 10x10 circle, and at 390px as inactive 6x6 circles and active 7.5x7.5 circle. Forced click on the next bullet updated active state and `aria-current`; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
+- Issue #239 evidence: after dismissing the existing beta dialog, browser smoke on `http://127.0.0.1:3001/` confirms the footer newsletter field is reachable by the `Newsletter email address` label, has placeholder `Enter your email address`, accepts `demo@example.com`, and keeps the submit button text fitting. At 390px and 320px the input and button stack full-width within the viewport; at 1280px they render inline; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 - Issue #238 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/product-card-image-fallback.spec.ts` passes; mobile browser smoke on `http://127.0.0.1:3001/` at 390px confirms the storefront product card renders as a 358x174 grid card, keeps the cart CTA inside the card and 86px below the title, keeps mobile actions visible, and confirms `/search?keyword=capacitor` renders its empty state with no product cards in mock data; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 
 ## Notes
