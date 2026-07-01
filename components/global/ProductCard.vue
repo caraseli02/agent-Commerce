@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     :to="`/product/${product._id}`"
-    class="relative grid grid-cols-[108px_minmax(0,1fr)] gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:h-full md:min-h-[280px] md:flex-col md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px]"
+    class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px]"
   >
     <ProductCardStock :stock="product.stock" />
     <div class="relative row-span-2 self-center md:row-span-auto md:self-auto">
@@ -18,16 +18,16 @@
       </div>
     </div>
 
-    <section class="flex min-w-0 flex-col gap-1 pr-24 md:pr-0">
-      <div class="flex gap-2 items-center">
-        <h3 class="font-semibold text-neutral-700 inline truncate">
+    <section class="flex min-w-0 flex-col gap-1 pr-24 md:min-h-[64px] md:pr-0">
+      <div class="flex min-w-0 items-center gap-2">
+        <h3 class="block min-w-0 flex-1 truncate font-semibold text-neutral-700">
           {{ product.name }}
         </h3>
-        <button class="flex" type="button" aria-label="View product information" @click.prevent>
+        <button class="flex shrink-0" type="button" aria-label="View product information" @click.prevent>
           <svgo-info-circle class="w-4 h-4 text-slate-500" />
         </button>
       </div>
-      <div class="flex flex-col gap-1 text-xs max-w-[220px]">
+      <div class="flex max-w-[220px] flex-col gap-1 text-xs md:min-h-[34px]">
         <h4 class="text-xs leading-tight font-semibold text-slate-500">Category</h4>
         <p class="hidden text-xs text-slate-500 truncate md:block">{{ product.description }}</p>
       </div>
