@@ -1,5 +1,5 @@
 <template>
-  <div class="relative rounded-md overflow-x-hidden aspect-[1.24] md:aspect-auto">
+  <div class="relative min-h-[340px] overflow-x-hidden rounded-md md:aspect-auto md:min-h-0">
     <Swiper
       :modules="[A11y, Pagination, Autoplay]"
       :autoplay="{
@@ -15,8 +15,10 @@
       class="homeExclusiveOffer--swiper w-full h-full"
     >
       <SwiperSlide v-for="(item, index) in slides" :key="index">
-        <div class="relative z-20 px-[15px] pt-[25px] pb-[15px] text-white h-full md:pt-5 lg:px-5 lg:py-[30px] xl:px-[30px] xl:pt-[35px]">
-          <h3 class="font-semibold mb-[5px] md:text-2xl md:mb-2.5 lg:mb-[5px] xl:text-[32px] xl:mb-[15px]">
+        <div
+          class="relative z-20 h-full px-[15px] pb-[145px] pt-[25px] text-white md:pb-[15px] md:pt-5 lg:px-5 lg:py-[30px] xl:px-[30px] xl:pt-[35px]"
+        >
+          <h3 class="mb-[5px] font-semibold md:mb-2.5 md:text-2xl lg:mb-[5px] lg:max-w-[350px] xl:mb-[15px] xl:text-[32px]">
             {{ item.title }}
           </h3>
           <p class="text-[11px] mb-[26px] md:text-base md:mb-12 lg:max-w-[434px] lg:mb-[30px] xl:text-lg xl:max-w-[350px] xl:mb-[61px]">
@@ -28,7 +30,7 @@
           <img
             :src="item.item"
             alt="Img"
-            class="absolute bottom-7 left-1/2 -translate-x-1/2 w-[205px] object-contain md:w-[188px] md:left-[unset] md:translate-x-0 md:right-[30px] lg:w-[185px] lg:right-5 xl:w-[300px] xl:right-[15px] xl:bottom-[75px]"
+            class="absolute bottom-7 right-4 w-[170px] object-contain md:left-[unset] md:right-[30px] md:w-[188px] md:translate-x-0 lg:right-5 lg:w-[185px] xl:right-[15px] xl:bottom-[75px] xl:w-[300px]"
             loading="lazy"
           />
         </div>
