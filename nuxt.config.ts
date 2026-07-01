@@ -101,6 +101,10 @@ export default defineNuxtConfig({
   ignore: ['**/node_modules/**', '**/.git/**', '**/.nuxt/**', '**/dist/**', '**/coverage/**', '**/.output/**'],
 
   routeRules: {
+    '/': { prerender: true },
+    '/login': { prerender: true },
+    '/signup': { prerender: true },
+    '/forgot-password': { prerender: true },
     '/dashboard/**': { appMiddleware: ['auth'] },
     '/checkout/**': { appMiddleware: ['auth'] },
     '/product/categories': { appMiddleware: ['auth'] },
