@@ -2,6 +2,16 @@
   <section class="mb-10 xl:mb-[70px]">
     <div class="container">
       <h2 class="text-xl font-semibold mb-5">Top Manufacturers</h2>
+      <div class="mb-3 grid grid-cols-2 gap-3 md:hidden">
+        <div
+          v-for="(logo, index) in logos"
+          :key="index"
+          class="flex min-h-[64px] items-center justify-center rounded-md border border-slate-200 bg-white px-4"
+        >
+          <!-- eslint-disable-next-line vue/html-self-closing -->
+          <img :src="logo" alt="Logo" class="max-h-8 max-w-full object-contain" loading="lazy" />
+        </div>
+      </div>
       <Swiper
         :modules="[A11y, Autoplay]"
         :autoplay="{
@@ -19,10 +29,10 @@
             autoplay: false,
           },
           1280: {
-            spaceBetween: 50,
+            spaceBetween: 24,
           },
         }"
-        class="homeManufacturers--swiper swiper-visible mb-2.5 lg:px-[14px] xl:px-9 xl:mb-[15px]"
+        class="homeManufacturers--swiper swiper-visible mb-2.5 hidden md:block lg:px-[14px] xl:px-9 xl:mb-[15px]"
       >
         <SwiperSlide v-for="(logo, index) in logos" :key="index" class="max-w-max md:max-w-max">
           <img :src="logo" alt="Logo" class="h-6 object-contain md:h-[30px] lg:h-10 xl:h-[55px]" loading="lazy" />
