@@ -11,7 +11,7 @@
     class="homeFeaturedProducts--swiper w-[100%] block"
   >
     <SwiperSlide v-for="(item, index) in productsByViewport" :key="index">
-      <div class="grid gap-6 mt-6" :class="[computedCols, hasBanner ? 'px-2 md:px-3' : 'px-2']">
+      <div class="grid items-stretch gap-6 mt-6" :class="[computedCols, hasBanner ? 'px-2 md:px-3' : 'px-2']">
         <template v-if="Array.isArray(item)">
           <ProductCard
             v-for="(product, productIndex) in item"
