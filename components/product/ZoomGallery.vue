@@ -50,15 +50,18 @@ onMounted(() => {
       <div class="w-full mx-auto sm:w-auto">
         <UiCarousel class="relative w-full max-w-xl" @init-api="(val) => (emblaMainApi = val)">
           <UiCarouselContent>
-            <UiCarouselItem v-for="(_, index) in 10" :key="index">
+            <UiCarouselItem
+              v-for="(image, index) in images.length ? images : [{ ProductImageLarge: '', ProductImageSmall: '' }]"
+              :key="index"
+            >
               <div class="rounded-lg border bg-background shadow-sm">
                 <div class="flex aspect-square items-center justify-center p-4">
                   <ClientOnly>
                     <ProductZoomImg
                       :alias="alias"
-                      :url="images[selectedIndex ?? 0]?.ProductImageLarge ?? ''"
-                      alt="Image"
-                      class="w-[260px] h-[250x] object-contain transition-opacity duration-300 lg:w-[356px] lg:h-[348px]"
+                      :url="image.ProductImageLarge"
+                      :alt="`${alias} product image`"
+                      class="h-[250px] w-[260px] object-contain transition-opacity duration-300 lg:h-[348px] lg:w-[356px]"
                     />
                   </ClientOnly>
                 </div>
@@ -72,17 +75,18 @@ onMounted(() => {
         <UiCarousel class="relative w-full max-w-xl mt-2" @init-api="(val) => (emblaThumbnailApi = val)">
           <UiCarouselContent class="flex gap-1 ml-0">
             <UiCarouselItem
-              v-for="(img, index) in images.map((item) => item.ProductImageSmall)"
+              v-for="(image, index) in images"
               :key="index"
               class="pl-0 basis-1/4 cursor-pointer rounded flex justify-center items-center"
               @click="onThumbClick(index)"
             >
               <div class="p-1" :class="index === selectedIndex ? '' : 'opacity-50'">
-                <NuxtImg
-                  :src="img"
-                  alt="Image"
-                  class="w-[60px] h-[50x] object-contain transition-opacity duration-300 lg:w-[56px] lg:h-[48px]"
-                  :class="[index !== selectedIndex ? 'opacity-50' : '']" loading="lazy"/>
+                <ImageWithFallback
+                  :src="image.ProductImageSmall"
+                  :alt="`${alias} product thumbnail`"
+                  class-name="w-[60px] h-[50px] object-contain transition-opacity duration-300 lg:w-[56px] lg:h-[48px]"
+                  :class="[index !== selectedIndex ? 'opacity-50' : '']"
+                />
               </div>
             </UiCarouselItem>
           </UiCarouselContent>

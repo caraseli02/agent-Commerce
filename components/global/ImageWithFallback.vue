@@ -1,6 +1,14 @@
 <template>
-  <div :class="className" class="relative inline-block">
-    <NuxtImg v-if="currentSrc !== 'fallback'" :src="currentSrc" :alt="alt" :class="mediaClass" loading="lazy" @error="handleError"/>
+  <div ref="rootRef" :class="className" class="relative inline-block">
+    <NuxtImg
+      v-if="currentSrc !== 'fallback'"
+      :src="currentSrc"
+      :alt="alt"
+      :class="mediaClass"
+      loading="lazy"
+      @load="handleLoad"
+      @error="handleError"
+    />
     <div
       v-else
       class="w-full h-full flex items-center justify-center bg-slate-100 rounded-lg overflow-hidden relative border border-slate-200"
@@ -47,15 +55,39 @@ const props = defineProps({
 });
 
 const mediaClass = computed(() => [props.className, attrs.class]);
+const rootRef = ref<HTMLElement | null>(null);
 
-const currentSrc = ref<string | 'fallback'>(props.src || 'fallback');
+function normalizeImageSrc(src?: string | null) {
+  const value = src?.trim();
+  return value && !value.includes('not_valid_image') ? value : 'fallback';
+}
+
+const currentSrc = ref<string | 'fallback'>(normalizeImageSrc(props.src));
 
 watch(
   () => props.src,
-  (newSrc) => {
-    currentSrc.value = newSrc || 'fallback';
+  async (newSrc) => {
+    currentSrc.value = normalizeImageSrc(newSrc);
+    await nextTick();
+    checkImageHealth();
   }
 );
+
+onMounted(() => {
+  checkImageHealth();
+});
+
+function checkImageHealth(image = rootRef.value?.querySelector('img')) {
+  if (currentSrc.value === 'fallback' || !image || !image.complete) return;
+
+  if (image.naturalWidth === 0 || image.naturalHeight === 0) {
+    currentSrc.value = 'fallback';
+  }
+}
+
+function handleLoad(event: Event) {
+  checkImageHealth(event.target as HTMLImageElement);
+}
 
 function handleError() {
   currentSrc.value = 'fallback';
