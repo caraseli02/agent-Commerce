@@ -1,9 +1,12 @@
+import { getMockUserById } from '~/server/utils/mockUsers';
+
 export default defineEventHandler(async (event) => {
   const userId = getRouterParam(event, 'id');
+  const mockUser = getMockUserById(userId);
 
   return {
     status: 'success',
-    data: {
+    data: mockUser || {
       _id: userId,
       firebaseId: 'mock-firebase-id-' + userId,
       role: 'customer',
