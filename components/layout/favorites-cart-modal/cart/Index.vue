@@ -57,6 +57,15 @@ const { getCartSubtotal, cart } = storeToRefs(cartStore);
 
 const items = ref<FavoriteItem[]>([]);
 
+type ProductImageLike = { ProductImageSmall?: string | null } | Array<{ ProductImageSmall?: string | null } | null> | null | undefined;
+
+function getCartProductThumbnail(item: CartProductsInterface) {
+  const productImage = item.productEntity?.details?.ProductImage as ProductImageLike;
+  const primaryImage = Array.isArray(productImage) ? productImage.find(Boolean) : productImage;
+
+  return primaryImage?.ProductImageSmall || undefined;
+}
+
 const mapCartItems = () => {
   items.value = (cart.value?.products || []).map(
     (item: CartProductsInterface): FavoriteItem => ({
@@ -64,7 +73,7 @@ const mapCartItems = () => {
       type: item.isFolder ? 'folder' : 'product',
       title: item.productEntity?.name ?? '',
       description: item.productEntity?.description,
-      image: item.productEntity?.details?.ProductImage?.ProductImageSmall,
+      image: getCartProductThumbnail(item),
       productEntity: item.productEntity ?? ({} as FavoriteItem['productEntity']),
       quantity: Number(item.stock) + Number(item.backorder_stock || 0),
     })
