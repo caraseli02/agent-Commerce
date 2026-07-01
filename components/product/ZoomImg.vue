@@ -4,6 +4,7 @@ import { useZoomImageWheel } from '@zoom-image/vue';
 
 defineProps<{
   url: string;
+  alt?: string;
 }>();
 
 const imageWheelContainerRef = ref<HTMLDivElement>();
@@ -18,7 +19,7 @@ onMounted(() => {
 
 <template>
   <div ref="imageWheelContainerRef" class="imageContainer">
-    <NuxtImg class="image" alt="Large Pic" :src="url" loading="lazy"/>
+    <ImageWithFallback :src="url" :alt="alt || 'Product zoom image'" class-name="image object-contain" />
   </div>
 </template>
 
