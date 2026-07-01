@@ -3,7 +3,7 @@
 ## Current focus
 
 - Portfolio Demo MVP issue loop is active.
-- Current generator work is issue #233: fix mobile hamburger navigation drawer on branch `codex/233-mobile-hamburger-navigation`.
+- Current generator work is issue #234: move the mock-mode badge away from mobile CTAs on branch `codex/234-mock-mode-mobile-cta-clearance`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,10 +12,11 @@
 
 ## In progress
 
-- Issue #233 — mobile hamburger navigation drawer now opens through reliable mobile sheet wiring and exposes primary navigation/category entry points. PR #265 open for evaluator review.
+- Issue #234 — mobile mock-mode badge now uses an in-flow treatment before content and only floats from the medium breakpoint upward. PR #266 open for evaluator review.
 
 ## Recently completed
 
+- Issue #233 — mobile hamburger navigation drawer opens through reliable mobile sheet wiring and exposes primary navigation/category entry points; PR #265 merged.
 - Issue #237 — cart side-panel line items use defensive thumbnail extraction and stable shared fallback sizing; PR #264 merged.
 - Issue #236 — product detail gallery and zoom media use the shared image fallback component with stable media sizing; PR #263 merged.
 - Issue #235 — storefront product cards use the shared image fallback component with stable media sizing; PR #262 merged.
@@ -42,7 +43,7 @@
 - `pnpm verify` — fast default gate: build, lint, typecheck, test, feature-list validation
 - `pnpm verify:full` — adds architecture invariants and preview smoke when needed
 - `pnpm verify:handoff` — clean-tree handoff gate before PR/session completion
-- Issue #233 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/mobile-navigation-drawer.spec.ts` passes; mobile browser smoke on `http://127.0.0.1:3001/` at 390px closes the beta dialog, opens the products navigation drawer, confirms primary links/categories render, and closes by close button and Escape; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
+- Issue #234 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/mock-mode-badge-layout.spec.ts` passes; mobile browser smoke on `http://127.0.0.1:3001/` at 390px confirms the mock-mode badge is `position: static` and does not overlap storefront product-card CTA, Quick Buy CTA, search empty state, or footer newsletter Subscribe; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 
 ## Notes
 
