@@ -3,7 +3,7 @@
 ## Current focus
 
 - Portfolio Demo MVP issue loop is active.
-- Current generator work is issue #253: hide demo passwords in the account panel on branch `codex/253-hide-demo-passwords`.
+- Current generator work is issue #261: add Admin Smoke Path E2E coverage on branch `codex/261-admin-smoke-e2e`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,10 +12,11 @@
 
 ## In progress
 
-- Issue #253 — maintainer decision is to keep demo sign-in discoverable while hiding demo passwords in the account panel. PR #268 open for evaluator review.
+- Issue #261 — Admin Smoke Path E2E coverage is implemented locally. Focused Playwright evidence and default repo verify pass.
 
 ## Recently completed
 
+- Issue #253 — demo passwords stay hidden in the account panel while role-based sign-in still works; PR #268 merged.
 - Issue #238 — mobile storefront product cards use a compact grid layout with media, details, actions, and cart CTA visually connected; PR #267 merged.
 - Issue #234 — mobile mock-mode badge uses an in-flow treatment before content and only floats from the medium breakpoint upward; PR #266 merged.
 - Issue #233 — mobile hamburger navigation drawer opens through reliable mobile sheet wiring and exposes primary navigation/category entry points; PR #265 merged.
@@ -46,6 +47,7 @@
 - `pnpm verify:full` — adds architecture invariants and preview smoke when needed
 - `pnpm verify:handoff` — clean-tree handoff gate before PR/session completion
 - Issue #253 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/account-demo-credentials.spec.ts` passes; Playwright smoke on `http://127.0.0.1:3001/?signin=true` at 390px confirms the account panel preselects `customer@demo.com`, leaves the password input empty with the `Hidden for demo sign-in` placeholder, shows hidden-password copy, and signs in to `/dashboard/client?tab=home`; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
+- Issue #261 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 pnpm exec playwright test tests/e2e/admin-smoke-path.spec.ts` passes. The test signs in through Admin Preview, verifies redirect to `/dashboard/orders`, verifies an admin order row, loads `/dashboard/customers`, and loads `/dashboard/customers/customer-001/control-panel/account`. Implementation also fixed the mock auth details endpoint so configured demo users preserve their customer/admin roles after sign-in.
 - Issue #238 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/product-card-image-fallback.spec.ts` passes; mobile browser smoke on `http://127.0.0.1:3001/` at 390px confirms the storefront product card renders as a 358x174 grid card, keeps the cart CTA inside the card and 86px below the title, keeps mobile actions visible, and confirms `/search?keyword=capacitor` renders its empty state with no product cards in mock data; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 
 ## Notes
