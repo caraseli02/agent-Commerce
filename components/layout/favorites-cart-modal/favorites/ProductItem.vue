@@ -18,9 +18,7 @@
         <ImageWithFallback
           :src="typeof productItem.image === 'string' ? productItem.image : undefined"
           :alt="productItem.title"
-          :class="[
-            inModal ? 'w-9 h-9 mr-2' : 'w-12 h-12 border border-border rounded-lg overflow-hidden object-cover mr-3 md:w-14 md:h-14',
-          ]"
+          :class-name="thumbnailClass"
         />
         <div :class="[inModal ? '<truncate' : '']">
           <div class="flex items-center" :class="[inModal ? '' : 'mb-1']">
@@ -170,6 +168,11 @@ const userDiscount = ref(0);
 const productDiscount = ref(0);
 
 const quantity = ref(productItem.value.quantity || minPriceConfiguration.value?.quantity || 10);
+const thumbnailClass = computed(() =>
+  props.inModal
+    ? 'w-9 h-9 mr-2 flex-shrink-0 object-cover'
+    : 'w-12 h-12 border border-border rounded-lg overflow-hidden object-cover mr-3 md:w-14 md:h-14 flex-shrink-0'
+);
 
 const getPricesConfiguration = () => {
   const discountsHelper = parseProductPriceConfiguration(props.product?.productEntity, getUserDetails.value, quantity.value);

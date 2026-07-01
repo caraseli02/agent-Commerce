@@ -3,7 +3,7 @@
 ## Current focus
 
 - Portfolio Demo MVP issue loop is active.
-- Current generator work is issue #236: fix product detail page image loading on branch `codex/236-product-detail-image-loading`.
+- Current generator work is issue #237: fix cart side-panel product thumbnails on branch `codex/237-cart-side-panel-thumbnails`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,10 +12,11 @@
 
 ## In progress
 
-- Issue #236 — product detail gallery and zoom media now use the shared image fallback component with stable media sizing. PR #263 open for evaluator review.
+- Issue #237 — cart side-panel line items now use defensive thumbnail extraction and stable shared fallback sizing. PR #264 open for evaluator review.
 
 ## Recently completed
 
+- Issue #236 — product detail gallery and zoom media use the shared image fallback component with stable media sizing; PR #263 merged.
 - Issue #235 — storefront product cards use the shared image fallback component with stable media sizing; PR #262 merged.
 - Issue #54 — control-panel API adapter part A and Shipping/Billing view migration; PR #214 merged.
 - Issue #55 — remaining control-panel API calls migrated and `control-panel.service` deleted; PR #215 merged.
@@ -40,7 +41,7 @@
 - `pnpm verify` — fast default gate: build, lint, typecheck, test, feature-list validation
 - `pnpm verify:full` — adds architecture invariants and preview smoke when needed
 - `pnpm verify:handoff` — clean-tree handoff gate before PR/session completion
-- Issue #236 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/product-detail-image-fallback.spec.ts tests/gallery-layout.spec.ts` passes; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes; browser smoke on `http://localhost:3001/product/prod-18` confirmed the Gaming Headset detail page and zoom modal render fallback media with no broken visible images.
+- Issue #237 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/cart-side-panel-thumbnail.spec.ts tests/product-detail-image-fallback.spec.ts` passes; browser smoke on `http://localhost:3001/product/prod-2` added a product, opened the cart side panel, and confirmed cart item thumbnails render with stable dimensions and no broken visible images; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 
 ## Notes
 
