@@ -3,7 +3,7 @@
 ## Current focus
 
 - Portfolio Demo MVP issue loop is active.
-- Current generator work is issue #240: optimize promotional banners for mobile on branch `codex/240-mobile-promotional-banners`.
+- Current generator work is issue #241: make manufacturer logos readable on mobile on branch `codex/241-mobile-manufacturer-logos`.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,10 +12,11 @@
 
 ## In progress
 
-- Issue #240 — promotional banner mobile layout is implemented locally. Mobile smoke and default repo verify pass.
+- Issue #241 — manufacturer logo mobile layout is implemented locally. Mobile smoke and default repo verify pass.
 
 ## Recently completed
 
+- Issue #240 — promotional banner mobile layout; PR #274 merged.
 - Issue #239 — footer newsletter responsive/accessibility polish; PR #273 merged.
 - Issue #247 — carousel indicator dot rendering; PR #272 merged.
 - Issue #246 — featured product card height alignment; PR #271 merged.
@@ -58,6 +59,7 @@
 - Issue #247 evidence: browser smoke on `http://127.0.0.1:3001/` measured product carousel bullets at 1280px as inactive 8x8 circles and active 10x10 circle, and at 390px as inactive 6x6 circles and active 7.5x7.5 circle. Forced click on the next bullet updated active state and `aria-current`; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 - Issue #239 evidence: after dismissing the existing beta dialog, browser smoke on `http://127.0.0.1:3001/` confirms the footer newsletter field is reachable by the `Newsletter email address` label, has placeholder `Enter your email address`, accepts `demo@example.com`, and keeps the submit button text fitting. At 390px and 320px the input and button stack full-width within the viewport; at 1280px they render inline; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 - Issue #240 evidence: browser smoke on `http://127.0.0.1:3001/` after dismissing the existing beta dialog measured the home promotional banner and exclusive-offer card at 320px, 390px, and 1280px. In all three viewports the banner background remains within the viewport, text does not overlap product art, the exclusive-offer CTA stays inside the card, and CTA text fits; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
+- Issue #241 evidence: browser smoke on `http://127.0.0.1:3001/` after dismissing the existing beta dialog measured the manufacturer section at 320px, 390px, and 1280px. Mobile renders all 7 logos in a 2-column grid with no clipping and logo heights of 27px+ at 320px and 32px at 390px; desktop keeps the Swiper row visible with all 7 logos unclipped at 1280px; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 - Issue #238 evidence: `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm exec vitest run tests/product-card-image-fallback.spec.ts` passes; mobile browser smoke on `http://127.0.0.1:3001/` at 390px confirms the storefront product card renders as a 358x174 grid card, keeps the cart CTA inside the card and 86px below the title, keeps mobile actions visible, and confirms `/search?keyword=capacitor` renders its empty state with no product cards in mock data; `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify` passes.
 
 ## Notes
