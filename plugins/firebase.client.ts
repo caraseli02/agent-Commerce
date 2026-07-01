@@ -1,4 +1,4 @@
-import { initializeApp } from '@firebase/app';
+import { getApp, getApps, initializeApp } from '@firebase/app';
 import { getAuth, type Auth } from '@firebase/auth';
 
 declare module '#app' {
@@ -13,15 +13,17 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const getAuthInstance = (): Auth => {
     if (!auth) {
-      const app = initializeApp({
-        apiKey: (config.public.firebaseApiKey as string) || 'test',
-        authDomain: (config.public.firebaseAuthDomain as string) || 'test',
-        projectId: (config.public.firebaseProjectID as string) || 'test',
-        storageBucket: (config.public.firebaseStorageBucket as string) || 'test',
-        messagingSenderId: (config.public.firebaseMessageSenderID as string) || 'test',
-        appId: (config.public.firebaseAppID as string) || 'test',
-        measurementId: (config.public.firebaseMeasurementID as string) || 'test',
-      });
+      const app = getApps().length
+        ? getApp()
+        : initializeApp({
+            apiKey: (config.public.firebaseApiKey as string) || 'test',
+            authDomain: (config.public.firebaseAuthDomain as string) || 'test',
+            projectId: (config.public.firebaseProjectID as string) || 'test',
+            storageBucket: (config.public.firebaseStorageBucket as string) || 'test',
+            messagingSenderId: (config.public.firebaseMessageSenderID as string) || 'test',
+            appId: (config.public.firebaseAppID as string) || 'test',
+            measurementId: (config.public.firebaseMeasurementID as string) || 'test',
+          });
 
       auth = getAuth(app);
     }
@@ -30,9 +32,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   };
 
   const authProxy = new Proxy({} as Auth, {
-    get(_target, prop, receiver) {
+    get(_target, prop, _receiver) {
       const instance = getAuthInstance();
-      const value = Reflect.get(instance, prop, receiver);
+      const value = Reflect.get(instance, prop, instance);
 
       return typeof value === 'function' ? value.bind(instance) : value;
     },
