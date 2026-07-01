@@ -5,26 +5,51 @@ import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
 
 defineProps<{ isScrolled: boolean }>();
 
-const { categories, selectedCategories, currentCategory, isOpen, onCategoryClick } = useCategoriesNavigation();
+const { categories, selectedCategories, currentCategory, onCategoryClick } = useCategoriesNavigation();
 
 const showDiscountSection = ref(false);
 const isMobileViewport = ref(false);
+const sheetOpen = ref(false);
+const primaryNavItems = [
+  {
+    label: 'News',
+    to: '/',
+  },
+  {
+    label: 'How to Buy',
+    to: '/',
+  },
+  {
+    label: 'About',
+    to: '/',
+  },
+  {
+    label: 'Contact',
+    to: '/',
+  },
+];
 
 const updateViewportState = () => {
   isMobileViewport.value = window.innerWidth < 1024;
   if (!isMobileViewport.value) {
-    isOpen.value = false;
+    sheetOpen.value = false;
+    selectedCategories.value = [];
   }
 };
 
-const sheetOpen = computed({
-  get: () => (isMobileViewport.value ? isOpen.value : false),
-  set: (value: boolean) => {
-    if (isMobileViewport.value) {
-      isOpen.value = value;
-    }
-  },
-});
+const closeMobileMenu = () => {
+  showDiscountSection.value = false;
+  selectedCategories.value = [];
+  sheetOpen.value = false;
+};
+
+const onMobileCategoryClick = (category: (typeof categories.value)[number], makeReset: boolean) => {
+  onCategoryClick(category, makeReset);
+
+  if ((category.subcategory ?? []).length === 0) {
+    closeMobileMenu();
+  }
+};
 
 onMounted(() => {
   updateViewportState();
@@ -41,33 +66,56 @@ onBeforeUnmount(() => {
 <template>
   <UiSheet v-model:open="sheetOpen">
     <UiSheetTrigger as-child>
-      <UiButton variant="ghost" class="flex items-center pl-0 mr-4 md:mr-0 text-white hover:bg-blue-500">
-        <XIcon v-if="isOpen" class="w-6 h-6" />
-        <MenuIcon v-else class="w-6 h-6" />
+      <button
+        type="button"
+        class="inline-flex h-10 items-center justify-center rounded-md pl-0 pr-4 mr-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 md:mr-0"
+        aria-controls="mobile-products-navigation"
+        :aria-expanded="sheetOpen"
+        aria-label="Open products navigation"
+      >
+        <MenuIcon class="w-6 h-6" />
         <span v-if="!isScrolled" class="hidden leading-normal font-medium ml-2 md:inline-block lg:ml-4"> Products </span>
-      </UiButton>
+      </button>
     </UiSheetTrigger>
     <UiSheetContent
-      class="w-full font-Poppins"
-      :class="['px-0 pt-0', isScrolled ? 'top-[112px] md:top-[98px]' : 'top-[112px] md:top-[188px]']"
+      id="mobile-products-navigation"
+      class="w-[min(22rem,calc(100vw-2rem))] h-auto font-Poppins"
+      :class="['px-0 pt-0 bottom-0', isScrolled ? 'top-[112px] md:top-[98px]' : 'top-[112px] md:top-[188px]']"
       side="left"
       hidde-close-button
       :overlay-class-name="isScrolled ? 'top-[112px] md:top-[98px]' : 'top-[112px] md:top-[188px]'"
     >
       <UiSheetHeader class="bg-grey-100 border-b border-grey-300">
-        <UiSheetTitle v-if="currentCategory" class="container">
-          <UiButton variant="link" class="flex items-center pl-0 md:mr-0" @click="selectedCategories.pop()">
-            <ChevronLeftIcon class="w-4 h-4" />
-            <span class="leading-normal font-medium ml-2 lg:ml-4">
-              {{ currentCategory.name }}
-            </span>
-          </UiButton>
+        <UiSheetTitle class="px-4 py-2">
+          <div class="flex items-center justify-between gap-3">
+            <UiButton
+              v-if="currentCategory"
+              variant="link"
+              class="flex items-center min-w-0 pl-0 md:mr-0"
+              @click="selectedCategories.pop()"
+            >
+              <ChevronLeftIcon class="w-4 h-4 flex-shrink-0" />
+              <span class="leading-normal font-medium ml-2 lg:ml-4 truncate">
+                {{ currentCategory.name }}
+              </span>
+            </UiButton>
+            <span v-else class="leading-normal font-medium">Products</span>
+            <UiButton
+              variant="ghost"
+              size="icon"
+              class="w-9 h-9 flex-shrink-0 text-slate-500"
+              aria-label="Close products navigation"
+              @click="closeMobileMenu"
+            >
+              <XIcon class="w-5 h-5" />
+            </UiButton>
+          </div>
           <!-- <UiSeparator class="my-1" /> -->
         </UiSheetTitle>
       </UiSheetHeader>
       <div v-if="currentCategory" class="flex flex-col gap-4 pt-2 overflow-auto max-h-screen pb-32 h-full container">
         <div v-for="sub in currentCategory.subcategory" :key="sub.id" class="flex flex-col gap-4 md:max-w-screen-sm">
-          <section class="flex items-center gap-3 justify-between pr-1" @click="onCategoryClick(sub, false)">
+          <section class="flex items-center gap-3 justify-between pr-1" @click="onMobileCategoryClick(sub, false)">
             <div class="flex items-center gap-4">
               <UiButton
                 variant="link"
@@ -101,12 +149,23 @@ onBeforeUnmount(() => {
       </div>
       <!-- Left Column: Main Categories -->
       <div v-else class="w-full h-full flex flex-col items-start container mt-2">
+        <nav class="grid w-full grid-cols-2 gap-2 pb-3 mb-2 border-b border-grey-300" aria-label="Primary navigation">
+          <NuxtLink
+            v-for="navItem in primaryNavItems"
+            :key="navItem.label"
+            :to="navItem.to"
+            class="rounded-md px-2 py-2 text-sm font-medium text-slate-600 hover:bg-grey-100 hover:text-blue-600"
+            @click="closeMobileMenu"
+          >
+            {{ navItem.label }}
+          </NuxtLink>
+        </nav>
         <UiButton
           v-for="category in categories"
           :key="category.id"
           class="text-start h-11 w-full flex flex-row flex-nowrap justify-between gap-2 px-0"
           variant="link"
-          @click="onCategoryClick(category, true)"
+          @click="onMobileCategoryClick(category, true)"
         >
           <div class="flex gap-2 items-center">
             <component :is="category.icon" v-if="category.icon && category.icon !== 'N/A'" class="min-w-5 min-h-5 text-black" />
