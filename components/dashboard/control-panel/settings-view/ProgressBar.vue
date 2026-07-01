@@ -87,7 +87,8 @@ export default defineComponent({
       options = Object.assign(options, {
         series: series,
       });
-      setTimeout(() => {
+      setTimeout(async () => {
+        const { default: ApexCharts } = await import('apexcharts');
         const chart = new ApexCharts(this.$refs[refName], options);
         chart.render();
       }, delay);

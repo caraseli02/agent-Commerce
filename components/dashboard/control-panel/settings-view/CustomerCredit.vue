@@ -48,7 +48,7 @@
       </div>
       <div v-else class="relative flex justify-center max-md:mb-8 md:order-1 md:row-span-2 lg:order-2">
         <ClientOnly>
-          <apexchart width="270" height="270" :options="chartOptions" :series="chartSeries" />
+          <ApexChart width="270" height="270" :options="chartOptions" :series="chartSeries" />
         </ClientOnly>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-max flex flex-col text-center">
           <div class="text-xl font-bold leading-[1.4] mb-2" :class="[chartSeries[0] !== 0 ? 'text-[#EE514E]' : '']">
@@ -96,12 +96,16 @@
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
+import type { ApexOptions } from 'apexcharts';
 import { format } from 'date-fns';
 import ProgressBar from './ProgressBar.vue';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { fetchCustomerCredit } from '~/composables/api/control-panel';
+
+const ApexChart = defineAsyncComponent(() => import('vue3-apexcharts'));
 
 defineEmits(['toggle-editing']);
 
@@ -145,7 +149,8 @@ const chartOptions = ref({
     lineCap: 'round',
   },
   labels: [''],
-});
+} as ApexOptions);
+
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 
