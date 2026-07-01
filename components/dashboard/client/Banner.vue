@@ -153,6 +153,6 @@ const addToCart = async (product: ProductBannerInterface) => {
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply w-[25px] bg-gray-300 #{!important};
+  @apply scale-125 bg-gray-300 #{!important};
 }
 </style>
