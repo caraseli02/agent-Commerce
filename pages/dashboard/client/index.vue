@@ -68,11 +68,6 @@
 import { useCustomerDashboard } from '@/composables/useCustomerDashboard';
 import { useRoute } from '#app';
 
-definePageMeta({
-  middleware: 'auth',
-  layout: 'dashboard',
-});
-
 const {
   ordersIds,
   activeOrderFilter,
@@ -101,6 +96,11 @@ if (initialTab) {
     value: initialTab,
   };
 }
+
+definePageMeta({
+  middleware: 'auth',
+  layout: 'dashboard',
+});
 
 customerInformation();
 
