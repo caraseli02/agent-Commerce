@@ -289,8 +289,10 @@ module.exports = {
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
       fontFamily: {
-        Inter: ['Inter', 'sans-serif'],
-        Poppins: ['Poppins', 'sans-serif'],
+        sans: ['Source Sans 3', 'sans-serif'],
+        display: ['Archivo', 'sans-serif'],
+        Inter: ['Source Sans 3', 'sans-serif'],
+        Poppins: ['Archivo', 'sans-serif'],
       },
       boxShadow: {
         xs: '0px 0px 8px rgba(133, 133, 133, 0.25)',

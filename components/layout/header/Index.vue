@@ -1,6 +1,8 @@
 <template>
-  <header class="fixed z-50 top-0 left-0 w-full bg-white transition-transform duration-300">
-    <div class="relative z-10 bg-[#F5F5F5] py-1.5 md:py-2">
+  <header
+    class="fixed z-50 top-0 left-0 w-full bg-background transition-transform duration-300 md:shadow-[0_1px_0_0_hsl(var(--border)),0_4px_12px_-4px_rgba(15,23,42,0.06)]"
+  >
+    <div class="relative z-10 bg-muted py-1.5 md:py-2 border-b border-border">
       <div class="container">
         <div class="flex items-center text-slate-500 md:justify-between">
           <div class="flex items-center gap-2 mr-4 md:mr-0">
@@ -9,7 +11,7 @@
               Sales: +1 800 555 0199 (Mon-Fri 8:00AM - 4:00PM EST)
             </div>
           </div>
-          <div class="text-xs leading-[1.67] font-semibold text-blue-600 mr-auto md:mr-0 lg:text-sm lg:leading-[1.43]">
+          <div class="text-xs leading-[1.67] font-semibold text-primary mr-auto md:mr-0 lg:text-sm lg:leading-[1.43]">
             <span class="uppercase">Free</span> shipping on orders over $150
           </div>
           <button class="flex items-center" @click="showRegionalPreferencesModal = true">

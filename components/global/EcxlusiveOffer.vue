@@ -35,12 +35,7 @@
           />
         </div>
         <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
-        <div
-          class="absolute z-10 top-0 left-0 w-full h-full opacity-75 rounded-md pointer-events-none"
-          :style="{
-            background: 'linear-gradient(85.26deg, #0a1628 17.24%, rgba(0, 90, 170, 0.9) 106.53%)',
-          }"
-        />
+        <div class="absolute z-10 top-0 left-0 w-full h-full opacity-90 rounded-md pointer-events-none bg-slate-900" />
       </SwiperSlide>
     </Swiper>
   </div>
@@ -76,6 +71,6 @@ const slides = ref([
   margin-right: 0 !important;
 }
 .homeExclusiveOffer--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply w-[25px] bg-white #{!important};
+  @apply scale-125 bg-white #{!important};
 }
 </style>

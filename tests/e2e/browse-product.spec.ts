@@ -12,7 +12,7 @@ test.describe('Browse → Product Detail', () => {
     await page.goto('/product/prod-1');
 
     // Product name is visible
-    await expect(page.getByText('SmartPhone Pro Max', { exact: true })).toBeVisible();
+    await expect(page.getByText('STM32F407VGT6 Microcontroller', { exact: true })).toBeVisible();
 
     // Price tiers are displayed
     await expect(page.getByText('999.99').first()).toBeVisible();

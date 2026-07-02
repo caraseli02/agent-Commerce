@@ -51,75 +51,27 @@ import NewsCover3 from '@/assets/media/home/news-3.jpg';
 
 const news = ref([
   {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
+    slug: 'nexperia-mosfets',
+    title: 'Nexperia launches hot-swap application-specific MOSFETs (ASFE)',
+    date: '29 OCT 2024',
     cover: NewsCover1,
   },
   {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
+    slug: 'analog-lead-times',
+    title: 'Analog Devices expands allocation for industrial interface ICs',
+    date: '12 OCT 2024',
     cover: NewsCover2,
   },
   {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
+    slug: 'passive-stock',
+    title: 'Passives lead times stabilize across high-volume MLCC lines',
+    date: '03 OCT 2024',
     cover: NewsCover3,
   },
   {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
-    cover: NewsCover2,
-  },
-  {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
-    cover: NewsCover1,
-  },
-  {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
-    cover: NewsCover2,
-  },
-  {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
-    cover: NewsCover3,
-  },
-  {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
-    cover: NewsCover2,
-  },
-  {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
-    cover: NewsCover1,
-  },
-  {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
-    cover: NewsCover2,
-  },
-  {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
-    cover: NewsCover3,
-  },
-  {
-    slug: 'slug',
-    title: 'Nexperia launches new hotswap Application Specific MOSFETs (ASFE)',
-    date: '29 OCT 2023',
+    slug: 'connector-standards',
+    title: 'USB-C receptacles now qualified for extended temperature ranges',
+    date: '18 SEP 2024',
     cover: NewsCover2,
   },
 ]);
@@ -137,6 +89,6 @@ const news = ref([
   margin-right: 0 !important;
 }
 .homeNews--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply w-[25px] bg-gray-300 #{!important};
+  @apply scale-125 bg-gray-300 #{!important};
 }
 </style>

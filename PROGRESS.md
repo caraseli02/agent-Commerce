@@ -2,8 +2,8 @@
 
 ## Current focus
 
-- Portfolio Demo MVP issue loop is active.
-- Current generator work is issue #241: make manufacturer logos readable on mobile on branch `codex/241-mobile-manufacturer-logos`.
+- Portfolio Demo MVP mobile polish sprint from the 2026-07-01 production audit.
+- Local fixes landed on `main` for product-card titles, carousel dots, beta overlay friction, drawer category copy, and footer phone wrapping.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,11 +12,12 @@
 
 ## In progress
 
-- Issue #241 — manufacturer logo mobile layout is implemented locally. Mobile smoke and default repo verify pass.
+- None — mobile polish batch verified locally; ready for deploy/review.
 
 ## Recently completed
 
-- Issue #240 — promotional banner mobile layout; PR #274 merged.
+- Mobile audit polish batch — product card 2-line clamp, remaining carousel pill dots, beta overlay dismiss/z-index, drawer category names + singular copy, footer tel nowrap + newsletter label association; browser smoke at 320/390 on `/` passes.
+- Issue #241 — manufacturer logo mobile layout; PR #274 merged.
 - Issue #239 — footer newsletter responsive/accessibility polish; PR #273 merged.
 - Issue #247 — carousel indicator dot rendering; PR #272 merged.
 - Issue #246 — featured product card height alignment; PR #271 merged.

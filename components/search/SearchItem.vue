@@ -1,46 +1,57 @@
 <template>
   <div
-    class="relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm font-Inter md:p-5 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-6 xl:grid-cols-[minmax(0,9fr)_minmax(0,6fr)_minmax(0,5fr)] xl:gap-6"
+    class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm font-Inter md:p-5 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-6 xl:grid-cols-[minmax(0,9fr)_minmax(0,6fr)_minmax(0,5fr)] xl:gap-6"
   >
-    <div class="flex items-start">
-      <NuxtLink :to="`/product/${item._id}`" class="flex flex-shrink-0 mr-2.5 md:mr-[15px]">
+    <div class="flex min-w-0 items-start gap-2.5 md:gap-[15px]">
+      <NuxtLink :to="`/product/${item._id}`" class="flex flex-shrink-0">
         <ImageWithFallback
           :src="item.details?.ProductImage?.ProductImageLarge"
           :alt="item.name"
           class="w-[100px] h-[100px] md:w-[120px] md:h-[120px]"
         />
       </NuxtLink>
-      <div>
-        <div class="md:flex md:items-start md:justify-between md:gap-4 md:mb-4 max-w-[480px]">
-          <div class="flex items-center mb-2.5 md:mb-0 md:mr-5 md:flex-1 min-w-0">
-            <NuxtLink :to="`/product/${item._id}`" class="block min-w-0 flex-1 text-xl leading-tight font-semibold truncate">
-              {{ item.name }}
-            </NuxtLink>
-            <div class="ml-1 flex flex-shrink-0 items-center gap-1">
-              <button class="flex p-1" type="button" aria-label="Copy product name">
+      <div class="min-w-0 flex-1">
+        <div class="md:flex md:items-start md:justify-between md:gap-4 md:mb-4 lg:max-w-[480px]">
+          <div class="mb-2.5 min-w-0 md:mb-0 md:mr-5 md:flex-1">
+            <div class="flex min-w-0 items-start gap-1">
+              <NuxtLink
+                :to="`/product/${item._id}`"
+                class="block min-w-0 flex-1 text-base font-semibold leading-snug line-clamp-2 md:text-xl md:leading-tight md:truncate md:line-clamp-none"
+              >
+                {{ item.name }}
+              </NuxtLink>
+              <UiDropdownMenu :modal="false" class="shrink-0 md:hidden">
+                <UiDropdownMenuTrigger as-child>
+                  <button
+                    type="button"
+                    class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-primary"
+                    aria-label="Product options"
+                  >
+                    <MoreHorizontal class="h-5 w-5" />
+                  </button>
+                </UiDropdownMenuTrigger>
+                <UiDropdownMenuContent align="end" class="w-44">
+                  <UiDropdownMenuItem @click="onCopyProductName">Copy product name</UiDropdownMenuItem>
+                  <UiDropdownMenuItem>Add to favorites</UiDropdownMenuItem>
+                  <UiDropdownMenuItem>Share</UiDropdownMenuItem>
+                </UiDropdownMenuContent>
+              </UiDropdownMenu>
+              <button class="hidden flex-shrink-0 p-1 md:flex" type="button" aria-label="Copy product name">
                 <CopyClipboard
                   :text="item.name || 'N/A'"
-                  class="w-[22px] h-[22px] text-slate-500 transition-colors duration-300 hover:text-blue-500"
+                  class="h-[22px] w-[22px] text-slate-500 transition-colors duration-300 hover:text-primary"
                 />
               </button>
-              <div class="flex items-center gap-2 md:hidden">
-                <button class="flex p-1 text-gray-500 transition-colors duration-300 hover:text-blue" type="button" aria-label="Favorite">
-                  <HeartIcon class="w-6 h-6" />
-                </button>
-                <button class="flex p-1 text-gray-500 transition-colors duration-300 hover:text-blue" type="button" aria-label="Share">
-                  <ShareIcon class="w-6 h-6" />
-                </button>
-              </div>
             </div>
           </div>
           <button
-            class="flex items-center text-slate-500 px-3 py-[5px] w-fit max-w-full border border-gray-300 rounded-[25px] mb-2.5 transition-colors duration-300 hover:text-blue-500 hover:border-blue-500 md:mb-0 md:max-w-[220px] md:flex-shrink-0"
+            class="mb-2.5 flex w-full max-w-full items-center text-slate-500 rounded-[25px] border border-gray-300 px-3 py-[5px] transition-colors duration-300 hover:border-primary hover:text-primary md:mb-0 md:w-fit md:max-w-[220px] md:flex-shrink-0"
             @click="showCustomProductPartNumberModal = true"
           >
-            <span class="text-[15px] leading-tight font-medium mr-2 truncate">
+            <span class="mr-2 truncate text-[15px] font-medium leading-tight">
               {{ item.manufacturerCode }}
             </span>
-            <EditIcon class="w-5 h-5" />
+            <EditIcon class="h-5 w-5 flex-shrink-0" />
           </button>
         </div>
         <div class="grid grid-cols-1 gap-2 text-xs leading-tight mb-4 md:mb-5 lg:mb-0">
@@ -62,20 +73,20 @@
         </div>
       </div>
     </div>
-    <div class="lg:pr-6">
-      <div class="flex">
-        <div class="flex flex-col items-start min-w-fit gap-2 xl:gap-1.5">
-          <span class="text-xs text-green-500 leading-tight font-semibold md:mr-[15px] lg:mr-0 flex mb-2">
-            <CheckIcon class="w-[15px] h-[15px] mr-1" />
+    <div class="mt-4 lg:mt-0 lg:pr-6">
+      <div class="flex flex-col gap-3 md:flex-row md:items-start">
+        <div class="flex flex-col items-start gap-2 md:min-w-fit xl:gap-1.5">
+          <span class="inline-flex items-center text-xs font-semibold leading-tight text-green-600">
+            <CheckIcon class="mr-1 h-[15px] w-[15px] flex-shrink-0" />
             {{ item.stock }} in stock
           </span>
-          <span class="hidden text-[13px] leading-tight text-neutral-700 font-normal mr-[15px] md:inline"> Price for: Each </span>
-          <span class="hidden text-[13px] leading-tight text-neutral-700 font-normal mr-[15px] md:inline"> Multiple: 1 </span>
-          <span class="hidden text-[13px] leading-tight text-neutral-700 font-normal mr-[15px] md:inline">
+          <span class="hidden text-[13px] font-normal leading-tight text-neutral-700 md:inline"> Price for: Each </span>
+          <span class="hidden text-[13px] font-normal leading-tight text-neutral-700 md:inline"> Multiple: 1 </span>
+          <span class="hidden text-[13px] font-normal leading-tight text-neutral-700 md:inline">
             Minimum Order: {{ minPriceConfiguration ? minPriceConfiguration.quantity : 0 }}
           </span>
         </div>
-        <section class="grid grid-cols-2 gap-x-4 gap-y-1.5 md:flex md:gap-4 min-w-fit">
+        <section class="grid w-full max-w-[220px] grid-cols-2 gap-x-6 gap-y-1.5 sm:max-w-none md:flex md:min-w-fit md:gap-4">
           <div class="flex flex-col items-start gap-1">
             <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1"> Qty </span>
             <span v-for="[qty] in bulkQuantities" :key="qty" class="text-[13px] leading-tight font-medium"> {{ qty }}+ </span>
@@ -134,9 +145,12 @@
 </template>
 
 <script setup lang="ts">
+import { MoreHorizontal } from 'lucide-vue-next';
+import { useClipboard } from '@vueuse/core';
 import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
+import { useToast } from '@/components/ui/toast/use-toast';
 import EditIcon from '@/assets/icons/edit.svg';
 import PDFIcon from '@/assets/icons/pdf.svg';
 import LeafIcon from '@/assets/icons/leaf.svg';
@@ -229,6 +243,16 @@ const addToCart = async (product: ProductInterface) => {
 };
 
 const showCustomProductPartNumberModal = ref(false);
+
+const { copy } = useClipboard();
+const { toast } = useToast();
+
+const onCopyProductName = () => {
+  copy(props.item.name || 'N/A');
+  toast({
+    title: 'Text copied!',
+  });
+};
 
 buildBulkQuantities();
 </script>

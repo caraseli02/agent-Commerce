@@ -14,16 +14,6 @@ const navigateTo = async (page: Page, path: string) => {
   await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
 };
 
-const closeBetaDialog = async (page: Page) => {
-  const betaNotice = page.getByText(/currently in beta testing/i);
-  const closeButton = page.getByRole('button', { name: /^close$/i });
-  await closeButton.waitFor({ state: 'visible', timeout: 3_000 }).catch(() => undefined);
-  if (await closeButton.isVisible().catch(() => false)) {
-    await closeButton.click();
-    await expect(betaNotice).toBeHidden();
-  }
-};
-
 const submitCustomerSignIn = async (page: Page) => {
   const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
   await expect(signInButton).toBeVisible();
@@ -34,7 +24,7 @@ const submitCustomerSignIn = async (page: Page) => {
 };
 
 const expectProductInSummary = async (page: Page) => {
-  await expect(page.getByText('Professional Laptop Ultra', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+  await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 };
 
 const addProductToCart = async (page: Page) => {
@@ -51,7 +41,7 @@ const addProductToCart = async (page: Page) => {
 };
 
 test.describe('Product Detail → Checkout Confirmation', () => {
-  test.beforeEach(async ({ context, request }) => {
+  test.beforeEach(async ({ request }) => {
     const resetProducts = ['prod-1', 'prod-2'];
     const loginResponse = await request.post('/api/auth/login', {
       data: {
@@ -72,21 +62,11 @@ test.describe('Product Detail → Checkout Confirmation', () => {
     await request.delete('/api/cart', {
       data: { products: resetProducts },
     });
-
-    await context.addCookies([
-      {
-        name: 'appSettings',
-        value: encodeURIComponent(JSON.stringify({ showAppInBeta: false })),
-        domain: 'localhost',
-        path: '/',
-      },
-    ]);
   });
 
   test('guest customer can complete the mock purchase journey from product detail to checkout success', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
-    await closeBetaDialog(page);
-    await expect(page.getByText('Professional Laptop Ultra', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 
     await addProductToCart(page);
 
@@ -130,8 +110,7 @@ test.describe('Product Detail → Checkout Confirmation', () => {
 
   test('signed-in customer is routed to checkout failure when order placement fails', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
-    await closeBetaDialog(page);
-    await expect(page.getByText('Professional Laptop Ultra', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 
     await addProductToCart(page);
 

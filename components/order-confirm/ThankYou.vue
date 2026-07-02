@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="w-full overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-6 md:p-8"
-  >
+  <section class="w-full overflow-hidden rounded-2xl border border-emerald-200 bg-emerald-50/80 p-6 md:p-8">
     <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
       <div class="max-w-2xl space-y-4">
         <div

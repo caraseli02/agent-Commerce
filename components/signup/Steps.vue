@@ -46,31 +46,16 @@
         <div v-for="dash in 100" :key="dash" class="rounded-full w-1.5 h-[3px] bg-border flex-shrink-0 md:w-[3px] md:h-1.5" />
       </div>
     </div>
-    <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] max-md:hidden">
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white transition-colors duration-300 hover:text-blue-500"
-      >
+    <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] max-md:hidden" aria-hidden="true">
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white">
         <TwitterIcon class="w-5" />
-      </a>
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white transition-colors duration-300 hover:text-blue-500"
-      >
+      </span>
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white">
         <LinkedInIcon class="w-5" />
-      </a>
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white transition-colors duration-300 hover:text-blue-500"
-      >
+      </span>
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white">
         <InstagramIcon class="w-5 h-5" />
-      </a>
+      </span>
     </div>
     <div class="flex items-center justify-center gap-5 max-md:hidden">
       <NuxtLink to="/" class="text-sm text-white transition-colors duration-300 hover:text-blue-500"> Terms </NuxtLink>

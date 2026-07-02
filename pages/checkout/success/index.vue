@@ -106,7 +106,7 @@ onMounted(() => {
 
 <template>
   <div class="container py-8">
-    <section class="overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 shadow-sm">
+    <section class="overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50/80 shadow-sm">
       <div class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
         <div class="space-y-6">
           <div

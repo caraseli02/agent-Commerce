@@ -1,14 +1,10 @@
 <template>
   <div class="flex flex-col min-h-screen app-scroll">
     <LayoutHeader :is-scrolled="isScrolled" />
-    <main class="flex flex-col pt-[96px] flex-1 lg:pt-[180px] xl:pt-[176px]" :class="[isScrolled ? 'md:pt-[170px]' : 'md:pt-[172px]']">
-      <div
-        v-if="$config.public.MOCK_MODE"
-        data-testid="mock-mode-badge"
-        class="mx-4 mb-3 w-fit self-end rounded-md bg-blue-500/90 px-3 py-1 text-xs font-medium text-white pointer-events-none select-none md:fixed md:bottom-4 md:right-4 md:z-50 md:m-0"
-      >
-        MOCK MODE
-      </div>
+    <main
+      class="flex flex-col pt-[var(--mobile-header-height,100px)] flex-1 md:pt-[112px] lg:pt-[180px] xl:pt-[176px]"
+      :class="[isScrolled ? 'md:pt-[170px]' : 'md:pt-[172px]']"
+    >
       <slot />
     </main>
     <LayoutFooter />

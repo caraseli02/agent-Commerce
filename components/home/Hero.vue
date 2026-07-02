@@ -1,10 +1,10 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <section class="mb-10 md:mb-14 xl:mb-16 overflow-hidden">
+  <section class="mb-10 max-md:pt-4 md:mb-14 xl:mb-16 overflow-hidden">
     <div class="container">
       <!-- Mobile Hero Banner (visible only on mobile) -->
       <div class="block md:hidden relative overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm mb-5 min-h-[320px]">
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 to-blue-50/40" />
+        <div class="absolute inset-0 bg-slate-50" />
         <div class="relative z-10 flex flex-col justify-center h-full px-6 py-9">
           <h1 class="text-3xl font-bold text-zinc-800 leading-tight mb-4">Electronic Components,<br />Sourced Reliably</h1>
           <p class="text-sm leading-6 text-slate-500 mb-7 max-w-xs">

@@ -5,16 +5,13 @@
         <div class="text-white md:flex md:items-center md:justify-between">
           <div class="mb-[9px] md:mb-0 xl:flex xl:items-center">
             <div class="text-sm font-semibold md:text-base xl:text-2xl xl:font-normal xl:mr-[90px]">Subscribe to our Newsletter</div>
-            <p class="text-xs xl:text-base">
-              ...and receive a
-              <strong class="font-semibold">10% discount</strong> on your first order.
-            </p>
+            <p class="text-xs xl:text-base">Procurement updates, stock notices, and availability alerts for your team.</p>
           </div>
           <form
             class="mt-4 flex w-full max-w-md flex-col gap-2 rounded-md shadow-xs sm:mt-0 sm:flex-row sm:gap-0 md:w-auto"
             @submit.prevent
           >
-            <label class="flex min-w-0 flex-1 flex-col">
+            <label for="footer-newsletter-email" class="flex min-w-0 flex-1 flex-col">
               <span class="sr-only">Newsletter email address</span>
               <input
                 id="footer-newsletter-email"
@@ -22,7 +19,7 @@
                 type="email"
                 placeholder="Enter your email address"
                 autocomplete="email"
-                class="w-full rounded-md bg-white px-4 py-[11px] text-sm font-medium text-neutral-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-200 sm:rounded-l-md sm:rounded-r-none md:w-[250px] lg:w-[280px] 2xl:w-[350px]"
+                class="w-full rounded-md bg-white px-4 py-[11px] text-sm font-medium text-neutral-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:rounded-l-md sm:rounded-r-none md:w-[250px] lg:w-[280px] 2xl:w-[350px]"
               />
             </label>
             <button
@@ -45,46 +42,15 @@
             <div>
               <div class="text-sm mb-2.5 lg:text-base">Follow Us</div>
               <div class="flex items-center gap-2">
-                <a
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10"
+                <span
+                  v-for="network in socialNetworks"
+                  :key="network.label"
+                  class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500"
+                  :title="`${network.label} (demo)`"
+                  aria-hidden="true"
                 >
-                  <TwitterIcon class="w-5 text-slate-500" />
-                </a>
-                <a
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10"
-                >
-                  <LinkedInIcon class="w-5 text-slate-500" />
-                </a>
-                <a
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10"
-                >
-                  <InstagramIcon class="w-5 text-slate-500" />
-                </a>
-                <a
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10"
-                >
-                  <DiscordIcon class="w-5 text-slate-500" />
-                </a>
-                <a
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10"
-                >
-                  <TelegramIcon class="w-5 text-slate-500" />
-                </a>
+                  <component :is="network.icon" class="w-5" />
+                </span>
               </div>
             </div>
           </div>
@@ -109,6 +75,7 @@
                     v-else
                     :href="navItem.to"
                     class="relative text-xs after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-neutral-700 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100 md:text-sm"
+                    :class="navItem.to.startsWith('tel:') ? 'whitespace-nowrap' : ''"
                   >
                     {{ navItem.label }}
                   </a>
@@ -132,6 +99,14 @@ import LinkedInIcon from '@/assets/icons/social/linkedin.svg';
 import InstagramIcon from '@/assets/icons/social/instagram.svg';
 import DiscordIcon from '@/assets/icons/social/discord.svg';
 import TelegramIcon from '@/assets/icons/social/telegram.svg';
+
+const socialNetworks = [
+  { label: 'Twitter', icon: TwitterIcon },
+  { label: 'LinkedIn', icon: LinkedInIcon },
+  { label: 'Instagram', icon: InstagramIcon },
+  { label: 'Discord', icon: DiscordIcon },
+  { label: 'Telegram', icon: TelegramIcon },
+];
 
 const navItems = {
   General: [

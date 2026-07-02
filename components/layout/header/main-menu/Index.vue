@@ -6,7 +6,7 @@
         <button class="flex" @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)">
           <CaretLeft class="w-6 h-6" />
         </button>
-        <div class="flex items-center text-blue-500">
+        <div class="flex items-center text-primary">
           <component :is="selectedCategory.icon" v-if="!selectedSubCategory" class="w-[22px] h-[22px] mr-1.5" />
           <div class="text-sm font-semibold">
             {{ selectedSubCategory ? selectedSubCategory.name : selectedCategory.name }}
@@ -27,7 +27,7 @@
         <button
           v-for="(category, index) in allCategories"
           :key="index"
-          class="group flex items-center px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-blue-500"
+          class="group flex items-center px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
           @click="
             selectedCategory = category;
             handleCategoryClick(category);
@@ -50,7 +50,7 @@
         <button
           v-for="(subCategory, index) in selectedCategory.subcategory"
           :key="index"
-          class="group flex items-center px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-blue-500"
+          class="group flex items-center px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
           @click="
             selectedSubCategory = subCategory;
             handleCategoryClick(subCategory);
@@ -71,7 +71,7 @@
           v-for="(subCategory, index) in selectedSubCategory.subcategory"
           :key="index"
           :to="`/search?category=${subCategory.id}`"
-          class="group flex items-center justify-between px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-blue-500"
+          class="group flex items-center justify-between px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
         >
           <div>
             <div class="text-[15px] font-semibold mb-px">{{ subCategory.name }}</div>
@@ -88,12 +88,12 @@
           v-for="(item, index) in navItems"
           :key="index"
           :to="item.to"
-          class="font-semibold text-slate-500 transition-colors duration-300 hover:text-blue-500"
+          class="font-semibold text-slate-500 transition-colors duration-300 hover:text-primary"
         >
           {{ item.label }}
         </NuxtLink>
       </div>
-      <div class="bg-blue-500 px-5 pt-[17px] pb-[21px] text-xs font-semibold text-white text-center">
+      <div class="bg-primary px-5 pt-[17px] pb-[21px] text-xs font-semibold text-primary-foreground text-center">
         Sales: +1 800 555 0199 (Mon-Fri 8:00AM - 4:00PM EST)
       </div>
     </div>

@@ -19,19 +19,20 @@
       }"
       class="homeNews--swiper"
     >
-      <SwiperSlide v-for="item in 9" :key="item">
+      <SwiperSlide v-for="(message, index) in messages" :key="index">
         <div class="self-stretch bg-white flex flex-col m-2 p-4 rounded-xl items-end w-fit shadow-s z-10">
           <div class="justify-between items-stretch self-stretch flex gap-5">
-            <div class="text-neutral-800 text-sm font-medium leading-5 grow whitespace-nowrap">Account warning message</div>
+            <div class="text-neutral-800 text-sm font-medium leading-5 grow">{{ message.title }}</div>
             <svgo-x class="w-[18px] h-[18px]" />
           </div>
           <div class="self-stretch text-neutral-800 text-xs leading-4 mt-2">
-            Contrary to popular belief, Lorem Ipsum is not simply random text. Contrary to popular belief, Lorem Ipsum is not simply random
-            text. Contrary to popular belief, Lorem Ipsum is not simply random text.
+            {{ message.body }}
           </div>
-          <NuxtLink to="#" class="items-center flex gap-2 mt-2">
+          <NuxtLink v-if="message.actionTo" :to="message.actionTo" class="items-center flex gap-2 mt-2">
             <svgo-menu-icon-setting-blue class="w-4 h-4" />
-            <div class="text-blue-500 hover:text-blue-400 text-sm font-medium leading-5 self-stretch grow whitespace-nowrap">Settings</div>
+            <div class="text-blue-500 hover:text-blue-400 text-sm font-medium leading-5 self-stretch grow whitespace-nowrap">
+              {{ message.actionLabel }}
+            </div>
           </NuxtLink>
         </div>
       </SwiperSlide>
@@ -41,6 +42,21 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper';
+
+const messages = [
+  {
+    title: 'Verify shipping defaults',
+    body: 'Your account ships to a single default address. Confirm billing and delivery details before placing high-value orders.',
+    actionLabel: 'Account settings',
+    actionTo: '/dashboard/client?tab=settings',
+  },
+  {
+    title: 'Credit limit reminder',
+    body: 'Open purchase orders count toward your available credit. Review limits in the control panel before submitting large BOMs.',
+    actionLabel: 'View credit',
+    actionTo: '/dashboard/client?tab=home',
+  },
+];
 </script>
 
 <style scoped lang="scss">

@@ -1,15 +1,39 @@
 <script setup lang="ts">
-import { XIcon, MenuIcon, ChevronRight, ChevronLeftIcon, Building2Icon, HeadsetIcon, GemIcon } from 'lucide-vue-next';
+import Emitter from 'tiny-emitter/instance';
+import { XIcon, MenuIcon, ChevronRight, ChevronLeftIcon, Building2Icon, HeadsetIcon, GemIcon, UserIcon, HeartIcon } from 'lucide-vue-next';
 import { useCategoriesNavigation } from '@/composables/useCategoriesNavigation';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
 
 defineProps<{ isScrolled: boolean }>();
 
 const { categories, selectedCategories, currentCategory, onCategoryClick } = useCategoriesNavigation();
+const { getCategories } = useCategories();
+
+const formatProductCount = (count?: number) => `${count ?? 0} product${count === 1 ? '' : 's'}`;
 
 const showDiscountSection = ref(false);
 const isMobileViewport = ref(false);
 const sheetOpen = ref(false);
+
+const syncMobileSheetTop = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const header = document.querySelector('header');
+  const mainRow = header?.querySelector('[data-mobile-main-row]');
+  const anchor = mainRow ?? header;
+  if (!anchor) {
+    return;
+  }
+
+  const bottom = Math.round(anchor.getBoundingClientRect().bottom);
+  document.documentElement.style.setProperty('--mobile-nav-sheet-top', `${bottom}px`);
+  document.documentElement.style.setProperty('--mobile-header-height', `${bottom}px`);
+};
+
+const mobileSheetTopClass = 'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bottom-0 max-md:!h-auto';
+const mobileSheetOverlayClass = 'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bg-[rgba(15,23,42,0.45)]';
 const primaryNavItems = [
   {
     label: 'News',
@@ -51,14 +75,44 @@ const onMobileCategoryClick = (category: (typeof categories.value)[number], make
   }
 };
 
+const openAccountFromDrawer = () => {
+  closeMobileMenu();
+  Emitter.emit('open-account-modal');
+};
+
+const openFavoritesFromDrawer = () => {
+  closeMobileMenu();
+  Emitter.emit('open-favorites-cart-modal', 'favorites');
+};
+
+let headerResizeObserver: ResizeObserver | undefined;
+
 onMounted(() => {
   updateViewportState();
+  syncMobileSheetTop();
   window.addEventListener('resize', updateViewportState);
+  window.addEventListener('resize', syncMobileSheetTop);
+
+  const header = document.querySelector('header');
+  if (header && typeof ResizeObserver !== 'undefined') {
+    headerResizeObserver = new ResizeObserver(syncMobileSheetTop);
+    headerResizeObserver.observe(header);
+  }
+
+  void getCategories();
+});
+
+watch(sheetOpen, (open) => {
+  if (open) {
+    nextTick(syncMobileSheetTop);
+  }
 });
 
 onBeforeUnmount(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('resize', updateViewportState);
+    window.removeEventListener('resize', syncMobileSheetTop);
+    headerResizeObserver?.disconnect();
   }
 });
 </script>
@@ -68,7 +122,7 @@ onBeforeUnmount(() => {
     <UiSheetTrigger as-child>
       <button
         type="button"
-        class="inline-flex h-10 items-center justify-center rounded-md pl-0 pr-4 mr-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 md:mr-0"
+        class="inline-flex h-10 items-center justify-center rounded-md pl-0 pr-4 mr-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-primary md:mr-0"
         aria-controls="mobile-products-navigation"
         :aria-expanded="sheetOpen"
         aria-label="Open products navigation"
@@ -79,13 +133,13 @@ onBeforeUnmount(() => {
     </UiSheetTrigger>
     <UiSheetContent
       id="mobile-products-navigation"
-      class="w-[min(22rem,calc(100vw-2rem))] h-auto font-Poppins"
-      :class="['px-0 pt-0 bottom-0', isScrolled ? 'top-[112px] md:top-[98px]' : 'top-[112px] md:top-[188px]']"
+      class="w-[min(22rem,calc(100vw-2rem))] font-Poppins max-md:!max-h-[calc(100dvh-var(--mobile-nav-sheet-top,100px))]"
+      :class="['px-0 pt-0', mobileSheetTopClass, isScrolled ? 'md:top-[98px]' : 'md:top-[188px]']"
       side="left"
       hidde-close-button
-      :overlay-class-name="isScrolled ? 'top-[112px] md:top-[98px]' : 'top-[112px] md:top-[188px]'"
+      :overlay-class-name="`${mobileSheetOverlayClass} ${isScrolled ? 'md:top-[98px]' : 'md:top-[188px]'}`"
     >
-      <UiSheetHeader class="bg-grey-100 border-b border-grey-300">
+      <UiSheetHeader class="bg-grey-100 border-b border-grey-300 max-md:-mt-px max-md:border-t-0">
         <UiSheetTitle class="px-4 py-2">
           <div class="flex items-center justify-between gap-3">
             <UiButton
@@ -123,9 +177,9 @@ onBeforeUnmount(() => {
                 :disabled="sub.productCount === 0"
               >
                 {{ sub.name }}
-                <span class="text-xs font-light text-slate-500">{{ sub.productCount }} products</span>
+                <span class="text-xs font-light text-slate-500">{{ formatProductCount(sub.productCount) }}</span>
               </UiButton>
-              <UiBadge v-if="false" class="bg-blue-500 text-xs px-2"> New </UiBadge>
+              <UiBadge v-if="false" class="bg-primary text-xs px-2"> New </UiBadge>
               <UiBadge v-if="false" class="bg-rose-600 text-xs px-2"> Sale </UiBadge>
             </div>
             <ChevronRight v-if="sub.productCount !== 0 && (sub.subcategory?.length ?? 0) > 0" class="w-4 h-4 text-neutral-700" />
@@ -154,12 +208,26 @@ onBeforeUnmount(() => {
             v-for="navItem in primaryNavItems"
             :key="navItem.label"
             :to="navItem.to"
-            class="rounded-md px-2 py-2 text-sm font-medium text-slate-600 hover:bg-grey-100 hover:text-blue-600"
+            class="rounded-md px-2 py-2 text-sm font-medium text-slate-600 hover:bg-muted hover:text-primary"
             @click="closeMobileMenu"
           >
             {{ navItem.label }}
           </NuxtLink>
         </nav>
+        <div class="grid w-full grid-cols-2 gap-2 pb-3 mb-2 border-b border-grey-300 md:hidden" aria-label="Account shortcuts">
+          <UiButton variant="link" class="h-10 justify-start gap-2 px-2 text-sm font-medium text-slate-600" @click="openAccountFromDrawer">
+            <UserIcon class="w-4 h-4" />
+            My Account
+          </UiButton>
+          <UiButton
+            variant="link"
+            class="h-10 justify-start gap-2 px-2 text-sm font-medium text-slate-600"
+            @click="openFavoritesFromDrawer"
+          >
+            <HeartIcon class="w-4 h-4" />
+            Favorites
+          </UiButton>
+        </div>
         <UiButton
           v-for="category in categories"
           :key="category.id"
@@ -172,7 +240,7 @@ onBeforeUnmount(() => {
             <CardPlaceholderSmall v-else class="min-w-6 min-h-6 text-black" />
             <p class="flex flex-col items-start w-full font-medium">
               {{ category.name }}
-              <span class="text-xs font-normal text-slate-500"> {{ category.productCount }} products </span>
+              <span class="text-xs font-normal text-slate-500">{{ formatProductCount(category.productCount) }}</span>
             </p>
           </div>
           <ChevronRight class="w-4 h-4 text-black" />
@@ -196,4 +264,15 @@ onBeforeUnmount(() => {
       </section>
     </UiSheetContent>
   </UiSheet>
+  <Teleport to="body">
+    <div
+      v-if="sheetOpen && isMobileViewport"
+      class="fixed right-0 z-[51] hidden h-11 border-b border-grey-300 bg-grey-100 max-md:block md:hidden pointer-events-none"
+      :style="{
+        top: 'var(--mobile-nav-sheet-top, 100px)',
+        left: 'min(22rem, calc(100vw - 2rem))',
+      }"
+      aria-hidden="true"
+    />
+  </Teleport>
 </template>
