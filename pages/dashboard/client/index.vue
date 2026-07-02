@@ -68,6 +68,11 @@
 import { useCustomerDashboard } from '@/composables/useCustomerDashboard';
 import { useRoute } from '#app';
 
+definePageMeta({
+  middleware: 'auth',
+  layout: 'dashboard',
+});
+
 const {
   ordersIds,
   activeOrderFilter,
