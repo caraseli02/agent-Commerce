@@ -350,14 +350,16 @@ watch(
 
 // Initialization
 onMounted(async () => {
-  await Promise.all([
+  const shippingPricesPromise = fetchShippingPrices(order.value);
+
+  const [, , , shippingPrices] = await Promise.all([
     fetchCards(), // Fetch user's payment cards
     getCustomerCredit(), // Fetch customer credit information
     fetchList(), // Fetch cart items
-    fetchShippingPrices(order.value).then((shippingPrices) => {
-      shippingPreferences.value = shippingPrices; // Fetch shipping prices
-    }),
+    shippingPricesPromise,
   ]);
+
+  shippingPreferences.value = shippingPrices; // Fetch shipping prices
 
   // Initial calculations
   await calculateSubtotal(cartItems.value, order.value);
