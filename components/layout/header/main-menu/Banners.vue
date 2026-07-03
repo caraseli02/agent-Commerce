@@ -17,7 +17,7 @@
         class="absolute z-20 bottom-0 right-0 w-24 object-contain lg:w-[130px] xl:w-[160px]"
         loading="lazy"
       />
-      <div class="absolute z-10 top-0 left-0 w-full h-full bg-white/20 backdrop-blur-lg rounded-md" />
+      <div class="absolute z-10 top-0 left-0 w-full h-full bg-slate-50/90 rounded-md" />
       <img
         :src="BannerBg"
         alt="Background"
@@ -43,7 +43,7 @@
         class="absolute z-20 bottom-0 right-0 w-20 object-contain lg:w-[120px] xl:w-[150px]"
         loading="lazy"
       />
-      <div class="absolute z-10 top-0 left-0 w-full h-full bg-white/20 backdrop-blur-lg rounded-md" />
+      <div class="absolute z-10 top-0 left-0 w-full h-full bg-slate-50/90 rounded-md" />
       <img :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
     </button>
     <button
@@ -58,7 +58,7 @@
         class="absolute z-20 bottom-0 right-2 w-[88px] object-contain md:right-0 md:w-[76px] lg:w-[113px] xl:right-1 xl:w-[140px]"
         loading="lazy"
       />
-      <div class="absolute z-10 top-0 left-0 w-full h-full bg-[#FFB800] bg-opacity-[0.65] backdrop-blur-sm rounded-md" />
+      <div class="absolute z-10 top-0 left-0 w-full h-full bg-amber-500/80 rounded-md" />
       <img
         :src="BannerBg"
         alt="Background"

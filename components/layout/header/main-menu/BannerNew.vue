@@ -10,7 +10,7 @@ const heroSlides = [0];
       <CarouselItem v-for="(_, index) in heroSlides" :key="index">
         <div class="p-0">
           <section
-            class="relative flex h-full items-end overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 via-white to-blue-50/40 px-6 py-14 lg:px-10 lg:py-20"
+            class="relative flex h-full items-end overflow-hidden rounded-xl bg-slate-50 border border-slate-200 px-6 py-14 lg:px-10 lg:py-20"
             role="region"
             aria-labelledby="hero-title"
           >

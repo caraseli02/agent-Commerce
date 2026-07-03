@@ -91,6 +91,6 @@ const slides = ref([
   margin-right: 0 !important;
 }
 .orderSummaryExclusiveOffer--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply w-[25px] bg-white #{!important};
+  @apply scale-125 bg-white #{!important};
 }
 </style>

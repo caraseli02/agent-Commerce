@@ -11,8 +11,8 @@ export const mockOrders = [
     deliveredAt: '2024-01-18T14:20:00.000Z',
     shippingAddress: '123 Main St, New York, NY 10001',
     itemsDetails: [
-      { productId: 'prod-1', name: 'SmartPhone Pro Max', quantity: 1, price: 999.99 },
-      { productId: 'prod-2', name: 'Professional Laptop Ultra', quantity: 1, price: 449.99 },
+      { productId: 'prod-1', name: 'STM32F407VGT6 Microcontroller', quantity: 1, price: 999.99 },
+      { productId: 'prod-2', name: 'ADM2587E RS-485 Transceiver', quantity: 1, price: 449.99 },
       { productId: 'prod-11', name: 'USB-C Charging Cable', quantity: 1, price: 50.01 },
     ],
   },
@@ -52,7 +52,7 @@ export const mockOrders = [
     createdAt: '2024-01-28T14:20:00.000Z',
     shippingAddress: '321 Elm St, Houston, TX 77001',
     itemsDetails: [
-      { productId: 'prod-3', name: 'Mechanical Keyboard RGB', quantity: 1, price: 79.99 },
+      { productId: 'prod-3', name: 'BAT54C Schottky Diode', quantity: 1, price: 79.99 },
       { productId: 'prod-7', name: 'Gaming Mouse Wireless', quantity: 1, price: 70.0 },
     ],
   },
@@ -110,7 +110,7 @@ export const mockOrders = [
     deliveredAt: '2024-02-24T12:00:00.000Z',
     shippingAddress: '147 Birch Blvd, Miami, FL 33101',
     itemsDetails: [
-      { productId: 'prod-1', name: 'SmartPhone Pro Max', quantity: 1, price: 999.99 },
+      { productId: 'prod-1', name: 'STM32F407VGT6 Microcontroller', quantity: 1, price: 999.99 },
       { productId: 'prod-22', name: 'NVMe SSD 1TB', quantity: 1, price: 99.98 },
     ],
   },
@@ -167,7 +167,7 @@ export const mockOrders = [
     shippingAddress: '159 Ash Ct, Atlanta, GA 30301',
     itemsDetails: [
       { productId: 'prod-7', name: 'Gaming Mouse Wireless', quantity: 2, price: 79.99 },
-      { productId: 'prod-3', name: 'Mechanical Keyboard RGB', quantity: 1, price: 149.99 },
+      { productId: 'prod-3', name: 'BAT54C Schottky Diode', quantity: 1, price: 149.99 },
       { productId: 'prod-18', name: 'Gaming Headset', quantity: 1, price: 139.99 },
     ],
   },
@@ -213,7 +213,7 @@ export const mockOrders = [
     deliveredAt: '2024-03-29T15:30:00.000Z',
     shippingAddress: '321 Elm St, Houston, TX 77001',
     itemsDetails: [
-      { productId: 'prod-2', name: 'Professional Laptop Ultra', quantity: 1, price: 1499.99 },
+      { productId: 'prod-2', name: 'ADM2587E RS-485 Transceiver', quantity: 1, price: 1499.99 },
       { productId: 'prod-11', name: 'USB-C Charging Cable', quantity: 1, price: -200.03 },
     ],
   },
@@ -254,7 +254,7 @@ export const mockOrders = [
     deliveredAt: '2024-04-14T10:30:00.000Z',
     shippingAddress: '964 Lake Shore Dr, Chicago, IL 60601',
     itemsDetails: [
-      { productId: 'prod-2', name: 'Professional Laptop Ultra', quantity: 1, price: 1799.99 },
+      { productId: 'prod-2', name: 'ADM2587E RS-485 Transceiver', quantity: 1, price: 1799.99 },
       { productId: 'prod-11', name: 'USB-C Charging Cable', quantity: 1, price: -0.03 },
     ],
   },
@@ -340,7 +340,7 @@ export const mockOrders = [
     deliveredAt: '2024-05-14T14:20:00.000Z',
     shippingAddress: '742 Sunset Blvd, Phoenix, AZ 85001',
     itemsDetails: [
-      { productId: 'prod-1', name: 'SmartPhone Pro Max', quantity: 1, price: 999.99 },
+      { productId: 'prod-1', name: 'STM32F407VGT6 Microcontroller', quantity: 1, price: 999.99 },
       { productId: 'prod-11', name: 'USB-C Charging Cable', quantity: 1, price: -0.02 },
     ],
   },
@@ -355,7 +355,7 @@ export const mockOrders = [
     createdAt: '2024-05-15T11:00:00.000Z',
     shippingAddress: '964 Canyon Rd, Houston, TX 77001',
     itemsDetails: [
-      { productId: 'prod-2', name: 'Professional Laptop Ultra', quantity: 1, price: 1899.99 },
+      { productId: 'prod-2', name: 'ADM2587E RS-485 Transceiver', quantity: 1, price: 1899.99 },
       { productId: 'prod-9', name: '4K Ultra HD Monitor', quantity: 1, price: 599.97 },
     ],
   },
@@ -453,8 +453,8 @@ export const mockInvoices = [
     dueDate: '2024-02-15T00:00:00.000Z',
     paidDate: '2024-02-14T10:00:00.000Z',
     items: [
-      { description: 'SmartPhone Pro Max', quantity: 1, price: 999.99 },
-      { description: 'Professional Laptop Ultra', quantity: 1, price: 449.99 },
+      { description: 'STM32F407VGT6 Microcontroller', quantity: 1, price: 999.99 },
+      { description: 'ADM2587E RS-485 Transceiver', quantity: 1, price: 449.99 },
       { description: 'USB-C Charging Cable', quantity: 1, price: 50.01 },
     ],
   },
@@ -540,7 +540,7 @@ export const mockInvoices = [
     dueDate: '2024-03-25T00:00:00.000Z',
     paidDate: '2024-03-24T14:30:00.000Z',
     items: [
-      { description: 'SmartPhone Pro Max', quantity: 1, price: 999.99 },
+      { description: 'STM32F407VGT6 Microcontroller', quantity: 1, price: 999.99 },
       { description: 'NVMe SSD 1TB', quantity: 1, price: 99.98 },
     ],
   },
@@ -579,7 +579,7 @@ export const mockInvoices = [
     paidDate: '2024-04-14T12:45:00.000Z',
     items: [
       { description: 'Gaming Mouse Wireless', quantity: 2, price: 79.99 },
-      { description: 'Mechanical Keyboard RGB', quantity: 1, price: 149.99 },
+      { description: 'BAT54C Schottky Diode', quantity: 1, price: 149.99 },
       { description: 'Gaming Headset', quantity: 1, price: 139.99 },
     ],
   },
@@ -610,7 +610,7 @@ export const mockInvoices = [
     dueDate: '2024-04-20T00:00:00.000Z',
     paidDate: '2024-04-19T13:30:00.000Z',
     items: [
-      { description: 'Professional Laptop Ultra', quantity: 1, price: 1799.99 },
+      { description: 'ADM2587E RS-485 Transceiver', quantity: 1, price: 1799.99 },
       { description: 'USB-C Charging Cable', quantity: 1, price: -0.03 },
     ],
   },
@@ -1250,7 +1250,7 @@ export const mockSupportTickets = [
     customerId: 'customer-009',
     customerName: 'Jessica Taylor',
     subject: 'Product inquiry',
-    description: 'Does the SmartPhone Pro Max support wireless charging?',
+    description: 'What isolation rating does the ADM2587E provide?',
     status: 'in-progress',
     priority: 'low',
     createdAt: '2024-04-06T10:15:00.000Z',

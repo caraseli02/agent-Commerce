@@ -3,7 +3,9 @@
     <section class="flex">
       <p class="header text-zinc-800 text-base font-semibold leading-6 grow shrink basis-auto">Recently Bought</p>
       <div class="items-stretch flex gap-2 self-start">
-        <a href="#" class="text-slate-500 text-sm font-medium leading-5 grow whitespace-nowrap"> View Orders </a>
+        <NuxtLink to="/dashboard/client?tab=orders" class="text-slate-500 text-sm font-medium leading-5 grow whitespace-nowrap">
+          View Orders
+        </NuxtLink>
         <SvgoArrowLeft16
           class="aspect-square object-contain object-center w-4 justify-center items-center shrink-0 my-auto text-slate-500"
         />

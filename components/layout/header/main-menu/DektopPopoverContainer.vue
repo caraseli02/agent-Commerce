@@ -54,17 +54,17 @@ onMounted(async () => {
           @click="handleRootClick(category)"
         >
           <div class="flex items-center gap-3 min-w-0">
-            <CardPlaceholderSmall class="w-6 h-6 flex-shrink-0" :class="isSelected(category.id) ? 'text-blue-500' : 'text-[#2D3340]'" />
+            <CardPlaceholderSmall class="w-6 h-6 flex-shrink-0" :class="isSelected(category.id) ? 'text-primary' : 'text-[#2D3340]'" />
             <div class="min-w-0">
               <div
                 class="text-[13px] leading-[1.2] font-semibold truncate"
-                :class="isSelected(category.id) ? 'text-blue-500' : 'text-[#2B303B]'"
+                :class="isSelected(category.id) ? 'text-primary' : 'text-[#2B303B]'"
               >
                 {{ category.name }}
               </div>
               <div
                 class="text-[11px] leading-[1.2] font-medium mt-0.5"
-                :class="isSelected(category.id) ? 'text-blue-500/90' : 'text-[#6E7482]'"
+                :class="isSelected(category.id) ? 'text-primary/90' : 'text-[#6E7482]'"
               >
                 {{ formatItemCount(category.productCount) }}
               </div>
@@ -72,7 +72,7 @@ onMounted(async () => {
           </div>
           <ChevronRight
             class="w-5 h-5 flex-shrink-0 transition-colors duration-200"
-            :class="isSelected(category.id) ? 'text-blue-500' : 'text-[#2D3340]'"
+            :class="isSelected(category.id) ? 'text-primary' : 'text-[#2D3340]'"
           />
         </button>
       </div>
@@ -101,14 +101,14 @@ onMounted(async () => {
                 {{ column.title }}
               </h4>
               <button v-for="entry in column.entries" :key="entry.id" class="text-left group block w-full" @click="handleChildClick(entry)">
-                <div class="text-[13px] leading-[1.3] font-medium text-[#464D5A] group-hover:text-blue-500 truncate">
+                <div class="text-[13px] leading-[1.3] font-medium text-[#464D5A] group-hover:text-primary truncate">
                   {{ entry.name }}
                 </div>
                 <div class="text-[11px] leading-[1.3] font-medium text-[#8A90A0] mt-0.5">
                   {{ formatItemCount(entry.productCount) }}
                 </div>
               </button>
-              <button class="text-[13px] font-medium text-blue-500 hover:text-blue-600" @click="handleChildClick(column.source)">
+              <button class="text-[13px] font-medium text-primary hover:text-primary/80" @click="handleChildClick(column.source)">
                 View all
               </button>
             </div>
@@ -117,17 +117,17 @@ onMounted(async () => {
         </div>
         <div class="px-5 py-3 border-t border-[#E8EBEF] bg-[#FBFCFD]">
           <div class="flex items-center gap-4">
-            <button class="text-[13px] leading-none font-medium text-[#2D3340] hover:text-blue-500 inline-flex items-center gap-2">
+            <button class="text-[13px] leading-none font-medium text-[#2D3340] hover:text-primary inline-flex items-center gap-2">
               <GemIcon class="w-4 h-4" />
               View our discounted offers
             </button>
             <LayoutHeaderMainMenuOffersSvgs />
             <div class="ml-auto flex items-center gap-4">
-              <button class="text-xs leading-none font-medium text-[#6F7685] hover:text-blue-500 inline-flex items-center gap-1.5">
+              <button class="text-xs leading-none font-medium text-[#6F7685] hover:text-primary inline-flex items-center gap-1.5">
                 <Building2Icon class="w-4 h-4" />
                 Contact Sales
               </button>
-              <button class="text-xs leading-none font-medium text-[#6F7685] hover:text-blue-500 inline-flex items-center gap-1.5">
+              <button class="text-xs leading-none font-medium text-[#6F7685] hover:text-primary inline-flex items-center gap-1.5">
                 <HeadsetIcon class="w-4 h-4" />
                 Support
               </button>

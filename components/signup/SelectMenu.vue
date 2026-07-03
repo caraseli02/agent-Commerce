@@ -67,31 +67,16 @@
         <ChevronRightIcon class="w-3 h-3" />
       </button>
     </div>
-    <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] md:hidden">
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500 transition-colors duration-300 hover:text-blue-500"
-      >
+    <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] md:hidden" aria-hidden="true">
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500">
         <TwitterIcon class="w-5" />
-      </a>
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500 transition-colors duration-300 hover:text-blue-500"
-      >
+      </span>
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500">
         <LinkedInIcon class="w-5" />
-      </a>
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500 transition-colors duration-300 hover:text-blue-500"
-      >
+      </span>
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500">
         <InstagramIcon class="w-5 h-5" />
-      </a>
+      </span>
     </div>
     <div class="flex items-center justify-center gap-5 md:hidden">
       <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Terms </NuxtLink>

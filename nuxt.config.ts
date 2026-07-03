@@ -44,8 +44,8 @@ export default defineNuxtConfig({
   },
   fonts: {
     families: [
-      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700] },
-      { name: 'Poppins', provider: 'google', weights: [400, 500, 600, 700] },
+      { name: 'Archivo', provider: 'google', weights: [500, 600, 700] },
+      { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700] },
     ],
   },
 
@@ -55,7 +55,7 @@ export default defineNuxtConfig({
       meta: [
         {
           name: 'viewport',
-          content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
+          content: 'width=device-width, initial-scale=1.0',
         },
       ],
     },

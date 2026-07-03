@@ -16,26 +16,26 @@
             <div
               class="flex items-center justify-between gap-1 text-xs leading-[1.67] font-medium text-neutral-700 mb-1 lg:text-sm lg:leading-[1.43]"
             >
-              <div class="flex items-center w-[calc(100%-50px)] hover:text-blue-500">
+              <div class="flex items-center w-[calc(100%-50px)] hover:text-primary">
                 <div class="truncate">{{ productTitle(product) }}</div>
                 <CaretIcon class="w-4 h-4 flex-shrink-0" />
                 <div class="font-Inter">{{ product.name }}</div>
               </div>
               <div
                 v-if="!product.adminSettings?.featured"
-                class="rounded-3xl bg-blue-500 px-1 text-xs leading-[1.33] font-semibold text-white flex-shrink-0 lg:translate-y-2.5"
+                class="rounded-3xl bg-primary px-1 text-xs leading-[1.33] font-semibold text-primary-foreground flex-shrink-0 lg:translate-y-2.5"
               >
                 New
               </div>
             </div>
-            <div class="text-xs leading-[1.33] truncate text-slate-500 lg:w-[calc(100%-50px)] hover:text-blue-500">
+            <div class="text-xs leading-[1.33] truncate text-slate-500 lg:w-[calc(100%-50px)] hover:text-primary">
               {{ product.description }}
             </div>
           </NuxtLink>
         </template>
       </div>
       <div v-else>
-        <p class="p-2 rounded text-slate-500 transition-colors duration-300 hover:bg-gray-100 hover:text-blue-500">No data found</p>
+        <p class="p-2 rounded text-slate-500 transition-colors duration-300 hover:bg-gray-100 hover:text-primary">No data found</p>
       </div>
     </div>
   </div>

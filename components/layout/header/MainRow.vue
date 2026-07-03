@@ -1,6 +1,7 @@
 <template>
   <div
-    class="bg-blue-500 py-3 shadow-m"
+    data-mobile-main-row
+    class="bg-primary border-b border-black/10 py-3 max-md:py-3.5"
     :class="[
       isScrolled
         ? showMobileSearch
@@ -23,7 +24,10 @@
             </div>
             <ul v-if="!isScrolled" class="hidden items-center gap-4 md:flex md:gap-6">
               <li v-for="(navItem, index) in navItems" :key="index" class="">
-                <NuxtLink :to="navItem.to" class="flex leading-normal font-medium text-white">
+                <NuxtLink
+                  :to="navItem.to"
+                  class="flex leading-normal font-medium text-primary-foreground/90 transition-colors hover:text-primary-foreground"
+                >
                   {{ navItem.label }}
                 </NuxtLink>
               </li>
@@ -38,24 +42,28 @@
             :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
             @blur="showMobileSearch = false"
           />
-          <div class="flex items-center gap-5 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9" :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']">
+          <div class="flex items-center gap-3 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9" :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']">
             <button
-              class="items-center xl:hidden"
+              class="flex items-center xl:hidden"
               :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex') : 'md:hidden']"
+              aria-label="Search products"
               @click="showMobileSearch = true"
             >
-              <SearchIcon class="w-6 h-6 text-white xl:mr-2" />
-              <span class="hidden leading-normal font-medium text-white xl:inline-block"> Search </span>
+              <SearchIcon class="w-6 h-6 text-primary-foreground xl:mr-2" />
+              <span class="hidden leading-normal font-medium text-primary-foreground xl:inline-block"> Search </span>
             </button>
             <button
-              class="flex flex-col items-center"
+              class="hidden flex-col items-center max-md:hidden md:flex"
               :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden xl:flex' : 'lg:flex xl:flex') : '']"
               @click="openFavoritesCartModal('favorites')"
             >
-              <HeartIcon class="w-6 h-6 text-white xl:mb-1" />
-              <span class="hidden font-medium text-xs leading-[1.33] text-white xl:inline-block"> Favorites </span>
+              <HeartIcon class="w-6 h-6 text-primary-foreground xl:mb-1" />
+              <span class="hidden font-medium text-xs leading-[1.33] text-primary-foreground xl:inline-block"> Favorites </span>
             </button>
-            <div class="relative" :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex') : 'flex items-center']">
+            <div
+              class="relative max-md:hidden"
+              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex') : 'flex items-center']"
+            >
               <ClientOnly>
                 <LazyNotifications
                   :notifications="notifications"
@@ -65,24 +73,23 @@
                 />
               </ClientOnly>
             </div>
-            <button class="flex items-center md:hidden" @click="openAccountModal()">
-              <UserIcon class="w-6 h-6 text-white" />
-            </button>
             <button
-              class="hidden items-center flex-col md:flex"
+              class="hidden items-center max-md:hidden md:flex"
               :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:flex' : 'md:flex') : '']"
+              aria-label="Open my account"
               @click="openAccountModal()"
             >
-              <UserIcon class="w-6 h-6 text-white xl:mb-1" />
-              <span class="hidden text-xs leading-[1.33] font-medium text-white xl:inline-block"> My Account </span>
+              <UserIcon class="w-6 h-6 text-primary-foreground xl:mb-1" />
+              <span class="hidden text-xs leading-[1.33] font-medium text-primary-foreground xl:inline-block"> My Account </span>
             </button>
             <button
-              class="relative items-center text-left"
-              :class="[isScrolled ? '' : 'md:hidden', showMobileSearch ? 'hidden md:flex' : 'flex']"
+              class="relative flex items-center text-left"
+              :class="[isScrolled ? '' : 'md:hidden', showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
+              aria-label="Open shopping cart"
               @click="openFavoritesCartModal('shopping-cart')"
             >
               <div class="flex items-center md:-mr-5 xl:-mr-5">
-                <CartIcon class="w-6 h-6 text-white lg" :class="[cartItems > 0 ? 'mr-0' : 'mr-4']" />
+                <CartIcon class="w-6 h-6 text-primary-foreground lg" :class="[cartItems > 0 ? 'mr-0' : 'mr-4']" />
                 <span
                   v-if="cartItems > 0"
                   class="flex -translate-y-2 -translate-x-2.5 items-center justify-center h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
@@ -91,7 +98,7 @@
                   <span> {{ cartItems }} </span>
                 </span>
               </div>
-              <div v-if="totalCartPrice" class="flex-col text-white flex-shrink-0 ml-6 max-md:hidden">
+              <div v-if="totalCartPrice" class="flex-col text-primary-foreground flex-shrink-0 ml-6 max-md:hidden">
                 <div class="leading-[1.25] font-medium mb-0.5">{{ totalCartPrice }} Lei</div>
                 <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
               </div>
@@ -296,6 +303,10 @@ Emitter.on('update-cart', async (data: CartInterface) => {
 
 Emitter.on('open-account-modal', async () => {
   openAccountModal();
+});
+
+Emitter.on('open-favorites-cart-modal', (tab: 'favorites' | 'shopping-cart') => {
+  openFavoritesCartModal(tab);
 });
 
 const fetchList = async () => {

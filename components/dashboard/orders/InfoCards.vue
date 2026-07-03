@@ -33,12 +33,6 @@
                   }"
                 >
                   <component :is="card.menu.selected.icon" class="relative z-10 w-6 h-6 text-white" />
-                  <div
-                    class="absolute top-0 left-0 w-full h-full rounded-full group-hover:animate-ping-once"
-                    :style="{
-                      background: card.menu.selected.theme || card.theme,
-                    }"
-                  />
                 </div>
               </div>
             </div>

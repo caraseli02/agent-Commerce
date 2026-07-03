@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <label
-      class="relative hidden border-[1.5px] border-blue-500 rounded-lg items-center h-11 overflow-hidden md:flex"
+      class="relative hidden border border-primary rounded-lg items-center h-11 overflow-hidden md:flex"
       :class="[isScrolled ? 'lg:border-border' : '']"
     >
       <SearchIcon v-if="!isScrolled" class="hidden w-4 h-4 flex-shrink-0 text-gray-500 self-center ml-3 md:inline-block" />
@@ -24,10 +24,10 @@
       </form>
       <div
         v-if="!isScrolled"
-        class="flex h-full items-center justify-center bg-blue-500 hover:bg-blue-600 cursor-pointer px-4"
+        class="flex h-full items-center justify-center bg-primary hover:bg-primary/90 cursor-pointer px-4 transition-colors"
         @click="handleEnterButton"
       >
-        <SearchIcon class="w-5 h-5 text-white" />
+        <SearchIcon class="w-5 h-5 text-primary-foreground" />
       </div>
       <UiButton
         v-else

@@ -28,7 +28,7 @@ describe('mock API flow boundaries', () => {
 
     expect(productResponse.status).toBe('success');
     expect(productResponse.data._id).toBe('prod-2');
-    expect(productResponse.data.name).toBe('Professional Laptop Ultra');
+    expect(productResponse.data.name).toBe('ADM2587E RS-485 Transceiver');
   });
 
   it('adds products through the cart endpoint and converts the cart into a paid mock order', async () => {

@@ -50,7 +50,7 @@ onBeforeUnmount(() => {
     <UiButton
       :variant="isOpen || !isScrolled ? 'secondary' : 'ghost'"
       class="flex items-center mr-4 md:mr-0"
-      :class="[{ 'text-white hover:text-blue-500': !isOpen }, { 'text-slate-500': !isScrolled }]"
+      :class="[{ 'text-primary-foreground hover:bg-white/10': !isOpen && isScrolled }, { 'text-slate-700': !isScrolled }]"
       @click="togglePopover"
     >
       <XIcon v-if="isOpen" class="w-6 h-6" />
