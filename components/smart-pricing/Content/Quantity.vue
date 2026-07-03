@@ -46,7 +46,6 @@ const selectedCount = computed(() => quantityList.value.filter((i) => i.selected
 
 const editItem = async (itemValue: SmartPricingOption) => {
   if (!pricing.value) {
-    console.error('Pricing is not defined');
     return;
   }
   const filteredItems = quantity.value.filter((i) => i._id === itemValue._id);

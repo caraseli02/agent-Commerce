@@ -57,8 +57,7 @@ watch(activeFilter, async (value) => {
     } else {
       emit('newProducts', []);
     }
-  } catch (error) {
-    console.error('Failed to load product tab', error);
+  } catch {
     emit('newProducts', []);
   }
 });

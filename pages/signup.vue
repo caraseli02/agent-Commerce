@@ -422,8 +422,7 @@ const handleSubmit = async () => {
 
       await logout();
       // TODO: Notification banner
-    } catch (error) {
-      console.error('Failed to create account', error);
+    } catch {
       toast({
         variant: 'destructive',
         title: 'Error',

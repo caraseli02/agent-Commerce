@@ -192,8 +192,7 @@ const getCustomerSettings = async () => {
       alert.email = alertSettings[alert.key]?.email || false;
       alert.app = alertSettings[alert.key]?.app || false;
     });
-  } catch (error) {
-    console.error('Failed to load customer settings', error);
+  } catch {
     if (!isMockMode.value) {
       return;
     }
@@ -227,8 +226,7 @@ const markSettingAsRead = async (item: { key: string; email?: boolean; app?: boo
   }
   try {
     await markSettingsAsRead(item, type, props.id);
-  } catch (error) {
-    console.error('Failed to mark setting as read', error);
+  } catch {
     toast({
       variant: 'destructive',
       title: 'Error',
@@ -251,8 +249,7 @@ const resetPassword = async (email: string) => {
     if (response.status !== 'success') {
       return;
     }
-  } catch (error) {
-    console.error('Failed to send password reset link', error);
+  } catch {
     toast({
       variant: 'destructive',
       title: 'Error',

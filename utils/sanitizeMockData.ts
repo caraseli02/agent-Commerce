@@ -222,7 +222,6 @@ export function validateMockDataStructure(data: unknown): boolean {
 
       // Check for blocked keys
       if (BLOCKED_KEYS.some((bk) => key.toLowerCase().includes(bk.toLowerCase()))) {
-        console.error(`SECURITY: Blocked key found in mock data: ${key}`);
         return false;
       }
 
@@ -250,7 +249,6 @@ export function createMockDataGenerator<T>(mockData: T, options: SanitizeOptions
     const sanitized = sanitizeMockData(mockData, options);
 
     if (!validateMockDataStructure(sanitized)) {
-      console.error('SECURITY: Mock data validation failed');
       throw new Error('Mock data validation failed');
     }
 

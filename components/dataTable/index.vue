@@ -110,8 +110,6 @@ watchDebounced(
 // );
 
 // watch(() => props.rowCount, () => {
-//   console.log('reset');
-
 //   table.reset()
 // }, {deep: true})
 

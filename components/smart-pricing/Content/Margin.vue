@@ -45,7 +45,6 @@ const selectedCount = computed(() => marginList.value.filter((i) => i.selected).
 
 const editItem = async (itemValue: SmartPricingOption) => {
   if (!pricing.value) {
-    console.error('Pricing is not defined');
     return;
   }
   const filteredItems = margin.value.filter((i) => i._id === itemValue._id);

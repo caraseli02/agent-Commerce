@@ -53,18 +53,8 @@ export const useMockMode = () => {
 
     // Security assertion: Verify we're NOT in production
     if (process.env.NODE_ENV === 'production') {
-      console.error('SECURITY ALERT: Mock mode attempted in production!');
-      console.error('Immediate action required: Review environment variables');
-      console.error('Current NODE_ENV:', process.env.NODE_ENV);
-      console.error('Current MOCK_MODE:', config.public.MOCK_MODE);
 
       throw new Error('Mock mode is disabled in production');
-    }
-
-    // Security: Log mock mode activation in development
-    if (import.meta.dev) {
-      console.warn('[MOCK MODE] Mock mode is active');
-      console.warn('[MOCK MODE] Ensure this is NOT committed or deployed to production');
     }
 
     return true;

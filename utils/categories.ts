@@ -125,7 +125,6 @@ export const apiRequest = async (url: string, method: IMethod, token: string, bo
       description,
       variant: 'destructive',
     });
-    console.error(`Error during API request: ${method} ${url}`, error);
     throw error;
   }
 };

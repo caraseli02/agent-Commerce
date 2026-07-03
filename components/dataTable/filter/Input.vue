@@ -28,7 +28,6 @@ const searchText = ref('');
 const addToSearch = () => {
   const trimmedName = searchText.value.trim();
   if (props.title === 'Name' && !isNameOrEmailValid(trimmedName)) {
-    console.error('Invalid name input. Please enter a valid name.');
     return;
   }
   if (trimmedName) {

@@ -43,7 +43,6 @@ function deleteAllSelected() {
 
 const editItem = async (itemValue: SmartPricingOption) => {
   if (!pricing.value) {
-    console.error('Pricing is not defined');
     return;
   }
   const filteredItems = pricing.value.filter((i) => i._id === itemValue._id);

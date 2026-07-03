@@ -53,8 +53,7 @@ const fetchAndSetTransactionListRaw = async (
     loading.value = false;
 
     return data.data;
-  } catch (err) {
-    console.error('Failed to load transactions', err);
+  } catch {
     loading.value = false;
     error.value = true;
     totalItems.value = 0;

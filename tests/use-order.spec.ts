@@ -261,8 +261,6 @@ describe('checkout order composable flow boundary', () => {
   });
 
   it('surfaces a checkout error when order submission throws', async () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-
     __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
       if (resource === '/orders/new' && options?.method === 'POST') {
         throw new Error('Gateway unreachable');
@@ -304,9 +302,7 @@ describe('checkout order composable flow boundary', () => {
       type: 'Error',
       code: 'Error',
     });
-    expect(consoleError).toHaveBeenCalledWith('Checkout failed', expect.any(Error));
     expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
-    consoleError.mockRestore();
   });
 
   it('surfaces a checkout error when card payment is canceled', async () => {

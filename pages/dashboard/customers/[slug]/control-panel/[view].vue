@@ -77,8 +77,7 @@ const fetchInformation = async () => {
     }
 
     customerDetails.value = response.data;
-  } catch (error) {
-    console.error('Failed to load customer profile information', error);
+  } catch {
     if (isMockMode.value) {
       customerDetails.value = {
         _id: customerSlug.value,

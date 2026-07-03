@@ -26,8 +26,7 @@ export default function () {
       });
 
       return signIn;
-    } catch (error) {
-      console.error('Failed to sign in with Google', error);
+    } catch {
       return { error: new Error('Sign-in failed') };
     }
   };

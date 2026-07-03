@@ -93,8 +93,7 @@ const getCustomerSettings = async () => {
     const discount = response.status === 'success' ? response.data.value : 10;
     customerDiscount.value = discount;
     customerDiscountBuffer.value = discount;
-  } catch (caughtError) {
-    console.error('Failed to load customer discount', caughtError);
+  } catch {
     loading.value = false;
     error.value = !isMockMode.value;
 

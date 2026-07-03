@@ -78,12 +78,11 @@ export const useCategories = () => {
       categories.value = response.data.data;
       taxonomyId.value = response.data._id;
       isLocked.value = response.data.locked;
-    } catch (error) {
+    } catch {
       if (config.public.MOCK_MODE) {
         setDemoTaxonomy();
         return;
       }
-      console.error('Failed to fetch counts from API:', error);
     } finally {
       isLoading.value = false;
     }

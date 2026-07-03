@@ -347,8 +347,8 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
       if (detailsResponse.status === 'success') {
         userDetails = detailsResponse.data as UserInterface;
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
+      return;
     }
   }
 
@@ -366,8 +366,8 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
       if (response.status === 'success') {
         authStore.addGeneralSettings(response.data);
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
+      return;
     }
   }
 

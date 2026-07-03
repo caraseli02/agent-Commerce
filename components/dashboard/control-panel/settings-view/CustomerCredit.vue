@@ -208,8 +208,7 @@ const getCustomerCredit = async () => {
     } else {
       chartSeries.value[0] = 0;
     }
-  } catch (caughtError) {
-    console.error('Failed to load customer credit summary', caughtError);
+  } catch {
     if (!isMockMode.value) {
       setTimeout(() => {
         loading.value = false;

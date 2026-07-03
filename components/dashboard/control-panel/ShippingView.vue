@@ -208,8 +208,7 @@ const getShippingInformation = async () => {
     }
     addresses.value = response.data.shippingAddress;
     addAddressModal.value = false;
-  } catch (error) {
-    console.error('Failed to load shipping addresses', error);
+  } catch {
     if (!isMockMode.value) {
       return;
     }

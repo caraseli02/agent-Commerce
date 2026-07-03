@@ -203,7 +203,6 @@ export function useOrder() {
         await handleOrderResponse(response, orderId, paymentDetails.type);
       }
     } catch (error) {
-      console.error('Checkout failed', error);
       await goToCheckoutFail(buildCheckoutException(error));
     } finally {
       await cartStore.updateAndReturnCart();

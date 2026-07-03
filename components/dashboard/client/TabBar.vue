@@ -153,8 +153,6 @@ const filterHightlightLeft = ref(0);
 // watch(
 //     activeOrderFilter,
 //     (newVlad) => {
-//         console.log(newVlad);
-
 //         setActiveFilterHighlight();
 //     },
 //     { deep: true, immediate: true }
@@ -172,8 +170,8 @@ const updateOrderFiltersWithCounts = async () => {
         filter.total_items = count;
       }
     });
-  } catch (error) {
-    console.error('Failed to fetch counts from API:', error);
+  } catch {
+    return;
   }
 };
 

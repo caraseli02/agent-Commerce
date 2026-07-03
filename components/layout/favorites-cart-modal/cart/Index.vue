@@ -101,8 +101,8 @@ watch(
 const deleteProduct = async (object: { id: string }) => {
   try {
     await removeFromCart({ products: [object.id] });
-  } catch (error) {
-    console.error('Failed to remove cart item', error);
+  } catch {
+    return;
   }
 };
 </script>

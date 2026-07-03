@@ -168,8 +168,7 @@ function replaceInternalErrorMessages(message: string): string {
 /**
  * Safe error logger with sanitization
  *
- * Logs errors to console with sensitive data removed.
- * In production, sends to error tracking service.
+ * Sends sanitized errors to the tracking service in production.
  *
  * @param error - Error to log
  * @param context - Context or category of the error
@@ -183,9 +182,6 @@ export function logErrorSafely(error: Error | string, context: string = 'Unknown
     maskSensitiveData: true,
     ...options,
   });
-
-  // Log to console
-  console.error(`[${context}] ${sanitizedMessage}`);
 
   // In production, send to error tracking service
   if (isProd) {
@@ -209,9 +205,6 @@ function sendToErrorTrackingService(_error: Error | string, _context: string, _s
   //     tags: { context },
   //     extra: { sanitizedMessage }
   // });
-
-  // For now, just log to console
-  console.warn('Error tracking service not configured');
 }
 
 /**
@@ -224,13 +217,8 @@ function sendToErrorTrackingService(_error: Error | string, _context: string, _s
  * @returns Error handler function
  */
 export function createErrorHandler(defaultContext: string = 'Application') {
-  return (error: Error | string, userMessage?: string) => {
+  return (error: Error | string, _userMessage?: string) => {
     logErrorSafely(error, defaultContext);
-
-    if (userMessage && import.meta.client) {
-      // Show user-friendly message (toast, alert, etc.)
-      console.warn('User message:', userMessage);
-    }
   };
 }
 

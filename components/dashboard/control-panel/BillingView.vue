@@ -208,8 +208,7 @@ const getBillingInformation = async () => {
     }
     addresses.value = response.data.billingAddress;
     addAddressModal.value = false;
-  } catch (error) {
-    console.error('Failed to load billing addresses', error);
+  } catch {
     if (!isMockMode.value) {
       return;
     }

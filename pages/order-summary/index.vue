@@ -183,8 +183,8 @@ const getCustomerCredit = async () => {
         active: creditData.active ?? false,
       };
     }
-  } catch (error) {
-    console.error('Failed to fetch customer credit:', error);
+  } catch {
+    return;
   } finally {
     loading.value = false;
   }
