@@ -2,8 +2,7 @@
 
 ## Current focus
 
-- Portfolio Demo MVP mobile polish sprint from the 2026-07-01 production audit.
-- Local fixes landed on `main` for product-card titles, carousel dots, beta overlay friction, drawer category copy, and footer phone wrapping.
+- Issue #195 repair pass on PR #282: remove console logging from production code and keep the verify gate green.
 - GitHub Issues remain the primary task queue.
 - `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
 - The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
@@ -12,7 +11,8 @@
 
 ## In progress
 
-- None — mobile polish batch verified locally; ready for deploy/review.
+- Issue #195 / PR #282 on branch `fix/issue-195`.
+- Local verification from the last ship attempt passed build, lint, typecheck, and tests; the PR already has green check status and needs a commit only if state changes are introduced.
 
 ## Recently completed
 
