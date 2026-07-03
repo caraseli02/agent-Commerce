@@ -51,11 +51,14 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      htmlAttrs: {
+        lang: 'en',
+      },
       titleTemplate: '%s | ECAS',
       meta: [
         {
           name: 'viewport',
-          content: 'width=device-width, initial-scale=1',
+          content: 'width=device-width, initial-scale=1.0',
         },
       ],
     },
