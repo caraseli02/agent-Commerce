@@ -51,7 +51,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      titleTemplate: '%s - Demo',
+      titleTemplate: '%s | ECAS',
       meta: [
         {
           name: 'viewport',

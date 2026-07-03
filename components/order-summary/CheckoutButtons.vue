@@ -2,12 +2,15 @@
   <div class="flex flex-col mb-8 gap-6">
     <div class="flex flex-col gap-4">
       <div>
-        <button class="px-6 flex flex-row items-center justify-center w-full min-h-[52px] bg-light-500 rounded-xl border border-slate-200">
+        <NuxtLink
+          to="/search"
+          class="px-6 flex flex-row items-center justify-center w-full min-h-[52px] bg-light-500 rounded-xl border border-slate-200 transition-colors duration-300 hover:border-slate-300 hover:bg-slate-50"
+        >
           <ArrowLeft class="text-slate-500" />
           <div class="p-2">
             <span class="text-slate-500 text-base font-medium leading-7">Continue Shopping</span>
           </div>
-        </button>
+        </NuxtLink>
       </div>
       <div v-if="isGuestCheckout">
         <NuxtLink
