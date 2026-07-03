@@ -97,7 +97,7 @@
         Sign in
       </NuxtLink>
     </div>
-    <div class="text-sm text-slate-500 text-center max-md:hidden">© {{ new Date().getFullYear() }} DEMO.APP</div>
+    <div class="text-sm text-slate-500 text-center max-md:hidden">© {{ new Date().getFullYear() }} ECAS</div>
   </div>
 </template>
 

@@ -85,7 +85,7 @@
           </div>
         </div>
         <div>
-          <p class="text-[15px] text-center text-slate-500">&copy; {{ new Date().getFullYear() }} DEMO.APP</p>
+          <p class="text-[15px] text-center text-slate-500">&copy; {{ new Date().getFullYear() }} ECAS</p>
         </div>
       </div>
     </div>

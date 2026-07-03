@@ -35,32 +35,33 @@
 </template>
 
 <script setup lang="ts">
+import { markRaw } from 'vue';
 import ProductsBoxIcon from '@/assets/icons/home/products-box.svg';
 import FastDeliveryIcon from '@/assets/icons/home/delivery-truck.svg';
 import CustomDevelopmentIcon from '@/assets/icons/home/custom-development.svg';
 import CustomerSupportIcon from '@/assets/icons/home/customer-support.svg';
 import PopoverContainer from '@/components/layout/header/main-menu/DektopPopoverContainer.vue';
 
-const features = ref([
+const features = [
   {
     title: 'Over 10,000 products',
     description: 'Available online',
-    icon: ProductsBoxIcon,
+    icon: markRaw(ProductsBoxIcon),
   },
   {
     title: "Fast <br class='md:hidden' /><span class='hidden md:inline'>and Secure</span> Delivery",
     description: 'Reliable Couriers',
-    icon: FastDeliveryIcon,
+    icon: markRaw(FastDeliveryIcon),
   },
   {
     title: "<span class='md:hidden'>Custom Development</span><span class='hidden md:inline'>Research and Development</span>",
     description: "<span class='md:hidden'>Quality Growth</span><span class='hidden md:inline'>Software & Hardware</span>",
-    icon: CustomDevelopmentIcon,
+    icon: markRaw(CustomDevelopmentIcon),
   },
   {
     title: "<span class='hidden md:inline'>Skilled</span> Customer Support",
     description: "Available <span class='md:hidden'>24/7</span><span class='hidden md:inline'>online & on phone</span>",
-    icon: CustomerSupportIcon,
+    icon: markRaw(CustomerSupportIcon),
   },
-]);
+];
 </script>

@@ -62,23 +62,23 @@ const data = [
   },
   {
     photo: '',
-    title: 'RSCSK3343R3D02008T',
-    subtitle: 'Diode: rectifying; SMD; 100V; 0.15A; 4ns; SOD323; Ufmax: 1.2V; 200mW',
+    title: 'MCP9808T-E/OT',
+    subtitle: 'Temperature sensor, I2C, ±0.25°C typical accuracy, SOT-23-5',
   },
   {
     photo: '',
-    title: 'RSCSK3343R3D02008T',
-    subtitle: 'Diode: rectifying; SMD; 100V; 0.15A; 4ns; SOD323; Ufmax: 1.2V; 200mW',
+    title: 'CL31A226KAHNNNE',
+    subtitle: 'MLCC capacitor, 22µF, 10V, X5R, 1206 package',
   },
   {
     photo: '',
-    title: 'RSCSK3343R3D02008T',
-    subtitle: 'Diode: rectifying; SMD; 100V; 0.15A; 4ns; SOD323; Ufmax: 1.2V; 200mW',
+    title: 'USB-CTP-16P',
+    subtitle: 'USB-C receptacle, 16-pin, right-angle, board mount',
   },
   {
     photo: '',
-    title: 'RSCSK3343R3D02008T',
-    subtitle: 'Diode: rectifying; SMD; 100V; 0.15A; 4ns; SOD323; Ufmax: 1.2V; 200mW',
+    title: 'STM32F411RET6',
+    subtitle: '32-bit microcontroller, ARM Cortex-M4, 512 KB flash',
   },
 ];
 </script>

@@ -49,6 +49,7 @@
       </p>
       <button
         class="relative z-20 flex bg-primary text-primary-foreground rounded px-[15px] py-2 text-xs font-medium mb-[30px] md:px-6 md:py-[11px] md:text-sm md:mb-[60px] lg:mb-[34px] xl:mb-14"
+        @click="router.push('/search')"
       >
         View More
       </button>
@@ -172,7 +173,7 @@
             <NuxtLink
               v-for="(subCategory, index) in selectedSubCategory?.subcategory"
               :key="index"
-              to="/"
+              :to="`/search?category=${subCategory.id}`"
               class="relative flex items-center text-[#6E6E6E] text-left px-[5px] transition-colors duration-300 hover:text-primary"
             >
               <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }})</div>
