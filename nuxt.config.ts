@@ -51,6 +51,9 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      htmlAttrs: {
+        lang: 'en',
+      },
       titleTemplate: '%s | ECAS',
       meta: [
         {
