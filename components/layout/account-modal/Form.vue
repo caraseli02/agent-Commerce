@@ -134,6 +134,7 @@ import { useCartStore } from '~/store/cartStore';
 import { usePricingStore } from '~/store/pricingStore';
 import { fetchUserDetails as fetchAuthUserDetails, login as authLogin } from '~/composables/api/auth';
 import { fetchSettings as fetchGeneralSettings } from '~/composables/api/settings';
+import { logErrorSafely, normalizeError } from '~/utils/errorSanitizer';
 
 const { checkForInputErrors } = useFormValidation();
 const config = useRuntimeConfig();
@@ -347,8 +348,8 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
       if (detailsResponse.status === 'success') {
         userDetails = detailsResponse.data as UserInterface;
       }
-    } catch {
-      return;
+    } catch (error) {
+      logErrorSafely(normalizeError(error, 'Unable to load user details'), 'account-modal.fetchUserDetails');
     }
   }
 
@@ -366,8 +367,8 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
       if (response.status === 'success') {
         authStore.addGeneralSettings(response.data);
       }
-    } catch {
-      return;
+    } catch (error) {
+      logErrorSafely(normalizeError(error, 'Unable to load general settings'), 'account-modal.fetchGeneralSettings');
     }
   }
 

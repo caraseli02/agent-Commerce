@@ -2,6 +2,7 @@ import { getAdditionalUserInfo, getIdToken, GoogleAuthProvider, signInWithPopup,
 import type { User } from 'firebase/auth';
 import type { UserInfoJWT } from '~~/types';
 import useParser from '~/composables/useParser';
+import { logErrorSafely, normalizeError } from '~/utils/errorSanitizer';
 
 interface FirebaseResults {
   token: string | undefined;
@@ -26,7 +27,8 @@ export default function () {
       });
 
       return signIn;
-    } catch {
+    } catch (error) {
+      logErrorSafely(normalizeError(error, 'Sign-in failed'), 'useFirebaseAuth.registerUser');
       return { error: new Error('Sign-in failed') };
     }
   };

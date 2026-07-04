@@ -13,6 +13,7 @@ import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-
 import { useCheckoutStore } from '~/store/checkoutStore';
 import { toast } from '~/components/ui/toast';
 import { sendOrder, validateAddress } from '~/composables/api/orders';
+import { logErrorSafely, normalizeError } from '~/utils/errorSanitizer';
 
 interface AddressValidationResponse {
   data: {
@@ -203,6 +204,7 @@ export function useOrder() {
         await handleOrderResponse(response, orderId, paymentDetails.type);
       }
     } catch (error) {
+      logErrorSafely(normalizeError(error, 'Unable to complete checkout'), 'useOrder.makeCheckout');
       await goToCheckoutFail(buildCheckoutException(error));
     } finally {
       await cartStore.updateAndReturnCart();

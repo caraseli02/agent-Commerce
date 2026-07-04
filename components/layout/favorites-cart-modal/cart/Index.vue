@@ -41,6 +41,8 @@ import { useCart } from '~/composables/useCart';
 import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
 import type { FavoriteItem } from '~/types/favorites/item';
 import { useCartStore } from '~/store/cartStore';
+import { toast } from '~/components/ui/toast';
+import { logErrorSafely, normalizeError } from '~/utils/errorSanitizer';
 
 const props = defineProps({
   data: {
@@ -101,8 +103,13 @@ watch(
 const deleteProduct = async (object: { id: string }) => {
   try {
     await removeFromCart({ products: [object.id] });
-  } catch {
-    return;
+  } catch (error) {
+    logErrorSafely(normalizeError(error, 'Unable to remove product from cart'), 'favorites-cart.deleteProduct');
+    toast({
+      title: 'Error',
+      description: 'Unable to remove product from cart. Please try again.',
+      variant: 'destructive',
+    });
   }
 };
 </script>

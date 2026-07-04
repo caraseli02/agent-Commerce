@@ -118,6 +118,21 @@ export function sanitizeErrorMessage(error: Error | string, options: ErrorSaniti
 }
 
 /**
+ * Normalize an unknown error-like value into an Error instance.
+ */
+export function normalizeError(error: unknown, fallbackMessage: string = 'An unexpected error occurred'): Error {
+  if (error instanceof Error) {
+    return error;
+  }
+
+  if (typeof error === 'string' && error.trim()) {
+    return new Error(error);
+  }
+
+  return new Error(fallbackMessage);
+}
+
+/**
  * Mask sensitive data in error message
  *
  * @param message - Error message to mask
