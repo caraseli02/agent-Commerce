@@ -12,7 +12,7 @@
 ## In progress
 
 - Issue #195 / PR #282 on branch `fix/issue-195`.
-- Local verification from the last ship attempt passed build, lint, typecheck, and tests; the PR already has green check status and needs a commit only if state changes are introduced.
+- Local verification from the latest repair pass passed build, lint, typecheck, and tests; the branch still needs a small commit so the existing PR checks can rerun cleanly.
 
 ## Recently completed
 
