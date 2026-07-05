@@ -85,10 +85,12 @@
       <button
         type="button"
         aria-label="Add product to cart"
+        :aria-labelledby="`add-to-cart-${product._id}`"
         class="col-start-2 flex h-10 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 md:absolute md:bottom-0 md:right-0 md:h-auto md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
         <SvgoCart class="h-6 w-6 text-white" />
+        <span :id="`add-to-cart-${product._id}`" class="sr-only">Add {{ product.name }} to cart</span>
       </button>
     </div>
 
