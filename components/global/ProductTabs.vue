@@ -32,6 +32,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   newProducts: [val: ProductInterface[]];
+  loading: [val: boolean];
 }>();
 
 const activeFilter = ref('');
@@ -48,6 +49,7 @@ const setActiveFilter = (filter: string) => {
 
 watch(activeFilter, async (value) => {
   if (!value) return;
+  emit('loading', true);
   try {
     const response = await fetchProductTab(value);
     const data = response?.data || response;
@@ -60,6 +62,8 @@ watch(activeFilter, async (value) => {
   } catch (error) {
     console.error('Failed to load product tab', error);
     emit('newProducts', []);
+  } finally {
+    emit('loading', false);
   }
 });
 </script>

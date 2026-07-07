@@ -7,8 +7,10 @@
 <script setup lang="ts">
 definePageMeta({
   middleware: [
-    function (_to, _from) {
-      return navigateTo('/');
+    function (to) {
+      const redirect = to.query.redirect?.toString();
+      const query = redirect ? { signin: 'true', redirect } : { signin: 'true' };
+      return navigateTo({ path: '/', query });
     },
   ],
 });

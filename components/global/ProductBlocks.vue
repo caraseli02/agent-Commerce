@@ -5,11 +5,17 @@
       v-if="!fetchedProducts"
       :class="{ 'xl:ml-0': slots.banner }"
       :filters="filters ?? []"
-      @new-products="productList = $event"
+      @new-products="onProductsLoaded"
+      @loading="productsLoading = $event"
     />
     <div :class="['md:flex flex-col xl:grid', { 'xl:grid-cols-[auto,1fr]': slots.banner }]">
       <slot name="banner" />
-      <div v-if="productList.length === 0" class="px-1 mt-6 md:pr-0 min-h-[284px] w-full">
+      <div v-if="productsLoading && productList.length === 0" class="px-1 mt-6 md:pr-0 min-h-[284px] w-full">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div v-for="index in 6" :key="index" class="h-[280px] animate-pulse rounded-xl bg-slate-100" />
+        </div>
+      </div>
+      <div v-else-if="productList.length === 0" class="px-1 mt-6 md:pr-0 min-h-[284px] w-full">
         <div class="flex flex-col gap-10 items-center content-center justify-center w-full h-full">
           <div>
             <SvgoNotFound class="hidden sm:block" />
@@ -50,10 +56,17 @@ const slots = defineSlots<{
 }>();
 
 const productList = ref<ProductInterface[]>([]);
+const productsLoading = ref(!props.fetchedProducts);
+
+const onProductsLoaded = (products: ProductInterface[]) => {
+  productList.value = products;
+  productsLoading.value = false;
+};
 
 onMounted(() => {
   if (props.fetchedProducts) {
     productList.value = props.fetchedProducts;
+    productsLoading.value = false;
   }
 });
 

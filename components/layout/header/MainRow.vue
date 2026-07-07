@@ -85,20 +85,20 @@
             <button
               class="relative flex items-center text-left"
               :class="[isScrolled ? '' : 'md:hidden', showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
-              aria-label="Open shopping cart"
+              :aria-label="cartItems > 0 ? `Open cart, ${cartItems} items, ${totalCartPrice} Lei excluding VAT` : 'Open shopping cart'"
               @click="openFavoritesCartModal('shopping-cart')"
             >
-              <div class="flex items-center md:-mr-5 xl:-mr-5">
+              <div class="flex items-center md:-mr-5 xl:-mr-5" aria-hidden="true">
                 <CartIcon class="w-6 h-6 text-primary-foreground lg" :class="[cartItems > 0 ? 'mr-0' : 'mr-4']" />
                 <span
                   v-if="cartItems > 0"
                   class="flex -translate-y-2 -translate-x-2.5 items-center justify-center h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
                   :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]']"
                 >
-                  <span> {{ cartItems }} </span>
+                  <span>{{ cartItems }}</span>
                 </span>
               </div>
-              <div v-if="totalCartPrice" class="flex-col text-primary-foreground flex-shrink-0 ml-6 max-md:hidden">
+              <div v-if="totalCartPrice" class="flex-col text-primary-foreground flex-shrink-0 ml-6 max-md:hidden" aria-hidden="true">
                 <div class="leading-[1.25] font-medium mb-0.5">{{ totalCartPrice }} Lei</div>
                 <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
               </div>
@@ -118,7 +118,7 @@
                     class="bg-transparent flex-1 w-full py-2 h-10 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
                     @input="onInput"
                     @keypress.enter="
-                      $router.push('/search');
+                      $router.push({ path: '/search', query: searchVal ? { keyword: searchVal } : {} });
                       searchVal = '';
                     "
                     @blur="showMobileSearch = false"

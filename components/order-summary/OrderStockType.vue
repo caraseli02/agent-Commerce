@@ -74,6 +74,12 @@
             />
           </div>
         </button>
+        <p
+          v-if="!shippingPreferencesExpanded && ((mixedOrBackOrder && !order.backorderOption) || !order.deliveryMethod)"
+          class="px-1 text-xs leading-5 text-amber-700"
+        >
+          Select shipping preferences before checkout.
+        </p>
         <Transition name="expand">
           <OrderSummaryShippingPreferencesSection
             v-if="shippingPreferencesExpanded"
@@ -109,6 +115,9 @@
           />
         </div>
       </button>
+      <p v-if="paymentMethodWarning && !paymentMethodExpanded" class="px-1 text-xs leading-5 text-amber-700">
+        Choose a payment method before checkout.
+      </p>
       <Transition name="expand">
         <OrderSummaryPaymentMethodSection
           v-if="paymentMethodExpanded"

@@ -6,7 +6,7 @@
           class="flex h-full gap-4 md:gap-[40px] bg-slate-50 border border-slate-200 rounded-xl p-6 md:m-0 xl:flex-col xl:w-[330px] xl:mb-[30px]"
         >
           <img
-            :src="PromoItem"
+            :src="promoImage"
             alt="Electronic component kit"
             class="h-[100px] w-[120px] md:h-auto md:w-[290px] md:max-h-[240px] xl:w-full object-contain"
             loading="lazy"
@@ -31,9 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import PromoItem from '@/assets/media/home/black-friday-item.png';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { fetchProductTab } from '~/composables/api/products';
+
+const promoImage = 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500';
 
 const productList = ref<ProductInterface[]>([]);
 

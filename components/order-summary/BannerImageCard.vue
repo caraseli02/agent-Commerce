@@ -17,14 +17,17 @@
       </div>
     </div>
     <div>
-      <img class="min-w-[280px] min-h-[240px] object-contain" :src="HotSaleItem" alt="Electronic component" loading="lazy" />
+      <img
+        class="min-w-[280px] min-h-[240px] object-contain"
+        src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=500"
+        alt="Electronic component"
+        loading="lazy"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import HotSaleItem from '@/assets/media/home/black-friday-item.png';
-
 defineOptions({
   name: 'BannerImageCard',
 });

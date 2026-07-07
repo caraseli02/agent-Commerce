@@ -16,7 +16,7 @@
             <div class="flex min-w-0 items-start gap-1">
               <NuxtLink
                 :to="`/product/${item._id}`"
-                class="block min-w-0 flex-1 text-base font-semibold leading-snug line-clamp-2 md:text-xl md:leading-tight md:truncate md:line-clamp-none"
+                class="block min-w-0 flex-1 text-base font-semibold leading-snug line-clamp-2 md:text-xl md:leading-tight"
               >
                 {{ item.name }}
               </NuxtLink>
@@ -108,7 +108,7 @@
         <div class="text-sm font-medium font-Poppins text-blue text-blue-500">View More</div>
       </div>
     </div>
-    <div class="flex gap-2.5 pt-1 md:col-span-2 xl:col-span-1 xl:items-end">
+    <div class="flex items-center gap-2.5 pt-1 md:col-span-2 xl:col-span-1 xl:items-end">
       <QuantityButtons
         v-if="minPriceConfiguration"
         v-model="quantity"
@@ -117,7 +117,7 @@
       />
       <button
         :disabled="quantity === 0"
-        class="flex items-center flex-1 justify-center bg-blue-500 rounded text-white px-5 py-[9px]"
+        class="flex h-10 items-center flex-1 justify-center bg-blue-500 rounded text-white px-5"
         @click="addToCart(item)"
       >
         <CartIcon class="w-6 h-6 mr-2" />

@@ -7,8 +7,12 @@
         </NuxtLink>
         <LayoutHeaderSearch :show-results="!isScrolled" class="flex-1 xl:max-w-[680px]" />
         <div class="flex items-center xl:gap-[46px]">
-          <button class="flex items-center text-left max-md:hidden" @click="openFavoritesCartModal('shopping-cart')">
-            <div class="flex items-center mr-0.5">
+          <button
+            class="flex items-center text-left max-md:hidden"
+            :aria-label="cartItems > 0 ? `Open cart, ${cartItems} items, ${totalCartPrice} Lei excluding VAT` : 'Open shopping cart'"
+            @click="openFavoritesCartModal('shopping-cart')"
+          >
+            <div class="flex items-center mr-0.5" aria-hidden="true">
               <CartIcon class="w-6 h-6 text-slate-500 lg" :class="[cartItems > 0 ? 'mr-0' : 'mr-4']" />
               <span
                 v-if="cartItems > 0"
@@ -18,7 +22,7 @@
                 <span> {{ cartItems }} </span>
               </span>
             </div>
-            <div v-if="totalCartPrice" class="flex-col text-slate-500 flex-shrink-0">
+            <div v-if="totalCartPrice" class="flex-col text-slate-500 flex-shrink-0" aria-hidden="true">
               <div class="leading-[1.25] font-medium mb-0.5">{{ totalCartPrice }} Lei</div>
               <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
             </div>

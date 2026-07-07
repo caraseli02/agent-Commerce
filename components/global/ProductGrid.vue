@@ -57,11 +57,11 @@ const productsByViewport = computed(() => {
   const rowsNumber = props.rowsNumber ?? 1;
   const breakpointsMasonryBanner = {
     xs: props.productsList,
-    sm: createChunkedArray(3, props.productsList),
-    md: createChunkedArray(3, props.productsList),
-    lg: createChunkedArray(5, props.productsList),
-    xl: createChunkedArray(5, props.productsList),
-    '2xl': createChunkedArray(5, props.productsList),
+    sm: createChunkedArray(4, props.productsList),
+    md: createChunkedArray(4, props.productsList),
+    lg: createChunkedArray(4, props.productsList),
+    xl: createChunkedArray(4, props.productsList),
+    '2xl': createChunkedArray(4, props.productsList),
   };
 
   const breakpointsMasonry = { ...breakpointsMasonryBanner, '2xl': createChunkedArray(7, props.productsList) };

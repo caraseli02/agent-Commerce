@@ -151,16 +151,5 @@ onMounted(() => {
         </tr>
       </table>
     </div>
-    <div class="flex justify-center px-[15px] md:justify-end lg:px-5">
-      <button
-        :disabled="isLoading"
-        class="min-w-[236px] flex bg-slate-500 px-6 py-3 rounded-lg text-sm font-medium text-white flex-shrink-0 md:mb-[15px] justify-center"
-        :class="{ 'bg-gray-400': isLoading }"
-        @click="searchSimilarProducts"
-      >
-        <span v-if="isLoading"> Loading... </span>
-        <span v-else @click="showSimilarProducts()"> Show similar products ({{ totalSimilarProducts }}) </span>
-      </button>
-    </div>
   </div>
 </template>

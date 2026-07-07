@@ -68,6 +68,10 @@
 import { useCustomerDashboard } from '@/composables/useCustomerDashboard';
 import { useRoute } from '#app';
 
+useHead({
+  title: 'Dashboard',
+});
+
 const {
   ordersIds,
   activeOrderFilter,

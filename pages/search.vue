@@ -55,7 +55,9 @@ useHead({
 const productStore = useProductStore();
 const { similarProducts, similarProductFeatures, showSimilarOnly } = storeToRefs(productStore);
 const route = useRoute();
-const keyword = ref(route.query.keyword?.toString() ?? '');
+const readSearchKeyword = (query: Record<string, unknown>) => query.keyword?.toString() ?? query.q?.toString() ?? '';
+
+const keyword = ref(readSearchKeyword(route.query));
 
 const resolveKeyword = () => keyword.value;
 
@@ -212,7 +214,7 @@ watch(additionalFilters, async (filter) => {
 });
 
 watch(route, (value) => {
-  const newKeyword = value.query.keyword?.toString() ?? '';
+  const newKeyword = readSearchKeyword(value.query);
   keyword.value = newKeyword;
   getProduct(newKeyword, 1, 10, {}, additionalFilters.value);
 });

@@ -53,13 +53,9 @@
     </div>
     <div class="mt-1 flex items-start gap-2 rounded-lg border border-slate-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Tags:</div>
-      <button class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-xs leading-tight font-medium text-blue-500">
-        <span> #Diode </span>
-        <span> #Connector </span>
-        <span> #GasDetector </span>
-        <span> #Thermostat </span>
-        <span> #Transistor </span>
-      </button>
+      <div class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-xs leading-tight font-medium text-blue-500">
+        <span v-for="tag in productTags" :key="tag"> #{{ tag }} </span>
+      </div>
     </div>
   </div>
   <Teleport to="body">
@@ -76,9 +72,17 @@ import PDFIcon from '@/assets/icons/pdf.svg';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import type { ProductDetail } from '~~/model/products/response/ProductDetailResponse';
 
-defineProps<{
+const props = defineProps<{
   product: ProductDetail;
 }>();
+
+const productTags = computed(() => {
+  const taxonomy =
+    props.product.details?.SummaryData?.TaxonomyPath?.split('>')
+      .map((part) => part.trim())
+      .filter(Boolean) ?? [];
+  return [...new Set(taxonomy)].slice(0, 5);
+});
 
 const showCustomProductPartNumberModal = ref(false);
 </script>

@@ -19,7 +19,9 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  const product = (mockProducts as ProductInterface[]).find((p) => p._id === productId || p.path === productId);
+  const product = (mockProducts as ProductInterface[]).find(
+    (p) => p._id === productId || p.path === productId || p.alias?.toLowerCase() === normalizedId
+  );
 
   if (!product) {
     throw createError({

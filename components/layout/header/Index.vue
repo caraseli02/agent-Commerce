@@ -12,7 +12,7 @@
             </div>
           </div>
           <div class="text-xs leading-[1.67] font-semibold text-primary mr-auto md:mr-0 lg:text-sm lg:leading-[1.43]">
-            <span class="uppercase">Free</span> shipping on orders over $150
+            <span class="uppercase">Free</span> shipping on orders over 650 Lei
           </div>
           <button class="flex items-center" @click="showRegionalPreferencesModal = true">
             <RonFlag class="w-6 h-5 mr-2.5" />

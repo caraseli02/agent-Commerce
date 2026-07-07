@@ -30,7 +30,11 @@ const selectedDetailColumns = computed(() => {
   });
 });
 const breadcrumbTrail = computed(() => selectedCategories.value.map((category) => (category as TaxonomyInterface).name));
-const formatItemCount = (count?: number) => `${Number(count ?? 0).toLocaleString()} items`;
+const formatItemCount = (count?: number) => {
+  const total = Number(count ?? 0);
+  const label = total === 1 ? 'item' : 'items';
+  return `${total.toLocaleString()} ${label}`;
+};
 const handleRootClick = (category: TaxonomyInterface) => onCategoryClick(category, true);
 const handleChildClick = (category: TaxonomyInterface) => onCategoryClick(category, false);
 const resetSelection = () => (selectedCategories.value = []);

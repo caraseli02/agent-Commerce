@@ -54,8 +54,8 @@ const features = [
     icon: markRaw(FastDeliveryIcon),
   },
   {
-    title: "<span class='md:hidden'>Custom Development</span><span class='hidden md:inline'>Research and Development</span>",
-    description: "<span class='md:hidden'>Quality Growth</span><span class='hidden md:inline'>Software & Hardware</span>",
+    title: 'Research and Development',
+    description: 'Software & Hardware',
     icon: markRaw(CustomDevelopmentIcon),
   },
   {
