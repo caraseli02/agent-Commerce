@@ -36,7 +36,7 @@
           <UiDropdownMenuTrigger as-child>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500"
+              class="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               aria-label="Product options"
               @click.prevent.stop
             >
@@ -49,7 +49,12 @@
             <UiDropdownMenuItem @click.prevent.stop>3D view</UiDropdownMenuItem>
           </UiDropdownMenuContent>
         </UiDropdownMenu>
-        <button class="hidden shrink-0 md:flex" type="button" aria-label="View product information" @click.prevent>
+        <button
+          class="hidden shrink-0 md:flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          type="button"
+          aria-label="View product information"
+          @click.prevent
+        >
           <svgo-info-circle class="h-4 w-4 text-slate-500" />
         </button>
       </div>
@@ -86,7 +91,7 @@
         type="button"
         aria-label="Add product to cart"
         :aria-labelledby="`add-to-cart-${product._id}`"
-        class="col-start-2 flex h-10 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 md:absolute md:bottom-0 md:right-0 md:h-auto md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        class="col-start-2 flex h-10 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 md:absolute md:bottom-0 md:right-0 md:h-auto md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
         <SvgoCart class="h-6 w-6 text-white" />
@@ -96,7 +101,7 @@
 
     <div class="absolute right-0 top-[32px] hidden z-20 flex-col gap-2.5 pr-4 md:flex">
       <button
-        class="flex justify-end text-gray-500"
+        class="flex justify-end text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         type="button"
         aria-label="Add product to favorites"
         @click.prevent="addToFavourite(product)"
@@ -104,7 +109,7 @@
         <SvgoCardHeartIcon class="h-6 w-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
       </button>
       <button
-        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500"
+        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         type="button"
         aria-label="Share product"
         @click.prevent
@@ -112,7 +117,7 @@
         <SvgoCardShareIcon class="h-6 w-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
       </button>
       <button
-        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500"
+        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         type="button"
         aria-label="Open product 3D view"
         @click.prevent
