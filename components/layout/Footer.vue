@@ -56,11 +56,11 @@
           </div>
           <div class="grid grid-cols-2 gap-5 md:flex md:flex-wrap md:gap-x-[30px] lg:gap-x-[50px]">
             <div v-for="(items, label, index) in navItems" :key="index" class="md:max-w-max md:last:ml-[94px] lg:last:ml-0">
-              <div class="mb-2 md:mb-[15px]">
-                <div class="text-sm font-semibold mb-0.5 md:text-base md:mb-1.5">
+              <div class="mb-[15px]">
+                <div class="mb-1.5 text-sm font-semibold md:text-base">
                   {{ label }}
                 </div>
-                <div class="w-[38px] h-0.5 bg-blue-500 rounded-full md:h-1" />
+                <div class="h-0.5 w-[38px] rounded-full bg-blue-500" />
               </div>
               <ul class="grid grid-cols-1 gap-[3px] md:gap-1.5">
                 <li v-for="(navItem, navItemIndex) in items" :key="navItemIndex">
