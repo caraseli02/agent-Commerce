@@ -8,10 +8,10 @@
         }"
       >
         <button
-          class="rounded-lg w-8 h-8 bg-[#F2F2F2] flex items-center justify-center text-slate-500 flex-shrink-0 transition-colors duration-300 mt-4 ml-auto mr-4 mb-4 hover:text-blue-500"
+          class="mt-4 ml-auto mr-4 mb-4 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#F2F2F2] text-slate-500 transition-colors duration-300 leading-none hover:text-blue-500"
           @click="$emit('close')"
         >
-          <XIcon class="w-6 h-6" />
+          <XIcon class="w-5 h-5" />
         </button>
         <div class="relative z-10 flex items-center gap-6 px-4 bg-white md:px-6">
           <button
