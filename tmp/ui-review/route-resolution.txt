@@ -1,4 +1,0 @@
-product/categories -> http://localhost:3000/
-checkout/session -> http://localhost:3000/
-order-summary -> http://localhost:3000/
-dashboard -> http://localhost:3000/dashboard

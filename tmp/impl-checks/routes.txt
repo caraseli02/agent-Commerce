@@ -1,5 +1,0 @@
-order-tracking|http://localhost:3000/order-tracking|- ECAS
-dashboard|http://localhost:3000/dashboard|500 - Server Error | Nuxt - ECAS
-product/categories|http://localhost:3000/product/categories|500 - undefined | Nuxt
-checkout/session|http://localhost:3000/checkout/session|500 - undefined | Nuxt
-order-summary|http://localhost:3000/order-summary|500 - undefined | Nuxt
