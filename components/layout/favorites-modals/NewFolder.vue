@@ -10,6 +10,7 @@
         </div>
         <button
           class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded bg-[#F2F2F2] text-gray-500 transition-colors duration-300 leading-none hover:text-slate-500"
+          aria-label="Close create new folder dialog"
           @click="$emit('close')"
         >
           <XIcon class="w-5 h-5" />

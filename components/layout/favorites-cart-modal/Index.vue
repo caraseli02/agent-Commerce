@@ -9,6 +9,7 @@
       >
         <button
           class="mt-4 ml-auto mr-4 mb-4 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#F2F2F2] text-slate-500 transition-colors duration-300 leading-none hover:text-blue-500"
+          aria-label="Close favorites and cart modal"
           @click="$emit('close')"
         >
           <XIcon class="w-5 h-5" />
