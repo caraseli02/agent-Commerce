@@ -7,10 +7,10 @@
       <div class="flex flex-col justify-between items-center pb-4 gap-4">
         <button
           aria-label="Close account panel"
-          class="rounded-lg w-8 h-8 bg-light-300 flex items-center justify-center transition-colors duration-300 hover:bg-light-400 self-end mr-2"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-light-300 p-0 leading-none transition-colors duration-300 hover:bg-light-400 self-end mr-2"
           @click="emit('close')"
         >
-          <XIcon class="w-[24px] h-[24px] text-gray-600 hover:text-blue-500" />
+          <XIcon class="w-5 h-5 text-gray-600" />
         </button>
         <LayoutAccountModalDetails v-if="loggedInUser" />
       </div>
