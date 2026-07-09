@@ -176,7 +176,7 @@
               :to="`/search?category=${subCategory.id}`"
               class="relative flex items-center text-[#6E6E6E] text-left px-[5px] transition-colors duration-300 hover:text-primary"
             >
-              <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }})</div>
+              <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }} items)</div>
               <div
                 v-if="index === 3 || index === 5"
                 class="bg-primary text-primary-foreground rounded-full px-[5px] py-px font-Inter font-semibold text-xs leading-tight"
@@ -232,7 +232,7 @@
                 :to="`/search?category=${subCategory.id}`"
                 class="relative flex items-start text-[#6E6E6E] text-left px-[5px] transition-colors duration-300 hover:text-primary"
               >
-                <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }})</div>
+                <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }} items)</div>
                 <!--                                <div -->
                 <!--                                    v-if="index === 3 || index === 5" -->
                 <!--                                    class="bg-primary text-primary-foreground rounded-full px-[5px] py-px font-Inter font-semibold text-xs leading-tight" -->
