@@ -62,7 +62,9 @@ const productTitle = (product: ProductInterface) => {
 
   const mapLabels = mapLabelsToIds(categories.value);
   const categoriesLabelsArray = mapPathArrayOfNames(product.path, mapLabels);
+  const categoryName = categoriesLabelsArray[categoriesLabelsArray.length - 1]?.name;
 
-  return categoriesLabelsArray[categoriesLabelsArray.length - 1]?.name || '';
+  // Hide placeholder category labels so search suggestions don't show "N/A >".
+  return categoryName && categoryName !== 'N/A' ? categoryName : '';
 };
 </script>
