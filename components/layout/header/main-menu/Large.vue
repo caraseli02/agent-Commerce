@@ -30,7 +30,7 @@
             class="text-xs font-semibold transition-colors duration-300 group-hover:text-slate-500"
             :class="[selectedCategory === category ? 'text-slate-500 ' : 'text-gray-500']"
           >
-            {{ category.productCount }} Products
+            {{ category.productCount }} items
           </div>
         </div>
       </button>
@@ -161,7 +161,7 @@
                   {{ subCategory.name }}
                 </div>
                 <div class="text-xs font-semibold text-gray-500 transition-colors duration-300 group-hover:text-slate-500">
-                  {{ subCategory.productCount }} Products
+                  {{ subCategory.productCount }} items
                 </div>
               </div>
             </button>
@@ -220,7 +220,7 @@
                     class="text-xs font-semibold transition-colors duration-300 group-hover:text-slate-500"
                     :class="[selectedSubCategory === subCategory ? 'text-slate-500' : 'text-gray-500']"
                   >
-                    {{ subCategory.productCount }} Products
+                    {{ subCategory.productCount }} items
                   </div>
                 </div>
               </button>
