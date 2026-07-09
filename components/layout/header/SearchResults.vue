@@ -17,8 +17,10 @@
               class="flex items-center justify-between gap-1 text-xs leading-[1.67] font-medium text-neutral-700 mb-1 lg:text-sm lg:leading-[1.43]"
             >
               <div class="flex items-center w-[calc(100%-50px)] hover:text-primary">
-                <div class="truncate">{{ productTitle(product) }}</div>
-                <CaretIcon class="w-4 h-4 flex-shrink-0" />
+                <template v-if="productTitle(product)">
+                  <div class="truncate">{{ productTitle(product) }}</div>
+                  <CaretIcon class="w-4 h-4 flex-shrink-0" />
+                </template>
                 <div class="font-Inter">{{ product.name }}</div>
               </div>
               <div
@@ -55,12 +57,12 @@ const props = defineProps<{
 
 const productTitle = (product: ProductInterface) => {
   if (!product.path) {
-    return 'N/A';
+    return '';
   }
 
   const mapLabels = mapLabelsToIds(categories.value);
   const categoriesLabelsArray = mapPathArrayOfNames(product.path, mapLabels);
 
-  return categoriesLabelsArray[categoriesLabelsArray.length - 1]?.name || 'N/A';
+  return categoriesLabelsArray[categoriesLabelsArray.length - 1]?.name || '';
 };
 </script>
