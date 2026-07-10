@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 
+type PrintTestWindow = Window & {
+  __printCalls: number[];
+  print: () => void;
+};
+
 /**
  * Tier 1 Critical Flow: Browse → Product Detail
  *
@@ -7,6 +12,7 @@ import { expect, test } from '@playwright/test';
  * essential information (name, price, stock, add-to-cart action).
  * This is the entry point of the purchase journey.
  */
+
 test.describe('Browse → Product Detail', () => {
   test('user can view product details from a direct product URL', async ({ page }) => {
     await page.goto('/product/prod-1');
@@ -20,11 +26,73 @@ test.describe('Browse → Product Detail', () => {
     await expect(page.getByText('959.99').first()).toBeVisible();
 
     // Stock information is shown
-    await expect(page.getByText(/150 in stock/i)).toBeVisible();
+    await expect(page.getByText(/150 in stock/i).first()).toBeVisible();
 
     // Add to cart button is present and actionable
     const addToCartButtons = page.getByRole('button', { name: /add to cart/i });
     await expect(addToCartButtons.first()).toBeVisible();
+  });
+
+  test('print action triggers window.print from the desktop entry point', async ({ page }) => {
+    await page.goto('/product/prod-1');
+    await page.waitForTimeout(1500);
+    await page.evaluate(() => {
+      const testWindow = window as unknown as PrintTestWindow;
+      testWindow.__printCalls = [];
+      testWindow.print = () => {
+        testWindow.__printCalls.push(Date.now());
+      };
+    });
+
+    await page.evaluate(() => {
+      const buttons = [...document.querySelectorAll('button')];
+      buttons.find((button) => button.textContent?.trim() === 'Print this page')?.click();
+    });
+
+    await expect.poll(async () => {
+      return page.evaluate(() => {
+        const testWindow = window as unknown as PrintTestWindow;
+        return testWindow.__printCalls.length;
+      });
+    }).toBe(1);
+  });
+
+  test('print action triggers window.print from the mobile dropdown entry point', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/product/prod-1');
+    await page.waitForTimeout(1500);
+    await page.evaluate(() => {
+      const testWindow = window as unknown as PrintTestWindow;
+      testWindow.__printCalls = [];
+      testWindow.print = () => {
+        testWindow.__printCalls.push(Date.now());
+      };
+    });
+
+    await page.evaluate(() => {
+      const buttons = [...document.querySelectorAll('button')];
+      buttons.find((button) => button.textContent?.trim() === 'Product actions')?.click();
+    });
+
+    await page.waitForFunction(() => {
+      const items = [...document.querySelectorAll('[role="menuitem"]')] as HTMLElement[];
+      return items.some(
+        (item) =>
+          item.textContent?.trim() === 'Print this page' && !!(item.offsetWidth || item.offsetHeight || item.getClientRects().length)
+      );
+    });
+
+    await page.evaluate(() => {
+      const items = [...document.querySelectorAll('[role="menuitem"]')] as HTMLElement[];
+      items.find((item) => item.textContent?.trim() === 'Print this page')?.click();
+    });
+
+    await expect.poll(async () => {
+      return page.evaluate(() => {
+        const testWindow = window as unknown as PrintTestWindow;
+        return testWindow.__printCalls.length;
+      });
+    }).toBe(1);
   });
 
   test('ask about product email validation shows invalid styling and clears on valid submit', async ({ page }) => {
@@ -80,17 +148,19 @@ test.describe('Browse → Product Detail', () => {
     await expect(page.getByRole('button', { name: /specifications/i })).toBeVisible();
 
     // Technical specs from ParametricData
-    await expect(page.getByText('Display Size')).toBeVisible();
-    await expect(page.getByText('6.7')).toBeVisible();
-    await expect(page.getByText('Storage')).toBeVisible();
-    await expect(page.getByText('128GB')).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Core' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'ARM Cortex-M4' }).first()).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Flash' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: '1024' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'SRAM' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: '192' })).toBeVisible();
   });
 
   test('product page shows breadcrumbs navigation', async ({ page }) => {
     await page.goto('/product/prod-1');
 
-    await expect(page.getByRole('link', { name: 'Electronics' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Smartphones' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Flagship' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Semiconductors' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Microcontrollers' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'ARM Cortex-M4' })).toBeVisible();
   });
 });
