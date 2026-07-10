@@ -1,53 +1,47 @@
 <template>
-  <div>
-    <label v-if="label" :for="inputId" class="mb-1 block text-sm text-gray-500">
-      {{ label }}
-    </label>
-    <div
-      class="relative border w-full transition-colors duration-300"
-      :class="[error ? 'border-rose-500' : 'border-border focus-within:border-blue-500', size === 'lg' ? 'rounded-lg' : 'rounded']"
-    >
-      <input
-        :id="inputId"
-        :value="modelValue"
-        :type="showPassword ? 'text' : 'password'"
-        :placeholder="placeholder"
-        :aria-invalid="error ? 'true' : undefined"
-        :aria-describedby="error ? errorId : undefined"
-        class="bg-transparent pl-3 pr-12 text-sm !placeholder:text-gray-500 w-full focus:outline-none"
-        :class="[size === 'lg' ? 'py-2.5' : 'py-2']"
-        @input="handleInput"
-      />
-      <button
-        type="button"
-        class="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-r-lg text-gray-500 transition-colors hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
-        :aria-label="showPassword ? 'Hide password' : 'Show password'"
-        :aria-pressed="showPassword"
-        @click="showPassword = !showPassword"
-      >
-        <EyeClosedIcon v-if="!showPassword" class="h-6 w-6" />
-        <EyeIcon v-else class="h-6 w-6" />
-      </button>
-      <div v-if="handleStrength" class="flex flex-col mt-[15px]">
-        <div class="grid grid-cols-5 gap-2.5 mb-[5px]">
-          <div
-            v-for="num in 5"
-            :key="num"
-            class="rounded-lg h-[5px] transition-colors duration-300"
-            :class="[passwordStrength >= num ? 'bg-green-500' : 'bg-[#E7E7EB]']"
-          />
-        </div>
-        <div class="text-xs text-gray-500">Use 8 or more characters with a mix of letters, numbers & symbols.</div>
+  <div class="relative" :class="[error ? 'mb-4' : '']">
+    <label class="flex flex-col relative !focus:rounded-lg">
+      <div v-if="label" class="text-sm text-gray-500 mb-1">
+        {{ label }}
       </div>
-    </div>
-    <p v-if="error" :id="errorId" role="alert" class="mt-1 text-xs leading-normal text-rose-500">
-      {{ error }}
-    </p>
+      <div
+        class="relative border w-full transition-colors duration-300 !focus:rounded-lg"
+        :class="[error ? 'border-rose-500' : 'border-border focus-within:border-blue-500', size === 'lg' ? 'rounded-lg' : 'rounded']"
+      >
+        <input
+          :value="modelValue"
+          :type="showPassword ? 'text' : 'password'"
+          :placeholder="placeholder"
+          class="bg-transparent pl-3 pr-10 text-sm !placeholder:text-gray-500 w-full focus:outline-none !focus:rounded-lg active:rounded-lg"
+          :class="[size === 'lg' ? 'py-2.5' : 'py-2']"
+          @input="handleInput"
+        />
+        <div class="flex cursor-pointer" @click="showPassword = !showPassword">
+          <EyeClosedIcon v-if="!showPassword" class="absolute top-1/2 -translate-y-1/2 right-2.5 w-6 h-6 text-gray-500" />
+          <EyeIcon v-else class="absolute top-1/2 -translate-y-1/2 right-2.5 w-6 h-6 text-gray-500" />
+        </div>
+        <div v-if="handleStrength" class="flex flex-col mt-[15px]">
+          <div class="grid grid-cols-5 gap-2.5 mb-[5px]">
+            <div
+              v-for="num in 5"
+              :key="num"
+              class="rounded-lg h-[5px] transition-colors duration-300"
+              :class="[passwordStrength >= num ? 'bg-green-500' : 'bg-[#E7E7EB]']"
+            />
+          </div>
+          <div class="text-xs text-gray-500">Use 8 or more characters with a mix of letters, numbers & symbols.</div>
+        </div>
+      </div>
+    </label>
+    <Transition name="fade">
+      <div v-if="error" class="absolute -bottom-1 left-0 translate-y-full pointer-events-none text-xs leading-normal text-rose-500">
+        {{ error }}
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useId } from 'vue';
 import EyeIcon from '@/assets/icons/eye.svg';
 import EyeClosedIcon from '@/assets/icons/eye-closed.svg';
 
@@ -70,8 +64,6 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue']);
 
 const showPassword = ref(false);
-const inputId = useId();
-const errorId = `${inputId}-error`;
 const passwordStrength = computed(() => {
   let score = 0;
   let length = 0;
