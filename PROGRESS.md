@@ -2,13 +2,13 @@
 
 ## Current focus
 
-- Issue #304 — remove `/product-blocks` sandbox route; PR opened on `feat/304-remove-product-blocks-route`.
-- Issue #254 has open PR #320 awaiting evaluator (no `in-progress` label on issue).
+- Issue #304 — remove `/product-blocks` sandbox route; PR #323 is open on `cursor/ecas-controller-loop-workflow-8736`.
+- Issue #254 is complete; PR #320 merged.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #304 — branch `feat/304-remove-product-blocks-route`; local `pnpm verify` and `pnpm verify:full` pass; `/product-blocks` returns 404; core routes smoke-tested.
+- Issue #304 — branch `cursor/ecas-controller-loop-workflow-8736`; `pnpm verify:full` passes; local browser smoke confirms `/`, `/search`, and `/product/prod-1` render while `/product-blocks` shows the 404 page.
 
 ## Recently completed
 
