@@ -33,13 +33,22 @@
         <label class="block w-full mb-[43px]">
           <input
             v-model="customNumber"
+            :aria-invalid="!isCustomNumberValid"
+            aria-describedby="custom-part-number-help"
             type="text"
             placeholder="Type your custom part number here"
             class="bg-transparent w-full px-2.5 py-[9px] border border-border rounded h-[42px] text-sm focus:outline-none"
           />
+          <p id="custom-part-number-help" class="mt-2 text-sm text-slate-500">
+            {{ isCustomNumberValid ? 'Save is ready.' : 'Enter a custom part number to enable Save.' }}
+          </p>
         </label>
         <div class="flex gap-2.5">
-          <button class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white" @click="submitSuccess = true">
+          <button
+            class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+            :disabled="!isCustomNumberValid"
+            @click="handleSave"
+          >
             Save
           </button>
           <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
@@ -71,8 +80,17 @@ const props = defineProps<{
 
 const partNumber = ref(props.manufacturerCode ?? 'ADIN2111BCPZ');
 const customNumber = ref('');
+const isCustomNumberValid = computed(() => customNumber.value.trim().length > 0);
 
 const submitSuccess = ref(false);
+
+const handleSave = () => {
+  if (!isCustomNumberValid.value) {
+    return;
+  }
+
+  submitSuccess.value = true;
+};
 
 watch(submitSuccess, (newVal) => {
   if (newVal) {
