@@ -63,8 +63,15 @@ test.describe('Browse → Product Detail', () => {
     await submitButton.click();
 
     await expect(emailInput).toHaveAttribute('aria-invalid', 'true');
-    await expect(emailInput).toHaveCSS('border-color', 'rgb(255, 50, 50)');
+    await expect(emailInput).toHaveClass(/border-red-500/);
     await expect(dialog.getByText('Required')).toBeVisible();
+
+    await emailInput.fill('not-an-email');
+    await submitButton.click();
+
+    await expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+    await expect(emailInput).toHaveClass(/border-red-500/);
+    await expect(dialog.getByText('Invalid email address')).toBeVisible();
 
     await emailInput.fill('buyer@example.com');
     await submitButton.click();

@@ -4,11 +4,12 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { MessageCircleQuestion } from 'lucide-vue-next';
 
+import { cn } from '@/lib/utils';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const formSchema = toTypedSchema(
   z.object({
-    email: z.string().email('Invalid email address'),
+    email: z.string().trim().min(1, 'Required').email('Invalid email address'),
     details: z.string().optional(),
   })
 );
@@ -66,7 +67,7 @@ defineExpose({
                 type="email"
                 placeholder="Enter email address"
                 v-bind="componentField"
-                :class="errorMessage ? 'border-red-500' : ''"
+                :class="cn(errorMessage ? 'border-red-500 focus-visible:ring-red-500' : '')"
               />
             </FormControl>
             <FormMessage />
