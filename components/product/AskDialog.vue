@@ -4,11 +4,12 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { MessageCircleQuestion } from 'lucide-vue-next';
 
+import { cn } from '@/lib/utils';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const formSchema = toTypedSchema(
   z.object({
-    email: z.string().email('Invalid email address'),
+    email: z.string().trim().min(1, 'Required').email('Invalid email address'),
     details: z.string().optional(),
   })
 );
@@ -44,7 +45,7 @@ defineExpose({
 
 <template>
   <UiDialog v-model:open="isOpen">
-    <UiDialogTrigger v-if="props.showTrigger">
+    <UiDialogTrigger v-if="props.showTrigger" as-child>
       <UiButton variant="link" class="text-slate-300 gap-1" :class="props.triggerClass">
         <MessageCircleQuestion class="w-[22px] h-[22px]" />
         <span class="text-xs leading-tight hidden sm:inline">Ask about the product</span>
@@ -66,7 +67,7 @@ defineExpose({
                 type="email"
                 placeholder="Enter email address"
                 v-bind="componentField"
-                :class="errorMessage ? 'border-red-500' : ''"
+                :class="cn(errorMessage ? 'border-red-500 focus-visible:ring-red-500' : '')"
               />
             </FormControl>
             <FormMessage />

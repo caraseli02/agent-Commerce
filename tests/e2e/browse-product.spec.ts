@@ -96,28 +96,12 @@ test.describe('Browse → Product Detail', () => {
   });
 
   test('ask about product email validation shows invalid styling and clears on valid submit', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/product/prod-1');
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/product/prod-1', { waitUntil: 'networkidle' });
 
-    await page.evaluate(() => {
-      const buttons = [...document.querySelectorAll('button')];
-      buttons.find((button) => button.textContent?.trim() === 'Product actions')?.click();
-    });
-
-    await page.waitForFunction(() => {
-      const buttons = [...document.querySelectorAll('button')];
-      return buttons.some(
-        (button) =>
-          button.textContent?.trim() === 'Ask about the product' && !!(button.offsetWidth || button.offsetHeight || button.getClientRects().length)
-      );
-    });
-
-    await page.evaluate(() => {
-      const buttons = [...document.querySelectorAll('button')];
-      buttons.find((button) => button.textContent?.trim() === 'Ask about the product')?.click();
-    });
-
-    await page.waitForFunction(() => !!document.querySelector('[role="dialog"]'));
+    const askButton = page.getByRole('button', { name: 'Ask about the product' });
+    await expect(askButton).toBeVisible();
+    await askButton.click();
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
@@ -131,8 +115,17 @@ test.describe('Browse → Product Detail', () => {
     await submitButton.click();
 
     await expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+    await expect(emailInput).toHaveClass(/border-red-500/);
     await expect(emailInput).toHaveCSS('border-color', 'rgb(255, 50, 50)');
     await expect(dialog.getByText('Required')).toBeVisible();
+
+    await emailInput.fill('not-an-email');
+    await submitButton.click();
+
+    await expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+    await expect(emailInput).toHaveClass(/border-red-500/);
+    await expect(emailInput).toHaveCSS('border-color', 'rgb(255, 50, 50)');
+    await expect(dialog.getByText('Invalid email address')).toBeVisible();
 
     await emailInput.fill('buyer@example.com');
     await submitButton.click();
