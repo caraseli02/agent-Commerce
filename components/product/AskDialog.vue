@@ -8,7 +8,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 
 const formSchema = toTypedSchema(
   z.object({
-    email: z.string().min(1, 'Email is required').email('Invalid email address'),
+    email: z.string({ required_error: 'Email is required' }).min(1, 'Email is required').email('Invalid email address'),
     details: z.string().optional(),
   })
 );
@@ -58,11 +58,16 @@ defineExpose({
         </h4>
 
         <!-- Email Field -->
-        <FormField v-slot="{ componentField }" name="email">
+        <FormField v-slot="{ componentField, errorMessage }" name="email">
           <FormItem>
             <FormLabel>Email Address</FormLabel>
             <FormControl>
-              <UiInput type="email" placeholder="Enter email address" v-bind="componentField" />
+              <UiInput
+                type="email"
+                placeholder="Enter email address"
+                :class="errorMessage ? 'border-rose-500 focus-visible:outline-rose-500' : ''"
+                v-bind="componentField"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
