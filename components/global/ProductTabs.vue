@@ -1,8 +1,7 @@
 <template>
   <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mx-2 md:mx-3 xl:mx-3">
     <h2 class="hidden text-xl font-medium md:block">
-      {{ activeFilter.charAt(0).toUpperCase() + activeFilter.substr(1).toLowerCase().replace('-', ' ') }}
-      Products
+      {{ sectionHeading }}
     </h2>
     <div class="relative flex items-center gap-4 xl:gap-6 mb-6 md:mb-0 overflow-x-auto max-w-full pb-1">
       <p v-for="(filter, index) in filters" :key="index" class="relative overflow-hidden shrink-0">
@@ -25,6 +24,7 @@
 <script setup lang="ts">
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { fetchProductTab } from '~/composables/api/products';
+import { getProductSectionHeading } from '~/utils/productSectionHeadings';
 
 const props = defineProps<{
   filters: string[];
@@ -35,6 +35,8 @@ const emit = defineEmits<{
 }>();
 
 const activeFilter = ref('');
+
+const sectionHeading = computed(() => getProductSectionHeading(activeFilter.value));
 
 onMounted(() => {
   if (props.filters.length > 0) {
