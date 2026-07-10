@@ -1,9 +1,16 @@
 <template>
-  <NuxtLink
-    :to="`/product/${product._id}`"
-    class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 rounded-xl bg-white px-3 py-3 font-Inter shadow-xs overflow-hidden md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px]"
+  <div
+    class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px]"
   >
-    <div class="relative col-start-1 row-start-1 row-span-2 self-start md:row-span-auto md:self-auto">
+    <NuxtLink
+      :to="`/product/${product._id}`"
+      :aria-label="`View ${product.name}`"
+      class="absolute inset-0 z-10 grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+    >
+      <span class="sr-only">View {{ product.name }}</span>
+    </NuxtLink>
+
+    <div class="relative z-20 col-start-1 row-start-1 row-span-2 self-start md:row-span-auto md:self-auto">
       <ProductCardStock :stock="product.stock" />
       <ImageWithFallback
         :src="productCardImageSrc"
@@ -12,13 +19,13 @@
       />
       <div
         v-if="productDiscount"
-        class="ring-1 ring-rose-500 rounded-full text-sm !leading-[1.5rem] font-semibold text-rose-500 px-2 absolute top-2 left-0"
+        class="absolute left-0 top-2 rounded-full px-2 text-sm font-semibold !leading-[1.5rem] text-rose-500 ring-1 ring-rose-500"
       >
         {{ productDiscount ?? 0 }}%
       </div>
     </div>
 
-    <div class="col-start-2 row-start-1 flex min-w-0 flex-col gap-1 md:min-h-[64px]">
+    <div class="relative z-20 col-start-2 row-start-1 flex min-w-0 flex-col gap-1 md:min-h-[64px]">
       <div class="flex min-w-0 items-start gap-1 md:items-center md:gap-2">
         <h3
           class="block min-w-0 flex-1 text-sm font-semibold leading-snug text-neutral-700 line-clamp-2 md:truncate md:text-base md:leading-normal"
@@ -29,7 +36,7 @@
           <UiDropdownMenuTrigger as-child>
             <button
               type="button"
-              class="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500"
+              class="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               aria-label="Product options"
               @click.prevent.stop
             >
@@ -42,21 +49,26 @@
             <UiDropdownMenuItem @click.prevent.stop>3D view</UiDropdownMenuItem>
           </UiDropdownMenuContent>
         </UiDropdownMenu>
-        <button class="hidden shrink-0 md:flex" type="button" aria-label="View product information" @click.prevent>
-          <svgo-info-circle class="w-4 h-4 text-slate-500" />
+        <button
+          class="hidden shrink-0 md:flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          type="button"
+          aria-label="View product information"
+          @click.prevent
+        >
+          <svgo-info-circle class="h-4 w-4 text-slate-500" />
         </button>
       </div>
       <div class="hidden max-w-[220px] flex-col gap-1 text-xs md:flex md:min-h-[34px]">
-        <h4 class="text-xs leading-tight font-semibold text-slate-500">Category</h4>
-        <p class="text-xs text-slate-500 truncate">{{ product.description }}</p>
+        <h4 class="text-xs font-semibold leading-tight text-slate-500">Category</h4>
+        <p class="truncate text-xs text-slate-500">{{ product.description }}</p>
       </div>
     </div>
 
     <div
-      class="col-start-2 row-start-2 flex min-w-0 items-end justify-between gap-2 self-stretch md:col-start-auto md:row-start-auto md:mt-auto md:block md:h-full md:min-h-[39px]"
+      class="relative z-20 col-start-2 row-start-2 flex min-w-0 items-end justify-between gap-2 self-stretch md:col-start-auto md:row-start-auto md:mt-auto md:block md:h-full md:min-h-[39px]"
     >
       <div class="min-w-0">
-        <div class="min-h-[14px] leading-tight line-through text-xs">
+        <div class="min-h-[14px] text-xs leading-tight line-through">
           <template v-if="productDiscount">
             {{
               priceConfiguration
@@ -78,40 +90,42 @@
       <button
         type="button"
         aria-label="Add product to cart"
-        class="col-start-2 flex h-10 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 md:absolute md:bottom-0 md:right-0 md:h-auto md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        :aria-labelledby="`add-to-cart-${product._id}`"
+        class="col-start-2 flex h-10 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 md:absolute md:bottom-0 md:right-0 md:h-auto md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
-        <SvgoCart class="w-6 h-6 text-white" />
+        <SvgoCart class="h-6 w-6 text-white" />
+        <span :id="`add-to-cart-${product._id}`" class="sr-only">Add {{ product.name }} to cart</span>
       </button>
     </div>
 
-    <div class="absolute right-0 top-[32px] hidden flex-col gap-2.5 pr-4 md:flex">
+    <div class="absolute right-0 top-[32px] hidden z-20 flex-col gap-2.5 pr-4 md:flex">
       <button
-        class="flex justify-end text-gray-500"
+        class="flex justify-end text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         type="button"
         aria-label="Add product to favorites"
         @click.prevent="addToFavourite(product)"
       >
-        <SvgoCardHeartIcon class="w-6 h-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
+        <SvgoCardHeartIcon class="h-6 w-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
       </button>
       <button
-        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500"
+        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         type="button"
         aria-label="Share product"
         @click.prevent
       >
-        <SvgoCardShareIcon class="w-6 h-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
+        <SvgoCardShareIcon class="h-6 w-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
       </button>
       <button
-        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500"
+        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         type="button"
         aria-label="Open product 3D view"
         @click.prevent
       >
-        <SvgoCardD3Icon class="w-6 h-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
+        <SvgoCardD3Icon class="h-6 w-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
       </button>
     </div>
-  </NuxtLink>
+  </div>
 </template>
 
 <script setup lang="ts">

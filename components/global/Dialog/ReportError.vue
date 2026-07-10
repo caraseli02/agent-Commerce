@@ -74,7 +74,7 @@ defineExpose({
             <FormLabel>Error description</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Tell us a little bit about yourself"
+                placeholder="Describe the issue you encountered"
                 class="resize-none min-h-[140px] bg-light-100"
                 v-bind="componentField"
               />

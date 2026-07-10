@@ -157,7 +157,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="ghost"
               size="icon"
-              class="w-9 h-9 flex-shrink-0 text-slate-500"
+              class="w-9 h-9 flex-shrink-0 items-center justify-center leading-none text-slate-500"
               aria-label="Close products navigation"
               @click="closeMobileMenu"
             >

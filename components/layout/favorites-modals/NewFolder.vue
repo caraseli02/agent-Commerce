@@ -9,7 +9,8 @@
           <span class="font-medium"> Create New Folder </span>
         </div>
         <button
-          class="rounded w-8 h-8 bg-[#F2F2F2] flex items-center justify-center text-gray-500 transition-colors duration-300 hover:text-slate-500"
+          class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded bg-[#F2F2F2] text-gray-500 transition-colors duration-300 leading-none hover:text-slate-500"
+          aria-label="Close create new folder dialog"
           @click="$emit('close')"
         >
           <XIcon class="w-5 h-5" />
