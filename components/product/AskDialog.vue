@@ -8,7 +8,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 
 const formSchema = toTypedSchema(
   z.object({
-    email: z.string().email('Invalid email address'),
+    email: z.string().min(1, 'Email is required').email('Invalid email address'),
     details: z.string().optional(),
   })
 );
