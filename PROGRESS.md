@@ -2,16 +2,20 @@
 
 ## Current focus
 
-- Issue #304 — remove `/product-blocks` sandbox route; PR #323 is open on `cursor/ecas-controller-loop-workflow-8736`.
-- Issue #254 is complete; PR #320 merged.
+- Open-PR review batch complete: PRs #312, #320, #321, and #323 merged; superseded PR #318 closed.
+- Issues #251, #254, and #304 are complete; there are no open pull requests.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #304 — branch `cursor/ecas-controller-loop-workflow-8736`; `pnpm verify:full` passes; local browser smoke confirms `/`, `/search`, and `/product/prod-1` render while `/product-blocks` shows the 404 page.
+- None — the reviewed PR batch is locally verified, merged, and ready for the next queue selection.
 
 ## Recently completed
 
+- Issue #304 — `/product-blocks` sandbox route removed; PR #323 merged after `pnpm verify:full` and local core-route browser smoke.
+- Issue #251 follow-up — ask-about-product dialog trigger and computed validation styling browser coverage; PR #321 merged.
+- Account modal accessibility — keyboard focus trap, role navigation, Escape close, focus restoration, and local browser coverage; PR #312 merged.
+- Issue #254 — natural storefront product-section headings; PR #320 merged.
 - Mobile audit polish batch — product card 2-line clamp, remaining carousel pill dots, beta overlay dismiss/z-index, drawer category names + singular copy, footer tel nowrap + newsletter label association; browser smoke at 320/390 on `/` passes.
 - Issue #241 — manufacturer logo mobile layout; PR #274 merged.
 - Issue #239 — footer newsletter responsive/accessibility polish; PR #273 merged.
