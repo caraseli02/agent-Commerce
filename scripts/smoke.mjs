@@ -5,7 +5,7 @@ import process from 'node:process';
 
 const baseUrl = (process.env.SMOKE_BASE_URL ?? 'http://127.0.0.1:3000').replace(/\/$/, '');
 const maxRoutes = Number(process.env.SMOKE_MAX_ROUTES ?? 3);
-const preferredOrder = ['/', '/products', '/product-blocks', '/shop', '/cart', '/checkout', '/about', '/contact', '/blog'];
+const preferredOrder = ['/', '/products', '/shop', '/cart', '/checkout', '/about', '/contact', '/blog'];
 
 function toRoute(filePath) {
   const rel = path.relative(process.cwd(), filePath).replace(/\\/g, '/');
