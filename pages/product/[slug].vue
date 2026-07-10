@@ -13,7 +13,7 @@
           <UiDropdownMenuContent align="end" class="w-[220px] sm:hidden">
             <UiDropdownMenuItem @click="askDialog?.open()"> Ask about the product </UiDropdownMenuItem>
             <UiDropdownMenuItem @click="reportErrorDialog?.open()"> Report an error </UiDropdownMenuItem>
-            <UiDropdownMenuItem @click="printPage"> Print this page </UiDropdownMenuItem>
+            <UiDropdownMenuItem @select="printPage"> Print this page </UiDropdownMenuItem>
           </UiDropdownMenuContent>
         </UiDropdownMenu>
 
