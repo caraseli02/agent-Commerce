@@ -27,6 +27,52 @@ test.describe('Browse → Product Detail', () => {
     await expect(addToCartButtons.first()).toBeVisible();
   });
 
+  test('ask about product email validation shows invalid styling and clears on valid submit', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/product/prod-1');
+
+    await page.evaluate(() => {
+      const buttons = [...document.querySelectorAll('button')];
+      buttons.find((button) => button.textContent?.trim() === 'Product actions')?.click();
+    });
+
+    await page.waitForFunction(() => {
+      const buttons = [...document.querySelectorAll('button')];
+      return buttons.some(
+        (button) =>
+          button.textContent?.trim() === 'Ask about the product' && !!(button.offsetWidth || button.offsetHeight || button.getClientRects().length)
+      );
+    });
+
+    await page.evaluate(() => {
+      const buttons = [...document.querySelectorAll('button')];
+      buttons.find((button) => button.textContent?.trim() === 'Ask about the product')?.click();
+    });
+
+    await page.waitForFunction(() => !!document.querySelector('[role="dialog"]'));
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    const emailInput = dialog.getByLabel('Email Address');
+    await expect(emailInput).toBeVisible();
+
+    const submitButton = dialog.getByRole('button', { name: /^Submit$/ });
+    await expect(submitButton).toBeVisible();
+
+    await submitButton.click();
+
+    await expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+    await expect(emailInput).toHaveCSS('border-color', 'rgb(255, 50, 50)');
+    await expect(dialog.getByText('Required')).toBeVisible();
+
+    await emailInput.fill('buyer@example.com');
+    await submitButton.click();
+
+    await expect(emailInput).not.toHaveAttribute('aria-invalid', 'true');
+    await expect(dialog.getByText('Invalid email address')).toHaveCount(0);
+  });
+
   test('product page shows technical specifications table', async ({ page }) => {
     await page.goto('/product/prod-1');
 

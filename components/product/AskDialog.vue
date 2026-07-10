@@ -44,7 +44,7 @@ defineExpose({
 
 <template>
   <UiDialog v-model:open="isOpen">
-    <UiDialogTrigger v-if="props.showTrigger" as-child>
+    <UiDialogTrigger v-if="props.showTrigger">
       <UiButton variant="link" class="text-slate-300 gap-1" :class="props.triggerClass">
         <MessageCircleQuestion class="w-[22px] h-[22px]" />
         <span class="text-xs leading-tight hidden sm:inline">Ask about the product</span>
@@ -58,11 +58,16 @@ defineExpose({
         </h4>
 
         <!-- Email Field -->
-        <FormField v-slot="{ componentField }" name="email">
+        <FormField v-slot="{ componentField, errorMessage }" name="email">
           <FormItem>
             <FormLabel>Email Address</FormLabel>
             <FormControl>
-              <UiInput type="email" placeholder="Enter email address" v-bind="componentField" />
+              <UiInput
+                type="email"
+                placeholder="Enter email address"
+                v-bind="componentField"
+                :class="errorMessage ? 'border-red-500' : ''"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
