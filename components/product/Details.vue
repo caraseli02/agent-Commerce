@@ -62,11 +62,7 @@
       </button>
     </div>
   </div>
-  <Teleport to="body">
-    <Transition name="fade">
-      <LayoutCustomProductPartNumberModal v-if="showCustomProductPartNumberModal" @close="showCustomProductPartNumberModal = false" />
-    </Transition>
-  </Teleport>
+  <LayoutCustomProductPartNumberModal v-if="showCustomProductPartNumberModal" @close="showCustomProductPartNumberModal = false" />
 </template>
 
 <script setup lang="ts">

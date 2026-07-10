@@ -68,9 +68,9 @@ Example evidence block for a future PR:
 ## Local gate ownership
 
 - **Pre-commit:** `lint-staged` runs Prettier on staged files only.
-- **Pre-push:** `pnpm verify`.
+- **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` (see `.husky/pre-push`). Prefer `pnpm verify` locally so `feature_list.json` validation is included.
 - **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
-- **CI:** the same fast gate as pre-push, with every command required to pass.
+- **CI:** `pnpm verify` (build, lint, typecheck, test, and `feature_list.json` validation). Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
 - **Evaluator pass check:** before marking a PR review-ready, confirm `gh pr view --json mergeable,mergeStateStatus` and do not pass any PR that is `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`.
 
 ## If a local gate fails
@@ -114,6 +114,15 @@ Use this for independent review before asking Vlad to review. The evaluator must
 | Risk reporting        | risks hidden               | risks vague                | risks explicit with next action            |
 
 Minimum score before PR is review-ready: **8/10**, with no zero in verification evidence.
+
+## UI and component conventions (evaluator checklist)
+
+Mechanical gates do **not** enforce design-system consistency. Evaluators must check these manually when a PR touches Vue UI:
+
+- **Modals and dialogs:** prefer `UiDialog`, `UiDialogContent`, `UiButton`, `UiInput`, and `UiLabel` from shadcn-nuxt over raw `<button>`, `<input>`, and `<label>` unless the issue explicitly calls for a legacy/native pattern.
+- **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `RegionalPreferencesModal.vue`, issue #313).
+- **Runtime evidence for UI:** modal and route changes need browser smoke on the affected flow, not only `pnpm verify` static output. Issue acceptance criteria that mention smoke-testing must show route/viewport evidence in the PR body.
+- **PR template completeness:** generator PRs must fill the template sections (related lectures, verification outcomes, known risks, evaluator rubric). A minimal body with only command names is not review-ready even when CI passes.
 
 ## Agent-oriented failure messages
 

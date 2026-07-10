@@ -1,61 +1,73 @@
 <template>
-  <div class="fixed z-[60] top-0 left-0 w-screen h-screen flex items-center justify-center">
-    <div class="relative z-10 w-[450px] max-w-[calc(100vw-32px)] px-[15px] pt-5 pb-[35px] bg-white rounded-md shadow-xs md:px-5">
+  <UiDialog :open="isOpen" @update:open="onOpenChange">
+    <UiDialogContent
+      class="w-[450px] max-w-[calc(100vw-32px)] gap-0 border-none px-[15px] pt-5 pb-[35px] shadow-xs md:px-5 [&>button.absolute]:hidden"
+    >
       <div
-        class="flex items-center justify-between mb-[38px] transition-opacity duration-300"
-        :class="[submitSuccess ? 'opacity-0 pointer-events-none' : '']"
+        class="mb-[38px] flex items-center justify-between transition-opacity duration-300"
+        :class="[submitSuccess ? 'pointer-events-none opacity-0' : '']"
       >
         <div class="flex items-center">
-          <BarCodeIcon class="w-7 h-7 mr-2" />
+          <BarCodeIcon class="mr-2 h-7 w-7" />
           <span class="text-lg font-medium text-slate-500">Add custom part number</span>
         </div>
-        <button
-          class="rounded w-8 h-8 bg-[#F2F2F2] flex items-center justify-center text-gray-500 transition-colors duration-300 hover:text-slate-500"
-          @click="$emit('close')"
-        >
-          <XIcon class="w-[15px] h-[15px]" />
-        </button>
+        <UiDialogClose as-child>
+          <UiButton
+            variant="ghost"
+            size="icon"
+            class="h-8 w-8 rounded bg-[#F2F2F2] text-gray-500 hover:bg-[#F2F2F2] hover:text-slate-500"
+            aria-label="Close"
+          >
+            <XIcon class="h-[15px] w-[15px]" />
+          </UiButton>
+        </UiDialogClose>
       </div>
+
       <div
         class="flex flex-col items-center px-[5px] transition-opacity duration-300 md:px-[15px]"
-        :class="[submitSuccess ? 'opacity-0 pointer-events-none' : '']"
+        :class="[submitSuccess ? 'pointer-events-none opacity-0' : '']"
       >
-        <label class="block w-full">
-          <div class="text-sm mb-[5px]">Manufacturer part number:</div>
-          <input
-            :value="partNumber"
+        <div class="block w-full">
+          <UiLabel class="mb-[5px] block font-normal">Manufacturer part number:</UiLabel>
+          <UiInput
+            :model-value="partNumber"
             readonly
             type="text"
-            class="bg-transparent w-full px-2.5 py-[5px] border border-border rounded h-[42px] text-xl font-semibold leading-tight text-neutral-700 focus:outline-none"
+            class="h-[42px] border-border bg-transparent px-2.5 py-[5px] text-xl font-semibold leading-tight text-neutral-700"
           />
-        </label>
-        <ArrowDownIcon class="w-6 h-6 my-[15px]" />
-        <label class="block w-full mb-[43px]">
-          <input
+        </div>
+
+        <ArrowDownIcon class="my-[15px] h-6 w-6" />
+
+        <div class="mb-[43px] block w-full">
+          <UiInput
+            id="custom-part-number"
             v-model="customNumber"
+            :aria-invalid="!isCustomNumberValid"
+            aria-describedby="custom-part-number-help"
             type="text"
             placeholder="Type your custom part number here"
-            class="bg-transparent w-full px-2.5 py-[9px] border border-border rounded h-[42px] text-sm focus:outline-none"
+            class="h-[42px] border-border bg-transparent px-2.5 py-[9px] text-sm"
           />
-        </label>
+          <p id="custom-part-number-help" class="mt-2 text-sm text-slate-500">
+            {{ isCustomNumberValid ? 'Save is ready.' : 'Enter a custom part number to enable Save.' }}
+          </p>
+        </div>
+
         <div class="flex gap-2.5">
-          <button class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white" @click="submitSuccess = true">
-            Save
-          </button>
-          <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
-            Cancel
-          </button>
+          <UiButton class="px-[34px] py-[11px]" :disabled="!isCustomNumberValid" @click="handleSave"> Save </UiButton>
+          <UiButton variant="secondary" class="px-[26px] py-[11px] text-slate-500" @click="closeModal"> Cancel </UiButton>
         </div>
       </div>
+
       <Transition name="fade">
-        <div v-if="submitSuccess" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-          <CheckIcon class="w-[140px] h-[140px] bg-green-500 mb-5" />
+        <div v-if="submitSuccess" class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
+          <CheckIcon class="mb-5 h-[140px] w-[140px] bg-green-500" />
           <div class="text-2xl text-slate-500">Saved</div>
         </div>
       </Transition>
-    </div>
-    <div class="absolute top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer" @click="$emit('close')" />
-  </div>
+    </UiDialogContent>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
@@ -69,24 +81,37 @@ const props = defineProps<{
   manufacturerCode?: string;
 }>();
 
+const isOpen = ref(true);
 const partNumber = ref(props.manufacturerCode ?? 'ADIN2111BCPZ');
 const customNumber = ref('');
-
+const isCustomNumberValid = computed(() => customNumber.value.trim().length > 0);
 const submitSuccess = ref(false);
+
+const closeModal = () => {
+  isOpen.value = false;
+};
+
+const onOpenChange = (open: boolean) => {
+  isOpen.value = open;
+
+  if (!open) {
+    emits('close');
+  }
+};
+
+const handleSave = () => {
+  if (!isCustomNumberValid.value) {
+    return;
+  }
+
+  submitSuccess.value = true;
+};
 
 watch(submitSuccess, (newVal) => {
   if (newVal) {
     setTimeout(() => {
-      emits('close');
+      closeModal();
     }, 2000);
   }
-});
-
-onMounted(() => {
-  documentUtil.toggleBodyScroll();
-});
-
-onBeforeUnmount(() => {
-  documentUtil.toggleBodyScroll();
 });
 </script>
