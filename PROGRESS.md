@@ -2,17 +2,13 @@
 
 ## Current focus
 
-- Portfolio Demo MVP mobile polish sprint from the 2026-07-01 production audit.
-- Local fixes landed on `main` for product-card titles, carousel dots, beta overlay friction, drawer category copy, and footer phone wrapping.
+- Issue #304 — remove `/product-blocks` sandbox route; PR opened on `feat/304-remove-product-blocks-route`.
+- Issue #254 has open PR #320 awaiting evaluator (no `in-progress` label on issue).
 - GitHub Issues remain the primary task queue.
-- `PROGRESS.md` is the required current-state mirror for active issue/PR, blockers, and baseline status.
-- The issue loop should follow planner → generator → evaluator separation: planner claims, generator ships PR, evaluator decides review readiness.
-- The retry path now prefers a standing `/goal` controller over a separate mega-loop: evaluator failures stay on `in-progress` and feed back into the same goal.
-- The completion trigger is event-driven: when Dev says the PR is ready, the controller immediately hands it to the evaluator instead of waiting for the next cron tick.
 
 ## In progress
 
-- None — mobile polish batch verified locally; ready for deploy/review.
+- Issue #304 — branch `feat/304-remove-product-blocks-route`; local `pnpm verify` and `pnpm verify:full` pass; `/product-blocks` returns 404; core routes smoke-tested.
 
 ## Recently completed
 
