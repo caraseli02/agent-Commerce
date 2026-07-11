@@ -2,13 +2,12 @@
 
 ## Current focus
 
-- Open-PR review batch complete: PRs #312, #320, #321, and #323 merged; superseded PR #318 closed.
-- Issues #251, #254, and #304 are complete; there are no open pull requests.
+- Issue #287 repair on PR #325: the buyer adapter now consumes `useOrderConfirmation` as its single state/mapping interface; focused tests and typecheck pass, and a signed-in 1280px smoke at `/order-summary/ord-1` rendered `ORD-2024-0001` and Customer Notes without route errors or hydration mismatches.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- None — the reviewed PR batch is locally verified, merged, and ready for the next queue selection.
+- Issue #287 — PR #325 repaired on `fix/issue-287`; awaiting final verification and CI before merge.
 
 ## Recently completed
 
