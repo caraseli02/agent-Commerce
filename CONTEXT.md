@@ -71,7 +71,6 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 ## API access
 
 - `plugins/api.ts` creates the authenticated `$fetch` client with `$fetch.create()` and provides it as `$apiClient`.
-- `composables/useAPI.ts` is the SSR-friendly read helper for page/composable data loading.
 - `composables/api/*` contains plain domain API functions for mutations and orchestration helpers that need the shared `$apiClient`.
 - Domain composables such as `useCart`, `useOrder`, and `useCustomerDashboard` are the public interface for UI flows that need business rules or state coordination.
 - Do not add a class-based service registry, `HttpFactory`, `useFetchAPI`, or component-level `$api.<domain>` calls.
