@@ -1,4 +1,5 @@
-import { computed, ref } from 'vue';
+import { computed, ref, toValue } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 import { format } from 'date-fns';
 
 import { orderType } from '~/components/admin-table/order/options';
@@ -41,7 +42,15 @@ interface OrderConfirmationAddressGroup {
   };
 }
 
-export function useOrderConfirmation(orderId: string | undefined, isNew = false) {
+export function normalizeOrderConfirmationOrderId(orderId?: string | string[]) {
+  if (Array.isArray(orderId)) {
+    return orderId[0] ?? '';
+  }
+
+  return orderId ?? '';
+}
+
+export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefined>) {
   const authStore = useAuthStore();
 
   const orderTypeValue = ref<OrderType | null>(null);
@@ -155,11 +164,13 @@ export function useOrderConfirmation(orderId: string | undefined, isNew = false)
   };
 
   const loadOrderConfirmation = async () => {
-    if (!orderId) {
+    const resolvedOrderId = toValue(orderId);
+
+    if (!resolvedOrderId) {
       return;
     }
 
-    const response = (await getOrderById(orderId)) as OrderRequestInterfaceResponse;
+    const response = (await getOrderById(resolvedOrderId)) as OrderRequestInterfaceResponse;
 
     if (response.status !== 'success' || !response.data?.order) {
       return;
@@ -169,8 +180,10 @@ export function useOrderConfirmation(orderId: string | undefined, isNew = false)
     orderTypeValue.value = response.data.order.type;
 
     if (response.data.order.type === OrderType.Mixed) {
-      stockOrder.value = (response.data.children.find((child) => child.type === OrderType.Stock) ?? response.data.order) as unknown as OrderRequestInterface;
-      backOrder.value = (response.data.children.find((child) => child.type === OrderType.Back) ?? response.data.order) as unknown as OrderRequestInterface;
+      stockOrder.value = (response.data.children.find((child) => child.type === OrderType.Stock) ??
+        response.data.order) as unknown as OrderRequestInterface;
+      backOrder.value = (response.data.children.find((child) => child.type === OrderType.Back) ??
+        response.data.order) as unknown as OrderRequestInterface;
       stockOrderItems.value = stockOrder.value.products || [];
       backorderItems.value = backOrder.value.products || [];
       return;
@@ -209,7 +222,6 @@ export function useOrderConfirmation(orderId: string | undefined, isNew = false)
   };
 
   return {
-    isNew,
     orderResponse,
     orderTypeValue,
     stockOrder,

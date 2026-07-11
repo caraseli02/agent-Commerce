@@ -3,5 +3,5 @@ const route = useRoute();
 </script>
 
 <template>
-  <BuyerConfirmation :order-id="route.params.id" :is-new="route.query.new === 'true'" />
+  <OrderConfirmBuyerConfirmation :order-id="route.params.id" :is-new="route.query.new === 'true'" />
 </template>

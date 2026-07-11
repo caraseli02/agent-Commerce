@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #287 repair on PR #325: evaluator FAIL fixed — stock-order date test now derives expected value via `date-fns` format (timezone-stable).
+- Issue #287 repair on PR #325: the buyer adapter now consumes `useOrderConfirmation` as its single state/mapping interface; focused tests and typecheck pass, and a signed-in 1280px smoke at `/order-summary/ord-1` rendered `ORD-2024-0001` and Customer Notes without route errors or hydration mismatches.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #287 — deepen Order Confirmation module; PR #325 updated on branch `fix/issue-287`, awaiting evaluator re-review.
+- Issue #287 — PR #325 repaired on `fix/issue-287`; awaiting final verification and CI before merge.
 
 ## Recently completed
 
