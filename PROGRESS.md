@@ -2,13 +2,12 @@
 
 ## Current focus
 
-- Open-PR review batch complete: PRs #312, #320, #321, and #323 merged; superseded PR #318 closed.
-- Issues #251, #254, and #304 are complete; there are no open pull requests.
+- Issue #287 repair on PR #325: evaluator FAIL fixed — stock-order date test now derives expected value via `date-fns` format (timezone-stable).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- None — the reviewed PR batch is locally verified, merged, and ready for the next queue selection.
+- Issue #287 — deepen Order Confirmation module; PR #325 updated on branch `fix/issue-287`, awaiting evaluator re-review.
 
 ## Recently completed
 
