@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OrderType, PaymentTypeEnum } from '../types';
 
@@ -363,7 +364,7 @@ describe('order confirmation module', () => {
       },
     });
     expect(confirmation.notes.value).toEqual([{ sender: 'buyer', message: 'Ring the bell' }]);
-    expect(confirmation.date.value).toBe('10 July 2026, 12:30');
+    expect(confirmation.date.value).toBe(format(new Date('2026-07-10T10:30:00.000Z'), 'dd MMMM yyyy, HH:mm'));
     expect(confirmation.paymentSummary.value).toMatchObject({
       subtotal: 100,
       shippingCost: 19,
