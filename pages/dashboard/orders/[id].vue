@@ -28,7 +28,6 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const { getUserDetails, userCards } = storeToRefs(authStore);
-const { $apiClient } = useNuxtApp();
 
 const route = useRoute();
 
@@ -119,7 +118,7 @@ const backOrder = ref<OrderRequestInterface>({} as OrderRequestInterface);
 
 const getOrderInformation = async () => {
   const orderId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-  const response = (await getOrderById(orderId, $apiClient)) as OrderRequestInterfaceResponse;
+  const response = (await getOrderById(orderId)) as OrderRequestInterfaceResponse;
 
   if (response.status === 'success' && response.data.order) {
     data.value = response;
