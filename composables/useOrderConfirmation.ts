@@ -26,6 +26,14 @@ interface OrderConfirmationCustomerDetails {
   phone: string;
 }
 
+export function normalizeOrderConfirmationOrderId(orderId?: string | string[]) {
+  if (Array.isArray(orderId)) {
+    return orderId[0] ?? '';
+  }
+
+  return orderId ?? '';
+}
+
 interface OrderConfirmationAddressGroup {
   shippingAddress: {
     name1: string;
@@ -40,14 +48,6 @@ interface OrderConfirmationAddressGroup {
     postcode: string;
     country: string;
   };
-}
-
-export function normalizeOrderConfirmationOrderId(orderId?: string | string[]) {
-  if (Array.isArray(orderId)) {
-    return orderId[0] ?? '';
-  }
-
-  return orderId ?? '';
 }
 
 export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefined>) {

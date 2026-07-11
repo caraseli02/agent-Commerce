@@ -2,15 +2,16 @@
 
 ## Current focus
 
-- Issue #287 repair on PR #325: the buyer adapter now consumes `useOrderConfirmation` as its single state/mapping interface; focused tests and typecheck pass, and a signed-in 1280px smoke at `/order-summary/ord-1` rendered `ORD-2024-0001` and Customer Notes without route errors or hydration mismatches.
+- Issue #288 on PR #326: the admin Order detail route now consumes the shared `useOrderConfirmation` interface; focused tests and typecheck pass, and a signed-in 1280px Admin Preview smoke at `/dashboard/orders/ord-1` rendered `ORD-2024-0001`, admin controls, payment status, and Customer Notes without route errors or hydration mismatches.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #287 — PR #325 repaired on `fix/issue-287`; awaiting final verification and CI before merge.
+- Issue #288 — PR #326 rebuilt on current `main`; awaiting final verification and CI before merge.
 
 ## Recently completed
 
+- Issue #287 — buyer Order Confirmation adapter consolidated onto `useOrderConfirmation`; PR #325 merged after focused tests, full verification, and signed-in browser smoke.
 - Issue #304 — `/product-blocks` sandbox route removed; PR #323 merged after `pnpm verify:full` and local core-route browser smoke.
 - Issue #251 follow-up — ask-about-product dialog trigger and computed validation styling browser coverage; PR #321 merged.
 - Account modal accessibility — keyboard focus trap, role navigation, Escape close, focus restoration, and local browser coverage; PR #312 merged.
