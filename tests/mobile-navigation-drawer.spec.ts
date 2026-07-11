@@ -51,15 +51,16 @@ describe('mobile navigation drawer', () => {
     expect(buttons.some((button) => button.props.some((prop) => 'name' in prop && prop.name === 'aria-label'))).toBe(true);
   });
 
-  it('exposes primary navigation and constrains the drawer width for backdrop close', () => {
+  it('exposes account shortcuts and constrains the drawer width for backdrop close', () => {
     const source = readFileSync(mobileSheetPath, 'utf8');
     const ast = parseTemplate(mobileSheetPath);
 
-    expect(source).toContain('primaryNavItems');
-    expect(source).toContain("label: 'How to Buy'");
+    expect(source).not.toContain("label: 'How to Buy'");
+    expect(source).not.toContain("label: 'News'");
     expect(source).toContain('w-[min(22rem,calc(100vw-2rem))]');
+    expect(source).toContain('aria-label="Account shortcuts"');
 
     const navElements = collectElements(ast, 'nav');
-    expect(navElements).toHaveLength(1);
+    expect(navElements).toHaveLength(0);
   });
 });

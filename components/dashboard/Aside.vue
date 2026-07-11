@@ -217,17 +217,11 @@ import Collapse2Icon from '@/assets/icons/dashboard/collapse-2.svg';
 import OverviewIcon from '@/assets/icons/dashboard/overview.svg';
 import ProductsIcon from '@/assets/icons/dashboard/products.svg';
 import CategoriesIcon from '@/assets/icons/dashboard/categories.svg';
-import StockIcon from '@/assets/icons/dashboard/stock.svg';
 import PlusIcon from '@/assets/icons/dashboard/plus.svg';
 import PlusCircleIcon from '@/assets/icons/dashboard/plus-circle.svg';
 import CustomersIcon from '@/assets/icons/dashboard/customers.svg';
 import OrdersIcon from '@/assets/icons/dashboard/orders.svg';
-import ReportsIcon from '@/assets/icons/dashboard/reports.svg';
-import AnalyticsIcon from '@/assets/icons/dashboard/analytics.svg';
 import SettingsIcon from '@/assets/icons/dashboard/setting.svg';
-import StoreIcon from '@/assets/icons/dashboard/store.svg';
-import LayoutIcon from '@/assets/icons/dashboard/layout.svg';
-import CampaignsIcon from '@/assets/icons/dashboard/campaigns.svg';
 import ProfileIcon from '@/assets/icons/dashboard/profile.svg';
 import SunIcon from '@/assets/icons/dashboard/sun.svg';
 import MoonIcon from '@/assets/icons/dashboard/moon.svg';
@@ -260,22 +254,10 @@ const nav = ref([
       show: false,
       items: [
         {
-          label: 'All products',
-          to: '/',
-          icon: ProductsIcon,
-          count: '19,227',
-        },
-        {
           label: 'Categories',
           to: '/dashboard/products/categories',
           icon: CategoriesIcon,
           count: '28',
-        },
-        {
-          label: 'Stock',
-          to: '/',
-          icon: StockIcon,
-          count: '358,469',
         },
       ],
     },
@@ -291,83 +273,6 @@ const nav = ref([
     to: '/dashboard/orders',
     icon: OrdersIcon,
     count: '749',
-    dropdown: {
-      show: false,
-      items: [
-        {
-          label: 'All products',
-          to: '/',
-          icon: ProductsIcon,
-          count: '19,227',
-        },
-        {
-          label: 'Categories',
-          to: '/',
-          icon: CategoriesIcon,
-          count: '28',
-        },
-        {
-          label: 'Stock',
-          to: '/',
-          icon: StockIcon,
-          count: '358,469',
-        },
-      ],
-    },
-  },
-  {
-    label: 'Reports',
-    icon: ReportsIcon,
-    dropdown: {
-      show: false,
-      items: [
-        {
-          label: 'All products',
-          to: '/',
-          icon: ProductsIcon,
-          count: '19,227',
-        },
-        {
-          label: 'Categories',
-          to: '/',
-          icon: CategoriesIcon,
-          count: '28',
-        },
-        {
-          label: 'Stock',
-          to: '/',
-          icon: StockIcon,
-          count: '358,469',
-        },
-      ],
-    },
-  },
-  {
-    label: 'Analytics',
-    icon: AnalyticsIcon,
-    dropdown: {
-      show: false,
-      items: [
-        {
-          label: 'All products',
-          to: '/',
-          icon: ProductsIcon,
-          count: '19,227',
-        },
-        {
-          label: 'Categories',
-          to: '/',
-          icon: CategoriesIcon,
-          count: '28',
-        },
-        {
-          label: 'Stock',
-          to: '/',
-          icon: StockIcon,
-          count: '358,469',
-        },
-      ],
-    },
   },
   {
     label: 'Settings',
@@ -375,33 +280,6 @@ const nav = ref([
     dropdown: {
       show: false,
       items: [
-        {
-          label: 'Store',
-          to: '/',
-          icon: StoreIcon,
-        },
-        {
-          label: 'Layout',
-          to: '/',
-          icon: LayoutIcon,
-        },
-        {
-          label: 'Campaigns',
-          to: '/',
-          icon: CampaignsIcon,
-          count: '9',
-        },
-        {
-          label: 'Users',
-          to: '/',
-          icon: CustomersIcon,
-          count: '12',
-        },
-        {
-          label: 'Profile',
-          to: '/',
-          icon: ProfileIcon,
-        },
         {
           label: 'Smart Pricing',
           to: '/dashboard/settings/smart-price',
