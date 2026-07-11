@@ -141,7 +141,7 @@
                   </span>
                 </div>
                 <div
-                  v-if="dropdownItem.count"
+                  v-if="'count' in dropdownItem && dropdownItem.count"
                   class="px-2 bg-[#1B1B28] rounded-md font-Inter text-xs font-medium leading-[2] text-gray-100 transition-colors duration-300 group-hover:text-[#009FFF]"
                 >
                   {{ dropdownItem.count }}
@@ -222,7 +222,6 @@ import PlusCircleIcon from '@/assets/icons/dashboard/plus-circle.svg';
 import CustomersIcon from '@/assets/icons/dashboard/customers.svg';
 import OrdersIcon from '@/assets/icons/dashboard/orders.svg';
 import SettingsIcon from '@/assets/icons/dashboard/setting.svg';
-import ProfileIcon from '@/assets/icons/dashboard/profile.svg';
 import SunIcon from '@/assets/icons/dashboard/sun.svg';
 import MoonIcon from '@/assets/icons/dashboard/moon.svg';
 import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';
