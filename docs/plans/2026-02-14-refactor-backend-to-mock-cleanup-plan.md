@@ -472,7 +472,6 @@ Update onboarding docs to include:
 ### External References
 
 - Nuxt Nitro server routes: https://nitro.unjs.io/guide/routes
-- OhMyFetch library: https://github.com/unjs/ohmyfetch
 - Pinia state management: https://pinia.vuejs.org/
 
 ## MVP
