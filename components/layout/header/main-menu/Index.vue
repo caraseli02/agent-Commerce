@@ -83,16 +83,6 @@
       </template>
     </div>
     <div v-if="!selectedCategory">
-      <div class="grid grid-cols-1 gap-1.5 px-5 pb-[15px]">
-        <NuxtLink
-          v-for="(item, index) in navItems"
-          :key="index"
-          :to="item.to"
-          class="font-semibold text-slate-500 transition-colors duration-300 hover:text-primary"
-        >
-          {{ item.label }}
-        </NuxtLink>
-      </div>
       <div class="bg-primary px-5 pt-[17px] pb-[21px] text-xs font-semibold text-primary-foreground text-center">
         Sales: +1 800 555 0199 (Mon-Fri 8:00AM - 4:00PM EST)
       </div>
@@ -173,26 +163,4 @@ onMounted(async () => {
 const selectedCategory = ref<NavCategoryView | null>(null);
 const selectedSubCategory = ref<NavCategoryView | null>(null);
 
-const navItems = [
-  {
-    label: 'News',
-    to: '/',
-  },
-  {
-    label: 'About',
-    to: '/',
-  },
-  {
-    label: 'How to Buy',
-    to: '/',
-  },
-  {
-    label: 'Quick Links',
-    to: '/',
-  },
-  {
-    label: 'Contact',
-    to: '/',
-  },
-];
 </script>

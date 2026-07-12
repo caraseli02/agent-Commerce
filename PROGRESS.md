@@ -2,15 +2,17 @@
 
 ## Current focus
 
-- Issue #288 on PR #326: the admin Order detail route now consumes the shared `useOrderConfirmation` interface; focused tests and typecheck pass, and a signed-in 1280px Admin Preview smoke at `/dashboard/orders/ord-1` rendered `ORD-2024-0001`, admin controls, payment status, and Customer Notes without route errors or hydration mismatches.
+- Open PR review batch complete: PRs #329, #325, #326, and #328 merged in dependency order; superseded PR #327 closed without merge.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #288 — PR #326 rebuilt on current `main`; awaiting final verification and CI before merge.
+- None — the reviewed PR batch is merged and verified; ready for the next queue selection.
 
 ## Recently completed
 
+- Issue #303 — placeholder storefront/dashboard navigation removed; PR #328 merged after focused tests, full verification, four-route desktop smoke, and 390px mobile drawer smoke.
+- Issue #288 — admin Order detail adapter consolidated onto `useOrderConfirmation`; PR #326 merged after focused tests, full verification, review, and signed-in Admin Preview browser smoke.
 - Issue #287 — buyer Order Confirmation adapter consolidated onto `useOrderConfirmation`; PR #325 merged after focused tests, full verification, and signed-in browser smoke.
 - Issue #304 — `/product-blocks` sandbox route removed; PR #323 merged after `pnpm verify:full` and local core-route browser smoke.
 - Issue #251 follow-up — ask-about-product dialog trigger and computed validation styling browser coverage; PR #321 merged.

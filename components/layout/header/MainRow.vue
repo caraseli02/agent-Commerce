@@ -22,16 +22,6 @@
                 <Logo class="hidden w-[82px] grayscale brightness-0 invert lg:w-[102px] md:flex" :class="[isScrolled ? '' : 'md:hidden']" />
               </NuxtLink>
             </div>
-            <ul v-if="!isScrolled" class="hidden items-center gap-4 md:flex md:gap-6">
-              <li v-for="(navItem, index) in navItems" :key="index" class="">
-                <NuxtLink
-                  :to="navItem.to"
-                  class="flex leading-normal font-medium text-primary-foreground/90 transition-colors hover:text-primary-foreground"
-                >
-                  {{ navItem.label }}
-                </NuxtLink>
-              </li>
-            </ul>
           </div>
           <LayoutHeaderSearch
             v-if="isScrolled"
@@ -256,25 +246,6 @@ const openFavoritesCartModal = (tab: 'favorites' | 'shopping-cart') => {
     tab,
   };
 };
-
-const navItems = [
-  {
-    label: 'News',
-    to: '/',
-  },
-  {
-    label: 'How to Buy',
-    to: '/',
-  },
-  {
-    label: 'About',
-    to: '/',
-  },
-  {
-    label: 'Contact',
-    to: '/',
-  },
-];
 
 const searchVal = ref('');
 const showMobileSearch = ref(false);
