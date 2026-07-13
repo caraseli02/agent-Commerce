@@ -34,25 +34,6 @@ const syncMobileSheetTop = () => {
 
 const mobileSheetTopClass = 'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bottom-0 max-md:!h-auto';
 const mobileSheetOverlayClass = 'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bg-[rgba(15,23,42,0.45)]';
-const primaryNavItems = [
-  {
-    label: 'News',
-    to: '/',
-  },
-  {
-    label: 'How to Buy',
-    to: '/',
-  },
-  {
-    label: 'About',
-    to: '/',
-  },
-  {
-    label: 'Contact',
-    to: '/',
-  },
-];
-
 const updateViewportState = () => {
   isMobileViewport.value = window.innerWidth < 1024;
   if (!isMobileViewport.value) {
@@ -203,17 +184,6 @@ onBeforeUnmount(() => {
       </div>
       <!-- Left Column: Main Categories -->
       <div v-else class="w-full h-full flex flex-col items-start container mt-2">
-        <nav class="grid w-full grid-cols-2 gap-2 pb-3 mb-2 border-b border-grey-300" aria-label="Primary navigation">
-          <NuxtLink
-            v-for="navItem in primaryNavItems"
-            :key="navItem.label"
-            :to="navItem.to"
-            class="rounded-md px-2 py-2 text-sm font-medium text-slate-600 hover:bg-muted hover:text-primary"
-            @click="closeMobileMenu"
-          >
-            {{ navItem.label }}
-          </NuxtLink>
-        </nav>
         <div class="grid w-full grid-cols-2 gap-2 pb-3 mb-2 border-b border-grey-300 md:hidden" aria-label="Account shortcuts">
           <UiButton variant="link" class="h-10 justify-start gap-2 px-2 text-sm font-medium text-slate-600" @click="openAccountFromDrawer">
             <UserIcon class="w-4 h-4" />
