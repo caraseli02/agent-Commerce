@@ -15,6 +15,42 @@ The autonomous loop should behave like a standing `/goal` even when cron wakes i
 
 This is the runtime equivalent of: “work the currently claimed ECAS issue until it is evaluator-approved or blocked.”
 
+## When a heavy loop is justified
+
+Use a recurring or unattended loop only when all four conditions are true:
+
+1. The same task repeats at least weekly.
+2. A machine check can reject bad output.
+3. The agent can complete the task end to end.
+4. “Done” is objective rather than a taste judgment.
+
+If any condition is false, use a bounded agent task with a human in the loop. Do not add a system loop that rewrites this workflow without a separate human-approved issue.
+
+## Accountable actor boundary
+
+Once an agent can change state, its controller must keep an append-only JSONL run ledger. Each line is one completed run and must identify:
+
+- the run, acting agent, role, issue, branch, and exact head SHA;
+- allowed read paths, write paths, and commands, plus explicit denials;
+- iteration, token, and dollar budgets alongside actual usage;
+- ordered file and command actions;
+- the stop reason;
+- an evaluator with a different identity, its verdict, and the evaluated head;
+- the accepted change, or `null` when the attempt was rejected.
+
+Write local ledgers under ignored `tmp/`, for example `tmp/loop-runs.jsonl`. Do not commit production run ledgers: PR evidence should contain the relevant summary and verification links, not the potentially sensitive action log.
+
+Validate a ledger and calculate its economics with:
+
+```sh
+node scripts/loop-accountability.mjs validate tmp/loop-runs.jsonl
+node scripts/loop-accountability.mjs summary tmp/loop-runs.jsonl
+```
+
+The summary reports attempts, accepted changes, acceptance rate, total cost, and **cost per accepted change**. Rejected attempts remain in total cost. A run is invalid when identity is ambiguous, actions are out of order or outside permission scopes, a denial matches, usage exceeds a budget, the evaluator is the actor, the evaluated SHA differs, or PASS has no accepted change.
+
+The ledger is an accountability contract, not an operating-system audit. The controller must append actions as they occur, copy token and cost usage from provider telemetry rather than estimating it, and the evaluator must compare the claimed actions with Git, CI, and runtime evidence. This tool grants no execution, merge, or self-modification authority.
+
 ## Roles
 
 | Role      | Responsibility                                                                                                    | Must not do                                                       |
