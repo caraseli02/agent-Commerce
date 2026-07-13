@@ -7,7 +7,7 @@
 
 ## In progress
 
-- Issue #332 is claimed on `codex/issue-332-loop-accountability`; 11 focused ledger tests and the full `pnpm verify` gate pass, and evaluator handoff is next.
+- Issue #332 / PR #333 is active on `codex/issue-332-loop-accountability`; 11 focused ledger tests and the full `pnpm verify` gate pass, and the PR is ready for independent evaluation.
 
 ## Recently completed
 
