@@ -30,7 +30,6 @@ const loading = ref(true);
 const loadingFilters = ref(true);
 const error = ref(false);
 const listItems = ref<OrderTableColumns[]>([]);
-const { $apiClient } = useNuxtApp();
 
 const fetchAndSetOrdersList = async (
   page: number,
@@ -40,7 +39,7 @@ const fetchAndSetOrdersList = async (
 ) => {
   error.value = false;
 
-  const result = (await fetchOrders(page, perPage, filters, sort, $apiClient)) as OrdersListResponse;
+  const result = (await fetchOrders(page, perPage, filters, sort)) as OrdersListResponse;
 
   if (!result || result.status !== 'success') {
     loading.value = false;

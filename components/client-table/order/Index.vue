@@ -22,7 +22,6 @@ const emit = defineEmits<{
   showTotalItems: [val: number];
 }>();
 
-const { $apiClient } = useNuxtApp();
 const totalItems = ref(0);
 const pageCount = ref(0);
 const loading = ref(true);
@@ -41,7 +40,7 @@ const fetchAndSetOrdersList = async (
     filters.userId = props.userId;
   }
 
-  const data = (await fetchOrders(page, perPage, filters, sort, $apiClient)) as OrdersListResponse;
+  const data = (await fetchOrders(page, perPage, filters, sort)) as OrdersListResponse;
 
   if (!data || data.status !== 'success') {
     loading.value = false;
