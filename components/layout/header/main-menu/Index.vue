@@ -162,4 +162,5 @@ onMounted(async () => {
 
 const selectedCategory = ref<NavCategoryView | null>(null);
 const selectedSubCategory = ref<NavCategoryView | null>(null);
+
 </script>
