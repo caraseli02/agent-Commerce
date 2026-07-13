@@ -13,13 +13,15 @@ const dashboardOrderSurfacePaths = [
   'pages/dashboard/orders/[id].vue',
   'components/admin-table/order/Order.vue',
   'components/client-table/order/Index.vue',
+  'components/dashboard/orders/InfoCards.vue',
 ];
 const legacyDomainApiPattern =
   /\$api\.(cart|auth|product|orders|categories|user|favouriteFolder|notifications|generalSettings|userDashboard|controlPanel|customerDashboard|settingsClient|customerProfile|smartPricing|documents)\b/;
 const legacyRegistryPattern = new RegExp(
   `\\b(${['I', 'Api', 'Instance'].join('')}|${['Http', 'Factory'].join('')}|${['use', 'Fetch', 'API'].join('')})\\b`
 );
-const directApiClientPattern = /(?:const\s*\{\s*\$apiClient\s*\}\s*=\s*useNuxtApp\(\)|useNuxtApp\(\)\.\$apiClient|(?:getOrderById|fetchOrders)\([^\n]*,\s*\$apiClient\))/;
+const directApiClientPattern =
+  /(?:const\s*\{\s*\$apiClient\s*\}\s*=\s*useNuxtApp\(\)|useNuxtApp\(\)\.\$apiClient|(?:getOrderById|fetchOrders)\([^\n]*,\s*\$apiClient\))/;
 
 async function collectSourceFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true }).catch((error: NodeJS.ErrnoException) => {
