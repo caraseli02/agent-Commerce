@@ -1,9 +1,34 @@
 import type { $Fetch } from 'ofetch';
 import { describe, expect, it, vi } from 'vitest';
 
-import { fetchOrders, getOrderById } from '~/composables/api/orders';
+import { fetchOrders, fetchWidget, getOrderById } from '~/composables/api/orders';
 
 describe('dashboard orders API adapters', () => {
+  it('fetchWidget requests the selected dashboard metric with its time range', async () => {
+    const apiClient = vi.fn(async (url: string, options: Record<string, unknown>) => ({
+      url,
+      options,
+    })) as unknown as $Fetch;
+
+    const response = await fetchWidget('gross-revenue', 7, apiClient);
+
+    expect(apiClient).toHaveBeenCalledWith('/dashboard/orders/admin/gross-revenue', {
+      method: 'GET',
+      params: {
+        time: 7,
+      },
+    });
+    expect(response).toEqual({
+      url: '/dashboard/orders/admin/gross-revenue',
+      options: {
+        method: 'GET',
+        params: {
+          time: 7,
+        },
+      },
+    });
+  });
+
   it('fetchOrders forwards paging, filters, and sort parameters to the shared client', async () => {
     const apiClient = vi.fn(async (url: string, options: Record<string, unknown>) => ({
       url,
