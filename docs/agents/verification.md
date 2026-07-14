@@ -29,7 +29,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - `node scripts/verify-ui-conventions.mjs`
    - This runs inside `pnpm verify`, `pnpm verify:full`, and `pnpm verify:handoff`.
    - It scans `*Modal*.vue` files and `components/layout/**` paths that contain `modal` for native `<button>` / `<input>` usage.
-   - Known legacy modal files are grandfathered in `scripts/verify-ui-conventions.mjs` until migrated (for example `RegionalPreferencesModal.vue` in issue #313).
+   - Known legacy modal files are grandfathered in `scripts/verify-ui-conventions.mjs` until migrated (for example `SearchFiltersModal.vue`).
    - New or migrated modal surfaces must use shadcn primitives (`UiButton`, `UiInput`, `UiDialog`) instead of native HTML controls.
 7. **Architecture-invariant gate**
    - `node scripts/check-arch-invariants.mjs`
@@ -128,7 +128,7 @@ Minimum score before PR is review-ready: **8/10**, with no zero in verification 
 Mechanical gates do **not** enforce design-system consistency. Evaluators must check these manually when a PR touches Vue UI:
 
 - **Modals and dialogs:** prefer `UiDialog`, `UiDialogContent`, `UiButton`, `UiInput`, and `UiLabel` from shadcn-nuxt over raw `<button>`, `<input>`, and `<label>` unless the issue explicitly calls for a legacy/native pattern.
-- **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `RegionalPreferencesModal.vue`, issue #313).
+- **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `CustomProductPartNumberModal.vue`).
 - **Runtime evidence for UI:** modal and route changes need browser smoke on the affected flow, not only `pnpm verify` static output. Issue acceptance criteria that mention smoke-testing must show route/viewport evidence in the PR body.
 - **PR template completeness:** generator PRs must fill the template sections (related lectures, verification outcomes, known risks, evaluator rubric). A minimal body with only command names is not review-ready even when CI passes.
 

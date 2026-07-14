@@ -24,11 +24,7 @@
     <LayoutHeaderSearchRow :is-scrolled="isScrolled" />
     <LayoutHeaderMainRow :is-scrolled="isScrolled" />
   </header>
-  <Teleport to="body">
-    <Transition name="slide-from-right">
-      <LayoutRegionalPreferencesModal v-if="showRegionalPreferencesModal" @close="showRegionalPreferencesModal = false" />
-    </Transition>
-  </Teleport>
+  <LayoutRegionalPreferencesModal v-if="showRegionalPreferencesModal" @close="showRegionalPreferencesModal = false" />
 </template>
 
 <script setup lang="ts">
