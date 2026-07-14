@@ -2,12 +2,13 @@
 
 ## Current focus
 
-- Issue #332 — add the accountable loop actor boundary: run identity, permissions, ordered actions, budgets, independent evaluation, and cost per accepted change.
+- Issue #296 — cart type namespace consolidation (tracer bullet): canonical types under `types/cart/`, backward-compatible `model/cart` re-exports, cart-flow imports updated.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #332 / PR #333 is active on `codex/issue-332-loop-accountability`; 11 focused ledger tests and the full `pnpm verify` gate pass, and the PR is ready for independent evaluation.
+- Issue #296 / PR #338 is active on `cursor/ecas-controller-loop-workflow-bbdd`; `pnpm verify` and focused cart tests pass, awaiting independent evaluator.
+- Open PRs #336 (#314) and #337 (#313) remain without evaluator verdict; issues still carry `ready-for-agent` because the integration token cannot edit labels.
 
 ## Recently completed
 
