@@ -19,35 +19,39 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - Adds clean-state validation to the full gate and expects a clean working tree.
    - Use this before final PR/session handoff, after intentional files are committed or otherwise clean.
 4. **Harness-state validator**
-   - Run `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
+   - `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
    - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
-5. **Clean-state handoff validator**
+5. **PR template completeness gate**
+   - `node scripts/check-pr-template.mjs`
+   - This runs inside `pnpm verify` / CI on pull-request events and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
+   - The gate expects filled verification outcomes, known-risks evidence, and rubric scores; it skips when the PR carries the documented `skip-pr-template-check` or `human-hotfix` label so a human hotfix can intentionally bypass the agent template.
+6. **Clean-state handoff validator**
    - `node scripts/check-clean-state.mjs`
    - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions. It intentionally skips scanning `scripts/check-clean-state.mjs` itself so the validator does not self-flag its own pattern definitions.
    - It also treats stale session-state shape as a failure signal where practical: the validator only checks the `PROGRESS.md` handoff shape it can verify mechanically, while deeper task-state semantics stay with `./scripts/validate-feature-list.sh` and human review.
-6. **UI-conventions gate**
+7. **UI-conventions gate**
    - `node scripts/verify-ui-conventions.mjs`
    - This runs inside `pnpm verify`, `pnpm verify:full`, and `pnpm verify:handoff`.
    - It scans `*Modal*.vue` files and `components/layout/**` paths that contain `modal` for native `<button>` / `<input>` usage.
    - Known legacy modal files are grandfathered in `scripts/verify-ui-conventions.mjs` until migrated (for example `RegionalPreferencesModal.vue` in issue #313).
    - New or migrated modal surfaces must use shadcn primitives (`UiButton`, `UiInput`, `UiDialog`) instead of native HTML controls.
-7. **Architecture-invariant gate**
+8. **Architecture-invariant gate**
    - `node scripts/check-arch-invariants.mjs`
    - This runs inside `pnpm verify:full` and `pnpm verify:handoff`.
    - It enforces the ECAS API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
    - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
-8. **Targeted baseline check**
+9. **Targeted baseline check**
    - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
-9. **Targeted test**
+10. **Targeted test**
    - Add or update a focused Vitest test when behavior can be checked without the browser.
    - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-10. **Browser/runtime smoke**
+11. **Browser/runtime smoke**
 
 - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
 - Exercise the affected page or server route.
 - Capture screenshot or exact route/flow evidence in the PR.
 
-11. **Integration check**
+12. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
 ## Evidence policy
@@ -130,7 +134,7 @@ Mechanical gates do **not** enforce design-system consistency. Evaluators must c
 - **Modals and dialogs:** prefer `UiDialog`, `UiDialogContent`, `UiButton`, `UiInput`, and `UiLabel` from shadcn-nuxt over raw `<button>`, `<input>`, and `<label>` unless the issue explicitly calls for a legacy/native pattern.
 - **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `RegionalPreferencesModal.vue`, issue #313).
 - **Runtime evidence for UI:** modal and route changes need browser smoke on the affected flow, not only `pnpm verify` static output. Issue acceptance criteria that mention smoke-testing must show route/viewport evidence in the PR body.
-- **PR template completeness:** generator PRs must fill the template sections (related lectures, verification outcomes, known risks, evaluator rubric). A minimal body with only command names is not review-ready even when CI passes.
+- **PR template completeness:** generator PRs must fill the template sections (related lectures, verification outcomes, known risks, evaluator rubric). `node scripts/check-pr-template.mjs` enforces this in CI, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when CI passes.
 
 ## Agent-oriented failure messages
 
