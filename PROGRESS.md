@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #332 — add the accountable loop actor boundary: run identity, permissions, ordered actions, budgets, independent evaluation, and cost per accepted change.
+- Issue #313 — migrate `RegionalPreferencesModal` to shadcn `UiSheet` / `UiButton`.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #332 / PR #333 is active on `codex/issue-332-loop-accountability`; 11 focused ledger tests and the full `pnpm verify` gate pass, and the PR is ready for independent evaluation.
+- Issue #313 / PR open on `cursor/ecas-controller-loop-workflow-a9d3`; `pnpm verify` and regional-preferences browser smoke pass; ready for independent evaluation.
 
 ## Recently completed
 
