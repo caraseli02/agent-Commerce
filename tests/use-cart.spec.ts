@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
 import { mapCartItems } from '../utils/cart';
-import type { CartInterface, CartProductsInterface } from '../model/cart/response/cart.interface';
+import type { CartInterface, CartProductsInterface } from '~/types/cart';
 import { __setMockApiClient, __setMockCookie, __setMockRouterPush, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const product = {

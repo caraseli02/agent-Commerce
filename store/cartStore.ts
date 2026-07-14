@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import Emitter from 'tiny-emitter/instance.js';
 import { fetchCartList } from '~/composables/api/cart';
-import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartInterface, CartProductsInterface } from '~/types/cart';
 import { calculateCartSubtotal, mapCartItems } from '~/utils/cart';
 
 type CheckoutError = {

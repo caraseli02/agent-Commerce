@@ -9,7 +9,7 @@ import { useTrimText } from '../composables/text';
 import { mapNamesToPath, mapPathArrayOfNames, findCategory } from '../helpers/categories.helper';
 import { initializeQuantities, parseProductPriceConfiguration } from '../helpers/prices.helper';
 import { getCountryTypeValue, getInputStringValue, isFormSelectOption, resolveFormValue, toInputObject } from '../types/global/form';
-import type { CartInterface } from '../model/cart/response/cart.interface';
+import type { CartInterface } from '~/types/cart';
 import type { ProductInterface } from '../model/products/response/ProductResponse';
 import type { TaxonomyInterface } from '../types/dashboard/categories';
 

@@ -1,4 +1,4 @@
-import type { UpdateProductCartRequestInterface } from '~/model/cart/request/cart.interface';
+import type { UpdateProductCartRequestInterface } from '~/types/cart';
 import { getMockCartForUser, requireMockCartUserId, setProductsInMockCart } from '~/server/utils/mockCart';
 
 export default defineEventHandler(async (event) => {

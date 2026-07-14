@@ -109,7 +109,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
-import type { CartInterface, ProductActionObject } from '~/model/cart/response/cart.interface';
+import type { CartInterface, ProductActionObject } from '~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { useAuthStore } from '~/store/authStore';

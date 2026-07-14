@@ -5,7 +5,7 @@ import type {
   SmallOrderChargeInterface,
   StockorderShippingTypesInterface,
 } from '~/types/general-settings/general-settings';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartProductsInterface } from '~/types/cart';
 import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
 
 export interface OrderSummaryItem {

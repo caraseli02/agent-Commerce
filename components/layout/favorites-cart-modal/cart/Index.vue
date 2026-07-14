@@ -38,7 +38,7 @@ import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
 import type { PropType } from 'vue';
 import { useCart } from '~/composables/useCart';
-import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartInterface, CartProductsInterface } from '~/types/cart';
 import type { FavoriteItem } from '~/types/favorites/item';
 import { useCartStore } from '~/store/cartStore';
 
