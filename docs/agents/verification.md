@@ -30,16 +30,24 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - This runs inside `pnpm verify:full` and `pnpm verify:handoff`.
    - It enforces the ECAS API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
    - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
-7. **Targeted baseline check**
+7. **PR template compliance gate**
+   - `node scripts/verify-pr-template.mjs`
+   - CI runs this on `pull_request` events with `PR_BODY`, `PR_TITLE`, and `PR_LABELS` from the GitHub event payload.
+   - It fails when required template sections are missing or still boilerplate-only: related lectures, verification outcomes, known risks, and evaluator rubric scores.
+   - Local runs skip when no PR body is provided; use `PR_BODY="$(gh pr view --json body -q .body)" node scripts/verify-pr-template.mjs` or `--body-file <path>` to rehearse a draft body.
+   - Escape hatches for human hotfixes: `hotfix:` title prefix, `skip-pr-template` or `hotfix` label, `<!-- skip-pr-template -->` in the PR body, or `SKIP_PR_TEMPLATE_CHECK=true` for emergency CI bypass.
+8. **Targeted baseline check**
    - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
-8. **Targeted test**
+9. **Targeted test**
    - Add or update a focused Vitest test when behavior can be checked without the browser.
    - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-9. **Browser/runtime smoke**
-   - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
-   - Exercise the affected page or server route.
-   - Capture screenshot or exact route/flow evidence in the PR.
-10. **Integration check**
+10. **Browser/runtime smoke**
+
+- Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
+- Exercise the affected page or server route.
+- Capture screenshot or exact route/flow evidence in the PR.
+
+11. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
 ## Evidence policy
@@ -70,7 +78,7 @@ Example evidence block for a future PR:
 - **Pre-commit:** `lint-staged` runs Prettier on staged files only.
 - **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` (see `.husky/pre-push`). Prefer `pnpm verify` locally so `feature_list.json` validation is included.
 - **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
-- **CI:** `pnpm verify` (build, lint, typecheck, test, and `feature_list.json` validation). Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
+- **CI:** `pnpm verify` (build, lint, typecheck, test, and `feature_list.json` validation) plus PR template compliance on pull requests. Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
 - **Evaluator pass check:** before marking a PR review-ready, confirm `gh pr view --json mergeable,mergeStateStatus` and do not pass any PR that is `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`.
 
 ## If a local gate fails
@@ -122,7 +130,7 @@ Mechanical gates do **not** enforce design-system consistency. Evaluators must c
 - **Modals and dialogs:** prefer `UiDialog`, `UiDialogContent`, `UiButton`, `UiInput`, and `UiLabel` from shadcn-nuxt over raw `<button>`, `<input>`, and `<label>` unless the issue explicitly calls for a legacy/native pattern.
 - **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `RegionalPreferencesModal.vue`, issue #313).
 - **Runtime evidence for UI:** modal and route changes need browser smoke on the affected flow, not only `pnpm verify` static output. Issue acceptance criteria that mention smoke-testing must show route/viewport evidence in the PR body.
-- **PR template completeness:** generator PRs must fill the template sections (related lectures, verification outcomes, known risks, evaluator rubric). A minimal body with only command names is not review-ready even when CI passes.
+- **PR template completeness:** generator PRs must fill the template sections (related lectures, verification outcomes, known risks, evaluator rubric). A minimal body with only command names is not review-ready even when CI passes. CI enforces this with `node scripts/verify-pr-template.mjs` on pull requests unless a documented escape hatch applies.
 
 ## Agent-oriented failure messages
 
