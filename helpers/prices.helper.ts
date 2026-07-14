@@ -5,8 +5,7 @@ import type {
   ProductDiscountsHelperInterface,
   ProductInterface,
 } from '~/model/products/response/ProductResponse';
-import type { CartInterface, CartProductsInterface } from '~/types/cart';
-import type { AddToCartRequestInterface } from '~/types/cart';
+import type { AddToCartRequestInterface, CartInterface, CartProductsInterface } from '~/types/cart';
 
 export const parseProductPriceConfiguration = (product: ProductInterface, userDetails: UserInterface, quantity = 0) => {
   let unitPrice = 0;

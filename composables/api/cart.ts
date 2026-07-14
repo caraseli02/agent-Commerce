@@ -2,10 +2,11 @@ import { useNuxtApp, useRuntimeConfig } from '#app';
 import { useAuthStore } from '~/store/authStore';
 import type {
   AddToCartRequestInterface,
+  CartProductsInterface,
+  CartResponse,
   DeleteProductCartRequestInterface,
   UpdateProductCartRequestInterface,
 } from '~/types/cart';
-import type { CartProductsInterface, CartResponse } from '~/types/cart';
 
 const RESOURCE = '/cart';
 
