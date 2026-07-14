@@ -101,6 +101,7 @@ async function main() {
   await run('pnpm', ['typecheck']);
   await run('pnpm', ['test']);
   await run('bash', ['./scripts/validate-feature-list.sh']);
+  await run('node', ['scripts/verify-ui-conventions.mjs']);
 
   if (mode === 'full' || mode === 'handoff') {
     await run('node', ['scripts/check-arch-invariants.mjs']);

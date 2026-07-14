@@ -25,21 +25,29 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - `node scripts/check-clean-state.mjs`
    - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions. It intentionally skips scanning `scripts/check-clean-state.mjs` itself so the validator does not self-flag its own pattern definitions.
    - It also treats stale session-state shape as a failure signal where practical: the validator only checks the `PROGRESS.md` handoff shape it can verify mechanically, while deeper task-state semantics stay with `./scripts/validate-feature-list.sh` and human review.
-6. **Architecture-invariant gate**
+6. **UI-conventions gate**
+   - `node scripts/verify-ui-conventions.mjs`
+   - This runs inside `pnpm verify`, `pnpm verify:full`, and `pnpm verify:handoff`.
+   - It scans `*Modal*.vue` files and `components/layout/**` paths that contain `modal` for native `<button>` / `<input>` usage.
+   - Known legacy modal files are grandfathered in `scripts/verify-ui-conventions.mjs` until migrated (for example `RegionalPreferencesModal.vue` in issue #313).
+   - New or migrated modal surfaces must use shadcn primitives (`UiButton`, `UiInput`, `UiDialog`) instead of native HTML controls.
+7. **Architecture-invariant gate**
    - `node scripts/check-arch-invariants.mjs`
    - This runs inside `pnpm verify:full` and `pnpm verify:handoff`.
    - It enforces the ECAS API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
    - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
-7. **Targeted baseline check**
+8. **Targeted baseline check**
    - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
-8. **Targeted test**
+9. **Targeted test**
    - Add or update a focused Vitest test when behavior can be checked without the browser.
    - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-9. **Browser/runtime smoke**
-   - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
-   - Exercise the affected page or server route.
-   - Capture screenshot or exact route/flow evidence in the PR.
-10. **Integration check**
+10. **Browser/runtime smoke**
+
+- Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
+- Exercise the affected page or server route.
+- Capture screenshot or exact route/flow evidence in the PR.
+
+11. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
 
 ## Evidence policy
