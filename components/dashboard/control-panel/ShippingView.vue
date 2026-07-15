@@ -155,7 +155,7 @@ const setAsDefault = async (address: ShippingAddressInterface) => {
   }
   await updateShipping(address, route.params.slug as string, $apiClient);
 };
-
+// Refresh after the shared address manager finishes a successful save.
 const handleAddressSaved = async () => {
   addAddressModal.value = false;
   editAddressModal.value = null;
