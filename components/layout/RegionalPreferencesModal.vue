@@ -1,21 +1,30 @@
 <template>
-  <div class="fixed z-[60] top-0 left-0-0 w-screen h-screen">
-    <div class="relative z-10 flex flex-col ml-auto w-full h-full bg-white overflow-y-auto scrollbar-thin max-h-vh md:w-[450px]">
-      <div class="flex items-center justify-between p-5 border-b border-gray-200 mb-5">
+  <UiSheet :open="isOpen" @update:open="onOpenChange">
+    <UiSheetContent
+      side="right"
+      hidde-close-button
+      overlay-class-name="z-[60] bg-[#333333]/70 backdrop-blur-[2px]"
+      class="z-[60] flex h-full w-full max-w-none flex-col gap-0 overflow-y-auto border-none p-0 shadow-none scrollbar-thin md:w-[450px] sm:max-w-none [&>button.fixed]:hidden"
+    >
+      <div class="flex items-center justify-between border-b border-gray-200 p-5">
         <div class="flex items-center">
-          <GlobeIcon class="w-7 h-7 mr-2" />
-          <span class="text-lg font-semibold text-slate-500">Regional Preferences</span>
+          <GlobeIcon class="mr-2 h-7 w-7" />
+          <UiSheetTitle class="text-lg font-semibold text-slate-500">Regional Preferences</UiSheetTitle>
         </div>
-        <button
-          class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded bg-[#F2F2F2] text-gray-500 transition-colors duration-300 leading-none hover:text-slate-500"
-          aria-label="Close regional preferences"
-          @click="$emit('close')"
-        >
-          <XIcon class="w-5 h-5" />
-        </button>
+        <UiSheetClose as-child>
+          <UiButton
+            variant="ghost"
+            size="icon"
+            class="inline-flex h-8 w-8 flex-shrink-0 rounded bg-[#F2F2F2] text-gray-500 hover:bg-[#F2F2F2] hover:text-slate-500"
+            aria-label="Close regional preferences"
+          >
+            <XIcon class="h-5 w-5" />
+          </UiButton>
+        </UiSheetClose>
       </div>
-      <div class="px-5 mb-10">
-        <div class="text-sm text-slate-500 mb-5">Select a language, shipping region and currency to update your experience on demo.app</div>
+
+      <div class="mb-10 px-5">
+        <div class="mb-5 text-sm text-slate-500">Select a language, shipping region and currency to update your experience on demo.app</div>
         <FormSelect
           v-model="language"
           label="Language"
@@ -37,18 +46,13 @@
           ]"
         />
       </div>
-      <div class="flex items-center justify-center gap-2.5 mt-auto pb-[50px]">
-        <button class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white" @click="$emit('close')">Save</button>
-        <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
-          Cancel
-        </button>
+
+      <div class="mt-auto flex items-center justify-center gap-2.5 pb-[50px]">
+        <UiButton class="px-[34px] py-[11px]" @click="closeModal">Save</UiButton>
+        <UiButton variant="secondary" class="px-[26px] py-[11px] text-slate-500" @click="closeModal">Cancel</UiButton>
       </div>
-    </div>
-    <div
-      class="hidden absolute top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer md:block"
-      @click="$emit('close')"
-    />
-  </div>
+    </UiSheetContent>
+  </UiSheet>
 </template>
 
 <script setup lang="ts">
@@ -57,16 +61,22 @@ import XIcon from '@/assets/icons/x.svg';
 import GlobeIcon from '@/assets/icons/globe.svg';
 import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
-defineEmits(['close']);
+const emits = defineEmits(['close']);
 
+const isOpen = ref(true);
 const regionalPreferencesStore = useRegionalPreferencesStore();
 const { language, currency } = storeToRefs(regionalPreferencesStore);
 
-onMounted(() => {
-  documentUtil.toggleBodyScroll();
-});
+const closeModal = () => {
+  isOpen.value = false;
+  emits('close');
+};
 
-onBeforeUnmount(() => {
-  documentUtil.toggleBodyScroll();
-});
+const onOpenChange = (open: boolean) => {
+  isOpen.value = open;
+
+  if (!open) {
+    emits('close');
+  }
+};
 </script>

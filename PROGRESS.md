@@ -7,11 +7,11 @@
 
 ## In progress
 
-- Issue #296 / PR #338 is active on `cursor/ecas-controller-loop-workflow-bbdd`; `pnpm verify` and focused cart tests pass, awaiting independent evaluator.
-- Open PRs #336 (#314) and #337 (#313) remain without evaluator verdict; issues still carry `ready-for-agent` because the integration token cannot edit labels.
+- Issue #296 / PR #338 is active on `cursor/ecas-controller-loop-workflow-bbdd`; the branch is synced with current `main`, and the remaining cart-flow legacy imports are being repaired before focused and end-to-end verification.
 
 ## Recently completed
 
+- Issue #313 — regional preferences migrated to `UiSheet`; PR #337 merged after reopen-regression repair, focused Playwright coverage, full handoff verification, green CI/Vercel, and evaluator PASS.
 - Issue #290 — dashboard order surfaces now use composable API adapters; PR #330 merged after conflict repair, focused/full verification, signed-in runtime smoke, and evaluator PASS.
 - Issue #303 — placeholder storefront/dashboard navigation removed; PR #328 merged after focused tests, full verification, four-route desktop smoke, and 390px mobile drawer smoke.
 - Issue #288 — admin Order detail adapter consolidated onto `useOrderConfirmation`; PR #326 merged after focused tests, full verification, review, and signed-in Admin Preview browser smoke.
