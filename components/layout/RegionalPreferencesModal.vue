@@ -9,7 +9,7 @@
       <div class="flex items-center justify-between border-b border-gray-200 p-5">
         <div class="flex items-center">
           <GlobeIcon class="mr-2 h-7 w-7" />
-          <span class="text-lg font-semibold text-slate-500">Regional Preferences</span>
+          <UiSheetTitle class="text-lg font-semibold text-slate-500">Regional Preferences</UiSheetTitle>
         </div>
         <UiSheetClose as-child>
           <UiButton
@@ -69,6 +69,7 @@ const { language, currency } = storeToRefs(regionalPreferencesStore);
 
 const closeModal = () => {
   isOpen.value = false;
+  emits('close');
 };
 
 const onOpenChange = (open: boolean) => {

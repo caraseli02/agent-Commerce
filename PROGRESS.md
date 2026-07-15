@@ -7,7 +7,7 @@
 
 ## In progress
 
-- Issue #313 / PR open on `cursor/ecas-controller-loop-workflow-a9d3`; `pnpm verify` and regional-preferences browser smoke pass; ready for independent evaluation.
+- Issue #313 / PR #337 is active on `cursor/ecas-controller-loop-workflow-a9d3`; action-button reopening is fixed, focused Playwright coverage passes for Save/Cancel reopening, focus trapping, backdrop/Escape dismissal, and the 390px full-height sheet, and `pnpm verify` passes. Next step: independent evaluation.
 
 ## Recently completed
 
