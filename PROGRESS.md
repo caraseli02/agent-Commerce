@@ -7,7 +7,7 @@
 
 ## In progress
 
-- Issue #296 / PR #338 is active on `cursor/ecas-controller-loop-workflow-bbdd`; the branch is synced with current `main`, and the remaining cart-flow legacy imports are being repaired before focused and end-to-end verification.
+- Issue #296 / PR #338 is active on `cursor/ecas-controller-loop-workflow-bbdd`; all application cart imports now use `~/types/cart`, the deprecated `model/cart` compatibility re-exports remain, 14 focused tests and the two-scenario cart → order-summary → checkout Playwright path pass, `pnpm verify:handoff` passes, and both independent review axes returned PASS. Next step: current-head CI and merge.
 
 ## Recently completed
 

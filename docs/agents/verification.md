@@ -43,10 +43,8 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 9. **Targeted baseline check**
    - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
 10. **Targeted test**
-
-- Add or update a focused Vitest test when behavior can be checked without the browser.
-- Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
-
+   - Add or update a focused Vitest test when behavior can be checked without the browser.
+   - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
 11. **Browser/runtime smoke**
 
 - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.

@@ -63,7 +63,7 @@ import DeliveryTruckSmall from '@/assets/icons/delivery-truck-small.svg';
 import HeartOutline from '@/assets/icons/heart-outline.svg';
 import HeartSolid from '@/assets/icons/heart-solid.svg';
 import TrashOutlineBig from '@/assets/icons/trash-outline-big.svg';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartProductsInterface } from '~/types/cart';
 import { useCartStore } from '~/store/cartStore';
 
 // Define props to receive state from the parent

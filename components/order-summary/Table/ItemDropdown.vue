@@ -98,8 +98,7 @@ import AdditionalDetails from './AdditionalDetails.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import { useAuthStore } from '~/store/authStore';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import { ProductAction } from '~/model/cart/response/cart.interface';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import { ProductAction, type CartProductsInterface } from '~/types/cart';
 
 import { OrderType, type FavoriteItem } from '~/types';
 

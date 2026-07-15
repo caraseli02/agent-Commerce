@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import type { FavoriteItem } from '~/types';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartProductsInterface } from '~/types/cart';
 
 const props = defineProps<{
   item: CartProductsInterface;

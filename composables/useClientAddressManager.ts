@@ -45,34 +45,13 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
 
   const formSchema = toTypedSchema(
     z.object({
-      addressAlias: z
-        .string()
-        .min(1, 'Address Alias is required')
-        .default(options.address.value?.alias || ''),
-      city: z
-        .string()
-        .min(1, 'City is required')
-        .default(options.address.value?.city || ''),
-      country: z
-        .string()
-        .min(1, 'Country is required')
-        .default(options.address.value?.country || ''),
-      county: z
-        .string()
-        .min(1, 'Region is required')
-        .default(options.address.value?.region || ''),
-      addressLine1: z
-        .string()
-        .min(1, 'Address Line 1 is required')
-        .default(options.address.value?.name1 || ''),
-      addressLine2: z
-        .string()
-        .optional()
-        .default(options.address.value?.name2 || ''),
-      postcode: z
-        .string()
-        .min(1, 'Postcode is required')
-        .default(options.address.value?.postcode || ''),
+      addressAlias: z.string().min(1, 'Address Alias is required').default(options.address.value?.alias || ''),
+      city: z.string().min(1, 'City is required').default(options.address.value?.city || ''),
+      country: z.string().min(1, 'Country is required').default(options.address.value?.country || ''),
+      county: z.string().min(1, 'Region is required').default(options.address.value?.region || ''),
+      addressLine1: z.string().min(1, 'Address Line 1 is required').default(options.address.value?.name1 || ''),
+      addressLine2: z.string().optional().default(options.address.value?.name2 || ''),
+      postcode: z.string().min(1, 'Postcode is required').default(options.address.value?.postcode || ''),
     })
   );
 

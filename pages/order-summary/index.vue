@@ -62,7 +62,7 @@ import { useHead, useRouter, useRuntimeConfig } from '#app';
 import OrderStockType from '~/components/order-summary/OrderStockType.vue';
 
 // Types and Interfaces
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartProductsInterface } from '~/types/cart';
 import { OrderType, PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails } from '~/types';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import type { UserInterface } from '~/types/auth/user-interface';

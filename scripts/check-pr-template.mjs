@@ -5,13 +5,17 @@ import process from 'node:process';
 
 const REQUIRED_HEADINGS = ['Related lectures', 'Verification', 'Known risks', 'Evaluator rubric'];
 const VERIFICATION_COMMANDS = ['pnpm build', 'pnpm lint', 'pnpm typecheck', 'pnpm test'];
-const RUBRIC_FIELDS = ['Scope control', 'Acceptance criteria', 'Verification evidence', 'Harness hygiene', 'Risk reporting'];
+const RUBRIC_FIELDS = [
+  'Scope control',
+  'Acceptance criteria',
+  'Verification evidence',
+  'Harness hygiene',
+  'Risk reporting',
+];
 const SKIP_LABELS = new Set(['skip-pr-template-check', 'human-hotfix']);
 
 function normalize(value) {
-  return String(value ?? '')
-    .trim()
-    .toLowerCase();
+  return String(value ?? '').trim().toLowerCase();
 }
 
 function extractSections(body) {
@@ -49,7 +53,11 @@ function validateVerificationSection(section) {
   for (const command of VERIFICATION_COMMANDS) {
     const commandLine = lines.some((line) => {
       const normalized = line.replace(/\s+/g, ' ');
-      return /^- \[(?:x|X)\]/.test(normalized) && normalized.includes(`\`${command}\``) && /[—-]\s*outcome:\s*\S/i.test(normalized);
+      return (
+        /^- \[(?:x|X)\]/.test(normalized) &&
+        normalized.includes(`\`${command}\``) &&
+        /[—-]\s*outcome:\s*\S/i.test(normalized)
+      );
     });
 
     if (!commandLine) {
@@ -67,7 +75,10 @@ function validateRubricSection(section) {
   for (const field of RUBRIC_FIELDS) {
     const fieldLine = lines.some((line) => {
       const normalized = line.replace(/^[-*]\s*/, '').trim();
-      return normalized.startsWith(`${field}:`) && /(?:10|[1-9])\/10$/i.test(normalized.replace(/^.*:\s*/, ''));
+      return (
+        normalized.startsWith(`${field}:`) &&
+        /(?:10|[1-9])\/10$/i.test(normalized.replace(/^.*:\s*/, ''))
+      );
     });
 
     if (!fieldLine) {
