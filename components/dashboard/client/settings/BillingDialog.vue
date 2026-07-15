@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { Building2Icon, PlusCircleIcon } from 'lucide-vue-next';
+import { ref, toRef } from 'vue';
 
-import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
-import { z } from 'zod';
-import { ref, watch } from 'vue';
-import { countries } from '@/data/countries';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import type { AccountType } from '~/types';
-import type { BillingAddressInterface, ShippingAddressInterface } from '~/types/auth/user-interface';
-import { updateStoreDetails } from '~/helpers/auth-store.helper';
-import { useToast } from '~/components/ui/toast';
 import { addBillingAsCustomer, updateBillingAsCustomer } from '~/composables/api/user';
+import { useClientAddressManager } from '~/composables/useClientAddressManager';
+import type { AccountType } from '~/types';
+import type { BillingAddressInterface } from '~/types/auth/user-interface';
 
 const props = defineProps<{
   address: BillingAddressInterface | null;
@@ -24,155 +19,14 @@ const emit = defineEmits(['addBillingAddress']);
 
 const typeOfDialog = ref('');
 
-interface Country {
-  label: string;
-  value: string;
-  icon: string;
-  regions: {
-    name: string;
-    shortCode: string;
-  }[];
-}
-
-interface Region {
-  label: string;
-  value: string;
-}
-
-const formSchema = toTypedSchema(
-  z.object({
-    addressAlias: z
-      .string()
-      .min(1, 'Address Alias is required')
-      .default(props.address?.alias || ''),
-    city: z
-      .string()
-      .min(1, 'City is required')
-      .default(props.address?.city || ''),
-    country: z
-      .string()
-      .min(1, 'Country is required')
-      .default(props.address?.country || ''),
-    county: z
-      .string()
-      .min(1, 'Region is required')
-      .default(props.address?.region || ''),
-    addressLine1: z
-      .string()
-      .min(1, 'Address Line 1 is required')
-      .default(props.address?.name1 || ''),
-    addressLine2: z
-      .string()
-      .optional()
-      .default(props.address?.name2 || ''),
-    postcode: z
-      .string()
-      .min(1, 'Postcode is required')
-      .default(props.address?.postcode || ''),
-  })
-);
-
-const { handleSubmit, setFieldValue } = useForm({
-  validationSchema: formSchema,
-});
-
-watch(
-  () => props.address,
-  (newAddress) => {
-    setFieldValue('addressAlias', newAddress?.alias || '');
-    setFieldValue('city', newAddress?.city || '');
-    setFieldValue('country', newAddress?.country || '');
-    setFieldValue('county', newAddress?.region || '');
-    setFieldValue('addressLine1', newAddress?.name1 || '');
-    setFieldValue('addressLine2', newAddress?.name2 || '');
-    setFieldValue('postcode', newAddress?.postcode || '');
-  }
-);
-const { toast } = useToast();
-
-const onSubmit = handleSubmit(async (values) => {
-  const payload: ShippingAddressInterface = {
-    _id: props.address?._id,
-    alias: values.addressAlias,
-    name1: values.addressLine1,
-    name2: values.addressLine2,
-    city: values.city,
-    country: values.country,
-    postcode: values.postcode,
-    region: values.county,
-    default: props.address?.default || false,
-  };
-
-  const response = props.address ? await updateBillingAsCustomer(payload) : await addBillingAsCustomer(payload);
-
-  if (response.status === 'success') {
+const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubmit } = useClientAddressManager({
+  address: toRef(props, 'address'),
+  isOpen,
+  addAddress: addBillingAsCustomer,
+  updateAddress: updateBillingAsCustomer,
+  onSuccess: async (payload) => {
     emit('addBillingAddress', payload);
-    await updateStoreDetails();
-    onCloseDialog();
-  } else {
-    toast({
-      variant: 'destructive',
-      title: 'Error',
-      description: 'Invalid address',
-    });
-  }
-});
-
-const findRegionByName = (regions: Country['regions'] | undefined, name: string | undefined) => {
-  const region = regions?.find((region) => region.name === name);
-  if (region) {
-    return {
-      label: region.name,
-      value: region.shortCode,
-    };
-  }
-  return undefined;
-};
-
-const country = ref<undefined | Country>(undefined);
-
-const region = ref<undefined | Region>(undefined);
-
-const regions = ref<Region[]>([]);
-
-const showErrorMsg = ref(true);
-
-watch(country, (newCountry) => {
-  if (newCountry) {
-    setFieldValue('country', newCountry.value);
-    country.value = countries.find((c) => c.value === newCountry.value) as Country;
-    regions.value =
-      newCountry.regions.map((e) => {
-        return {
-          label: e.name,
-          value: e.name,
-        };
-      }) || [];
-    region.value = { label: props.address?.city ?? '', value: props.address?.city ?? '' };
-  } else {
-    region.value = undefined;
-  }
-});
-
-watch(region, (newRegion) => {
-  if (newRegion) {
-    setFieldValue('county', newRegion.value);
-  } else {
-    region.value = undefined;
-  }
-});
-
-const onCloseDialog = () => {
-  showErrorMsg.value = false;
-  isOpen.value = false;
-};
-
-watch(isOpen, (newVla) => {
-  if (newVla) {
-    country.value = countries.find((c) => c.value === (props.address?.country || 'US')) as Country;
-    region.value = findRegionByName(country.value?.regions, props.address?.region);
-    regions.value = country.value?.regions.map((e) => ({ label: e.name, value: e.name })) || [];
-  }
+  },
 });
 </script>
 
