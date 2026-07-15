@@ -133,7 +133,7 @@ import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import { MoreHorizontal } from 'lucide-vue-next';
 import type { FavouriteFolderRequestInterface } from '~/model/favourite-folder/request/favourite-folder.interface';
-import type { AddToCartRequestInterface } from '~/model/cart/request/cart.interface';
+import type { AddToCartRequestInterface } from '~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { addEntityToFavouriteList } from '~/composables/api/favorites';

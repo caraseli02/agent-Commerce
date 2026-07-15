@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import type { CartInterface } from '../model/cart/response/cart.interface';
+import type { CartInterface } from '~/types/cart';
 import { __setMockApiClient, __setMockCookie } from './mocks/nuxt-app';
 
 const sampleCart = {

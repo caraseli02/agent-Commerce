@@ -173,7 +173,7 @@ import { showNavModal } from '~~/config/modal/nav';
 import type { Notification } from '~/types/dashboard/notification';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import type { ProductSearchResponse } from '~/model/products/response/ProductSearchResponse';
-import type { CartInterface } from '~/model/cart/response/cart.interface';
+import type { CartInterface } from '~/types/cart';
 import {
   deleteNotificationById,
   fetchGetNotifications,

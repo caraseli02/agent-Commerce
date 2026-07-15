@@ -44,7 +44,7 @@ import HeartSolid from '@/assets/icons/heart-solid.svg';
 import TrashOutline from '@/assets/icons/trash-outline.svg';
 import { useCart } from '~/composables/useCart';
 import { useCartStore } from '~/store/cartStore';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartProductsInterface } from '~/types/cart';
 
 // Reactive properties
 const checkAllBox = ref(false);

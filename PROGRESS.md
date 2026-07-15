@@ -2,15 +2,16 @@
 
 ## Current focus
 
-- Issue #313 — migrate `RegionalPreferencesModal` to shadcn `UiSheet` / `UiButton`.
+- Issue #296 — cart type namespace consolidation (tracer bullet): canonical types under `types/cart/`, backward-compatible `model/cart` re-exports, cart-flow imports updated.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #313 / PR #337 is active on `cursor/ecas-controller-loop-workflow-a9d3`; action-button reopening is fixed, focused Playwright coverage passes for Save/Cancel reopening, focus trapping, backdrop/Escape dismissal, and the 390px full-height sheet, and both `pnpm verify` and `pnpm verify:handoff` pass. Next step: current-head CI and independent evaluation.
+- Issue #296 / PR #338 is active on `cursor/ecas-controller-loop-workflow-bbdd`; all application cart imports now use `~/types/cart`, the deprecated `model/cart` compatibility re-exports remain, 14 focused tests and the two-scenario cart → order-summary → checkout Playwright path pass, `pnpm verify:handoff` passes, and both independent review axes returned PASS. Next step: current-head CI and merge.
 
 ## Recently completed
 
+- Issue #313 — regional preferences migrated to `UiSheet`; PR #337 merged after reopen-regression repair, focused Playwright coverage, full handoff verification, green CI/Vercel, and evaluator PASS.
 - Issue #290 — dashboard order surfaces now use composable API adapters; PR #330 merged after conflict repair, focused/full verification, signed-in runtime smoke, and evaluator PASS.
 - Issue #303 — placeholder storefront/dashboard navigation removed; PR #328 merged after focused tests, full verification, four-route desktop smoke, and 390px mobile drawer smoke.
 - Issue #288 — admin Order detail adapter consolidated onto `useOrderConfirmation`; PR #326 merged after focused tests, full verification, review, and signed-in Admin Preview browser smoke.

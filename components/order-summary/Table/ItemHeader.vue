@@ -11,7 +11,7 @@ import HeartOutline from '@/assets/icons/heart-outline.svg';
 import HeartSolid from '@/assets/icons/heart-solid.svg';
 
 import DemoTooltip from '~/components/global/DemoTooltip.vue';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartProductsInterface } from '~/types/cart';
 import { useAuthStore } from '~/store/authStore';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { useCartStore } from '~/store/cartStore';

@@ -9,7 +9,7 @@ import { getOrderById } from '~/composables/api/orders';
 import { paymentInfoHelper } from '~/helpers/payment-info.helper';
 import { useAuthStore } from '~/store/authStore';
 import { OrderType } from '~/types';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartProductsInterface } from '~/types/cart';
 import type {
   OrderInterface,
   OrderNotesInterface,

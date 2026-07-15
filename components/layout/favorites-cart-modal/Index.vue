@@ -52,7 +52,7 @@ import Cart from './cart/Index.vue';
 import XIcon from '@/assets/icons/x.svg';
 import CartIcon from '@/assets/icons/cart.svg';
 import HeartIcon from '@/assets/icons/heart.svg';
-import type { CartInterface } from '~/model/cart/response/cart.interface';
+import type { CartInterface } from '~/types/cart';
 
 const props = defineProps({
   tab: {

@@ -1,4 +1,4 @@
-import type { DeleteProductCartRequestInterface } from '~/model/cart/request/cart.interface';
+import type { DeleteProductCartRequestInterface } from '~/types/cart';
 import { getMockCartForUser, removeProductsFromMockCart, requireMockCartUserId } from '~/server/utils/mockCart';
 
 export default defineEventHandler(async (event) => {

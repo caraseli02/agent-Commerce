@@ -7,7 +7,7 @@ import { useCartStore } from '~/store/cartStore';
 import { AccountRole, AccountType, PaymentTypeEnum } from '~/types';
 import type { OrderRequestInterface, PaymentDetails, OrderType } from '~/types';
 import type { PlaceOrderInterface } from '~/model/order/response/PlaceOrder';
-import type { CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartProductsInterface } from '~/types/cart';
 import type { BackorderShippingTypesInterface, SmallOrderChargeInterface } from '~/types/general-settings/general-settings';
 import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
 import { useCheckoutStore } from '~/store/checkoutStore';

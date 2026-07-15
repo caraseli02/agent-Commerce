@@ -1,4 +1,4 @@
-import type { AddToCartRequestInterface } from '~/model/cart/request/cart.interface';
+import type { AddToCartRequestInterface } from '~/types/cart';
 import { addProductsToMockCart, getMockCartForUser, requireMockCartUserId } from '~/server/utils/mockCart';
 
 export default defineEventHandler(async (event) => {

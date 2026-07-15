@@ -1,4 +1,4 @@
-import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
+import type { CartInterface, CartProductsInterface } from '~/types/cart';
 import { getCookie, setCookie, type H3Event } from 'h3';
 import { mockProducts } from '~/server/utils/mockProducts';
 import { parseMockUserIdFromToken } from '~/server/utils/mockUsers';

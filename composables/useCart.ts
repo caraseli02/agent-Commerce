@@ -6,10 +6,11 @@ import { addEntityToCart, removeEntityFromCart, updateEntityFromCart } from '~/c
 import { getShippingPricesForOrder } from '~/composables/api/orders';
 import type {
   AddToCartRequestInterface,
+  CartInterface,
+  CartProductsInterface,
   DeleteProductCartRequestInterface,
   UpdateProductCartRequestInterface,
-} from '~/model/cart/request/cart.interface';
-import type { CartInterface, CartProductsInterface } from '~/model/cart/response/cart.interface';
+} from '~/types/cart';
 import { useCartStore } from '~/store/cartStore';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 import { calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
