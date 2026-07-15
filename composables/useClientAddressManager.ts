@@ -45,13 +45,34 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
 
   const formSchema = toTypedSchema(
     z.object({
-      addressAlias: z.string().min(1, 'Address Alias is required').default(options.address.value?.alias || ''),
-      city: z.string().min(1, 'City is required').default(options.address.value?.city || ''),
-      country: z.string().min(1, 'Country is required').default(options.address.value?.country || ''),
-      county: z.string().min(1, 'Region is required').default(options.address.value?.region || ''),
-      addressLine1: z.string().min(1, 'Address Line 1 is required').default(options.address.value?.name1 || ''),
-      addressLine2: z.string().optional().default(options.address.value?.name2 || ''),
-      postcode: z.string().min(1, 'Postcode is required').default(options.address.value?.postcode || ''),
+      addressAlias: z
+        .string()
+        .min(1, 'Address Alias is required')
+        .default(options.address.value?.alias || ''),
+      city: z
+        .string()
+        .min(1, 'City is required')
+        .default(options.address.value?.city || ''),
+      country: z
+        .string()
+        .min(1, 'Country is required')
+        .default(options.address.value?.country || ''),
+      county: z
+        .string()
+        .min(1, 'Region is required')
+        .default(options.address.value?.region || ''),
+      addressLine1: z
+        .string()
+        .min(1, 'Address Line 1 is required')
+        .default(options.address.value?.name1 || ''),
+      addressLine2: z
+        .string()
+        .optional()
+        .default(options.address.value?.name2 || ''),
+      postcode: z
+        .string()
+        .min(1, 'Postcode is required')
+        .default(options.address.value?.postcode || ''),
     })
   );
 
@@ -65,7 +86,7 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
     if (selectedRegion) {
       return {
         label: selectedRegion.name,
-        value: selectedRegion.shortCode,
+        value: selectedRegion.name,
       };
     }
 
@@ -85,24 +106,30 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
   watch(country, (newCountry) => {
     if (newCountry) {
       setFieldValue('country', newCountry.value);
-      country.value = countries.find((item) => item.value === newCountry.value) as Country;
+      const selectedCountry = countries.find((item) => item.value === newCountry.value) as Country;
+      country.value = selectedCountry;
       regions.value =
-        newCountry.regions.map((item) => ({
+        selectedCountry.regions.map((item) => ({
           label: item.name,
           value: item.name,
         })) || [];
-      region.value = { label: options.address.value?.city ?? '', value: options.address.value?.city ?? '' };
+
+      const existingRegion = options.address.value?.region;
+      region.value = existingRegion ? findRegionByName(selectedCountry?.regions, existingRegion) : undefined;
+      setFieldValue('county', region.value?.value ?? '');
     } else {
       region.value = undefined;
+      setFieldValue('county', '');
     }
   });
 
   watch(region, (newRegion) => {
-    if (newRegion) {
+    if (newRegion?.value) {
       setFieldValue('county', newRegion.value);
-    } else {
-      region.value = undefined;
+      return;
     }
+
+    setFieldValue('county', '');
   });
 
   watch(options.isOpen, (newValue) => {
