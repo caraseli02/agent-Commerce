@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #332 — add the accountable loop actor boundary: run identity, permissions, ordered actions, budgets, independent evaluation, and cost per accepted change.
+- Issue #313 — migrate `RegionalPreferencesModal` to shadcn `UiSheet` / `UiButton`.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #332 / PR #333 is active on `codex/issue-332-loop-accountability`; 11 focused ledger tests and the full `pnpm verify` gate pass, and the PR is ready for independent evaluation.
+- Issue #313 / PR #337 is active on `cursor/ecas-controller-loop-workflow-a9d3`; action-button reopening is fixed, focused Playwright coverage passes for Save/Cancel reopening, focus trapping, backdrop/Escape dismissal, and the 390px full-height sheet, and both `pnpm verify` and `pnpm verify:handoff` pass. Next step: current-head CI and independent evaluation.
 
 ## Recently completed
 

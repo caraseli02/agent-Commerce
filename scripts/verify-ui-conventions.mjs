@@ -12,7 +12,6 @@ const ignoredDirectories = new Set(['.git', '.husky', '.nuxt', '.output', 'cover
 /** @type {ReadonlySet<string>} */
 export const grandfatheredLegacyModalFiles = new Set([
   'components/dashboard/DeactivateUserModal.vue',
-  'components/layout/RegionalPreferencesModal.vue',
   'components/layout/SearchFiltersModal.vue',
   'components/layout/account-modal/Form.vue',
   'components/layout/account-modal/Index.vue',
