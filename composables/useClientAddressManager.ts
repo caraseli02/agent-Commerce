@@ -93,6 +93,21 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
     return undefined;
   };
 
+  const syncCountrySelection = (selectedCountry: Country | undefined) => {
+    country.value = selectedCountry;
+    setFieldValue('country', selectedCountry?.value || '');
+    regions.value =
+      selectedCountry?.regions.map((item) => ({
+        label: item.name,
+        value: item.name,
+      })) || [];
+  };
+
+  const syncRegionSelection = (selectedRegion: Region | undefined) => {
+    region.value = selectedRegion;
+    setFieldValue('county', selectedRegion?.value || '');
+  };
+
   watch(options.address, (newAddress) => {
     setFieldValue('addressAlias', newAddress?.alias || '');
     setFieldValue('city', newAddress?.city || '');
@@ -105,38 +120,26 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
 
   watch(country, (newCountry) => {
     if (newCountry) {
-      setFieldValue('country', newCountry.value);
       const selectedCountry = countries.find((item) => item.value === newCountry.value) as Country;
-      country.value = selectedCountry;
-      regions.value =
-        selectedCountry.regions.map((item) => ({
-          label: item.name,
-          value: item.name,
-        })) || [];
+      syncCountrySelection(selectedCountry);
 
       const existingRegion = options.address.value?.region;
-      region.value = existingRegion ? findRegionByName(selectedCountry?.regions, existingRegion) : undefined;
-      setFieldValue('county', region.value?.value ?? '');
-    } else {
-      region.value = undefined;
-      setFieldValue('county', '');
-    }
-  });
-
-  watch(region, (newRegion) => {
-    if (newRegion?.value) {
-      setFieldValue('county', newRegion.value);
+      syncRegionSelection(existingRegion ? findRegionByName(selectedCountry?.regions, existingRegion) : undefined);
       return;
     }
 
-    setFieldValue('county', '');
+    syncRegionSelection(undefined);
+  });
+
+  watch(region, (newRegion) => {
+    syncRegionSelection(newRegion ?? undefined);
   });
 
   watch(options.isOpen, (newValue) => {
     if (newValue) {
-      country.value = countries.find((item) => item.value === (options.address.value?.country || 'US')) as Country;
-      region.value = findRegionByName(country.value?.regions, options.address.value?.region ?? '');
-      regions.value = country.value?.regions.map((item) => ({ label: item.name, value: item.name })) || [];
+      const selectedCountry = countries.find((item) => item.value === (options.address.value?.country || 'US')) as Country;
+      syncCountrySelection(selectedCountry);
+      syncRegionSelection(findRegionByName(selectedCountry?.regions, options.address.value?.region ?? ''));
     }
   });
 

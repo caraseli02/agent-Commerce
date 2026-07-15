@@ -91,12 +91,26 @@ test.describe('Control panel address CRUD', () => {
 
     await expect(page.getByText(billingAlias)).toBeVisible();
 
-    const billingCard = page.getByText(billingAlias).locator('xpath=ancestor::div[contains(@class,"border-dashed")]');
+    await page.getByText(billingAlias).locator('xpath=ancestor::div[contains(@class,"border-dashed")]').getByRole('button').nth(1).click();
+    const billingEditModal = page.locator('div.fixed.z-\\[60\\]').filter({ hasText: 'Edit Billing Details' });
+    await expect(billingEditModal).toBeVisible();
+    await billingEditModal.getByPlaceholder('Address Alias 1').fill(`${billingAlias} Updated`);
+
+    await Promise.all([
+      page.waitForResponse(
+        (response) => response.url().includes('/api/user/billing-address/customer-001') && response.request().method() === 'PATCH'
+      ),
+      billingEditModal.getByRole('button', { name: 'Save', exact: true }).click(),
+    ]);
+
+    await expect(page.getByText(`${billingAlias} Updated`)).toBeVisible();
+
+    const billingCard = page.getByText(`${billingAlias} Updated`).locator('xpath=ancestor::div[contains(@class,"border-dashed")]');
     await Promise.all([
       page.waitForResponse((response) => response.url().includes('/api/user/billing-address/') && response.request().method() === 'DELETE'),
       billingCard.getByRole('button').nth(2).click(),
     ]);
 
-    await expect(page.getByText(billingAlias)).toHaveCount(0);
+    await expect(page.getByText(`${billingAlias} Updated`)).toHaveCount(0);
   });
 });
