@@ -7,7 +7,7 @@
 
 ## In progress
 
-- Issue #313 / PR #337 is active on `cursor/ecas-controller-loop-workflow-a9d3`; action-button reopening is fixed, focused Playwright coverage passes for Save/Cancel reopening, focus trapping, backdrop/Escape dismissal, and the 390px full-height sheet, and `pnpm verify` passes. Next step: independent evaluation.
+- Issue #313 / PR #337 is active on `cursor/ecas-controller-loop-workflow-a9d3`; action-button reopening is fixed, focused Playwright coverage passes for Save/Cancel reopening, focus trapping, backdrop/Escape dismissal, and the 390px full-height sheet, and both `pnpm verify` and `pnpm verify:handoff` pass. Next step: current-head CI and independent evaluation.
 
 ## Recently completed
 
