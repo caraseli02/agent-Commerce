@@ -1,5 +1,8 @@
 <template>
-  <div class="w-full flex flex-col justify-between relative bg-white rounded-2xl shadow-m px-4 py-4 md:px-5 md:py-5 lg:self-start">
+  <div
+    data-testid="product-purchase-panel"
+    class="w-full flex flex-col justify-between relative bg-white rounded-2xl shadow-m px-4 py-4 md:px-5 md:py-5 lg:self-start"
+  >
     <!-- <div class="absolute top-0 left-0 px-2.5 py-2 flex items-center rounded-tl-md rounded-br-md bg-green-600">
             <CheckCircle2 class="w-4 h-4 mr-1 text-white" />
             <span class="text-[11px] font-Inter leading-tight font-semibold text-white"> {{ product.stock }} in stock </span>

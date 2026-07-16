@@ -2,15 +2,16 @@
 
 ## Current focus
 
-- Issue #292 — control-panel address manager repair on PR #342: shared composable region sync, mock CRUD coverage, and shadcn dialog migration.
+- Issue #293 — Scripted Buyer Path E2E (cart → order summary → checkout entry): repair and requeue PR #343 after explicit human intervention.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #292 / PR #342 on `fix/issue-292`: evaluator FAIL repairs landed — `useClientAddressManager` no longer poisons region on country change; mock runtime address CRUD endpoints remain; Add/Edit address surfaces now use `UiDialog`/`UiDialogContent`/`UiButton`; the focused Playwright spec proves dialog close plus add/edit/delete for shipping and billing. `pnpm verify`, the focused CRUD Playwright flow, and Admin Smoke Path pass locally. Next step: current-head CI and evaluator re-check.
+- Issue #293 / PR #343 is active on `fix/issue-293`; the branch is rebased onto merged PR #342, the distinct buyer-path spec uses a stable purchase-panel test selector, the exact focused Playwright run passes 1/1, and `pnpm verify` passes 26/26 files and 79/79 tests. Next step: push the repaired head, confirm CI, and request evaluator re-review.
 
 ## Recently completed
 
+- Issue #292 — shared control-panel address manager with local mock CRUD and focused browser coverage; PR #342 merged after evaluator PASS.
 - Issue #296 — cart type namespace consolidation (tracer bullet); PR #338 merged.
 - Issue #290 — dashboard order surfaces now use composable API adapters; PR #330 merged after conflict repair, focused/full verification, signed-in runtime smoke, and evaluator PASS.
 - Issue #303 — placeholder storefront/dashboard navigation removed; PR #328 merged after focused tests, full verification, four-route desktop smoke, and 390px mobile drawer smoke.
