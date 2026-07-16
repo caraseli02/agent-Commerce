@@ -1,0 +1,117 @@
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+
+test.setTimeout(60_000);
+
+/**
+ * Scripted Buyer Path: cart → order summary → checkout entry in mock mode.
+ *
+ * Protects the portfolio demo flow where a guest adds a product, reaches order
+ * summary through the cart route, signs in, and can enter secure checkout.
+ */
+const warmMockApi = async (request: APIRequestContext) => {
+  const deadline = Date.now() + 30_000;
+
+  while (Date.now() < deadline) {
+    const homeResponse = await request.get('/');
+    if (!homeResponse.ok()) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      continue;
+    }
+
+    const loginResponse = await request.post('/api/auth/login', {
+      data: {
+        email: 'customer@demo.com',
+        password: 'customer123',
+      },
+    });
+    const contentType = loginResponse.headers()['content-type'] ?? '';
+
+    if (!loginResponse.ok() || !contentType.includes('application/json')) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      continue;
+    }
+
+    const cartProbe = await request.post('/api/cart', {
+      data: { productId: 'prod-2', quantity: 1 },
+    });
+
+    if (cartProbe.ok()) {
+      await request.delete('/api/cart', {
+        data: { products: ['prod-1', 'prod-2'] },
+      });
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  throw new Error('Timed out waiting for mock API readiness before buyer-path E2E');
+};
+
+const navigateTo = async (page: Page, path: string) => {
+  await page.goto(path, { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
+};
+
+const submitCustomerSignIn = async (page: Page) => {
+  const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
+  await expect(signInButton).toBeVisible();
+  await Promise.all([
+    page.waitForResponse((response) => response.url().includes('/api/auth/login') && response.request().method() === 'POST'),
+    signInButton.click(),
+  ]);
+};
+
+const addProductToCart = async (page: Page) => {
+  const addToCartButton = page.locator('main').getByRole('button', { name: 'Add to cart', exact: true }).first();
+  await addToCartButton.scrollIntoViewIfNeeded();
+  await expect(addToCartButton).toBeEnabled();
+
+  const [cartPostResponse] = await Promise.all([
+    page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST', { timeout: 20_000 }),
+    addToCartButton.click(),
+  ]);
+  expect(cartPostResponse.ok()).toBe(true);
+};
+
+test.describe('Scripted Buyer Path — cart to checkout entry', () => {
+  test.beforeAll(async ({ request }) => {
+    await warmMockApi(request);
+  });
+
+  test.beforeEach(async ({ request }) => {
+    await request.delete('/api/cart', {
+      data: { products: ['prod-1', 'prod-2'] },
+    });
+  });
+
+  test('guest buyer reaches order summary from cart and can enter secure checkout after sign-in', async ({ page }) => {
+    await navigateTo(page, '/product/prod-2');
+    await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+
+    await addProductToCart(page);
+
+    await navigateTo(page, '/cart');
+    await expect(page).toHaveURL(/\/order-summary$/);
+    await expect(page.getByRole('heading', { name: /order summary/i })).toBeVisible();
+    await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText(/Viewing Summary as Guest/i)).toBeVisible();
+
+    await Promise.all([
+      page.waitForURL(/\/\?signin=true&redirect=%2Forder-summary/),
+      page.getByRole('link', { name: /sign in to continue checkout/i }).click(),
+    ]);
+    await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
+
+    await submitCustomerSignIn(page);
+
+    await expect(page).toHaveURL(/\/order-summary$/);
+    await expect(page.getByRole('heading', { name: /order summary/i })).toBeVisible();
+    await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText(/Viewing Summary as Guest/i)).toHaveCount(0);
+
+    const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
+    await expect(secureCheckoutButton).toBeVisible();
+    await expect(secureCheckoutButton).toBeEnabled();
+  });
+});

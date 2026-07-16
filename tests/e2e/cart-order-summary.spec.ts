@@ -1,53 +1,14 @@
-import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 test.setTimeout(60_000);
 
 /**
- * Scripted Buyer Path: cart → order summary → checkout entry in mock mode.
+ * Tier 1 Critical Flow: Product Detail → Checkout Confirmation
  *
  * Verifies the demo purchase journey can move from a product page through the
  * order summary, customer sign-in, secure checkout, and confirmed runtime order.
  */
-const warmMockApi = async (request: APIRequestContext) => {
-  const deadline = Date.now() + 30_000;
-
-  while (Date.now() < deadline) {
-    const homeResponse = await request.get('/');
-    if (!homeResponse.ok()) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      continue;
-    }
-
-    const loginResponse = await request.post('/api/auth/login', {
-      data: {
-        email: 'customer@demo.com',
-        password: 'customer123',
-      },
-    });
-    const contentType = loginResponse.headers()['content-type'] ?? '';
-
-    if (!loginResponse.ok() || !contentType.includes('application/json')) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      continue;
-    }
-
-    const cartProbe = await request.post('/api/cart', {
-      data: { productId: 'prod-2', quantity: 1 },
-    });
-
-    if (cartProbe.ok()) {
-      await request.delete('/api/cart', {
-        data: { products: ['prod-1', 'prod-2'] },
-      });
-      return;
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-
-  throw new Error('Timed out waiting for mock API readiness');
-};
-
 const navigateTo = async (page: Page, path: string) => {
   await page.goto(path, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
@@ -67,45 +28,55 @@ const expectProductInSummary = async (page: Page) => {
 };
 
 const addProductToCart = async (page: Page) => {
-  const addToCartButton = page.locator('main').getByRole('button', { name: 'Add to cart', exact: true }).first();
+  const addToCartButton = page.getByRole('button', { name: /add to cart/i }).first();
   await addToCartButton.scrollIntoViewIfNeeded();
   await expect(addToCartButton).toBeEnabled();
 
-  const [cartPostResponse] = await Promise.all([
-    page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST', { timeout: 20_000 }),
-    addToCartButton.click(),
-  ]);
+  const cartPostPromise = page.waitForResponse(
+    (response) => response.url().includes('/api/cart') && response.request().method() === 'POST'
+  );
+  await addToCartButton.click();
+  const cartPostResponse = await cartPostPromise;
   expect(cartPostResponse.ok()).toBe(true);
 };
 
-test.describe('Cart → Order Summary → Checkout Entry', () => {
-  test.beforeAll(async ({ request }) => {
-    await warmMockApi(request);
-  });
-
+test.describe('Product Detail → Checkout Confirmation', () => {
   test.beforeEach(async ({ request }) => {
+    const resetProducts = ['prod-1', 'prod-2'];
+    const loginResponse = await request.post('/api/auth/login', {
+      data: {
+        email: 'admin@ecas.com',
+        password: 'admin123',
+      },
+    });
+    const loginJson = (await loginResponse.json()) as { token?: string; data?: { token?: string } };
+    const token = loginJson.token || loginJson.data?.token;
+
+    if (token) {
+      await request.delete('/api/cart', {
+        data: { products: resetProducts },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    }
+
     await request.delete('/api/cart', {
-      data: { products: ['prod-1', 'prod-2'] },
+      data: { products: resetProducts },
     });
   });
 
-  test('guest buyer can complete the mock purchase journey from cart to checkout success', async ({ page }) => {
+  test('guest customer can complete the mock purchase journey from product detail to checkout success', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
     await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 
     await addProductToCart(page);
 
-    await navigateTo(page, '/cart');
-    await expect(page).toHaveURL(/\/order-summary$/);
+    await navigateTo(page, '/order-summary');
     await expect(page.getByRole('heading', { name: /order summary/i })).toBeVisible();
     await expectProductInSummary(page);
     await expect(page.getByText(/Viewing Summary as Guest/i)).toBeVisible();
 
-    await Promise.all([
-      page.waitForURL(/\/\?signin=true&redirect=%2Forder-summary/),
-      page.getByRole('link', { name: /sign in to continue checkout/i }).click(),
-    ]);
-    await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
+    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    await expect(page).toHaveURL(/redirect=(%2F|\/)order-summary/);
 
     await submitCustomerSignIn(page);
 
