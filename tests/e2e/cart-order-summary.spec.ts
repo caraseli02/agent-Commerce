@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 
 test.setTimeout(60_000);
 
@@ -8,6 +8,34 @@ test.setTimeout(60_000);
  * Verifies the demo purchase journey can move from a product page through the
  * order summary, customer sign-in, secure checkout, and confirmed runtime order.
  */
+const warmMockApi = async (request: APIRequestContext) => {
+  const deadline = Date.now() + 30_000;
+
+  while (Date.now() < deadline) {
+    const homeResponse = await request.get('/');
+    if (!homeResponse.ok()) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      continue;
+    }
+
+    const loginResponse = await request.post('/api/auth/login', {
+      data: {
+        email: 'customer@demo.com',
+        password: 'customer123',
+      },
+    });
+    const contentType = loginResponse.headers()['content-type'] ?? '';
+
+    if (loginResponse.ok() && contentType.includes('application/json')) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  throw new Error('Timed out waiting for mock API readiness');
+};
+
 const navigateTo = async (page: Page, path: string) => {
   await page.goto(path, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
@@ -39,6 +67,10 @@ const addProductToCart = async (page: Page) => {
 };
 
 test.describe('Cart → Order Summary → Checkout Entry', () => {
+  test.beforeAll(async ({ request }) => {
+    await warmMockApi(request);
+  });
+
   test.beforeEach(async ({ request }) => {
     await request.delete('/api/cart', {
       data: { products: ['prod-1', 'prod-2'] },
