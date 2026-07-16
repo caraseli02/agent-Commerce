@@ -27,15 +27,14 @@ const expectProductInSummary = async (page: Page) => {
 };
 
 const addProductToCart = async (page: Page) => {
-  const addToCartButton = page.getByRole('button', { name: /add to cart/i }).first();
+  const addToCartButton = page.locator('main').getByRole('button', { name: 'Add to cart', exact: true }).first();
   await addToCartButton.scrollIntoViewIfNeeded();
   await expect(addToCartButton).toBeEnabled();
 
-  const cartPostPromise = page.waitForResponse(
-    (response) => response.url().includes('/api/cart') && response.request().method() === 'POST'
-  );
-  await addToCartButton.click();
-  const cartPostResponse = await cartPostPromise;
+  const [cartPostResponse] = await Promise.all([
+    page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST', { timeout: 15_000 }),
+    addToCartButton.click(),
+  ]);
   expect(cartPostResponse.ok()).toBe(true);
 };
 
