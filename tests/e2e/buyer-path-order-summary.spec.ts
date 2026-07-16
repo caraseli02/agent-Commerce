@@ -63,8 +63,9 @@ const submitCustomerSignIn = async (page: Page) => {
 };
 
 const addProductToCart = async (page: Page) => {
-  const addToCartButton = page.locator('main').getByRole('button', { name: 'Add to cart', exact: true }).first();
+  const addToCartButton = page.locator('main div.border-t').getByRole('button', { name: /add to cart/i });
   await addToCartButton.scrollIntoViewIfNeeded();
+  await expect(page.locator('main div.border-t').getByRole('spinbutton')).toHaveValue('1');
   await expect(addToCartButton).toBeEnabled();
 
   const [cartPostResponse] = await Promise.all([
