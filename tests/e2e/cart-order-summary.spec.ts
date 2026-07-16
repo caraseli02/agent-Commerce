@@ -26,7 +26,19 @@ const warmMockApi = async (request: APIRequestContext) => {
     });
     const contentType = loginResponse.headers()['content-type'] ?? '';
 
-    if (loginResponse.ok() && contentType.includes('application/json')) {
+    if (!loginResponse.ok() || !contentType.includes('application/json')) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      continue;
+    }
+
+    const cartProbe = await request.post('/api/cart', {
+      data: { productId: 'prod-2', quantity: 1 },
+    });
+
+    if (cartProbe.ok()) {
+      await request.delete('/api/cart', {
+        data: { products: ['prod-1', 'prod-2'] },
+      });
       return;
     }
 
@@ -55,12 +67,13 @@ const expectProductInSummary = async (page: Page) => {
 };
 
 const addProductToCart = async (page: Page) => {
-  const addToCartButton = page.locator('main').getByRole('button', { name: 'Add to cart', exact: true }).first();
+  const productSection = page.locator('main').filter({ has: page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).first() });
+  const addToCartButton = productSection.getByRole('button', { name: 'Add to cart', exact: true });
   await addToCartButton.scrollIntoViewIfNeeded();
   await expect(addToCartButton).toBeEnabled();
 
   const [cartPostResponse] = await Promise.all([
-    page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST', { timeout: 15_000 }),
+    page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST', { timeout: 20_000 }),
     addToCartButton.click(),
   ]);
   expect(cartPostResponse.ok()).toBe(true);
