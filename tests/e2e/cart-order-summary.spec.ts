@@ -67,8 +67,8 @@ const expectProductInSummary = async (page: Page) => {
 };
 
 const addProductToCart = async (page: Page) => {
-  const productSection = page.locator('main').filter({ has: page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).first() });
-  const addToCartButton = productSection.getByRole('button', { name: 'Add to cart', exact: true });
+  const purchasePanel = page.locator('main').filter({ has: page.getByRole('spinbutton') });
+  const addToCartButton = purchasePanel.getByRole('button', { name: 'Add to cart', exact: true });
   await addToCartButton.scrollIntoViewIfNeeded();
   await expect(addToCartButton).toBeEnabled();
 
