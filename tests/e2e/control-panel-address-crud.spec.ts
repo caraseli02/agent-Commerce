@@ -18,7 +18,7 @@ const signInAsAdmin = async (page: Page) => {
 };
 
 const fillAddAddressForm = async (page: Page, alias: string, type: 'Shipping' | 'Billing') => {
-  const addModal = page.locator('div.fixed.z-\\[60\\]').filter({ hasText: `Add ${type} Address` });
+  const addModal = page.getByRole('dialog', { name: `Add ${type} Address` });
   await expect(addModal).toBeVisible();
 
   await addModal.getByPlaceholder('Address Alias 1').fill(alias);
@@ -41,6 +41,11 @@ test.describe('Control panel address CRUD', () => {
     await expect(page.getByRole('heading', { name: 'Shipping', exact: true })).toBeVisible();
 
     await page.locator('button.border-dashed').click();
+    const initialShippingDialog = page.getByRole('dialog', { name: 'Add Shipping Address' });
+    await initialShippingDialog.getByRole('button', { name: 'Close' }).click();
+    await expect(initialShippingDialog).toBeHidden();
+
+    await page.locator('button.border-dashed').click();
     await fillAddAddressForm(page, shippingAlias, 'Shipping');
 
     await Promise.all([
@@ -53,7 +58,7 @@ test.describe('Control panel address CRUD', () => {
     await expect(page.getByText(shippingAlias)).toBeVisible();
 
     await page.getByText(shippingAlias).locator('xpath=ancestor::div[contains(@class,"border-dashed")]').getByRole('button').nth(1).click();
-    const editModal = page.locator('div.fixed.z-\\[60\\]').filter({ hasText: 'Edit Shipping Details' });
+    const editModal = page.getByRole('dialog', { name: 'Edit Shipping Details' });
     await expect(editModal).toBeVisible();
     await editModal.getByPlaceholder('Address Alias 1').fill(`${shippingAlias} Updated`);
 
@@ -66,12 +71,19 @@ test.describe('Control panel address CRUD', () => {
 
     await expect(page.getByText(`${shippingAlias} Updated`)).toBeVisible();
 
-    const shippingCard = page.getByText(`${shippingAlias} Updated`).locator('xpath=ancestor::div[contains(@class,"border-dashed")]');
+    await page
+      .getByText(`${shippingAlias} Updated`)
+      .locator('xpath=ancestor::div[contains(@class,"border-dashed")]')
+      .getByRole('button')
+      .nth(1)
+      .click();
+    const shippingDeleteModal = page.getByRole('dialog', { name: 'Edit Shipping Details' });
+    await expect(shippingDeleteModal).toBeVisible();
     await Promise.all([
       page.waitForResponse(
         (response) => response.url().includes('/api/user/shipping-address/') && response.request().method() === 'DELETE'
       ),
-      shippingCard.getByRole('button').nth(2).click(),
+      shippingDeleteModal.getByRole('button', { name: 'Delete', exact: true }).click(),
     ]);
 
     await expect(page.getByText(`${shippingAlias} Updated`)).toHaveCount(0);
@@ -92,7 +104,7 @@ test.describe('Control panel address CRUD', () => {
     await expect(page.getByText(billingAlias)).toBeVisible();
 
     await page.getByText(billingAlias).locator('xpath=ancestor::div[contains(@class,"border-dashed")]').getByRole('button').nth(1).click();
-    const billingEditModal = page.locator('div.fixed.z-\\[60\\]').filter({ hasText: 'Edit Billing Details' });
+    const billingEditModal = page.getByRole('dialog', { name: 'Edit Billing Details' });
     await expect(billingEditModal).toBeVisible();
     await billingEditModal.getByPlaceholder('Address Alias 1').fill(`${billingAlias} Updated`);
 
@@ -105,10 +117,17 @@ test.describe('Control panel address CRUD', () => {
 
     await expect(page.getByText(`${billingAlias} Updated`)).toBeVisible();
 
-    const billingCard = page.getByText(`${billingAlias} Updated`).locator('xpath=ancestor::div[contains(@class,"border-dashed")]');
+    await page
+      .getByText(`${billingAlias} Updated`)
+      .locator('xpath=ancestor::div[contains(@class,"border-dashed")]')
+      .getByRole('button')
+      .nth(1)
+      .click();
+    const billingDeleteModal = page.getByRole('dialog', { name: 'Edit Billing Details' });
+    await expect(billingDeleteModal).toBeVisible();
     await Promise.all([
       page.waitForResponse((response) => response.url().includes('/api/user/billing-address/') && response.request().method() === 'DELETE'),
-      billingCard.getByRole('button').nth(2).click(),
+      billingDeleteModal.getByRole('button', { name: 'Delete', exact: true }).click(),
     ]);
 
     await expect(page.getByText(`${billingAlias} Updated`)).toHaveCount(0);

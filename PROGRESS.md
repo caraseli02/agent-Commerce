@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #292 — control-panel address manager repair on PR #342: fix shared composable region sync and add control-panel address CRUD E2E coverage.
+- Issue #292 — control-panel address manager repair on PR #342: shared composable region sync, mock CRUD coverage, and shadcn dialog migration.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #292 / PR #342 on `fix/issue-292`: evaluator FAIL repair landed — `useClientAddressManager` no longer poisons region on country change; mock runtime address CRUD endpoints remain; new Playwright spec `tests/e2e/control-panel-address-crud.spec.ts` proves add/edit/delete for shipping and billing. `pnpm verify` and `pnpm verify:full` pass locally. Next step: evaluator re-check on current PR head.
+- Issue #292 / PR #342 on `fix/issue-292`: evaluator FAIL repairs landed — `useClientAddressManager` no longer poisons region on country change; mock runtime address CRUD endpoints remain; Add/Edit address surfaces now use `UiDialog`/`UiDialogContent`/`UiButton`; the focused Playwright spec proves dialog close plus add/edit/delete for shipping and billing. `pnpm verify`, the focused CRUD Playwright flow, and Admin Smoke Path pass locally. Next step: current-head CI and evaluator re-check.
 
 ## Recently completed
 

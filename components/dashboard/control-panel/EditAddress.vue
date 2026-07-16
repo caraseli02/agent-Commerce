@@ -1,18 +1,11 @@
 <template>
-  <div v-if="isOpen" class="fixed z-[60] top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none">
-    <div
-      class="relative flex flex-col z-10 w-[358px] max-w-[calc(100vw-32px)] max-h-[85vh] pt-4 pb-6 bg-white rounded-xl pointer-events-auto shadow-xs md:w-[640px] md:pt-6 md:pb-9"
+  <UiDialog v-model:open="isOpen">
+    <UiDialogContent
+      class="z-[60] flex max-h-[85vh] w-[358px] max-w-[calc(100vw-32px)] flex-col gap-0 rounded-xl border-none px-0 pb-6 pt-4 shadow-xs md:w-[640px] md:max-w-[640px] md:pb-9 md:pt-6"
     >
-      <div class="flex items-start justify-between px-4 mb-9 md:px-6">
-        <div class="font-semibold leading-[1.5]">{{ dialogTitle }}</div>
-        <button
-          class="w-8 h-8 bg-gray-100 flex items-center justify-center text-slate-500 rounded-lg ml-auto mb-4 transition-colors duration-300 hover:text-blue-500"
-          type="button"
-          @click="onCloseDialog()"
-        >
-          <XIcon class="w-6 h-6" />
-        </button>
-      </div>
+      <UiDialogHeader class="mb-9 px-4 pr-14 md:px-6 md:pr-16">
+        <UiDialogTitle class="text-base leading-[1.5]">{{ dialogTitle }}</UiDialogTitle>
+      </UiDialogHeader>
       <div class="flex-1 overflow-y-auto scrollbar-thin mr-1">
         <form class="grid grid-cols-1 gap-6 pl-4 pr-3 mb-9 md:pl-6 md:pr-3" @submit="onSubmit">
           <FormField v-slot="{ componentField }" name="addressAlias">
@@ -108,26 +101,25 @@
           </FormField>
 
           <div class="grid grid-cols-1 gap-4 md:grid-cols-[auto,auto,1fr] md:pl-0">
-            <button
+            <UiButton
               v-if="deleteButtonEnable"
-              class="flex items-center justify-center rounded-lg text-rose-500 py-[7px] px-7 border border-[#FA4B4B]"
+              variant="outline"
+              class="border-[#FA4B4B] px-7 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
               type="button"
               @click="handleDelete()"
             >
               <TrashIcon class="w-6 h-6 mr-2" />
               <span class="font-medium leading-[1.75]"> Delete </span>
-            </button>
-            <button class="flex px-[41px] py-2 rounded-lg bg-gray-100 leading-[1.75] text-slate-500 font-medium" type="button" @click="onCloseDialog()">
+            </UiButton>
+            <UiButton variant="secondary" class="px-[41px] leading-[1.75] text-slate-500" type="button" @click="onCloseDialog()">
               Cancel
-            </button>
-            <button class="flex justify-center px-5 py-2 rounded-lg bg-blue-500 leading-[1.75] text-white font-medium" type="submit">
-              Save
-            </button>
+            </UiButton>
+            <UiButton class="w-full px-5 leading-[1.75]" type="submit"> Save </UiButton>
           </div>
         </form>
       </div>
-    </div>
-  </div>
+    </UiDialogContent>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
@@ -136,7 +128,6 @@ import { useNuxtApp, useRoute } from '#app';
 
 import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
-import XIcon from '@/assets/icons/dashboard/x.svg';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { updateBilling, updateShipping } from '~/composables/api/control-panel';
 import { useClientAddressManager } from '~/composables/useClientAddressManager';
