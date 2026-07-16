@@ -7,7 +7,7 @@
 
 ## In progress
 
-- Issue #293 / PR #343 is active on `fix/issue-293`; the repair is rebasing the distinct buyer-path Playwright spec onto current `main`, correcting PR evidence, and rerunning the exact focused flow before evaluator re-review.
+- Issue #293 / PR #343 is active on `fix/issue-293`; the branch is rebased onto merged PR #342, the distinct buyer-path spec uses a stable purchase-panel test selector, the exact focused Playwright run passes 1/1, and `pnpm verify` passes 26/26 files and 79/79 tests. Next step: push the repaired head, confirm CI, and request evaluator re-review.
 
 ## Recently completed
 

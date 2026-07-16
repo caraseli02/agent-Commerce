@@ -53,6 +53,16 @@ const navigateTo = async (page: Page, path: string) => {
   await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
 };
 
+const navigateThroughCart = async (page: Page) => {
+  const cartNavigation = page.goto('/cart', { waitUntil: 'domcontentloaded' }).catch((error: unknown) => {
+    if (!(error instanceof Error) || !error.message.includes('ERR_ABORTED')) {
+      throw error;
+    }
+  });
+
+  await Promise.all([cartNavigation, page.waitForURL(/\/order-summary$/)]);
+};
+
 const submitCustomerSignIn = async (page: Page) => {
   const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
   await expect(signInButton).toBeVisible();
@@ -63,9 +73,10 @@ const submitCustomerSignIn = async (page: Page) => {
 };
 
 const addProductToCart = async (page: Page) => {
-  const addToCartButton = page.locator('main div.border-t').getByRole('button', { name: /add to cart/i });
+  const purchasePanel = page.getByTestId('product-purchase-panel');
+  const addToCartButton = purchasePanel.getByRole('button', { name: /add to cart/i });
   await addToCartButton.scrollIntoViewIfNeeded();
-  await expect(page.locator('main div.border-t').getByRole('spinbutton')).toHaveValue('1');
+  await expect(purchasePanel.getByRole('spinbutton')).toHaveValue('1');
   await expect(addToCartButton).toBeEnabled();
 
   const [cartPostResponse] = await Promise.all([
@@ -92,7 +103,7 @@ test.describe('Scripted Buyer Path — cart to checkout entry', () => {
 
     await addProductToCart(page);
 
-    await navigateTo(page, '/cart');
+    await navigateThroughCart(page);
     await expect(page).toHaveURL(/\/order-summary$/);
     await expect(page.getByRole('heading', { name: /order summary/i })).toBeVisible();
     await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
