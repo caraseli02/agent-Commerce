@@ -2,16 +2,16 @@
 
 ## Current focus
 
-- Issue #296 — cart type namespace consolidation (tracer bullet): canonical types under `types/cart/`, backward-compatible `model/cart` re-exports, cart-flow imports updated.
+- Issue #292 — control-panel address manager repair on PR #342: shared composable region sync, mock CRUD coverage, and shadcn dialog migration.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #296 / PR #338 is active on `cursor/ecas-controller-loop-workflow-bbdd`; all application cart imports now use `~/types/cart`, the deprecated `model/cart` compatibility re-exports remain, 14 focused tests and the two-scenario cart → order-summary → checkout Playwright path pass, `pnpm verify:handoff` passes, and both independent review axes returned PASS. Next step: current-head CI and merge.
+- Issue #292 / PR #342 on `fix/issue-292`: evaluator FAIL repairs landed — `useClientAddressManager` no longer poisons region on country change; mock runtime address CRUD endpoints remain; Add/Edit address surfaces now use `UiDialog`/`UiDialogContent`/`UiButton`; the focused Playwright spec proves dialog close plus add/edit/delete for shipping and billing. `pnpm verify`, the focused CRUD Playwright flow, and Admin Smoke Path pass locally. Next step: current-head CI and evaluator re-check.
 
 ## Recently completed
 
-- Issue #313 — regional preferences migrated to `UiSheet`; PR #337 merged after reopen-regression repair, focused Playwright coverage, full handoff verification, green CI/Vercel, and evaluator PASS.
+- Issue #296 — cart type namespace consolidation (tracer bullet); PR #338 merged.
 - Issue #290 — dashboard order surfaces now use composable API adapters; PR #330 merged after conflict repair, focused/full verification, signed-in runtime smoke, and evaluator PASS.
 - Issue #303 — placeholder storefront/dashboard navigation removed; PR #328 merged after focused tests, full verification, four-route desktop smoke, and 390px mobile drawer smoke.
 - Issue #288 — admin Order detail adapter consolidated onto `useOrderConfirmation`; PR #326 merged after focused tests, full verification, review, and signed-in Admin Preview browser smoke.

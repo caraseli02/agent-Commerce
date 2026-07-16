@@ -80,7 +80,7 @@
           v-if="addAddressModal"
           :type="'billing'"
           @close="addAddressModal = false"
-          @add-billing-address="handleAddAddress"
+          @saved="handleAddressSaved"
         />
       </Transition>
       <Transition name="fade">
@@ -90,7 +90,7 @@
           :address="editAddressModal"
           :type="'billing'"
           :delete-button-enable="addresses.length > 1"
-          @edit-billing-address="handleEditAddress"
+          @saved="handleAddressSaved"
           @close="editAddressModal = null"
           @delete-billing-address="handleDeleteAddress"
         />
@@ -114,11 +114,8 @@ import CheckIcon from '@/assets/icons/check-circle.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import { useNuxtApp } from '#app';
 import type { BillingAddressInterface } from '~/types/auth/user-interface';
-import type { AddAddressPayload, BillingAddressesData, EditAddressPayload, ValidateAddressResult } from '~/types/dashboard/control-panel';
-import { resolveFormValue } from '~/types/global/form';
-import { toast } from '~/components/ui/toast';
-import { validateAddress } from '~/composables/api/orders';
-import { addBilling, deleteBilling, fetchBilling, updateBilling } from '~/composables/api/control-panel';
+import type { BillingAddressesData } from '~/types/dashboard/control-panel';
+import { deleteBilling, fetchBilling, updateBilling } from '~/composables/api/control-panel';
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -140,7 +137,6 @@ const props = defineProps({
   },
 });
 const addresses = ref<BillingAddressInterface[]>([] as BillingAddressInterface[]);
-const newAddress = ref<BillingAddressInterface>({} as BillingAddressInterface);
 
 const setAsDefault = async (address: BillingAddressInterface) => {
   addresses.value.forEach((item) => {
@@ -160,37 +156,10 @@ const setAsDefault = async (address: BillingAddressInterface) => {
   await updateBilling(address, route.params.slug as string, $apiClient);
 };
 
-const handleAddAddress = async (val: AddAddressPayload) => {
+const handleAddressSaved = async () => {
   addAddressModal.value = false;
-  newAddress.value = {} as BillingAddressInterface;
-
-  newAddress.value.alias = val.address.alias.value;
-  newAddress.value.name1 = val.address.name1.value;
-  newAddress.value.name2 = val.address.name2.value;
-  newAddress.value.country = resolveFormValue(val.address.country.value);
-  newAddress.value.city = val.address.city.value;
-  newAddress.value.region = resolveFormValue(val.address.region.value);
-  newAddress.value.phone = val.address.phone.value;
-  newAddress.value.postcode = val.address.postcode.value;
-  newAddress.value.default = false;
-
-  const result = (await validateAddress({ ...newAddress.value }, $apiClient)) as ValidateAddressResult;
-
-  if (!result.data.valid) {
-    toast({
-      variant: 'destructive',
-      title: 'Error',
-      description: 'Invalid address',
-    });
-    return;
-  } else {
-    addresses.value.push(newAddress.value);
-    if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
-      return;
-    }
-    await addBilling(newAddress.value, route.params.slug as string, $apiClient);
-    await getBillingInformation();
-  }
+  editAddressModal.value = null;
+  await getBillingInformation();
 };
 
 const getBillingInformation = async () => {
@@ -231,48 +200,6 @@ const getBillingInformation = async () => {
   }
 };
 await getBillingInformation();
-
-const handleEditAddress = async (object: EditAddressPayload) => {
-  editAddressModal.value = null;
-  const addressToBeVerified = {
-    alias: object.address.alias.value,
-    name1: object.address.name1.value,
-    name2: object.address.name2.value,
-    city: object.address.city.value,
-    country: resolveFormValue(object.address.country.value),
-    region: resolveFormValue(object.address.region.value),
-    postcode: object.address.postcode.value,
-    phone: object.address.phone.value,
-  } as BillingAddressInterface;
-
-  const result = (await validateAddress(addressToBeVerified, $apiClient)) as ValidateAddressResult;
-
-  if (!result.data.valid) {
-    toast({
-      variant: 'destructive',
-      title: 'Error',
-      description: 'Invalid address',
-    });
-    return;
-  } else {
-    if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
-      return;
-    }
-
-    addresses.value[object.index].alias = object.address.alias.value;
-    addresses.value[object.index].name1 = object.address.name1.value;
-    addresses.value[object.index].name2 = object.address.name2.value;
-    addresses.value[object.index].city = object.address.city.value;
-    addresses.value[object.index].country = resolveFormValue(object.address.country.value);
-    addresses.value[object.index].region = resolveFormValue(object.address.region.value);
-    addresses.value[object.index].postcode = object.address.postcode.value;
-    addresses.value[object.index].phone = object.address.phone.value;
-    addresses.value[object.index]._id = object.address._id.value;
-
-    await updateBilling(addresses.value[object.index], route.params.slug as string, $apiClient);
-    await getBillingInformation();
-  }
-};
 
 const handleDeleteAddress = async (index: number) => {
   // Handle deleting the address at a specific index

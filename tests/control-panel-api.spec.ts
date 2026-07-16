@@ -78,10 +78,10 @@ describe('control-panel API adapter', () => {
         params: undefined,
       },
       {
-        resource: 'user/shipping-address/addr-1/customer-1',
+        resource: 'user/shipping-address/addr-1',
         method: 'DELETE',
         body: undefined,
-        params: undefined,
+        params: { userId: 'customer-1' },
       },
       {
         resource: 'user/billing-address/customer-1',
@@ -96,10 +96,10 @@ describe('control-panel API adapter', () => {
         params: undefined,
       },
       {
-        resource: 'user/billing-address/addr-1/customer-1',
+        resource: 'user/billing-address/addr-1',
         method: 'DELETE',
         body: undefined,
-        params: undefined,
+        params: { userId: 'customer-1' },
       },
     ]);
   });

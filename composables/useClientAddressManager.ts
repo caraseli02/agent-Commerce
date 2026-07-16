@@ -45,13 +45,34 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
 
   const formSchema = toTypedSchema(
     z.object({
-      addressAlias: z.string().min(1, 'Address Alias is required').default(options.address.value?.alias || ''),
-      city: z.string().min(1, 'City is required').default(options.address.value?.city || ''),
-      country: z.string().min(1, 'Country is required').default(options.address.value?.country || ''),
-      county: z.string().min(1, 'Region is required').default(options.address.value?.region || ''),
-      addressLine1: z.string().min(1, 'Address Line 1 is required').default(options.address.value?.name1 || ''),
-      addressLine2: z.string().optional().default(options.address.value?.name2 || ''),
-      postcode: z.string().min(1, 'Postcode is required').default(options.address.value?.postcode || ''),
+      addressAlias: z
+        .string()
+        .min(1, 'Address Alias is required')
+        .default(options.address.value?.alias || ''),
+      city: z
+        .string()
+        .min(1, 'City is required')
+        .default(options.address.value?.city || ''),
+      country: z
+        .string()
+        .min(1, 'Country is required')
+        .default(options.address.value?.country || ''),
+      county: z
+        .string()
+        .min(1, 'Region is required')
+        .default(options.address.value?.region || ''),
+      addressLine1: z
+        .string()
+        .min(1, 'Address Line 1 is required')
+        .default(options.address.value?.name1 || ''),
+      addressLine2: z
+        .string()
+        .optional()
+        .default(options.address.value?.name2 || ''),
+      postcode: z
+        .string()
+        .min(1, 'Postcode is required')
+        .default(options.address.value?.postcode || ''),
     })
   );
 
@@ -65,11 +86,26 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
     if (selectedRegion) {
       return {
         label: selectedRegion.name,
-        value: selectedRegion.shortCode,
+        value: selectedRegion.name,
       };
     }
 
     return undefined;
+  };
+
+  const syncCountrySelection = (selectedCountry: Country | undefined) => {
+    country.value = selectedCountry;
+    setFieldValue('country', selectedCountry?.value || '');
+    regions.value =
+      selectedCountry?.regions.map((item) => ({
+        label: item.name,
+        value: item.name,
+      })) || [];
+  };
+
+  const syncRegionSelection = (selectedRegion: Region | undefined) => {
+    region.value = selectedRegion;
+    setFieldValue('county', selectedRegion?.value || '');
   };
 
   watch(options.address, (newAddress) => {
@@ -84,32 +120,26 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
 
   watch(country, (newCountry) => {
     if (newCountry) {
-      setFieldValue('country', newCountry.value);
-      country.value = countries.find((item) => item.value === newCountry.value) as Country;
-      regions.value =
-        newCountry.regions.map((item) => ({
-          label: item.name,
-          value: item.name,
-        })) || [];
-      region.value = { label: options.address.value?.city ?? '', value: options.address.value?.city ?? '' };
-    } else {
-      region.value = undefined;
+      const selectedCountry = countries.find((item) => item.value === newCountry.value) as Country;
+      syncCountrySelection(selectedCountry);
+
+      const existingRegion = options.address.value?.region;
+      syncRegionSelection(existingRegion ? findRegionByName(selectedCountry?.regions, existingRegion) : undefined);
+      return;
     }
+
+    syncRegionSelection(undefined);
   });
 
   watch(region, (newRegion) => {
-    if (newRegion) {
-      setFieldValue('county', newRegion.value);
-    } else {
-      region.value = undefined;
-    }
+    syncRegionSelection(newRegion ?? undefined);
   });
 
   watch(options.isOpen, (newValue) => {
     if (newValue) {
-      country.value = countries.find((item) => item.value === (options.address.value?.country || 'US')) as Country;
-      region.value = findRegionByName(country.value?.regions, options.address.value?.region ?? '');
-      regions.value = country.value?.regions.map((item) => ({ label: item.name, value: item.name })) || [];
+      const selectedCountry = countries.find((item) => item.value === (options.address.value?.country || 'US')) as Country;
+      syncCountrySelection(selectedCountry);
+      syncRegionSelection(findRegionByName(selectedCountry?.regions, options.address.value?.region ?? ''));
     }
   });
 

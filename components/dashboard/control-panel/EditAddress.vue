@@ -1,232 +1,188 @@
 <template>
-  <div class="fixed z-[60] top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none">
-    <div
-      class="relative flex flex-col z-10 w-[358px] max-w-[calc(100vw-32px)] max-h-[85vh] pt-4 pb-6 bg-white rounded-xl pointer-events-auto shadow-xs md:w-[640px] md:pt-6 md:pb-9"
+  <UiDialog v-model:open="isOpen">
+    <UiDialogContent
+      class="z-[60] flex max-h-[85vh] w-[358px] max-w-[calc(100vw-32px)] flex-col gap-0 rounded-xl border-none px-0 pb-6 pt-4 shadow-xs md:w-[640px] md:max-w-[640px] md:pb-9 md:pt-6"
     >
-      <div class="flex items-start justify-between px-4 mb-9 md:px-6">
-        <div class="font-semibold leading-[1.5]">Edit Shipping Details</div>
-        <button
-          class="w-8 h-8 bg-gray-100 flex items-center justify-center text-slate-500 rounded-lg ml-auto mb-4 transition-colors duration-300 hover:text-blue-500"
-          @click="$emit('close')"
-        >
-          <XIcon class="w-6 h-6" />
-        </button>
-      </div>
+      <UiDialogHeader class="mb-9 px-4 pr-14 md:px-6 md:pr-16">
+        <UiDialogTitle class="text-base leading-[1.5]">{{ dialogTitle }}</UiDialogTitle>
+      </UiDialogHeader>
       <div class="flex-1 overflow-y-auto scrollbar-thin mr-1">
-        <div class="grid grid-cols-1 gap-6 pl-4 pr-3 mb-9 md:pl-6 md:pr-3">
-          <FormInput
-            v-model="data.alias.value"
-            :error="data.alias.error"
-            :icon="BusinessIcon"
-            label="Address Alias"
-            size="lg"
-            placeholder="Address Alias 1"
-          />
-          <FormSelect
-            v-model="data.country.value"
-            :error="data.country.error"
-            :options="countries"
-            label="Country"
-            search
-            placeholder="Select Country"
-            size="lg"
-            class="relative z-20"
-          />
-          <FormSelect
-            v-model="data.region.value"
-            :error="data.region.error"
-            :options="regions"
-            :disabled="regions.length === 0"
-            :show-disabled-styles="false"
-            search
-            label="County/Region"
-            placeholder=""
-            size="lg"
-            class="relative z-10"
-          />
-          <FormInput v-model="data.city.value" :error="data.city.error" label="City" size="lg" placeholder="Bucharest" />
-          <FormInput
-            v-model="data.name1.value"
-            :error="data.name1.error"
-            label="Address Line 1"
-            size="lg"
-            placeholder="5073 Mark Brown Rd"
-          />
-          <FormInput v-model="data.name2.value" :error="data.name2.error" label="Address Line 2" size="lg" placeholder="NE Dalton" />
-          <FormInput v-model="data.postcode.value" :error="data.postcode.error" label="Postcode" size="lg" placeholder="W1A5AB" />
-          <FormInput
-            v-model="data.phone.value"
-            :error="data.phone.error"
-            type="tel"
-            label="Phone Number"
-            size="lg"
-            placeholder="+1 (706) 275-0767"
-          />
-        </div>
-        <div class="grid grid-cols-1 gap-4 pl-4 pr-3 md:pl-6 md:pr-3 md:grid-cols-[auto,auto,1fr]">
-          <button
-            v-if="props.deleteButtonEnable"
-            class="flex items-center justify-center rounded-lg text-rose-500 py-[7px] px-7 border border-[#FA4B4B]"
-            @click="
-              handleDelete();
-              $emit('close');
-            "
-          >
-            <TrashIcon class="w-6 h-6 mr-2" />
-            <span class="font-medium leading-[1.75]"> Delete </span>
-          </button>
-          <button class="flex px-[41px] py-2 rounded-lg bg-gray-100 leading-[1.75] text-slate-500 font-medium" @click="$emit('close')">
-            Cancel
-          </button>
-          <button
-            :disabled="!data.region.value && !data.country.value"
-            class="flex justify-center px-5 py-2 rounded-lg bg-blue-500 leading-[1.75] text-white font-medium"
-            @click="
-              handleSave();
-              $emit('close');
-            "
-          >
-            Save
-          </button>
-        </div>
+        <form class="grid grid-cols-1 gap-6 pl-4 pr-3 mb-9 md:pl-6 md:pr-3" @submit="onSubmit">
+          <FormField v-slot="{ componentField }" name="addressAlias">
+            <FormItem>
+              <FormLabel>Address Alias</FormLabel>
+              <FormControl>
+                <section class="flex items-center">
+                  <div class="flex items-center justify-center w-11 h-11 rounded-l-lg bg-stone-50 border border-grey-300">
+                    <BusinessIcon class="w-5 h-5" />
+                  </div>
+                  <UiInput class="rounded-l-[0px] border-l-0" type="text" v-bind="componentField" placeholder="Address Alias 1" />
+                </section>
+              </FormControl>
+              <FormMessage v-if="showErrorMsg" />
+            </FormItem>
+          </FormField>
+
+          <section class="flex flex-col md:flex-row justify-between gap-6">
+            <FormField name="country">
+              <FormItem class="flex flex-col w-full">
+                <FormControl>
+                  <FormSelect
+                    v-model="country"
+                    :options="countries"
+                    :show-disabled-styles="false"
+                    label="Country"
+                    placeholder="United States"
+                    search
+                    size="lg"
+                    class="relative z-20"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+            <FormField name="county">
+              <FormItem class="flex flex-col w-full">
+                <FormControl>
+                  <FormSelect
+                    v-model="region"
+                    :options="regions"
+                    :show-disabled-styles="false"
+                    label="Region"
+                    placeholder="New York"
+                    search
+                    size="lg"
+                    class="relative z-20"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+          </section>
+
+          <FormField v-slot="{ componentField }" name="city">
+            <FormItem>
+              <FormLabel>City</FormLabel>
+              <FormControl>
+                <UiInput type="text" placeholder="Bucharest" v-bind="componentField" />
+              </FormControl>
+              <FormMessage v-if="showErrorMsg" />
+            </FormItem>
+          </FormField>
+
+          <FormField v-slot="{ componentField }" name="addressLine1">
+            <FormItem>
+              <FormLabel>Address Line 1</FormLabel>
+              <FormControl>
+                <UiInput type="text" placeholder="5073 Mark Brown Rd" v-bind="componentField" />
+              </FormControl>
+              <FormMessage v-if="showErrorMsg" />
+            </FormItem>
+          </FormField>
+
+          <FormField v-slot="{ componentField }" name="addressLine2">
+            <FormItem>
+              <FormLabel>Address Line 2</FormLabel>
+              <FormControl>
+                <UiInput type="text" placeholder="NE Dalton" v-bind="componentField" />
+              </FormControl>
+              <FormMessage v-if="showErrorMsg" />
+            </FormItem>
+          </FormField>
+
+          <FormField v-slot="{ componentField }" name="postcode">
+            <FormItem>
+              <FormLabel>Postcode</FormLabel>
+              <FormControl>
+                <UiInput type="text" placeholder="W1A5AB" v-bind="componentField" />
+              </FormControl>
+              <FormMessage v-if="showErrorMsg" />
+            </FormItem>
+          </FormField>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-[auto,auto,1fr] md:pl-0">
+            <UiButton
+              v-if="deleteButtonEnable"
+              variant="outline"
+              class="border-[#FA4B4B] px-7 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+              type="button"
+              @click="handleDelete()"
+            >
+              <TrashIcon class="w-6 h-6 mr-2" />
+              <span class="font-medium leading-[1.75]"> Delete </span>
+            </UiButton>
+            <UiButton variant="secondary" class="px-[41px] leading-[1.75] text-slate-500" type="button" @click="onCloseDialog()">
+              Cancel
+            </UiButton>
+            <UiButton class="w-full px-5 leading-[1.75]" type="submit"> Save </UiButton>
+          </div>
+        </form>
       </div>
-    </div>
-  </div>
+    </UiDialogContent>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import XIcon from '@/assets/icons/dashboard/x.svg';
+import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue';
+import { useNuxtApp, useRoute } from '#app';
+
 import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
-import { countries } from '@/data/countries';
-import type { FormSelectOption } from '~/types';
-import { getRegionByCountry } from '~/helpers/form.helper';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { updateBilling, updateShipping } from '~/composables/api/control-panel';
+import { useClientAddressManager } from '~/composables/useClientAddressManager';
+import type { BillingAddressInterface, ShippingAddressInterface } from '~/types/auth/user-interface';
 
-const props = defineProps({
-  address: {
-    type: Object,
-    required: true,
-  },
-  index: {
-    type: Number,
-    required: true,
-  },
-  deleteButtonEnable: {
-    type: Boolean,
-    required: true,
-  },
-  type: {
-    type: String,
-    required: true,
+const props = defineProps<{
+  address: ShippingAddressInterface | BillingAddressInterface;
+  index: number;
+  deleteButtonEnable: boolean;
+  type: 'shipping' | 'billing';
+}>();
+
+const emit = defineEmits(['close', 'saved', 'delete-shipping-address', 'delete-billing-address']);
+const route = useRoute();
+const { $apiClient } = useNuxtApp();
+const isOpen = ref(false);
+const address = toRef(props, 'address') as Ref<ShippingAddressInterface | BillingAddressInterface | null>;
+
+const dialogTitle = computed(() => (props.type === 'shipping' ? 'Edit Shipping Details' : 'Edit Billing Details'));
+
+const persistAddress = async (payload: ShippingAddressInterface): Promise<{ status: string; data: string }> => {
+  const userId = String(route.params.slug ?? '');
+
+  return props.type === 'shipping'
+    ? ((await updateShipping(payload, userId, $apiClient)) as { status: string; data: string })
+    : ((await updateBilling(payload, userId, $apiClient)) as { status: string; data: string });
+};
+
+const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubmit } = useClientAddressManager({
+  address,
+  isOpen,
+  addAddress: persistAddress,
+  updateAddress: persistAddress,
+  onSuccess: async () => {
+    emit('saved');
   },
 });
 
-const emit = defineEmits(['close', 'edit-shipping-address', 'delete-shipping-address', 'edit-billing-address', 'delete-billing-address']);
-
-const data = ref({
-  _id: {
-    value: '',
-    error: '',
-  },
-  alias: {
-    value: '',
-    error: '',
-  },
-  country: {
-    value: {
-      value: '',
-      label: '',
-      icon: '',
-    },
-    error: '',
-  },
-  region: {
-    value: {
-      value: '',
-      label: '',
-    },
-    error: '',
-  },
-  city: {
-    value: '',
-    error: '',
-  },
-  name1: {
-    value: '',
-    error: '',
-  },
-  name2: {
-    value: '',
-    error: '',
-  },
-  postcode: {
-    value: '',
-    error: '',
-  },
-  phone: {
-    value: '',
-    error: '',
-  },
+onMounted(() => {
+  isOpen.value = true;
 });
-const regions = ref<FormSelectOption[]>([]);
 
-const getCountryRegion = async (country: unknown, region: unknown) => {
-  const countryRegionObj = getRegionByCountry(country, region);
-  regions.value = countryRegionObj?.regions || [];
-  data.value.country.value = countryRegionObj?.country || { label: '', value: '', icon: '' };
-  data.value.region.value = countryRegionObj?.region || { label: '', value: '' };
-};
-const setCustomerInformation = () => {
-  data.value.alias.value = props.address.alias;
-  data.value.name1.value = props.address.name1;
-  data.value.name2.value = props.address.name2;
-  data.value.postcode.value = props.address.postcode;
-  data.value.phone.value = props.address.phone;
-  data.value.city.value = props.address.city;
-  data.value._id.value = props.address._id;
-  getCountryRegion(props.address.country, props.address.region);
-};
-
-setCustomerInformation();
-
-watch(
-  () => data.value.country,
-  (newVal) => {
-    if (newVal?.value && typeof newVal.value === 'object' && 'value' in newVal.value) {
-      data.value.region = {
-        value: { label: '', value: '' },
-        error: '',
-      };
-      regions.value =
-        countries
-          .find((e) => e.value === newVal.value.value)
-          ?.regions.map((e) => {
-            return {
-              label: e.name,
-              value: e.name,
-            };
-          }) || [];
-    }
+watch(isOpen, (open) => {
+  if (!open) {
+    emit('close');
   }
-);
+});
 
-// Other data and function definitions here...
-
-const handleSave = () => {
-  // Emit the edit event, debounced
+const handleDelete = async () => {
   if (props.type === 'shipping') {
-    emit('edit-shipping-address', { address: data.value, index: props.index });
+    emit('delete-shipping-address', props.index);
   } else {
-    emit('edit-billing-address', { address: data.value, index: props.index });
+    emit('delete-billing-address', props.index);
   }
-};
 
-const handleDelete = () => {
-  emit('delete-shipping-address', props.index);
+  onCloseDialog();
 };
-
-// onMounted(() => {
-//
-//
-// });
 </script>

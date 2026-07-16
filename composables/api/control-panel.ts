@@ -137,8 +137,9 @@ export async function updateShipping(address: ShippingAddressInterface, userId: 
 export async function deleteShipping(id: string, userId: string, apiClient?: $Fetch) {
   const $apiClient = getApiClient(apiClient);
 
-  return await $apiClient<unknown>(`user/shipping-address/${id}/${userId}`, {
+  return await $apiClient<unknown>(`user/shipping-address/${id}`, {
     method: 'DELETE',
+    params: { userId },
   });
 }
 
@@ -163,8 +164,9 @@ export async function updateBilling(address: BillingAddressInterface, userId: st
 export async function deleteBilling(id: string, userId: string, apiClient?: $Fetch) {
   const $apiClient = getApiClient(apiClient);
 
-  return await $apiClient<unknown>(`user/billing-address/${id}/${userId}`, {
+  return await $apiClient<unknown>(`user/billing-address/${id}`, {
     method: 'DELETE',
+    params: { userId },
   });
 }
 
