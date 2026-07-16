@@ -67,8 +67,7 @@ const expectProductInSummary = async (page: Page) => {
 };
 
 const addProductToCart = async (page: Page) => {
-  const purchasePanel = page.locator('main').filter({ has: page.getByRole('spinbutton') });
-  const addToCartButton = purchasePanel.getByRole('button', { name: 'Add to cart', exact: true });
+  const addToCartButton = page.locator('main').getByRole('button', { name: 'Add to cart', exact: true }).first();
   await addToCartButton.scrollIntoViewIfNeeded();
   await expect(addToCartButton).toBeEnabled();
 
