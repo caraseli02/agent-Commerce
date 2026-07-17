@@ -15,10 +15,16 @@
       :keyword="keyword"
       @at-page="atPage = $event"
       @per-page="perPage = $event"
-      @sort-by-change="sortBy = $event"
-      @sort-order-change="order = $event"
+      @sort-by-change="onSortByChange"
       @show-filter="additionalFilters = $event"
     />
+    <div v-else class="container mb-10 min-h-[200px]" aria-busy="true">
+      <div class="h-10 w-64 rounded bg-slate-100 animate-pulse mb-6" />
+      <div class="space-y-4">
+        <div v-for="n in 3" :key="n" class="h-[120px] rounded-2xl bg-slate-100 animate-pulse" />
+      </div>
+      <span class="sr-only">Loading search results…</span>
+    </div>
     <template v-if="showAdditionalContent">
       <ProductBlocks
         :rows-number="2"
@@ -55,7 +61,7 @@ useHead({
 const productStore = useProductStore();
 const { similarProducts, similarProductFeatures, showSimilarOnly } = storeToRefs(productStore);
 const route = useRoute();
-const keyword = ref(route.query.keyword?.toString() ?? '');
+const keyword = ref((route.query.keyword ?? route.query.q)?.toString() ?? '');
 
 const resolveKeyword = () => keyword.value;
 
@@ -64,11 +70,21 @@ const filters = ref<ProductFilters | null>(null);
 const additionalFilters = ref({});
 const atPage = ref(1);
 const perPage = ref(10);
-const sortBy = ref({ label: 'Product Code', name: 'manufacturerCode' });
+const sortBy = ref({ label: 'Product Code A–Z', name: 'manufacturerCode', order: 1 as 0 | 1 });
 const order = ref<1 | 0>(1);
+
+const onSortByChange = (option: { label: string; name: string; order?: 0 | 1 }) => {
+  sortBy.value = { ...option, order: option.order ?? order.value };
+  if (option.order !== undefined) {
+    order.value = option.order;
+  }
+};
 const resetProductsFilters = ref(false);
 const category = ref<string | null>(route.query?.category?.toString() || null);
-const showAdditionalContent = computed(() => (products.value?.items?.total_items ?? 1) > 0);
+const showAdditionalContent = computed(() => {
+  const isBrowsingCatalog = !keyword.value.trim() && !category.value;
+  return isBrowsingCatalog && (products.value?.items?.total_items ?? 0) > 0;
+});
 
 onMounted(async () => {
   watch(
@@ -147,19 +163,6 @@ async function changePath() {
   filters.value = data.filters;
 }
 
-const handleSortOrderChange = async () => {
-  await getProduct(
-    resolveKeyword(),
-    atPage.value,
-    perPage.value,
-    {
-      sortBy: sortBy.value.name,
-      sortOrder: order.value === 0 ? 'desc' : 'asc',
-    },
-    additionalFilters.value
-  );
-};
-
 const handleSortChange = async () => {
   await getProduct(
     resolveKeyword(),
@@ -173,12 +176,8 @@ const handleSortChange = async () => {
   );
 };
 
-watch([sortBy], async ([_sortBy]) => {
+watch([sortBy, order], async () => {
   await handleSortChange();
-});
-
-watch([order], async ([_sortOrder]) => {
-  await handleSortOrderChange();
 });
 
 watch(
@@ -212,7 +211,7 @@ watch(additionalFilters, async (filter) => {
 });
 
 watch(route, (value) => {
-  const newKeyword = value.query.keyword?.toString() ?? '';
+  const newKeyword = (value.query.keyword ?? value.query.q)?.toString() ?? '';
   keyword.value = newKeyword;
   getProduct(newKeyword, 1, 10, {}, additionalFilters.value);
 });

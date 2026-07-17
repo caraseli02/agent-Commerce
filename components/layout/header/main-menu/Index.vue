@@ -70,7 +70,7 @@
         <NuxtLink
           v-for="(subCategory, index) in selectedSubCategory.subcategory"
           :key="index"
-          :to="`/search?category=${subCategory.id}`"
+          :to="`/search?keyword=${encodeURIComponent(subCategory.name)}`"
           class="group flex items-center justify-between px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
         >
           <div>
@@ -126,7 +126,7 @@ const DefaultIcon = CardPlaceholderSmall;
 const handleCategoryClick = (category: NavCategoryView) => {
   if ((category.subcategory?.length ?? 0) === 0) {
     // Redirect to the category link if it's the last level
-    router.push(`/search?category=${category.id}`);
+    router.push(`/search?keyword=${encodeURIComponent(category.name)}`);
     showNavModal.value = false;
   } else {
     // Otherwise, set the selected category or subcategory as usual
@@ -162,5 +162,4 @@ onMounted(async () => {
 
 const selectedCategory = ref<NavCategoryView | null>(null);
 const selectedSubCategory = ref<NavCategoryView | null>(null);
-
 </script>

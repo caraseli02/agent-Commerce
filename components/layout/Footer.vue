@@ -112,73 +112,73 @@ const navItems = {
   General: [
     {
       label: 'About Us',
-      to: '/',
+      to: '/signup',
     },
     {
       label: 'Careers',
-      to: '/',
+      to: '/signup',
     },
     {
       label: 'Contact',
-      to: '/',
+      to: 'tel:+18005550199',
     },
   ],
   'Quick Links': [
     {
       label: 'BOM',
-      to: '/',
+      to: '/search',
     },
     {
       label: 'Track Order',
-      to: '/',
+      to: '/order-tracking',
     },
     {
       label: 'Order History',
-      to: '/',
+      to: '/?signin=true&redirect=%2Fdashboard%2Fclient',
     },
     {
       label: 'Return a product',
-      to: '/',
+      to: '/order-tracking',
     },
     {
       label: 'Delivery Information',
-      to: '/',
+      to: '/order-tracking',
     },
   ],
   'Customer Service': [
     {
       label: 'Sales: +1 800 555 0199',
-      to: 'tel:+1 800 555 0199',
+      to: 'tel:+18005550199',
     },
     {
       label: 'Technical: +1 800 555 0199',
-      to: 'tel:+1 800 555 0199',
+      to: 'tel:+18005550199',
     },
     {
       label: 'FAQs',
-      to: '/',
+      to: '/order-tracking',
     },
     {
       label: 'Help',
-      to: '/',
+      to: '/forgot-password',
     },
   ],
   'Terms & Conditions': [
     {
       label: 'Terms of use',
-      to: '/',
+      to: '/signup',
     },
     {
       label: 'Terms of sale',
-      to: '/',
+      to: '/signup',
     },
     {
       label: 'Privacy policy',
-      to: '/',
+      to: '/signup',
     },
     {
       label: 'Trademarks',
-      to: '/',
+      to: '/signup',
     },
   ],
 };

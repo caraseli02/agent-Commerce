@@ -32,6 +32,9 @@ const totalSimilarProducts = ref<number>(0);
 const similarProducts = ref<SearchDataItems | null>(null);
 const similarFilters = ref<ProductFilters | null>(null);
 
+const visibleFeatures = computed(() => features?.filter((feature) => feature?.FeatureValue !== '') ?? []);
+const canShowSimilar = computed(() => !isLoading.value && totalSimilarProducts.value > 0);
+
 const setFilterLine = () => {
   if (elDOM.value) {
     const activeFilterEl = elDOM.value.querySelector(`[data-tab=${activeFilter.value}]`) as HTMLButtonElement;
@@ -67,6 +70,10 @@ const searchSimilarProducts = async () => {
 };
 
 const showSimilarProducts = async () => {
+  if (!canShowSimilar.value) {
+    return;
+  }
+
   productStore.showSimilarOnly = true;
   await router.push({
     path: '/search',
@@ -85,82 +92,82 @@ const showSimilarProducts = async () => {
   productStore.setSimilarProductFeatures(checkedFeatures.value);
 };
 
+const toggleFeature = (item: ProductParametricDataFeaturesInterface) => {
+  item.checked = !item.checked;
+};
+
 onMounted(() => {
   setFilterLine();
 });
 </script>
 
 <template>
-  <div ref="elDOM" class="max-w-[1392px] mx-auto relative bg-white rounded-xl font-Inter pt-7 pb-[25px] shadow-m md:py-[15px]">
-    <div
-      class="flex flex-col items-center mb-[30px] md:flex-row md:justify-between md:items-end md:mb-10 md:border-b md:border-gray-200 md:px-[15px] lg:px-5"
-    >
-      <div class="border-b border-gray-200 w-full px-[15px] mb-[30px] md:px-0 md:mb-0 md:border-b-0">
-        <div class="relative flex items-center gap-[15px]">
-          <button
-            v-for="(filter, index) in filters"
-            :key="index"
-            :data-tab="textUtil.slugify(filter)"
-            class="relative font-medium pb-5 transition-colors duration-300 hover:text-blue-500 md:text-base md:pb-4"
-            :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-500' : 'text-slate-500 after:opacity-0']"
-            @click="setActiveFilter(filter)"
-          >
-            {{ filter }}
-          </button>
-          <div
-            class="absolute bottom-0 h-[5px] bg-blue-500 rounded-t-[5px] transition-all duration-300"
-            :style="{
-              left: filterLineLeftPosition + 'px',
-              width: filterLineWidth + 'px',
-            }"
-          />
-        </div>
-      </div>
-      <button
-        :disabled="isLoading"
-        class="min-w-[236px] flex bg-slate-500 px-6 py-3 rounded-lg text-sm font-medium text-white flex-shrink-0 md:mb-[15px] w-fit justify-center"
-        :class="{ 'bg-gray-400': isLoading }"
-        @click="searchSimilarProducts"
-      >
-        <span v-if="isLoading"> Loading... </span>
-        <span v-else @click="showSimilarProducts()"> Show similar products ({{ totalSimilarProducts }}) </span>
-      </button>
-    </div>
-    <div class="mb-[25px]">
-      <table class="w-full">
-        <tr
-          v-for="(item, index) in features?.filter((feature) => feature?.FeatureValue !== '')"
+  <div ref="elDOM" class="max-w-[1392px] mx-auto relative bg-white rounded-xl font-Inter px-4 py-5 shadow-m md:px-5 md:py-5">
+    <div class="flex flex-col gap-3 mb-4 border-b border-gray-200 md:flex-row md:items-end md:justify-between md:gap-4 md:mb-5">
+      <div class="relative flex items-center gap-4 min-w-0">
+        <button
+          v-for="(filter, index) in filters"
           :key="index"
-          class="group w-full text-xs leading-tight font-medium font-Inter text-left cursor-pointer transition-colors duration-300 odd:bg-[#F2F2F2] hover:text-blue-500"
-          @click="item.checked = !item.checked"
+          type="button"
+          :data-tab="textUtil.slugify(filter)"
+          class="relative text-sm font-semibold tracking-tight pb-3 transition-colors duration-300 hover:text-blue-500 md:text-base"
+          :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-500' : 'text-slate-500']"
+          @click="setActiveFilter(filter)"
         >
-          <td class="pl-[15px] py-1 lg:pl-5 max-w-36 pr-2">
-            {{ item.FeatureName }}
-          </td>
-          <td class="py-1 max-w-16 truncate">
-            {{ item.FeatureValue }}
-          </td>
-          <td class="flex justify-end pr-[15px] py-1 lg:pr-5">
-            <div
-              class="flex items-center justify-center w-[18px] h-[18px] rounded border transition-colors duration-300"
-              :class="[item.checked ? 'bg-blue-500 border-blue-500' : 'border-border group-hover:border-gray-300']"
-            >
-              <CheckIcon v-if="item.checked" class="w-4 text-white" />
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
-    <div class="flex justify-center px-[15px] md:justify-end lg:px-5">
+          {{ filter }}
+        </button>
+        <div
+          class="absolute bottom-0 h-[3px] bg-blue-500 rounded-t-sm transition-all duration-300"
+          :style="{
+            left: filterLineLeftPosition + 'px',
+            width: filterLineWidth + 'px',
+          }"
+        />
+      </div>
+
       <button
-        :disabled="isLoading"
-        class="min-w-[236px] flex bg-slate-500 px-6 py-3 rounded-lg text-sm font-medium text-white flex-shrink-0 md:mb-[15px] justify-center"
-        :class="{ 'bg-gray-400': isLoading }"
-        @click="searchSimilarProducts"
+        v-if="isLoading || canShowSimilar"
+        type="button"
+        :disabled="isLoading || !canShowSimilar"
+        class="inline-flex w-fit shrink-0 items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors duration-200 md:mb-2.5"
+        :class="isLoading || !canShowSimilar ? 'bg-gray-400 cursor-not-allowed' : 'bg-slate-500 hover:bg-slate-600'"
+        @click="showSimilarProducts"
       >
-        <span v-if="isLoading"> Loading... </span>
-        <span v-else @click="showSimilarProducts()"> Show similar products ({{ totalSimilarProducts }}) </span>
+        <span v-if="isLoading">Loading...</span>
+        <span v-else>Show similar products ({{ totalSimilarProducts }})</span>
       </button>
+    </div>
+
+    <div class="overflow-x-auto -mx-1 px-1">
+      <table class="w-full max-w-xl border-collapse text-left md:max-w-2xl">
+        <tbody>
+          <tr
+            v-for="(item, index) in visibleFeatures"
+            :key="index"
+            class="group cursor-pointer text-xs leading-snug font-medium transition-colors duration-200 odd:bg-[#F2F2F2] hover:text-blue-500"
+            @click="toggleFeature(item)"
+          >
+            <td class="w-[9.5rem] py-2 pl-3 pr-3 text-slate-600 align-middle md:w-44 md:pl-4 md:pr-4">
+              {{ item.FeatureName }}
+            </td>
+            <td class="py-2 pr-3 text-slate-900 align-middle break-words">
+              {{ item.FeatureValue }}
+            </td>
+            <td class="w-10 py-2 pr-3 align-middle md:pr-4">
+              <div class="flex justify-end">
+                <div
+                  class="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border transition-colors duration-200"
+                  :class="[item.checked ? 'bg-blue-500 border-blue-500' : 'border-border group-hover:border-gray-300']"
+                  :aria-checked="item.checked"
+                  role="checkbox"
+                >
+                  <CheckIcon v-if="item.checked" class="w-4 text-white" />
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>

@@ -6,7 +6,7 @@
           <ImageWithFallback
             :src="props.images[activeImageIndex]?.ProductImageLarge"
             alt="Product image"
-            class-name="w-[284px] h-[160px] object-contain mx-auto lg:w-[330px] xl:w-[350px] cursor-pointer"
+            class-name="w-full max-w-[284px] h-[160px] object-contain mx-auto lg:max-w-[330px] xl:max-w-full cursor-pointer"
           />
         </button>
         <Swiper

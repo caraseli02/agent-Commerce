@@ -15,27 +15,63 @@ export default defineEventHandler(async (event) => {
   const keywordSource =
     body.keyword ||
     String(
-      query.keyword || query.code || query.description || query.alias || query.name || query.manufacturer || query.manufacturerCode || ''
+      query.keyword ||
+        query.q ||
+        query.code ||
+        query.description ||
+        query.alias ||
+        query.name ||
+        query.manufacturer ||
+        query.manufacturerCode ||
+        ''
     );
   const keyword = String(keywordSource || '')
     .trim()
     .toLowerCase();
 
-  if (keyword) {
-    filteredProducts = (mockProducts as ProductInterface[]).filter(
-      (p) =>
-        p.name.toLowerCase().includes(keyword) ||
-        p.description?.toLowerCase().includes(keyword) ||
-        p.manufacturer?.toLowerCase().includes(keyword) ||
-        p.code?.toLowerCase().includes(keyword)
+  const matchesKeyword = (p: ProductInterface, term: string) => {
+    if (!term) return true;
+
+    const featureText = (p.details?.ParametricData?.Features || [])
+      .map((feature) => `${feature.FeatureName || ''} ${feature.FeatureValue || ''}`)
+      .join(' ')
+      .toLowerCase();
+
+    return (
+      p.name.toLowerCase().includes(term) ||
+      p.description?.toLowerCase().includes(term) ||
+      p.manufacturer?.toLowerCase().includes(term) ||
+      p.code?.toLowerCase().includes(term) ||
+      p.alias?.toLowerCase().includes(term) ||
+      p.manufacturerCode?.toLowerCase().includes(term) ||
+      p.path?.toLowerCase().includes(term) ||
+      p.category?.toLowerCase().includes(term) ||
+      featureText.includes(term)
     );
+  };
+
+  if (keyword) {
+    filteredProducts = (mockProducts as ProductInterface[]).filter((p) => matchesKeyword(p, keyword));
   }
 
   const category = String(body.category || query.category || '')
     .trim()
     .toLowerCase();
   if (category) {
-    filteredProducts = filteredProducts.filter((p) => p.category?.toLowerCase() === category);
+    // Accept taxonomy ids, names, aliases, and product paths from nav links.
+    filteredProducts = filteredProducts.filter((p) => {
+      const productCategory = p.category?.toLowerCase() || '';
+      const productPath = p.path?.toLowerCase() || '';
+      const productAlias = p.alias?.toLowerCase() || '';
+      return (
+        productCategory === category ||
+        productCategory.includes(category) ||
+        productPath === category ||
+        productPath.includes(category) ||
+        productAlias === category ||
+        matchesKeyword(p, category)
+      );
+    });
   }
 
   const sortBy = String(query.sortBy || '').trim();

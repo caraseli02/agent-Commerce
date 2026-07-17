@@ -3,20 +3,21 @@
     class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px]"
   >
     <NuxtLink
-      :to="`/product/${product._id}`"
+      :to="`/product/${product.alias || product._id}`"
       :aria-label="`View ${product.name}`"
       class="absolute inset-0 z-10 grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
     >
       <span class="sr-only">View {{ product.name }}</span>
     </NuxtLink>
 
-    <div class="relative z-20 col-start-1 row-start-1 row-span-2 self-start md:row-span-auto md:self-auto">
+    <div
+      class="relative z-20 col-start-1 row-start-1 row-span-2 w-full max-w-[108px] self-start md:max-w-none md:row-span-auto md:self-auto"
+    >
       <ProductCardStock :stock="product.stock" />
-      <ImageWithFallback
-        :src="productCardImageSrc"
-        :alt="product.name"
-        class-name="mx-auto h-24 w-full max-w-full object-contain md:h-[120px]"
-      />
+      <!-- Catalog media frame: white backdrop; cover fills the frame -->
+      <div class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-white md:aspect-auto md:h-[160px]">
+        <ImageWithFallback :src="productCardImageSrc" :alt="product.name" class-name="h-full w-full object-cover object-center" />
+      </div>
       <div
         v-if="productDiscount"
         class="absolute left-0 top-2 rounded-full px-2 text-sm font-semibold !leading-[1.5rem] text-rose-500 ring-1 ring-rose-500"
@@ -96,33 +97,6 @@
       >
         <SvgoCart class="h-6 w-6 text-white" />
         <span :id="`add-to-cart-${product._id}`" class="sr-only">Add {{ product.name }} to cart</span>
-      </button>
-    </div>
-
-    <div class="absolute right-0 top-[32px] hidden z-20 flex-col gap-2.5 pr-4 md:flex">
-      <button
-        class="flex justify-end text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-        type="button"
-        aria-label="Add product to favorites"
-        @click.prevent="addToFavourite(product)"
-      >
-        <SvgoCardHeartIcon class="h-6 w-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
-      </button>
-      <button
-        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-        type="button"
-        aria-label="Share product"
-        @click.prevent
-      >
-        <SvgoCardShareIcon class="h-6 w-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
-      </button>
-      <button
-        class="flex justify-end text-gray-400 transition-colors duration-300 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-        type="button"
-        aria-label="Open product 3D view"
-        @click.prevent
-      >
-        <SvgoCardD3Icon class="h-6 w-6 text-gray-400 transition-colors duration-300 hover:text-blue-500" />
       </button>
     </div>
   </div>

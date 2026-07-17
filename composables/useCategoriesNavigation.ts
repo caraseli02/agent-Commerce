@@ -20,7 +20,8 @@ export function useCategoriesNavigation() {
     if (subcategories.length === 0) {
       isOpen.value = false;
       selectedCategories.value = [];
-      router.push(`/search?category=${category.id}`);
+      // Prefer keyword so mock catalog matches by name/features (IDs alone return empty).
+      router.push(`/search?keyword=${encodeURIComponent(category.name)}`);
     } else {
       selectedCategories.value.push(category);
     }
