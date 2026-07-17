@@ -7,7 +7,7 @@
 
 ## In progress
 
-- Issue #294 / PR #344 is active on `fix/issue-294`; coverage is configured for `composables/api` and `store` with enforced baseline floors. Repair removes the generated coverage report, ignores `coverage/`, and brings the PR body into template compliance. The live body now matches the repository template; next step: trigger and confirm PR-context CI against that body, then obtain evaluator re-review.
+- Issue #294 / PR #344 is active on `fix/issue-294`; coverage is configured for `composables/api` and `store` with enforced baseline floors. Repair removes the generated coverage report, ignores `coverage/`, and brings the PR body into template compliance. Generated coverage output remains untracked by design. The live body now matches the repository template; next step: trigger and confirm PR-context CI against that body, then obtain evaluator re-review.
 
 ## Recently completed
 
