@@ -66,7 +66,7 @@
   </div>
   <LayoutCustomProductPartNumberModal
     v-if="showCustomProductPartNumberModal"
-    :manufacturer-code="product.manufacturerCode || product.code"
+    :manufacturer-code="product.manufacturerCode || product.alias"
     @close="showCustomProductPartNumberModal = false"
   />
 </template>
@@ -83,5 +83,5 @@ const props = defineProps<{
 }>();
 
 const showCustomProductPartNumberModal = ref(false);
-const cadModelLabel = computed(() => `${props.product.alias || props.product.code || props.product.name}-ECAD-Model`);
+const cadModelLabel = computed(() => `${props.product.alias || props.product.manufacturerCode || props.product.name}-ECAD-Model`);
 </script>
