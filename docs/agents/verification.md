@@ -8,7 +8,8 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 
 1. **Fast default gate**
    - `pnpm verify`
-   - Runs `build`, `lint`, `typecheck`, `test`, and `feature_list.json` validation.
+   - Runs `build`, `lint`, `typecheck`, `test:coverage`, and `feature_list.json` validation.
+   - `pnpm test:coverage` measures all files in `composables/api/**` and `store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
    - This is the normal loop gate for everyday ECAS work.
 2. **Full local gate**
    - `pnpm verify:full`
@@ -80,9 +81,9 @@ Example evidence block for a future PR:
 ## Local gate ownership
 
 - **Pre-commit:** `lint-staged` runs Prettier on staged files only.
-- **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` (see `.husky/pre-push`). Prefer `pnpm verify` locally so `feature_list.json` validation is included.
+- **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` (see `.husky/pre-push`). Prefer `pnpm verify` locally so coverage thresholds and `feature_list.json` validation are included.
 - **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
-- **CI:** `pnpm verify` (build, lint, typecheck, test, and `feature_list.json` validation). Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
+- **CI:** `pnpm verify` (build, lint, typecheck, coverage-enforced tests, and `feature_list.json` validation). Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
 - **Evaluator pass check:** before marking a PR review-ready, confirm `gh pr view --json mergeable,mergeStateStatus` and do not pass any PR that is `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`.
 
 ## If a local gate fails

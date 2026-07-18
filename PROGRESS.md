@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #293 — Scripted Buyer Path E2E (cart → order summary → checkout entry): repair and requeue PR #343 after explicit human intervention.
+- Issue #294 — Vitest coverage baseline for API adapters and stores: repair PR #344 for clean generated-artifact handling and PR-template compliance.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #293 / PR #343 is active on `fix/issue-293`; the branch is rebased onto merged PR #342, the distinct buyer-path spec uses a stable purchase-panel test selector, the exact focused Playwright run passes 1/1, and `pnpm verify` passes 26/26 files and 79/79 tests. Next step: push the repaired head, confirm CI, and request evaluator re-review.
+- Issue #294 / PR #344 is active on `fix/issue-294`; coverage is configured for `composables/api` and `store` with enforced baseline floors. Repair removes the generated coverage report, ignores `coverage/`, and brings the PR body into template compliance. Generated coverage output remains untracked by design. The current handoff requires the live template-compliant body and its matching green PR-context CI to be evaluated together.
 
 ## Recently completed
 

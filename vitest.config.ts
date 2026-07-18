@@ -15,5 +15,16 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.spec.ts'],
     exclude: ['tests/e2e/**', 'node_modules/**', '.nuxt/**', '.output/**'],
+    coverage: {
+      provider: 'v8',
+      include: ['composables/api/**/*.ts', 'store/**/*.ts'],
+      reporter: ['text', 'json-summary'],
+      thresholds: {
+        statements: 28,
+        branches: 23,
+        functions: 25,
+        lines: 29,
+      },
+    },
   },
 });
