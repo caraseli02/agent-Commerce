@@ -64,7 +64,8 @@
               </ClientOnly>
             </div>
             <button
-              class="hidden items-center max-md:hidden md:flex"
+              type="button"
+              class="hidden flex-col items-center max-md:hidden md:flex"
               :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:flex' : 'md:flex') : '']"
               aria-label="Open my account"
               @click="openAccountModal()"
@@ -226,10 +227,12 @@ const category = ref<string | null>(route.query?.category?.toString() || null);
 const closeAccountModal = async () => {
   showAccountModal.value = false;
 
+  // Only clear the sign-in flag when the user dismisses the modal.
+  // Keep `redirect` so a successful login (or re-open) can still honor it.
+  // Do not router.replace after login — Form.vue navigates; racing replace drops redirect.
   if (route.query.signin) {
     const rest = { ...route.query };
     delete rest.signin;
-    delete rest.redirect;
     await router.replace({ query: rest });
   }
 };
@@ -375,17 +378,18 @@ watch(showMobileSearch, (newVal) => {
   }
 });
 
-watch(signinQuery, (newVal) => {
-  if (newVal === 'true') {
-    showAccountModal.value = true;
-  }
-});
+watch(
+  signinQuery,
+  (newVal) => {
+    if (newVal === 'true') {
+      showAccountModal.value = true;
+    }
+  },
+  { immediate: true }
+);
 
 onMounted(() => {
   isMobile.value = window.innerWidth <= 1024;
-  if (signinQuery.value === 'true') {
-    showAccountModal.value = true;
-  }
   Promise.all([fetchNofications(), fetchList()]);
 });
 
@@ -393,7 +397,8 @@ watch(
   () => authStore.getToken(),
   async (newVal) => {
     if (newVal) {
-      await closeAccountModal();
+      // Close the modal without clearing query via router.replace — login already navigates.
+      showAccountModal.value = false;
       await fetchNofications();
       await fetchList();
     } else {

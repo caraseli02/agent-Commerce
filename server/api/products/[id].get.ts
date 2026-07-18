@@ -19,7 +19,12 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  const product = (mockProducts as ProductInterface[]).find((p) => p._id === productId || p.path === productId);
+  const product = (mockProducts as ProductInterface[]).find((p) => {
+    const alias = String(p.alias || '').toLowerCase();
+    const path = String(p.path || '').toLowerCase();
+    const id = String(p._id || '').toLowerCase();
+    return id === normalizedId || alias === normalizedId || path === normalizedId || path.endsWith(`/${normalizedId}`);
+  });
 
   if (!product) {
     throw createError({

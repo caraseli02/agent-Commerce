@@ -1,51 +1,51 @@
 <template>
   <div
-    class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm font-Inter md:p-5 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-6 xl:grid-cols-[minmax(0,9fr)_minmax(0,6fr)_minmax(0,5fr)] xl:gap-6"
+    class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm font-Inter md:p-5 md:pr-14 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.95fr)] lg:items-center lg:gap-0"
   >
-    <div class="flex min-w-0 items-start gap-2.5 md:gap-[15px]">
-      <NuxtLink :to="`/product/${item._id}`" class="flex flex-shrink-0">
+    <!-- Identity: image + title/code/stock + meta -->
+    <div class="flex min-w-0 items-start gap-3 md:gap-4 lg:items-center lg:pr-6">
+      <NuxtLink :to="`/product/${item.alias || item._id}`" class="flex flex-shrink-0">
         <ImageWithFallback
           :src="item.details?.ProductImage?.ProductImageLarge"
           :alt="item.name"
-          class="w-[100px] h-[100px] md:w-[120px] md:h-[120px]"
+          class="h-[100px] w-[100px] rounded-lg bg-slate-50 object-contain md:h-[120px] md:w-[120px]"
         />
       </NuxtLink>
       <div class="min-w-0 flex-1">
-        <div class="md:flex md:items-start md:justify-between md:gap-4 md:mb-4 lg:max-w-[480px]">
-          <div class="mb-2.5 min-w-0 md:mb-0 md:mr-5 md:flex-1">
-            <div class="flex min-w-0 items-start gap-1">
-              <NuxtLink
-                :to="`/product/${item._id}`"
-                class="block min-w-0 flex-1 text-base font-semibold leading-snug line-clamp-2 md:text-xl md:leading-tight md:truncate md:line-clamp-none"
-              >
-                {{ item.name }}
-              </NuxtLink>
-              <UiDropdownMenu :modal="false" class="shrink-0 md:hidden">
-                <UiDropdownMenuTrigger as-child>
-                  <button
-                    type="button"
-                    class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-primary"
-                    aria-label="Product options"
-                  >
-                    <MoreHorizontal class="h-5 w-5" />
-                  </button>
-                </UiDropdownMenuTrigger>
-                <UiDropdownMenuContent align="end" class="w-44">
-                  <UiDropdownMenuItem @click="onCopyProductName">Copy product name</UiDropdownMenuItem>
-                  <UiDropdownMenuItem>Add to favorites</UiDropdownMenuItem>
-                  <UiDropdownMenuItem>Share</UiDropdownMenuItem>
-                </UiDropdownMenuContent>
-              </UiDropdownMenu>
-              <button class="hidden flex-shrink-0 p-1 md:flex" type="button" aria-label="Copy product name">
-                <CopyClipboard
-                  :text="item.name || 'N/A'"
-                  class="h-[22px] w-[22px] text-slate-500 transition-colors duration-300 hover:text-primary"
-                />
-              </button>
-            </div>
+        <div class="mb-2 flex w-fit max-w-full min-w-0 flex-wrap items-center gap-x-2.5 gap-y-2 md:mb-2.5">
+          <div class="flex min-w-0 items-start gap-1">
+            <NuxtLink
+              :to="`/product/${item.alias || item._id}`"
+              class="block min-w-0 text-base font-semibold leading-snug line-clamp-2 md:text-xl md:leading-tight"
+            >
+              {{ item.name }}
+            </NuxtLink>
+            <UiDropdownMenu :modal="false" class="shrink-0 md:hidden">
+              <UiDropdownMenuTrigger as-child>
+                <button
+                  type="button"
+                  class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-primary"
+                  aria-label="Product options"
+                >
+                  <MoreHorizontal class="h-5 w-5" />
+                </button>
+              </UiDropdownMenuTrigger>
+              <UiDropdownMenuContent align="end" class="w-44">
+                <UiDropdownMenuItem @click="onCopyProductName">Copy product name</UiDropdownMenuItem>
+                <UiDropdownMenuItem>Add to favorites</UiDropdownMenuItem>
+                <UiDropdownMenuItem>Share</UiDropdownMenuItem>
+              </UiDropdownMenuContent>
+            </UiDropdownMenu>
+            <button class="hidden flex-shrink-0 p-1 md:flex" type="button" aria-label="Copy product name">
+              <CopyClipboard
+                :text="item.name || 'N/A'"
+                class="h-[22px] w-[22px] text-slate-500 transition-colors duration-300 hover:text-primary"
+              />
+            </button>
           </div>
           <button
-            class="mb-2.5 flex w-full max-w-full items-center text-slate-500 rounded-[25px] border border-gray-300 px-3 py-[5px] transition-colors duration-300 hover:border-primary hover:text-primary md:mb-0 md:w-fit md:max-w-[220px] md:flex-shrink-0"
+            type="button"
+            class="inline-flex max-w-full shrink-0 items-center rounded-full border border-slate-300 px-3 py-[5px] text-slate-500 transition-colors duration-300 hover:border-primary hover:text-primary"
             @click="showCustomProductPartNumberModal = true"
           >
             <span class="mr-2 truncate text-[15px] font-medium leading-tight">
@@ -53,83 +53,98 @@
             </span>
             <EditIcon class="h-5 w-5 flex-shrink-0" />
           </button>
-        </div>
-        <div class="grid grid-cols-1 gap-2 text-xs leading-tight mb-4 md:mb-5 lg:mb-0">
-          <div>
-            {{ item.description }}
-          </div>
-          <div>Manufacturer: {{ item.manufacturer }}</div>
-          <div>Manufacturer part number: {{ item.manufacturerCode }}</div>
-          <div class="flex items-center">
-            <button class="flex items-center transition-colors duration-300 mr-[9px] hover:text-blue-500">
-              <PDFIcon class="w-[22px] h-[22px] mr-[5px]" />
-              <span class="text-xs leading-tight font-medium">Datasheet</span>
-            </button>
-            <button class="flex items-center transition-colors duration-300 hover:text-blue-500">
-              <LeafIcon class="w-[22px] h-[22px] mr-[5px]" />
-              <span class="text-xs leading-tight font-medium">RoHS</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-4 lg:mt-0 lg:pr-6">
-      <div class="flex flex-col gap-3 md:flex-row md:items-start">
-        <div class="flex flex-col items-start gap-2 md:min-w-fit xl:gap-1.5">
-          <span class="inline-flex items-center text-xs font-semibold leading-tight text-green-600">
+          <span
+            class="inline-flex shrink-0 items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold leading-tight text-green-600"
+          >
             <CheckIcon class="mr-1 h-[15px] w-[15px] flex-shrink-0" />
             {{ item.stock }} in stock
           </span>
-          <span class="hidden text-[13px] font-normal leading-tight text-neutral-700 md:inline"> Price for: Each </span>
-          <span class="hidden text-[13px] font-normal leading-tight text-neutral-700 md:inline"> Multiple: 1 </span>
-          <span class="hidden text-[13px] font-normal leading-tight text-neutral-700 md:inline">
-            Minimum Order: {{ minPriceConfiguration ? minPriceConfiguration.quantity : 0 }}
+        </div>
+        <div class="grid grid-cols-1 gap-1.5 text-xs leading-snug text-slate-600">
+          <div class="line-clamp-2 md:line-clamp-none">{{ item.description }}</div>
+          <div class="flex flex-wrap gap-x-4 gap-y-1">
+            <span>Manufacturer: {{ item.manufacturer }}</span>
+            <span>Manufacturer part number: {{ item.manufacturerCode }}</span>
+          </div>
+          <dl class="hidden flex-wrap gap-x-4 gap-y-1 text-[13px] leading-tight text-neutral-700 md:flex">
+            <div class="flex gap-1.5">
+              <dt class="text-slate-500">Price for:</dt>
+              <dd class="font-medium">Each</dd>
+            </div>
+            <div class="flex gap-1.5">
+              <dt class="text-slate-500">Multiple:</dt>
+              <dd class="font-medium">1</dd>
+            </div>
+            <div class="flex gap-1.5">
+              <dt class="text-slate-500">Min order:</dt>
+              <dd class="font-medium">{{ minPriceConfiguration ? minPriceConfiguration.quantity : 0 }}</dd>
+            </div>
+          </dl>
+          <div class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <button type="button" class="flex items-center transition-colors duration-300 hover:text-blue-500">
+              <PDFIcon class="mr-[5px] h-[22px] w-[22px]" />
+              <span class="text-xs font-medium leading-tight">Datasheet</span>
+            </button>
+            <button type="button" class="flex items-center transition-colors duration-300 hover:text-blue-500">
+              <LeafIcon class="mr-[5px] h-[22px] w-[22px]" />
+              <span class="text-xs font-medium leading-tight">RoHS</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commerce: pricing + purchase -->
+    <div class="mt-4 flex min-w-0 flex-col gap-3 border-t border-slate-100 pt-4 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+      <div class="w-full min-w-0 overflow-hidden rounded-lg border border-slate-100 bg-white">
+        <div class="grid grid-cols-2 gap-2 bg-slate-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <span>Qty</span>
+          <span class="text-right">Price (Ex VAT)</span>
+        </div>
+        <div
+          v-for="[qty, price] in bulkQuantities"
+          :key="qty"
+          class="grid grid-cols-2 gap-2 border-t border-slate-100 px-3 py-1.5 text-[13px] leading-tight"
+        >
+          <span class="font-medium text-slate-600">{{ qty }}+</span>
+          <span class="text-right font-semibold tabular-nums" :class="[productDiscount ? 'text-rose-500' : 'text-blue-600']">
+            {{ price.toFixed(2) }} Lei
           </span>
         </div>
-        <section class="grid w-full max-w-[220px] grid-cols-2 gap-x-6 gap-y-1.5 sm:max-w-none md:flex md:min-w-fit md:gap-4">
-          <div class="flex flex-col items-start gap-1">
-            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1"> Qty </span>
-            <span v-for="[qty] in bulkQuantities" :key="qty" class="text-[13px] leading-tight font-medium"> {{ qty }}+ </span>
-          </div>
-          <div class="flex flex-col items-start gap-1">
-            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1"> Price (Ex VAT)</span>
-            <span
-              v-for="[, price] in bulkQuantities"
-              :key="price"
-              class="text-[13px] leading-tight font-semibold"
-              :class="[productDiscount ? 'text-rose-500' : 'text-blue-600']"
-            >
-              {{ price.toFixed(2) }} Lei
-            </span>
-          </div>
-        </section>
       </div>
-      <div class="grid grid-cols-2 pt-3 mb-4 md:grid-cols-[70%,30%] md:mb-5 lg:grid-cols-[40%,60%] lg:mb-0">
-        <div class="text-sm font-medium font-Poppins text-blue text-blue-500">View More</div>
-      </div>
-    </div>
-    <div class="flex gap-2.5 pt-1 md:col-span-2 xl:col-span-1 xl:items-end">
-      <QuantityButtons
-        v-if="minPriceConfiguration"
-        v-model="quantity"
-        size="lg"
-        :object="{ action: 'update', min: minPriceConfiguration.quantity, id: item._id } as ProductActionObject"
-      />
-      <button
-        :disabled="quantity === 0"
-        class="flex items-center flex-1 justify-center bg-blue-500 rounded text-white px-5 py-[9px]"
-        @click="addToCart(item)"
+
+      <NuxtLink
+        :to="`/product/${item.alias || item._id}`"
+        class="w-fit text-sm font-medium text-blue-500 transition-colors hover:text-blue-600"
       >
-        <CartIcon class="w-6 h-6 mr-2" />
-        <span class="text-sm font-medium">Add to cart</span>
-      </button>
+        View More
+      </NuxtLink>
+
+      <div class="flex gap-2.5">
+        <QuantityButtons
+          v-if="minPriceConfiguration"
+          v-model="quantity"
+          size="lg"
+          :object="{ action: 'update', min: minPriceConfiguration.quantity, id: item._id } as ProductActionObject"
+        />
+        <button
+          type="button"
+          :disabled="quantity === 0"
+          class="flex flex-1 items-center justify-center rounded bg-blue-500 px-4 py-[9px] text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
+          @click="addToCart(item)"
+        >
+          <CartIcon class="mr-2 h-6 w-6" />
+          <span class="text-sm font-medium">Add to cart</span>
+        </button>
+      </div>
     </div>
-    <div class="hidden md:flex absolute top-5 right-5 flex-col gap-2.5">
-      <button class="flex justify-end text-gray-500 transition-colors duration-300 hover:text-blue">
-        <HeartIcon class="w-6 h-6" />
+
+    <div class="absolute right-4 top-4 hidden flex-col gap-2.5 md:flex md:right-5 md:top-5">
+      <button type="button" class="flex justify-end text-gray-500 transition-colors duration-300 hover:text-blue">
+        <HeartIcon class="h-6 w-6" />
       </button>
-      <button class="flex justify-end text-gray-500 transition-colors duration-300 hover:text-blue">
-        <ShareIcon class="w-6 h-6" />
+      <button type="button" class="flex justify-end text-gray-500 transition-colors duration-300 hover:text-blue">
+        <ShareIcon class="h-6 w-6" />
       </button>
     </div>
   </div>

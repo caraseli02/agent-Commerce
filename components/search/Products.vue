@@ -72,10 +72,12 @@
         </label>
         <label class="flex items-center lg:mr-auto">
           <span class="text-sm flex-shrink-0 mr-2.5">Sort by</span>
-          <div
-            class="relative min-w-[215px] flex items-center bg-white border border-border rounded px-2.5 py-[3px] transition-colors duration-300 group focus-within:border-blue-500"
-          >
-            <button class="flex items-center justify-between flex-1" @click="showSortByOptions = !showSortByOptions">
+          <div class="relative min-w-[215px]">
+            <button
+              class="flex items-center justify-between w-full border bg-white rounded px-2.5 py-[3px] transition-colors duration-300"
+              :class="[showSortByOptions ? 'border-blue-500' : 'border-border']"
+              @click="showSortByOptions = !showSortByOptions"
+            >
               <span class="text-sm text-left mr-2.5">{{ sortBy.label }}</span>
               <ChevronDownIcon
                 class="w-6 h-6 text-slate-500 transition-transform duration-300"
@@ -93,43 +95,17 @@
               >
                 <button
                   v-for="option in sortByOptions"
-                  :key="option.name"
+                  :key="`${option.name}-${option.order}`"
                   class="flex w-full text-left text-sm rounded-[5px] transition-colors duration-300 hover:bg-slate-50 hover:text-blue-600 px-3 py-2"
-                  :class="{ 'text-blue-600 font-medium bg-slate-50': option.name === sortBy.name }"
-                  @click="
-                    sortBy = option;
-                    showSortByOptions = false;
-                    emits('sort-by-change', option);
-                  "
+                  :class="{
+                    'text-blue-600 font-medium bg-slate-50': option.name === sortBy.name && option.order === sortBy.order,
+                  }"
+                  @click="selectSortBy(option)"
                 >
                   {{ option.label }}
                 </button>
               </div>
             </transition>
-            <!-- Vertical divider -->
-            <div class="w-px h-5 bg-gray-200 mx-2" />
-            <button
-              class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500"
-              @click="
-                order === 0 ? (order = 1) : (order = 0);
-                emits('sort-order-change', order);
-              "
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6">
-                <path
-                  fill="currentColor"
-                  d="M6.21 11h11.58c1.076 0 1.614-1.396.855-2.208L12.857 2.38a1.165 1.165 0 0 0-.854-.38c-.309 0-.617.127-.851.38L5.355 8.792C4.596 9.604 5.134 11 6.21 11Z"
-                  class="transition-all duration-300"
-                  :class="[order === 1 ? 'text-blue-600' : 'text-slate-400']"
-                />
-                <path
-                  fill="currentColor"
-                  d="M17.79 13H6.21c-1.076 0-1.614 1.396-.855 2.209l5.798 6.412c.23.252.502.379.848.379.309 0 .618-.127.854-.38l5.79-6.413c.76-.81.221-2.207-.855-2.207Z"
-                  class="transition-all duration-300"
-                  :class="[order === 0 ? 'text-blue-600' : 'text-slate-400']"
-                />
-              </svg>
-            </button>
           </div>
         </label>
         <label class="flex items-center">
@@ -311,7 +287,9 @@ const props = defineProps<{
   keyword: string | '';
 }>();
 
-const emits = defineEmits(['at-page', 'per-page', 'sort-by-change', 'sort-order-change', 'show-filter']);
+const emits = defineEmits(['at-page', 'per-page', 'sort-by-change', 'show-filter']);
+
+type SortByOption = { label: string; name: string; order: 0 | 1 };
 
 watch(
   () => props.products,
@@ -333,24 +311,35 @@ const showOptions = ref([
   { name: 'All products', key: {} },
 ]);
 const showPerPageOptions = ref(false);
-const sortBy = ref({ label: 'Product Code', name: 'manufacturerCode' });
+const sortBy = ref<SortByOption>({ label: 'Product Code A–Z', name: 'manufacturerCode', order: 1 });
 const showSortByOptions = ref(false);
 
-const sortByOptions = ref([
-  { label: 'Product Code', name: 'code' },
-  { label: 'Manufacturer', name: 'manufacturer' },
-  { label: 'Description', name: 'description' },
-  { label: 'Category', name: 'category' },
-  { label: 'Stock', name: 'stock' },
-  { label: 'Price', name: 'price' },
+const sortByOptions = ref<SortByOption[]>([
+  { label: 'Product Code A–Z', name: 'code', order: 1 },
+  { label: 'Product Code Z–A', name: 'code', order: 0 },
+  { label: 'Manufacturer A–Z', name: 'manufacturer', order: 1 },
+  { label: 'Manufacturer Z–A', name: 'manufacturer', order: 0 },
+  { label: 'Description A–Z', name: 'description', order: 1 },
+  { label: 'Description Z–A', name: 'description', order: 0 },
+  { label: 'Category A–Z', name: 'category', order: 1 },
+  { label: 'Category Z–A', name: 'category', order: 0 },
+  { label: 'Stock Low–High', name: 'stock', order: 1 },
+  { label: 'Stock High–Low', name: 'stock', order: 0 },
+  { label: 'Price Low–High', name: 'price', order: 1 },
+  { label: 'Price High–Low', name: 'price', order: 0 },
 ]);
+
+const selectSortBy = (option: SortByOption) => {
+  sortBy.value = option;
+  showSortByOptions.value = false;
+  emits('sort-by-change', option);
+};
 
 const atPage = ref(1);
 const perPage = ref(10);
 const totalItems = ref(props.products?.items.total_items);
 const totalPages = ref(props.products?.items.page_count);
 const paginatedProductsList = ref(props.products?.items.items);
-const order = ref<1 | 0>(1);
 
 const setProductsList = () => {
   const paginatedProductsData = props.products;

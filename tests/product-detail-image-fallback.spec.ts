@@ -39,6 +39,12 @@ function parseTemplate(filePath: string): RootNode {
   return baseParse(descriptor.template!.content);
 }
 
+function getStaticAttrValue(element: ElementNode, name: string): string | undefined {
+  const attr = element.props.find((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === name);
+
+  return attr?.type === NodeTypes.ATTRIBUTE ? attr.value?.content : undefined;
+}
+
 describe('product detail image fallback', () => {
   it('normalizes known invalid image URLs in the shared fallback component', () => {
     const source = readFileSync(imageWithFallbackPath, 'utf8');
@@ -47,6 +53,21 @@ describe('product detail image fallback', () => {
     expect(source).toContain('not_valid_image');
     expect(source).toContain('checkImageHealth');
     expect(source).toContain('naturalWidth === 0');
+  });
+
+  it('fills the media frame with an absolute full-bleed catalog fallback', () => {
+    const source = readFileSync(imageWithFallbackPath, 'utf8');
+    const { descriptor } = parseSfc(source);
+
+    expect(descriptor.template).toBeTruthy();
+
+    const ast = baseParse(descriptor.template!.content);
+    const root = collectElements(ast, 'div')[0];
+
+    expect(getStaticAttrValue(root, 'class')).toContain('relative block');
+    expect(source).toContain('absolute inset-0');
+    expect(source).toContain('bg-cover');
+    expect(source).not.toContain('w-12 h-12');
   });
 
   it('keeps the product zoom modal on fallback-aware image rendering', () => {

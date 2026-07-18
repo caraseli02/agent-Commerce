@@ -10,13 +10,13 @@
           <p class="text-sm leading-6 text-slate-500 mb-7 max-w-xs">
             Browse thousands of parts from trusted manufacturers. Check stock, compare specs, and order with confidence.
           </p>
-          <NuxtLink to="/search" class="w-fit">
-            <UiButton class="w-fit px-6 py-2.5 text-sm font-medium shadow-sm"> Explore Products </UiButton>
-          </NuxtLink>
+          <UiButton as-child class="w-fit px-6 py-2.5 text-sm font-medium shadow-sm">
+            <NuxtLink to="/search">Explore Products</NuxtLink>
+          </UiButton>
         </div>
       </div>
       <!-- Desktop category + banner popover (hidden on mobile) -->
-      <PopoverContainer class="hidden md:block mb-5 shadow-s rounded-xl" />
+      <PopoverContainer class="hidden md:block mb-5" />
       <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <div
           v-for="(feature, index) in features"

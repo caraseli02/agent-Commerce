@@ -1,5 +1,7 @@
 <template>
-  <div class="col-span-2 lg:col-span-1 w-full relative bg-white rounded-2xl font-Inter px-4 py-4 shadow-m md:px-5 md:py-5 lg:self-start">
+  <div
+    class="col-span-2 lg:col-span-1 min-w-0 w-full relative bg-white rounded-2xl font-Inter px-4 py-4 shadow-m md:px-5 md:py-5 lg:self-start"
+  >
     <div class="flex items-start justify-between gap-4 mb-5">
       <div class="flex items-center">
         <div class="text-xl leading-tight font-semibold mr-2">
@@ -41,7 +43,7 @@
       <div class="text-xs leading-tight font-medium flex-shrink-0">EDA / CAD Models</div>
       <button class="flex items-center">
         <CADModelsIcon class="w-4 h-4 mr-[5px]" />
-        <span class="text-xs leading-tight text-slate-500"> ADIN2111BCPZ-ECAD-Model </span>
+        <span class="text-xs leading-tight text-slate-500"> {{ cadModelLabel }} </span>
       </button>
     </div>
     <div class="flex items-center justify-between gap-3 rounded-lg bg-light-100 px-3 py-3">
@@ -62,7 +64,11 @@
       </button>
     </div>
   </div>
-  <LayoutCustomProductPartNumberModal v-if="showCustomProductPartNumberModal" @close="showCustomProductPartNumberModal = false" />
+  <LayoutCustomProductPartNumberModal
+    v-if="showCustomProductPartNumberModal"
+    :manufacturer-code="product.manufacturerCode || product.alias"
+    @close="showCustomProductPartNumberModal = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -72,9 +78,10 @@ import PDFIcon from '@/assets/icons/pdf.svg';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import type { ProductDetail } from '~~/model/products/response/ProductDetailResponse';
 
-defineProps<{
+const props = defineProps<{
   product: ProductDetail;
 }>();
 
 const showCustomProductPartNumberModal = ref(false);
+const cadModelLabel = computed(() => `${props.product.alias || props.product.manufacturerCode || props.product.name}-ECAD-Model`);
 </script>

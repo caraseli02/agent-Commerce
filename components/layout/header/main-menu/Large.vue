@@ -173,7 +173,7 @@
             <NuxtLink
               v-for="(subCategory, index) in selectedSubCategory?.subcategory"
               :key="index"
-              :to="`/search?category=${subCategory.id}`"
+              :to="`/search?keyword=${encodeURIComponent(subCategory.name)}`"
               class="relative flex items-center text-[#6E6E6E] text-left px-[5px] transition-colors duration-300 hover:text-primary"
             >
               <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }} items)</div>
@@ -229,7 +229,7 @@
               <NuxtLink
                 v-for="(subCategory, index) in selectedSubCategory.subcategory"
                 :key="index"
-                :to="`/search?category=${subCategory.id}`"
+                :to="`/search?keyword=${encodeURIComponent(subCategory.name)}`"
                 class="relative flex items-start text-[#6E6E6E] text-left px-[5px] transition-colors duration-300 hover:text-primary"
               >
                 <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }} items)</div>
@@ -289,7 +289,7 @@ const props = defineProps({
 const handleCategoryClick = (category: NavCategoryView) => {
   if ((category.subcategory?.length ?? 0) === 0) {
     // Redirect to the category link if it's the last level
-    router.push(`/search?category=${category.id}`);
+    router.push(`/search?keyword=${encodeURIComponent(category.name)}`);
   } else {
     // Otherwise, set the selected category or subcategory as usual
     selectedCategory.value = category;

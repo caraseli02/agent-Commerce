@@ -25,18 +25,18 @@
         </UiButton>
       </div>
       <div
-        class="grid grid-cols-1 gap-y-[30px] mb-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 lg:items-start lg:mb-10 2xl:grid-cols-[340px,542px,460px]"
+        class="grid grid-cols-1 gap-y-[30px] mb-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 lg:items-start lg:mb-10 min-[1440px]:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]"
       >
         <ProductGallery
           v-if="product && images"
           v-model="activeImageIndex"
-          class="col-span-2 lg:col-span-1"
+          class="col-span-2 min-w-0 lg:col-span-1"
           :images="images"
           :product="product"
           @show-zoom-modal="showZoomGallery = true"
         />
-        <ProductDetails v-if="product" class="col-span-2 lg:col-span-1" :product="product" />
-        <ProductQuantity v-if="product" class="col-span-2 2xl:col-span-1" :product="product as unknown as ProductInterface" />
+        <ProductDetails v-if="product" class="col-span-2 min-w-0 lg:col-span-1" :product="product" />
+        <ProductQuantity v-if="product" :product="product as unknown as ProductInterface" />
       </div>
       <LazyProductTable v-if="product" :features="product?.details?.ParametricData?.Features" />
     </div>
