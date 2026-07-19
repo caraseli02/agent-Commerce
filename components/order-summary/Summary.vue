@@ -6,13 +6,13 @@
     <div class="flex flex-col gap-2 relative">
       <div class="flex flex-row justify-between w-full">
         <span class="text-slate-500 text-sm font-normal leading-6">Subtotal</span>
-        <span class="text-neutral-700 text-sm font-medium leading-6">{{ getCartSubtotal.toFixed(2) }} Lei</span>
+        <span class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedSubtotal.toFixed(2) }} Lei</span>
       </div>
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row gap-6">
           <span class="text-slate-500 text-sm font-normal leading-6">Discount</span>
         </div>
-        <span class="text-neutral-700 text-sm font-medium leading-6">{{ itemsDiscount?.toFixed(2) }} Lei</span>
+        <span class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedDiscount.toFixed(2) }} Lei</span>
       </div>
       <div v-if="smallOrder" class="flex flex-row justify-between w-full">
         <div class="flex flex-col gap-1">
@@ -73,9 +73,11 @@ import InformationIcon from '~/assets/icons/information.svg';
 import type { CheckoutOrderDraft } from '~/types';
 import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
 import { useCartStore } from '~/store/cartStore';
+import { useClientReady } from '~/composables/useClientReady';
 
 const cartStore = useCartStore();
 const { getCartSubtotal, itemsDiscount } = storeToRefs(cartStore);
+const isClientReady = useClientReady();
 
 const props = defineProps<{
   order: CheckoutOrderDraft;
@@ -84,10 +86,15 @@ const props = defineProps<{
 
 const showSmallOrderModal = ref(false);
 
+const resolvedSubtotal = computed(() => (isClientReady.value ? Number(getCartSubtotal.value || 0) : Number(props.order.subtotal || 0)));
+const resolvedDiscount = computed(() =>
+  isClientReady.value ? Number(itemsDiscount.value || 0) : Number(props.order.discount?.total || 0)
+);
+
 const smallOrder = computed(() => {
   let smallOrderFee = 0;
   props.generalSettings?.orderSettings?.smallOrderCharge?.forEach((charge) => {
-    if (Number(getCartSubtotal.value) < charge.max && Number(getCartSubtotal.value) >= charge.min) {
+    if (resolvedSubtotal.value < charge.max && resolvedSubtotal.value >= charge.min) {
       smallOrderFee = charge.price;
       // eslint-disable-next-line vue/no-mutating-props
       props.order.smallOrder = charge;
@@ -97,12 +104,12 @@ const smallOrder = computed(() => {
   return smallOrderFee;
 });
 
-const calculatedVAT = computed(() => parseFloat((getCartSubtotal.value * 0.19).toFixed(2)));
+const calculatedVAT = computed(() => parseFloat((resolvedSubtotal.value * 0.19).toFixed(2)));
 const calculatedTotal = computed(() => {
-  const subtotal = Number(getCartSubtotal.value || 0);
+  const subtotal = resolvedSubtotal.value;
   const VAT = calculatedVAT.value;
   const shippingFee = shipping.value?.price.total || 0;
-  const discount = itemsDiscount.value || 0;
+  const discount = resolvedDiscount.value;
   return parseFloat((subtotal + VAT + shippingFee + smallOrder.value - discount).toFixed(2));
 });
 

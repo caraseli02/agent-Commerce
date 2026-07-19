@@ -1,5 +1,5 @@
 <template>
-  <div v-if="cartStore.mappedCartItems.length" class="flex flex-col gap-6 mb-6">
+  <div v-if="isClientReady && cartStore.mappedCartItems.length" class="flex flex-col gap-6 mb-6">
     <OrderSummaryTableHead @check-all="checkAll" @delete-selected="deleteSelected" />
     <div v-if="stockItems && stockItems.length">
       <span class="text-neutral-700 text-base font-semibold leading-6">Stock Items: {{ stockItems.length }}</span>
@@ -29,6 +29,7 @@
 <script setup lang="ts">
 import type { CartProductsInterface } from '~/types/cart';
 import { useCartStore } from '~/store/cartStore';
+import { useClientReady } from '~/composables/useClientReady';
 
 defineProps<{
   loading: boolean;
@@ -37,6 +38,7 @@ defineProps<{
 const emits = defineEmits(['checkAll', 'updateSubtotal', 'deleteSelected']);
 
 const cartStore = useCartStore();
+const isClientReady = useClientReady();
 onMounted(() => {
   if (cartStore.cart) {
     cartStore.cart.products = mapCartItems(cartStore.cart?.products);

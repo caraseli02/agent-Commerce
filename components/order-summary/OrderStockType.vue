@@ -140,7 +140,6 @@ import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import type { BackorderShippingTypesInterface } from '~/types/general-settings/general-settings';
 import { useAuthStore } from '~/store/authStore';
 import { usePaymentStore } from '~/store/paymentStore';
-import { useCartStore } from '~/store/cartStore';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 
 const props = defineProps<{
@@ -159,21 +158,12 @@ const paymentMethodExpanded = ref(false);
 
 const generalSettings = useAuthStore().generalSettings;
 
-const cartStore = useCartStore();
-
 const stockOrder = computed(() => {
-  return (
-    (cartStore.cart?.products?.filter((item: CartProductsInterface) => item.productEntity?.stock !== undefined && item.stock > 0).length ??
-      0) > 0
-  );
+  return props.items.some((item) => item.productEntity?.stock !== undefined && item.stock > 0);
 });
 
 const backOrder = computed(() => {
-  return (
-    (cartStore.cart?.products?.filter((item: CartProductsInterface) => {
-      return item.productEntity?.stock !== undefined && (item.backorder_stock ?? 0) > 0;
-    }).length ?? 0) > 0
-  );
+  return props.items.some((item) => item.productEntity?.stock !== undefined && (item.backorder_stock ?? 0) > 0);
 });
 
 const orderType = computed((): OrderType => {

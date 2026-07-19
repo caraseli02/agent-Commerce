@@ -80,16 +80,16 @@
               @click="openFavoritesCartModal('shopping-cart')"
             >
               <div class="flex items-center md:-mr-5 xl:-mr-5">
-                <CartIcon class="w-6 h-6 text-primary-foreground lg" :class="[cartItems > 0 ? 'mr-0' : 'mr-4']" />
+                <CartIcon class="w-6 h-6 text-primary-foreground lg" :class="[showCartBadge ? 'mr-0' : 'mr-4']" />
                 <span
-                  v-if="cartItems > 0"
+                  v-if="showCartBadge"
                   class="flex -translate-y-2 -translate-x-2.5 items-center justify-center h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
                   :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]']"
                 >
                   <span> {{ cartItems }} </span>
                 </span>
               </div>
-              <div v-if="totalCartPrice" class="flex-col text-primary-foreground flex-shrink-0 ml-6 max-md:hidden">
+              <div v-if="showCartTotal" class="flex-col text-primary-foreground flex-shrink-0 ml-6 max-md:hidden">
                 <div class="leading-[1.25] font-medium mb-0.5">{{ totalCartPrice }} Lei</div>
                 <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
               </div>
@@ -184,8 +184,12 @@ import { fetchSearchProduct } from '~/composables/api/products';
 import { useCartStore } from '~/store/cartStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
+import { useClientReady } from '~/composables/useClientReady';
 
 const cartStore = useCartStore();
+const isClientReady = useClientReady();
+const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
+const showCartTotal = computed(() => isClientReady.value && totalCartPrice.value > 0);
 const { getCart, getCartSubtotal } = storeToRefs(cartStore);
 
 const notificationStore = useNotificationStore();
@@ -199,8 +203,6 @@ const totalCartPrice = ref(0);
 const subtotal = () => {
   totalCartPrice.value = getCartSubtotal.value;
 };
-
-subtotal();
 
 defineProps({
   isScrolled: {
@@ -390,6 +392,7 @@ watch(
 
 onMounted(() => {
   isMobile.value = window.innerWidth <= 1024;
+  subtotal();
   Promise.all([fetchNofications(), fetchList()]);
 });
 
