@@ -13,17 +13,17 @@
             aria-label="Open shopping cart"
             @click="openFavoritesCartModal('shopping-cart')"
           >
-            <div class="relative flex-shrink-0" :class="cartItems > 0 ? 'mr-2' : 'mr-4'">
+            <div class="relative flex-shrink-0" :class="showCartBadge ? 'mr-2' : 'mr-4'">
               <CartIcon class="w-6 h-6 text-slate-500" />
               <span
-                v-if="cartItems > 0"
+                v-if="showCartBadge"
                 class="absolute -top-1.5 -right-2 flex items-center justify-center h-[18px] font-Inter z-10 bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
                 :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]']"
               >
                 <span>{{ cartItems }}</span>
               </span>
             </div>
-            <div v-if="totalCartPrice" class="flex-col text-slate-500 flex-shrink-0">
+            <div v-if="showCartTotal" class="flex-col text-slate-500 flex-shrink-0">
               <div class="leading-[1.25] font-medium mb-0.5">{{ totalCartPrice }} Lei</div>
               <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
             </div>
@@ -58,8 +58,12 @@ import CartIcon from '@/assets/icons/cart.svg';
 import CartModal from '@/components/layout/favorites-cart-modal/Index.vue';
 import type { CartInterface } from '~/types/cart';
 import { useCartStore } from '~/store/cartStore';
+import { useClientReady } from '~/composables/useClientReady';
 
 const cartStore = useCartStore();
+const isClientReady = useClientReady();
+const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
+const showCartTotal = computed(() => isClientReady.value && totalCartPrice.value > 0);
 
 const { getCart, getCartSubtotal } = storeToRefs(cartStore);
 const totalCartPrice = ref(0);
@@ -127,7 +131,8 @@ const subtotal = () => {
   totalCartPrice.value = getCartSubtotal.value;
 };
 
-subtotal();
-
-Promise.all([fetchList()]);
+onMounted(() => {
+  subtotal();
+  void fetchList();
+});
 </script>
