@@ -32,7 +32,6 @@
               </UiDropdownMenuTrigger>
               <UiDropdownMenuContent align="end" class="w-44">
                 <UiDropdownMenuItem @click="onCopyProductName">Copy product name</UiDropdownMenuItem>
-                <UiDropdownMenuItem>Add to favorites</UiDropdownMenuItem>
                 <UiDropdownMenuItem>Share</UiDropdownMenuItem>
               </UiDropdownMenuContent>
             </UiDropdownMenu>

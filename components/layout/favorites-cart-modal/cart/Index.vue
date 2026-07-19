@@ -2,11 +2,10 @@
   <div class="flex flex-col flex-1 max-w-full h-full">
     <div class="py-4 px-4 flex-1 h-full overflow-y-auto overscroll-contain scrollbar-thin max-h-vh md:py-6">
       <div class="grid grid-cols-1 gap-4">
-        <LayoutFavoritesCartModalFavoritesProductItem
+        <LayoutFavoritesCartModalCartCartProductItem
           v-for="item in items"
           :key="item.id"
           :product="item"
-          in-cart
           @delete-product="deleteProduct"
         />
       </div>
@@ -39,7 +38,7 @@ import CartIcon from '@/assets/icons/cart.svg';
 import type { PropType } from 'vue';
 import { useCart } from '~/composables/useCart';
 import type { CartInterface, CartProductsInterface } from '~/types/cart';
-import type { FavoriteItem } from '~/types/favorites/item';
+import type { CartLineItem } from '~/components/layout/favorites-cart-modal/cart/CartProductItem.vue';
 import { useCartStore } from '~/store/cartStore';
 
 const props = defineProps({
@@ -55,7 +54,7 @@ const cartStore = useCartStore();
 const { removeFromCart } = useCart();
 const { getCartSubtotal, cart } = storeToRefs(cartStore);
 
-const items = ref<FavoriteItem[]>([]);
+const items = ref<CartLineItem[]>([]);
 
 type ProductImageLike = { ProductImageSmall?: string | null } | Array<{ ProductImageSmall?: string | null } | null> | null | undefined;
 
@@ -68,13 +67,12 @@ function getCartProductThumbnail(item: CartProductsInterface) {
 
 const mapCartItems = () => {
   items.value = (cart.value?.products || []).map(
-    (item: CartProductsInterface): FavoriteItem => ({
+    (item: CartProductsInterface): CartLineItem => ({
       id: item.id,
-      type: item.isFolder ? 'folder' : 'product',
       title: item.productEntity?.name ?? '',
       description: item.productEntity?.description,
       image: getCartProductThumbnail(item),
-      productEntity: item.productEntity ?? ({} as FavoriteItem['productEntity']),
+      productEntity: item.productEntity!,
       quantity: Number(item.stock) + Number(item.backorder_stock || 0),
     })
   );

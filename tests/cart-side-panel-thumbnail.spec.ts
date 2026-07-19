@@ -6,7 +6,7 @@ import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
 const cartPanelPath = resolve('components/layout/favorites-cart-modal/cart/Index.vue');
-const productItemPath = resolve('components/layout/favorites-cart-modal/favorites/ProductItem.vue');
+const productItemPath = resolve('components/layout/favorites-cart-modal/cart/CartProductItem.vue');
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
   const found: ElementNode[] = [];

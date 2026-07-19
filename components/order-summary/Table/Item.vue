@@ -20,22 +20,14 @@
         :stock-item="stockItem"
         class="item"
         @update-quantity="emits('updateQuantity')"
-        @like-item="liked = !liked"
       />
     </Transition>
   </div>
-  <LayoutFavoritesModalsDelete
-    v-model="deleteItem"
-    :remove-only-stock-quantity="stockItem && !!item.backorder_stock && item.backorder_stock > 0"
-    :remove-only-backstock-quantity="!stockItem && item.stock > 0"
-    :products="[toFavoriteItem(item)]"
-    :delete-from-cart="true"
-    @close="deleteItem = false"
-  />
+  <CartDeleteDialog v-model="deleteItem" :product-id="item.id" @close="deleteItem = false" />
 </template>
 
 <script setup lang="ts">
-import type { FavoriteItem } from '~/types';
+import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import type { CartProductsInterface } from '~/types/cart';
 
 const props = defineProps<{
@@ -46,7 +38,6 @@ const props = defineProps<{
 const emits = defineEmits(['updateQuantity', 'check', 'deleteCurrent']);
 
 const expanded = ref(false);
-const liked = ref(false);
 const thresholdStock = 10;
 const deleteItem = ref(false);
 
@@ -65,15 +56,6 @@ watch(itemQuantity, () => {
     emits('updateQuantity');
   }
 });
-
-function toFavoriteItem(cartItem: CartProductsInterface): FavoriteItem {
-  return {
-    id: cartItem.id,
-    type: 'product',
-    title: cartItem.productEntity?.name ?? cartItem.id,
-    productEntity: cartItem.productEntity!,
-  };
-}
 
 const setupMediaQuery = () => {
   const mediaQuery = window.matchMedia('(min-width: 1280px)');
@@ -99,7 +81,6 @@ onMounted(setupMediaQuery);
 .expand-leave-from {
   opacity: 1;
   max-height: 1000px;
-  /* Adjust this value as needed */
 }
 
 .expand-enter-active,

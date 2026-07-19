@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance';
-import { XIcon, MenuIcon, ChevronRight, ChevronLeftIcon, Building2Icon, HeadsetIcon, GemIcon, UserIcon, HeartIcon } from 'lucide-vue-next';
+import { XIcon, MenuIcon, ChevronRight, ChevronLeftIcon, Building2Icon, HeadsetIcon, GemIcon, UserIcon } from 'lucide-vue-next';
 import { useCategoriesNavigation } from '@/composables/useCategoriesNavigation';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
 
@@ -59,11 +59,6 @@ const onMobileCategoryClick = (category: (typeof categories.value)[number], make
 const openAccountFromDrawer = () => {
   closeMobileMenu();
   Emitter.emit('open-account-modal');
-};
-
-const openFavoritesFromDrawer = () => {
-  closeMobileMenu();
-  Emitter.emit('open-favorites-cart-modal', 'favorites');
 };
 
 let headerResizeObserver: ResizeObserver | undefined;
@@ -184,18 +179,10 @@ onBeforeUnmount(() => {
       </div>
       <!-- Left Column: Main Categories -->
       <div v-else class="w-full h-full flex flex-col items-start container mt-2">
-        <div class="grid w-full grid-cols-2 gap-2 pb-3 mb-2 border-b border-grey-300 md:hidden" aria-label="Account shortcuts">
+        <div class="grid w-full grid-cols-1 gap-2 pb-3 mb-2 border-b border-grey-300 md:hidden" aria-label="Account shortcuts">
           <UiButton variant="link" class="h-10 justify-start gap-2 px-2 text-sm font-medium text-slate-600" @click="openAccountFromDrawer">
             <UserIcon class="w-4 h-4" />
             My Account
-          </UiButton>
-          <UiButton
-            variant="link"
-            class="h-10 justify-start gap-2 px-2 text-sm font-medium text-slate-600"
-            @click="openFavoritesFromDrawer"
-          >
-            <HeartIcon class="w-4 h-4" />
-            Favorites
           </UiButton>
         </div>
         <UiButton

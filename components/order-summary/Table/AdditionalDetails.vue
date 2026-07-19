@@ -42,12 +42,7 @@
         </div>
       </div>
     </Transition>
-    <!-- Like and delete buttons -->
-    <button class="relative flex flex-col gap-2 xl:hidden items-center group" @click="cartStore.makeCartItemFavorite(item.id)">
-      <HeartSolid v-show="item.liked" class="absolute top-[1px] text-blue-500" />
-      <HeartOutline class="w-5 h-5 text-slate-500 group-hover:text-blue-500 transition duration-150" />
-      <span class="text-slate-500 text-xs font-normal leading-5 group-hover:text-blue-500 transition duration-150">Favourites</span>
-    </button>
+    <!-- Delete button -->
     <button class="flex flex-col gap-2 xl:hidden items-center group" @click="emits('deleteItem')">
       <TrashOutlineBig class="text-slate-500 group-hover:text-rose-500 transition duration-150" />
       <span class="text-slate-500 text-xs font-normal leading-5 group-hover:text-rose-500 transition duration-150">Delete</span>
@@ -60,11 +55,8 @@ import PackageBox from '@/assets/icons/package-box.svg';
 import PackageBoxSmall from '@/assets/icons/package-box-small.svg';
 import DeliveryTruck from '@/assets/icons/delivery-truck.svg';
 import DeliveryTruckSmall from '@/assets/icons/delivery-truck-small.svg';
-import HeartOutline from '@/assets/icons/heart-outline.svg';
-import HeartSolid from '@/assets/icons/heart-solid.svg';
 import TrashOutlineBig from '@/assets/icons/trash-outline-big.svg';
 import type { CartProductsInterface } from '~/types/cart';
-import { useCartStore } from '~/store/cartStore';
 
 // Define props to receive state from the parent
 const props = defineProps<{
@@ -73,9 +65,6 @@ const props = defineProps<{
   showDeliveryDetails: boolean;
 }>();
 
-const cartStore = useCartStore();
-
-// Define emits to communicate events to the parent
 const emits = defineEmits(['likeItem', 'deleteItem']);
 
 // Reactive references for internal state if needed

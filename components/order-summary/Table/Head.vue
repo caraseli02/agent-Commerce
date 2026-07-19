@@ -14,12 +14,6 @@
       </div>
     </div>
     <div class="flex flex-row gap-9">
-      <button class="relative flex group" @click="toggleFavs">
-        <HeartSolid v-show="liked" class="absolute r-0 top-[1px] text-blue-500" />
-        <HeartOutline class="w-5 h-5 text-slate-500 group-hover:text-blue-500 transition duration-150" />
-        <span class="text-sm font-normal text-slate-500 ml-2 group-hover:text-blue-500 transition duration-150"> Add to Favourites </span>
-      </button>
-
       <UiDialog :open="isOpen" @update:open="isOpen = $event">
         <UiDialogTrigger class="flex">
           <TrashOutline class="text-slate-500 group-hover:text-rose-500 transition duration-150" />
@@ -39,34 +33,20 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import HeartOutline from '@/assets/icons/heart-outline.svg';
-import HeartSolid from '@/assets/icons/heart-solid.svg';
 import TrashOutline from '@/assets/icons/trash-outline.svg';
 import { useCart } from '~/composables/useCart';
 import { useCartStore } from '~/store/cartStore';
 import type { CartProductsInterface } from '~/types/cart';
 
-// Reactive properties
 const checkAllBox = ref(false);
-const liked = ref(false);
 const isOpen = ref(false);
 
 const cartStore = useCartStore();
 const { removeFromCart } = useCart();
 
-// Methods to toggle states and emit events
 const toggleCheckAll = () => {
   checkAllBox.value = !checkAllBox.value;
   cartStore.cart?.products.forEach((product: CartProductsInterface) => (product.selected = checkAllBox.value));
-};
-
-const toggleFavs = () => {
-  liked.value = !liked.value;
-  cartStore.cart?.products.forEach((product: CartProductsInterface) => {
-    if (product.selected) {
-      product.liked = liked.value;
-    }
-  });
 };
 
 const deleteSelected = async () => {

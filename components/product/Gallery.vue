@@ -45,14 +45,6 @@
         </Swiper>
       </div>
       <div class="flex flex-col items-end gap-2.5 self-start">
-        <button
-          class="flex justify-end text-slate-200 transition-colors duration-300 hover:text-blue-500"
-          type="button"
-          aria-label="Add to favorites"
-          @click="addToFavourite(product)"
-        >
-          <HeartIcon class="w-6 h-6" />
-        </button>
         <button class="flex justify-end text-slate-200 transition-colors duration-300 hover:text-blue-500" type="button" aria-label="Share">
           <Share2Icon class="w-6 h-6" />
         </button>
@@ -65,14 +57,12 @@
 </template>
 
 <script setup lang="ts">
-import { BoxIcon, HeartIcon, Share2Icon } from 'lucide-vue-next';
+import { BoxIcon, Share2Icon } from 'lucide-vue-next';
 import { A11y, Zoom } from 'swiper';
 
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import type { FavouriteFolderRequestInterface } from '~/model/favourite-folder/request/favourite-folder.interface';
 import type { ProductDetail } from '~/model/products/response/ProductDetailResponse';
 import type { ProductImageInterface } from '~/model/products/response/ProductResponse';
-import { addEntityToFavouriteList } from '~/composables/api/favorites';
 
 const props = defineProps<{
   images: ProductImageInterface[];
@@ -85,14 +75,5 @@ const activeImageIndex = defineModel<number>({ default: 0 });
 
 const handleSlideTo = (index: number) => {
   activeImageIndex.value = index;
-};
-
-const addToFavourite = async (product: ProductDetail) => {
-  const payload: FavouriteFolderRequestInterface = {
-    name: product.name,
-    isFolder: false,
-    products: { id: product._id, stock: product.stock || 1 },
-  };
-  await addEntityToFavouriteList(payload);
 };
 </script>

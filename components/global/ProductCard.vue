@@ -44,8 +44,9 @@
               <MoreHorizontal class="h-5 w-5" />
             </button>
           </UiDropdownMenuTrigger>
-          <UiDropdownMenuContent align="end" class="w-44">
-            <UiDropdownMenuItem @click.prevent.stop="onMobileFavorite">Add to favorites</UiDropdownMenuItem>
+          <UiDropdownMenuContent align="end" class="w-44" @click.stop>
+            <UiDropdownMenuItem @click.prevent.stop>Share</UiDropdownMenuItem>
+            <UiDropdownMenuItem @click.prevent.stop>3D view</UiDropdownMenuItem>
           </UiDropdownMenuContent>
         </UiDropdownMenu>
       </div>
@@ -96,11 +97,9 @@
 import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import { MoreHorizontal } from 'lucide-vue-next';
-import type { FavouriteFolderRequestInterface } from '~/model/favourite-folder/request/favourite-folder.interface';
 import type { AddToCartRequestInterface } from '~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import { addEntityToFavouriteList } from '~/composables/api/favorites';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';
@@ -123,20 +122,6 @@ const discountsHelper = parseProductPriceConfiguration(props.product, getUserDet
 const priceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(discountsHelper?.minimumOrderQuantityConfiguration);
 const discountPrice = ref(discountsHelper?.discountPrice || 0);
 const productDiscount = ref(discountsHelper?.productDiscount || 0);
-
-const addToFavourite = async (product: ProductInterface) => {
-  const payload: FavouriteFolderRequestInterface = {
-    name: product.name,
-    isFolder: false,
-    products: { id: product._id ?? '', stock: product.stock || 1 },
-  };
-
-  await addEntityToFavouriteList(payload);
-};
-
-const onMobileFavorite = () => {
-  void addToFavourite(props.product);
-};
 
 const addToCart = async (product: ProductInterface, stockToAdd = 1) => {
   const payload: AddToCartRequestInterface = {
