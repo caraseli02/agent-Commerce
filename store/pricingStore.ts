@@ -11,13 +11,6 @@ export const usePricingStore = defineStore('pricing-store', () => {
   const range = ref<SmartPricingOption[]>([]);
   const quantity = ref<SmartPricingOption[]>([]);
   const margin = ref<SmartPricingOption[]>([]);
-  const showEntryModal = ref(false);
-  const showMarginModal = ref(false);
-  const showQuantityModal = ref(false);
-  const editEntryPriceModal = ref<PriceSettingsInterface | null>(null);
-  const editQuantityModal = ref<SmartPricingOption | null>(null);
-  const editMarginModal = ref<SmartPricingOption | null>(null);
-  const type = ref<'add' | 'edit'>('add');
 
   const setPricing = (nextPricing: PriceSettingsInterface[]) => {
     pricing.value = nextPricing;
@@ -41,43 +34,6 @@ export const usePricingStore = defineStore('pricing-store', () => {
     pricing.value = null;
   };
 
-  const addPriceRange = (nextRange: { min: number | null; max: number | null }, label: string | null, _id: string) => {
-    range.value.push({ value: [`$${nextRange.min} - $${nextRange.max}`], label: label ?? '', selected: false, _id });
-  };
-
-  const addQuantityRange = (nextQuantity: { values: string[]; label: string }, _id: string) => {
-    quantity.value.push({ value: nextQuantity.values, label: nextQuantity.label, selected: false, _id });
-  };
-
-  const addMarginRange = (nextMargin: { values: string[]; label: string | null }, _id: string) => {
-    margin.value.push({ value: nextMargin.values, label: nextMargin.label ?? '', selected: false, _id });
-  };
-
-  const removePriceRange = (_id: string) => {
-    range.value = range.value.filter((nextRange) => nextRange._id !== _id);
-  };
-
-  const removeQuantityRange = (_id: string) => {
-    quantity.value = quantity.value.filter((nextQuantity) => nextQuantity._id !== _id);
-  };
-
-  const removeMarginRange = (_id: string) => {
-    margin.value = margin.value.filter((nextMargin) => nextMargin._id !== _id);
-  };
-
-  const editPriceRange = (nextRange: { min: number | null; max: number | null }, label: string | null, _id: string) => {
-    range.value = range.value.map((r) => {
-      if (r._id === _id) {
-        return {
-          ...r,
-          value: [`$${nextRange.min} - $${nextRange.max}`],
-          label: label ?? r.label,
-        };
-      }
-      return r;
-    });
-  };
-
   const getPricing = computed(() => pricing.value);
 
   return {
@@ -85,23 +41,9 @@ export const usePricingStore = defineStore('pricing-store', () => {
     range,
     quantity,
     margin,
-    showEntryModal,
-    showMarginModal,
-    showQuantityModal,
-    editEntryPriceModal,
-    editQuantityModal,
-    editMarginModal,
-    type,
     setPricing,
     updateAndReturnPricing,
     emptyPricing,
-    addPriceRange,
-    addQuantityRange,
-    addMarginRange,
-    removePriceRange,
-    removeQuantityRange,
-    removeMarginRange,
-    editPriceRange,
     getPricing,
   };
 }, { persist: { storage: piniaPluginPersistedstate.localStorage() } });

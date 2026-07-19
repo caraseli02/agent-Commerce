@@ -184,7 +184,6 @@
 </template>
 
 <script setup lang="ts">
-import { GanttChartSquareIcon } from 'lucide-vue-next';
 import { markRaw } from 'vue';
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import CollapseIcon from '@/assets/icons/dashboard/collapse.svg';
@@ -194,7 +193,6 @@ import ProductsIcon from '@/assets/icons/dashboard/products.svg';
 import CategoriesIcon from '@/assets/icons/dashboard/categories.svg';
 import CustomersIcon from '@/assets/icons/dashboard/customers.svg';
 import OrdersIcon from '@/assets/icons/dashboard/orders.svg';
-import SettingsIcon from '@/assets/icons/dashboard/setting.svg';
 import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';
 
 defineProps({
@@ -243,20 +241,6 @@ const nav = ref([
     to: '/dashboard/orders',
     icon: markRaw(OrdersIcon),
     count: '749',
-  },
-  {
-    label: 'Settings',
-    icon: markRaw(SettingsIcon),
-    dropdown: {
-      show: false,
-      items: [
-        {
-          label: 'Smart Pricing',
-          to: '/dashboard/settings/smart-price',
-          icon: markRaw(GanttChartSquareIcon),
-        },
-      ],
-    },
   },
 ]);
 

@@ -28,7 +28,6 @@ export const grandfatheredLegacyModalFiles = new Set([
   'components/layout/favorites-modals/NewFolder.vue',
   'components/order-summary/CreditInfoModal.vue',
   'components/order-summary/PaymentModal.vue',
-  'components/smart-pricing/MarginModal.vue',
 ]);
 
 const nativeInteractivePattern = /<(button|input)(?:\s|>|\/)/g;
