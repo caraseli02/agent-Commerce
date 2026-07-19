@@ -79,14 +79,7 @@
       @removed="emits('updateQuantity')"
     />
   </div>
-  <CartDeleteDialog
-    v-model="deleteItem"
-    :product-id="item.id"
-    :remove-only-stock-quantity="stockItem && !!item.backorder_stock && item.backorder_stock > 0"
-    :remove-only-backstock-quantity="!stockItem && item.stock > 0"
-    @close="deleteItem = false"
-    @removed="emits('updateQuantity')"
-  />
+  <CartDeleteDialog v-model="deleteItem" :product-id="item.id" @close="deleteItem = false" @removed="emits('updateQuantity')" />
 </template>
 
 <script setup lang="ts">

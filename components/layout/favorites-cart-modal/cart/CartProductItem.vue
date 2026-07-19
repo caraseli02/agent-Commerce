@@ -25,12 +25,15 @@
           </div>
         </div>
       </NuxtLink>
-      <button
-        class="flex items-center justify-center ml-auto text-slate-500 transition-colors duration-300 hover:text-rose-500"
+      <UiButton
+        variant="ghost"
+        size="icon"
+        class="ml-auto text-slate-500 transition-colors duration-300 hover:text-rose-500"
+        aria-label="Remove item from cart"
         @click="deleteItemFromCart"
       >
         <TrashIcon class="w-5 h-5" />
-      </button>
+      </UiButton>
     </div>
 
     <div class="flex items-end justify-between">
@@ -57,13 +60,11 @@ import { storeToRefs } from 'pinia';
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import { ProductAction } from '~/types/cart';
 import type { ProductActionObject } from '~/types/cart';
-import type { PriceConfigurationSettingsInterface } from '~/model/products/response/ProductResponse';
+import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
 
 export interface CartLineItem {
   id: string;

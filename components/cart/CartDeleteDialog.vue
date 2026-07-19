@@ -10,10 +10,8 @@
       <template v-if="!success">
         <div class="text-sm text-center">Delete selected item?</div>
         <div class="flex items-center justify-center gap-2.5">
-          <button class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white" @click="deleteCartItem">Delete</button>
-          <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="isOpen = false">
-            Cancel
-          </button>
+          <UiButton @click="deleteCartItem">Delete</UiButton>
+          <UiButton variant="outline" @click="isOpen = false">Cancel</UiButton>
         </div>
       </template>
       <div v-else class="flex flex-col items-center flex-1 justify-center">
@@ -31,8 +29,6 @@ const isOpen = defineModel<boolean>();
 
 const props = defineProps<{
   productId: string;
-  removeOnlyStockQuantity?: boolean;
-  removeOnlyBackstockQuantity?: boolean;
 }>();
 
 const emits = defineEmits<{
@@ -46,8 +42,6 @@ const success = ref(false);
 const deleteCartItem = async () => {
   const removed = (await removeFromCart({
     products: [props.productId],
-    removeOnlyStockQuantity: props.removeOnlyStockQuantity ?? false,
-    removeOnlyBackstockQuantity: props.removeOnlyBackstockQuantity ?? false,
   })) as { status?: string };
 
   if (removed.status === 'success') {
