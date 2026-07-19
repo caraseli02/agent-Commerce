@@ -43,7 +43,7 @@
       />
       <FormPassword v-model="password.value" size="lg" label="Password" :error="password.error" placeholder="Hidden for demo sign-in" />
     </div>
-    <div class="flex items-center justify-between gap-3 mt-3 mb-5">
+    <div class="mt-3 mb-5">
       <label class="flex min-h-11 items-center cursor-pointer">
         <input v-model="rememberMe" type="checkbox" class="peer sr-only" />
         <div
@@ -54,12 +54,6 @@
         </div>
         <span class="text-xs text-slate-500 select-none"> Remember me </span>
       </label>
-      <NuxtLink
-        to="/actions?mode=forgotPassword"
-        class="flex min-h-11 items-center text-xs font-medium text-gray-500 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-      >
-        Forgot password?
-      </NuxtLink>
     </div>
     <button
       type="submit"
