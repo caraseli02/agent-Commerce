@@ -55,15 +55,6 @@ export const useCartStore = defineStore('cart-store', () => {
     orderClientSecret.value = null;
   };
 
-  const makeCartItemFavorite = (itemId: string) => {
-    const item = cart.value?.products?.find((product: CartProductsInterface) => product.id === itemId);
-    if (item?.liked) {
-      item.liked = false;
-    } else if (item && !item?.liked) {
-      item.liked = true;
-    }
-  };
-
   const mappedCartItems = computed(() => mapCartItems(cart.value?.products));
   const getCart = computed(() => cart.value as CartInterface | null);
   const getCartSubtotal = computed(() => calculateCartSubtotal(cart.value?.products));
@@ -82,7 +73,6 @@ export const useCartStore = defineStore('cart-store', () => {
     emptyPreviousCheckoutError,
     updateAndReturnCart,
     emptyCart,
-    makeCartItemFavorite,
     mappedCartItems,
     getCart,
     getCartSubtotal,

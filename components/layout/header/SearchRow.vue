@@ -11,7 +11,7 @@
             type="button"
             class="flex min-h-11 min-w-11 items-center text-left max-md:hidden"
             aria-label="Open shopping cart"
-            @click="openFavoritesCartModal('shopping-cart')"
+            @click="openCartModal()"
           >
             <div class="relative flex-shrink-0" :class="showCartBadge ? 'mr-2' : 'mr-4'">
               <CartIcon class="w-6 h-6 text-slate-500" />
@@ -38,14 +38,14 @@
     </Transition>
     <div
       class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] cursor-pointer transition-all duration-300 md:block"
-      :class="[showAccountModal || favoritesCartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
+      :class="[showAccountModal || cartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
       @click="
         showAccountModal = false;
-        favoritesCartModal.show = false;
+        cartModal.show = false;
       "
     />
     <Transition name="slide-from-right">
-      <CartModal v-if="favoritesCartModal.show" :tab="favoritesCartModal.tab" :data="items" @close="favoritesCartModal.show = false" />
+      <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />
     </Transition>
   </Teleport>
 </template>
@@ -103,17 +103,13 @@ Emitter.on('remove-cart-and-notifications', async (isSignout: boolean) => {
 
 const showAccountModal = ref(false);
 
-const favoritesCartModal = ref({
+const cartModal = ref({
   show: false,
-  tab: 'favorites' as 'favorites' | 'shopping-cart',
 });
 
-const openFavoritesCartModal = (tab: 'favorites' | 'shopping-cart') => {
+const openCartModal = () => {
   showAccountModal.value = false;
-  favoritesCartModal.value = {
-    show: true,
-    tab,
-  };
+  cartModal.value.show = true;
 };
 
 const fetchList = async () => {

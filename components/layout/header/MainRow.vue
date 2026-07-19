@@ -42,14 +42,6 @@
               <SearchIcon class="w-6 h-6 text-primary-foreground xl:mr-2" />
               <span class="hidden leading-normal font-medium text-primary-foreground xl:inline-block"> Search </span>
             </button>
-            <button
-              class="hidden flex-col items-center max-md:hidden md:flex"
-              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden xl:flex' : 'lg:flex xl:flex') : '']"
-              @click="openFavoritesCartModal('favorites')"
-            >
-              <HeartIcon class="w-6 h-6 text-primary-foreground xl:mb-1" />
-              <span class="hidden font-medium text-xs leading-[1.33] text-primary-foreground xl:inline-block"> Favorites </span>
-            </button>
             <div
               class="relative max-md:hidden"
               :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex') : 'flex items-center']"
@@ -77,7 +69,7 @@
               class="relative flex items-center text-left"
               :class="[isScrolled ? '' : 'md:hidden', showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
               aria-label="Open shopping cart"
-              @click="openFavoritesCartModal('shopping-cart')"
+              @click="openCartModal()"
             >
               <div class="flex items-center md:-mr-5 xl:-mr-5">
                 <CartIcon class="w-6 h-6 text-primary-foreground lg" :class="[showCartBadge ? 'mr-0' : 'mr-4']" />
@@ -138,14 +130,12 @@
     </Transition>
     <Transition name="fade">
       <div
-        v-if="showAccountModal || favoritesCartModal.show"
+        v-if="showAccountModal || cartModal.show"
         class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] transition-opacity duration-300 cursor-pointer md:block"
-        :class="[
-          showAccountModal || favoritesCartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none',
-        ]"
+        :class="[showAccountModal || cartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
         @click="
           closeAccountModal();
-          favoritesCartModal.show = false;
+          cartModal.show = false;
         "
       />
     </Transition>
@@ -153,7 +143,7 @@
       <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
     </Transition>
     <Transition name="slide-from-right">
-      <CartModal v-if="favoritesCartModal.show" :tab="favoritesCartModal.tab" :data="items" @close="favoritesCartModal.show = false" />
+      <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />
     </Transition>
   </Teleport>
 </template>
@@ -165,7 +155,6 @@ import Logo from '@/assets/media/logo.svg';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import LogoSM from '@/assets/media/logo-sm.svg';
 import SearchIcon from '@/assets/icons/search.svg';
-import HeartIcon from '@/assets/icons/heart.svg';
 import UserIcon from '@/assets/icons/user.svg';
 import CartIcon from '@/assets/icons/cart.svg';
 import XIcon from '@/assets/icons/x.svg';
@@ -217,9 +206,8 @@ const router = useRouter();
 const isMobile = ref(false);
 const signinQuery = computed(() => route.query.signin);
 const showAccountModal = ref(false);
-const favoritesCartModal = ref({
+const cartModal = ref({
   show: false,
-  tab: 'favorites' as 'favorites' | 'shopping-cart',
 });
 
 const cartItems = ref(0);
@@ -240,16 +228,13 @@ const closeAccountModal = async () => {
 };
 
 const openAccountModal = () => {
-  favoritesCartModal.value.show = false;
+  cartModal.value.show = false;
   showAccountModal.value = true;
 };
 
-const openFavoritesCartModal = (tab: 'favorites' | 'shopping-cart') => {
+const openCartModal = () => {
   showAccountModal.value = false;
-  favoritesCartModal.value = {
-    show: true,
-    tab,
-  };
+  cartModal.value.show = true;
 };
 
 const searchVal = ref('');
@@ -281,8 +266,8 @@ Emitter.on('open-account-modal', async () => {
   openAccountModal();
 });
 
-Emitter.on('open-favorites-cart-modal', (tab: 'favorites' | 'shopping-cart') => {
-  openFavoritesCartModal(tab);
+Emitter.on('open-cart-modal', () => {
+  openCartModal();
 });
 
 const fetchList = async () => {

@@ -9,37 +9,18 @@
       >
         <button
           class="mt-4 ml-auto mr-4 mb-4 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#F2F2F2] text-slate-500 transition-colors duration-300 leading-none hover:text-blue-500"
-          aria-label="Close favorites and cart modal"
+          aria-label="Close shopping cart"
           @click="$emit('close')"
         >
           <XIcon class="w-5 h-5" />
         </button>
-        <div class="relative z-10 flex items-center gap-6 px-4 bg-white md:px-6">
-          <button
-            v-for="(item, index) in navItems"
-            :key="index"
-            :data-tab="textUtil.slugify(item.label)"
-            class="relative flex items-center pb-3 transition-colors duration-300 hover:text-blue-500 md:text-base"
-            :class="[activeNavItem === textUtil.slugify(item.label) ? 'text-blue-500' : 'text-neutral-700 after:opacity-0']"
-            @click="setActiveNav(item.label)"
-          >
-            <component :is="item.icon" class="w-5 h-5 mr-2" />
-            <span class="text-sm font-medium">
-              {{ item.label }}
-            </span>
-          </button>
-          <div
-            class="absolute bottom-0 h-1 bg-blue-500 rounded-t-md transition-all duration-300"
-            :style="{
-              left: navLineLeftPosition + 'px',
-              width: navLineWidth + 'px',
-            }"
-          />
+        <div class="relative z-10 flex items-center gap-2 px-4 pb-3 bg-white md:px-6">
+          <CartIcon class="w-5 h-5 mr-2 text-blue-500" />
+          <span class="text-sm font-medium text-blue-500">Shopping Cart</span>
         </div>
       </div>
       <div class="flex-1 h-[calc(100%-102px)]">
-        <Favorites v-if="activeNavItem === 'favorites'" />
-        <Cart v-else-if="activeNavItem === 'shopping-cart'" :data="data" @close="$emit('close')" />
+        <Cart :data="data" @close="$emit('close')" />
       </div>
     </div>
   </div>
@@ -47,19 +28,12 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import Favorites from './favorites/Index.vue';
 import Cart from './cart/Index.vue';
 import XIcon from '@/assets/icons/x.svg';
 import CartIcon from '@/assets/icons/cart.svg';
-import HeartIcon from '@/assets/icons/heart.svg';
 import type { CartInterface } from '~/types/cart';
 
-const props = defineProps({
-  tab: {
-    type: String as PropType<'favorites' | 'shopping-cart'>,
-    required: false,
-    default: 'favorites',
-  },
+defineProps({
   data: {
     type: Object as PropType<CartInterface>,
     required: true,
@@ -68,38 +42,6 @@ const props = defineProps({
 
 defineEmits(['close']);
 const elDOM = ref<HTMLElement | null>(null);
-
-const navItems = ref([
-  {
-    label: 'Favorites',
-    icon: HeartIcon,
-  },
-  {
-    label: 'Shopping Cart',
-    icon: CartIcon,
-  },
-]);
-
-const activeNavItem = ref<'favorites' | 'shopping-cart'>(props.tab);
-const navLineLeftPosition = ref(0);
-const navLineWidth = ref(0);
-
-const setNavLine = () => {
-  if (elDOM.value) {
-    const activeNavEl = elDOM.value.querySelector(`[data-tab=${activeNavItem.value}]`) as HTMLButtonElement;
-
-    if (activeNavEl) {
-      const rect = activeNavEl.getBoundingClientRect();
-      navLineLeftPosition.value = activeNavEl.offsetLeft;
-      navLineWidth.value = rect.width;
-    }
-  }
-};
-
-const setActiveNav = (item: string) => {
-  activeNavItem.value = textUtil.slugify(item) as typeof activeNavItem.value;
-  setNavLine();
-};
 
 onMounted(() => {
   document.body.style.overflow = 'hidden';

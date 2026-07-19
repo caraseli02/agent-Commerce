@@ -79,12 +79,11 @@
       @removed="emits('updateQuantity')"
     />
   </div>
-  <LayoutFavoritesModalsDelete
+  <CartDeleteDialog
     v-model="deleteItem"
+    :product-id="item.id"
     :remove-only-stock-quantity="stockItem && !!item.backorder_stock && item.backorder_stock > 0"
     :remove-only-backstock-quantity="!stockItem && item.stock > 0"
-    :products="[toFavoriteItem(item)]"
-    :delete-from-cart="true"
     @close="deleteItem = false"
     @removed="emits('updateQuantity')"
   />
@@ -95,23 +94,15 @@ import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import ProductDetails from './ProductDetails.vue';
 import AdditionalDetails from './AdditionalDetails.vue';
+import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import { useAuthStore } from '~/store/authStore';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { ProductAction, type CartProductsInterface } from '~/types/cart';
 
-import { OrderType, type FavoriteItem } from '~/types';
+import { OrderType } from '~/types';
 
 const emits = defineEmits(['updateQuantity']);
-
-function toFavoriteItem(cartItem: CartProductsInterface): FavoriteItem {
-  return {
-    id: cartItem.id,
-    type: 'product',
-    title: cartItem.productEntity?.name ?? cartItem.id,
-    productEntity: cartItem.productEntity!,
-  };
-}
 
 const props = defineProps<{
   item: CartProductsInterface;

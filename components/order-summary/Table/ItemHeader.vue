@@ -7,10 +7,7 @@ import GreenCheckCircle from '@/assets/icons/green-check-circle.svg';
 import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import WarningError from '@/assets/icons/warning-error.svg';
 import WarningErrorHuge from '@/assets/icons/warning-error-huge.svg';
-import HeartOutline from '@/assets/icons/heart-outline.svg';
-import HeartSolid from '@/assets/icons/heart-solid.svg';
 
-import DemoTooltip from '~/components/global/DemoTooltip.vue';
 import type { CartProductsInterface } from '~/types/cart';
 import { useAuthStore } from '~/store/authStore';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
@@ -113,15 +110,6 @@ function checkCartItem(itemId: string) {
     </div>
     <div>
       <div class="hidden xl:flex flex-row gap-4 ml-4">
-        <DemoTooltip theme="black" position="top">
-          <button class="relative flex group" @click="cartStore.makeCartItemFavorite(item.id)">
-            <HeartSolid v-show="item.liked" class="absolute r-0 top-[1px] text-blue-500" />
-            <HeartOutline class="w-5 h-5 text-slate-500 group-hover:text-blue-500 transition duration-150" />
-          </button>
-          <template #content>
-            <span class="capitalize">Add to Favorites</span>
-          </template>
-        </DemoTooltip>
         <button
           class="flex text-slate-500 items-center justify-center ml-auto transition-colors duration-300 hover:text-rose-500"
           @click="emit('deleteItem', true)"
