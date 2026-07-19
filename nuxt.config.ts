@@ -7,6 +7,8 @@ svgPrefix.toString = () => `${++svgPrefixCounter}_`;
 dotenv.config({ path: '.env' });
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  devtools: { enabled: false },
+
   modules: [
     '@nuxt/fonts',
     'nuxt-svgo',
@@ -17,7 +19,6 @@ export default defineNuxtConfig({
     'nuxt-viewport',
     '@vueuse/nuxt',
     '@formkit/auto-animate/nuxt',
-    '@nuxtjs/leaflet',
     'shadcn-nuxt',
     '@nuxtjs/color-mode',
     '@nuxt/image',
@@ -69,7 +70,6 @@ export default defineNuxtConfig({
     '~/assets/css/resets.css',
     '~/assets/css/utils.css',
     '~/assets/css/animations.css',
-    '~/assets/css/vendors/leaflet.css',
     '~/assets/css/vendors/v-calendar.css',
   ],
 
@@ -108,7 +108,7 @@ export default defineNuxtConfig({
     '/login': { prerender: true },
     '/signup': { prerender: true },
     '/forgot-password': { prerender: true },
-    '/dashboard/**': { appMiddleware: ['auth'] },
+    '/dashboard/**': { appMiddleware: ['auth'], ssr: false },
     '/checkout/**': { appMiddleware: ['auth'] },
     '/product/categories': { appMiddleware: ['auth'] },
   },

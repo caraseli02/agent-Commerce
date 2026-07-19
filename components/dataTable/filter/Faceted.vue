@@ -145,7 +145,7 @@ const activeFilterValues = computed((): string[] => {
                   :class="option?.color"
                   class="h-3 w-3 mr-2 rounded-full text-xs text-white flex justify-center items-center"
                 />
-                <option.icon v-if="option.icon" class="mr-2 h-4 w-4 text-muted-foreground" />
+                <component :is="option.icon" v-if="option.icon" class="mr-2 h-4 w-4 text-muted-foreground" />
                 <span class="inline truncate cursor-pointer">{{ option.label }}</span>
               </UiCommandItem>
             </template>

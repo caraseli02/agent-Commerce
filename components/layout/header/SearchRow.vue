@@ -7,7 +7,12 @@
         </NuxtLink>
         <LayoutHeaderSearch :show-results="!isScrolled" class="flex-1 xl:max-w-[680px]" />
         <div class="flex items-center xl:gap-[46px]">
-          <button class="flex items-center text-left max-md:hidden" @click="openFavoritesCartModal('shopping-cart')">
+          <button
+            type="button"
+            class="flex min-h-11 min-w-11 items-center text-left max-md:hidden"
+            aria-label="Open shopping cart"
+            @click="openFavoritesCartModal('shopping-cart')"
+          >
             <div class="relative flex-shrink-0" :class="cartItems > 0 ? 'mr-2' : 'mr-4'">
               <CartIcon class="w-6 h-6 text-slate-500" />
               <span

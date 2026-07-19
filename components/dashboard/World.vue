@@ -55,6 +55,8 @@
 </template>
 
 <script setup lang="ts">
+import { LControlZoom, LGeoJson, LMap, LMarker, LTileLayer, LTooltip } from '@vue-leaflet/vue-leaflet';
+import 'leaflet/dist/leaflet.css';
 import type { PropType } from 'vue';
 import { LeafletMapData } from '@/data/geojson';
 

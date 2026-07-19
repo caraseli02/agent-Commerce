@@ -144,7 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import { isRef, type Component, type Ref } from 'vue';
+import { isRef, markRaw, type Component, type Ref } from 'vue';
 import { differenceInDays, startOfISOWeek } from 'date-fns';
 import RevenueGrowthIcon from '@/assets/icons/dashboard/orders/revenue-growth.svg';
 import TotalOrdersIcon from '@/assets/icons/dashboard/orders/total-orders.svg';
@@ -210,6 +210,8 @@ const options = [
   { label: 'Last 30 Days', value: 30 },
   { label: 'All Time', value: -1 },
 ];
+
+const rawIcon = <T extends Component>(icon: T) => markRaw(icon);
 
 const setWidgetValueFormat = async (widgetType: string, response: string | number) => {
   if (
@@ -300,18 +302,18 @@ const cards = ref<WidgetCard[]>([
       options: [
         {
           label: 'Total Orders',
-          icon: TotalOrdersIcon,
+          icon: rawIcon(TotalOrdersIcon),
           value: '',
         },
         {
           label: 'Revenue Growth',
-          icon: RevenueGrowthIcon,
+          icon: rawIcon(RevenueGrowthIcon),
           value: '',
         },
       ],
       selected: {
         label: 'Total Orders',
-        icon: TotalOrdersIcon,
+        icon: rawIcon(TotalOrdersIcon),
         value: totalOrders,
         noDropdownLabel: '',
       },
@@ -328,24 +330,24 @@ const cards = ref<WidgetCard[]>([
       options: [
         {
           label: 'Gross Revenue',
-          icon: GrossRevenueIcon,
+          icon: rawIcon(GrossRevenueIcon),
           value: '',
         },
         {
           label: 'Gross Margin',
-          icon: GrossMarginIcon,
+          icon: rawIcon(GrossMarginIcon),
           value: '',
         },
         {
           label: 'Total Stock Value',
-          icon: TotalStockValueIcon,
+          icon: rawIcon(TotalStockValueIcon),
           value: '',
           noDropdownLabel: 'Total shop stock value',
         },
       ],
       selected: {
         label: 'Gross Revenue',
-        icon: GrossRevenueIcon,
+        icon: rawIcon(GrossRevenueIcon),
         value: grossRevenue,
         noDropdownLabel: '',
       },
@@ -362,19 +364,19 @@ const cards = ref<WidgetCard[]>([
       options: [
         {
           label: 'Average Order Value',
-          icon: AvgOrderValueIcon,
+          icon: rawIcon(AvgOrderValueIcon),
           value: '',
         },
         {
           label: 'Active Cart Sessions',
-          icon: ActiveCartSessionsIcon,
+          icon: rawIcon(ActiveCartSessionsIcon),
           value: '',
           noDropdownLabel: 'Total open cart sessions',
         },
       ],
       selected: {
         label: 'Average Order Value',
-        icon: AvgOrderValueIcon,
+        icon: rawIcon(AvgOrderValueIcon),
         value: avgOrderValue,
         noDropdownLabel: '',
       },
@@ -391,26 +393,26 @@ const cards = ref<WidgetCard[]>([
       options: [
         {
           label: 'Products Sold',
-          icon: ProductsSoldIcon,
+          icon: rawIcon(ProductsSoldIcon),
           theme: '#A460BC',
           value: '',
         },
         {
           label: 'Returns',
-          icon: ReturnsIcon,
+          icon: rawIcon(ReturnsIcon),
           theme: '#FA4B4B',
           value: '',
         },
         {
           label: 'Refunds',
-          icon: RefundsIcon,
+          icon: rawIcon(RefundsIcon),
           theme: '#FA4B4B',
           value: '',
         },
       ],
       selected: {
         label: 'Products Sold',
-        icon: ProductsSoldIcon,
+        icon: rawIcon(ProductsSoldIcon),
         theme: '#A460BC',
         value: productsSold,
         noDropdownLabel: '',

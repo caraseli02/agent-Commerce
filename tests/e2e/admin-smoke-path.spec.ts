@@ -22,6 +22,12 @@ const signInAsAdmin = async (page: Page) => {
 
 test.describe('Admin Smoke Path', () => {
   test('admin preview can load orders, customers, and a customer control panel', async ({ page }) => {
+    const runtimeErrors: string[] = [];
+    page.on('pageerror', (error) => runtimeErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error' || message.type() === 'warning') runtimeErrors.push(message.text());
+    });
+
     await signInAsAdmin(page);
 
     await expect(page.getByRole('heading', { name: 'Orders', exact: true })).toBeVisible();
@@ -39,5 +45,6 @@ test.describe('Admin Smoke Path', () => {
     await expect(page.getByText(/available credit/i).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: /account details/i })).toBeVisible();
     await expect(page.locator('input[value="John"]').first()).toBeVisible();
+    expect(runtimeErrors).toEqual([]);
   });
 });

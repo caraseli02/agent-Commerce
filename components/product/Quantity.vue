@@ -88,7 +88,7 @@
         </div>
       </div>
       <div class="flex gap-2.5 w-full pt-4 self-end border-t border-slate-100 mt-2">
-        <div class="min-w-[140px] min-h-[42px]">
+        <div class="min-h-11 min-w-[140px]">
           <QuantityButtons
             v-if="minPriceConfiguration"
             v-model="quantity"
@@ -97,13 +97,17 @@
           />
         </div>
         <button
-          class="flex items-center flex-1 justify-center bg-blue-500 rounded-lg text-white px-5 py-[9px]"
+          type="button"
+          class="flex min-h-11 flex-1 items-center justify-center rounded-lg bg-blue-500 px-5 py-[9px] text-white"
+          aria-label="Add to cart — selected quantity"
+          :aria-busy="!isCartReady || isAddingToCart"
+          :disabled="!isCartReady || isAddingToCart || quantity === initialRequestedQuantity"
           @click="addToCart(props.product)"
         >
           <CartIcon class="w-6 h-6 mr-2" />
-          <span v-if="minPriceConfiguration && quantity" class="text-sm font-medium"
-            >{{ quantity > minPriceConfiguration.quantity ? 'Update' : 'Add to' }} cart</span
-          >
+          <span v-if="minPriceConfiguration && quantity" class="text-sm font-medium">
+            {{ cartButtonLabel }}
+          </span>
         </button>
       </div>
     </div>
@@ -114,7 +118,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
-import type { CartInterface, ProductActionObject } from '~/types/cart';
+import type { ProductActionObject } from '~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
 import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { useAuthStore } from '~/store/authStore';
@@ -132,6 +136,13 @@ const props = defineProps<{
 
 const quantity = ref(0);
 const initialRequestedQuantity = ref(0);
+const isAddingToCart = ref(false);
+const isCartReady = ref(false);
+const cartButtonLabel = computed(() => {
+  if (!isCartReady.value) return 'Loading cart…';
+  if (isAddingToCart.value) return 'Adding…';
+  return initialRequestedQuantity.value > 0 ? 'Update cart' : 'Add to cart';
+});
 
 const minPriceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(undefined);
 const currentPriceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(undefined);
@@ -150,16 +161,18 @@ const getPricesConfiguration = () => {
 };
 
 const fetchCart = async () => {
-  const data = (await getCart.value) as CartInterface;
+  const data = getCart.value ?? (await cartStore.updateAndReturnCart());
 
-  // getPricesConfiguration();
   if (minPriceConfiguration.value) {
     initializeQuantities(props.product, data, quantity, initialRequestedQuantity, minPriceConfiguration.value);
   }
   getPricesConfiguration();
+  isCartReady.value = true;
 };
 
-await fetchCart();
+getPricesConfiguration();
+quantity.value = minPriceConfiguration.value?.quantity || 1;
+onMounted(() => void fetchCart());
 
 const bulkQuantities = new Map<number, number>();
 
@@ -175,13 +188,22 @@ const buildBulkQuantities = () => {
 };
 
 const addToCart = async (product: ProductInterface) => {
+  if (isAddingToCart.value) {
+    return;
+  }
+
+  isAddingToCart.value = true;
   const stock = initialRequestedQuantity.value > 0 ? quantity.value - initialRequestedQuantity.value : quantity.value;
 
-  const response = (await addToCartHelper(product, stock)) as { status?: string };
+  try {
+    const response = (await addToCartHelper(product, stock)) as { status?: string } | null;
 
-  if (response.status === 'success') {
-    await cartStore.updateAndReturnCart();
-    await fetchCart();
+    if (response?.status === 'success') {
+      await cartStore.updateAndReturnCart();
+      await fetchCart();
+    }
+  } finally {
+    isAddingToCart.value = false;
   }
 };
 

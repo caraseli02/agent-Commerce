@@ -3,7 +3,6 @@ import { AlertTriangle } from 'lucide-vue-next';
 
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
-import { h } from 'vue';
 import * as z from 'zod';
 import { toast } from '@/components/ui/toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,24 +22,23 @@ const props = withDefaults(
 const formSchema = toTypedSchema(
   z.object({
     description: z.string().min(10, {
-      message: 'description must be at least 10 characters.',
+      message: 'Description must be at least 10 characters.',
     }),
   })
 );
 
-const { handleSubmit } = useForm({
+const { handleSubmit, resetForm } = useForm({
   validationSchema: formSchema,
 });
 
-const onSubmit = handleSubmit((values) => {
+const onSubmit = handleSubmit(() => {
   toast({
-    title: 'You submitted the following values:',
-    description: h(
-      'pre',
-      { class: 'mt-2 w-[340px] rounded-md bg-slate-950 p-4' },
-      h('code', { class: 'text-white' }, JSON.stringify(values, null, 2))
-    ),
+    title: 'Report saved for this demo',
+    description: 'This portfolio build does not send reports to an external service.',
+    variant: 'success',
   });
+  resetForm();
+  isOpen.value = false;
 });
 
 const isOpen = ref(false);
@@ -57,7 +55,7 @@ defineExpose({
 
 <template>
   <UiDialog v-model:open="isOpen">
-    <UiDialogTrigger v-if="props.showTrigger">
+    <UiDialogTrigger v-if="props.showTrigger" as-child>
       <UiButton variant="link" class="gap-1 text-slate-300" :class="props.triggerClass">
         <AlertTriangle class="w-[22px] h-[22px]" />
         <span class="hidden sm:inline">Report an error</span>
@@ -82,7 +80,7 @@ defineExpose({
             <FormMessage />
           </FormItem>
         </FormField>
-        <UiButton class="w-full mt-10" type="submit"> Submit </UiButton>
+        <UiButton class="w-full mt-10" type="submit"> Save demo report </UiButton>
       </form>
     </UiDialogContent>
   </UiDialog>
