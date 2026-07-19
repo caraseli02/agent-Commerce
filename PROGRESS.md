@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #294 — Vitest coverage baseline for API adapters and stores: repair PR #344 for clean generated-artifact handling and PR-template compliance.
+- Issue #356 — Portfolio runtime: remove public-route hydration mismatches; PR #361 on `cursor/ecas-controller-loop-workflow-bd55`.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #294 / PR #344 is active on `fix/issue-294`; coverage is configured for `composables/api` and `store` with enforced baseline floors. Repair removes the generated coverage report, ignores `coverage/`, and brings the PR body into template compliance. Generated coverage output remains untracked by design. The current handoff requires the live template-compliant body and its matching green PR-context CI to be evaluated together.
+- Issue #356 / PR #361 gates header cart badges and order-summary totals behind `useClientReady` so persisted cart state does not desync SSR/client markup. Playwright public-route hydration sweep added. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
 
 ## Recently completed
 
