@@ -4,6 +4,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { toast } from '@/components/ui/toast';
 
 const formSchema = toTypedSchema(
   z.object({
@@ -14,14 +15,22 @@ const formSchema = toTypedSchema(
   })
 );
 
-const { handleSubmit, setFieldValue } = useForm({
+const { handleSubmit, resetForm, setFieldValue } = useForm({
   validationSchema: formSchema,
   initialValues: {
     quantity: 100,
   },
 });
 
-const onSubmit = handleSubmit((_values) => {});
+const onSubmit = handleSubmit(() => {
+  toast({
+    title: 'Price enquiry saved for this demo',
+    description: 'This portfolio build does not send enquiries to an external service.',
+    variant: 'success',
+  });
+  resetForm({ values: { quantity: 100, productCode: '', email: '', details: '' } });
+  isOpen.value = false;
+});
 
 const isOpen = defineModel<boolean>();
 </script>
@@ -95,7 +104,7 @@ const isOpen = defineModel<boolean>();
         </FormField>
 
         <!-- Submit Button -->
-        <UiButton type="submit" class="mt-6 w-full"> Submit </UiButton>
+        <UiButton type="submit" class="mt-6 w-full"> Save demo enquiry </UiButton>
       </form>
     </UiDialogContent>
   </UiDialog>

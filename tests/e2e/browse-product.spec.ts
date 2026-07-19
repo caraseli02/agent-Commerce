@@ -15,6 +15,12 @@ type PrintTestWindow = Window & {
 
 test.describe('Browse → Product Detail', () => {
   test('user can view product details from a direct product URL', async ({ page }) => {
+    const runtimeErrors: string[] = [];
+    page.on('pageerror', (error) => runtimeErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error' || message.type() === 'warning') runtimeErrors.push(message.text());
+    });
+
     await page.goto('/product/prod-1');
 
     // Product name is visible
@@ -31,6 +37,51 @@ test.describe('Browse → Product Detail', () => {
     // Add to cart button is present and actionable
     const addToCartButtons = page.getByRole('button', { name: /add to cart/i });
     await expect(addToCartButtons.first()).toBeVisible();
+    expect(runtimeErrors).toEqual([]);
+  });
+
+  test('copy and quantity controls handle keyboard and invalid numeric input', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto('/product/prod-1', { waitUntil: 'networkidle' });
+
+    const copyButton = page.getByRole('button', { name: 'Copy STM32F407VGT6 Microcontroller' });
+    await copyButton.focus();
+    await copyButton.press('Enter');
+    await expect(page.getByText('Text copied!', { exact: true })).toBeVisible();
+
+    const quantityInput = page.getByRole('spinbutton', { name: 'Quantity' });
+    await quantityInput.fill('10.5');
+    await quantityInput.press('Tab');
+    await expect(quantityInput).toHaveValue('1');
+    await expect(quantityInput).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  test('rapid add-to-cart activation creates one cart mutation', async ({ page }) => {
+    let cartPostCount = 0;
+    page.on('request', (request) => {
+      if (request.url().includes('/api/cart') && request.method() === 'POST') cartPostCount += 1;
+    });
+
+    await page.goto('/product/prod-1', { waitUntil: 'networkidle' });
+
+    const quantityInput = page.getByRole('spinbutton', { name: 'Quantity' });
+    await expect(quantityInput).toHaveValue('1');
+    await page.getByRole('button', { name: 'Increase Quantity' }).click();
+    await expect(quantityInput).toHaveValue('2');
+
+    const updateCartButton = page.getByRole('button', { name: 'Add to cart — selected quantity' });
+    const cartPostResponse = page.waitForResponse(
+      (response) => response.url().includes('/api/cart') && response.request().method() === 'POST'
+    );
+    await updateCartButton.dblclick();
+    await cartPostResponse;
+
+    await expect.poll(() => cartPostCount).toBe(1);
+    await expect(updateCartButton).toBeDisabled();
+
+    const cartResponse = await page.request.get('/api/cart');
+    const cartJson = (await cartResponse.json()) as { data?: { products?: Array<{ id?: string; stock?: number }> } };
+    expect(cartJson.data?.products?.find((product) => product.id === 'prod-1')?.stock).toBe(2);
   });
 
   test('print action triggers window.print from the desktop entry point', async ({ page }) => {
@@ -49,12 +100,14 @@ test.describe('Browse → Product Detail', () => {
       buttons.find((button) => button.textContent?.trim() === 'Print this page')?.click();
     });
 
-    await expect.poll(async () => {
-      return page.evaluate(() => {
-        const testWindow = window as unknown as PrintTestWindow;
-        return testWindow.__printCalls.length;
-      });
-    }).toBe(1);
+    await expect
+      .poll(async () => {
+        return page.evaluate(() => {
+          const testWindow = window as unknown as PrintTestWindow;
+          return testWindow.__printCalls.length;
+        });
+      })
+      .toBe(1);
   });
 
   test('print action triggers window.print from the mobile dropdown entry point', async ({ page }) => {
@@ -87,12 +140,14 @@ test.describe('Browse → Product Detail', () => {
       items.find((item) => item.textContent?.trim() === 'Print this page')?.click();
     });
 
-    await expect.poll(async () => {
-      return page.evaluate(() => {
-        const testWindow = window as unknown as PrintTestWindow;
-        return testWindow.__printCalls.length;
-      });
-    }).toBe(1);
+    await expect
+      .poll(async () => {
+        return page.evaluate(() => {
+          const testWindow = window as unknown as PrintTestWindow;
+          return testWindow.__printCalls.length;
+        });
+      })
+      .toBe(1);
   });
 
   test('ask about product email validation shows invalid styling and clears on valid submit', async ({ page }) => {
@@ -130,8 +185,8 @@ test.describe('Browse → Product Detail', () => {
     await emailInput.fill('buyer@example.com');
     await submitButton.click();
 
-    await expect(emailInput).not.toHaveAttribute('aria-invalid', 'true');
-    await expect(dialog.getByText('Invalid email address')).toHaveCount(0);
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByText('Enquiry saved for this demo', { exact: true })).toBeVisible();
   });
 
   test('product page shows technical specifications table', async ({ page }) => {
@@ -141,12 +196,17 @@ test.describe('Browse → Product Detail', () => {
     await expect(page.getByRole('button', { name: /specifications/i })).toBeVisible();
 
     // Technical specs from ParametricData
-    await expect(page.getByRole('cell', { name: 'Core' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Core', exact: true })).toBeVisible();
     await expect(page.getByRole('cell', { name: 'ARM Cortex-M4' }).first()).toBeVisible();
-    await expect(page.getByRole('cell', { name: 'Flash' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Flash', exact: true })).toBeVisible();
     await expect(page.getByRole('cell', { name: '1024' })).toBeVisible();
-    await expect(page.getByRole('cell', { name: 'SRAM' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'SRAM', exact: true })).toBeVisible();
     await expect(page.getByRole('cell', { name: '192' })).toBeVisible();
+
+    const coreCheckbox = page.getByRole('checkbox', { name: 'Include Core in similar-product search' });
+    await coreCheckbox.focus();
+    await coreCheckbox.press('Space');
+    await expect(coreCheckbox).toBeChecked();
   });
 
   test('product page shows breadcrumbs navigation', async ({ page }) => {

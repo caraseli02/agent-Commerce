@@ -12,7 +12,9 @@
       >
         <SkeletonLoader v-if="loading" type="circle" class="w-full h-full" />
         <template v-else>
-          <NuxtImg v-if="item.avatar" :src="item.avatar" :alt="`${item.name}`" class="w-full h-full rounded-full object-cover" loading="lazy"/>
+          <!-- Bundled asset URLs must bypass Nuxt Image's runtime IPX provider. -->
+          <!-- eslint-disable-next-line vue/html-self-closing -->
+          <img v-if="item.avatar" :src="item.avatar" :alt="`${item.name}`" class="w-full h-full rounded-full object-cover" loading="lazy" />
           <UserIcon v-else class="w-7 h-7 text-gray-500" />
         </template>
       </div>

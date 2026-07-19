@@ -3,13 +3,15 @@
     class="col-span-2 lg:col-span-1 min-w-0 w-full relative bg-white rounded-2xl font-Inter px-4 py-4 shadow-m md:px-5 md:py-5 lg:self-start"
   >
     <div class="flex items-start justify-between gap-4 mb-5">
-      <div class="flex items-center">
-        <div class="text-xl leading-tight font-semibold mr-2">
+      <div class="flex min-w-0 items-center">
+        <h1 class="mr-2 min-w-0 text-xl font-semibold leading-tight">
           {{ product.name }}
-        </div>
-        <button class="flex text-slate-500 transition-colors duration-300 mr-2 hover:text-blue-500">
-          <CopyClipboard :text="product.name || 'N/A'" class="w-5 h-5" />
-        </button>
+        </h1>
+        <CopyClipboard
+          :text="product.name || 'N/A'"
+          :label="`Copy ${product.name || 'product name'}`"
+          class="mr-2 text-slate-500 transition-colors duration-300 hover:text-blue-500"
+        />
       </div>
       <ImageWithFallback
         :src="product.details?.ProductImage?.ProductImageLarge"
@@ -32,7 +34,8 @@
     <div class="flex items-center justify-between gap-3 rounded-lg bg-light-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Customer’s Code</div>
       <button
-        class="flex items-center text-slate-500 transition-colors duration-300 hover:text-blue-500"
+        type="button"
+        class="flex min-h-11 items-center text-slate-500 transition-colors duration-300 hover:text-blue-500"
         @click="showCustomProductPartNumberModal = true"
       >
         <span class="text-xs leading-tight mr-[5px] text-slate-500"> Your Custom Code </span>
@@ -41,34 +44,40 @@
     </div>
     <div class="flex items-center justify-between gap-3 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">EDA / CAD Models</div>
-      <button class="flex items-center">
+      <div class="flex items-center">
         <CADModelsIcon class="w-4 h-4 mr-[5px]" />
         <span class="text-xs leading-tight text-slate-500"> {{ cadModelLabel }} </span>
-      </button>
+      </div>
     </div>
     <div class="flex items-center justify-between gap-3 rounded-lg bg-light-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Technical Datasheet</div>
-      <a class="flex items-center" :href="product.details?.SummaryData.Datasheet" :download="`${product.name} Datasheet`" target="_blank">
+      <a
+        class="flex min-h-11 items-center"
+        :href="product.details?.SummaryData.Datasheet"
+        :download="`${product.name} Datasheet`"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <PDFIcon class="w-5 h-5 mr-[5px]" />
         <span class="text-xs leading-tight text-slate-500 hover:underline"> {{ product.name }}-DataSheet </span>
       </a>
     </div>
     <div class="mt-1 flex items-start gap-2 rounded-lg border border-slate-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Tags:</div>
-      <button class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-xs leading-tight font-medium text-blue-500">
+      <div class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-xs leading-tight font-medium text-blue-500">
         <span> #Diode </span>
         <span> #Connector </span>
         <span> #GasDetector </span>
         <span> #Thermostat </span>
         <span> #Transistor </span>
-      </button>
+      </div>
     </div>
+    <LayoutCustomProductPartNumberModal
+      v-if="showCustomProductPartNumberModal"
+      :manufacturer-code="product.manufacturerCode || product.alias"
+      @close="showCustomProductPartNumberModal = false"
+    />
   </div>
-  <LayoutCustomProductPartNumberModal
-    v-if="showCustomProductPartNumberModal"
-    :manufacturer-code="product.manufacturerCode || product.alias"
-    @close="showCustomProductPartNumberModal = false"
-  />
 </template>
 
 <script setup lang="ts">

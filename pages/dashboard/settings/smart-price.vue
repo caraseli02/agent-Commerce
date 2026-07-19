@@ -21,14 +21,12 @@ const tabs = ref<{ value: string; label: string; badge: number }[]>([
 ]);
 
 onMounted(async () => {
-  if (!pricingStore.pricing) {
-    await pricingStore.updateAndReturnPricing();
-    tabs.value = [
-      { value: 'entryPrice', label: 'Entry Price', badge: pricingStore.range.length || 0 },
-      { value: 'quantity', label: 'Quantity', badge: pricingStore.quantity.length || 0 },
-      { value: 'margin', label: 'Gross/Net Margin', badge: pricingStore.margin.length || 0 },
-    ];
-  }
+  await pricingStore.updateAndReturnPricing();
+  tabs.value = [
+    { value: 'entryPrice', label: 'Entry Price', badge: pricingStore.range.length || 0 },
+    { value: 'quantity', label: 'Quantity', badge: pricingStore.quantity.length || 0 },
+    { value: 'margin', label: 'Gross/Net Margin', badge: pricingStore.margin.length || 0 },
+  ];
 });
 
 watch(

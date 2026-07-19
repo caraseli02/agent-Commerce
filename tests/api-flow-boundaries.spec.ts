@@ -6,6 +6,11 @@ const installH3Mocks = () => {
   vi.stubGlobal('readBody', async (event: { body?: unknown }) => event.body ?? {});
   vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers ?? {});
   vi.stubGlobal('getRouterParam', (event: { params?: Record<string, string> }, name: string) => event.params?.[name]);
+  vi.stubGlobal('getCookie', (event: { cookies?: Record<string, string> }, name: string) => event.cookies?.[name]);
+  vi.stubGlobal('setCookie', (event: { cookies?: Record<string, string> }, name: string, value: string) => {
+    event.cookies ??= {};
+    event.cookies[name] = value;
+  });
   vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string }) => {
     const error = new Error(payload.statusMessage) as Error & { statusCode?: number; statusMessage?: string };
     error.statusCode = payload.statusCode;
@@ -58,5 +63,73 @@ describe('mock API flow boundaries', () => {
     expect(orderResponse.data.orderId).toMatch(/^ord-/);
     expect(orderResponse.data.status).toBe(PaymentStatusEnum.Paid);
     expect(orderResponse.data.result?.status).toBe('succeeded');
+  });
+
+  it('supports the smart-pricing API loaded during admin sign-in', async () => {
+    const { createMockToken } = await import('../server/utils/mockUsers');
+    const getPricing = (await import('../server/api/prices/price-settings.get')).default as unknown as (event: unknown) => {
+      status: string;
+      data: Array<{ _id: string }>;
+    };
+    const createPricing = (await import('../server/api/prices/price-setting.post')).default as (event: unknown) => Promise<{
+      status: string;
+      data: { id: string };
+    }>;
+    const deletePricing = (await import('../server/api/prices/price-setting/[id].delete')).default as (event: unknown) => {
+      status: string;
+    };
+    const updatePricing = (await import('../server/api/prices/price-setting/[id].patch')).default as (event: unknown) => Promise<{
+      status: string;
+      data: { id: string };
+    }>;
+    const adminToken = createMockToken('mock-admin-1');
+    const customerToken = createMockToken('mock-customer-1');
+    const browserSession = {
+      headers: { authorization: `Bearer ${adminToken}` },
+      cookies: {} as Record<string, string>,
+    };
+
+    expect(getPricing(browserSession).data).toHaveLength(3);
+
+    const created = await createPricing({
+      ...browserSession,
+      body: { type: 0, range: { min: 100, max: 250 }, label: 'Test range' },
+    });
+
+    expect(created.status).toBe('success');
+    expect(getPricing(browserSession).data.some((item) => item._id === created.data.id)).toBe(true);
+
+    expect(
+      (
+        await updatePricing({
+          ...browserSession,
+          params: { id: created.data.id },
+          body: { type: 0, range: { min: 125, max: 275 }, label: 'Updated range' },
+        })
+      ).status
+    ).toBe('success');
+
+    await expect(
+      createPricing({
+        ...browserSession,
+        body: { type: 1, values: {}, label: 'Poison attempt' },
+      })
+    ).rejects.toMatchObject({ statusCode: 400 });
+    await expect(createPricing({ body: { type: 1, values: [10], label: 'No auth' } })).rejects.toMatchObject({ statusCode: 401 });
+    await expect(
+      createPricing({
+        headers: { authorization: `Bearer ${customerToken}` },
+        body: { type: 1, values: [10], label: 'Customer write' },
+      })
+    ).rejects.toMatchObject({ statusCode: 403 });
+
+    const isolatedSession = {
+      headers: { authorization: `Bearer ${adminToken}` },
+      cookies: {} as Record<string, string>,
+    };
+    expect(getPricing(isolatedSession).data).toHaveLength(3);
+
+    expect(deletePricing({ ...browserSession, params: { id: created.data.id } }).status).toBe('success');
+    expect(getPricing(browserSession).data.some((item) => item._id === created.data.id)).toBe(false);
   });
 });

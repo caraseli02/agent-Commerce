@@ -19,7 +19,7 @@ export const parseProductPriceConfiguration = (product: ProductInterface, userDe
 
   if (quantity) {
     for (let i = product.priceConfiguration.configuration.length - 1; i >= 0; i--) {
-      if (quantity > product.priceConfiguration.configuration[i].quantity) {
+      if (quantity >= product.priceConfiguration.configuration[i].quantity) {
         unitPrice = product.priceConfiguration.configuration[i].price;
         currentPriceConfiguration = product.priceConfiguration.configuration[i];
         break;
@@ -51,12 +51,12 @@ export const parseProductPriceConfiguration = (product: ProductInterface, userDe
 
 export const initializeQuantities = (
   product: ProductInterface,
-  data: CartInterface,
+  data: CartInterface | null | undefined,
   quantity: Ref<number>,
   initialRequestedQuantity: Ref<number>,
   minPriceConfiguration: PriceConfigurationSettingsInterface
 ) => {
-  if (!data.products?.length) {
+  if (!data?.products?.length) {
     return;
   }
 

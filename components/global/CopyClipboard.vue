@@ -1,14 +1,27 @@
 <template>
-  <component :is="defaultIcon" @click="onCopyClick" />
+  <button
+    type="button"
+    class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+    :aria-label="label || `Copy ${text}`"
+    @click="onCopyClick"
+  >
+    <component :is="defaultIcon" class="h-5 w-5" aria-hidden="true" />
+  </button>
 </template>
 
 <script setup lang="ts">
 import { CopyIcon, CheckIcon } from 'lucide-vue-next';
 import { useToast } from '@/components/ui/toast/use-toast';
 
-const props = defineProps<{
-  text: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    text: string;
+    label?: string;
+  }>(),
+  {
+    label: '',
+  }
+);
 const { toast } = useToast();
 const defaultIcon = ref(CopyIcon);
 

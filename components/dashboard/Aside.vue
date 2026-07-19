@@ -147,42 +147,16 @@
                   {{ dropdownItem.count }}
                 </div>
               </NuxtLink>
-              <button
-                v-if="item.label === 'Products'"
-                class="flex items-center justify-center px-3 py-2 text-gray-100 w-full transition-colors duration-300 hover:text-[#009FFF]"
-              >
-                <PlusCircleIcon class="w-5 h-5 mr-3" />
-                <span class="text-sm leading-[1.43]"> Add products </span>
-              </button>
             </div>
           </Transition>
         </li>
       </ul>
     </nav>
-    <button
-      v-if="isCollapsedOnDesktop"
-      class="group flex justify-center items-center w-12 h-12 mx-auto bg-[#2F3241] rounded-lg flex-shrink-0 my-auto max-md:hidden"
-    >
-      <PlusIcon class="w-8 h-8 text-gray-100 transition-colors duration-300 group-hover:text-[#009FFF]" />
-    </button>
     <button v-if="isCollapsedOnDesktop" class="mt-5 max-md:hidden" @click="$emit('close')">
       <Collapse2Icon class="w-6 h-6" />
     </button>
-    <div class="flex justify-center pt-8 pb-5">
-      <button
-        class="relative flex items-center justify-between bg-[#2F3241] rounded-[100px] p-1 w-11"
-        @click="themeMode === 'dark' ? (themeMode = 'light') : (themeMode = 'dark')"
-      >
-        <MoonIcon class="w-4 h-4 text-gray-100 transition-opacity duration-300" :class="[themeMode === 'light' ? '' : 'opacity-0']" />
-        <div
-          class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#009FFF] transition-all duration-300"
-          :class="[themeMode === 'dark' ? 'right-6' : 'right-1']"
-        />
-        <SunIcon class="w-4 h-4 text-gray-100 transition-opacity duration-300" :class="[themeMode === 'dark' ? '' : 'opacity-0']" />
-      </button>
-    </div>
     <div class="w-full pt-5 px-4 pb-4 text-center" :class="[isCollapsedOnDesktop ? 'mt-2' : 'border-t border-[#2F3241]']">
-      <div v-if="!isCollapsedOnDesktop" class="text-xs text-[#C2C5CD] leading-normal mb-1">© {{ new Date().getFullYear() }} DEMO.APP</div>
+      <div v-if="!isCollapsedOnDesktop" class="text-xs text-[#C2C5CD] leading-normal mb-1">© {{ new Date().getFullYear() }} ECAS Demo</div>
       <div class="text-xs leading-normal text-slate-500">V 1.0.0</div>
     </div>
     <Transition name="fade">
@@ -211,19 +185,16 @@
 
 <script setup lang="ts">
 import { GanttChartSquareIcon } from 'lucide-vue-next';
+import { markRaw } from 'vue';
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import CollapseIcon from '@/assets/icons/dashboard/collapse.svg';
 import Collapse2Icon from '@/assets/icons/dashboard/collapse-2.svg';
 import OverviewIcon from '@/assets/icons/dashboard/overview.svg';
 import ProductsIcon from '@/assets/icons/dashboard/products.svg';
 import CategoriesIcon from '@/assets/icons/dashboard/categories.svg';
-import PlusIcon from '@/assets/icons/dashboard/plus.svg';
-import PlusCircleIcon from '@/assets/icons/dashboard/plus-circle.svg';
 import CustomersIcon from '@/assets/icons/dashboard/customers.svg';
 import OrdersIcon from '@/assets/icons/dashboard/orders.svg';
 import SettingsIcon from '@/assets/icons/dashboard/setting.svg';
-import SunIcon from '@/assets/icons/dashboard/sun.svg';
-import MoonIcon from '@/assets/icons/dashboard/moon.svg';
 import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';
 
 defineProps({
@@ -243,11 +214,11 @@ const nav = ref([
   {
     label: 'Dashboard',
     to: '/dashboard',
-    icon: OverviewIcon,
+    icon: markRaw(OverviewIcon),
   },
   {
     label: 'Products',
-    icon: ProductsIcon,
+    icon: markRaw(ProductsIcon),
     count: '19,227',
     dropdown: {
       show: false,
@@ -255,7 +226,7 @@ const nav = ref([
         {
           label: 'Categories',
           to: '/dashboard/products/categories',
-          icon: CategoriesIcon,
+          icon: markRaw(CategoriesIcon),
           count: '28',
         },
       ],
@@ -264,25 +235,25 @@ const nav = ref([
   {
     label: 'Customers',
     to: '/dashboard/customers',
-    icon: CustomersIcon,
+    icon: markRaw(CustomersIcon),
     count: '9',
   },
   {
     label: 'Orders',
     to: '/dashboard/orders',
-    icon: OrdersIcon,
+    icon: markRaw(OrdersIcon),
     count: '749',
   },
   {
     label: 'Settings',
-    icon: SettingsIcon,
+    icon: markRaw(SettingsIcon),
     dropdown: {
       show: false,
       items: [
         {
           label: 'Smart Pricing',
           to: '/dashboard/settings/smart-price',
-          icon: GanttChartSquareIcon,
+          icon: markRaw(GanttChartSquareIcon),
         },
       ],
     },
@@ -309,8 +280,6 @@ interface NavItem {
 
 const hoveredNavItem = ref<NavDropdownItem | NavItem | null>(null);
 const hoveredNavItemTop = ref(0);
-
-const themeMode = ref<'dark' | 'light'>('dark');
 
 const handleNavItemMouseEnter = (event: MouseEvent, item: NavDropdownItem | NavItem) => {
   const target = event.target as HTMLElement;

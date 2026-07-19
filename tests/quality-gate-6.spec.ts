@@ -165,6 +165,10 @@ describe('quality gate 6 pure logic coverage', () => {
       expect(priceResult?.currentConfigurationDiscountPrice).toBe(81);
       expect(priceResult?.minimumOrderQuantityConfiguration?.price).toBe(100);
 
+      const exactTierResult = parseProductPriceConfiguration(sampleProduct, discountedUser, 10);
+      expect(exactTierResult?.priceConfiguration?.price).toBe(90);
+      expect(exactTierResult?.discountPrice).toBe(81);
+
       const quantity = ref(0);
       const initialRequestedQuantity = ref(0);
       const cart = {
@@ -189,6 +193,10 @@ describe('quality gate 6 pure logic coverage', () => {
       );
       expect(emptyQuantity.value).toBe(0);
       expect(emptyRequestedQuantity.value).toBe(0);
+
+      expect(() =>
+        initializeQuantities(sampleProduct, null, emptyQuantity, emptyRequestedQuantity, { price: 100, quantity: 5 })
+      ).not.toThrow();
     });
   });
 

@@ -153,17 +153,21 @@ onMounted(() => {
             <td class="py-2 pr-3 text-slate-900 align-middle break-words">
               {{ item.FeatureValue }}
             </td>
-            <td class="w-10 py-2 pr-3 align-middle md:pr-4">
-              <div class="flex justify-end">
-                <div
-                  class="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border transition-colors duration-200"
-                  :class="[item.checked ? 'bg-blue-500 border-blue-500' : 'border-border group-hover:border-gray-300']"
-                  :aria-checked="item.checked"
-                  role="checkbox"
+            <td class="w-10 py-0 pr-3 align-middle md:pr-4">
+              <label class="ml-auto flex min-h-11 min-w-11 cursor-pointer items-center justify-center" @click.stop>
+                <input
+                  v-model="item.checked"
+                  type="checkbox"
+                  class="peer sr-only"
+                  :aria-label="`Include ${item.FeatureName} in similar-product search`"
+                />
+                <span
+                  class="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-border transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 group-hover:border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500"
+                  aria-hidden="true"
                 >
                   <CheckIcon v-if="item.checked" class="w-4 text-white" />
-                </div>
-              </div>
+                </span>
+              </label>
             </td>
           </tr>
         </tbody>

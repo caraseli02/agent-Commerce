@@ -18,9 +18,9 @@
         </NuxtLink>
         <slot name="order" />
       </div>
-      <h2 class="text-xl leading-[1.4] text-neutral-700 font-semibold">
+      <h1 class="text-xl leading-[1.4] text-neutral-700 font-semibold">
         {{ title }}
-      </h2>
+      </h1>
     </div>
     <slot />
   </div>

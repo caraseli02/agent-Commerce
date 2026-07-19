@@ -69,10 +69,6 @@ import type { ProductDetail } from '~~/model/products/response/ProductDetailResp
 import type { ProductImageInterface, ProductInterface } from '~~/model/products/response/ProductResponse';
 import { fetchSingleProduct } from '~/composables/api/products';
 
-useHead({
-  title: 'Product',
-});
-
 const route = useRoute();
 const productSlug = computed(() => {
   const slug = route.params.slug;
@@ -82,6 +78,21 @@ const productSlug = computed(() => {
 const product = ref<ProductDetail | null>(null);
 const { data } = await fetchSingleProduct(productSlug.value);
 product.value = data;
+
+const seoTitle = computed(() => product.value?.name || 'Product');
+const seoDescription = computed(
+  () => product.value?.description || 'Review product details, availability, pricing, and specifications in the ECAS portfolio demo.'
+);
+const seoImage = computed(() => product.value?.details?.ProductImage?.ProductImageLarge || '');
+
+useSeoMeta({
+  title: seoTitle,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+  ogImage: seoImage,
+  ogType: 'website',
+});
 
 const images = computed((): ProductImageInterface[] => {
   const productImage = product.value?.details?.ProductImage;

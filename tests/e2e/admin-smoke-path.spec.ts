@@ -1,12 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const signInAsAdmin = async (page: Page) => {
-  await page.goto('/?signin=true');
+  await page.goto('/?signin=true', { waitUntil: 'networkidle' });
 
-  await page
-    .locator('button')
-    .filter({ hasText: /Admin Preview/ })
-    .click();
+  await page.getByRole('radio', { name: 'Admin Preview' }).click();
+  await expect(page.getByLabel('E-mail or client code')).toHaveValue('admin@demo.com');
   await expect(page.getByPlaceholder('Hidden for demo sign-in')).toHaveValue('');
 
   const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
@@ -22,6 +20,12 @@ const signInAsAdmin = async (page: Page) => {
 
 test.describe('Admin Smoke Path', () => {
   test('admin preview can load orders, customers, and a customer control panel', async ({ page }) => {
+    const runtimeErrors: string[] = [];
+    page.on('pageerror', (error) => runtimeErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error' || message.type() === 'warning') runtimeErrors.push(message.text());
+    });
+
     await signInAsAdmin(page);
 
     await expect(page.getByRole('heading', { name: 'Orders', exact: true })).toBeVisible();
@@ -39,5 +43,6 @@ test.describe('Admin Smoke Path', () => {
     await expect(page.getByText(/available credit/i).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: /account details/i })).toBeVisible();
     await expect(page.locator('input[value="John"]').first()).toBeVisible();
+    expect(runtimeErrors).toEqual([]);
   });
 });

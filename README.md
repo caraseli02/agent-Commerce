@@ -34,8 +34,11 @@ Mock mode keeps the app self-contained:
 
 ## Demo credentials
 
-- Email: `admin@ecas.com`
-- Password: `admin123`
+Choose either role in the sign-in panel. Passwords are filled internally when
+the password field is left empty, or you can enter them manually:
+
+- Customer: `customer@demo.com` / `customer123`
+- Admin: `admin@demo.com` / `admin123`
 
 ## Quick start
 
@@ -136,6 +139,11 @@ When `NUXT_PUBLIC_MOCK_MODE=true`:
 - the app routes API traffic to local Nitro endpoints under `server/api/`
 - dashboard and storefront demo data come from the repository itself
 - reviewers can inspect the product without a separate backend deploy
+- the same self-contained data contract is used by `pnpm dev` and intentional
+  `pnpm build && pnpm preview` demo deployments
+
+Mock mode contains sample data and is public by design. Do not use it as a
+substitute for a secured production API or connect it to real customer data.
 
 ## Project structure
 

@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 const signInAsCustomer = async (page: import('@playwright/test').Page) => {
-  await page.goto('/?signin=true');
+  await page.goto('/?signin=true', { waitUntil: 'networkidle' });
+  await page.getByRole('radio', { name: 'Customer Demo' }).click();
+  await expect(page.getByLabel('E-mail or client code')).toHaveValue('customer@demo.com');
   const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
   await expect(signInButton).toBeVisible();
   await Promise.all([

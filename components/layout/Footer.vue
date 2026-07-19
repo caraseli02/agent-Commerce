@@ -4,12 +4,12 @@
       <div class="container">
         <div class="text-white md:flex md:items-center md:justify-between">
           <div class="mb-[9px] md:mb-0 xl:flex xl:items-center">
-            <div class="text-sm font-semibold md:text-base xl:text-2xl xl:font-normal xl:mr-[90px]">Subscribe to our Newsletter</div>
-            <p class="text-xs xl:text-base">Procurement updates, stock notices, and availability alerts for your team.</p>
+            <div class="text-sm font-semibold md:text-base xl:text-2xl xl:font-normal xl:mr-[90px]">Try the newsletter demo</div>
+            <p class="text-xs xl:text-base">See a complete form state without sending your address anywhere.</p>
           </div>
           <form
             class="mt-4 flex w-full max-w-md flex-col gap-2 rounded-md shadow-xs sm:mt-0 sm:flex-row sm:gap-0 md:w-auto"
-            @submit.prevent
+            @submit.prevent="handleNewsletterSubmit"
           >
             <label for="footer-newsletter-email" class="flex min-w-0 flex-1 flex-col">
               <span class="sr-only">Newsletter email address</span>
@@ -19,16 +19,20 @@
                 type="email"
                 placeholder="Enter your email address"
                 autocomplete="email"
+                required
                 class="w-full rounded-md bg-white px-4 py-[11px] text-sm font-medium text-neutral-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:rounded-l-md sm:rounded-r-none md:w-[250px] lg:w-[280px] 2xl:w-[350px]"
               />
             </label>
             <button
               type="submit"
-              class="flex w-full flex-shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-blue-500 px-[14px] py-[11px] text-sm font-medium sm:w-auto sm:rounded-l-none sm:rounded-r-md"
+              class="flex min-h-11 w-full flex-shrink-0 items-center justify-center whitespace-nowrap rounded-md bg-blue-500 px-[14px] py-[11px] text-sm font-medium sm:w-auto sm:rounded-l-none sm:rounded-r-md"
             >
-              Subscribe
+              {{ isSubscribed ? 'Saved for this visit' : 'Try subscription' }}
             </button>
           </form>
+          <p v-if="newsletterMessage" class="mt-2 text-xs md:ml-4 md:mt-0" role="status" aria-live="polite">
+            {{ newsletterMessage }}
+          </p>
         </div>
       </div>
     </div>
@@ -39,20 +43,9 @@
             <NuxtLink to="/" class="flex">
               <Logo class="w-[121px] mb-5 md:mb-[87px] lg:mb-[67px]" />
             </NuxtLink>
-            <div>
-              <div class="text-sm mb-2.5 lg:text-base">Follow Us</div>
-              <div class="flex items-center gap-2">
-                <span
-                  v-for="network in socialNetworks"
-                  :key="network.label"
-                  class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500"
-                  :title="`${network.label} (demo)`"
-                  aria-hidden="true"
-                >
-                  <component :is="network.icon" class="w-5" />
-                </span>
-              </div>
-            </div>
+            <p class="max-w-[220px] text-sm leading-5 text-slate-500">
+              Self-contained portfolio demo. No external services or social accounts required.
+            </p>
           </div>
           <div class="grid grid-cols-2 gap-5 md:flex md:flex-wrap md:gap-x-[30px] lg:gap-x-[50px]">
             <div v-for="(items, label, index) in navItems" :key="index" class="md:max-w-max md:last:ml-[94px] lg:last:ml-0">
@@ -65,20 +58,11 @@
               <ul class="grid grid-cols-1 gap-[3px] md:gap-1.5">
                 <li v-for="(navItem, navItemIndex) in items" :key="navItemIndex">
                   <NuxtLink
-                    v-if="navItem.to.startsWith('/')"
                     :to="navItem.to"
                     class="relative text-xs after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-neutral-700 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100 md:text-sm"
                   >
                     {{ navItem.label }}
                   </NuxtLink>
-                  <a
-                    v-else
-                    :href="navItem.to"
-                    class="relative text-xs after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-neutral-700 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100 md:text-sm"
-                    :class="navItem.to.startsWith('tel:') ? 'whitespace-nowrap' : ''"
-                  >
-                    {{ navItem.label }}
-                  </a>
                 </li>
               </ul>
             </div>
@@ -94,39 +78,25 @@
 
 <script setup lang="ts">
 import Logo from '@/assets/media/logo.svg';
-import TwitterIcon from '@/assets/icons/social/twitter.svg';
-import LinkedInIcon from '@/assets/icons/social/linkedin.svg';
-import InstagramIcon from '@/assets/icons/social/instagram.svg';
-import DiscordIcon from '@/assets/icons/social/discord.svg';
-import TelegramIcon from '@/assets/icons/social/telegram.svg';
-
-const socialNetworks = [
-  { label: 'Twitter', icon: TwitterIcon },
-  { label: 'LinkedIn', icon: LinkedInIcon },
-  { label: 'Instagram', icon: InstagramIcon },
-  { label: 'Discord', icon: DiscordIcon },
-  { label: 'Telegram', icon: TelegramIcon },
-];
-
 const navItems = {
-  General: [
+  Storefront: [
     {
-      label: 'About Us',
-      to: '/signup',
+      label: 'Home',
+      to: '/',
     },
     {
-      label: 'Careers',
-      to: '/signup',
+      label: 'Browse products',
+      to: '/search',
     },
     {
-      label: 'Contact',
-      to: 'tel:+18005550199',
+      label: 'View cart',
+      to: '/cart',
     },
   ],
-  'Quick Links': [
+  'Review flows': [
     {
-      label: 'BOM',
-      to: '/search',
+      label: 'Sign in to demo',
+      to: '/?signin=true',
     },
     {
       label: 'Track Order',
@@ -136,52 +106,15 @@ const navItems = {
       label: 'Order History',
       to: '/?signin=true&redirect=%2Fdashboard%2Fclient',
     },
-    {
-      label: 'Return a product',
-      to: '/order-tracking',
-    },
-    {
-      label: 'Delivery Information',
-      to: '/order-tracking',
-    },
-  ],
-  'Customer Service': [
-    {
-      label: 'Sales: +1 800 555 0199',
-      to: 'tel:+18005550199',
-    },
-    {
-      label: 'Technical: +1 800 555 0199',
-      to: 'tel:+18005550199',
-    },
-    {
-      label: 'FAQs',
-      to: '/order-tracking',
-    },
-    {
-      label: 'Help',
-      to: '/forgot-password',
-    },
-  ],
-  'Terms & Conditions': [
-    {
-      label: 'Terms of use',
-      to: '/signup',
-    },
-    {
-      label: 'Terms of sale',
-      to: '/signup',
-    },
-    {
-      label: 'Privacy policy',
-      to: '/signup',
-    },
-    {
-      label: 'Trademarks',
-      to: '/signup',
-    },
   ],
 };
 
 const email = ref('');
+const isSubscribed = ref(false);
+const newsletterMessage = ref('');
+
+const handleNewsletterSubmit = () => {
+  isSubscribed.value = true;
+  newsletterMessage.value = 'Demo complete — your email stays in this browser and is not sent.';
+};
 </script>

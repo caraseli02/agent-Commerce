@@ -36,12 +36,11 @@
                 <UiDropdownMenuItem>Share</UiDropdownMenuItem>
               </UiDropdownMenuContent>
             </UiDropdownMenu>
-            <button class="hidden flex-shrink-0 p-1 md:flex" type="button" aria-label="Copy product name">
-              <CopyClipboard
-                :text="item.name || 'N/A'"
-                class="h-[22px] w-[22px] text-slate-500 transition-colors duration-300 hover:text-primary"
-              />
-            </button>
+            <CopyClipboard
+              :text="item.name || 'N/A'"
+              label="Copy product name"
+              class="hidden flex-shrink-0 text-slate-500 transition-colors duration-300 hover:text-primary md:inline-flex"
+            />
           </div>
           <button
             type="button"
