@@ -6,6 +6,15 @@ import type {
   ProductInterface,
 } from '~/model/products/response/ProductResponse';
 import type { AddToCartRequestInterface, CartInterface, CartProductsInterface } from '~/types/cart';
+import {
+  calculateCartLinePricing,
+  clampCartQuantity,
+  resolveTierUnitPrice,
+  type ClampCartQuantityOptions,
+  type ClampCartQuantityResult,
+} from '~/helpers/cart-pricing';
+
+export { calculateCartLinePricing, clampCartQuantity, resolveTierUnitPrice, type ClampCartQuantityOptions, type ClampCartQuantityResult };
 
 export const parseProductPriceConfiguration = (product: ProductInterface, userDetails: UserInterface, quantity = 0) => {
   let unitPrice = 0;
@@ -67,7 +76,34 @@ export const initializeQuantities = (
   initialRequestedQuantity.value = cartProduct && cartProductQuantity > 0 ? cartProductQuantity : 0;
 };
 
-export const addToCartHelper = async (product: ProductInterface, stock: number) => {
+const showStockClampToast = async (maxStock: number, adjustedStock: number) => {
+  const { toast } = await import('~/components/ui/toast');
+
+  toast({
+    title: 'Limited stock',
+    description: `Only ${maxStock} items are available. Quantity was adjusted to ${adjustedStock}.`,
+    variant: 'default',
+  });
+};
+
+export const addToCartHelper = async (
+  product: ProductInterface,
+  stock: number,
+  options?: { currentCartQuantity?: number; isDelta?: boolean }
+) => {
+  const currentCartQuantity = Math.max(0, Number(options?.currentCartQuantity ?? 0));
+  const requestedQuantity = options?.isDelta ? currentCartQuantity + stock : stock;
+  const { stock: clampedStock, wasClamped, maxStock } = clampCartQuantity(product, requestedQuantity);
+  const stockToSend = options?.isDelta ? Math.max(0, clampedStock - currentCartQuantity) : clampedStock;
+
+  if (wasClamped) {
+    await showStockClampToast(maxStock, clampedStock);
+  }
+
+  if (options?.isDelta && stockToSend === 0) {
+    return { status: 'success' };
+  }
+
   const { useCart } = await import('~/composables/useCart');
   const { addToCart } = useCart();
   const payload = {
@@ -75,7 +111,7 @@ export const addToCartHelper = async (product: ProductInterface, stock: number) 
     products: [
       {
         id: product._id ?? '',
-        stock,
+        stock: stockToSend,
         isFolder: false,
       },
     ],

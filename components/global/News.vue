@@ -22,7 +22,7 @@
         class="homeNews--swiper"
       >
         <SwiperSlide v-for="(item, index) in news" :key="index">
-          <NuxtLink :to="`/`" class="flex flex-col rounded-md bg-white shadow-xs">
+          <NuxtLink :to="`/news/${item.slug}`" class="flex flex-col rounded-md bg-white shadow-xs">
             <img :src="item.cover" alt="Cover" class="aspect-[1.69] rounded-t-md md:aspect-[1.76] lg:aspect-[2.11]" loading="lazy" />
             <div
               class="flex flex-col items-center text-center font-Inter p-[5px] md:px-[15px] md:pt-2.5 md:pb-[15px] md:items-start md:text-left xl:p-[15px]"
@@ -45,36 +45,9 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper';
-import NewsCover1 from '@/assets/media/home/news-1.jpg';
-import NewsCover2 from '@/assets/media/home/news-2.jpg';
-import NewsCover3 from '@/assets/media/home/news-3.jpg';
+import { demoNewsArticles } from '~/pages/news/news-data';
 
-const news = ref([
-  {
-    slug: 'nexperia-mosfets',
-    title: 'Nexperia launches hot-swap application-specific MOSFETs (ASFE)',
-    date: '29 OCT 2024',
-    cover: NewsCover1,
-  },
-  {
-    slug: 'analog-lead-times',
-    title: 'Analog Devices expands allocation for industrial interface ICs',
-    date: '12 OCT 2024',
-    cover: NewsCover2,
-  },
-  {
-    slug: 'passive-stock',
-    title: 'Passives lead times stabilize across high-volume MLCC lines',
-    date: '03 OCT 2024',
-    cover: NewsCover3,
-  },
-  {
-    slug: 'connector-standards',
-    title: 'USB-C receptacles now qualified for extended temperature ranges',
-    date: '18 SEP 2024',
-    cover: NewsCover2,
-  },
-]);
+const news = demoNewsArticles;
 </script>
 
 <style lang="scss">

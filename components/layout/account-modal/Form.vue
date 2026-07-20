@@ -137,6 +137,7 @@ import { fetchSettings as fetchGeneralSettings } from '~/composables/api/setting
 const { checkForInputErrors } = useFormValidation();
 const config = useRuntimeConfig();
 const route = useRoute();
+const router = useRouter();
 const cartStore = useCartStore();
 const pricingStore = usePricingStore();
 const emits = defineEmits<{
@@ -284,6 +285,16 @@ const getSafeRedirectFromQuery = () => {
   return redirectParam;
 };
 
+const preserveSignInQuery = async (redirectPath: string) => {
+  await router.replace({
+    path: route.path,
+    query: {
+      signin: 'true',
+      ...(redirectPath ? { redirect: redirectPath } : {}),
+    },
+  });
+};
+
 const handleSignIn = async () => {
   if (isLoading.value) {
     return;
@@ -350,6 +361,7 @@ const handleSignIn = async () => {
         ? 'Invalid email/client code or password. Please check your credentials and try again.'
         : 'Unable to sign in right now. Please try again.';
     errorResponse.show = true;
+    await preserveSignInQuery(safeRedirect);
   } finally {
     isLoading.value = false;
   }

@@ -39,6 +39,10 @@ export default defineNuxtRouteMiddleware((to) => {
   const redirectTarget = to.fullPath && to.fullPath !== '/' ? to.fullPath : '';
   const signinPath = redirectTarget ? `/?signin=true&redirect=${encodeURIComponent(redirectTarget)}` : '/?signin=true';
 
+  if (to.path.startsWith('/dashboard') && !token.value) {
+    return navigateTo(signinPath, { replace: true, external: import.meta.client });
+  }
+
   if (to.name !== 'signup' && authStore.firebaseTempToken != null) {
     authStore.firebaseTempToken = null;
   }
@@ -59,7 +63,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   if (!permissions.length) {
     if (config.public.MOCK_MODE) {
-      return navigateTo(signinPath);
+      return navigateTo(signinPath, { replace: true });
     }
 
     return;

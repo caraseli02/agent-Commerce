@@ -76,8 +76,24 @@ const productSlug = computed(() => {
 });
 
 const product = ref<ProductDetail | null>(null);
-const { data } = await fetchSingleProduct(productSlug.value);
-product.value = data;
+
+try {
+  const { data } = await fetchSingleProduct(productSlug.value);
+  product.value = data;
+} catch (error: unknown) {
+  const fetchError = error as { statusCode?: number; response?: { status?: number } };
+  const statusCode = fetchError.statusCode ?? fetchError.response?.status;
+
+  if (statusCode === 404) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Product not found',
+      message: 'Product not found',
+    });
+  }
+
+  throw error;
+}
 
 const seoTitle = computed(() => product.value?.name || 'Product');
 const seoDescription = computed(

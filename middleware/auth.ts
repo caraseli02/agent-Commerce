@@ -12,11 +12,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const signinPath = redirectTarget ? `/?signin=true&redirect=${encodeURIComponent(redirectTarget)}` : '/?signin=true';
 
   if (!hasToken) {
-    if (import.meta.client) {
-      authStore.signOut();
-    }
-
-    return navigateTo(signinPath);
+    return navigateTo(signinPath, { replace: true, external: import.meta.client });
   }
 
   if (config.public.MOCK_MODE && !parseMockToken(authToken)) {
@@ -24,6 +20,6 @@ export default defineNuxtRouteMiddleware((to) => {
       authStore.signOut();
     }
 
-    return navigateTo(signinPath);
+    return navigateTo(signinPath, { replace: true });
   }
 });

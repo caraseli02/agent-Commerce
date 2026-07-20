@@ -11,9 +11,11 @@ import type {
 const RESOURCE = '/auth';
 
 export async function login(payload: LoginRequest): Promise<ProductResponse> {
-  const { $apiClient } = useNuxtApp();
+  const config = useRuntimeConfig();
+  const loginUrl = config.public.MOCK_MODE ? `/api${RESOURCE}/login` : `${config.public.BASE_URL_API}${RESOURCE}/login`;
 
-  return await $apiClient<ProductResponse>(`${RESOURCE}/login`, {
+  // Use plain $fetch so a failed sign-in 401 does not trigger the global apiClient redirect.
+  return await $fetch<ProductResponse>(loginUrl, {
     method: 'POST',
     body: payload,
   });
