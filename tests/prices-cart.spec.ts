@@ -66,6 +66,25 @@ describe('cart pricing and stock helpers', () => {
       maxStock: 150,
     });
   });
+
+  it('sends a negative delta when reducing an existing cart quantity', async () => {
+    const addToCart = vi.fn(async () => ({ status: 'success' }));
+    vi.doMock('../composables/useCart', () => ({
+      useCart: () => ({ addToCart }),
+    }));
+
+    const { addToCartHelper } = await import('../helpers/prices.helper');
+    const result = await addToCartHelper(volumeProduct, -2, {
+      currentCartQuantity: 5,
+      isDelta: true,
+    });
+
+    expect(result).toEqual({ status: 'success' });
+    expect(addToCart).toHaveBeenCalledWith({
+      userId: '',
+      products: [{ id: 'prod-1', stock: -2, isFolder: false }],
+    });
+  });
 });
 
 describe('mock cart stock and volume pricing enforcement', () => {

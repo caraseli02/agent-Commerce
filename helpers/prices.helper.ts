@@ -92,15 +92,17 @@ export const addToCartHelper = async (
   options?: { currentCartQuantity?: number; isDelta?: boolean }
 ) => {
   const currentCartQuantity = Math.max(0, Number(options?.currentCartQuantity ?? 0));
-  const requestedQuantity = options?.isDelta ? currentCartQuantity + stock : stock;
+  const incomingDelta = Number(stock) || 0;
+  const requestedQuantity = options?.isDelta ? currentCartQuantity + incomingDelta : incomingDelta;
   const { stock: clampedStock, wasClamped, maxStock } = clampCartQuantity(product, requestedQuantity);
-  const stockToSend = options?.isDelta ? Math.max(0, clampedStock - currentCartQuantity) : clampedStock;
+  // Preserve negative deltas so reducing cart qty (e.g. 5 → 3) still hits the API.
+  const stockToSend = options?.isDelta ? clampedStock - currentCartQuantity : clampedStock;
 
   if (wasClamped) {
     await showStockClampToast(maxStock, clampedStock);
   }
 
-  if (options?.isDelta && stockToSend === 0) {
+  if (stockToSend === 0) {
     return { status: 'success' };
   }
 

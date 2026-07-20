@@ -12,6 +12,10 @@ export default defineNuxtRouteMiddleware((to) => {
   const signinPath = redirectTarget ? `/?signin=true&redirect=${encodeURIComponent(redirectTarget)}` : '/?signin=true';
 
   if (!hasToken) {
+    if (import.meta.client) {
+      authStore.signOut();
+    }
+
     return navigateTo(signinPath, { replace: true, external: import.meta.client });
   }
 

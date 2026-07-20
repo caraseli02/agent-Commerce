@@ -63,7 +63,8 @@ export function useCart() {
         clampMessage = `Only ${clampResult.maxStock} items are available. Quantity was adjusted.`;
       }
 
-      const adjustedStock = mode === 'add' ? Math.max(0, clampResult.stock - previousStock) : clampResult.stock;
+      // Keep negative deltas so quantity reductions are not coerced to no-ops.
+      const adjustedStock = mode === 'add' ? clampResult.stock - previousStock : clampResult.stock;
 
       return {
         ...product,

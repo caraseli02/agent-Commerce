@@ -2,12 +2,18 @@
 
 ## Current focus
 
-- Issue #356 — Portfolio runtime: remove public-route hydration mismatches; PR #361 on `cursor/ecas-controller-loop-workflow-bd55`.
+- PR #364 — adversarial storefront hardening on `codex/adversarial-storefront-hardening` (review repair in progress).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #356 / PR #361 gates header cart badges and order-summary totals behind `useClientReady` so persisted cart state does not desync SSR/client markup. Playwright public-route hydration sweep added. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
+- PR #364 review fixes: cart quantity reductions (negative deltas), datasheet asset/catalog filename alignment, order-summary totals gated on cart fetch completion, expired-session `signOut` restoration, and product aliases aligned to catalog identities.
+
+## Architecture note (cross-runtime cart pricing)
+
+- Shared pure helpers live in `helpers/cart-pricing.ts` (`resolveTierUnitPrice`, `clampCartQuantity`, `calculateCartLinePricing`).
+- Client re-exports via `helpers/prices.helper.ts` (may toast / call `useCart`).
+- Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
 
 ## Recently completed
 
