@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #356 — Portfolio runtime: remove public-route hydration mismatches; PR #361 on `cursor/ecas-controller-loop-workflow-bd55`.
+- Issue #360 — Portfolio polish: normalize reviewer-facing dates and times; PR on `feat/360-normalize-dates`.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #356 / PR #361 gates header cart badges and order-summary totals behind `useClientReady` so persisted cart state does not desync SSR/client markup. Playwright public-route hydration sweep added. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
+- Issue #360 — shared `helpers/reviewer-dates.ts` formatter gates order, customer, credit, and table date displays; unit + Playwright smoke added. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
 
 ## Recently completed
 
