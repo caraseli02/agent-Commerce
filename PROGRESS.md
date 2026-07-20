@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #360 — Portfolio polish: normalize reviewer-facing dates and times; PR on `feat/360-normalize-dates`.
+- Issue #358 — Portfolio runtime: eliminate dashboard console failures; PR on `cursor/ecas-controller-loop-workflow-d8d6`.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #360 — shared `helpers/reviewer-dates.ts` formatter gates order, customer, credit, and table date displays; unit + Playwright smoke added. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
+- Issue #358 — fixed ApexCharts formatter crash, categories breadcrumb route, missing DownloadIcon, ProductCard/PaymentCard warnings; added `tests/e2e/dashboard-console-smoke.spec.ts`. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
 
 ## Recently completed
 
