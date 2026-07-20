@@ -84,6 +84,7 @@ import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { AccountType, getAccountTypeById } from '~/types';
 import type { DashboardCustomerTableItem } from '~/types';
+import { formatReviewerDate } from '~/helpers/reviewer-dates';
 
 const showOptions = ref(false);
 const selectedOption = ref('This Week');
@@ -124,7 +125,7 @@ const fetchAndSetNewCustomers = async (_time = 7) => {
       email: user.profileDetails?.email ?? '-',
       account: getAccountTypeById(user.accountType ?? AccountType.Personal) || '-',
       company: user.companyDetails?.name || '-',
-      registered: user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB') : '-',
+      registered: formatReviewerDate(user.createdAt),
       spent: user.spent ?? 0,
       ordersCount: user.ordersCount ?? 0,
       id: user._id ?? user.firebaseId ?? '',

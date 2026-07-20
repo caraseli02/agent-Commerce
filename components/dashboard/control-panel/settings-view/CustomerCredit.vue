@@ -39,7 +39,7 @@
         <div class="pl-4">
           <div class="text-xs leading-[1.5] font-medium text-slate-500 mb-2">Due Date</div>
           <div class="text-sm leading-[1.43] font-semibold">
-            {{ creditObject?.dueDate ? getCurrentDate(creditObject?.dueDate) : '-' }}
+            {{ formatReviewerDate(creditObject?.dueDate) }}
           </div>
         </div>
       </div>
@@ -98,7 +98,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
 import type { ApexOptions } from 'apexcharts';
-import { format } from 'date-fns';
+import { formatReviewerDate } from '~/helpers/reviewer-dates';
 import ProgressBar from './ProgressBar.vue';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
@@ -238,10 +238,6 @@ const getCustomerCredit = async () => {
 };
 
 await getCustomerCredit();
-
-const getCurrentDate = (date: string) => {
-  return format(new Date(date), 'dd MMM yyyy');
-};
 
 const getAmountFormat = (money: number) => {
   return money?.toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });

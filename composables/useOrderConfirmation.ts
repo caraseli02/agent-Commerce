@@ -1,8 +1,7 @@
 import { computed, ref, toValue } from 'vue';
 import type { MaybeRefOrGetter } from 'vue';
-import { format } from 'date-fns';
-
 import { orderType } from '~/components/admin-table/order/options';
+import { formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { toast } from '~/components/ui/toast';
 import { downloadDocument as downloadDocumentApi } from '~/composables/api/documents';
 import { getOrderById } from '~/composables/api/orders';
@@ -99,7 +98,7 @@ export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefine
   const date = computed(() => {
     const createdAt = orderResponse.value.data?.order.createdAt;
 
-    return createdAt ? format(new Date(createdAt), 'dd MMMM yyyy, HH:mm') : '';
+    return formatReviewerDateTime(createdAt);
   });
 
   const shippingMethod = computed(() => orderResponse.value.data?.order.shippingDetails.stockorderShippingType);

@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { formatReviewerDate } from '~/helpers/reviewer-dates';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 
 export const customerCreditHelper = (credit: CustomerCreditInterface) => {
@@ -27,7 +27,7 @@ export const customerCreditHelper = (credit: CustomerCreditInterface) => {
       maximumFractionDigits: 2,
     }).format(credit.available);
 
-    dueDate = format(new Date(credit.dueDate), 'dd MMMM yyyy');
+    dueDate = formatReviewerDate(credit.dueDate);
 
     tillDue = credit.tillDue;
 

@@ -2,7 +2,7 @@
 import { ArrowRight, BarcodeIcon, InfoIcon, MapPin } from 'lucide-vue-next';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { ref } from 'vue';
-import { format } from 'date-fns';
+import { formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { AccountRole, OrderStatus, PaymentTypeEnum, type OrderInterface, type ShippingCourierCreateOrderResponse } from '~/types';
 import { toast } from '~/components/ui/toast';
 import { useAuthStore } from '~/store/authStore';
@@ -202,7 +202,7 @@ const showTrackingDialog = ref(false);
                 <div class="flex gap-10 justify-between items-start mt-2 w-full">
                   <dt class="text-gray-500">Date</dt>
                   <dd class="text-zinc-800">
-                    {{ order.createdAt ? format(new Date(order.createdAt), 'dd MMMM yyyy, HH:mm') : '' }}
+                    {{ formatReviewerDateTime(order.createdAt) }}
                   </dd>
                 </div>
                 <div class="flex gap-10 justify-between items-start mt-2 w-full whitespace-nowrap">
