@@ -63,24 +63,26 @@
           </template>
         </div>
       </div>
-      <div class="relative flex items-center gap-1 bg-white rounded-xl p-2 shadow-xs overflow-x-auto hide-scrollbar">
-        <NuxtLink
-          v-for="(view, index) in panelViews.filter((item) => item.allowTo.includes(accountType))"
-          :key="index"
-          :to="`/dashboard/customers/${route.params.slug}/control-panel/${view.path}`"
-          class="panelView relative z-10 text-sm font-medium leading-[1.42857] px-6 py-3 rounded-lg flex-shrink-0 transition-colors duration-300"
-          :class="[view.path === activeView ? 'text-white ' : 'hover:text-blue-500']"
-        >
-          {{ view.name }}
-        </NuxtLink>
-        <div
-          class="absolute top-1/2 -translate-y-1/2 bg-blue-500 h-11 rounded-lg transition-all duration-300"
-          :style="{
-            width: viewHighlightWidth + 'px',
-            left: viewHightlightLeft + 'px',
-          }"
-        />
-      </div>
+      <SharedScrollableRegion label="Control panel sections" test-id="control-panel-tabs">
+        <div class="relative flex items-center gap-1 bg-white rounded-xl p-2 shadow-xs">
+          <NuxtLink
+            v-for="(view, index) in panelViews.filter((item) => item.allowTo.includes(accountType))"
+            :key="index"
+            :to="`/dashboard/customers/${route.params.slug}/control-panel/${view.path}`"
+            class="panelView relative z-10 text-sm font-medium leading-[1.42857] px-3 py-3 rounded-lg flex-shrink-0 whitespace-nowrap transition-colors duration-300 sm:px-6"
+            :class="[view.path === activeView ? 'text-white ' : 'hover:text-blue-500']"
+          >
+            {{ view.name }}
+          </NuxtLink>
+          <div
+            class="absolute top-1/2 -translate-y-1/2 bg-blue-500 h-11 rounded-lg transition-all duration-300"
+            :style="{
+              width: viewHighlightWidth + 'px',
+              left: viewHightlightLeft + 'px',
+            }"
+          />
+        </div>
+      </SharedScrollableRegion>
       <NuxtPage />
     </div>
   </div>

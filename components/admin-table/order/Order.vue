@@ -188,7 +188,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="relative h-full flex-1 flex-col space-y-8 flex w-[393px] md:w-[640px] lg:w-[896px] xl:w-[1312px] 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-white"
+    class="relative h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 md:w-[640px] lg:w-[896px] xl:w-[1312px] 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-white"
   >
     <DataTable
       :fetch-fn="debouncedFetchAndSetOrdersList"
@@ -210,32 +210,34 @@ onMounted(() => {
         <AdminTableOrderToolbar :table="table" />
       </template>
       <template #tabs="{ table }">
-        <div class="relative flex items-center gap-8 rounded-xl pl-2 overflow-x-auto hide-scrollbar mb-6">
-          <button
-            v-for="(filter, index) in orderFilters"
-            :key="index"
-            class="ordersFilter flex items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 transition-colors duration-300 md:py-8"
-            :class="[filter.label === activeOrderFilter.label ? 'text-blue-500' : 'hover:text-blue-500']"
-            @click="onTabChange(filter, table)"
-          >
-            <span>
-              {{ filter.label }}
-            </span>
-            <span
-              class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-300"
-              :class="filter.label === activeOrderFilter.label ? 'text-white bg-blue-500' : 'text-slate-500 bg-gray-100'"
+        <SharedScrollableRegion class="mb-6" label="Order filters" test-id="order-filter-tabs">
+          <div class="relative flex items-center gap-4 rounded-xl pl-2 md:gap-8">
+            <button
+              v-for="(filter, index) in orderFilters"
+              :key="index"
+              class="ordersFilter flex items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 transition-colors duration-300 md:py-8"
+              :class="[filter.label === activeOrderFilter.label ? 'text-blue-500' : 'hover:text-blue-500']"
+              @click="onTabChange(filter, table)"
             >
-              {{ filter.total_items || '0' }}
-            </span>
-          </button>
-          <div
-            class="absolute bottom-0 bg-blue-500 h-1 rounded-t-lg transition-all duration-300"
-            :style="{
-              width: filterHighlightWidth + 'px',
-              left: filterHightlightLeft + 'px',
-            }"
-          />
-        </div>
+              <span>
+                {{ filter.label }}
+              </span>
+              <span
+                class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-300"
+                :class="filter.label === activeOrderFilter.label ? 'text-white bg-blue-500' : 'text-slate-500 bg-gray-100'"
+              >
+                {{ filter.total_items || '0' }}
+              </span>
+            </button>
+            <div
+              class="absolute bottom-0 bg-blue-500 h-1 rounded-t-lg transition-all duration-300"
+              :style="{
+                width: filterHighlightWidth + 'px',
+                left: filterHightlightLeft + 'px',
+              }"
+            />
+          </div>
+        </SharedScrollableRegion>
       </template>
     </DataTable>
     <UiSkeleton v-if="loadingFilters" class="w-full h-full absolute inset-0 top-24 z-20 animate-none" />

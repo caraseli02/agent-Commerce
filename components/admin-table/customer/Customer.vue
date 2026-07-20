@@ -9,39 +9,37 @@ const loading = ref(true);
 const error = ref(false);
 const listItems = ref<CustomerTableColumns[]>([]);
 
-const fetchAndSetCustomersList = _debounce(async (
-  page: number,
-  perPage: number,
-  filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {}
-) => {
-  error.value = false;
-  loading.value = true;
+const fetchAndSetCustomersList = _debounce(
+  async (page: number, perPage: number, filters: Record<string, unknown> = {}, sort: Record<string, unknown> = {}) => {
+    error.value = false;
+    loading.value = true;
 
-  // FIX to use userID
+    // FIX to use userID
 
-  const data = await fetchCustomersList(page, perPage, filters, sort);
+    const data = await fetchCustomersList(page, perPage, filters, sort);
 
-  if (!data || data.status !== 'success') {
+    if (!data || data.status !== 'success') {
+      loading.value = false;
+      error.value = true;
+      totalItems.value = 0;
+      pageCount.value = 0;
+      listItems.value = [];
+      return;
+    }
+
+    totalItems.value = data.data.total_items;
+    pageCount.value = data.data.page_count;
+    listItems.value = data.data.items as unknown as UserInterface[];
     loading.value = false;
-    error.value = true;
-    totalItems.value = 0;
-    pageCount.value = 0;
-    listItems.value = [];
-    return;
-  }
-
-  totalItems.value = data.data.total_items;
-  pageCount.value = data.data.page_count;
-  listItems.value = data.data.items as unknown as UserInterface[];
-  loading.value = false;
-}, 500);
+  },
+  500
+);
 
 fetchAndSetCustomersList(1, 10);
 </script>
 
 <template>
-  <div class="h-full flex-1 flex-col space-y-8 flex w-[393px] md:w-full 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-white">
+  <div class="h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-white">
     <DataTable
       :fetch-fn="fetchAndSetCustomersList"
       :page-count="pageCount"

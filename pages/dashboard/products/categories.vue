@@ -19,10 +19,12 @@ const { isLocked } = useCategories();
       <CategoriesFilters />
       <section
         ref="scrollRef"
-        class="flex flex-col rounded-lg max-h-[calc(100vh-250px)] xl:max-h-[calc(100vh-450px)] overflow-y-auto relative border border-grey-200"
+        class="flex flex-col rounded-lg max-h-[calc(100vh-250px)] xl:max-h-[calc(100vh-450px)] overflow-y-auto overflow-x-hidden relative border border-grey-200"
       >
-        <CategoriesActions />
-        <CategoriesRows />
+        <SharedScrollableRegion label="Categories table" test-id="categories-table">
+          <CategoriesActions />
+          <CategoriesRows />
+        </SharedScrollableRegion>
       </section>
       <CategoriesDeleteAlert />
     </div>

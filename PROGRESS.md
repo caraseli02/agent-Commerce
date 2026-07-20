@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #360 — Portfolio polish: normalize reviewer-facing dates and times; PR on `feat/360-normalize-dates`.
+- Issue #359 — Portfolio mobile: expose dashboard tables and control-panel navigation; PR on `feat/359-mobile-dashboard-tables`.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #360 — shared `helpers/reviewer-dates.ts` formatter gates order, customer, credit, and table date displays; unit + Playwright smoke added. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
+- Issue #359 — shared `ScrollableRegion` wraps dashboard tables, categories, and tab bars; mobile width leaks fixed; Playwright smoke at 390px added. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
 
 ## Recently completed
 
