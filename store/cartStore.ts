@@ -21,7 +21,7 @@ export const useCartStore = defineStore(
 
     const setCart = (nextCart: CartInterface) => {
       cart.value = nextCart;
-      hasFetchedCart.value = true;
+      // Do not mark fetched here — cached/persisted payloads must not look authoritative.
       Emitter.emit('update-cart', nextCart);
     };
 
@@ -43,13 +43,15 @@ export const useCartStore = defineStore(
 
     const updateAndReturnCart = async () => {
       const cartResponse = await fetchCartList();
-      hasFetchedCart.value = true;
 
       if (!cartResponse) {
+        // Failed/unavailable refresh — keep showing skeleton, do not trust persisted totals.
+        hasFetchedCart.value = false;
         return null;
       }
 
       cart.value = cartResponse.data;
+      hasFetchedCart.value = true;
       Emitter.emit('update-cart', cart.value);
 
       return cart.value as CartInterface;

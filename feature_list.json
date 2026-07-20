@@ -3,10 +3,25 @@
   "purpose": "Machine-readable feature list for the ECAS harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
+    {
+      "id": "C368",
+      "description": "Cart stock clamp, volume tiers, mixed-line quantity integrity, and authoritative cart-fetch gating (#368 / PR #364)",
+      "validation": "initializeQuantities uses available stock only; mixed-line mock cart reduce preserves backorder; hasFetchedCart only after successful refresh; pnpm verify:full + order-summary runtime evidence",
+      "status": "active",
+      "evidence": [
+        "helpers/prices.helper.ts initializeQuantities available-stock-only",
+        "store/cartStore.ts hasFetchedCart only after successful refresh",
+        "tests/prices-cart.spec.ts mixed-line + initializeQuantities",
+        "tests/cart-store.spec.ts readiness gating",
+        "pnpm verify:full PASS",
+        "preview API: PUT stock=5/backorder=10 then POST -2 -> stock=3 backorder=10",
+        "browser http://127.0.0.1:3000/order-summary Payment Summary Subtotal 999.99 Lei after fetch (no stale skeleton/zero)"
+      ]
+    },
     {
       "id": "H01",
       "description": "Keep AGENTS.md compact and router-like",

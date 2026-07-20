@@ -2,12 +2,13 @@
 
 ## Current focus
 
-- PR #364 — cart correctness only (stock clamp, volume tiers, qty reductions, empty-cart CTA, summary totals gated on cart fetch).
+- Issue #368 / PR #364 — cart correctness: stock clamp, volume tiers, qty reductions, mixed stock/backorder integrity, empty-cart CTA, summary totals gated on successful cart fetch.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- PR #364 scope split applied per review: removed news/manufacturers routes, catalog rewrite/datasheets, and auth/error/redirect changes from this PR.
+- Issue #368 claimed (`in-progress`) on branch `codex/adversarial-storefront-hardening` (PR #364).
+- P1 blockers addressed: mixed-line available/backorder separation; `hasFetchedCart` only after successful refresh; issue linked; `pnpm verify:full` PASS with API + order-summary browser evidence.
 
 ## Architecture note (cross-runtime cart pricing)
 

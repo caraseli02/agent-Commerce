@@ -63,17 +63,22 @@ export const initializeQuantities = (
   data: CartInterface | null | undefined,
   quantity: Ref<number>,
   initialRequestedQuantity: Ref<number>,
-  minPriceConfiguration: PriceConfigurationSettingsInterface
+  _minPriceConfiguration: PriceConfigurationSettingsInterface
 ) => {
   if (!data?.products?.length) {
     return;
   }
 
   const cartProduct = data.products.find((item: CartProductsInterface) => item.id === product?._id);
-  const cartProductQuantity = (cartProduct?.stock ?? 0) + (cartProduct?.backorder_stock ?? 0);
 
-  quantity.value = cartProduct && cartProductQuantity > 0 ? cartProductQuantity : minPriceConfiguration?.quantity || 0;
-  initialRequestedQuantity.value = cartProduct && cartProductQuantity > 0 ? cartProductQuantity : 0;
+  if (!cartProduct) {
+    return;
+  }
+
+  // PDP quantity edits available stock only — never fold backorder into this control.
+  const availableStock = Number(cartProduct.stock ?? 0);
+  quantity.value = availableStock;
+  initialRequestedQuantity.value = availableStock;
 };
 
 const showStockClampToast = async (maxStock: number, adjustedStock: number) => {

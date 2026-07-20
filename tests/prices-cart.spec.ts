@@ -85,6 +85,33 @@ describe('cart pricing and stock helpers', () => {
       products: [{ id: 'prod-1', stock: -2, isFolder: false }],
     });
   });
+
+  it('initializes PDP quantity from available stock only on mixed lines', async () => {
+    const { ref } = await import('vue');
+    const { initializeQuantities } = await import('../helpers/prices.helper');
+    const limitedProduct = { ...volumeProduct, stock: 5 } as ProductInterface;
+    const quantity = ref(0);
+    const initialRequestedQuantity = ref(0);
+
+    initializeQuantities(
+      limitedProduct,
+      {
+        userId: 'user-1',
+        startDate: '',
+        endDate: '',
+        products: [{ id: 'prod-1', stock: 5, backorder_stock: 10, isFolder: false }],
+      } as never,
+      quantity,
+      initialRequestedQuantity,
+      { price: 999.99, quantity: 1 }
+    );
+
+    expect(quantity.value).toBe(5);
+    expect(initialRequestedQuantity.value).toBe(5);
+
+    const clamped = clampCartQuantity(limitedProduct, quantity.value);
+    expect(clamped).toEqual({ stock: 5, wasClamped: false, maxStock: 5 });
+  });
 });
 
 describe('mock cart stock and volume pricing enforcement', () => {
@@ -152,5 +179,55 @@ describe('mock cart stock and volume pricing enforcement', () => {
     expect(line?.stock).toBe(10);
     expect(line?.initialUnitPrice).toBe(959.99);
     expect(line?.total).toBe(9599.9);
+  });
+
+  it('preserves backorder when available stock is reduced on a mixed line', async () => {
+    const { default: cartPutHandler } = (await import('../server/api/cart.put')) as {
+      default: (event: unknown) => Promise<{
+        data: {
+          products: Array<{
+            id: string;
+            stock: number;
+            backorder_stock?: number;
+            total: number;
+          }>;
+        };
+      }>;
+    };
+    const { default: cartPostHandler } = (await import('../server/api/cart.post')) as {
+      default: (event: unknown) => Promise<{
+        data: {
+          products: Array<{
+            id: string;
+            stock: number;
+            backorder_stock?: number;
+          }>;
+        };
+      }>;
+    };
+
+    const cookies = { 'guest-session-id': 'mixed-line-guest' };
+    const auth = { authorization: 'Bearer mock-token-mixed' };
+
+    await cartPutHandler({
+      headers: auth,
+      body: {
+        products: [{ id: 'prod-1', stock: 5, backorder_stock: 10, isFolder: false }],
+      },
+      cookies,
+    });
+
+    // PDP edits available stock only: reduce 5 → 3 as a negative delta; backorder stays 10.
+    const response = await cartPostHandler({
+      headers: auth,
+      body: {
+        products: [{ id: 'prod-1', stock: -2, isFolder: false }],
+      },
+      cookies,
+    });
+
+    const line = response.data.products.find((product) => product.id === 'prod-1');
+    expect(line?.stock).toBe(3);
+    expect(line?.backorder_stock).toBe(10);
   });
 });

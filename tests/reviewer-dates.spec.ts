@@ -1,15 +1,18 @@
+import { format, parseISO } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
 import { REVIEWER_DATE_FALLBACK, formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 
 describe('reviewer date formatting', () => {
-  it('formats valid timestamps for reviewer-facing date-time fields', () => {
-    // Local Date avoids CI/local timezone drift on absolute ISO-Z strings.
-    expect(formatReviewerDateTime(new Date(2026, 6, 10, 10, 30, 0))).toBe('10 July 2026, 10:30');
+  it('formats valid ISO timestamps for reviewer-facing date-time fields', () => {
+    const iso = '2026-07-10T10:30:00.000Z';
+    // Keep ISO-Z coverage without assuming the runner timezone is UTC.
+    expect(formatReviewerDateTime(iso)).toBe(format(parseISO(iso), 'dd MMMM yyyy, HH:mm'));
   });
 
-  it('formats valid timestamps for reviewer-facing date-only fields', () => {
-    expect(formatReviewerDate(new Date(2026, 2, 31, 0, 0, 0))).toBe('31 March 2026');
+  it('formats valid ISO timestamps for reviewer-facing date-only fields', () => {
+    const iso = '2026-03-31T00:00:00.000Z';
+    expect(formatReviewerDate(iso)).toBe(format(parseISO(iso), 'dd MMMM yyyy'));
   });
 
   it('returns a deliberate fallback for missing values', () => {

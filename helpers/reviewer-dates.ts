@@ -1,5 +1,4 @@
 import { format, isValid, parseISO } from 'date-fns';
-import { enGB } from 'date-fns/locale';
 
 /** Reviewer-visible date-only fields (registration, due dates, pickup estimates). */
 export const REVIEWER_DATE_FORMAT = 'dd MMMM yyyy';
@@ -26,7 +25,8 @@ export function formatReviewerDate(value: string | Date | null | undefined): str
     return REVIEWER_DATE_FALLBACK;
   }
 
-  return format(date, REVIEWER_DATE_FORMAT, { locale: enGB });
+  // Avoid date-fns/locale barrel imports — Nitro SSR rejects directory ESM resolution.
+  return format(date, REVIEWER_DATE_FORMAT);
 }
 
 export function formatReviewerDateTime(value: string | Date | null | undefined): string {
@@ -36,5 +36,5 @@ export function formatReviewerDateTime(value: string | Date | null | undefined):
     return REVIEWER_DATE_FALLBACK;
   }
 
-  return format(date, REVIEWER_DATETIME_FORMAT, { locale: enGB });
+  return format(date, REVIEWER_DATETIME_FORMAT);
 }
