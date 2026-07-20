@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { InfoIcon, SettingsIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
+import { formatReviewerDate } from '~/helpers/reviewer-dates';
 import { PaymentTypeEnum } from '~/types';
 import type { BankInfo, CardInfo } from '~/types';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
@@ -58,7 +59,8 @@ const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.B
               loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/e53ea3231ba188441a6034265f4f0ada066f8bb4f5df5f996b3b263a866e52a9?apiKey=20497529553648aab918fa2d322ece87&"
               alt="Visa logo"
-              class="w-6 aspect-[3.03] fill-blue-700"/>
+              class="w-6 aspect-[3.03] fill-blue-700"
+            />
           </div>
         </div>
 
@@ -97,7 +99,7 @@ const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.B
                 <div class="flex flex-col justify-center">
                   <h3>Due Date</h3>
                   <p class="mt-1 font-medium text-neutral-800">
-                    {{ (props.paymentMethod.info as CustomerCreditInterface).dueDate }}
+                    {{ formatReviewerDate((props.paymentMethod.info as CustomerCreditInterface).dueDate) }}
                   </p>
                   <h3 class="mt-4">Available</h3>
                   <p class="mt-1 font-medium text-red-500">

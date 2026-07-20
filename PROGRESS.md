@@ -17,6 +17,7 @@
 
 ## Recently completed
 
+- Issue #360 — shared `helpers/reviewer-dates.ts` formatter for order/customer/credit/table dates; PR #362 merged.
 - Issue #292 — shared control-panel address manager with local mock CRUD and focused browser coverage; PR #342 merged after evaluator PASS.
 - Issue #296 — cart type namespace consolidation (tracer bullet); PR #338 merged.
 - Issue #290 — dashboard order surfaces now use composable API adapters; PR #330 merged after conflict repair, focused/full verification, signed-in runtime smoke, and evaluator PASS.

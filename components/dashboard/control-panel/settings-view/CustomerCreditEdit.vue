@@ -28,7 +28,7 @@
         </div>
         <div class="flex items-center justify-between pb-2 border-b border-gray-200 text-sm leading-[1.42]">
           <span class="text-slate-500"> Due Date </span>
-          <span class="font-medium"> {{ creditObjectToEdit?.dueDate ? getCurrentDate(creditObjectToEdit?.dueDate) : '-' }} </span>
+          <span class="font-medium"> {{ formatReviewerDate(creditObjectToEdit?.dueDate) }} </span>
         </div>
         <div class="flex items-center justify-between pb-2 border-b border-gray-200 text-sm leading-[1.42]">
           <span class="text-slate-500"> Till Due </span>
@@ -160,7 +160,8 @@
 </template>
 
 <script setup lang="ts">
-import { addDays, format } from 'date-fns';
+import { addDays } from 'date-fns';
+import { formatReviewerDate } from '~/helpers/reviewer-dates';
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import FreezeIcon from '@/assets/icons/dashboard/freeze.svg';
@@ -254,10 +255,6 @@ await getCustomerCredit();
 
 const getAmountFormat = (money: number) => {
   return money.toLocaleString('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
-
-const getCurrentDate = (date: string) => {
-  return format(new Date(date), 'dd MMM yyyy');
 };
 
 const updateCreditTerm = async (term?: number, value?: number) => {

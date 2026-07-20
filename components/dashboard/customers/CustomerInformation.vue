@@ -168,7 +168,7 @@
               <span class="text-sm font-medium leading-tight text-slate-500">Registered</span>
             </div>
             <div class="text-sm font-medium leading-tight pl-4">
-              {{ getCurrentDate(customerInformation.createdAt ?? '') }}
+              {{ formatReviewerDateTime(customerInformation.createdAt) }}
             </div>
           </div>
           <SkeletonLoader v-if="isLoading" class="w-[120px] h-10 md:w-[160px] md:h-[18px]" />
@@ -188,7 +188,7 @@
 </template>
 
 <script setup lang="ts">
-import { format } from 'date-fns';
+import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import Emitter from 'tiny-emitter/instance.js';
 import { LockKeyholeIcon } from 'lucide-vue-next';
 import Avatar from '@/assets/icons/dashboard/avatar.png';
@@ -271,7 +271,7 @@ const fetchInformation = async () => {
     email: response.data.profileDetails?.email || 'N/A',
     account: getAccountTypeById(response.data.accountType as number) || '-',
     company: response.data.companyDetails?.name || '-',
-    registered: response.data.createdAt ? new Date(response.data.createdAt).toLocaleDateString('en-GB') : '-',
+    registered: formatReviewerDate(response.data.createdAt),
     spent: response.data.spent || 0,
     ordersCount: response.data.ordersCount || 0,
     firebaseId: response.data.firebaseId || 'N/A',
@@ -286,10 +286,6 @@ const deleteAccountAsAdmin = async (id: string) => {
   if (response.status !== 'success') {
     return;
   }
-};
-
-const getCurrentDate = (date: string) => {
-  return format(new Date(date), 'dd MMM yyyy, HH:mm');
 };
 
 await fetchInformation();
