@@ -20,7 +20,6 @@ export interface ProductInterface {
   priceHistory: PriceHistoryInterface[];
   priceConfiguration?: PriceConfigurationInterface;
   measure: string;
-  tags?: string[];
   details: ProductDetailsInterface;
   sold: number;
   adminSettings?: AdminSettings;

@@ -39,7 +39,7 @@
         </SwiperSlide>
       </Swiper>
       <NuxtLink
-        to="/manufacturers"
+        to="/"
         class="relative flex ml-auto max-w-max text-xs text-slate-500 after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-neutral-700 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100"
       >
         View all manufacturers

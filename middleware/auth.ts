@@ -16,7 +16,7 @@ export default defineNuxtRouteMiddleware((to) => {
       authStore.signOut();
     }
 
-    return navigateTo(signinPath, { replace: true, external: import.meta.client });
+    return navigateTo(signinPath);
   }
 
   if (config.public.MOCK_MODE && !parseMockToken(authToken)) {
@@ -24,6 +24,6 @@ export default defineNuxtRouteMiddleware((to) => {
       authStore.signOut();
     }
 
-    return navigateTo(signinPath, { replace: true });
+    return navigateTo(signinPath);
   }
 });

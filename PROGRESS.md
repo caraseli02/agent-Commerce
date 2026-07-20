@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- PR #364 — adversarial storefront hardening on `codex/adversarial-storefront-hardening` (review repair in progress).
+- PR #364 — cart correctness only (stock clamp, volume tiers, qty reductions, empty-cart CTA, summary totals gated on cart fetch).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- PR #364 review fixes: cart quantity reductions (negative deltas), datasheet asset/catalog filename alignment, order-summary totals gated on cart fetch completion, expired-session `signOut` restoration, and product aliases aligned to catalog identities.
+- PR #364 scope split applied per review: removed news/manufacturers routes, catalog rewrite/datasheets, and auth/error/redirect changes from this PR.
 
 ## Architecture note (cross-runtime cart pricing)
 

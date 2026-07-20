@@ -39,19 +39,6 @@ export default defineNuxtRouteMiddleware((to) => {
   const redirectTarget = to.fullPath && to.fullPath !== '/' ? to.fullPath : '';
   const signinPath = redirectTarget ? `/?signin=true&redirect=${encodeURIComponent(redirectTarget)}` : '/?signin=true';
 
-  // Cookie expired/missing while Pinia still has a persisted account — clear before UI renders.
-  if (!token.value && (authStore.loggedInUser || authStore.userDetails) && import.meta.client) {
-    authStore.signOut();
-  }
-
-  if (to.path.startsWith('/dashboard') && !token.value) {
-    if (import.meta.client) {
-      authStore.signOut();
-    }
-
-    return navigateTo(signinPath, { replace: true, external: import.meta.client });
-  }
-
   if (to.name !== 'signup' && authStore.firebaseTempToken != null) {
     authStore.firebaseTempToken = null;
   }
@@ -72,7 +59,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   if (!permissions.length) {
     if (config.public.MOCK_MODE) {
-      return navigateTo(signinPath, { replace: true });
+      return navigateTo(signinPath);
     }
 
     return;

@@ -52,9 +52,8 @@
     <div class="flex items-center justify-between gap-3 rounded-lg bg-light-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Technical Datasheet</div>
       <a
-        v-if="datasheetUrl"
         class="flex min-h-11 items-center"
-        :href="datasheetUrl"
+        :href="product.details?.SummaryData.Datasheet"
         :download="`${product.name} Datasheet`"
         target="_blank"
         rel="noopener noreferrer"
@@ -63,10 +62,14 @@
         <span class="text-xs leading-tight text-slate-500 hover:underline"> {{ product.name }}-DataSheet </span>
       </a>
     </div>
-    <div v-if="productTags.length" class="mt-1 flex items-start gap-2 rounded-lg border border-slate-100 px-3 py-3">
+    <div class="mt-1 flex items-start gap-2 rounded-lg border border-slate-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Tags:</div>
       <div class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-xs leading-tight font-medium text-blue-500">
-        <span v-for="tag in productTags" :key="tag"> #{{ tag }} </span>
+        <span> #Diode </span>
+        <span> #Connector </span>
+        <span> #GasDetector </span>
+        <span> #Thermostat </span>
+        <span> #Transistor </span>
       </div>
     </div>
     <LayoutCustomProductPartNumberModal
@@ -90,6 +93,4 @@ const props = defineProps<{
 
 const showCustomProductPartNumberModal = ref(false);
 const cadModelLabel = computed(() => `${props.product.alias || props.product.manufacturerCode || props.product.name}-ECAD-Model`);
-const datasheetUrl = useDatasheetUrl(() => props.product.details?.SummaryData.Datasheet);
-const productTags = computed(() => (props.product.tags || []).map((tag) => tag.replace(/^#/, '').trim()).filter(Boolean));
 </script>

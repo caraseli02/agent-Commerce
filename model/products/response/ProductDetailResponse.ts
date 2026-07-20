@@ -18,7 +18,6 @@ export interface ProductDetail {
   priceRon: number;
   priceEur: number;
   sold: number;
-  tags?: string[];
   adminSettings: {
     featured: boolean;
     stockClearance: boolean;

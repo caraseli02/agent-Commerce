@@ -1,4 +1,4 @@
-import { useNuxtApp, useRuntimeConfig } from '#app';
+import { useNuxtApp } from '#app';
 import useFirebaseAuth from '~/composables/useFirebaseAuth';
 import type { LoginRequest } from '~/model/auth/request/LoginRequest';
 import type { ProductResponse } from '~/model/products/response/ProductResponse';
@@ -11,13 +11,9 @@ import type {
 const RESOURCE = '/auth';
 
 export async function login(payload: LoginRequest): Promise<ProductResponse> {
-  const config = useRuntimeConfig() as {
-    public: { MOCK_MODE?: boolean; BASE_URL_API?: string };
-  };
-  const loginUrl = config.public.MOCK_MODE ? `/api${RESOURCE}/login` : `${config.public.BASE_URL_API}${RESOURCE}/login`;
+  const { $apiClient } = useNuxtApp();
 
-  // Use plain $fetch so a failed sign-in 401 does not trigger the global apiClient redirect.
-  return await $fetch<ProductResponse>(loginUrl, {
+  return await $apiClient<ProductResponse>(`${RESOURCE}/login`, {
     method: 'POST',
     body: payload,
   });
