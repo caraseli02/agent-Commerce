@@ -12,7 +12,7 @@
             </div>
           </div>
           <div class="text-xs leading-[1.67] font-semibold text-primary mr-auto md:mr-0 lg:text-sm lg:leading-[1.43]">
-            <span class="uppercase">Free</span> shipping on orders over $150
+            <span class="uppercase">Free</span> shipping on orders over {{ freeShippingThreshold }}
           </div>
           <button class="flex items-center" @click="showRegionalPreferencesModal = true">
             <RonFlag class="w-6 h-5 mr-2.5" />
@@ -40,6 +40,11 @@ const regionalLabel = computed(() => {
   const lang = language.value?.value === 'romanian' ? 'RO' : 'EN';
   const curr = currency.value?.label || 'Lei';
   return `${lang} · ${curr}`;
+});
+
+const freeShippingThreshold = computed(() => {
+  const curr = currency.value?.label || 'Lei';
+  return `150 ${curr}`;
 });
 
 defineProps({

@@ -31,13 +31,17 @@ defineProps<{
         </div>
       </div>
       <div class="items-stretch flex justify-between gap-3">
-        <UiButton class="w-full bg-green-600">
-          <BoxIcon class="w-4 h-4 mr-2 text-white" />
-          All Active
+        <UiButton as-child class="w-full bg-green-600">
+          <NuxtLink to="/dashboard/client?tab=orders" class="w-full inline-flex items-center justify-center">
+            <BoxIcon class="w-4 h-4 mr-2 text-white" />
+            All Active
+          </NuxtLink>
         </UiButton>
-        <UiButton class="w-full">
-          <MapPinIcon class="w-4 h-4 mr-2 text-white" />
-          Track Order
+        <UiButton as-child class="w-full">
+          <NuxtLink to="/order-tracking" class="w-full inline-flex items-center justify-center">
+            <MapPinIcon class="w-4 h-4 mr-2 text-white" />
+            Track Order
+          </NuxtLink>
         </UiButton>
       </div>
     </template>

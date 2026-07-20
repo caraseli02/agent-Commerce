@@ -2,13 +2,14 @@
 
 ## Current focus
 
-- Issue #368 / PR #364 — cart correctness: stock clamp, volume tiers, qty reductions, mixed stock/backorder integrity, empty-cart CTA, summary totals gated on successful cart fetch.
+- Issue #368 / PR #364 — storefront hardening: cart correctness + P2 QA fixes (guest checkout flash, dashboard CTAs, footer auth links, Lei currency, category counts/View all).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
 - Issue #368 claimed (`in-progress`) on branch `codex/adversarial-storefront-hardening` (PR #364).
-- P1 blockers addressed: mixed-line available/backorder separation; `hasFetchedCart` only after successful refresh; issue linked; `pnpm verify:full` PASS with API + order-summary browser evidence.
+- P1 cart blockers already addressed; P2 storefront QA fixes implemented this session.
+- Next: browser smoke for P2 surfaces, then evaluator/hand-off when ready.
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -17,6 +18,15 @@
 - Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
 
 ## Recently completed
+
+- P2 QA batch on #368 / PR #364:
+
+  - Order summary guest/sign-in CTA uses cookie `token` (SSR-safe) so signed-in buyers no longer flash Guest UI.
+  - Dashboard Active Orders / Outstanding Invoices CTAs link to `/dashboard/client?tab=orders` and `/order-tracking`.
+  - Footer Review flows hide “Sign in to demo” when authenticated; Order History goes to dashboard orders tab.
+  - Hot-sale prices and header free-shipping copy use Lei (regional currency label).
+  - Demo category `productCount` matches catalog index; category menu “View all” always navigates to search.
+  - `pnpm verify` PASS after the batch.
 
 - Issue #360 — shared `helpers/reviewer-dates.ts` formatter for order/customer/credit/table dates; PR #362 merged.
 - Issue #292 — shared control-panel address manager with local mock CRUD and focused browser coverage; PR #342 merged after evaluator PASS.
