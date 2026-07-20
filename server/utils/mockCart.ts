@@ -1,5 +1,6 @@
 import type { CartInterface, CartProductsInterface } from '~/types/cart';
 import { getCookie, setCookie, type H3Event } from 'h3';
+import { calculateCartLinePricing, clampCartQuantity } from '~/helpers/cart-pricing';
 import { mockProducts } from '~/server/utils/mockProducts';
 import { parseMockUserIdFromToken } from '~/server/utils/mockUsers';
 import type { DiscountInterface } from '~/types/auth/account-settings';
@@ -65,22 +66,15 @@ type ProductPriceHistoryEntry = {
 };
 
 type ProductEntityLike = {
+  stock?: number;
+  priceConfiguration?: {
+    configuration?: Array<{ price?: number; quantity?: number }>;
+  };
   priceHistory?: ProductPriceHistoryEntry[];
 };
 
 const calculatePricing = (productEntity: ProductEntityLike | null | undefined, stock = 0, backorderStock = 0) => {
-  const activePrice = productEntity?.priceHistory?.find?.((entry) => entry?.active)?.price ?? productEntity?.priceHistory?.[0]?.price ?? 0;
-  const initialUnitPrice = Number(activePrice) || 0;
-  const unitPriceAfterDiscounts = initialUnitPrice;
-  const subtotal = unitPriceAfterDiscounts * (Number(stock) + Number(backorderStock));
-  const total = subtotal;
-
-  return {
-    initialUnitPrice,
-    unitPriceAfterDiscounts,
-    subtotal: Number(subtotal.toFixed(2)),
-    total: Number(total.toFixed(2)),
-  };
+  return calculateCartLinePricing(productEntity, stock, backorderStock);
 };
 
 const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: CartProductsInterface, mode: 'add' | 'set' = 'add') => {
@@ -94,7 +88,7 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
   const incomingStock = Number(input.stock ?? 0);
   const incomingBackorder = Number(input.backorder_stock ?? 0);
 
-  const stock = input.updateOnlyBackorderStock ? previousStock : mode === 'add' ? previousStock + incomingStock : incomingStock || 0;
+  let stock = input.updateOnlyBackorderStock ? previousStock : mode === 'add' ? previousStock + incomingStock : incomingStock || 0;
 
   const backorder_stock = input.updateOnlyAvailableStock
     ? previousBackorder
@@ -103,6 +97,14 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
     : incomingBackorder || 0;
 
   const productEntity = resolvedEntity || previous.productEntity;
+
+  if (!input.updateOnlyBackorderStock && productEntity) {
+    const clampResult = clampCartQuantity(productEntity, stock, {
+      existingBackorderStock: backorder_stock,
+    });
+    stock = clampResult.stock;
+  }
+
   const pricing = calculatePricing(productEntity, stock, backorder_stock);
 
   return {

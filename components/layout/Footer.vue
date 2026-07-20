@@ -77,8 +77,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue';
+import { storeToRefs } from 'pinia';
 import Logo from '@/assets/media/logo.svg';
-const navItems = {
+import { useAuthStore } from '~/store/authStore';
+
+const authStore = useAuthStore();
+const { token, userDetails } = storeToRefs(authStore);
+const isSignedIn = computed(() => Boolean(token.value || userDetails.value));
+
+const navItems = computed(() => ({
   Storefront: [
     {
       label: 'Home',
@@ -94,20 +102,24 @@ const navItems = {
     },
   ],
   'Review flows': [
-    {
-      label: 'Sign in to demo',
-      to: '/?signin=true',
-    },
+    ...(isSignedIn.value
+      ? []
+      : [
+          {
+            label: 'Sign in to demo',
+            to: '/?signin=true',
+          },
+        ]),
     {
       label: 'Track Order',
       to: '/order-tracking',
     },
     {
       label: 'Order History',
-      to: '/?signin=true&redirect=%2Fdashboard%2Fclient',
+      to: isSignedIn.value ? '/dashboard/client?tab=orders' : '/?signin=true&redirect=%2Fdashboard%2Fclient%3Ftab%3Dorders',
     },
   ],
-};
+}));
 
 const email = ref('');
 const isSubscribed = ref(false);

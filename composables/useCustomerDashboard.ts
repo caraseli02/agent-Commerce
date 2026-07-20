@@ -21,6 +21,7 @@ import type { ProductInterface } from '~/model/products/response/ProductResponse
 import { AccountType } from '~/types';
 import type { StripeCardInterface } from '~/types';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 interface OrderIdItem {
   shortId: string;
@@ -151,6 +152,7 @@ export const useCustomerDashboard = () => {
 
   const hotSalesFunction = async () => {
     const currMonthName = format(new Date(), 'MMMM');
+    const currencyLabel = useRegionalPreferencesStore().currency?.label || 'Lei';
 
     hotSales.value = myMonthHotSale.value.map((slide): ProductBannerInterface => {
       const discountPrice = parseProductPriceConfiguration(slide, getUserDetails.value, slide.stock);
@@ -160,10 +162,10 @@ export const useCustomerDashboard = () => {
         productCode: slide.manufacturerCode ?? '',
         description: slide.description ?? '',
         details: slide.variant ?? slide.measure ?? '',
-        originalPrice: `$ ${discountPrice?.priceConfiguration.price.toFixed(2)} (${
+        originalPrice: `${discountPrice?.priceConfiguration.price.toFixed(2)} ${currencyLabel} (${
           discountPrice?.minimumOrderQuantityConfiguration.quantity
         }+)`,
-        salePrice: `$ ${discountPrice?.currentConfigurationDiscountPrice.toFixed(2)}`,
+        salePrice: `${discountPrice?.currentConfigurationDiscountPrice.toFixed(2)} ${currencyLabel}`,
         _id: slide._id,
         quantity: discountPrice?.minimumOrderQuantityConfiguration.quantity ?? 0,
         addToCartText: 'Add to cart',
