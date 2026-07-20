@@ -1,16 +1,32 @@
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+type ProductPriceTier = {
+  configuration?: Array<{ price?: number; quantity?: number }>;
+};
 
-type ProductWithPricing = Pick<ProductInterface, 'priceConfiguration' | 'priceHistory' | 'stock'> | null | undefined;
+type ProductPriceHistoryEntry = {
+  active?: boolean;
+  price?: number;
+};
+
+/** Structural product shape used by cart pricing helpers (client + mock server). */
+export type ProductWithPricing =
+  | {
+      stock?: number;
+      priceConfiguration?: ProductPriceTier;
+      priceHistory?: ProductPriceHistoryEntry[];
+    }
+  | null
+  | undefined;
 
 export const resolveTierUnitPrice = (product: ProductWithPricing, quantity = 0) => {
   const configurations = product?.priceConfiguration?.configuration;
 
   if (configurations?.length) {
-    let unitPrice = configurations[0].price;
+    let unitPrice = configurations[0]?.price;
 
     for (let i = configurations.length - 1; i >= 0; i--) {
-      if (quantity >= configurations[i].quantity) {
-        unitPrice = configurations[i].price;
+      const tier = configurations[i];
+      if (quantity >= Number(tier?.quantity ?? 0)) {
+        unitPrice = tier?.price;
         break;
       }
     }
