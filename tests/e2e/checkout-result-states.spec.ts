@@ -87,7 +87,10 @@ test.describe('Checkout result states', () => {
 
   test('stateful checkout failure keeps order-specific recovery actions', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
-    await page.getByRole('button', { name: /add to cart/i }).first().click();
+    await page
+      .getByRole('button', { name: /add to cart/i })
+      .first()
+      .click();
     await navigateTo(page, '/order-summary');
     await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
     await submitCustomerSignIn(page);
@@ -112,14 +115,17 @@ test.describe('Checkout result states', () => {
     await Promise.all([page.waitForURL(/\/checkout\/fail/), secureCheckoutButton.click()]);
 
     await expect(page.getByRole('heading', { name: /payment failed/i })).toBeVisible();
-    await expect(page.getByText(/mock checkout failure|something went wrong/i)).toBeVisible();
+    await expect(page.getByText(/unable to complete checkout|something went wrong/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /try again/i })).toBeEnabled();
     await expect(page.getByRole('button', { name: /cancel order/i })).toBeEnabled();
   });
 
   test('stateful checkout success keeps confirmed order details', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
-    await page.getByRole('button', { name: /add to cart/i }).first().click();
+    await page
+      .getByRole('button', { name: /add to cart/i })
+      .first()
+      .click();
     await navigateTo(page, '/order-summary');
     await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
     await submitCustomerSignIn(page);

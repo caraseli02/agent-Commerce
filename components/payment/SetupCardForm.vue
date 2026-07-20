@@ -1,7 +1,7 @@
 <template>
   <div class="relative min-h-[50vh] md:w-full">
     <div class="mx-auto flex w-full max-w-xl flex-col items-center justify-center gap-4 p-4 text-center md:p-[30px] lg:pt-10">
-      <div class="text-xl font-semibold">Card setup disabled in demo</div>
+      <h1 class="text-xl font-semibold">Card setup disabled in demo</h1>
       <p class="text-sm text-slate-500">
         Stripe card setup is not available in this portfolio preview build. Use the enabled navigation below to return to account settings.
       </p>
