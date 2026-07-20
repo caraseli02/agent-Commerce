@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ref } from 'vue';
@@ -395,7 +395,7 @@ describe('order confirmation module', () => {
       },
     });
     expect(confirmation.notes.value).toEqual([{ sender: 'buyer', message: 'Ring the bell' }]);
-    expect(confirmation.date.value).toBe(format(new Date('2026-07-10T10:30:00.000Z'), 'dd MMMM yyyy, HH:mm'));
+    expect(confirmation.date.value).toBe(formatReviewerDateTime('2026-07-10T10:30:00.000Z'));
     expect(confirmation.paymentSummary.value).toMatchObject({
       subtotal: 100,
       shippingCost: 19,

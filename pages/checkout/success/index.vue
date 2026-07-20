@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowRight, CheckCircle2, LayoutDashboard, LoaderIcon, ShoppingBag, TruckIcon } from 'lucide-vue-next';
-import { format } from 'date-fns';
+import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { useCartStore } from '~/store/cartStore';
 import { getOrderById } from '~/composables/api/orders';
 import { PaymentTypeEnum } from '~/types';
@@ -57,13 +57,13 @@ const orderDate = computed(() => {
     return 'Just now';
   }
 
-  return format(new Date(order.value.createdAt), 'dd MMM yyyy, HH:mm');
+  return formatReviewerDateTime(order.value.createdAt);
 });
 
 const estimatedPickup = computed(() => {
   const pickupDate = order.value?.shippingDetails?.statusTracking?.estimatedPickUpDate;
 
-  return pickupDate ? format(new Date(pickupDate), 'dd MMM yyyy') : '';
+  return formatReviewerDate(pickupDate);
 });
 
 const orderSummaryHref = computed(() => {

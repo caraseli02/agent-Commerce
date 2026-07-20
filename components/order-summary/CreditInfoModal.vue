@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import { format } from 'date-fns';
+import { formatReviewerDate } from '~/helpers/reviewer-dates';
 import SettingCog from '@/assets/icons/setting-cog.svg';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 
@@ -71,7 +71,7 @@ export default defineComponent({
   },
   computed: {
     formattedDueDate() {
-      return format(new Date(this.accountCredit.dueDate), 'dd MMM yyyy');
+      return formatReviewerDate(this.accountCredit.dueDate);
     },
   },
 });
