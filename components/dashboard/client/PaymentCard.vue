@@ -58,7 +58,7 @@ import type { StripeCardInterface } from '~/types';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 
 defineProps<{
-  card: StripeCardInterface;
+  card?: StripeCardInterface | null;
 }>();
 
 const cardImg = {

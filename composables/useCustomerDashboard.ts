@@ -44,7 +44,7 @@ const myAddresses = ref<ShippingAddressInterface[]>([]);
 const myViewHistory = ref<ProductInterface[]>([]);
 const myMonthHotSale = ref<ProductInterface[]>([]);
 const hotSales = ref<ProductBannerInterface[]>([]);
-const myCard = ref<StripeCardInterface>({} as StripeCardInterface);
+const myCard = ref<StripeCardInterface | null>(null);
 
 export const useCustomerDashboard = () => {
   const userDetails = useAuthStore().userDetails;
@@ -172,7 +172,7 @@ export const useCustomerDashboard = () => {
   };
 
   const getDefaultCard = async () => {
-    myCard.value = userCards?.filter((card) => card.default)[0] as StripeCardInterface;
+    myCard.value = userCards?.find((card) => card.default) ?? null;
   };
 
   return {

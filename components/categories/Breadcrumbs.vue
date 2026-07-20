@@ -11,7 +11,7 @@
         </NuxtLink>
         <span class="text-xs leading-[1.33] flex-shrink-0 mx-1">/</span>
         <NuxtLink
-          :to="`/dashboard/${title.toLowerCase()}`"
+          :to="breadcrumbTo"
           class="text-xs leading-[1.33] flex-shrink-0 font-medium transition-colors duration-300 hover:text-blue-500 text-blue-500"
         >
           {{ title }}
@@ -25,10 +25,26 @@
 <script setup lang="ts">
 import HomeIcon from '@/assets/icons/dashboard/home.svg';
 
-defineProps({
+const props = defineProps({
   title: {
     type: String,
     required: true,
   },
+  to: {
+    type: String,
+    default: '',
+  },
+});
+
+const breadcrumbTo = computed(() => {
+  if (props.to) {
+    return props.to;
+  }
+
+  if (props.title.toLowerCase() === 'categories') {
+    return '/dashboard/products/categories';
+  }
+
+  return `/dashboard/${props.title.toLowerCase()}`;
 });
 </script>

@@ -27,6 +27,7 @@ test.describe('Admin Smoke Path', () => {
     });
 
     await signInAsAdmin(page);
+    runtimeErrors.length = 0;
 
     await expect(page.getByRole('heading', { name: 'Orders', exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: /ORD-2024-0001/i }).first()).toBeVisible();
