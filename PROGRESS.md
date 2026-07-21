@@ -2,14 +2,13 @@
 
 ## Current focus
 
-- Issue #368 / PR #364 — storefront hardening: cart correctness + P2 QA fixes (guest checkout flash, dashboard CTAs, footer auth links, Lei currency, category counts/View all).
+- Issue #357 / PR #367 — truthful checkout result/recovery states; synced with main and preparing for merge.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #368 claimed (`in-progress`) on branch `codex/adversarial-storefront-hardening` (PR #364).
-- P1 cart blockers already addressed; P2 storefront QA fixes implemented this session.
-- Next: browser smoke for P2 surfaces, then evaluator/hand-off when ready.
+- Issue #357 — fail/success recovery copy, gated success messaging, enabled demo payment navigation, Playwright coverage.
+- PR #367 merged onto latest `main`; awaiting green CI after push.
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -18,6 +17,8 @@
 - Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
 
 ## Recently completed
+
+- Issue #368 / PR #364 — storefront hardening merged to `main`.
 
 - P2 QA batch on #368 / PR #364:
 
