@@ -66,7 +66,7 @@ function checkCartItem(itemId: string) {
   >
     <div class="flex flex-row truncate">
       <label class="flex cursor-pointer mr-4">
-        <input :value="item.selected" type="checkbox" class="sr-only" @change="checkCartItem(item.id)" />
+        <input :value="item.selected" type="checkbox" class="sr-only" @change="checkCartItem(item.id)" >
         <div
           class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
           :class="[

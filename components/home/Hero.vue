@@ -6,7 +6,7 @@
       <div class="block md:hidden relative overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm mb-5 min-h-[320px]">
         <div class="absolute inset-0 bg-slate-50" />
         <div class="relative z-10 flex flex-col justify-center h-full px-6 py-9">
-          <h1 class="text-3xl font-bold text-zinc-800 leading-tight mb-4">Electronic Components,<br />Sourced Reliably</h1>
+          <h1 class="text-3xl font-bold text-zinc-800 leading-tight mb-4">Electronic Components,<br >Sourced Reliably</h1>
           <p class="text-sm leading-6 text-slate-500 mb-7 max-w-xs">
             Browse thousands of parts from trusted manufacturers. Check stock, compare specs, and order with confidence.
           </p>

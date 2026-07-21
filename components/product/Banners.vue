@@ -12,14 +12,14 @@
               <h2 class="font-semibold md:text-[32px] lg:text-2xl xl:text-[32px]">Quote-ready parts for active orders</h2>
             </div>
           </div>
-          <img :src="Banner1Item" alt="Banner" class="relative z-20 w-[100px] object-contain md:w-[175px]" loading="lazy" />
+          <img :src="Banner1Item" alt="Banner" class="relative z-20 w-[100px] object-contain md:w-[175px]" loading="lazy" >
           <img
             :src="Banner1Bg"
             alt=""
             class="absolute top-0 left-0 w-full h-full object-cover rounded-md opacity-20"
             loading="lazy"
             aria-hidden="true"
-          />
+          >
         </div>
         <div
           class="relative flex items-center justify-between rounded-md px-[30px] py-[13px] overflow-hidden border border-slate-200 bg-slate-800"
@@ -30,14 +30,14 @@
               <h2 class="font-semibold text-white md:text-[32px] lg:text-2xl xl:text-[32px]">Compare inventory and pricing in one place</h2>
             </div>
           </div>
-          <img :src="Banner2Item" alt="Banner" class="relative z-20 w-[100px] object-contain md:w-[175px]" loading="lazy" />
+          <img :src="Banner2Item" alt="Banner" class="relative z-20 w-[100px] object-contain md:w-[175px]" loading="lazy" >
           <img
             :src="Banner2Bg"
             alt=""
             class="absolute top-0 left-0 w-full h-full object-cover rounded-md opacity-15"
             loading="lazy"
             aria-hidden="true"
-          />
+          >
         </div>
       </div>
     </div>

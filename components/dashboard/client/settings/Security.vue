@@ -75,7 +75,7 @@ async function sendResetPasswordLink() {
         <span class="ml-2">Send Password Reset</span>
       </UiButton>
     </div>
-    <hr class="self-stretch mt-8 w-full border border-grey-100 border-solid stroke-[1px] stroke-gray-200 max-md:max-w-full" />
+    <hr class="self-stretch mt-8 w-full border border-grey-100 border-solid stroke-[1px] stroke-gray-200 max-md:max-w-full" >
     <h2 class="mt-8 text-xl font-semibold leading-7 text-neutral-800">Third party applications logins</h2>
     <p class="mt-4 text-sm leading-5 text-neutral-800">Connect or disable third party application logins here.</p>
     <UiButton class="min-w-[320px] border-blue-500 mt-8" size="lg" variant="outline">

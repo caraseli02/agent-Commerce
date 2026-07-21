@@ -21,7 +21,7 @@
                 autocomplete="email"
                 required
                 class="w-full rounded-md bg-white px-4 py-[11px] text-sm font-medium text-neutral-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:rounded-l-md sm:rounded-r-none md:w-[250px] lg:w-[280px] 2xl:w-[350px]"
-              />
+              >
             </label>
             <button
               type="submit"

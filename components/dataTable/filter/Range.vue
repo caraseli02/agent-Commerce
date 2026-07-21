@@ -52,14 +52,14 @@ const selectedValues = computed(() => props.column?.getFilterValue() as string[]
           <label>
             <div class="flex items-center border border-gray-300 rounded-lg pl-3 text-[14px] leading-4 h-8">
               <span v-if="props.prefix" class="font-medium mr-1">{{ props.prefix }}</span>
-              <input v-model.number="range[0]" type="number" class="bg-transparent py-2 w-full focus:outline-none" />
+              <input v-model.number="range[0]" type="number" class="bg-transparent py-2 w-full focus:outline-none" >
             </div>
           </label>
           <div class="h-full pt-[2.5px]">-</div>
           <label>
             <div class="flex items-center border border-gray-300 rounded-lg pl-3 text-[14px] leading-4 h-8">
               <span v-if="props.prefix" class="font-medium mr-1">{{ props.prefix }}</span>
-              <input v-model.number="range[1]" type="number" class="bg-transparent py-2 w-full focus:outline-none" />
+              <input v-model.number="range[1]" type="number" class="bg-transparent py-2 w-full focus:outline-none" >
             </div>
           </label>
         </div>

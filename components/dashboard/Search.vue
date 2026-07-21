@@ -10,7 +10,7 @@
       class="flex w-full px-3 pr-10 text-sm bg-white leading-[1.6] text-slate-500 placeholder:text-gray-500 font-normal placeholder:font-normal transition-colors duration-300 focus:outline-none focus:border-blue-500"
       :class="[size === 'lg' ? 'py-2.5 h-11' : size === 'md' ? 'py-1.5 h-10' : 'py-1.5 h-9']"
       @input="handleInput"
-    />
+    >
     <XIcon v-if="modelValue" class="absolute top-1/2 -translate-y-1/2 right-3 w-5 h-5 text-slate-500 cursor-pointer" @click="clearSearch" />
     <SearchIcon v-else class="absolute top-1/2 -translate-y-1/2 right-3 w-5 h-5 text-gray-500" />
   </label>

@@ -22,7 +22,7 @@
             type="number"
             placeholder="Discount (i.e. 5, 10, 17)"
             class="bg-transparent px-2 text-sm w-full transition-colors duration-300 focus:outline-none"
-          />
+          >
         </div>
       </template>
     </div>

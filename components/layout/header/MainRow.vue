@@ -105,7 +105,7 @@
                       searchVal = '';
                     "
                     @blur="showMobileSearch = false"
-                  />
+                  >
                 </form>
                 <XIcon class="flex-shrink-0 w-5 h-5 text-slate-500" @click="showMobileSearch = false" />
               </label>

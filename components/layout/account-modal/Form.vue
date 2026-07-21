@@ -45,7 +45,7 @@
     </div>
     <div class="mt-3 mb-5">
       <label class="flex min-h-11 items-center cursor-pointer">
-        <input v-model="rememberMe" type="checkbox" class="peer sr-only" />
+        <input v-model="rememberMe" type="checkbox" class="peer sr-only" >
         <div
           class="mr-2 flex h-5 w-5 items-center justify-center rounded border transition-colors duration-300 peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2"
           :class="[rememberMe ? 'bg-blue-500 border-blue-500' : 'border-[#CBCDD7]']"

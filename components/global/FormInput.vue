@@ -28,7 +28,7 @@
         ]"
         :disabled="disabled"
         @input="handleInput"
-      />
+      >
     </div>
     <p v-if="error" :id="errorId" role="alert" class="mt-1 text-xs leading-normal text-rose-500">
       {{ error }}
