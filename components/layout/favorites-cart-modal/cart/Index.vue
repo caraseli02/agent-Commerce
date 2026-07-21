@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col flex-1 max-w-full h-full">
-    <div class="py-4 px-4 flex-1 h-full overflow-y-auto overscroll-contain scrollbar-thin max-h-vh md:py-6">
+    <div class="flex-1 h-full overflow-y-auto overscroll-contain scrollbar-thin max-h-vh px-4 py-4 md:px-6">
       <div class="grid grid-cols-1 gap-4">
-        <LayoutFavoritesCartModalCartCartProductItem v-for="item in items" :key="item.id" :product="item" @delete-product="deleteProduct" />
+        <CartProductItem v-for="item in items" :key="item.id" :product="item" @delete-product="deleteProduct" />
       </div>
     </div>
     <div
@@ -42,7 +42,7 @@ import CartIcon from '@/assets/icons/cart.svg';
 import type { PropType } from 'vue';
 import { useCart } from '~/composables/useCart';
 import type { CartInterface, CartProductsInterface } from '~/types/cart';
-import type { CartLineItem } from '~/components/layout/favorites-cart-modal/cart/CartProductItem.vue';
+import CartProductItem, { type CartLineItem } from '~/components/layout/favorites-cart-modal/cart/CartProductItem.vue';
 import { useCartStore } from '~/store/cartStore';
 
 const props = defineProps({
