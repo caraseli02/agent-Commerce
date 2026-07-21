@@ -1,5 +1,11 @@
 <template>
-  <ProductBlocks masonry-view :rows-number="2" class="mb-7 lg:mb-[38px] xl:mb-[58px]" :filters="filters">
+  <ProductBlocks
+    masonry-view
+    :rows-number="2"
+    class="mb-7 lg:mb-[38px] xl:mb-[58px]"
+    :filters="filters"
+    :fetched-products="productList ?? []"
+  >
     <template #banner>
       <div class="md:pt-6 md:pr-0 h-[calc(100%-30px)] mx-2 md:mx-3 xl:mx-0 xl:mr-3 xl:min-w-[330px] xl:min-h-[592px]">
         <div
@@ -32,30 +38,24 @@
 
 <script setup lang="ts">
 import PromoItem from '@/assets/media/home/black-friday-item.png';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface, ProductResponse } from '~/model/products/response/ProductResponse';
 import { fetchProductTab } from '~/composables/api/products';
 
-const productList = ref<ProductInterface[]>([]);
-
 const filters = ['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched'];
+const config = useRuntimeConfig();
+const requestFetch = useRequestFetch();
 
-async function getProductTab() {
+const { data: productList } = await useAsyncData('home-featured-products', async () => {
   try {
-    const response = await fetchProductTab('featured');
+    const response = config.public.MOCK_MODE
+      ? await requestFetch<ProductResponse>('/api/products/featured')
+      : await fetchProductTab('featured');
     const data = response?.data || response;
 
-    if (Array.isArray(data)) {
-      productList.value = data as ProductInterface[];
-    } else {
-      productList.value = [];
-    }
+    return Array.isArray(data) ? (data as ProductInterface[]) : [];
   } catch (error) {
     console.error('Failed to load featured products', error);
-    productList.value = [];
+    return [];
   }
-}
-
-onMounted(() => {
-  getProductTab();
 });
 </script>
