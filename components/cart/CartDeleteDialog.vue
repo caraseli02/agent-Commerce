@@ -1,13 +1,17 @@
 <template>
   <UiDialog :open="isOpen" @update:open="onOpenChange">
     <UiDialogContent>
-      <div class="flex items-center justify-between pr-8">
-        <div class="flex items-center text-slate-500">
-          <TrashIcon class="w-6 h-6 mr-2 shrink-0" />
-          <span class="font-medium">{{ resolvedTitle }}</span>
+      <UiDialogHeader class="space-y-3 pr-8 text-center sm:text-center">
+        <div class="flex items-center justify-center gap-2 text-slate-500">
+          <TrashIcon class="w-6 h-6 shrink-0" aria-hidden="true" />
+          <UiDialogTitle class="text-base font-medium leading-none tracking-normal text-slate-500">
+            {{ resolvedTitle }}
+          </UiDialogTitle>
         </div>
-      </div>
-      <div class="text-sm text-center">{{ resolvedDescription }}</div>
+        <UiDialogDescription class="text-sm text-center text-slate-700 dark:text-slate-300">
+          {{ resolvedDescription }}
+        </UiDialogDescription>
+      </UiDialogHeader>
       <div class="flex items-center justify-center gap-2.5">
         <UiButton :disabled="isDeleting || !ids.length" @click="confirmDelete">
           {{ confirmLabel }}
@@ -23,6 +27,11 @@
 <script setup lang="ts">
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import { useCart } from '~/composables/useCart';
+import {
+  resolveCartDeleteDescription,
+  resolveCartDeleteProductIds,
+  resolveCartDeleteTitle,
+} from '~/utils/cartDeleteDialog';
 
 const isOpen = defineModel<boolean>();
 
@@ -55,35 +64,28 @@ const emits = defineEmits<{
 const { removeFromCart } = useCart();
 const isDeleting = ref(false);
 
-const ids = computed(() => {
-  if (props.productIds?.length) {
-    return props.productIds;
-  }
+const ids = computed(() =>
+  resolveCartDeleteProductIds({
+    productIds: props.productIds,
+    productId: props.productId,
+  })
+);
 
-  return props.productId ? [props.productId] : [];
-});
+const resolvedTitle = computed(() =>
+  resolveCartDeleteTitle({
+    productIds: props.productIds,
+    productId: props.productId,
+    title: props.title,
+  })
+);
 
-const count = computed(() => ids.value.length);
-
-const resolvedTitle = computed(() => {
-  if (props.title) {
-    return props.title;
-  }
-
-  return count.value > 1 ? 'Delete Items' : 'Delete Item';
-});
-
-const resolvedDescription = computed(() => {
-  if (props.description) {
-    return props.description;
-  }
-
-  if (count.value > 1) {
-    return `Delete ${count.value} selected items?`;
-  }
-
-  return 'Delete selected item?';
-});
+const resolvedDescription = computed(() =>
+  resolveCartDeleteDescription({
+    productIds: props.productIds,
+    productId: props.productId,
+    description: props.description,
+  })
+);
 
 const onOpenChange = (open: boolean) => {
   if (isDeleting.value && !open) {

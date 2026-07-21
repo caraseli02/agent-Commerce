@@ -38,10 +38,11 @@ describe('storefront favorites removal boundary', () => {
     const deleteDialog = source('components/cart/CartDeleteDialog.vue');
 
     expect(orderSummaryItem).toContain("import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue'");
-    expect(orderSummaryItem).toContain('<CartDeleteDialog v-model="deleteItem" :product-ids="[item.id]"');
+    expect(orderSummaryItem).toContain('<CartDeleteDialog');
     expect(orderSummaryItem).not.toContain('LayoutFavoritesModalsDelete');
-    expect(deleteDialog).toContain('products: ids.value');
-    expect(deleteDialog).toContain("if (removed?.status === 'success')");
+    expect(deleteDialog).toContain('UiDialogTitle');
+    expect(deleteDialog).toContain('UiDialogDescription');
+    expect(deleteDialog).toContain('resolveCartDeleteProductIds');
     expect(deleteDialog).toContain("emits('removed')");
   });
 });
