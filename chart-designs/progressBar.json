@@ -36,7 +36,6 @@
         "plotOptions": {
             "bar": {
                 "horizontal": true,
-                "dataLabels": false,
                 "barHeight": 8,
                 "borderRadius": 4,
                 "colors": {
@@ -114,7 +113,6 @@
         "plotOptions": {
             "bar": {
                 "horizontal": true,
-                "dataLabels": false,
                 "barHeight": 8,
                 "borderRadius": 4,
                 "colors": {
@@ -192,7 +190,6 @@
         "plotOptions": {
             "bar": {
                 "horizontal": true,
-                "dataLabels": false,
                 "barHeight": 8,
                 "borderRadius": 4,
                 "colors": {
@@ -270,7 +267,6 @@
         "plotOptions": {
             "bar": {
                 "horizontal": true,
-                "dataLabels": false,
                 "barHeight": 8,
                 "borderRadius": 4,
                 "colors": {
