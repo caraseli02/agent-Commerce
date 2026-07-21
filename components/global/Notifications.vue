@@ -22,7 +22,10 @@
         </div>
       </button>
     </UiSheetTrigger>
-    <LazyUiSheetContent class="md:max-h-[calc(100vh-48px)] w-full h-full md:min-w-[440px] p-0 md:m-6 overflow-hidden rounded-xl">
+    <LazyUiSheetContent
+      hidde-close-button
+      class="md:max-h-[calc(100vh-48px)] w-full h-full md:min-w-[440px] p-0 md:m-6 overflow-hidden rounded-xl"
+    >
       <div class="relative flex flex-col gap-[60px] pt-4 px-3 shadow-s">
         <div class="flex items-center justify-between">
           <p class="text-2xl font-medium">Notifications</p>
