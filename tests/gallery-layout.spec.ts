@@ -42,13 +42,6 @@ function getDirectiveArgContent(prop: ElementNode['props'][number]): string | un
   return prop.arg.content;
 }
 
-function getDirectiveExpContent(prop: ElementNode['props'][number]): string | undefined {
-  if (prop.type !== NodeTypes.DIRECTIVE || !prop.exp || prop.exp.type !== NodeTypes.SIMPLE_EXPRESSION) {
-    return undefined;
-  }
-
-  return prop.exp.content;
-}
 function hasProp(element: ElementNode, name: string): boolean {
   return element.props.some((prop) => {
     if (prop.type === NodeTypes.ATTRIBUTE) {
@@ -60,32 +53,30 @@ function hasProp(element: ElementNode, name: string): boolean {
 }
 
 describe('product gallery layout regression', () => {
-  it('keeps image sizing classes on ImageWithFallback call sites', () => {
+  it('fills the card with a hero image and overlays actions (no desktop thumbnail strip)', () => {
     const source = readFileSync(galleryPath, 'utf8');
     const { descriptor } = parseSfc(source);
 
     expect(descriptor.template).toBeTruthy();
 
     const ast = baseParse(descriptor.template!.content);
+    const root = collectElements(ast, 'div')[0];
     const imageNodes = collectElements(ast, 'ImageWithFallback');
 
-    expect(imageNodes).toHaveLength(2);
+    expect(getStaticAttrValue(root, 'class')).toContain('lg:h-full');
+    expect(getStaticAttrValue(root, 'class')).toContain('flex-col');
+    expect(source).toContain('absolute');
+    expect(source).toContain('aria-label="Share"');
+    expect(source).toContain('aria-label="Box"');
+    expect(source).not.toContain('Swiper');
+    expect(source).toContain('showMobileThumbs');
+    expect(source).toContain('lg:hidden');
 
-    for (const node of imageNodes) {
-      expect(hasProp(node, 'class-name')).toBe(true);
-    }
-
-    expect(hasProp(imageNodes[0], 'class')).toBe(false);
-    expect(hasProp(imageNodes[1], 'class')).toBe(true);
-
-    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('w-[284px]');
-    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('h-[160px]');
+    expect(imageNodes.length).toBeGreaterThanOrEqual(1);
+    expect(hasProp(imageNodes[0], 'class-name')).toBe(true);
+    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('h-full');
+    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('w-full');
     expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('object-contain');
-
-    expect(getStaticAttrValue(imageNodes[1], 'class-name')).toContain('w-[60px]');
-    expect(getStaticAttrValue(imageNodes[1], 'class-name')).toContain('h-[50px]');
-    expect(getStaticAttrValue(imageNodes[1], 'class-name')).toContain('object-contain');
-    const thumbnailClass = imageNodes[1].props.find((prop) => getDirectiveArgContent(prop) === 'class');
-    expect(thumbnailClass ? getDirectiveExpContent(thumbnailClass) ?? '' : '').toContain('opacity-50');
+    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('lg:object-cover');
   });
 });
