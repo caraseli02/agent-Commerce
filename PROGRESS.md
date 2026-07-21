@@ -2,13 +2,12 @@
 
 ## Current focus
 
-- Issue #358 / PR #366 — eliminate dashboard console failures on representative paths; synced with main and preparing for merge.
+- Issue #358 / PR #366 — eliminate dashboard console failures; merging after #367.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #358 — ApexCharts/breadcrumb/DownloadIcon/PaymentCard/ProductCard fixes + console smoke; conflict was PROGRESS-only.
-- PR #366 merged onto latest `main`; awaiting green CI after push.
+- PR #366 merge in progress after #367 landed.
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -17,6 +16,8 @@
 - Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
 
 ## Recently completed
+
+- Issue #357 / PR #367 — truthful checkout result states merged to `main`.
 
 - Issue #368 / PR #364 — storefront hardening merged to `main`.
 

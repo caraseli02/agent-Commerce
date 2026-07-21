@@ -72,7 +72,7 @@ const orderSummaryHref = computed(() => {
 
 const loadOrder = async () => {
   if (!routeOrderId.value) {
-    fetchError.value = 'We could not find an order reference for this payment.';
+    fetchError.value = '';
     loading.value = false;
     return;
   }
@@ -91,9 +91,9 @@ const loadOrder = async () => {
       return;
     }
 
-    fetchError.value = 'Payment was confirmed, but the order details are not available yet.';
+    fetchError.value = 'We could not find order details for this reference. Return to checkout or your cart to try again.';
   } catch {
-    fetchError.value = 'Payment was confirmed, but we could not load the order details just yet.';
+    fetchError.value = 'We could not load order details for this reference. Return to checkout or your cart to try again.';
   } finally {
     loading.value = false;
   }
@@ -106,7 +106,58 @@ onMounted(() => {
 
 <template>
   <div class="container py-8">
-    <section class="overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50/80 shadow-sm">
+    <section
+      v-if="!routeOrderId"
+      class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8"
+    >
+      <div class="space-y-4 text-center">
+        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">No order reference to confirm</h1>
+        <p class="text-sm leading-6 text-slate-600 md:text-base">
+          This success page needs a valid order reference from checkout. If you opened it directly, return to your order summary or cart to
+          complete a demo purchase.
+        </p>
+        <div class="flex flex-col justify-center gap-3 sm:flex-row">
+          <NuxtLink to="/order-summary">
+            <UiButton class="w-full gap-2 sm:w-auto"> Back to order summary </UiButton>
+          </NuxtLink>
+          <NuxtLink to="/cart">
+            <UiButton class="w-full gap-2 sm:w-auto" variant="secondary"> Return to cart </UiButton>
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <section
+      v-else-if="loading"
+      class="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8"
+    >
+      <div class="flex items-center gap-3 text-sm text-slate-600">
+        <LoaderIcon class="h-5 w-5 animate-spin text-slate-500" />
+        Loading order details for this checkout reference...
+      </div>
+    </section>
+
+    <section
+      v-else-if="fetchError"
+      class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8"
+    >
+      <div class="space-y-4">
+        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Order details unavailable</h1>
+        <p class="text-sm leading-6 text-slate-600 md:text-base">
+          {{ fetchError }}
+        </p>
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <NuxtLink to="/order-summary">
+            <UiButton class="w-full gap-2 sm:w-auto"> Back to order summary </UiButton>
+          </NuxtLink>
+          <NuxtLink to="/cart">
+            <UiButton class="w-full gap-2 sm:w-auto" variant="secondary"> Return to cart </UiButton>
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <section v-else class="overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50/80 shadow-sm">
       <div class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
         <div class="space-y-6">
           <div
@@ -124,19 +175,7 @@ onMounted(() => {
             </p>
           </div>
 
-          <div
-            v-if="loading"
-            class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/90 px-4 py-5 text-sm text-slate-600"
-          >
-            <LoaderIcon class="h-5 w-5 animate-spin text-slate-500" />
-            Loading the confirmed order details...
-          </div>
-
-          <div v-else-if="fetchError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-5 text-sm leading-6 text-amber-900">
-            {{ fetchError }}
-          </div>
-
-          <div v-else class="grid gap-3 md:grid-cols-3">
+          <div class="grid gap-3 md:grid-cols-3">
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order reference</p>
               <p class="mt-2 text-lg font-semibold text-slate-900">

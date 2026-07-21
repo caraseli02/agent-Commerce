@@ -139,6 +139,7 @@ test.describe('Product Detail → Checkout Confirmation', () => {
     await expect(secureCheckoutButton).toBeEnabled();
     await Promise.all([page.waitForURL(/\/checkout\/fail/), secureCheckoutButton.click()]);
     await expect(page).toHaveURL(/\/checkout\/fail/);
-    await expect(page.getByText(/no data available/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /payment failed/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /try again/i })).toBeEnabled();
   });
 });
