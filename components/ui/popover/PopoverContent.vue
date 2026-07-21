@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<PopoverContentProps & { class?: HTMLAttri
   align: 'center',
   sideOffset: 4,
   disabledPortal: false,
+  class: undefined,
 });
 const emits = defineEmits<PopoverContentEmits>();
 

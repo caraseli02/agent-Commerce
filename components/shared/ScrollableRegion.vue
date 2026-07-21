@@ -9,6 +9,7 @@ const props = withDefaults(
     testId?: string;
   }>(),
   {
+    class: undefined,
     testId: undefined,
   }
 );

@@ -105,7 +105,7 @@
                       searchVal = '';
                     "
                     @blur="showMobileSearch = false"
-                  />
+                  >
                 </form>
               </label>
               <button

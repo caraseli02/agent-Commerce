@@ -16,7 +16,7 @@
             alt="Electronic component kit"
             class="h-[100px] w-[120px] md:h-auto md:w-[290px] md:max-h-[240px] xl:w-full object-contain"
             loading="lazy"
-          />
+          >
           <div class="flex-1 flex gap-4 flex-col justify-center xl:justify-start xl:items-start">
             <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Contract pricing</p>
             <div class="font-semibold text-sm xl:text-xl">Volume rates on in-stock lines</div>

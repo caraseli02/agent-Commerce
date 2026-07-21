@@ -11,7 +11,7 @@
     <UiButton size="lg" @click="triggerFileUpload"> Upload SVG icon </UiButton>
 
     <!-- Hidden File Input -->
-    <input ref="fileInput" type="file" accept=".svg" class="hidden" @change="handleFileUpload" />
+    <input ref="fileInput" type="file" accept=".svg" class="hidden" @change="handleFileUpload" >
   </div>
 </template>
 

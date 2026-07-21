@@ -28,7 +28,7 @@
         ]"
         :disabled="disabled"
         @input="handleInput"
-      />
+      >
     </div>
     <p v-if="error" :id="errorId" role="alert" class="mt-1 text-xs leading-normal text-rose-500">
       {{ error }}
@@ -54,12 +54,22 @@ defineProps({
     required: false,
     default: 'default',
   },
-  label: String,
-  placeholder: String,
-  error: String,
+  label: {
+    type: String,
+    default: undefined,
+  },
+  placeholder: {
+    type: String,
+    default: undefined,
+  },
+  error: {
+    type: String,
+    default: undefined,
+  },
   // eslint-disable-next-line vue/require-prop-types
   icon: {
     required: false,
+    default: undefined,
   },
   disabled: {
     type: Boolean,

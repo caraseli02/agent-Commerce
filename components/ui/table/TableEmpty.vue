@@ -10,6 +10,7 @@ const props = withDefaults(
     colspan?: number;
   }>(),
   {
+    class: undefined,
     colspan: 1,
   }
 );

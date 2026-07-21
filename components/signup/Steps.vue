@@ -13,7 +13,7 @@
       </NuxtLink>
     </div>
     <h1 class="text-2xl leading-[1.75] font-semibold text-white mb-[45px] md:mb-[60px] lg:text-[32px] lg:max-w-[256px] lg:mx-auto">
-      Start your <br />
+      Start your <br >
       journey with us.
     </h1>
     <div

@@ -27,11 +27,7 @@
 <script setup lang="ts">
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import { useCart } from '~/composables/useCart';
-import {
-  resolveCartDeleteDescription,
-  resolveCartDeleteProductIds,
-  resolveCartDeleteTitle,
-} from '~/utils/cartDeleteDialog';
+import { resolveCartDeleteDescription, resolveCartDeleteProductIds, resolveCartDeleteTitle } from '~/utils/cartDeleteDialog';
 
 const isOpen = defineModel<boolean>();
 

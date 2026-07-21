@@ -28,7 +28,7 @@
           :alt="modelValue.label"
           class="w-8 rounded mr-2"
           loading="lazy"
-        />
+        >
         <component :is="modelValue.icon" v-else-if="modelValue?.icon" class="w-6 h-6 text-slate-500 mr-2" />
         <span :class="[disabled ? 'text-gray-500' : 'text-slate-500']">
           {{ modelValue?.label || placeholder }}
@@ -67,7 +67,7 @@
               type="search"
               :placeholder="`Search ${label}`"
               class="bg-transparent flex-1 pl-2 pr-8 py-[9px] w-full text-sm placeholder:text-gray-500 focus:outline-none"
-            />
+            >
             <Transition name="fade">
               <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
             </Transition>
@@ -86,7 +86,7 @@
               name="option"
               class="sr-only"
               @change="inputHandler(option)"
-            />
+            >
             <div
               class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300 mr-2.5"
               :class="[
@@ -119,7 +119,7 @@
               :alt="option.label"
               class="w-8 rounded mr-2"
               loading="lazy"
-            />
+            >
             <component :is="option.icon" v-else-if="option?.icon" class="w-6 h-6 mr-2" />
             <span>
               {{ option.label }}
@@ -147,9 +147,16 @@ const props = defineProps({
   modelValue: {
     type: Object as PropType<FormSelectOption>,
     required: false,
+    default: undefined,
   },
-  label: String,
-  placeholder: String,
+  label: {
+    type: String,
+    default: undefined,
+  },
+  placeholder: {
+    type: String,
+    default: undefined,
+  },
   options: {
     type: Array as PropType<FormSelectOption[]>,
     required: true,
@@ -164,9 +171,13 @@ const props = defineProps({
   // eslint-disable-next-line vue/require-prop-types
   icon: {
     required: false,
+    default: undefined,
   },
   search: Boolean,
-  error: String,
+  error: {
+    type: String,
+    default: undefined,
+  },
   showDisabledStyles: {
     type: Boolean,
     required: false,

@@ -35,6 +35,8 @@ const props = withDefaults(
     type?: 'single' | 'range';
   }>(),
   {
+    modelValue: undefined,
+    modelModifiers: undefined,
     type: 'single',
     columns: 1,
   }

@@ -48,7 +48,7 @@
                     class="sr-only"
                     @change="showShowOptions = false"
                     @click="option?.key && emits('show-filter', option?.key)"
-                  />
+                  >
                   <span class="flex w-full text-left text-sm rounded-[5px]">
                     {{ option.name }}
                   </span>

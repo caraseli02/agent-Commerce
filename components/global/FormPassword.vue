@@ -17,7 +17,7 @@
         class="bg-transparent pl-3 pr-12 text-sm !placeholder:text-gray-500 w-full focus:outline-none"
         :class="[size === 'lg' ? 'py-2.5' : 'py-2']"
         @input="handleInput"
-      />
+      >
       <button
         type="button"
         class="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-r-lg text-gray-500 transition-colors hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
@@ -61,10 +61,19 @@ const props = defineProps({
     required: false,
     default: 'default',
   },
-  label: String,
-  placeholder: String,
+  label: {
+    type: String,
+    default: undefined,
+  },
+  placeholder: {
+    type: String,
+    default: undefined,
+  },
   handleStrength: Boolean,
-  error: String,
+  error: {
+    type: String,
+    default: undefined,
+  },
 });
 
 const emits = defineEmits(['update:modelValue']);

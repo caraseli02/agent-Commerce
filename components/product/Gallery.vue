@@ -44,11 +44,7 @@
           :aria-pressed="index === activeImageIndex"
           @click="handleSlideTo(index)"
         >
-          <ImageWithFallback
-            :src="image?.ProductImageSmall"
-            alt=""
-            class-name="h-12 w-14 object-contain"
-          />
+          <ImageWithFallback :src="image?.ProductImageSmall" alt="" class-name="h-12 w-14 object-contain" />
         </button>
       </li>
     </ul>

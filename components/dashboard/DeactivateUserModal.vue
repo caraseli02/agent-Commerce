@@ -23,7 +23,7 @@
               {{ user.name }}
             </div>
             <div class="flex items-center gap-3 cursor-default">
-              <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" loading="lazy" />
+              <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" loading="lazy" >
               <div class="bg-blue-500 px-2 rounded-[25px] text-xs leading-[1.67] font-semibold text-white">10%</div>
             </div>
           </div>

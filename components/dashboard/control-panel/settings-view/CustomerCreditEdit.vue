@@ -137,7 +137,7 @@
             type="number"
             placeholder="Discount (i.e. 5, 10, 17)"
             class="bg-transparent px-2 text-sm w-full transition-colors duration-300 focus:outline-none"
-          />
+          >
           <div class="text-xl leading-[1.3] px-3 py-2 border-r border-border bg-[#F5F5F5]">Lei</div>
         </div>
       </div>

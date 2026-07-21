@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 const props = withDefaults(defineProps<ComboboxRootProps & { class?: HTMLAttributes['class'] }>(), {
   open: true,
   modelValue: '',
+  class: undefined,
 });
 
 const emits = defineEmits<ComboboxRootEmits>();

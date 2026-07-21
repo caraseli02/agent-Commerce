@@ -27,7 +27,7 @@
                     item.email = !item.email;
                     markSettingAsRead(item, 'email');
                   "
-                />
+                >
                 <div
                   class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                   :class="[
@@ -48,7 +48,7 @@
                     item.app = !item.app;
                     markSettingAsRead(item, 'app');
                   "
-                />
+                >
                 <div
                   class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                   :class="[
@@ -98,7 +98,7 @@
                   item.email = !item.email;
                   markSettingAsRead(item, 'email');
                 "
-              />
+              >
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                 :class="[

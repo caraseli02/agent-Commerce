@@ -20,7 +20,7 @@
             showSearchResults = false;
             $emit('blur');
           "
-        />
+        >
       </form>
       <div
         v-if="!isScrolled"

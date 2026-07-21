@@ -72,16 +72,13 @@ describe('storefront product card image fallback', () => {
     expect(source).toContain("!src.includes('not_valid_image')");
   });
 
-
   it('hides nonfunctional product options on desktop and keeps title overflow clipped', () => {
     const { descriptor } = parseSfc(readFileSync(productCardPath, 'utf8'));
 
     expect(descriptor.template).toBeTruthy();
 
     const ast = baseParse(descriptor.template!.content);
-    const optionsButton = collectElements(ast, 'button').find(
-      (button) => getStaticAttrValue(button, 'aria-label') === 'Product options',
-    );
+    const optionsButton = collectElements(ast, 'button').find((button) => getStaticAttrValue(button, 'aria-label') === 'Product options');
     const title = collectElements(ast, 'h3')[0];
     const menuWrapper = collectElements(ast, 'div').find((el) => {
       const className = getStaticAttrValue(el, 'class') || '';
@@ -96,7 +93,7 @@ describe('storefront product card image fallback', () => {
       menuItems.map((item) => {
         const textNode = item.children.find((child) => child.type === NodeTypes.TEXT);
         return textNode && 'content' in textNode ? textNode.content.trim() : '';
-      }),
+      })
     ).toEqual(['Share', '3D view']);
     expect(getStaticAttrValue(title, 'class')).toContain('min-w-0');
     expect(getStaticAttrValue(title, 'class')).toContain('overflow-hidden');

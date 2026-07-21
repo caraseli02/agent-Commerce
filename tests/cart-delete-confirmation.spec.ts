@@ -5,11 +5,7 @@ import { baseParse, NodeTypes, type ElementNode, type RootNode } from '@vue/comp
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
-import {
-  resolveCartDeleteDescription,
-  resolveCartDeleteProductIds,
-  resolveCartDeleteTitle,
-} from '~/utils/cartDeleteDialog';
+import { resolveCartDeleteDescription, resolveCartDeleteProductIds, resolveCartDeleteTitle } from '~/utils/cartDeleteDialog';
 
 const dialogPath = resolve('components/cart/CartDeleteDialog.vue');
 const headPath = resolve('components/order-summary/Table/Head.vue');

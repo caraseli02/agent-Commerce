@@ -16,8 +16,8 @@
           alt="Banner"
           class="absolute bottom-4 right-4 z-20 w-[86px] object-contain md:relative md:bottom-auto md:right-auto md:w-[166px] xl:w-[210px]"
           loading="lazy"
-        />
-        <img :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
+        >
+        <img :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" >
       </div>
     </div>
   </section>

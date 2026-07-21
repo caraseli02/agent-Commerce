@@ -14,7 +14,7 @@ import BannerBg from '@/assets/media/home/banner-bg.jpg';
       aria-hidden="true"
       class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.14]"
       loading="lazy"
-    />
+    >
     <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-white via-slate-50/95 to-slate-100/90" aria-hidden="true" />
     <div class="relative z-10 flex h-full flex-col justify-center px-8 py-10 lg:px-12 lg:py-12 xl:px-14">
       <div class="flex max-w-[520px] flex-col gap-5 text-zinc-800">
