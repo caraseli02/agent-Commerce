@@ -1,21 +1,20 @@
 <template>
-  <UiDialog :open="isOpen" @update:open="isOpen = $event">
+  <UiDialog :open="isOpen" @update:open="onOpenChange">
     <UiDialogContent>
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between pr-8">
         <div class="flex items-center text-slate-500">
-          <TrashIcon class="w-6 h-6 mr-2" />
-          <span class="font-medium">Delete Item</span>
+          <TrashIcon class="w-6 h-6 mr-2 shrink-0" />
+          <span class="font-medium">{{ resolvedTitle }}</span>
         </div>
       </div>
-      <template v-if="!success">
-        <div class="text-sm text-center">Delete selected item?</div>
-        <div class="flex items-center justify-center gap-2.5">
-          <UiButton @click="deleteCartItem">Delete</UiButton>
-          <UiButton variant="outline" @click="isOpen = false">Cancel</UiButton>
-        </div>
-      </template>
-      <div v-else class="flex flex-col items-center flex-1 justify-center">
-        <div class="text-xl text-center">Deleted</div>
+      <div class="text-sm text-center">{{ resolvedDescription }}</div>
+      <div class="flex items-center justify-center gap-2.5">
+        <UiButton :disabled="isDeleting || !ids.length" @click="confirmDelete">
+          {{ confirmLabel }}
+        </UiButton>
+        <UiButton variant="outline" :disabled="isDeleting" @click="isOpen = false">
+          {{ cancelLabel }}
+        </UiButton>
       </div>
     </UiDialogContent>
   </UiDialog>
@@ -27,9 +26,26 @@ import { useCart } from '~/composables/useCart';
 
 const isOpen = defineModel<boolean>();
 
-const props = defineProps<{
-  productId: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    /** Prefer this for both single and bulk deletes. */
+    productIds?: string[];
+    /** Convenience alias for a single-item delete. */
+    productId?: string;
+    title?: string;
+    description?: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+  }>(),
+  {
+    productIds: () => [],
+    productId: undefined,
+    title: undefined,
+    description: undefined,
+    confirmLabel: 'Delete',
+    cancelLabel: 'Cancel',
+  }
+);
 
 const emits = defineEmits<{
   close: [];
@@ -37,22 +53,69 @@ const emits = defineEmits<{
 }>();
 
 const { removeFromCart } = useCart();
-const success = ref(false);
+const isDeleting = ref(false);
 
-const deleteCartItem = async () => {
-  const removed = (await removeFromCart({
-    products: [props.productId],
-  })) as { status?: string };
+const ids = computed(() => {
+  if (props.productIds?.length) {
+    return props.productIds;
+  }
 
-  if (removed.status === 'success') {
-    success.value = true;
-    emits('removed');
+  return props.productId ? [props.productId] : [];
+});
+
+const count = computed(() => ids.value.length);
+
+const resolvedTitle = computed(() => {
+  if (props.title) {
+    return props.title;
+  }
+
+  return count.value > 1 ? 'Delete Items' : 'Delete Item';
+});
+
+const resolvedDescription = computed(() => {
+  if (props.description) {
+    return props.description;
+  }
+
+  if (count.value > 1) {
+    return `Delete ${count.value} selected items?`;
+  }
+
+  return 'Delete selected item?';
+});
+
+const onOpenChange = (open: boolean) => {
+  if (isDeleting.value && !open) {
+    return;
+  }
+
+  isOpen.value = open;
+};
+
+const confirmDelete = async () => {
+  if (!ids.value.length || isDeleting.value) {
+    return;
+  }
+
+  isDeleting.value = true;
+
+  try {
+    const removed = (await removeFromCart({
+      products: ids.value,
+    })) as { status?: string } | null;
+
+    if (removed?.status === 'success') {
+      isOpen.value = false;
+      emits('removed');
+    }
+  } finally {
+    isDeleting.value = false;
   }
 };
 
 watch(isOpen, (open) => {
   if (!open) {
-    success.value = false;
     emits('close');
   }
 });
