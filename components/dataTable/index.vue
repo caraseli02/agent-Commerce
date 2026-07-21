@@ -131,36 +131,38 @@ const loadingSize = computed(async () => {
     <slot name="header" :make-refresh="() => (refresh = true)" :table="table" />
     <slot name="toolbar" :table="table" />
     <div class="rounded-xl border relative min-h-[650px]">
-      <UiTable>
-        <UiTableHeader class="bg-light-200">
-          <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-            <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
-              <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
-            </UiTableHead>
-          </UiTableRow>
-        </UiTableHeader>
-        <UiTableBody class="relative min-h-[600px]">
-          <template v-if="table.getRowModel().rows?.length">
-            <UiTableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-              class="hover:bg-light-200"
-              :data-state="row.getIsSelected() && 'selected'"
-            >
-              <UiTableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </UiTableCell>
+      <SharedScrollableRegion class="min-h-[650px]" label="Data table" test-id="dashboard-data-table">
+        <UiTable>
+          <UiTableHeader class="bg-light-200">
+            <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+              <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
+                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+              </UiTableHead>
             </UiTableRow>
-          </template>
+          </UiTableHeader>
+          <UiTableBody class="relative min-h-[600px]">
+            <template v-if="table.getRowModel().rows?.length">
+              <UiTableRow
+                v-for="row in table.getRowModel().rows"
+                :key="row.id"
+                class="hover:bg-light-200"
+                :data-state="row.getIsSelected() && 'selected'"
+              >
+                <UiTableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                </UiTableCell>
+              </UiTableRow>
+            </template>
 
-          <div v-else class="w-full min-h-[600px]">
-            <section class="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-              <div class="w-full">No results.</div>
-            </section>
-          </div>
-        </UiTableBody>
-      </UiTable>
+            <div v-else class="w-full min-h-[600px]">
+              <section class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
+                <div class="w-full">No results.</div>
+              </section>
+            </div>
+          </UiTableBody>
+        </UiTable>
+      </SharedScrollableRegion>
       <UiSkeleton v-if="refresh || loading" :style="{ height: loadingSize }" class="w-full rounded absolute inset-0 top-[49px] z-10" />
     </div>
     <DataTablePagination :total-items="totalItems" :page-count="props.pageCount" :table="table" />

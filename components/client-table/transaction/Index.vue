@@ -70,7 +70,7 @@ await fetchAndSetTransactionListRaw(1, 10);
 </script>
 
 <template>
-  <div class="h-full flex-1 flex-col space-y-8 flex w-[358px] md:w-[736px] lg:w-[976px] xl:w-[1392px]">
+  <div class="h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 md:w-[736px] lg:w-[976px] xl:w-[1392px]">
     <DataTable
       v-if="!loading"
       :fetch-fn="fetchAndSetTransactionList"
