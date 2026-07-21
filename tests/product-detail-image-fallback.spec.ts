@@ -66,7 +66,11 @@ describe('product detail image fallback', () => {
 
     expect(getStaticAttrValue(root, 'class')).toContain('relative block');
     expect(source).toContain('absolute inset-0');
-    expect(source).toContain('bg-cover');
+    expect(source).toContain('bg-light-200');
+    expect(source).toContain('Package');
+    expect(source).not.toContain('unsplash');
+    expect(source).not.toContain('bg-cover');
+    expect(source).not.toContain('ImageOff');
     expect(source).not.toContain('w-12 h-12');
   });
 
