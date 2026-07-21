@@ -63,11 +63,18 @@ describe('product detail image fallback', () => {
 
     const ast = baseParse(descriptor.template!.content);
     const root = collectElements(ast, 'div')[0];
+    const fallbackSurface = collectElements(ast, 'div').find(
+      (el) => getStaticAttrValue(el, 'role') === 'img' && (getStaticAttrValue(el, 'class') || '').includes('absolute inset-0'),
+    );
+    const packageIcon = collectElements(ast, 'Package')[0];
 
     expect(getStaticAttrValue(root, 'class')).toContain('relative block');
-    expect(source).toContain('absolute inset-0');
-    expect(source).toContain('bg-light-200');
-    expect(source).toContain('Package');
+    expect(fallbackSurface).toBeTruthy();
+    expect(getStaticAttrValue(fallbackSurface!, 'class')).toContain('bg-light-200');
+    expect(getStaticAttrValue(fallbackSurface!, 'class')).toContain('ring-1');
+    expect(packageIcon).toBeTruthy();
+    expect(getStaticAttrValue(packageIcon, 'class')).toContain('text-slate-400');
+    expect(getStaticAttrValue(packageIcon, 'aria-hidden')).toBe('true');
     expect(source).not.toContain('unsplash');
     expect(source).not.toContain('bg-cover');
     expect(source).not.toContain('ImageOff');

@@ -33,8 +33,8 @@
         >
           {{ product.name }}
         </h3>
-        <!-- Wrapper needed: UiDropdownMenu/Root does not forward class attrs -->
-        <div class="ml-auto shrink-0">
+        <!-- Wrapper needed: UiDropdownMenu/Root does not forward class attrs; keep md:hidden here -->
+        <div class="ml-auto shrink-0 md:hidden">
           <UiDropdownMenu :modal="false">
             <UiDropdownMenuTrigger as-child>
               <button
