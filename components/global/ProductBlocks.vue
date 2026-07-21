@@ -1,7 +1,13 @@
 <template>
   <div class="container px-2 md:px-4 overflow-hidden mt-10" :class="slots.banner ? 'xl:pl-6' : 'xl:px-4'">
     <slot name="header" />
-    <ProductTabs v-if="!fetchedProducts" :class="{ 'xl:ml-0': slots.banner }" :filters="filters ?? []" @new-products="onProductsLoaded" />
+    <ProductTabs
+      v-if="filters?.length"
+      :class="{ 'xl:ml-0': slots.banner }"
+      :filters="filters"
+      :initial-products="fetchedProducts"
+      @new-products="onProductsLoaded"
+    />
     <div :class="['md:flex flex-col xl:grid', { 'xl:grid-cols-[auto,1fr]': slots.banner }]">
       <slot name="banner" />
       <div v-if="isLoading" class="px-1 mt-6 md:pr-0 min-h-[284px] w-full" aria-busy="true" aria-live="polite">
@@ -50,7 +56,7 @@ const slots = defineSlots<{
   banner?: () => unknown;
 }>();
 
-const productList = ref<ProductInterface[]>([]);
+const productList = ref<ProductInterface[]>(props.fetchedProducts ?? []);
 const isLoading = ref(!props.fetchedProducts);
 
 const onProductsLoaded = (products: ProductInterface[]) => {
