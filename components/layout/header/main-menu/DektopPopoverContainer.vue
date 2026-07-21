@@ -12,7 +12,7 @@ import ToolsIcon from '@/assets/icons/header/tools.svg';
 import IndustrialFurnitureIcon from '@/assets/icons/header/industrial-furniture.svg';
 import type { TaxonomyInterface } from '~/types/dashboard/categories';
 
-const { selectedCategories, onCategoryClick } = useCategoriesNavigation();
+const { selectedCategories, onCategoryClick, browseCategory } = useCategoriesNavigation();
 const { categories, getCategories } = useCategories();
 
 const categoryIconMap: Record<string, Component> = {
@@ -61,6 +61,7 @@ const formatItemCount = (count?: number) => {
 };
 const handleRootClick = (category: TaxonomyInterface) => onCategoryClick(category, true);
 const handleChildClick = (category: TaxonomyInterface) => onCategoryClick(category, false);
+const handleViewAll = (category: TaxonomyInterface) => browseCategory(category);
 const resetSelection = () => (selectedCategories.value = []);
 
 onMounted(async () => {
@@ -159,7 +160,7 @@ onMounted(async () => {
                 <button
                   type="button"
                   class="text-[13px] font-medium text-primary hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
-                  @click="handleChildClick(column.source)"
+                  @click="handleViewAll(column.source)"
                 >
                   View all
                 </button>

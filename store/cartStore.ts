@@ -15,11 +15,13 @@ export const useCartStore = defineStore(
   'cart-store',
   () => {
     const cart = ref<CartInterface | null>(null);
+    const hasFetchedCart = ref(false);
     const orderClientSecret = ref<string | null>(null);
     const previousCheckoutError = ref<CheckoutError | null>(null);
 
     const setCart = (nextCart: CartInterface) => {
       cart.value = nextCart;
+      // Do not mark fetched here — cached/persisted payloads must not look authoritative.
       Emitter.emit('update-cart', nextCart);
     };
 
@@ -43,10 +45,13 @@ export const useCartStore = defineStore(
       const cartResponse = await fetchCartList();
 
       if (!cartResponse) {
+        // Failed/unavailable refresh — keep showing skeleton, do not trust persisted totals.
+        hasFetchedCart.value = false;
         return null;
       }
 
       cart.value = cartResponse.data;
+      hasFetchedCart.value = true;
       Emitter.emit('update-cart', cart.value);
 
       return cart.value as CartInterface;
@@ -54,6 +59,7 @@ export const useCartStore = defineStore(
 
     const emptyCart = () => {
       cart.value = null;
+      hasFetchedCart.value = false;
       orderClientSecret.value = null;
     };
 
@@ -66,6 +72,7 @@ export const useCartStore = defineStore(
 
     return {
       cart,
+      hasFetchedCart,
       orderClientSecret,
       previousCheckoutError,
       setCart,
@@ -83,5 +90,11 @@ export const useCartStore = defineStore(
       itemsDiscount,
     };
   },
-  { persist: { storage: piniaPluginPersistedstate.localStorage() } }
+  {
+    persist: {
+      storage: piniaPluginPersistedstate.localStorage(),
+      // Session-scoped fetch flag must not revive as "ready" before a network refresh.
+      pick: ['cart', 'orderClientSecret', 'previousCheckoutError'],
+    },
+  }
 );

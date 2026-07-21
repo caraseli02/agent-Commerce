@@ -45,24 +45,51 @@ describe('cart store flow boundary', () => {
     const { useCartStore } = await import('../store/cartStore');
     const cartStore = useCartStore();
 
+    expect(cartStore.hasFetchedCart).toBe(false);
+
     const cart = await cartStore.updateAndReturnCart();
 
     expect(cart?._id).toBe('cart-test-1');
     expect(cartStore.cart?._id).toBe('cart-test-1');
     expect(cartStore.cart?.products?.[0]?.id).toBe('prod-2');
+    expect(cartStore.hasFetchedCart).toBe(true);
   });
 
-  it('exposes the cached cart synchronously without fetching', async () => {
+  it('does not treat cached setCart payloads as an authoritative fetch', async () => {
     const { useCartStore } = await import('../store/cartStore');
     const cartStore = useCartStore();
 
     expect(cartStore.getCart).toBeNull();
+    expect(cartStore.hasFetchedCart).toBe(false);
     expect(apiRequests).toEqual([]);
 
     cartStore.setCart(sampleCart);
 
     expect(cartStore.getCart?._id).toBe('cart-test-1');
+    expect(cartStore.hasFetchedCart).toBe(false);
     expect(apiRequests).toEqual([]);
+  });
+
+  it('keeps hasFetchedCart false when the cart refresh is unavailable', async () => {
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string }): Promise<T> => {
+      apiRequests.push({ resource, method: options?.method });
+
+      if (resource === '/cart' && options?.method === 'GET') {
+        return null as T;
+      }
+
+      throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
+    });
+
+    const { useCartStore } = await import('../store/cartStore');
+    const cartStore = useCartStore();
+    cartStore.setCart(sampleCart);
+
+    const cart = await cartStore.updateAndReturnCart();
+
+    expect(cart).toBeNull();
+    expect(cartStore.cart?._id).toBe('cart-test-1');
+    expect(cartStore.hasFetchedCart).toBe(false);
   });
 
   it('derives subtotal synchronously without mutating subtotal state', async () => {

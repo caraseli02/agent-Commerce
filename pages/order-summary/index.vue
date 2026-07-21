@@ -6,7 +6,10 @@
   <div v-else class="pt-[30px] lg:pt-10">
     <div class="grid grid-cols-1">
       <div class="container px-4">
-        <div v-if="!userId" class="mb-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4 text-blue-800">
+        <div
+          v-if="isGuestCheckout"
+          class="mb-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4 text-blue-800"
+        >
           <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
             <InfoIcon class="w-6 h-6" />
           </div>
@@ -40,7 +43,7 @@
             <OrderSummary :order="order" :general-settings="generalSettings" />
             <OrderSummaryCheckoutButtons
               :is-checkout-disabled="isCheckoutDisabled"
-              :is-guest-checkout="!userId"
+              :is-guest-checkout="isGuestCheckout"
               :signin-href="signinHref"
             />
             <OrderSummaryBannerCard />
@@ -89,6 +92,10 @@ useHead({ title: 'Order Summary' });
 // User Information
 const { user, getShipping, getBilling } = useUser();
 const userId = computed(() => user.value?.firebaseId);
+// Cookie token is SSR-safe; userDetails only restores from localStorage after client hydrate.
+const authStore = useAuthStore();
+const { token, getGeneralSettings } = storeToRefs(authStore);
+const isGuestCheckout = computed(() => !(token.value || userId.value));
 
 // Cart Management
 const { cartId, cartItems, fetchList, calculateSubtotal, calculateDiscount, showWarning, fetchShippingPrices } = useCart();
@@ -141,8 +148,6 @@ const order = ref<CheckoutOrderDraft>({
 });
 
 // General Settings
-const authStore = useAuthStore();
-const { getGeneralSettings } = storeToRefs(authStore);
 const generalSettings = computed(() => getGeneralSettings.value);
 
 // Account Credit

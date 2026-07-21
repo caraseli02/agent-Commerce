@@ -12,6 +12,7 @@ import {
 } from '~/composables/api/categories';
 import type { ICreatePayload, TaxonomyInterface } from '~/types/dashboard/categories';
 import { categories as demoCategories } from '~/data/categories';
+import { countDemoProductsForCategory } from '~/data/demoProductTaxonomy';
 
 const selectedCategories = ref<string[]>([]);
 const showDeleteAlert = ref(false);
@@ -42,12 +43,16 @@ type DemoCategoryNode = {
 const mapDemoCategoryNode = (node: DemoCategoryNode, parentPath = ''): TaxonomyInterface => {
   const path = parentPath ? `${parentPath}/${node._id}` : node._id;
   const children = (node.items || []).map((item) => mapDemoCategoryNode(item, path));
+  const childProductTotal = children.reduce((sum, child) => sum + (child.productCount || 0), 0);
+  const directProductCount = countDemoProductsForCategory(node.name);
+  // Prefer real catalog matches; for parents also roll up children so empty leaves do not zero out a match.
+  const productCount = children.length > 0 ? Math.max(childProductTotal, directProductCount) : directProductCount;
 
   return {
     id: node._id,
     name: node.name,
     averageWeight: 0,
-    productCount: children.length,
+    productCount,
     products: [],
     subcategory: children,
     path,

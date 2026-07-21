@@ -2,15 +2,33 @@
 
 ## Current focus
 
-- Issue #360 — Portfolio polish: normalize reviewer-facing dates and times; PR on `feat/360-normalize-dates`.
+- Issue #368 / PR #364 — storefront hardening: cart correctness + P2 QA fixes (guest checkout flash, dashboard CTAs, footer auth links, Lei currency, category counts/View all).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #360 — shared `helpers/reviewer-dates.ts` formatter gates order, customer, credit, and table date displays; unit + Playwright smoke added. GitHub issue claim failed (`Resource not accessible by integration`); evaluator handoff pending.
+- Issue #368 claimed (`in-progress`) on branch `codex/adversarial-storefront-hardening` (PR #364).
+- P1 cart blockers already addressed; P2 storefront QA fixes implemented this session.
+- Next: browser smoke for P2 surfaces, then evaluator/hand-off when ready.
+
+## Architecture note (cross-runtime cart pricing)
+
+- Shared pure helpers live in `helpers/cart-pricing.ts` (`resolveTierUnitPrice`, `clampCartQuantity`, `calculateCartLinePricing`).
+- Client re-exports via `helpers/prices.helper.ts` (may toast / call `useCart`).
+- Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
 
 ## Recently completed
 
+- P2 QA batch on #368 / PR #364:
+
+  - Order summary guest/sign-in CTA uses cookie `token` (SSR-safe) so signed-in buyers no longer flash Guest UI.
+  - Dashboard Active Orders / Outstanding Invoices CTAs link to `/dashboard/client?tab=orders` and `/order-tracking`.
+  - Footer Review flows hide “Sign in to demo” when authenticated; Order History goes to dashboard orders tab.
+  - Hot-sale prices and header free-shipping copy use Lei (regional currency label).
+  - Demo category `productCount` matches catalog index; category menu “View all” always navigates to search.
+  - `pnpm verify` PASS after the batch.
+
+- Issue #360 — shared `helpers/reviewer-dates.ts` formatter for order/customer/credit/table dates; PR #362 merged.
 - Issue #292 — shared control-panel address manager with local mock CRUD and focused browser coverage; PR #342 merged after evaluator PASS.
 - Issue #296 — cart type namespace consolidation (tracer bullet); PR #338 merged.
 - Issue #290 — dashboard order surfaces now use composable API adapters; PR #330 merged after conflict repair, focused/full verification, signed-in runtime smoke, and evaluator PASS.

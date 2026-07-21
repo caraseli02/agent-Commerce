@@ -6,6 +6,15 @@ import type {
   ProductInterface,
 } from '~/model/products/response/ProductResponse';
 import type { AddToCartRequestInterface, CartInterface, CartProductsInterface } from '~/types/cart';
+import {
+  calculateCartLinePricing,
+  clampCartQuantity,
+  resolveTierUnitPrice,
+  type ClampCartQuantityOptions,
+  type ClampCartQuantityResult,
+} from '~/helpers/cart-pricing';
+
+export { calculateCartLinePricing, clampCartQuantity, resolveTierUnitPrice, type ClampCartQuantityOptions, type ClampCartQuantityResult };
 
 export const parseProductPriceConfiguration = (product: ProductInterface, userDetails: UserInterface, quantity = 0) => {
   let unitPrice = 0;
@@ -54,20 +63,54 @@ export const initializeQuantities = (
   data: CartInterface | null | undefined,
   quantity: Ref<number>,
   initialRequestedQuantity: Ref<number>,
-  minPriceConfiguration: PriceConfigurationSettingsInterface
+  _minPriceConfiguration: PriceConfigurationSettingsInterface
 ) => {
   if (!data?.products?.length) {
     return;
   }
 
   const cartProduct = data.products.find((item: CartProductsInterface) => item.id === product?._id);
-  const cartProductQuantity = (cartProduct?.stock ?? 0) + (cartProduct?.backorder_stock ?? 0);
 
-  quantity.value = cartProduct && cartProductQuantity > 0 ? cartProductQuantity : minPriceConfiguration?.quantity || 0;
-  initialRequestedQuantity.value = cartProduct && cartProductQuantity > 0 ? cartProductQuantity : 0;
+  if (!cartProduct) {
+    return;
+  }
+
+  // PDP quantity edits available stock only — never fold backorder into this control.
+  const availableStock = Number(cartProduct.stock ?? 0);
+  quantity.value = availableStock;
+  initialRequestedQuantity.value = availableStock;
 };
 
-export const addToCartHelper = async (product: ProductInterface, stock: number) => {
+const showStockClampToast = async (maxStock: number, adjustedStock: number) => {
+  const { toast } = await import('~/components/ui/toast');
+
+  toast({
+    title: 'Limited stock',
+    description: `Only ${maxStock} items are available. Quantity was adjusted to ${adjustedStock}.`,
+    variant: 'default',
+  });
+};
+
+export const addToCartHelper = async (
+  product: ProductInterface,
+  stock: number,
+  options?: { currentCartQuantity?: number; isDelta?: boolean }
+) => {
+  const currentCartQuantity = Math.max(0, Number(options?.currentCartQuantity ?? 0));
+  const incomingDelta = Number(stock) || 0;
+  const requestedQuantity = options?.isDelta ? currentCartQuantity + incomingDelta : incomingDelta;
+  const { stock: clampedStock, wasClamped, maxStock } = clampCartQuantity(product, requestedQuantity);
+  // Preserve negative deltas so reducing cart qty (e.g. 5 → 3) still hits the API.
+  const stockToSend = options?.isDelta ? clampedStock - currentCartQuantity : clampedStock;
+
+  if (wasClamped) {
+    await showStockClampToast(maxStock, clampedStock);
+  }
+
+  if (stockToSend === 0) {
+    return { status: 'success' };
+  }
+
   const { useCart } = await import('~/composables/useCart');
   const { addToCart } = useCart();
   const payload = {
@@ -75,7 +118,7 @@ export const addToCartHelper = async (product: ProductInterface, stock: number) 
     products: [
       {
         id: product._id ?? '',
-        stock,
+        stock: stockToSend,
         isFolder: false,
       },
     ],

@@ -179,8 +179,8 @@ describe('quality gate 6 pure logic coverage', () => {
       } as CartInterface;
 
       initializeQuantities(sampleProduct, cart, quantity, initialRequestedQuantity, { price: 100, quantity: 5 });
-      expect(quantity.value).toBe(5);
-      expect(initialRequestedQuantity.value).toBe(5);
+      expect(quantity.value).toBe(3);
+      expect(initialRequestedQuantity.value).toBe(3);
 
       const emptyQuantity = ref(0);
       const emptyRequestedQuantity = ref(0);

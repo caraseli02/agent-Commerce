@@ -47,7 +47,16 @@ describe('cart side-panel thumbnails', () => {
     expect(source).toContain('image: getCartProductThumbnail(item)');
   });
 
-  it('renders cart rows through the shared fallback image with stable thumbnail sizing', () => {
+  it('shows continue shopping instead of checkout when the cart is empty', () => {
+    const source = readFileSync(cartPanelPath, 'utf8');
+
+    expect(source).toContain('hasItems');
+    expect(source).toContain('v-if="hasItems"');
+    expect(source).toContain('Continue Shopping');
+    expect(source).not.toMatch(/v-else[\s\S]*Go to Checkout/);
+  });
+
+  it('renders cart line media with shared fallback sizing', () => {
     const source = readFileSync(productItemPath, 'utf8');
     const productItemAst = parseTemplate(productItemPath);
 
