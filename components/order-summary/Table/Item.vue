@@ -23,7 +23,7 @@
       />
     </Transition>
   </div>
-  <CartDeleteDialog v-model="deleteItem" :product-id="item.id" @close="deleteItem = false" />
+  <CartDeleteDialog v-model="deleteItem" :product-ids="[item.id]" @close="deleteItem = false" />
 </template>
 
 <script setup lang="ts">

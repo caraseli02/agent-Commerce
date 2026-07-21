@@ -25,7 +25,7 @@
         </UiButton>
       </div>
       <div
-        class="grid grid-cols-1 gap-y-[30px] mb-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 lg:items-start lg:mb-10 min-[1440px]:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]"
+        class="grid grid-cols-1 gap-y-[30px] mb-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 lg:items-stretch lg:mb-10 min-[1440px]:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]"
       >
         <ProductGallery
           v-if="product && images"

@@ -13,34 +13,16 @@
       v-else
       role="img"
       :aria-label="alt || 'Product image unavailable'"
-      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] bg-white"
+      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] bg-light-200 ring-1 ring-inset ring-grey-200"
     >
-      <!-- Full-bleed electronics texture so the placeholder fills the media frame -->
-      <div
-        class="absolute inset-0 scale-105 bg-cover bg-center opacity-[0.18] grayscale"
-        style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=400')"
-      />
-      <div class="absolute inset-0 bg-gradient-to-b from-white/40 via-slate-50/30 to-slate-100/50" />
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        class="relative z-10 h-[38%] w-[38%] min-h-9 min-w-9 max-h-16 max-w-16 text-slate-400"
-        aria-hidden="true"
-      >
-        <path
-          d="M9 3H15M9 21H15M20 7V17C20 18.1046 19.1046 19 18 19H6C4.89543 19 4 18.1046 4 17V7C4 5.89543 4.89543 5 6 5H18C19.1046 5 20 5.89543 20 7Z"
-          stroke="currentColor"
-          stroke-width="1.75"
-          stroke-linecap="round"
-        />
-        <rect x="8" y="9" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.75" />
-      </svg>
+      <Package class="h-[36%] w-[36%] min-h-8 min-w-8 max-h-12 max-w-12 text-slate-400" :stroke-width="1.5" aria-hidden="true" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { Package } from 'lucide-vue-next';
+
 defineOptions({ inheritAttrs: false });
 
 const attrs = useAttrs();

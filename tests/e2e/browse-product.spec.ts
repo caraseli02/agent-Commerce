@@ -84,6 +84,111 @@ test.describe('Browse → Product Detail', () => {
     expect(cartJson.data?.products?.find((product) => product.id === 'prod-1')?.stock).toBe(2);
   });
 
+  test('mobile PDP enables Add to cart at qty 1 when product is not in cart', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/product/prod-2', { waitUntil: 'networkidle' });
+
+    // Stale persisted cart must not disable Add — clear server + local, then poison localStorage.
+    await page.request.delete('/api/cart', {
+      data: { products: ['prod-2'] },
+    });
+    await page.evaluate(() => {
+      localStorage.setItem(
+        'cart-store',
+        JSON.stringify({
+          cart: {
+            products: [{ id: 'prod-2', stock: 1, backorder_stock: 0, isFolder: false }],
+          },
+        })
+      );
+    });
+    await page.reload({ waitUntil: 'networkidle' });
+
+    const purchasePanel = page.getByTestId('product-purchase-panel');
+    const quantityInput = purchasePanel.getByRole('spinbutton', { name: 'Quantity' });
+    const cartButton = purchasePanel.getByRole('button', { name: 'Add to cart — selected quantity' });
+
+    await quantityInput.scrollIntoViewIfNeeded();
+    await expect(quantityInput).toHaveValue('1');
+    await expect(cartButton).toContainText(/Add to cart/i);
+    await expect(cartButton).toBeEnabled();
+    await expect(purchasePanel.getByTestId('cart-qty-unchanged-hint')).toHaveCount(0);
+
+    const firstAdd = page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
+    await cartButton.click();
+    await firstAdd;
+
+    await expect(cartButton).toContainText(/Update cart/i);
+    await expect(cartButton).toBeDisabled();
+    await expect(quantityInput).toHaveValue('1');
+    const unchangedHint = purchasePanel.getByTestId('cart-qty-unchanged-hint');
+    await expect(unchangedHint).toBeVisible();
+    await expect(unchangedHint).toHaveText('Already in your cart (qty 1)');
+
+    await purchasePanel.getByRole('button', { name: 'Increase quantity' }).click();
+    await expect(quantityInput).toHaveValue('2');
+    await expect(cartButton).toBeEnabled();
+    await expect(unchangedHint).toHaveCount(0);
+
+    const cartResponse = await page.request.get('/api/cart');
+    const cartJson = (await cartResponse.json()) as { data?: { products?: Array<{ id?: string; stock?: number }> } };
+    expect(cartJson.data?.products?.find((product) => product.id === 'prod-2')?.stock).toBe(1);
+  });
+
+  test('mobile PDP quantity stepper and Update cart work after cart sync', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/product/prod-1', { waitUntil: 'networkidle' });
+
+    // Clear guest cart using the page session cookie (request fixture is a different jar).
+    await page.request.delete('/api/cart', {
+      data: { products: ['prod-1'] },
+    });
+    await page.evaluate(() => localStorage.removeItem('cart-store'));
+    await page.reload({ waitUntil: 'networkidle' });
+
+    const purchasePanel = page.getByTestId('product-purchase-panel');
+    const quantityInput = purchasePanel.getByRole('spinbutton', { name: 'Quantity' });
+    const increase = purchasePanel.getByRole('button', { name: 'Increase quantity' });
+    const cartButton = purchasePanel.getByRole('button', { name: 'Add to cart — selected quantity' });
+
+    await quantityInput.scrollIntoViewIfNeeded();
+    await expect(quantityInput).toHaveValue('1');
+    await expect(cartButton).toBeEnabled();
+    await expect(cartButton).toContainText(/Add to cart/i);
+
+    await increase.click();
+    await expect(quantityInput).toHaveValue('2');
+
+    const firstAdd = page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
+    await cartButton.click();
+    await firstAdd;
+
+    await expect(cartButton).toBeDisabled();
+    await expect(cartButton).toContainText(/Update cart/i);
+    const unchangedHint = purchasePanel.getByTestId('cart-qty-unchanged-hint');
+    await expect(unchangedHint).toBeVisible();
+    await expect(unchangedHint).toHaveText('Already in your cart (qty 2)');
+
+    // After cart sync, +/- must still work (regression: stale local qty blocked increases).
+    await increase.click();
+    await expect(quantityInput).toHaveValue('3');
+    await expect(cartButton).toBeEnabled();
+    await expect(unchangedHint).toHaveCount(0);
+
+    const updateAdd = page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
+    await cartButton.click();
+    await updateAdd;
+
+    await expect(cartButton).toBeDisabled();
+    await expect(quantityInput).toHaveValue('3');
+    await expect(unchangedHint).toBeVisible();
+    await expect(unchangedHint).toHaveText('Already in your cart (qty 3)');
+
+    const cartResponse = await page.request.get('/api/cart');
+    const cartJson = (await cartResponse.json()) as { data?: { products?: Array<{ id?: string; stock?: number }> } };
+    expect(cartJson.data?.products?.find((product) => product.id === 'prod-1')?.stock).toBe(3);
+  });
+
   test('print action triggers window.print from the desktop entry point', async ({ page }) => {
     await page.goto('/product/prod-1');
     await page.waitForTimeout(1500);

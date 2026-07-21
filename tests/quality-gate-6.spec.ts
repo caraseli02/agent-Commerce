@@ -183,7 +183,7 @@ describe('quality gate 6 pure logic coverage', () => {
       expect(initialRequestedQuantity.value).toBe(3);
 
       const emptyQuantity = ref(0);
-      const emptyRequestedQuantity = ref(0);
+      const emptyRequestedQuantity = ref(5);
       initializeQuantities(
         sampleProduct,
         { userId: 'user-1', startDate: '', endDate: '', products: [] },
@@ -194,9 +194,27 @@ describe('quality gate 6 pure logic coverage', () => {
       expect(emptyQuantity.value).toBe(0);
       expect(emptyRequestedQuantity.value).toBe(0);
 
+      const absentQuantity = ref(0);
+      const absentRequestedQuantity = ref(3);
+      initializeQuantities(
+        sampleProduct,
+        {
+          userId: 'user-1',
+          startDate: '',
+          endDate: '',
+          products: [{ id: 'other-product', stock: 2, backorder_stock: 0, isFolder: false }],
+        } as CartInterface,
+        absentQuantity,
+        absentRequestedQuantity,
+        { price: 100, quantity: 5 }
+      );
+      expect(absentQuantity.value).toBe(0);
+      expect(absentRequestedQuantity.value).toBe(0);
+
       expect(() =>
         initializeQuantities(sampleProduct, null, emptyQuantity, emptyRequestedQuantity, { price: 100, quantity: 5 })
       ).not.toThrow();
+      expect(emptyRequestedQuantity.value).toBe(0);
     });
   });
 

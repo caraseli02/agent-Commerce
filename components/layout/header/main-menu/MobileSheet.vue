@@ -15,13 +15,15 @@ const showDiscountSection = ref(false);
 const isMobileViewport = ref(false);
 const sheetOpen = ref(false);
 
+const getMobileMainRow = () => document.querySelector<HTMLElement>('header [data-mobile-main-row]');
+
 const syncMobileSheetTop = () => {
   if (typeof window === 'undefined') {
     return;
   }
 
   const header = document.querySelector('header');
-  const mainRow = header?.querySelector('[data-mobile-main-row]');
+  const mainRow = getMobileMainRow();
   const anchor = mainRow ?? header;
   if (!anchor) {
     return;
@@ -33,7 +35,8 @@ const syncMobileSheetTop = () => {
 };
 
 const mobileSheetTopClass = 'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bottom-0 max-md:!h-auto';
-const mobileSheetOverlayClass = 'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bg-[rgba(15,23,42,0.45)]';
+const mobileSheetOverlayClass =
+  'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bg-[rgba(15,23,42,0.45)] max-md:!backdrop-blur-none';
 const updateViewportState = () => {
   isMobileViewport.value = window.innerWidth < 1024;
   if (!isMobileViewport.value) {
@@ -98,7 +101,7 @@ onBeforeUnmount(() => {
     <UiSheetTrigger as-child>
       <button
         type="button"
-        class="inline-flex h-10 items-center justify-center rounded-md pl-0 pr-4 mr-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-primary md:mr-0"
+        class="inline-flex h-10 items-center justify-center rounded-md p-2 mr-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-primary md:mr-0"
         aria-controls="mobile-products-navigation"
         :aria-expanded="sheetOpen"
         aria-label="Open products navigation"
@@ -115,7 +118,7 @@ onBeforeUnmount(() => {
       hidde-close-button
       :overlay-class-name="`${mobileSheetOverlayClass} ${isScrolled ? 'md:top-[98px]' : 'md:top-[188px]'}`"
     >
-      <UiSheetHeader class="bg-grey-100 border-b border-grey-300 max-md:-mt-px max-md:border-t-0">
+      <UiSheetHeader class="bg-grey-100 border-b border-grey-300">
         <UiSheetTitle class="px-4 py-2">
           <div class="flex items-center justify-between gap-3">
             <UiButton
@@ -221,15 +224,4 @@ onBeforeUnmount(() => {
       </section>
     </UiSheetContent>
   </UiSheet>
-  <Teleport to="body">
-    <div
-      v-if="sheetOpen && isMobileViewport"
-      class="fixed right-0 z-[51] hidden h-11 border-b border-grey-300 bg-grey-100 max-md:block md:hidden pointer-events-none"
-      :style="{
-        top: 'var(--mobile-nav-sheet-top, 100px)',
-        left: 'min(22rem, calc(100vw - 2rem))',
-      }"
-      aria-hidden="true"
-    />
-  </Teleport>
 </template>

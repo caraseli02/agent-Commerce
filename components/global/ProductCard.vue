@@ -13,9 +13,9 @@
     <div
       class="relative z-20 col-start-1 row-start-1 row-span-2 w-full max-w-[108px] self-start md:max-w-none md:row-span-auto md:self-auto"
     >
-      <ProductCardStock :stock="product.stock" />
       <!-- Catalog media frame: white backdrop; cover fills the frame -->
       <div class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-white md:aspect-auto md:h-[160px]">
+        <ProductCardStock :stock="product.stock" />
         <ImageWithFallback :src="productCardImageSrc" :alt="product.name" class-name="h-full w-full object-cover object-center" />
       </div>
       <div
@@ -26,29 +26,32 @@
       </div>
     </div>
 
-    <div class="relative z-20 col-start-2 row-start-1 flex min-w-0 flex-col gap-1 md:min-h-[64px]">
-      <div class="flex min-w-0 items-start gap-1 md:items-center md:gap-2">
+    <div class="relative z-20 col-start-2 row-start-1 flex w-full min-w-0 max-w-full flex-col gap-1 md:min-h-[64px]">
+      <div class="flex w-full min-w-0 max-w-full items-start gap-1 md:items-center md:gap-2">
         <h3
-          class="block min-w-0 flex-1 text-sm font-semibold leading-snug text-neutral-700 line-clamp-2 md:truncate md:text-base md:leading-normal"
+          class="min-w-0 flex-1 overflow-hidden text-sm font-semibold leading-snug text-neutral-700 line-clamp-2 md:truncate md:text-base md:leading-normal"
         >
           {{ product.name }}
         </h3>
-        <UiDropdownMenu :modal="false" class="shrink-0 md:hidden">
-          <UiDropdownMenuTrigger as-child>
-            <button
-              type="button"
-              class="flex h-11 w-11 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              aria-label="Product options"
-              @click.prevent.stop
-            >
-              <MoreHorizontal class="h-5 w-5" />
-            </button>
-          </UiDropdownMenuTrigger>
-          <UiDropdownMenuContent align="end" class="w-44">
-            <UiDropdownMenuItem @click.prevent.stop>Share</UiDropdownMenuItem>
-            <UiDropdownMenuItem @click.prevent.stop>3D view</UiDropdownMenuItem>
-          </UiDropdownMenuContent>
-        </UiDropdownMenu>
+        <!-- Wrapper needed: UiDropdownMenu/Root does not forward class attrs; keep md:hidden here -->
+        <div class="ml-auto shrink-0 md:hidden">
+          <UiDropdownMenu :modal="false">
+            <UiDropdownMenuTrigger as-child>
+              <button
+                type="button"
+                class="flex h-11 w-11 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                aria-label="Product options"
+                @click.prevent.stop
+              >
+                <MoreHorizontal class="h-5 w-5" />
+              </button>
+            </UiDropdownMenuTrigger>
+            <UiDropdownMenuContent align="end" class="w-44" @click.stop>
+              <UiDropdownMenuItem @click.prevent.stop>Share</UiDropdownMenuItem>
+              <UiDropdownMenuItem @click.prevent.stop>3D view</UiDropdownMenuItem>
+            </UiDropdownMenuContent>
+          </UiDropdownMenu>
+        </div>
       </div>
       <div class="hidden max-w-[220px] flex-col gap-1 text-xs md:flex md:min-h-[34px]">
         <h4 class="text-xs font-semibold leading-tight text-slate-500">Category</h4>

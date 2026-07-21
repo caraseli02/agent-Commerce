@@ -13,7 +13,7 @@
             aria-label="Open shopping cart"
             @click="openCartModal()"
           >
-            <div class="relative flex-shrink-0" :class="showCartBadge ? 'mr-2' : 'mr-4'">
+            <div class="relative flex-shrink-0" :class="showCartBadge ? 'mr-6' : 'mr-4'">
               <CartIcon class="w-6 h-6 text-slate-500" />
               <span
                 v-if="showCartBadge"
