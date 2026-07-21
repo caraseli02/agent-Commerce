@@ -20,6 +20,8 @@
 </template>
 
 <script setup lang="ts">
+import DownloadIcon from '@/assets/icons/dashboard/download.svg';
+
 useHead({
   title: 'Dashboard',
 });

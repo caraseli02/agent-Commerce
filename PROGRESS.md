@@ -2,13 +2,12 @@
 
 ## Current focus
 
-- Issue #359 / PR #365 — mobile dashboard tables and control-panel navigation; synced with main and preparing for merge.
+- Issue #359 / PR #365 — mobile dashboard tables; merging after #367 and #366.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #359 — SharedScrollableRegion + fluid table shells + 390px Playwright smoke; conflict was PROGRESS-only.
-- PR #365 merged onto latest `main`; awaiting green CI after push.
+- PR #365 merge in progress after #367 and #366 landed.
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -17,6 +16,10 @@
 - Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
 
 ## Recently completed
+
+- Issue #358 / PR #366 — dashboard console failure cleanup merged to `main`.
+
+- Issue #357 / PR #367 — truthful checkout result states merged to `main`.
 
 - Issue #368 / PR #364 — storefront hardening merged to `main`.
 

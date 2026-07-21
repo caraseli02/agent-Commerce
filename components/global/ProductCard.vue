@@ -44,7 +44,7 @@
               <MoreHorizontal class="h-5 w-5" />
             </button>
           </UiDropdownMenuTrigger>
-          <UiDropdownMenuContent align="end" class="w-44" @click.stop>
+          <UiDropdownMenuContent align="end" class="w-44">
             <UiDropdownMenuItem @click.prevent.stop>Share</UiDropdownMenuItem>
             <UiDropdownMenuItem @click.prevent.stop>3D view</UiDropdownMenuItem>
           </UiDropdownMenuContent>
