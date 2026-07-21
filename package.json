@@ -23,6 +23,9 @@
   "lint-staged": {
     "*.{js,ts,mjs,cjs,vue,json,md,yml,yaml,css,scss,html}": [
       "pnpm exec prettier --write --ignore-unknown"
+    ],
+    "*.vue": [
+      "pnpm exec eslint --fix"
     ]
   },
   "devDependencies": {
