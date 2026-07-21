@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowRight, CheckCircle2, LayoutDashboard, ShoppingBag, TruckIcon } from 'lucide-vue-next';
-import { format } from 'date-fns';
+import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { useCartStore } from '~/store/cartStore';
 import { getOrderById } from '~/composables/api/orders';
 import { PaymentTypeEnum } from '~/types';
@@ -57,13 +57,13 @@ const orderDate = computed(() => {
     return 'Just now';
   }
 
-  return format(new Date(order.value.createdAt), 'dd MMM yyyy, HH:mm');
+  return formatReviewerDateTime(order.value.createdAt);
 });
 
 const estimatedPickup = computed(() => {
   const pickupDate = order.value?.shippingDetails?.statusTracking?.estimatedPickUpDate;
 
-  return pickupDate ? format(new Date(pickupDate), 'dd MMM yyyy') : '';
+  return formatReviewerDate(pickupDate);
 });
 
 const orderSummaryHref = computed(() => {
@@ -72,7 +72,7 @@ const orderSummaryHref = computed(() => {
 
 const loadOrder = async () => {
   if (!routeOrderId.value) {
-    fetchError.value = 'We could not find an order reference for this payment.';
+    fetchError.value = '';
     loading.value = false;
     return;
   }
@@ -91,9 +91,9 @@ const loadOrder = async () => {
       return;
     }
 
-    fetchError.value = 'Payment was confirmed, but the order details are not available yet.';
+    fetchError.value = 'We could not find order details for this reference. Return to checkout or your cart to try again.';
   } catch {
-    fetchError.value = 'Payment was confirmed, but we could not load the order details just yet.';
+    fetchError.value = 'We could not load order details for this reference. Return to checkout or your cart to try again.';
   } finally {
     loading.value = false;
   }
@@ -106,14 +106,32 @@ onMounted(() => {
 
 <template>
   <div class="container py-8">
-    <section class="overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50/80 shadow-sm">
+    <section v-if="!routeOrderId" class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8">
+      <div class="space-y-4 text-center">
+        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">No order reference to confirm</h1>
+        <p class="text-sm leading-6 text-slate-600 md:text-base">
+          This success page needs a valid order reference from checkout. If you opened it directly, return to your order summary or cart to
+          complete a demo purchase.
+        </p>
+        <div class="flex flex-col justify-center gap-3 sm:flex-row">
+          <NuxtLink to="/order-summary">
+            <UiButton class="w-full gap-2 sm:w-auto"> Back to order summary </UiButton>
+          </NuxtLink>
+          <NuxtLink to="/cart">
+            <UiButton class="w-full gap-2 sm:w-auto" variant="secondary"> Return to cart </UiButton>
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <section
+      v-else-if="loading"
+      class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+      aria-busy="true"
+      aria-label="Loading order details"
+    >
       <!-- Structural skeleton mirrors the loaded success layout to avoid a spinner flash / layout jump -->
-      <div
-        v-if="loading"
-        class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start"
-        aria-busy="true"
-        aria-label="Loading confirmed order details"
-      >
+      <div class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
         <div class="space-y-6">
           <UiSkeleton class="h-7 w-44 rounded-full" />
 
@@ -134,7 +152,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="space-y-4 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
+        <div class="space-y-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm">
           <div class="space-y-2">
             <UiSkeleton class="h-3 w-36 rounded-md" />
             <UiSkeleton class="h-7 w-56 max-w-full rounded-md" />
@@ -145,8 +163,30 @@ onMounted(() => {
           </div>
         </div>
       </div>
+    </section>
 
-      <div v-else class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
+    <section
+      v-else-if="fetchError || !order"
+      class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8"
+    >
+      <div class="space-y-4">
+        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Order details unavailable</h1>
+        <p class="text-sm leading-6 text-slate-600 md:text-base">
+          {{ fetchError || 'We could not find order details for this reference. Return to checkout or your cart to try again.' }}
+        </p>
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <NuxtLink to="/order-summary">
+            <UiButton class="w-full gap-2 sm:w-auto"> Back to order summary </UiButton>
+          </NuxtLink>
+          <NuxtLink to="/cart">
+            <UiButton class="w-full gap-2 sm:w-auto" variant="secondary"> Return to cart </UiButton>
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <section v-else class="overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50/80 shadow-sm">
+      <div class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
         <div class="space-y-6">
           <div
             class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700"
@@ -163,11 +203,7 @@ onMounted(() => {
             </p>
           </div>
 
-          <div v-if="fetchError" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-5 text-sm leading-6 text-amber-900">
-            {{ fetchError }}
-          </div>
-
-          <div v-else class="grid gap-3 md:grid-cols-3">
+          <div class="grid gap-3 md:grid-cols-3">
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order reference</p>
               <p class="mt-2 text-lg font-semibold text-slate-900">
