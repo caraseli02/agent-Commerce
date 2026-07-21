@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute top-0 left-0 z-10 flex max-w-full items-center gap-1 rounded-br-lg rounded-tl-lg px-1.5 py-0.5 md:gap-2 md:rounded-br-lg md:rounded-tl-xl md:px-2 md:py-1"
+    class="absolute top-0 left-0 z-10 flex max-w-full items-center gap-1 rounded-br-lg px-1.5 py-0.5 md:gap-2 md:px-2 md:py-1"
     :class="colorClass"
   >
     <WarningIcon v-if="outOfStock" class="h-3.5 w-3.5 shrink-0 !text-white md:h-4 md:w-4" />
