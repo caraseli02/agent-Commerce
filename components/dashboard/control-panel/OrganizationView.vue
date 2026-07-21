@@ -180,7 +180,7 @@
 import type { PropType } from 'vue';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import CopyIcon from '@/assets/icons/dashboard/copy.svg';
-import { countries } from '@/data/countries';
+import { useCountries } from '~/composables/useCountries';
 import type { FormSelectOption } from '~~/types';
 import type { ValidateAddressResult } from '~/types/dashboard/control-panel';
 import { useNuxtApp } from '#app';
@@ -191,6 +191,7 @@ import { validateAddress } from '~/composables/api/orders';
 import { updateAccountDetails as updateControlPanelAccountDetails } from '~/composables/api/control-panel';
 
 const { $apiClient } = useNuxtApp();
+const { countries } = useCountries();
 const props = defineProps({
   id: {
     type: String,
@@ -271,7 +272,7 @@ const form = ref({
 const regions = ref<FormSelectOption[]>([]);
 
 const getCountryRegion = (country: unknown, region: unknown) => {
-  const countryRegionObj = getRegionByCountry(country, region);
+  const countryRegionObj = getRegionByCountry(countries.value, country, region);
 
   if (!countryRegionObj) {
     return null;
@@ -315,7 +316,7 @@ watch(
         error: '',
       };
       regions.value =
-        countries
+        countries.value
           .find((e) => e.value === newVal.value.value)
           ?.regions.map((e) => {
             return {

@@ -193,8 +193,10 @@ import { AccountRole, AccountType, getAccountTypeById } from '~/types';
 import type { DashboardCustomerTableItem } from '~/types';
 import ThreeDotMenu from '~/components/shared/tables/micro/row-items/ThreeDotMenu.vue';
 import DemoTooltip from '~/components/global/DemoTooltip.vue';
-import { countries } from '~/data/countries';
+import { useCountries } from '~/composables/useCountries';
 import type { CountryInterface } from '~/types/dashboard/control-panel';
+
+const { countries, load: loadCountries } = useCountries();
 
 type CustomerProfileUser = UserInterface & { lastActivityDate?: string };
 
@@ -231,7 +233,8 @@ const fetchInformation = async () => {
         : customerInformation.value.companyDetails?.address;
 
     if (address.value?.country) {
-      country.value = (countries.find((c) => c.value === address.value?.country) ?? null) as CountryInterface | null;
+      await loadCountries();
+      country.value = (countries.value.find((c) => c.value === address.value?.country) ?? null) as CountryInterface | null;
     }
 
     Emitter.emit('customer-info', {

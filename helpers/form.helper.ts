@@ -1,8 +1,8 @@
-import { countries } from '~/data/countries';
+import type { CountryReference } from '~/types/geo';
 import type { CountryInterface, RegionInterface } from '~/types/dashboard/control-panel';
 
-export const getRegionByCountry = (country: unknown, region: unknown) => {
-  const countryToFind = countries.find((obj) => obj.value === country) as CountryInterface;
+export const getRegionByCountry = (countriesList: CountryReference[], country: unknown, region: unknown) => {
+  const countryToFind = countriesList.find((obj) => obj.value === country) as CountryInterface;
 
   if (!countryToFind) {
     return null;

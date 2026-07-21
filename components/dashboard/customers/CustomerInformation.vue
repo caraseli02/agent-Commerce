@@ -202,7 +202,9 @@ import type { DashboardCustomerTableItem } from '~/types';
 import type { CountryInterface } from '~/types/dashboard/control-panel';
 import ThreeDotMenu from '~/components/shared/tables/micro/row-items/ThreeDotMenu.vue';
 import { deleteUser } from '~/composables/api/dashboard-admin';
-import { countries } from '~/data/countries';
+import { useCountries } from '~/composables/useCountries';
+
+const { countries, load: loadCountries } = useCountries();
 
 type CustomerProfileUser = UserInterface & { lastActivityDate?: string };
 
@@ -257,7 +259,8 @@ const fetchInformation = async () => {
       : customerInformation.value.companyDetails?.address;
 
   if (address.value?.country) {
-    country.value = (countries.find((c) => c.value === address.value?.country) ?? null) as CountryInterface | null;
+    await loadCountries();
+    country.value = (countries.value.find((c) => c.value === address.value?.country) ?? null) as CountryInterface | null;
   }
 
   Emitter.emit('customer-info', {

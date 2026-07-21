@@ -142,11 +142,13 @@
 import type { PropType } from 'vue';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import CopyIcon from '@/assets/icons/dashboard/copy.svg';
-import { countries } from '@/data/countries';
+import { useCountries } from '~/composables/useCountries';
 import type { FormSelectOption } from '~~/types';
 import type { AddressInterface, ContactDetails, PersonalDetails, UserInterface } from '~/types/auth/user-interface';
 import { getRegionByCountry } from '~/helpers/form.helper';
 import { updateAccountDetails as updateControlPanelAccountDetails } from '~/composables/api/control-panel';
+
+const { countries } = useCountries();
 
 const props = defineProps({
   id: {
@@ -212,7 +214,7 @@ const regions = ref<FormSelectOption[]>([]);
 
 const getCountryRegion = async (country: unknown, region: unknown) => {
   //
-  const countryRegionObj = getRegionByCountry(country, region);
+  const countryRegionObj = getRegionByCountry(countries.value, country, region);
 
   regions.value = countryRegionObj?.regions || [];
   form.value.country.value = countryRegionObj?.country || { label: '', value: '', icon: '' };
@@ -247,7 +249,7 @@ watch(
         error: '',
       };
       regions.value =
-        countries
+        countries.value
           .find((e) => e.value === newVal.value.value)
           ?.regions.map((e) => {
             return {
