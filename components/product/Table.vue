@@ -139,7 +139,7 @@ onMounted(() => {
     </div>
 
     <div class="overflow-x-auto -mx-1 px-1">
-      <table class="w-full max-w-xl border-collapse text-left md:max-w-2xl">
+      <table class="w-full border-collapse text-left">
         <tbody>
           <tr
             v-for="(item, index) in visibleFeatures"

@@ -28,42 +28,48 @@ import { getProductSectionHeading } from '~/utils/productSectionHeadings';
 
 const props = defineProps<{
   filters: string[];
+  initialProducts?: ProductInterface[];
 }>();
 
 const emit = defineEmits<{
   newProducts: [val: ProductInterface[]];
 }>();
 
-const activeFilter = ref('');
+const initialFilter = textUtil.slugify(props.filters[0] ?? '');
+const activeFilter = ref(initialFilter);
 
 const sectionHeading = computed(() => getProductSectionHeading(activeFilter.value));
-
-onMounted(() => {
-  if (props.filters.length > 0) {
-    setActiveFilter(props.filters[0]);
-  }
-});
 
 const setActiveFilter = (filter: string) => {
   activeFilter.value = textUtil.slugify(filter);
 };
 
-watch(activeFilter, async (value) => {
-  if (!value) return;
-  try {
-    const response = await fetchProductTab(value);
-    const data = response?.data || response;
+watch(
+  activeFilter,
+  async (value) => {
+    if (!value) return;
 
-    if (Array.isArray(data)) {
-      emit('newProducts', data);
-    } else {
+    if (value === initialFilter && props.initialProducts) {
+      emit('newProducts', props.initialProducts);
+      return;
+    }
+
+    try {
+      const response = await fetchProductTab(value);
+      const data = response?.data || response;
+
+      if (Array.isArray(data)) {
+        emit('newProducts', data);
+      } else {
+        emit('newProducts', []);
+      }
+    } catch (error) {
+      console.error('Failed to load product tab', error);
       emit('newProducts', []);
     }
-  } catch (error) {
-    console.error('Failed to load product tab', error);
-    emit('newProducts', []);
-  }
-});
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped></style>

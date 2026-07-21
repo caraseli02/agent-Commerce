@@ -140,7 +140,7 @@ const chartOptions = ref({
   fill: {
     type: 'image',
     image: {
-      src: ['/customer-credit-chart-bg.png'],
+      src: ['/customer-credit-chart-bg.webp'],
       width: 228,
       height: 228,
     },

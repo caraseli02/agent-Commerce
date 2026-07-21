@@ -75,18 +75,16 @@ const props = defineProps({
   },
 });
 
-// const currentQuantity = ref(props.modelValue);
-const initialQuantity = ref(props.modelValue);
 const inputError = ref('');
 const inputErrorId = useId();
 
 const emits = defineEmits(['update:modelValue']);
 const inputHandler = async (quantity: number) => {
-  if (initialQuantity.value === quantity) {
+  // Compare against the bound model — a local "initialQuantity" copy goes stale when
+  // the parent resets qty from cart/fetchCart/bulk tiers, which made +/- no-ops on PDP.
+  if (quantity === props.modelValue) {
     return;
   }
-
-  initialQuantity.value = quantity; // Update local state first
 
   if (props.object && props.object.action === ProductAction.Add) {
     const payload = {} as UpdateProductCartRequestInterface;
@@ -112,11 +110,9 @@ const inputHandler = async (quantity: number) => {
 
     const object = (await updateCartItem(payload)) as { status?: string };
     if (object.status === 'success') {
-      // Emit the new value to the parent after the successful update
       emits('update:modelValue', quantity);
     }
   } else {
-    // Emit the new value to the parent after the successful update
     emits('update:modelValue', quantity);
   }
 };

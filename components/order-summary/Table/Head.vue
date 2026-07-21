@@ -8,33 +8,31 @@
       <div class="ml-9 flex gap-2 items-center">
         <span class="text-neutral-700 text-sm font-medium" />
         <span class="text-sm font-normal text-slate-500">Items selected</span>
-        <span v-if="selectedItems && selectedItems > 1" class="text-sm">
+        <span v-if="selectedItems > 0" class="text-sm">
           {{ selectedItems }}
         </span>
       </div>
     </div>
     <div class="flex flex-row gap-9">
-      <UiDialog :open="isOpen" @update:open="isOpen = $event">
-        <UiDialogTrigger class="flex">
-          <TrashOutline class="text-slate-500 group-hover:text-rose-500 transition duration-150" />
-          <span class="text-sm font-normal text-slate-500 ml-2 group-hover:text-rose-500 transition duration-150"> Delete Selected </span>
-        </UiDialogTrigger>
-        <UiDialogContent>
-          <p class="text-xl mb-4">Delete all selected items?</p>
-          <div class="flex gap-4 items-center">
-            <UiButton class="w-full" @click="deleteSelected"> Confirm </UiButton>
-            <UiButton class="w-full" variant="outline" @click="isOpen = !isOpen"> Cancel </UiButton>
-          </div>
-        </UiDialogContent>
-      </UiDialog>
+      <button
+        type="button"
+        class="group flex items-center disabled:pointer-events-none disabled:opacity-40"
+        :disabled="!canDeleteSelected"
+        :aria-disabled="!canDeleteSelected"
+        @click="isOpen = true"
+      >
+        <TrashOutline class="text-slate-500 group-hover:text-rose-500 transition duration-150" />
+        <span class="text-sm font-normal text-slate-500 ml-2 group-hover:text-rose-500 transition duration-150"> Delete Selected </span>
+      </button>
+      <CartDeleteDialog v-model="isOpen" :product-ids="selectedProductIds" @removed="onDeleted" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import TrashOutline from '@/assets/icons/trash-outline.svg';
-import { useCart } from '~/composables/useCart';
+import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import { useCartStore } from '~/store/cartStore';
 import type { CartProductsInterface } from '~/types/cart';
 
@@ -42,19 +40,34 @@ const checkAllBox = ref(false);
 const isOpen = ref(false);
 
 const cartStore = useCartStore();
-const { removeFromCart } = useCart();
+
+const products = computed(() => cartStore.cart?.products ?? []);
+
+const selectedProductIds = computed(() =>
+  products.value.filter((product: CartProductsInterface) => product.selected).map((product) => product.id)
+);
+
+const selectedItems = computed(() => selectedProductIds.value.length);
+
+const canDeleteSelected = computed(() => selectedItems.value > 0);
+
+const totalItems = computed(() => products.value.length);
+
+const syncCheckAllBox = () => {
+  checkAllBox.value = totalItems.value > 0 && selectedItems.value === totalItems.value;
+};
 
 const toggleCheckAll = () => {
   checkAllBox.value = !checkAllBox.value;
-  cartStore.cart?.products.forEach((product: CartProductsInterface) => (product.selected = checkAllBox.value));
+  products.value.forEach((product: CartProductsInterface) => {
+    product.selected = checkAllBox.value;
+  });
 };
 
-const deleteSelected = async () => {
-  const itemsToDelete =
-    cartStore.cart?.products?.filter((product: CartProductsInterface) => product.selected).map((product) => product.id) ?? [];
-
-  await removeFromCart({ products: itemsToDelete });
+const onDeleted = () => {
+  checkAllBox.value = false;
+  isOpen.value = false;
 };
 
-const selectedItems = computed(() => cartStore.cart?.products?.filter((product: CartProductsInterface) => product.selected).length ?? 0);
+watch([selectedItems, totalItems], syncCheckAllBox);
 </script>

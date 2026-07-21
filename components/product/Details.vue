@@ -1,6 +1,6 @@
 <template>
   <div
-    class="col-span-2 lg:col-span-1 min-w-0 w-full relative bg-white rounded-2xl font-Inter px-4 py-4 shadow-m md:px-5 md:py-5 lg:self-start"
+    class="col-span-2 lg:col-span-1 min-w-0 w-full relative bg-white rounded-2xl font-Inter px-4 py-4 shadow-m md:px-5 md:py-5 lg:h-full"
   >
     <div class="flex items-start justify-between gap-4 mb-5">
       <div class="flex min-w-0 items-center">

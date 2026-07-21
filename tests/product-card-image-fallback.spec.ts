@@ -72,6 +72,35 @@ describe('storefront product card image fallback', () => {
     expect(source).toContain("!src.includes('not_valid_image')");
   });
 
+  it('hides nonfunctional product options on desktop and keeps title overflow clipped', () => {
+    const { descriptor } = parseSfc(readFileSync(productCardPath, 'utf8'));
+
+    expect(descriptor.template).toBeTruthy();
+
+    const ast = baseParse(descriptor.template!.content);
+    const optionsButton = collectElements(ast, 'button').find((button) => getStaticAttrValue(button, 'aria-label') === 'Product options');
+    const title = collectElements(ast, 'h3')[0];
+    const menuWrapper = collectElements(ast, 'div').find((el) => {
+      const className = getStaticAttrValue(el, 'class') || '';
+      return className.includes('md:hidden') && className.includes('ml-auto') && className.includes('shrink-0');
+    });
+    const menuItems = collectElements(ast, 'UiDropdownMenuItem');
+
+    expect(optionsButton).toBeTruthy();
+    expect(menuWrapper).toBeTruthy();
+    expect(menuItems).toHaveLength(2);
+    expect(
+      menuItems.map((item) => {
+        const textNode = item.children.find((child) => child.type === NodeTypes.TEXT);
+        return textNode && 'content' in textNode ? textNode.content.trim() : '';
+      })
+    ).toEqual(['Share', '3D view']);
+    expect(getStaticAttrValue(title, 'class')).toContain('min-w-0');
+    expect(getStaticAttrValue(title, 'class')).toContain('overflow-hidden');
+    expect(getStaticAttrValue(title, 'class')).toContain('md:truncate');
+    // Class must live on a real DOM wrapper — UiDropdownMenu/Root does not forward class attrs.
+    expect(getStaticAttrValue(collectElements(ast, 'UiDropdownMenu')[0], 'class')).toBeUndefined();
+  });
   it('keeps the mobile card compact while preserving desktop card behavior', () => {
     const source = readFileSync(productCardPath, 'utf8');
     const { descriptor } = parseSfc(source);

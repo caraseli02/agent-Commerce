@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, CheckCircle2, LayoutDashboard, LoaderIcon, ShoppingBag, TruckIcon } from 'lucide-vue-next';
+import { ArrowRight, CheckCircle2, LayoutDashboard, ShoppingBag, TruckIcon } from 'lucide-vue-next';
 import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { useCartStore } from '~/store/cartStore';
 import { getOrderById } from '~/composables/api/orders';
@@ -106,10 +106,7 @@ onMounted(() => {
 
 <template>
   <div class="container py-8">
-    <section
-      v-if="!routeOrderId"
-      class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8"
-    >
+    <section v-if="!routeOrderId" class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8">
       <div class="space-y-4 text-center">
         <h1 class="text-3xl font-semibold tracking-tight text-slate-900">No order reference to confirm</h1>
         <p class="text-sm leading-6 text-slate-600 md:text-base">
@@ -129,22 +126,53 @@ onMounted(() => {
 
     <section
       v-else-if="loading"
-      class="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8"
+      class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+      aria-busy="true"
+      aria-label="Loading order details"
     >
-      <div class="flex items-center gap-3 text-sm text-slate-600">
-        <LoaderIcon class="h-5 w-5 animate-spin text-slate-500" />
-        Loading order details for this checkout reference...
+      <!-- Structural skeleton mirrors the loaded success layout to avoid a spinner flash / layout jump -->
+      <div class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
+        <div class="space-y-6">
+          <UiSkeleton class="h-7 w-44 rounded-full" />
+
+          <div class="space-y-3">
+            <UiSkeleton class="h-10 w-full max-w-xl rounded-lg md:h-12" />
+            <UiSkeleton class="h-4 w-full max-w-2xl rounded-md" />
+            <UiSkeleton class="h-4 w-5/6 max-w-xl rounded-md" />
+          </div>
+
+          <div class="grid gap-3 md:grid-cols-3">
+            <UiSkeleton v-for="i in 3" :key="`info-${i}`" class="h-[88px] rounded-2xl" />
+          </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <UiSkeleton class="h-10 w-full rounded-md sm:w-44" />
+            <UiSkeleton class="h-10 w-full rounded-md sm:w-44" />
+            <UiSkeleton class="h-10 w-full rounded-md sm:w-36" />
+          </div>
+        </div>
+
+        <div class="space-y-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm">
+          <div class="space-y-2">
+            <UiSkeleton class="h-3 w-36 rounded-md" />
+            <UiSkeleton class="h-7 w-56 max-w-full rounded-md" />
+          </div>
+
+          <div class="space-y-3">
+            <UiSkeleton v-for="i in 3" :key="`next-${i}`" class="h-[72px] rounded-2xl" />
+          </div>
+        </div>
       </div>
     </section>
 
     <section
-      v-else-if="fetchError"
+      v-else-if="fetchError || !order"
       class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8"
     >
       <div class="space-y-4">
         <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Order details unavailable</h1>
         <p class="text-sm leading-6 text-slate-600 md:text-base">
-          {{ fetchError }}
+          {{ fetchError || 'We could not find order details for this reference. Return to checkout or your cart to try again.' }}
         </p>
         <div class="flex flex-col gap-3 sm:flex-row">
           <NuxtLink to="/order-summary">

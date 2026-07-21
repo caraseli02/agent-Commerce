@@ -66,12 +66,15 @@ export const initializeQuantities = (
   _minPriceConfiguration: PriceConfigurationSettingsInterface
 ) => {
   if (!data?.products?.length) {
+    // Empty cart must clear any prior baseline so PDP shows enabled "Add to cart".
+    initialRequestedQuantity.value = 0;
     return;
   }
 
   const cartProduct = data.products.find((item: CartProductsInterface) => item.id === product?._id);
 
   if (!cartProduct) {
+    initialRequestedQuantity.value = 0;
     return;
   }
 

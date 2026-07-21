@@ -1,7 +1,7 @@
 <template>
   <div
     data-mobile-main-row
-    class="bg-primary border-b border-black/10 py-3 max-md:py-3.5"
+    class="bg-primary py-3 max-md:py-3.5 md:border-b md:border-black/10"
     :class="[
       isScrolled
         ? showMobileSearch
@@ -90,15 +90,15 @@
         </div>
         <Transition name="fade">
           <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 -translate-y-1/2 left-0 w-full md:hidden">
-            <div class="flex items-center border border-border bg-white h-10 rounded-lg px-3">
-              <label class="relative z-10 flex-1 flex items-center justify-between h-10">
-                <form action="" @submit.prevent="showMobileSearch = false">
+            <div class="flex items-center gap-2 border border-border bg-white h-10 rounded-lg px-3">
+              <label class="relative z-10 flex min-w-0 flex-1 items-center h-10">
+                <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent="showMobileSearch = false">
                   <input
                     ref="searchDOM"
                     v-model="searchVal"
                     type="search"
                     placeholder="Search products"
-                    class="bg-transparent flex-1 w-full py-2 h-10 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
+                    class="bg-transparent h-full min-w-0 w-full py-2 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
                     @input="onInput"
                     @keypress.enter="
                       $router.push('/search');
@@ -107,8 +107,16 @@
                     @blur="showMobileSearch = false"
                   >
                 </form>
-                <XIcon class="flex-shrink-0 w-5 h-5 text-slate-500" @click="showMobileSearch = false" />
               </label>
+              <button
+                type="button"
+                class="flex flex-shrink-0 items-center justify-center text-slate-500"
+                aria-label="Close search"
+                @mousedown.prevent
+                @click="showMobileSearch = false"
+              >
+                <XIcon class="w-5 h-5" />
+              </button>
             </div>
           </div>
         </Transition>
