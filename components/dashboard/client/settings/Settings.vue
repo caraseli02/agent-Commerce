@@ -4,10 +4,6 @@ import Details from './Details.vue';
 import Shipping from './Shipping.vue';
 import Billing from './Billing.vue';
 import Payments from './Payments.vue';
-import Credit from './Credit.vue';
-import Security from './Security.vue';
-import Alerts from './Alerts.vue';
-import Marketing from './Marketing.vue';
 import { useAuthStore } from '~/store/authStore';
 
 const route = useRoute();
@@ -34,10 +30,6 @@ onMounted(() => {
     <Shipping />
     <Billing />
     <Payments />
-    <Credit />
-    <Security />
-    <Alerts />
-    <Marketing />
   </template>
   <div v-else class="bg-white rounded-xl shadow-xs p-6 text-sm text-slate-500">Loading settings...</div>
 </template>

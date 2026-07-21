@@ -123,11 +123,6 @@ export const ControlPanelLabels = [
     path: ControlPanelTabsEnum.TransactionHistory,
     allowTo: [AccountType.Personal, AccountType.Agent, AccountType.Business, AccountType.SoleTrader],
   },
-  {
-    name: 'Settings',
-    path: ControlPanelTabsEnum.Settings,
-    allowTo: [AccountType.Personal, AccountType.Agent, AccountType.Business, AccountType.SoleTrader],
-  },
 ];
 
 export type ControlPanelTabs =

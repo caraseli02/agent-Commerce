@@ -1,29 +1,26 @@
 <template>
-  <div>
-    <div v-if="activeView !== ControlPanelTabsEnum.Settings" class="bg-white rounded-xl px-4 py-6 shadow-xs md:px-6">
-      <DashboardControlPanelOrganizationView
-        v-if="activeView === ControlPanelTabsEnum.Organization && customerDetails.accountType !== AccountType.Personal"
-        :id="customerSlug"
-        :account="customerDetails"
-      />
-      <DashboardControlPanelAccountView
-        v-else-if="activeView === ControlPanelTabsEnum.Account && customerDetails.accountType === AccountType.Personal"
-        :id="customerSlug"
-        :account="customerDetails"
-      />
-      <DashboardControlPanelShippingView
-        v-else-if="activeView === ControlPanelTabsEnum.Shipping"
-        :id="customerSlug"
-        :account-type="customerDetails.accountType ?? AccountType.Personal"
-      />
-      <ClientTableTransaction v-else-if="activeView === ControlPanelTabsEnum.TransactionHistory" :user-id="customerSlug" />
-      <DashboardControlPanelBillingView
-        v-else-if="activeView === ControlPanelTabsEnum.Billing"
-        :id="customerSlug"
-        :account-type="customerDetails.accountType ?? AccountType.Personal"
-      />
-    </div>
-    <DashboardControlPanelSettingsView v-if="activeView === ControlPanelTabsEnum.Settings" />
+  <div class="bg-white rounded-xl px-4 py-6 shadow-xs md:px-6">
+    <DashboardControlPanelOrganizationView
+      v-if="activeView === ControlPanelTabsEnum.Organization && customerDetails.accountType !== AccountType.Personal"
+      :id="customerSlug"
+      :account="customerDetails"
+    />
+    <DashboardControlPanelAccountView
+      v-else-if="activeView === ControlPanelTabsEnum.Account && customerDetails.accountType === AccountType.Personal"
+      :id="customerSlug"
+      :account="customerDetails"
+    />
+    <DashboardControlPanelShippingView
+      v-else-if="activeView === ControlPanelTabsEnum.Shipping"
+      :id="customerSlug"
+      :account-type="customerDetails.accountType ?? AccountType.Personal"
+    />
+    <ClientTableTransaction v-else-if="activeView === ControlPanelTabsEnum.TransactionHistory" :user-id="customerSlug" />
+    <DashboardControlPanelBillingView
+      v-else-if="activeView === ControlPanelTabsEnum.Billing"
+      :id="customerSlug"
+      :account-type="customerDetails.accountType ?? AccountType.Personal"
+    />
   </div>
 </template>
 
@@ -44,10 +41,20 @@ const activeView = computed(() => String(route.params.view ?? '') as ControlPane
 
 const customerDetails = ref({} as UserInterface);
 
+const defaultControlPanelView = (accountType: AccountType) =>
+  accountType === AccountType.Personal ? ControlPanelTabsEnum.Account : ControlPanelTabsEnum.Organization;
+
 onMounted(() => {
+  if (route.params.view === ControlPanelTabsEnum.Settings) {
+    router.replace({
+      path: `/dashboard/customers/${route.params.slug}/control-panel/${defaultControlPanelView(customerDetails.value.accountType ?? AccountType.Personal)}`,
+    });
+    return;
+  }
+
   if (!Object.values(ControlPanelTabsEnum).includes(route.params.view as ControlPanelTabsEnum)) {
     router.replace({
-      path: `/dashboard/customers/${route.params.slug}/control-panel/${ControlPanelTabsEnum.Organization}`,
+      path: `/dashboard/customers/${route.params.slug}/control-panel/${defaultControlPanelView(customerDetails.value.accountType ?? AccountType.Personal)}`,
     });
   } else {
     if (customerDetails.value.accountType === AccountType.Personal && route.params.view === ControlPanelTabsEnum.Organization) {
