@@ -60,10 +60,12 @@ defineProps({
   customer: {
     type: String,
     required: false,
+    default: undefined,
   },
   panelView: {
     type: String,
     required: false,
+    default: undefined,
   },
   accountType: {
     type: Number,

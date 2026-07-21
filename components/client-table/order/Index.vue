@@ -15,6 +15,7 @@ interface OrdersListResponse {
 const props = defineProps({
   userId: {
     type: String,
+    default: undefined,
   },
 });
 

@@ -2,7 +2,10 @@
 import StockStatus from './StockStatus.vue';
 
 defineProps({
-  item: Object,
+  item: {
+    type: Object,
+    default: undefined,
+  },
   shortStock: Boolean,
   stockItem: Boolean,
 });

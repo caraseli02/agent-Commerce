@@ -6,6 +6,7 @@ import { fetchTransactions } from '~/composables/api/control-panel';
 const props = defineProps({
   userId: {
     type: String,
+    default: undefined,
   },
 });
 

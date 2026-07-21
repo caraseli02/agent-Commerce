@@ -61,10 +61,19 @@ const props = defineProps({
     required: false,
     default: 'default',
   },
-  label: String,
-  placeholder: String,
+  label: {
+    type: String,
+    default: undefined,
+  },
+  placeholder: {
+    type: String,
+    default: undefined,
+  },
   handleStrength: Boolean,
-  error: String,
+  error: {
+    type: String,
+    default: undefined,
+  },
 });
 
 const emits = defineEmits(['update:modelValue']);

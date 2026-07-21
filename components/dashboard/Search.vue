@@ -26,8 +26,14 @@ defineProps({
     type: String,
     required: true,
   },
-  placeholder: String,
-  error: String,
+  placeholder: {
+    type: String,
+    default: undefined,
+  },
+  error: {
+    type: String,
+    default: undefined,
+  },
   size: {
     type: String as PropType<'lg' | 'md' | 'sm'>,
     required: false,

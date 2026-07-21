@@ -147,9 +147,16 @@ const props = defineProps({
   modelValue: {
     type: Object as PropType<FormSelectOption>,
     required: false,
+    default: undefined,
   },
-  label: String,
-  placeholder: String,
+  label: {
+    type: String,
+    default: undefined,
+  },
+  placeholder: {
+    type: String,
+    default: undefined,
+  },
   options: {
     type: Array as PropType<FormSelectOption[]>,
     required: true,
@@ -164,9 +171,13 @@ const props = defineProps({
   // eslint-disable-next-line vue/require-prop-types
   icon: {
     required: false,
+    default: undefined,
   },
   search: Boolean,
-  error: String,
+  error: {
+    type: String,
+    default: undefined,
+  },
   showDisabledStyles: {
     type: Boolean,
     required: false,

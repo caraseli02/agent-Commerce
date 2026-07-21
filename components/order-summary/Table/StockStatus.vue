@@ -23,6 +23,9 @@ import WarningError from '@/assets/icons/warning-error.svg';
 defineProps({
   stockItem: Boolean,
   shortStock: Boolean,
-  stock: Number,
+  stock: {
+    type: Number,
+    default: undefined,
+  },
 });
 </script>
