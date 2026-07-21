@@ -1,18 +1,18 @@
 <template>
   <UiSheet :key="userDetails?._id" v-model:open="showNotifications">
     <UiSheetTrigger>
-      <button class="flex items-center -mr-2.5 xl:-mr-4">
+      <button type="button" class="flex items-center -mr-2.5 xl:-mr-4" aria-label="Open notifications">
         <div class="flex items-center">
-          <div class="flex items-center flex-col">
-            <BellIcon :class="adminView ? 'text-slate-500' : 'text-white'" class="w-6 h-6 xl:mb-1" />
-            <span v-if="!adminView" class="hidden font-medium text-xs leading-[1.33] text-white xl:inline-block"> Notifications </span>
+          <div class="flex flex-col items-center">
+            <BellIcon :class="adminView ? 'text-slate-500' : 'text-white'" class="mb-0 h-6 w-6 xl:mb-1" />
+            <span v-if="!adminView" class="hidden text-xs font-medium leading-[1.33] text-white xl:inline-block"> Notifications </span>
           </div>
           <span
             v-if="unreadNotifications > 0"
-            class="flex items-center justify-center -translate-y-2 h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5] xl:-translate-y-[18px]"
+            class="z-10 -top-1 -right-[9px] -translate-y-2 flex h-[18px] items-center justify-center rounded-[100px] bg-rose-500 font-Inter text-xs font-medium leading-[1.5] text-white xl:-translate-y-[18px]"
             :class="[
               unreadNotifications < 10 ? 'w-[18px]' : unreadNotifications < 100 ? 'w-6' : 'w-[31px]',
-              adminView ? 'xl:-translate-x-[8px] -translate-x-1' : 'xl:-translate-x-[38px] -translate-x-2.5',
+              adminView ? '-translate-x-1 xl:-translate-x-[8px]' : '-translate-x-2.5 xl:-translate-x-[38px]',
             ]"
           >
             <span>
@@ -22,79 +22,92 @@
         </div>
       </button>
     </UiSheetTrigger>
-    <LazyUiSheetContent class="md:max-h-[calc(100vh-48px)] w-full h-full md:min-w-[440px] p-0 md:m-6 overflow-hidden rounded-xl">
-      <div class="relative flex flex-col gap-[60px] pt-4 px-3 shadow-s">
-        <div class="flex items-center justify-between">
-          <p class="text-2xl font-medium">Notifications</p>
-          <UiButton class="z-10 hover:z-10 hover:bg-slate-200 w-8 h-8" size="icon" variant="secondary" @click="showNotifications = false">
-            <XIcon />
-          </UiButton>
-        </div>
+    <LazyUiSheetContent
+      side="right"
+      hidde-close-button
+      class="flex h-full w-full flex-col gap-0 overflow-hidden rounded-none border-l border-slate-100 p-0 shadow-lg sm:max-w-[440px] md:w-[440px]"
+    >
+      <header class="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 py-3 md:px-6">
+        <h2 class="truncate text-lg font-semibold text-neutral-800">Notifications</h2>
+        <button
+          type="button"
+          class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-light-300 text-slate-500 transition-colors duration-300 hover:bg-light-400 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          aria-label="Close notifications"
+          @click="showNotifications = false"
+        >
+          <XIcon class="h-5 w-5" />
+        </button>
+      </header>
 
+      <div class="shrink-0 border-b border-slate-100 px-2 pt-2 md:px-4">
         <UiTabs v-model="selectedTab">
           <UiTabsList
-            class="bg-white min-h-9 ml-2 p-0 w-full justify-start scrollbar-none overflow-x-scroll lg:overscroll-x-none overflow-y-hidden rounded-none"
+            class="min-h-9 w-full justify-start overflow-x-scroll overflow-y-hidden rounded-none bg-white p-0 scrollbar-none lg:overscroll-x-none"
           >
             <template v-for="tab in tabs" :key="tab.value">
-              <UiTabsTrigger class="pb-3 data-[state=active]:shadow-none data-[state=active]:text-blue-500 relative" :value="tab.value">
+              <UiTabsTrigger class="relative pb-3 data-[state=active]:text-blue-500 data-[state=active]:shadow-none" :value="tab.value">
                 {{ tab.label }}
                 <UiBadge
                   :key="tab.badge"
                   variant="secondary"
                   :class="{ 'bg-blue-500 text-white': selectedTab === tab.value }"
-                  class="text-xs rounded-full p-1.5 min-w-5 h-5 ml-1"
+                  class="ml-1 h-5 min-w-5 rounded-full p-1.5 text-xs"
                 >
                   {{ tab.badge }}
                 </UiBadge>
-                <div v-if="selectedTab === tab.value" class="w-full h-1 bg-blue-500 absolute bottom-0 rounded-t-full" />
+                <div v-if="selectedTab === tab.value" class="absolute bottom-0 h-1 w-full rounded-t-full bg-blue-500" />
               </UiTabsTrigger>
             </template>
           </UiTabsList>
         </UiTabs>
       </div>
-      <div class="flex-1 overflow-y-auto h-full md:max-h-[calc(100vh-246px)] notifications-scroll">
+
+      <div class="notifications-scroll min-h-0 flex-1 overflow-y-auto">
         <NuxtLink
           v-for="(notification, index) in first50"
           :key="index"
           :to="`${route.path}`"
           event=""
-          class="flex flex-col w-full bg-white pt-2 pb-1 py-3 px-2 border-b border-border last:border-b-0 transition-colors duration-300 hover:bg-[#F5F5F5]"
+          class="flex w-full flex-col border-b border-border bg-white px-2 py-3 pt-2 pb-1 transition-colors duration-300 last:border-b-0 hover:bg-[#F5F5F5]"
           @click.prevent="markNotificationAsRead(notification, index)"
         >
-          <div class="flex items-center justify-between w-full py-3 px-2">
+          <div class="flex w-full items-center justify-between px-2 py-3">
             <div class="flex items-center">
-              <NotificationIcon class="w-5 h-5 mr-2" :class="getNotificationClass(notification.title)" />
-              <span v-if="!notification.seen" class="flex w-2 h-2 flex-shrink-0 bg-blue-500 rounded-full mr-2" />
-              <span class="capitalize text-sm leading-[1.43] font-medium">
+              <NotificationIcon class="mr-2 h-5 w-5" :class="getNotificationClass(notification.title)" />
+              <span v-if="!notification.seen" class="mr-2 flex h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+              <span class="text-sm font-medium capitalize leading-[1.43]">
                 {{ notification.title }}
               </span>
             </div>
             <div class="flex items-center">
-              <span class="text-xs leading-[1.67] text-slate-500 mr-4">
+              <span class="mr-4 text-xs leading-[1.67] text-slate-500">
                 {{ getCurrentDate(notification.date) }}
               </span>
               <button
+                type="button"
                 class="flex items-center justify-center text-slate-500 transition-colors duration-300 hover:text-blue-500"
+                aria-label="Delete notification"
                 @click.stop.prevent="deleteNotification(notification, index)"
               >
-                <XIcon class="w-4 h-4" />
+                <XIcon class="h-4 w-4" />
               </button>
             </div>
           </div>
-          <div class="flex items-center justify-between pl-3 pr-2 pb-2 min-h-12">
-            <div class="text-sm leading-[1.43] text-slate-500 mr-1">
+          <div class="flex min-h-12 items-center justify-between pb-2 pl-3 pr-2">
+            <div class="mr-1 text-sm leading-[1.43] text-slate-500">
               {{ notification.description }}
             </div>
-            <ChevronRight class="w-[18px] h-[18px] flex-shrink-0" />
+            <ChevronRight class="h-[18px] w-[18px] flex-shrink-0" />
           </div>
         </NuxtLink>
       </div>
-      <div class="flex justify-between py-4 shadow-s z-10 sticky bg-white bottom-0 px-4">
+
+      <div class="sticky bottom-0 z-10 flex shrink-0 items-center justify-between border-t border-slate-100 bg-white px-4 py-4">
         <NuxtLink to="/" class="flex items-center text-blue-500">
-          <span class="text-sm leading-[1.43] font-medium mr-2"> View all </span>
-          <ArrowRight class="w-5 h-5 text-blue-500" />
+          <span class="mr-2 text-sm font-medium leading-[1.43]"> View all </span>
+          <ArrowRight class="h-5 w-5 text-blue-500" />
         </NuxtLink>
-        <Settings class="w-5 h-5 text-slate-500" />
+        <Settings class="h-5 w-5 text-slate-500" aria-hidden="true" />
       </div>
     </LazyUiSheetContent>
   </UiSheet>

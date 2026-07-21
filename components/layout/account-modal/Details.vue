@@ -1,18 +1,21 @@
 <template>
-  <div class="flex gap-3 w-full px-2">
+  <div class="flex w-full items-start gap-3">
     <div
-      class="aspect-square w-14 shrink-0 my-auto rounded-full bg-slate-200 flex items-center justify-center text-slate-600 text-lg font-semibold select-none"
+      class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-slate-200 text-lg font-semibold text-slate-600 select-none"
       aria-hidden="true"
     >
       {{ avatarInitials }}
     </div>
-    <div class="justify-center items-stretch self-stretch flex grow basis-[0%] flex-col">
-      <div class="items-stretch flex justify-start gap-3 pr-5 relative">
-        <div class="text-neutral-700 text-sm font-medium leading-5 whitespace-nowrap">
+    <div class="min-w-0 flex-1 pt-0.5">
+      <div class="flex min-w-0 items-center gap-2">
+        <p class="truncate text-sm font-medium leading-5 text-neutral-700">
           {{ fullname || 'Loading...' }}
-        </div>
-        <DemoTooltip theme="black" position="top">
-          <component :is="getIconBadgeByAccountType()" class="w-5 h-5 hover:text-blue-500" />
+        </p>
+        <DemoTooltip theme="black" position="bottom">
+          <component
+            :is="getIconBadgeByAccountType()"
+            class="h-5 w-5 shrink-0 text-slate-500 transition-colors duration-300 hover:text-blue-500"
+          />
           <template #content>
             <span class="text-sm">{{
               getUserDetails.accountType ? AccountType[getUserDetails.accountType] : AccountRole[getUserDetails.role]
@@ -20,17 +23,18 @@
           </template>
         </DemoTooltip>
       </div>
-      <div class="text-slate-500 text-xs leading-4 whitespace-nowrap mt-1">
+      <p class="mt-0.5 truncate text-xs leading-4 text-slate-500">
         {{ getUserDetails?.contactDetails.email || 'Loading...' }}
-      </div>
-      <div class="items-center flex gap-2 mt-1 pr-20">
-        <div class="text-stone-500 text-xs font-medium leading-5 self-stretch whitespace-nowrap">Client code:</div>
-        <div class="text-stone-500 text-xs font-medium leading-5">
+      </p>
+      <div class="mt-2 flex min-w-0 items-center gap-1.5">
+        <span class="shrink-0 text-xs font-medium leading-5 text-stone-500">Client code:</span>
+        <span class="truncate text-xs font-medium leading-5 text-stone-600 tabular-nums">
           {{ getUserDetails?.clientCode || 'N/A' }}
-        </div>
+        </span>
         <CopyClipboard
-          :text="getUserDetails?._id as string"
-          class="aspect-square object-contain object-center w-4 h-4 overflow-hidden shrink-0 max-w-full my-auto text-[#9A9A9A]"
+          :text="(getUserDetails?._id as string) || ''"
+          :label="`Copy client code ${getUserDetails?.clientCode || ''}`"
+          class="!min-h-8 !min-w-8 -my-1 shrink-0 text-slate-400 transition-colors duration-300 hover:text-blue-500"
         />
       </div>
     </div>

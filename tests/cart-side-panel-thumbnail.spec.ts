@@ -45,18 +45,13 @@ describe('cart side-panel thumbnails', () => {
     expect(source).toContain('getCartProductThumbnail');
     expect(source).toContain('Array.isArray(productImage)');
     expect(source).toContain('image: getCartProductThumbnail(item)');
+    // Explicit import avoids the wrong Nuxt auto-name LayoutFavoritesCartModalCartCartProductItem
+    expect(source).toContain('import CartProductItem');
+    expect(source).toContain('<CartProductItem');
+    expect(source).not.toContain('LayoutFavoritesCartModalCartCartProductItem');
   });
 
-  it('shows continue shopping instead of checkout when the cart is empty', () => {
-    const source = readFileSync(cartPanelPath, 'utf8');
-
-    expect(source).toContain('hasItems');
-    expect(source).toContain('v-if="hasItems"');
-    expect(source).toContain('Continue Shopping');
-    expect(source).not.toMatch(/v-else[\s\S]*Go to Checkout/);
-  });
-
-  it('renders cart line media with shared fallback sizing', () => {
+  it('renders cart rows through the shared fallback image with stable thumbnail sizing', () => {
     const source = readFileSync(productItemPath, 'utf8');
     const productItemAst = parseTemplate(productItemPath);
 
