@@ -55,10 +55,7 @@
             >Shipping Preferences</span
           >
           <div class="flex flex-row gap-6">
-            <div
-              v-if="!shippingPreferencesExpanded && ((mixedOrBackOrder && !order.backorderOption) || !order.deliveryMethod)"
-              class="flex flex-row gap-2 items-center"
-            >
+            <div v-if="!shippingPreferencesExpanded && shippingPreferencesWarning" class="flex flex-row gap-2 items-center">
               <DemoTooltip theme="black" position="top" class="flex sm:hidden lg:flex">
                 <WarningErrorHuge />
                 <template #content>
@@ -199,6 +196,10 @@ const shippingAndBillingMissingInfoWarning = computed(() => {
 
 const mixedOrBackOrder = computed(() => props.order.type === OrderType.Back || props.order.type === OrderType.Mixed);
 
+const shippingPreferencesWarning = computed(() => {
+  return (mixedOrBackOrder.value && !props.order.backorderOption) || !props.order.deliveryMethod;
+});
+
 const paymentMethodWarning = computed(() => {
   const paymentDetails = props.order.paymentDetails;
   return !paymentDetails || paymentDetails.type == null;
@@ -208,6 +209,27 @@ watch(orderType, () => {
   // eslint-disable-next-line vue/no-mutating-props
   props.order.type = orderType.value;
 });
+
+// Keep invalid sections open so warning context and options stay visible.
+watch(
+  [shippingPreferencesWarning, shippingPreferencesExpanded],
+  ([isInvalid, isExpanded]) => {
+    if (isInvalid && !isExpanded) {
+      shippingPreferencesExpanded.value = true;
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  [paymentMethodWarning, paymentMethodExpanded],
+  ([isInvalid, isExpanded]) => {
+    if (isInvalid && !isExpanded) {
+      paymentMethodExpanded.value = true;
+    }
+  },
+  { immediate: true }
+);
 
 onMounted(() => {
   // eslint-disable-next-line vue/no-mutating-props
@@ -226,10 +248,18 @@ function expandShippingAndBilling() {
 }
 
 function expandShippingPreferences() {
+  // Stay open while mandatory fields are missing.
+  if (shippingPreferencesWarning.value && shippingPreferencesExpanded.value) {
+    return;
+  }
   shippingPreferencesExpanded.value = !shippingPreferencesExpanded.value;
 }
 
 function expandPaymentMethod() {
+  // Stay open while payment method is missing.
+  if (paymentMethodWarning.value && paymentMethodExpanded.value) {
+    return;
+  }
   paymentMethodExpanded.value = !paymentMethodExpanded.value;
 }
 
