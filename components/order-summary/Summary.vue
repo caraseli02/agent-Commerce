@@ -6,13 +6,15 @@
     <div class="flex flex-col gap-2 relative">
       <div class="flex flex-row justify-between w-full">
         <span class="text-slate-500 text-sm font-normal leading-6">Subtotal</span>
-        <span class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedSubtotal.toFixed(2) }} Lei</span>
+        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedSubtotal.toFixed(2) }} Lei</span>
+        <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row gap-6">
           <span class="text-slate-500 text-sm font-normal leading-6">Discount</span>
         </div>
-        <span class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedDiscount.toFixed(2) }} Lei</span>
+        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedDiscount.toFixed(2) }} Lei</span>
+        <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div v-if="smallOrder" class="flex flex-row justify-between w-full">
         <div class="flex flex-col gap-1">
@@ -25,7 +27,8 @@
           <span class="text-neutral-700 italic text-sm font-normal leading-6">Small order charge</span>
         </div>
         <div class="flex flex-col justify-end">
-          <span class="text-neutral-700 text-sm font-medium leading-6">{{ smallOrder }} Lei</span>
+          <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ smallOrder }} Lei</span>
+          <UiSkeleton v-else class="h-4 w-20" />
         </div>
       </div>
       <Transition name="fade-bottom">
@@ -44,7 +47,8 @@
           <span v-if="shipping" class="text-neutral-700 italic text-sm font-normal leading-6">{{ shippingText }}</span>
         </div>
         <div v-if="shipping" class="flex flex-col justify-end">
-          <span class="text-neutral-700 text-sm font-medium leading-6">{{ formattedShippingPrice }}</span>
+          <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ formattedShippingPrice }}</span>
+          <UiSkeleton v-else class="h-4 w-20" />
         </div>
       </div>
       <div class="flex flex-row justify-between w-full">
@@ -55,12 +59,14 @@
           </button>
           <span class="text-neutral-700 text-sm font-normal leading-6 ml-6">(VAT 19%)</span>
         </div>
-        <span class="text-neutral-700 text-sm font-medium leading-6">{{ calculatedVAT }} Lei</span>
+        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ calculatedVAT }} Lei</span>
+        <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div class="w-full h-[1px] bg-light-500 rounded-lg" />
       <div class="flex flex-row justify-between w-full">
         <span class="text-neutral-700 text-xl font-normal leading-9">Total</span>
-        <span class="text-neutral-700 text-2xl font-semibold leading-9">{{ calculatedTotal }} Lei</span>
+        <span v-if="isSummaryReady" class="text-neutral-700 text-2xl font-semibold leading-9">{{ calculatedTotal }} Lei</span>
+        <UiSkeleton v-else class="h-8 w-24" />
       </div>
     </div>
   </div>
@@ -73,11 +79,11 @@ import InformationIcon from '~/assets/icons/information.svg';
 import type { CheckoutOrderDraft } from '~/types';
 import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
 import { useCartStore } from '~/store/cartStore';
-import { useClientReady } from '~/composables/useClientReady';
 
 const cartStore = useCartStore();
-const { getCartSubtotal, itemsDiscount } = storeToRefs(cartStore);
-const isClientReady = useClientReady();
+const { getCartSubtotal, itemsDiscount, hasFetchedCart } = storeToRefs(cartStore);
+// Wait for a completed cart fetch — client mount alone still races the async cart load.
+const isSummaryReady = computed(() => hasFetchedCart.value);
 
 const props = defineProps<{
   order: CheckoutOrderDraft;
@@ -86,10 +92,8 @@ const props = defineProps<{
 
 const showSmallOrderModal = ref(false);
 
-const resolvedSubtotal = computed(() => (isClientReady.value ? Number(getCartSubtotal.value || 0) : Number(props.order.subtotal || 0)));
-const resolvedDiscount = computed(() =>
-  isClientReady.value ? Number(itemsDiscount.value || 0) : Number(props.order.discount?.total || 0)
-);
+const resolvedSubtotal = computed(() => Number(getCartSubtotal.value || props.order.subtotal || 0));
+const resolvedDiscount = computed(() => Number(itemsDiscount.value || props.order.discount?.total || 0));
 
 const smallOrder = computed(() => {
   let smallOrderFee = 0;

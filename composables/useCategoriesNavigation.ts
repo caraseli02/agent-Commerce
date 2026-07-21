@@ -14,14 +14,18 @@ export function useCategoriesNavigation() {
 
   const router = useRouter();
 
+  function browseCategory(category: TaxonomyInterface) {
+    isOpen.value = false;
+    selectedCategories.value = [];
+    // Prefer keyword so mock catalog matches by name/features (IDs alone return empty).
+    router.push(`/search?keyword=${encodeURIComponent(category.name)}`);
+  }
+
   function onCategoryClick(category: TaxonomyInterface, makeReset: boolean) {
     const subcategories = category.subcategory ?? [];
     if (makeReset) selectedCategories.value = [];
     if (subcategories.length === 0) {
-      isOpen.value = false;
-      selectedCategories.value = [];
-      // Prefer keyword so mock catalog matches by name/features (IDs alone return empty).
-      router.push(`/search?keyword=${encodeURIComponent(category.name)}`);
+      browseCategory(category);
     } else {
       selectedCategories.value.push(category);
     }
@@ -43,6 +47,7 @@ export function useCategoriesNavigation() {
     currentCategory,
     isOpen,
     onCategoryClick,
+    browseCategory,
     resetCategories,
   };
 }

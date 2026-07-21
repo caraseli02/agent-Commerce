@@ -243,9 +243,12 @@ const buildBulkQuantities = () => {
 const addToCart = async (product: ProductInterface) => {
   const stock = initialRequestedQuantity.value > 0 ? quantity.value - initialRequestedQuantity.value : quantity.value;
 
-  const response = (await addToCartHelper(product, stock)) as { status?: string };
+  const response = (await addToCartHelper(product, stock, {
+    currentCartQuantity: initialRequestedQuantity.value,
+    isDelta: initialRequestedQuantity.value > 0,
+  })) as { status?: string };
 
-  if (response.status === 'success') {
+  if (response?.status === 'success') {
     await cartStore.updateAndReturnCart();
     await fetchCart();
   }
