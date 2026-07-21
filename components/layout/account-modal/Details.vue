@@ -32,7 +32,7 @@
           {{ getUserDetails?.clientCode || 'N/A' }}
         </span>
         <CopyClipboard
-          :text="(getUserDetails?._id as string) || ''"
+          :text="getUserDetails?.clientCode || ''"
           :label="`Copy client code ${getUserDetails?.clientCode || ''}`"
           class="!min-h-8 !min-w-8 -my-1 shrink-0 text-slate-400 transition-colors duration-300 hover:text-blue-500"
         />
