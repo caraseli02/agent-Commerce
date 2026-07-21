@@ -98,7 +98,7 @@
               v-if="minPriceConfiguration"
               v-model="quantity"
               size="lg"
-              :object="{ id: product._id, min: minPriceConfiguration.quantity, action: 'update' } as ProductActionObject"
+              :object="{ id: product._id, min: minPriceConfiguration.quantity, max: product.stock, action: 'update' } as ProductActionObject"
             />
           </div>
           <button
@@ -135,7 +135,8 @@ import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
 import type { ProductActionObject } from '~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
-import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { addToCartHelper, clampCartQuantity, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { toast } from '~/components/ui/toast';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
 
@@ -244,7 +245,18 @@ const addToCart = async (product: ProductInterface) => {
   }
 };
 
-watch(quantity, (_quantity) => {
+watch(quantity, (nextQuantity) => {
+  const { stock: clampedStock, wasClamped, maxStock } = clampCartQuantity(props.product, nextQuantity);
+
+  if (wasClamped) {
+    quantity.value = clampedStock;
+    toast({
+      title: 'Limited stock',
+      description: `Only ${maxStock} items are available. Quantity was adjusted to ${clampedStock}.`,
+      variant: 'default',
+    });
+  }
+
   getPricesConfiguration();
 });
 

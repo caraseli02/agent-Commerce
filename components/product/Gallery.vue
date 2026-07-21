@@ -30,26 +30,28 @@
       />
     </button>
 
-    <div
+    <ul
       v-if="showMobileThumbs"
-      class="mt-3 flex shrink-0 gap-2 overflow-x-auto pb-0.5 lg:hidden"
-      role="list"
+      class="mt-3 flex shrink-0 list-none gap-2 overflow-x-auto pb-0.5 lg:hidden"
       aria-label="Product image thumbnails"
     >
-      <button
-        v-for="(image, index) in images"
-        :key="index"
-        type="button"
-        role="listitem"
-        class="flex shrink-0 rounded-md ring-1 ring-inset ring-transparent transition-opacity duration-300"
-        :class="index === activeImageIndex ? 'opacity-100 ring-blue-500' : 'opacity-50 hover:opacity-80'"
-        :aria-label="`Show product image ${index + 1}`"
-        :aria-current="index === activeImageIndex ? 'true' : undefined"
-        @click="handleSlideTo(index)"
-      >
-        <ImageWithFallback :src="image?.ProductImageSmall" alt="" class-name="h-12 w-14 object-contain" />
-      </button>
-    </div>
+      <li v-for="(image, index) in images" :key="index" class="shrink-0">
+        <button
+          type="button"
+          class="flex rounded-md ring-1 ring-inset ring-transparent transition-opacity duration-300"
+          :class="index === activeImageIndex ? 'opacity-100 ring-blue-500' : 'opacity-50 hover:opacity-80'"
+          :aria-label="`Show product image ${index + 1}`"
+          :aria-pressed="index === activeImageIndex"
+          @click="handleSlideTo(index)"
+        >
+          <ImageWithFallback
+            :src="image?.ProductImageSmall"
+            alt=""
+            class-name="h-12 w-14 object-contain"
+          />
+        </button>
+      </li>
+    </ul>
   </div>
 </template>
 

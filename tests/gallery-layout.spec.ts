@@ -71,6 +71,10 @@ describe('product gallery layout regression', () => {
     expect(source).not.toContain('Swiper');
     expect(source).toContain('showMobileThumbs');
     expect(source).toContain('lg:hidden');
+    expect(source).not.toContain('role="listitem"');
+    expect(source).toContain('aria-pressed');
+    expect(source).toContain('<ul');
+    expect(source).toContain('Show product image');
 
     expect(imageNodes.length).toBeGreaterThanOrEqual(1);
     expect(hasProp(imageNodes[0], 'class-name')).toBe(true);
