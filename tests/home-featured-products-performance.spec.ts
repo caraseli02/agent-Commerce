@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+import { loadFeaturedProducts } from '~/composables/loadFeaturedProducts';
 
 const featuredProductsPath = resolve('components/home/FeaturedProducts.vue');
 const productBlocksPath = resolve('components/global/ProductBlocks.vue');
@@ -16,6 +18,9 @@ describe('home featured-products performance', () => {
 
     expect(featuredProducts).toContain("useAsyncData('home-featured-products'");
     expect(featuredProducts).toContain(':fetched-products="productList ?? []"');
+    expect(featuredProducts).toContain('const requestFetch = useRequestFetch();');
+    expect(featuredProducts).toContain("fetchMock: () => requestFetch<ProductResponse>('/api/products/featured')");
+    expect(featuredProducts).toContain("fetchLive: () => fetchProductTab('featured')");
     expect(featuredProducts).not.toContain('onMounted(');
     expect(productBlocks).toContain(':initial-products="fetchedProducts"');
     expect(productBlocks).toContain('v-if="filters?.length"');
@@ -24,15 +29,46 @@ describe('home featured-products performance', () => {
     expect(productTabs).not.toContain('onMounted(');
   });
 
-  it('uses the request-bound mock endpoint while retaining the live API fallback', () => {
-    const featuredProducts = readFileSync(featuredProductsPath, 'utf8');
+  it('uses the request-bound mock endpoint without calling the live API', async () => {
+    const product = { name: 'Mock product' };
+    const fetchMock = vi.fn().mockResolvedValue({ data: [product] });
+    const fetchLive = vi.fn();
 
-    expect(featuredProducts).toContain('const requestFetch = useRequestFetch();');
-    expect(featuredProducts).toMatch(
-      /config\.public\.MOCK_MODE\s*\? await requestFetch<ProductResponse>\('\/api\/products\/featured'\)\s*:\s*await fetchProductTab\('featured'\)/
-    );
-    expect(featuredProducts).toContain('return Array.isArray(data) ? (data as ProductInterface[]) : [];');
-    expect(featuredProducts).toContain('return [];');
+    await expect(loadFeaturedProducts({ mockMode: true, fetchMock, fetchLive })).resolves.toEqual([product]);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchLive).not.toHaveBeenCalled();
+  });
+
+  it('uses the live API outside mock mode and accepts an unwrapped product array', async () => {
+    const product = { name: 'Live product' };
+    const fetchMock = vi.fn();
+    const fetchLive = vi.fn().mockResolvedValue([product]);
+
+    await expect(loadFeaturedProducts({ mockMode: false, fetchMock, fetchLive })).resolves.toEqual([product]);
+    expect(fetchLive).toHaveBeenCalledOnce();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('returns an empty list for malformed and rejected responses', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    await expect(
+      loadFeaturedProducts({
+        mockMode: true,
+        fetchMock: vi.fn().mockResolvedValue({ data: null }),
+        fetchLive: vi.fn(),
+      })
+    ).resolves.toEqual([]);
+    await expect(
+      loadFeaturedProducts({
+        mockMode: false,
+        fetchMock: vi.fn(),
+        fetchLive: vi.fn().mockRejectedValue(new Error('network unavailable')),
+      })
+    ).resolves.toEqual([]);
+
+    expect(consoleError).toHaveBeenCalledOnce();
+    consoleError.mockRestore();
   });
 
   it('uses the compressed local chart texture', () => {

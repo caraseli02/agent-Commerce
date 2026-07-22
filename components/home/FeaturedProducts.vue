@@ -38,24 +38,19 @@
 
 <script setup lang="ts">
 import PromoItem from '@/assets/media/home/black-friday-item.png';
-import type { ProductInterface, ProductResponse } from '~/model/products/response/ProductResponse';
+import type { ProductResponse } from '~/model/products/response/ProductResponse';
 import { fetchProductTab } from '~/composables/api/products';
+import { loadFeaturedProducts } from '~/composables/loadFeaturedProducts';
 
 const filters = ['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched'];
 const config = useRuntimeConfig();
 const requestFetch = useRequestFetch();
 
-const { data: productList } = await useAsyncData('home-featured-products', async () => {
-  try {
-    const response = config.public.MOCK_MODE
-      ? await requestFetch<ProductResponse>('/api/products/featured')
-      : await fetchProductTab('featured');
-    const data = response?.data || response;
-
-    return Array.isArray(data) ? (data as ProductInterface[]) : [];
-  } catch (error) {
-    console.error('Failed to load featured products', error);
-    return [];
-  }
-});
+const { data: productList } = await useAsyncData('home-featured-products', () =>
+  loadFeaturedProducts({
+    mockMode: Boolean(config.public.MOCK_MODE),
+    fetchMock: () => requestFetch<ProductResponse>('/api/products/featured'),
+    fetchLive: () => fetchProductTab('featured'),
+  })
+);
 </script>
