@@ -37,7 +37,7 @@ test.describe('Reviewer-facing date formatting', () => {
     await expect(page.getByText(/credit limit/i).first()).toBeVisible();
     await assertNoRawIsoTimestamps(page);
 
-    await page.goto('/dashboard/customers/customer-001/control-panel/settings', { waitUntil: 'domcontentloaded' });
+    await page.goto('/dashboard/customers/customer-001/control-panel/transaction-history', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toContainText(/\d{1,2} \w+ \d{4}/);
     await assertNoRawIsoTimestamps(page);
 

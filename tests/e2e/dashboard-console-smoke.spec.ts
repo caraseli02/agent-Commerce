@@ -69,9 +69,9 @@ test.describe('Dashboard console smoke', () => {
     await expect(page.getByRole('heading', { name: /account details/i })).toBeVisible();
     expect(runtimeErrors, 'control-panel account').toEqual([]);
 
-    await page.goto('/dashboard/customers/customer-001/control-panel/settings', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/credit limit/i).first()).toBeVisible();
-    expect(runtimeErrors, 'control-panel settings').toEqual([]);
+    await page.goto('/dashboard/customers/customer-001/control-panel/shipping', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /shipping/i })).toBeVisible();
+    expect(runtimeErrors, 'control-panel shipping').toEqual([]);
 
     await page.goto('/dashboard/products/categories', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Categories', exact: true })).toBeVisible();
