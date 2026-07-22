@@ -9,10 +9,15 @@ export function fetchGeoJson(): Promise<LeafletMapDataType> {
   }
 
   if (!geoJsonPromise) {
-    geoJsonPromise = $fetch<LeafletMapDataType>('/data/geojson.json').then((data) => {
-      geoJsonCache = data;
-      return data;
-    });
+    geoJsonPromise = $fetch<LeafletMapDataType>('/data/geojson.json')
+      .then((data) => {
+        geoJsonCache = data;
+        return data;
+      })
+      .catch((requestError) => {
+        geoJsonPromise = null;
+        throw requestError;
+      });
   }
 
   return geoJsonPromise;
@@ -24,7 +29,7 @@ export function useGeoJson() {
   const error = useState<Error | null>('geo-json-reference-error', () => null);
 
   const load = async () => {
-    if (geoJson.value || pending.value) {
+    if (geoJson.value) {
       return geoJson.value;
     }
 
@@ -43,7 +48,7 @@ export function useGeoJson() {
   };
 
   if (import.meta.client) {
-    void load();
+    void load().catch(() => undefined);
   }
 
   return {

@@ -191,7 +191,7 @@ import { validateAddress } from '~/composables/api/orders';
 import { updateAccountDetails as updateControlPanelAccountDetails } from '~/composables/api/control-panel';
 
 const { $apiClient } = useNuxtApp();
-const { countries } = useCountries();
+const { countries, load: loadCountries } = useCountries();
 const props = defineProps({
   id: {
     type: String,
@@ -301,6 +301,7 @@ const getAccountDetails = async () => {
   form.value.bank_iban.value = props.account.companyDetails?.bank_iban || '';
   form.value.bank_name.value = props.account.companyDetails?.bank_name || '';
 
+  await loadCountries();
   getCountryRegion(props.account.companyDetails?.address.country, props.account.companyDetails?.address.region);
 };
 await getAccountDetails();

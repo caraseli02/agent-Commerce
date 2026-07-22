@@ -9,10 +9,15 @@ export function fetchCountries(): Promise<CountryReference[]> {
   }
 
   if (!countriesPromise) {
-    countriesPromise = $fetch<CountryReference[]>('/data/countries.json').then((data) => {
-      countriesCache = data;
-      return data;
-    });
+    countriesPromise = $fetch<CountryReference[]>('/data/countries.json')
+      .then((data) => {
+        countriesCache = data;
+        return data;
+      })
+      .catch((requestError) => {
+        countriesPromise = null;
+        throw requestError;
+      });
   }
 
   return countriesPromise;
@@ -24,7 +29,7 @@ export function useCountries() {
   const error = useState<Error | null>('geo-countries-reference-error', () => null);
 
   const load = async () => {
-    if (countries.value.length > 0 || pending.value) {
+    if (countries.value.length > 0) {
       return countries.value;
     }
 
@@ -43,7 +48,7 @@ export function useCountries() {
   };
 
   if (import.meta.client) {
-    void load();
+    void load().catch(() => undefined);
   }
 
   return {

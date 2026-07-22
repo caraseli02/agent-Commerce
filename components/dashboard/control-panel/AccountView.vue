@@ -148,7 +148,7 @@ import type { AddressInterface, ContactDetails, PersonalDetails, UserInterface }
 import { getRegionByCountry } from '~/helpers/form.helper';
 import { updateAccountDetails as updateControlPanelAccountDetails } from '~/composables/api/control-panel';
 
-const { countries } = useCountries();
+const { countries, load: loadCountries } = useCountries();
 
 const props = defineProps({
   id: {
@@ -234,6 +234,7 @@ const getAccountDetails = async () => {
   form.value.phone.value = props.account.contactDetails.phone;
   form.value.email.value = props.account.contactDetails.email;
 
+  await loadCountries();
   getCountryRegion(props.account.personalDetails.address.country, props.account.personalDetails.address.region);
 };
 await getAccountDetails();
