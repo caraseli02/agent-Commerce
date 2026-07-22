@@ -24,6 +24,17 @@ describe('home featured-products performance', () => {
     expect(productTabs).not.toContain('onMounted(');
   });
 
+  it('uses the request-bound mock endpoint while retaining the live API fallback', () => {
+    const featuredProducts = readFileSync(featuredProductsPath, 'utf8');
+
+    expect(featuredProducts).toContain('const requestFetch = useRequestFetch();');
+    expect(featuredProducts).toMatch(
+      /config\.public\.MOCK_MODE\s*\? await requestFetch<ProductResponse>\('\/api\/products\/featured'\)\s*:\s*await fetchProductTab\('featured'\)/
+    );
+    expect(featuredProducts).toContain('return Array.isArray(data) ? (data as ProductInterface[]) : [];');
+    expect(featuredProducts).toContain('return [];');
+  });
+
   it('uses the compressed local chart texture', () => {
     const customerCredit = readFileSync(customerCreditPath, 'utf8');
 
