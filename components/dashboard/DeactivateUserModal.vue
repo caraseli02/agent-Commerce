@@ -61,8 +61,9 @@ import type { CountryInterface } from '~/types/dashboard/control-panel';
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import UserIcon from '@/assets/icons/dashboard/user.svg';
 import { activateUser, deactivateUser } from '~/composables/api/dashboard-admin';
-import { countries } from '~/data/countries';
+import { useCountries } from '~/composables/useCountries';
 
+const { countries, load: loadCountries } = useCountries();
 const country = ref<CountryInterface | undefined>();
 
 const props = defineProps({
@@ -74,7 +75,8 @@ const props = defineProps({
 
 const userCountry = async () => {
   if (props.user) {
-    country.value = countries.find((c) => c.value === props.user.address?.country) as CountryInterface | undefined;
+    await loadCountries();
+    country.value = countries.value.find((c) => c.value === props.user.address?.country) as CountryInterface | undefined;
   }
 };
 await userCountry();

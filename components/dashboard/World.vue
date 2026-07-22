@@ -25,8 +25,9 @@
         <LControlZoom position="topright" />
         <LTileLayer url="" :no-wrap="true" />
         <LGeoJson
-          :geojson="LeafletMapData"
-          :options-style="style as (feature?: CountryMapFeature) => { fillColor: string; fillOpacity: number }"
+          v-if="geoJson"
+          :geojson="geoJson"
+          :options-style="style"
           :options="{
             onEachFeature: onEachFeature,
           }"
@@ -58,14 +59,12 @@
 import { LControlZoom, LGeoJson, LMap, LMarker, LTileLayer, LTooltip } from '@vue-leaflet/vue-leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { PropType } from 'vue';
-import { LeafletMapData } from '@/data/geojson';
+import { useGeoJson } from '~/composables/useGeoJson';
 
-interface CountryMapFeature {
-  properties: { name: string };
-}
+const { geoJson } = useGeoJson();
 
 interface LeafletLayerEvent {
-  target: { feature: CountryMapFeature };
+  target: { feature: { properties: { name: string } } };
   latlng: { lat: number; lng: number };
 }
 
@@ -96,9 +95,10 @@ const getColor = (countryName: string) => {
     return '#D9D9D9';
   }
 };
-const style = (feature: CountryMapFeature) => {
+const style = (feature?: { properties?: { name?: string } }) => {
+  const countryName = feature?.properties?.name ?? '';
   return {
-    fillColor: getColor(feature.properties.name),
+    fillColor: getColor(countryName),
     fillOpacity: 1,
   };
 };
@@ -110,7 +110,7 @@ const highlightFeatureClick = (e: LeafletLayerEvent) => {
     tooltipCountry.value = { ...country, latLng: e.latlng };
   }
 };
-const onEachFeature = (_: CountryMapFeature, layer: LeafletLayer) => {
+const onEachFeature = (feature: { properties?: { name?: string } }, layer: LeafletLayer) => {
   layer.on({
     click: highlightFeatureClick,
   });

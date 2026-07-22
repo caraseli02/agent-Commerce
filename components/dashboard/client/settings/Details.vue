@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { CopyIcon, FilePenLineIcon } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
 import { storeToRefs } from 'pinia';
 import { Button } from '@/components/ui/button';
-import { countries } from '@/data/countries';
+import { useCountries } from '~/composables/useCountries';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { updateDetails } from '~/composables/api/client-settings';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
+
+const { countries, load: loadCountries } = useCountries();
 
 const authStore = useAuthStore();
 const { getUserDetails } = storeToRefs(authStore);
@@ -39,24 +41,40 @@ interface Region {
 }
 
 const openEdit = ref(false);
-const country = ref<undefined | Country>(
-  activeAddress.value?.country ? (countries.find((c) => c.value === activeAddress.value?.country) as Country) : undefined
-);
+const country = ref<undefined | Country>(undefined);
+const region = ref<undefined | Region>(undefined);
+const regions = ref<Region[]>([]);
 
-const findRegionByName = (regions: Country['regions'] | undefined, name: string | undefined) => {
-  const region = regions?.find((region) => region.name === name);
-  if (region) {
+const syncAddressCountry = () => {
+  if (!activeAddress.value?.country || countries.value.length === 0) {
+    return;
+  }
+
+  const selectedCountry = countries.value.find((c) => c.value === activeAddress.value?.country) as Country | undefined;
+  country.value = selectedCountry;
+  region.value = findRegionByName(selectedCountry?.regions, activeAddress.value?.region);
+  regions.value = selectedCountry?.regions.map((e) => ({ label: e.name, value: e.name })) || [];
+};
+
+onMounted(async () => {
+  await loadCountries();
+  syncAddressCountry();
+});
+
+watch(countries, () => {
+  syncAddressCountry();
+});
+
+const findRegionByName = (countryRegions: Country['regions'] | undefined, name: string | undefined) => {
+  const matchedRegion = countryRegions?.find((item) => item.name === name);
+  if (matchedRegion) {
     return {
-      label: region.name,
-      value: region.shortCode,
+      label: matchedRegion.name,
+      value: matchedRegion.shortCode,
     };
   }
   return undefined;
 };
-
-const region = ref<undefined | Region>(findRegionByName(country.value?.regions, activeAddress.value?.region));
-
-const regions = ref<Region[]>(country.value?.regions.map((e) => ({ label: e.name, value: e.name })) || []);
 
 const baseSchema = z.object({
   country: z
@@ -256,7 +274,7 @@ const onSubmit = handleSubmit(async (values) => {
 watch(country, (newCountry) => {
   if (newCountry) {
     setFieldValue('country', newCountry.value);
-    country.value = countries.find((c) => c.value === newCountry.value) as Country;
+    country.value = countries.value.find((c) => c.value === newCountry.value) as Country;
     regions.value =
       newCountry.regions.map((e) => {
         return {

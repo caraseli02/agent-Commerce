@@ -3,7 +3,7 @@ import { useForm } from 'vee-validate';
 import { ref, watch, type Ref } from 'vue';
 import { z } from 'zod';
 
-import { countries } from '@/data/countries';
+import { useCountries } from '~/composables/useCountries';
 import { useToast } from '~/components/ui/toast';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
@@ -38,6 +38,7 @@ interface UseClientAddressManagerOptions<TAddress extends ShippingAddressInterfa
 
 export function useClientAddressManager<TAddress extends ShippingAddressInterface>(options: UseClientAddressManagerOptions<TAddress>) {
   const { toast } = useToast();
+  const { countries, load: loadCountries } = useCountries();
   const showErrorMsg = ref(true);
   const country = ref<undefined | Country>(undefined);
   const region = ref<undefined | Region>(undefined);
@@ -120,7 +121,7 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
 
   watch(country, (newCountry) => {
     if (newCountry) {
-      const selectedCountry = countries.find((item) => item.value === newCountry.value) as Country;
+      const selectedCountry = countries.value.find((item) => item.value === newCountry.value) as Country;
       syncCountrySelection(selectedCountry);
 
       const existingRegion = options.address.value?.region;
@@ -135,9 +136,10 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
     syncRegionSelection(newRegion ?? undefined);
   });
 
-  watch(options.isOpen, (newValue) => {
+  watch(options.isOpen, async (newValue) => {
     if (newValue) {
-      const selectedCountry = countries.find((item) => item.value === (options.address.value?.country || 'US')) as Country;
+      await loadCountries();
+      const selectedCountry = countries.value.find((item) => item.value === (options.address.value?.country || 'US')) as Country;
       syncCountrySelection(selectedCountry);
       syncRegionSelection(findRegionByName(selectedCountry?.regions, options.address.value?.region ?? ''));
     }

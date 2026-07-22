@@ -68,7 +68,9 @@
 import type { FormSelectOption, SignupPersonalDetails } from '~~/types';
 import QuestionIcon from '@/assets/icons/question-circle.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
-import { countries } from '@/data/countries';
+import { useCountries } from '~/composables/useCountries';
+
+const { countries } = useCountries();
 
 defineEmits(['continue', 'back']);
 
@@ -83,7 +85,7 @@ watch(details.value.country, (newVal) => {
       error: '',
     };
     regions.value =
-      countries
+      countries.value
         .find((e) => e.label === newVal.value?.label)
         ?.regions.map((e) => {
           return {

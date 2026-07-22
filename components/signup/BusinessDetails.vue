@@ -93,8 +93,10 @@
 <script setup lang="ts">
 import QuestionIcon from '@/assets/icons/question-circle.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
-import { countries } from '@/data/countries';
 import type { FormSelectOption, SignupBusinessDetails } from '~~/types';
+import { useCountries } from '~/composables/useCountries';
+
+const { countries } = useCountries();
 
 defineProps({
   selectedType: {
@@ -120,7 +122,7 @@ watch(details.value.country, (newVal) => {
       icon: '',
     };
     regions.value =
-      countries
+      countries.value
         .find((e) => e.label === newVal.value.value?.label)
         ?.regions.map((e) => {
           return {
