@@ -9,6 +9,7 @@ coverage/
 dist
 .eslintcache
 tmp/
+.data/
 .DS_Store
 pr-body.md
 .hermes/

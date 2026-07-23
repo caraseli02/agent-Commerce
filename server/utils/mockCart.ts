@@ -3,10 +3,12 @@ import { getCookie, setCookie, type H3Event } from 'h3';
 import { calculateCartLinePricing, clampCartQuantity } from '~/helpers/cart-pricing';
 import { mockProducts } from '~/server/utils/mockProducts';
 import { parseMockUserIdFromToken } from '~/server/utils/mockUsers';
+import { deleteSession, loadSession, purgeExpiredSessions, saveSession } from '~/server/utils/mockSessionStore';
 import type { DiscountInterface } from '~/types/auth/account-settings';
 
 const CART_TTL_MS = 60 * 60 * 1000;
 const MAX_CARTS = 250;
+const CART_SESSION_NAMESPACE = 'cart';
 const GUEST_CART_USER_ID = 'guest-user-session';
 const GUEST_SESSION_COOKIE = 'guest-session-id';
 
@@ -125,29 +127,77 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
   } as CartProductsInterface;
 };
 
+const serializeCartForStorage = (cart: CartInterface): CartInterface => ({
+  ...cart,
+  products: (cart.products || []).map(({ productEntity: _productEntity, ...product }) => product),
+});
+
+const hydrateCartFromStorage = (cart: CartInterface): CartInterface => ({
+  ...cart,
+  products: (cart.products || []).map((product) => {
+    const productEntity = product.productEntity || resolveMockProduct(product.id);
+    if (!productEntity) {
+      return product;
+    }
+
+    return normalizeCartProduct(
+      {
+        id: product.id,
+        stock: product.stock,
+        backorder_stock: product.backorder_stock,
+        isFolder: product.isFolder,
+      },
+      { ...product, productEntity },
+      'set'
+    );
+  }),
+});
+
+const persistStoredCart = (userId: string, stored: StoredCart) => {
+  cartsByUserId.set(userId, stored);
+  saveSession(CART_SESSION_NAMESPACE, userId, serializeCartForStorage(stored.cart), stored.updatedAt);
+};
+
+const removeStoredCart = (userId: string) => {
+  cartsByUserId.delete(userId);
+  deleteSession(CART_SESSION_NAMESPACE, userId);
+};
+
+const loadStoredCartFromDisk = (userId: string): StoredCart | null => {
+  const envelope = loadSession<CartInterface>(CART_SESSION_NAMESPACE, userId);
+  if (!envelope?.value) {
+    return null;
+  }
+
+  const cart = hydrateCartFromStorage(envelope.value);
+  const stored = { cart, updatedAt: envelope.updatedAt };
+  cartsByUserId.set(userId, stored);
+  return stored;
+};
+
 const purgeExpiredCarts = () => {
   const cutoff = nowMs() - CART_TTL_MS;
   for (const [userId, stored] of cartsByUserId.entries()) {
     if (stored.updatedAt < cutoff) {
-      cartsByUserId.delete(userId);
+      removeStoredCart(userId);
     }
   }
 
-  if (cartsByUserId.size <= MAX_CARTS) {
-    return;
+  if (cartsByUserId.size > MAX_CARTS) {
+    const byOldest = [...cartsByUserId.entries()].sort((a, b) => a[1].updatedAt - b[1].updatedAt);
+    const overflow = byOldest.length - MAX_CARTS;
+    for (let i = 0; i < overflow; i++) {
+      removeStoredCart(byOldest[i][0]);
+    }
   }
 
-  const byOldest = [...cartsByUserId.entries()].sort((a, b) => a[1].updatedAt - b[1].updatedAt);
-  const overflow = byOldest.length - MAX_CARTS;
-  for (let i = 0; i < overflow; i++) {
-    cartsByUserId.delete(byOldest[i][0]);
-  }
+  purgeExpiredSessions(CART_SESSION_NAMESPACE, CART_TTL_MS, MAX_CARTS);
 };
 
 export const getMockCartForUser = (userId: string) => {
   purgeExpiredCarts();
 
-  const existing = cartsByUserId.get(userId);
+  const existing = cartsByUserId.get(userId) || loadStoredCartFromDisk(userId);
   if (existing?.cart) {
     existing.cart.products = Array.isArray(existing.cart.products) ? existing.cart.products : [];
     existing.updatedAt = nowMs();
@@ -177,7 +227,7 @@ export const getMockCartForUser = (userId: string) => {
     endDate: nowIso(),
   };
 
-  cartsByUserId.set(userId, { cart, updatedAt: nowMs() });
+  persistStoredCart(userId, { cart, updatedAt: nowMs() });
   return cart;
 };
 
@@ -190,6 +240,15 @@ export const findMockCartById = (cartId?: string | null) => {
 
   for (const stored of cartsByUserId.values()) {
     if (stored.cart?._id === normalizedId) {
+      stored.updatedAt = nowMs();
+      return stored.cart;
+    }
+  }
+
+  if (normalizedId.startsWith('mock-cart-')) {
+    const userId = normalizedId.slice('mock-cart-'.length);
+    const stored = loadStoredCartFromDisk(userId);
+    if (stored?.cart?._id === normalizedId) {
       stored.updatedAt = nowMs();
       return stored.cart;
     }
@@ -242,7 +301,7 @@ export const addProductsToMockCart = (cart: CartInterface, products: Partial<Car
 
   cart.products = list.filter((item) => item.id);
   if (cart.userId) {
-    cartsByUserId.set(cart.userId, { cart, updatedAt: nowMs() });
+    persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
   }
   return cart;
 };
@@ -261,7 +320,7 @@ export const mergeGuestCartIntoMockCart = (userId?: string | null, guestSessionI
     return getMockCartForUser(normalizedUserId);
   }
 
-  const guestCartEntry = cartsByUserId.get(guestUserId);
+  const guestCartEntry = cartsByUserId.get(guestUserId) || loadStoredCartFromDisk(guestUserId);
   if (!guestCartEntry?.cart) {
     return getMockCartForUser(normalizedUserId);
   }
@@ -273,7 +332,7 @@ export const mergeGuestCartIntoMockCart = (userId?: string | null, guestSessionI
     addProductsToMockCart(userCart, guestProducts);
   }
 
-  cartsByUserId.delete(guestUserId);
+  removeStoredCart(guestUserId);
 
   return userCart;
 };
@@ -300,7 +359,7 @@ export const setProductsInMockCart = (cart: CartInterface, products: Partial<Car
 
   cart.products = list.filter((item) => item.id);
   if (cart.userId) {
-    cartsByUserId.set(cart.userId, { cart, updatedAt: nowMs() });
+    persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
   }
   return cart;
 };
@@ -309,7 +368,7 @@ export const removeProductsFromMockCart = (cart: CartInterface, ids: string[] = 
   const normalizedIds = ids.map((id) => String(id)).filter(Boolean);
   cart.products = (cart.products || []).filter((product) => !normalizedIds.includes(product.id));
   if (cart.userId) {
-    cartsByUserId.set(cart.userId, { cart, updatedAt: nowMs() });
+    persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
   }
   return cart;
 };
@@ -324,7 +383,7 @@ export const clearMockCartById = (cartId?: string | null) => {
   cart.products = [];
 
   if (cart.userId) {
-    cartsByUserId.set(cart.userId, { cart, updatedAt: nowMs() });
+    persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
   }
 
   return cart;
