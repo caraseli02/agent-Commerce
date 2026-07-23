@@ -132,7 +132,6 @@ describe('cart session persistence', () => {
     const { default: cartGetHandler } = (await import('../server/api/cart.get')) as {
       default: (event: unknown) => Promise<{ data: { _id: string; products: Array<{ id: string }> } }>;
     };
-    const { findMockCartById } = await import('../server/utils/mockCart');
 
     const guestEvent = createEvent();
     const cart = await cartGetHandler(guestEvent);
@@ -140,8 +139,8 @@ describe('cart session persistence', () => {
     vi.resetModules();
     installH3Mocks();
 
-    const { findMockCartById: restartedFindMockCartById } = await import('../server/utils/mockCart');
-    const resolved = restartedFindMockCartById(cart.data._id);
+    const { findMockCartById } = await import('../server/utils/mockCart');
+    const resolved = findMockCartById(cart.data._id);
 
     expect(resolved?._id).toBe(cart.data._id);
     expect(resolved?.products.some((product) => product.id === 'prod-1')).toBe(true);
