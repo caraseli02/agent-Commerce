@@ -4,18 +4,16 @@ import { join } from 'node:path';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { clearSessionNamespace } from '../server/utils/mockSessionStore';
 
-vi.mock('h3', () => ({
-  getCookie: (event: { cookies?: Record<string, string> }, name: string) => event.cookies?.[name],
-  setCookie: (event: { cookies?: Record<string, string> }, name: string, value: string) => {
-    event.cookies ||= {};
-    event.cookies[name] = value;
-  },
-}));
-
 const installH3Mocks = () => {
   vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);
   vi.stubGlobal('readBody', async (event: { body?: unknown }) => event.body ?? {});
   vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers ?? {});
+  vi.stubGlobal('getRouterParam', (event: { params?: Record<string, string> }, name: string) => event.params?.[name]);
+  vi.stubGlobal('getCookie', (event: { cookies?: Record<string, string> }, name: string) => event.cookies?.[name]);
+  vi.stubGlobal('setCookie', (event: { cookies?: Record<string, string> }, name: string, value: string) => {
+    event.cookies ??= {};
+    event.cookies[name] = value;
+  });
   vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string }) => {
     const error = new Error(payload.statusMessage) as Error & { statusCode?: number; statusMessage?: string };
     error.statusCode = payload.statusCode;
@@ -24,12 +22,14 @@ const installH3Mocks = () => {
   });
 };
 
-const createEvent = (overrides: {
-  headers?: Record<string, string>;
-  body?: unknown;
-  cookies?: Record<string, string>;
-  params?: Record<string, string>;
-} = {}) => ({
+const createEvent = (
+  overrides: {
+    headers?: Record<string, string>;
+    body?: unknown;
+    cookies?: Record<string, string>;
+    params?: Record<string, string>;
+  } = {}
+) => ({
   headers: overrides.headers || {},
   body: overrides.body || {},
   cookies: overrides.cookies || {},
@@ -49,6 +49,7 @@ describe('smart-pricing session persistence', () => {
     process.env.MOCK_SESSION_STORE_DIR = tempStoreDir;
     clearSessionNamespace('pricing');
     vi.resetModules();
+    installH3Mocks();
   });
 
   afterEach(() => {
