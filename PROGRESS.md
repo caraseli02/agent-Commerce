@@ -2,12 +2,13 @@
 
 ## Current focus
 
-- Issue #359 / PR #365 — mobile dashboard tables; merging after #367 and #366.
+- Issue #350 / PR #384 — smart-pricing session persistence across server restarts.
+- Open PRs awaiting evaluator: #382 (#348), #383 (#349).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- PR #365 merge in progress after #367 and #366 landed.
+- PR #384 opened for issue #350 (smart-pricing disk persistence + restart-boundary tests).
 
 ## Architecture note (cross-runtime cart pricing)
 
