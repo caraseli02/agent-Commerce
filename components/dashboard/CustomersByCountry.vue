@@ -63,10 +63,13 @@
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
 import { fetchCustomersByCountryWidget } from '~/composables/api/dashboard-admin';
 import type { CustomersByCountryInterface } from '~/model/dashboard/response/CustomerInterfaceResponse';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
+
+const DashboardWorld = defineAsyncComponent(() => import('~/components/dashboard/World.vue'));
 
 type CountryDataItem = CustomersByCountryInterface['data'][number];
 

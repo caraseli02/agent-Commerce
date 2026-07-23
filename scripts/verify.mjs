@@ -97,6 +97,7 @@ async function runWithPreview() {
 
 async function main() {
   await run('pnpm', ['build']);
+  await run('node', ['scripts/check-bundle-size.mjs']);
   await run('pnpm', ['lint']);
   await run('pnpm', ['typecheck']);
   await run('pnpm', ['test:coverage']);
