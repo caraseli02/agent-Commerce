@@ -14,7 +14,15 @@ import type {
 } from '~/types/cart';
 import { useCartStore } from '~/store/cartStore';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
-import { calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
+import { applyOptimisticCartAdd, calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
+
+let addToCartInFlight = false;
+const isAddingToCart = ref(false);
+
+export const __resetAddToCartStateForTests = () => {
+  addToCartInFlight = false;
+  isAddingToCart.value = false;
+};
 
 export function useCart() {
   const router = useRouter();
@@ -22,6 +30,20 @@ export function useCart() {
   const cartStore = useCartStore();
   const cartItems = ref([] as CartProductsInterface[]);
   const cartId = ref('' as string);
+
+  const syncLocalCartRefs = (cart: CartInterface | null) => {
+    cartId.value = cart?._id || '';
+    cartItems.value = mapCartItems(cart?.products || []);
+  };
+
+  const showAddToCartError = async (message: string) => {
+    const { toast } = await import('~/components/ui/toast');
+    toast({
+      title: 'Could not update cart',
+      description: message,
+      variant: 'destructive',
+    });
+  };
 
   const promptForAuthenticationIfNeeded = async () => {
     const config = useRuntimeConfig();
@@ -101,12 +123,59 @@ export function useCart() {
       return null;
     }
 
-    const response = await addEntityToCart({
-      ...payload,
-      products: await clampCartProducts(payload.products, 'add'),
-    });
-    await refreshCart();
-    return response;
+    if (addToCartInFlight) {
+      return null;
+    }
+
+    addToCartInFlight = true;
+    isAddingToCart.value = true;
+
+    let previousCart: CartInterface | null = null;
+
+    try {
+      const clampedProducts = await clampCartProducts(payload.products, 'add');
+      if (clampedProducts.every((product) => Number(product.stock ?? 0) === 0)) {
+        return { status: 'success' };
+      }
+
+      previousCart = cartStore.cart ? (JSON.parse(JSON.stringify(cartStore.cart)) as CartInterface) : null;
+      const optimisticCart = applyOptimisticCartAdd(previousCart, clampedProducts);
+
+      cartStore.setCart(optimisticCart);
+      syncLocalCartRefs(optimisticCart);
+
+      const response = await addEntityToCart({
+        ...payload,
+        products: clampedProducts,
+      });
+
+      if (response?.status !== 'success') {
+        throw new Error('Add to cart failed');
+      }
+
+      await refreshCart();
+      return response;
+    } catch (error) {
+      if (previousCart) {
+        cartStore.setCart(previousCart);
+      } else {
+        cartStore.emptyCart();
+        cartStore.setCart({
+          _id: '',
+          userId: '',
+          products: [],
+          startDate: '',
+          endDate: '',
+        });
+      }
+      syncLocalCartRefs(previousCart);
+      const message = error instanceof Error ? error.message : 'Please try again.';
+      await showAddToCartError(message);
+      return null;
+    } finally {
+      addToCartInFlight = false;
+      isAddingToCart.value = false;
+    }
   };
 
   const updateCartItem = async (payload: UpdateProductCartRequestInterface) => {
@@ -179,5 +248,6 @@ export function useCart() {
     cartId,
     showWarning,
     fetchShippingPrices,
+    isAddingToCart,
   };
 }

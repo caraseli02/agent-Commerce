@@ -86,7 +86,9 @@
         type="button"
         aria-label="Add product to cart"
         :aria-labelledby="`add-to-cart-${product._id}`"
-        class="col-start-2 flex h-11 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        :aria-busy="isAddingToCart"
+        :disabled="isAddingToCart"
+        class="col-start-2 flex h-11 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
         <SvgoCart class="h-6 w-6 text-white" />
@@ -109,7 +111,7 @@ import ProductCardStock from '~/components/global/ProductCardStock.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 
 const authStore = useAuthStore();
-const { addToCart: addCartItem } = useCart();
+const { addToCart: addCartItem, isAddingToCart } = useCart();
 
 const { getUserDetails } = storeToRefs(authStore);
 
@@ -127,6 +129,10 @@ const discountPrice = ref(discountsHelper?.discountPrice || 0);
 const productDiscount = ref(discountsHelper?.productDiscount || 0);
 
 const addToCart = async (product: ProductInterface, stockToAdd = 1) => {
+  if (isAddingToCart.value) {
+    return;
+  }
+
   const payload: AddToCartRequestInterface = {
     userId: '',
     products: [

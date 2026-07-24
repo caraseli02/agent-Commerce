@@ -1,4 +1,58 @@
-import type { CartProductsInterface } from '~/types/cart';
+import type { CartInterface, CartProductsInterface } from '~/types/cart';
+
+const defaultDiscount = {
+  value: 0,
+  startDate: '',
+  endDate: '',
+};
+
+export const applyOptimisticCartAdd = (
+  currentCart: CartInterface | null | undefined,
+  productsToAdd: Partial<CartProductsInterface>[]
+): CartInterface => {
+  const products = [...(currentCart?.products ?? [])];
+
+  for (const incoming of productsToAdd) {
+    const stockDelta = Number(incoming.stock ?? 0);
+    if (stockDelta === 0) {
+      continue;
+    }
+
+    const index = products.findIndex((item) => item.id === incoming.id);
+    if (index >= 0) {
+      const nextStock = Number(products[index].stock ?? 0) + stockDelta;
+      if (nextStock <= 0) {
+        products.splice(index, 1);
+      } else {
+        products[index] = { ...products[index], stock: nextStock };
+      }
+      continue;
+    }
+
+    if (stockDelta > 0) {
+      products.push({
+        id: incoming.id ?? '',
+        stock: stockDelta,
+        backorder_stock: 0,
+        isFolder: incoming.isFolder ?? false,
+        initialUnitPrice: incoming.initialUnitPrice ?? 0,
+        unitPriceAfterDiscounts: incoming.unitPriceAfterDiscounts ?? 0,
+        total: incoming.total ?? 0,
+        subtotal: incoming.subtotal ?? 0,
+        discount: incoming.discount ?? defaultDiscount,
+        productEntity: incoming.productEntity,
+      } as CartProductsInterface);
+    }
+  }
+
+  return {
+    _id: currentCart?._id ?? 'optimistic-cart',
+    userId: currentCart?.userId ?? '',
+    products,
+    startDate: currentCart?.startDate ?? new Date().toISOString(),
+    endDate: currentCart?.endDate ?? new Date().toISOString(),
+  };
+};
 
 export const mapCartItems = (cartProducts: CartProductsInterface[] = []) => {
   return cartProducts.map((product) => ({
