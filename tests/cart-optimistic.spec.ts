@@ -99,7 +99,7 @@ describe('optimistic add-to-cart', () => {
   });
 
   it('rolls back optimistic state and surfaces failure feedback when add fails', async () => {
-    __setMockApiClient(async <T>(resource: string, options?: { method?: string }): Promise<T> => {
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
       apiRequests.push({ resource, method: options?.method, body: options?.body });
 
       if (resource === '/cart' && options?.method === 'POST') {
