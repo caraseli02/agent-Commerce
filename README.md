@@ -158,6 +158,11 @@ types/           shared TypeScript types
 docs/            supporting audit/media materials
 ```
 
+Planning docs:
+
+- [Refactor stabilization PRD](docs/prds/2026-07-09-refactor-stabilization-prd.md) — verification seams, refactor timeline, and out-of-scope boundaries
+- [Feature prioritization audit](docs/plans/2026-07-09-feature-prioritization-audit.md) — demo feature scoring and removal backlog
+
 ## Notes for contributors
 
 - Package manager for this repo is **pnpm**
