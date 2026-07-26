@@ -74,17 +74,17 @@ The workstream should focus on the highest public seams:
 
 Major refactor waves that shaped the current Portfolio Demo architecture:
 
-| Period         | Theme                               | Representative work                                                                         | Why it matters                                                                   |
-| -------------- | ----------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| 2026-02        | Mock backend migration              | Nitro `server/api/` mock endpoints, portfolio-demo mode                                     | Self-contained reviewer experience without live backend                          |
-| 2026-03–04     | API boundary cleanup                | `composables/api/*` adapters, service deletions (#52–#55)                                   | Auth, token handling, and mutations stay behind one seam                         |
-| 2026-05–06     | Dependency consolidation            | `nuxt-lodash`, self-hosted fonts, lazy Firebase/charts, Nuxt image fallbacks                | Predictable build/runtime; no duplicate utility stacks                           |
-| 2026-06        | Harness engineering                 | `AGENTS.md`, verification ladder, evaluator loop, PR template (#73, #314)                   | Observable agent workflow with machine-checkable done gates                      |
-| 2026-07        | Mobile UX audit + storefront polish | Product cards, carousels, nav drawer, footer, dashboard tables (#233–#241, #359–#360)       | Scripted Buyer Path and Admin Preview stay credible on mobile                    |
-| 2026-07        | Cart/checkout hardening             | Stock clamp, volume tiers, guest checkout SSR gate, truthful checkout states (#357–#368)    | Commerce path resists adversarial quantity and state bugs                        |
-| 2026-07 (open) | Session persistence + performance   | Cart/pricing disk persistence (#348, #350), bundle splitting (#349), optimistic cart (#385) | Reviewer sessions survive restarts; dashboard vendors stay off storefront routes |
+| Period             | Theme                               | Representative work                                                                                                                            | Why it matters                                                                     |
+| ------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 2026-02            | Mock backend migration              | Nitro `server/api/` mock endpoints, portfolio-demo mode                                                                                        | Self-contained reviewer experience without live backend                            |
+| 2026-03–04         | API boundary cleanup                | `composables/api/*` adapters, service deletions (#52–#55)                                                                                      | Auth, token handling, and mutations stay behind one seam                           |
+| 2026-05–06         | Dependency consolidation            | `nuxt-lodash`, self-hosted fonts, lazy Firebase/charts, Nuxt image fallbacks                                                                   | Predictable build/runtime; no duplicate utility stacks                             |
+| 2026-06            | Harness engineering                 | `AGENTS.md`, verification ladder, evaluator loop, PR template (#73, #314)                                                                      | Observable agent workflow with machine-checkable done gates                        |
+| 2026-07            | Mobile UX audit + storefront polish | Product cards, carousels, nav drawer, footer, dashboard tables (#233–#241, #359–#360)                                                          | Scripted Buyer Path and Admin Preview stay credible on mobile                      |
+| 2026-07            | Cart/checkout hardening             | Stock clamp, volume tiers, guest checkout SSR gate, truthful checkout states (#357–#368)                                                       | Commerce path resists adversarial quantity and state bugs                          |
+| 2026-07 (proposed) | Session persistence + performance   | Draft PRs for cart/pricing disk persistence (#348/#382, #350/#384), bundle splitting (#349/#383), optimistic cart (#385/#386) — not merged yet | Planned follow-ups only; do not treat as settled architecture until those PRs land |
 
-Use this timeline before changing patterns: each row reflects a deliberate trade-off for portfolio-demo quality, not production launch scope.
+Use this timeline before changing patterns: merged rows reflect deliberate portfolio-demo trade-offs; the proposed row is directional context only, not production launch scope.
 
 ## Out of Scope
 
