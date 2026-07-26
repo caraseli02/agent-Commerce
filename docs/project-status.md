@@ -1,10 +1,10 @@
 # Project Status
 
-Last updated: 2026-07-10
+Last updated: 2026-07-25
 
 ## Current state
 
-ECAS remains a self-contained Nuxt e-commerce portfolio demo. The current working branch combines the Matt Pocock skills v1.1 migration with account-modal accessibility and interaction polish.
+ECAS remains a self-contained Nuxt e-commerce portfolio demo. Recent merges hardened the Scripted Buyer Path (cart pricing, checkout states, storefront QA) and mobile dashboard tables. Open PRs cover session persistence, bundle splitting, and optimistic add-to-cart.
 
 ## Current planning controls
 

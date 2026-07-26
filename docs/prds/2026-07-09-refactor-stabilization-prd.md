@@ -1,5 +1,7 @@
 # Refactor Stabilization and Review Documentation PRD
 
+GitHub issue: [#301](https://github.com/caraseli02/Ecas/issues/301)
+
 ## Problem Statement
 
 The ECAS Portfolio Demo has gone through several major refactor waves: mock-mode conversion, API boundary cleanup, dependency and performance consolidation, B2B storefront polish, mobile audit remediation, harness skill updates, and the latest before/after UI audit pass. These changes improved the Scripted Buyer Path and Admin Preview, but the documentation is spread across commits, PRs, issues, progress notes, and screenshot artifacts.
@@ -67,6 +69,22 @@ The workstream should focus on the highest public seams:
 - Visual polish should use browser evidence or screenshot comparison as supporting proof, but should not replace route-level smoke where behavior is affected.
 - Screenshot capture utilities should be tested by running them against a known local dev server and confirming that the expected comparison output is regenerated.
 - Follow-up tests should prefer existing Vitest and Playwright patterns already used for product card fallbacks, admin smoke, cart/order summary, mock-mode badge layout, and browse-product coverage.
+
+## Refactor Timeline
+
+Major refactor waves that shaped the current Portfolio Demo architecture:
+
+| Period             | Theme                               | Representative work                                                                                                                            | Why it matters                                                                     |
+| ------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 2026-02            | Mock backend migration              | Nitro `server/api/` mock endpoints, portfolio-demo mode                                                                                        | Self-contained reviewer experience without live backend                            |
+| 2026-03–04         | API boundary cleanup                | `composables/api/*` adapters, service deletions (#52–#55)                                                                                      | Auth, token handling, and mutations stay behind one seam                           |
+| 2026-05–06         | Dependency consolidation            | `nuxt-lodash`, self-hosted fonts, lazy Firebase/charts, Nuxt image fallbacks                                                                   | Predictable build/runtime; no duplicate utility stacks                             |
+| 2026-06            | Harness engineering                 | `AGENTS.md`, verification ladder, evaluator loop, PR template (#73, #314)                                                                      | Observable agent workflow with machine-checkable done gates                        |
+| 2026-07            | Mobile UX audit + storefront polish | Product cards, carousels, nav drawer, footer, dashboard tables (#233–#241, #359–#360)                                                          | Scripted Buyer Path and Admin Preview stay credible on mobile                      |
+| 2026-07            | Cart/checkout hardening             | Stock clamp, volume tiers, guest checkout SSR gate, truthful checkout states (#357–#368)                                                       | Commerce path resists adversarial quantity and state bugs                          |
+| 2026-07 (proposed) | Session persistence + performance   | Draft PRs for cart/pricing disk persistence (#348/#382, #350/#384), bundle splitting (#349/#383), optimistic cart (#385/#386) — not merged yet | Planned follow-ups only; do not treat as settled architecture until those PRs land |
+
+Use this timeline before changing patterns: merged rows reflect deliberate portfolio-demo trade-offs; the proposed row is directional context only, not production launch scope.
 
 ## Out of Scope
 
