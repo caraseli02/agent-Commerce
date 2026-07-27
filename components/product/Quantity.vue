@@ -139,9 +139,11 @@ import { addToCartHelper, clampCartQuantity, initializeQuantities, parseProductP
 import { toast } from '~/components/ui/toast';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
+import { useCart } from '~/composables/useCart';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+const { isAddingToCart: isCartAddInFlight } = useCart();
 
 const { getUserDetails } = storeToRefs(authStore);
 const { getCart } = storeToRefs(cartStore);
@@ -152,7 +154,8 @@ const props = defineProps<{
 
 const quantity = ref(0);
 const initialRequestedQuantity = ref(0);
-const isAddingToCart = ref(false);
+const isLocalAddingToCart = ref(false);
+const isAddingToCart = computed(() => isLocalAddingToCart.value || isCartAddInFlight.value);
 const isCartReady = ref(false);
 const isInCart = computed(() => initialRequestedQuantity.value > 0);
 const cartButtonLabel = computed(() => {
@@ -227,7 +230,7 @@ const addToCart = async (product: ProductInterface) => {
     return;
   }
 
-  isAddingToCart.value = true;
+  isLocalAddingToCart.value = true;
   const stock = initialRequestedQuantity.value > 0 ? quantity.value - initialRequestedQuantity.value : quantity.value;
 
   try {
@@ -241,7 +244,7 @@ const addToCart = async (product: ProductInterface) => {
       await fetchCart();
     }
   } finally {
-    isAddingToCart.value = false;
+    isLocalAddingToCart.value = false;
   }
 };
 

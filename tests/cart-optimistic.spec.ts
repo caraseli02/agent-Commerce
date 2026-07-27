@@ -159,6 +159,13 @@ describe('optimistic add-to-cart', () => {
 
     expect(second).toBeNull();
     expect(apiRequests.filter((request) => request.method === 'POST')).toHaveLength(1);
+    expect(toast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Could not update cart',
+        description: 'Cart is still updating. Please try again.',
+        variant: 'destructive',
+      })
+    );
 
     resolvePost({ status: 'success', data: refreshedCart });
     await first;

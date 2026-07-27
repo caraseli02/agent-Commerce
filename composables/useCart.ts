@@ -124,6 +124,7 @@ export function useCart() {
     }
 
     if (addToCartInFlight) {
+      await showAddToCartError('Cart is still updating. Please try again.');
       return null;
     }
 
