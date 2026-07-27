@@ -53,4 +53,15 @@ describe('GeoJSON reference loader', () => {
     await expect(load()).resolves.toEqual(geoJson);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('reuses successfully loaded map data without another request', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(geoJson);
+    vi.stubGlobal('$fetch', fetchMock);
+
+    const { fetchGeoJson } = await import('../composables/useGeoJson');
+
+    await expect(fetchGeoJson()).resolves.toEqual(geoJson);
+    await expect(fetchGeoJson()).resolves.toEqual(geoJson);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
