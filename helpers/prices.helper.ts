@@ -16,10 +16,10 @@ import {
 
 export { calculateCartLinePricing, clampCartQuantity, resolveTierUnitPrice, type ClampCartQuantityOptions, type ClampCartQuantityResult };
 
-export const parseProductPriceConfiguration = (product: ProductInterface, userDetails: UserInterface, quantity = 0) => {
+export const parseProductPriceConfiguration = (product: ProductInterface | null | undefined, userDetails: UserInterface, quantity = 0) => {
   let unitPrice = 0;
 
-  if (!product.priceConfiguration) {
+  if (!product?.priceConfiguration) {
     return null;
   }
 
@@ -111,9 +111,11 @@ export const addToCartHelper = async (
   }
 
   if (stockToSend === 0) {
-    return { status: 'success' };
+    return { status: 'success', changed: false };
   }
 
+  const unitPrice = resolveTierUnitPrice(product, clampedStock);
+  const lineTotal = unitPrice * Math.abs(stockToSend);
   const { useCart } = await import('~/composables/useCart');
   const { addToCart } = useCart();
   const payload = {
@@ -123,6 +125,12 @@ export const addToCartHelper = async (
         id: product._id ?? '',
         stock: stockToSend,
         isFolder: false,
+        initialUnitPrice: unitPrice,
+        unitPriceAfterDiscounts: unitPrice,
+        total: lineTotal,
+        subtotal: lineTotal,
+        discount: { value: 0, startDate: '', endDate: '' },
+        productEntity: product,
       },
     ],
   } as AddToCartRequestInterface;

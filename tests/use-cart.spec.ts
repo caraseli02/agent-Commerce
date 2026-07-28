@@ -98,7 +98,7 @@ describe('useCart public cart interface', () => {
     expect(cartStore.cart?._id).toBe('cart-after-add');
     expect(cartId.value).toBe('cart-after-add');
     expect(cartItems.value).toHaveLength(1);
-    expect(emittedCarts).toEqual([refreshedCart]);
+    expect(emittedCarts).toEqual([expect.objectContaining({ _id: 'optimistic-cart' }), refreshedCart]);
   });
 
   it('refreshes the stored cart after a mock guest adds an item', async () => {
@@ -119,7 +119,7 @@ describe('useCart public cart interface', () => {
     expect(cartStore.cart?._id).toBe('cart-after-add');
     expect(cartId.value).toBe('cart-after-add');
     expect(cartItems.value).toHaveLength(1);
-    expect(emittedCarts).toEqual([refreshedCart]);
+    expect(emittedCarts).toEqual([expect.objectContaining({ _id: 'optimistic-cart' }), refreshedCart]);
   });
 
   it('updates a cart item through the cart API and refreshes the stored cart', async () => {

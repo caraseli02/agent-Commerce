@@ -303,8 +303,12 @@ onMounted(() => {
   }
 });
 
-Emitter.on('update-cart', async (login: boolean) => {
-  if (login) {
+Emitter.on('update-cart', async (payload: unknown) => {
+  // Cart payloads use { products }; auth historically reused this channel with non-cart values.
+  if (payload && typeof payload === 'object' && 'products' in payload) {
+    return;
+  }
+  if (payload) {
     await fetchNofications();
   }
 });

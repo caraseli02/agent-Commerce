@@ -82,7 +82,16 @@ describe('cart pricing and stock helpers', () => {
     expect(result).toEqual({ status: 'success' });
     expect(addToCart).toHaveBeenCalledWith({
       userId: '',
-      products: [{ id: 'prod-1', stock: -2, isFolder: false }],
+      products: [
+        expect.objectContaining({
+          id: 'prod-1',
+          stock: -2,
+          isFolder: false,
+          productEntity: volumeProduct,
+          initialUnitPrice: expect.any(Number),
+          unitPriceAfterDiscounts: expect.any(Number),
+        }),
+      ],
     });
   });
 

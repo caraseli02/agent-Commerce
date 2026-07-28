@@ -11,6 +11,27 @@ type CheckoutError = {
   code?: string;
 };
 
+type PersistStorage = {
+  getItem: (key: string) => string | null;
+  setItem: (key: string, value: string) => void;
+};
+
+let skipPersistOnce = false;
+
+const createPersistStorage = (): PersistStorage => {
+  const base = piniaPluginPersistedstate.localStorage() as PersistStorage;
+  return {
+    getItem: (key) => base.getItem(key),
+    setItem: (key, value) => {
+      if (skipPersistOnce) {
+        skipPersistOnce = false;
+        return;
+      }
+      base.setItem(key, value);
+    },
+  };
+};
+
 export const useCartStore = defineStore(
   'cart-store',
   () => {
@@ -18,11 +39,36 @@ export const useCartStore = defineStore(
     const hasFetchedCart = ref(false);
     const orderClientSecret = ref<string | null>(null);
     const previousCheckoutError = ref<CheckoutError | null>(null);
+    /** Product ids with an in-flight add — not persisted (SSR-safe store field). */
+    const addToCartInFlightIds = ref<string[]>([]);
 
     const setCart = (nextCart: CartInterface) => {
       cart.value = nextCart;
       // Do not mark fetched here — cached/persisted payloads must not look authoritative.
       Emitter.emit('update-cart', nextCart);
+    };
+
+    /** In-memory optimistic write — does not overwrite the last persisted real cart. */
+    const setOptimisticCart = (nextCart: CartInterface) => {
+      skipPersistOnce = true;
+      cart.value = nextCart;
+      Emitter.emit('update-cart', nextCart);
+    };
+
+    /** Restore a pre-mutation snapshot without clearing checkout secrets. */
+    const restoreCartSnapshot = (snapshot: CartInterface | null) => {
+      cart.value = snapshot;
+      if (snapshot) {
+        Emitter.emit('update-cart', snapshot);
+      } else {
+        Emitter.emit('update-cart', {
+          _id: '',
+          userId: '',
+          products: [],
+          startDate: '',
+          endDate: '',
+        } as CartInterface);
+      }
     };
 
     const setOrderClientSecret = (secret: string) => {
@@ -40,6 +86,27 @@ export const useCartStore = defineStore(
     const emptyPreviousCheckoutError = () => {
       previousCheckoutError.value = null;
     };
+
+    const beginAddToCart = (productIds: string[]) => {
+      const next = new Set(addToCartInFlightIds.value);
+      for (const id of productIds) {
+        if (id) next.add(id);
+      }
+      addToCartInFlightIds.value = [...next];
+    };
+
+    const endAddToCart = (productIds: string[]) => {
+      const remove = new Set(productIds.filter(Boolean));
+      addToCartInFlightIds.value = addToCartInFlightIds.value.filter((id) => !remove.has(id));
+    };
+
+    const clearAddToCartInFlight = () => {
+      addToCartInFlightIds.value = [];
+    };
+
+    const isProductAddInFlight = (productId: string) => addToCartInFlightIds.value.includes(productId);
+
+    const isAddingToCart = computed(() => addToCartInFlightIds.value.length > 0);
 
     const updateAndReturnCart = async () => {
       const cartResponse = await fetchCartList();
@@ -75,11 +142,19 @@ export const useCartStore = defineStore(
       hasFetchedCart,
       orderClientSecret,
       previousCheckoutError,
+      addToCartInFlightIds,
       setCart,
+      setOptimisticCart,
+      restoreCartSnapshot,
       setOrderClientSecret,
       setPreviousCheckoutError,
       emptyOrderClientSecret,
       emptyPreviousCheckoutError,
+      beginAddToCart,
+      endAddToCart,
+      clearAddToCartInFlight,
+      isProductAddInFlight,
+      isAddingToCart,
       updateAndReturnCart,
       emptyCart,
       mappedCartItems,
@@ -92,8 +167,8 @@ export const useCartStore = defineStore(
   },
   {
     persist: {
-      storage: piniaPluginPersistedstate.localStorage(),
-      // Session-scoped fetch flag must not revive as "ready" before a network refresh.
+      storage: createPersistStorage(),
+      // Session-scoped fetch flag and in-flight ids must not revive across reloads.
       pick: ['cart', 'orderClientSecret', 'previousCheckoutError'],
     },
   }

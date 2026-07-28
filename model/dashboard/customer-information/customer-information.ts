@@ -104,6 +104,8 @@ export interface ProductBannerInterface {
   originalPrice: string;
   salePrice: string;
   quantity: number;
+  /** Available sellable stock for clamp — not the add quantity. */
+  availableStock?: number;
   addToCartText: string;
   _id?: string;
 }

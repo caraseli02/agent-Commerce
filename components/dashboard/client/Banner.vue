@@ -67,7 +67,11 @@
               </div>
             </section>
             <button
-              class="justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90"
+              type="button"
+              class="justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+              :aria-label="`Add ${item.productCode || 'product'} to cart`"
+              :aria-busy="isSlideAdding(item)"
+              :aria-disabled="isSlideAdding(item) || !item._id"
               @click="addToCart(item)"
             >
               <svg
@@ -96,7 +100,9 @@
                   stroke-linejoin="round"
                 />
               </svg>
-              <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">Add to cart</div>
+              <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">
+                {{ isSlideAdding(item) ? 'Adding…' : item.addToCartText || 'Add to cart' }}
+              </div>
             </button>
           </div>
         </div>
@@ -114,23 +120,49 @@ import { A11y, Pagination } from 'swiper';
 import type { ProductBannerInterface } from '~/model/dashboard/customer-information/customer-information';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { addToCartHelper } from '~/helpers/prices.helper';
-import { useCartStore } from '~/store/cartStore';
+import { toast } from '~/components/ui/toast';
+import { useCart } from '~/composables/useCart';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 
-const cartStore = useCartStore();
+const { isProductAddInFlight } = useCart();
 
 defineProps<{
   slides: Array<ProductBannerInterface>;
 }>();
 
+const isSlideAdding = (product: ProductBannerInterface) => isProductAddInFlight(product._id ?? '');
+
 const addToCart = async (product: ProductBannerInterface) => {
-  const stock = product.quantity;
-
-  const response = (await addToCartHelper(product as unknown as ProductInterface, stock)) as { status: string };
-
-  if (response.status === 'success') {
-    await cartStore.updateAndReturnCart();
+  if (!product._id || isProductAddInFlight(product._id)) {
+    if (!product._id) {
+      toast({
+        title: 'Could not update cart',
+        description: 'This offer is missing a product id.',
+        variant: 'destructive',
+      });
+    }
+    return;
   }
+
+  const stock = Math.max(1, Number(product.quantity) || 1);
+  const availableStock = Math.max(0, Number(product.availableStock ?? 0));
+
+  const response = (await addToCartHelper(
+    {
+      _id: product._id,
+      stock: availableStock,
+    } as ProductInterface,
+    stock
+  )) as { status?: string; changed?: boolean } | null;
+
+  if (response?.status !== 'success' || response.changed === false) {
+    return;
+  }
+
+  toast({
+    title: 'Added to cart',
+    description: product.productCode ? `${product.productCode} · qty ${stock}` : `Quantity ${stock} added`,
+  });
 };
 </script>
 

@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #359 / PR #365 — mobile dashboard tables; merging after #367 and #366.
+- Issue #385 / PR #386 — optimistic add-to-cart; adversarial findings fixed locally (uncommitted).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- PR #365 merge in progress after #367 and #366 landed.
+- PR #386 — adversarial hardening ready for commit/push (lint, typecheck, test, build PASS).
 
 ## Architecture note (cross-runtime cart pricing)
 

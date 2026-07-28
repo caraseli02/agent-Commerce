@@ -127,12 +127,14 @@
         />
         <button
           type="button"
-          :disabled="quantity === 0"
-          class="flex flex-1 items-center justify-center rounded bg-blue-500 px-4 py-[9px] text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
+          :aria-busy="isThisProductAdding"
+          :aria-disabled="isThisProductAdding || quantity === 0"
+          :disabled="quantity === 0 && !isThisProductAdding"
+          class="flex flex-1 items-center justify-center rounded bg-blue-500 px-4 py-[9px] text-white transition-colors hover:bg-blue-600 disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
           @click="addToCart(item)"
         >
           <CartIcon class="mr-2 h-6 w-6" />
-          <span class="text-sm font-medium">Add to cart</span>
+          <span class="text-sm font-medium">{{ isThisProductAdding ? 'Adding…' : 'Add to cart' }}</span>
         </button>
       </div>
     </div>
@@ -172,6 +174,7 @@ import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
 import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
+import { useCart } from '~/composables/useCart';
 
 const quantity = ref(1);
 const initialRequestedQuantity = ref(0);
@@ -185,6 +188,8 @@ const props = defineProps({
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+const { isProductAddInFlight } = useCart();
+const isThisProductAdding = computed(() => isProductAddInFlight(props.item._id ?? ''));
 
 const { getUserDetails } = storeToRefs(authStore);
 const { cart } = storeToRefs(cartStore);
@@ -241,15 +246,18 @@ const buildBulkQuantities = () => {
 };
 
 const addToCart = async (product: ProductInterface) => {
+  if (isProductAddInFlight(product._id ?? '')) {
+    return;
+  }
+
   const stock = initialRequestedQuantity.value > 0 ? quantity.value - initialRequestedQuantity.value : quantity.value;
 
   const response = (await addToCartHelper(product, stock, {
     currentCartQuantity: initialRequestedQuantity.value,
     isDelta: initialRequestedQuantity.value > 0,
-  })) as { status?: string };
+  })) as { status?: string; changed?: boolean } | null;
 
-  if (response?.status === 'success') {
-    await cartStore.updateAndReturnCart();
+  if (response?.status === 'success' && response.changed !== false) {
     await fetchCart();
   }
 };
