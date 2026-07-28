@@ -71,10 +71,11 @@
               aria-label="Open shopping cart"
               @click="openCartModal()"
             >
-              <div class="relative flex h-6 w-6 shrink-0 items-center justify-center md:-mr-5 xl:-mr-5">
+              <!-- Fixed slot includes badge overhang so the total never collides with the count. -->
+              <div class="relative flex h-6 w-10 shrink-0 items-center">
                 <CartIcon class="h-6 w-6 text-primary-foreground" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
                 <span
-                  class="pointer-events-none absolute -right-2.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-500 px-1 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
+                  class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-500 px-1 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
                   :class="[showCartBadge ? 'opacity-100' : 'opacity-0', isCartPulsing ? 'cart-badge-pop' : '']"
                   :aria-hidden="!showCartBadge"
                 >
@@ -82,7 +83,7 @@
                 </span>
               </div>
               <div
-                class="ml-6 hidden min-w-[6.5rem] shrink-0 flex-col text-primary-foreground tabular-nums md:flex"
+                class="ml-3 hidden min-w-[6.5rem] shrink-0 flex-col text-primary-foreground tabular-nums md:flex"
                 :class="showCartTotal ? 'visible' : 'invisible'"
                 :aria-hidden="!showCartTotal"
               >
