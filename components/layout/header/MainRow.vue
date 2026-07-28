@@ -72,11 +72,14 @@
               @click="openCartModal()"
             >
               <div class="flex items-center md:-mr-5 xl:-mr-5">
-                <CartIcon class="w-6 h-6 text-primary-foreground lg" :class="[showCartBadge ? 'mr-0' : 'mr-4']" />
+                <CartIcon
+                  class="w-6 h-6 text-primary-foreground lg"
+                  :class="[showCartBadge ? 'mr-0' : 'mr-4', isCartPulsing ? 'cart-icon-bump' : '']"
+                />
                 <span
                   v-if="showCartBadge"
                   class="flex -translate-y-2 -translate-x-2.5 items-center justify-center h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
-                  :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]']"
+                  :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]', isCartPulsing ? 'cart-badge-pop' : '']"
                 >
                   <span> {{ cartItems }} </span>
                 </span>
@@ -182,9 +185,11 @@ import { useCartStore } from '~/store/cartStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
 import { useClientReady } from '~/composables/useClientReady';
+import { useCartBadgeMotion } from '~/composables/useCartBadgeMotion';
 
 const cartStore = useCartStore();
 const isClientReady = useClientReady();
+const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
 const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
 const showCartTotal = computed(() => isClientReady.value && totalCartPrice.value > 0);
 const { getCart, getCartSubtotal } = storeToRefs(cartStore);
@@ -258,6 +263,7 @@ Emitter.on('remove-cart-and-notifications', async (isSignout: boolean) => {
     cartItems.value = 0;
     totalCartPrice.value = 0;
     items.value = {} as CartInterface;
+    resetBaseline();
   }
 });
 
@@ -266,6 +272,7 @@ Emitter.on('update-cart', async (data: CartInterface) => {
     items.value = data;
     cartItems.value = items.value.products.length;
     cart.value = items.value;
+    syncFromCart(data);
     subtotal();
   }
 });
@@ -288,6 +295,7 @@ const fetchList = async () => {
   items.value = data;
   cartItems.value = data.products.length;
   cart.value = data;
+  syncFromCart(data, { animate: false });
 };
 
 const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<ProductInterface[]> => {

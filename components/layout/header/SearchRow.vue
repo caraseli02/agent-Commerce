@@ -14,11 +14,11 @@
             @click="openCartModal()"
           >
             <div class="relative flex-shrink-0" :class="showCartBadge ? 'mr-6' : 'mr-4'">
-              <CartIcon class="w-6 h-6 text-slate-500" />
+              <CartIcon class="w-6 h-6 text-slate-500" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
               <span
                 v-if="showCartBadge"
                 class="absolute -top-1.5 -right-2 flex items-center justify-center h-[18px] font-Inter z-10 bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
-                :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]']"
+                :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]', isCartPulsing ? 'cart-badge-pop' : '']"
               >
                 <span>{{ cartItems }}</span>
               </span>
@@ -59,9 +59,11 @@ import CartModal from '@/components/layout/favorites-cart-modal/Index.vue';
 import type { CartInterface } from '~/types/cart';
 import { useCartStore } from '~/store/cartStore';
 import { useClientReady } from '~/composables/useClientReady';
+import { useCartBadgeMotion } from '~/composables/useCartBadgeMotion';
 
 const cartStore = useCartStore();
 const isClientReady = useClientReady();
+const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
 const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
 const showCartTotal = computed(() => isClientReady.value && totalCartPrice.value > 0);
 
@@ -82,6 +84,7 @@ Emitter.on('update-cart', async (data: CartInterface) => {
   if (data && data.products) {
     items.value = data;
     cartItems.value = items.value.products.length;
+    syncFromCart(data);
     subtotal();
   }
 });
@@ -98,6 +101,7 @@ Emitter.on('remove-cart-and-notifications', async (isSignout: boolean) => {
     cartItems.value = 0;
     items.value = {} as CartInterface;
     totalCartPrice.value = 0;
+    resetBaseline();
   }
 });
 
@@ -121,6 +125,7 @@ const fetchList = async () => {
 
   items.value = data;
   cartItems.value = data.products.length;
+  syncFromCart(data, { animate: false });
 };
 
 const subtotal = () => {

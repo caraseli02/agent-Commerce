@@ -97,3 +97,48 @@
     opacity: 0;
   }
 }
+
+@keyframes cart-badge-pop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.28);
+  }
+  55% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes cart-icon-bump {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  35% {
+    transform: translateY(-2px) rotate(-8deg);
+  }
+  65% {
+    transform: translateY(0) rotate(6deg);
+  }
+}
+
+.cart-badge-pop {
+  animation: cart-badge-pop 420ms cubic-bezier(0.34, 1.45, 0.64, 1);
+  transform-origin: center;
+}
+
+.cart-icon-bump {
+  animation: cart-icon-bump 420ms ease-out;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-badge-pop,
+  .cart-icon-bump {
+    animation: none;
+  }
+}
