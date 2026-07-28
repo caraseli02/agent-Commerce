@@ -10,7 +10,7 @@ test.describe('Regional preferences sheet', () => {
     await opener.click();
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText(/does not include locale translation/i)).toBeVisible();
-    await expect(dialog.getByText('Demo currency')).toBeVisible();
+    await expect(dialog.getByText('Demo currency', { exact: true })).toBeVisible();
     await expect(dialog.getByRole('button', { name: 'Lei' })).toBeVisible();
     await expect(dialog.getByText('Language', { exact: true })).toHaveCount(0);
   });
