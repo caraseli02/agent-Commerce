@@ -135,6 +135,32 @@ export default defineNuxtConfig({
         interval: 1000,
       },
     },
+    build: {
+      chunkSizeWarningLimit: 550,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) {
+              return undefined;
+            }
+
+            if (id.includes('firebase')) {
+              return 'vendor-firebase';
+            }
+
+            if (id.includes('swiper')) {
+              return 'vendor-swiper';
+            }
+
+            if (id.includes('@tanstack')) {
+              return 'vendor-tanstack';
+            }
+
+            return undefined;
+          },
+        },
+      },
+    },
   },
 
   postcss: {
