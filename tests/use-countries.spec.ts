@@ -57,4 +57,15 @@ describe('country reference loader', () => {
     await expect(load()).resolves.toEqual(countries);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('reuses successfully loaded country data without another request', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(countries);
+    vi.stubGlobal('$fetch', fetchMock);
+
+    const { fetchCountries } = await import('../composables/useCountries');
+
+    await expect(fetchCountries()).resolves.toEqual(countries);
+    await expect(fetchCountries()).resolves.toEqual(countries);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
