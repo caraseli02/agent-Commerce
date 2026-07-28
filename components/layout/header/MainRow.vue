@@ -71,21 +71,22 @@
               aria-label="Open shopping cart"
               @click="openCartModal()"
             >
-              <div class="flex items-center md:-mr-5 xl:-mr-5">
-                <CartIcon
-                  class="w-6 h-6 text-primary-foreground lg"
-                  :class="[showCartBadge ? 'mr-0' : 'mr-4', isCartPulsing ? 'cart-icon-bump' : '']"
-                />
+              <div class="relative flex h-6 w-6 shrink-0 items-center justify-center md:-mr-5 xl:-mr-5">
+                <CartIcon class="h-6 w-6 text-primary-foreground" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
                 <span
-                  v-if="showCartBadge"
-                  class="flex -translate-y-2 -translate-x-2.5 items-center justify-center h-[18px] font-Inter z-10 -top-1 -right-[9px] bg-rose-500 text-white rounded-[100px] text-xs font-medium leading-[1.5]"
-                  :class="[cartItems < 10 ? 'w-[18px]' : cartItems < 100 ? 'w-6' : 'w-[31px]', isCartPulsing ? 'cart-badge-pop' : '']"
+                  class="pointer-events-none absolute -right-2.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-500 px-1 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
+                  :class="[showCartBadge ? 'opacity-100' : 'opacity-0', isCartPulsing ? 'cart-badge-pop' : '']"
+                  :aria-hidden="!showCartBadge"
                 >
-                  <span> {{ cartItems }} </span>
+                  {{ cartItems }}
                 </span>
               </div>
-              <div v-if="showCartTotal" class="flex-col text-primary-foreground flex-shrink-0 ml-6 max-md:hidden">
-                <div class="leading-[1.25] font-medium mb-0.5">{{ totalCartPrice }} Lei</div>
+              <div
+                class="ml-6 hidden min-w-[6.5rem] shrink-0 flex-col text-primary-foreground tabular-nums md:flex"
+                :class="showCartTotal ? 'visible' : 'invisible'"
+                :aria-hidden="!showCartTotal"
+              >
+                <div class="mb-0.5 leading-[1.25] font-medium">{{ formattedCartTotal }}</div>
                 <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
               </div>
             </button>
@@ -192,6 +193,7 @@ const isClientReady = useClientReady();
 const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
 const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
 const showCartTotal = computed(() => isClientReady.value && totalCartPrice.value > 0);
+const formattedCartTotal = computed(() => `${Number(totalCartPrice.value || 0).toFixed(2)} Lei`);
 const { getCart, getCartSubtotal } = storeToRefs(cartStore);
 
 const notificationStore = useNotificationStore();

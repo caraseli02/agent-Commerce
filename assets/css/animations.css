@@ -102,11 +102,8 @@
   0% {
     transform: scale(1);
   }
-  30% {
-    transform: scale(1.28);
-  }
-  55% {
-    transform: scale(0.92);
+  35% {
+    transform: scale(1.12);
   }
   100% {
     transform: scale(1);
@@ -118,22 +115,25 @@
   100% {
     transform: translateY(0) rotate(0deg);
   }
-  35% {
-    transform: translateY(-2px) rotate(-8deg);
+  40% {
+    transform: translateY(-1px) rotate(-4deg);
   }
-  65% {
-    transform: translateY(0) rotate(6deg);
+  70% {
+    transform: translateY(0) rotate(3deg);
   }
 }
 
 .cart-badge-pop {
-  animation: cart-badge-pop 420ms cubic-bezier(0.34, 1.45, 0.64, 1);
+  animation: cart-badge-pop 360ms cubic-bezier(0.34, 1.3, 0.64, 1);
   transform-origin: center;
+  /* Keep scale off the document flow so neighboring header items do not shift. */
+  will-change: transform;
 }
 
 .cart-icon-bump {
-  animation: cart-icon-bump 420ms ease-out;
+  animation: cart-icon-bump 360ms ease-out;
   transform-origin: center;
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
