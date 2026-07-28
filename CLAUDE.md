@@ -71,7 +71,8 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 ## Architecture shortcuts
 
-- API flow: `plugins/api.ts` → `composables/HttpFactory.ts` → `services/*.service.ts`
+- API flow: `plugins/api.ts` (`$apiClient`) → `composables/api/*` domain functions → domain composables (`useCart`, `useOrder`, etc.) → Pinia/UI. See `CONTEXT.md` § API access for the full contract.
+- Do not add a class-based service registry, `HttpFactory`, `useFetchAPI`, or component-level `$api.<domain>` calls.
 - Mock backend: `server/api/`
 - Auth/session state: Firebase + Pinia + token cookie
 - UI: shadcn-vue / Radix-style primitives + Tailwind
