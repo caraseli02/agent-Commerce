@@ -162,12 +162,19 @@ export const useCustomerDashboard = () => {
         productCode: slide.manufacturerCode ?? '',
         description: slide.description ?? '',
         details: slide.variant ?? slide.measure ?? '',
-        originalPrice: `${discountPrice?.priceConfiguration.price.toFixed(2)} ${currencyLabel} (${
-          discountPrice?.minimumOrderQuantityConfiguration.quantity
-        }+)`,
-        salePrice: `${discountPrice?.currentConfigurationDiscountPrice.toFixed(2)} ${currencyLabel}`,
+        originalPrice:
+          discountPrice?.priceConfiguration?.price != null
+            ? `${discountPrice.priceConfiguration.price.toFixed(2)} ${currencyLabel} (${
+                discountPrice.minimumOrderQuantityConfiguration?.quantity ?? 1
+              }+)`
+            : `— ${currencyLabel}`,
+        salePrice:
+          discountPrice?.currentConfigurationDiscountPrice != null
+            ? `${discountPrice.currentConfigurationDiscountPrice.toFixed(2)} ${currencyLabel}`
+            : `— ${currencyLabel}`,
         _id: slide._id,
-        quantity: discountPrice?.minimumOrderQuantityConfiguration.quantity ?? 0,
+        quantity: discountPrice?.minimumOrderQuantityConfiguration?.quantity ?? 1,
+        availableStock: Number(slide.stock ?? 0),
         addToCartText: 'Add to cart',
       };
     });

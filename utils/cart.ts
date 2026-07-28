@@ -30,15 +30,17 @@ export const applyOptimisticCartAdd = (
     }
 
     if (stockDelta > 0) {
+      const unitPrice = Number(incoming.unitPriceAfterDiscounts ?? incoming.initialUnitPrice ?? 0);
+      const lineTotal = unitPrice * stockDelta;
       products.push({
         id: incoming.id ?? '',
         stock: stockDelta,
         backorder_stock: 0,
         isFolder: incoming.isFolder ?? false,
-        initialUnitPrice: incoming.initialUnitPrice ?? 0,
-        unitPriceAfterDiscounts: incoming.unitPriceAfterDiscounts ?? 0,
-        total: incoming.total ?? 0,
-        subtotal: incoming.subtotal ?? 0,
+        initialUnitPrice: incoming.initialUnitPrice ?? unitPrice,
+        unitPriceAfterDiscounts: unitPrice,
+        total: incoming.total ?? lineTotal,
+        subtotal: incoming.subtotal ?? lineTotal,
         discount: incoming.discount ?? defaultDiscount,
         productEntity: incoming.productEntity,
       } as CartProductsInterface);
@@ -46,7 +48,7 @@ export const applyOptimisticCartAdd = (
   }
 
   return {
-    _id: currentCart?._id ?? 'optimistic-cart',
+    _id: currentCart?._id || 'optimistic-cart',
     userId: currentCart?.userId ?? '',
     products,
     startDate: currentCart?.startDate ?? new Date().toISOString(),

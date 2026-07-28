@@ -2,7 +2,10 @@ import { getCurrentInstance, onBeforeUnmount, ref } from 'vue';
 import type { CartInterface, CartProductsInterface } from '~/types/cart';
 
 const cartUnits = (products: CartProductsInterface[] = []) =>
-  products.reduce((total, product) => total + Math.max(0, Number(product.stock ?? 0)), 0);
+  products.reduce(
+    (total, product) => total + Math.max(0, Number(product.stock ?? 0)) + Math.max(0, Number(product.backorder_stock ?? 0)),
+    0
+  );
 
 /**
  * Shared header cart badge/icon pulse when items are added (optimistic or reconciled).
@@ -62,7 +65,7 @@ export const useCartBadgeMotion = () => {
   const resetBaseline = () => {
     lastLineCount = 0;
     lastUnitCount = 0;
-    hasBaseline = true;
+    hasBaseline = false;
     isPulsing.value = false;
     clearPulseTimer();
   };

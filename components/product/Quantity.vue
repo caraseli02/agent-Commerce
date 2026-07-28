@@ -103,11 +103,12 @@
           </div>
           <button
             type="button"
-            class="flex min-h-11 flex-1 items-center justify-center rounded-lg bg-blue-500 px-5 py-[9px] text-white disabled:cursor-not-allowed disabled:opacity-50"
+            class="flex min-h-11 flex-1 items-center justify-center rounded-lg bg-blue-500 px-5 py-[9px] text-white disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
             aria-label="Add to cart — selected quantity"
             :aria-busy="!isCartReady || isAddingToCart"
+            :aria-disabled="isAddingToCart"
             :aria-describedby="showAlreadyInCartMessage ? 'cart-qty-unchanged-hint' : undefined"
-            :disabled="isCartButtonDisabled"
+            :disabled="isCartButtonDisabled && !isAddingToCart"
             @click="addToCart(props.product)"
           >
             <CartIcon class="w-6 h-6 mr-2" />
@@ -143,7 +144,7 @@ import { useCart } from '~/composables/useCart';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
-const { isAddingToCart: isCartAddInFlight } = useCart();
+const { isProductAddInFlight } = useCart();
 
 const { getUserDetails } = storeToRefs(authStore);
 const { getCart } = storeToRefs(cartStore);
@@ -155,7 +156,7 @@ const props = defineProps<{
 const quantity = ref(0);
 const initialRequestedQuantity = ref(0);
 const isLocalAddingToCart = ref(false);
-const isAddingToCart = computed(() => isLocalAddingToCart.value || isCartAddInFlight.value);
+const isAddingToCart = computed(() => isLocalAddingToCart.value || isProductAddInFlight(props.product._id ?? ''));
 const isCartReady = ref(false);
 const isInCart = computed(() => initialRequestedQuantity.value > 0);
 const cartButtonLabel = computed(() => {
@@ -237,10 +238,9 @@ const addToCart = async (product: ProductInterface) => {
     const response = (await addToCartHelper(product, stock, {
       currentCartQuantity: initialRequestedQuantity.value,
       isDelta: initialRequestedQuantity.value > 0,
-    })) as { status?: string } | null;
+    })) as { status?: string; changed?: boolean } | null;
 
-    if (response?.status === 'success') {
-      await cartStore.updateAndReturnCart();
+    if (response?.status === 'success' && response.changed !== false) {
       await fetchCart();
     }
   } finally {

@@ -16,12 +16,14 @@ import { useCartStore } from '~/store/cartStore';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 import { applyOptimisticCartAdd, calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
 
-let addToCartInFlight = false;
-const isAddingToCart = ref(false);
+export type AddToCartResult = {
+  status: 'success';
+  changed: boolean;
+} | null;
 
 export const __resetAddToCartStateForTests = () => {
-  addToCartInFlight = false;
-  isAddingToCart.value = false;
+  const cartStore = useCartStore();
+  cartStore.clearAddToCartInFlight();
 };
 
 export function useCart() {
@@ -36,11 +38,11 @@ export function useCart() {
     cartItems.value = mapCartItems(cart?.products || []);
   };
 
-  const showAddToCartError = async (message: string) => {
+  const showAddToCartError = async (description = 'Please try again.') => {
     const { toast } = await import('~/components/ui/toast');
     toast({
       title: 'Could not update cart',
-      description: message,
+      description,
       variant: 'destructive',
     });
   };
@@ -67,7 +69,7 @@ export function useCart() {
 
     const clampedProducts = products.map((product) => {
       const existing = cartStore.cart?.products?.find((item) => item.id === product.id);
-      const productEntity = existing?.productEntity;
+      const productEntity = product.productEntity ?? existing?.productEntity;
 
       if (!productEntity || product.stock === undefined) {
         return product as CartProductsInterface;
@@ -91,6 +93,7 @@ export function useCart() {
       return {
         ...product,
         stock: adjustedStock,
+        productEntity,
       } as CartProductsInterface;
     });
 
@@ -118,32 +121,34 @@ export function useCart() {
     await refreshCart();
   };
 
-  const addToCart = async (payload: AddToCartRequestInterface) => {
+  const addToCart = async (payload: AddToCartRequestInterface): Promise<AddToCartResult> => {
     if (await promptForAuthenticationIfNeeded()) {
       return null;
     }
 
-    if (addToCartInFlight) {
-      await showAddToCartError('Cart is still updating. Please try again.');
+    const productIds = (payload.products ?? []).map((product) => String(product.id ?? '')).filter(Boolean);
+    if (productIds.some((id) => cartStore.isProductAddInFlight(id))) {
+      // Surfaces already disable busy products — stay silent to avoid false failure toasts.
       return null;
     }
 
-    addToCartInFlight = true;
-    isAddingToCart.value = true;
+    const clampedProducts = await clampCartProducts(payload.products, 'add');
+    if (clampedProducts.every((product) => Number(product.stock ?? 0) === 0)) {
+      return { status: 'success', changed: false };
+    }
+
+    cartStore.beginAddToCart(productIds);
 
     let previousCart: CartInterface | null = null;
+    let appliedOptimistic = false;
 
     try {
-      const clampedProducts = await clampCartProducts(payload.products, 'add');
-      if (clampedProducts.every((product) => Number(product.stock ?? 0) === 0)) {
-        return { status: 'success' };
-      }
-
       previousCart = cartStore.cart ? (JSON.parse(JSON.stringify(cartStore.cart)) as CartInterface) : null;
       const optimisticCart = applyOptimisticCartAdd(previousCart, clampedProducts);
 
-      cartStore.setCart(optimisticCart);
+      cartStore.setOptimisticCart(optimisticCart);
       syncLocalCartRefs(optimisticCart);
+      appliedOptimistic = true;
 
       const response = await addEntityToCart({
         ...payload,
@@ -151,32 +156,32 @@ export function useCart() {
       });
 
       if (response?.status !== 'success') {
-        throw new Error('Add to cart failed');
+        throw new Error('mutation-failed');
       }
-
-      await refreshCart();
-      return response;
     } catch (error) {
-      if (previousCart) {
-        cartStore.setCart(previousCart);
-      } else {
-        cartStore.emptyCart();
-        cartStore.setCart({
-          _id: '',
-          userId: '',
-          products: [],
-          startDate: '',
-          endDate: '',
-        });
+      if (appliedOptimistic) {
+        cartStore.restoreCartSnapshot(previousCart);
+        syncLocalCartRefs(previousCart);
       }
-      syncLocalCartRefs(previousCart);
-      const message = error instanceof Error ? error.message : 'Please try again.';
-      await showAddToCartError(message);
+      if (import.meta.dev) {
+        console.error('[useCart] addToCart failed', error);
+      }
+      await showAddToCartError('Please try again.');
       return null;
     } finally {
-      addToCartInFlight = false;
-      isAddingToCart.value = false;
+      cartStore.endAddToCart(productIds);
     }
+
+    // Refresh is outside the rollback boundary — a flaky GET must not undo a successful POST.
+    try {
+      await refreshCart();
+    } catch (error) {
+      if (import.meta.dev) {
+        console.error('[useCart] refreshCart after add failed', error);
+      }
+    }
+
+    return { status: 'success', changed: true };
   };
 
   const updateCartItem = async (payload: UpdateProductCartRequestInterface) => {
@@ -249,6 +254,7 @@ export function useCart() {
     cartId,
     showWarning,
     fetchShippingPrices,
-    isAddingToCart,
+    isAddingToCart: computed(() => cartStore.isAddingToCart),
+    isProductAddInFlight: cartStore.isProductAddInFlight,
   };
 }

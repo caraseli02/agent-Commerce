@@ -86,9 +86,9 @@
         type="button"
         aria-label="Add product to cart"
         :aria-labelledby="`add-to-cart-${product._id}`"
-        :aria-busy="isAddingToCart"
-        :disabled="isAddingToCart"
-        class="col-start-2 flex h-11 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        :aria-busy="isThisProductAdding"
+        :aria-disabled="isThisProductAdding"
+        class="col-start-2 flex h-11 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
         <SvgoCart class="h-6 w-6 text-white" />
@@ -102,16 +102,15 @@
 import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import { MoreHorizontal } from 'lucide-vue-next';
-import type { AddToCartRequestInterface } from '~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
-import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { addToCartHelper, parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 
 const authStore = useAuthStore();
-const { addToCart: addCartItem, isAddingToCart } = useCart();
+const { isProductAddInFlight } = useCart();
 
 const { getUserDetails } = storeToRefs(authStore);
 
@@ -122,6 +121,8 @@ const props = defineProps({
   },
 });
 
+const isThisProductAdding = computed(() => isProductAddInFlight(props.product._id ?? ''));
+
 const discountsHelper = parseProductPriceConfiguration(props.product, getUserDetails.value, props.product?.stock);
 
 const priceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(discountsHelper?.minimumOrderQuantityConfiguration);
@@ -129,27 +130,11 @@ const discountPrice = ref(discountsHelper?.discountPrice || 0);
 const productDiscount = ref(discountsHelper?.productDiscount || 0);
 
 const addToCart = async (product: ProductInterface, stockToAdd = 1) => {
-  if (isAddingToCart.value) {
+  if (isProductAddInFlight(product._id ?? '')) {
     return;
   }
 
-  const payload: AddToCartRequestInterface = {
-    userId: '',
-    products: [
-      {
-        id: product._id ?? '',
-        stock: stockToAdd,
-        isFolder: false,
-        initialUnitPrice: 0,
-        unitPriceAfterDiscounts: 0,
-        total: 0,
-        subtotal: 0,
-        discount: { value: 0, startDate: '', endDate: '' },
-      },
-    ],
-  };
-
-  await addCartItem(payload);
+  await addToCartHelper(product, stockToAdd);
 };
 const productImageLarge = computed(() => {
   return props.product.details?.ProductImage?.ProductImageLarge || '';

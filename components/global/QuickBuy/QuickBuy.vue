@@ -27,30 +27,33 @@ const addProduct = () => {
 
 const addToCart = async () => {
   isLoading.value = true;
-  const productsPayload: CartProductsInterface[] = [];
-  for (const product of products.value) {
-    if (product.code) {
-      productsPayload.push({
-        id: product.code,
-        stock: product.quantity,
-        isFolder: false,
-        initialUnitPrice: 0,
-        unitPriceAfterDiscounts: 0,
-        total: 0,
-        subtotal: 0,
-        discount: { value: 0, startDate: '', endDate: '' },
-      });
+  try {
+    const productsPayload: CartProductsInterface[] = [];
+    for (const product of products.value) {
+      if (product.code) {
+        productsPayload.push({
+          id: product.code,
+          stock: product.quantity,
+          isFolder: false,
+          initialUnitPrice: 0,
+          unitPriceAfterDiscounts: 0,
+          total: 0,
+          subtotal: 0,
+          discount: { value: 0, startDate: '', endDate: '' },
+        });
+      }
     }
+    const payload: AddToCartRequestInterface = {
+      userId: '',
+      products: productsPayload,
+    };
+    const object = (await addCartItem(payload)) as { status?: string; changed?: boolean } | null;
+    if (object?.status === 'success' && object.changed !== false) {
+      isOpen.value = false;
+    }
+  } finally {
+    isLoading.value = false;
   }
-  const payload: AddToCartRequestInterface = {
-    userId: '',
-    products: productsPayload,
-  };
-  const object = (await addCartItem(payload)) as { status?: string };
-  if (object.status === 'success') {
-    isOpen.value = false;
-  }
-  isLoading.value = false;
 };
 
 onMounted(() => {

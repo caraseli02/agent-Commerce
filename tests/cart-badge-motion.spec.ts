@@ -4,6 +4,7 @@ import type { CartInterface } from '~/types/cart';
 
 describe('useCartBadgeMotion', () => {
   beforeEach(() => {
+    vi.useFakeTimers();
     vi.stubGlobal(
       'matchMedia',
       vi.fn().mockReturnValue({
@@ -12,9 +13,13 @@ describe('useCartBadgeMotion', () => {
         removeEventListener: vi.fn(),
       })
     );
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      cb(0);
+      return 1;
+    });
   });
 
-  it('pulses when line count or unit quantity increases after baseline', async () => {
+  it('pulses when line count or unit quantity increases after baseline', () => {
     const { isPulsing, syncFromCart } = useCartBadgeMotion();
 
     syncFromCart(
@@ -31,10 +36,10 @@ describe('useCartBadgeMotion', () => {
         { id: 'b', stock: 1 },
       ],
     } as CartInterface);
+    expect(isPulsing.value).toBe(true);
 
-    await vi.waitFor(() => {
-      expect(isPulsing.value).toBe(true);
-    });
+    vi.advanceTimersByTime(500);
+    expect(isPulsing.value).toBe(false);
 
     syncFromCart({
       products: [
@@ -42,10 +47,7 @@ describe('useCartBadgeMotion', () => {
         { id: 'b', stock: 1 },
       ],
     } as CartInterface);
-
-    await vi.waitFor(() => {
-      expect(isPulsing.value).toBe(true);
-    });
+    expect(isPulsing.value).toBe(true);
   });
 
   it('does not pulse when cart shrinks', () => {

@@ -102,7 +102,17 @@ const thumbnailClass = computed(
 );
 
 const getPricesConfiguration = () => {
-  const discountsHelper = parseProductPriceConfiguration(props.product?.productEntity, getUserDetails.value, quantity.value);
+  if (!props.product?.productEntity) {
+    minPriceConfiguration.value = undefined;
+    currentPriceConfiguration.value = undefined;
+    discountPrice.value = 0;
+    currentConfigurationDiscountPrice.value = 0;
+    userDiscount.value = 0;
+    productDiscount.value = 0;
+    return;
+  }
+
+  const discountsHelper = parseProductPriceConfiguration(props.product.productEntity, getUserDetails.value, quantity.value);
 
   minPriceConfiguration.value = discountsHelper?.minimumOrderQuantityConfiguration;
   currentPriceConfiguration.value = discountsHelper?.priceConfiguration;
