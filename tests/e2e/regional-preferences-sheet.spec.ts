@@ -10,8 +10,9 @@ test.describe('Regional preferences sheet', () => {
     await opener.click();
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText(/does not include locale translation/i)).toBeVisible();
-    await expect(dialog.getByLabel('Demo currency')).toBeVisible();
-    await expect(dialog.getByLabel('Language')).toHaveCount(0);
+    await expect(dialog.getByText('Demo currency')).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Lei' })).toBeVisible();
+    await expect(dialog.getByText('Language', { exact: true })).toHaveCount(0);
   });
 
   test('action buttons close the sheet and allow it to reopen', async ({ page }) => {
