@@ -67,7 +67,11 @@
               </div>
             </section>
             <button
-              class="justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90"
+              type="button"
+              class="justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              :aria-label="`Add ${item.productCode || 'product'} to cart`"
+              :aria-busy="isAddingToCart"
+              :disabled="isAddingToCart || !item._id"
               @click="addToCart(item)"
             >
               <svg
@@ -96,7 +100,9 @@
                   stroke-linejoin="round"
                 />
               </svg>
-              <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">Add to cart</div>
+              <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">
+                {{ isAddingToCart ? 'Adding…' : item.addToCartText || 'Add to cart' }}
+              </div>
             </button>
           </div>
         </div>
@@ -111,26 +117,57 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper';
+import Emitter from 'tiny-emitter/instance.js';
 import type { ProductBannerInterface } from '~/model/dashboard/customer-information/customer-information';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { addToCartHelper } from '~/helpers/prices.helper';
+import { toast } from '~/components/ui/toast';
+import { useCart } from '~/composables/useCart';
 import { useCartStore } from '~/store/cartStore';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 
 const cartStore = useCartStore();
+const { isAddingToCart } = useCart();
 
 defineProps<{
   slides: Array<ProductBannerInterface>;
 }>();
 
 const addToCart = async (product: ProductBannerInterface) => {
-  const stock = product.quantity;
-
-  const response = (await addToCartHelper(product as unknown as ProductInterface, stock)) as { status: string };
-
-  if (response.status === 'success') {
-    await cartStore.updateAndReturnCart();
+  if (isAddingToCart.value) {
+    return;
   }
+
+  if (!product._id) {
+    toast({
+      title: 'Could not update cart',
+      description: 'This offer is missing a product id.',
+      variant: 'destructive',
+    });
+    return;
+  }
+
+  const stock = Math.max(1, Number(product.quantity) || 1);
+
+  // Banner slides are display DTOs — pass enough product shape for clamp + cart id.
+  const response = (await addToCartHelper(
+    {
+      _id: product._id,
+      stock: Number.MAX_SAFE_INTEGER,
+    } as ProductInterface,
+    stock
+  )) as { status?: string } | null;
+
+  if (response?.status !== 'success') {
+    return;
+  }
+
+  await cartStore.updateAndReturnCart();
+  toast({
+    title: 'Added to cart',
+    description: product.productCode ? `${product.productCode} · qty ${stock}` : `Quantity ${stock} added`,
+  });
+  Emitter.emit('open-cart-modal');
 };
 </script>
 
