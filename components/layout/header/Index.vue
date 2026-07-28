@@ -14,9 +14,13 @@
           <div class="text-xs leading-[1.67] font-semibold text-primary mr-auto md:mr-0 lg:text-sm lg:leading-[1.43]">
             <span class="uppercase">Free</span> shipping on orders over {{ freeShippingThreshold }}
           </div>
-          <button class="flex items-center" @click="showRegionalPreferencesModal = true">
+          <button
+            class="flex items-center"
+            aria-label="Regional preferences"
+            @click="showRegionalPreferencesModal = true"
+          >
             <RonFlag class="w-6 h-5 mr-2.5" />
-            <span class="text-sm text-slate-500 leading-[1.43]" aria-label="Regional preferences">{{ regionalLabel }}</span>
+            <span class="text-sm text-slate-500 leading-[1.43]">{{ regionalLabel }}</span>
           </button>
         </div>
       </div>
@@ -34,13 +38,9 @@ import HeadphonesIcon from '@/assets/icons/headphones.svg';
 import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 const regionalPreferencesStore = useRegionalPreferencesStore();
-const { language, currency } = storeToRefs(regionalPreferencesStore);
+const { currency } = storeToRefs(regionalPreferencesStore);
 
-const regionalLabel = computed(() => {
-  const lang = language.value?.value === 'romanian' ? 'RO' : 'EN';
-  const curr = currency.value?.label || 'Lei';
-  return `${lang} · ${curr}`;
-});
+const regionalLabel = computed(() => currency.value?.label || 'Lei');
 
 const freeShippingThreshold = computed(() => {
   const curr = currency.value?.label || 'Lei';

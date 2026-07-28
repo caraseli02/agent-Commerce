@@ -24,20 +24,13 @@
       </div>
 
       <div class="mb-10 px-5">
-        <div class="mb-5 text-sm text-slate-500">Select a language, shipping region and currency to update your experience on demo.app</div>
-        <FormSelect
-          v-model="language"
-          label="Language"
-          placeholder="Language"
-          :options="[
-            { value: 'english', label: 'English' },
-            { value: 'romanian', label: 'Romanian' },
-          ]"
-          class="z-10 mb-5"
-        />
+        <p class="mb-5 text-sm text-slate-500">
+          Choose a demo currency to preview pricing labels on demo.app. This portfolio build does not include locale
+          translation — storefront copy stays in English.
+        </p>
         <FormSelect
           v-model="currency"
-          label="Currency"
+          label="Demo currency"
           placeholder="Currency"
           :options="[
             { value: 'ron', label: 'Lei' },
@@ -65,7 +58,7 @@ const emits = defineEmits(['close']);
 
 const isOpen = ref(true);
 const regionalPreferencesStore = useRegionalPreferencesStore();
-const { language, currency } = storeToRefs(regionalPreferencesStore);
+const { currency } = storeToRefs(regionalPreferencesStore);
 
 const closeModal = () => {
   isOpen.value = false;

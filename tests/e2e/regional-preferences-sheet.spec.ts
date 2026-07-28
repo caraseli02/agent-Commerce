@@ -1,6 +1,19 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Regional preferences sheet', () => {
+  test('shows demo currency control without a misleading language selector', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    const opener = page.getByRole('button', { name: 'Regional preferences' });
+    const dialog = page.getByRole('dialog', { name: 'Regional Preferences' });
+
+    await opener.click();
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(/does not include locale translation/i)).toBeVisible();
+    await expect(dialog.getByLabel('Demo currency')).toBeVisible();
+    await expect(dialog.getByLabel('Language')).toHaveCount(0);
+  });
+
   test('action buttons close the sheet and allow it to reopen', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
