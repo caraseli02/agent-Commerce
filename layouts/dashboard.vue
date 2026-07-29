@@ -15,6 +15,7 @@
       :class="[isSideNavCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:max-w-[calc(100vw-280px)]']"
     >
       <slot />
+      <DemoResetDemoDataControl v-if="isMockMode" class="border-t border-slate-200 bg-slate-50" />
       <div class="flex justify-center text-center text-xs leading-normal text-slate-500 mt-2 mb-6 md:mt-0">
         ECAS portfolio demo — mock mode for reviewer walkthroughs
       </div>
@@ -26,6 +27,8 @@
 <script setup lang="ts">
 import { Toaster } from '@/components/ui/toast';
 
+const config = useRuntimeConfig();
+const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const isSideNavCollapsedOnDesktop = ref(true);
 const showSideNav = ref(false);
 </script>

@@ -9,6 +9,8 @@ import type { DiscountInterface } from '~/types/auth/account-settings';
 const CART_TTL_MS = 60 * 60 * 1000;
 const MAX_CARTS = 250;
 const CART_SESSION_NAMESPACE = 'cart';
+export const CART_SEED_PRODUCT_ID = 'prod-1';
+export const CART_SEED_STOCK = 1;
 const GUEST_CART_USER_ID = 'guest-user-session';
 const GUEST_SESSION_COOKIE = 'guest-session-id';
 
@@ -204,13 +206,13 @@ export const getMockCartForUser = (userId: string) => {
     return existing.cart;
   }
 
-  const defaultProduct = resolveMockProduct('prod-1');
+  const defaultProduct = resolveMockProduct(CART_SEED_PRODUCT_ID);
   const starterProducts: CartProductsInterface[] = defaultProduct
     ? [
         normalizeCartProduct(
           {
             id: defaultProduct._id,
-            stock: 1,
+            stock: CART_SEED_STOCK,
             isFolder: false,
           },
           undefined,
@@ -371,6 +373,11 @@ export const removeProductsFromMockCart = (cart: CartInterface, ids: string[] = 
     persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
   }
   return cart;
+};
+
+export const resetMockCartForUser = (userId: string) => {
+  removeStoredCart(userId);
+  return getMockCartForUser(userId);
 };
 
 export const clearMockCartById = (cartId?: string | null) => {

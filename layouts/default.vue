@@ -8,6 +8,7 @@
       <slot />
     </main>
     <LayoutFooter />
+    <DemoResetDemoDataControl v-if="isMockMode" class="border-t border-slate-200 bg-slate-50" />
     <Toaster />
   </div>
 </template>
@@ -16,6 +17,8 @@
 import { _debounce } from '#imports';
 import { Toaster } from '@/components/ui/toast';
 
+const config = useRuntimeConfig();
+const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const isScrolled = ref(false);
 
 const handleScroll = () => {
