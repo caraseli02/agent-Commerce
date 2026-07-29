@@ -43,7 +43,6 @@ describe('dashboard widget error boundaries', () => {
   it('wraps Returning Customers chart with DashboardWidgetBoundary', () => {
     const ast = parseTemplate(returningCustomersPath);
     const boundaries = collectElements(ast, 'DashboardWidgetBoundary');
-
     expect(boundaries).toHaveLength(1);
     expect(collectElements(ast, 'DashboardReturningCustomersChart')).toHaveLength(1);
   });

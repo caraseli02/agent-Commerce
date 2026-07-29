@@ -34,7 +34,7 @@ test.describe('Dashboard widget error boundaries', () => {
 
     const boundary = page.locator('[data-dashboard-widget-boundary="returning-customers"]');
     await expect(boundary).toBeVisible();
-    await expect(boundary.getByRole('alert')).toBeVisible();
+    await expect(boundary).toHaveAttribute('role', 'alert');
     await expect(boundary.getByText(/returning customers couldn't load/i)).toBeVisible();
     await expect(boundary.getByRole('button', { name: 'Try again' })).toBeVisible();
     await expect(boundary.getByRole('link', { name: 'Back to customers' })).toBeVisible();
