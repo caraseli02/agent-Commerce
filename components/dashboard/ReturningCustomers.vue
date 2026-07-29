@@ -17,9 +17,9 @@
             {{ total }}
           </div>
           <div>
-            <ClientOnly>
-              <ApexChart width="170" :options="chartOptions" :series="series" />
-            </ClientOnly>
+            <DashboardWidgetBoundary title="Returning Customers" widget-id="returning-customers">
+              <ReturningCustomersChart :chart-options="chartOptions" :series="series" />
+            </DashboardWidgetBoundary>
           </div>
         </div>
       </template>
@@ -76,7 +76,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
 import type { ApexOptions } from 'apexcharts';
 import { differenceInDays, startOfISOWeek } from 'date-fns';
 import PeopleIcon from '@/assets/icons/dashboard/people.svg';
@@ -88,8 +87,6 @@ import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { fetchReturningCustomersWidget } from '~/composables/api/dashboard-admin';
 import type { ReturningCustomersInterface } from '~/model/dashboard/response/CustomerInterfaceResponse';
-
-const ApexChart = defineAsyncComponent(() => import('vue3-apexcharts'));
 
 const chartOptions: ApexOptions = {
   chart: {
