@@ -37,7 +37,7 @@ const props = withDefaults(
   {
     recoveryHref: '/dashboard/customers',
     recoveryLabel: 'Back to customers',
-  },
+  }
 );
 
 const onBoundaryError = (error: unknown) => {
@@ -45,3 +45,4 @@ const onBoundaryError = (error: unknown) => {
     console.error(`[DashboardWidgetBoundary:${props.widgetId}]`, error);
   }
 };
+</script>
