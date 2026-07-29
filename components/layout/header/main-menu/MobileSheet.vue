@@ -4,8 +4,6 @@ import { XIcon, MenuIcon, ChevronRight, ChevronLeftIcon, Building2Icon, HeadsetI
 import { useCategoriesNavigation } from '@/composables/useCategoriesNavigation';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
 
-defineProps<{ isScrolled: boolean }>();
-
 const { categories, selectedCategories, currentCategory, onCategoryClick } = useCategoriesNavigation();
 const { getCategories } = useCategories();
 
@@ -107,16 +105,16 @@ onBeforeUnmount(() => {
         aria-label="Open products navigation"
       >
         <MenuIcon class="w-6 h-6" />
-        <span v-if="!isScrolled" class="hidden leading-normal font-medium ml-2 md:inline-block lg:ml-4"> Products </span>
+        <span class="ml-2 hidden font-medium leading-normal md:inline-block lg:ml-4"> Products </span>
       </button>
     </UiSheetTrigger>
     <UiSheetContent
       id="mobile-products-navigation"
       class="w-[min(22rem,calc(100vw-2rem))] font-Poppins max-md:!max-h-[calc(100dvh-var(--mobile-nav-sheet-top,100px))]"
-      :class="['px-0 pt-0', mobileSheetTopClass, isScrolled ? 'md:top-[98px]' : 'md:top-[188px]']"
+      :class="['px-0 pt-0', mobileSheetTopClass, 'md:top-[var(--mobile-nav-sheet-top,110px)]']"
       side="left"
       hidde-close-button
-      :overlay-class-name="`${mobileSheetOverlayClass} ${isScrolled ? 'md:top-[98px]' : 'md:top-[188px]'}`"
+      :overlay-class-name="`${mobileSheetOverlayClass} md:top-[var(--mobile-nav-sheet-top,110px)]`"
     >
       <UiSheetHeader class="bg-grey-100 border-b border-grey-300">
         <UiSheetTitle class="px-4 py-2">

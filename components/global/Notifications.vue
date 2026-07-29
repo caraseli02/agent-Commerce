@@ -1,6 +1,6 @@
 <template>
   <UiSheet :key="userDetails?._id" v-model:open="showNotifications">
-    <UiSheetTrigger>
+    <UiSheetTrigger as-child>
       <button type="button" class="flex items-center -mr-2.5 xl:-mr-4" aria-label="Open notifications">
         <div class="flex items-center">
           <div class="flex flex-col items-center">
