@@ -6,7 +6,7 @@ import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
 const returningCustomersPath = resolve('components/dashboard/ReturningCustomers.vue');
-const boundaryPath = resolve('components/dashboard/DashboardWidgetBoundary.vue');
+const boundaryPath = resolve('components/dashboard/WidgetBoundary.vue');
 const faultComposablePath = resolve('composables/useDashboardWidgetFault.ts');
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
@@ -45,18 +45,13 @@ describe('dashboard widget error boundaries', () => {
     const boundaries = collectElements(ast, 'DashboardWidgetBoundary');
 
     expect(boundaries).toHaveLength(1);
-    expect(collectElements(ast, 'ReturningCustomersChart')).toHaveLength(1);
+    expect(collectElements(ast, 'DashboardReturningCustomersChart')).toHaveLength(1);
   });
 
   it('provides alert fallback UI with recovery navigation', () => {
     const ast = parseTemplate(boundaryPath);
     const alerts = collectElements(ast, 'div').filter((element) =>
-      element.props.some(
-        (prop) =>
-          prop.type === NodeTypes.ATTRIBUTE &&
-          prop.name === 'role' &&
-          prop.value?.content === 'alert',
-      ),
+      element.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'role' && prop.value?.content === 'alert')
     );
 
     expect(alerts).toHaveLength(1);
@@ -70,8 +65,6 @@ describe('dashboard widget error boundaries', () => {
 
     expect(source).toContain('dashboardFault');
     expect(source).toContain('MOCK_MODE');
-    expect(readFileSync(resolve('components/dashboard/ReturningCustomersChart.vue'), 'utf8')).toContain(
-      'useDashboardWidgetFault',
-    );
+    expect(readFileSync(resolve('components/dashboard/ReturningCustomersChart.vue'), 'utf8')).toContain('useDashboardWidgetFault');
   });
 });

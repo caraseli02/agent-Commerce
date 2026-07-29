@@ -18,7 +18,7 @@
           </div>
           <div>
             <DashboardWidgetBoundary title="Returning Customers" widget-id="returning-customers">
-              <ReturningCustomersChart :chart-options="chartOptions" :series="series" />
+              <DashboardReturningCustomersChart :chart-options="chartOptions" :series="series" />
             </DashboardWidgetBoundary>
           </div>
         </div>
