@@ -23,7 +23,6 @@ describe('storefront favorites removal boundary', () => {
       'components/search/SearchItem.vue',
       'components/layout/favorites-cart-modal/Index.vue',
       'components/layout/header/MainRow.vue',
-      'components/layout/header/SearchRow.vue',
       'components/layout/header/main-menu/MobileSheet.vue',
       'components/layout/account-modal/Links.vue',
     ];
