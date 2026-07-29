@@ -47,6 +47,7 @@
 import CaretIcon from '@/assets/icons/caret-right.svg';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { mapLabelsToIds, mapPathArrayOfNames } from '~/helpers/categories.helper';
+import { humanizeCategorySlug, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
 
 const { categories } = useCategories();
 
@@ -55,16 +56,19 @@ const props = defineProps<{
   isLoading: boolean;
 }>();
 
+// `product.path` is a slug path, so label it from the taxonomy when it is loaded and fall back to the slug itself.
 const productTitle = (product: ProductInterface) => {
   if (!product.path) {
     return '';
   }
 
-  const mapLabels = mapLabelsToIds(categories.value);
-  const categoriesLabelsArray = mapPathArrayOfNames(product.path, mapLabels);
+  const categoriesLabelsArray = mapPathArrayOfNames(product.path, mapLabelsToIds(categories.value));
   const categoryName = categoriesLabelsArray[categoriesLabelsArray.length - 1]?.name;
+  if (categoryName) {
+    return categoryName;
+  }
 
-  // Hide placeholder category labels so search suggestions don't show "N/A >".
-  return categoryName && categoryName !== 'N/A' ? categoryName : '';
+  const segments = toCategorySlugSegments(product.path);
+  return humanizeCategorySlug(segments[segments.length - 1] ?? '');
 };
 </script>

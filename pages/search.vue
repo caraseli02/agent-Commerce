@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SearchBreadcrumbs @change-path="changePath" />
+    <SearchBreadcrumbs />
     <SearchFilters
       v-if="filters"
       :filters="filters"
@@ -146,23 +146,6 @@ async function getProduct(
   filters.value = data.filters;
 }
 
-async function changePath() {
-  const { data } = await fetchSearchProduct(
-    resolveKeyword(),
-    route.query.category?.toString() ?? null,
-    atPage.value,
-    perPage.value,
-    {
-      sortBy: sortBy.value.name,
-      sortOrder: order.value === 0 ? 'desc' : 'asc',
-    },
-    additionalFilters.value
-  );
-
-  products.value = data;
-  filters.value = data.filters;
-}
-
 const handleSortChange = async () => {
   await getProduct(
     resolveKeyword(),
@@ -210,9 +193,11 @@ watch(additionalFilters, async (filter) => {
   );
 });
 
+// Both `keyword` and `category` live in the URL, so breadcrumb and menu navigation must refresh both.
 watch(route, (value) => {
   const newKeyword = (value.query.keyword ?? value.query.q)?.toString() ?? '';
   keyword.value = newKeyword;
+  category.value = value.query.category?.toString() || null;
   getProduct(newKeyword, 1, 10, {}, additionalFilters.value);
 });
 

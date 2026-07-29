@@ -70,7 +70,7 @@
         <NuxtLink
           v-for="(subCategory, index) in selectedSubCategory.subcategory"
           :key="index"
-          :to="`/search?keyword=${encodeURIComponent(subCategory.name)}`"
+          :to="categoryBrowseUrl(subCategory)"
           class="group flex items-center justify-between px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
         >
           <div>
@@ -107,6 +107,7 @@ import CaretLeft from '@/assets/icons/caret-left.svg';
 import { showNavModal } from '~~/config/modal/nav';
 import type { NavCategoryView, TaxonomyInterface } from '~/types/dashboard/categories';
 import { mapLabelsToIds } from '~/helpers/categories.helper';
+import { categoryBrowseUrl } from '~/helpers/categoryPath.helper';
 
 const router = useRouter();
 
@@ -126,7 +127,7 @@ const DefaultIcon = CardPlaceholderSmall;
 const handleCategoryClick = (category: NavCategoryView) => {
   if ((category.subcategory?.length ?? 0) === 0) {
     // Redirect to the category link if it's the last level
-    router.push(`/search?keyword=${encodeURIComponent(category.name)}`);
+    router.push(categoryBrowseUrl(category));
     showNavModal.value = false;
   } else {
     // Otherwise, set the selected category or subcategory as usual

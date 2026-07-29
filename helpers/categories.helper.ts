@@ -1,11 +1,14 @@
 import type { CategoriesMap, TaxonomyInterface } from '~/types/dashboard/categories';
 import { useCategoriesStore } from '~/store/categoriesStore';
+import { buildCategorySlugPath, normalizeCategoryPath, slugifyCategoryName, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
 
 export const mapLabelsToIds = (array: TaxonomyInterface[], result: CategoriesMap = {}): CategoriesMap => {
   const categoriesStore = useCategoriesStore();
 
-  if (categoriesStore.categoriesMap && Object.keys(categoriesStore.categoriesMap).length) {
-    return categoriesStore.categoriesMap;
+  // Only fall back to the persisted map while the taxonomy is still loading; a loaded taxonomy always wins
+  // so a stale localStorage map can never block a rebuild after the tree changes.
+  if (!array || array.length === 0) {
+    return categoriesStore.categoriesMap ?? {};
   }
 
   const recursiveFn = (items: TaxonomyInterface[], map: CategoriesMap): CategoriesMap => {
@@ -24,22 +27,29 @@ export const mapLabelsToIds = (array: TaxonomyInterface[], result: CategoriesMap
   return mappedCategories;
 };
 
+/**
+ * Resolves the segments of a category path to taxonomy entries. Segments are slugs
+ * (`semiconductors/microcontrollers`); legacy id chains still resolve for older links.
+ */
 export const mapPathArrayOfNames = (path: string, categoriesMap: CategoriesMap) => {
-  const idToNameMap = Object.entries(categoriesMap).reduce<Record<string, { name: string; id: string }>>((acc, [name, id]) => {
-    acc[id] = { name, id };
-    return acc;
-  }, {});
+  const bySegment = new Map<string, { name: string; id: string }>();
 
-  return path
-    .split('/')
-    .filter((id) => id)
-    .map((id) => idToNameMap[id])
+  for (const [name, id] of Object.entries(categoriesMap)) {
+    const entry = { name, id };
+    bySegment.set(slugifyCategoryName(name), entry);
+    if (id) {
+      bySegment.set(id.toLowerCase(), entry);
+    }
+  }
+
+  return toCategorySlugSegments(path)
+    .map((segment) => bySegment.get(segment))
     .filter((entry): entry is { id: string; name: string } => Boolean(entry));
 };
 
+/** Builds the slug path for a chain of known category names. */
 export const mapNamesToPath = (namesArray: string[], categoriesMap: CategoriesMap) => {
-  const ids = namesArray.map((name) => categoriesMap[name] ?? null);
-  return ids.filter(Boolean).join('/');
+  return buildCategorySlugPath(namesArray.filter((name) => Boolean(categoriesMap[name])));
 };
 
 export const findCategory = (id: string, categories: TaxonomyInterface[]): TaxonomyInterface | null => {
@@ -53,6 +63,27 @@ export const findCategory = (id: string, categories: TaxonomyInterface[]): Taxon
     }
     if (category.subcategory) {
       const foundCategory = findCategory(id, category.subcategory);
+      if (foundCategory) {
+        return foundCategory;
+      }
+    }
+  }
+
+  return null;
+};
+
+export const findCategoryByPath = (path: string, categories: TaxonomyInterface[]): TaxonomyInterface | null => {
+  const target = normalizeCategoryPath(path);
+  if (!target) {
+    return null;
+  }
+
+  for (const category of categories) {
+    if (normalizeCategoryPath(category.path) === target) {
+      return category;
+    }
+    if (category.subcategory) {
+      const foundCategory = findCategoryByPath(target, category.subcategory);
       if (foundCategory) {
         return foundCategory;
       }

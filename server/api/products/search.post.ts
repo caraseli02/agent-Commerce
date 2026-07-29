@@ -1,5 +1,6 @@
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { mockProducts } from '~/server/utils/mockProducts';
+import { matchesCategoryPath } from '~/helpers/categoryPath.helper';
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -54,24 +55,23 @@ export default defineEventHandler(async (event) => {
     filteredProducts = (mockProducts as ProductInterface[]).filter((p) => matchesKeyword(p, keyword));
   }
 
-  const category = String(body.category || query.category || '')
-    .trim()
-    .toLowerCase();
+  const category = String(body.category || query.category || '').trim();
   if (category) {
-    // Accept taxonomy ids, names, aliases, and product paths from nav links.
-    filteredProducts = filteredProducts.filter((p) => {
-      const productCategory = p.category?.toLowerCase() || '';
-      const productPath = p.path?.toLowerCase() || '';
-      const productAlias = p.alias?.toLowerCase() || '';
-      return (
-        productCategory === category ||
-        productCategory.includes(category) ||
-        productPath === category ||
-        productPath.includes(category) ||
-        productAlias === category ||
-        matchesKeyword(p, category)
-      );
-    });
+    // Slug paths are the contract: `semiconductors`, `semiconductors/microcontrollers`, or a deeper taxonomy leaf.
+    const pathMatches = filteredProducts.filter((p) =>
+      matchesCategoryPath(
+        {
+          path: p.path,
+          category: p.category,
+          alias: p.alias,
+          taxonomyPath: p.details?.SummaryData?.TaxonomyPath,
+        },
+        category
+      )
+    );
+
+    // Secondary name matching keeps older label-based links from becoming dead ends.
+    filteredProducts = pathMatches.length > 0 ? pathMatches : filteredProducts.filter((p) => matchesKeyword(p, category.toLowerCase()));
   }
 
   const sortBy = String(query.sortBy || '').trim();

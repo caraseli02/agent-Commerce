@@ -6,11 +6,10 @@
           <!-- Breadcrumb links -->
           <NuxtLink
             v-for="(categoryObj, index) in categoryLabels"
-            :key="index"
-            :to="`/search?category=${categoryObj.id}`"
+            :key="categoryObj.path"
+            :to="`/search?category=${encodeURIComponent(categoryObj.path)}`"
             class="text-xs leading-[1.33] text-slate-500 font-Inter md:flex lg:font-medium"
             :class="{ 'font-semibold': index === categoryLabels.length - 1 }"
-            @click="changePath(index)"
           >
             <CaretRightIcon v-if="index > 0" class="hidden w-4 h-4 md:flex" />
             {{ categoryObj.name }}
@@ -25,45 +24,47 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import CaretRightIcon from '@/assets/icons/caret-right.svg';
 import { useCategories } from '~/composables/useCategories';
-import { findCategory, mapLabelsToIds, mapPathArrayOfNames } from '~/helpers/categories.helper';
+import { findCategory, findCategoryByPath } from '~/helpers/categories.helper';
+import type { CategoryCrumb } from '~/helpers/categoryPath.helper';
+import { buildSlugPathCrumbs, normalizeCategoryPath } from '~/helpers/categoryPath.helper';
 
 const { categories, getCategories } = useCategories();
 
-const emits = defineEmits(['change-path']);
-
 const route = useRoute();
-const category = ref(route.query.category);
-const categoryLabels = ref<{ id: string; name: string }[]>([]);
-const map = ref({});
+// Read from the route on every navigation so breadcrumbs follow `?category=` changes.
+const category = computed(() => route.query.category?.toString() ?? '');
+const categoryLabels = ref<CategoryCrumb[]>([]);
+
+// `?category=` carries a slug path; older links carried a taxonomy id, so resolve those to their path.
+const resolveCategoryPath = (value: string) => {
+  const slugPath = normalizeCategoryPath(value);
+  if (findCategoryByPath(slugPath, categories.value)) {
+    return slugPath;
+  }
+  return findCategory(value, categories.value)?.path ?? slugPath;
+};
+
+async function loadCategoryLabels() {
+  if (!category.value) {
+    categoryLabels.value = [];
+    return;
+  }
+
+  await getCategories();
+  categoryLabels.value = buildSlugPathCrumbs(
+    resolveCategoryPath(category.value),
+    (path) => findCategoryByPath(path, categories.value)?.name
+  );
+}
 
 onMounted(async () => {
   await loadCategoryLabels();
 });
 
-// Watch for changes to `category` and reload category labels as needed
 watch(category, async () => {
   await loadCategoryLabels();
 });
-
-// Load category labels
-async function loadCategoryLabels() {
-  if (category.value) {
-    await getCategories();
-    map.value = mapLabelsToIds(categories.value);
-
-    const path = findCategory(category.value.toString(), categories.value)?.path;
-    if (path) {
-      categoryLabels.value = mapPathArrayOfNames(path.toString(), map.value);
-    }
-  }
-}
-
-async function changePath(index: number) {
-  await loadCategoryLabels();
-  categoryLabels.value = categoryLabels.value.slice(0, index + 1);
-  emits('change-path');
-}
 </script>

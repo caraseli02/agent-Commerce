@@ -1,40 +1,43 @@
-/** Lightweight path/category index for demo taxonomy product counts (mirrors mockProducts). */
+import { slugifyCategoryName, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
+
+/**
+ * Lightweight path/category index for demo taxonomy product counts (mirrors mockProducts).
+ * `taxonomyPath` mirrors `details.SummaryData.TaxonomyPath` so deep taxonomy leaves can be counted too.
+ */
 export const demoProductTaxonomy = [
-  { path: 'accessories/backpack', category: 'Accessories' },
-  { path: 'accessories/cable', category: 'Accessories' },
-  { path: 'accessories/stand', category: 'Accessories' },
-  { path: 'audio/headphones', category: 'Audio' },
-  { path: 'audio/microphone', category: 'Audio' },
-  { path: 'audio/speaker', category: 'Audio' },
-  { path: 'components/headset', category: 'Components' },
-  { path: 'components/mouse', category: 'Components' },
-  { path: 'components/ssd', category: 'Components' },
-  { path: 'electronics/camera', category: 'Electronics' },
-  { path: 'electronics/monitor', category: 'Electronics' },
-  { path: 'electronics/router', category: 'Electronics' },
-  { path: 'electronics/tablet', category: 'Electronics' },
-  { path: 'home/air-purifier', category: 'Home' },
-  { path: 'home/coffee-maker', category: 'Home' },
-  { path: 'office/desk-lamp', category: 'Office' },
-  { path: 'passives/diodes', category: 'Passives' },
-  { path: 'semiconductors/interface-ics', category: 'Semiconductors' },
-  { path: 'semiconductors/microcontrollers', category: 'Semiconductors' },
-  { path: 'tools/drill', category: 'Tools' },
-  { path: 'tools/saw', category: 'Tools' },
-  { path: 'tools/wrench-set', category: 'Tools' },
-  { path: 'wearables/earbuds', category: 'Wearables' },
-  { path: 'wearables/smartwatch', category: 'Wearables' },
+  { path: 'accessories/backpack', category: 'Accessories', taxonomyPath: 'Accessories > Bags > Backpacks' },
+  { path: 'accessories/cable', category: 'Accessories', taxonomyPath: 'Accessories > Cables > USB-C' },
+  { path: 'accessories/stand', category: 'Accessories', taxonomyPath: 'Accessories > Stands > Laptop' },
+  { path: 'audio/headphones', category: 'Audio', taxonomyPath: 'Audio > Headphones > Wireless' },
+  { path: 'audio/microphone', category: 'Audio', taxonomyPath: 'Audio > Microphones > USB' },
+  { path: 'audio/speaker', category: 'Audio', taxonomyPath: 'Audio > Speakers > Bluetooth' },
+  { path: 'components/headset', category: 'Components', taxonomyPath: 'Components > Headsets > Gaming' },
+  { path: 'components/mouse', category: 'Components', taxonomyPath: 'Components > Mice > Gaming' },
+  { path: 'components/ssd', category: 'Components', taxonomyPath: 'Components > Storage > SSD' },
+  { path: 'electronics/camera', category: 'Electronics', taxonomyPath: 'Electronics > Cameras > Mirrorless' },
+  { path: 'electronics/monitor', category: 'Electronics', taxonomyPath: 'Electronics > Monitors > 4K' },
+  { path: 'electronics/router', category: 'Electronics', taxonomyPath: 'Electronics > Networking > Routers' },
+  { path: 'electronics/tablet', category: 'Electronics', taxonomyPath: 'Electronics > Tablets > Premium' },
+  { path: 'home/air-purifier', category: 'Home', taxonomyPath: 'Home > Air Quality > Purifiers' },
+  { path: 'home/coffee-maker', category: 'Home', taxonomyPath: 'Home > Kitchen > Coffee Makers' },
+  { path: 'office/desk-lamp', category: 'Office', taxonomyPath: 'Office > Lighting > Desk Lamps' },
+  { path: 'passives/diodes', category: 'Passives', taxonomyPath: 'Passives > Diodes > Schottky' },
+  { path: 'semiconductors/interface-ics', category: 'Semiconductors', taxonomyPath: 'Semiconductors > Interface ICs > RS-485' },
+  {
+    path: 'semiconductors/microcontrollers',
+    category: 'Semiconductors',
+    taxonomyPath: 'Semiconductors > Microcontrollers > ARM Cortex-M4',
+  },
+  { path: 'tools/drill', category: 'Tools', taxonomyPath: 'Tools > Power Tools > Drills' },
+  { path: 'tools/saw', category: 'Tools', taxonomyPath: 'Tools > Power Tools > Saws' },
+  { path: 'tools/wrench-set', category: 'Tools', taxonomyPath: 'Tools > Hand Tools > Mechanic Sets' },
+  { path: 'wearables/earbuds', category: 'Wearables', taxonomyPath: 'Wearables > Earbuds > Premium' },
+  { path: 'wearables/smartwatch', category: 'Wearables', taxonomyPath: 'Wearables > Smartwatches > Premium' },
 ] as const;
 
-export function slugifyCategoryName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/&/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+export { slugifyCategoryName };
 
-/** Count demo products that match a category name via top-level category or path segment. */
+/** Count demo products that match a category name via top-level category or any taxonomy path segment. */
 export function countDemoProductsForCategory(name: string): number {
   const lower = name.toLowerCase();
   const slug = slugifyCategoryName(name);
@@ -42,6 +45,6 @@ export function countDemoProductsForCategory(name: string): number {
 
   return demoProductTaxonomy.filter((entry) => {
     if (entry.category.toLowerCase() === lower) return true;
-    return entry.path.split('/').includes(slug);
+    return [...toCategorySlugSegments(entry.path), ...toCategorySlugSegments(entry.taxonomyPath)].includes(slug);
   }).length;
 }
