@@ -37,16 +37,12 @@
     </div>
   </div>
   <Teleport to="body">
-    <Transition name="slide-from-right">
-      <LayoutAccountModal v-if="showAccountModal" @close="showAccountModal = false" />
-    </Transition>
+    <LayoutAccountModal v-if="showAccountModal" @close="showAccountModal = false" />
     <div
+      v-if="cartModal.show"
       class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] cursor-pointer transition-all duration-300 md:block"
-      :class="[showAccountModal || cartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
-      @click="
-        showAccountModal = false;
-        cartModal.show = false;
-      "
+      :class="[cartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
+      @click="cartModal.show = false"
     />
     <Transition name="slide-from-right">
       <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />

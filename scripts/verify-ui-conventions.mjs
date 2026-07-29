@@ -13,9 +13,6 @@ const ignoredDirectories = new Set(['.git', '.husky', '.nuxt', '.output', 'cover
 export const grandfatheredLegacyModalFiles = new Set([
   'components/dashboard/DeactivateUserModal.vue',
   'components/layout/SearchFiltersModal.vue',
-  'components/layout/account-modal/Form.vue',
-  'components/layout/account-modal/Index.vue',
-  'components/layout/account-modal/Links.vue',
   'components/layout/favorites-cart-modal/Index.vue',
   'components/order-summary/CreditInfoModal.vue',
   'components/order-summary/PaymentModal.vue',

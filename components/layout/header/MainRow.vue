@@ -143,18 +143,13 @@
     </Transition>
     <Transition name="fade">
       <div
-        v-if="showAccountModal || cartModal.show"
+        v-if="cartModal.show"
         class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] transition-opacity duration-300 cursor-pointer md:block"
-        :class="[showAccountModal || cartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
-        @click="
-          closeAccountModal();
-          cartModal.show = false;
-        "
+        :class="[cartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
+        @click="cartModal.show = false"
       />
     </Transition>
-    <Transition name="slide-from-right">
-      <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
-    </Transition>
+    <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
     <Transition name="slide-from-right">
       <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />
     </Transition>
