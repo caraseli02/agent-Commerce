@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #385 / PR #386 — optimistic add-to-cart; adversarial findings fixed locally (uncommitted).
+- Issue #351 / PR pending — deterministic Reset demo data flow on branch `feat/351-reset-demo-data`.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- PR #386 — adversarial hardening ready for commit/push (lint, typecheck, test, build PASS).
+- Issue #351 — reset demo data API, UI control, pricing disk persistence, Vitest + Playwright evidence; `pnpm verify` and `pnpm verify:full` PASS locally.
 
 ## Architecture note (cross-runtime cart pricing)
 
