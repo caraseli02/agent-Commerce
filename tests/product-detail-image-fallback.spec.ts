@@ -86,7 +86,7 @@ describe('product detail image fallback', () => {
 
     expect(source).toContain('useOptimizedImage');
     expect(source).toContain("startsWith('https://')");
-    expect(source).toContain('v-else-if="currentSrc !== \'fallback\'"');
+    expect(source).toContain(":is=\"useOptimizedImage ? 'NuxtImg' : 'img'\"");
   });
 
   it('keeps the product zoom modal on fallback-aware image rendering', () => {

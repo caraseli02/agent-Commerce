@@ -1,7 +1,8 @@
 <template>
   <div ref="rootRef" class="relative block min-h-0 min-w-0 overflow-hidden" :class="rootClass" v-bind="rootAttrs">
-    <NuxtImg
-      v-if="currentSrc !== 'fallback' && useOptimizedImage"
+    <component
+      :is="useOptimizedImage ? 'NuxtImg' : 'img'"
+      v-if="currentSrc !== 'fallback'"
       :src="currentSrc"
       :alt="alt"
       :class="mediaClass"
@@ -9,15 +10,6 @@
       @load="handleLoad"
       @error="handleError"
     />
-    <img
-      v-else-if="currentSrc !== 'fallback'"
-      :src="currentSrc"
-      :alt="alt"
-      :class="mediaClass"
-      loading="lazy"
-      @load="handleLoad"
-      @error="handleError"
-    >
     <div
       v-else
       role="img"
