@@ -43,6 +43,6 @@
 - Use this file only for durable cross-session state, not transient task notes.
 - Do not duplicate GitHub Issues here; mirror only the active issue/PR and baseline facts needed by the next session.
 
-## CI note (PR #410)
+## CI note (PR #409 / #410)
 
 - PR template CI gate fixed: verification outcomes, known-risks checkbox, evaluator rubric scores.
