@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CaretRightIcon from '@/assets/icons/caret-right.svg';
-import type { ProductDetail } from '~/model/products/response/ProductDetailResponse';
+import type { ProductDetail } from '~/types/product';
 import { buildCategoryCrumbs, getProductTaxonomyPath } from '~/helpers/categoryPath.helper';
 
 const props = defineProps<{

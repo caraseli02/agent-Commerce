@@ -1,4 +1,4 @@
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 
 type FeaturedProductsLoader = () => Promise<unknown>;
 

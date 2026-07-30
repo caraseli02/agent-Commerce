@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
-import type { ProductDetail } from '~/model/products/response/ProductDetailResponse';
+import type { ProductDetail } from '~/types/product';
 
 const productPagePath = resolve('pages/product/[slug].vue');
 
@@ -19,6 +19,7 @@ describe('product detail useAsyncData contract', () => {
     expect(productPage).toContain('v-else-if="error"');
     expect(productPage).toContain('role="alert"');
     expect(productPage).not.toContain('const product = ref<ProductDetail | null>(null)');
+    expect(productPage).not.toContain('as unknown as ProductInterface');
   });
 
   it('builds deterministic cache keys from slug values', () => {

@@ -85,7 +85,7 @@ import { SquarePen } from 'lucide-vue-next';
 import CADModelsIcon from '@/assets/icons/cad-models.svg';
 import PDFIcon from '@/assets/icons/pdf.svg';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import type { ProductDetail } from '~~/model/products/response/ProductDetailResponse';
+import type { ProductDetail } from '~/types/product';
 
 const props = defineProps<{
   product: ProductDetail;

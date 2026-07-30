@@ -63,7 +63,7 @@
             @show-zoom-modal="showZoomGallery = true"
           />
           <ProductDetails class="col-span-2 min-w-0 lg:col-span-1" :product="product" />
-          <ProductQuantity :product="product as unknown as ProductInterface" />
+          <ProductQuantity :product="product" />
         </div>
         <LazyProductTable :features="product?.details?.ParametricData?.Features" />
       </div>
@@ -92,8 +92,7 @@
 <script setup lang="ts">
 import { MoreVertical, PrinterIcon } from 'lucide-vue-next';
 
-import type { ProductDetail } from '~~/model/products/response/ProductDetailResponse';
-import type { ProductImageInterface, ProductInterface } from '~~/model/products/response/ProductResponse';
+import type { ProductDetail, ProductImageInterface } from '~/types/product';
 import { fetchSingleProduct } from '~/composables/api/products';
 import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
 

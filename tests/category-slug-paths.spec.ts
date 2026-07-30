@@ -14,7 +14,7 @@ import {
 import { buildDemoTaxonomyTree, mapDemoCategoryNode } from '../data/demoTaxonomyTree';
 import { findCategoryByPath } from '../helpers/categories.helper';
 import { mockProducts } from '../server/utils/mockProducts';
-import type { ProductInterface } from '../model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 import type { TaxonomyInterface } from '../types/dashboard/categories';
 
 vi.mock('~/store/categoriesStore', () => ({
