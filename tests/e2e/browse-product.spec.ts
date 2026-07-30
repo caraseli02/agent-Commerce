@@ -321,4 +321,12 @@ test.describe('Browse → Product Detail', () => {
     await expect(page.getByRole('link', { name: 'Microcontrollers' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'ARM Cortex-M4' })).toBeVisible();
   });
+
+  test('missing product slug shows an explicit error state with retry and catalog CTA', async ({ page }) => {
+    await page.goto('/product/not-a-real-product-slug');
+
+    await expect(page.getByRole('alert')).toContainText('We could not load this product');
+    await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Browse catalog' })).toBeVisible();
+  });
 });
