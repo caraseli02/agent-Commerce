@@ -1,10 +1,7 @@
 <template>
-  <div class="flex flex-col min-h-screen app-scroll">
-    <LayoutHeader :is-scrolled="isScrolled" />
-    <main
-      class="flex flex-col pt-[var(--mobile-header-height,100px)] flex-1 md:pt-[112px] lg:pt-[180px] xl:pt-[176px]"
-      :class="[isScrolled ? 'md:pt-[170px]' : 'md:pt-[172px]']"
-    >
+  <div class="app-scroll flex min-h-screen flex-col">
+    <LayoutHeader />
+    <main class="flex flex-1 flex-col pt-[var(--mobile-header-height,100px)] md:pt-[110px]">
       <slot />
     </main>
     <LayoutFooter />
@@ -19,15 +16,6 @@ import { Toaster } from '@/components/ui/toast';
 
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
-const isScrolled = ref(false);
-
-const handleScroll = () => {
-  if (window.scrollY) {
-    isScrolled.value = true;
-  } else {
-    isScrolled.value = false;
-  }
-};
 
 const calcViewportHeight = () => {
   if (typeof window !== 'undefined') {
@@ -48,15 +36,8 @@ const calcViewportHeight = () => {
 };
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
   calcViewportHeight();
   document.addEventListener('touchstart', function () {}, true);
-});
-
-onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('scroll', handleScroll);
-  }
 });
 </script>
 
