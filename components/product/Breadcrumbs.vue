@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import CaretRightIcon from '@/assets/icons/caret-right.svg';
 import type { ProductDetail } from '~/model/products/response/ProductDetailResponse';
-import { buildCategoryCrumbs } from '~/helpers/categoryPath.helper';
+import { buildCategoryCrumbs, getProductTaxonomyPath } from '~/helpers/categoryPath.helper';
 
 const props = defineProps<{
   product: ProductDetail;
 }>();
 
-const product = toRefs(props.product);
-
 // TaxonomyPath names drive the links; each crumb keeps its own slug path so it browses that level.
-const taxonomyCrumbs = computed(() => buildCategoryCrumbs(product.details?.value?.SummaryData?.TaxonomyPath?.split('>') ?? []));
+const taxonomyCrumbs = computed(() => {
+  const taxonomyPath = getProductTaxonomyPath(props.product);
+  return buildCategoryCrumbs(taxonomyPath ? taxonomyPath.split('>') : []);
+});
 </script>
 
 <template>

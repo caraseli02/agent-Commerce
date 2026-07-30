@@ -4,6 +4,7 @@ import {
   buildCategorySlugPath,
   buildSlugPathCrumbs,
   categoryBrowseUrl,
+  getProductTaxonomyPath,
   humanizeCategorySlug,
   matchesCategoryPath,
   normalizeCategoryPath,
@@ -30,7 +31,7 @@ const asCategorySource = (product: ProductInterface) => ({
   path: product.path,
   category: product.category,
   alias: product.alias,
-  taxonomyPath: product.details?.SummaryData?.TaxonomyPath,
+  taxonomyPath: getProductTaxonomyPath(product),
 });
 
 const filterByCategory = (category: string) =>
@@ -51,6 +52,13 @@ describe('category slug paths', () => {
 
       expect(buildCategorySlugPath(['Semiconductors', 'Interface ICs'])).toBe('semiconductors/interface-ics');
       expect(humanizeCategorySlug('air-purifier')).toBe('Air Purifier');
+      expect(humanizeCategorySlug('arm-cortex-m4')).toBe('Arm Cortex-M4');
+      expect(humanizeCategorySlug('usb-c')).toBe('USB-C');
+      expect(humanizeCategorySlug('rs-485')).toBe('RS-485');
+      expect(getProductTaxonomyPath({ details: { SummaryData: { TaxonomyPath: 'Audio > Microphone > USB' } } })).toBe(
+        'Audio > Microphone > USB'
+      );
+      expect(getProductTaxonomyPath({ taxonomyPath: 'Audio > Speaker > Bluetooth' })).toBe('Audio > Speaker > Bluetooth');
     });
 
     it('builds crumbs that each keep their own ancestor path', () => {
@@ -63,6 +71,12 @@ describe('category slug paths', () => {
       expect(buildSlugPathCrumbs('audio/air-purifier')).toEqual([
         { name: 'Audio', path: 'audio' },
         { name: 'Air Purifier', path: 'audio/air-purifier' },
+      ]);
+
+      expect(buildSlugPathCrumbs('semiconductors/microcontrollers/arm-cortex-m4')).toEqual([
+        { name: 'Semiconductors', path: 'semiconductors' },
+        { name: 'Microcontrollers', path: 'semiconductors/microcontrollers' },
+        { name: 'Arm Cortex-M4', path: 'semiconductors/microcontrollers/arm-cortex-m4' },
       ]);
 
       expect(buildSlugPathCrumbs('audio/headphones', (path) => (path === 'audio/headphones' ? 'Headphones' : undefined))).toEqual([
@@ -207,10 +221,18 @@ describe('category slug paths', () => {
       expect(deepLeaf.total_items).toBe(1);
     });
 
-    it('still resolves a legacy category name link', async () => {
+    it('still resolves a legacy category name link via slug normalization', async () => {
       const byName = await searchWith({ category: 'Audio' });
       expect(byName.total_items).toBe(3);
       expect(byName.items.every((product) => product.path?.startsWith('audio/'))).toBe(true);
+    });
+
+    it('does not treat a non-category substring as a keyword search', async () => {
+      const byUsb = await searchWith({ category: 'usb' });
+      expect(byUsb.total_items).toBe(0);
+
+      const byCortex = await searchWith({ category: 'cortex' });
+      expect(byCortex.total_items).toBe(0);
     });
 
     it('keeps the keyword filter independent from the category filter', async () => {

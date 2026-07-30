@@ -243,7 +243,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-spk-005.pdf',
-        TaxonomyPath: 'Audio > Speakers > Bluetooth',
+        TaxonomyPath: 'Audio > Speaker > Bluetooth',
         TaxonomyPathIDs: 'cat-004,cat-041,cat-071',
         SmallImageURL: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=200',
         PartDescription: '20W output, IPX5 water resistant, 12hr battery',
@@ -295,7 +295,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-tab-006.pdf',
-        TaxonomyPath: 'Electronics > Tablets > Premium',
+        TaxonomyPath: 'Electronics > Tablet > Premium',
         TaxonomyPathIDs: 'cat-001,cat-013,cat-046',
         SmallImageURL: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=200',
         PartDescription: '11" OLED display, 256GB storage, Apple Pencil support',
@@ -347,7 +347,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-mou-007.pdf',
-        TaxonomyPath: 'Components > Mice > Gaming',
+        TaxonomyPath: 'Components > Mouse > Gaming',
         TaxonomyPathIDs: 'cat-003,cat-031,cat-061',
         SmallImageURL: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200',
         PartDescription: '16000 DPI, RGB lighting, Wireless',
@@ -399,7 +399,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-swa-008.pdf',
-        TaxonomyPath: 'Wearables > Smartwatches > Premium',
+        TaxonomyPath: 'Wearables > Smartwatch > Premium',
         TaxonomyPathIDs: 'cat-005,cat-050,cat-080',
         SmallImageURL: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200',
         PartDescription: 'Heart rate monitor, GPS, 7-day battery',
@@ -451,7 +451,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-mon-009.pdf',
-        TaxonomyPath: 'Electronics > Monitors > 4K',
+        TaxonomyPath: 'Electronics > Monitor > 4K',
         TaxonomyPathIDs: 'cat-001,cat-015,cat-047',
         SmallImageURL: 'https://images.unsplash.com/photo-15274432447-61538bfe3de1?w=200',
         PartDescription: '27" IPS, HDR10, 144Hz, USB-C',
@@ -503,7 +503,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-drill-010.pdf',
-        TaxonomyPath: 'Tools > Power Tools > Drills',
+        TaxonomyPath: 'Tools > Power Tools > Drill',
         TaxonomyPathIDs: 'cat-006,cat-060,cat-090',
         SmallImageURL: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=200',
         PartDescription: '20V lithium-ion, Brushless motor, 2-speed',
@@ -607,7 +607,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-cam-012.pdf',
-        TaxonomyPath: 'Electronics > Cameras > Mirrorless',
+        TaxonomyPath: 'Electronics > Camera > Mirrorless',
         TaxonomyPathIDs: 'cat-001,cat-018,cat-048',
         SmallImageURL: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200',
         PartDescription: '24.2MP, 4K video, In-body stabilization',
@@ -659,7 +659,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-saw-013.pdf',
-        TaxonomyPath: 'Tools > Power Tools > Saws',
+        TaxonomyPath: 'Tools > Power Tools > Saw',
         TaxonomyPathIDs: 'cat-006,cat-062,cat-092',
         SmallImageURL: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200',
         PartDescription: '7-1/4" blade, 15A motor, Laser guide',
@@ -815,7 +815,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-lamp-016.pdf',
-        TaxonomyPath: 'Office > Lighting > Desk Lamps',
+        TaxonomyPath: 'Office > Lighting > Desk Lamp',
         TaxonomyPathIDs: 'cat-008,cat-080,cat-100',
         SmallImageURL: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=200',
         PartDescription: 'LED, Adjustable, Touch controls, USB charging',
@@ -867,7 +867,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-cfe-017.pdf',
-        TaxonomyPath: 'Home > Kitchen > Coffee Makers',
+        TaxonomyPath: 'Home > Kitchen > Coffee Maker',
         TaxonomyPathIDs: 'cat-009,cat-090,cat-110',
         SmallImageURL: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200',
         PartDescription: '12-cup, Programmable, Thermal carafe, Pause function',
@@ -919,7 +919,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-hst-018.pdf',
-        TaxonomyPath: 'Components > Headsets > Gaming',
+        TaxonomyPath: 'Components > Headset > Gaming',
         TaxonomyPathIDs: 'cat-003,cat-033,cat-064',
         SmallImageURL: 'https://images.unsplash.com/photo-15996694526431-34036b9fbc95?w=200',
         PartDescription: '7.1 surround, Noise-canceling mic, RGB lighting',
@@ -971,7 +971,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-apu-019.pdf',
-        TaxonomyPath: 'Home > Air Quality > Purifiers',
+        TaxonomyPath: 'Home > Air Quality > Purifier',
         TaxonomyPathIDs: 'cat-009,cat-092,cat-112',
         SmallImageURL: 'https://images.unsplash.com/photo-1585771724684-38269d663d92?w=200',
         PartDescription: 'HEPA filter, Smart app, 400 sqft coverage',
@@ -1023,7 +1023,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-rtr-020.pdf',
-        TaxonomyPath: 'Electronics > Networking > Routers',
+        TaxonomyPath: 'Electronics > Networking > Router',
         TaxonomyPathIDs: 'cat-001,cat-025,cat-057',
         SmallImageURL: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=200',
         PartDescription: 'WiFi 6, AX3000, Mesh compatible, 4x Gigabit',
@@ -1179,7 +1179,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-tls-023.pdf',
-        TaxonomyPath: 'Tools > Hand Tools > Mechanic Sets',
+        TaxonomyPath: 'Tools > Hand Tools > Mechanic Set',
         TaxonomyPathIDs: 'cat-006,cat-065,cat-094',
         SmallImageURL: 'https://images.unsplash.com/photo-1530124566582-a618bc26b5b9?w=200',
         PartDescription: '120 pieces, Chrome-vanadium, Organizer case',
@@ -1231,7 +1231,7 @@ export const mockProducts = [
     details: {
       SummaryData: {
         Datasheet: 'datasheet-mic-024.pdf',
-        TaxonomyPath: 'Audio > Microphones > USB',
+        TaxonomyPath: 'Audio > Microphone > USB',
         TaxonomyPathIDs: 'cat-004,cat-043,cat-073',
         SmallImageURL: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=200',
         PartDescription: 'Cardioid pattern, Plug-and-play, Pop filter included',

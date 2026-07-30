@@ -24,12 +24,38 @@ export function slugifyCategoryName(name: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+function capitalizeSlugToken(word: string): string {
+  const lower = word.toLowerCase();
+  return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+}
+
+/**
+ * Turn a slug segment into a display label. Keeps model/version hyphens so
+ * `arm-cortex-m4` → `Arm Cortex-M4` and `usb-c` → `USB-C` instead of splitting them apart.
+ */
 export function humanizeCategorySlug(slug: string): string {
-  return String(slug ?? '')
+  const parts = String(slug ?? '')
     .split('-')
     .filter(Boolean)
-    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
-    .join(' ');
+    .map(capitalizeSlugToken);
+
+  const merged: string[] = [];
+  for (const part of parts) {
+    const prev = merged[merged.length - 1];
+    const lower = part.toLowerCase();
+    const attachWithHyphen =
+      Boolean(prev) && (/^\d/.test(lower) || /^[a-z]\d/i.test(lower) || (/^[a-z]$/i.test(lower) && prev.length <= 4));
+
+    if (attachWithHyphen) {
+      // Short left-hand tokens in a hyphen join are usually acronyms (USB-C, RS-485).
+      const left = prev.length <= 3 && /^[a-z]+$/i.test(prev) ? prev.toUpperCase() : prev;
+      merged[merged.length - 1] = `${left}-${part}`;
+    } else {
+      merged.push(part);
+    }
+  }
+
+  return merged.join(' ');
 }
 
 /** Split a slug path (`a/b`) or a taxonomy label chain (`A > B`) into slug segments. */
@@ -91,6 +117,31 @@ export function categoryBrowseUrl(category: { path?: string | null; name?: strin
 
 function isPathPrefix(prefix: string, candidate: string): boolean {
   return Boolean(prefix) && (candidate === prefix || candidate.startsWith(`${prefix}/`));
+}
+
+/**
+ * Read the display taxonomy path without forcing callers to know the product detail shape.
+ * Prefers an explicit `taxonomyPath` index field, then `details.SummaryData.TaxonomyPath`.
+ */
+export function getProductTaxonomyPath(
+  product:
+    | {
+        taxonomyPath?: string | null;
+        details?: { SummaryData?: { TaxonomyPath?: string | null } | null } | null;
+      }
+    | null
+    | undefined
+): string {
+  if (!product) {
+    return '';
+  }
+
+  const indexed = product.taxonomyPath;
+  if (indexed != null && String(indexed).trim()) {
+    return String(indexed).trim();
+  }
+
+  return String(product.details?.SummaryData?.TaxonomyPath ?? '').trim();
 }
 
 /** Slug paths a product can be reached by, most specific first. */
