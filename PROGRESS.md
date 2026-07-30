@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- No active issue or PR. Pick the next `ready-for-agent` issue from GitHub.
+- Issue #399 / PR pending — reduce Swiper weight on home merchandising (News + Manufacturers migrated to CSS grid/flex).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- None.
+- Issue #399 on branch `feat/399-reduce-swiper-weight` (label claim may need manual apply from automation token).
 
 ## Architecture note (cross-runtime cart pricing)
 
