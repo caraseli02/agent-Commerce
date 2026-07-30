@@ -2,26 +2,8 @@
   <section class="mb-7 md:mb-[38px] xl:mb-[58px]">
     <div class="container">
       <h2 class="text-xl font-semibold mb-[11px] md:mb-4">News</h2>
-      <Swiper
-        :modules="[A11y, Pagination]"
-        :slides-per-view="3"
-        :space-between="15"
-        :grab-cursor="true"
-        :pagination="{
-          bulletElement: 'button',
-          clickable: true,
-        }"
-        :breakpoints="{
-          768: {
-            spaceBetween: 20,
-          },
-          1280: {
-            slidesPerView: 4,
-          },
-        }"
-        class="homeNews--swiper"
-      >
-        <SwiperSlide v-for="(item, index) in news" :key="index">
+      <ul class="grid grid-cols-1 gap-[15px] px-1 pt-1 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+        <li v-for="(item, index) in news" :key="index">
           <NuxtLink :to="`/`" class="flex flex-col rounded-md bg-white shadow-xs">
             <ImageWithFallback
               :src="item.cover"
@@ -41,14 +23,13 @@
               </div>
             </div>
           </NuxtLink>
-        </SwiperSlide>
-      </Swiper>
+        </li>
+      </ul>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { A11y, Pagination } from 'swiper';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import NewsCover1 from '@/assets/media/home/news-1.jpg';
 import NewsCover2 from '@/assets/media/home/news-2.jpg';
@@ -81,19 +62,3 @@ const news = ref([
   },
 ]);
 </script>
-
-<style lang="scss">
-.homeNews--swiper {
-  @apply px-1 pt-1 pb-[30px] #{!important};
-}
-.homeNews--swiper .swiper-pagination {
-  @apply bottom-0  space-x-1.5 md:space-x-2 #{!important};
-}
-.homeNews--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-gray-200  rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
-  margin-right: 0 !important;
-}
-.homeNews--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-gray-300 #{!important};
-}
-</style>

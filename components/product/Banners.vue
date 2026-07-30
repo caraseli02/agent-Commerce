@@ -12,11 +12,7 @@
               <h2 class="font-semibold md:text-[32px] lg:text-2xl xl:text-[32px]">Quote-ready parts for active orders</h2>
             </div>
           </div>
-          <ImageWithFallback
-            :src="Banner1Item"
-            alt="Banner"
-            class-name="relative z-20 w-[100px] object-contain md:w-[175px]"
-          />
+          <ImageWithFallback :src="Banner1Item" alt="Banner" class-name="relative z-20 w-[100px] object-contain md:w-[175px]" />
           <ImageWithFallback
             :src="Banner1Bg"
             alt=""
@@ -33,11 +29,7 @@
               <h2 class="font-semibold text-white md:text-[32px] lg:text-2xl xl:text-[32px]">Compare inventory and pricing in one place</h2>
             </div>
           </div>
-          <ImageWithFallback
-            :src="Banner2Item"
-            alt="Banner"
-            class-name="relative z-20 w-[100px] object-contain md:w-[175px]"
-          />
+          <ImageWithFallback :src="Banner2Item" alt="Banner" class-name="relative z-20 w-[100px] object-contain md:w-[175px]" />
           <ImageWithFallback
             :src="Banner2Bg"
             alt=""

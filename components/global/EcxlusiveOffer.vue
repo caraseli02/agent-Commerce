@@ -33,11 +33,7 @@
             class-name="absolute bottom-7 right-4 z-20 w-[170px] object-contain md:left-[unset] md:right-[30px] md:w-[188px] md:translate-x-0 lg:right-5 lg:w-[185px] xl:right-[15px] xl:bottom-[75px] xl:w-[300px]"
           />
         </div>
-        <ImageWithFallback
-          :src="item.bg"
-          alt=""
-          class-name="absolute top-0 left-0 h-full w-full rounded-md object-cover"
-        />
+        <ImageWithFallback :src="item.bg" alt="" class-name="absolute top-0 left-0 h-full w-full rounded-md object-cover" />
         <div class="absolute z-10 top-0 left-0 w-full h-full opacity-90 rounded-md pointer-events-none bg-slate-900" />
       </SwiperSlide>
     </Swiper>

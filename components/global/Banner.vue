@@ -16,11 +16,7 @@
           alt="Banner"
           class-name="absolute bottom-4 right-4 z-20 w-[86px] object-contain md:relative md:bottom-auto md:right-auto md:w-[166px] xl:w-[210px]"
         />
-        <ImageWithFallback
-          :src="BannerBg"
-          alt=""
-          class-name="absolute top-0 left-0 h-full w-full rounded-md object-cover"
-        />
+        <ImageWithFallback :src="BannerBg" alt="" class-name="absolute top-0 left-0 h-full w-full rounded-md object-cover" />
       </div>
     </div>
   </section>
