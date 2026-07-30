@@ -21,7 +21,7 @@
           />
           <div class="flex items-center gap-3 md:ml-4 md:gap-6 lg:gap-9">
             <button
-              class="flex items-center xl:hidden"
+              class="flex min-h-11 min-w-11 items-center justify-center xl:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex']"
               aria-label="Search products"
               @click="showMobileSearch = true"
@@ -41,7 +41,7 @@
             </div>
             <button
               type="button"
-              class="hidden flex-col items-center justify-center max-md:hidden"
+              class="hidden min-h-11 min-w-11 flex-col items-center justify-center max-md:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:flex' : 'md:flex']"
               aria-label="Open my account"
               @click="openAccountModal()"
@@ -50,7 +50,7 @@
               <span class="hidden text-xs font-medium leading-[1.33] text-primary-foreground xl:inline-block"> My Account </span>
             </button>
             <button
-              class="relative flex items-center text-left"
+              class="relative flex min-h-11 min-w-11 items-center gap-2 text-left"
               :class="[showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
               aria-label="Open shopping cart"
               @click="openCartModal()"
@@ -67,7 +67,7 @@
                 </span>
               </div>
               <div
-                class="ml-2 hidden min-w-[6.5rem] shrink-0 flex-col justify-center text-primary-foreground tabular-nums md:flex"
+                class="hidden min-w-[6.5rem] shrink-0 flex-col justify-center text-primary-foreground tabular-nums md:flex"
                 :class="showCartTotal ? 'visible' : 'invisible'"
                 :aria-hidden="!showCartTotal"
               >
