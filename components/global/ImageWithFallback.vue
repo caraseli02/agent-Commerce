@@ -1,6 +1,7 @@
 <template>
   <div ref="rootRef" class="relative block min-h-0 min-w-0 overflow-hidden" :class="rootClass" v-bind="rootAttrs">
-    <NuxtImg
+    <component
+      :is="useOptimizedImage ? 'NuxtImg' : 'img'"
       v-if="currentSrc !== 'fallback'"
       :src="currentSrc"
       :alt="alt"
@@ -57,6 +58,15 @@ function normalizeImageSrc(src?: string | null) {
 }
 
 const currentSrc = ref<string | 'fallback'>(normalizeImageSrc(props.src));
+
+const useOptimizedImage = computed(() => {
+  if (currentSrc.value === 'fallback') {
+    return false;
+  }
+
+  const src = currentSrc.value;
+  return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('//');
+});
 
 watch(
   () => props.src,

@@ -8,8 +8,7 @@
           :key="index"
           class="flex min-h-[64px] items-center justify-center rounded-md border border-slate-200 bg-white px-4"
         >
-          <!-- eslint-disable-next-line vue/html-self-closing -->
-          <img :src="logo" alt="Logo" class="max-h-8 max-w-full object-contain" loading="lazy" />
+          <ImageWithFallback :src="logo" alt="Manufacturer logo" class-name="max-h-8 max-w-full object-contain" />
         </div>
       </div>
       <Swiper
@@ -35,7 +34,11 @@
         class="homeManufacturers--swiper swiper-visible mb-2.5 hidden md:block lg:px-[14px] xl:px-9 xl:mb-[15px]"
       >
         <SwiperSlide v-for="(logo, index) in logos" :key="index" class="max-w-max md:max-w-max">
-          <img :src="logo" alt="Logo" class="h-6 object-contain md:h-[30px] lg:h-10 xl:h-[55px]" loading="lazy" >
+          <ImageWithFallback
+            :src="logo"
+            alt="Manufacturer logo"
+            class-name="h-6 object-contain md:h-[30px] lg:h-10 xl:h-[55px]"
+          />
         </SwiperSlide>
       </Swiper>
       <NuxtLink
@@ -50,6 +53,7 @@
 
 <script setup lang="ts">
 import { A11y, Autoplay } from 'swiper';
+import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import MicrochipLogo from '@/assets/media/home/microchip.png';
 import TDKLogo from '@/assets/media/home/tdk.png';
 import DigiKeyLogo from '@/assets/media/home/digi-key.png';
