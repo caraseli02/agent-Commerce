@@ -19,9 +19,9 @@
             :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
             @blur="showMobileSearch = false"
           />
-          <div class="flex items-start gap-3 md:ml-4 md:gap-6 lg:gap-9">
+          <div class="flex items-center gap-3 md:ml-4 md:gap-6 lg:gap-9">
             <button
-              class="flex items-center xl:hidden"
+              class="flex min-h-11 min-w-11 items-center justify-center xl:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex']"
               aria-label="Search products"
               @click="showMobileSearch = true"
@@ -29,7 +29,7 @@
               <SearchIcon class="h-6 w-6 text-primary-foreground xl:mr-2" />
               <span class="hidden font-medium leading-normal text-primary-foreground xl:inline-block"> Search </span>
             </button>
-            <div class="relative hidden items-start max-md:hidden" :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex']">
+            <div class="relative hidden items-center max-md:hidden" :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex']">
               <ClientOnly>
                 <LazyNotifications
                   :notifications="notifications"
@@ -41,7 +41,7 @@
             </div>
             <button
               type="button"
-              class="hidden flex-col items-center max-md:hidden"
+              class="hidden min-h-11 min-w-11 flex-col items-center justify-center max-md:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:flex' : 'md:flex']"
               aria-label="Open my account"
               @click="openAccountModal()"
@@ -50,7 +50,7 @@
               <span class="hidden text-xs font-medium leading-[1.33] text-primary-foreground xl:inline-block"> My Account </span>
             </button>
             <button
-              class="relative flex items-start text-left"
+              class="relative flex min-h-11 min-w-11 items-center gap-2 text-left"
               :class="[showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
               aria-label="Open shopping cart"
               @click="openCartModal()"
@@ -67,12 +67,12 @@
                 </span>
               </div>
               <div
-                class="ml-2 hidden min-w-[6.5rem] shrink-0 flex-col text-primary-foreground tabular-nums md:flex"
+                class="hidden min-w-[6.5rem] shrink-0 flex-col justify-center text-primary-foreground tabular-nums md:flex"
                 :class="showCartTotal ? 'visible' : 'invisible'"
                 :aria-hidden="!showCartTotal"
               >
-                <div class="leading-6 font-medium">{{ formattedCartTotal }}</div>
-                <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
+                <div class="text-sm font-medium leading-5">{{ formattedCartTotal }}</div>
+                <div class="text-[10px] leading-4">(ex VAT)</div>
               </div>
             </button>
           </div>
@@ -121,18 +121,13 @@
     </Transition>
     <Transition name="fade">
       <div
-        v-if="showAccountModal || cartModal.show"
-        class="fixed top-0 left-0 z-[60] hidden h-full w-full cursor-pointer bg-[rgba(47,50,65,0.10)] transition-opacity duration-300 md:block"
-        :class="[showAccountModal || cartModal.show ? 'backdrop-blur-[7.5px]' : 'pointer-events-none opacity-0 backdrop-blur-none']"
-        @click="
-          closeAccountModal();
-          cartModal.show = false;
-        "
+        v-if="cartModal.show"
+        class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] transition-opacity duration-300 cursor-pointer md:block"
+        :class="[cartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
+        @click="cartModal.show = false"
       />
     </Transition>
-    <Transition name="slide-from-right">
-      <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
-    </Transition>
+    <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
     <Transition name="slide-from-right">
       <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />
     </Transition>

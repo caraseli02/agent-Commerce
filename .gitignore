@@ -9,6 +9,7 @@ coverage/
 dist
 .eslintcache
 tmp/
+test-results/
 .data/
 .DS_Store
 pr-body.md

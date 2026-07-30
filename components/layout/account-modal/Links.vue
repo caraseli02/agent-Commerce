@@ -9,10 +9,12 @@
       <component :is="IconApps" class="w-6 h-6" />
       <div class="transition-all text-sm font-medium leading-6 whitespace-nowrap">Dashboard</div>
     </NuxtLink>
-    <button
+    <UiButton
       v-for="(menuItem, index) in menuActions"
       :key="index"
-      class="w-full items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg hover:bg-zinc-100 text-neutral-800 hover:text-blue-500"
+      type="button"
+      variant="ghost"
+      class="w-full items-stretch justify-start gap-3 rounded-lg py-3 pl-3 pr-20 text-neutral-800 hover:bg-zinc-100 hover:text-blue-500"
       @click="emit('close'), menuItem.action()"
     >
       <component :is="menuItem.icon" class="w-6 h-6" />
@@ -25,7 +27,7 @@
       >
         {{ unreadNotifications }}
       </div>
-    </button>
+    </UiButton>
     <NuxtLink
       v-for="(menuItem, index) in menuLinks"
       :key="index"

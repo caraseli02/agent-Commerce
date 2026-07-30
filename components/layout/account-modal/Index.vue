@@ -1,27 +1,29 @@
 <template>
-  <div class="fixed z-[60] inset-0 w-screen h-screen pointer-events-none">
-    <div
-      ref="panelRef"
-      role="dialog"
-      aria-modal="true"
-      :aria-labelledby="titleId"
-      class="relative z-10 flex flex-col ml-auto w-full h-full min-height bg-white max-h-vh pointer-events-auto overflow-y-auto md:w-[440px]"
+  <UiSheet :open="isOpen" @update:open="onOpenChange">
+    <UiSheetContent
+      side="right"
+      hidde-close-button
+      overlay-class-name="z-[60] bg-[rgba(47,50,65,0.10)] backdrop-blur-[7.5px]"
+      class="z-[60] flex h-full w-full max-w-none flex-col gap-0 overflow-y-auto border-none p-0 shadow-none scrollbar-thin md:w-[440px] sm:max-w-none min-h-[100dvh]"
+      @open-auto-focus="handleOpenAutoFocus"
     >
       <header
         class="sticky top-0 z-20 flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 py-3 md:px-6"
       >
-        <h2 :id="titleId" class="truncate text-lg font-semibold text-neutral-800">
+        <UiSheetTitle class="truncate text-lg font-semibold text-neutral-800">
           {{ loggedInUser ? 'Your account' : 'Sign in' }}
-        </h2>
-        <button
-          ref="closeButtonRef"
-          type="button"
-          aria-label="Close account panel"
-          class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-light-300 transition-colors duration-300 hover:bg-light-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-          @click="emit('close')"
-        >
-          <XIcon class="h-5 w-5 text-gray-600 hover:text-blue-500" />
-        </button>
+        </UiSheetTitle>
+        <UiSheetClose as-child>
+          <UiButton
+            ref="closeButtonRef"
+            variant="ghost"
+            size="icon"
+            class="inline-flex h-11 w-11 shrink-0 rounded-lg bg-light-300 hover:bg-light-400"
+            aria-label="Close account panel"
+          >
+            <XIcon class="h-5 w-5 text-gray-600 hover:text-blue-500" />
+          </UiButton>
+        </UiSheetClose>
       </header>
 
       <div class="flex flex-1 flex-col px-4 py-4 md:px-6 md:py-5">
@@ -47,16 +49,14 @@
             <LayoutAccountModalLinks @close="emit('close')" />
           </div>
           <div class="mt-auto flex flex-col gap-6 pb-2.5 pt-6 text-center text-xs text-gray-300">
-            <button
-              type="button"
-              class="sticky bottom-0 flex min-h-11 w-full flex-col items-center justify-center self-stretch rounded-lg border-[1.5px] border-solid border-blue-500 px-16 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            <UiButton
+              variant="outline"
+              class="sticky bottom-0 min-h-11 w-full border-[1.5px] border-blue-500 px-16 py-2 text-base font-medium leading-7 text-blue-500 hover:bg-blue-50"
               @click="handleSignOut"
             >
-              <div class="flex items-center gap-2">
-                <SignOutIcon class="h-6 w-6" />
-                <div class="grow self-stretch whitespace-nowrap text-base font-medium leading-7 text-blue-500">Sign Out</div>
-              </div>
-            </button>
+              <SignOutIcon class="mr-2 h-6 w-6" />
+              Sign Out
+            </UiButton>
             <p class="flex items-center justify-center gap-2 text-slate-500">
               <SvgoMenuHelp class="h-4 w-4 text-xs text-slate-500" />
               For assistance please contact
@@ -65,8 +65,8 @@
           </div>
         </section>
       </div>
-    </div>
-  </div>
+    </UiSheetContent>
+  </UiSheet>
 </template>
 
 <script setup lang="ts">
@@ -81,48 +81,30 @@ const emit = defineEmits<{
 }>();
 const authStore = useAuthStore();
 const { loggedInUser } = storeToRefs(authStore);
-const panelRef = ref<HTMLElement | null>(null);
-const closeButtonRef = ref<HTMLButtonElement | null>(null);
-const previouslyFocusedElement = ref<HTMLElement | null>(null);
-const titleId = useId();
+const isOpen = ref(true);
+const closeButtonRef = ref<HTMLElement | null>(null);
 
-const getFocusableElements = () => {
-  return Array.from(
-    panelRef.value?.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    ) || []
-  );
+const focusCloseButton = () => {
+  const target = closeButtonRef.value;
+  const element = target instanceof HTMLElement ? target : (target as { $el?: HTMLElement } | null)?.$el;
+  element?.focus();
 };
 
-const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
-    event.preventDefault();
+const handleOpenAutoFocus = (event: Event) => {
+  event.preventDefault();
+  nextTick(() => focusCloseButton());
+};
+
+const onOpenChange = (open: boolean) => {
+  isOpen.value = open;
+
+  if (!open) {
     emit('close');
-    return;
-  }
-
-  if (event.key !== 'Tab') {
-    return;
-  }
-
-  const focusableElements = getFocusableElements();
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  if (!firstElement || !lastElement) {
-    return;
-  }
-
-  if (event.shiftKey && document.activeElement === firstElement) {
-    event.preventDefault();
-    lastElement.focus();
-  } else if (!event.shiftKey && document.activeElement === lastElement) {
-    event.preventDefault();
-    firstElement.focus();
   }
 };
 
 const handleSignedIn = () => {
+  isOpen.value = false;
   emit('close');
 };
 
@@ -130,31 +112,8 @@ const handleSignOut = async () => {
   authStore.signOut();
   await authStore.firebaseSignOut();
   setTimeout(() => {
+    isOpen.value = false;
     emit('close');
   }, 200);
 };
-
-onMounted(() => {
-  previouslyFocusedElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  document.body.style.overflow = 'hidden';
-  document.body.style.maxHeight = '100vh';
-  documentUtil.toggleBodyScroll();
-  document.addEventListener('keydown', handleKeydown);
-  nextTick(() => closeButtonRef.value?.focus());
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleKeydown);
-  documentUtil.toggleBodyScroll();
-  document.body.style.overflow = 'auto';
-  document.body.style.maxHeight = '100%';
-  previouslyFocusedElement.value?.focus();
-});
 </script>
-
-<style scoped>
-.min-height {
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-</style>

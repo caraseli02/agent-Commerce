@@ -3,30 +3,32 @@
     <div>
       <p class="text-xs text-slate-500 mb-2">Demo role</p>
       <div role="radiogroup" aria-label="Demo role" class="grid grid-cols-2 gap-2 p-1 rounded-lg bg-slate-100">
-        <button
+        <UiButton
           type="button"
+          variant="ghost"
           role="radio"
           :aria-checked="selectedLoginRole === 'customer'"
           :tabindex="selectedLoginRole === 'customer' ? 0 : -1"
-          class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-          :class="selectedLoginRole === 'customer' ? 'bg-white text-blue-500 shadow-sm' : 'text-slate-500 hover:text-blue-500'"
+          class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+          :class="selectedLoginRole === 'customer' ? 'bg-white text-blue-500 shadow-sm hover:bg-white' : 'text-slate-500 hover:text-blue-500'"
           @click="selectDemoRole('customer')"
           @keydown="handleDemoRoleKeydown($event, 'customer')"
         >
           Customer Demo
-        </button>
-        <button
+        </UiButton>
+        <UiButton
           type="button"
+          variant="ghost"
           role="radio"
           :aria-checked="selectedLoginRole === 'admin'"
           :tabindex="selectedLoginRole === 'admin' ? 0 : -1"
-          class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-          :class="selectedLoginRole === 'admin' ? 'bg-white text-blue-500 shadow-sm' : 'text-slate-500 hover:text-blue-500'"
+          class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+          :class="selectedLoginRole === 'admin' ? 'bg-white text-blue-500 shadow-sm hover:bg-white' : 'text-slate-500 hover:text-blue-500'"
           @click="selectDemoRole('admin')"
           @keydown="handleDemoRoleKeydown($event, 'admin')"
         >
           Admin Preview
-        </button>
+        </UiButton>
       </div>
     </div>
     <p class="mt-3 text-xs leading-5 text-slate-600">
@@ -44,22 +46,12 @@
       <FormPassword v-model="password.value" size="lg" label="Password" :error="password.error" placeholder="Hidden for demo sign-in" />
     </div>
     <div class="mt-3 mb-5">
-      <label class="flex min-h-11 items-center cursor-pointer">
-        <input v-model="rememberMe" type="checkbox" class="peer sr-only" >
-        <div
-          class="mr-2 flex h-5 w-5 items-center justify-center rounded border transition-colors duration-300 peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2"
-          :class="[rememberMe ? 'bg-blue-500 border-blue-500' : 'border-[#CBCDD7]']"
-        >
-          <CheckIcon v-if="rememberMe" class="w-4 text-white" />
-        </div>
-        <span class="text-xs text-slate-500 select-none"> Remember me </span>
+      <label class="flex min-h-11 cursor-pointer items-center gap-2" for="account-remember-me">
+        <UiCheckbox id="account-remember-me" :checked="rememberMe" @update:checked="rememberMe = $event" />
+        <span class="select-none text-xs text-slate-500"> Remember me </span>
       </label>
     </div>
-    <button
-      type="submit"
-      class="flex min-h-11 items-center justify-center w-full bg-blue-500 hover:bg-blue-400 rounded-lg py-[10px] text-white disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-      :disabled="isLoading"
-    >
+    <UiButton type="submit" class="flex min-h-11 w-full items-center justify-center py-[10px]" :disabled="isLoading">
       <div v-if="isLoading" aria-label="Loading..." role="status" class="mr-3">
         <svg class="h-6 w-6 animate-spin" viewBox="3 3 18 18">
           <path
@@ -72,9 +64,9 @@
           />
         </svg>
       </div>
-      <SignINIcon v-else class="w-6 h-6 mr-2" />
+      <SignINIcon v-else class="mr-2 h-6 w-6" />
       <span class="text-sm font-medium"> Sign In </span>
-    </button>
+    </UiButton>
     <div v-if="errorResponse.show" role="alert" class="bg-rose-600 p-2 mt-3 rounded">
       <p class="text-white">
         {{ errorResponse.description }}
@@ -85,10 +77,11 @@
       <span class="text-xs text-gray-400 flex-shrink-0 mx-[18px]"> Or continue with </span>
       <div class="h-px flex-1 bg-gray-100" />
     </div>
-    <button
+    <UiButton
       v-if="!config.public.MOCK_MODE"
       type="button"
-      class="group flex items-center justify-center w-full border border-border py-2 rounded-lg mb-5 transition-colors duration-300 hover:border-blue-500"
+      variant="outline"
+      class="group mb-5 w-full border-border py-2 transition-colors duration-300 hover:border-blue-500"
       @click="loginWithGoogle"
     >
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 mr-2 transition-all duration-300">
@@ -117,14 +110,13 @@
         </defs>
       </svg>
       <span class="text-sm font-medium text-slate-500">Google</span>
-    </button>
+    </UiButton>
   </form>
 </template>
 
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance.js';
 import SignINIcon from '@/assets/icons/menu/in.svg';
-import CheckIcon from '@/assets/icons/check.svg';
 import { AccountRole, type SigninResponse, type UserInfoJWT } from '~~/types';
 import type { UserPermissionsEnum } from '~/types/auth/permissions';
 import { useAuthStore } from '~~/store/authStore';
