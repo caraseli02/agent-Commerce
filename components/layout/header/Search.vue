@@ -1,10 +1,6 @@
 <template>
   <div class="relative">
-    <label
-      class="relative hidden border border-primary rounded-lg items-center h-11 overflow-hidden md:flex"
-      :class="[isScrolled ? 'lg:border-border' : '']"
-    >
-      <SearchIcon v-if="!isScrolled" class="hidden w-4 h-4 flex-shrink-0 text-gray-500 self-center ml-3 md:inline-block" />
+    <label class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-white md:flex">
       <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent>
         <input
           ref="searchDOM"
@@ -12,8 +8,7 @@
           type="search"
           placeholder="Search products"
           autocomplete="off"
-          class="h-full w-full flex-1 text-sm leading-5 text-slate-500 placeholder:text-gray-500 focus:outline-none"
-          :class="[isScrolled ? 'px-3' : 'px-2']"
+          class="h-full w-full flex-1 px-3 text-sm leading-5 text-slate-500 placeholder:text-gray-500 focus:outline-none"
           @input="onInput"
           @keypress.enter="handleEnterButton"
           @blur="
@@ -23,21 +18,11 @@
         >
       </form>
       <div
-        v-if="!isScrolled"
-        class="flex h-full items-center justify-center bg-primary hover:bg-primary/90 cursor-pointer px-4 transition-colors"
+        class="flex h-full cursor-pointer items-center justify-center bg-primary px-4 transition-colors hover:bg-primary/90"
         @click="handleEnterButton"
       >
-        <SearchIcon class="w-5 h-5 text-primary-foreground" />
+        <SearchIcon class="h-5 w-5 text-primary-foreground" />
       </div>
-      <UiButton
-        v-else
-        size="icon"
-        variant="ghost"
-        class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
-        @click="handleEnterButton"
-      >
-        <SearchIcon class="w-5 h-5 text-gray-500" />
-      </UiButton>
     </label>
     <Transition name="fade">
       <LayoutHeaderSearchResults
@@ -60,10 +45,6 @@ import { fetchSearchProduct } from '~/composables/api/products';
 const route = useRoute();
 
 const props = defineProps({
-  isScrolled: {
-    type: Boolean,
-    required: false,
-  },
   showResults: {
     type: Boolean,
     required: false,

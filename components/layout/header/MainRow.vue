@@ -1,51 +1,35 @@
 <template>
-  <div
-    data-mobile-main-row
-    class="bg-primary py-3 max-md:py-3.5 md:border-b md:border-black/10"
-    :class="[
-      isScrolled
-        ? showMobileSearch
-          ? 'md:py-2 lg:py-3 xl:py-[14px]'
-          : 'md:py-[11px] lg:py-[15px] xl:py-[14px]'
-        : 'md:py-[18px] lg:py-[22px] xl:py-[14px]',
-    ]"
-  >
+  <div data-mobile-main-row class="bg-primary py-3 max-md:py-3.5 md:border-b md:border-black/10 md:py-[14px]">
     <div class="container">
       <div class="relative">
-        <div class="flex items-center justify-between gap-4 lg:gap-[35px] xl:gap-[78px]" :class="[isScrolled ? 'md:gap-0' : '']">
+        <div class="flex items-center justify-between gap-4 lg:gap-[35px] xl:gap-[78px]">
           <div class="flex items-center">
-            <div class="flex items-center" :class="[isScrolled ? 'md:mr-[29px] lg:mr-0' : 'md:mr-4 lg:mr-6']">
-              <LayoutHeaderMainMenuItems :is-scrolled="isScrolled" />
-              <NuxtLink to="/" class="flex items-center" :class="[isScrolled ? 'md:ml-4 lg:ml-6 ml-0' : 'md:hidden']">
-                <!-- Use full Logo on mobile to avoid truncation, but smaller -->
-                <Logo class="w-[85px] h-5 grayscale brightness-0 invert md:hidden" />
-                <Logo class="hidden w-[82px] grayscale brightness-0 invert lg:w-[102px] md:flex" :class="[isScrolled ? '' : 'md:hidden']" />
+            <div class="flex items-center md:mr-4 lg:mr-6">
+              <LayoutHeaderMainMenuItems />
+              <NuxtLink to="/" class="ml-0 flex items-center md:ml-4 lg:ml-6">
+                <Logo class="h-5 w-[85px] grayscale brightness-0 invert md:hidden" />
+                <Logo class="hidden w-[82px] grayscale brightness-0 invert md:flex lg:w-[102px]" />
               </NuxtLink>
             </div>
           </div>
           <LayoutHeaderSearch
-            v-if="isScrolled"
             :show-results="true"
             :is-visible="showMobileSearch"
-            :is-scrolled="isScrolled"
             class="flex-1 max-md:hidden xl:block"
             :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
             @blur="showMobileSearch = false"
           />
-          <div class="flex items-center gap-3 md:gap-9 lg:ml-0 lg:gap-9 xl:gap-9" :class="[isScrolled ? 'md:ml-4' : 'md:gap-6']">
+          <div class="flex items-start gap-3 md:ml-4 md:gap-6 lg:gap-9">
             <button
               class="flex items-center xl:hidden"
-              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex') : 'md:hidden']"
+              :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex']"
               aria-label="Search products"
               @click="showMobileSearch = true"
             >
-              <SearchIcon class="w-6 h-6 text-primary-foreground xl:mr-2" />
-              <span class="hidden leading-normal font-medium text-primary-foreground xl:inline-block"> Search </span>
+              <SearchIcon class="h-6 w-6 text-primary-foreground xl:mr-2" />
+              <span class="hidden font-medium leading-normal text-primary-foreground xl:inline-block"> Search </span>
             </button>
-            <div
-              class="relative max-md:hidden"
-              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex') : 'flex items-center']"
-            >
+            <div class="relative hidden items-start max-md:hidden" :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex']">
               <ClientOnly>
                 <LazyNotifications
                   :notifications="notifications"
@@ -57,22 +41,22 @@
             </div>
             <button
               type="button"
-              class="hidden flex-col items-center max-md:hidden md:flex"
-              :class="[isScrolled ? (showMobileSearch ? 'md:hidden lg:flex' : 'md:flex') : '']"
+              class="hidden flex-col items-center max-md:hidden"
+              :class="[showMobileSearch ? 'md:hidden lg:flex' : 'md:flex']"
               aria-label="Open my account"
               @click="openAccountModal()"
             >
-              <UserIcon class="w-6 h-6 text-primary-foreground xl:mb-1" />
-              <span class="hidden text-xs leading-[1.33] font-medium text-primary-foreground xl:inline-block"> My Account </span>
+              <UserIcon class="h-6 w-6 text-primary-foreground xl:mb-1" />
+              <span class="hidden text-xs font-medium leading-[1.33] text-primary-foreground xl:inline-block"> My Account </span>
             </button>
             <button
-              class="relative flex items-center text-left"
-              :class="[isScrolled ? '' : 'md:hidden', showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
+              class="relative flex items-start text-left"
+              :class="[showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
               aria-label="Open shopping cart"
               @click="openCartModal()"
             >
               <!-- Fixed slot includes badge overhang so the total never collides with the count. -->
-              <div class="relative flex h-6 w-10 shrink-0 items-center">
+              <div class="relative flex h-6 w-9 shrink-0 items-center">
                 <CartIcon class="h-6 w-6 text-primary-foreground" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
                 <span
                   class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-500 px-1 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
@@ -83,27 +67,27 @@
                 </span>
               </div>
               <div
-                class="ml-3 hidden min-w-[6.5rem] shrink-0 flex-col text-primary-foreground tabular-nums md:flex"
+                class="ml-2 hidden min-w-[6.5rem] shrink-0 flex-col text-primary-foreground tabular-nums md:flex"
                 :class="showCartTotal ? 'visible' : 'invisible'"
                 :aria-hidden="!showCartTotal"
               >
-                <div class="mb-0.5 leading-[1.25] font-medium">{{ formattedCartTotal }}</div>
+                <div class="leading-6 font-medium">{{ formattedCartTotal }}</div>
                 <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
               </div>
             </button>
           </div>
         </div>
         <Transition name="fade">
-          <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 -translate-y-1/2 left-0 w-full md:hidden">
-            <div class="flex items-center gap-2 border border-border bg-white h-10 rounded-lg px-3">
-              <label class="relative z-10 flex min-w-0 flex-1 items-center h-10">
+          <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 left-0 w-full -translate-y-1/2 md:hidden">
+            <div class="flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-3">
+              <label class="relative z-10 flex h-10 min-w-0 flex-1 items-center">
                 <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent="showMobileSearch = false">
                   <input
                     ref="searchDOM"
                     v-model="searchVal"
                     type="search"
                     placeholder="Search products"
-                    class="bg-transparent h-full min-w-0 w-full py-2 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
+                    class="h-full w-full min-w-0 bg-transparent py-2 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
                     @input="onInput"
                     @keypress.enter="
                       $router.push('/search');
@@ -120,19 +104,13 @@
                 @mousedown.prevent
                 @click="showMobileSearch = false"
               >
-                <XIcon class="w-5 h-5" />
+                <XIcon class="h-5 w-5" />
               </button>
             </div>
           </div>
         </Transition>
         <Transition name="fade">
-          <LayoutHeaderSearchResults
-            v-if="searchVal"
-            :products="productList"
-            :keyword="searchVal"
-            :is-scrolled="isScrolled"
-            :is-loading="isLoading"
-          />
+          <LayoutHeaderSearchResults v-if="searchVal" :products="productList" :keyword="searchVal" :is-loading="isLoading" />
         </Transition>
       </div>
     </div>
@@ -203,13 +181,6 @@ const totalCartPrice = ref(0);
 const subtotal = () => {
   totalCartPrice.value = getCartSubtotal.value;
 };
-
-defineProps({
-  isScrolled: {
-    type: Boolean,
-    required: true,
-  },
-});
 
 const route = useRoute();
 const router = useRouter();
