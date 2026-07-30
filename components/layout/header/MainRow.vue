@@ -19,7 +19,7 @@
             :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
             @blur="showMobileSearch = false"
           />
-          <div class="flex items-start gap-3 md:ml-4 md:gap-6 lg:gap-9">
+          <div class="flex items-center gap-3 md:ml-4 md:gap-6 lg:gap-9">
             <button
               class="flex items-center xl:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex']"
@@ -29,7 +29,7 @@
               <SearchIcon class="h-6 w-6 text-primary-foreground xl:mr-2" />
               <span class="hidden font-medium leading-normal text-primary-foreground xl:inline-block"> Search </span>
             </button>
-            <div class="relative hidden items-start max-md:hidden" :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex']">
+            <div class="relative hidden items-center max-md:hidden" :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex']">
               <ClientOnly>
                 <LazyNotifications
                   :notifications="notifications"
@@ -41,7 +41,7 @@
             </div>
             <button
               type="button"
-              class="hidden flex-col items-center max-md:hidden"
+              class="hidden flex-col items-center justify-center max-md:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:flex' : 'md:flex']"
               aria-label="Open my account"
               @click="openAccountModal()"
@@ -50,7 +50,7 @@
               <span class="hidden text-xs font-medium leading-[1.33] text-primary-foreground xl:inline-block"> My Account </span>
             </button>
             <button
-              class="relative flex items-start text-left"
+              class="relative flex items-center text-left"
               :class="[showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
               aria-label="Open shopping cart"
               @click="openCartModal()"
@@ -67,12 +67,12 @@
                 </span>
               </div>
               <div
-                class="ml-2 hidden min-w-[6.5rem] shrink-0 flex-col text-primary-foreground tabular-nums md:flex"
+                class="ml-2 hidden min-w-[6.5rem] shrink-0 flex-col justify-center text-primary-foreground tabular-nums md:flex"
                 :class="showCartTotal ? 'visible' : 'invisible'"
                 :aria-hidden="!showCartTotal"
               >
-                <div class="leading-6 font-medium">{{ formattedCartTotal }}</div>
-                <div class="text-[10px] leading-[1.6]">(ex VAT)</div>
+                <div class="text-sm font-medium leading-5">{{ formattedCartTotal }}</div>
+                <div class="text-[10px] leading-4">(ex VAT)</div>
               </div>
             </button>
           </div>
