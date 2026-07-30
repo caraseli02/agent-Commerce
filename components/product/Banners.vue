@@ -12,14 +12,17 @@
               <h2 class="font-semibold md:text-[32px] lg:text-2xl xl:text-[32px]">Quote-ready parts for active orders</h2>
             </div>
           </div>
-          <img :src="Banner1Item" alt="Banner" class="relative z-20 w-[100px] object-contain md:w-[175px]" loading="lazy" >
-          <img
+          <ImageWithFallback
+            :src="Banner1Item"
+            alt="Banner"
+            class-name="relative z-20 w-[100px] object-contain md:w-[175px]"
+          />
+          <ImageWithFallback
             :src="Banner1Bg"
             alt=""
-            class="absolute top-0 left-0 w-full h-full object-cover rounded-md opacity-20"
-            loading="lazy"
+            class-name="absolute top-0 left-0 h-full w-full rounded-md object-cover opacity-20"
             aria-hidden="true"
-          >
+          />
         </div>
         <div
           class="relative flex items-center justify-between rounded-md px-[30px] py-[13px] overflow-hidden border border-slate-200 bg-slate-800"
@@ -30,14 +33,17 @@
               <h2 class="font-semibold text-white md:text-[32px] lg:text-2xl xl:text-[32px]">Compare inventory and pricing in one place</h2>
             </div>
           </div>
-          <img :src="Banner2Item" alt="Banner" class="relative z-20 w-[100px] object-contain md:w-[175px]" loading="lazy" >
-          <img
+          <ImageWithFallback
+            :src="Banner2Item"
+            alt="Banner"
+            class-name="relative z-20 w-[100px] object-contain md:w-[175px]"
+          />
+          <ImageWithFallback
             :src="Banner2Bg"
             alt=""
-            class="absolute top-0 left-0 w-full h-full object-cover rounded-md opacity-15"
-            loading="lazy"
+            class-name="absolute top-0 left-0 h-full w-full rounded-md object-cover opacity-15"
             aria-hidden="true"
-          >
+          />
         </div>
       </div>
     </div>
@@ -46,6 +52,7 @@
 
 <script setup lang="ts">
 import NewIcon from '@/assets/icons/new.svg';
+import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import Banner1Item from '@/assets/media/home/banner-item.png';
 import Banner1Bg from '@/assets/media/home/banner-bg.jpg';
 import Banner2Item from '@/assets/media/home/exclusive-offer-item.png';
