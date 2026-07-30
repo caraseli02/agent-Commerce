@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SearchBreadcrumbs @change-path="changePath" />
+    <SearchBreadcrumbs />
     <SearchFilters
       v-if="filters"
       :filters="filters"
@@ -11,6 +11,7 @@
     />
     <SearchProducts
       v-if="products"
+      :key="searchResultsKey"
       :products="products"
       :keyword="keyword"
       @at-page="atPage = $event"
@@ -85,6 +86,13 @@ const showAdditionalContent = computed(() => {
   const isBrowsingCatalog = !keyword.value.trim() && !category.value;
   return isBrowsingCatalog && (products.value?.items?.total_items ?? 0) > 0;
 });
+// Remount SearchProducts when the search context changes so its internal pager cannot stay stale.
+const searchResultsKey = computed(() => `${keyword.value}::${category.value ?? ''}`);
+
+const currentSort = () => ({
+  sortBy: sortBy.value.name,
+  sortOrder: (order.value === 0 ? 'desc' : 'asc') as 'asc' | 'desc',
+});
 
 onMounted(async () => {
   watch(
@@ -146,23 +154,6 @@ async function getProduct(
   filters.value = data.filters;
 }
 
-async function changePath() {
-  const { data } = await fetchSearchProduct(
-    resolveKeyword(),
-    route.query.category?.toString() ?? null,
-    atPage.value,
-    perPage.value,
-    {
-      sortBy: sortBy.value.name,
-      sortOrder: order.value === 0 ? 'desc' : 'asc',
-    },
-    additionalFilters.value
-  );
-
-  products.value = data;
-  filters.value = data.filters;
-}
-
 const handleSortChange = async () => {
   await getProduct(
     resolveKeyword(),
@@ -210,10 +201,19 @@ watch(additionalFilters, async (filter) => {
   );
 });
 
-watch(route, (value) => {
+// Both `keyword` and `category` live in the URL, so breadcrumb and menu navigation must refresh both.
+// Reset pager state and remount SearchProducts (via searchResultsKey) so UI controls match fetched data.
+watch(route, async (value) => {
   const newKeyword = (value.query.keyword ?? value.query.q)?.toString() ?? '';
   keyword.value = newKeyword;
-  getProduct(newKeyword, 1, 10, {}, additionalFilters.value);
+  category.value = value.query.category?.toString() || null;
+  atPage.value = 1;
+  perPage.value = 10;
+  try {
+    await getProduct(newKeyword, atPage.value, perPage.value, currentSort(), additionalFilters.value);
+  } catch (error) {
+    console.error('Failed to refresh search results after route change:', error);
+  }
 });
 
 Emitter.on('register-filter-option', async (filter: ProductParametricDataFeaturesInterface[]) => {

@@ -10,28 +10,28 @@
       <p class="p-2 rounded text-slate-500 transition-colors duration-300">Loading...</p>
     </div>
     <div v-else>
-      <div v-if="props.products.length > 0" class="grid grid-cols-1 max-h-[340px] overflow-auto scrollbar-thin pr-1.5">
-        <template v-for="product in props.products" :key="product._id">
-          <NuxtLink :to="`/product/${product._id}`" class="p-2 rounded-lg text-slate-500 transition-colors duration-300 hover:bg-light-300">
+      <div v-if="productsView.length > 0" class="grid grid-cols-1 max-h-[340px] overflow-auto scrollbar-thin pr-1.5">
+        <template v-for="row in productsView" :key="row.product._id">
+          <NuxtLink :to="`/product/${row.product._id}`" class="p-2 rounded-lg text-slate-500 transition-colors duration-300 hover:bg-light-300">
             <div
               class="flex items-center justify-between gap-1 text-xs leading-[1.67] font-medium text-neutral-700 mb-1 lg:text-sm lg:leading-[1.43]"
             >
               <div class="flex items-center w-[calc(100%-50px)] hover:text-primary">
-                <template v-if="productTitle(product)">
-                  <div class="truncate">{{ productTitle(product) }}</div>
+                <template v-if="row.categoryTitle">
+                  <div class="truncate">{{ row.categoryTitle }}</div>
                   <CaretIcon class="w-4 h-4 flex-shrink-0" />
                 </template>
-                <div class="font-Inter">{{ product.name }}</div>
+                <div class="font-Inter">{{ row.product.name }}</div>
               </div>
               <div
-                v-if="!product.adminSettings?.featured"
+                v-if="!row.product.adminSettings?.featured"
                 class="rounded-3xl bg-primary px-1 text-xs leading-[1.33] font-semibold text-primary-foreground flex-shrink-0 lg:translate-y-2.5"
               >
                 New
               </div>
             </div>
             <div class="text-xs leading-[1.33] truncate text-slate-500 lg:w-[calc(100%-50px)] hover:text-primary">
-              {{ product.description }}
+              {{ row.product.description }}
             </div>
           </NuxtLink>
         </template>
@@ -44,9 +44,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import CaretIcon from '@/assets/icons/caret-right.svg';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { mapLabelsToIds, mapPathArrayOfNames } from '~/helpers/categories.helper';
+import type { CategoriesMap } from '~/types/dashboard/categories';
+import { humanizeCategorySlug, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
 
 const { categories } = useCategories();
 
@@ -55,16 +58,29 @@ const props = defineProps<{
   isLoading: boolean;
 }>();
 
-const productTitle = (product: ProductInterface) => {
+// Build the taxonomy label map once per categories change — not once per product row render.
+const categoriesMap = computed<CategoriesMap>(() => mapLabelsToIds(categories.value ?? []));
+
+const resolveProductCategoryTitle = (product: ProductInterface, map: CategoriesMap) => {
   if (!product.path) {
     return '';
   }
 
-  const mapLabels = mapLabelsToIds(categories.value);
-  const categoriesLabelsArray = mapPathArrayOfNames(product.path, mapLabels);
+  const categoriesLabelsArray = mapPathArrayOfNames(product.path, map);
   const categoryName = categoriesLabelsArray[categoriesLabelsArray.length - 1]?.name;
+  if (categoryName) {
+    return categoryName;
+  }
 
-  // Hide placeholder category labels so search suggestions don't show "N/A >".
-  return categoryName && categoryName !== 'N/A' ? categoryName : '';
+  const segments = toCategorySlugSegments(product.path);
+  return humanizeCategorySlug(segments[segments.length - 1] ?? '');
 };
+
+const productsView = computed(() => {
+  const map = categoriesMap.value;
+  return (props.products ?? []).map((product) => ({
+    product,
+    categoryTitle: resolveProductCategoryTitle(product, map),
+  }));
+});
 </script>

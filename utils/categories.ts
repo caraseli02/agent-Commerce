@@ -96,6 +96,10 @@ export const sortByField = <T>(items: T[], field: keyof T, order: 'asc' | 'desc'
   });
 };
 
+/**
+ * Legacy authenticated request helper kept for the admin taxonomy screens only; the storefront category
+ * flow goes through `plugins/api.ts` + `composables/api/*`. See scripts/check-arch-invariants.mjs.
+ */
 export const apiRequest = async (url: string, method: IMethod, token: string, body?: Record<string, unknown>) => {
   const { toast } = useToast();
   const config = useRuntimeConfig();

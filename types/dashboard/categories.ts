@@ -10,7 +10,10 @@ export interface TaxonomyInterface {
   subcategory?: TaxonomyInterface[];
   smartPricingSettings?: PriceSmartLinkingInterface;
   customProperties?: CustomPropertiesSettings;
+  /** Slug path, e.g. `semiconductors/microcontrollers`. */
   path: string;
+  /** Slug for this node only, e.g. `microcontrollers`. */
+  alias?: string;
   isPublished: boolean;
   icon?: string;
 }

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import CaretRightIcon from '@/assets/icons/caret-right.svg';
 import type { ProductDetail } from '~/model/products/response/ProductDetailResponse';
+import { buildCategoryCrumbs, getProductTaxonomyPath } from '~/helpers/categoryPath.helper';
 
 const props = defineProps<{
   product: ProductDetail;
 }>();
 
-const product = toRefs(props.product);
-
-const taxonomyPath = computed(() => {
-  const pathArray = product.details?.value?.SummaryData?.TaxonomyPath?.split('>');
-  return pathArray;
+// TaxonomyPath names drive the links; each crumb keeps its own slug path so it browses that level.
+const taxonomyCrumbs = computed(() => {
+  const taxonomyPath = getProductTaxonomyPath(props.product);
+  return buildCategoryCrumbs(taxonomyPath ? taxonomyPath.split('>') : []);
 });
 </script>
 
@@ -19,10 +19,13 @@ const taxonomyPath = computed(() => {
     <div class="container">
       <div class="border-b border-gray-200 pt-[15px] pb-[14px]">
         <div class="flex items-center gap-1 text-slate-500">
-          <template v-for="(path, index) in taxonomyPath" :key="index">
+          <template v-for="crumb in taxonomyCrumbs" :key="crumb.path">
             <CaretRightIcon class="w-4 h-4" />
-            <NuxtLink to="/" class="text-xs leading-[1.33] font-Inter transition-colors duration-300 hover:text-blue-500">
-              {{ path }}
+            <NuxtLink
+              :to="`/search?category=${encodeURIComponent(crumb.path)}`"
+              class="text-xs leading-[1.33] font-Inter transition-colors duration-300 hover:text-blue-500"
+            >
+              {{ crumb.name }}
             </NuxtLink>
           </template>
         </div>

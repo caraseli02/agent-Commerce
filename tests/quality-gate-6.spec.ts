@@ -6,7 +6,7 @@ import type { FormSelectOption, SelectInputObject } from '../types/global/form';
 import { useFormValidation } from '../composables/formValidation';
 import { textUtil } from '../utils/text';
 import { useTrimText } from '../composables/text';
-import { mapNamesToPath, mapPathArrayOfNames, findCategory } from '../helpers/categories.helper';
+import { mapNamesToPath, mapPathArrayOfNames, findCategory, findCategoryByPath } from '../helpers/categories.helper';
 import { initializeQuantities, parseProductPriceConfiguration } from '../helpers/prices.helper';
 import { getCountryTypeValue, getInputStringValue, isFormSelectOption, resolveFormValue, toInputObject } from '../types/global/form';
 import type { CartInterface } from '~/types/cart';
@@ -235,6 +235,31 @@ describe('quality gate 6 pure logic coverage', () => {
       expect(findCategory('leaf', sampleTaxonomy)?.name).toBe('Leaf');
       expect(findCategory('', sampleTaxonomy)).toBeNull();
       expect(findCategory('missing', sampleTaxonomy)).toBeNull();
+    });
+
+    it('resolves slug path segments even when taxonomy ids are unrelated to the path', () => {
+      const categoriesMap = {
+        Semiconductors: '6640cce35fbc8c0fd9f7ed05',
+        'Interface ICs': '6640d32a5fbc8c0fd9f7ed1e',
+      };
+
+      expect(mapPathArrayOfNames('semiconductors/interface-ics', categoriesMap)).toEqual([
+        { name: 'Semiconductors', id: '6640cce35fbc8c0fd9f7ed05' },
+        { name: 'Interface ICs', id: '6640d32a5fbc8c0fd9f7ed1e' },
+      ]);
+      // Legacy id chains still resolve so older links keep working.
+      expect(mapPathArrayOfNames('6640cce35fbc8c0fd9f7ed05/6640d32a5fbc8c0fd9f7ed1e', categoriesMap)).toEqual([
+        { name: 'Semiconductors', id: '6640cce35fbc8c0fd9f7ed05' },
+        { name: 'Interface ICs', id: '6640d32a5fbc8c0fd9f7ed1e' },
+      ]);
+      expect(mapNamesToPath(['Semiconductors', 'Interface ICs'], categoriesMap)).toBe('semiconductors/interface-ics');
+    });
+
+    it('looks up taxonomy nodes by slug path', () => {
+      expect(findCategoryByPath('root/child/leaf', sampleTaxonomy)?.name).toBe('Leaf');
+      expect(findCategoryByPath('root/child', sampleTaxonomy)?.name).toBe('Child');
+      expect(findCategoryByPath('', sampleTaxonomy)).toBeNull();
+      expect(findCategoryByPath('root/missing', sampleTaxonomy)).toBeNull();
     });
   });
 });

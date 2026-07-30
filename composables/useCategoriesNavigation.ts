@@ -1,6 +1,7 @@
 import { computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCategories } from '@/composables/useCategories';
+import { categoryBrowseUrl } from '~/helpers/categoryPath.helper';
 import type { TaxonomyInterface } from '~/types/dashboard/categories';
 
 export function useCategoriesNavigation() {
@@ -17,8 +18,8 @@ export function useCategoriesNavigation() {
   function browseCategory(category: TaxonomyInterface) {
     isOpen.value = false;
     selectedCategories.value = [];
-    // Prefer keyword so mock catalog matches by name/features (IDs alone return empty).
-    router.push(`/search?keyword=${encodeURIComponent(category.name)}`);
+    // Slug path keeps the browse view URL-addressable, e.g. /search?category=semiconductors/microcontrollers.
+    router.push(categoryBrowseUrl(category));
   }
 
   function onCategoryClick(category: TaxonomyInterface, makeReset: boolean) {
