@@ -167,6 +167,12 @@
       "skillPath": "skills/deprecated/qa/SKILL.md",
       "computedHash": "20c63e29b268b1f0762cff524b5e321d5e1a773b4f61b90d84811b755948a66c"
     },
+    "qodo-pr-resolver": {
+      "source": "qodo-ai/qodo-skills",
+      "sourceType": "github",
+      "skillPath": "skills/qodo-pr-resolver/SKILL.md",
+      "computedHash": "14c70095edc2e6363b3a96b9e8e1a9c361fcff49a7196711081f5daedea0312a"
+    },
     "quieter": {
       "source": "pbakaus/impeccable",
       "sourceType": "github",
