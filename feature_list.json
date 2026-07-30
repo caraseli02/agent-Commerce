@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the ECAS harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
+    "active_feature_count": 0,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -11,7 +11,7 @@
       "id": "C368",
       "description": "Cart stock clamp, volume tiers, mixed-line quantity integrity, cart-fetch gating, and P2 storefront QA (#368 / PR #364)",
       "validation": "initializeQuantities uses available stock only; mixed-line mock cart reduce preserves backorder; hasFetchedCart only after successful refresh; P2: SSR-safe guest checkout gate, dashboard CTAs, auth footer links, Lei currency, category counts + View all navigate; pnpm verify + runtime evidence",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "helpers/prices.helper.ts initializeQuantities available-stock-only",
         "store/cartStore.ts hasFetchedCart only after successful refresh",
