@@ -10,12 +10,11 @@
           :key="index"
           class="flex min-h-[64px] items-center justify-center rounded-md border border-slate-200 bg-white px-4 md:min-h-0 md:border-0 md:bg-transparent md:px-0"
         >
-          <img
+          <ImageWithFallback
             :src="logo"
             alt="Manufacturer logo"
-            class="max-h-8 max-w-full object-contain md:h-[30px] md:max-h-none lg:h-10 xl:h-[55px]"
-            loading="lazy"
-          >
+            class-name="max-h-8 max-w-full object-contain md:h-[30px] md:max-h-none lg:h-10 xl:h-[55px]"
+          />
         </div>
       </div>
       <NuxtLink
@@ -29,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import MicrochipLogo from '@/assets/media/home/microchip.png';
 import TDKLogo from '@/assets/media/home/tdk.png';
 import DigiKeyLogo from '@/assets/media/home/digi-key.png';

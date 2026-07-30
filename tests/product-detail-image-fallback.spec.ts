@@ -81,6 +81,14 @@ describe('product detail image fallback', () => {
     expect(source).not.toContain('w-12 h-12');
   });
 
+  it('uses native img for bundled storefront assets and NuxtImg for remote product URLs', () => {
+    const source = readFileSync(imageWithFallbackPath, 'utf8');
+
+    expect(source).toContain('useOptimizedImage');
+    expect(source).toContain("startsWith('https://')");
+    expect(source).toContain(":is=\"useOptimizedImage ? 'NuxtImg' : 'img'\"");
+  });
+
   it('keeps the product zoom modal on fallback-aware image rendering', () => {
     const zoomGalleryAst = parseTemplate(zoomGalleryPath);
     const zoomImgAst = parseTemplate(zoomImgPath);

@@ -27,14 +27,13 @@
           <button class="flex bg-blue-500 rounded px-3 py-1.5 text-[13px] font-medium md:px-6 md:py-2 md:text-sm xl:py-[9px]">
             View More
           </button>
-          <img
+          <ImageWithFallback
             :src="item.item"
-            alt="Img"
-            class="absolute bottom-7 right-4 w-[170px] object-contain md:left-[unset] md:right-[30px] md:w-[188px] md:translate-x-0 lg:right-5 lg:w-[185px] xl:right-[15px] xl:bottom-[75px] xl:w-[300px]"
-            loading="lazy"
-          >
+            alt="Promotional product"
+            class-name="absolute bottom-7 right-4 z-20 w-[170px] object-contain md:left-[unset] md:right-[30px] md:w-[188px] md:translate-x-0 lg:right-5 lg:w-[185px] xl:right-[15px] xl:bottom-[75px] xl:w-[300px]"
+          />
         </div>
-        <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" >
+        <ImageWithFallback :src="item.bg" alt="" class-name="absolute top-0 left-0 h-full w-full rounded-md object-cover" />
         <div class="absolute z-10 top-0 left-0 w-full h-full opacity-90 rounded-md pointer-events-none bg-slate-900" />
       </SwiperSlide>
     </Swiper>
@@ -43,6 +42,7 @@
 
 <script setup lang="ts">
 import { A11y, Autoplay, Pagination } from 'swiper';
+import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import SlideBg from '@/assets/media/home/exclusive-offer-bg.jpg';
 import ItemImage from '@/assets/media/home/exclusive-offer-item.png';
 
