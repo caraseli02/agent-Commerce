@@ -40,11 +40,13 @@ function parseTemplate(path: string) {
 }
 
 describe('dashboard widget error boundaries', () => {
-  it('wraps Returning Customers chart with DashboardWidgetBoundary', () => {
+  it('wraps Returning Customers card with DashboardWidgetBoundary', () => {
     const ast = parseTemplate(returningCustomersPath);
     const boundaries = collectElements(ast, 'DashboardWidgetBoundary');
     expect(boundaries).toHaveLength(1);
     expect(collectElements(ast, 'DashboardReturningCustomersChart')).toHaveLength(1);
+    expect(readFileSync(boundaryPath, 'utf8')).toContain('h-full min-h-[11rem] w-full');
+    expect(readFileSync(boundaryPath, 'utf8')).not.toContain('bg-rose-50');
   });
 
   it('provides alert fallback UI with recovery navigation', () => {
