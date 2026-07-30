@@ -3,6 +3,7 @@
     <NuxtImg
       v-if="currentSrc !== 'fallback'"
       :src="currentSrc"
+      :provider="imageProvider"
       :alt="alt"
       :class="mediaClass"
       loading="lazy"
@@ -57,6 +58,19 @@ function normalizeImageSrc(src?: string | null) {
 }
 
 const currentSrc = ref<string | 'fallback'>(normalizeImageSrc(props.src));
+
+const imageProvider = computed(() => {
+  if (currentSrc.value === 'fallback') {
+    return undefined;
+  }
+
+  const src = currentSrc.value;
+  if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('//')) {
+    return undefined;
+  }
+
+  return 'none';
+});
 
 watch(
   () => props.src,
