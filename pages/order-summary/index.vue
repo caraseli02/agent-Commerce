@@ -22,10 +22,19 @@
           </div>
         </div>
         <OrderSummaryHeader />
+        <div v-if="cartReadError" class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800" role="alert">
+          <p class="font-semibold">We could not load your cart</p>
+          <p class="mt-1 text-sm">Try again before continuing checkout.</p>
+          <UiButton type="button" class="mt-3" @click="refreshCartRead()">Try again</UiButton>
+        </div>
         <div class="gap-6 xl:grid xl:grid-cols-[1fr,392px]">
           <div class="flex flex-col gap-9 max-w-[992px]">
             <OrderSummaryBackOrderWarning v-if="showWarning" />
-            <OrderSummaryTable :loading="loading" @update-subtotal="updateSubtotal($event, order)" @delete-selected="deleteSelected" />
+            <OrderSummaryTable
+              :loading="loading || cartReadPending"
+              @update-subtotal="updateSubtotal($event, order)"
+              @delete-selected="deleteSelected"
+            />
             <div class="hidden lg:flex flex-col">
               <OrderSummarySimilarProducts :loading="loading" />
               <OrderSummaryBannerImageCard class="hidden xl:flex" />
@@ -58,6 +67,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import { cartReadCacheKey, loadCartRead } from '~/composables/loadCartRead';
 import { InfoIcon, LoaderIcon } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
@@ -79,7 +89,9 @@ import { fetchCustomerCredit } from '~/composables/api/user';
 
 // Stores
 import { useAuthStore } from '~/store/authStore';
+import { useCartStore } from '~/store/cartStore';
 import { useCheckoutStore } from '~/store/checkoutStore';
+import { mapCartItems } from '~/utils/cart';
 
 // Utilities
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
@@ -98,7 +110,24 @@ const { token, getGeneralSettings } = storeToRefs(authStore);
 const isGuestCheckout = computed(() => !(token.value || userId.value));
 
 // Cart Management
-const { cartId, cartItems, fetchList, calculateSubtotal, calculateDiscount, showWarning, fetchShippingPrices } = useCart();
+const cartStore = useCartStore();
+const { cartId, cartItems, calculateSubtotal, calculateDiscount, showWarning, fetchShippingPrices } = useCart();
+
+const {
+  data: cartReadData,
+  pending: cartReadPending,
+  error: cartReadError,
+  refresh: refreshCartRead,
+} = await useAsyncData(cartReadCacheKey('order-summary'), () => loadCartRead(() => cartStore.updateAndReturnCart()));
+
+watch(
+  cartReadData,
+  (cart) => {
+    cartId.value = cart?._id || '';
+    cartItems.value = mapCartItems(cart?.products || []);
+  },
+  { immediate: true }
+);
 
 const orderItems = computed(() => {
   return cartItems.value.map((item) => {
@@ -357,10 +386,9 @@ watch(
 onMounted(async () => {
   const shippingPricesPromise = fetchShippingPrices(order.value);
 
-  const [, , , shippingPrices] = await Promise.all([
+  const [, , shippingPrices] = await Promise.all([
     fetchCards(), // Fetch user's payment cards
     getCustomerCredit(), // Fetch customer credit information
-    fetchList(), // Fetch cart items
     shippingPricesPromise,
   ]);
 

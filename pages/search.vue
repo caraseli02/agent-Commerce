@@ -9,8 +9,22 @@
       :per-page="perPage"
       @reset-products-filters="resetProductsFilters = $event"
     />
+    <div v-if="pending" class="container mb-10 min-h-[200px]" aria-busy="true" aria-live="polite">
+      <div class="h-10 w-64 rounded bg-slate-100 animate-pulse mb-6" />
+      <div class="space-y-4">
+        <div v-for="n in 3" :key="n" class="h-[120px] rounded-2xl bg-slate-100 animate-pulse" />
+      </div>
+      <span class="sr-only">Loading search results…</span>
+    </div>
+
+    <div v-else-if="error" class="container mb-10 min-h-[200px] flex flex-col items-start justify-center gap-4" role="alert">
+      <p class="text-lg font-semibold text-slate-900">We could not load search results</p>
+      <p class="text-sm text-slate-600 max-w-xl">Try again or adjust your filters.</p>
+      <UiButton type="button" @click="refresh()">Try again</UiButton>
+    </div>
+
     <SearchProducts
-      v-if="products"
+      v-else-if="products"
       :key="searchResultsKey"
       :products="products"
       :keyword="keyword"
@@ -19,13 +33,7 @@
       @sort-by-change="onSortByChange"
       @show-filter="additionalFilters = $event"
     />
-    <div v-else class="container mb-10 min-h-[200px]" aria-busy="true">
-      <div class="h-10 w-64 rounded bg-slate-100 animate-pulse mb-6" />
-      <div class="space-y-4">
-        <div v-for="n in 3" :key="n" class="h-[120px] rounded-2xl bg-slate-100 animate-pulse" />
-      </div>
-      <span class="sr-only">Loading search results…</span>
-    </div>
+
     <template v-if="showAdditionalContent">
       <ProductBlocks
         :rows-number="2"
@@ -48,11 +56,11 @@
 
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance.js';
-import { watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
 import type { ProductFilters, SearchData } from '~/model/products/response/ProductSearchResponse';
-import { fetchSearchProduct } from '~/composables/api/products';
+import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
 import { useProductStore } from '~/store/productStore';
 
 useHead({
@@ -64,11 +72,9 @@ const { similarProducts, similarProductFeatures, showSimilarOnly } = storeToRefs
 const route = useRoute();
 const keyword = ref((route.query.keyword ?? route.query.q)?.toString() ?? '');
 
-const resolveKeyword = () => keyword.value;
-
-const products = ref<SearchData | null>(null);
-const filters = ref<ProductFilters | null>(null);
-const additionalFilters = ref({});
+const additionalFilters = ref<Record<string, unknown>>({});
+const featureFilters = ref<ProductParametricDataFeaturesInterface[]>([]);
+const ignoreCategory = ref(false);
 const atPage = ref(1);
 const perPage = ref(10);
 const sortBy = ref({ label: 'Product Code A–Z', name: 'manufacturerCode', order: 1 as 0 | 1 });
@@ -89,148 +95,78 @@ const showAdditionalContent = computed(() => {
 // Remount SearchProducts when the search context changes so its internal pager cannot stay stale.
 const searchResultsKey = computed(() => `${keyword.value}::${category.value ?? ''}`);
 
-const currentSort = () => ({
+const searchQuery = computed(() => ({
+  keyword: keyword.value,
+  category: ignoreCategory.value ? null : category.value,
+  page: atPage.value,
+  perPage: perPage.value,
   sortBy: sortBy.value.name,
   sortOrder: (order.value === 0 ? 'desc' : 'asc') as 'asc' | 'desc',
-});
+  additionalFilters: additionalFilters.value,
+  featureFilters: featureFilters.value,
+}));
 
-onMounted(async () => {
-  watch(
-    [similarProducts, similarProductFeatures],
-    async (newValues) => {
-      if (newValues[0] && newValues[1]) {
-        await getProduct(
-          resolveKeyword(),
-          atPage.value,
-          perPage.value,
-          {
-            sortBy: sortBy.value.name,
-            sortOrder: order.value === 0 ? 'desc' : 'asc',
-          },
-          additionalFilters.value,
-          newValues[1]
-        );
-        showSimilarOnly.value = false;
-      }
-    },
-    { deep: true }
-  );
+const {
+  data: searchData,
+  pending,
+  error,
+  refresh,
+} = await useAsyncData<SearchData | null>(
+  () => searchResultsCacheKey(searchQuery.value),
+  () => {
+    if (showSimilarOnly.value) {
+      return Promise.resolve(null);
+    }
 
-  if (!products.value && !showSimilarOnly.value) {
-    await getProduct(
-      resolveKeyword(),
-      atPage.value,
-      perPage.value,
-      {
-        sortBy: sortBy.value.name,
-        sortOrder: order.value === 0 ? 'desc' : 'asc',
-      },
-      additionalFilters.value,
-      []
-    );
+    return loadSearchResults(searchQuery.value);
+  },
+  {
+    watch: [keyword, category, atPage, perPage, sortBy, order, additionalFilters, featureFilters, ignoreCategory, showSimilarOnly],
   }
-});
+);
 
-async function getProduct(
-  keyword: string,
-  atPage: number,
-  perPage: number,
-  sort = {},
-  additionalFilters = {},
-  filter: ProductParametricDataFeaturesInterface[] = [],
-  ignoreCategory = false
-) {
-  const { data } = await fetchSearchProduct(
-    keyword,
-    ignoreCategory ? null : category.value,
-    atPage,
-    perPage,
-    sort,
-    additionalFilters,
-    filter
-  );
-
-  products.value = data;
-  filters.value = data.filters;
-}
-
-const handleSortChange = async () => {
-  await getProduct(
-    resolveKeyword(),
-    atPage.value,
-    perPage.value,
-    {
-      sortBy: sortBy.value.name,
-      sortOrder: order.value === 0 ? 'desc' : 'asc',
-    },
-    additionalFilters.value
-  );
-};
-
-watch([sortBy, order], async () => {
-  await handleSortChange();
-});
+const products = computed(() => searchData.value ?? null);
+const filters = ref<ProductFilters | null>(null);
 
 watch(
-  [atPage, perPage],
-  async ([_atPage, _perPage]) => {
-    await getProduct(
-      resolveKeyword(),
-      _atPage,
-      _perPage,
-      {
-        sortBy: sortBy.value.name,
-        sortOrder: order.value === 0 ? 'desc' : 'asc',
-      },
-      additionalFilters.value
-    );
+  searchData,
+  (data) => {
+    if (data?.filters) {
+      filters.value = data.filters;
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  [similarProducts, similarProductFeatures],
+  (newValues) => {
+    if (newValues[0] && newValues[1]) {
+      featureFilters.value = newValues[1];
+      atPage.value = 1;
+      showSimilarOnly.value = false;
+    }
   },
   { deep: true }
 );
 
-watch(additionalFilters, async (filter) => {
-  await getProduct(
-    resolveKeyword(),
-    atPage.value,
-    perPage.value,
-    {
-      sortBy: sortBy.value.name,
-      sortOrder: order.value === 0 ? 'desc' : 'asc',
-    },
-    filter
-  );
-});
-
 // Both `keyword` and `category` live in the URL, so breadcrumb and menu navigation must refresh both.
 // Reset pager state and remount SearchProducts (via searchResultsKey) so UI controls match fetched data.
-watch(route, async (value) => {
+watch(route, (value) => {
   const newKeyword = (value.query.keyword ?? value.query.q)?.toString() ?? '';
   keyword.value = newKeyword;
   category.value = value.query.category?.toString() || null;
+  ignoreCategory.value = false;
   atPage.value = 1;
   perPage.value = 10;
-  try {
-    await getProduct(newKeyword, atPage.value, perPage.value, currentSort(), additionalFilters.value);
-  } catch (error) {
-    console.error('Failed to refresh search results after route change:', error);
-  }
 });
 
-Emitter.on('register-filter-option', async (filter: ProductParametricDataFeaturesInterface[]) => {
-  await getProduct(
-    resolveKeyword(),
-    1,
-    perPage.value,
-    {
-      sortBy: sortBy.value.name,
-      sortOrder: order.value === 0 ? 'desc' : 'asc',
-    },
-    additionalFilters.value,
-    filter
-  );
+Emitter.on('register-filter-option', (filter: ProductParametricDataFeaturesInterface[]) => {
+  featureFilters.value = filter;
+  atPage.value = 1;
 });
 
-Emitter.on('reset-products-filters', async (value: boolean) => {
+Emitter.on('reset-products-filters', (value: boolean) => {
   if (!value) {
     return;
   }
@@ -248,15 +184,14 @@ Emitter.on('reset-products-filters', async (value: boolean) => {
   }
 
   filters.value = obj;
-
-  await getProduct(resolveKeyword(), atPage.value, perPage.value, {
-    sortBy: sortBy.value.name,
-    sortOrder: order.value === 0 ? 'desc' : 'asc',
-  });
+  additionalFilters.value = {};
+  featureFilters.value = [];
+  atPage.value = 1;
 });
 
-Emitter.on('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
+Emitter.on('product-keyword-change', (value: { keyword: string; products: SearchData }) => {
   keyword.value = value.keyword;
-  await getProduct(value.keyword, atPage.value, perPage.value, {}, additionalFilters.value, [], true);
+  ignoreCategory.value = true;
+  atPage.value = 1;
 });
 </script>
