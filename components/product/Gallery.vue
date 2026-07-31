@@ -55,8 +55,7 @@
 import { BoxIcon, Share2Icon } from 'lucide-vue-next';
 
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import type { ProductDetail } from '~/model/products/response/ProductDetailResponse';
-import type { ProductImageInterface } from '~/model/products/response/ProductResponse';
+import type { ProductDetail, ProductImageInterface } from '~/types/product';
 
 const props = defineProps<{
   images: ProductImageInterface[];

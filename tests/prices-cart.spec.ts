@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 import { calculateCartLinePricing, clampCartQuantity, resolveTierUnitPrice } from '../helpers/prices.helper';
 
 const volumeProduct = {

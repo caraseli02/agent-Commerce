@@ -1,4 +1,4 @@
-import type { ProductDetail, ProductDetailResponse } from '~/model/products/response/ProductDetailResponse';
+import type { ProductDetail, ProductDetailResponse } from '~/types/product';
 
 export type ProductDetailLoader = (slug: string) => Promise<ProductDetailResponse>;
 

@@ -4,7 +4,7 @@ import type {
   PriceConfigurationSettingsInterface,
   ProductDiscountsHelperInterface,
   ProductInterface,
-} from '~/model/products/response/ProductResponse';
+} from '~/types/product';
 import type { AddToCartRequestInterface, CartInterface, CartProductsInterface } from '~/types/cart';
 import {
   calculateCartLinePricing,
