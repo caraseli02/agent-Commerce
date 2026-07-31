@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #399 / PR pending — reduce Swiper weight on home merchandising (News + Manufacturers migrated to CSS grid/flex).
+- Issue #400 / PR #420 — search + cart read `useAsyncData` contracts (follow-up to #392).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #399 on branch `feat/399-reduce-swiper-weight` (label claim may need manual apply from automation token).
+- Issue #400 on branch `feat/400-search-cart-async-data` (label claim may need manual apply from automation token).
 
 ## Architecture note (cross-runtime cart pricing)
 
