@@ -12,12 +12,6 @@ const completeBody = `## Summary
 
 - Tighten the PR template gate for generator PRs.
 
-## Related lectures
-
-- Lecture 09 — Worker/checker separation and no premature victory
-- Lecture 10 — Full-pipeline verification evidence
-- Lecture 11 — Process observability, sprint contracts, evaluator rubric
-
 ## Template evidence
 
 - [x] This PR uses the ECAS PR template / checklist.
@@ -26,7 +20,7 @@ const completeBody = `## Summary
 
 ## Review flow
 
-1. Vlad reviews the related lecture list above.
+1. Vlad checks verification outcomes and known risks.
 
 ## Verification
 
@@ -42,15 +36,39 @@ const completeBody = `## Summary
 
 ## Evaluator rubric
 
-- Scope control: 8/10
-- Acceptance criteria: 9/10
-- Verification evidence: 10/10
-- Harness hygiene: 9/10
-- Risk reporting: 8/10
+- Scope control: /10
+- Acceptance criteria: /10
+- Verification evidence: /10
+- Harness hygiene: /10
+- Risk reporting: /10
 
 ## Notes
 
 - This PR is a PR-process or harness change, not broad feature work.`;
+
+const cursorBotBody = `## Summary
+
+- Example Cursor bot body with shortened verification outcomes.
+
+## Verification
+
+- [x] \`pnpm build\` — pass (included in verify)
+- [x] \`pnpm lint\` — pass
+- [x] \`pnpm typecheck\` — pass
+- [x] \`pnpm test\` — pass (168 tests)
+- [x] Browser/runtime evidence — N/A
+
+## Known risks
+
+- [x] None
+
+## Evaluator rubric
+
+- Scope control: /10
+- Acceptance criteria: /10
+- Verification evidence: /10
+- Harness hygiene: /10
+- Risk reporting: /10`;
 
 describe('PR template completeness gate', () => {
   it('passes a fully filled generator PR body', () => {
@@ -60,13 +78,16 @@ describe('PR template completeness gate', () => {
     expect(result.violations).toEqual([]);
   });
 
-  it('fails when verification outcomes and rubric scores are missing', () => {
+  it('passes Cursor bot verification wording without requiring rubric scores', () => {
+    const result = assess({ body: cursorBotBody });
+
+    expect(result.status).toBe('passed');
+    expect(result.violations).toEqual([]);
+  });
+
+  it('fails when verification outcomes are missing', () => {
     const result = assess({
-      body: `## Related lectures
-
-- Lecture 09 — Worker/checker separation and no premature victory
-
-## Verification
+      body: `## Verification
 
 - [ ] \`pnpm build\`
 - [ ] \`pnpm lint\`
@@ -89,7 +110,6 @@ describe('PR template completeness gate', () => {
       expect.arrayContaining([
         'Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.',
         'Known risks section must check at least one option or explicitly say none.',
-        'Evaluator rubric is missing scores for: Scope control, Acceptance criteria, Verification evidence, Harness hygiene, Risk reporting.',
       ])
     );
   });
