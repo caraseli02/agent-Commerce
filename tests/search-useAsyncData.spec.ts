@@ -40,7 +40,11 @@ describe('search useAsyncData contract', () => {
   });
 
   it('returns search data from a successful response', async () => {
-    const searchData = { filtersCount: 0, items: { total_items: 1, page_count: 1, page: 1, items: [] }, filters: {} } as SearchData;
+    const searchData = {
+      filtersCount: 0,
+      items: { total_items: 1, page_count: 1, page: 1, items: [] },
+      filters: {},
+    } as unknown as SearchData;
     const fetchSearch = vi.fn().mockResolvedValue({ status: 'success', data: searchData });
 
     await expect(loadSearchResults(baseQuery, fetchSearch)).resolves.toEqual(searchData);

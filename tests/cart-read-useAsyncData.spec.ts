@@ -26,7 +26,7 @@ describe('cart read useAsyncData contract', () => {
   });
 
   it('returns cart data from the loader', async () => {
-    const cart = { _id: 'cart-1', products: [] } as CartInterface;
+    const cart = { _id: 'cart-1', products: [] } as unknown as CartInterface;
     const fetchCart = vi.fn().mockResolvedValue(cart);
 
     await expect(loadCartRead(fetchCart)).resolves.toEqual(cart);
