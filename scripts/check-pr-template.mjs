@@ -5,12 +5,17 @@ import process from 'node:process';
 
 const REQUIRED_HEADINGS = ['Verification', 'Known risks', 'Evaluator rubric'];
 const VERIFICATION_COMMANDS = ['pnpm build', 'pnpm lint', 'pnpm typecheck', 'pnpm test'];
+const RUBRIC_FIELDS = ['Scope control', 'Acceptance criteria', 'Verification evidence', 'Harness hygiene', 'Risk reporting'];
 const SKIP_LABELS = new Set(['skip-pr-template-check', 'human-hotfix']);
 
 function normalize(value) {
   return String(value ?? '')
     .trim()
     .toLowerCase();
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function extractSections(body) {
@@ -46,18 +51,36 @@ function validateVerificationSection(section) {
   const missing = [];
 
   for (const command of VERIFICATION_COMMANDS) {
+    // Require the outcome delimiter after the command so the leading list "-" cannot satisfy the check.
+    // Accept either "— outcome: pass" or the common bot form "— pass (...)".
+    const outcomeAfterCommand = new RegExp(`\`${escapeRegExp(command)}\`\\s*[—-]\\s*(?:outcome:\\s*)?\\S+`, 'i');
+
     const commandLine = lines.some((line) => {
       const normalized = line.replace(/\s+/g, ' ');
-      return (
-        /^- \[(?:x|X)\]/.test(normalized) &&
-        normalized.includes(`\`${command}\``) &&
-        // Accept either "— outcome: pass" or the common bot form "— pass (...)"
-        /[—-]\s*(?:outcome:\s*)?\S/i.test(normalized)
-      );
+      return /^- \[(?:x|X)\]/.test(normalized) && outcomeAfterCommand.test(normalized);
     });
 
     if (!commandLine) {
       missing.push(command);
+    }
+  }
+
+  return missing;
+}
+
+function validateRubricSection(section) {
+  const missing = [];
+  const lines = section.split(/\r?\n/).map((line) => line.trim());
+
+  for (const field of RUBRIC_FIELDS) {
+    const fieldLine = lines.some((line) => {
+      const normalized = line.replace(/^[-*]\s*/, '').trim();
+      // Require the field label; numeric scores remain optional for generators.
+      return normalized.toLowerCase().startsWith(`${field.toLowerCase()}:`);
+    });
+
+    if (!fieldLine) {
+      missing.push(field);
     }
   }
 
@@ -104,11 +127,18 @@ export function assessPrTemplate({ body, labels = [] } = {}) {
     violations.push('Known risks section must check at least one option or explicitly say none.');
   }
 
-  // Rubric section must exist so the evaluator has a place to score; numeric
-  // scores are filled by the evaluator before PASS, not by the generator in CI.
+  // Rubric section must list the five dimensions; numeric scores are filled by
+  // the evaluator before PASS, not by the generator in CI.
   const rubric = sectionText(sections, 'Evaluator rubric');
-  if (sections.has('Evaluator rubric') && !rubric) {
-    violations.push('Evaluator rubric section is empty.');
+  if (sections.has('Evaluator rubric')) {
+    if (!rubric) {
+      violations.push('Evaluator rubric section is empty.');
+    } else {
+      const missingRubric = validateRubricSection(rubric);
+      if (missingRubric.length > 0) {
+        violations.push(`Evaluator rubric is missing fields for: ${missingRubric.join(', ')}.`);
+      }
+    }
   }
 
   return {
