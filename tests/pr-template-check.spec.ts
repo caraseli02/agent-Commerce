@@ -114,6 +114,60 @@ describe('PR template completeness gate', () => {
     );
   });
 
+  it('fails when checked verification commands have no outcome after the command', () => {
+    const result = assess({
+      body: `## Verification
+
+- [x] \`pnpm build\`
+- [x] \`pnpm lint\`
+- [x] \`pnpm typecheck\`
+- [x] \`pnpm test\`
+
+## Known risks
+
+- [x] None
+
+## Evaluator rubric
+
+- Scope control: /10
+- Acceptance criteria: /10
+- Verification evidence: /10
+- Harness hygiene: /10
+- Risk reporting: /10`,
+    });
+
+    expect(result.status).toBe('failed');
+    expect(result.violations).toEqual(
+      expect.arrayContaining(['Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.'])
+    );
+  });
+
+  it('fails when evaluator rubric omits required field labels', () => {
+    const result = assess({
+      body: `## Verification
+
+- [x] \`pnpm build\` — pass
+- [x] \`pnpm lint\` — pass
+- [x] \`pnpm typecheck\` — pass
+- [x] \`pnpm test\` — pass
+
+## Known risks
+
+- [x] None
+
+## Evaluator rubric
+
+Looks good overall.`,
+    });
+
+    expect(result.status).toBe('failed');
+    expect(result.violations).toEqual(
+      expect.arrayContaining([
+        'Evaluator rubric is missing fields for: Scope control, Acceptance criteria, Verification evidence, Harness hygiene, Risk reporting.',
+      ])
+    );
+  });
+
   it('skips when the documented bypass label is present', () => {
     const result = assess({
       body: '## Verification\n\n- [ ] `pnpm build`',
