@@ -39,14 +39,8 @@ describe('verify-ui-conventions', () => {
     expect(findNativeInteractiveElements(template)).toHaveLength(0);
   });
 
-  it('grandfathers known legacy modal files', () => {
-    const contents = `<template><button>Close</button></template>`;
-
-    for (const relativePath of grandfatheredLegacyModalFiles) {
-      const result = inspectModalUiFile(relativePath, contents);
-      expect(result.grandfathered).toBe(true);
-      expect(result.violations).toHaveLength(0);
-    }
+  it('keeps the legacy modal grandfather list empty after migration', () => {
+    expect(grandfatheredLegacyModalFiles.size).toBe(0);
   });
 
   it('fails non-grandfathered modal files that still use native controls', () => {

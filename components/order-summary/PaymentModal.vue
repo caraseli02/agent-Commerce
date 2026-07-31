@@ -4,15 +4,18 @@
   >
     <div class="sticky top-0 justify-between items-start self-stretch flex gap-5 bg-white z-10 min-h-16 pt-6">
       <div class="text-zinc-800 text-base font-semibold leading-7 my-auto">Payment Method</div>
-      <button
+      <UiButton
+        variant="ghost"
+        size="icon"
         class="justify-center items-center bg-zinc-100 self-stretch flex aspect-square flex-col w-8 h-8 px-1 rounded-lg"
+        aria-label="Close payment method"
         @click="
           paymentStore.toggleCardModal();
           exitCardModal(true);
         "
       >
         <SvgoX class="aspect-square object-contain object-center w-full justify-center items-center overflow-hidden" />
-      </button>
+      </UiButton>
     </div>
     <div class="flex flex-col gap-3 h-full overflow-y-auto relative">
       <OrderSummaryNewCard
@@ -51,20 +54,20 @@
         </svg>
         <div class="text-zinc-800 text-sm leading-6 self-center grow whitespace-nowrap my-auto">Secure credit card payment</div>
       </div>
-      <button
-        class="justify-center items-center self-stretch bg-blue-500 flex w-full flex-col mt-4 px-16 py-2 h-11 rounded-lg"
+      <UiButton
+        class="justify-center items-center self-stretch bg-blue-500 flex w-full flex-col mt-4 px-16 py-2 h-11 rounded-lg hover:bg-blue-500"
         @click="
           paymentStore.toggleCardModal();
           exitCardModal(false);
         "
       >
         <span class="flex items-center gap-2">
-          <div class="text-white text-base font-medium leading-7 grow whitespace-nowrap">Continue</div>
+          <span class="text-white text-base font-medium leading-7 grow whitespace-nowrap">Continue</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M14 8L18 12M18 12L14 16M18 12L6 12" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </span>
-      </button>
+      </UiButton>
     </div>
   </section>
 </template>

@@ -83,13 +83,6 @@
         @click="showAddRemoveFilterModal = false"
       />
     </Transition>
-    <Transition name="fade">
-      <div
-        v-if="showSearchFiltersModal"
-        class="absolute z-[60] top-0 left-0 w-full h-full bg-[#333333]/70 backdrop-blur-[2px] cursor-pointer md:hidden"
-        @click="showSearchFiltersModal = false"
-      />
-    </Transition>
   </Teleport>
 </template>
 

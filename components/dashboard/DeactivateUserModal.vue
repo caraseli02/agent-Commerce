@@ -1,58 +1,64 @@
 <template>
-  <div class="fixed z-[60] top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none">
-    <div class="relative z-10 w-[358px] max-w-[calc(100vw-32px)] p-4 bg-white rounded-xl pointer-events-auto shadow-xs md:p-6">
-      <button
-        class="w-8 h-8 bg-gray-100 flex items-center justify-center text-slate-500 rounded-lg ml-auto mb-4 transition-colors duration-300 hover:text-blue-500"
-        @click="$emit('close')"
-      >
-        <XIcon class="w-6 h-6" />
-      </button>
-      <div v-if="user.active" class="text-sm leading-[2.29] text-center mb-9">Lock account:</div>
-      <div v-else class="text-sm leading-[2.29] text-center mb-9">Unlock account:</div>
-      <div class="flex items-center mb-[78px]">
+  <UiDialog :open="isOpen" @update:open="onOpenChange">
+    <UiDialogContent
+      class="w-[358px] max-w-[calc(100vw-32px)] gap-0 border-none p-4 shadow-xs md:p-6 [&>button.absolute]:hidden"
+    >
+      <UiDialogClose as-child>
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="mb-4 ml-auto flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-slate-500 transition-colors duration-300 hover:text-blue-500"
+          aria-label="Close"
+        >
+          <XIcon class="h-6 w-6" />
+        </UiButton>
+      </UiDialogClose>
+      <div v-if="user.active" class="mb-9 text-center text-sm leading-[2.29]">Lock account:</div>
+      <div v-else class="mb-9 text-center text-sm leading-[2.29]">Unlock account:</div>
+      <div class="mb-[78px] flex items-center">
         <div
-          class="relative flex items-center justify-center rounded-full overflow-hidden w-11 h-11 flex-shrink-0 mr-4"
+          class="relative mr-4 flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
           :class="[!user.avatar ? 'bg-gray-100' : '']"
         >
-          <NuxtImg v-if="user.avatar" :src="user.avatar" :alt="user.name" class="w-full h-full rounded-full object-cover" loading="lazy" />
-          <UserIcon v-else class="w-7 h-7 text-gray-500" />
+          <NuxtImg v-if="user.avatar" :src="user.avatar" :alt="user.name" class="h-full w-full rounded-full object-cover" loading="lazy" />
+          <UserIcon v-else class="h-7 w-7 text-gray-500" />
         </div>
         <div>
-          <div class="flex items-center gap-3 mb-1">
-            <div class="text-sm leading-[1.43] font-semibold truncate transition-colors duration-300 group-hover/link:text-blue-500">
+          <div class="mb-1 flex items-center gap-3">
+            <div class="truncate text-sm font-semibold leading-[1.43] transition-colors duration-300 group-hover/link:text-blue-500">
               {{ user.name }}
             </div>
-            <div class="flex items-center gap-3 cursor-default">
-              <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" loading="lazy" >
-              <div class="bg-blue-500 px-2 rounded-[25px] text-xs leading-[1.67] font-semibold text-white">10%</div>
+            <div class="flex cursor-default items-center gap-3">
+              <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="mr-2 w-8 rounded" loading="lazy" >
+              <div class="rounded-[25px] bg-blue-500 px-2 text-xs font-semibold leading-[1.67] text-white">10%</div>
             </div>
           </div>
-          <div class="text-xs leading-[1.33] text-slate-500 truncate">
+          <div class="truncate text-xs leading-[1.33] text-slate-500">
             {{ user.email }}
           </div>
         </div>
       </div>
       <div class="grid grid-cols-[auto,1fr] gap-4">
-        <button class="flex px-8 py-2 rounded-lg bg-gray-100 text-sm leading-[1.71] text-slate-500 font-medium" @click="$emit('close')">
+        <UiButton variant="secondary" class="px-8 py-2 text-sm font-medium leading-[1.71] text-slate-500" @click="closeModal">
           Cancel
-        </button>
-        <button
+        </UiButton>
+        <UiButton
           v-if="user.active"
-          class="flex px-5 py-2 rounded-lg bg-rose-500 text-sm leading-[1.71] justify-center text-white font-medium"
+          class="justify-center bg-rose-500 px-5 py-2 text-sm font-medium leading-[1.71] text-white hover:bg-rose-500"
           @click="deactivateAccountAsAdmin(user.firebaseId)"
         >
-          <span>Lock Account</span>
-        </button>
-        <button
+          Lock Account
+        </UiButton>
+        <UiButton
           v-else
-          class="flex px-5 py-2 rounded-lg bg-[#00D395] text-sm leading-[1.71] justify-center text-white font-medium"
+          class="justify-center bg-[#00D395] px-5 py-2 text-sm font-medium leading-[1.71] text-white hover:bg-[#00D395]"
           @click="activateAccountAsAdmin(user.firebaseId)"
         >
-          <span>Unlock Account</span>
-        </button>
+          Unlock Account
+        </UiButton>
       </div>
-    </div>
-  </div>
+    </UiDialogContent>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
@@ -73,6 +79,9 @@ const props = defineProps({
   },
 });
 
+const emits = defineEmits(['close', 'changeLockStatus']);
+const isOpen = ref(true);
+
 const userCountry = async () => {
   if (props.user) {
     await loadCountries();
@@ -83,8 +92,21 @@ await userCountry();
 
 type ApiStatusResponse = { status: string };
 
-const deactivateAccountAsAdmin = async (id: string) => {
+const closeModal = () => {
+  isOpen.value = false;
   emits('close');
+};
+
+const onOpenChange = (open: boolean) => {
+  isOpen.value = open;
+
+  if (!open) {
+    emits('close');
+  }
+};
+
+const deactivateAccountAsAdmin = async (id: string) => {
+  closeModal();
   emits('changeLockStatus');
   const response = (await deactivateUser(id)) as ApiStatusResponse;
 
@@ -92,14 +114,13 @@ const deactivateAccountAsAdmin = async (id: string) => {
     return;
   }
 };
+
 const activateAccountAsAdmin = async (id: string) => {
-  emits('close');
+  closeModal();
   emits('changeLockStatus');
   const response = (await activateUser(id)) as ApiStatusResponse;
   if (response.status !== 'success') {
     return;
   }
 };
-
-const emits = defineEmits(['close', 'changeLockStatus']);
 </script>
