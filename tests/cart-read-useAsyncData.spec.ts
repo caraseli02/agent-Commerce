@@ -14,6 +14,7 @@ describe('cart read useAsyncData contract', () => {
 
     expect(orderSummaryPage).toContain("cartReadCacheKey('order-summary')");
     expect(orderSummaryPage).toContain('server: false');
+    expect(orderSummaryPage).toContain('fetchCartList()');
     expect(orderSummaryPage).toContain('loadCartRead(async () => {');
     expect(orderSummaryPage).toContain('cartReadPending');
     expect(orderSummaryPage).toContain('cartReadError');

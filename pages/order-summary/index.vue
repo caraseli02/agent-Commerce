@@ -104,21 +104,6 @@ useHead({ title: 'Order Summary' });
 
 const cartStore = useCartStore();
 
-const {
-  data: cartReadData,
-  pending: cartReadPending,
-  error: cartReadError,
-  refresh: refreshCartRead,
-} = await useAsyncData(
-  cartReadCacheKey('order-summary'),
-  () =>
-    loadCartRead(async () => {
-      const response = await fetchCartList();
-      return response?.data ?? null;
-    }),
-  { server: false }
-);
-
 // User Information
 const { user, getShipping, getBilling } = useUser();
 const userId = computed(() => user.value?.firebaseId);
@@ -129,6 +114,21 @@ const isGuestCheckout = computed(() => !(token.value || userId.value));
 
 // Cart Management
 const { cartId, cartItems, calculateSubtotal, calculateDiscount, showWarning, fetchShippingPrices } = useCart();
+
+const {
+  data: cartReadData,
+  pending: cartReadPending,
+  error: cartReadError,
+  refresh: refreshCartRead,
+} = useAsyncData(
+  cartReadCacheKey('order-summary'),
+  () =>
+    loadCartRead(async () => {
+      const response = await fetchCartList();
+      return response?.data ?? null;
+    }),
+  { server: false }
+);
 
 watch(
   cartReadData,
