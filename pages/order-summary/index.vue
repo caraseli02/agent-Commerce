@@ -86,6 +86,7 @@ import { useCart } from '~/composables/useCart';
 import { usePaymentCards } from '~/composables/usePaymentCards';
 import { useOrder } from '~/composables/useOrder';
 import { fetchCustomerCredit } from '~/composables/api/user';
+import { fetchCartList } from '~/composables/api/cart';
 
 // Stores
 import { useAuthStore } from '~/store/authStore';
@@ -101,6 +102,23 @@ import type { ShippingOrderPricingResponse } from '~/types/order-summary/shippin
 const router = useRouter();
 useHead({ title: 'Order Summary' });
 
+const cartStore = useCartStore();
+
+const {
+  data: cartReadData,
+  pending: cartReadPending,
+  error: cartReadError,
+  refresh: refreshCartRead,
+} = await useAsyncData(
+  cartReadCacheKey('order-summary'),
+  () =>
+    loadCartRead(async () => {
+      const response = await fetchCartList();
+      return response?.data ?? null;
+    }),
+  { server: false }
+);
+
 // User Information
 const { user, getShipping, getBilling } = useUser();
 const userId = computed(() => user.value?.firebaseId);
@@ -110,19 +128,14 @@ const { token, getGeneralSettings } = storeToRefs(authStore);
 const isGuestCheckout = computed(() => !(token.value || userId.value));
 
 // Cart Management
-const cartStore = useCartStore();
 const { cartId, cartItems, calculateSubtotal, calculateDiscount, showWarning, fetchShippingPrices } = useCart();
-
-const {
-  data: cartReadData,
-  pending: cartReadPending,
-  error: cartReadError,
-  refresh: refreshCartRead,
-} = await useAsyncData(cartReadCacheKey('order-summary'), () => loadCartRead(() => cartStore.updateAndReturnCart()));
 
 watch(
   cartReadData,
   (cart) => {
+    if (cart) {
+      cartStore.setCart(cart);
+    }
     cartId.value = cart?._id || '';
     cartItems.value = mapCartItems(cart?.products || []);
   },

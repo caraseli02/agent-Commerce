@@ -13,7 +13,8 @@ describe('cart read useAsyncData contract', () => {
     const orderSummaryPage = readFileSync(orderSummaryPath, 'utf8');
 
     expect(orderSummaryPage).toContain("cartReadCacheKey('order-summary')");
-    expect(orderSummaryPage).toContain('loadCartRead(() => cartStore.updateAndReturnCart())');
+    expect(orderSummaryPage).toContain('server: false');
+    expect(orderSummaryPage).toContain('loadCartRead(async () => {');
     expect(orderSummaryPage).toContain('cartReadPending');
     expect(orderSummaryPage).toContain('cartReadError');
     expect(orderSummaryPage).toContain('refreshCartRead()');
