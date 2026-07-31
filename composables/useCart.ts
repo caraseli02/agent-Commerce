@@ -1,7 +1,7 @@
 // ~/composables/useCart.ts
 import { computed, ref } from 'vue';
-import Emitter from 'tiny-emitter/instance.js';
 import { useRouter, useRuntimeConfig } from '#app';
+import { useUiStore } from '~/store/uiStore';
 import { addEntityToCart, removeEntityFromCart, updateEntityFromCart } from '~/composables/api/cart';
 import { getShippingPricesForOrder } from '~/composables/api/orders';
 import { clampCartQuantity } from '~/helpers/cart-pricing';
@@ -56,7 +56,7 @@ export function useCart() {
     }
 
     await router.push('/');
-    Emitter.emit('open-account-modal');
+    useUiStore().requestOpenAccountModal();
     return true;
   };
 

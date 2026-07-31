@@ -252,7 +252,6 @@
 <script setup lang="ts">
 import { differenceInDays, differenceInHours } from 'date-fns';
 import { storeToRefs } from 'pinia';
-import Emitter from 'tiny-emitter/instance.js';
 import { AccountRole, AccountType } from '../../types';
 import DashboardAvatar from '@/assets/icons/dashboard/avatar.png';
 import BurgerIcon from '@/assets/icons/dashboard/burger.svg';
@@ -265,6 +264,7 @@ import NotificationIcon from '@/assets/icons/dashboard/notification-ringing.svg'
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import type { Notification } from '~/types/dashboard/notification';
 import { useAuthStore } from '~/store/authStore';
+import { useNotificationStore } from '~/store/notificationStore';
 import type { UserInterface } from '~/types/auth/user-interface';
 import {
   deleteNotificationById,
@@ -279,6 +279,7 @@ defineProps({
   },
 });
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const { getUserDetails } = storeToRefs(authStore);
 
 const emit = defineEmits<{
@@ -303,25 +304,27 @@ onMounted(() => {
   }
 });
 
-Emitter.on('update-cart', async (payload: unknown) => {
-  // Cart payloads use { products }; auth historically reused this channel with non-cart values.
-  if (payload && typeof payload === 'object' && 'products' in payload) {
-    return;
+watch(
+  () => notificationStore.refreshRequestId,
+  () => {
+    void fetchNofications();
   }
-  if (payload) {
-    await fetchNofications();
-  }
-});
+);
 
-Emitter.on('remove-cart-and-notifications', async (signout: boolean) => {
-  if (signout) {
-    unreadNotifications.value = 0;
+watch(
+  () => authStore.getToken(),
+  (token) => {
+    if (!token) {
+      notifications.value = [];
+      unreadNotifications.value = 0;
+    }
   }
-});
+);
 
 const fetchNofications = async () => {
   error.value = false;
   isLoading.value = true;
+  unreadNotifications.value = 0;
 
   type NotificationsResponse = { status: string; description: Notification[] };
   const response = (await fetchGetNotifications()) as unknown as NotificationsResponse;

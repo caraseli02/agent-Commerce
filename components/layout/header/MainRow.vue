@@ -159,10 +159,12 @@ import { fetchSearchProduct } from '~/composables/api/products';
 import { useCartStore } from '~/store/cartStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
+import { useUiStore } from '~/store/uiStore';
 import { useClientReady } from '~/composables/useClientReady';
 import { useCartBadgeMotion } from '~/composables/useCartBadgeMotion';
 
 const cartStore = useCartStore();
+const uiStore = useUiStore();
 const isClientReady = useClientReady();
 const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
 const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
@@ -226,33 +228,51 @@ const items = ref<CartInterface>({} as CartInterface);
 const productList = ref<ProductInterface[]>([]);
 const isLoading = ref(false);
 
-Emitter.on('remove-cart-and-notifications', async (isSignout: boolean) => {
-  if (isSignout) {
-    cartStore.emptyCart();
-    cartItems.value = 0;
-    totalCartPrice.value = 0;
-    items.value = {} as CartInterface;
-    resetBaseline();
-  }
-});
-
-Emitter.on('update-cart', async (data: CartInterface) => {
-  if (data && data.products) {
+const syncHeaderCartFromStore = (data: CartInterface | null) => {
+  if (data?.products) {
     items.value = data;
-    cartItems.value = items.value.products.length;
-    cart.value = items.value;
+    cartItems.value = data.products.length;
+    cart.value = data;
     syncFromCart(data);
     subtotal();
+    return;
   }
-});
 
-Emitter.on('open-account-modal', async () => {
-  openAccountModal();
-});
+  cartItems.value = 0;
+  totalCartPrice.value = 0;
+  items.value = {} as CartInterface;
+  cart.value = null;
+  resetBaseline();
+};
 
-Emitter.on('open-cart-modal', () => {
-  openCartModal();
-});
+watch(
+  () => cartStore.cart,
+  (data) => {
+    syncHeaderCartFromStore(data);
+  },
+  { deep: true, immediate: true }
+);
+
+watch(
+  () => uiStore.accountModalRequestId,
+  () => {
+    openAccountModal();
+  }
+);
+
+watch(
+  () => uiStore.cartModalRequestId,
+  () => {
+    openCartModal();
+  }
+);
+
+watch(
+  () => notificationStore.refreshRequestId,
+  () => {
+    void fetchNofications();
+  }
+);
 
 const fetchList = async () => {
   const data = getCart.value as CartInterface | null;

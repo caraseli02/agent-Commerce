@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import Emitter from 'tiny-emitter/instance.js';
 import { mapCartItems } from '../utils/cart';
 import type { CartInterface, CartProductsInterface } from '~/types/cart';
 import { __setMockApiClient, __setMockCookie, __setMockRuntimeConfig } from './mocks/nuxt-app';
@@ -51,7 +50,6 @@ vi.mock('~/components/ui/toast', () => ({
 
 describe('optimistic add-to-cart', () => {
   const apiRequests: Array<{ resource: string; method?: string; body?: unknown }> = [];
-  const emittedCarts: unknown[] = [];
 
   beforeEach(() => {
     vi.stubGlobal('piniaPluginPersistedstate', {
@@ -63,10 +61,7 @@ describe('optimistic add-to-cart', () => {
     vi.stubGlobal('mapCartItems', mapCartItems);
     setActivePinia(createPinia());
     apiRequests.length = 0;
-    emittedCarts.length = 0;
     toast.mockReset();
-    Emitter.off('update-cart');
-    Emitter.on('update-cart', (cart: unknown) => emittedCarts.push(cart));
     __setMockCookie('token', 'mock-token');
     __setMockRuntimeConfig({ public: { MOCK_MODE: true } });
   });
@@ -100,12 +95,10 @@ describe('optimistic add-to-cart', () => {
     const addPromise = addToCart({ products: [product], userId: '' });
 
     await vi.waitFor(() => {
-      expect(emittedCarts).toHaveLength(1);
+      expect(cartStore.cart?.products).toHaveLength(1);
     });
 
-    expect(cartStore.cart?.products).toHaveLength(1);
     expect(cartStore.cart?.products?.[0]?.id).toBe('prod-2');
-    expect(emittedCarts).toHaveLength(1);
 
     resolvePost({ status: 'success', data: refreshedCart });
     const result = await addPromise;
