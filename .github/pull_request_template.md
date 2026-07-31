@@ -2,14 +2,6 @@
 
 <!-- What changed, in 1-3 bullets. Keep it scoped. -->
 
-## Related lectures
-
-- Lecture 09 — Worker/checker separation and no premature victory
-- Lecture 10 — Full-pipeline verification evidence
-- Lecture 11 — Process observability, sprint contracts, evaluator rubric
-- Lecture 12 — Clean handoff and known-risk reporting
-- Resource templates — session handoff and evaluator rubric
-
 ## Template evidence
 
 - [ ] This PR uses the ECAS PR template / checklist.
@@ -18,11 +10,10 @@
 
 ## Review flow
 
-1. Vlad reviews the related lecture list above.
-2. Vlad checks the PR body for exact verification commands and outcomes.
-3. Vlad checks browser/runtime evidence when UI or routes changed.
-4. Vlad checks the known-risks section and the evaluator rubric score.
-5. Vlad decides whether the PR is review-ready or needs repair.
+1. Vlad checks the PR body for exact verification commands and outcomes.
+2. Vlad checks browser/runtime evidence when UI or routes changed.
+3. Vlad checks the known-risks section and the evaluator rubric score.
+4. Vlad decides whether the PR is review-ready or needs repair.
 
 ## Verification
 
@@ -40,6 +31,8 @@
 - [ ] Other:
 
 ## Evaluator rubric
+
+<!-- Generator may leave scores blank. Evaluator fills scores before PASS. -->
 
 - Scope control: /10
 - Acceptance criteria: /10

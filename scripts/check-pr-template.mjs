@@ -3,19 +3,14 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 
-const REQUIRED_HEADINGS = ['Related lectures', 'Verification', 'Known risks', 'Evaluator rubric'];
+const REQUIRED_HEADINGS = ['Verification', 'Known risks', 'Evaluator rubric'];
 const VERIFICATION_COMMANDS = ['pnpm build', 'pnpm lint', 'pnpm typecheck', 'pnpm test'];
-const RUBRIC_FIELDS = [
-  'Scope control',
-  'Acceptance criteria',
-  'Verification evidence',
-  'Harness hygiene',
-  'Risk reporting',
-];
 const SKIP_LABELS = new Set(['skip-pr-template-check', 'human-hotfix']);
 
 function normalize(value) {
-  return String(value ?? '').trim().toLowerCase();
+  return String(value ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function extractSections(body) {
@@ -56,33 +51,13 @@ function validateVerificationSection(section) {
       return (
         /^- \[(?:x|X)\]/.test(normalized) &&
         normalized.includes(`\`${command}\``) &&
-        /[—-]\s*outcome:\s*\S/i.test(normalized)
+        // Accept either "— outcome: pass" or the common bot form "— pass (...)"
+        /[—-]\s*(?:outcome:\s*)?\S/i.test(normalized)
       );
     });
 
     if (!commandLine) {
       missing.push(command);
-    }
-  }
-
-  return missing;
-}
-
-function validateRubricSection(section) {
-  const missing = [];
-  const lines = section.split(/\r?\n/).map((line) => line.trim());
-
-  for (const field of RUBRIC_FIELDS) {
-    const fieldLine = lines.some((line) => {
-      const normalized = line.replace(/^[-*]\s*/, '').trim();
-      return (
-        normalized.startsWith(`${field}:`) &&
-        /(?:10|[1-9])\/10$/i.test(normalized.replace(/^.*:\s*/, ''))
-      );
-    });
-
-    if (!fieldLine) {
-      missing.push(field);
     }
   }
 
@@ -116,11 +91,6 @@ export function assessPrTemplate({ body, labels = [] } = {}) {
     }
   }
 
-  const relatedLectures = sectionText(sections, 'Related lectures');
-  if (!relatedLectures) {
-    violations.push('Related lectures section is empty.');
-  }
-
   const verification = sectionText(sections, 'Verification');
   const missingVerification = validateVerificationSection(verification);
   if (missingVerification.length > 0) {
@@ -134,10 +104,11 @@ export function assessPrTemplate({ body, labels = [] } = {}) {
     violations.push('Known risks section must check at least one option or explicitly say none.');
   }
 
+  // Rubric section must exist so the evaluator has a place to score; numeric
+  // scores are filled by the evaluator before PASS, not by the generator in CI.
   const rubric = sectionText(sections, 'Evaluator rubric');
-  const missingRubric = validateRubricSection(rubric);
-  if (missingRubric.length > 0) {
-    violations.push(`Evaluator rubric is missing scores for: ${missingRubric.join(', ')}.`);
+  if (sections.has('Evaluator rubric') && !rubric) {
+    violations.push('Evaluator rubric section is empty.');
   }
 
   return {

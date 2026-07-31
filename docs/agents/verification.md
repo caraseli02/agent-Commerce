@@ -44,8 +44,10 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 9. **Targeted baseline check**
    - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
 10. **Targeted test**
-   - Add or update a focused Vitest test when behavior can be checked without the browser.
-   - Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
+
+- Add or update a focused Vitest test when behavior can be checked without the browser.
+- Prefer RED → GREEN → REFACTOR for bug fixes and behavior changes.
+
 11. **Browser/runtime smoke**
 
 - Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
@@ -103,7 +105,7 @@ A task is not done until all are true:
 - No unrelated refactor was bundled into the task.
 - `feature_list.json` / `PROGRESS.md` are updated when durable state changed. GitHub Issues are the primary work tracker; `PROGRESS.md` is the current-state mirror for active issue/PR, blockers, and verification baseline.
 - The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.
-- For harness-state validator work, make the PR body itself repeat the related lectures list exactly as listed in the issue body, the validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
+- For harness-state validator work, make the PR body itself repeat the validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
 - An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.
 
 ## Anti-premature-victory rules
@@ -135,7 +137,7 @@ Mechanical gates do **not** enforce design-system consistency. Evaluators must c
 - **Modals and dialogs:** prefer `UiDialog`, `UiDialogContent`, `UiButton`, `UiInput`, and `UiLabel` from shadcn-nuxt over raw `<button>`, `<input>`, and `<label>` unless the issue explicitly calls for a legacy/native pattern.
 - **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `CustomProductPartNumberModal.vue`).
 - **Runtime evidence for UI:** modal and route changes need browser smoke on the affected flow, not only `pnpm verify` static output. Issue acceptance criteria that mention smoke-testing must show route/viewport evidence in the PR body.
-- **PR template completeness:** generator PRs must fill the template sections (related lectures, verification outcomes, known risks, evaluator rubric). `node scripts/check-pr-template.mjs` enforces this in CI, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when CI passes.
+- **PR template completeness:** generator PRs must fill the template sections (verification outcomes, known risks, evaluator rubric). Rubric numeric scores are filled by the evaluator before PASS; generators may leave `/10` placeholders. `node scripts/check-pr-template.mjs` enforces this in CI, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when CI passes.
 
 ## Agent-oriented failure messages
 
