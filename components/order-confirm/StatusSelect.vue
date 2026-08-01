@@ -68,15 +68,14 @@ watch(selected, (newValue, oldVal) => {
 const confirmChange = async () => {
   isOpen.value = false; // Close dialog
 
-  const result = (await changeStatus(props.orderId, selected.value)) as unknown as {
-    status: string;
-    description: string;
-  };
+  const result = await changeStatus(props.orderId, selected.value);
   if (result.status !== 'success') {
     toast({
       variant: 'destructive',
       title: 'Error',
-      description: result.description || 'Failed to update order status',
+      description:
+        result.description ||
+        'Could not update the order status. Please try again, or refresh the page if it still fails.',
     });
     return;
   }

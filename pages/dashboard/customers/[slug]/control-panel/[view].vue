@@ -47,14 +47,18 @@ const defaultControlPanelView = (accountType: AccountType) =>
 onMounted(() => {
   if (route.params.view === ControlPanelTabsEnum.Settings) {
     router.replace({
-      path: `/dashboard/customers/${route.params.slug}/control-panel/${defaultControlPanelView(customerDetails.value.accountType ?? AccountType.Personal)}`,
+      path: `/dashboard/customers/${route.params.slug}/control-panel/${defaultControlPanelView(
+        customerDetails.value.accountType ?? AccountType.Personal
+      )}`,
     });
     return;
   }
 
   if (!Object.values(ControlPanelTabsEnum).includes(route.params.view as ControlPanelTabsEnum)) {
     router.replace({
-      path: `/dashboard/customers/${route.params.slug}/control-panel/${defaultControlPanelView(customerDetails.value.accountType ?? AccountType.Personal)}`,
+      path: `/dashboard/customers/${route.params.slug}/control-panel/${defaultControlPanelView(
+        customerDetails.value.accountType ?? AccountType.Personal
+      )}`,
     });
   } else {
     if (customerDetails.value.accountType === AccountType.Personal && route.params.view === ControlPanelTabsEnum.Organization) {
@@ -74,10 +78,7 @@ const fetchInformation = async () => {
     return;
   }
   try {
-    const response = (await fetchCustomerInformation(customerSlug.value)) as unknown as {
-      status: string;
-      data: UserInterface;
-    };
+    const response = await fetchCustomerInformation(customerSlug.value);
 
     if (response.status !== 'success') {
       return;

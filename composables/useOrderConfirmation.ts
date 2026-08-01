@@ -169,7 +169,7 @@ export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefine
       return;
     }
 
-    const response = (await getOrderById(resolvedOrderId)) as OrderRequestInterfaceResponse;
+    const response = await getOrderById(resolvedOrderId);
 
     if (response.status !== 'success' || !response.data?.order) {
       return;
@@ -179,10 +179,10 @@ export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefine
     orderTypeValue.value = response.data.order.type;
 
     if (response.data.order.type === OrderType.Mixed) {
-      stockOrder.value = (response.data.children.find((child) => child.type === OrderType.Stock) ??
-        response.data.order) as unknown as OrderRequestInterface;
-      backOrder.value = (response.data.children.find((child) => child.type === OrderType.Back) ??
-        response.data.order) as unknown as OrderRequestInterface;
+      stockOrder.value =
+        response.data.children.find((child) => child.type === OrderType.Stock) ?? (response.data.order as unknown as OrderRequestInterface);
+      backOrder.value =
+        response.data.children.find((child) => child.type === OrderType.Back) ?? (response.data.order as unknown as OrderRequestInterface);
       stockOrderItems.value = stockOrder.value.products || [];
       backorderItems.value = backOrder.value.products || [];
       return;

@@ -162,9 +162,9 @@ import ChevronIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import { WidgetTypeEnum } from '~/types/dashboard/orders';
+import type { WidgetApiType } from '~/types/dashboard/admin-orders';
 import { fetchWidget } from '~/composables/api/orders';
 
-type WidgetApiType = Parameters<typeof fetchWidget>[0];
 type WidgetLabel = keyof typeof WidgetTypeEnum;
 
 interface RangeOption {
@@ -191,13 +191,6 @@ interface WidgetCard {
     showOptions: boolean;
   };
   theme: string;
-}
-
-interface WidgetResponse {
-  status: string;
-  data: {
-    total: string | number;
-  };
 }
 
 const start = startOfISOWeek(Date.now());
@@ -241,7 +234,7 @@ const avgOrderValue = ref('');
 const productsSold = ref('');
 
 const getTotalOrders = async () => {
-  const firstWidget = (await fetchWidget('total-orders' as WidgetApiType, thisWeekDifference)) as WidgetResponse;
+  const firstWidget = await fetchWidget('total-orders', thisWeekDifference);
   if (firstWidget.status !== 'success') {
     isLoading.value[0] = false;
     error.value[0] = true;
@@ -252,7 +245,7 @@ const getTotalOrders = async () => {
   totalOrders.value = await setWidgetValueFormat('total-orders', firstWidget.data.total);
 };
 const getGrossRevenue = async () => {
-  const secondWidget = (await fetchWidget('gross-revenue' as WidgetApiType, thisWeekDifference)) as WidgetResponse;
+  const secondWidget = await fetchWidget('gross-revenue', thisWeekDifference);
   if (secondWidget.status !== 'success') {
     isLoading.value[1] = false;
     error.value[1] = true;
@@ -263,7 +256,7 @@ const getGrossRevenue = async () => {
   grossRevenue.value = await setWidgetValueFormat('gross-revenue', secondWidget.data.total);
 };
 const getAvgOrderValue = async () => {
-  const thirdWidget = (await fetchWidget('average-order-value' as WidgetApiType, thisWeekDifference)) as WidgetResponse;
+  const thirdWidget = await fetchWidget('average-order-value', thisWeekDifference);
   if (thirdWidget.status !== 'success') {
     isLoading.value[2] = false;
     error.value[2] = true;
@@ -274,7 +267,7 @@ const getAvgOrderValue = async () => {
   avgOrderValue.value = await setWidgetValueFormat('average-order-value', thirdWidget.data.total);
 };
 const getProductsSold = async () => {
-  const fourthWidget = (await fetchWidget('products-sold' as WidgetApiType, thisWeekDifference)) as WidgetResponse;
+  const fourthWidget = await fetchWidget('products-sold', thisWeekDifference);
   if (fourthWidget.status !== 'success') {
     isLoading.value[3] = false;
     error.value[3] = true;
@@ -424,9 +417,9 @@ const cards = ref<WidgetCard[]>([
 ]);
 
 const getWidgedData = async (data: WidgetCard, index: number) => {
-  const type = WidgetTypeEnum[data.menu.selected.label];
+  const type: WidgetApiType = WidgetTypeEnum[data.menu.selected.label];
   const range = type !== 'active-cart-sessions' && type !== 'total-stock-value' ? data.range.selected.value : -1;
-  const response = (await fetchWidget(type as unknown as WidgetApiType, range)) as WidgetResponse;
+  const response = await fetchWidget(type, range);
   if (response.status !== 'success') {
     return;
   }

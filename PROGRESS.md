@@ -2,13 +2,12 @@
 
 ## Current focus
 
-- Issue #400 / PR #420 — search + cart read `useAsyncData` contracts (follow-up to #392).
-- Open PR #416 for #396 still awaits evaluator (no `in-progress` label on issue).
+- Issue #403 / PR #423 — order and dashboard type namespace consolidation (rebase + review repair).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #400 on branch `feat/400-search-cart-async-data` (label claim may need manual apply from automation token).
+- Issue #403 on branch `feat/403-order-dashboard-type-consolidation` (label claim may need manual apply from automation token).
 
 ## Architecture note (cross-runtime cart pricing)
 

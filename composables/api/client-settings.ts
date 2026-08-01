@@ -1,5 +1,5 @@
 import { useNuxtApp } from '#app';
-import type { DetailsResponse } from '~/model/dashboard/customer-information/customer-information';
+import type { DetailsResponse } from '~/types/dashboard/client-dashboard';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
 import type { AccountAdminSettings } from '~/types/auth/account-settings';

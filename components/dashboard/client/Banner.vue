@@ -117,7 +117,7 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper';
-import type { ProductBannerInterface } from '~/model/dashboard/customer-information/customer-information';
+import type { ProductBannerInterface } from '~/types/dashboard/client-dashboard';
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
 import { addToCartHelper } from '~/helpers/prices.helper';
 import { toast } from '~/components/ui/toast';

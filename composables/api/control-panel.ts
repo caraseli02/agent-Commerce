@@ -2,7 +2,7 @@ import { useNuxtApp } from '#app';
 import type { $Fetch } from 'ofetch';
 import type { AccountAdminSettings } from '~/types/auth/account-settings';
 import type { BillingAddressInterface, ShippingAddressInterface, UserInterface } from '~/types/auth/user-interface';
-import type { PaginatedTransactionsInterface } from '~/model/dashboard/response/CustomerInterfaceResponse';
+import type { PaginatedTransactionsInterface } from '~/types/dashboard/admin-users';
 
 const MAIN_RESOURCE = '/dashboard/control-panel';
 const SETTINGS_RESOURCE = `${MAIN_RESOURCE}/settings`;

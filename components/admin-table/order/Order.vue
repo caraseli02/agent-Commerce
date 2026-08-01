@@ -7,15 +7,6 @@ import type { OrderInterface, OrderTableColumns } from '~/types';
 import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.enum';
 import { fetchOrders } from '~/composables/api/orders';
 
-interface OrdersListResponse {
-  status: string;
-  data: {
-    total_items: number;
-    page_count: number;
-    items: OrderInterface[];
-  };
-}
-
 interface TabFilter {
   label: string;
   value?: string;
@@ -39,7 +30,7 @@ const fetchAndSetOrdersList = async (
 ) => {
   error.value = false;
 
-  const result = (await fetchOrders(page, perPage, filters, sort)) as OrdersListResponse;
+  const result = await fetchOrders(page, perPage, filters, sort);
 
   if (!result || result.status !== 'success') {
     loading.value = false;
@@ -52,7 +43,7 @@ const fetchAndSetOrdersList = async (
 
   totalItems.value = result.data.total_items;
   pageCount.value = result.data.page_count;
-  listItems.value = result.data.items as unknown as OrderInterface[];
+  listItems.value = result.data.items;
   loading.value = false;
   activeOrderFilter.value.total_items = totalItems.value;
   return result.data;

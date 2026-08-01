@@ -47,15 +47,14 @@ const markAsPaid = async (payload: MarkAsPaidRequestInterface) => {
 };
 
 const changeStatus = async (status: OrderStatus) => {
-  const response = (await changeStatusApi(props.order?._id, status)) as {
-    status: string;
-    description: string;
-  };
+  const response = await changeStatusApi(props.order?._id, status);
 
   if (response.status !== 'success') {
     toast({
       title: 'Error',
-      description: response.description || 'Failed to change status',
+      description:
+        response.description ||
+        'Could not change the order status. Please try again, or refresh the page if it still fails.',
       variant: 'destructive',
     });
     return;

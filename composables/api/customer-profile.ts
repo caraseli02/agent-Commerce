@@ -1,13 +1,12 @@
 import { useNuxtApp } from '#app';
-import type { CustomersProfileInformation } from '~/model/dashboard/customer-information/customer-information';
-import type { OrderInterface } from '~/types';
+import type { CustomerInformationResponse, CustomerRecentTransactionsResponse } from '~/types/dashboard/customer-profile';
 
 const MAIN_RESOURCE = '/dashboard/profile';
 
 export async function fetchCustomerInformation(userID: string) {
   const { $apiClient } = useNuxtApp();
 
-  return await $apiClient<CustomersProfileInformation>(`${MAIN_RESOURCE}/${userID}/customer-information`, {
+  return await $apiClient<CustomerInformationResponse>(`${MAIN_RESOURCE}/${userID}/customer-information`, {
     method: 'GET',
   });
 }
@@ -55,7 +54,7 @@ export async function fetchCustomerShippingInformation(userID: string) {
 export async function fetchCustomerRecentTransactions(userID: string) {
   const { $apiClient } = useNuxtApp();
 
-  return await $apiClient<OrderInterface[]>(`${MAIN_RESOURCE}/${userID}/recent-transactions`, {
+  return await $apiClient<CustomerRecentTransactionsResponse>(`${MAIN_RESOURCE}/${userID}/recent-transactions`, {
     method: 'GET',
   });
 }
