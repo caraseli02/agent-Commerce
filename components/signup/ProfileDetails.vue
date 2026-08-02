@@ -25,7 +25,7 @@
             <div v-if="firebaseToken" class="bg-amber-400 px-3 py-1 rounded">
               <small>You are logged in with Google, so you are not allowed to change your email account.</small>
             </div>
-            <FormInput
+            <BuyerFormInput
               v-model="details.accountEmail.value"
               :error="details.accountEmail.error"
               type="email"
@@ -33,7 +33,7 @@
               placeholder="Account E-mail"
               :disabled="!!firebaseToken"
             />
-            <FormInput
+            <BuyerFormInput
               v-model="details.confirmAccountEmail.value"
               :error="details.confirmAccountEmail.error"
               type="email"

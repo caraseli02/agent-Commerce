@@ -4,7 +4,7 @@
       <h1 class="text-xl leading-[1.4] font-semibold text-center mb-6">Forgot your password?</h1>
       <p class="text-sm leading-[1.71] text-center mb-10">Enter your email address and we will share a link to create a new password.</p>
       <form class="grid grid-cols-1 gap-6" @submit.prevent="handleSubmit">
-        <FormInput
+        <BuyerFormInput
           v-model="form.email.value"
           :error="form.email.error"
           type="email"
