@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #403 / PR #423 — order and dashboard type namespace consolidation (rebase + review repair).
+- Issue #402 / PR #424 — retire FormInput on Scripted Buyer Path (rebase onto main + review repair).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #403 on branch `feat/403-order-dashboard-type-consolidation` (label claim may need manual apply from automation token).
+- Issue #402 on branch `feat/402-retire-forminput-buyer-path` (label claim may need manual apply from automation token).
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -17,6 +17,8 @@
 
 ## Recently completed
 
+- Issue #403 / PR #423 — order and dashboard type namespace consolidation.
+- Issue #399 / PR #417 — reduce Swiper weight on home merchandising surfaces.
 - Issue #390 / PR #405 — CLAUDE.md API guidance synced with live `composables/api` architecture.
 - Issue #385 / PR #386 — optimistic add-to-cart on Scripted Buyer Path.
 - Issue #349 / PR #383 — dashboard bundle split and bundle-size guardrails.
