@@ -125,9 +125,6 @@ export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefine
       subtotal,
       discountRate: discountPercentage,
       shippingCost: currentOrder.shippingCost || 0,
-      smallOrderTiers: currentOrder.smallOrderCost
-        ? [{ min: 0, max: Number.POSITIVE_INFINITY, price: currentOrder.smallOrderCost }]
-        : undefined,
     });
 
     return {

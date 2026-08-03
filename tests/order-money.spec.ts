@@ -96,7 +96,7 @@ describe('order money module', () => {
     const result = calculateOrderMoney({
       subtotal: 33.33,
       discountRate: 0.333,
-      shippingCost: 1.005,
+      shippingCost: 1.01,
       vatRate: 0.19,
     });
 

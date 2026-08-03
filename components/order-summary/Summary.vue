@@ -78,7 +78,7 @@ import OrderSummarySmallOrderModal from './SmallOrderModal.vue';
 import InformationIcon from '~/assets/icons/information.svg';
 import { calculateOrderMoney } from '~/helpers/order-money';
 import type { CheckoutOrderDraft } from '~/types';
-import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
+import type { GeneralSettingsInterface, SmallOrderChargeInterface } from '~/types/general-settings/general-settings';
 import { useCartStore } from '~/store/cartStore';
 
 const cartStore = useCartStore();
@@ -95,6 +95,7 @@ const showSmallOrderModal = ref(false);
 
 const resolvedSubtotal = computed(() => Number(getCartSubtotal.value || props.order.subtotal || 0));
 const resolvedDiscount = computed(() => Number(itemsDiscount.value || props.order.discount?.total || 0));
+const shipping = computed(() => props.order.deliveryMethod);
 
 const orderMoney = computed(() =>
   calculateOrderMoney({
@@ -108,9 +109,9 @@ const orderMoney = computed(() =>
 watch(
   () => orderMoney.value.matchedSmallOrderTier,
   (tier) => {
-    if (tier) {
+    if (tier?._id) {
       // eslint-disable-next-line vue/no-mutating-props
-      props.order.smallOrder = tier;
+      props.order.smallOrder = tier as SmallOrderChargeInterface;
     }
   },
   { immediate: true }
@@ -120,7 +121,6 @@ const smallOrder = computed(() => orderMoney.value.smallOrderCharge);
 const calculatedVAT = computed(() => orderMoney.value.vatAmount);
 const calculatedTotal = computed(() => orderMoney.value.grandTotal);
 
-const shipping = computed(() => props.order.deliveryMethod);
 const shippingText = computed(() => {
   if (!shipping.value) return '';
 
