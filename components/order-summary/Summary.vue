@@ -76,6 +76,7 @@
 import { storeToRefs } from 'pinia';
 import OrderSummarySmallOrderModal from './SmallOrderModal.vue';
 import InformationIcon from '~/assets/icons/information.svg';
+import { calculateOrderMoney } from '~/helpers/order-money';
 import type { CheckoutOrderDraft } from '~/types';
 import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
 import { useCartStore } from '~/store/cartStore';
@@ -95,27 +96,29 @@ const showSmallOrderModal = ref(false);
 const resolvedSubtotal = computed(() => Number(getCartSubtotal.value || props.order.subtotal || 0));
 const resolvedDiscount = computed(() => Number(itemsDiscount.value || props.order.discount?.total || 0));
 
-const smallOrder = computed(() => {
-  let smallOrderFee = 0;
-  props.generalSettings?.orderSettings?.smallOrderCharge?.forEach((charge) => {
-    if (resolvedSubtotal.value < charge.max && resolvedSubtotal.value >= charge.min) {
-      smallOrderFee = charge.price;
+const orderMoney = computed(() =>
+  calculateOrderMoney({
+    subtotal: resolvedSubtotal.value,
+    discountAmount: resolvedDiscount.value,
+    shippingCost: shipping.value?.price.total || 0,
+    smallOrderTiers: props.generalSettings?.orderSettings?.smallOrderCharge,
+  })
+);
+
+watch(
+  () => orderMoney.value.matchedSmallOrderTier,
+  (tier) => {
+    if (tier) {
       // eslint-disable-next-line vue/no-mutating-props
-      props.order.smallOrder = charge;
+      props.order.smallOrder = tier;
     }
-  });
+  },
+  { immediate: true }
+);
 
-  return smallOrderFee;
-});
-
-const calculatedVAT = computed(() => parseFloat((resolvedSubtotal.value * 0.19).toFixed(2)));
-const calculatedTotal = computed(() => {
-  const subtotal = resolvedSubtotal.value;
-  const VAT = calculatedVAT.value;
-  const shippingFee = shipping.value?.price.total || 0;
-  const discount = resolvedDiscount.value;
-  return parseFloat((subtotal + VAT + shippingFee + smallOrder.value - discount).toFixed(2));
-});
+const smallOrder = computed(() => orderMoney.value.smallOrderCharge);
+const calculatedVAT = computed(() => orderMoney.value.vatAmount);
+const calculatedTotal = computed(() => orderMoney.value.grandTotal);
 
 const shipping = computed(() => props.order.deliveryMethod);
 const shippingText = computed(() => {
