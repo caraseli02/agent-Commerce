@@ -1,33 +1,44 @@
 <template>
-  <div class="fixed z-[70] bottom-0 left-0 w-screen flex items-end justify-end md:hidden">
-    <div class="relative z-10 w-full py-5 bg-white rounded-t-[15px] shadow-xs md:px-5">
-      <div v-touch:drag="onDrag" class="flex items-center justify-between px-5 mb-[30px]">
-        <div class="text-lg font-semibold text-slate-500 tracking-[0.6px]">Filters</div>
-        <button
-          class="rounded w-8 h-8 bg-[#F2F2F2] flex items-center justify-center text-gray-500 transition-colors duration-300 hover:text-slate-500"
-          @click="$emit('close')"
-        >
-          <XIcon class="w-[15px] h-[15px]" />
-        </button>
+  <UiSheet :open="isOpen" @update:open="onOpenChange">
+    <UiSheetContent
+      side="bottom"
+      hidde-close-button
+      overlay-class-name="z-[70] bg-[#333333]/70 backdrop-blur-[2px]"
+      class="z-[70] flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden rounded-t-[15px] border-none p-0 shadow-xs sm:max-w-none [&>button.fixed]:hidden"
+    >
+      <div v-touch:drag="onDrag" class="flex items-center justify-between px-5 py-5">
+        <UiSheetTitle class="text-lg font-semibold text-slate-500 tracking-[0.6px]">Filters</UiSheetTitle>
+        <UiSheetClose as-child>
+          <UiButton
+            variant="ghost"
+            size="icon"
+            class="h-11 w-11 rounded bg-[#F2F2F2] text-gray-500 hover:bg-[#F2F2F2] hover:text-slate-500"
+            aria-label="Close filters"
+          >
+            <XIcon class="h-[15px] w-[15px]" />
+          </UiButton>
+        </UiSheetClose>
       </div>
-      <div v-touch:drag="onDrag" class="flex items-center gap-[15px] px-[15px] mb-[25px]">
-        <button
-          class="flex items-center justify-center bg-blue-500 text-white rounded px-3 py-1.5 text-sm font-medium font-Inter"
+      <div v-touch:drag="onDrag" class="mb-[25px] flex items-center gap-[15px] px-[15px]">
+        <UiButton
+          class="flex items-center justify-center rounded bg-blue-500 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-500"
           @click="$emit('show-add-filters-modal')"
         >
-          <FiltersIcon class="w-5 h-5 mr-2" />
+          <FiltersIcon class="mr-2 h-5 w-5" />
           <span>Add Filters</span>
-        </button>
-        <button class="flex items-center justify-center bg-blue-500 text-white rounded px-3 py-1.5 text-sm font-medium font-Inter">
-          <ResetIcon class="w-5 h-5 mr-2" />
+        </UiButton>
+        <UiButton
+          class="flex items-center justify-center rounded bg-blue-500 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-500"
+        >
+          <ResetIcon class="mr-2 h-5 w-5" />
           <span>Reset Filters</span>
-        </button>
+        </UiButton>
       </div>
-      <div class="grid grid-cols-1 gap-1.5 overflow-auto max-h-[340px] scrollbar-thin px-[15px]">
+      <div class="grid max-h-[340px] grid-cols-1 gap-1.5 overflow-auto px-[15px] pb-5 scrollbar-thin">
         <SearchFilter2 v-for="filter in 20" :id="filter" :key="filter" />
       </div>
-    </div>
-  </div>
+    </UiSheetContent>
+  </UiSheet>
 </template>
 
 <script setup lang="ts">
@@ -35,19 +46,55 @@ import XIcon from '@/assets/icons/x.svg';
 import FiltersIcon from '@/assets/icons/filters.svg';
 import ResetIcon from '@/assets/icons/reset.svg';
 
+const MD_MIN_WIDTH_QUERY = '(min-width: 768px)';
+
 const emits = defineEmits(['close', 'show-add-filters-modal']);
 
-const onDrag = (event: { direction?: string }) => {
-  if (event.direction === 'bottom') {
+const isOpen = ref(true);
+
+const closeModal = () => {
+  isOpen.value = false;
+  emits('close');
+};
+
+const onOpenChange = (open: boolean) => {
+  isOpen.value = open;
+
+  if (!open) {
     emits('close');
   }
 };
 
+const onDrag = (event: { direction?: string }) => {
+  if (event.direction === 'bottom') {
+    closeModal();
+  }
+};
+
+// Mobile-only sheet: closing on md+ releases Radix overlay + body scroll-lock.
+// CSS md:hidden on content alone leaves the overlay mounted and blocks the page.
+const mediaQuery = import.meta.client ? window.matchMedia(MD_MIN_WIDTH_QUERY) : null;
+
+const closeWhenDesktop = (matches: boolean) => {
+  if (matches && isOpen.value) {
+    closeModal();
+  }
+};
+
+const onBreakpointChange = (event: MediaQueryListEvent) => {
+  closeWhenDesktop(event.matches);
+};
+
 onMounted(() => {
-  documentUtil.toggleBodyScroll();
+  if (!mediaQuery) {
+    return;
+  }
+
+  closeWhenDesktop(mediaQuery.matches);
+  mediaQuery.addEventListener('change', onBreakpointChange);
 });
 
 onBeforeUnmount(() => {
-  documentUtil.toggleBodyScroll();
+  mediaQuery?.removeEventListener('change', onBreakpointChange);
 });
 </script>

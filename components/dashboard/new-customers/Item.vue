@@ -69,21 +69,14 @@
     </div>
   </div>
   <Teleport to="body">
-    <Transition name="fade">
-      <!-- eslint-disable vue/no-mutating-props -->
-      <DashboardDeactivateUserModal
-        v-if="showDeactivatingModal"
-        :user="item"
-        @close="showDeactivatingModal = false"
-        @change-lock-status="item.active = !item.active"
-      />
-      <!-- eslint-enable vue/no-mutating-props -->
-    </Transition>
-    <div
-      class="fixed z-50 top-0 left-0 w-full h-full bg-[#2F3241]/10 transition-all duration-300 cursor-pointer"
-      :class="[showDeactivatingModal ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-0 opacity-0 pointer-events-none']"
-      @click="showDeactivatingModal = false"
+    <!-- eslint-disable vue/no-mutating-props -->
+    <DashboardDeactivateUserModal
+      v-if="showDeactivatingModal"
+      :user="item"
+      @close="showDeactivatingModal = false"
+      @change-lock-status="item.active = !item.active"
     />
+    <!-- eslint-enable vue/no-mutating-props -->
   </Teleport>
 </template>
 

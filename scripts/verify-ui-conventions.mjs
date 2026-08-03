@@ -9,14 +9,8 @@ const rootDir = path.resolve(new URL('..', import.meta.url).pathname);
 const sourceExtensions = new Set(['.vue']);
 const ignoredDirectories = new Set(['.git', '.husky', '.nuxt', '.output', 'coverage', 'dist', 'node_modules']);
 
-/** @type {ReadonlySet<string>} */
-export const grandfatheredLegacyModalFiles = new Set([
-  'components/dashboard/DeactivateUserModal.vue',
-  'components/layout/SearchFiltersModal.vue',
-  'components/layout/favorites-cart-modal/Index.vue',
-  'components/order-summary/CreditInfoModal.vue',
-  'components/order-summary/PaymentModal.vue',
-]);
+/** @type {Set<string>} */
+export const grandfatheredLegacyModalFiles = new Set([]);
 
 const nativeInteractivePattern = /<(button|input)(?:\s|>|\/)/g;
 
