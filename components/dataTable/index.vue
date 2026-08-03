@@ -3,6 +3,7 @@ import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } fro
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { watchDebounced } from '@vueuse/core';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
+import { useVirtualTableRows } from '~/composables/useVirtualTableRows';
 import { transformFiltersToObject, transformSortingKeys, valueUpdater } from '~/lib/utils';
 
 interface Props {
@@ -123,6 +124,11 @@ const loadingSize = computed(async () => {
   await nextTick();
   return `${size}px`;
 });
+
+const scrollContainerRef = ref<HTMLElement | null>(null);
+const tableRows = computed(() => table.getRowModel().rows);
+const { virtualRows, paddingTop, paddingBottom } = useVirtualTableRows(tableRows, scrollContainerRef);
+const leafColumnCount = computed(() => table.getAllLeafColumns().length);
 </script>
 
 <template>
@@ -132,36 +138,45 @@ const loadingSize = computed(async () => {
     <slot name="toolbar" :table="table" />
     <div class="rounded-xl border relative min-h-[650px]">
       <SharedScrollableRegion class="min-h-[650px]" label="Data table" test-id="dashboard-data-table">
-        <UiTable>
-          <UiTableHeader class="bg-light-200">
-            <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-              <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
-                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
-              </UiTableHead>
-            </UiTableRow>
-          </UiTableHeader>
-          <UiTableBody class="relative min-h-[600px]">
-            <template v-if="table.getRowModel().rows?.length">
-              <UiTableRow
-                v-for="row in table.getRowModel().rows"
-                :key="row.id"
-                class="hover:bg-light-200"
-                :data-state="row.getIsSelected() && 'selected'"
-              >
-                <UiTableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-                </UiTableCell>
+        <div ref="scrollContainerRef" class="max-h-[600px] overflow-y-auto" data-testid="virtualized-table-scroll">
+          <UiTable>
+            <UiTableHeader class="sticky top-0 z-10 bg-light-200">
+              <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+                <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
+                  <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
+                </UiTableHead>
               </UiTableRow>
-            </template>
+            </UiTableHeader>
+            <UiTableBody class="relative min-h-[600px]" data-testid="virtualized-table-body">
+              <template v-if="tableRows.length">
+                <tr v-if="paddingTop > 0" aria-hidden="true">
+                  <td :colspan="leafColumnCount" class="p-0 border-0" :style="{ height: `${paddingTop}px` }" />
+                </tr>
+                <UiTableRow
+                  v-for="virtualRow in virtualRows"
+                  :key="tableRows[virtualRow.index].id"
+                  class="hover:bg-light-200"
+                  :data-state="tableRows[virtualRow.index].getIsSelected() && 'selected'"
+                  :data-index="virtualRow.index"
+                >
+                  <UiTableCell v-for="cell in tableRows[virtualRow.index].getVisibleCells()" :key="cell.id">
+                    <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                  </UiTableCell>
+                </UiTableRow>
+                <tr v-if="paddingBottom > 0" aria-hidden="true">
+                  <td :colspan="leafColumnCount" class="p-0 border-0" :style="{ height: `${paddingBottom}px` }" />
+                </tr>
+              </template>
 
-            <div v-else class="w-full min-h-[600px]">
-              <section class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-                <div class="w-full">No results.</div>
-              </section>
-            </div>
-          </UiTableBody>
-        </UiTable>
+              <div v-else class="w-full min-h-[600px]">
+                <section class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
+                  <div class="w-full">No results.</div>
+                </section>
+              </div>
+            </UiTableBody>
+          </UiTable>
+        </div>
       </SharedScrollableRegion>
       <UiSkeleton v-if="refresh || loading" :style="{ height: loadingSize }" class="w-full rounded absolute inset-0 top-[49px] z-10" />
     </div>

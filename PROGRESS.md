@@ -2,12 +2,13 @@
 
 ## Current focus
 
-- Issue #399 / PR pending — reduce Swiper weight on home merchandising (News + Manufacturers migrated to CSS grid/flex).
+- Issue #398 / PR pending — virtualize admin orders DataTable rows with `@tanstack/vue-virtual`.
+- Open PR #416 for #396 still awaits evaluator (no `in-progress` label on issue).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #399 on branch `feat/399-reduce-swiper-weight` (label claim may need manual apply from automation token).
+- Issue #398 on branch `feat/398-virtualize-dashboard-table` (label claim may need manual apply from automation token).
 
 ## Architecture note (cross-runtime cart pricing)
 
