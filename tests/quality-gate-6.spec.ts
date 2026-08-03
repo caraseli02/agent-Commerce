@@ -10,7 +10,7 @@ import { mapNamesToPath, mapPathArrayOfNames, findCategory, findCategoryByPath }
 import { initializeQuantities, parseProductPriceConfiguration } from '../helpers/prices.helper';
 import { getCountryTypeValue, getInputStringValue, isFormSelectOption, resolveFormValue, toInputObject } from '../types/global/form';
 import type { CartInterface } from '~/types/cart';
-import type { ProductInterface } from '../model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 import type { TaxonomyInterface } from '../types/dashboard/categories';
 
 vi.mock('~/store/categoriesStore', () => ({

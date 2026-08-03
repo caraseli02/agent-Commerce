@@ -53,11 +53,11 @@ The ledger is an accountability contract, not an operating-system audit. The con
 
 ## Roles
 
-| Role      | Responsibility                                                                                                    | Must not do                                                       |
-| --------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Planner   | Select one eligible issue, claim it, write the work brief, define verification expectations                       | Edit implementation code or declare the issue complete            |
-| Generator | Implement the claimed issue, run local pre-flight checks, open or update a PR                                     | Select new work, broaden scope, or self-certify final completion  |
-| Evaluator | Independently verify the PR against the issue, related lectures, runtime evidence, and clean-handoff requirements | Implement unrelated fixes or accept generator confidence as proof |
+| Role      | Responsibility                                                                                  | Must not do                                                       |
+| --------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Planner   | Select one eligible issue, claim it, write the work brief, define verification expectations     | Edit implementation code or declare the issue complete            |
+| Generator | Implement the claimed issue, run local pre-flight checks, open or update a PR                   | Select new work, broaden scope, or self-certify final completion  |
+| Evaluator | Independently verify the PR against the issue, runtime evidence, and clean-handoff requirements | Implement unrelated fixes or accept generator confidence as proof |
 
 ## Queue state model
 
@@ -82,7 +82,6 @@ The planner output must include:
 - Dependency check: what must already be merged or true.
 - Verification plan: narrow check first, then full gate if relevant.
 - Evaluator expectations: what evidence the evaluator should require.
-- Related lectures or source docs when the issue comes from harness work.
 
 The planner must claim exactly one issue and keep WIP=1.
 
@@ -110,7 +109,6 @@ Required checks:
 - Check GitHub mergeability before PASS: run `gh pr view --json mergeable,mergeStateStatus` and require the PR to be mergeable. If `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`, verdict must be `FAIL — needs generator fix` until the branch is rebased or conflicts are resolved.
 - Run or inspect evidence for the relevant verification ladder in `docs/agents/verification.md`.
 - Require browser/runtime evidence for UI, route, auth, cart, checkout, mock API, or state-flow changes.
-- Verify the PR body includes related lectures/source docs when applicable.
 - Confirm clean handoff: branch/PR linked, issue state clear, risks documented, and no temporary/debug files left behind.
 
 Verdicts:
@@ -139,10 +137,6 @@ PASS | FAIL | BLOCKED
 
 - Issue: #N
 - PR: #N
-
-## Related lectures / sources checked
-
-- Lecture XX — <title>
 
 ## Evidence reviewed
 

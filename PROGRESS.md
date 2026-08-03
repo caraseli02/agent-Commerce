@@ -3,6 +3,7 @@
 ## Current focus
 
 - Issue #400 / PR #420 — search + cart read `useAsyncData` contracts (follow-up to #392).
+- Open PR #416 for #396 still awaits evaluator (no `in-progress` label on issue).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
@@ -43,6 +44,7 @@
 - Use this file only for durable cross-session state, not transient task notes.
 - Do not duplicate GitHub Issues here; mirror only the active issue/PR and baseline facts needed by the next session.
 
-## CI note (PR #409 / #410)
+## CI note (PR template gate)
 
-- PR template CI gate fixed: verification outcomes, known-risks checkbox, evaluator rubric scores.
+- Cursor-bot PRs were failing `check-pr-template.mjs` on verification wording (`— pass` vs `— outcome: pass`) and blank evaluator rubric scores.
+- Gate now requires Verification / Known risks / Evaluator rubric only (Related lectures removed). Rubric numeric scores are evaluator-owned; generators may leave `/10` placeholders.

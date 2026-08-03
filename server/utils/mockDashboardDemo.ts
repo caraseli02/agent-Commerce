@@ -214,6 +214,71 @@ const toOrderStatus = (status?: string) => statusMap[String(status || '').toLowe
 
 const toDemoOrderId = (index: number) => `ord-${index + 1}`;
 
+/** Default padded list size so admin DataTable virtualization is visually QA-able at page size 50. */
+export const DEFAULT_MOCK_ORDERS_COUNT = 120;
+
+const MOCK_ORDER_STATUSES = ['delivered', 'shipped', 'processing', 'pending', 'cancelled'] as const;
+
+export const resolveMockOrdersCount = () => {
+  const raw = Number.parseInt(process.env.MOCK_ORDERS_COUNT || '', 10);
+
+  if (Number.isFinite(raw) && raw > 0) {
+    return raw;
+  }
+
+  return DEFAULT_MOCK_ORDERS_COUNT;
+};
+
+const buildSyntheticOrder = (template: MockDashboardOrder, sequence: number): MockDashboardOrder => {
+  const status = MOCK_ORDER_STATUSES[(sequence - 1) % MOCK_ORDER_STATUSES.length];
+  const createdAt = new Date(Date.UTC(2024, 0, 1 + ((sequence - 1) % 360), 10, (sequence * 3) % 60, 0)).toISOString();
+  const total = Number(Math.max(19.99, Number(template.total || 100) * (1 + ((sequence - 1) % 7) * 0.05)).toFixed(2));
+
+  const base = {
+    ...template,
+    _id: `order-${String(sequence).padStart(3, '0')}`,
+    orderNumber: `ORD-2024-${String(sequence).padStart(4, '0')}`,
+    status,
+    total,
+    createdAt,
+    shippingAddress: template.shippingAddress,
+    itemsDetails: template.itemsDetails,
+  } as MockDashboardOrder & {
+    deliveredAt?: string;
+    shippedAt?: string;
+    cancelledAt?: string;
+  };
+
+  delete base.deliveredAt;
+  delete base.shippedAt;
+  delete base.cancelledAt;
+
+  if (status === 'delivered') {
+    base.deliveredAt = new Date(Date.parse(createdAt) + 1000 * 60 * 60 * 24 * 3).toISOString();
+  } else if (status === 'shipped') {
+    base.shippedAt = new Date(Date.parse(createdAt) + 1000 * 60 * 60 * 24 * 2).toISOString();
+  } else if (status === 'cancelled') {
+    base.cancelledAt = new Date(Date.parse(createdAt) + 1000 * 60 * 60 * 12).toISOString();
+  }
+
+  return base;
+};
+
+export const expandMockOrders = (targetCount = resolveMockOrdersCount()): MockDashboardOrder[] => {
+  if (mockOrders.length >= targetCount) {
+    return mockOrders.slice(0, targetCount);
+  }
+
+  const expanded: MockDashboardOrder[] = [...mockOrders];
+
+  for (let sequence = mockOrders.length + 1; sequence <= targetCount; sequence += 1) {
+    const template = mockOrders[(sequence - 1) % mockOrders.length];
+    expanded.push(buildSyntheticOrder(template, sequence));
+  }
+
+  return expanded;
+};
+
 const mapOrderItems = (order: MockDashboardOrder) => {
   const defaultDiscount = {
     value: 0,
@@ -341,7 +406,7 @@ const mapOrderToContract = (order: MockDashboardOrder, index: number, userId?: s
 };
 
 export const getDemoOrders = (userId?: string) => {
-  return mockOrders.map((order, index) => mapOrderToContract(order, index, userId));
+  return expandMockOrders().map((order, index) => mapOrderToContract(order, index, userId));
 };
 
 export const getDemoOrdersForUser = (userId?: string) => {

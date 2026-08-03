@@ -2,7 +2,9 @@
   <div class="pt-5 md:pt-0">
     <div v-if="pending" class="container mb-10 min-h-[480px]" aria-busy="true" aria-live="polite">
       <div class="h-6 w-72 rounded bg-slate-100 animate-pulse mb-6" />
-      <div class="grid grid-cols-1 gap-y-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 min-[1440px]:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]">
+      <div
+        class="grid grid-cols-1 gap-y-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 min-[1440px]:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]"
+      >
         <div class="col-span-2 min-h-[320px] rounded-2xl bg-slate-100 animate-pulse lg:col-span-1" />
         <div class="col-span-2 min-h-[280px] rounded-2xl bg-slate-100 animate-pulse lg:col-span-1" />
         <div class="col-span-2 min-h-[220px] rounded-2xl bg-slate-100 animate-pulse" />
@@ -63,7 +65,7 @@
             @show-zoom-modal="showZoomGallery = true"
           />
           <ProductDetails class="col-span-2 min-w-0 lg:col-span-1" :product="product" />
-          <ProductQuantity :product="product as unknown as ProductInterface" />
+          <ProductQuantity :product="product" />
         </div>
         <LazyProductTable :features="product?.details?.ParametricData?.Features" />
       </div>
@@ -82,7 +84,7 @@
       <ProductZoomGallery
         v-model:selected-index="activeImageIndex"
         v-model:open="showZoomGallery"
-        :alias="product.alias"
+        :alias="product.alias ?? ''"
         :images="images"
       />
     </template>
@@ -92,8 +94,7 @@
 <script setup lang="ts">
 import { MoreVertical, PrinterIcon } from 'lucide-vue-next';
 
-import type { ProductDetail } from '~~/model/products/response/ProductDetailResponse';
-import type { ProductImageInterface, ProductInterface } from '~~/model/products/response/ProductResponse';
+import type { ProductDetail, ProductImageInterface } from '~/types/product';
 import { fetchSingleProduct } from '~/composables/api/products';
 import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
 

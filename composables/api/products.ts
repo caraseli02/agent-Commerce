@@ -1,10 +1,9 @@
 import { useNuxtApp } from '#app';
 import type { SearchSimilarProductRequest } from '~/model/products/request/SearchSimilarProductRequest';
 import type { NewProductResponse } from '~/model/products/response/NewProductResponse';
-import type { ProductParametricDataFeaturesInterface, ProductResponse } from '~/model/products/response/ProductResponse';
+import type { ProductDetailResponse, ProductParametricDataFeaturesInterface, ProductResponse } from '~/types/product';
 import type { ProductSearchResponse } from '~/model/products/response/ProductSearchResponse';
 import type { SearchSimilarProductResponse } from '~/model/products/response/SearchSimilarProductResponse';
-import type { ProductDetailResponse } from '~/model/products/response/ProductDetailResponse';
 
 const RESOURCE = '/products';
 

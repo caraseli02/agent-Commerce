@@ -135,7 +135,7 @@
 import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
 import type { ProductActionObject } from '~/types/cart';
-import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
+import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
 import { addToCartHelper, clampCartQuantity, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { toast } from '~/components/ui/toast';
 import { useAuthStore } from '~/store/authStore';

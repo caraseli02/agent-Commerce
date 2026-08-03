@@ -44,7 +44,6 @@ Each issue should include:
 - problem statement
 - acceptance criteria
 - verification command
-- related lectures/source docs when the issue comes from harness work
 - evaluator expectations: evidence the evaluator must check before marking review-ready
 - notes about mock/live mode if relevant
 
@@ -53,7 +52,6 @@ Each issue should include:
 Every generator PR should include:
 
 - Related issue and `Closes #<issue>`
-- Related lectures/source docs when applicable
 - Verification evidence from local pre-flight checks, including exact command outcomes
 - Runtime/browser evidence when UI, route, auth, cart, checkout, mock API, or state flow changed, with links or paths to the exact proof
 - Risks, known failures, or explicit `none`
