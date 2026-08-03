@@ -2,13 +2,13 @@
 
 ## Current focus
 
-- Issue #398 / PR pending — virtualize admin orders DataTable rows with `@tanstack/vue-virtual`.
+- Issue #400 / PR #420 — search + cart read `useAsyncData` contracts (follow-up to #392).
 - Open PR #416 for #396 still awaits evaluator (no `in-progress` label on issue).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #398 on branch `feat/398-virtualize-dashboard-table` (label claim may need manual apply from automation token).
+- Issue #400 on branch `feat/400-search-cart-async-data` (label claim may need manual apply from automation token).
 
 ## Architecture note (cross-runtime cart pricing)
 

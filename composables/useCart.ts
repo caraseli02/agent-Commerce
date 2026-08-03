@@ -14,6 +14,7 @@ import type {
 } from '~/types/cart';
 import { useCartStore } from '~/store/cartStore';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
+import { loadCartRead } from '~/composables/loadCartRead';
 import { applyOptimisticCartAdd, calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
 
 export type AddToCartResult = {
@@ -110,7 +111,7 @@ export function useCart() {
   };
 
   const refreshCart = async () => {
-    const cart = (await cartStore.updateAndReturnCart()) as CartInterface | null;
+    const cart = await loadCartRead(() => cartStore.updateAndReturnCart());
     const products = cart?.products || [];
     cartId.value = cart?._id || '';
     cartItems.value = mapCartItems(products);
