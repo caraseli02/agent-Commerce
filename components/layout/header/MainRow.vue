@@ -261,13 +261,6 @@ watch(
 );
 
 watch(
-  () => uiStore.cartModalRequestId,
-  () => {
-    openCartModal();
-  }
-);
-
-watch(
   () => notificationStore.refreshRequestId,
   () => {
     void fetchNofications();
