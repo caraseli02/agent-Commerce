@@ -10,7 +10,9 @@
           :aria-checked="selectedLoginRole === 'customer'"
           :tabindex="selectedLoginRole === 'customer' ? 0 : -1"
           class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors"
-          :class="selectedLoginRole === 'customer' ? 'bg-white text-blue-500 shadow-sm hover:bg-white' : 'text-slate-500 hover:text-blue-500'"
+          :class="
+            selectedLoginRole === 'customer' ? 'bg-white text-blue-500 shadow-sm hover:bg-white' : 'text-slate-500 hover:text-blue-500'
+          "
           @click="selectDemoRole('customer')"
           @keydown="handleDemoRoleKeydown($event, 'customer')"
         >
@@ -115,13 +117,13 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
 import SignINIcon from '@/assets/icons/menu/in.svg';
 import { AccountRole, type SigninResponse, type UserInfoJWT } from '~~/types';
 import type { UserPermissionsEnum } from '~/types/auth/permissions';
 import { useAuthStore } from '~~/store/authStore';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { useCartStore } from '~/store/cartStore';
+import { useNotificationStore } from '~/store/notificationStore';
 import { usePricingStore } from '~/store/pricingStore';
 import { fetchUserDetails as fetchAuthUserDetails, login as authLogin } from '~/composables/api/auth';
 import { fetchSettings as fetchGeneralSettings } from '~/composables/api/settings';
@@ -383,7 +385,7 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
 
   await Promise.allSettled([cartStore.updateAndReturnCart(), authStore.addUserCards(), pricingStore.updateAndReturnPricing()]);
 
-  Emitter.emit('notifications', true);
+  useNotificationStore().requestRefresh();
   return userDetails as UserInterface;
 };
 

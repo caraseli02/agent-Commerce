@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import Emitter from 'tiny-emitter/instance.js';
 import useFirebaseAuth from '~/composables/useFirebaseAuth';
+import { useCartStore } from '~/store/cartStore';
+import { useNotificationStore } from '~/store/notificationStore';
 import { userCards as fetchUserCards } from '~/composables/api/user';
 import type { StripeCardInterface, UserInfoJWT } from '~/types';
 import type { UserInterface } from '~/types/auth/user-interface';
@@ -57,7 +58,7 @@ export const useAuthStore = defineStore(
 
       userCards.value = cardsResponse.data;
 
-      Emitter.emit('update-cart', userCards.value);
+      useNotificationStore().requestRefresh();
 
       return userCards.value as StripeCardInterface[];
     }
@@ -76,7 +77,8 @@ export const useAuthStore = defineStore(
       token.value = '';
       generalSettings.value = null;
 
-      Emitter.emit('remove-cart-and-notifications', true);
+      useCartStore().emptyCart();
+      useNotificationStore().clearOnSignOut();
 
       if (import.meta.client) {
         localStorage.removeItem('auth-store');
@@ -96,7 +98,6 @@ export const useAuthStore = defineStore(
     function getToken() {
       return token.value || null;
     }
-
 
     // Getters
     const getCurrentUser = computed(() => loggedInUser.value);
