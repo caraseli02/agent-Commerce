@@ -43,6 +43,23 @@ describe('verify-ui-conventions', () => {
     expect(grandfatheredLegacyModalFiles.size).toBe(0);
   });
 
+  it('suppresses violations for grandfathered modal paths', () => {
+    const relativePath = 'components/layout/TemporaryGrandfatheredModal.vue';
+    const contents = `<template><button>Close</button></template>`;
+
+    grandfatheredLegacyModalFiles.add(relativePath);
+
+    try {
+      const result = inspectModalUiFile(relativePath, contents);
+      expect(result.grandfathered).toBe(true);
+      expect(result.violations).toHaveLength(0);
+    } finally {
+      grandfatheredLegacyModalFiles.delete(relativePath);
+    }
+
+    expect(grandfatheredLegacyModalFiles.size).toBe(0);
+  });
+
   it('fails non-grandfathered modal files that still use native controls', () => {
     const contents = `<template><button>Close</button></template>`;
     const result = inspectModalUiFile('components/layout/NewExampleModal.vue', contents);

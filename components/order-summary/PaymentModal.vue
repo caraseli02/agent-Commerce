@@ -7,7 +7,7 @@
       <UiButton
         variant="ghost"
         size="icon"
-        class="justify-center items-center bg-zinc-100 self-stretch flex aspect-square flex-col w-8 h-8 px-1 rounded-lg"
+        class="flex aspect-square h-11 w-11 flex-col items-center justify-center self-stretch rounded-lg bg-zinc-100 px-1"
         aria-label="Close payment method"
         @click="
           paymentStore.toggleCardModal();

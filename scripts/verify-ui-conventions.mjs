@@ -9,7 +9,7 @@ const rootDir = path.resolve(new URL('..', import.meta.url).pathname);
 const sourceExtensions = new Set(['.vue']);
 const ignoredDirectories = new Set(['.git', '.husky', '.nuxt', '.output', 'coverage', 'dist', 'node_modules']);
 
-/** @type {ReadonlySet<string>} */
+/** @type {Set<string>} */
 export const grandfatheredLegacyModalFiles = new Set([]);
 
 const nativeInteractivePattern = /<(button|input)(?:\s|>|\/)/g;

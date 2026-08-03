@@ -4,7 +4,7 @@
       side="bottom"
       hidde-close-button
       overlay-class-name="z-[70] bg-[#333333]/70 backdrop-blur-[2px]"
-      class="z-[70] flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden rounded-t-[15px] border-none p-0 shadow-xs md:hidden sm:max-w-none [&>button.fixed]:hidden"
+      class="z-[70] flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden rounded-t-[15px] border-none p-0 shadow-xs sm:max-w-none [&>button.fixed]:hidden"
     >
       <div v-touch:drag="onDrag" class="flex items-center justify-between px-5 py-5">
         <UiSheetTitle class="text-lg font-semibold text-slate-500 tracking-[0.6px]">Filters</UiSheetTitle>
@@ -12,27 +12,29 @@
           <UiButton
             variant="ghost"
             size="icon"
-            class="h-8 w-8 rounded bg-[#F2F2F2] text-gray-500 hover:bg-[#F2F2F2] hover:text-slate-500"
+            class="h-11 w-11 rounded bg-[#F2F2F2] text-gray-500 hover:bg-[#F2F2F2] hover:text-slate-500"
             aria-label="Close filters"
           >
-            <XIcon class="w-[15px] h-[15px]" />
+            <XIcon class="h-[15px] w-[15px]" />
           </UiButton>
         </UiSheetClose>
       </div>
-      <div v-touch:drag="onDrag" class="flex items-center gap-[15px] px-[15px] mb-[25px]">
+      <div v-touch:drag="onDrag" class="mb-[25px] flex items-center gap-[15px] px-[15px]">
         <UiButton
-          class="flex items-center justify-center bg-blue-500 text-white rounded px-3 py-1.5 text-sm font-medium font-Inter hover:bg-blue-500"
+          class="flex items-center justify-center rounded bg-blue-500 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-500"
           @click="$emit('show-add-filters-modal')"
         >
-          <FiltersIcon class="w-5 h-5 mr-2" />
+          <FiltersIcon class="mr-2 h-5 w-5" />
           <span>Add Filters</span>
         </UiButton>
-        <UiButton class="flex items-center justify-center bg-blue-500 text-white rounded px-3 py-1.5 text-sm font-medium font-Inter hover:bg-blue-500">
-          <ResetIcon class="w-5 h-5 mr-2" />
+        <UiButton
+          class="flex items-center justify-center rounded bg-blue-500 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-500"
+        >
+          <ResetIcon class="mr-2 h-5 w-5" />
           <span>Reset Filters</span>
         </UiButton>
       </div>
-      <div class="grid grid-cols-1 gap-1.5 overflow-auto max-h-[340px] scrollbar-thin px-[15px] pb-5">
+      <div class="grid max-h-[340px] grid-cols-1 gap-1.5 overflow-auto px-[15px] pb-5 scrollbar-thin">
         <SearchFilter2 v-for="filter in 20" :id="filter" :key="filter" />
       </div>
     </UiSheetContent>
@@ -44,9 +46,16 @@ import XIcon from '@/assets/icons/x.svg';
 import FiltersIcon from '@/assets/icons/filters.svg';
 import ResetIcon from '@/assets/icons/reset.svg';
 
+const MD_MIN_WIDTH_QUERY = '(min-width: 768px)';
+
 const emits = defineEmits(['close', 'show-add-filters-modal']);
 
 const isOpen = ref(true);
+
+const closeModal = () => {
+  isOpen.value = false;
+  emits('close');
+};
 
 const onOpenChange = (open: boolean) => {
   isOpen.value = open;
@@ -58,8 +67,34 @@ const onOpenChange = (open: boolean) => {
 
 const onDrag = (event: { direction?: string }) => {
   if (event.direction === 'bottom') {
-    isOpen.value = false;
-    emits('close');
+    closeModal();
   }
 };
+
+// Mobile-only sheet: closing on md+ releases Radix overlay + body scroll-lock.
+// CSS md:hidden on content alone leaves the overlay mounted and blocks the page.
+const mediaQuery = import.meta.client ? window.matchMedia(MD_MIN_WIDTH_QUERY) : null;
+
+const closeWhenDesktop = (matches: boolean) => {
+  if (matches && isOpen.value) {
+    closeModal();
+  }
+};
+
+const onBreakpointChange = (event: MediaQueryListEvent) => {
+  closeWhenDesktop(event.matches);
+};
+
+onMounted(() => {
+  if (!mediaQuery) {
+    return;
+  }
+
+  closeWhenDesktop(mediaQuery.matches);
+  mediaQuery.addEventListener('change', onBreakpointChange);
+});
+
+onBeforeUnmount(() => {
+  mediaQuery?.removeEventListener('change', onBreakpointChange);
+});
 </script>

@@ -2,8 +2,8 @@
   <div class="p-3 flex flex-col gap-4 border border-[#D4D4D4] rounded-xl bg-[#FFF] shadow-l">
     <div class="flex flex-row justify-between w-full">
       <span class="text-neutral-700 text-sm font-medium leading-6">Credit Info</span>
-      <UiButton variant="ghost" size="icon" class="group h-auto w-auto p-0" aria-label="Credit settings">
-        <SettingCog class="text-[#5E6278] group-hover:text-[#007FFF] transition duration-300" />
+      <UiButton variant="ghost" size="icon" class="group inline-flex h-11 w-11 items-center justify-center" aria-label="Credit settings">
+        <SettingCog class="text-[#5E6278] transition duration-300 group-hover:text-[#007FFF]" />
       </UiButton>
     </div>
     <div class="flex flex-row gap-6">

@@ -1,20 +1,19 @@
 <template>
   <UiDialog :open="isOpen" @update:open="onOpenChange">
-    <UiDialogContent
-      class="w-[358px] max-w-[calc(100vw-32px)] gap-0 border-none p-4 shadow-xs md:p-6 [&>button.absolute]:hidden"
-    >
+    <UiDialogContent class="w-[358px] max-w-[calc(100vw-32px)] gap-0 border-none p-4 shadow-xs md:p-6 [&>button.absolute]:hidden">
       <UiDialogClose as-child>
         <UiButton
           variant="ghost"
           size="icon"
-          class="mb-4 ml-auto flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-slate-500 transition-colors duration-300 hover:text-blue-500"
+          class="mb-4 ml-auto flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 text-slate-500 transition-colors duration-300 hover:text-blue-500"
           aria-label="Close"
         >
           <XIcon class="h-6 w-6" />
         </UiButton>
       </UiDialogClose>
-      <div v-if="user.active" class="mb-9 text-center text-sm leading-[2.29]">Lock account:</div>
-      <div v-else class="mb-9 text-center text-sm leading-[2.29]">Unlock account:</div>
+      <UiDialogTitle class="mb-9 text-center text-sm font-normal leading-[2.29]">
+        {{ user.active ? 'Lock account:' : 'Unlock account:' }}
+      </UiDialogTitle>
       <div class="mb-[78px] flex items-center">
         <div
           class="relative mr-4 flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
