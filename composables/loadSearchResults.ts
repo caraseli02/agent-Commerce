@@ -40,8 +40,10 @@ export async function loadSearchResults(
   fetchSearch: typeof fetchSearchProduct = fetchSearchProduct
 ): Promise<SearchData> {
   const { keyword, category, page, perPage, sortBy, sortOrder, additionalFilters = {}, featureFilters = [] } = query;
+  // Keep request keyword aligned with searchResultsCacheKey (which uses keyword.trim()).
+  const normalizedKeyword = keyword.trim();
 
-  const response = await fetchSearch(keyword, category, page, perPage, { sortBy, sortOrder }, additionalFilters, featureFilters);
+  const response = await fetchSearch(normalizedKeyword, category, page, perPage, { sortBy, sortOrder }, additionalFilters, featureFilters);
 
   if (!response?.data) {
     throw new Error('Search results unavailable');

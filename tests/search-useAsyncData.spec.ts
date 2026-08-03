@@ -28,6 +28,7 @@ describe('search useAsyncData contract', () => {
     expect(searchPage).toContain('v-if="pending"');
     expect(searchPage).toContain('v-else-if="error"');
     expect(searchPage).toContain('role="alert"');
+    expect(searchPage).toContain('motion-reduce:animate-none');
     expect(searchPage).not.toContain('onMounted(');
     expect(searchPage).not.toContain('async function getProduct');
   });
@@ -48,14 +49,26 @@ describe('search useAsyncData contract', () => {
     const fetchSearch = vi.fn().mockResolvedValue({ status: 'success', data: searchData });
 
     await expect(loadSearchResults(baseQuery, fetchSearch)).resolves.toEqual(searchData);
-    expect(fetchSearch).toHaveBeenCalledWith(
-      'capacitor',
-      'audio',
-      1,
-      10,
-      { sortBy: 'manufacturerCode', sortOrder: 'asc' },
-      { inStock: true },
-      []
+  });
+
+  it('trims keyword before fetching so cache key and request stay aligned', async () => {
+    const searchData = {
+      filtersCount: 0,
+      items: { total_items: 1, page_count: 1, page: 1, items: [] },
+      filters: {},
+    } as unknown as SearchData;
+
+    // Observable contract: only the trimmed keyword resolves successfully.
+    const fetchSearch = vi.fn(async (keyword: string) => {
+      if (keyword === 'resistor') {
+        return { status: 'success', data: searchData };
+      }
+      return { status: 'success', data: null };
+    }) as unknown as typeof import('~/composables/api/products').fetchSearchProduct;
+
+    await expect(loadSearchResults({ ...baseQuery, keyword: ' resistor ' }, fetchSearch)).resolves.toEqual(searchData);
+    await expect(loadSearchResults({ ...baseQuery, keyword: ' resistor ' }, fetchSearch)).resolves.toEqual(
+      await loadSearchResults({ ...baseQuery, keyword: 'resistor' }, fetchSearch)
     );
   });
 

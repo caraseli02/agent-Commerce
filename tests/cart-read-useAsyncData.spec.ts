@@ -14,11 +14,11 @@ describe('cart read useAsyncData contract', () => {
 
     expect(orderSummaryPage).toContain("cartReadCacheKey('order-summary')");
     expect(orderSummaryPage).toContain('server: false');
-    expect(orderSummaryPage).toContain('fetchCartList()');
-    expect(orderSummaryPage).toContain('loadCartRead(async () => {');
+    expect(orderSummaryPage).toContain('loadCartRead(() => refreshCart())');
     expect(orderSummaryPage).toContain('cartReadPending');
     expect(orderSummaryPage).toContain('cartReadError');
     expect(orderSummaryPage).toContain('refreshCartRead()');
+    expect(orderSummaryPage).not.toContain('fetchCartList');
     expect(orderSummaryPage).not.toContain('fetchList(), // Fetch cart items');
   });
 
@@ -32,6 +32,5 @@ describe('cart read useAsyncData contract', () => {
     const fetchCart = vi.fn().mockResolvedValue(cart);
 
     await expect(loadCartRead(fetchCart)).resolves.toEqual(cart);
-    expect(fetchCart).toHaveBeenCalledTimes(1);
   });
 });

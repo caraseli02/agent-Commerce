@@ -86,13 +86,10 @@ import { useCart } from '~/composables/useCart';
 import { usePaymentCards } from '~/composables/usePaymentCards';
 import { useOrder } from '~/composables/useOrder';
 import { fetchCustomerCredit } from '~/composables/api/user';
-import { fetchCartList } from '~/composables/api/cart';
 
 // Stores
 import { useAuthStore } from '~/store/authStore';
-import { useCartStore } from '~/store/cartStore';
 import { useCheckoutStore } from '~/store/checkoutStore';
-import { mapCartItems } from '~/utils/cart';
 
 // Utilities
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
@@ -102,8 +99,6 @@ import type { ShippingOrderPricingResponse } from '~/types/order-summary/shippin
 const router = useRouter();
 useHead({ title: 'Order Summary' });
 
-const cartStore = useCartStore();
-
 // User Information
 const { user, getShipping, getBilling } = useUser();
 const userId = computed(() => user.value?.firebaseId);
@@ -112,35 +107,15 @@ const authStore = useAuthStore();
 const { token, getGeneralSettings } = storeToRefs(authStore);
 const isGuestCheckout = computed(() => !(token.value || userId.value));
 
-// Cart Management
-const { cartId, cartItems, calculateSubtotal, calculateDiscount, showWarning, fetchShippingPrices } = useCart();
+// Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
+// (sets hasFetchedCart) so pages never call composables/api/cart directly.
+const { cartId, cartItems, calculateSubtotal, calculateDiscount, showWarning, fetchShippingPrices, refreshCart } = useCart();
 
 const {
-  data: cartReadData,
   pending: cartReadPending,
   error: cartReadError,
   refresh: refreshCartRead,
-} = useAsyncData(
-  cartReadCacheKey('order-summary'),
-  () =>
-    loadCartRead(async () => {
-      const response = await fetchCartList();
-      return response?.data ?? null;
-    }),
-  { server: false }
-);
-
-watch(
-  cartReadData,
-  (cart) => {
-    if (cart) {
-      cartStore.setCart(cart);
-    }
-    cartId.value = cart?._id || '';
-    cartItems.value = mapCartItems(cart?.products || []);
-  },
-  { immediate: true }
-);
+} = useAsyncData(cartReadCacheKey('order-summary'), () => loadCartRead(() => refreshCart()), { server: false });
 
 const orderItems = computed(() => {
   return cartItems.value.map((item) => {
