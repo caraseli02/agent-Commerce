@@ -18,19 +18,27 @@ test.describe('Dashboard virtualized orders table', () => {
   test('mounts fewer DOM rows than loaded items at max page size', async ({ page }) => {
     await signInAsAdmin(page);
     await expect(page.getByRole('heading', { name: 'Orders', exact: true })).toBeVisible();
+    await expect(page.getByText('120 item(s)')).toBeVisible();
 
     const rowsPerPageTrigger = page.getByRole('combobox').first();
     await rowsPerPageTrigger.click();
-    await page.getByRole('option', { name: '30' }).click();
 
-    await expect(page.getByText('30 item(s)')).toBeVisible();
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes('/api/orders') && response.request().method() === 'GET' && response.url().includes('perPage=50')
+      ),
+      page.getByRole('option', { name: '50' }).click(),
+    ]);
+
+    await expect(rowsPerPageTrigger).toHaveText('50');
 
     const tableBody = page.getByTestId('virtualized-table-body');
     await expect(tableBody).toBeVisible();
 
     const mountedDataRows = await tableBody.locator('tr[data-index]').count();
     expect(mountedDataRows).toBeGreaterThan(0);
-    expect(mountedDataRows).toBeLessThan(30);
+    expect(mountedDataRows).toBeLessThan(50);
   });
 
   test('keeps admin orders reachable at 390px after virtualization', async ({ page }) => {
