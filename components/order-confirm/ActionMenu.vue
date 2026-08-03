@@ -46,27 +46,34 @@ const markAsPaid = async (payload: MarkAsPaidRequestInterface) => {
   return;
 };
 
-const changeStatus = async (status: OrderStatus) => {
-  const response = await changeStatusApi(props.order?._id, status);
+const statusChangeErrorDescription = (description?: string) =>
+  description?.trim() || 'Could not change the order status. Please try again, or refresh the page if it still fails.';
 
-  if (response.status !== 'success') {
+const changeStatus = async (status: OrderStatus) => {
+  try {
+    const response = await changeStatusApi(props.order?._id, status);
+
+    if (response.status !== 'success') {
+      toast({
+        title: 'Error',
+        description: statusChangeErrorDescription(response.description),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    toast({
+      title: 'Success',
+      description: 'Order markes as paid',
+      variant: 'success',
+    });
+  } catch {
     toast({
       title: 'Error',
-      description:
-        response.description ||
-        'Could not change the order status. Please try again, or refresh the page if it still fails.',
+      description: statusChangeErrorDescription(),
       variant: 'destructive',
     });
-    return;
   }
-
-  toast({
-    title: 'Success',
-    description: 'Order markes as paid',
-    variant: 'success',
-  });
-
-  return;
 };
 
 const cancelOrder = async () => {
