@@ -5,6 +5,7 @@ import { formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { toast } from '~/components/ui/toast';
 import { downloadDocument as downloadDocumentApi } from '~/composables/api/documents';
 import { getOrderById } from '~/composables/api/orders';
+import { calculateOrderMoney } from '~/helpers/order-money';
 import { paymentInfoHelper } from '~/helpers/payment-info.helper';
 import { useAuthStore } from '~/store/authStore';
 import { OrderType } from '~/types';
@@ -120,15 +121,20 @@ export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefine
     const discountPercentage = currentOrder.discount?.value || 0;
     const stockChild = children.find((child) => child.type === OrderType.Stock);
     const backorderChild = children.find((child) => child.type === OrderType.Back);
+    const orderMoney = calculateOrderMoney({
+      subtotal,
+      discountRate: discountPercentage,
+      shippingCost: currentOrder.shippingCost || 0,
+    });
 
     return {
       subtotal,
       discountPercentage,
-      discountAmount: discountPercentage * subtotal,
+      discountAmount: orderMoney.discountAmount,
       handlingCharge: 0,
-      shippingCost: currentOrder.shippingCost || 0,
-      taxPercentage: 19,
-      taxAmount: 0.19 * subtotal,
+      shippingCost: orderMoney.shippingCost,
+      taxPercentage: Math.round(orderMoney.vatRate * 100),
+      taxAmount: orderMoney.vatAmount,
       backorderItemsTotal: currentOrder.type === OrderType.Mixed ? backorderChild?.total : undefined,
       stockItemsTotal: currentOrder.type === OrderType.Mixed ? stockChild?.total : undefined,
       orderTotal: currentOrder.total,

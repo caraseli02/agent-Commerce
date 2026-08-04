@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #402 / PR #424 — retire FormInput on Scripted Buyer Path (rebase onto main + review repair).
+- Issue #425 / PR #434 — Order Money module on Scripted Buyer Path; addressing review repair (small-order sync + payment-summary E2E).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #402 on branch `feat/402-retire-forminput-buyer-path` (label claim may need manual apply from automation token).
+- Issue #425 on branch `feat/425-order-money-module` (evaluator PASS; applying review follow-ups).
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -17,6 +17,7 @@
 
 ## Recently completed
 
+- Issue #402 / PR #424 — retire FormInput on Scripted Buyer Path.
 - Issue #403 / PR #423 — order and dashboard type namespace consolidation.
 - Issue #399 / PR #417 — reduce Swiper weight on home merchandising surfaces.
 - Issue #390 / PR #405 — CLAUDE.md API guidance synced with live `composables/api` architecture.
