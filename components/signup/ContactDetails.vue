@@ -8,31 +8,31 @@
         </div>
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
-            <FormInput
+            <BuyerFormInput
               v-if="selectedType !== 'personal'"
               v-model="details.firstName.value"
               :error="details.firstName.error"
               label="First Name"
               placeholder="First Name"
             />
-            <FormInput
+            <BuyerFormInput
               v-if="selectedType !== 'personal'"
               v-model="details.lastName.value"
               :error="details.lastName.error"
               label="Last Name"
               placeholder="Last Name"
             />
-            <FormInput v-model="details.phone.value" :error="details.phone.error" type="tel" label="Phone" placeholder="Phone Number" />
-            <FormInput v-model="details.mobile.value" type="tel" label="Mobile" placeholder="Mobile Number" />
+            <BuyerFormInput v-model="details.phone.value" :error="details.phone.error" type="tel" label="Phone" placeholder="Phone Number" />
+            <BuyerFormInput v-model="details.mobile.value" type="tel" label="Mobile" placeholder="Mobile Number" />
             <template v-if="selectedType !== 'personal'">
-              <FormInput
+              <BuyerFormInput
                 v-model="details.companyEmail.value"
                 :error="details.companyEmail.error"
                 type="email"
                 label="Company E-mail"
                 placeholder="Company E-mail"
               />
-              <FormInput
+              <BuyerFormInput
                 v-model="details.confirmCompanyEmail.value"
                 :error="details.confirmCompanyEmail.error"
                 type="email"
@@ -41,8 +41,8 @@
               />
             </template>
             <template v-if="selectedType === 'personal'">
-              <FormInput v-model="details.email.value" :error="details.email.error" type="email" label="E-mail" placeholder="E-mail" />
-              <FormInput
+              <BuyerFormInput v-model="details.email.value" :error="details.email.error" type="email" label="E-mail" placeholder="E-mail" />
+              <BuyerFormInput
                 v-model="details.confirmEmail.value"
                 :error="details.confirmEmail.error"
                 type="email"

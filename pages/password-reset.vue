@@ -3,7 +3,7 @@
     <div class="container max-w-[406px]">
       <h1 class="text-xl leading-[1.4] font-semibold text-center mb-10">Password Reset</h1>
       <form class="grid grid-cols-1 gap-6" @submit.prevent="handleSubmit">
-        <FormInput
+        <BuyerFormInput
           v-model="form.email.value"
           :error="form.email.error"
           type="email"

@@ -37,7 +37,7 @@
       Demo passwords stay hidden. Customer Demo is ready to use; Admin Preview opens sample back-office data.
     </p>
     <div class="grid grid-cols-1 gap-3 mt-4">
-      <FormInput
+      <BuyerFormInput
         v-model="email.value"
         size="lg"
         label="E-mail or client code"
