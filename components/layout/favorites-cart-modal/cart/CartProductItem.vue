@@ -60,7 +60,7 @@ import { storeToRefs } from 'pinia';
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import { ProductAction } from '~/types/cart';
 import type { ProductActionObject } from '~/types/cart';
-import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
+import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';

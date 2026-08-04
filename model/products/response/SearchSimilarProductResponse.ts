@@ -1,11 +1,2 @@
-import type { ProductInterface } from './ProductResponse';
-
-export interface SearchSimilarProductResponse {
-  data: SimilarProductData;
-  status: string;
-}
-
-export interface SimilarProductData {
-  count: number;
-  items: ProductInterface[];
-}
+/** @deprecated Import from `~/types/product` instead. */
+export * from '~/types/product/similar';

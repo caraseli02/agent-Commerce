@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance';
 import SearchIcon from '@/assets/icons/search.svg';
-import type { ProductInterface } from '~~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~~/types/product';
 import { useProducts } from '~/composables/useProducts';
 
 const route = useRoute();

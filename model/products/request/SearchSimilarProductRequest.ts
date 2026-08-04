@@ -1,5 +1,2 @@
-import type { SearchFiltersCategories } from '../response/ProductSearchResponse';
-
-export interface SearchSimilarProductRequest {
-  filters: SearchFiltersCategories[];
-}
+/** @deprecated Import from `~/types/product` instead. */
+export * from '~/types/product/similar';

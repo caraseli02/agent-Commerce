@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 
 const props = defineProps<{
   productsList: ProductInterface[];

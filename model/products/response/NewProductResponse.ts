@@ -1,6 +1,2 @@
-import type { NewProducts } from '../NewProducts';
-
-export interface NewProductResponse {
-  data: [NewProducts];
-  status: string;
-}
+/** @deprecated Import from `~/types/product` instead. */
+export * from '~/types/product/new-products';
