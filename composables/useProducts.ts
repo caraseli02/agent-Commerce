@@ -3,9 +3,7 @@ import { fetchProductTab, fetchSearchProduct } from '~/composables/api/products'
 import { loadFeaturedProducts } from '~/composables/loadFeaturedProducts';
 import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
 import { loadSearchResults, searchResultsCacheKey, type SearchResultsQuery } from '~/composables/loadSearchResults';
-import type { ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
-import type { ProductResponse } from '~/model/products/response/ProductResponse';
+import type { ProductInterface, ProductParametricDataFeaturesInterface, ProductResponse } from '~/model/products/response/ProductResponse';
 import type { SearchData } from '~/model/products/response/ProductSearchResponse';
 import type { ProductDetail } from '~/types/product';
 

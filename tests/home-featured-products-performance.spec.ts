@@ -18,13 +18,13 @@ describe('home featured-products performance', () => {
 
     expect(featuredProducts).toContain("useAsyncData('home-featured-products'");
     expect(featuredProducts).toContain(':fetched-products="productList ?? []"');
-    expect(featuredProducts).toContain('const requestFetch = useRequestFetch();');
-    expect(featuredProducts).toContain("fetchMock: () => requestFetch<ProductResponse>('/api/products/featured')");
-    expect(featuredProducts).toContain("fetchLive: () => fetchProductTab('featured')");
+    expect(featuredProducts).toContain('useProducts');
+    expect(featuredProducts).toContain('loadFeaturedProductsList');
     expect(featuredProducts).not.toContain('onMounted(');
     expect(productBlocks).toContain(':initial-products="fetchedProducts"');
     expect(productBlocks).toContain('v-if="filters?.length"');
     expect(productTabs).toContain('const activeFilter = ref(initialFilter)');
+    expect(productTabs).toContain('loadProductTabProducts');
     expect(productTabs).toContain('{ immediate: true }');
     expect(productTabs).not.toContain('onMounted(');
   });
