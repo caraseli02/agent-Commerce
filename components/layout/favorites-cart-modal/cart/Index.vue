@@ -39,18 +39,10 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
-import type { PropType } from 'vue';
 import { useCart } from '~/composables/useCart';
-import type { CartInterface, CartProductsInterface } from '~/types/cart';
+import type { CartProductsInterface } from '~/types/cart';
 import CartProductItem, { type CartLineItem } from '~/components/layout/favorites-cart-modal/cart/CartProductItem.vue';
 import { useCartStore } from '~/store/cartStore';
-
-const props = defineProps({
-  data: {
-    type: Object as PropType<CartInterface>,
-    required: true,
-  },
-});
 
 defineEmits(['close']);
 
@@ -82,16 +74,6 @@ const mapCartItems = () => {
     })
   );
 };
-
-watch(
-  () => props.data,
-  (nextCart) => {
-    if (nextCart) {
-      cartStore.setCart(nextCart);
-    }
-  },
-  { deep: true, immediate: true }
-);
 
 watch(
   cart,

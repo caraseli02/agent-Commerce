@@ -2,7 +2,8 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 /**
- * Buyer-path UI coordination (account modal) without a global event bus.
+ * Buyer-path UI coordination without a global event bus.
+ * Account modal opens via requestOpenAccountModal(); header badge and cart panel read cartStore directly.
  */
 export const useUiStore = defineStore('ui', () => {
   const accountModalRequestId = ref(0);

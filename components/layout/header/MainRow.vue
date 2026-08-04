@@ -120,7 +120,7 @@
       <LayoutHeaderMainMenu v-if="showNavModal" />
     </Transition>
     <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
-    <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />
+    <CartModal v-if="cartModal.show" @close="cartModal.show = false" />
   </Teleport>
 </template>
 
@@ -214,13 +214,11 @@ const openCartModal = () => {
 const searchVal = ref('');
 const showMobileSearch = ref(false);
 const searchDOM = ref<HTMLInputElement>();
-const items = ref<CartInterface>({} as CartInterface);
 const productList = ref<ProductInterface[]>([]);
 const isLoading = ref(false);
 
 const syncHeaderCartFromStore = (data: CartInterface | null) => {
   if (data?.products) {
-    items.value = data;
     cartItems.value = data.products.length;
     cart.value = data;
     syncFromCart(data);
@@ -230,7 +228,6 @@ const syncHeaderCartFromStore = (data: CartInterface | null) => {
 
   cartItems.value = 0;
   totalCartPrice.value = 0;
-  items.value = {} as CartInterface;
   cart.value = null;
   resetBaseline();
 };
@@ -264,7 +261,6 @@ const fetchList = async () => {
     return;
   }
 
-  items.value = data;
   cartItems.value = data.products.length;
   cart.value = data;
   syncFromCart(data, { animate: false });
