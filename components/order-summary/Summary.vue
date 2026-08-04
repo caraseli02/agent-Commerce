@@ -91,6 +91,10 @@ const props = defineProps<{
   generalSettings: GeneralSettingsInterface | null;
 }>();
 
+const emit = defineEmits<{
+  'update:smallOrder': [value: SmallOrderChargeInterface | null];
+}>();
+
 const showSmallOrderModal = ref(false);
 
 const resolvedSubtotal = computed(() => Number(getCartSubtotal.value || props.order.subtotal || 0));
@@ -109,10 +113,7 @@ const orderMoney = computed(() =>
 watch(
   () => orderMoney.value.matchedSmallOrderTier,
   (tier) => {
-    if (tier?._id) {
-      // eslint-disable-next-line vue/no-mutating-props
-      props.order.smallOrder = tier as SmallOrderChargeInterface;
-    }
+    emit('update:smallOrder', tier?._id ? (tier as SmallOrderChargeInterface) : null);
   },
   { immediate: true }
 );

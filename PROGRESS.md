@@ -2,13 +2,12 @@
 
 ## Current focus
 
-- Issue #398 / PR pending — virtualize admin orders DataTable rows with `@tanstack/vue-virtual`.
-- Open PR #416 for #396 still awaits evaluator (no `in-progress` label on issue).
+- Issue #425 / PR #434 — Order Money module on Scripted Buyer Path; addressing review repair (small-order sync + payment-summary E2E).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #398 on branch `feat/398-virtualize-dashboard-table` (label claim may need manual apply from automation token).
+- Issue #425 on branch `feat/425-order-money-module` (evaluator PASS; applying review follow-ups).
 
 ## Architecture note (cross-runtime cart pricing)
 

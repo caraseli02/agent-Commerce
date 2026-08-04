@@ -40,7 +40,7 @@
               @update-payment-details="order.paymentDetails = $event"
             />
             <OrderSummaryNoteSection />
-            <OrderSummary :order="order" :general-settings="generalSettings" />
+            <OrderSummary :order="order" :general-settings="generalSettings" @update:small-order="order.smallOrder = $event" />
             <OrderSummaryCheckoutButtons
               :is-checkout-disabled="isCheckoutDisabled"
               :is-guest-checkout="isGuestCheckout"
