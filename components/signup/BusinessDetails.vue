@@ -7,14 +7,14 @@
           <QuestionIcon class="w-5 h-5 text-gray-500" />
         </div>
         <div class="mb-[30px]">
-          <div class="grid grid-cols-1 gap-[15px] mb-10">
-            <FormInput
+          <div class="grid grid-cols-1 gap-[15px] mb-6">
+            <BuyerFormInput
               v-model="details.fullCompanyName.value"
               :error="details.fullCompanyName.error"
               label="Full Company Name"
               placeholder="Your Full Company Name"
             />
-            <FormInput
+            <BuyerFormInput
               v-model="details.companyRegistrationNumber.value"
               :error="details.companyRegistrationNumber.error"
               label="Company Registration Number"
@@ -39,15 +39,17 @@
               search
               class="relative z-10"
             />
-            <FormInput v-model="details.city.value" :error="details.city.error" label="City" placeholder="City" />
-            <FormInput v-model="details.postcode.value" :error="details.postcode.error" label="Postcode" placeholder="Postcode" />
-            <FormInput
+          </div>
+          <div class="grid grid-cols-1 gap-[15px] mb-10">
+            <BuyerFormInput v-model="details.city.value" :error="details.city.error" label="City" placeholder="City" />
+            <BuyerFormInput v-model="details.postcode.value" :error="details.postcode.error" label="Postcode" placeholder="Postcode" />
+            <BuyerFormInput
               v-model="details.addressLine1.value"
               :error="details.addressLine1.error"
               label="Address Line 1"
               placeholder="Address Line 1"
             />
-            <FormInput
+            <BuyerFormInput
               v-model="details.addressLine2.value"
               :error="details.addressLine2.error"
               label="Address Line 2"
@@ -62,7 +64,7 @@
                 Is VAT payer
               </label>
             </div>
-            <FormInput
+            <BuyerFormInput
               v-if="vatPayer && details.vatNumber"
               v-model="details.vatNumber.value"
               :error="details.vatNumber.error"

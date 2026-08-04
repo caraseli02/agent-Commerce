@@ -119,18 +119,8 @@
     <Transition name="slide-from-left">
       <LayoutHeaderMainMenu v-if="showNavModal" />
     </Transition>
-    <Transition name="fade">
-      <div
-        v-if="cartModal.show"
-        class="hidden fixed z-[60] top-0 left-0 w-full h-full bg-[rgba(47,50,65,0.10)] transition-opacity duration-300 cursor-pointer md:block"
-        :class="[cartModal.show ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-none opacity-0 pointer-events-none']"
-        @click="cartModal.show = false"
-      />
-    </Transition>
     <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
-    <Transition name="slide-from-right">
-      <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />
-    </Transition>
+    <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />
   </Teleport>
 </template>
 
@@ -159,10 +149,12 @@ import { fetchSearchProduct } from '~/composables/api/products';
 import { useCartStore } from '~/store/cartStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
+import { useUiStore } from '~/store/uiStore';
 import { useClientReady } from '~/composables/useClientReady';
 import { useCartBadgeMotion } from '~/composables/useCartBadgeMotion';
 
 const cartStore = useCartStore();
+const uiStore = useUiStore();
 const isClientReady = useClientReady();
 const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
 const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
@@ -226,33 +218,44 @@ const items = ref<CartInterface>({} as CartInterface);
 const productList = ref<ProductInterface[]>([]);
 const isLoading = ref(false);
 
-Emitter.on('remove-cart-and-notifications', async (isSignout: boolean) => {
-  if (isSignout) {
-    cartStore.emptyCart();
-    cartItems.value = 0;
-    totalCartPrice.value = 0;
-    items.value = {} as CartInterface;
-    resetBaseline();
-  }
-});
-
-Emitter.on('update-cart', async (data: CartInterface) => {
-  if (data && data.products) {
+const syncHeaderCartFromStore = (data: CartInterface | null) => {
+  if (data?.products) {
     items.value = data;
-    cartItems.value = items.value.products.length;
-    cart.value = items.value;
+    cartItems.value = data.products.length;
+    cart.value = data;
     syncFromCart(data);
     subtotal();
+    return;
   }
-});
 
-Emitter.on('open-account-modal', async () => {
-  openAccountModal();
-});
+  cartItems.value = 0;
+  totalCartPrice.value = 0;
+  items.value = {} as CartInterface;
+  cart.value = null;
+  resetBaseline();
+};
 
-Emitter.on('open-cart-modal', () => {
-  openCartModal();
-});
+watch(
+  () => cartStore.cart,
+  (data) => {
+    syncHeaderCartFromStore(data);
+  },
+  { deep: true, immediate: true }
+);
+
+watch(
+  () => uiStore.accountModalRequestId,
+  () => {
+    openAccountModal();
+  }
+);
+
+watch(
+  () => notificationStore.refreshRequestId,
+  () => {
+    void fetchNofications();
+  }
+);
 
 const fetchList = async () => {
   const data = getCart.value as CartInterface | null;

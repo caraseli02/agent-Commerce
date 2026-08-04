@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import Emitter from 'tiny-emitter/instance.js';
 import { fetchCartList } from '~/composables/api/cart';
 import type { CartInterface } from '~/types/cart';
 import { calculateCartSubtotal, mapCartItems } from '~/utils/cart';
@@ -45,30 +44,17 @@ export const useCartStore = defineStore(
     const setCart = (nextCart: CartInterface) => {
       cart.value = nextCart;
       // Do not mark fetched here — cached/persisted payloads must not look authoritative.
-      Emitter.emit('update-cart', nextCart);
     };
 
     /** In-memory optimistic write — does not overwrite the last persisted real cart. */
     const setOptimisticCart = (nextCart: CartInterface) => {
       skipPersistOnce = true;
       cart.value = nextCart;
-      Emitter.emit('update-cart', nextCart);
     };
 
     /** Restore a pre-mutation snapshot without clearing checkout secrets. */
     const restoreCartSnapshot = (snapshot: CartInterface | null) => {
       cart.value = snapshot;
-      if (snapshot) {
-        Emitter.emit('update-cart', snapshot);
-      } else {
-        Emitter.emit('update-cart', {
-          _id: '',
-          userId: '',
-          products: [],
-          startDate: '',
-          endDate: '',
-        } as CartInterface);
-      }
     };
 
     const setOrderClientSecret = (secret: string) => {
@@ -119,7 +105,6 @@ export const useCartStore = defineStore(
 
       cart.value = cartResponse.data;
       hasFetchedCart.value = true;
-      Emitter.emit('update-cart', cart.value);
 
       return cart.value as CartInterface;
     };

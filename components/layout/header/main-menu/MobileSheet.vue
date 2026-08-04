@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
+import { useUiStore } from '~/store/uiStore';
 import { XIcon, MenuIcon, ChevronRight, ChevronLeftIcon, Building2Icon, HeadsetIcon, GemIcon, UserIcon } from 'lucide-vue-next';
 import { useCategoriesNavigation } from '@/composables/useCategoriesNavigation';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
@@ -59,7 +59,7 @@ const onMobileCategoryClick = (category: (typeof categories.value)[number], make
 
 const openAccountFromDrawer = () => {
   closeMobileMenu();
-  Emitter.emit('open-account-modal');
+  useUiStore().requestOpenAccountModal();
 };
 
 let headerResizeObserver: ResizeObserver | undefined;

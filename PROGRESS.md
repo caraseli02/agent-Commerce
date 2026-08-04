@@ -17,6 +17,9 @@
 
 ## Recently completed
 
+- Issue #402 / PR #424 — retire FormInput on Scripted Buyer Path.
+- Issue #403 / PR #423 — order and dashboard type namespace consolidation.
+- Issue #399 / PR #417 — reduce Swiper weight on home merchandising surfaces.
 - Issue #390 / PR #405 — CLAUDE.md API guidance synced with live `composables/api` architecture.
 - Issue #385 / PR #386 — optimistic add-to-cart on Scripted Buyer Path.
 - Issue #349 / PR #383 — dashboard bundle split and bundle-size guardrails.

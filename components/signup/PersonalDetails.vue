@@ -8,8 +8,13 @@
         </div>
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
-            <FormInput v-model="details.firstName.value" :error="details.firstName.error" label="First Name" placeholder="First Name" />
-            <FormInput v-model="details.lastName.value" :error="details.lastName.error" label="Last Name" placeholder="Last Name" />
+            <BuyerFormInput
+              v-model="details.firstName.value"
+              :error="details.firstName.error"
+              label="First Name"
+              placeholder="First Name"
+            />
+            <BuyerFormInput v-model="details.lastName.value" :error="details.lastName.error" label="Last Name" placeholder="Last Name" />
             <FormSelect
               v-model="details.country.value"
               :error="details.country.error"
@@ -29,15 +34,15 @@
               search
               class="relative z-10"
             />
-            <FormInput v-model="details.city.value" :error="details.city.error" label="City" placeholder="City" />
-            <FormInput v-model="details.postcode.value" :error="details.postcode.error" label="Postcode" placeholder="Postcode" />
-            <FormInput
+            <BuyerFormInput v-model="details.city.value" :error="details.city.error" label="City" placeholder="City" />
+            <BuyerFormInput v-model="details.postcode.value" :error="details.postcode.error" label="Postcode" placeholder="Postcode" />
+            <BuyerFormInput
               v-model="details.addressLine1.value"
               :error="details.addressLine1.error"
               label="Address Line 1"
               placeholder="Address Line 1"
             />
-            <FormInput
+            <BuyerFormInput
               v-model="details.addressLine2.value"
               :error="details.addressLine2.error"
               label="Address Line 2"

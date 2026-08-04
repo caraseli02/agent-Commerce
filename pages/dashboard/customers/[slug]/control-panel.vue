@@ -90,7 +90,6 @@
 
 <script setup lang="ts">
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import type { UserInterface } from '~/types/auth/user-interface';
 import { ControlPanelLabels, ControlPanelTabsEnum } from '~/types/dashboard/control-panel';
 import { AccountType } from '~/types';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
@@ -191,10 +190,7 @@ const fetchInformation = async () => {
     return;
   }
   try {
-    const response = (await fetchCustomerInformation(customerSlug.value)) as unknown as {
-      status: string;
-      data: UserInterface;
-    };
+    const response = await fetchCustomerInformation(customerSlug.value);
 
     if (response.status !== 'success') {
       return;

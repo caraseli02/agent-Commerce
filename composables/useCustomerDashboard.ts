@@ -15,9 +15,9 @@ import type {
   CustomerDashboardActivityData,
   ProductBannerInterface,
   ViewHistoryProductInterface,
-} from '~/model/dashboard/customer-information/customer-information';
+} from '~/types/dashboard/client-dashboard';
 import type { BillingAddressInterface, ShippingAddressInterface, UserInterface } from '~/types/auth/user-interface';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 import { AccountType } from '~/types';
 import type { StripeCardInterface } from '~/types';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
