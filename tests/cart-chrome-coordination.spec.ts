@@ -1,9 +1,12 @@
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import type { CartInterface, CartProductsInterface } from '~/types/cart';
 import { __setMockApiClient, __setMockCookie, __setMockRuntimeConfig } from './mocks/nuxt-app';
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const product = {
   id: 'prod-2',
@@ -43,7 +46,7 @@ const cartAfterRemove = {
   products: [secondProduct],
 } as CartInterface;
 
-const source = (path: string) => readFileSync(resolve(path), 'utf8');
+const source = (relativePath: string) => readFileSync(resolve(repoRoot, relativePath), 'utf8');
 
 describe('cart chrome coordination (store-driven, no event bus)', () => {
   it('keeps buyer-path cart chrome off the global emitter bus', () => {
