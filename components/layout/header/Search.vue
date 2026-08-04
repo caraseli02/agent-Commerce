@@ -39,10 +39,10 @@
 import Emitter from 'tiny-emitter/instance';
 import SearchIcon from '@/assets/icons/search.svg';
 import type { ProductInterface } from '~~/model/products/response/ProductResponse';
-import type { SearchData } from '~~/model/products/response/ProductSearchResponse';
-import { fetchSearchProduct } from '~/composables/api/products';
+import { useProducts } from '~/composables/useProducts';
 
 const route = useRoute();
+const { searchHeaderResults } = useProducts();
 
 const props = defineProps({
   showResults: {
@@ -72,20 +72,17 @@ const onInput = _debounce(async () => {
 const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<ProductInterface[] | null> => {
   isLoading.value = true;
 
-  const response = (await fetchSearchProduct(keyword, category.value, page, perPage)) as { data?: SearchData };
-  const data = response.data;
+  const result = await searchHeaderResults(keyword, category.value, page, perPage);
 
-  if (!data) {
+  if (!result) {
+    isLoading.value = false;
     return null;
   }
 
-  if (!data || !data.items || !data.items.items.length) {
-    return null;
-  }
+  Emitter.emit('product-keyword-change', { keyword, products: result.searchData });
 
-  Emitter.emit('product-keyword-change', { keyword: keyword, products: data });
-
-  return data.items.items;
+  isLoading.value = false;
+  return result.items;
 };
 
 function handleEnterButton() {

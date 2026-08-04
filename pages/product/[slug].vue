@@ -95,8 +95,9 @@
 import { MoreVertical, PrinterIcon } from 'lucide-vue-next';
 
 import type { ProductDetail, ProductImageInterface } from '~/types/product';
-import { fetchSingleProduct } from '~/composables/api/products';
-import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
+import { useProducts } from '~/composables/useProducts';
+
+const { loadProductBySlug, productDetailCacheKey } = useProducts();
 
 const route = useRoute();
 const productSlug = computed(() => {
@@ -111,7 +112,7 @@ const {
   refresh,
 } = await useAsyncData<ProductDetail>(
   () => productDetailCacheKey(productSlug.value),
-  () => loadProductDetail(productSlug.value, fetchSingleProduct),
+  () => loadProductBySlug(productSlug.value),
   {
     watch: [productSlug],
   }

@@ -23,8 +23,10 @@
 
 <script setup lang="ts">
 import type { ProductInterface } from '~/model/products/response/ProductResponse';
-import { fetchProductTab } from '~/composables/api/products';
+import { useProducts } from '~/composables/useProducts';
 import { getProductSectionHeading } from '~/utils/productSectionHeadings';
+
+const { loadProductTabProducts } = useProducts();
 
 const props = defineProps<{
   filters: string[];
@@ -55,14 +57,8 @@ watch(
     }
 
     try {
-      const response = await fetchProductTab(value);
-      const data = response?.data || response;
-
-      if (Array.isArray(data)) {
-        emit('newProducts', data);
-      } else {
-        emit('newProducts', []);
-      }
+      const products = await loadProductTabProducts(value);
+      emit('newProducts', products);
     } catch (error) {
       console.error('Failed to load product tab', error);
       emit('newProducts', []);

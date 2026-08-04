@@ -38,19 +38,10 @@
 <script setup lang="ts">
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import PromoItem from '@/assets/media/home/black-friday-item.png';
-import type { ProductResponse } from '~/model/products/response/ProductResponse';
-import { fetchProductTab } from '~/composables/api/products';
-import { loadFeaturedProducts } from '~/composables/loadFeaturedProducts';
+import { useProducts } from '~/composables/useProducts';
 
 const filters = ['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched'];
-const config = useRuntimeConfig();
-const requestFetch = useRequestFetch();
+const { loadFeaturedProductsList } = useProducts();
 
-const { data: productList } = await useAsyncData('home-featured-products', () =>
-  loadFeaturedProducts({
-    mockMode: Boolean(config.public.MOCK_MODE),
-    fetchMock: () => requestFetch<ProductResponse>('/api/products/featured'),
-    fetchLive: () => fetchProductTab('featured'),
-  })
-);
+const { data: productList } = await useAsyncData('home-featured-products', () => loadFeaturedProductsList());
 </script>
