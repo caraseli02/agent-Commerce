@@ -37,4 +37,17 @@ describe('buyer path FormInput retirement (#402)', () => {
     expect(contents).toContain('<BuyerFormInput');
     expect(contents).not.toMatch(formInputPattern);
   });
+
+  it('registers BuyerFormInput at the Nuxt auto-import path (not buyer/BuyerFormInput)', async () => {
+    const movedAway = await readFile(join(repoRoot, 'components/buyer/BuyerFormInput.vue'), 'utf8').then(
+      () => false,
+      () => true
+    );
+    const contents = await readFile(join(repoRoot, 'components/BuyerFormInput.vue'), 'utf8');
+
+    expect(movedAway).toBe(true);
+    expect(contents).toContain('label: {');
+    expect(contents).toMatch(/label:\s*\{\s*type:\s*String,\s*required:\s*true/);
+    expect(contents).not.toContain('pl-[52px]');
+  });
 });

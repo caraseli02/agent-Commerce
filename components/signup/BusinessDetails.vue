@@ -7,7 +7,7 @@
           <QuestionIcon class="w-5 h-5 text-gray-500" />
         </div>
         <div class="mb-[30px]">
-          <div class="grid grid-cols-1 gap-[15px] mb-10">
+          <div class="grid grid-cols-1 gap-[15px] mb-6">
             <BuyerFormInput
               v-model="details.fullCompanyName.value"
               :error="details.fullCompanyName.error"
@@ -39,6 +39,8 @@
               search
               class="relative z-10"
             />
+          </div>
+          <div class="grid grid-cols-1 gap-[15px] mb-10">
             <BuyerFormInput v-model="details.city.value" :error="details.city.error" label="City" placeholder="City" />
             <BuyerFormInput v-model="details.postcode.value" :error="details.postcode.error" label="Postcode" placeholder="Postcode" />
             <BuyerFormInput

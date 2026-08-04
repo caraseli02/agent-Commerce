@@ -1,12 +1,12 @@
 <template>
   <div>
-    <UiLabel v-if="label" :for="inputId" class="mb-1 block text-sm text-slate-500">
+    <UiLabel :for="inputId" class="mb-1 block text-sm text-slate-500">
       {{ label }}
     </UiLabel>
     <div class="relative">
       <div
         v-if="icon"
-        class="absolute top-1/2 -translate-y-1/2 left-px z-10 flex h-10 w-11 items-center justify-center rounded-l-lg border-r border-border bg-[#F5F5F5]"
+        class="absolute top-1/2 -translate-y-1/2 left-px z-10 flex h-10 w-12 items-center justify-center rounded-l-lg border-r border-border bg-[#F5F5F5]"
       >
         <component :is="icon" class="h-5 w-5 text-slate-500" />
       </div>
@@ -46,7 +46,7 @@ const props = defineProps({
   },
   label: {
     type: String,
-    default: undefined,
+    required: true,
   },
   placeholder: {
     type: String,
@@ -86,7 +86,8 @@ const inputClasses = computed(() =>
   cn(
     'w-full bg-transparent text-sm !placeholder:text-gray-500 transition-colors duration-300',
     props.error ? 'border-rose-500 focus-visible:outline-rose-500' : 'focus-visible:outline-blue-500',
-    props.icon ? 'pl-[52px]' : undefined,
+    // Icon rail is w-12 (3rem); pad with spacing-scale pl-14.
+    props.icon ? 'pl-14' : undefined,
     props.size === 'lg' ? 'h-12 rounded-lg py-2.5' : 'h-11 rounded-md py-2',
     props.disabled && props.showDisabledStyles
       ? 'disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none'
