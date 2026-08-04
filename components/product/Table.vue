@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import CheckIcon from '@/assets/icons/check.svg';
-import type { ProductParametricDataFeaturesInterface } from '~/types/product';
-import type { ProductFilters, SearchDataItems } from '~/types/product';
+import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchDataItems } from '~/types/product';
 import { useProducts } from '~/composables/useProducts';
 import { useProductStore } from '~/store/productStore';
 
