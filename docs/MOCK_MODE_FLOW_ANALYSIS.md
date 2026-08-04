@@ -159,14 +159,13 @@ This document provides a comprehensive user flow analysis for transforming the E
    - Select quantity
    - Submit to `/cart` endpoint
    - Cart updated in store
-   - Cart widget shows item count
-   - Emitter `update-cart` triggered
+   - Header badge and cart panel react via `cartStore` watchers (no `update-cart` emitter)
 
 2. **F3.2: Add to Cart (Anonymous User)**
 
    - Click "Add to Cart" on product page
    - System detects no token
-   - Open login modal (Emitter `open-account-modal`)
+   - Open login modal via `uiStore.requestOpenAccountModal()`
    - User authenticates
    - Then proceed with F3.1
 

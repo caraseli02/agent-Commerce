@@ -2,12 +2,13 @@
 
 ## Current focus
 
-- Issue #425 / PR #434 — Order Money module on Scripted Buyer Path; addressing review repair (small-order sync + payment-summary E2E).
+- Issue #430 / PR #437 — cart update signals without event bus (`feat/430-cart-update-signals`); evaluator repair (rebase + PROGRESS).
+- Open PRs awaiting evaluator/human: #439 (#404), #438 (#429), #436 (#428).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #425 on branch `feat/425-order-money-module` (evaluator PASS; applying review follow-ups).
+- Issue #430 on branch `feat/430-cart-update-signals` (rebasing onto main after evaluator FAIL).
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -17,6 +18,7 @@
 
 ## Recently completed
 
+- Issue #425 / PR #434 — Order Money module on Scripted Buyer Path.
 - Issue #402 / PR #424 — retire FormInput on Scripted Buyer Path.
 - Issue #403 / PR #423 — order and dashboard type namespace consolidation.
 - Issue #399 / PR #417 — reduce Swiper weight on home merchandising surfaces.
