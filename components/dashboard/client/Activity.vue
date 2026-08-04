@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import type { CustomerDashboardActivityData } from '~/model/dashboard/customer-information/customer-information';
+import type { CustomerDashboardActivityData } from '~/types/dashboard/client-dashboard';
 
 defineProps<{
   data: CustomerDashboardActivityData;

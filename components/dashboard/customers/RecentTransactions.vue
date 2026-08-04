@@ -97,10 +97,7 @@ const fetchRecentTransactions = async () => {
   if (!props.id) {
     return;
   }
-  const response = (await fetchCustomerRecentTransactions(props.id)) as unknown as {
-    status: string;
-    data: TransactionInterface[];
-  };
+  const response = await fetchCustomerRecentTransactions(props.id);
 
   if (response.status !== 'success' || !Array.isArray(response.data)) {
     isLoading.value = false;

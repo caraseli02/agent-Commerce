@@ -189,22 +189,16 @@ import DotsVerticalIcon from '@/assets/icons/dots-vertical.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { fetchCustomerInformation } from '~/composables/api/customer-profile';
-import { AccountStatusEnum, type AddressInterface, type UserInterface } from '~/types/auth/user-interface';
+import { AccountStatusEnum, type AddressInterface } from '~/types/auth/user-interface';
 import { AccountType, getAccountTypeById } from '~/types';
 import type { DashboardCustomerTableItem } from '~/types';
 import type { CountryInterface } from '~/types/dashboard/control-panel';
 import ThreeDotMenu from '~/components/shared/tables/micro/row-items/ThreeDotMenu.vue';
 import { deleteUser } from '~/composables/api/dashboard-admin';
 import { useCountries } from '~/composables/useCountries';
+import type { CustomerProfileUser } from '~/types/dashboard/customer-profile';
 
 const { countries, load: loadCountries } = useCountries();
-
-type CustomerProfileUser = UserInterface & { lastActivityDate?: string };
-
-interface CustomerInformationResponse {
-  status: string;
-  data: CustomerProfileUser;
-}
 
 const showOptions = ref(false);
 const showDeactivatingModal = ref(false);
@@ -233,7 +227,7 @@ const fetchInformation = async () => {
   if (!props.id) {
     return;
   }
-  const response = (await fetchCustomerInformation(props.id)) as unknown as CustomerInformationResponse;
+  const response = await fetchCustomerInformation(props.id);
 
   if (response.status !== 'success') {
     isLoading.value = false;

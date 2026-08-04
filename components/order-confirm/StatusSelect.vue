@@ -64,28 +64,36 @@ watch(selected, (newValue, oldVal) => {
   isOpen.value = true;
 });
 
+const statusChangeErrorDescription = (description?: string) =>
+  description?.trim() || 'Could not update the order status. Please try again, or refresh the page if it still fails.';
+
 // Confirm change
 const confirmChange = async () => {
   isOpen.value = false; // Close dialog
 
-  const result = (await changeStatus(props.orderId, selected.value)) as unknown as {
-    status: string;
-    description: string;
-  };
-  if (result.status !== 'success') {
+  try {
+    const result = await changeStatus(props.orderId, selected.value);
+    if (result.status !== 'success') {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: statusChangeErrorDescription(result.description),
+      });
+      return;
+    }
+
+    toast({
+      variant: 'success',
+      title: 'Success',
+      description: 'Order status updated successfully',
+    });
+  } catch {
     toast({
       variant: 'destructive',
       title: 'Error',
-      description: result.description || 'Failed to update order status',
+      description: statusChangeErrorDescription(),
     });
-    return;
   }
-
-  toast({
-    variant: 'success',
-    title: 'Success',
-    description: 'Order status updated successfully',
-  });
 };
 
 // Cancel change

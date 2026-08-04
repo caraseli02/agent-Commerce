@@ -6,7 +6,7 @@ import { useRuntimeConfig } from '#app';
 import { useCartStore } from '~/store/cartStore';
 import { AccountRole, AccountType, PaymentTypeEnum } from '~/types';
 import type { OrderRequestInterface, PaymentDetails, OrderType } from '~/types';
-import type { PlaceOrderInterface } from '~/model/order/response/PlaceOrder';
+import type { PlaceOrderInterface } from '~/types/order';
 import type { CartProductsInterface } from '~/types/cart';
 import type { BackorderShippingTypesInterface, SmallOrderChargeInterface } from '~/types/general-settings/general-settings';
 import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
@@ -53,7 +53,7 @@ export function useOrder() {
     fallbackMessage: string,
     fallbackType: string
   ): CheckoutFailure => {
-    const data = ((response?.data ?? {}) as {
+    const data = (response?.data ?? {}) as {
       message?: unknown;
       type?: unknown;
       code?: unknown;
@@ -61,7 +61,7 @@ export function useOrder() {
       errorCode?: unknown;
       status?: unknown;
       result?: { status?: unknown };
-    });
+    };
     const messageCandidate = data.message ?? data.error ?? response?.message;
     const message = typeof messageCandidate === 'string' && messageCandidate.trim() ? messageCandidate : fallbackMessage;
 
