@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #402 / PR #424 — retire FormInput on Scripted Buyer Path (rebase onto main + review repair).
+- Issue #428 — Scripted Buyer Path use-case contract (`docs/scripted-buyer-path-contract.md`).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #402 on branch `feat/402-retire-forminput-buyer-path` (label claim may need manual apply from automation token).
+- Issue #428 on branch `feat/428-scripted-buyer-path-contract` (label claim may need manual apply from automation token).
 
 ## Architecture note (cross-runtime cart pricing)
 
