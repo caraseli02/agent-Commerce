@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #194 / PR #440 — shared empty states for search, cart, orders, and dashboard favorites; addressing evaluator/Qodo review.
+- Issue #194 / PR #440 — shared empty states; evaluator PASS / ready-for-human after Qodo Round 1 fixes.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #194 on branch `feat/194-empty-states`.
+- Issue #194 on branch `feat/194-empty-states` (awaiting human merge).
 
 ## Architecture note (cross-runtime cart pricing)
 
