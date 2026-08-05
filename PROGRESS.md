@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Issue #428 — Scripted Buyer Path use-case contract (`docs/scripted-buyer-path-contract.md`).
+- Issue #428 — Buyer Flow design contract (`docs/buyer-flow-design-contract.md`).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
