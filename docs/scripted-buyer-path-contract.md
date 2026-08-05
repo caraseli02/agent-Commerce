@@ -39,7 +39,7 @@ Anything that breaks this path is a **Portfolio Demo Blocker** or **Demo Trust R
 - `NUXT_PUBLIC_MOCK_MODE=true` in `.env` (see `README.md`)
 - App runs at `http://localhost:3000` (or equivalent preview host)
 - Demo credentials documented in `README.md` are available
-- Verification baseline: `pnpm verify` plus buyer-path browser smoke (see §5)
+- Verification baseline: `pnpm verify` plus buyer-path browser smoke (see §6)
 
 ---
 
@@ -135,27 +135,27 @@ Agents must not fold Admin Preview requirements into Scripted Buyer Path tasks u
 
 Derived from §4. Wording is behavioral; implementation may change if these outcomes hold.
 
-| ID   | Requirement                                                                                                                                                                           |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R-1  | The Scripted Buyer Path **shall** run entirely against the **Mock Integration Boundary** with no undeclared live backend dependency.                                                  |
-| R-2  | Storefront entry, search, and product detail **shall** return HTTP 200 in mock mode for representative demo skus.                                                                     |
-| R-3  | Add-to-cart **shall** update cart chrome (badge and/or modal) visible on the path without requiring manual refresh.                                                                   |
-| R-4  | Cart quantity changes and line removal **shall** keep totals and badge counts consistent with Pinia cart state.                                                                       |
-| R-5  | Auth-required steps **shall** accept demo customer credentials and **shall not** enter redirect loops.                                                                                |
-| R-6  | Sign-in and buyer-path form fields **shall** expose validation and `aria-invalid` (or equivalent) on error.                                                                           |
-| R-7  | Empty cart **shall** present a recoverable empty state, not a server error or blank modal.                                                                                            |
-| R-8  | Order summary and Order Confirmation **shall** display order reference and payment summary fields for successful mock orders.                                                         |
-| R-9  | Scripted Buyer Path routes **shall not** render Nuxt `500` pages during `node scripts/smoke.mjs` buyer checks (`/`, `/cart`, `/checkout`) and documented sign-in / signup smoke URLs. |
-| R-10 | Changes to Admin Preview surfaces **shall not** be required to satisfy Scripted Buyer Path acceptance unless an issue explicitly lists both.                                          |
-| R-11 | Regressions on the path **shall** be caught by `pnpm verify` and buyer-path browser smoke before PR handoff.                                                                          |
+| ID   | Requirement                                                                                                                                                                                                                                                        |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| R-1  | The Scripted Buyer Path **shall** run entirely against the **Mock Integration Boundary** with no undeclared live backend dependency.                                                                                                                               |
+| R-2  | Storefront entry, search, and product detail **shall** return HTTP 200 in mock mode for representative demo skus.                                                                                                                                                  |
+| R-3  | Add-to-cart **shall** update cart chrome (badge and/or modal) visible on the path without requiring manual refresh.                                                                                                                                                |
+| R-4  | Cart quantity changes and line removal **shall** keep totals and badge counts consistent with Pinia cart state.                                                                                                                                                    |
+| R-5  | Auth-required steps **shall** accept demo customer credentials and **shall not** enter redirect loops.                                                                                                                                                             |
+| R-6  | Sign-in and buyer-path form fields **shall** expose validation and `aria-invalid` (or equivalent) on error.                                                                                                                                                        |
+| R-7  | Empty cart **shall** present a recoverable empty state, not a server error or blank modal.                                                                                                                                                                         |
+| R-8  | Order summary and Order Confirmation **shall** display order reference and payment summary fields for successful mock orders.                                                                                                                                      |
+| R-9  | Scripted Buyer Path routes **shall not** render Nuxt `500` pages during `pnpm smoke` buyer checks (`/`, `/cart`, `/checkout`). Sign-in / signup / forgot-password URLs are covered by the extended checklist and Playwright buyer-path specs, not by `pnpm smoke`. |
+| R-10 | Changes to Admin Preview surfaces **shall not** be required to satisfy Scripted Buyer Path acceptance unless an issue explicitly lists both.                                                                                                                       |
+| R-11 | Regressions on the path **shall** be caught by `pnpm verify` and buyer-path browser smoke before PR handoff.                                                                                                                                                       |
 
 ---
 
 ## 6. Verification hooks
 
 - **Fast gate:** `env NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS=false pnpm verify`
-- **Runtime smoke:** `node scripts/smoke.mjs` (/, /cart, /checkout)
-- **Representative URLs:** `/`, `/search`, `/signup`, `/forgot-password`, `/order-summary` (see `docs/plans/2026-02-18-demo-route-smoke-checklist.md` for extended checklist)
+- **Runtime smoke:** `pnpm smoke` (core static routes such as `/`, `/cart`, `/checkout` — selected from `pages/`; does **not** cover `/signup` or `/forgot-password`)
+- **Extended / auth URLs (manual or Playwright, not `pnpm smoke`):** `/`, `/search`, `/signup`, `/forgot-password`, `/order-summary` (see `docs/plans/2026-02-18-demo-route-smoke-checklist.md` and `tests/e2e/buyer-path-order-summary.spec.ts`)
 - **Demo credentials:** `README.md` § Demo credentials
 
 ---
