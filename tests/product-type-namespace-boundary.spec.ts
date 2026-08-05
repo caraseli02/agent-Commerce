@@ -64,12 +64,12 @@ describe('product type namespace boundary (#404)', () => {
   });
 
   it('keeps deprecated model product paths as re-export shims', () => {
-    const productResponseShim = readFileSync(resolve('model/products/response/ProductResponse.ts'), 'utf8');
-    const productSearchShim = readFileSync(resolve('model/products/response/ProductSearchResponse.ts'), 'utf8');
-    const newProductShim = readFileSync(resolve('model/products/response/NewProductResponse.ts'), 'utf8');
-    const similarResponseShim = readFileSync(resolve('model/products/response/SearchSimilarProductResponse.ts'), 'utf8');
-    const similarRequestShim = readFileSync(resolve('model/products/request/SearchSimilarProductRequest.ts'), 'utf8');
-    const newProductsShim = readFileSync(resolve('model/products/NewProducts.ts'), 'utf8');
+    const productResponseShim = readFileSync(resolve(repoRoot, 'model/products/response/ProductResponse.ts'), 'utf8');
+    const productSearchShim = readFileSync(resolve(repoRoot, 'model/products/response/ProductSearchResponse.ts'), 'utf8');
+    const newProductShim = readFileSync(resolve(repoRoot, 'model/products/response/NewProductResponse.ts'), 'utf8');
+    const similarResponseShim = readFileSync(resolve(repoRoot, 'model/products/response/SearchSimilarProductResponse.ts'), 'utf8');
+    const similarRequestShim = readFileSync(resolve(repoRoot, 'model/products/request/SearchSimilarProductRequest.ts'), 'utf8');
+    const newProductsShim = readFileSync(resolve(repoRoot, 'model/products/NewProducts.ts'), 'utf8');
 
     expect(productResponseShim).toContain('@deprecated');
     expect(productResponseShim).toContain("export * from '~/types/product/response'");
