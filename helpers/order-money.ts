@@ -51,14 +51,9 @@ export const calculateOrderMoney = (input: OrderMoneyInput): OrderMoneyResult =>
 
   const explicitDiscount = input.discountAmount;
   const discountAmount =
-    explicitDiscount !== undefined
-      ? roundMoney(explicitDiscount)
-      : roundMoney(subtotal * (Number(input.discountRate) || 0));
+    explicitDiscount !== undefined ? roundMoney(explicitDiscount) : roundMoney(subtotal * (Number(input.discountRate) || 0));
 
-  const { charge: smallOrderCharge, tier: matchedSmallOrderTier } = resolveSmallOrderCharge(
-    subtotal,
-    input.smallOrderTiers
-  );
+  const { charge: smallOrderCharge, tier: matchedSmallOrderTier } = resolveSmallOrderCharge(subtotal, input.smallOrderTiers);
 
   const vatAmount = roundMoney(subtotal * vatRate);
   const grandTotal = roundMoney(subtotal + vatAmount + shippingCost + smallOrderCharge - discountAmount);

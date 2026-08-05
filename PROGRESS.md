@@ -2,9 +2,12 @@
 
 ## Current focus
 
-- Issue #194 / PR #440 — shared empty states for search, cart, orders, and dashboard favorites; awaiting evaluator.
-- PR #436 (#428) still open awaiting evaluator (no `in-progress` label on issue).
+- Issue #194 / PR #440 — shared empty states for search, cart, orders, and dashboard favorites; addressing evaluator/Qodo review.
 - GitHub Issues remain the primary task queue.
+
+## In progress
+
+- Issue #194 on branch `feat/194-empty-states`.
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -14,7 +17,8 @@
 
 ## Recently completed
 
-- Issue #404 / PR #439 — contract product model trees to canonical types namespace.
+- Issue #404 / PR #439 — contract product `model/` trees to canonical `types/product` namespace.
+- Issue #429 / PR #438 — browse/search application seam (`useProducts`).
 - Issue #430 / PR #437 — cart update signals without event bus.
 - Issue #425 / PR #434 — Order Money module on Scripted Buyer Path.
 - Issue #402 / PR #424 — retire FormInput on Scripted Buyer Path.
