@@ -32,5 +32,10 @@ Use this file for durable cross-session decisions that should survive context re
   - Impact: cron may wake the planner/generator/evaluator, but WIP remains 1; evaluator failures stay `in-progress`, generate a repair brief for the same branch/PR, and the Dev ship path immediately triggers evaluator review after every PR update.
 
 - 2026-07-01 — Hide portfolio demo passwords in the account panel
+
   - Reason: demo reviewers need an obvious sign-in path, but visible passwords reduce trust and look less production-minded.
   - Impact: demo role selection may prepare sign-in internally, but the account panel should not render demo passwords in plain text.
+
+- 2026-08-05 — Prefer **Buyer Flow** over **Scripted Buyer Path**
+  - Reason: the design contract names a storefront capability, not a demo rehearsal script; “buyer flow” matches the FCC-style problem statement.
+  - Impact: `CONTEXT.md` uses Buyer Flow as the glossary term; design doc lives at `docs/buyer-flow-design-contract.md`; treat “Scripted Buyer Path” as a legacy alias in older issues/docs.

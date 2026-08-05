@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #404 / PR #439 — contract product `model/` trees to canonical `types/product` namespace; evaluator FAIL repair rebased onto main, awaiting re-eval.
+- Issue #428 — Buyer Flow design contract (`docs/buyer-flow-design-contract.md`).
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #404 on branch `feat/404-contract-model-trees` / PR #439; repair complete — conflicts resolved, verify/full + Admin/Buyer Path smokes green.
+- Issue #428 on branch `feat/428-scripted-buyer-path-contract` (label claim may need manual apply from automation token).
 
 ## Architecture note (cross-runtime cart pricing)
 
@@ -17,6 +17,7 @@
 
 ## Recently completed
 
+- Issue #404 / PR #439 — contract product `model/` trees to canonical `types/product` namespace.
 - Issue #429 / PR #438 — browse/search application seam (`useProducts`).
 - Issue #430 / PR #437 — cart update signals without event bus.
 - Issue #425 / PR #434 — Order Money module on Scripted Buyer Path.
