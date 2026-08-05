@@ -2,13 +2,12 @@
 
 ## Current focus
 
-- Issue #430 / PR #437 — cart update signals without event bus (`feat/430-cart-update-signals`); evaluator repair (rebase + PROGRESS).
-- Open PRs awaiting evaluator/human: #439 (#404), #438 (#429), #436 (#428).
+- Issue #429 / PR #438 — browse/search application seam (`useProducts`); evaluator PASS after Qodo repair + rebase onto main.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #430 on branch `feat/430-cart-update-signals` (rebasing onto main after evaluator FAIL).
+- PR #438 on branch `feat/429-browse-search-application-seam`; awaiting human review/merge after conflict rebase.
 
 ## Architecture note (cross-runtime cart pricing)
 

@@ -14,7 +14,8 @@ describe('product detail useAsyncData contract', () => {
 
     expect(productPage).toContain('productDetailCacheKey(productSlug.value)');
     expect(productPage).toContain('watch: [productSlug]');
-    expect(productPage).toContain('loadProductDetail(productSlug.value, fetchSingleProduct)');
+    expect(productPage).toContain('loadProductBySlug(productSlug.value)');
+    expect(productPage).toContain('useProducts');
     expect(productPage).toContain('v-if="pending"');
     expect(productPage).toContain('v-else-if="error"');
     expect(productPage).toContain('role="alert"');
