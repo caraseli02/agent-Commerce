@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #404 / PR #439 — contract product `model/` trees to canonical `types/product` namespace (evaluator FAIL repair: rebase onto main).
+- Issue #404 / PR #439 — contract product `model/` trees to canonical `types/product` namespace; evaluator FAIL repair rebased onto main, awaiting re-eval.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #404 on branch `feat/404-contract-model-trees` / PR #439; repairing merge conflicts and completing Admin + Scripted Buyer Path smoke evidence.
+- Issue #404 on branch `feat/404-contract-model-trees` / PR #439; repair complete — conflicts resolved, verify/full + Admin/Buyer Path smokes green.
 
 ## Architecture note (cross-runtime cart pricing)
 

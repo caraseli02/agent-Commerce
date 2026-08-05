@@ -3,9 +3,7 @@ import { fetchFeaturedProducts, fetchProductTab, fetchSearchProduct } from '~/co
 import { loadFeaturedProducts } from '~/composables/loadFeaturedProducts';
 import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
 import { loadSearchResults, searchResultsCacheKey, type SearchResultsQuery } from '~/composables/loadSearchResults';
-import type { ProductInterface, ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
-import type { SearchData } from '~/model/products/response/ProductSearchResponse';
-import type { ProductDetail } from '~/types/product';
+import type { ProductDetail, ProductInterface, ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
 
 export function useProducts() {
   const config = useRuntimeConfig();

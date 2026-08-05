@@ -111,9 +111,10 @@ test.describe('Scripted Buyer Path — cart to checkout entry', () => {
 
     const paymentSummary = page.getByText('Payment Summary', { exact: true });
     await expect(paymentSummary).toBeVisible();
-    await expect(page.getByText('Subtotal', { exact: true })).toBeVisible();
-    await expect(page.getByText('(VAT 19%)', { exact: true })).toBeVisible();
-    await expect(page.getByText('Total', { exact: true })).toBeVisible();
+    // Order summary can render Subtotal/Total in cart chrome and summary panels.
+    await expect(page.getByText('Subtotal', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('(VAT 19%)', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('Total', { exact: true }).first()).toBeVisible();
     await expect(page.getByText(/^\d+\.\d{2} Lei$/).first()).toBeVisible();
 
     await Promise.all([
