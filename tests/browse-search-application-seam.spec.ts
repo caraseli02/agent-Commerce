@@ -24,10 +24,22 @@ describe('browse and search application seam', () => {
 
   it('routes browse/search orchestration through useProducts', () => {
     const useProductsSource = source('composables/useProducts.ts');
+    const productsApiSource = source('composables/api/products.ts');
 
     expect(useProductsSource).toContain("from '~/composables/api/products'");
     expect(useProductsSource).toContain('loadSearchResults');
     expect(useProductsSource).toContain('loadProductDetail');
     expect(useProductsSource).toContain('loadFeaturedProducts');
+    expect(useProductsSource).toContain('fetchFeaturedProducts');
+    expect(useProductsSource).not.toContain('useRequestFetch');
+    expect(useProductsSource).not.toContain('searchHeaderProducts');
+    expect(productsApiSource).toContain('fetchFeaturedProducts');
+  });
+
+  it('treats empty search result arrays as successful header search responses', () => {
+    const useProductsSource = source('composables/useProducts.ts');
+
+    expect(useProductsSource).toContain('!Array.isArray(data.items.items)');
+    expect(useProductsSource).not.toContain('data?.items?.items?.length');
   });
 });

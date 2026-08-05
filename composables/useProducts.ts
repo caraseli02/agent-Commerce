@@ -1,15 +1,14 @@
 import { useRuntimeConfig } from '#app';
-import { fetchProductTab, fetchSearchProduct } from '~/composables/api/products';
+import { fetchFeaturedProducts, fetchProductTab, fetchSearchProduct } from '~/composables/api/products';
 import { loadFeaturedProducts } from '~/composables/loadFeaturedProducts';
 import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
 import { loadSearchResults, searchResultsCacheKey, type SearchResultsQuery } from '~/composables/loadSearchResults';
-import type { ProductInterface, ProductParametricDataFeaturesInterface, ProductResponse } from '~/model/products/response/ProductResponse';
+import type { ProductInterface, ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
 import type { SearchData } from '~/model/products/response/ProductSearchResponse';
 import type { ProductDetail } from '~/types/product';
 
 export function useProducts() {
   const config = useRuntimeConfig();
-  const requestFetch = useRequestFetch();
 
   const searchProducts = async (
     keyword: string,
@@ -32,7 +31,7 @@ export function useProducts() {
     const response = await searchProducts(keyword, category, page, perPage);
     const data = response.data;
 
-    if (!data?.items?.items?.length) {
+    if (!data?.items || !Array.isArray(data.items.items)) {
       return null;
     }
 
@@ -40,16 +39,6 @@ export function useProducts() {
       items: data.items.items,
       searchData: data,
     };
-  };
-
-  const searchHeaderProducts = async (
-    keyword: string,
-    category: string | null,
-    page = 1,
-    perPage = 10
-  ): Promise<ProductInterface[] | null> => {
-    const result = await searchHeaderResults(keyword, category, page, perPage);
-    return result?.items ?? null;
   };
 
   const loadProductTabProducts = async (tabPath: string): Promise<ProductInterface[]> => {
@@ -62,8 +51,8 @@ export function useProducts() {
   const loadFeaturedProductsList = async (): Promise<ProductInterface[]> => {
     return loadFeaturedProducts({
       mockMode: Boolean(config.public.MOCK_MODE),
-      fetchMock: () => requestFetch<ProductResponse>('/api/products/featured'),
-      fetchLive: () => fetchProductTab('featured'),
+      fetchMock: () => fetchFeaturedProducts(),
+      fetchLive: () => fetchFeaturedProducts(),
     });
   };
 
@@ -83,7 +72,6 @@ export function useProducts() {
   return {
     searchProducts,
     searchHeaderResults,
-    searchHeaderProducts,
     loadProductTabProducts,
     loadFeaturedProductsList,
     loadSimilarProductsByFeatures,
