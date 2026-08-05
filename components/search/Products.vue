@@ -273,7 +273,7 @@
         v-bind="searchEmptyPreset"
         :description="
           keyword
-            ? `We could not find products for “${keyword}”. Try adjusting your keywords or filters to discover parts in the ECAS catalog.`
+            ? `We could not find products for “${keyword}”. Try adjusting your keywords or filters to discover products in the ECAS catalog.`
             : searchEmptyPreset.description
         "
       />

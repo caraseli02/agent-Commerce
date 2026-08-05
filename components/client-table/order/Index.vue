@@ -77,14 +77,19 @@ await fetchAndSetOrdersList(1, 10);
   <div
     class="h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 md:w-[736px] lg:w-[976px] xl:w-[1392px] shadow-xs p-2 pt-6 md:p-6 rounded-xl"
   >
-    <div v-if="!loading && error" class="px-2 md:px-0">
+    <div v-if="loading" class="flex flex-1 flex-col gap-3 px-2 py-8 md:px-0" aria-busy="true" aria-live="polite">
+      <div class="h-10 w-48 rounded-lg bg-slate-100 animate-pulse motion-reduce:animate-none" />
+      <div class="h-32 w-full rounded-xl bg-slate-100 animate-pulse motion-reduce:animate-none" />
+      <span class="sr-only">Loading orders…</span>
+    </div>
+    <div v-else-if="error" class="px-2 md:px-0">
       <GlobalEmptyState v-bind="ordersErrorPreset" heading-id="orders-error-heading" @primary-click="fetchAndSetOrdersList(1, 10)" />
     </div>
-    <div v-else-if="!loading && !listItems.length" class="px-2 md:px-0">
+    <div v-else-if="!listItems.length" class="px-2 md:px-0">
       <GlobalEmptyState v-bind="ordersEmptyPreset" heading-id="orders-empty-heading" />
     </div>
     <DataTable
-      v-else-if="!loading"
+      v-else
       :fetch-fn="debouncedFetchAndSetOrdersList"
       :page-count="pageCount"
       :data="listItems"

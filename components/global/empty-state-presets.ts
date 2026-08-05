@@ -5,9 +5,9 @@ import OrdersIllustration from '@/assets/icons/order-tracking.svg';
 export const searchEmptyPreset = {
   illustration: SearchIllustration,
   heading: 'No products match your search',
-  description: 'Try adjusting your keywords or filters to discover parts in the ECAS catalog.',
+  description: 'Try adjusting your keywords or filters to discover products in the ECAS catalog.',
   suggestions: [
-    'Check spelling and part numbers',
+    'Check spelling and product or part numbers',
     'Use broader terms such as manufacturer or category',
     'Clear filters to widen the results',
   ],

@@ -108,7 +108,8 @@ test.describe('Scripted Buyer Path — cart chrome store refresh', () => {
     ]);
     expect(deleteResponse.ok()).toBe(true);
 
-    await expect(cartSheet.getByRole('link', { name: /continue shopping/i })).toBeVisible();
+    await expect(cartSheet.getByRole('link', { name: /start shopping/i })).toBeVisible();
+    await expect(cartSheet.getByRole('heading', { name: /your cart is empty/i })).toBeVisible();
     await expect(cartSheet.getByText('ADM2587E RS-485 Transceiver', { exact: true })).toHaveCount(0);
 
     await cartSheet.getByRole('button', { name: 'Close shopping cart' }).click();

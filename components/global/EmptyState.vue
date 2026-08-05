@@ -3,7 +3,7 @@
     class="flex flex-col items-center justify-center text-center"
     :class="[compact ? 'px-0 py-4' : 'px-4 py-10 md:py-14', variant === 'error' ? 'rounded-2xl border border-red-200 bg-red-50' : '']"
     :role="variant === 'error' ? 'alert' : 'status'"
-    :aria-labelledby="headingId"
+    :aria-labelledby="resolvedHeadingId"
   >
     <component
       :is="illustration"
@@ -12,7 +12,7 @@
       :class="compact ? 'h-16 w-16' : 'h-[120px] w-[120px]'"
       aria-hidden="true"
     />
-    <h2 :id="headingId" class="font-semibold text-slate-900" :class="compact ? 'text-base' : 'text-lg md:text-xl'">
+    <h2 :id="resolvedHeadingId" class="font-semibold text-slate-900" :class="compact ? 'text-base' : 'text-lg md:text-xl'">
       {{ heading }}
     </h2>
     <p v-if="description" class="mt-2 max-w-md text-sm leading-6 text-slate-600">
@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     heading: string;
     description?: string;
@@ -77,10 +77,13 @@ withDefaults(
     secondaryLabel: undefined,
     secondaryTo: undefined,
     variant: 'empty',
-    headingId: 'empty-state-heading',
+    headingId: undefined,
     compact: false,
   }
 );
+
+const generatedHeadingId = useId();
+const resolvedHeadingId = computed(() => props.headingId ?? `empty-state-heading-${generatedHeadingId}`);
 
 defineEmits<{
   'primary-click': [];

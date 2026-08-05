@@ -1,9 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-const source = (path: string) => readFileSync(resolve(path), 'utf8');
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const source = (relativePath: string) => readFileSync(resolve(repoRoot, relativePath), 'utf8');
 
 describe('empty state UX contract (#194)', () => {
   it('defines shared presets for search, cart, orders, and favorites', () => {
@@ -14,6 +16,8 @@ describe('empty state UX contract (#194)', () => {
     expect(presets).toContain("heading: 'No orders yet'");
     expect(presets).toContain("primaryLabel: 'Browse products'");
     expect(presets).toContain("variant: 'error'");
+    expect(presets).toContain('discover products in the ECAS catalog');
+    expect(presets).not.toContain('discover parts in the ECAS catalog');
   });
 
   it('uses the shared empty state for no search results', () => {
@@ -48,6 +52,16 @@ describe('empty state UX contract (#194)', () => {
     expect(ordersTable).toContain('ordersEmptyPreset');
     expect(ordersTable).toContain("variant: 'error'");
     expect(ordersTable).toContain('GlobalEmptyState');
+    expect(ordersTable).toContain('aria-busy="true"');
+    expect(ordersTable).toContain('Loading orders…');
+  });
+
+  it('generates unique empty-state heading ids by default', () => {
+    const emptyState = source('components/global/EmptyState.vue');
+
+    expect(emptyState).toContain('useId()');
+    expect(emptyState).toContain('resolvedHeadingId');
+    expect(emptyState).not.toContain("headingId: 'empty-state-heading'");
   });
 
   it('shows dashboard favorites empty state without restoring removed storefront favorites UI', () => {
@@ -55,6 +69,6 @@ describe('empty state UX contract (#194)', () => {
 
     expect(activity).toContain('favoritesEmptyPreset');
     expect(activity).toContain('hasFavorites');
-    expect(existsSync(resolve('components/layout/favorites-cart-modal/favorites/Index.vue'))).toBe(false);
+    expect(existsSync(resolve(repoRoot, 'components/layout/favorites-cart-modal/favorites/Index.vue'))).toBe(false);
   });
 });
