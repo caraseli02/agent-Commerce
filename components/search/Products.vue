@@ -280,7 +280,7 @@ import { subHours } from 'date-fns';
 import CheckIcon from '@/assets/icons/check.svg';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
-import type { SearchData } from '~/model/products/response/ProductSearchResponse';
+import type { SearchData } from '~/types/product';
 
 const props = defineProps<{
   products: SearchData | null;

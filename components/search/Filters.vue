@@ -99,7 +99,7 @@ import type {
   ProductFiltersWrapper,
   SearchData,
   SearchFiltersCategories,
-} from '~/model/products/response/ProductSearchResponse';
+} from '~/types/product';
 
 const props = defineProps<{
   filters: ProductFilters | null;

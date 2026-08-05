@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 
 defineProps<{
   viewHistory: Array<ProductInterface>;

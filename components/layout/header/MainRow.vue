@@ -137,7 +137,7 @@ import XIcon from '@/assets/icons/x.svg';
 import CartModal from '@/components/layout/favorites-cart-modal/Index.vue';
 import { showNavModal } from '~~/config/modal/nav';
 import type { Notification } from '~/types/dashboard/notification';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 import type { CartInterface } from '~/types/cart';
 import {
   deleteNotificationById,

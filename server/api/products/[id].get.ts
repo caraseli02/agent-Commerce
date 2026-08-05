@@ -1,4 +1,4 @@
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 import { mockProducts } from '~/server/utils/mockProducts';
 
 export default defineEventHandler(async (event) => {

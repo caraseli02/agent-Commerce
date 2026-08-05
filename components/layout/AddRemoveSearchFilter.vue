@@ -89,7 +89,7 @@ import FiltersIcon from '@/assets/icons/filters.svg';
 import SearchIcon from '@/assets/icons/search.svg';
 import CaretIcon from '@/assets/icons/caret-left.svg';
 import CheckIcon from '@/assets/icons/check.svg';
-import type { AddFilterInterface, ProductFiltersWrapper, SearchFiltersCategories } from '~/model/products/response/ProductSearchResponse';
+import type { AddFilterInterface, ProductFiltersWrapper, SearchFiltersCategories } from '~/types/product';
 import { documentUtil } from '~/utils';
 
 const props = defineProps<{

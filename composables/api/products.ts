@@ -1,9 +1,13 @@
 import { useNuxtApp, useRuntimeConfig } from '#app';
-import type { SearchSimilarProductRequest } from '~/model/products/request/SearchSimilarProductRequest';
-import type { NewProductResponse } from '~/model/products/response/NewProductResponse';
-import type { ProductDetailResponse, ProductParametricDataFeaturesInterface, ProductResponse } from '~/types/product';
-import type { ProductSearchResponse } from '~/model/products/response/ProductSearchResponse';
-import type { SearchSimilarProductResponse } from '~/model/products/response/SearchSimilarProductResponse';
+import type {
+  NewProductResponse,
+  ProductDetailResponse,
+  ProductParametricDataFeaturesInterface,
+  ProductResponse,
+  ProductSearchResponse,
+  SearchSimilarProductRequest,
+  SearchSimilarProductResponse,
+} from '~/types/product';
 
 const RESOURCE = '/products';
 
