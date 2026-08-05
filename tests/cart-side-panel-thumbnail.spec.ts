@@ -51,13 +51,16 @@ describe('cart side-panel thumbnails', () => {
     expect(source).not.toContain('LayoutFavoritesCartModalCartCartProductItem');
   });
 
-  it('shows continue shopping instead of checkout when the cart is empty', () => {
-    const source = readFileSync(cartPanelPath, 'utf8');
+  it('shows empty-state shopping CTA instead of checkout when the cart is empty', () => {
+    const panelSource = readFileSync(cartPanelPath, 'utf8');
+    const presetSource = readFileSync(resolve('components/global/empty-state-presets.ts'), 'utf8');
 
-    expect(source).toContain('hasItems');
-    expect(source).toContain('v-if="hasItems"');
-    expect(source).toContain('Continue Shopping');
-    expect(source).not.toMatch(/v-else[\s\S]*Go to Checkout/);
+    expect(panelSource).toContain('hasItems');
+    expect(panelSource).toContain('v-if="hasItems"');
+    expect(panelSource).toContain('cartEmptyPreset');
+    expect(panelSource).toContain('GlobalEmptyState');
+    expect(presetSource).toContain("primaryLabel: 'Start shopping'");
+    expect(panelSource).toMatch(/NuxtLink[\s\S]*v-if="hasItems"[\s\S]*Go to Checkout/);
   });
 
   it('renders cart rows through the shared fallback image with stable thumbnail sizing', () => {

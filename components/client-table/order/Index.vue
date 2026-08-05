@@ -2,6 +2,14 @@
 import { columns } from './columns';
 import type { OrderInterface, OrderTableColumns } from '~/types';
 import { fetchOrders } from '~/composables/api/orders';
+import { ordersEmptyPreset } from '~/components/global/empty-state-presets';
+
+const ordersErrorPreset = {
+  heading: 'We could not load your orders',
+  description: 'Try again or return later to review order history.',
+  primaryLabel: 'Try again',
+  variant: 'error' as const,
+};
 
 interface OrdersListResponse {
   status: string;
@@ -35,6 +43,7 @@ const fetchAndSetOrdersList = async (
   filters: Record<string, unknown> = {},
   sort: Record<string, unknown> = {}
 ) => {
+  loading.value = true;
   error.value = false;
 
   if (props.userId) {
@@ -68,8 +77,14 @@ await fetchAndSetOrdersList(1, 10);
   <div
     class="h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 md:w-[736px] lg:w-[976px] xl:w-[1392px] shadow-xs p-2 pt-6 md:p-6 rounded-xl"
   >
+    <div v-if="!loading && error" class="px-2 md:px-0">
+      <GlobalEmptyState v-bind="ordersErrorPreset" heading-id="orders-error-heading" @primary-click="fetchAndSetOrdersList(1, 10)" />
+    </div>
+    <div v-else-if="!loading && !listItems.length" class="px-2 md:px-0">
+      <GlobalEmptyState v-bind="ordersEmptyPreset" heading-id="orders-empty-heading" />
+    </div>
     <DataTable
-      v-if="!loading"
+      v-else-if="!loading"
       :fetch-fn="debouncedFetchAndSetOrdersList"
       :page-count="pageCount"
       :data="listItems"

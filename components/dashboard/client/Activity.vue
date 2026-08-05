@@ -27,17 +27,30 @@
               </div>
               <div class="items-stretch flex grow basis-[0%] flex-col text-sm whitespace-nowrap">
                 <div class="text-neutral-800 font-semibold leading-5">My Favorites</div>
-                <div v-for="(val, key, index) in data.favorites" :key="index" class="items-stretch flex justify-between gap-3 mt-0.5">
-                  <div class="text-slate-500 leading-6 capitalize">
-                    {{ key }}
+                <template v-if="hasFavorites">
+                  <div v-for="(val, key, index) in data.favorites" :key="index" class="items-stretch flex justify-between gap-3 mt-0.5">
+                    <div class="text-slate-500 leading-6 capitalize">
+                      {{ key }}
+                    </div>
+                    <div class="text-neutral-800 font-medium leading-6">
+                      {{ val }}
+                    </div>
                   </div>
-                  <div class="text-neutral-800 font-medium leading-6">
-                    {{ val }}
-                  </div>
-                </div>
+                </template>
+                <GlobalEmptyState
+                  v-else
+                  v-bind="favoritesEmptyPreset"
+                  compact
+                  class="!items-start !text-left"
+                  heading-id="dashboard-favorites-empty-heading"
+                  @primary-click="openFavoritesBrowse"
+                />
               </div>
             </div>
-            <div class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 transition-all cursor-pointer">
+            <div
+              v-if="hasFavorites"
+              class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 transition-all cursor-pointer"
+            >
               <button class="text-sm font-medium leading-5 grow">Favorites</button>
               <SvgoArrowLeft16
                 class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"
@@ -184,17 +197,25 @@
 
 <script setup lang="ts">
 import type { CustomerDashboardActivityData } from '~/types/dashboard/client-dashboard';
+import { favoritesEmptyPreset } from '~/components/global/empty-state-presets';
 
-defineProps<{
+const props = defineProps<{
   data: CustomerDashboardActivityData;
 }>();
 
+const router = useRouter();
 const { activeOrderFilter } = useCustomerDashboard();
+
+const hasFavorites = computed(() => props.data.favorites.products > 0 || props.data.favorites.folders > 0);
 
 const openSettingTab = () => {
   activeOrderFilter.value = {
     value: 'orders',
   };
+};
+
+const openFavoritesBrowse = async () => {
+  await router.push('/search');
 };
 </script>
 
