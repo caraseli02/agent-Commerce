@@ -173,7 +173,7 @@ import type { ProductActionObject } from '~/types/cart';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
 import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/model/products/response/ProductResponse';
+import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
 import { useCart } from '~/composables/useCart';
 
 const quantity = ref(1);

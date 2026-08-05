@@ -12,7 +12,10 @@
     <div v-else>
       <div v-if="productsView.length > 0" class="grid grid-cols-1 max-h-[340px] overflow-auto scrollbar-thin pr-1.5">
         <template v-for="row in productsView" :key="row.product._id">
-          <NuxtLink :to="`/product/${row.product._id}`" class="p-2 rounded-lg text-slate-500 transition-colors duration-300 hover:bg-light-300">
+          <NuxtLink
+            :to="`/product/${row.product._id}`"
+            class="p-2 rounded-lg text-slate-500 transition-colors duration-300 hover:bg-light-300"
+          >
             <div
               class="flex items-center justify-between gap-1 text-xs leading-[1.67] font-medium text-neutral-700 mb-1 lg:text-sm lg:leading-[1.43]"
             >
@@ -46,7 +49,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import CaretIcon from '@/assets/icons/caret-right.svg';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 import { mapLabelsToIds, mapPathArrayOfNames } from '~/helpers/categories.helper';
 import type { CategoriesMap } from '~/types/dashboard/categories';
 import { humanizeCategorySlug, toCategorySlugSegments } from '~/helpers/categoryPath.helper';

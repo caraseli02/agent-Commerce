@@ -1,6 +1,6 @@
 import { useNuxtApp } from '#app';
 import type { PaginatedUserRequest } from '~/model/user/request/PaginatedUserRequest';
-import type { ProductResponse } from '~/model/products/response/ProductResponse';
+import type { ProductResponse } from '~/types/product';
 import type { AccountAdminSettings, CardsResponse } from '~/types/auth/account-settings';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 

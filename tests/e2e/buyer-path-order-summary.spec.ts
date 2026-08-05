@@ -109,6 +109,14 @@ test.describe('Scripted Buyer Path — cart to checkout entry', () => {
     await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText(/Viewing Summary as Guest/i)).toBeVisible();
 
+    const paymentSummary = page.getByText('Payment Summary', { exact: true });
+    await expect(paymentSummary).toBeVisible();
+    // Order summary can render Subtotal/Total in cart chrome and summary panels.
+    await expect(page.getByText('Subtotal', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('(VAT 19%)', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('Total', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(/^\d+\.\d{2} Lei$/).first()).toBeVisible();
+
     await Promise.all([
       page.waitForURL(/\/\?signin=true&redirect=%2Forder-summary/),
       page.getByRole('link', { name: /sign in to continue checkout/i }).click(),

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import CheckIcon from '@/assets/icons/check.svg';
-import type { ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
-import type { ProductFilters, SearchDataItems } from '~/model/products/response/ProductSearchResponse';
-import { fetchSearchProduct } from '~/composables/api/products';
+import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchDataItems } from '~/types/product';
+import { useProducts } from '~/composables/useProducts';
 import { useProductStore } from '~/store/productStore';
 
 const router = useRouter();
 const productStore = useProductStore();
+const { loadSimilarProductsByFeatures } = useProducts();
 
 const elDOM = ref<HTMLElement | null>(null);
 const isLoading = ref<boolean>(false);
@@ -60,7 +60,15 @@ const searchSimilarProducts = async () => {
   isLoading.value = true;
 
   checkedFeatures.value = features.filter((item) => item.checked);
-  const { data } = await fetchSearchProduct('', null, 1, 10, {}, {}, checkedFeatures.value);
+  const data = await loadSimilarProductsByFeatures(checkedFeatures.value, 1, 10);
+
+  if (!data) {
+    totalSimilarProducts.value = 0;
+    similarProducts.value = null;
+    similarFilters.value = null;
+    isLoading.value = false;
+    return;
+  }
 
   totalSimilarProducts.value = !checkedFeatures.value.length ? 0 : data.items.total_items;
   similarProducts.value = data.items;

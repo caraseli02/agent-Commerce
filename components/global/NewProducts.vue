@@ -11,18 +11,14 @@
 </template>
 
 <script setup lang="ts">
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
-import { fetchProductTab } from '~/composables/api/products';
+import type { ProductInterface } from '~/types/product';
+import { useProducts } from '~/composables/useProducts';
 
+const { loadProductTabProducts } = useProducts();
 const productList = ref<ProductInterface[]>([]);
 
 async function getProductTab() {
-  const response = await fetchProductTab('best-sellers');
-  const data = response?.data || response;
-
-  if (Array.isArray(data)) {
-    productList.value = data as ProductInterface[];
-  }
+  productList.value = await loadProductTabProducts('best-sellers');
 }
 
 onMounted(() => {

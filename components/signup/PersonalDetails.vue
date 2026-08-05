@@ -8,7 +8,12 @@
         </div>
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
-            <BuyerFormInput v-model="details.firstName.value" :error="details.firstName.error" label="First Name" placeholder="First Name" />
+            <BuyerFormInput
+              v-model="details.firstName.value"
+              :error="details.firstName.error"
+              label="First Name"
+              placeholder="First Name"
+            />
             <BuyerFormInput v-model="details.lastName.value" :error="details.lastName.error" label="Last Name" placeholder="Last Name" />
             <FormSelect
               v-model="details.country.value"

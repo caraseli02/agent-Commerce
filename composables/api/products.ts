@@ -1,9 +1,13 @@
-import { useNuxtApp } from '#app';
-import type { SearchSimilarProductRequest } from '~/model/products/request/SearchSimilarProductRequest';
-import type { NewProductResponse } from '~/model/products/response/NewProductResponse';
-import type { ProductDetailResponse, ProductParametricDataFeaturesInterface, ProductResponse } from '~/types/product';
-import type { ProductSearchResponse } from '~/model/products/response/ProductSearchResponse';
-import type { SearchSimilarProductResponse } from '~/model/products/response/SearchSimilarProductResponse';
+import { useNuxtApp, useRuntimeConfig } from '#app';
+import type {
+  NewProductResponse,
+  ProductDetailResponse,
+  ProductParametricDataFeaturesInterface,
+  ProductResponse,
+  ProductSearchResponse,
+  SearchSimilarProductRequest,
+  SearchSimilarProductResponse,
+} from '~/types/product';
 
 const RESOURCE = '/products';
 
@@ -21,6 +25,17 @@ export async function fetchProductTab(path: string): Promise<ProductResponse> {
   return await $apiClient<ProductResponse>(`${RESOURCE}/${path}`, {
     method: 'GET',
   });
+}
+
+export async function fetchFeaturedProducts(): Promise<ProductResponse> {
+  const config = useRuntimeConfig();
+
+  if (config.public.MOCK_MODE) {
+    const requestFetch = useRequestFetch();
+    return await requestFetch<ProductResponse>(`/api${RESOURCE}/featured`);
+  }
+
+  return await fetchProductTab('featured');
 }
 
 export async function fetchNewProducts(): Promise<NewProductResponse> {

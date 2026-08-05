@@ -28,25 +28,16 @@
         </UiSheetClose>
       </header>
       <div class="flex min-h-0 flex-1 flex-col">
-        <Cart :data="data" @close="closeModal" />
+        <Cart @close="closeModal" />
       </div>
     </UiSheetContent>
   </UiSheet>
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue';
 import Cart from './cart/Index.vue';
 import XIcon from '@/assets/icons/x.svg';
 import CartIcon from '@/assets/icons/cart.svg';
-import type { CartInterface } from '~/types/cart';
-
-defineProps({
-  data: {
-    type: Object as PropType<CartInterface>,
-    required: true,
-  },
-});
 
 const emit = defineEmits(['close']);
 const isOpen = ref(true);

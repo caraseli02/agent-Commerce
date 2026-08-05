@@ -22,7 +22,13 @@
               label="Last Name"
               placeholder="Last Name"
             />
-            <BuyerFormInput v-model="details.phone.value" :error="details.phone.error" type="tel" label="Phone" placeholder="Phone Number" />
+            <BuyerFormInput
+              v-model="details.phone.value"
+              :error="details.phone.error"
+              type="tel"
+              label="Phone"
+              placeholder="Phone Number"
+            />
             <BuyerFormInput v-model="details.mobile.value" type="tel" label="Mobile" placeholder="Mobile Number" />
             <template v-if="selectedType !== 'personal'">
               <BuyerFormInput

@@ -72,7 +72,7 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-import type { ProductInterface } from '@/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 import CheckCircleHollowSmall from '@/assets/icons/check-circle-hollow-small.svg';
 import HeartOutlineBig from '@/assets/icons/heart-outline-big.svg';
 import HeartSolidBig from '@/assets/icons/heart-solid-big.svg';

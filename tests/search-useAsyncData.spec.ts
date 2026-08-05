@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
-import type { SearchData } from '~/model/products/response/ProductSearchResponse';
+import type { SearchData } from '~/types/product';
 
 const searchPagePath = resolve('pages/search.vue');
 

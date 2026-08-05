@@ -120,7 +120,7 @@
       <LayoutHeaderMainMenu v-if="showNavModal" />
     </Transition>
     <LayoutAccountModal v-if="showAccountModal" @close="closeAccountModal" />
-    <CartModal v-if="cartModal.show" :data="items" @close="cartModal.show = false" />
+    <CartModal v-if="cartModal.show" @close="cartModal.show = false" />
   </Teleport>
 </template>
 
@@ -137,15 +137,14 @@ import XIcon from '@/assets/icons/x.svg';
 import CartModal from '@/components/layout/favorites-cart-modal/Index.vue';
 import { showNavModal } from '~~/config/modal/nav';
 import type { Notification } from '~/types/dashboard/notification';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
-import type { ProductSearchResponse } from '~/model/products/response/ProductSearchResponse';
+import type { ProductInterface } from '~/types/product';
 import type { CartInterface } from '~/types/cart';
 import {
   deleteNotificationById,
   fetchGetNotifications,
   markNotificationAsRead as fetchMarkNotificationAsRead,
 } from '~/composables/api/notifications';
-import { fetchSearchProduct } from '~/composables/api/products';
+import { useProducts } from '~/composables/useProducts';
 import { useCartStore } from '~/store/cartStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
@@ -155,6 +154,7 @@ import { useCartBadgeMotion } from '~/composables/useCartBadgeMotion';
 
 const cartStore = useCartStore();
 const uiStore = useUiStore();
+const { searchHeaderResults } = useProducts();
 const isClientReady = useClientReady();
 const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
 const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
@@ -214,13 +214,11 @@ const openCartModal = () => {
 const searchVal = ref('');
 const showMobileSearch = ref(false);
 const searchDOM = ref<HTMLInputElement>();
-const items = ref<CartInterface>({} as CartInterface);
 const productList = ref<ProductInterface[]>([]);
 const isLoading = ref(false);
 
 const syncHeaderCartFromStore = (data: CartInterface | null) => {
   if (data?.products) {
-    items.value = data;
     cartItems.value = data.products.length;
     cart.value = data;
     syncFromCart(data);
@@ -230,7 +228,6 @@ const syncHeaderCartFromStore = (data: CartInterface | null) => {
 
   cartItems.value = 0;
   totalCartPrice.value = 0;
-  items.value = {} as CartInterface;
   cart.value = null;
   resetBaseline();
 };
@@ -264,7 +261,6 @@ const fetchList = async () => {
     return;
   }
 
-  items.value = data;
   cartItems.value = data.products.length;
   cart.value = data;
   syncFromCart(data, { animate: false });
@@ -273,18 +269,17 @@ const fetchList = async () => {
 const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<ProductInterface[]> => {
   isLoading.value = true;
 
-  const response = (await fetchSearchProduct(keyword, category.value, page, perPage)) as ProductSearchResponse;
-  const products = response.data;
+  const result = await searchHeaderResults(keyword, category.value, page, perPage);
 
-  if (!products?.items?.items) {
+  if (!result) {
     isLoading.value = false;
     return [];
   }
 
-  Emitter.emit('product-keyword-change', { keyword, products });
+  Emitter.emit('product-keyword-change', { keyword, products: result.searchData });
 
   isLoading.value = false;
-  return products.items.items as unknown as ProductInterface[];
+  return result.items;
 };
 
 const onInput = _debounce(async () => {

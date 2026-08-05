@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { ProductParametricDataFeaturesInterface } from '~/model/products/response/ProductResponse';
-import type { SearchData } from '~/model/products/response/ProductSearchResponse';
+import type { ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
 
 export const useProductStore = defineStore('product-store', () => {
   const similarProductFeatures = ref<ProductParametricDataFeaturesInterface[] | null>(null);

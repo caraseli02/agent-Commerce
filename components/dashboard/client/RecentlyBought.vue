@@ -5,7 +5,7 @@
       <div v-for="item in data" :key="item._id" class="items-stretch flex justify-between gap-3">
         <div class="justify-center items-center border border-neutral-300 flex aspect-square flex-col w-10 h-10 rounded-lg border-solid">
           <svgo-card-placeholder-small class="w-8" />
-          <NuxtImg v-if="item.photo" :src="item.photo" loading="lazy"/>
+          <NuxtImg v-if="item.photo" :src="item.photo" loading="lazy" />
         </div>
         <div class="items-stretch flex grow basis-[0%] flex-col whitespace-nowrap max-w-[230px]">
           <div class="text-neutral-800 text-sm font-semibold leading-4 text-ellipsis overflow-hidden">
@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance';
-import type { ProductInterface } from '~/model/products/response/ProductResponse';
+import type { ProductInterface } from '~/types/product';
 
 type RecentlyBoughtProduct = ProductInterface & { photo?: string };
 
