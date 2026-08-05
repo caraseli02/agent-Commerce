@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Issue #428 — Buyer Flow design contract (`docs/buyer-flow-design-contract.md`).
+- Issue #194 / PR #440 — shared empty states; evaluator PASS / ready-for-human after Qodo Round 1 fixes.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #428 on branch `feat/428-scripted-buyer-path-contract` (label claim may need manual apply from automation token).
+- Issue #194 on branch `feat/194-empty-states` (awaiting human merge).
 
 ## Architecture note (cross-runtime cart pricing)
 

@@ -268,8 +268,15 @@
         </div>
       </div>
     </div>
-    <div v-else>
-      <div class="text-center font-Inter mb-[15px]">No products found</div>
+    <div v-else class="container">
+      <GlobalEmptyState
+        v-bind="searchEmptyPreset"
+        :description="
+          keyword
+            ? `We could not find products for “${keyword}”. Try adjusting your keywords or filters to discover products in the ECAS catalog.`
+            : searchEmptyPreset.description
+        "
+      />
     </div>
   </section>
 </template>
@@ -281,6 +288,7 @@ import CheckIcon from '@/assets/icons/check.svg';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import type { SearchData } from '~/types/product';
+import { searchEmptyPreset } from '~/components/global/empty-state-presets';
 
 const props = defineProps<{
   products: SearchData | null;
