@@ -8,6 +8,7 @@ ECAS is a **single-context** repo.
 
 - **`CONTEXT.md`** at the repo root
 - **`docs/buyer-flow-design-contract.md`** — Buyer Flow design contract (problem, scope, use cases, shall-style requirements)
+- **`docs/buyer-flow-architecture.md`** — Buyer Flow as-built architecture (layers, routes, mock boundary, observations)
 - **`docs/adr/`** — read ADRs that touch the area you're about to work in
 - **`AGENTS.md`** — harness/router for autonomous loops
 - **`PROGRESS.md`** — current focus and verification baseline
@@ -22,6 +23,7 @@ If any of these files don't exist, **proceed silently**. Don't flag their absenc
 /
 ├── CONTEXT.md
 ├── docs/buyer-flow-design-contract.md    ← Buyer Flow design contract
+├── docs/buyer-flow-architecture.md       ← Buyer Flow as-built architecture
 ├── docs/adr/                          ← architectural decisions (add as needed)
 ├── DECISIONS.md
 ├── PROGRESS.md

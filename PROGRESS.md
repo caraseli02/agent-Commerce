@@ -3,6 +3,7 @@
 ## Current focus
 
 - Next implementation track first (WIP=1): **P0** `#426` → `#427`, then **P1** `#431`/`#432`, then **P2** `#433`.
+- Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
 

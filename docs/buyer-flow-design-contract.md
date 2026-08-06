@@ -167,5 +167,6 @@ Derived from §4. Behavioral expectations of the designed flow; implementation m
 ## 7. Related documents
 
 - [`CONTEXT.md`](../CONTEXT.md) — glossary and autonomous loop rules
+- [`docs/buyer-flow-architecture.md`](./buyer-flow-architecture.md) — as-built architecture (diagrams + observations)
 - [`docs/plans/2026-02-18-demo-route-smoke-checklist.md`](./plans/2026-02-18-demo-route-smoke-checklist.md) — extended route checklist (includes Admin Preview routes)
 - [`docs/agents/verification.md`](./agents/verification.md) — evaluator verification ladder
