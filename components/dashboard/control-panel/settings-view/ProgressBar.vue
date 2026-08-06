@@ -20,7 +20,172 @@
 </template>
 
 <script lang="ts">
-import chartDesigns from '@/chart-designs/progressBar.json';
+const chartDesigns = {
+  progressBarOne: {
+    chart: {
+      type: 'bar',
+      zoom: { enabled: false },
+      toolbar: { show: false },
+      sparkline: { enabled: true },
+      animations: {
+        enabled: true,
+        easing: 'easein',
+        speed: 800,
+        animateGradually: { enabled: false, delay: 150 },
+        dynamicAnimation: { enabled: true, speed: 350 },
+      },
+      height: '40px',
+    },
+    states: { hover: { filter: { type: 'none' } } },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        barHeight: 8,
+        borderRadius: 4,
+        colors: {
+          backgroundBarColors: ['#EBEBEB'],
+          backgroundBarOpacity: 1,
+          backgroundBarRadius: 4,
+        },
+      },
+      dataLabels: { show: false },
+    },
+    fill: { colors: ['#00D395'] },
+    grid: { show: false },
+    xaxis: {
+      labels: { show: false },
+      axisTicks: { show: false },
+      axisBorder: { show: false },
+      max: 1,
+      min: 0,
+    },
+    yaxis: { labels: { show: false } },
+    tooltip: { enabled: false },
+  },
+  progressBarTwo: {
+    chart: {
+      type: 'bar',
+      zoom: { enabled: false },
+      toolbar: { show: false },
+      sparkline: { enabled: true },
+      animations: {
+        enabled: true,
+        easing: 'linear',
+        speed: 800,
+        animateGradually: { enabled: false, delay: 150 },
+        dynamicAnimation: { enabled: true, speed: 350 },
+      },
+      height: '40px',
+    },
+    states: { hover: { filter: { type: 'none' } } },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        barHeight: 8,
+        borderRadius: 4,
+        colors: {
+          backgroundBarColors: ['#EBEBEB'],
+          backgroundBarOpacity: 1,
+          backgroundBarRadius: 4,
+        },
+      },
+      dataLabels: { show: false },
+    },
+    fill: { colors: ['#FFB100'] },
+    grid: { show: false },
+    xaxis: {
+      labels: { show: false },
+      axisTicks: { show: false },
+      axisBorder: { show: false },
+      max: 1,
+      min: 0,
+    },
+    yaxis: { labels: { show: false } },
+    tooltip: { enabled: false },
+  },
+  progressBarThree: {
+    chart: {
+      type: 'bar',
+      zoom: { enabled: false },
+      toolbar: { show: false },
+      sparkline: { enabled: true },
+      animations: {
+        enabled: true,
+        easing: 'linear',
+        speed: 800,
+        animateGradually: { enabled: false, delay: 150 },
+        dynamicAnimation: { enabled: true, speed: 350 },
+      },
+      height: '40px',
+    },
+    states: { hover: { filter: { type: 'none' } } },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        barHeight: 8,
+        borderRadius: 4,
+        colors: {
+          backgroundBarColors: ['#EBEBEB'],
+          backgroundBarOpacity: 1,
+          backgroundBarRadius: 4,
+        },
+      },
+      dataLabels: { show: false },
+    },
+    fill: { colors: ['#FF8A00'] },
+    grid: { show: false },
+    xaxis: {
+      labels: { show: false },
+      axisTicks: { show: false },
+      axisBorder: { show: false },
+      max: 1,
+      min: 0,
+    },
+    yaxis: { labels: { show: false } },
+    tooltip: { enabled: false },
+  },
+  progressBarFour: {
+    chart: {
+      type: 'bar',
+      zoom: { enabled: false },
+      toolbar: { show: false },
+      sparkline: { enabled: true },
+      animations: {
+        enabled: true,
+        easing: 'easeout',
+        speed: 800,
+        animateGradually: { enabled: false, delay: 150 },
+        dynamicAnimation: { enabled: true, speed: 350 },
+      },
+      height: '40px',
+    },
+    states: { hover: { filter: { type: 'none' } } },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        barHeight: 8,
+        borderRadius: 4,
+        colors: {
+          backgroundBarColors: ['#EBEBEB'],
+          backgroundBarOpacity: 1,
+          backgroundBarRadius: 4,
+        },
+      },
+      dataLabels: { show: false },
+    },
+    fill: { colors: ['#FA4B4B'] },
+    grid: { show: false },
+    xaxis: {
+      labels: { show: false },
+      axisTicks: { show: false },
+      axisBorder: { show: false },
+      max: 1,
+      min: 0,
+    },
+    yaxis: { labels: { show: false } },
+    tooltip: { enabled: false },
+  },
+};
 
 export default defineComponent({
   name: 'ProgressBar',
