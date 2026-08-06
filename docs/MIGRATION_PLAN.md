@@ -69,7 +69,14 @@ This document tracks the migration strategy for deprecated and outdated packages
 
 These updates require dedicated effort and should be tackled separately:
 
-### 3. Nuxt 3 → Nuxt 4
+### 3. Tailwind CSS v3 → Tailwind CSS v4
+
+- **Current:** 3.4.19
+- **Target:** 4.x
+- **Effort:** 1-2 days
+- **Requires:** Refactoring `@apply` directives in SCSS components, migrating theme definitions to `@theme` blocks, updating PostCSS configuration, and verifying all component styles.
+
+### 4. Nuxt 3 → Nuxt 4
 
 - **Current:** 3.21.11
 - **Latest:** 4.5.2
