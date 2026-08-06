@@ -1,10 +1,3 @@
-import dotenv from 'dotenv';
-
-let svgPrefixCounter = 0;
-const svgPrefix = {};
-svgPrefix.toString = () => `${++svgPrefixCounter}_`;
-
-dotenv.config({ path: '.env' });
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
@@ -18,7 +11,6 @@ export default defineNuxtConfig({
     'nuxt-lodash',
     'nuxt-viewport',
     '@vueuse/nuxt',
-    '@formkit/auto-animate/nuxt',
     'shadcn-nuxt',
     '@nuxtjs/color-mode',
     '@nuxt/image',
@@ -75,17 +67,16 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
-      firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      firebaseProjectID: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
-      firebaseStorageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      firebaseMessageSenderID: process.env.NUXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
-      firebaseAppID: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
-      firebaseMeasurementID: process.env.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-      stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',
-      MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE === 'true',
-      HOST: '0.0.0.0',
+      firebaseApiKey: '',
+      firebaseAuthDomain: '',
+      firebaseProjectID: '',
+      firebaseStorageBucket: '',
+      firebaseMessageSenderID: '',
+      firebaseAppID: '',
+      firebaseMeasurementID: '',
+      stripePublishableKey: '',
+      BASE_URL_API: '/api',
+      MOCK_MODE: false,
     },
   },
 
@@ -124,19 +115,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-20',
 
   vite: {
-    vue: {
-      script: {
-        defineModel: true,
-      },
-    },
     server: {
       watch: {
-        usePolling: true,
-        interval: 1000,
+        usePolling: false,
       },
     },
     build: {
-      chunkSizeWarningLimit: 550,
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
           manualChunks(id) {
@@ -165,13 +150,8 @@ export default defineNuxtConfig({
 
   postcss: {
     plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
+      '@tailwindcss/postcss': {},
     },
-  },
-
-  hooks: {
-    'builder:watch': () => {},
   },
 
   eslint: {
