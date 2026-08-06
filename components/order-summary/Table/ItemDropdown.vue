@@ -54,7 +54,7 @@
             </div>
           </div>
           <div class="flex flex-row justify-between items-center xl:flex-col xl:gap-4">
-            <span class="text-neutral-700 text-center text-sm font-normal leading-6 xl:gap-4 px-0 xl:px-4">Tax (VAT 19%)</span>
+            <span class="text-neutral-700 text-center text-sm font-normal leading-6 xl:gap-4 px-0 xl:px-4">Tax (VAT {{ vatPercent }}%)</span>
             <div class="flex flex-col text-center h-[36px] justify-center">
               <span class="text-neutral-700 text-sm font-normal leading-5">{{ Number(taxPrice).toFixed(2) }} Lei</span>
             </div>
@@ -91,6 +91,7 @@ import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import { useAuthStore } from '~/store/authStore';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
 import { ProductAction, type CartProductsInterface } from '~/types/cart';
 
 import { OrderType } from '~/types';
@@ -127,10 +128,12 @@ const discounts = computed(() => {
   return parseProductPriceConfiguration(props.item.productEntity, getUserDetails.value, props.item.stock + backorder_stock);
 });
 
+const vatPercent = Math.round(DEFAULT_ORDER_VAT_RATE * 100);
+
 const taxPrice = computed(() => {
   if (!quantity.value) return 0;
   const subtotalValue = quantity.value * (discounts.value?.currentConfigurationDiscountPrice || 0);
-  return (subtotalValue * 0.19).toFixed(2);
+  return calculateOrderMoney({ subtotal: subtotalValue }).vatAmount;
 });
 
 const subtotal = computed(() => {

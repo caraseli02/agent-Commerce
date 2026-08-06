@@ -2,6 +2,7 @@
 import { InfoIcon } from 'lucide-vue-next';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
+import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
 import { OrderType } from '~/types';
 import type { OrderInterface, OrderRequestInterface } from '~/types';
 import { useAuthStore } from '~/store/authStore';
@@ -23,25 +24,37 @@ const shippingMethod = computed(() =>
   generalSettings?.orderSettings?.deliveryTypes.find((type) => type._id === stockOrder.value.shippingDetails.deliveryTypeId)
 );
 
+const vatPercent = Math.round(DEFAULT_ORDER_VAT_RATE * 100);
+
+const lineVatAmount = (quantity: number, unitPrice: number) =>
+  calculateOrderMoney({ subtotal: quantity * unitPrice }).vatAmount;
+
+const lineSubtotalWithVat = (quantity: number, unitPrice: number) => {
+  const subtotal = quantity * unitPrice;
+  const vatAmount = calculateOrderMoney({ subtotal }).vatAmount;
+  return subtotal + vatAmount;
+};
+
 const payment = computed(() => {
   const subtotal = Number(stockOrder.value.subtotal.toFixed(2));
   const discountRate = stockOrder.value.discount?.value || 0;
-  const discountAmount = (discountRate * subtotal).toFixed(2);
+  const orderMoney = calculateOrderMoney({
+    subtotal,
+    discountRate,
+    shippingCost: stockOrder.value.shippingCost || 0,
+  });
   const smallOrderCharge = stockOrder.value.smallOrderCost || 0;
-  const taxRate = 19; // Consider moving to a dynamic setting or config
-  const taxAmount = subtotal * (taxRate / 100);
-  const shippingType = stockOrder.value.shippingCost || 0;
   const total = Number(stockOrder.value.total?.toFixed(2));
 
   return {
     subtotal,
     discountRate,
-    discountAmount,
-    handlingCharge: smallOrderCharge, // Consider making dynamic if applicable
-    shippingCost: shippingType, // Consider making dynamic if applicable
-    taxRate,
-    taxAmount,
-    stockOrderTotal: total, // Include other charges dynamically if needed
+    discountAmount: orderMoney.discountAmount.toFixed(2),
+    handlingCharge: smallOrderCharge,
+    shippingCost: stockOrder.value.shippingCost || 0,
+    taxRate: Math.round(orderMoney.vatRate * 100),
+    taxAmount: orderMoney.vatAmount,
+    stockOrderTotal: total,
   };
 });
 </script>
@@ -56,7 +69,7 @@ const payment = computed(() => {
         <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Quantity</span>
         <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Delivered</span>
         <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Payment Status</span>
-        <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Tax (19%)</span>
+        <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Tax ({{ vatPercent }}%)</span>
         <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Subtotal</span>
       </div>
       <div class="flex flex-col gap-6">
@@ -131,7 +144,7 @@ const payment = computed(() => {
             </div>
             <div class="flex justify-center items-end flex-col text-sm min-w-[86px]">
               <p>
-                {{ (item.stock * item.unitPriceAfterDiscounts * 0.19).toFixed(2) }}
+                {{ lineVatAmount(item.stock, item.unitPriceAfterDiscounts).toFixed(2) }}
                 <span>Lei</span>
               </p>
             </div>
@@ -184,15 +197,15 @@ const payment = computed(() => {
                 </p>
               </article>
               <article class="flex gap-5 justify-between mt-1 w-full leading-6 text-neutral-800 max-md:flex-wrap max-md:max-w-full">
-                <p>Tax (VAT 19%)</p>
-                <p>{{ (item.stock * item.unitPriceAfterDiscounts * 0.19).toFixed(2) }} Lei</p>
+                <p>Tax (VAT {{ vatPercent }}%)</p>
+                <p>{{ lineVatAmount(item.stock, item.unitPriceAfterDiscounts).toFixed(2) }} Lei</p>
               </article>
               <article
                 class="flex gap-5 justify-between mt-1 w-full leading-6 whitespace-nowrap text-neutral-800 max-md:flex-wrap max-md:max-w-full"
               >
                 <p>Subtotal</p>
                 <p>
-                  {{ (item.stock * item.unitPriceAfterDiscounts + Number(item.stock * item.unitPriceAfterDiscounts * 0.19)).toFixed(2) }}
+                  {{ lineSubtotalWithVat(item.stock, item.unitPriceAfterDiscounts).toFixed(2) }}
                   Lei
                 </p>
               </article>
