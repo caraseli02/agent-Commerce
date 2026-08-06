@@ -24,7 +24,7 @@
           <p class="text-[11px] mb-[26px] md:text-base md:mb-12 lg:max-w-[434px] lg:mb-[30px] xl:text-lg xl:max-w-[350px] xl:mb-[61px]">
             {{ item.description }}
           </p>
-          <button class="flex bg-blue-500 rounded px-3 py-1.5 text-[13px] font-medium md:px-6 md:py-2 md:text-sm xl:py-[9px]">
+          <button class="flex bg-blue-600 rounded px-3 py-1.5 text-[13px] font-medium md:px-6 md:py-2 md:text-sm xl:py-[9px]">
             View More
           </button>
           <ImageWithFallback
@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { A11y, Autoplay, Pagination } from 'swiper';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import SlideBg from '@/assets/media/home/exclusive-offer-bg.jpg';
+import SlideBg from '@/assets/media/home/exclusive-offer-bg.webp';
 import ItemImage from '@/assets/media/home/exclusive-offer-item.png';
 
 const slides = ref([

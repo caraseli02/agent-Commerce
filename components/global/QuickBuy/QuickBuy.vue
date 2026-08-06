@@ -77,12 +77,12 @@ const isLoading = ref(false);
     </p>
     <UiDialog v-model:open="isOpen">
       <UiDialogTrigger as-child>
-        <div class="flex gap-2.5 py-3">
-          <button class="flex items-center justify-center flex-1 bg-blue-500 rounded-lg text-white py-2">
-            <CartIcon class="w-6 h-6 mr-2" />
-            <span class="text-sm font-medium">Add to cart</span>
-          </button>
-        </div>
+        <button
+          class="mt-3 flex w-full items-center justify-center rounded-lg bg-blue-600 py-2 text-white transition-colors hover:bg-blue-700"
+        >
+          <CartIcon class="w-6 h-6 mr-2" />
+          <span class="text-sm font-medium">Add to cart</span>
+        </button>
       </UiDialogTrigger>
       <UiDialogContent class="max-w-[358px] sm:max-w-[640px] rounded-lg">
         <UiDialogHeader>

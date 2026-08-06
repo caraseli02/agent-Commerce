@@ -1,7 +1,7 @@
 <template>
   <div ref="rootRef" class="relative block min-h-0 min-w-0 overflow-hidden" :class="rootClass" v-bind="rootAttrs">
     <component
-      :is="useOptimizedImage ? 'NuxtImg' : 'img'"
+      :is="imageComponent"
       v-if="currentSrc !== 'fallback'"
       :src="currentSrc"
       :alt="alt"
@@ -65,8 +65,26 @@ const useOptimizedImage = computed(() => {
   }
 
   const src = currentSrc.value;
-  return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('//');
+
+  // Data/blob URIs cannot be processed by the image optimizer.
+  if (src.startsWith('data:') || src.startsWith('blob:')) {
+    return false;
+  }
+
+  // Vite-bundled assets are emitted as hashed /_nuxt/* files that IPX cannot read
+  // from disk during prerender, so they stay on a native <img>.
+  if (src.startsWith('/_nuxt/')) {
+    return false;
+  }
+
+  // Remote URLs and files served from public/ can be optimized to WebP/AVIF.
+  return true;
 });
+
+// Resolve the real component: a plain 'NuxtImg' string does not resolve to the
+// registered component in a dynamic <component :is>, so it silently renders a
+// custom element and skips optimization entirely.
+const imageComponent = computed(() => (useOptimizedImage.value ? resolveComponent('NuxtImg') : 'img'));
 
 watch(
   () => props.src,
