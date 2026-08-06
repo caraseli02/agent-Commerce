@@ -37,5 +37,10 @@ Use this file for durable cross-session decisions that should survive context re
   - Impact: demo role selection may prepare sign-in internally, but the account panel should not render demo passwords in plain text.
 
 - 2026-08-05 — Prefer **Buyer Flow** over **Scripted Buyer Path**
+
   - Reason: the design contract names a storefront capability, not a demo rehearsal script; “buyer flow” matches the FCC-style problem statement.
   - Impact: `CONTEXT.md` uses Buyer Flow as the glossary term; design doc lives at `docs/buyer-flow-design-contract.md`; treat “Scripted Buyer Path” as a legacy alias in older issues/docs.
+
+- 2026-08-06 — Scope remaining June-review epics to Portfolio Demo depth
+  - Reason: #101’s Pinia bugs were already fixed; #99/#103 were written as production hardening/SEO programs that conflict with `CONTEXT.md` (Mock Integration Boundary outside production auth/SEO ops).
+  - Impact: closed #101; rewrote #99 as demo auth integrity (`requireMockAuth` seam) and closed #109/#111/#113 as `wontfix`; rewrote #103 around `usePageSeo` + public crawl hygiene; children promoted `ready-for-agent` at `priority:p2` so Next track `#426`–`#433` stays first.

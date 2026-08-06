@@ -2,21 +2,36 @@
 
 ## Current focus
 
-- Issue #194 / PR #440 — shared empty states; evaluator PASS / ready-for-human after Qodo Round 1 fixes.
+- Next implementation track first (WIP=1): **P0** `#426` → `#427`, then **P1** `#431`/`#432`, then **P2** `#433`.
+- After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- Issue #194 on branch `feat/194-empty-states` (awaiting human merge).
+- None claimed. Agent queue (`ready-for-agent`):
+  - **P0** `#426`, `#427`
+  - **P1** `#431`, `#432`
+  - **P2** `#433`, then Security `#105`/`#106`/`#107`/`#108`/`#110`/`#112`/`#114`, SEO `#186`→`#189`→`#187`→`#188`→`#190`
+
+## Human decisions pending
+
+- **#316** (`ready-for-human`) — choose severity:low auto-merge vs evaluator policy (options in issue comment).
+- **#121** (`ready-for-human`) — Stripe payment integration plan (HITL).
 
 ## Architecture note (cross-runtime cart pricing)
 
 - Shared pure helpers live in `helpers/cart-pricing.ts` (`resolveTierUnitPrice`, `clampCartQuantity`, `calculateCartLinePricing`).
 - Client re-exports via `helpers/prices.helper.ts` (may toast / call `useCart`).
 - Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
+- Order Money: `helpers/order-money.ts` (`calculateOrderMoney`); finish remaining callers via #426.
+- Security seam (planned): `server/utils/requireMockAuth` — see epic #99.
+- SEO seam (planned): `usePageSeo` — see epic #103.
 
 ## Recently completed
 
+- System-design triage (2026-08-06): closed `#101`; rewrote `#99`/`#103`; `wontfix` `#109`/`#111`/`#113`; promoted slim Security + SEO children.
+- Housekeeping: closed zombie epics `#100`, `#102`, `#104`, `#255`, `#389`.
+- Issue #194 / PR #440 — shared empty states on Scripted Buyer Path.
 - Issue #404 / PR #439 — contract product `model/` trees to canonical `types/product` namespace.
 - Issue #429 / PR #438 — browse/search application seam (`useProducts`).
 - Issue #430 / PR #437 — cart update signals without event bus.
@@ -34,6 +49,8 @@
 ## Blocked / known baseline failures
 
 - No app-code baseline failures.
+- `#433` is `ready-for-agent` but still prefer landing after `#427`.
+- `#187`/`#188` prefer after `#186`; `#107` prefers `#108` util first.
 - Local note: this repo can sit under a parent pnpm workspace; use `pnpm --config.manage-package-manager-versions=false` if package-manager self-install loops appear.
 
 ## Verification baseline
@@ -49,6 +66,7 @@
 
 - Use this file only for durable cross-session state, not transient task notes.
 - Do not duplicate GitHub Issues here; mirror only the active issue/PR and baseline facts needed by the next session.
+- Open tracking epics (not pickup targets): `#99` Security (demo-scoped), `#103` SEO foundation.
 
 ## CI note (PR template gate)
 

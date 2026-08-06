@@ -17,6 +17,18 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 - `in-progress` — claimed by the planner/generator loop; used by pickup rules in `issue-tracker.md`. If an open PR exists, WIP remains occupied until evaluator pass, blocker, or repair on that same PR.
 - `blocked` — concrete blocker found by generator or evaluator; include a comment with the repair instruction or human decision needed
 
+## Sequencing priorities (not severity)
+
+Use these for pickup order among `ready-for-agent` issues. Do **not** confuse with `severity:*` (which drives review/auto-merge policy).
+
+| Label         | Meaning                                        |
+| ------------- | ---------------------------------------------- |
+| `priority:p0` | Do next — critical path / unblocks others      |
+| `priority:p1` | Soon — after P0; parallelizable when unblocked |
+| `priority:p2` | Later — after dependencies land                |
+
+Planner/controller should prefer lower P numbers when choosing among eligible `ready-for-agent` issues (still WIP=1).
+
 Optional future label:
 
 - `ready-for-evaluator` — use only if the repo adopts an explicit evaluator queue. Until then, evaluators discover open PRs linked to `in-progress` issues, and evaluator failures repair the same issue/branch rather than re-entering `ready-for-agent`.
