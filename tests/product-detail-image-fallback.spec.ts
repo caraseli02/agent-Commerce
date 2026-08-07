@@ -81,7 +81,7 @@ describe('product detail image fallback', () => {
     expect(source).not.toContain('w-12 h-12');
   });
 
-  it('routes bundled and remote images through NuxtImg, but not data/blob URIs', () => {
+  it('routes remote and absolute site paths through NuxtImg, but not data/blob or /_nuxt/', () => {
     const source = readFileSync(imageWithFallbackPath, 'utf8');
 
     expect(source).toContain('useOptimizedImage');
@@ -89,7 +89,9 @@ describe('product detail image fallback', () => {
     expect(source).toContain("startsWith('data:')");
     expect(source).toContain("startsWith('blob:')");
     expect(source).toContain("startsWith('/_nuxt/')");
-    expect(source).not.toContain("startsWith('https://')");
+    // Only known-safe shapes are optimized.
+    expect(source).toContain('https?:');
+    expect(source).toContain("startsWith('//')");
     expect(source).toContain(':is="imageComponent"');
     expect(source).toContain("resolveComponent('NuxtImg')");
   });

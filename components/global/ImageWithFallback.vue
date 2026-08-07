@@ -77,8 +77,9 @@ const useOptimizedImage = computed(() => {
     return false;
   }
 
-  // Remote URLs and files served from public/ can be optimized to WebP/AVIF.
-  return true;
+  // Only optimize known-safe shapes: remote URLs and absolute site/public paths.
+  // Ambiguous relative paths and unsupported schemes stay on native <img>.
+  return /^https?:\/\//i.test(src) || src.startsWith('//') || src.startsWith('/');
 });
 
 // Resolve the real component: a plain 'NuxtImg' string does not resolve to the

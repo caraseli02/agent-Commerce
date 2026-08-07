@@ -78,7 +78,7 @@ const isLoading = ref(false);
     <UiDialog v-model:open="isOpen">
       <UiDialogTrigger as-child>
         <button
-          class="mt-3 flex w-full items-center justify-center rounded-lg bg-blue-600 py-2 text-white transition-colors hover:bg-blue-700"
+          class="mt-3 flex w-full items-center justify-center rounded-lg bg-blue-600 py-2 text-white transition-colors motion-reduce:transition-none hover:bg-blue-700"
         >
           <CartIcon class="w-6 h-6 mr-2" />
           <span class="text-sm font-medium">Add to cart</span>

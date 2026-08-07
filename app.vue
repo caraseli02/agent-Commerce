@@ -23,6 +23,7 @@ useSeoMeta({
   ogTitle: 'ECAS — Electronic Components Sourced Reliably',
   ogDescription:
     'Browse thousands of electronic components from trusted manufacturers. Check live stock, compare specifications, and order with confidence.',
-  twitterCard: 'summary_large_image',
+  // Use summary until a site-wide ogImage exists; routes with ogImage can opt into large cards.
+  twitterCard: 'summary',
 });
 </script>
