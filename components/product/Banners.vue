@@ -46,7 +46,7 @@
 import NewIcon from '@/assets/icons/new.svg';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import Banner1Item from '@/assets/media/home/banner-item.png';
-import Banner1Bg from '@/assets/media/home/banner-bg.jpg';
+import Banner1Bg from '@/assets/media/home/banner-bg.webp';
 import Banner2Item from '@/assets/media/home/exclusive-offer-item.png';
-import Banner2Bg from '@/assets/media/home/exclusive-offer-bg.jpg';
+import Banner2Bg from '@/assets/media/home/exclusive-offer-bg.webp';
 </script>

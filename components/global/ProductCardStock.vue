@@ -24,11 +24,11 @@ const outOfStock = computed(() => {
   return props.stock === 0 || props.stock < 0;
 });
 const colorClass = computed(() => {
-  if (!props.stock) return 'bg-rose-500';
+  if (!props.stock) return 'bg-rose-600';
   return [
-    { 'bg-green-600': props.stock > 50 },
-    { 'bg-orange-500': props.stock < 50 && props.stock > 0 },
-    { 'bg-rose-500': outOfStock.value },
+    { 'bg-green-800': props.stock > 50 },
+    { 'bg-orange-600': props.stock < 50 && props.stock > 0 },
+    { 'bg-rose-600': outOfStock.value },
   ];
 });
 </script>

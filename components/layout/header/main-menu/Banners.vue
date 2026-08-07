@@ -74,6 +74,6 @@ import Banner1 from '@/assets/media/header/banner-1.png';
 import Banner2 from '@/assets/media/header/banner-2.png';
 import Banner3 from '@/assets/media/header/banner-3.png';
 import TrestonLogo from '@/assets/media/header/treston-logo.png';
-import BannerBg from '@/assets/media/home/banner-bg.jpg';
+import BannerBg from '@/assets/media/home/banner-bg.webp';
 import NewIcon from '@/assets/icons/new.svg';
 </script>
