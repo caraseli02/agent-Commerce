@@ -115,7 +115,9 @@ import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import { useNuxtApp } from '#app';
 import type { BillingAddressInterface } from '~/types/auth/user-interface';
 import type { BillingAddressesData } from '~/types/dashboard/control-panel';
-import { deleteBilling, fetchBilling, updateBilling } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { deleteBilling, fetchBilling, updateBilling } = useControlPanel();
 
 const route = useRoute();
 const config = useRuntimeConfig();

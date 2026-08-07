@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { columns } from './columns';
 import type { LogsItem } from '~/components/client-table/logs/columns.enum';
-import { fetchActivityLogs } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { fetchActivityLogs } = useControlPanel();
 
 const emit = defineEmits<{
   showTotalItems: [val: number];

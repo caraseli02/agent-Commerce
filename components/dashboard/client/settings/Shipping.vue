@@ -7,7 +7,9 @@ import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
-import { deleteShippingAsCustomer, updateShippingAsCustomer } from '~/composables/api/user';
+import { useClientAccount } from '~/composables/useClientAccount';
+
+const { deleteShippingAsCustomer, updateShippingAsCustomer } = useClientAccount();
 
 interface AddressData {
   icon: string;

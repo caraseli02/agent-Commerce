@@ -9,12 +9,13 @@ import { Button } from '@/components/ui/button';
 import { useCountries } from '~/composables/useCountries';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { updateDetails } from '~/composables/api/client-settings';
+import { useClientAccount } from '~/composables/useClientAccount';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
 
 const { countries, load: loadCountries } = useCountries();
+const { updateDetails } = useClientAccount();
 
 const authStore = useAuthStore();
 const { getUserDetails } = storeToRefs(authStore);

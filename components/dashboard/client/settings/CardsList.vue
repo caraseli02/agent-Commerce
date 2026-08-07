@@ -24,8 +24,9 @@
 
 <script setup lang="ts">
 import type { StripeCardInterface } from '~/types';
-import { userCards as fetchUserCards } from '~/composables/api/user';
-import { deleteCard, updateCardAsDefault } from '~/composables/api/client-settings';
+import { useClientAccount } from '~/composables/useClientAccount';
+
+const { fetchUserCards, deleteCard, updateCardAsDefault } = useClientAccount();
 
 const card = ref<unknown | null>({});
 const cards = ref<StripeCardInterface[]>([]);

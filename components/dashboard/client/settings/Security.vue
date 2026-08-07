@@ -3,7 +3,9 @@ import { toast } from '~/components/ui/toast';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useAuthStore } from '~/store/authStore';
-import { resetPasswordLink as requestResetPasswordLink } from '~/composables/api/user';
+import { useClientAccount } from '~/composables/useClientAccount';
+
+const { resetPasswordLink: requestResetPasswordLink } = useClientAccount();
 
 const authStore = useAuthStore();
 const { getUserDetails } = storeToRefs(authStore);

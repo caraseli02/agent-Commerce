@@ -43,8 +43,7 @@ import {
   toInputObject,
 } from '~~/types';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { registerClassic, registerFirebase } from '~/composables/api/auth';
-import { validateAddress } from '~/composables/api/orders';
+import { useSignup } from '~/composables/useSignup';
 import { useSignupState } from '@/composables/signup/useSignupState';
 
 interface ValidateAddressResult {
@@ -56,6 +55,8 @@ const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirma
 const authStore = useAuthStore();
 
 const { toast } = useToast();
+
+const { validateSignupAddress, registerWithClassic, registerWithFirebase } = useSignup();
 
 const { logout } = useFirebaseAuth();
 
@@ -119,7 +120,7 @@ const handleBusinessDetailsContinue = async () => {
     ]);
   }
 
-  const result = (await validateAddress({
+  const result = (await validateSignupAddress({
     country: getCountryTypeValue(businessDetails.value.country),
     region: getCountryTypeValue(businessDetails.value.region),
     city: businessDetails.value.city.value,
@@ -155,7 +156,7 @@ const handlePersonalDetailsContinue = async () => {
     personalDetails.value.addressLine1,
   ]);
 
-  const result = (await validateAddress({
+  const result = (await validateSignupAddress({
     country: getInputStringValue(personalDetails.value.country),
     region: getInputStringValue(personalDetails.value.region),
     city: personalDetails.value.city.value,
@@ -253,7 +254,7 @@ const registerClassicSignup = async (payload: SignupPersonalPayload | SignupBusi
   payload.isAlreadyRegisteredWithFirebase = false;
   payload.account.profileDetails.password = profileDetails.value.password.value;
 
-  return await registerClassic(payload);
+  return await registerWithClassic(payload);
 };
 
 const registerFirebaseSignup = async (payload: SignupPersonalPayload | SignupBusinessPayload): Promise<unknown> => {
@@ -261,7 +262,7 @@ const registerFirebaseSignup = async (payload: SignupPersonalPayload | SignupBus
   payload.account.firebaseId = userInfo?.user_id;
   payload.isAlreadyRegisteredWithFirebase = true;
 
-  return await registerFirebase(payload);
+  return await registerWithFirebase(payload);
 };
 
 const handleSubmit = async () => {

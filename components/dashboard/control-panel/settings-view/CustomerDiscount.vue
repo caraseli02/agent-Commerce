@@ -61,7 +61,9 @@ import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import PercentageIcon from '@/assets/icons/dashboard/percentage.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import type { DiscountInterface } from '~/types/auth/account-settings';
-import { fetchCustomerDiscount, updateCustomerDiscount } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { fetchCustomerDiscount, updateCustomerDiscount } = useControlPanel();
 
 const customerDiscountBuffer = ref<number>(0);
 const customerDiscount = ref<number>(0);

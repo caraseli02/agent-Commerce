@@ -129,9 +129,11 @@ import { useNuxtApp, useRoute } from '#app';
 import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { updateBilling, updateShipping } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
 import { useClientAddressManager } from '~/composables/useClientAddressManager';
 import type { BillingAddressInterface, ShippingAddressInterface } from '~/types/auth/user-interface';
+
+const { updateBilling, updateShipping } = useControlPanel();
 
 const props = defineProps<{
   address: ShippingAddressInterface | BillingAddressInterface;

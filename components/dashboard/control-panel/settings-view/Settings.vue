@@ -120,8 +120,9 @@ import CheckIcon from '@/assets/icons/check.svg';
 import SecurityUserIcon from '@/assets/icons/dashboard/security-user.svg';
 import { AlertAndNotificationLabelsEnum, MarketingPreferencesEnum } from '~/types/auth/account-settings';
 import { toast } from '~/components/ui/toast';
-import { resetPasswordLink as requestResetPasswordLink } from '~/composables/api/user';
-import { fetchCustomerSettings, markSettingsAsRead } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { resetPasswordLink: requestResetPasswordLink, fetchCustomerSettings, markSettingsAsRead } = useControlPanel();
 
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));

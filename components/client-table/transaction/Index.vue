@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { columns } from './columns';
 import type { TransactionInterface } from '~/types/dashboard/transaction';
-import { fetchTransactions } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { fetchTransactions } = useControlPanel();
 
 const props = defineProps({
   userId: {

@@ -115,7 +115,9 @@ import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import { useNuxtApp } from '#app';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 import type { ShippingAddressesData } from '~/types/dashboard/control-panel';
-import { deleteShipping, fetchShipping, updateShipping } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { deleteShipping, fetchShipping, updateShipping } = useControlPanel();
 
 const route = useRoute();
 const config = useRuntimeConfig();

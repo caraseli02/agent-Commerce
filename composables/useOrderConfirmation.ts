@@ -168,6 +168,20 @@ export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefine
     return orderType.find((type) => type.value === orderTypeValue.value) || orderType[0];
   };
 
+  const loadCheckoutSuccessOrder = async (resolvedOrderId: string) => {
+    if (!resolvedOrderId) {
+      return null;
+    }
+
+    const response = await getOrderById(resolvedOrderId);
+
+    if (response.status !== 'success' || !response.data?.order) {
+      return null;
+    }
+
+    return response.data.order;
+  };
+
   const loadOrderConfirmation = async () => {
     const resolvedOrderId = toValue(orderId);
 
@@ -248,6 +262,7 @@ export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefine
     showBackOrder,
     getOrderTypeValueByOrder,
     loadOrderConfirmation,
+    loadCheckoutSuccessOrder,
     downloadDocument,
   };
 }

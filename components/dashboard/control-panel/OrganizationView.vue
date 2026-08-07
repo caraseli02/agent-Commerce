@@ -187,8 +187,9 @@ import { useNuxtApp } from '#app';
 import type { AddressInterface, CompanyDetails, ContactDetails, UserInterface } from '~/types/auth/user-interface';
 import { getRegionByCountry } from '~/helpers/form.helper';
 import { toast } from '~/components/ui/toast';
-import { validateAddress } from '~/composables/api/orders';
-import { updateAccountDetails as updateControlPanelAccountDetails } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { validateAccountAddress: validateAddress, updateAccountDetails: updateControlPanelAccountDetails } = useControlPanel();
 
 const { $apiClient } = useNuxtApp();
 const { countries, load: loadCountries } = useCountries();

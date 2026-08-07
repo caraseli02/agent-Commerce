@@ -103,7 +103,9 @@ import ProgressBar from './ProgressBar.vue';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
-import { fetchCustomerCredit } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { fetchCustomerCredit } = useControlPanel();
 
 const ApexChart = defineAsyncComponent(() => import('vue3-apexcharts'));
 
