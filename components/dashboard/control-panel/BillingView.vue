@@ -112,10 +112,10 @@ import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import CheckIcon from '@/assets/icons/check-circle.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
-import { useNuxtApp } from '#app';
 import type { BillingAddressInterface } from '~/types/auth/user-interface';
-import type { BillingAddressesData } from '~/types/dashboard/control-panel';
-import { deleteBilling, fetchBilling, updateBilling } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { deleteBilling, loadBillingAddresses, updateBilling } = useControlPanel();
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -124,7 +124,6 @@ const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const addAddressModal = ref(false);
 const editAddressModal = ref<BillingAddressInterface | null>(null);
 const indexOfEditAddressModal = ref(0);
-const { $apiClient } = useNuxtApp();
 const defaultAddressIndex = ref(0);
 const props = defineProps({
   id: {
@@ -153,7 +152,7 @@ const setAsDefault = async (address: BillingAddressInterface) => {
   if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
     return;
   }
-  await updateBilling(address, route.params.slug as string, $apiClient);
+  await updateBilling(address, route.params.slug as string);
 };
 
 const handleAddressSaved = async () => {
@@ -167,15 +166,12 @@ const getBillingInformation = async () => {
     return;
   }
   try {
-    const response = (await fetchBilling(props.id, props.accountType, $apiClient)) as {
-      status: string;
-      data: BillingAddressesData;
-    };
+    const billingAddresses = await loadBillingAddresses(props.id, props.accountType);
 
-    if (response.status !== 'success') {
+    if (!billingAddresses) {
       return;
     }
-    addresses.value = response.data.billingAddress;
+    addresses.value = billingAddresses;
     addAddressModal.value = false;
   } catch (error) {
     console.error('Failed to load billing addresses', error);
@@ -209,7 +205,7 @@ const handleDeleteAddress = async (index: number) => {
   if (defaultAddressIndex.value === index) {
     addresses.value[0].default = true;
   }
-  await deleteBilling(addresses.value[index]?._id || '', route.params.slug as string, $apiClient);
+  await deleteBilling(addresses.value[index]?._id || '', route.params.slug as string);
   addresses.value.splice(index, 1);
 };
 </script>

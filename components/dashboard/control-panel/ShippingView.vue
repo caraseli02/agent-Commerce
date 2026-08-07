@@ -112,10 +112,10 @@ import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import CheckIcon from '@/assets/icons/check-circle.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
-import { useNuxtApp } from '#app';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
-import type { ShippingAddressesData } from '~/types/dashboard/control-panel';
-import { deleteShipping, fetchShipping, updateShipping } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { deleteShipping, loadShippingAddresses, updateShipping } = useControlPanel();
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -124,7 +124,6 @@ const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 const addAddressModal = ref(false);
 const editAddressModal = ref<ShippingAddressInterface | null>(null);
 const indexOfEditAddressModal = ref(0);
-const { $apiClient } = useNuxtApp();
 const defaultAddressIndex = ref(0);
 const props = defineProps({
   id: {
@@ -153,7 +152,7 @@ const setAsDefault = async (address: ShippingAddressInterface) => {
   if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
     return;
   }
-  await updateShipping(address, route.params.slug as string, $apiClient);
+  await updateShipping(address, route.params.slug as string);
 };
 // Refresh after the shared address manager finishes a successful save.
 const handleAddressSaved = async () => {
@@ -167,15 +166,12 @@ const getShippingInformation = async () => {
     return;
   }
   try {
-    const response = (await fetchShipping(props.id, props.accountType, $apiClient)) as {
-      status: string;
-      data: ShippingAddressesData;
-    };
+    const shippingAddresses = await loadShippingAddresses(props.id, props.accountType);
 
-    if (response.status !== 'success') {
+    if (!shippingAddresses) {
       return;
     }
-    addresses.value = response.data.shippingAddress;
+    addresses.value = shippingAddresses;
     addAddressModal.value = false;
   } catch (error) {
     console.error('Failed to load shipping addresses', error);
@@ -215,7 +211,7 @@ const handleDeleteAddress = async (index: number) => {
     addresses.value[0].default = true;
   }
 
-  await deleteShipping(addresses.value[index]?._id || '', route.params.slug as string, $apiClient);
+  await deleteShipping(addresses.value[index]?._id || '', route.params.slug as string);
   addresses.value.splice(index, 1);
   await getShippingInformation();
 };

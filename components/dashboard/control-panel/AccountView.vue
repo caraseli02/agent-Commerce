@@ -146,7 +146,9 @@ import { useCountries } from '~/composables/useCountries';
 import type { FormSelectOption } from '~~/types';
 import type { AddressInterface, ContactDetails, PersonalDetails, UserInterface } from '~/types/auth/user-interface';
 import { getRegionByCountry } from '~/helpers/form.helper';
-import { updateAccountDetails as updateControlPanelAccountDetails } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { updateAccountDetails: updateControlPanelAccountDetails } = useControlPanel();
 
 const { countries, load: loadCountries } = useCountries();
 

@@ -24,8 +24,9 @@
 
 <script setup lang="ts">
 import type { StripeCardInterface } from '~/types';
-import { userCards as fetchUserCards } from '~/composables/api/user';
-import { deleteCard, updateCardAsDefault } from '~/composables/api/client-settings';
+import { useClientAccount } from '~/composables/useClientAccount';
+
+const { loadUserCards, removeCard, setDefaultCard } = useClientAccount();
 
 const card = ref<unknown | null>({});
 const cards = ref<StripeCardInterface[]>([]);
@@ -51,15 +52,12 @@ const setCardAsDefault = async (cardInfo: StripeCardInterface) => {
     };
   });
   selectedCard.value = cardInfo;
-  const response = (await updateCardAsDefault(cardInfo.id)) as { status: string };
-  if (response.status === 'success') {
-    // noop
-  }
+  await setDefaultCard(cardInfo.id);
 };
 
 const selectedCardToDelete = async (cardInfo: StripeCardInterface) => {
-  const response = await deleteCard(cardInfo.id);
-  if (response.status === 'success') {
+  const removed = await removeCard(cardInfo.id);
+  if (removed) {
     cards.value = cards.value.filter((card: StripeCardInterface) => card.id !== cardInfo.id);
   }
 };
@@ -67,18 +65,13 @@ const selectedCardToDelete = async (cardInfo: StripeCardInterface) => {
 const isLoading = ref(false);
 const fetchCards = async () => {
   isLoading.value = true;
-  const response = (await fetchUserCards()) as unknown as {
-    status: string;
-    data: StripeCardInterface[];
-  };
+  const loadedCards = await loadUserCards();
 
-  if (response.status === 'success') {
-    if (response.data.length) {
-      cards.value = response.data;
-      card.value = _cloneDeep(cards.value.find((card: StripeCardInterface) => card.default));
-    } else {
-      isNewCardSelected.value = true;
-    }
+  if (loadedCards.length) {
+    cards.value = loadedCards;
+    card.value = _cloneDeep(cards.value.find((card: StripeCardInterface) => card.default));
+  } else {
+    isNewCardSelected.value = true;
   }
   isLoading.value = false;
 };

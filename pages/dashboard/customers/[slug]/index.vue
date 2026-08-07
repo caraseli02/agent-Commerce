@@ -76,7 +76,9 @@ import Emitter from 'tiny-emitter/instance.js';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { customerCreditHelper } from '~/helpers/customer-credit.helper';
-import { fetchCustomerCredit } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { fetchCustomerCredit } = useControlPanel();
 
 const customerName = ref('');
 const updateBreadcrumbs = ref(false);

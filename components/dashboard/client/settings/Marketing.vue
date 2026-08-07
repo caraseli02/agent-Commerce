@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '~/store/authStore';
-import { markSettingsAsRead } from '~/composables/api/control-panel';
+import { useClientAccount } from '~/composables/useClientAccount';
+
+const { markSettingsAsRead } = useClientAccount();
 
 const authStore = useAuthStore();
 

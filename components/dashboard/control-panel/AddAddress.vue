@@ -114,13 +114,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
-import { useNuxtApp, useRoute } from '#app';
+import { useRoute } from '#app';
 
 import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { addBilling, addShipping } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
 import { useClientAddressManager } from '~/composables/useClientAddressManager';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+
+const { addBilling, addShipping } = useControlPanel();
 
 const props = defineProps<{
   type: 'shipping' | 'billing';
@@ -128,7 +130,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'saved']);
 const route = useRoute();
-const { $apiClient } = useNuxtApp();
 const isOpen = ref(false);
 const address = ref<ShippingAddressInterface | null>(null);
 
@@ -137,9 +138,7 @@ const dialogTitle = computed(() => (props.type === 'shipping' ? 'Add Shipping Ad
 const persistAddress = async (payload: ShippingAddressInterface): Promise<{ status: string; data: string }> => {
   const userId = String(route.params.slug ?? '');
 
-  return props.type === 'shipping'
-    ? ((await addShipping(payload, userId, $apiClient)) as { status: string; data: string })
-    : ((await addBilling(payload, userId, $apiClient)) as { status: string; data: string });
+  return props.type === 'shipping' ? await addShipping(payload, userId) : await addBilling(payload, userId);
 };
 
 const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubmit } = useClientAddressManager({

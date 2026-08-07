@@ -3,10 +3,12 @@ import { Building2Icon, PlusCircleIcon } from 'lucide-vue-next';
 import { toRef } from 'vue';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { addShippingAsCustomer, updateShippingAsCustomer } from '~/composables/api/user';
+import { useClientAccount } from '~/composables/useClientAccount';
 import { useClientAddressManager } from '~/composables/useClientAddressManager';
 import type { AccountType } from '~/types';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+
+const { addShippingAsCustomer, updateShippingAsCustomer } = useClientAccount();
 
 const props = defineProps<{
   address: ShippingAddressInterface | null;

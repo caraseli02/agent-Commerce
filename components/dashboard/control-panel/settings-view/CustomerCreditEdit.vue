@@ -168,12 +168,9 @@ import FreezeIcon from '@/assets/icons/dashboard/freeze.svg';
 import CalendarIcon from '@/assets/icons/dashboard/calendar.svg';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { useMockMode } from '~/composables/useMockMode';
-import {
-  fetchCustomerCredit,
-  toggleCloseCustomerCredit,
-  toggleFreezeCustomerCredit,
-  updateCustomerCredit,
-} from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { fetchCustomerCredit, toggleCloseCustomerCredit, toggleFreezeCustomerCredit, updateCustomerCredit } = useControlPanel();
 
 interface CreditTermOption {
   label: string;

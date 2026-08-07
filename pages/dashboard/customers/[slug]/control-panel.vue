@@ -94,8 +94,9 @@ import { ControlPanelLabels, ControlPanelTabsEnum } from '~/types/dashboard/cont
 import { AccountType } from '~/types';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { customerCreditHelper } from '~/helpers/customer-credit.helper';
-import { fetchCustomerInformation } from '~/composables/api/customer-profile';
-import { fetchCustomerCredit } from '~/composables/api/control-panel';
+import { useControlPanel } from '~/composables/useControlPanel';
+
+const { fetchCustomerInformation, fetchCustomerCredit } = useControlPanel();
 
 const route = useRoute();
 const router = useRouter();

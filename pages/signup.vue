@@ -43,19 +43,16 @@ import {
   toInputObject,
 } from '~~/types';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { registerClassic, registerFirebase } from '~/composables/api/auth';
-import { validateAddress } from '~/composables/api/orders';
+import { useSignup } from '~/composables/useSignup';
 import { useSignupState } from '@/composables/signup/useSignupState';
-
-interface ValidateAddressResult {
-  data: { valid: boolean };
-}
 
 const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirmationEmail } = useFormValidation();
 
 const authStore = useAuthStore();
 
 const { toast } = useToast();
+
+const { isSignupAddressValid, registerSignupAccount } = useSignup();
 
 const { logout } = useFirebaseAuth();
 
@@ -119,7 +116,7 @@ const handleBusinessDetailsContinue = async () => {
     ]);
   }
 
-  const result = (await validateAddress({
+  const addressValid = await isSignupAddressValid({
     country: getCountryTypeValue(businessDetails.value.country),
     region: getCountryTypeValue(businessDetails.value.region),
     city: businessDetails.value.city.value,
@@ -127,9 +124,9 @@ const handleBusinessDetailsContinue = async () => {
     name1: businessDetails.value.addressLine1.value,
     name2: businessDetails.value.addressLine2.value,
     default: false,
-  })) as ValidateAddressResult;
+  });
 
-  if (!result.data.valid) {
+  if (!addressValid) {
     hasError = true;
     toast({
       variant: 'destructive',
@@ -155,7 +152,7 @@ const handlePersonalDetailsContinue = async () => {
     personalDetails.value.addressLine1,
   ]);
 
-  const result = (await validateAddress({
+  const addressValid = await isSignupAddressValid({
     country: getInputStringValue(personalDetails.value.country),
     region: getInputStringValue(personalDetails.value.region),
     city: personalDetails.value.city.value,
@@ -163,9 +160,9 @@ const handlePersonalDetailsContinue = async () => {
     name1: personalDetails.value.addressLine1.value,
     name2: personalDetails.value.addressLine2.value,
     default: false,
-  })) as ValidateAddressResult;
+  });
 
-  if (!result.data.valid) {
+  if (!addressValid) {
     hasError = true;
     toast({
       variant: 'destructive',
@@ -247,21 +244,6 @@ const backToSelectMenu = async () => {
     }
   });
   currentStep.value--;
-};
-
-const registerClassicSignup = async (payload: SignupPersonalPayload | SignupBusinessPayload): Promise<unknown> => {
-  payload.isAlreadyRegisteredWithFirebase = false;
-  payload.account.profileDetails.password = profileDetails.value.password.value;
-
-  return await registerClassic(payload);
-};
-
-const registerFirebaseSignup = async (payload: SignupPersonalPayload | SignupBusinessPayload): Promise<unknown> => {
-  delete payload.account.profileDetails.password;
-  payload.account.firebaseId = userInfo?.user_id;
-  payload.isAlreadyRegisteredWithFirebase = true;
-
-  return await registerFirebase(payload);
 };
 
 const handleSubmit = async () => {
@@ -411,8 +393,15 @@ const handleSubmit = async () => {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      firebaseToken ? await registerFirebaseSignup(payload) : await registerClassicSignup(payload);
+      if (!firebaseToken) {
+        payload.account.profileDetails.password = profileDetails.value.password.value;
+      }
+
+      await registerSignupAccount({
+        mode: firebaseToken ? 'firebase' : 'classic',
+        payload,
+        firebaseId: userInfo?.user_id,
+      });
 
       toast({
         variant: 'success',

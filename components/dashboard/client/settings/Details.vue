@@ -9,12 +9,13 @@ import { Button } from '@/components/ui/button';
 import { useCountries } from '~/composables/useCountries';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { updateDetails } from '~/composables/api/client-settings';
+import { useClientAccount } from '~/composables/useClientAccount';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
 
 const { countries, load: loadCountries } = useCountries();
+const { saveAccountDetails } = useClientAccount();
 
 const authStore = useAuthStore();
 const { getUserDetails } = storeToRefs(authStore);
@@ -228,8 +229,8 @@ const onSubmit = handleSubmit(async (values) => {
         mobile: personalValues.mobile,
       },
     };
-    const response = await updateDetails(payloadPersonal);
-    if (response.status === 'success') {
+    const responseOk = await saveAccountDetails(payloadPersonal);
+    if (responseOk) {
       // noop
     }
   } else {
@@ -260,8 +261,8 @@ const onSubmit = handleSubmit(async (values) => {
         mobile: businessValues.mobile,
       },
     };
-    const response = await updateDetails(payloadBusiness);
-    if (response.status === 'success') {
+    const responseOk = await saveAccountDetails(payloadBusiness);
+    if (responseOk) {
       // noop
     }
   }

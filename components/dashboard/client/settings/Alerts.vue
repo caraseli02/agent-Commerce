@@ -4,7 +4,9 @@ import AlertsItem from './AlertsItem.vue';
 import { AlertAndNotificationType } from '~/types/dashboard/control-panel';
 import { useAuthStore } from '~/store/authStore';
 import { AccountType } from '~/types';
-import { fetchSettings as fetchGeneralSettings } from '~/composables/api/settings';
+import { useClientAccount } from '~/composables/useClientAccount';
+
+const { fetchGeneralSettings } = useClientAccount();
 
 const authStore = useAuthStore();
 

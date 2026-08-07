@@ -2,9 +2,9 @@
 import { ArrowRight, CheckCircle2, LayoutDashboard, ShoppingBag, TruckIcon } from 'lucide-vue-next';
 import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { useCartStore } from '~/store/cartStore';
-import { getOrderById } from '~/composables/api/orders';
+import { useOrderConfirmation } from '~/composables/useOrderConfirmation';
 import { PaymentTypeEnum } from '~/types';
-import type { OrderInterface, OrderRequestInterfaceResponse } from '~/types';
+import type { OrderInterface } from '~/types';
 
 const route = useRoute();
 const cartStore = useCartStore();
@@ -18,6 +18,8 @@ const routeOrderId = computed(() => {
 
   return typeof queryId === 'string' ? queryId : '';
 });
+
+const { loadCheckoutSuccessOrder } = useOrderConfirmation(() => routeOrderId.value);
 
 const formatMoney = (amount?: number, currency?: string) => {
   const value = Number(amount || 0);
@@ -81,10 +83,10 @@ const loadOrder = async () => {
   fetchError.value = '';
 
   try {
-    const response = (await getOrderById(routeOrderId.value)) as OrderRequestInterfaceResponse;
+    const loadedOrder = await loadCheckoutSuccessOrder(routeOrderId.value);
 
-    if (response.status === 'success' && response.data?.order) {
-      order.value = response.data.order;
+    if (loadedOrder) {
+      order.value = loadedOrder;
       cartStore.emptyOrderClientSecret();
       cartStore.emptyPreviousCheckoutError();
       loading.value = false;
