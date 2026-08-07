@@ -182,16 +182,13 @@ import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import CopyIcon from '@/assets/icons/dashboard/copy.svg';
 import { useCountries } from '~/composables/useCountries';
 import type { FormSelectOption } from '~~/types';
-import type { ValidateAddressResult } from '~/types/dashboard/control-panel';
-import { useNuxtApp } from '#app';
 import type { AddressInterface, CompanyDetails, ContactDetails, UserInterface } from '~/types/auth/user-interface';
 import { getRegionByCountry } from '~/helpers/form.helper';
 import { toast } from '~/components/ui/toast';
 import { useControlPanel } from '~/composables/useControlPanel';
 
-const { validateAccountAddress: validateAddress, updateAccountDetails: updateControlPanelAccountDetails } = useControlPanel();
+const { saveOrganizationDetails } = useControlPanel();
 
-const { $apiClient } = useNuxtApp();
 const { countries, load: loadCountries } = useCountries();
 const props = defineProps({
   id: {
@@ -340,47 +337,40 @@ const updateAccountDetails = async () => {
   newAddress.name2 = form.value.name2?.value || '';
   newAddress.postcode = form.value.postcode?.value;
 
-  const result = (await validateAddress(
-    {
-      country: newAddress.country,
-      region: newAddress.region,
-      city: newAddress.city,
-      postcode: newAddress.postcode,
-      name1: newAddress.name1,
-      name2: newAddress.name2,
-      default: false,
-    },
-    $apiClient
-  )) as ValidateAddressResult;
+  if (!props.id || props.account.accountType === null || typeof props.account.accountType === 'undefined') {
+    return;
+  }
 
-  if (!result.data.valid) {
+  const companyDetails = {
+    name: form.value.companyName.value,
+    registrationNumber: form.value.companyRegistrationNumber.value,
+    taxId: '-',
+    vat: form.value.vatNumber.value,
+    bank_iban: form.value.bank_iban.value,
+    bank_name: form.value.bank_name.value,
+  } as Partial<CompanyDetails>;
+
+  const contactDetails = {
+    ...props.account?.contactDetails,
+    email: form.value.companyEmail.value,
+    phone: form.value.phone.value,
+  } as ContactDetails;
+
+  const saved = await saveOrganizationDetails({
+    customerId: props.id,
+    accountType: props.account.accountType,
+    address: newAddress,
+    companyDetails,
+    contactDetails,
+    shippingAddress: props.account.companyDetails?.shippingAddress || [],
+  });
+
+  if (!saved) {
     toast({
       variant: 'destructive',
       title: 'Error',
       description: 'Invalid address',
     });
-    return;
   }
-
-  const payload = {
-    companyDetails: {} as CompanyDetails,
-    contactDetails: {} as ContactDetails,
-  };
-  payload.companyDetails.name = form.value.companyName.value;
-  payload.companyDetails.registrationNumber = form.value.companyRegistrationNumber.value;
-  payload.companyDetails.taxId = '-';
-  payload.companyDetails.vat = form.value.vatNumber.value;
-  payload.companyDetails.bank_iban = form.value.bank_iban.value; // Add IBAN to payload
-  payload.companyDetails.bank_name = form.value.bank_name.value; // Add Bank Details to payload
-
-  payload.contactDetails = { ...props.account?.contactDetails };
-  payload.contactDetails.email = form.value.companyEmail.value;
-  payload.contactDetails.phone = form.value.phone.value;
-  payload.companyDetails.shippingAddress = props.account.companyDetails?.shippingAddress || [];
-  payload.companyDetails.address = newAddress;
-  if (!props.id || props.account.accountType === null || typeof props.account.accountType === 'undefined') {
-    return;
-  }
-  await updateControlPanelAccountDetails(props.id, payload as UserInterface, props.account.accountType);
 };
 </script>

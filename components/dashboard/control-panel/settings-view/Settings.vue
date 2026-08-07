@@ -122,7 +122,7 @@ import { AlertAndNotificationLabelsEnum, MarketingPreferencesEnum } from '~/type
 import { toast } from '~/components/ui/toast';
 import { useControlPanel } from '~/composables/useControlPanel';
 
-const { resetPasswordLink: requestResetPasswordLink, fetchCustomerSettings, markSettingsAsRead } = useControlPanel();
+const { resetPasswordLink: requestResetPasswordLink, loadCustomerSettings, markSettingsAsRead } = useControlPanel();
 
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
@@ -169,13 +169,11 @@ const getCustomerSettings = async () => {
     return;
   }
   try {
-    const response = await fetchCustomerSettings(props.id);
+    const settings = await loadCustomerSettings(props.id);
 
-    if (response.status !== 'success' && !isMockMode.value) {
+    if (!settings && !isMockMode.value) {
       return;
     }
-
-    const settings = response.status === 'success' ? response.data : null;
 
     if (!settings?.alertsAndNotifications || !settings?.marketingPreferences) {
       return;

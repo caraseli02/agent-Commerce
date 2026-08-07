@@ -124,7 +124,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, toRef, watch, type Ref } from 'vue';
-import { useNuxtApp, useRoute } from '#app';
+import { useRoute } from '#app';
 
 import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
@@ -144,7 +144,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'saved', 'delete-shipping-address', 'delete-billing-address']);
 const route = useRoute();
-const { $apiClient } = useNuxtApp();
 const isOpen = ref(false);
 const address = toRef(props, 'address') as Ref<ShippingAddressInterface | BillingAddressInterface | null>;
 
@@ -153,9 +152,7 @@ const dialogTitle = computed(() => (props.type === 'shipping' ? 'Edit Shipping D
 const persistAddress = async (payload: ShippingAddressInterface): Promise<{ status: string; data: string }> => {
   const userId = String(route.params.slug ?? '');
 
-  return props.type === 'shipping'
-    ? ((await updateShipping(payload, userId, $apiClient)) as { status: string; data: string })
-    : ((await updateBilling(payload, userId, $apiClient)) as { status: string; data: string });
+  return props.type === 'shipping' ? await updateShipping(payload, userId) : await updateBilling(payload, userId);
 };
 
 const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubmit } = useClientAddressManager({

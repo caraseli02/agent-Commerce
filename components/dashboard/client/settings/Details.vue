@@ -15,7 +15,7 @@ import { AccountType } from '~/types';
 import { updateStoreDetails } from '~/helpers/auth-store.helper';
 
 const { countries, load: loadCountries } = useCountries();
-const { updateDetails } = useClientAccount();
+const { saveAccountDetails } = useClientAccount();
 
 const authStore = useAuthStore();
 const { getUserDetails } = storeToRefs(authStore);
@@ -229,8 +229,8 @@ const onSubmit = handleSubmit(async (values) => {
         mobile: personalValues.mobile,
       },
     };
-    const response = await updateDetails(payloadPersonal);
-    if (response.status === 'success') {
+    const responseOk = await saveAccountDetails(payloadPersonal);
+    if (responseOk) {
       // noop
     }
   } else {
@@ -261,8 +261,8 @@ const onSubmit = handleSubmit(async (values) => {
         mobile: businessValues.mobile,
       },
     };
-    const response = await updateDetails(payloadBusiness);
-    if (response.status === 'success') {
+    const responseOk = await saveAccountDetails(payloadBusiness);
+    if (responseOk) {
       // noop
     }
   }

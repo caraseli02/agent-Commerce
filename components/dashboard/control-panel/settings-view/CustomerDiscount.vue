@@ -60,10 +60,9 @@
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import PercentageIcon from '@/assets/icons/dashboard/percentage.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import type { DiscountInterface } from '~/types/auth/account-settings';
 import { useControlPanel } from '~/composables/useControlPanel';
 
-const { fetchCustomerDiscount, updateCustomerDiscount } = useControlPanel();
+const { loadCustomerDiscount, saveCustomerDiscount } = useControlPanel();
 
 const customerDiscountBuffer = ref<number>(0);
 const customerDiscount = ref<number>(0);
@@ -82,9 +81,9 @@ const getCustomerSettings = async () => {
     return;
   }
   try {
-    const response = (await fetchCustomerDiscount(props.id)) as { status: string; data: DiscountInterface };
+    const discount = await loadCustomerDiscount(props.id);
 
-    if (response.status !== 'success' && !isMockMode.value) {
+    if (discount === null && !isMockMode.value) {
       error.value = true;
       loading.value = false;
       return;
@@ -92,9 +91,9 @@ const getCustomerSettings = async () => {
 
     loading.value = false;
     error.value = false;
-    const discount = response.status === 'success' ? response.data.value : 10;
-    customerDiscount.value = discount;
-    customerDiscountBuffer.value = discount;
+    const resolvedDiscount = discount ?? 10;
+    customerDiscount.value = resolvedDiscount;
+    customerDiscountBuffer.value = resolvedDiscount;
   } catch (caughtError) {
     console.error('Failed to load customer discount', caughtError);
     loading.value = false;
@@ -115,9 +114,9 @@ const updateDiscount = async (discount: number | 0) => {
     error.value = false;
     return;
   }
-  const response = (await updateCustomerDiscount(discount, props.id)) as { status: string };
+  const saved = await saveCustomerDiscount(discount, props.id);
 
-  if (response.status !== 'success') {
+  if (!saved) {
     return;
   } else {
     loading.value = false;

@@ -50,18 +50,17 @@ describe('checkout and account application seam', () => {
 
     expect(useSignupSource).toContain("from '~/composables/api/auth'");
     expect(useSignupSource).toContain("from '~/composables/api/orders'");
-    expect(useSignupSource).toContain('validateSignupAddress');
-    expect(useSignupSource).toContain('registerWithClassic');
-    expect(useSignupSource).toContain('registerWithFirebase');
+    expect(useSignupSource).toContain('isSignupAddressValid');
+    expect(useSignupSource).toContain('registerSignupAccount');
   });
 
   it('routes control-panel orchestration through useControlPanel', () => {
     const useControlPanelSource = source('composables/useControlPanel.ts');
 
     expect(useControlPanelSource).toContain("from '~/composables/api/control-panel'");
-    expect(useControlPanelSource).toContain('updateAccountDetails');
-    expect(useControlPanelSource).toContain('fetchTransactions');
-    expect(useControlPanelSource).toContain('fetchCustomerInformation');
+    expect(useControlPanelSource).toContain('saveOrganizationDetails');
+    expect(useControlPanelSource).toContain('loadBillingAddresses');
+    expect(useControlPanelSource).toContain('loadCustomerDiscount');
   });
 
   it('routes client account mutations through useClientAccount', () => {
@@ -69,8 +68,10 @@ describe('checkout and account application seam', () => {
 
     expect(useClientAccountSource).toContain("from '~/composables/api/client-settings'");
     expect(useClientAccountSource).toContain("from '~/composables/api/user'");
-    expect(useClientAccountSource).toContain('updateDetails');
-    expect(useClientAccountSource).toContain('deleteCard');
+    expect(useClientAccountSource).toContain('loadUserCards');
+    expect(useClientAccountSource).toContain('saveAccountDetails');
+    expect(useClientAccountSource).toContain('setDefaultCard');
+    expect(useClientAccountSource).toContain('removeCard');
   });
 
   it('routes checkout success order fetch through useOrderConfirmation', () => {
