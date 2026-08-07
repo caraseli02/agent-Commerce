@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { mapCartItems } from '../utils/cart';
 import type { CartProductsInterface } from '~/types/cart';
@@ -69,7 +69,12 @@ describe('account modal coordination runtime', () => {
   const routerPush = vi.fn();
 
   beforeEach(() => {
-    vi.stubGlobal('piniaPluginPersistedstate', { localStorage: () => undefined });
+    vi.stubGlobal('piniaPluginPersistedstate', {
+      localStorage: () => ({
+        getItem: () => null,
+        setItem: () => undefined,
+      }),
+    });
     vi.stubGlobal('mapCartItems', mapCartItems);
     setActivePinia(createPinia());
     routerPush.mockReset();
@@ -81,6 +86,10 @@ describe('account modal coordination runtime', () => {
     });
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('bumps uiStore when live guests hit the cart auth gate', async () => {
     const { useCart } = await import('../composables/useCart');
     const { useUiStore } = await import('../store/uiStore');
@@ -89,6 +98,7 @@ describe('account modal coordination runtime', () => {
 
     await addToCart({ products: [product], userId: '' });
 
+    // Observable auth-gate outcomes: home redirect + store-driven modal request.
     expect(routerPush).toHaveBeenCalledWith('/');
     expect(uiStore.accountModalRequestId).toBe(1);
   });
