@@ -309,6 +309,77 @@ describe('checkout order composable flow boundary', () => {
     consoleError.mockRestore();
   });
 
+  it('routes live card checkout without a Stripe result to the session page', async () => {
+    __setMockRuntimeConfig({ public: { MOCK_MODE: false } });
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
+      if (resource === '/orders/new' && options?.method === 'POST') {
+        return {
+          status: 'success',
+          data: {
+            orderId: 'ord-composable-1',
+            clientSecret: 'sec_test_123',
+          },
+        } as T;
+      }
+
+      if (resource === '/cart' && options?.method === 'GET') {
+        return { status: 'success', data: { _id: 'cart-after-checkout', products: [] } } as T;
+      }
+
+      if (resource === '/orders/validate-address' && options?.method === 'POST') {
+        return { data: { valid: true } } as T;
+      }
+
+      throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
+    });
+
+    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../composables/useOrder');
+    const { makeCheckout } = useOrder();
+
+    await makeCheckout(
+      1,
+      'mock-cart-mock-customer-1',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      {
+        type: PaymentTypeEnum.Card,
+        card: {
+          id: 'card-demo-1',
+          type: 'card',
+          billing_details: {
+            name1: 'Demo Street 10',
+            name2: 'Floor 2',
+            country: 'US',
+            region: 'California',
+            city: 'San Francisco',
+            postcode: '94105',
+            default: true,
+          },
+          card: {
+            brand: 'visa',
+            last4: '4242',
+            exp_month: 12,
+            exp_year: 2030,
+            type: 'credit',
+            is_expired: false,
+          },
+        },
+      },
+      '',
+      {
+        subtotal: 1499.99,
+        total: 1509.98,
+        products: [],
+      }
+    );
+
+    const cartStore = useCartStore();
+    expect(cartStore.orderClientSecret).toBe('sec_test_123');
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/session', query: { id: 'ord-composable-1' } });
+  });
+
   it('surfaces a checkout error when card payment is canceled', async () => {
     __setMockRuntimeConfig({ public: { MOCK_MODE: false } });
     __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
@@ -382,5 +453,58 @@ describe('checkout order composable flow boundary', () => {
       code: 'canceled',
     });
     expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
+  });
+
+  it('routes to checkout fail when the placed order has no orderId', async () => {
+    __setMockRuntimeConfig({ public: { MOCK_MODE: false } });
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
+      if (resource === '/orders/new' && options?.method === 'POST') {
+        return {
+          status: 'success',
+          data: {
+            orderId: '',
+            result: { status: 'succeeded' },
+          },
+        } as T;
+      }
+
+      if (resource === '/cart' && options?.method === 'GET') {
+        return { status: 'success', data: { _id: 'cart-after-checkout', products: [] } } as T;
+      }
+
+      if (resource === '/orders/validate-address' && options?.method === 'POST') {
+        return { data: { valid: true } } as T;
+      }
+
+      throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
+    });
+
+    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../composables/useOrder');
+    const { makeCheckout } = useOrder();
+
+    await makeCheckout(
+      1,
+      'mock-cart-mock-customer-1',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      { type: PaymentTypeEnum.Cash },
+      '',
+      {
+        subtotal: 1499.99,
+        total: 1509.98,
+        products: [],
+      }
+    );
+
+    const cartStore = useCartStore();
+    expect(cartStore.previousCheckoutError).toMatchObject({
+      message: 'Checkout completed without a valid order ID. Please try again.',
+      type: 'invalid_order_id',
+      code: 'missing_order_id',
+    });
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
+    expect(routerPush).not.toHaveBeenCalledWith(expect.objectContaining({ path: expect.stringContaining('/order-summary/') }));
   });
 });

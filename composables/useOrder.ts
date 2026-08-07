@@ -13,6 +13,7 @@ import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-
 import { useCheckoutStore } from '~/store/checkoutStore';
 import { toast } from '~/components/ui/toast';
 import { sendOrder, validateAddress } from '~/composables/api/orders';
+import { resolveCheckoutOutcome, type CheckoutFailure, type CheckoutOutcome } from '~/helpers/checkout-outcome';
 
 interface AddressValidationResponse {
   data: {
@@ -35,17 +36,45 @@ export function useOrder() {
   const { checkout } = storeToRefs(checkoutStore);
   const orderRequestObject = ref<OrderRequestInterface>({} as OrderRequestInterface);
 
-  type CheckoutFailure = {
-    message?: string;
-    type?: string;
-    code?: string;
-  };
-
   const checkoutFailPath = { path: '/checkout/fail' } as const;
 
   const goToCheckoutFail = async (error: CheckoutFailure) => {
     cartStore.setPreviousCheckoutError(error);
     await router.push(checkoutFailPath);
+  };
+
+  const applyCheckoutOutcome = async (outcome: CheckoutOutcome) => {
+    switch (outcome.kind) {
+      case 'success':
+        if (!outcome.orderId?.trim()) {
+          await goToCheckoutFail({
+            message: 'Checkout completed without a valid order ID. Please try again.',
+            type: 'invalid_order_id',
+            code: 'missing_order_id',
+          });
+          break;
+        }
+        if (outcome.destination === 'checkout-success') {
+          await router.push({ path: '/checkout/success', query: { id: outcome.orderId } });
+        } else {
+          await router.push({ path: '/order-summary/' + outcome.orderId, query: { new: 'true' } });
+        }
+        break;
+      case 'session':
+        if (outcome.clientSecret) {
+          cartStore.setOrderClientSecret(outcome.clientSecret);
+        }
+        await router.push(outcome.orderId ? { path: '/checkout/session', query: { id: outcome.orderId } } : { path: '/checkout/session' });
+        break;
+      case 'fail':
+        await goToCheckoutFail(outcome.error);
+        break;
+      case 'redirect':
+        window.location.href = outcome.url;
+        break;
+      case 'noop':
+        break;
+    }
   };
 
   const buildCheckoutFailure = (
@@ -200,7 +229,10 @@ export function useOrder() {
         await goToCheckoutFail(buildCheckoutFailure(response, 'Unable to complete checkout. Please try again.', 'checkout_failed'));
       } else {
         const orderId = response.data.orderId;
-        await handleOrderResponse(response, orderId, paymentDetails.type);
+        const outcome = resolveCheckoutOutcome(response, orderId, paymentDetails.type, {
+          mockMode: Boolean(config.public.MOCK_MODE),
+        });
+        await applyCheckoutOutcome(outcome);
       }
     } catch (error) {
       console.error('Checkout failed', error);
@@ -208,53 +240,6 @@ export function useOrder() {
     } finally {
       await cartStore.updateAndReturnCart();
       checkout.value = false;
-    }
-  };
-
-  const handleOrderResponse = async (response: PlaceOrderInterface, orderId: string, paymentType: PaymentTypeEnum) => {
-    if (config.public.MOCK_MODE) {
-      await router.push({ path: '/checkout/success', query: { id: orderId } });
-      return;
-    }
-
-    if (paymentType === PaymentTypeEnum.Card) {
-      const result = response.data.result;
-
-      if (!result) {
-        if (response.data.clientSecret) {
-          cartStore.setOrderClientSecret(response.data.clientSecret);
-        }
-        await router.push({ path: '/checkout/session', query: { id: orderId } });
-        return;
-      }
-
-      switch (result.status) {
-        case 'succeeded':
-          if (orderId) {
-            await router.push({ path: '/order-summary/' + orderId, query: { new: 'true' } });
-          }
-          break;
-        case 'canceled':
-          await goToCheckoutFail({
-            message: 'Payment was canceled. Please try again.',
-            type: 'payment_canceled',
-            code: 'canceled',
-          });
-          break;
-        case 'requires_action':
-          if (result.next_action?.redirect_to_url?.url) {
-            window.location.href = result.next_action.redirect_to_url.url;
-          }
-          break;
-        case 'requires_payment_method':
-          await router.push({ path: '/checkout/session' });
-          break;
-        default:
-          await router.push({ path: '/order-summary/' + orderId, query: { new: 'true' } });
-          break;
-      }
-    } else if (paymentType === PaymentTypeEnum.Credit || paymentType === PaymentTypeEnum.Bank || paymentType === PaymentTypeEnum.Cash) {
-      await router.push({ path: '/order-summary/' + orderId, query: { new: 'true' } });
     }
   };
 
