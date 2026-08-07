@@ -74,3 +74,9 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 - `composables/api/*` contains plain domain API functions for mutations and orchestration helpers that need the shared `$apiClient`.
 - Domain composables such as `useCart`, `useOrder`, and `useCustomerDashboard` are the public interface for UI flows that need business rules or state coordination.
 - Do not add a class-based service registry, `HttpFactory`, `useFetchAPI`, or component-level `$api.<domain>` calls.
+
+## Checkout post-order seam
+
+- UI pages and components call `useOrder.makeCheckout`; they must not branch on `MOCK_MODE` for post-order routing.
+- `helpers/checkout-outcome.ts` maps a placed-order API response to a small outcome (`success`, `session`, `fail`, `redirect`, `noop`). Mock mode is an adapter input to `resolveCheckoutOutcome`, not a separate router path in pages.
+- `useOrder` owns applying the outcome (router push, client secret storage, fail redirect). Live Stripe vs mock short-circuit share the same outcome type and apply path.

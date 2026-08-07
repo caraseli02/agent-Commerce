@@ -31,9 +31,9 @@
 
 <script setup lang="ts">
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import NewsCover1 from '@/assets/media/home/news-1.jpg';
-import NewsCover2 from '@/assets/media/home/news-2.jpg';
-import NewsCover3 from '@/assets/media/home/news-3.jpg';
+import NewsCover1 from '@/assets/media/home/news-1.webp';
+import NewsCover2 from '@/assets/media/home/news-2.webp';
+import NewsCover3 from '@/assets/media/home/news-3.webp';
 
 const news = ref([
   {

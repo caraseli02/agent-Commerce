@@ -9,7 +9,9 @@
 
 ## In progress
 
-- None claimed. Agent queue (`ready-for-agent`):
+- **#427** / PR #447 — checkout post-order routing behind application seam (`feat/427-checkout-post-order-routing`). Awaiting evaluator.
+- **#426** / PR #442 — Order Money callers (open; no evaluator verdict yet).
+- Agent queue (`ready-for-agent`):
   - **P0** `#426`, `#427`
   - **P1** `#431`, `#432`
   - **P2** `#433`, then Security `#105`/`#106`/`#107`/`#108`/`#110`/`#112`/`#114`, SEO `#186`→`#189`→`#187`→`#188`→`#190`
@@ -25,6 +27,7 @@
 - Client re-exports via `helpers/prices.helper.ts` (may toast / call `useCart`).
 - Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
 - Order Money: `helpers/order-money.ts` (`calculateOrderMoney`); finish remaining callers via #426.
+- Checkout post-order: `helpers/checkout-outcome.ts` (`resolveCheckoutOutcome`); `useOrder` applies outcomes — see #427.
 - Security seam (planned): `server/utils/requireMockAuth` — see epic #99.
 - SEO seam (planned): `usePageSeo` — see epic #103.
 
