@@ -27,6 +27,9 @@ export type OrderMoneyResult = {
   matchedSmallOrderTier: SmallOrderChargeTier | null;
 };
 
+/** Default merchandise VAT rate (19%) used across order money callers. */
+export const DEFAULT_ORDER_VAT_RATE = 0.19;
+
 const roundMoney = (value: number) => Number(Number(value).toFixed(2));
 
 export const resolveSmallOrderCharge = (
@@ -46,7 +49,7 @@ export const resolveSmallOrderCharge = (
 
 export const calculateOrderMoney = (input: OrderMoneyInput): OrderMoneyResult => {
   const subtotal = roundMoney(Number(input.subtotal) || 0);
-  const vatRate = input.vatRate ?? 0.19;
+  const vatRate = input.vatRate ?? DEFAULT_ORDER_VAT_RATE;
   const shippingCost = roundMoney(Number(input.shippingCost) || 0);
 
   const explicitDiscount = input.discountAmount;

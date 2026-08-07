@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateOrderMoney, resolveSmallOrderCharge } from '../helpers/order-money';
+import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE, resolveSmallOrderCharge } from '../helpers/order-money';
 
 const smallOrderTiers = [
   { _id: 'soc-001', min: 0, max: 50, price: 4.99 },
@@ -90,6 +90,22 @@ describe('order money module', () => {
       matchedSmallOrderTier: smallOrderTiers[0],
     });
     expect(tiers).toEqual(smallOrderTiers);
+  });
+
+  it('derives line-item VAT from merchandise subtotal for UI callers', () => {
+    const lineSubtotal = 4 * 12.5;
+    const { vatAmount, vatRate } = calculateOrderMoney({ subtotal: lineSubtotal });
+
+    expect(vatRate).toBe(DEFAULT_ORDER_VAT_RATE);
+    expect(vatAmount).toBe(9.5);
+  });
+
+  it('keeps line subtotal+VAT on the same rounded base as calculateOrderMoney', () => {
+    const money = calculateOrderMoney({ subtotal: 3 * 10.005 });
+
+    expect(money.subtotal).toBe(30.02);
+    expect(money.vatAmount).toBe(5.7);
+    expect(money.subtotal + money.vatAmount).toBe(35.72);
   });
 
   it('rounds component amounts to two decimal places', () => {

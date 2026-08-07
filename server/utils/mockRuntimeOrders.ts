@@ -2,6 +2,7 @@ import { PaymentStatusEnum, PaymentTypeEnum, OrderStatus } from '~/types/order-s
 import type { OrderType } from '~/types/order-summary/item';
 import type { UserInterface } from '~/types/auth/user-interface';
 import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
+import { calculateOrderMoney } from '~/helpers/order-money';
 
 type OrderProductLike = {
   subtotal?: number;
@@ -148,24 +149,28 @@ const generateOrderId = () => `ord-${Date.now()}-${Math.floor(Math.random() * 10
 
 const generateShortId = () => `#ORD-${Math.floor(100000 + Math.random() * 899999)}`;
 
-const calculateOrderTotals = (products: OrderProductLike[] = []) => {
+const resolveMerchandiseSubtotal = (products: OrderProductLike[] = []) => {
   if (!products.length) {
-    return { subtotal: 0, total: 0 };
+    return 0;
   }
 
-  const subtotal = products.reduce((sum, item) => {
-    const itemSubtotal = Number(item.subtotal || Number(item.unitPriceAfterDiscounts || 0) * Number(item.stock || 0));
-    return sum + itemSubtotal;
-  }, 0);
+  return Number(
+    products
+      .reduce((sum, item) => {
+        const itemSubtotal = Number(item.subtotal || Number(item.unitPriceAfterDiscounts || 0) * Number(item.stock || 0));
+        return sum + itemSubtotal;
+      }, 0)
+      .toFixed(2)
+  );
+};
 
-  const total = products.reduce((sum, item) => {
-    const itemTotal = Number(item.total || Number(item.unitPriceAfterDiscounts || 0) * Number(item.stock || 0));
-    return sum + itemTotal;
-  }, 0);
+const calculateOrderTotals = (products: OrderProductLike[] = [], shippingCost = 0) => {
+  const subtotal = resolveMerchandiseSubtotal(products);
+  const orderMoney = calculateOrderMoney({ subtotal, shippingCost });
 
   return {
-    subtotal: Number(subtotal.toFixed(2)),
-    total: Number(total.toFixed(2)),
+    subtotal: orderMoney.subtotal,
+    total: orderMoney.grandTotal,
   };
 };
 
@@ -244,7 +249,9 @@ export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterf
   const orderId = generateOrderId();
   const shortId = generateShortId();
   const products = payload.products || [];
-  const totals = calculateOrderTotals(products);
+  const rawShippingCost = Number(payload.shippingCost ?? 19.9);
+  const shippingCost = Number.isFinite(rawShippingCost) ? rawShippingCost : 19.9;
+  const totals = calculateOrderTotals(products, shippingCost);
   const noteMessage = payload.note?.message;
 
   const order: RuntimeOrder = {
@@ -264,7 +271,7 @@ export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterf
     currency: payload.currency || 'ron',
     status: OrderStatus.Pending,
     type: payload.type ?? 0,
-    shippingCost: Number(payload.shippingCost ?? 19.9),
+    shippingCost,
     smallOrderCost: 0,
     discount: {
       value: 0,
