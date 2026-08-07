@@ -100,6 +100,14 @@ describe('order money module', () => {
     expect(vatAmount).toBe(9.5);
   });
 
+  it('keeps line subtotal+VAT on the same rounded base as calculateOrderMoney', () => {
+    const money = calculateOrderMoney({ subtotal: 3 * 10.005 });
+
+    expect(money.subtotal).toBe(30.02);
+    expect(money.vatAmount).toBe(5.7);
+    expect(money.subtotal + money.vatAmount).toBe(35.72);
+  });
+
   it('rounds component amounts to two decimal places', () => {
     const result = calculateOrderMoney({
       subtotal: 33.33,

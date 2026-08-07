@@ -26,13 +26,11 @@ const shippingMethod = computed(() =>
 
 const vatPercent = Math.round(DEFAULT_ORDER_VAT_RATE * 100);
 
-const lineVatAmount = (quantity: number, unitPrice: number) =>
-  calculateOrderMoney({ subtotal: quantity * unitPrice }).vatAmount;
+const lineVatAmount = (quantity: number, unitPrice: number) => calculateOrderMoney({ subtotal: quantity * unitPrice }).vatAmount;
 
 const lineSubtotalWithVat = (quantity: number, unitPrice: number) => {
-  const subtotal = quantity * unitPrice;
-  const vatAmount = calculateOrderMoney({ subtotal }).vatAmount;
-  return subtotal + vatAmount;
+  const money = calculateOrderMoney({ subtotal: quantity * unitPrice });
+  return money.subtotal + money.vatAmount;
 };
 
 const payment = computed(() => {
@@ -69,7 +67,7 @@ const payment = computed(() => {
         <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Quantity</span>
         <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Delivered</span>
         <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Payment Status</span>
-        <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Tax ({{ vatPercent }}%)</span>
+        <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Tax (VAT {{ vatPercent }}%)</span>
         <span class="text-sm font-semibold leading-6 text-neutral-700 text-end min-w-[86px]">Subtotal</span>
       </div>
       <div class="flex flex-col gap-6">

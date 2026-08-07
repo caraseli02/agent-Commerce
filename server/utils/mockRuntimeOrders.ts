@@ -249,7 +249,8 @@ export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterf
   const orderId = generateOrderId();
   const shortId = generateShortId();
   const products = payload.products || [];
-  const shippingCost = Number(payload.shippingCost ?? 19.9);
+  const rawShippingCost = Number(payload.shippingCost ?? 19.9);
+  const shippingCost = Number.isFinite(rawShippingCost) ? rawShippingCost : 19.9;
   const totals = calculateOrderTotals(products, shippingCost);
   const noteMessage = payload.note?.message;
 
