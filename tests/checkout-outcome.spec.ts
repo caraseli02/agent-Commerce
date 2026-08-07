@@ -80,4 +80,30 @@ describe('resolveCheckoutOutcome', () => {
 
     expect(outcome).toEqual({ kind: 'success', destination: 'order-summary', orderId: 'ord-7' });
   });
+
+  it('returns fail for unsupported live payment types', () => {
+    const outcome = resolveCheckoutOutcome(baseResponse(), 'ord-8', 99 as PaymentTypeEnum, { mockMode: false });
+
+    expect(outcome).toMatchObject({
+      kind: 'fail',
+      error: {
+        message: 'Unsupported payment method. Please try again.',
+        type: 'unsupported_payment_type',
+        code: 'unsupported_payment_type',
+      },
+    });
+  });
+
+  it('returns fail when orderId is missing or empty', () => {
+    const outcome = resolveCheckoutOutcome(baseResponse(), '   ', PaymentTypeEnum.Cash, { mockMode: false });
+
+    expect(outcome).toMatchObject({
+      kind: 'fail',
+      error: {
+        message: 'Checkout completed without a valid order ID. Please try again.',
+        type: 'invalid_order_id',
+        code: 'missing_order_id',
+      },
+    });
+  });
 });

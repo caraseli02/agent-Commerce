@@ -14,6 +14,8 @@ export type CheckoutOutcome =
   | { kind: 'redirect'; url: string }
   | { kind: 'noop' };
 
+const isValidOrderId = (orderId: string | undefined | null): orderId is string => typeof orderId === 'string' && orderId.trim().length > 0;
+
 /**
  * Maps a placed-order API response to a checkout outcome.
  * Mock mode always short-circuits to checkout success; live mode interprets
@@ -25,6 +27,17 @@ export function resolveCheckoutOutcome(
   paymentType: PaymentTypeEnum,
   options: { mockMode: boolean }
 ): CheckoutOutcome {
+  if (!isValidOrderId(orderId)) {
+    return {
+      kind: 'fail',
+      error: {
+        message: 'Checkout completed without a valid order ID. Please try again.',
+        type: 'invalid_order_id',
+        code: 'missing_order_id',
+      },
+    };
+  }
+
   if (options.mockMode) {
     return { kind: 'success', destination: 'checkout-success', orderId };
   }
@@ -67,5 +80,12 @@ export function resolveCheckoutOutcome(
     return { kind: 'success', destination: 'order-summary', orderId };
   }
 
-  return { kind: 'success', destination: 'order-summary', orderId };
+  return {
+    kind: 'fail',
+    error: {
+      message: 'Unsupported payment method. Please try again.',
+      type: 'unsupported_payment_type',
+      code: 'unsupported_payment_type',
+    },
+  };
 }

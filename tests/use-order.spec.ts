@@ -454,4 +454,57 @@ describe('checkout order composable flow boundary', () => {
     });
     expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
   });
+
+  it('routes to checkout fail when the placed order has no orderId', async () => {
+    __setMockRuntimeConfig({ public: { MOCK_MODE: false } });
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string; body?: unknown }): Promise<T> => {
+      if (resource === '/orders/new' && options?.method === 'POST') {
+        return {
+          status: 'success',
+          data: {
+            orderId: '',
+            result: { status: 'succeeded' },
+          },
+        } as T;
+      }
+
+      if (resource === '/cart' && options?.method === 'GET') {
+        return { status: 'success', data: { _id: 'cart-after-checkout', products: [] } } as T;
+      }
+
+      if (resource === '/orders/validate-address' && options?.method === 'POST') {
+        return { data: { valid: true } } as T;
+      }
+
+      throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
+    });
+
+    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../composables/useOrder');
+    const { makeCheckout } = useOrder();
+
+    await makeCheckout(
+      1,
+      'mock-cart-mock-customer-1',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      { type: PaymentTypeEnum.Cash },
+      '',
+      {
+        subtotal: 1499.99,
+        total: 1509.98,
+        products: [],
+      }
+    );
+
+    const cartStore = useCartStore();
+    expect(cartStore.previousCheckoutError).toMatchObject({
+      message: 'Checkout completed without a valid order ID. Please try again.',
+      type: 'invalid_order_id',
+      code: 'missing_order_id',
+    });
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
+    expect(routerPush).not.toHaveBeenCalledWith(expect.objectContaining({ path: expect.stringContaining('/order-summary/') }));
+  });
 });

@@ -46,6 +46,14 @@ export function useOrder() {
   const applyCheckoutOutcome = async (outcome: CheckoutOutcome) => {
     switch (outcome.kind) {
       case 'success':
+        if (!outcome.orderId?.trim()) {
+          await goToCheckoutFail({
+            message: 'Checkout completed without a valid order ID. Please try again.',
+            type: 'invalid_order_id',
+            code: 'missing_order_id',
+          });
+          break;
+        }
         if (outcome.destination === 'checkout-success') {
           await router.push({ path: '/checkout/success', query: { id: outcome.orderId } });
         } else {
