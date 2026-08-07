@@ -263,7 +263,7 @@ import CasesIcon from '@/assets/icons/header/cases.svg';
 import ToolsIcon from '@/assets/icons/header/tools.svg';
 import IndustrialFurnitureIcon from '@/assets/icons/header/industrial-furniture.svg';
 import CaretLeft from '@/assets/icons/caret-left.svg';
-import SlideBg from '@/assets/media/home/exclusive-offer-bg.jpg';
+import SlideBg from '@/assets/media/home/exclusive-offer-bg.webp';
 import ItemImage from '@/assets/media/home/exclusive-offer-item.png';
 import CablesAndConnectorsIcon2 from '@/assets/icons/header/banner/cables-and-connectors.svg';
 import OptoelectronicsIcon2 from '@/assets/icons/header/banner/optoelectronics.svg';

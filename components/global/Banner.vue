@@ -26,5 +26,5 @@
 import NewIcon from '@/assets/icons/new.svg';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import BannerItem from '@/assets/media/home/banner-item.png';
-import BannerBg from '@/assets/media/home/banner-bg.jpg';
+import BannerBg from '@/assets/media/home/banner-bg.webp';
 </script>

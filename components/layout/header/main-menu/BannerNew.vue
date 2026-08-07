@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BannerBg from '@/assets/media/home/banner-bg.jpg';
+import BannerBg from '@/assets/media/home/banner-bg.webp';
 </script>
 
 <template>

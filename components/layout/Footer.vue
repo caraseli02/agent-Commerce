@@ -4,7 +4,7 @@
       <div class="container">
         <div class="mb-8 md:flex md:items-start md:gap-[45px] md:mb-6 lg:justify-between">
           <div class="mb-[30px] md:mb-0">
-            <NuxtLink to="/" class="mb-3 flex">
+            <NuxtLink to="/" aria-label="ECAS home" class="mb-3 flex">
               <Logo class="w-[121px]" />
             </NuxtLink>
             <p class="max-w-[220px] text-sm leading-5 text-slate-500">

@@ -46,9 +46,13 @@
                 <MoreHorizontal class="h-5 w-5" />
               </button>
             </UiDropdownMenuTrigger>
-            <UiDropdownMenuContent align="end" class="w-44" @click.stop>
-              <UiDropdownMenuItem @click.prevent.stop>Share</UiDropdownMenuItem>
-              <UiDropdownMenuItem @click.prevent.stop>3D view</UiDropdownMenuItem>
+            <UiDropdownMenuContent align="end" class="w-44">
+              <!-- Wrapper carries the click handler: DropdownMenuContent renders a fragment/portal root, so
+                   listeners bound directly on it are dropped by Vue and clicks leak to the parent card link. -->
+              <div @click.stop>
+                <UiDropdownMenuItem @click.prevent.stop>Share</UiDropdownMenuItem>
+                <UiDropdownMenuItem @click.prevent.stop>3D view</UiDropdownMenuItem>
+              </div>
             </UiDropdownMenuContent>
           </UiDropdownMenu>
         </div>

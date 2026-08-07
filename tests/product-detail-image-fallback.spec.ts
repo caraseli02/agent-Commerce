@@ -81,12 +81,19 @@ describe('product detail image fallback', () => {
     expect(source).not.toContain('w-12 h-12');
   });
 
-  it('uses native img for bundled storefront assets and NuxtImg for remote product URLs', () => {
+  it('routes remote and absolute site paths through NuxtImg, but not data/blob or /_nuxt/', () => {
     const source = readFileSync(imageWithFallbackPath, 'utf8');
 
     expect(source).toContain('useOptimizedImage');
-    expect(source).toContain("startsWith('https://')");
-    expect(source).toContain(":is=\"useOptimizedImage ? 'NuxtImg' : 'img'\"");
+    // Bundled /_nuxt/ assets and data:/blob: URIs stay on native <img>.
+    expect(source).toContain("startsWith('data:')");
+    expect(source).toContain("startsWith('blob:')");
+    expect(source).toContain("startsWith('/_nuxt/')");
+    // Only known-safe shapes are optimized.
+    expect(source).toContain('https?:');
+    expect(source).toContain("startsWith('//')");
+    expect(source).toContain(':is="imageComponent"');
+    expect(source).toContain("resolveComponent('NuxtImg')");
   });
 
   it('keeps the product zoom modal on fallback-aware image rendering', () => {

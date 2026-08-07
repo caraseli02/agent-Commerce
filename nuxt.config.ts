@@ -1,10 +1,3 @@
-import dotenv from 'dotenv';
-
-let svgPrefixCounter = 0;
-const svgPrefix = {};
-svgPrefix.toString = () => `${++svgPrefixCounter}_`;
-
-dotenv.config({ path: '.env' });
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
@@ -18,7 +11,7 @@ export default defineNuxtConfig({
     'nuxt-lodash',
     'nuxt-viewport',
     '@vueuse/nuxt',
-    '@formkit/auto-animate/nuxt',
+    '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
     '@nuxtjs/color-mode',
     '@nuxt/image',
@@ -124,19 +117,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-20',
 
   vite: {
-    vue: {
-      script: {
-        defineModel: true,
-      },
-    },
     server: {
       watch: {
-        usePolling: true,
-        interval: 1000,
+        usePolling: false,
       },
     },
     build: {
-      chunkSizeWarningLimit: 550,
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
           manualChunks(id) {
@@ -168,10 +155,6 @@ export default defineNuxtConfig({
       tailwindcss: {},
       autoprefixer: {},
     },
-  },
-
-  hooks: {
-    'builder:watch': () => {},
   },
 
   eslint: {
