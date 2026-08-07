@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-const source = (path: string) => readFileSync(resolve(path), 'utf8');
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const source = (relativePath: string) => readFileSync(resolve(repoRoot, relativePath), 'utf8');
 
 const apiImportPattern = /from ['"]~{1,2}\/composables\/api\//;
 
