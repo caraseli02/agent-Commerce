@@ -3,6 +3,7 @@ const QODO_BOTS = new Set(['qodo-code-review', 'qodo-code-review[bot]']);
 const QODO_ACTION_PATTERN = /alt=["'](?:Action required|Remediation recommended)["']/i;
 const QODO_REVIEW_PATTERN = /<h3>Code Review by Qodo<\/h3>/i;
 const QODO_HEAD_PATTERN = /<!--\s*https:\/\/github\.com\/[^/]+\/[^/]+\/commit\/([a-f0-9]{40})\s*-->/i;
+const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks|approved)[.!]?$/i;
 
 function asSourceId(value) {
   return value === undefined || value === null ? null : String(value);
@@ -42,13 +43,18 @@ function latestReviewsByAuthor(reviews) {
 
 function humanReviewSignal(review, prHead) {
   if (!TRUSTED_ASSOCIATIONS.has(review.author_association)) return null;
-  if (review.state !== 'CHANGES_REQUESTED' || review.commit_id !== prHead) return null;
+  if (review.commit_id !== prHead) return null;
+
+  const body = String(review.body ?? '').trim();
+  const isChangesRequested = review.state === 'CHANGES_REQUESTED';
+  const isActionableComment = review.state === 'COMMENTED' && body.length > 0 && !POSITIVE_ONLY_PATTERN.test(body);
+  if (!isChangesRequested && !isActionableComment) return null;
 
   const sourceId = asSourceId(review.id);
   if (!sourceId) return null;
 
   return {
-    kind: 'human-review',
+    kind: isChangesRequested ? 'human-review' : 'human-review-comment',
     sourceId,
     sourceUrl: review.html_url,
     head: review.commit_id,
@@ -57,15 +63,42 @@ function humanReviewSignal(review, prHead) {
   };
 }
 
+function humanInlineCommentSignal(comment, prHead) {
+  if (!TRUSTED_ASSOCIATIONS.has(comment.author_association)) return null;
+  if (comment.commit_id !== prHead || comment.in_reply_to_id) return null;
+
+  const body = String(comment.body ?? '').trim();
+  if (!body || POSITIVE_ONLY_PATTERN.test(body)) return null;
+
+  const sourceId = asSourceId(comment.id);
+  if (!sourceId) return null;
+
+  return {
+    kind: 'human-inline-comment',
+    sourceId,
+    sourceUrl: comment.html_url,
+    head: comment.commit_id,
+    createdAt: comment.created_at,
+    author: comment.user?.login,
+  };
+}
+
 /**
- * @param {{ pr?: any, issueComments?: any[], reviews?: any[], processedSourceIds?: Set<string> }} options
+ * @param {{ pr?: any, issueComments?: any[], reviewComments?: any[], reviews?: any[], processedSourceIds?: Set<string> }} options
  */
-export function findPendingReviewSignal({ pr, issueComments = [], reviews = [], processedSourceIds = new Set() } = {}) {
+export function findPendingReviewSignal({
+  pr,
+  issueComments = [],
+  reviewComments = [],
+  reviews = [],
+  processedSourceIds = new Set(),
+} = {}) {
   const prHead = pr?.head?.sha;
   if (!prHead) return null;
 
   const signals = [
     ...issueComments.map((comment) => qodoSignal(comment, prHead)),
+    ...reviewComments.map((comment) => humanInlineCommentSignal(comment, prHead)),
     ...latestReviewsByAuthor(reviews).map((review) => humanReviewSignal(review, prHead)),
   ]
     .filter(Boolean)

@@ -113,6 +113,9 @@ const getComments = (pr) =>
 const getReviews = (pr) =>
   paginatedGhJson(`repos/${REPO}/pulls/${pr}/reviews?per_page=100`).sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
 
+const getReviewComments = (pr) =>
+  paginatedGhJson(`repos/${REPO}/pulls/${pr}/comments?per_page=100`).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
 const getPrState = (pr) =>
   JSON.parse(
     gh([
@@ -244,6 +247,7 @@ const findPendingReviewFinding = () => {
     const signal = findPendingReviewSignal({
       pr,
       issueComments: comments,
+      reviewComments: getReviewComments(pr.number),
       reviews: getReviews(pr.number),
       processedSourceIds,
     });
