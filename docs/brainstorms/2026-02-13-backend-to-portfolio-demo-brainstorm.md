@@ -7,7 +7,7 @@ topic: backend-to-portfolio-demo
 
 ## What We're Building
 
-Transform the existing ECAS e-commerce frontend into a portfolio-ready demo by replacing all backend dependencies with static mock data. The goal is a self-contained, interactive UI showcase that demonstrates full-stack frontend capabilities across customer-facing storefront, customer dashboard, and admin panels—without requiring any backend infrastructure.
+Transform the existing Components Marketplace e-commerce frontend into a portfolio-ready demo by replacing all backend dependencies with static mock data. The goal is a self-contained, interactive UI showcase that demonstrates full-stack frontend capabilities across customer-facing storefront, customer dashboard, and admin panels—without requiring any backend infrastructure.
 
 Key requirement: All major UI surfaces must be accessible and interactive for portfolio demonstrations, but data realism is minimal. The demo should feel polished and complete to viewers, even though responses are static.
 

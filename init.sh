@@ -5,7 +5,7 @@ INSTALL_CMD=${INSTALL_CMD:-"pnpm install --frozen-lockfile"}
 VERIFY_CMD=${VERIFY_CMD:-"pnpm build && pnpm lint && pnpm typecheck && pnpm test"}
 START_CMD=${START_CMD:-"pnpm dev"}
 
-printf 'ECAS initialization\n'
+printf 'Components Marketplace initialization\n'
 printf 'Repository: %s\n' "$(pwd)"
 printf 'Node: %s\n' "$(node --version 2>/dev/null || echo 'missing')"
 printf 'pnpm: %s\n' "$(pnpm --version 2>/dev/null || echo 'missing')"

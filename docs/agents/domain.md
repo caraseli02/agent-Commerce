@@ -2,7 +2,7 @@
 
 How the engineering skills should consume this repo's domain documentation when exploring the codebase.
 
-ECAS is a **single-context** repo.
+Components Marketplace is a **single-context** repo.
 
 ## Before exploring, read these
 

@@ -4,7 +4,7 @@
     <dl class="flex flex-col gap-2 md:gap-1 items-start mt-4 text-sm leading-6">
       <div class="flex flex-col md:flex-row gap-0.5 md:gap-3 items-center">
         <dt data-layername="companyName" class="self-stretch my-auto text-gray-500">Company Name:</dt>
-        <dd data-layername="ecasElectroSRL" class="self-stretch my-auto text-zinc-800">Demo Company Inc.</dd>
+        <dd data-layername="componentsMarketplace" class="self-stretch my-auto text-zinc-800">Demo Company Inc.</dd>
       </div>
       <div class="flex flex-col md:flex-row gap-0.5 md:gap-3 items-center self-stretch">
         <dt data-layername="companyAddressLine1" class="self-stretch my-auto text-gray-500">Company Address Line 1:</dt>

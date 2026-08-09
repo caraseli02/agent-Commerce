@@ -4,7 +4,7 @@ Date: 2026-07-09
 
 ## Purpose
 
-Use a lightweight prioritization pass to decide which ECAS app features deserve to stay in the portfolio demo, which should be simplified, and which are candidates for removal.
+Use a lightweight prioritization pass to decide which Components Marketplace app features deserve to stay in the portfolio demo, which should be simplified, and which are candidates for removal.
 
 The app goal used for scoring is the current repo goal: a self-contained Nuxt e-commerce portfolio demo with storefront, account, dashboard, cart, checkout, and local Nitro mock endpoints.
 

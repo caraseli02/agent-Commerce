@@ -6,7 +6,7 @@
           <div class="flex items-center">
             <div class="flex items-center md:mr-4 lg:mr-6">
               <LayoutHeaderMainMenuItems />
-              <NuxtLink to="/" aria-label="ECAS home" class="ml-0 flex items-center md:ml-4 lg:ml-6">
+              <NuxtLink to="/" aria-label="Components Marketplace home" class="ml-0 flex items-center md:ml-4 lg:ml-6">
                 <Logo class="h-5 w-[85px] grayscale brightness-0 invert md:hidden" />
                 <Logo class="hidden w-[82px] grayscale brightness-0 invert md:flex lg:w-[102px]" />
               </NuxtLink>

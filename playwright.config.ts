@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright configuration for ECAS E2E user-flow specs.
+ * Playwright configuration for Components Marketplace E2E user-flow specs.
  *
  * Specs live in tests/e2e/ and are excluded from the Vitest suite.
  * The dev server must be running (pnpm dev) — these are real-browser

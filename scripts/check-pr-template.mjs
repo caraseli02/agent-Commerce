@@ -104,7 +104,7 @@ export function assessPrTemplate({ body, labels = [] } = {}) {
 
   if (!trimmedBody) {
     violations.push(
-      'PR body is empty. Add the ECAS PR template sections or apply the skip-pr-template-check label for an approved human hotfix.'
+      'PR body is empty. Add the Components Marketplace PR template sections or apply the skip-pr-template-check label for an approved human hotfix.'
     );
   }
 
@@ -145,8 +145,8 @@ export function assessPrTemplate({ body, labels = [] } = {}) {
     status: violations.length > 0 ? 'failed' : 'passed',
     reason:
       violations.length > 0
-        ? 'PR body is missing required ECAS template evidence.'
-        : 'PR body includes the required ECAS template evidence.',
+        ? 'PR body is missing required Components Marketplace template evidence.'
+        : 'PR body includes the required Components Marketplace template evidence.',
     violations,
   };
 }

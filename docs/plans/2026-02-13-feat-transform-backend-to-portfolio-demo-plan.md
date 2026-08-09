@@ -8,7 +8,7 @@ date: 2026-02-13
 
 ## Overview
 
-Transform ECAS e-commerce frontend into a self-contained portfolio demo by replacing backend API calls with Nitro server mock endpoints. Enable via `NUXT_PUBLIC_MOCK_MODE=true` - then all API requests return local JSON data.
+Transform Components Marketplace e-commerce frontend into a self-contained portfolio demo by replacing backend API calls with Nitro server mock endpoints. Enable via `NUXT_PUBLIC_MOCK_MODE=true` - then all API requests return local JSON data.
 
 **Scope:** Core flows only - auth, products, cart, checkout, orders. Skip full admin parity. Timeline: 2 weeks.
 
@@ -45,7 +45,7 @@ UI Components → Services → plugins/api.ts
 
    - **Fix**: Update `.env.template` to use `NUXT_PUBLIC_*` prefix
 
-2. **Hardcoded backend host**: `services/order-summary/cart.service.ts:7` uses `https://dev-backend.ecasmag.ro`
+2. **Hardcoded backend host**: `services/order-summary/cart.service.ts:7` uses `https://legacy-api.example.test`
 
    - **Fix**: Use `this.baseURL` from `HttpFactory`
 
@@ -127,14 +127,14 @@ GET     /api/orders/[id]
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as { email: string; password: string };
 
-  if (body.email === 'admin@ecas.com' && body.password === 'admin123') {
+  if (body.email === 'admin@demo.com' && body.password === 'admin123') {
     return {
       status: 'success',
       data: {
         token: 'mock-jwt-token-portfolio-demo',
         user: {
           id: 'mock-user-1',
-          email: 'admin@ecas.com',
+          email: 'admin@demo.com',
           name: 'Portfolio Demo User',
           permissions: ['*'],
           roles: ['admin', 'customer'],
@@ -204,7 +204,7 @@ NUXT_PUBLIC_MOCK_MODE=true
 ```
 ````
 
-Demo credentials: admin@ecas.com / admin123
+Demo credentials: admin@demo.com / admin123
 
 All API endpoints mocked via Nitro server. No backend required.
 
@@ -271,7 +271,7 @@ export default [
 **Manual smoke test:**
 
 1. Start dev server
-2. Login with admin@ecas.com / admin123
+2. Login with admin@demo.com / admin123
 3. Browse products
 4. Add to cart
 5. Complete checkout
@@ -300,7 +300,7 @@ export default [
 
 **Internal:**
 
-- Audit document: `ECAS_BACKEND_TO_MOCK_MVP_AUDIT.md`
+- Audit document: `COMPONENTS_MARKETPLACE_BACKEND_TO_MOCK_MVP_AUDIT.md`
 - API plugin: `plugins/api.ts:44-76`
 - Environment config: `nuxt.config.ts:68-81`
 
@@ -327,7 +327,7 @@ NUXT_PUBLIC_BASE_URL_API=
 
 ```typescript
 // Before
-const response = await fetch('https://dev-backend.ecasmag.ro/...');
+const response = await fetch('https://legacy-api.example.test/...');
 
 // After
 const response = await fetch(`${this.baseURL}/...`);

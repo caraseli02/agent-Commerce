@@ -31,8 +31,8 @@ On product detail pages, optional media could render as a broken image icon, and
 
 Evidence screenshots:
 
-- `/Users/vladislavcaraseli/Documents/Ecas/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-mobile.png`
-- `/Users/vladislavcaraseli/Documents/Ecas/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-desktop.png`
+- `/path/to/components-marketplace/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-mobile.png`
+- `/path/to/components-marketplace/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-desktop.png`
 
 ## What Didn't Work
 

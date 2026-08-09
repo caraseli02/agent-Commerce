@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document tracks the migration strategy for deprecated and outdated packages in the ECAS project.
+This document tracks the migration strategy for deprecated and outdated packages in the Components Marketplace project.
 
 ## 🔴 Critical: Deprecated Packages
 

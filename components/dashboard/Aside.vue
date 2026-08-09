@@ -156,7 +156,9 @@
       <Collapse2Icon class="w-6 h-6" />
     </button>
     <div class="w-full pt-5 px-4 pb-4 text-center" :class="[isCollapsedOnDesktop ? 'mt-2' : 'border-t border-[#2F3241]']">
-      <div v-if="!isCollapsedOnDesktop" class="text-xs text-[#C2C5CD] leading-normal mb-1">© {{ new Date().getFullYear() }} ECAS Demo</div>
+      <div v-if="!isCollapsedOnDesktop" class="text-xs text-[#C2C5CD] leading-normal mb-1">
+        © {{ new Date().getFullYear() }} Components Marketplace Demo
+      </div>
       <div class="text-xs leading-normal text-slate-500">V 1.0.0</div>
     </div>
     <Transition name="fade">

@@ -12,7 +12,7 @@ Remove unused files, inconsistent patterns, and legacy configuration remaining f
 
 ## Context
 
-The ECAS e-commerce frontend successfully migrated from an external backend API (`https://dev-backend.ecasmag.ro/ecas`) to a self-contained Nuxt server with mock data. The migration is complete with a functional `MOCK_MODE` toggle system. However, several cleanup opportunities remain:
+The Components Marketplace e-commerce frontend successfully migrated from an external backend API (`https://legacy-api.example.test`) to a self-contained Nuxt server with mock data. The migration is complete with a functional `MOCK_MODE` toggle system. However, several cleanup opportunities remain:
 
 **What Works**:
 
@@ -113,7 +113,7 @@ The ECAS e-commerce frontend successfully migrated from an external backend API 
 
 2. **`services/order-summary/cart.service.ts`** (21 lines)
 
-   - Uses inconsistent resource path `/ecas/cart` vs `/cart`
+   - Uses inconsistent resource path `/components-marketplace/cart` vs `/cart`
    - Not imported anywhere in codebase
    - Main cart service (`services/cart.service.ts`) already provides functionality
 
@@ -160,7 +160,7 @@ The ECAS e-commerce frontend successfully migrated from an external backend API 
 **Current**:
 
 ```typescript
-BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? 'https://dev-backend.ecasmag.ro/ecas',
+BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? 'https://legacy-api.example.test',
 ```
 
 **Recommended**:
@@ -264,7 +264,7 @@ BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',  // Default to moc
 
   ```typescript
   // Before:
-  BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? 'https://dev-backend.ecasmag.ro/ecas',
+  BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? 'https://legacy-api.example.test',
 
   // After:
   BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',
@@ -465,7 +465,7 @@ Update onboarding docs to include:
 
 ### Related Work
 
-- Migration audit: `ECAS_BACKEND_TO_MOCK_MVP_AUDIT.md`
+- Migration audit: `COMPONENTS_MARKETPLACE_BACKEND_TO_MOCK_MVP_AUDIT.md`
 - Implementation summary: `IMPLEMENTATION_SUMMARY.md`
 - Development guidelines: `AGENTS.md`
 

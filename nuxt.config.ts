@@ -52,7 +52,7 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'en',
       },
-      titleTemplate: '%s | ECAS',
+      titleTemplate: '%s | Components Marketplace',
       meta: [
         {
           name: 'viewport',

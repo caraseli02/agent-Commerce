@@ -45,7 +45,7 @@ test.describe('Product Detail → Checkout Confirmation', () => {
     const resetProducts = ['prod-1', 'prod-2'];
     const loginResponse = await request.post('/api/auth/login', {
       data: {
-        email: 'admin@ecas.com',
+        email: 'admin@demo.com',
         password: 'admin123',
       },
     });

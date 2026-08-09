@@ -102,7 +102,7 @@ Successfully created comprehensive video walkthrough demonstrating expanded demo
 
 - Added `NUXT_PUBLIC_MOCK_MODE=true` to `.env`
 - Updated `middleware/auth.ts` to bypass auth in mock mode
-- Demo login credentials: admin@ecas.com / admin123
+- Demo login credentials: admin@demo.com / admin123
 - Enables access to all routes without manual login
 
 **Benefits:**
@@ -259,7 +259,7 @@ npm run dev
 ### Option 2: Manual Login
 
 - Navigate to: `http://localhost:3000/?signin=true`
-- Email: `admin@ecas.com`
+- Email: `admin@demo.com`
 - Password: `admin123`
 - All dashboard and protected routes will be accessible
 
@@ -315,7 +315,7 @@ npm run dev
 The middleware has been updated to set up demo user automatically in mock mode. However, for full UI demonstration, manual login via sign-in form may be more reliable.
 
 **Recommendation:**
-For portfolio demo, use Option 2 (manual login) by navigating to `http://localhost:3000/?signin=true` and using credentials `admin@ecas.com` / `admin123`. This provides the most reliable demonstration experience.
+For portfolio demo, use Option 2 (manual login) by navigating to `http://localhost:3000/?signin=true` and using credentials `admin@demo.com` / `admin123`. This provides the most reliable demonstration experience.
 
 **Files to Commit:**
 

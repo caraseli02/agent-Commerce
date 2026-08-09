@@ -1,4 +1,4 @@
-# ECAS
+# Components Marketplace
 
 Nuxt 3 e-commerce frontend prepared as a **self-contained portfolio demo**.
 

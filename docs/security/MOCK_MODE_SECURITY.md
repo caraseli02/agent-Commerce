@@ -1,6 +1,6 @@
 # Mock Mode Security Implementation Guide
 
-## ECAS E-Commerce Application - Nuxt 3
+## Components Marketplace E-Commerce Application - Nuxt 3
 
 > **Version**: 1.0.0
 > **Security Level**: CRITICAL
@@ -11,7 +11,7 @@
 
 ## Executive Summary
 
-This document provides comprehensive security requirements for implementing mock mode in the ECAS e-commerce application. Mock mode must never compromise production security or expose sensitive data.
+This document provides comprehensive security requirements for implementing mock mode in the Components Marketplace e-commerce application. Mock mode must never compromise production security or expose sensitive data.
 
 **Key Security Objectives:**
 
@@ -55,7 +55,7 @@ export const useMockMode = () => {
     const isTest = import.meta.test;
 
     // Layer 3: Domain/IP whitelist check
-    const allowedDomains = ['localhost', '127.0.0.1', 'dev.ecasmag.ro'];
+    const allowedDomains = ['localhost', '127.0.0.1', 'legacy-api.example.test'];
     const isAllowedDomain = allowedDomains.some((domain) => window.location.hostname.includes(domain));
 
     // Layer 4: Process environment check (Node.js)
@@ -1200,7 +1200,7 @@ describe('Mock Mode Security Tests', () => {
       // Mock window.location.hostname
       const originalLocation = window.location;
       Object.defineProperty(window, 'location', {
-        value: { hostname: 'www.ecasmag.ro' },
+        value: { hostname: 'legacy-api.example.test' },
         writable: true,
       });
 
@@ -1774,7 +1774,7 @@ NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_publishable_key
 
 # API Configuration
-NUXT_PUBLIC_BASE_URL_API=https://api.ecasmag.ro
+NUXT_PUBLIC_BASE_URL_API=https://legacy-api.example.test
 ```
 
 ### Appendix B: Security Headers Reference

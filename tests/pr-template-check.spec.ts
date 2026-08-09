@@ -14,7 +14,7 @@ const completeBody = `## Summary
 
 ## Template evidence
 
-- [x] This PR uses the ECAS PR template / checklist.
+- [x] This PR uses the Components Marketplace PR template / checklist.
 - [x] I filled out every required section, or explained why it does not apply.
 - [x] The checklist is visible in the rendered PR body.
 

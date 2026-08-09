@@ -38,7 +38,7 @@ describe('cart session persistence', () => {
   });
 
   beforeEach(() => {
-    tempStoreDir = mkdtempSync(join(tmpdir(), 'ecas-cart-session-'));
+    tempStoreDir = mkdtempSync(join(tmpdir(), 'components-marketplace-cart-session-'));
     process.env.NUXT_PUBLIC_MOCK_MODE = 'true';
     process.env.MOCK_SESSION_STORE_DIR = tempStoreDir;
     clearSessionNamespace('cart');

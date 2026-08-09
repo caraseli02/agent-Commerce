@@ -1,8 +1,8 @@
-# ECAS Mock Mode Transformation - Flow Analysis & Requirements Clarification
+# Components Marketplace Mock Mode Transformation - Flow Analysis & Requirements Clarification
 
 ## Executive Summary
 
-This document provides a comprehensive user flow analysis for transforming the ECAS e-commerce application from a backend-dependent system to a portfolio-ready demo with static mock data. The analysis identifies **47 distinct user flows**, **89 flow permutations**, **142 edge cases**, and **67 critical questions** requiring clarification before implementation.
+This document provides a comprehensive user flow analysis for transforming the Components Marketplace e-commerce application from a backend-dependent system to a portfolio-ready demo with static mock data. The analysis identifies **47 distinct user flows**, **89 flow permutations**, **142 edge cases**, and **67 critical questions** requiring clarification before implementation.
 
 ---
 
@@ -76,7 +76,7 @@ This document provides a comprehensive user flow analysis for transforming the E
    - Firebase popup appears
    - User authenticates with Google
    - Receive Firebase token
-   - Exchange for ECAS mock token
+   - Exchange for Components Marketplace mock token
    - Token stored in `useCookie('token')`
    - Redirect to dashboard
 
@@ -104,7 +104,7 @@ This document provides a comprehensive user flow analysis for transforming the E
    - Detect new user flag
    - Call `registerFirebase` endpoint
    - Create mock user profile linked to Firebase ID
-   - Receive ECAS mock token
+   - Receive Components Marketplace mock token
    - Redirect to dashboard
 
 6. **F2.6: Session Token Expiry**
@@ -128,7 +128,7 @@ This document provides a comprehensive user flow analysis for transforming the E
 8. **F2.8: Firebase-specific Sign-out**
    - Click Firebase sign-out
    - Call Firebase logout
-   - Clear ECAS token and state
+   - Clear Components Marketplace token and state
    - Redirect to home
 
 **State Requirements:**
@@ -777,7 +777,7 @@ This document provides a comprehensive user flow analysis for transforming the E
 - **Impact:** Firebase auth integration in mock mode
 - **Current Ambiguity:**
   - How to mock Firebase token validation?
-  - What happens when Firebase token is exchanged for ECAS token?
+  - What happens when Firebase token is exchanged for Components Marketplace token?
   - Should `firebaseTempToken` be used in mock mode?
 
 ---

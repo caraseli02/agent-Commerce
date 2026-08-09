@@ -23,9 +23,9 @@ The desktop `Products` popover UI diverged from the approved category/menu desig
 
 - Module: Header / Main Menu (desktop)
 - Affected Components:
-  - `/Users/vladislavcaraseli/Documents/Ecas/components/layout/header/main-menu/DektopPopoverContainer.vue`
-  - `/Users/vladislavcaraseli/Documents/Ecas/components/layout/header/main-menu/DesktopPopover.vue`
-  - `/Users/vladislavcaraseli/Documents/Ecas/composables/useCategoriesNavigation.ts`
+  - `/path/to/components-marketplace/components/layout/header/main-menu/DektopPopoverContainer.vue`
+  - `/path/to/components-marketplace/components/layout/header/main-menu/DesktopPopover.vue`
+  - `/path/to/components-marketplace/composables/useCategoriesNavigation.ts`
 - Date: 2026-02-18
 
 ## Symptoms
@@ -102,5 +102,5 @@ Implemented category-first interaction model while restoring banner file behavio
 
 ## Related Issues
 
-- `/Users/vladislavcaraseli/Documents/Ecas/todos/012-pending-p2-match-desktop-category-detail-layout-to-spec.md`
-- `/Users/vladislavcaraseli/Documents/Ecas/todos/013-pending-p2-replace-hardcoded-popover-offsets.md`
+- `/path/to/components-marketplace/todos/012-pending-p2-match-desktop-category-detail-layout-to-spec.md`
+- `/path/to/components-marketplace/todos/013-pending-p2-replace-hardcoded-popover-offsets.md`

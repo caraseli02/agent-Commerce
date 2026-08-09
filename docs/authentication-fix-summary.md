@@ -85,7 +85,7 @@ The application already has mock login functionality:
 
 **Credentials:**
 
-- Email: `admin@ecas.com`
+- Email: `admin@demo.com`
 - Password: `admin123`
 
 **File:** `server/api/auth/login.post.ts`
@@ -113,7 +113,7 @@ npm run dev
 agent-browser open "http://localhost:3000/?signin=true"
 
 # Fill in credentials
-email: admin@ecas.com
+email: admin@demo.com
 password: admin123
 
 # Submit form

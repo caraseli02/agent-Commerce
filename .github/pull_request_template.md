@@ -4,7 +4,7 @@
 
 ## Template evidence
 
-- [ ] This PR uses the ECAS PR template / checklist.
+- [ ] This PR uses the Components Marketplace PR template / checklist.
 - [ ] I filled out every required section, or explained why it does not apply.
 - [ ] The checklist is visible in the rendered PR body.
 

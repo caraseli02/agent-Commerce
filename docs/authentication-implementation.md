@@ -98,7 +98,7 @@ if (import.meta.client && !token?.value) {
 
 **Credentials:**
 
-- Email: `admin@ecas.com`
+- Email: `admin@demo.com`
 - Password: `admin123`
 
 **Response:**
@@ -195,7 +195,7 @@ console.log(useAuthStore().getUserDetails())
 
 // Should return demo user object
 {
-//   email: 'admin@ecas.com',
+//   email: 'admin@demo.com',
 //   name: 'Portfolio Demo User',
 //   ... all user fields
 //}

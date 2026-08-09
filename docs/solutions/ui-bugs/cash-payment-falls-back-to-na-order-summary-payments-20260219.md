@@ -23,7 +23,7 @@ Cash payment was enabled in demo settings and checkout completed successfully, b
 
 - Module: Payments / Order Summary
 - Affected Component:
-  - `/Users/vladislavcaraseli/Documents/Ecas/helpers/payment-info.helper.ts`
+  - `/path/to/components-marketplace/helpers/payment-info.helper.ts`
 - Date: 2026-02-19
 
 ## Symptoms
@@ -47,7 +47,7 @@ Added a dedicated `Cash` case in the payment info switch.
 **Code changes:**
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/helpers/payment-info.helper.ts
+// /path/to/components-marketplace/helpers/payment-info.helper.ts
 case PaymentTypeEnum.Cash: {
   return {
     type: PaymentTypeEnum.Cash,
@@ -78,4 +78,4 @@ case PaymentTypeEnum.Cash: {
 
 ## Related Issues
 
-- `/Users/vladislavcaraseli/Documents/Ecas/todos/021-complete-p2-handle-cash-payment-display-in-order-summary.md`
+- `/path/to/components-marketplace/todos/021-complete-p2-handle-cash-payment-display-in-order-summary.md`

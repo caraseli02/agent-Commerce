@@ -7,7 +7,7 @@ topic: nuxt-server-migration
 
 ## What We're Building
 
-Migrate ECAS e-commerce frontend from external backend API (`https://dev-backend.ecasmag.ro/ecas`) to self-contained Nuxt server. The external backend is abandoned and no source code is available.
+Migrate Components Marketplace e-commerce frontend from external backend API (`https://legacy-api.example.test`) to self-contained Nuxt server. The external backend is abandoned and no source code is available.
 
 **Minimum viable scope:** Authentication + read-only data (products, profiles, browsing) to make the application functional again.
 

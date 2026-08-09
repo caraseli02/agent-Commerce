@@ -1,6 +1,6 @@
 # Agent session lifecycle
 
-Use this when starting, continuing, or ending an ECAS agent session.
+Use this when starting, continuing, or ending an Components Marketplace agent session.
 
 ## 1. Startup order
 

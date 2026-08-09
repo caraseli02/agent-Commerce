@@ -4,7 +4,7 @@ GitHub issue: [#301](https://github.com/caraseli02/Ecas/issues/301)
 
 ## Problem Statement
 
-The ECAS Portfolio Demo has gone through several major refactor waves: mock-mode conversion, API boundary cleanup, dependency and performance consolidation, B2B storefront polish, mobile audit remediation, harness skill updates, and the latest before/after UI audit pass. These changes improved the Scripted Buyer Path and Admin Preview, but the documentation is spread across commits, PRs, issues, progress notes, and screenshot artifacts.
+The Components Marketplace Portfolio Demo has gone through several major refactor waves: mock-mode conversion, API boundary cleanup, dependency and performance consolidation, B2B storefront polish, mobile audit remediation, harness skill updates, and the latest before/after UI audit pass. These changes improved the Scripted Buyer Path and Admin Preview, but the documentation is spread across commits, PRs, issues, progress notes, and screenshot artifacts.
 
 The team needs one reviewable product document that explains what changed, why it matters for the Portfolio Demo, what still needs validation, and which follow-up slices should be handled by agents without reopening broad refactor scope.
 
@@ -47,7 +47,7 @@ The workstream should focus on the highest public seams:
 
 ## Implementation Decisions
 
-- Treat ECAS as a Portfolio Demo, not a production launch. The standard is credible walkthrough quality for the Buyer Review Story plus a stable Admin Preview.
+- Treat Components Marketplace as a Portfolio Demo, not a production launch. The standard is credible walkthrough quality for the Buyer Review Story plus a stable Admin Preview.
 - Keep mock mode as the default local and review path. Live Firebase, Stripe, and backend integration hardening stay outside this stabilization workstream unless they block the demo.
 - Preserve the API access architecture: shared API client, SSR-friendly reads, and plain domain API functions for mutations and orchestration. Avoid returning to component-level HTTP calls or class-based service registries.
 - Record the dependency consolidation refactors as durable direction: use the chosen date utility, chosen lodash auto-import surface, self-hosted fonts, lazy chart loading, lazy Firebase initialization, and Nuxt image/shared fallback approach.

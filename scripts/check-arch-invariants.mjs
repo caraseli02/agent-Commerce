@@ -115,7 +115,7 @@ async function main() {
       'Architecture invariant failed: manual bearer auth headers are only allowed in plugins/api.ts, composables/api/, or test fixtures.'
     );
     console.error(
-      'Why it matters: ECAS routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.'
+      'Why it matters: Components Marketplace routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.'
     );
     console.error(
       'Where to look next: move the request into plugins/api.ts, composables/api/, or a service that uses the injected $api/$apiClient layer instead of hand-building auth headers.'
