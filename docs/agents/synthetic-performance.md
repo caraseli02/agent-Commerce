@@ -6,8 +6,9 @@ instead of a paid real-user monitoring service.
 
 ## Run the check
 
-Run `pnpm test:performance` with the app running locally. To check the deployed
-demo, run:
+Run `pnpm test:performance` with the app running locally. This is deliberately
+separate from `pnpm test:e2e`, which remains the functional Buyer Flow suite.
+To check the deployed demo, run:
 
 ```sh
 PLAYWRIGHT_BASE_URL=https://ecas-nine.vercel.app pnpm test:performance

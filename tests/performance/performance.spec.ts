@@ -15,6 +15,19 @@ type SyntheticVitals = {
   lcp: number | null;
 };
 
+type LayoutShiftEntry = PerformanceEntry & {
+  hadRecentInput: boolean;
+  value: number;
+};
+
+type EventTimingEntry = PerformanceEntry & {
+  interactionId: number;
+};
+
+type EventTimingObserverOptions = PerformanceObserverInit & {
+  durationThreshold: number;
+};
+
 const median = (values: number[]) => {
   const sorted = [...values].sort((left, right) => left - right);
   return sorted[Math.floor(sorted.length / 2)];
@@ -63,16 +76,16 @@ const observeVitals = async (page: Page) => {
     }).observe({ type: 'largest-contentful-paint', buffered: true });
 
     new PerformanceObserver((entryList) => {
-      for (const entry of entryList.getEntries()) {
+      for (const entry of entryList.getEntries() as LayoutShiftEntry[]) {
         if (!entry.hadRecentInput) vitals.cls += entry.value;
       }
     }).observe({ type: 'layout-shift', buffered: true });
 
     new PerformanceObserver((entryList) => {
-      for (const entry of entryList.getEntries()) {
+      for (const entry of entryList.getEntries() as EventTimingEntry[]) {
         if (entry.interactionId) vitals.interactions.push(entry.duration);
       }
-    }).observe({ type: 'event', buffered: true, durationThreshold: 16 });
+    }).observe({ type: 'event', buffered: true, durationThreshold: 16 } as EventTimingObserverOptions);
   });
 };
 
