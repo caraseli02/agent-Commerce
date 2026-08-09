@@ -43,6 +43,10 @@ export default defineNuxtConfig({
     ],
   },
 
+  tailwindcss: {
+    cssPath: '~/assets/css/main.css',
+  },
+
   app: {
     head: {
       htmlAttrs: {
@@ -58,13 +62,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: [
-    '~/assets/css/main.css',
-    '~/assets/css/resets.css',
-    '~/assets/css/utils.css',
-    '~/assets/css/animations.css',
-    '~/assets/css/vendors/v-calendar.css',
-  ],
+  css: ['~/assets/css/resets.css', '~/assets/css/utils.css', '~/assets/css/animations.css', '~/assets/css/vendors/v-calendar.css'],
 
   runtimeConfig: {
     public: {
