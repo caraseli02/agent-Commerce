@@ -123,6 +123,25 @@
         "tests/loop-review-intake.spec.ts (4 passing)",
         "scripts/ecas-loop-controller.mjs"
       ]
+    },
+    {
+      "id": "H12",
+      "description": "Keep closed issues out of active autonomous workflow states",
+      "validation": "The reconciler plans only closed-issue workflow-label removals, preserves non-workflow labels, deduplicates issues, and defaults to dry-run",
+      "status": "passing",
+      "evidence": [
+        "scripts/loop-state-reconcile.mjs",
+        "tests/loop-state-reconcile.spec.ts (3 passing)",
+        "GitHub apply: 69 closed issues repaired",
+        "post-apply dry-run: 0 repairs"
+      ]
+    },
+    {
+      "id": "H13",
+      "description": "Compile recurring loop evidence into reviewable learning candidates",
+      "validation": "A weekly reflection reads immutable evidence, requires recurrence or severe deterministic failure, deduplicates candidates, and cannot directly edit trusted policy or code",
+      "status": "passing",
+      "evidence": ["docs/research/claude-dreams.md", "DECISIONS.md", "active Codex automation: ecas-loop-dreaming"]
     }
   ]
 }

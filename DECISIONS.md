@@ -57,5 +57,15 @@ Use this file for durable cross-session decisions that should survive context re
   - Impact: failed current-head CI runs, actionable current-head Qodo reports, and trusted `CHANGES_REQUESTED` reviews launch attempt-scoped same-PR repair tasks. Stale/untrusted signals are ignored, and evaluator dispatch requires successful current-head CI.
 
 - 2026-08-10 — Keep dreamed harness knowledge separate until independently promoted
+
   - Reason: cross-session synthesis is useful for recurring failure fingerprints but must not let untrusted logs/comments rewrite trusted policy.
   - Impact: reflection outputs are candidates with provenance and independent review; they may propose tests/playbooks through a normal PR but cannot directly mutate `AGENTS.md`, CI policy, or merge protections.
+
+- 2026-08-10 — Reserve active workflow labels for open work
+
+  - Reason: 69 closed issues still carried `ready-for-agent`, `in-progress`, or `blocked`, making the autonomous queue and durable progress mirror disagree with reality.
+  - Impact: `scripts/loop-state-reconcile.mjs` removes only those workflow labels from closed issues, defaults to dry-run, and requires `--apply` for mutation; priority, severity, and category labels are preserved.
+
+- 2026-08-10 — Run a weekly evidence-to-candidate reflection
+  - Reason: repeated CI and review friction should become inspectable improvement proposals without letting operational transcripts directly rewrite trusted behavior.
+  - Impact: the active `ecas-loop-dreaming` automation reviews recent CI, PR, commit, and controller evidence each Monday; it creates at most one deduplicated `ready-for-human` candidate issue and never edits code, policy, or existing work state.

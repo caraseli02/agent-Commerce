@@ -12,10 +12,7 @@
 
 - No application issue is claimed. PRs #442 and #447 merged on 2026-08-07; issues #426 and #427 are closed.
 - Harness branch `codex/loop-controller-hardening` is under local verification before PR handoff.
-- Agent queue (`ready-for-agent`):
-  - **P0** `#426`, `#427`
-  - **P1** `#431`, `#432`
-  - **P2** `#433`, then Security `#105`/`#106`/`#107`/`#108`/`#110`/`#112`/`#114`, SEO `#186`→`#189`→`#187`→`#188`→`#190`
+- The live `ready-for-agent` queue currently starts with the Nuxt/dependency migration sequence (`#459`–`#462`, `priority:p1`); use the GitHub query below rather than copying the full queue here.
 
 ## Human decisions pending
 
@@ -35,6 +32,7 @@
 ## Recently completed
 
 - Loop controller hardening (2026-08-10): stale PID-aware lease recovery, heartbeat health, versioned controller source, CI failure intake, Qodo/trusted-review intake, and independent evaluator gating on successful CI.
+- Loop state reconciliation (2026-08-10): removed stale workflow labels from 69 closed issues; the repeatable dry-run/apply helper now lives at `scripts/loop-state-reconcile.mjs`.
 - System-design triage (2026-08-06): closed `#101`; rewrote `#99`/`#103`; `wontfix` `#109`/`#111`/`#113`; promoted slim Security + SEO children.
 - Housekeeping: closed zombie epics `#100`, `#102`, `#104`, `#255`, `#389`.
 - Issue #194 / PR #440 — shared empty states on Scripted Buyer Path.
@@ -55,7 +53,6 @@
 ## Blocked / known baseline failures
 
 - No app-code baseline failures.
-- `#433` is `ready-for-agent` but still prefer landing after `#427`.
 - `#187`/`#188` prefer after `#186`; `#107` prefers `#108` util first.
 - Local note: this repo can sit under a parent pnpm workspace; use `pnpm --config.manage-package-manager-versions=false` if package-manager self-install loops appear.
 
@@ -87,3 +84,4 @@
 - Health check: `node scripts/ecas-loop-controller.mjs --health`.
 - Read-only routing check: `node scripts/ecas-loop-controller.mjs --inspect`.
 - Current verified state: healthy; no open PR awaiting evaluator, review repair, or CI repair.
+- Weekly reflection: active Codex automation `ecas-loop-dreaming` compiles immutable CI/review/controller evidence into a `ready-for-human` learning-candidate issue without editing trusted policy or code.
