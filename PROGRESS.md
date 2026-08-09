@@ -2,15 +2,16 @@
 
 ## Current focus
 
-- Next implementation track first (WIP=1): **P0** `#426` → `#427`, then **P1** `#431`/`#432`, then **P2** `#433`.
+- Harness focus: `codex/loop-controller-hardening` restores the local controller and adds direct CI/review repair intake.
+- Next application track remains WIP=1 from the `ready-for-agent` queue after this harness PR is handed off.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- **#427** / PR #447 — checkout post-order routing behind application seam (`feat/427-checkout-post-order-routing`). Awaiting evaluator.
-- **#426** / PR #442 — Order Money callers (open; no evaluator verdict yet).
+- No application issue is claimed. PRs #442 and #447 merged on 2026-08-07; issues #426 and #427 are closed.
+- Harness branch `codex/loop-controller-hardening` is under local verification before PR handoff.
 - Agent queue (`ready-for-agent`):
   - **P0** `#426`, `#427`
   - **P1** `#431`, `#432`
@@ -33,6 +34,7 @@
 
 ## Recently completed
 
+- Loop controller hardening (2026-08-10): stale PID-aware lease recovery, heartbeat health, versioned controller source, CI failure intake, Qodo/trusted-review intake, and independent evaluator gating on successful CI.
 - System-design triage (2026-08-06): closed `#101`; rewrote `#99`/`#103`; `wontfix` `#109`/`#111`/`#113`; promoted slim Security + SEO children.
 - Housekeeping: closed zombie epics `#100`, `#102`, `#104`, `#255`, `#389`.
 - Issue #194 / PR #440 — shared empty states on Scripted Buyer Path.
@@ -76,3 +78,12 @@
 
 - Cursor-bot PRs were failing `check-pr-template.mjs` on verification wording (`— pass` vs `— outcome: pass`) and blank evaluator rubric scores.
 - Gate now requires Verification / Known risks / Evaluator rubric only (Related lectures removed). Rubric numeric scores are evaluator-owned; generators may leave `/10` placeholders.
+- PR evidence now has a fast `pr-contract` CI job and local `pnpm verify:pr <body-file>` preflight; PR body edits and bypass-label changes re-run the contract.
+
+## Loop controller status
+
+- Canonical source: `scripts/ecas-loop-controller.mjs` plus `scripts/loop-*-intake.mjs`.
+- Deployed local bridge: `~/.codex/automations/ecas-pr-repair-hook/`; LaunchAgent polls every 60 seconds.
+- Health check: `node scripts/ecas-loop-controller.mjs --health`.
+- Read-only routing check: `node scripts/ecas-loop-controller.mjs --inspect`.
+- Current verified state: healthy; no open PR awaiting evaluator, review repair, or CI repair.

@@ -98,6 +98,31 @@
       "validation": "Clean-state checklist covers verification, git status, temporary artifacts, progress, feature state, and PR evidence",
       "status": "passing",
       "evidence": ["docs/agents/session-lifecycle.md", "PROGRESS.md"]
+    },
+    {
+      "id": "H10",
+      "description": "Keep the local loop controller self-healing and observable",
+      "validation": "A dead legacy lock is recovered, a live owner is protected, long runs report running, and a successful poll records a healthy heartbeat",
+      "status": "passing",
+      "evidence": [
+        "scripts/loop-controller-runtime.mjs",
+        "tests/loop-controller-runtime.spec.ts (5 passing)",
+        "deployed hook --inspect: idle",
+        "deployed hook --health: healthy"
+      ]
+    },
+    {
+      "id": "H11",
+      "description": "Route CI and PR review failures into the same-PR repair loop",
+      "validation": "Only current-head failed CI, actionable Qodo review, or trusted changes-requested signals are selected once; evaluator handoff requires successful CI",
+      "status": "passing",
+      "evidence": [
+        "scripts/loop-ci-intake.mjs",
+        "scripts/loop-review-intake.mjs",
+        "tests/loop-ci-intake.spec.ts (3 passing)",
+        "tests/loop-review-intake.spec.ts (4 passing)",
+        "scripts/ecas-loop-controller.mjs"
+      ]
     }
   ]
 }
