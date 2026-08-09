@@ -8,6 +8,8 @@ instead of a paid real-user monitoring service.
 
 Run `pnpm test:performance` with the app running locally. This is deliberately
 separate from `pnpm test:e2e`, which remains the functional Buyer Flow suite.
+Vitest also excludes `tests/performance/`, so its coverage run does not load
+Playwright-only test declarations.
 To check the deployed demo, run:
 
 ```sh
