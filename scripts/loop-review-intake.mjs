@@ -57,6 +57,9 @@ function humanReviewSignal(review, prHead) {
   };
 }
 
+/**
+ * @param {{ pr?: any, issueComments?: any[], reviews?: any[], processedSourceIds?: Set<string> }} options
+ */
 export function findPendingReviewSignal({ pr, issueComments = [], reviews = [], processedSourceIds = new Set() } = {}) {
   const prHead = pr?.head?.sha;
   if (!prHead) return null;

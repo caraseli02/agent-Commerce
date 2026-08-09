@@ -68,6 +68,15 @@ function writeJsonAtomically(path, value) {
   renameSync(temporaryPath, path);
 }
 
+/**
+ * @param {{
+ *   root: string,
+ *   pid?: number,
+ *   now?: Date | string | number,
+ *   maxAgeMs?: number,
+ *   isProcessAlive?: (pid: number) => boolean
+ * }} options
+ */
 export function acquireLeaseLock({
   root,
   pid = process.pid,
@@ -130,6 +139,10 @@ export function releaseLeaseLock(lease) {
   return true;
 }
 
+/**
+ * @param {string} root
+ * @param {{ status: string, at?: Date | string | number, [key: string]: unknown }} details
+ */
 export function recordHeartbeat(root, { status, at = new Date(), ...details } = {}) {
   if (!root) throw new TypeError('recordHeartbeat requires root');
   if (!status) throw new TypeError('recordHeartbeat requires status');
@@ -145,6 +158,10 @@ export function recordHeartbeat(root, { status, at = new Date(), ...details } = 
   return heartbeat;
 }
 
+/**
+ * @param {string} root
+ * @param {{ now?: Date | string | number, maxAgeMs?: number, isProcessAlive?: (pid: number) => boolean }} options
+ */
 export function readControllerHealth(
   root,
   { now = new Date(), maxAgeMs = DEFAULT_HEARTBEAT_MAX_AGE_MS, isProcessAlive = defaultIsProcessAlive } = {}

@@ -9,6 +9,7 @@ export function ciAllowsEvaluation(statusCheckRollup = []) {
   return check?.status === 'COMPLETED' && check.conclusion === 'SUCCESS';
 }
 
+/** @param {{ pr?: any, processedRunIds?: Set<string> }} options */
 export function findPendingCiSignal({ pr, processedRunIds = new Set() } = {}) {
   const check = currentCiCheck(pr?.statusCheckRollup);
   if (!check || check.status !== 'COMPLETED' || check.conclusion === 'SUCCESS') return null;
