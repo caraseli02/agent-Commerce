@@ -12,6 +12,7 @@
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:performance": "playwright test --config=playwright.performance.config.ts",
     "clean-state": "node scripts/check-clean-state.mjs",
     "test:e2e": "playwright test",
     "verify": "node scripts/verify.mjs",
