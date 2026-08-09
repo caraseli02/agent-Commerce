@@ -167,17 +167,12 @@ async function loadGitHubEvent() {
   return JSON.parse(raw);
 }
 
-async function main() {
-  const event = await loadGitHubEvent();
+function argumentValue(name) {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? process.argv[index + 1] : undefined;
+}
 
-  if (!event?.pull_request) {
-    console.log('No pull-request CI context detected; skipping PR template check.');
-    return;
-  }
-
-  const labels = (event.pull_request.labels ?? []).map((label) => label?.name).filter(Boolean);
-  const result = assessPrTemplate({ body: event.pull_request.body, labels });
-
+function reportResult(result) {
   if (result.status === 'skipped' || result.status === 'passed') {
     console.log(result.reason);
     return;
@@ -187,7 +182,26 @@ async function main() {
   for (const violation of result.violations) {
     console.error(`- ${violation}`);
   }
-  process.exit(1);
+  process.exitCode = 1;
+}
+
+async function main() {
+  const bodyFile = argumentValue('--body-file');
+  if (bodyFile) {
+    const body = await readFile(bodyFile, 'utf8');
+    reportResult(assessPrTemplate({ body }));
+    return;
+  }
+
+  const event = await loadGitHubEvent();
+
+  if (!event?.pull_request) {
+    console.log('No pull-request CI context or --body-file provided; skipping PR template check.');
+    return;
+  }
+
+  const labels = (event.pull_request.labels ?? []).map((label) => label?.name).filter(Boolean);
+  reportResult(assessPrTemplate({ body: event.pull_request.body, labels }));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -1,3 +1,8 @@
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 import { assessPrTemplate } from '../scripts/check-pr-template.mjs';
 
@@ -176,5 +181,32 @@ Looks good overall.`,
 
     expect(result.status).toBe('skipped');
     expect(result.violations).toEqual([]);
+  });
+
+  it('validates an explicit PR body file before GitHub CI exists', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'ecas-pr-body-'));
+    const bodyPath = join(directory, 'body.md');
+
+    try {
+      writeFileSync(bodyPath, '## Verification\n\n- [ ] `pnpm build`\n');
+      const failed = spawnSync(process.execPath, ['scripts/check-pr-template.mjs', '--body-file', bodyPath], {
+        cwd: process.cwd(),
+        encoding: 'utf8',
+      });
+
+      expect(failed.status).toBe(1);
+      expect(failed.stderr).toContain('PR body is missing required Components Marketplace template evidence.');
+
+      writeFileSync(bodyPath, completeBody);
+      const passed = spawnSync(process.execPath, ['scripts/check-pr-template.mjs', '--body-file', bodyPath], {
+        cwd: process.cwd(),
+        encoding: 'utf8',
+      });
+
+      expect(passed.status).toBe(0);
+      expect(passed.stdout).toContain('PR body includes the required Components Marketplace template evidence.');
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });
