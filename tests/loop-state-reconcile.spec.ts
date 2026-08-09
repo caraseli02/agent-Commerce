@@ -9,10 +9,16 @@ describe('loop state reconciliation', () => {
         {
           number: 42,
           state: 'CLOSED',
-          labels: [{ name: 'ready-for-agent' }, { name: 'in-progress' }, { name: 'priority:high' }, { name: 'bug' }],
+          labels: [
+            { name: 'ready-for-agent' },
+            { name: 'in-progress' },
+            { name: 'ready-for-human' },
+            { name: 'priority:high' },
+            { name: 'bug' },
+          ],
         },
       ])
-    ).toEqual([{ number: 42, removeLabels: ['in-progress', 'ready-for-agent'] }]);
+    ).toEqual([{ number: 42, removeLabels: ['in-progress', 'ready-for-agent', 'ready-for-human'] }]);
   });
 
   it('ignores open issues and closed issues without stale workflow labels', () => {

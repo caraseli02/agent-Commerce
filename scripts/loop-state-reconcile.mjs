@@ -3,7 +3,7 @@
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
-export const CLOSED_ISSUE_WORKFLOW_LABELS = ['blocked', 'in-progress', 'ready-for-agent'];
+export const CLOSED_ISSUE_WORKFLOW_LABELS = ['blocked', 'in-progress', 'ready-for-agent', 'ready-for-human'];
 
 export function planClosedIssueLabelRepairs(issues = []) {
   const byNumber = new Map();
