@@ -8,6 +8,7 @@ import { basename, join } from 'node:path';
 import { acquireLeaseLock, readControllerHealth, recordHeartbeat, releaseLeaseLock } from './loop-controller-runtime.mjs';
 import { ciAllowsEvaluation, findPendingCiSignal } from './loop-ci-intake.mjs';
 import { findPendingReviewSignal } from './loop-review-intake.mjs';
+import { findClaimedIssueForPr } from './loop-work-intake.mjs';
 
 const USER_HOME = process.env.ECAS_CONTROLLER_HOME ?? homedir();
 const REPO = process.env.ECAS_REPO ?? 'caraseli02/Ecas';
@@ -116,6 +117,9 @@ const getReviews = (pr) =>
 const getReviewComments = (pr) =>
   paginatedGhJson(`repos/${REPO}/pulls/${pr}/comments?per_page=100`).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
+const getInProgressIssues = () =>
+  paginatedGhJson(`repos/${REPO}/issues?state=open&labels=in-progress&per_page=100`).filter((issue) => !issue.pull_request);
+
 const getPrState = (pr) =>
   JSON.parse(
     gh([
@@ -125,7 +129,7 @@ const getPrState = (pr) =>
       '--repo',
       REPO,
       '--json',
-      'number,state,headRefName,headRefOid,mergeable,mergeStateStatus,statusCheckRollup',
+      'number,state,headRefName,headRefOid,mergeable,mergeStateStatus,statusCheckRollup,closingIssuesReferences',
     ])
   );
 
@@ -195,8 +199,13 @@ const findPendingReadyAttempt = () => {
 
 const findPendingFailure = () => {
   const candidates = [];
+  const activeIssues = getInProgressIssues();
+  if (activeIssues.length !== 1) return null;
 
   for (const pr of getOpenPulls()) {
+    const state = getPrState(pr.number);
+    if (!findClaimedIssueForPr({ pr: state, activeIssues })) continue;
+
     const comments = getComments(pr.number);
     const evaluatorComments = comments
       .filter(trusted)
@@ -235,8 +244,13 @@ const findPendingFailure = () => {
 
 const findPendingReviewFinding = () => {
   const candidates = [];
+  const activeIssues = getInProgressIssues();
+  if (activeIssues.length !== 1) return null;
 
   for (const pr of getOpenPulls()) {
+    const state = getPrState(pr.number);
+    if (!findClaimedIssueForPr({ pr: state, activeIssues })) continue;
+
     const comments = getComments(pr.number);
     const processedSourceIds = new Set(
       comments
@@ -260,6 +274,8 @@ const findPendingReviewFinding = () => {
 
 const findPendingCiFailure = () => {
   const candidates = [];
+  const activeIssues = getInProgressIssues();
+  if (activeIssues.length !== 1) return null;
 
   for (const pr of getOpenPulls()) {
     const comments = getComments(pr.number);
@@ -270,6 +286,8 @@ const findPendingCiFailure = () => {
         .filter(Boolean)
     );
     const state = getPrState(pr.number);
+    if (!findClaimedIssueForPr({ pr: state, activeIssues })) continue;
+
     const signal = findPendingCiSignal({
       pr: {
         number: pr.number,
