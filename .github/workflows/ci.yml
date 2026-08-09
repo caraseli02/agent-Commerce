@@ -10,7 +10,20 @@ permissions:
   contents: read
 
 jobs:
+  pr-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate PR evidence
+        run: node scripts/check-pr-template.mjs
+
   verify:
+    needs: pr-contract
+    if: ${{ always() && (github.event_name != 'pull_request' || needs.pr-contract.result == 'success') }}
     runs-on: ubuntu-latest
 
     steps:
