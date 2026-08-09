@@ -49,21 +49,21 @@ Applied a coordinated fix across API scoping, tab filter mapping, and control-pa
 **Code changes**:
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/server/api/orders.get.ts
+// /path/to/components-marketplace/server/api/orders.get.ts
 import { getDemoOrders, getDemoOrdersForUser } from '~/server/utils/mockDashboardDemo';
 
 let items = query.userId ? getDemoOrdersForUser(query.userId) : getDemoOrders();
 ```
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/server/api/orders.get.ts
+// /path/to/components-marketplace/server/api/orders.get.ts
 const parseStartDate = (value?: string) => {
   // supports ISO and DD/MM/YYYY HH:mm:ss fallback
 };
 ```
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/components/admin-table/order/Order.vue
+// /path/to/components-marketplace/components/admin-table/order/Order.vue
 import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.enum';
 
 {
@@ -74,7 +74,7 @@ import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.e
 ```
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/components/admin-table/order/Order.vue
+// /path/to/components-marketplace/components/admin-table/order/Order.vue
 const getServerFiltersByTab = (filter) => {
   // maps createdAt/startDate tab to startDate ISO for API
 };
@@ -83,12 +83,12 @@ await fetchAndSetOrdersList(1, 10, getServerFiltersByTab(filter), {});
 ```
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/components/dashboard/control-panel/ShippingView.vue
+// /path/to/components-marketplace/components/dashboard/control-panel/ShippingView.vue
 if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') return;
 ```
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/components/dashboard/control-panel/BillingView.vue
+// /path/to/components-marketplace/components/dashboard/control-panel/BillingView.vue
 if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') return;
 ```
 

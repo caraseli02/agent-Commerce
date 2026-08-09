@@ -5,7 +5,7 @@
 
 ## Overview
 
-Migrate ECAS from external API to self-contained Nuxt server using mock data approach. Goal: Make application runnable for testing UI with minimal setup.
+Migrate Components Marketplace from external API to self-contained Nuxt server using mock data approach. Goal: Make application runnable for testing UI with minimal setup.
 
 ## Phase 1: Server Infrastructure Setup
 

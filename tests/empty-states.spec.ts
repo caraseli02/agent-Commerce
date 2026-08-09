@@ -16,8 +16,8 @@ describe('empty state UX contract (#194)', () => {
     expect(presets).toContain("heading: 'No orders yet'");
     expect(presets).toContain("primaryLabel: 'Browse products'");
     expect(presets).toContain("variant: 'error'");
-    expect(presets).toContain('discover products in the ECAS catalog');
-    expect(presets).not.toContain('discover parts in the ECAS catalog');
+    expect(presets).toContain('discover products in the Components Marketplace catalog');
+    expect(presets).not.toContain('discover parts in the Components Marketplace catalog');
   });
 
   it('uses the shared empty state for no search results', () => {

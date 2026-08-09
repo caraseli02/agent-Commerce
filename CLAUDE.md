@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-Project-level guidance for Claude Code working in **ECAS**.
+Project-level guidance for Claude Code working in **Components Marketplace**.
 
-## What ECAS is
+## What Components Marketplace is
 
 A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase, Stripe hooks, and local Nitro mock endpoints.
 
@@ -40,7 +40,7 @@ A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase,
 
 ### Issue tracker
 
-GitHub Issues in `caraseli02/Ecas`. See `docs/agents/issue-tracker.md`.
+GitHub Issues in `caraseli02/components-marketplace`. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

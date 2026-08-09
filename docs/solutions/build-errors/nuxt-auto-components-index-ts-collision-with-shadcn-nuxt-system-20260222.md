@@ -47,7 +47,7 @@ Make Nuxt auto-components scan **only `.vue`** files from `~/components`, and **
 ### 1) Restrict Nuxt auto-components scanning
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/nuxt.config.ts
+// /path/to/components-marketplace/nuxt.config.ts
 export default defineNuxtConfig({
   components: {
     dirs: [
@@ -66,7 +66,7 @@ export default defineNuxtConfig({
 Add a tiny local Nuxt module that filters out the `components/ui` dir injected with `extensions: []`:
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/modules/shadcn-components-dir-fix.ts
+// /path/to/components-marketplace/modules/shadcn-components-dir-fix.ts
 export default defineNuxtModule({
   setup(_, nuxt) {
     nuxt.hook('components:dirs', (dirs) => {

@@ -63,7 +63,7 @@ From the UI review (Feb 2026), the following issues were observed:
 ## Evidence (screenshots)
 
 All screenshots live under:
-`/Users/vladislavcaraseli/Documents/Ecas/tmp/ui-review/2026-02-24/`
+`/path/to/components-marketplace/tmp/ui-review/2026-02-24/`
 
 Key evidence files:
 

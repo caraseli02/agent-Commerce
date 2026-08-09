@@ -16,7 +16,7 @@
     >
       <slot />
       <div class="flex justify-center text-center text-xs leading-normal text-slate-500 mt-2 mb-6 md:mt-0">
-        ECAS portfolio demo — mock mode for reviewer walkthroughs
+        Components Marketplace portfolio demo — mock mode for reviewer walkthroughs
       </div>
     </main>
     <Toaster />

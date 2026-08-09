@@ -20,7 +20,7 @@ useSeoMeta({
   title: 'Home',
   description:
     'Source electronic components with confidence. Compare specifications, check real-time stock across trusted manufacturers, and order the parts your build needs.',
-  ogTitle: 'ECAS — Electronic Components Sourced Reliably',
+  ogTitle: 'Components Marketplace — Electronic Components Sourced Reliably',
   ogDescription:
     'Source electronic components with confidence. Compare specifications, check real-time stock across trusted manufacturers, and order the parts your build needs.',
 });

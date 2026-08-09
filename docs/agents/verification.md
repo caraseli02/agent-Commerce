@@ -1,6 +1,6 @@
 # Verification and evaluator rubric
 
-Use this doc to decide whether an ECAS task is actually done. It implements the course recommendations for premature-victory prevention, full-pipeline verification, observability, and evaluator role separation.
+Use this doc to decide whether an Components Marketplace task is actually done. It implements the course recommendations for premature-victory prevention, full-pipeline verification, observability, and evaluator role separation.
 
 ## Verification ladder
 
@@ -10,7 +10,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - `pnpm verify`
    - Runs `build`, `lint`, `typecheck`, `test:coverage`, and `feature_list.json` validation.
    - `pnpm test:coverage` measures all files in `composables/api/**` and `store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
-   - This is the normal loop gate for everyday ECAS work.
+   - This is the normal loop gate for everyday Components Marketplace work.
 2. **Full local gate**
    - `pnpm verify:full`
    - Adds architecture invariants and preview smoke on top of the fast gate.
@@ -39,7 +39,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 8. **Architecture-invariant gate**
    - `node scripts/check-arch-invariants.mjs`
    - This runs inside `pnpm verify:full` and `pnpm verify:handoff`.
-   - It enforces the ECAS API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
+   - It enforces the Components Marketplace API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
    - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
 9. **Targeted baseline check**
    - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.

@@ -1,6 +1,6 @@
 # Issue tracker: GitHub
 
-Issues and PRDs for this repo live as GitHub issues in `caraseli02/Ecas`. Use the `gh` CLI for all operations.
+Issues and PRDs for this repo live as GitHub issues in `caraseli02/components-marketplace`. Use the `gh` CLI for all operations.
 
 ## Conventions
 
@@ -62,4 +62,4 @@ The evaluator report is separate from the generator PR body and should use `docs
 
 ## Claim comment example
 
-`Claimed by ECAS loop on branch feat/123-short-slug`
+`Claimed by Components Marketplace loop on branch feat/123-short-slug`

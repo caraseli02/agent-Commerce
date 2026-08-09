@@ -1,10 +1,10 @@
 # Harness audit — Learn Harness Engineering coverage
 
-This file maps ECAS repo artifacts to the course recommendations from Learn Harness Engineering.
+This file maps Components Marketplace repo artifacts to the course recommendations from Learn Harness Engineering.
 
 ## Current coverage
 
-| Course area                              | ECAS artifact                                                                                         | Status                              |
+| Course area                              | Components Marketplace artifact                                                                       | Status                              |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------- |
 | L01 — strong models still need harnesses | `AGENTS.md` + executable verification commands                                                        | Covered                             |
 | L02 — 5-subsystem harness                | instructions, environment, state, feedback, issue tools                                               | Covered                             |

@@ -49,7 +49,7 @@ Applied a coordinated demo-first patch set across routing, imports, SSR API base
 **Code changes** (key examples):
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/plugins/api.ts
+// /path/to/components-marketplace/plugins/api.ts
 const baseURL = (() => {
   if (!config.MOCK_MODE) return config.BASE_URL_API;
   if (import.meta.client) return '/api';
@@ -63,7 +63,7 @@ const baseURL = (() => {
 ```
 
 ```vue
-<!-- /Users/vladislavcaraseli/Documents/Ecas/components/order-confirm/Details.vue -->
+<!-- /path/to/components-marketplace/components/order-confirm/Details.vue -->
 <script setup lang="ts">
 import { PaymentTypeEnum } from '~/types';
 import type { BankInfo, CardInfo } from '~/types';
@@ -71,7 +71,7 @@ import type { BankInfo, CardInfo } from '~/types';
 ```
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/middleware/auth.ts
+// /path/to/components-marketplace/middleware/auth.ts
 if (config.public.MOCK_MODE) {
   authStore.addToken('demo-token-portfolio');
   authStore.addUser({
@@ -83,7 +83,7 @@ if (config.public.MOCK_MODE) {
 ```
 
 ```ts
-// /Users/vladislavcaraseli/Documents/Ecas/pages/dashboard/customers/[slug]/control-panel/[view].vue
+// /path/to/components-marketplace/pages/dashboard/customers/[slug]/control-panel/[view].vue
 try {
   const response = await $api.customerProfile.fetchCustomerInformation(route.params.slug as string);
   if (response.status === 'success') customerDetails.value = response.data;
@@ -101,8 +101,8 @@ try {
 Also implemented:
 
 - `import type` sweep for route-critical files (`order-confirm`, `order-summary`, `dashboard/orders`, transaction options, and related dashboard card/settings files).
-- `v-calendar` deep type import removal in `/Users/vladislavcaraseli/Documents/Ecas/components/dataTable/filter/Date.vue` via local range type.
-- Null-safe order-tracking reads + fixture updates in `/Users/vladislavcaraseli/Documents/Ecas/components/order-tracking/OrderTracking.vue` and `/Users/vladislavcaraseli/Documents/Ecas/pages/order-tracking.vue`.
+- `v-calendar` deep type import removal in `/path/to/components-marketplace/components/dataTable/filter/Date.vue` via local range type.
+- Null-safe order-tracking reads + fixture updates in `/path/to/components-marketplace/components/order-tracking/OrderTracking.vue` and `/path/to/components-marketplace/pages/order-tracking.vue`.
 - Homepage UX/polish blockers: hero CTA -> `Explore Products` with `/search`, desktop Products menu available at top, mobile text overflow resilience, tab stress behavior, and coherent empty-search state.
 - Hydration mitigation with `ClientOnly` around mobile sheet/notifications and mounted-only side effects in header.
 

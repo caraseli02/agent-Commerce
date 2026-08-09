@@ -2,7 +2,7 @@
 
 ## 📚 Security Documentation Index
 
-This directory contains comprehensive security documentation and implementation files for mock mode in the ECAS e-commerce application.
+This directory contains comprehensive security documentation and implementation files for mock mode in the Components Marketplace e-commerce application.
 
 ---
 
@@ -449,7 +449,7 @@ If you encounter security issues:
 
 ## 📄 License
 
-This security implementation is part of the ECAS e-commerce application.
+This security implementation is part of the Components Marketplace e-commerce application.
 
 ---
 

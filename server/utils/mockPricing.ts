@@ -4,7 +4,7 @@ import { PriceSettingsTypeEnum, type PriceSettingsInterface } from '~/model/pric
 import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
 import type { UserPermissionsEnum } from '~/types/auth/permissions';
 
-const PRICING_SESSION_COOKIE = 'ecas_pricing_session';
+const PRICING_SESSION_COOKIE = 'components_marketplace_pricing_session';
 const MAX_PRICING_SESSIONS = 200;
 
 type PricingState = {

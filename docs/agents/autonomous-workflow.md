@@ -1,6 +1,6 @@
 # Autonomous workflow: planner, generator, evaluator
 
-ECAS autonomous work follows the Learn Harness Engineering recommendation to separate planning, generation, and evaluation. The generator must not be the final judge of completion.
+Components Marketplace autonomous work follows the Learn Harness Engineering recommendation to separate planning, generation, and evaluation. The generator must not be the final judge of completion.
 
 ## Goal-shaped controller loop
 
@@ -13,7 +13,7 @@ The autonomous loop should behave like a standing `/goal` even when cron wakes i
 - If the evaluator returns `FAIL`, keep the issue `in-progress`, keep the same branch/PR, and produce a focused repair brief from the evaluator comment.
 - Do not promote or select a new issue while an `in-progress` issue has an open PR unless that issue is passed/blocked and state cleanup is complete.
 
-This is the runtime equivalent of: “work the currently claimed ECAS issue until it is evaluator-approved or blocked.”
+This is the runtime equivalent of: “work the currently claimed Components Marketplace issue until it is evaluator-approved or blocked.”
 
 ## When a heavy loop is justified
 

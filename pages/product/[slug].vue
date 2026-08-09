@@ -120,7 +120,9 @@ const {
 
 const seoTitle = computed(() => product.value?.name || 'Product');
 const seoDescription = computed(
-  () => product.value?.description || 'Review product details, availability, pricing, and specifications in the ECAS portfolio demo.'
+  () =>
+    product.value?.description ||
+    'Review product details, availability, pricing, and specifications in the Components Marketplace portfolio demo.'
 );
 const seoImage = computed(() => product.value?.details?.ProductImage?.ProductImageLarge || '');
 

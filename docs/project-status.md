@@ -4,7 +4,7 @@ Last updated: 2026-07-25
 
 ## Current state
 
-ECAS remains a self-contained Nuxt e-commerce portfolio demo. Recent merges hardened the Scripted Buyer Path (cart pricing, checkout states, storefront QA) and mobile dashboard tables. Open PRs cover session persistence, bundle splitting, and optimistic add-to-cart.
+Components Marketplace remains a self-contained Nuxt e-commerce portfolio demo. Recent merges hardened the Scripted Buyer Path (cart pricing, checkout states, storefront QA) and mobile dashboard tables. Open PRs cover session persistence, bundle splitting, and optimistic add-to-cart.
 
 ## Current planning controls
 

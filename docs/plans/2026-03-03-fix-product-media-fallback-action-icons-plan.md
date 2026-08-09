@@ -22,8 +22,8 @@ This plan focuses only on **visual/demo UX** (not deep business logic).
 
 ## Evidence
 
-- Broken image icon visible on product page (mobile): `/Users/vladislavcaraseli/Documents/Ecas/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-mobile.png`
-- Same page (desktop): `/Users/vladislavcaraseli/Documents/Ecas/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-desktop.png`
+- Broken image icon visible on product page (mobile): `/path/to/components-marketplace/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-mobile.png`
+- Same page (desktop): `/path/to/components-marketplace/tmp/ui-review-2026-03-02/nuxt3000-product-prod-19-desktop.png`
 
 ## Local Research Findings (repo-specific)
 
