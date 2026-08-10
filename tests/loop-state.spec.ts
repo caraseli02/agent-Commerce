@@ -21,7 +21,7 @@ describe('loop state', () => {
     finishRepair(state, { key: firstKey, result: 'submitted', headAfter: 'b'.repeat(40), at: '2026-08-10T10:10:00Z' });
     beginRepair(state, { pr: 42, key: secondKey, head: 'b'.repeat(40), at: '2026-08-10T10:20:00Z' });
 
-    expect([...processedKeys(state)]).toEqual([firstKey, secondKey]);
+    expect([...processedKeys(state, Date.parse('2026-08-10T10:21:00Z'))]).toEqual([firstKey, secondKey]);
     expect(canRepair(state, 42)).toBe(false);
     expect(state.repairs[firstKey]).toMatchObject({ result: 'submitted', headAfter: 'b'.repeat(40) });
   });
@@ -30,9 +30,9 @@ describe('loop state', () => {
     const state = createLoopState();
     const head = 'c'.repeat(40);
 
-    expect(hasEvaluation(state, head)).toBe(false);
+    expect(hasEvaluation(state, head, Date.parse('2026-08-10T10:59:00Z'))).toBe(false);
     beginEvaluation(state, { pr: 42, head, at: '2026-08-10T11:00:00Z' });
-    expect(hasEvaluation(state, head)).toBe(true);
+    expect(hasEvaluation(state, head, Date.parse('2026-08-10T11:01:00Z'))).toBe(true);
     finishEvaluation(state, { head, verdict: 'FAIL', at: '2026-08-10T11:10:00Z' });
 
     expect(state.evaluations[head]).toEqual({
@@ -41,5 +41,20 @@ describe('loop state', () => {
       verdict: 'FAIL',
       completedAt: '2026-08-10T11:10:00Z',
     });
+  });
+
+  it('retries failed or stale-running work without duplicating live work', () => {
+    const state = createLoopState();
+    const head = 'd'.repeat(40);
+    const key = `ci-failure:3:${head}`;
+
+    beginRepair(state, { pr: 42, key, head, at: '2026-08-10T10:00:00Z' });
+    expect(processedKeys(state, Date.parse('2026-08-10T10:05:00Z'))).toContain(key);
+    finishRepair(state, { key, result: 'failed', at: '2026-08-10T10:06:00Z' });
+    expect(processedKeys(state, Date.parse('2026-08-10T10:07:00Z'))).not.toContain(key);
+
+    beginEvaluation(state, { pr: 42, head, at: '2026-08-10T11:00:00Z' });
+    expect(hasEvaluation(state, head, Date.parse('2026-08-10T11:05:00Z'))).toBe(true);
+    expect(hasEvaluation(state, head, Date.parse('2026-08-10T11:31:00Z'))).toBe(false);
   });
 });

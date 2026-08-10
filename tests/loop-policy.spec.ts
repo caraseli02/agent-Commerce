@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { beginEvaluation, beginRepair, createLoopState } from '../scripts/loop-state.mjs';
+import { beginEvaluation, beginRepair, createLoopState, finishEvaluation } from '../scripts/loop-state.mjs';
 import { decideNextAction } from '../scripts/loop-policy.mjs';
 
 describe('decideNextAction', () => {
@@ -90,6 +90,7 @@ describe('decideNextAction', () => {
 
     const passingCi = [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }];
     beginEvaluation(state, { pr: 42, head, at: '2026-08-10T10:20:00Z' });
+    finishEvaluation(state, { head, verdict: 'FAIL', at: '2026-08-10T10:25:00Z' });
     expect(decideNextAction({ ...base, pr: { ...base.pr, checks: passingCi } })).toEqual({
       type: 'idle',
       reason: 'no-pending-signal',

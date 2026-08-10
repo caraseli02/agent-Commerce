@@ -2,6 +2,7 @@
 
 ## Current focus
 
+- Loop controller replacement: thin v2 is deployed locally; independent-review fixes are being verified before replacement PR handoff.
 - Next implementation track first (WIP=1): **P0** `#426` → `#427`, then **P1** `#431`/`#432`, then **P2** `#433`.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
@@ -33,7 +34,6 @@
 
 ## Recently completed
 
-- Loop controller simplification: one thin controller plus small pure signal/state/summary modules replaces the 995-line multi-pipeline draft; ordinary PR prose no longer triggers repairs.
 - System-design triage (2026-08-06): closed `#101`; rewrote `#99`/`#103`; `wontfix` `#109`/`#111`/`#113`; promoted slim Security + SEO children.
 - Housekeeping: closed zombie epics `#100`, `#102`, `#104`, `#255`, `#389`.
 - Issue #194 / PR #440 — shared empty states on Scripted Buyer Path.

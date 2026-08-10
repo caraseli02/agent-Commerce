@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } 
 import { homedir } from 'node:os';
 import { basename, join, relative } from 'node:path';
 
+import { normalizeEvaluation } from './loop-evaluation.mjs';
 import { decideNextAction } from './loop-policy.mjs';
 import { appendRunSummary, buildRunSummary } from './loop-run-summary.mjs';
 import { beginEvaluation, beginRepair, canRepair, finishEvaluation, finishRepair, readLoopState, writeLoopState } from './loop-state.mjs';
@@ -20,7 +21,7 @@ const STATE_PATH = join(AUTOMATION_ROOT, 'state-v2.json');
 const SUMMARY_PATH = join(AUTOMATION_ROOT, 'run-summaries.jsonl');
 const HEARTBEAT_PATH = join(AUTOMATION_ROOT, 'heartbeat-v2.json');
 const LOCK_DIR = join(AUTOMATION_ROOT, 'controller-v2.lock');
-const EVALUATOR_SCHEMA_PATH = join(AUTOMATION_ROOT, 'evaluator-result.schema.json');
+const EVALUATOR_SCHEMA_PATH = join(AUTOMATION_ROOT, 'evaluator-result-v2.schema.json');
 const PATH = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
 const LOCK_MAX_AGE_MS = 30 * 60 * 1000;
 const HEALTH_MAX_AGE_MS = 15 * 60 * 1000;
@@ -132,7 +133,12 @@ function prepareWorktree(pr, head, role, runId) {
 }
 
 function removeWorktree(directory) {
-  if (directory) git(['worktree', 'remove', '--force', directory]);
+  if (!directory) return;
+  try {
+    git(['worktree', 'remove', '--force', directory]);
+  } catch (error) {
+    process.stderr.write(`Failed to remove worktree ${directory}: ${error instanceof Error ? error.message : String(error)}\n`);
+  }
 }
 
 function bodyFile(name, body) {
@@ -199,6 +205,20 @@ function recordRun(runResult, { issue, head, sourceKey, result }) {
   );
 }
 
+function controllerFailureRun(role, pr, error) {
+  const runId = `${Date.now()}-pr${pr}-${role}-controller-failure`;
+  const tracePath = join(RUNS_DIR, `${runId}.jsonl`);
+  const at = nowIso();
+  const message = error instanceof Error ? error.message : String(error);
+  const events = `${JSON.stringify({ type: 'controller.error', message })}\n`;
+  writeFileSync(tracePath, events, { mode: 0o600 });
+  return { runId, role, pr, startedAt: at, completedAt: at, succeeded: false, message, tracePath, events };
+}
+
+function blockIssue(issue) {
+  gh(['issue', 'edit', String(issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'blocked']);
+}
+
 function repairPrompt({ pr, issue, branch, head, signal }) {
   const instruction = signal.instruction ? `\nRequested instruction: ${signal.instruction}` : '';
   return `You are the ECAS repair agent for PR #${pr}, linked issue #${issue}.
@@ -215,19 +235,23 @@ Limits: at most two focused implementation attempts. Never merge, close, approve
 function evaluatorPrompt({ pr, issue, head }) {
   return `You are the independent ECAS evaluator for PR #${pr}, linked issue #${issue}, at head ${head}.
 
-Read AGENTS.md, the issue, PR, diff, CI evidence, and docs/agents/verification.md. Do not edit files, push, comment, label, approve, close, or merge. Determine whether the current head satisfies the issue with appropriate verification and no unrelated scope.
+Read AGENTS.md, the issue, PR, diff, CI evidence, and docs/agents/verification.md. Check GitHub mergeability and require a mergeable, non-dirty current head before PASS. Do not edit files, push, comment, label, approve, close, or merge. Determine whether the current head satisfies the issue with appropriate verification and no unrelated scope.
 
-Return only JSON with this exact shape: {"verdict":"PASS|FAIL|BLOCKED","summary":"concise evidence or exact repair instruction"}.`;
+Score every rubric field from 0 to 2. PASS requires at least 8/10 and verificationEvidence above 0.
+
+Return only JSON with this exact shape: {"verdict":"PASS|FAIL|BLOCKED","summary":"concise verdict or exact repair instruction","evidence":["command or runtime evidence"],"rubric":{"scopeControl":0,"acceptanceCriteria":0,"verificationEvidence":0,"harnessHygiene":0,"riskReporting":0}}.`;
 }
 
 function runRepair({ action, pr, state }) {
   const at = nowIso();
   beginRepair(state, { pr: pr.number, key: action.signal.key, head: pr.head, at });
   writeLoopState(STATE_PATH, state);
-  const worktree = prepareWorktree(pr.number, pr.head, 'repair', state.attemptsByPr[pr.number]);
+  let worktree;
   let runResult;
   let agentHead;
+  let current = pr;
   try {
+    worktree = prepareWorktree(pr.number, pr.head, 'repair', state.attemptsByPr[pr.number]);
     runResult = runCodex({
       role: 'repair',
       pr: pr.number,
@@ -235,10 +259,17 @@ function runRepair({ action, pr, state }) {
       prompt: repairPrompt({ pr: pr.number, issue: action.issue, branch: pr.branch, head: pr.head, signal: action.signal }),
     });
     agentHead = git(['rev-parse', 'HEAD'], { cwd: worktree });
+    current = pullContext(pr.number);
+  } catch (error) {
+    runResult = controllerFailureRun('repair', pr.number, error);
+    try {
+      current = pullContext(pr.number);
+    } catch {
+      current = pr;
+    }
   } finally {
     removeWorktree(worktree);
   }
-  const current = pullContext(pr.number);
   const submitted = agentHead !== pr.head && current.head === agentHead;
   recordRun(runResult, {
     issue: action.issue,
@@ -270,9 +301,11 @@ function runRepair({ action, pr, state }) {
 function runEvaluation({ action, pr, state }) {
   beginEvaluation(state, { pr: pr.number, head: pr.head, at: nowIso() });
   writeLoopState(STATE_PATH, state);
-  const worktree = prepareWorktree(pr.number, pr.head, 'evaluator', pr.head.slice(0, 12));
+  let worktree;
   let runResult;
+  let current = pr;
   try {
+    worktree = prepareWorktree(pr.number, pr.head, 'evaluator', pr.head.slice(0, 12));
     runResult = runCodex({
       role: 'evaluator',
       pr: pr.number,
@@ -281,18 +314,31 @@ function runEvaluation({ action, pr, state }) {
       sandbox: 'read-only',
       outputSchema: EVALUATOR_SCHEMA_PATH,
     });
+    current = pullContext(pr.number);
+  } catch (error) {
+    runResult = controllerFailureRun('evaluator', pr.number, error);
+    try {
+      current = pullContext(pr.number);
+    } catch {
+      current = pr;
+    }
   } finally {
     removeWorktree(worktree);
   }
-  let evaluation;
+  let value;
   try {
-    evaluation = JSON.parse(runResult.message);
+    value = JSON.parse(runResult.message);
   } catch {
-    evaluation = { verdict: 'BLOCKED', summary: 'Evaluator did not return valid structured output.' };
+    value = null;
   }
-  if (!['PASS', 'FAIL', 'BLOCKED'].includes(evaluation.verdict)) {
-    evaluation = { verdict: 'BLOCKED', summary: 'Evaluator returned an unsupported verdict.' };
-  }
+  const evaluation = normalizeEvaluation({
+    value,
+    succeeded: runResult.succeeded,
+    expectedHead: pr.head,
+    currentHead: current.head,
+    mergeable: current.mergeable,
+    mergeStateStatus: current.mergeStateStatus,
+  });
   recordRun(runResult, {
     issue: action.issue,
     head: pr.head,
@@ -304,11 +350,20 @@ function runEvaluation({ action, pr, state }) {
   const commentUrl = postComment(
     pr.number,
     `${runResult.runId}.md`,
-    `## ECAS evaluator\n\n${evaluation.verdict}\n\n${evaluation.summary}\n\n- Evaluated head: \`${pr.head}\`\n- Trace: \`${basename(
-      runResult.tracePath
-    )}\`\n\n<!-- ecas-loop:v2 role=evaluator head=${pr.head} result=${evaluation.verdict} -->\n`
+    `## ECAS evaluator\n\n${evaluation.verdict}\n\n${evaluation.summary}\n\n### Evidence\n\n${
+      evaluation.evidence.length ? evaluation.evidence.map((item) => `- ${item}`).join('\n') : '- No trusted evidence.'
+    }\n\n### Rubric\n\n- Scope control: ${evaluation.rubric.scopeControl}/2\n- Acceptance criteria: ${
+      evaluation.rubric.acceptanceCriteria
+    }/2\n- Verification evidence: ${evaluation.rubric.verificationEvidence}/2\n- Harness hygiene: ${
+      evaluation.rubric.harnessHygiene
+    }/2\n- Risk reporting: ${evaluation.rubric.riskReporting}/2\n- Total: ${evaluation.total}/10\n\n- Evaluated head: \`${
+      pr.head
+    }\`\n- Trace: \`${basename(runResult.tracePath)}\`\n\n<!-- ecas-loop:v2 role=evaluator head=${pr.head} result=${
+      evaluation.verdict
+    } -->\n`
   );
 
+  if (evaluation.stale) return;
   if (evaluation.verdict === 'PASS') {
     gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'ready-for-human']);
     return;
@@ -322,32 +377,35 @@ function runEvaluation({ action, pr, state }) {
       instruction: evaluation.summary,
       key: `evaluator-failure:${runResult.runId}:${pr.head}`,
     };
-    runRepair({ action: { type: 'repair', issue: action.issue, signal }, pr, state });
+    let submitted = false;
+    while (!submitted && canRepair(state, pr.number)) {
+      submitted = runRepair({ action: { type: 'repair', issue: action.issue, signal }, pr, state });
+    }
+    if (!submitted) blockIssue(action.issue);
     return;
   }
-  gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--add-label', 'blocked']);
+  blockIssue(action.issue);
 }
 
-function inspect() {
+function loadDecision() {
   const issues = activeIssues();
-  if (issues.length !== 1) return { type: 'idle', reason: 'no-single-active-issue' };
+  if (issues.length !== 1) return { action: { type: 'idle', reason: 'no-single-active-issue' } };
   const linked = linkedPull(issues[0].number);
-  if (!linked) return { type: 'idle', reason: 'no-linked-open-pr' };
-  const pr = pullContext(linked.number);
-  return decideNextAction({ state: readLoopState(STATE_PATH), activeIssues: issues, pr, ...collaborationContext(pr.number) });
-}
-
-function main() {
-  const issues = activeIssues();
-  if (issues.length !== 1) return { type: 'idle', reason: 'no-single-active-issue' };
-  const linked = linkedPull(issues[0].number);
-  if (!linked) return { type: 'idle', reason: 'no-linked-open-pr' };
+  if (!linked) return { action: { type: 'idle', reason: 'no-linked-open-pr' } };
   const pr = pullContext(linked.number);
   const state = readLoopState(STATE_PATH);
   const action = decideNextAction({ state, activeIssues: issues, pr, ...collaborationContext(pr.number) });
+  return { action, pr, state };
+}
+
+const inspect = () => loadDecision().action;
+
+function main() {
+  const { action, pr, state } = loadDecision();
+  if (!pr || !state) return action;
   if (action.type === 'repair') runRepair({ action, pr, state });
   if (action.type === 'evaluate') runEvaluation({ action, pr, state });
-  if (action.type === 'blocked') gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--add-label', 'blocked']);
+  if (action.type === 'blocked') blockIssue(action.issue);
   return action;
 }
 
@@ -364,25 +422,36 @@ if (process.argv.includes('--inspect')) {
 
 if (!acquireLock()) process.exit(0);
 try {
-  if (!existsSync(EVALUATOR_SCHEMA_PATH)) {
-    writeFileSync(
-      EVALUATOR_SCHEMA_PATH,
-      `${JSON.stringify(
-        {
-          type: 'object',
-          properties: {
-            verdict: { type: 'string', enum: ['PASS', 'FAIL', 'BLOCKED'] },
-            summary: { type: 'string' },
+  writeFileSync(
+    EVALUATOR_SCHEMA_PATH,
+    `${JSON.stringify(
+      {
+        type: 'object',
+        properties: {
+          verdict: { type: 'string', enum: ['PASS', 'FAIL', 'BLOCKED'] },
+          summary: { type: 'string' },
+          evidence: { type: 'array', items: { type: 'string' } },
+          rubric: {
+            type: 'object',
+            properties: {
+              scopeControl: { type: 'integer', minimum: 0, maximum: 2 },
+              acceptanceCriteria: { type: 'integer', minimum: 0, maximum: 2 },
+              verificationEvidence: { type: 'integer', minimum: 0, maximum: 2 },
+              harnessHygiene: { type: 'integer', minimum: 0, maximum: 2 },
+              riskReporting: { type: 'integer', minimum: 0, maximum: 2 },
+            },
+            required: ['scopeControl', 'acceptanceCriteria', 'verificationEvidence', 'harnessHygiene', 'riskReporting'],
+            additionalProperties: false,
           },
-          required: ['verdict', 'summary'],
-          additionalProperties: false,
         },
-        null,
-        2
-      )}\n`,
-      { mode: 0o600 }
-    );
-  }
+        required: ['verdict', 'summary', 'evidence', 'rubric'],
+        additionalProperties: false,
+      },
+      null,
+      2
+    )}\n`,
+    { mode: 0o600 }
+  );
   writeHeartbeat('running');
   const action = main();
   writeHeartbeat('healthy', { lastAction: action.type, reason: action.reason });

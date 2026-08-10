@@ -1,15 +1,25 @@
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 
 export const MAX_REPAIR_ATTEMPTS = 2;
+const RUNNING_MAX_AGE_MS = 30 * 60 * 1000;
 
 /** @returns {any} */
 export function createLoopState() {
   return { version: 1, repairs: {}, attemptsByPr: {}, evaluations: {} };
 }
 
+function freshRunning(record, now) {
+  const startedAt = Date.parse(record?.startedAt ?? '');
+  return record?.result === 'running' && Number.isFinite(startedAt) && now - startedAt <= RUNNING_MAX_AGE_MS;
+}
+
 /** @param {any} state */
-export function processedKeys(state) {
-  return new Set(Object.keys(state.repairs ?? {}));
+export function processedKeys(state, now = Date.now()) {
+  return new Set(
+    Object.entries(state.repairs ?? {})
+      .filter(([, record]) => record?.result === 'submitted' || freshRunning(record, now))
+      .map(([key]) => key)
+  );
 }
 
 /** @param {any} state */
@@ -35,8 +45,9 @@ export function finishRepair(state, { key, result, headAfter = null, at }) {
 }
 
 /** @param {any} state */
-export function hasEvaluation(state, head) {
-  return Boolean(state.evaluations?.[head]);
+export function hasEvaluation(state, head, now = Date.now()) {
+  const evaluation = state.evaluations?.[head];
+  return ['PASS', 'FAIL', 'BLOCKED'].includes(evaluation?.verdict) || freshRunning({ ...evaluation, result: evaluation?.verdict }, now);
 }
 
 /** @param {any} state */
