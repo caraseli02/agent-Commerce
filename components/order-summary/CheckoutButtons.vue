@@ -12,7 +12,8 @@
           </div>
         </NuxtLink>
       </div>
-      <div v-if="isGuestCheckout">
+
+      <div v-if="showGuestSignInWall" class="flex flex-col gap-3">
         <NuxtLink
           :to="signinHref"
           class="flex min-h-[52px] items-center justify-center w-full rounded-xl bg-blue-500 px-6 py-2 text-white transition-colors duration-300 hover:bg-blue-400 shadow-sm"
@@ -22,7 +23,16 @@
             <span class="text-white text-base font-medium leading-7">Sign in to Continue Checkout</span>
           </div>
         </NuxtLink>
+        <button
+          type="button"
+          data-testid="checkout-as-guest"
+          class="flex min-h-[52px] items-center justify-center w-full rounded-xl border border-slate-300 bg-white px-6 py-2 text-slate-700 transition-colors duration-300 hover:border-slate-400 hover:bg-slate-50"
+          @click="startGuestCheckout"
+        >
+          <span class="text-base font-medium leading-7">Checkout as Guest</span>
+        </button>
       </div>
+
       <div v-else>
         <UiButton
           :disabled="isCheckoutDisabled"
@@ -52,6 +62,7 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import ArrowLeft from '@/assets/icons/arrow-left.svg';
 import ShieldIcon from '@/assets/icons/shield.svg';
@@ -61,12 +72,25 @@ import BadgeApplePay from '@/assets/icons/badge-applepay.svg';
 import BadgeGooglePay from '@/assets/icons/badge-googlepay.svg';
 import BadgeStripe from '@/assets/icons/badge-stripe.svg';
 import { useCheckoutStore } from '~/store/checkoutStore';
+import { useGuestCheckout } from '~/composables/useGuestCheckout';
 
-defineProps<{
+const props = defineProps<{
   isCheckoutDisabled: boolean;
   isGuestCheckout?: boolean;
   signinHref?: string;
 }>();
+
+const router = useRouter();
+const { guestCheckoutMode, enableGuestCheckout } = useGuestCheckout();
+
+const showGuestSignInWall = computed(() => Boolean(props.isGuestCheckout) && !guestCheckoutMode.value);
+
+const startGuestCheckout = async () => {
+  enableGuestCheckout();
+  if (router.currentRoute.value.path !== '/order-summary') {
+    await router.push('/order-summary');
+  }
+};
 
 const stopButtonTrigger = async () => {};
 

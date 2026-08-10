@@ -3,35 +3,40 @@
     class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px]"
   >
     <NuxtLink
-      :to="`/product/${product.alias || product._id}`"
+      :to="productRoute"
       :aria-label="`View ${product.name}`"
-      class="absolute inset-0 z-10 grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-    >
-      <span class="sr-only">View {{ product.name }}</span>
-    </NuxtLink>
-
-    <div
-      class="relative z-20 col-start-1 row-start-1 row-span-2 w-full max-w-[108px] self-start md:max-w-none md:row-span-auto md:self-auto"
+      class="group relative col-start-1 row-start-1 row-span-2 w-full max-w-[108px] self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 md:max-w-none md:row-span-auto md:self-auto"
     >
       <!-- Catalog media frame: white backdrop; cover fills the frame -->
-      <div class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-white md:aspect-auto md:h-[160px]">
+      <div
+        class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-white transition-transform duration-200 group-hover:scale-[1.02] md:aspect-auto md:h-[160px]"
+      >
         <ProductCardStock :stock="product.stock" />
-        <ImageWithFallback :src="productCardImageSrc" :alt="product.name" class-name="h-full w-full object-cover object-center" />
+        <ImageWithFallback
+          :src="productCardImageSrc"
+          :alt="product.name"
+          class-name="h-full w-full object-cover object-center transition-opacity duration-200 group-hover:opacity-95"
+        />
       </div>
       <div
         v-if="productDiscount"
-        class="absolute left-0 top-2 rounded-full px-2 text-sm font-semibold !leading-[1.5rem] text-rose-500 ring-1 ring-rose-500"
+        class="pointer-events-none absolute left-0 top-2 rounded-full px-2 text-sm font-semibold !leading-[1.5rem] text-rose-500 ring-1 ring-rose-500"
       >
         {{ productDiscount ?? 0 }}%
       </div>
-    </div>
+    </NuxtLink>
 
-    <div class="relative z-20 col-start-2 row-start-1 flex w-full min-w-0 max-w-full flex-col gap-1 md:min-h-[64px]">
+    <div class="relative col-start-2 row-start-1 flex w-full min-w-0 max-w-full flex-col gap-1 md:min-h-[64px]">
       <div class="flex w-full min-w-0 max-w-full items-start gap-1 md:items-center md:gap-2">
         <h3
           class="min-w-0 flex-1 overflow-hidden text-sm font-semibold leading-snug text-neutral-700 line-clamp-2 md:truncate md:text-base md:leading-normal"
         >
-          {{ product.name }}
+          <NuxtLink
+            :to="productRoute"
+            class="cursor-pointer rounded-sm text-inherit transition-colors hover:text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          >
+            {{ product.name }}
+          </NuxtLink>
         </h3>
         <!-- Wrapper needed: UiDropdownMenu/Root does not forward class attrs; keep md:hidden here -->
         <div class="ml-auto shrink-0 md:hidden">
@@ -64,7 +69,7 @@
     </div>
 
     <div
-      class="relative z-20 col-start-2 row-start-2 flex min-w-0 items-end justify-between gap-2 self-stretch md:col-start-auto md:row-start-auto md:mt-auto md:block md:h-full md:min-h-[39px]"
+      class="relative col-start-2 row-start-2 flex min-w-0 items-end justify-between gap-2 self-stretch md:col-start-auto md:row-start-auto md:mt-auto md:block md:h-full md:min-h-[39px]"
     >
       <div class="min-w-0">
         <div class="min-h-[14px] text-xs leading-tight line-through">
@@ -124,6 +129,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+const productRoute = computed(() => `/product/${props.product.alias || props.product._id}`);
 
 const isThisProductAdding = computed(() => isProductAddInFlight(props.product._id ?? ''));
 

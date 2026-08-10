@@ -14,6 +14,9 @@ import { useCheckoutStore } from '~/store/checkoutStore';
 import { toast } from '~/components/ui/toast';
 import { sendOrder, validateAddress } from '~/composables/api/orders';
 import { resolveCheckoutOutcome, type CheckoutFailure, type CheckoutOutcome } from '~/helpers/checkout-outcome';
+import { isCompleteGuestContact, isCompleteSavedAddress } from '~/helpers/address.helper';
+import type { GuestCheckoutContact } from '~/types/order-summary/item';
+import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 
 interface AddressValidationResponse {
   data: {
@@ -25,6 +28,11 @@ interface CheckoutOrderSummary {
   products?: CartProductsInterface[];
   subtotal?: number;
   total?: number;
+  guestContact?: GuestCheckoutContact | null;
+  shippingDetails?: {
+    address: ShippingAddressInterface | null;
+    billingAddress: ShippingAddressInterface | null;
+  };
 }
 
 export function useOrder() {
@@ -131,12 +139,75 @@ export function useOrder() {
     note: string,
     orderSummary?: CheckoutOrderSummary
   ) => {
-    if (!user.value || !user.value?.contactDetails || !deliveryMethod || !paymentDetails) {
+    const guestContact = orderSummary?.guestContact;
+    const draftShippingAddress = orderSummary?.shippingDetails?.address ?? null;
+    const draftBillingAddress = orderSummary?.shippingDetails?.billingAddress ?? null;
+    const isGuestCheckout = Boolean(guestContact) && !user.value?.contactDetails;
+
+    if (!deliveryMethod || !paymentDetails) {
       checkout.value = false;
       return;
     }
 
-    if (user.value.role === AccountRole.Client) {
+    if (isGuestCheckout) {
+      if (
+        !isCompleteGuestContact(guestContact) ||
+        !isCompleteSavedAddress(draftShippingAddress) ||
+        !isCompleteSavedAddress(draftBillingAddress)
+      ) {
+        checkout.value = false;
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Please complete your contact and address details before checkout.',
+        });
+        return;
+      }
+
+      orderRequestObject.value = {
+        isDraft: false,
+        cartId: cartId,
+        currency: 'ron',
+        type: orderType,
+        products: orderSummary?.products ?? [],
+        subtotal: Number(orderSummary?.subtotal || 0),
+        total: Number(orderSummary?.total || 0),
+        shippingCost: Number(deliveryMethod.price?.total || 0),
+        shippingDetails: {
+          firstName: guestContact.firstName,
+          lastName: guestContact.lastName,
+          city: draftShippingAddress.city,
+          country: draftShippingAddress.country,
+          phone: guestContact.phone,
+          email: guestContact.email,
+          address: draftShippingAddress,
+          billingAddress: draftBillingAddress,
+          deliveryTypeId: deliveryMethod.service?.id?.toString() ?? '',
+          stockorderShippingType: deliveryMethod,
+          backorderShippingTypeId: backOrderOption?._id,
+        },
+        smallOrderChargeId: smallOrder?._id,
+        paymentDetails: {
+          type: paymentDetails.type,
+        },
+      } as OrderRequestInterface;
+
+      if (paymentDetails.type === PaymentTypeEnum.Card) {
+        orderRequestObject.value.stripeCardId = paymentDetails.card?.id || null;
+      }
+
+      if (note) {
+        orderRequestObject.value.notes = [
+          {
+            sender: 'guest-checkout',
+            message: note,
+          },
+        ];
+      }
+    } else if (!user.value || !user.value?.contactDetails) {
+      checkout.value = false;
+      return;
+    } else if (user.value.role === AccountRole.Client) {
       const isPersonalAccount = user.value.accountType === AccountType.Personal;
       const nameDetails = isPersonalAccount
         ? {
@@ -151,6 +222,19 @@ export function useOrder() {
             city: user.value.companyDetails?.address.city,
             country: user.value.companyDetails?.address.country,
           };
+
+      const shippingAddress = getShipping();
+      const billingAddress = getBilling();
+
+      if (!isCompleteSavedAddress(shippingAddress) || !isCompleteSavedAddress(billingAddress)) {
+        checkout.value = false;
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Please add your shipping and billing addresses before checkout.',
+        });
+        return;
+      }
 
       orderRequestObject.value = {
         isDraft: false,
@@ -167,8 +251,8 @@ export function useOrder() {
           city: nameDetails.city ?? '',
           country: nameDetails.country ?? '',
           phone: user.value.contactDetails.phone,
-          address: getShipping(),
-          billingAddress: getBilling(),
+          address: shippingAddress,
+          billingAddress: billingAddress,
           deliveryTypeId: deliveryMethod.service?.id?.toString() ?? '',
           stockorderShippingType: deliveryMethod,
           backorderShippingTypeId: backOrderOption?._id,
@@ -191,6 +275,11 @@ export function useOrder() {
           },
         ];
       }
+    }
+
+    if (!orderRequestObject.value.shippingDetails?.address || !orderRequestObject.value.shippingDetails?.billingAddress) {
+      checkout.value = false;
+      return;
     }
 
     const resultShipping = (await validateAddress({

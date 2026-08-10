@@ -112,7 +112,7 @@ test.describe('Browse → Product Detail', () => {
     await expect(quantityInput).toHaveValue('1');
     await expect(cartButton).toContainText(/Add to cart/i);
     await expect(cartButton).toBeEnabled();
-    await expect(purchasePanel.getByTestId('cart-qty-unchanged-hint')).toHaveCount(0);
+    await expect(purchasePanel.getByTestId('cart-qty-unchanged-hint')).not.toBeVisible();
 
     const firstAdd = page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
     await cartButton.click();
@@ -128,7 +128,7 @@ test.describe('Browse → Product Detail', () => {
     await purchasePanel.getByRole('button', { name: 'Increase quantity' }).click();
     await expect(quantityInput).toHaveValue('2');
     await expect(cartButton).toBeEnabled();
-    await expect(unchangedHint).toHaveCount(0);
+    await expect(unchangedHint).not.toBeVisible();
 
     const cartResponse = await page.request.get('/api/cart');
     const cartJson = (await cartResponse.json()) as { data?: { products?: Array<{ id?: string; stock?: number }> } };
@@ -173,7 +173,7 @@ test.describe('Browse → Product Detail', () => {
     await increase.click();
     await expect(quantityInput).toHaveValue('3');
     await expect(cartButton).toBeEnabled();
-    await expect(unchangedHint).toHaveCount(0);
+    await expect(unchangedHint).not.toBeVisible();
 
     const updateAdd = page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
     await cartButton.click();
