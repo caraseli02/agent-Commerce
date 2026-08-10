@@ -9,3 +9,7 @@ export function findClaimedIssueForPr({ pr, activeIssues = [] } = {}) {
   const linkedNumbers = new Set((pr?.closingIssuesReferences ?? []).map((issue) => issue?.number));
   return linkedNumbers.has(activeIssue.number) ? activeIssue : null;
 }
+
+export function failureMatchesCurrentHead(marker, prState) {
+  return Boolean(marker?.head && prState?.headRefOid && marker.head === prState.headRefOid);
+}

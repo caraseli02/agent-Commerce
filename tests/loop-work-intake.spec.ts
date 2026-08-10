@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { findClaimedIssueForPr } from '../scripts/loop-work-intake.mjs';
+import { failureMatchesCurrentHead, findClaimedIssueForPr } from '../scripts/loop-work-intake.mjs';
 
 describe('loop work intake', () => {
   it('accepts the only active issue when the PR closes it', () => {
@@ -45,5 +45,11 @@ describe('loop work intake', () => {
         ],
       })
     ).toBeNull();
+  });
+
+  it('accepts evaluator failure feedback only for the current PR head', () => {
+    expect(failureMatchesCurrentHead({ head: 'a'.repeat(40) }, { headRefOid: 'a'.repeat(40) })).toBe(true);
+    expect(failureMatchesCurrentHead({ head: 'b'.repeat(40) }, { headRefOid: 'a'.repeat(40) })).toBe(false);
+    expect(failureMatchesCurrentHead(null, { headRefOid: 'a'.repeat(40) })).toBe(false);
   });
 });

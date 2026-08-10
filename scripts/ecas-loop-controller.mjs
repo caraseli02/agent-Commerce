@@ -9,7 +9,7 @@ import { acquireLeaseLock, readControllerHealth, recordHeartbeat, releaseLeaseLo
 import { ciAllowsEvaluation, findPendingCiSignal } from './loop-ci-intake.mjs';
 import { findPendingReviewSignal } from './loop-review-intake.mjs';
 import { appendAccountabilityRecord, buildAccountabilityRecord, DEFAULT_LOOP_BUDGETS } from './loop-run-ledger.mjs';
-import { findClaimedIssueForPr } from './loop-work-intake.mjs';
+import { failureMatchesCurrentHead, findClaimedIssueForPr } from './loop-work-intake.mjs';
 
 const USER_HOME = process.env.ECAS_CONTROLLER_HOME ?? homedir();
 const REPO = process.env.ECAS_REPO ?? 'caraseli02/Ecas';
@@ -131,7 +131,7 @@ const getPrState = (pr) =>
       '--repo',
       REPO,
       '--json',
-      'number,state,headRefName,headRefOid,mergeable,mergeStateStatus,statusCheckRollup,closingIssuesReferences',
+      'number,state,headRefName,headRefOid,mergeable,mergeStateStatus,statusCheckRollup,closingIssuesReferences,commits',
     ])
   );
 
@@ -145,6 +145,8 @@ const activeMarkerIsFresh = (comment) => Date.now() - new Date(comment.created_a
 
 const findPendingReadyAttempt = () => {
   const candidates = [];
+  const activeIssues = getInProgressIssues();
+  if (activeIssues.length !== 1) return null;
 
   for (const pr of getOpenPulls()) {
     const comments = getComments(pr.number);
@@ -181,6 +183,8 @@ const findPendingReadyAttempt = () => {
       if (activeRun && activeMarkerIsFresh(activeRun.comment)) continue;
 
       const state = getPrState(pr.number);
+      const claimedIssue = findClaimedIssueForPr({ pr: state, activeIssues });
+      if (!claimedIssue) continue;
       if (state.headRefOid !== marker.head) continue;
       if (state.mergeable === 'UNKNOWN' || state.mergeStateStatus === 'UNKNOWN') continue;
 
@@ -191,6 +195,7 @@ const findPendingReadyAttempt = () => {
         state,
         readyComment: candidate.comment,
         marker,
+        claimedIssue,
         createdAt: candidate.comment.created_at,
       });
     }
@@ -216,6 +221,7 @@ const findPendingFailure = () => {
       .filter(({ marker }) => marker && Number(marker.pr) === pr.number);
     const latest = evaluatorComments.at(-1);
     if (!latest || latest.marker.verdict !== 'FAIL') continue;
+    if (!failureMatchesCurrentHead(latest.marker, state)) continue;
 
     const relatedRepairComments = comments
       .filter(trusted)
@@ -264,7 +270,14 @@ const findPendingReviewFinding = () => {
         .filter(Boolean)
     );
     const signal = findPendingReviewSignal({
-      pr,
+      pr: {
+        ...pr,
+        head: {
+          ...pr.head,
+          sha: state.headRefOid,
+          committedAt: state.commits?.at(-1)?.committedDate,
+        },
+      },
       issueComments: comments,
       reviewComments: getReviewComments(pr.number),
       reviews: getReviews(pr.number),
