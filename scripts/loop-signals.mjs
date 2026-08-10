@@ -61,6 +61,7 @@ export function selectRepairSignal({ pr, issueComments = [], reviews = [], revie
       sourceUrl: review.html_url,
       head: pr.head,
       createdAt: review.submitted_at,
+      ...(String(review.body ?? '').trim() ? { instruction: String(review.body).trim() } : {}),
     };
     const candidate = pending(signal);
     if (candidate) return candidate;
@@ -84,6 +85,7 @@ export function selectRepairSignal({ pr, issueComments = [], reviews = [], revie
       sourceUrl: comment.html_url,
       head: pr.head,
       createdAt: comment.created_at,
+      instruction: body,
     };
     const candidate = pending(signal);
     if (candidate) return candidate;
@@ -100,6 +102,7 @@ export function selectRepairSignal({ pr, issueComments = [], reviews = [], revie
           sourceUrl: comment.html_url,
           head: pr.head,
           createdAt: comment.created_at,
+          instruction: body,
         };
         const candidate = pending(signal);
         if (candidate) return candidate;

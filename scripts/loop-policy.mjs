@@ -17,6 +17,7 @@ function claimedIssue(pr, activeIssues) {
 export function decideNextAction({ state, activeIssues = [], pr, issueComments = [], reviews = [], reviewComments = [] }) {
   const issue = claimedIssue(pr, activeIssues);
   if (!issue) return { type: 'idle', reason: 'no-single-linked-work-item' };
+  if (pr.trustedAuthor === false) return { type: 'idle', reason: 'untrusted-pr-author' };
 
   const signal = selectRepairSignal({
     pr,

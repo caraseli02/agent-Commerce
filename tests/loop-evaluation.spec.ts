@@ -40,7 +40,7 @@ describe('normalizeEvaluation', () => {
     };
 
     expect(normalizeEvaluation({ ...base, currentHead: 'b'.repeat(40) }).verdict).toBe('STALE');
-    expect(normalizeEvaluation({ ...base, succeeded: false }).verdict).toBe('BLOCKED');
+    expect(normalizeEvaluation({ ...base, succeeded: false })).toMatchObject({ verdict: 'DEFERRED', stale: true });
     expect(normalizeEvaluation({ ...base, mergeable: 'CONFLICTING', mergeStateStatus: 'DIRTY' }).verdict).toBe('FAIL');
     expect(normalizeEvaluation({ ...base, mergeable: 'UNKNOWN' })).toMatchObject({ verdict: 'DEFERRED', stale: true });
     expect(
@@ -49,5 +49,18 @@ describe('normalizeEvaluation', () => {
         value: { ...passing, evidence: [], rubric: { ...passing.rubric, verificationEvidence: 0 } },
       }).verdict
     ).toBe('FAIL');
+  });
+
+  it('defers malformed evaluator output so transient failures can retry', () => {
+    expect(
+      normalizeEvaluation({
+        value: null,
+        succeeded: true,
+        expectedHead: 'a'.repeat(40),
+        currentHead: 'a'.repeat(40),
+        mergeable: 'MERGEABLE',
+        mergeStateStatus: 'CLEAN',
+      })
+    ).toMatchObject({ verdict: 'DEFERRED', stale: true });
   });
 });

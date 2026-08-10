@@ -52,7 +52,8 @@ export function hasEvaluation(state, head, now = Date.now()) {
 
 /** @param {any} state */
 export function beginEvaluation(state, { pr, head, at }) {
-  state.evaluations[head] = { pr, startedAt: at, verdict: 'running' };
+  const attempts = Number(state.evaluations[head]?.attempts ?? 0) + 1;
+  state.evaluations[head] = { pr, attempts, startedAt: at, verdict: 'running' };
   return state;
 }
 

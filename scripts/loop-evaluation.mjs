@@ -22,12 +22,12 @@ export function normalizeEvaluation(options) {
 
   if (!options.succeeded) {
     return {
-      verdict: 'BLOCKED',
-      summary: 'The evaluator process failed; no verdict was trusted.',
+      verdict: 'DEFERRED',
+      summary: 'The evaluator process failed; the same head will be retried.',
       evidence: [],
       rubric: fallbackRubric(),
       total: 0,
-      stale: false,
+      stale: true,
     };
   }
 
@@ -41,12 +41,12 @@ export function normalizeEvaluation(options) {
     scores.some((score) => !Number.isInteger(score) || score < 0 || score > 2)
   ) {
     return {
-      verdict: 'BLOCKED',
-      summary: 'The evaluator returned invalid structured output; no verdict was trusted.',
+      verdict: 'DEFERRED',
+      summary: 'The evaluator returned invalid structured output; the same head will be retried.',
       evidence: [],
       rubric: fallbackRubric(),
       total: 0,
-      stale: false,
+      stale: true,
     };
   }
 

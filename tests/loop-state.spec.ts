@@ -37,10 +37,22 @@ describe('loop state', () => {
 
     expect(state.evaluations[head]).toEqual({
       pr: 42,
+      attempts: 1,
       startedAt: '2026-08-10T11:00:00Z',
       verdict: 'FAIL',
       completedAt: '2026-08-10T11:10:00Z',
     });
+  });
+
+  it('counts evaluator retries on the same head', () => {
+    const state = createLoopState();
+    const head = 'e'.repeat(40);
+
+    beginEvaluation(state, { pr: 42, head, at: '2026-08-10T11:00:00Z' });
+    finishEvaluation(state, { head, verdict: 'DEFERRED', at: '2026-08-10T11:05:00Z' });
+    beginEvaluation(state, { pr: 42, head, at: '2026-08-10T11:10:00Z' });
+
+    expect(state.evaluations[head].attempts).toBe(2);
   });
 
   it('retries failed or stale-running work without duplicating live work', () => {

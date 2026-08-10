@@ -42,6 +42,30 @@ describe('decideNextAction', () => {
     expect(action).toEqual({ type: 'idle', reason: 'no-single-linked-work-item' });
   });
 
+  it('rejects repair and evaluation work from an untrusted PR author', () => {
+    const action = decideNextAction({
+      state: createLoopState(),
+      activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+      pr: {
+        number: 42,
+        head: '7'.repeat(40),
+        linkedIssues: [7],
+        trustedAuthor: false,
+        checks: [
+          {
+            workflowName: 'CI',
+            name: 'verify',
+            status: 'COMPLETED',
+            conclusion: 'FAILURE',
+            detailsUrl: 'https://github.com/acme/repo/actions/runs/12345/job/9',
+          },
+        ],
+      },
+    });
+
+    expect(action).toEqual({ type: 'idle', reason: 'untrusted-pr-author' });
+  });
+
   it('dispatches one evaluator after current-head CI succeeds', () => {
     const head = 'b'.repeat(40);
     const action = decideNextAction({

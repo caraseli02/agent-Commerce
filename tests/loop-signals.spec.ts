@@ -134,6 +134,7 @@ describe('selectRepairSignal', () => {
       sourceUrl: qodoComment.html_url,
       head,
       createdAt: qodoComment.created_at,
+      instruction: qodoComment.body,
       key: `qodo-review:99:${head}`,
     });
 
@@ -168,6 +169,7 @@ describe('selectRepairSignal', () => {
       sourceUrl: 'https://github.com/acme/repo/pull/42#discussion_r111',
       head,
       createdAt: '2026-08-10T10:20:00Z',
+      instruction: 'This condition is reversed.',
       key: `inline-review:111:${head}`,
     });
   });
