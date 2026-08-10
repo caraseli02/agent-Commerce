@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, join } from 'node:path';
 
 import { acquireLeaseLock, readControllerHealth, recordHeartbeat, releaseLeaseLock } from './loop-controller-runtime.mjs';
 import { ciAllowsEvaluation, findPendingCiSignal } from './loop-ci-intake.mjs';
 import { findPendingReviewSignal } from './loop-review-intake.mjs';
+import { appendAccountabilityRecord, buildAccountabilityRecord, DEFAULT_LOOP_BUDGETS } from './loop-run-ledger.mjs';
 import { findClaimedIssueForPr } from './loop-work-intake.mjs';
 
 const USER_HOME = process.env.ECAS_CONTROLLER_HOME ?? homedir();
@@ -17,6 +18,7 @@ const CODEX_HOME = process.env.CODEX_HOME ?? `${USER_HOME}/.codex`;
 const CODEX_BIN = process.env.ECAS_CODEX_BIN ?? '/Applications/ChatGPT.app/Contents/Resources/codex';
 const AUTOMATION_ROOT = process.env.ECAS_AUTOMATION_ROOT ?? `${CODEX_HOME}/automations/ecas-pr-repair-hook`;
 const RUNS_DIR = join(AUTOMATION_ROOT, 'runs');
+const ACCOUNTABILITY_LEDGER = join(AUTOMATION_ROOT, 'loop-runs.jsonl');
 const PATH = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
 const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 const TRUSTED_BOTS = new Set(['cursoragent', 'cursoragent[bot]']);
@@ -204,7 +206,8 @@ const findPendingFailure = () => {
 
   for (const pr of getOpenPulls()) {
     const state = getPrState(pr.number);
-    if (!findClaimedIssueForPr({ pr: state, activeIssues })) continue;
+    const claimedIssue = findClaimedIssueForPr({ pr: state, activeIssues });
+    if (!claimedIssue) continue;
 
     const comments = getComments(pr.number);
     const evaluatorComments = comments
@@ -235,6 +238,7 @@ const findPendingFailure = () => {
       pr,
       failureComment: latest.comment,
       failureMarker: latest.marker,
+      claimedIssue,
       createdAt: latest.comment.created_at,
     });
   }
@@ -249,7 +253,8 @@ const findPendingReviewFinding = () => {
 
   for (const pr of getOpenPulls()) {
     const state = getPrState(pr.number);
-    if (!findClaimedIssueForPr({ pr: state, activeIssues })) continue;
+    const claimedIssue = findClaimedIssueForPr({ pr: state, activeIssues });
+    if (!claimedIssue) continue;
 
     const comments = getComments(pr.number);
     const processedSourceIds = new Set(
@@ -266,7 +271,7 @@ const findPendingReviewFinding = () => {
       processedSourceIds,
     });
 
-    if (signal) candidates.push({ pr, signal, createdAt: signal.createdAt });
+    if (signal) candidates.push({ pr, signal, claimedIssue, createdAt: signal.createdAt });
   }
 
   return candidates.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))[0] ?? null;
@@ -286,7 +291,8 @@ const findPendingCiFailure = () => {
         .filter(Boolean)
     );
     const state = getPrState(pr.number);
-    if (!findClaimedIssueForPr({ pr: state, activeIssues })) continue;
+    const claimedIssue = findClaimedIssueForPr({ pr: state, activeIssues });
+    if (!claimedIssue) continue;
 
     const signal = findPendingCiSignal({
       pr: {
@@ -297,7 +303,7 @@ const findPendingCiFailure = () => {
       processedRunIds,
     });
 
-    if (signal) candidates.push({ pr, signal, createdAt: signal.createdAt });
+    if (signal) candidates.push({ pr, signal, claimedIssue, createdAt: signal.createdAt });
   }
 
   return candidates.sort((a, b) => new Date(a.createdAt ?? 0) - new Date(b.createdAt ?? 0))[0] ?? null;
@@ -314,11 +320,24 @@ const prepareWorktree = (pr, head, role, attempt) => {
   return dir;
 };
 
-const runCodexTask = ({ role, pr, attempt, worktree, prompt }) => {
+const runCodexTask = ({ role, pr, attempt, worktree, prompt, accountability = null }) => {
   const logPath = join(RUNS_DIR, `${attempt}-${role}.jsonl`);
+  if (accountability) {
+    writeFileSync(
+      join(RUNS_DIR, `${attempt}-${role}.meta.json`),
+      `${JSON.stringify({ ...accountability, budgets: DEFAULT_LOOP_BUDGETS }, null, 2)}\n`,
+      { mode: 0o600 }
+    );
+  }
+
+  const budgetedPrompt = `${prompt}\n\nExecution budget:\n- At most ${
+    DEFAULT_LOOP_BUDGETS.max_iterations
+  } focused attempts.\n- Stop and report BLOCKED before total reported usage exceeds ${
+    DEFAULT_LOOP_BUDGETS.max_tokens
+  } tokens or $${DEFAULT_LOOP_BUDGETS.max_cost_usd.toFixed(2)} marginal cost.\n- Do not widen scope to consume the remaining budget.`;
   const output = spawnSync(
     CODEX_BIN,
-    ['exec', '--json', '--sandbox', 'danger-full-access', '--cd', worktree, '-c', 'model_reasoning_effort="high"', prompt],
+    ['exec', '--json', '--sandbox', 'danger-full-access', '--cd', worktree, '-c', 'model_reasoning_effort="high"', budgetedPrompt],
     {
       cwd: worktree,
       env: { ...process.env, PATH },
@@ -330,6 +349,38 @@ const runCodexTask = ({ role, pr, attempt, worktree, prompt }) => {
   writeFileSync(logPath, `${output.stdout ?? ''}${output.stderr ?? ''}`, { mode: 0o600 });
   log(`${role} task for PR #${pr} exited ${output.status}; log ${basename(logPath)}`);
   return output.status === 0;
+};
+
+const recordCompletedAttempt = ({ pr, attempt, head, verdict }) => {
+  const actorRole = ['repair', 'review-repair', 'ci-repair'].find(
+    (role) => existsSync(join(RUNS_DIR, `${attempt}-${role}.jsonl`)) && existsSync(join(RUNS_DIR, `${attempt}-${role}.meta.json`))
+  );
+  if (!actorRole) {
+    log(`no local repair event stream for attempt ${attempt}; accountability record is owned by the originating generator`);
+    return;
+  }
+
+  const evaluatorPath = join(RUNS_DIR, `${attempt}-evaluator.jsonl`);
+  if (!existsSync(evaluatorPath)) throw new Error(`missing evaluator event stream for accountable attempt ${attempt}`);
+
+  const metadata = JSON.parse(readFileSync(join(RUNS_DIR, `${attempt}-${actorRole}.meta.json`), 'utf8'));
+  const completedAt = nowIso();
+  const record = buildAccountabilityRecord({
+    runId: attempt,
+    role: actorRole,
+    pr,
+    issue: metadata.issue,
+    branch: metadata.branch,
+    head,
+    repoRoot: metadata.repoRoot,
+    actorEvents: readFileSync(join(RUNS_DIR, `${attempt}-${actorRole}.jsonl`), 'utf8'),
+    evaluatorEvents: readFileSync(evaluatorPath, 'utf8'),
+    verdict,
+    completedAt,
+    budgets: metadata.budgets,
+  });
+  appendAccountabilityRecord(ACCOUNTABILITY_LEDGER, record);
+  log(`recorded accountable ${actorRole} attempt ${attempt} with evaluator verdict ${verdict}`);
 };
 
 const startRepair = (candidate) => {
@@ -388,7 +439,18 @@ If a human decision or external blocker prevents completion, do not post the rea
 
 End your Codex task with a concise repair summary, verification, pushed head, and whether the ready marker was posted.`;
 
-  const succeeded = runCodexTask({ role: 'repair', pr, attempt, worktree, prompt });
+  const succeeded = runCodexTask({
+    role: 'repair',
+    pr,
+    attempt,
+    worktree,
+    prompt,
+    accountability: {
+      issue: candidate.claimedIssue.number,
+      branch: current.headRefName,
+      repoRoot: worktree,
+    },
+  });
   const comments = getComments(pr);
   const ready = comments.find((comment) => {
     if (!trusted(comment)) return false;
@@ -468,7 +530,18 @@ If a human decision blocks the repair, do not post generator-ready. Post one com
 
 End with a concise triage, repair, verification, pushed-head, and thread-resolution summary.`;
 
-  const succeeded = runCodexTask({ role: 'review-repair', pr, attempt, worktree, prompt });
+  const succeeded = runCodexTask({
+    role: 'review-repair',
+    pr,
+    attempt,
+    worktree,
+    prompt,
+    accountability: {
+      issue: candidate.claimedIssue.number,
+      branch: current.headRefName,
+      repoRoot: worktree,
+    },
+  });
   const comments = getComments(pr);
   const ready = comments.find((comment) => {
     if (!trusted(comment)) return false;
@@ -548,7 +621,18 @@ If two focused attempts fail or a human decision is needed, do not post generato
 
 End with the failure class, repair, verification, current head, CI result, and ready-marker status.`;
 
-  const succeeded = runCodexTask({ role: 'ci-repair', pr, attempt, worktree, prompt });
+  const succeeded = runCodexTask({
+    role: 'ci-repair',
+    pr,
+    attempt,
+    worktree,
+    prompt,
+    accountability: {
+      issue: candidate.claimedIssue.number,
+      branch: current.headRefName,
+      repoRoot: worktree,
+    },
+  });
   const comments = getComments(pr);
   const ready = comments.find((comment) => {
     if (!trusted(comment)) return false;
@@ -626,6 +710,15 @@ End your Codex task with a concise summary of the evaluated PR/head/attempt, ver
     const marker = evaluatorMarker(comment.body);
     return marker?.version === '2' && marker.attempt === attempt && marker.head === head;
   });
+
+  if (verdict) {
+    recordCompletedAttempt({
+      pr,
+      attempt,
+      head,
+      verdict: evaluatorMarker(verdict.body).verdict,
+    });
+  }
 
   if (!verdict) {
     postComment(
