@@ -5,7 +5,12 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { parseAndValidateLedger } from '../scripts/loop-accountability.mjs';
-import { appendAccountabilityRecord, buildAccountabilityRecord } from '../scripts/loop-run-ledger.mjs';
+import {
+  appendAccountabilityRecord,
+  buildAccountabilityCandidate,
+  buildAccountabilityRecord,
+  finalizeAccountabilityRecord,
+} from '../scripts/loop-run-ledger.mjs';
 
 const head = 'a'.repeat(40);
 const completedAt = '2026-08-10T13:00:00.000Z';
@@ -95,6 +100,40 @@ describe('loop run accountability ledger', () => {
     const contents = readFileSync(ledgerPath, 'utf8');
     expect(parseAndValidateLedger(contents)).toHaveLength(2);
     expect(contents.trim().split('\n')).toHaveLength(2);
+  });
+
+  it('preserves a failed actor candidate before independent evaluation', () => {
+    const candidate = buildAccountabilityCandidate({
+      runId: 'attempt-failed',
+      role: 'review-repair',
+      pr: 99,
+      issue: 42,
+      branch: 'codex/issue-42',
+      head,
+      repoRoot: '/repo',
+      actorEvents: eventStream('generator-thread'),
+      actorStatus: 'failed',
+      completedAt,
+    });
+
+    expect(candidate).toMatchObject({
+      actor_stop: { status: 'failed', at: completedAt },
+      outcome: { pr: 99 },
+    });
+    expect(candidate).not.toHaveProperty('evaluation');
+
+    const record = finalizeAccountabilityRecord({
+      candidate,
+      evaluatorEvents: eventStream('accountability-evaluator-thread'),
+      verdict: 'FAIL',
+      completedAt: '2026-08-10T13:01:00.000Z',
+    });
+    expect(parseAndValidateLedger(`${JSON.stringify(record)}\n`)).toHaveLength(1);
+    expect(record).toMatchObject({
+      evaluation: { agent_id: 'accountability-evaluator-thread', verdict: 'FAIL' },
+      stop: { reason: 'rejected' },
+      outcome: { accepted_change: null },
+    });
   });
 
   it('rejects prohibited commands and over-budget usage', () => {

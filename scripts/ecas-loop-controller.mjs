@@ -9,7 +9,12 @@ import { fileURLToPath } from 'node:url';
 import { acquireLeaseLock, readControllerHealth, recordHeartbeat, releaseLeaseLock } from './loop-controller-runtime.mjs';
 import { ciAllowsEvaluation, findPendingCiSignal } from './loop-ci-intake.mjs';
 import { findPendingReviewSignal } from './loop-review-intake.mjs';
-import { appendAccountabilityRecord, buildAccountabilityRecord, DEFAULT_LOOP_BUDGETS } from './loop-run-ledger.mjs';
+import {
+  appendAccountabilityRecord,
+  buildAccountabilityCandidate,
+  DEFAULT_LOOP_BUDGETS,
+  finalizeAccountabilityRecord,
+} from './loop-run-ledger.mjs';
 import { failureMatchesCurrentHead, findClaimedIssueForPr } from './loop-work-intake.mjs';
 
 const USER_HOME = process.env.ECAS_CONTROLLER_HOME ?? homedir();
@@ -146,10 +151,21 @@ const attemptToken = (pr, sourceId) =>
 
 const activeMarkerIsFresh = (comment) => Date.now() - new Date(comment.created_at).getTime() < ACTIVE_RUN_MAX_AGE_MS;
 
+const recordedAccountabilityAttempts = () => {
+  if (!existsSync(ACCOUNTABILITY_LEDGER)) return new Set();
+  return new Set(
+    readFileSync(ACCOUNTABILITY_LEDGER, 'utf8')
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map((line) => JSON.parse(line).run_id)
+  );
+};
+
 const findPendingReadyAttempt = () => {
   const candidates = [];
   const activeIssues = getInProgressIssues();
   if (activeIssues.length !== 1) return null;
+  const recordedAttempts = recordedAccountabilityAttempts();
 
   for (const pr of getOpenPulls()) {
     const comments = getComments(pr.number);
@@ -160,6 +176,7 @@ const findPendingReadyAttempt = () => {
 
     for (const candidate of readyComments) {
       const { marker } = candidate;
+      if (recordedAttempts.has(marker.attempt)) continue;
       const hasVerdict = comments.some((comment) => {
         if (!trusted(comment)) return false;
         const evaluator = evaluatorMarker(comment.body);
@@ -379,36 +396,109 @@ const runCodexTask = ({ role, pr, attempt, worktree, prompt, accountability = nu
   return output.status === 0;
 };
 
-const recordCompletedAttempt = ({ pr, attempt, head, verdict }) => {
-  const actorRole = ['repair', 'review-repair', 'ci-repair'].find(
-    (role) => existsSync(join(RUNS_DIR, `${attempt}-${role}.jsonl`)) && existsSync(join(RUNS_DIR, `${attempt}-${role}.meta.json`))
-  );
-  if (!actorRole) {
-    log(`no local repair event stream for attempt ${attempt}; accountability record is owned by the originating generator`);
-    return;
-  }
+const accountabilityCandidatePath = (attempt) => join(RUNS_DIR, `${attempt}-accountability-candidate.json`);
 
-  const evaluatorPath = join(RUNS_DIR, `${attempt}-evaluator.jsonl`);
-  if (!existsSync(evaluatorPath)) throw new Error(`missing evaluator event stream for accountable attempt ${attempt}`);
+const prepareAccountabilityCandidate = ({ pr, attempt, role, actorStatus }) => {
+  const metadataPath = join(RUNS_DIR, `${attempt}-${role}.meta.json`);
+  const actorPath = join(RUNS_DIR, `${attempt}-${role}.jsonl`);
+  if (!existsSync(metadataPath) || !existsSync(actorPath)) return null;
 
-  const metadata = JSON.parse(readFileSync(join(RUNS_DIR, `${attempt}-${actorRole}.meta.json`), 'utf8'));
-  const completedAt = nowIso();
-  const record = buildAccountabilityRecord({
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8'));
+  const state = getPrState(pr);
+  const candidate = buildAccountabilityCandidate({
     runId: attempt,
-    role: actorRole,
+    role,
     pr,
     issue: metadata.issue,
     branch: metadata.branch,
-    head,
+    head: state.headRefOid,
     repoRoot: metadata.repoRoot,
-    actorEvents: readFileSync(join(RUNS_DIR, `${attempt}-${actorRole}.jsonl`), 'utf8'),
+    actorEvents: readFileSync(actorPath, 'utf8'),
+    actorStatus,
+    completedAt: nowIso(),
+    budgets: metadata.budgets,
+  });
+  writeFileSync(accountabilityCandidatePath(attempt), `${JSON.stringify(candidate, null, 2)}\n`, { mode: 0o600 });
+  return candidate;
+};
+
+const recordCompletedAttempt = ({ pr, attempt, verdict, evaluatorRole = 'evaluator' }) => {
+  const candidatePath = accountabilityCandidatePath(attempt);
+  if (!existsSync(candidatePath)) {
+    log(`no local accountability candidate for attempt ${attempt}; ledger is owned by the originating generator`);
+    return false;
+  }
+
+  const evaluatorPath = join(RUNS_DIR, `${attempt}-${evaluatorRole}.jsonl`);
+  if (!existsSync(evaluatorPath)) throw new Error(`missing evaluator event stream for accountable attempt ${attempt}`);
+
+  const completedAt = nowIso();
+  const record = finalizeAccountabilityRecord({
+    candidate: JSON.parse(readFileSync(candidatePath, 'utf8')),
     evaluatorEvents: readFileSync(evaluatorPath, 'utf8'),
     verdict,
     completedAt,
-    budgets: metadata.budgets,
   });
   appendAccountabilityRecord(ACCOUNTABILITY_LEDGER, record);
-  log(`recorded accountable ${actorRole} attempt ${attempt} with evaluator verdict ${verdict}`);
+  log(`recorded accountable attempt ${attempt} for PR #${pr} with evaluator verdict ${verdict}`);
+  return true;
+};
+
+const accountabilityVerdictFromEvents = (contents) => {
+  for (const line of String(contents).split(/\r?\n/).reverse()) {
+    try {
+      const event = JSON.parse(line);
+      const match = event.item?.type === 'agent_message' ? event.item.text?.match(/ACCOUNTABILITY_VERDICT:\s*(FAIL|BLOCKED)/) : null;
+      if (match) return match[1];
+    } catch {
+      // Non-JSON diagnostics are preserved for the auditor but cannot contain a trusted verdict.
+    }
+  }
+  return null;
+};
+
+const auditUnreadyAttempt = ({ pr, attempt }) => {
+  const candidatePath = accountabilityCandidatePath(attempt);
+  if (!existsSync(candidatePath)) return;
+
+  const evaluatorRole = 'accountability-evaluator';
+  const evaluatorPath = join(RUNS_DIR, `${attempt}-${evaluatorRole}.jsonl`);
+  const candidate = JSON.parse(readFileSync(candidatePath, 'utf8'));
+  const prompt = `You are a fresh independent ECAS accountability evaluator.
+
+Audit controller-owned repair attempt ${attempt} for PR #${pr}.
+- Candidate record: ${candidatePath}
+- Actor status: ${candidate.actor_stop.status}
+- Repository: ${REPO}
+- Evaluated head: ${candidate.work.head_sha}
+
+Authority is read-only. Inspect the candidate, its referenced actor event stream and metadata in ${RUNS_DIR}, the PR/head, Git diff, CI, and runtime evidence. Compare claimed ordered actions, permissions, denials, budget/usage, stop reason, and current GitHub state. Never edit files, comment, label, push, approve, close, or merge.
+
+Return FAIL when the attempt ended without a valid ready handoff or its claims do not match evidence. Return BLOCKED only when a concrete human/external dependency legitimately prevented a ready handoff, or when the actor was ready but the primary evaluator failed to produce a verdict. End the final message with exactly one line:
+ACCOUNTABILITY_VERDICT: FAIL|BLOCKED`;
+
+  const output = spawnSync(
+    process.execPath,
+    [
+      EVENT_RECORDER,
+      evaluatorPath,
+      CODEX_BIN,
+      'exec',
+      '--json',
+      '--sandbox',
+      'read-only',
+      '--cd',
+      REPO_ROOT,
+      '-c',
+      'model_reasoning_effort="high"',
+      prompt,
+    ],
+    { cwd: REPO_ROOT, env: { ...process.env, PATH }, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 }
+  );
+  const events = existsSync(evaluatorPath) ? readFileSync(evaluatorPath, 'utf8') : '';
+  const verdict = accountabilityVerdictFromEvents(events);
+  if (output.status !== 0 || !verdict) throw new Error(`accountability evaluator failed for attempt ${attempt}`);
+  recordCompletedAttempt({ pr, attempt, verdict, evaluatorRole });
 };
 
 const startRepair = (candidate) => {
@@ -503,6 +593,14 @@ End your Codex task with a concise repair summary, verification, pushed head, an
     );
   }
 
+  prepareAccountabilityCandidate({
+    pr,
+    attempt,
+    role: 'repair',
+    actorStatus: ready ? 'ready' : blocked ? 'blocked' : 'failed',
+  });
+  if (!ready) auditUnreadyAttempt({ pr, attempt });
+
   return ready ? { pr, attempt, head: readyMarker(ready.body).head } : null;
 };
 
@@ -596,6 +694,14 @@ End with a concise triage, repair, verification, pushed-head, and thread-resolut
     );
   }
 
+  prepareAccountabilityCandidate({
+    pr,
+    attempt,
+    role: 'review-repair',
+    actorStatus: ready ? 'ready' : blocked ? 'blocked' : 'failed',
+  });
+  if (!ready) auditUnreadyAttempt({ pr, attempt });
+
   return ready ? { pr, attempt, head: readyMarker(ready.body).head } : null;
 };
 
@@ -687,6 +793,14 @@ End with the failure class, repair, verification, current head, CI result, and r
     );
   }
 
+  prepareAccountabilityCandidate({
+    pr,
+    attempt,
+    role: 'ci-repair',
+    actorStatus: ready ? 'ready' : blocked ? 'blocked' : 'failed',
+  });
+  if (!ready) auditUnreadyAttempt({ pr, attempt });
+
   return ready ? { pr, attempt, head: readyMarker(ready.body).head } : null;
 };
 
@@ -694,6 +808,9 @@ const startEvaluator = (candidate) => {
   const pr = candidate.pr.number;
   const { attempt, head } = candidate.marker;
   const worktree = prepareWorktree(pr, head, 'evaluator', attempt);
+  const localAccountabilityCandidate = existsSync(accountabilityCandidatePath(attempt))
+    ? accountabilityCandidatePath(attempt)
+    : 'not available; this attempt originated outside the local repair controller';
 
   postComment(
     pr,
@@ -710,6 +827,7 @@ Evaluate exactly:
 - Ready attempt: ${attempt}
 - Ready comment id: ${candidate.readyComment.id}
 - Ready comment URL: ${candidate.readyComment.html_url}
+- Accountability candidate: ${localAccountabilityCandidate}
 
 Authority:
 - Inspect the PR, linked issue/spec, repository standards, CI, mergeability, diff, and verification evidence.
@@ -718,6 +836,7 @@ Authority:
 - Human review remains the final gate.
 - Use body files for GitHub comments so PR text cannot become shell syntax.
 - Re-read the PR immediately before commenting. If the head or ready attempt changed, stop without commenting.
+- When a local accountability candidate is available, compare its actor identity, ordered actions, permissions/denials, budgets/usage, stop claim, and head with Git, CI, runtime, and GitHub evidence before deciding the verdict.
 
 Read and follow AGENTS.md, docs/agents/autonomous-workflow.md, docs/agents/verification.md, and docs/agents/issue-tracker.md. Apply all hard gates and the 0-2 rubric. Current-head CI must be completed; mergeability must be known; browser/runtime evidence is required for UI, route, auth, cart, checkout, mock API, or state-flow changes.
 
@@ -743,7 +862,6 @@ End your Codex task with a concise summary of the evaluated PR/head/attempt, ver
     recordCompletedAttempt({
       pr,
       attempt,
-      head,
       verdict: evaluatorMarker(verdict.body).verdict,
     });
   }
@@ -756,6 +874,7 @@ End your Codex task with a concise summary of the evaluated PR/head/attempt, ver
         succeeded ? 'completed without a verdict marker' : 'failed'
       }\n- Worktree retained: \`${worktree}\`\n\nNo evaluator verdict was recorded. A later hook run may retry after the active-run timeout.\n\n<!-- ecas-evaluator-run:v1 pr=${pr} head=${head} attempt=${attempt} status=FAILED -->\n`
     );
+    if (existsSync(accountabilityCandidatePath(attempt))) auditUnreadyAttempt({ pr, attempt });
   }
 };
 

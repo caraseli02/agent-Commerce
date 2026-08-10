@@ -76,7 +76,7 @@ function actionsFromEvents(events, repoRoot, at) {
 }
 
 /** @param {any} options */
-export function buildAccountabilityRecord({
+export function buildAccountabilityCandidate({
   runId,
   role,
   pr,
@@ -85,18 +85,15 @@ export function buildAccountabilityRecord({
   head,
   repoRoot,
   actorEvents,
-  evaluatorEvents,
-  verdict,
+  actorStatus = 'ready',
   completedAt,
   budgets = DEFAULT_LOOP_BUDGETS,
   billing = { mode: 'chatgpt-subscription', cost_source: 'non-metered-local-login' },
 }) {
   const actorEventList = parseEvents(actorEvents);
-  const evaluatorEventList = parseEvents(evaluatorEvents);
   const usage = usageFromEvents(actorEventList);
-  const stopReason = verdict === 'PASS' ? 'accepted' : verdict === 'FAIL' ? 'rejected' : 'blocked';
 
-  const record = {
+  return {
     schema_version: 1,
     run_id: runId,
     agent: {
@@ -119,23 +116,54 @@ export function buildAccountabilityRecord({
     usage,
     billing,
     actions: actionsFromEvents(actorEventList, repoRoot, completedAt),
+    actor_stop: {
+      status: actorStatus,
+      at: completedAt,
+    },
+    outcome: {
+      pr,
+    },
+  };
+}
+
+/** @param {any} options */
+export function finalizeAccountabilityRecord({ candidate, evaluatorEvents, verdict, completedAt }) {
+  const evaluatorEventList = parseEvents(evaluatorEvents);
+  const stopReason = verdict === 'PASS' ? 'accepted' : verdict === 'FAIL' ? 'rejected' : 'blocked';
+  const record = {
+    ...candidate,
     stop: {
       reason: stopReason,
       at: completedAt,
     },
     evaluation: {
       agent_id: agentId(evaluatorEventList, 'evaluator'),
-      head_sha: head,
+      head_sha: candidate.work.head_sha,
       verdict,
       at: completedAt,
     },
     outcome: {
-      accepted_change: verdict === 'PASS' ? `PR #${pr} @ ${head}` : null,
+      ...candidate.outcome,
+      accepted_change: verdict === 'PASS' ? `PR #${candidate.outcome.pr} @ ${candidate.work.head_sha}` : null,
     },
   };
 
   parseAndValidateLedger(`${JSON.stringify(record)}\n`);
   return record;
+}
+
+/** @param {any} options */
+export function buildAccountabilityRecord(options) {
+  const candidate = buildAccountabilityCandidate({
+    ...options,
+    actorStatus: options.verdict === 'PASS' ? 'ready' : options.verdict === 'BLOCKED' ? 'blocked' : 'failed',
+  });
+  return finalizeAccountabilityRecord({
+    candidate,
+    evaluatorEvents: options.evaluatorEvents,
+    verdict: options.verdict,
+    completedAt: options.completedAt,
+  });
 }
 
 export function appendAccountabilityRecord(ledgerPath, record) {
