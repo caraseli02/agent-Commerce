@@ -55,7 +55,7 @@ describe('sanitizeSvg', () => {
   describe('strips event-handler attributes (onload, onclick, onerror, …)', () => {
     const payloads = [
       '<svg><rect onload="alert(1)"/></svg>',
-      '<svg><rect onclick=\'alert(1)\'></rect></svg>',
+      "<svg><rect onclick='alert(1)'></rect></svg>",
       '<svg><rect onerror="x()"/></svg>',
       '<svg><image href="x.png" onload="alert(1)"/></svg>',
       '<svg><rect OnLoad="alert(1)"/></svg>',
@@ -82,11 +82,29 @@ describe('sanitizeSvg', () => {
       // The dangerous attribute should be gone, but the element may remain
       expect(result).toContain('<svg');
     });
+
+    it.each([
+      '<svg><a href="java&#x0A;script:alert(1)">x</a></svg>',
+      '<svg><a href="java&#x09;script:alert(1)">x</a></svg>',
+      '<svg><a href="java%0Ascript:alert(1)">x</a></svg>',
+      '<svg><a href="java%09script:alert(1)">x</a></svg>',
+      '<svg><a href="java%20script:alert(1)">x</a></svg>',
+    ])('strips javascript: URI with an encoded control character: %s', (payload) => {
+      const result = sanitizeSvg(payload);
+
+      expect(result).not.toMatch(/\s(?:xlink:)?href\s*=/i);
+      expect(result).toContain('<svg');
+    });
+  });
+
+  it('rejects well-formed XML that is not an SVG document', () => {
+    expect(sanitizeSvg('<xml><rect/></xml>')).toBe('');
   });
 
   describe('preserves benign SVG', () => {
     it('keeps a simple icon intact (minus dangerous vectors)', () => {
-      const benign = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="20" height="20"/><circle cx="10" cy="10" r="5"/></svg>';
+      const benign =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="20" height="20"/><circle cx="10" cy="10" r="5"/></svg>';
       const result = sanitizeSvg(benign);
       expect(result).toContain('<svg');
       expect(result).toContain('<rect');
@@ -106,7 +124,8 @@ describe('sanitizeSvg', () => {
 
   describe('combined attack vectors', () => {
     it('strips a multi-vector payload', () => {
-      const evil = '<svg><script>alert(1)</script><rect onload="alert(1)"/><foreignObject><body onclick="x()"></body></foreignObject><a xlink:href="javascript:alert(1)">x</a></svg>';
+      const evil =
+        '<svg><script>alert(1)</script><rect onload="alert(1)"/><foreignObject><body onclick="x()"></body></foreignObject><a xlink:href="javascript:alert(1)">x</a></svg>';
       const result = sanitizeSvg(evil);
 
       expect(result).not.toMatch(/script/i);

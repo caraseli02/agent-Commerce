@@ -7,23 +7,27 @@
  * Removes:
  *  - `<script>`, `<foreignObject>`, `<iframe>`, `<object>`, `<embed>` elements
  *  - All `on*` event-handler attributes (onclick, onload, onerror, …)
- *  - `javascript:` URIs from `href` / `xlink:href` / `src` attributes
+ *  - `javascript:` URIs from `href` / `xlink:href` / `src` attributes,
+ *    including schemes obfuscated with encoded whitespace/control characters
  *
  * Uses DOMParser + XMLSerializer (same pattern as the existing
  * `adjustSvgDimensions` helper in `components/icon/Upload.vue`).
  */
 
-const DANGEROUS_TAGS = new Set([
-  'script',
-  'foreignobject',
-  'iframe',
-  'object',
-  'embed',
-]);
+const DANGEROUS_TAGS = new Set(['script', 'foreignobject', 'iframe', 'object', 'embed']);
 
 const URL_ATTRS = new Set(['href', 'xlink:href', 'src']);
 
-const JS_URI_RE = /javascript\s*:/i;
+const CONTROL_OR_WHITESPACE_RE = /[\p{Cc}\s]/gu;
+
+function hasJavaScriptScheme(uri: string): boolean {
+  // DOMParser decodes XML character references, but percent-encoded controls
+  // remain in attribute values. Decode valid `%xx` sequences before removing
+  // the control and whitespace characters browsers ignore in a URL scheme.
+  const decodedUri = uri.replace(/%([0-9a-f]{2})/gi, (_, hex: string) => String.fromCharCode(Number.parseInt(hex, 16)));
+
+  return decodedUri.replace(CONTROL_OR_WHITESPACE_RE, '').toLowerCase().startsWith('javascript:');
+}
 
 /** Returns a sanitized copy of the supplied SVG markup. */
 export function sanitizeSvg(svgContent: string): string {
@@ -36,6 +40,10 @@ export function sanitizeSvg(svgContent: string): string {
 
   // Fail closed on malformed SVG — DOMParser emits a <parsererror> in the body.
   if (doc.querySelector('parsererror')) {
+    return '';
+  }
+
+  if (doc.documentElement.tagName.toLowerCase() !== 'svg') {
     return '';
   }
 
@@ -62,7 +70,7 @@ export function sanitizeSvg(svgContent: string): string {
       }
 
       // javascript: URIs in link/source attributes
-      if (URL_ATTRS.has(attrName) && JS_URI_RE.test(attr.value)) {
+      if (URL_ATTRS.has(attrName) && hasJavaScriptScheme(attr.value)) {
         el.removeAttribute(attr.name);
       }
     }
