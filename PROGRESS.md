@@ -84,5 +84,5 @@
 - Health check: `node scripts/ecas-loop-controller.mjs --health`.
 - Read-only routing check: `node scripts/ecas-loop-controller.mjs --inspect`.
 - Current verified state: healthy; no open PR awaiting evaluator, review repair, or CI repair.
-- Repair intake fails closed unless exactly one linked issue is `in-progress`; completed controller-owned attempts append a validated actor/evaluator record to the local `loop-runs.jsonl` ledger.
+- Repair and evaluator intake fail closed unless exactly one linked issue is `in-progress`, and stale evaluator failures cannot repair a newer head. Controller-owned actions stream into timestamped candidate evidence before review; successful, failed, and blocked attempts append a separately evaluated record to the local `loop-runs.jsonl` ledger.
 - Weekly reflection: active Codex automation `ecas-loop-dreaming` compiles immutable CI/review/controller evidence into a `ready-for-human` learning-candidate issue without editing trusted policy or code.

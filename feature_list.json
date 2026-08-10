@@ -120,7 +120,7 @@
         "scripts/loop-ci-intake.mjs",
         "scripts/loop-review-intake.mjs",
         "tests/loop-ci-intake.spec.ts (3 passing)",
-        "tests/loop-review-intake.spec.ts (4 passing)",
+        "tests/loop-review-intake.spec.ts (8 passing)",
         "scripts/ecas-loop-controller.mjs"
       ]
     },
@@ -150,9 +150,11 @@
       "status": "passing",
       "evidence": [
         "scripts/loop-work-intake.mjs",
-        "tests/loop-work-intake.spec.ts (3 passing)",
+        "tests/loop-work-intake.spec.ts (4 passing)",
         "scripts/loop-run-ledger.mjs",
-        "tests/loop-run-ledger.spec.ts (3 passing)",
+        "tests/loop-run-ledger.spec.ts (4 passing)",
+        "scripts/codex-event-recorder.mjs",
+        "tests/codex-event-recorder.spec.ts (2 passing)",
         "scripts/loop-accountability.mjs"
       ]
     }

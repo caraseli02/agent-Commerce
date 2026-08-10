@@ -74,4 +74,4 @@ Use this file for durable cross-session decisions that should survive context re
 - 2026-08-11 — Make automated repairs attributable and WIP-bound
 
   - Reason: a same-repository owner PR is not sufficient authority for a state-changing repair, and raw Codex output alone does not prove who acted, within what scope/budget, or which independent evaluator accepted the result.
-  - Impact: CI, review, and evaluator-failure repairs run only for the single linked `in-progress` issue. Controller-owned attempts persist actor metadata and raw events, declare permissions/denials and budgets, and append a validator-approved record only after a separate evaluator verdict.
+  - Impact: CI, review, evaluator-failure repair, and evaluator dispatch run only for the single linked `in-progress` issue. Controller-owned attempts stream timestamped actor events, persist a candidate with permissions/denials and budgets/usage before evaluation, and append a validator-approved record after either the primary evaluator or a read-only terminal-run auditor returns a verdict.
