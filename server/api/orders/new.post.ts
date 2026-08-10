@@ -7,10 +7,9 @@ import { MOCK_CUSTOMER_USER_ID } from '~/utils/mockAuth';
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Record<string, unknown>;
   const headers = getHeaders(event);
-  const config = useRuntimeConfig();
   let user = getMockUserFromAuthHeader(headers.authorization);
 
-  if (!user && config.public.MOCK_MODE) {
+  if (!user && process.env.NUXT_PUBLIC_MOCK_MODE === 'true') {
     const guestCartUserId = requireMockCartUserId(event, headers.authorization);
     user = getMockUserById(guestCartUserId) || getMockUserById(MOCK_CUSTOMER_USER_ID);
   }
