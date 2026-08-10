@@ -42,7 +42,7 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 - Never infer a repair command from ordinary top-level prose.
 - Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
 - Never run repair code, repository scripts, commits, or pushes in the local dispatcher. It may only post a bounded `@codex fix` request for execution in Codex Cloud.
-- Use CI plus an independent hosted reviewer or human review after each update; humans remain the only merge authority.
+- Use CI plus an independent hosted reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same repair dispatcher. Humans remain the only merge authority.
 
 The Codex GitHub connector must be connected before enabling the dispatcher. If the connector replies with “connect to GitHub,” leave the local service stopped until a maintainer reconnects it in Codex settings.
 

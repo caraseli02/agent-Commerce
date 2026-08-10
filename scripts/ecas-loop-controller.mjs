@@ -205,6 +205,9 @@ function loadDecision() {
 function main() {
   const { action, pr, state } = loadDecision();
   if (action.type === 'dispatch') dispatchRepair({ action, pr, state });
+  if (action.type === 'ready') {
+    gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'ready-for-human']);
+  }
   if (action.type === 'blocked') blockIssue(action.issue);
   return action;
 }

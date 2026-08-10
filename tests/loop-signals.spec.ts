@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { selectRepairSignal } from '../scripts/loop-signals.mjs';
+import { independentReviewPassed, selectRepairSignal } from '../scripts/loop-signals.mjs';
 
 describe('selectRepairSignal', () => {
   it('turns a completed current-head CI failure into one stable work key', () => {
@@ -250,5 +250,53 @@ describe('selectRepairSignal', () => {
     });
 
     expect(signal?.key).toBe(`repair-command:222:${head}`);
+  });
+});
+
+describe('independentReviewPassed', () => {
+  it('accepts a current-head Greptile 5/5 or trusted approval', () => {
+    const head = '3'.repeat(40);
+    expect(
+      independentReviewPassed({
+        pr: { head },
+        issueComments: [
+          {
+            user: { login: 'greptile-apps[bot]' },
+            body: `<h3>Confidence Score: 5/5</h3>\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
+          },
+        ],
+      })
+    ).toBe(true);
+
+    expect(
+      independentReviewPassed({
+        pr: { head },
+        reviews: [{ user: { login: 'reviewer' }, author_association: 'MEMBER', commit_id: head, state: 'APPROVED' }],
+      })
+    ).toBe(true);
+  });
+
+  it('rejects stale, actionable, or changes-requested review state', () => {
+    const head = '4'.repeat(40);
+    expect(
+      independentReviewPassed({
+        pr: { head },
+        issueComments: [
+          {
+            user: { login: 'greptile-apps[bot]' },
+            body: `<h3>Confidence Score: 4/5</h3>\nIssue 1\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      independentReviewPassed({
+        pr: { head },
+        reviews: [
+          { user: { login: 'reviewer' }, author_association: 'MEMBER', commit_id: head, state: 'APPROVED' },
+          { user: { login: 'reviewer' }, author_association: 'MEMBER', commit_id: head, state: 'CHANGES_REQUESTED' },
+        ],
+      })
+    ).toBe(false);
   });
 });

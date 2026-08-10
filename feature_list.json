@@ -102,7 +102,7 @@
     {
       "id": "H10",
       "description": "Keep autonomous repair loops small, bounded, and explicit",
-      "validation": "One generic dispatcher deduplicates source/head signals, limits repairs to two attempts, ignores ordinary top-level prose, and delegates code execution to a hosted Codex environment",
+      "validation": "One generic dispatcher deduplicates source/head signals, limits repairs to two attempts, ignores ordinary top-level prose, delegates code execution to Codex Cloud, and promotes only green current heads with an independent review pass",
       "status": "active",
       "evidence": [
         "scripts/ecas-loop-controller.mjs",

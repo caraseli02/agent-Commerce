@@ -8,6 +8,7 @@ const QODO_HEAD_PATTERN = /<!--\s*https:\/\/github\.com\/[^/]+\/[^/]+\/commit\/(
 const GREPTILE_BOTS = new Set(['greptile-apps', 'greptile-apps[bot]']);
 const GREPTILE_ACTION_PATTERN = /Confidence Score:\s*[0-4]\/5|Files Needing Attention|Issue \d+/i;
 const GREPTILE_HEAD_PATTERN = /Last reviewed commit:[\s\S]*?commit\/([a-f0-9]{40})/i;
+const GREPTILE_PASS_PATTERN = /Confidence Score:\s*5\/5/i;
 const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks|approved)[.!]?$/i;
 
 function signalKey(signal) {
@@ -17,6 +18,37 @@ function signalKey(signal) {
 export function ciPassed(checks = []) {
   const check = checks.find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
   return check?.status === 'COMPLETED' && check.conclusion === 'SUCCESS';
+}
+
+/** @param {{ pr?: any, reviews?: any[], issueComments?: any[] }} options */
+export function independentReviewPassed({ pr, reviews = [], issueComments = [] } = {}) {
+  if (!pr?.head) return false;
+  const latestTrustedReviews = new Map();
+  for (const review of [...reviews].reverse()) {
+    const author = review.user?.login;
+    if (
+      !author ||
+      latestTrustedReviews.has(author) ||
+      review.commit_id !== pr.head ||
+      !TRUSTED_ASSOCIATIONS.has(review.author_association)
+    ) {
+      continue;
+    }
+    latestTrustedReviews.set(author, review.state);
+  }
+  const states = [...latestTrustedReviews.values()];
+  if (states.includes('CHANGES_REQUESTED')) return false;
+  if (states.includes('APPROVED')) return true;
+
+  return [...issueComments].reverse().some((comment) => {
+    const body = String(comment.body ?? '');
+    return (
+      GREPTILE_BOTS.has(comment.user?.login) &&
+      body.match(GREPTILE_HEAD_PATTERN)?.[1] === pr.head &&
+      GREPTILE_PASS_PATTERN.test(body) &&
+      !GREPTILE_ACTION_PATTERN.test(body)
+    );
+  });
 }
 
 /**

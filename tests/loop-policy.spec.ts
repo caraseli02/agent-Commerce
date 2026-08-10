@@ -75,7 +75,7 @@ describe('decideNextAction', () => {
     ).toEqual({ type: 'idle', reason: 'untrusted-pr-author' });
   });
 
-  it('waits after current-head CI succeeds because review remains hosted or human-owned', () => {
+  it('waits after current-head CI succeeds until an independent review passes', () => {
     const action = decideNextAction({
       state: createLoopState(),
       activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
@@ -88,7 +88,30 @@ describe('decideNextAction', () => {
       },
     });
 
-    expect(action).toEqual({ type: 'idle', reason: 'no-pending-signal' });
+    expect(action).toEqual({ type: 'idle', reason: 'awaiting-independent-review' });
+  });
+
+  it('promotes a green current head after an independent Greptile pass', () => {
+    const head = '5'.repeat(40);
+    const action = decideNextAction({
+      state: createLoopState(),
+      activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+      pr: {
+        number: 42,
+        head,
+        linkedIssues: [7],
+        trustedAuthor: true,
+        checks: [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }],
+      },
+      issueComments: [
+        {
+          user: { login: 'greptile-apps[bot]' },
+          body: `<h3>Confidence Score: 5/5</h3>\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
+        },
+      ],
+    });
+
+    expect(action).toEqual({ type: 'ready', pr: 42, issue: 7, head });
   });
 
   it('blocks a third repair dispatch', () => {
