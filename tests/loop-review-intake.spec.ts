@@ -19,6 +19,55 @@ function qodoComment(overrides: Record<string, unknown> = {}) {
 }
 
 describe('loop review intake', () => {
+  it('selects an actionable trusted top-level PR comment after the current head commit', () => {
+    expect(
+      findPendingReviewSignal({
+        pr: { number: 99, head: { sha: head, committedAt: '2026-08-09T11:59:00.000Z' } },
+        issueComments: [
+          {
+            id: 901,
+            html_url: 'https://github.com/caraseli02/Ecas/pull/99#issuecomment-901',
+            created_at: '2026-08-09T12:00:00.000Z',
+            author_association: 'OWNER',
+            user: { login: 'caraseli02' },
+            body: 'Please fix the timeout case.',
+          },
+        ],
+      })
+    ).toMatchObject({ kind: 'human-pr-comment', sourceId: '901', head });
+  });
+
+  it('ignores stale, non-actionable, and controller-authored top-level comments', () => {
+    expect(
+      findPendingReviewSignal({
+        pr: { number: 99, head: { sha: head, committedAt: '2026-08-09T12:30:00.000Z' } },
+        issueComments: [
+          {
+            id: 902,
+            created_at: '2026-08-09T12:00:00.000Z',
+            author_association: 'OWNER',
+            user: { login: 'caraseli02' },
+            body: 'Please fix this stale case.',
+          },
+          {
+            id: 903,
+            created_at: '2026-08-09T12:31:00.000Z',
+            author_association: 'OWNER',
+            user: { login: 'caraseli02' },
+            body: 'Thanks for the update.',
+          },
+          {
+            id: 904,
+            created_at: '2026-08-09T12:32:00.000Z',
+            author_association: 'OWNER',
+            user: { login: 'caraseli02' },
+            body: 'Repair FAILED. <!-- ecas-repair:v1 pr=99 repairs_for=1 attempt=x status=FAILED -->',
+          },
+        ],
+      })
+    ).toBeNull();
+  });
+
   it('selects an actionable Qodo review for the current PR head', () => {
     expect(
       findPendingReviewSignal({

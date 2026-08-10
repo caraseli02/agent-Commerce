@@ -3,7 +3,9 @@ const QODO_BOTS = new Set(['qodo-code-review', 'qodo-code-review[bot]']);
 const QODO_ACTION_PATTERN = /alt=["'](?:Action required|Remediation recommended)["']/i;
 const QODO_REVIEW_PATTERN = /<h3>Code Review by Qodo<\/h3>/i;
 const QODO_HEAD_PATTERN = /<!--\s*https:\/\/github\.com\/[^/]+\/[^/]+\/commit\/([a-f0-9]{40})\s*-->/i;
-const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks|approved)[.!]?$/i;
+const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks(?: for .+)?|approved)[.!]?$/i;
+const HUMAN_ACTION_PATTERN =
+  /\b(?:please|fix|change|update|remove|add|address|resolve|should|must|needs?|wrong|incorrect|broken|bugs?|regressions?|fail(?:ed|ing)?|can we|could you)\b/i;
 
 function asSourceId(value) {
   return value === undefined || value === null ? null : String(value);
@@ -28,6 +30,29 @@ function qodoSignal(comment, prHead) {
     head: reviewedHead,
     createdAt: comment.created_at,
     author: comment.user.login,
+  };
+}
+
+function humanIssueCommentSignal(comment, prHead, headCommittedAt) {
+  if (!TRUSTED_ASSOCIATIONS.has(comment.author_association) || QODO_BOTS.has(comment.user?.login)) return null;
+
+  const body = String(comment.body ?? '').trim();
+  if (!body || body.includes('<!-- ecas-') || POSITIVE_ONLY_PATTERN.test(body) || !HUMAN_ACTION_PATTERN.test(body)) return null;
+
+  const createdAt = Date.parse(comment.created_at ?? '');
+  const committedAt = Date.parse(headCommittedAt ?? '');
+  if (!Number.isFinite(createdAt) || !Number.isFinite(committedAt) || createdAt < committedAt) return null;
+
+  const sourceId = asSourceId(comment.id);
+  if (!sourceId) return null;
+
+  return {
+    kind: 'human-pr-comment',
+    sourceId,
+    sourceUrl: comment.html_url,
+    head: prHead,
+    createdAt: comment.created_at,
+    author: comment.user?.login,
   };
 }
 
@@ -98,6 +123,7 @@ export function findPendingReviewSignal({
 
   const signals = [
     ...issueComments.map((comment) => qodoSignal(comment, prHead)),
+    ...issueComments.map((comment) => humanIssueCommentSignal(comment, prHead, pr?.head?.committedAt)),
     ...reviewComments.map((comment) => humanInlineCommentSignal(comment, prHead)),
     ...latestReviewsByAuthor(reviews).map((review) => humanReviewSignal(review, prHead)),
   ]
