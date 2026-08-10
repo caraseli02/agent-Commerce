@@ -5,7 +5,7 @@ const RUNNING_MAX_AGE_MS = 30 * 60 * 1000;
 
 /** @returns {any} */
 export function createLoopState() {
-  return { version: 1, repairs: {}, attemptsByPr: {}, evaluations: {} };
+  return { version: 2, dispatches: {}, attemptsByPr: {} };
 }
 
 function freshRunning(record, now) {
@@ -16,8 +16,8 @@ function freshRunning(record, now) {
 /** @param {any} state */
 export function processedKeys(state, now = Date.now()) {
   return new Set(
-    Object.entries(state.repairs ?? {})
-      .filter(([, record]) => record?.result === 'submitted' || freshRunning(record, now))
+    Object.entries(state.dispatches ?? {})
+      .filter(([, record]) => record?.result === 'dispatched' || freshRunning(record, now))
       .map(([key]) => key)
   );
 }
@@ -28,39 +28,19 @@ export function canRepair(state, pr) {
 }
 
 /** @param {any} state */
-export function beginRepair(state, { pr, key, head, at }) {
-  state.repairs[key] = { pr, head, startedAt: at, result: 'running' };
+export function beginDispatch(state, { pr, key, head, at }) {
+  state.dispatches[key] = { pr, head, startedAt: at, result: 'running' };
   state.attemptsByPr[pr] = Number(state.attemptsByPr[pr] ?? 0) + 1;
   return state;
 }
 
 /**
  * @param {any} state
- * @param {{ key: string, result: string, headAfter?: string | null, at: string }} options
+ * @param {{ key: string, result: string, commentUrl?: string | null, at: string }} options
  */
-export function finishRepair(state, { key, result, headAfter = null, at }) {
-  if (!state.repairs[key]) throw new TypeError(`unknown repair key: ${key}`);
-  Object.assign(state.repairs[key], { result, headAfter, completedAt: at });
-  return state;
-}
-
-/** @param {any} state */
-export function hasEvaluation(state, head, now = Date.now()) {
-  const evaluation = state.evaluations?.[head];
-  return ['PASS', 'FAIL', 'BLOCKED'].includes(evaluation?.verdict) || freshRunning({ ...evaluation, result: evaluation?.verdict }, now);
-}
-
-/** @param {any} state */
-export function beginEvaluation(state, { pr, head, at }) {
-  const attempts = Number(state.evaluations[head]?.attempts ?? 0) + 1;
-  state.evaluations[head] = { pr, attempts, startedAt: at, verdict: 'running' };
-  return state;
-}
-
-/** @param {any} state */
-export function finishEvaluation(state, { head, verdict, at }) {
-  if (!state.evaluations[head]) throw new TypeError(`unknown evaluation head: ${head}`);
-  Object.assign(state.evaluations[head], { verdict, completedAt: at });
+export function finishDispatch(state, { key, result, commentUrl = null, at }) {
+  if (!state.dispatches[key]) throw new TypeError(`unknown dispatch key: ${key}`);
+  Object.assign(state.dispatches[key], { result, commentUrl, completedAt: at });
   return state;
 }
 
@@ -68,7 +48,10 @@ export function finishEvaluation(state, { head, verdict, at }) {
 export function readLoopState(path) {
   if (!existsSync(path)) return createLoopState();
   const state = JSON.parse(readFileSync(path, 'utf8'));
-  if (state.version !== 1 || !state.repairs || !state.attemptsByPr || !state.evaluations) {
+  if (state.version === 1 && state.repairs && state.attemptsByPr) {
+    return { version: 2, dispatches: state.repairs, attemptsByPr: state.attemptsByPr };
+  }
+  if (state.version !== 2 || !state.dispatches || !state.attemptsByPr) {
     throw new TypeError('invalid loop state');
   }
   return state;

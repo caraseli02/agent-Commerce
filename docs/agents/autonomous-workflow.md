@@ -28,7 +28,7 @@ If any condition is false, use a bounded agent task with a human in the loop. Do
 
 ## Proportionate observability
 
-The default controller keeps the raw Codex JSONL trace plus one compact append-only summary per run. The summary records the run and agent IDs, role, issue, PR, exact head, source key, start/end timestamps, token usage, result, and trace path. GitHub owns the live queue and PR state; controller comments are readable status, not a second database.
+The default controller keeps one compact append-only summary per dispatch. The summary records the issue, PR, exact head, source key, start/end timestamps, result, and hosted-task comment URL. Hosted Codex owns its execution trace; GitHub owns the live queue and PR state. Controller comments are readable dispatches, not a second database.
 
 Do not duplicate every command and file event into another mandatory ledger for this human-merged portfolio repository. The raw trace remains available for debugging, while CI, commits, PR discussion, and the independent evaluator provide the acceptance evidence.
 
@@ -36,12 +36,15 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 
 ## Minimal controller contract
 
-- Wake on a repository event when infrastructure permits; the local ChatGPT-authenticated bridge may perform one low-frequency recovery check.
+- Wake on a repository event when infrastructure permits; the local ChatGPT-authenticated bridge performs only a low-frequency reconciliation and hosted-task dispatch.
 - Treat `{source ID, current head SHA}` as the idempotency key.
-- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, known Qodo action, explicit `/repair`, and evaluator failure through one repair runner.
+- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and explicit `/repair` through one hosted repair dispatcher.
 - Never infer a repair command from ordinary top-level prose.
 - Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
-- Run one independent evaluator after successful current-head CI; humans remain the only merge authority.
+- Never run repair code, repository scripts, commits, or pushes in the local dispatcher. It may only post a bounded `@codex fix` request for execution in Codex Cloud.
+- Use CI plus an independent hosted reviewer or human review after each update; humans remain the only merge authority.
+
+The Codex GitHub connector must be connected before enabling the dispatcher. If the connector replies with “connect to GitHub,” leave the local service stopped until a maintainer reconnects it in Codex settings.
 
 ## Roles
 
@@ -118,7 +121,7 @@ When an `in-progress` issue already has an open PR, controller logic must route 
 - `FAIL`: generate a focused repair brief from the evaluator comment and update the same branch/PR.
 - `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
 
-For an ordinary PR conversation comment, a trusted maintainer can explicitly request another bounded attempt with `/repair <instruction>` or `@codex fix <instruction>`. Free-form prose is never an execution trigger.
+For an ordinary PR conversation comment, a trusted maintainer can use `/repair <instruction>` for the dispatcher or `@codex fix <instruction>` to address Codex Cloud directly. The dispatcher deliberately ignores direct `@codex fix` comments so it cannot duplicate or recursively dispatch them. Free-form prose is never an execution trigger.
 
 ## Evaluator report format
 

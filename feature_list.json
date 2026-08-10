@@ -102,14 +102,13 @@
     {
       "id": "H10",
       "description": "Keep autonomous repair loops small, bounded, and explicit",
-      "validation": "One generic controller path deduplicates source/head signals, limits repairs to two attempts, evaluates successful current-head CI once, and ignores ordinary top-level prose",
+      "validation": "One generic dispatcher deduplicates source/head signals, limits repairs to two attempts, ignores ordinary top-level prose, and delegates code execution to a hosted Codex environment",
       "status": "active",
       "evidence": [
         "scripts/ecas-loop-controller.mjs",
         "scripts/loop-policy.mjs",
-        "scripts/loop-evaluation.mjs",
         "tests/loop-policy.spec.ts",
-        "tests/loop-evaluation.spec.ts",
+        "tests/loop-state.spec.ts",
         "tests/loop-signals.spec.ts",
         "docs/research/modern-loop-engineering-audit.md"
       ]

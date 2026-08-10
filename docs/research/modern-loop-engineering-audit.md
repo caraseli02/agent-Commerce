@@ -1,6 +1,6 @@
 # Modern loop-engineering audit
 
-_Research date: 2026-08-10. Sources are first-party Anthropic, OpenAI, and GitHub documentation. Repository comparison covers `AGENTS.md`, `docs/agents/autonomous-workflow.md`, `docs/research/claude-dreams.md`, and the current `scripts/ecas-loop-controller.mjs` family._
+_Research date: 2026-08-10. Sources are first-party Anthropic, OpenAI, and GitHub documentation. The repository comparison records the pre-simplification controller baseline that motivated PR #478._
 
 ## Verdict
 
@@ -70,3 +70,7 @@ A durable, independently validated action ledger becomes justified when the loop
 ## Recommended next move
 
 Do not add another repair feature to the present controller. First make a simplification PR with one measurable target: **reduce the controller and accountability path by at least half while preserving current-head idempotency, two-attempt blocking, CI gating, evaluator independence, and human merge control**. Run it in observe-only mode beside the current hook for several real PRs, then switch over after it handles CI failure and explicit PR-review repair without duplicate runs.
+
+## PR #478 outcome
+
+The implementation ultimately removed local agent execution instead of trying to harden it with more controller machinery. The local controller is now a small reconciliation/dispatch bridge: it recognizes exact current-head signals, deduplicates them, enforces the two-attempt ceiling, and posts a bounded hosted Codex request. It cannot run PR code, read agent output, commit, or push. CI, hosted review, and human merge remain separate gates. Activation waits for the repository's Codex GitHub connector to be reconnected.

@@ -49,4 +49,4 @@ Use this file for durable cross-session decisions that should survive context re
 - 2026-08-10 — Keep loop engineering event-shaped and proportionate
 
   - Reason: first-party Anthropic, OpenAI, and GitHub guidance favors simple bounded loops; the earlier 995-line polling controller and mandatory per-action ledger duplicated platform state and exceeded this repository's risk.
-  - Impact: one generic repair path handles exact source/head keys, two attempts, successful-CI evaluation, and human merge. Raw traces plus compact summaries are the default; full ledgers are reserved for materially higher authority or compliance needs.
+  - Impact: one generic dispatcher handles exact source/head keys and two attempts, while Codex Cloud performs code execution and CI/hosted review plus human review gate completion. The local process never runs PR code or pushes branches. Compact dispatch summaries are the default; full ledgers are reserved for materially higher authority or compliance needs.

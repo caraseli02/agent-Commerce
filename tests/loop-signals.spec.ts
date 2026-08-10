@@ -78,6 +78,13 @@ describe('selectRepairSignal', () => {
     expect(
       selectRepairSignal({
         pr: base,
+        issueComments: [{ ...trustedComment, body: '@codex fix the failing checkout test.' }],
+      })
+    ).toBeNull();
+
+    expect(
+      selectRepairSignal({
+        pr: base,
         issueComments: [{ ...trustedComment, body: '/repair Fix the failing checkout test.' }],
       })
     ).toEqual({
@@ -142,6 +149,42 @@ describe('selectRepairSignal', () => {
       selectRepairSignal({
         pr: { number: 42, head: 'e'.repeat(40), checks: [] },
         issueComments: [qodoComment],
+      })
+    ).toBeNull();
+  });
+
+  it('accepts actionable Greptile feedback only for the current reviewed head', () => {
+    const head = '6'.repeat(40);
+    const comment = {
+      id: 101,
+      user: { login: 'greptile-apps[bot]' },
+      body: `<h3>Confidence Score: 2/5</h3>\nFiles Needing Attention\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
+      created_at: '2026-08-10T10:17:00Z',
+      html_url: 'https://github.com/acme/repo/pull/42#issuecomment-101',
+    };
+
+    expect(selectRepairSignal({ pr: { number: 42, head, checks: [] }, issueComments: [comment] })).toMatchObject({
+      kind: 'greptile-review',
+      sourceId: '101',
+      head,
+    });
+    expect(selectRepairSignal({ pr: { number: 42, head: '7'.repeat(40), checks: [] }, issueComments: [comment] })).toBeNull();
+  });
+
+  it('ignores its own hosted-dispatch comments', () => {
+    const head = '8'.repeat(40);
+    expect(
+      selectRepairSignal({
+        pr: { number: 42, head, headCommittedAt: '2026-08-10T10:00:00Z', checks: [] },
+        issueComments: [
+          {
+            id: 102,
+            user: { login: 'maintainer' },
+            author_association: 'OWNER',
+            body: `@codex fix this.\n<!-- ecas-loop:v3 role=dispatcher key=ci-failure:1:${head} -->`,
+            created_at: '2026-08-10T10:18:00Z',
+          },
+        ],
       })
     ).toBeNull();
   });

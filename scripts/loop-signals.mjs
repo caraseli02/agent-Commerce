@@ -1,10 +1,13 @@
 const CI_RUN_PATTERN = /\/actions\/runs\/(\d+)(?:\/|$)/;
-const REPAIR_COMMAND_PATTERN = /^(?:\/repair|@codex\s+fix)\b\s*(.*)$/i;
+const REPAIR_COMMAND_PATTERN = /^\/repair\b\s*(.*)$/i;
 const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 const QODO_BOTS = new Set(['qodo-code-review', 'qodo-code-review[bot]']);
 const QODO_ACTION_PATTERN = /alt=["'](?:Action required|Remediation recommended)["']/i;
 const QODO_REVIEW_PATTERN = /<h3>Code Review by Qodo<\/h3>/i;
 const QODO_HEAD_PATTERN = /<!--\s*https:\/\/github\.com\/[^/]+\/[^/]+\/commit\/([a-f0-9]{40})\s*-->/i;
+const GREPTILE_BOTS = new Set(['greptile-apps', 'greptile-apps[bot]']);
+const GREPTILE_ACTION_PATTERN = /Confidence Score:\s*[0-4]\/5|Files Needing Attention|Issue \d+/i;
+const GREPTILE_HEAD_PATTERN = /Last reviewed commit:[\s\S]*?commit\/([a-f0-9]{40})/i;
 const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks|approved)[.!]?$/i;
 
 function signalKey(signal) {
@@ -93,11 +96,28 @@ export function selectRepairSignal({ pr, issueComments = [], reviews = [], revie
 
   for (const comment of issueComments) {
     const body = String(comment.body ?? '').trim();
+    if (body.includes('<!-- ecas-loop:v3 ')) continue;
     if (QODO_BOTS.has(comment.user?.login)) {
       const reviewedHead = body.match(QODO_HEAD_PATTERN)?.[1];
       if (comment.id && reviewedHead === pr.head && QODO_REVIEW_PATTERN.test(body) && QODO_ACTION_PATTERN.test(body)) {
         const signal = {
           kind: 'qodo-review',
+          sourceId: String(comment.id),
+          sourceUrl: comment.html_url,
+          head: pr.head,
+          createdAt: comment.created_at,
+          instruction: body,
+        };
+        const candidate = pending(signal);
+        if (candidate) return candidate;
+      }
+      continue;
+    }
+    if (GREPTILE_BOTS.has(comment.user?.login)) {
+      const reviewedHead = body.match(GREPTILE_HEAD_PATTERN)?.[1];
+      if (comment.id && reviewedHead === pr.head && GREPTILE_ACTION_PATTERN.test(body)) {
+        const signal = {
+          kind: 'greptile-review',
           sourceId: String(comment.id),
           sourceUrl: comment.html_url,
           head: pr.head,

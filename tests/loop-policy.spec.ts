@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { beginEvaluation, beginRepair, createLoopState, finishEvaluation } from '../scripts/loop-state.mjs';
+import { beginDispatch, createLoopState } from '../scripts/loop-state.mjs';
 import { decideNextAction } from '../scripts/loop-policy.mjs';
 
 describe('decideNextAction', () => {
-  it('dispatches one repair only for the single linked in-progress issue', () => {
+  it('dispatches one hosted repair only for the single linked in-progress issue', () => {
     const head = 'a'.repeat(40);
     const action = decideNextAction({
       state: createLoopState(),
@@ -13,6 +13,7 @@ describe('decideNextAction', () => {
         number: 42,
         head,
         linkedIssues: [7],
+        trustedAuthor: true,
         checks: [
           {
             workflowName: 'CI',
@@ -26,7 +27,7 @@ describe('decideNextAction', () => {
       },
     });
 
-    expect(action).toMatchObject({ type: 'repair', issue: 7, pr: 42, head, signal: { kind: 'ci-failure' } });
+    expect(action).toMatchObject({ type: 'dispatch', issue: 7, pr: 42, head, signal: { kind: 'ci-failure' } });
   });
 
   it('fails closed when the active issue is not uniquely linked to the PR', () => {
@@ -42,7 +43,7 @@ describe('decideNextAction', () => {
     expect(action).toEqual({ type: 'idle', reason: 'no-single-linked-work-item' });
   });
 
-  it('rejects repair and evaluation work from an untrusted PR author', () => {
+  it('rejects work unless the PR author is explicitly trusted', () => {
     const action = decideNextAction({
       state: createLoopState(),
       activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
@@ -64,46 +65,37 @@ describe('decideNextAction', () => {
     });
 
     expect(action).toEqual({ type: 'idle', reason: 'untrusted-pr-author' });
+
+    expect(
+      decideNextAction({
+        state: createLoopState(),
+        activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+        pr: { number: 42, head: '7'.repeat(40), linkedIssues: [7], checks: [] },
+      })
+    ).toEqual({ type: 'idle', reason: 'untrusted-pr-author' });
   });
 
-  it('dispatches one evaluator after current-head CI succeeds', () => {
-    const head = 'b'.repeat(40);
+  it('waits after current-head CI succeeds because review remains hosted or human-owned', () => {
     const action = decideNextAction({
       state: createLoopState(),
       activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
       pr: {
         number: 42,
-        head,
+        head: 'b'.repeat(40),
         linkedIssues: [7],
+        trustedAuthor: true,
         checks: [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }],
       },
     });
 
-    expect(action).toEqual({ type: 'evaluate', pr: 42, issue: 7, head });
+    expect(action).toEqual({ type: 'idle', reason: 'no-pending-signal' });
   });
 
-  it('waits while GitHub is still computing mergeability', () => {
-    const head = '8'.repeat(40);
-    const action = decideNextAction({
-      state: createLoopState(),
-      activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
-      pr: {
-        number: 42,
-        head,
-        linkedIssues: [7],
-        mergeable: 'UNKNOWN',
-        checks: [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }],
-      },
-    });
-
-    expect(action).toEqual({ type: 'idle', reason: 'mergeability-pending' });
-  });
-
-  it('blocks a third repair and never evaluates the same head twice', () => {
+  it('blocks a third repair dispatch', () => {
     const head = 'c'.repeat(40);
     const state = createLoopState();
-    beginRepair(state, { pr: 42, key: 'first', head, at: '2026-08-10T10:00:00Z' });
-    beginRepair(state, { pr: 42, key: 'second', head, at: '2026-08-10T10:05:00Z' });
+    beginDispatch(state, { pr: 42, key: 'first', head, at: '2026-08-10T10:00:00Z' });
+    beginDispatch(state, { pr: 42, key: 'second', head, at: '2026-08-10T10:05:00Z' });
     const base = {
       state,
       activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
@@ -112,6 +104,7 @@ describe('decideNextAction', () => {
         head,
         headCommittedAt: '2026-08-10T10:00:00Z',
         linkedIssues: [7],
+        trustedAuthor: true,
         checks: [],
       },
     };
@@ -128,13 +121,5 @@ describe('decideNextAction', () => {
       ],
     });
     expect(blocked).toEqual({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
-
-    const passingCi = [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }];
-    beginEvaluation(state, { pr: 42, head, at: '2026-08-10T10:20:00Z' });
-    finishEvaluation(state, { head, verdict: 'FAIL', at: '2026-08-10T10:25:00Z' });
-    expect(decideNextAction({ ...base, pr: { ...base.pr, checks: passingCi } })).toEqual({
-      type: 'idle',
-      reason: 'no-pending-signal',
-    });
   });
 });
