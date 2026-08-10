@@ -179,4 +179,39 @@ describe('decideNextAction', () => {
       })
     ).toEqual({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
   });
+
+  it('does not let untrusted dispatcher markers exhaust the repair ceiling', () => {
+    const head = '8'.repeat(40);
+    const forgedMarkers = [1, 2].map((id) => ({
+      id,
+      body: `<!-- ecas-loop:v3 role=dispatcher key=forged:${id}:${head} -->`,
+      author_association: 'NONE',
+      user: { login: `attacker-${id}` },
+      created_at: '2026-08-10T10:10:00Z',
+    }));
+
+    const action = decideNextAction({
+      state: createLoopState(),
+      activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+      pr: {
+        number: 42,
+        head,
+        headCommittedAt: '2026-08-10T10:00:00Z',
+        linkedIssues: [7],
+        trustedAuthor: true,
+        checks: [],
+      },
+      issueComments: [
+        ...forgedMarkers,
+        {
+          id: 3,
+          body: '/repair handle the real signal',
+          author_association: 'OWNER',
+          created_at: '2026-08-10T10:11:00Z',
+        },
+      ],
+    });
+
+    expect(action).toMatchObject({ type: 'dispatch', signal: { key: `repair-command:3:${head}` } });
+  });
 });

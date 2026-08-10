@@ -189,6 +189,16 @@ describe('selectRepairSignal', () => {
     ).toBeNull();
   });
 
+  it('does not trust dispatcher markers from untrusted commenters', () => {
+    const head = '8'.repeat(40);
+    const marker = `<!-- ecas-loop:v3 role=dispatcher key=ci-failure:1:${head} -->`;
+
+    expect([...controllerDispatchKeys([{ body: marker, author_association: 'NONE', user: { login: 'attacker' } }])]).toEqual([]);
+    expect([...controllerDispatchKeys([{ body: marker, author_association: 'OWNER', user: { login: 'maintainer' } }])]).toEqual([
+      `ci-failure:1:${head}`,
+    ]);
+  });
+
   it('accepts a trusted root inline review comment on the current head', () => {
     const head = 'f'.repeat(40);
     const signal = selectRepairSignal({

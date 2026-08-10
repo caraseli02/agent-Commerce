@@ -25,6 +25,7 @@ export function ciPassed(checks = []) {
 export function controllerDispatchKeys(issueComments = []) {
   return new Set(
     issueComments.flatMap((comment) => {
+      if (!TRUSTED_ASSOCIATIONS.has(comment.author_association)) return [];
       const key = String(comment.body ?? '').match(ECAS_DISPATCH_PATTERN)?.[1];
       return key ? [key] : [];
     })
