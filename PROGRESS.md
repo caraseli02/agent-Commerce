@@ -32,7 +32,7 @@
 ## Recently completed
 
 - Loop controller hardening (2026-08-10): stale PID-aware lease recovery, heartbeat health, versioned controller source, CI failure intake, Qodo/trusted-review intake, and independent evaluator gating on successful CI.
-- Loop state reconciliation (2026-08-10): removed stale workflow labels from 69 closed issues; the repeatable dry-run/apply helper now lives at `scripts/loop-state-reconcile.mjs`.
+- Loop state reconciliation (2026-08-10): removed stale workflow labels from 131 closed issues; the repeatable dry-run/apply helper now lives at `scripts/loop-state-reconcile.mjs` and currently reports zero drift.
 - System-design triage (2026-08-06): closed `#101`; rewrote `#99`/`#103`; `wontfix` `#109`/`#111`/`#113`; promoted slim Security + SEO children.
 - Housekeeping: closed zombie epics `#100`, `#102`, `#104`, `#255`, `#389`.
 - Issue #194 / PR #440 — shared empty states on Scripted Buyer Path.
@@ -79,9 +79,10 @@
 
 ## Loop controller status
 
-- Canonical source: `scripts/ecas-loop-controller.mjs` plus `scripts/loop-*-intake.mjs`.
+- Canonical source: `scripts/ecas-loop-controller.mjs` plus `scripts/loop-*-intake.mjs` and `scripts/loop-run-ledger.mjs`.
 - Deployed local bridge: `~/.codex/automations/ecas-pr-repair-hook/`; LaunchAgent polls every 60 seconds.
 - Health check: `node scripts/ecas-loop-controller.mjs --health`.
 - Read-only routing check: `node scripts/ecas-loop-controller.mjs --inspect`.
 - Current verified state: healthy; no open PR awaiting evaluator, review repair, or CI repair.
+- Repair intake fails closed unless exactly one linked issue is `in-progress`; completed controller-owned attempts append a validated actor/evaluator record to the local `loop-runs.jsonl` ledger.
 - Weekly reflection: active Codex automation `ecas-loop-dreaming` compiles immutable CI/review/controller evidence into a `ready-for-human` learning-candidate issue without editing trusted policy or code.

@@ -132,7 +132,7 @@
       "evidence": [
         "scripts/loop-state-reconcile.mjs",
         "tests/loop-state-reconcile.spec.ts (3 passing)",
-        "GitHub apply: 69 closed issues repaired",
+        "GitHub apply: 131 closed issues repaired",
         "post-apply dry-run: 0 repairs"
       ]
     },
@@ -142,6 +142,19 @@
       "validation": "A weekly reflection reads immutable evidence, requires recurrence or severe deterministic failure, deduplicates candidates, and cannot directly edit trusted policy or code",
       "status": "passing",
       "evidence": ["docs/research/claude-dreams.md", "DECISIONS.md", "active Codex automation: ecas-loop-dreaming"]
+    },
+    {
+      "id": "H14",
+      "description": "Keep autonomous repair attempts attributable and bounded to claimed work",
+      "validation": "Only the single linked in-progress issue can launch a repair; completed controller-owned attempts record actor/evaluator identities, permissions, budgets and usage, ordered actions, stop reason, verdict, and accepted change in an append-only validated ledger",
+      "status": "passing",
+      "evidence": [
+        "scripts/loop-work-intake.mjs",
+        "tests/loop-work-intake.spec.ts (3 passing)",
+        "scripts/loop-run-ledger.mjs",
+        "tests/loop-run-ledger.spec.ts (3 passing)",
+        "scripts/loop-accountability.mjs"
+      ]
     }
   ]
 }
