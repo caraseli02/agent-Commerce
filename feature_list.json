@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the Components Marketplace harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
+    "active_feature_count": 0,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -103,11 +103,13 @@
       "id": "H10",
       "description": "Keep autonomous repair loops small, bounded, and explicit",
       "validation": "One generic controller path deduplicates source/head signals, limits repairs to two attempts, evaluates successful current-head CI once, and ignores ordinary top-level prose",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "scripts/ecas-loop-controller.mjs",
         "scripts/loop-policy.mjs",
+        "scripts/loop-evaluation.mjs",
         "tests/loop-policy.spec.ts",
+        "tests/loop-evaluation.spec.ts",
         "tests/loop-signals.spec.ts",
         "docs/research/modern-loop-engineering-audit.md"
       ]
