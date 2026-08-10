@@ -37,7 +37,7 @@ mkdirSync(RUNS_DIR, { recursive: true });
 const nowIso = () => new Date().toISOString();
 const log = (message) => {
   const line = `[${nowIso()}] ${message}`;
-  console.log(line);
+  process.stdout.write(`${line}\n`);
   writeFileSync(join(AUTOMATION_ROOT, 'last-run.log'), `${line}\n`, { flag: 'a' });
 };
 
@@ -887,7 +887,7 @@ const main = () => {
     const failure = ready ? null : findPendingFailure();
     const review = ready || failure ? null : findPendingReviewFinding();
     const ciFailure = ready || failure || review ? null : findPendingCiFailure();
-    console.log(
+    process.stdout.write(
       JSON.stringify(
         ready
           ? {
@@ -921,7 +921,7 @@ const main = () => {
           : { action: 'idle' },
         null,
         2
-      )
+      ) + '\n'
     );
     return;
   }
@@ -967,7 +967,7 @@ const main = () => {
 
 if (process.argv.includes('--health')) {
   const health = readControllerHealth(AUTOMATION_ROOT);
-  console.log(JSON.stringify(health, null, 2));
+  process.stdout.write(`${JSON.stringify(health, null, 2)}\n`);
   process.exit(health.status === 'healthy' || health.status === 'running' ? 0 : 1);
 }
 

@@ -220,7 +220,7 @@ function runCli() {
   const health = readControllerHealth(root, {
     maxAgeMs: maxAgeValue ? Number(maxAgeValue) : DEFAULT_HEARTBEAT_MAX_AGE_MS,
   });
-  console.log(JSON.stringify(health, null, 2));
+  process.stdout.write(`${JSON.stringify(health, null, 2)}\n`);
   process.exitCode = health.status === 'healthy' ? 0 : 1;
 }
 

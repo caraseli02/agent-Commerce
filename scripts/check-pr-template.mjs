@@ -196,7 +196,7 @@ async function main() {
   const event = await loadGitHubEvent();
 
   if (!event?.pull_request) {
-    console.log('No pull-request CI context or --body-file provided; skipping PR template check.');
+    process.stdout.write('No pull-request CI context or --body-file provided; skipping PR template check.\n');
     return;
   }
 
