@@ -71,4 +71,20 @@ describe('empty state UX contract (#194)', () => {
     expect(activity).toContain('hasFavorites');
     expect(existsSync(resolve(repoRoot, 'components/layout/favorites-cart-modal/favorites/Index.vue'))).toBe(false);
   });
+
+  it('shows guest-friendly empty states for checkout addresses instead of N/A placeholders', () => {
+    const shippingBilling = source('components/order-summary/ShippingAndBillingSection.vue');
+    const orderStockType = source('components/order-summary/OrderStockType.vue');
+    const checkoutButtons = source('components/order-summary/CheckoutButtons.vue');
+    const useUser = source('composables/useUser.ts');
+
+    expect(orderStockType).toContain('guest-address-prompt');
+    expect(orderStockType).toContain('Checkout as Guest');
+    expect(checkoutButtons).toContain('checkout-as-guest');
+    expect(shippingBilling).toContain('GuestCheckoutAddressForm');
+    expect(shippingBilling).not.toContain('billing-guest-empty');
+    expect(shippingBilling).not.toContain('shipping-guest-empty');
+    expect(orderStockType).toContain('showGuestSignInWall');
+    expect(useUser).not.toContain("alias: 'N/A'");
+  });
 });

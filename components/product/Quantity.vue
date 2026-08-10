@@ -118,10 +118,11 @@
           </button>
         </div>
         <p
-          v-if="showAlreadyInCartMessage"
           id="cart-qty-unchanged-hint"
           data-testid="cart-qty-unchanged-hint"
-          class="text-xs leading-snug text-slate-500"
+          class="min-h-[1.125rem] text-xs leading-snug text-slate-500"
+          :class="{ invisible: !showAlreadyInCartMessage }"
+          :aria-hidden="!showAlreadyInCartMessage"
         >
           Already in your cart (qty {{ initialRequestedQuantity }})
         </p>

@@ -108,13 +108,13 @@ describe('storefront product card image fallback', () => {
     expect(descriptor.template).toBeTruthy();
 
     const ast = baseParse(descriptor.template!.content);
-    const rootLink = collectElements(ast, 'NuxtLink')[0];
+    const rootCard = collectElements(ast, 'div')[0];
     const cartButton = collectElements(ast, 'button').find((button) => getStaticAttrValue(button, 'aria-label') === 'Add product to cart');
     const actionsGroup = collectElements(ast, 'div').find((el) => getStaticAttrValue(el, 'aria-label') === 'Product actions');
 
-    expect(getStaticAttrValue(rootLink, 'class')).toContain('grid-cols-[108px_minmax(0,1fr)]');
-    expect(getStaticAttrValue(rootLink, 'class')).toContain('md:flex');
-    expect(getStaticAttrValue(rootLink, 'class')).toContain('md:min-h-[280px]');
+    expect(getStaticAttrValue(rootCard, 'class')).toContain('grid-cols-[108px_minmax(0,1fr)]');
+    expect(getStaticAttrValue(rootCard, 'class')).toContain('md:flex');
+    expect(getStaticAttrValue(rootCard, 'class')).toContain('md:min-h-[280px]');
 
     expect(cartButton).toBeTruthy();
     expect(getStaticAttrValue(cartButton!, 'class')).toContain('col-start-2');
@@ -126,5 +126,27 @@ describe('storefront product card image fallback', () => {
     expect(source).not.toContain('SvgoCardHeartIcon');
     expect(source).not.toContain('SvgoCardShareIcon');
     expect(source).not.toContain('SvgoCardD3Icon');
+  });
+
+  it('links only the image and title to the product page', () => {
+    const source = readFileSync(productCardPath, 'utf8');
+    const { descriptor } = parseSfc(source);
+
+    expect(descriptor.template).toBeTruthy();
+
+    const ast = baseParse(descriptor.template!.content);
+    const links = collectElements(ast, 'NuxtLink');
+    const imageLink = links.find((link) => hasProp(link, 'aria-label'));
+    const titleLink = collectElements(ast, 'h3')[0]?.children.find((child) => child.type === NodeTypes.ELEMENT) as ElementNode | undefined;
+
+    expect(links).toHaveLength(2);
+    expect(imageLink).toBeTruthy();
+    expect(titleLink?.tag).toBe('NuxtLink');
+    expect(hasProp(imageLink!, 'to')).toBe(true);
+    expect(hasProp(titleLink!, 'to')).toBe(true);
+    expect(source).not.toContain('absolute inset-0');
+    expect(source).toContain('group-hover:scale-[1.02]');
+    expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:underline');
+    expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:text-blue-600');
   });
 });

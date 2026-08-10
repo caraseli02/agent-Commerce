@@ -1,12 +1,19 @@
 import { PaymentTypeEnum, PaymentStatusEnum } from '~/types/order-summary/item';
-import { clearMockCartById, findMockCartById } from '~/server/utils/mockCart';
+import { clearMockCartById, findMockCartById, requireMockCartUserId } from '~/server/utils/mockCart';
 import { createRuntimeOrder } from '~/server/utils/mockRuntimeOrders';
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { getMockUserById, getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { MOCK_CUSTOMER_USER_ID } from '~/utils/mockAuth';
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Record<string, unknown>;
   const headers = getHeaders(event);
-  const user = getMockUserFromAuthHeader(headers.authorization);
+  const config = useRuntimeConfig();
+  let user = getMockUserFromAuthHeader(headers.authorization);
+
+  if (!user && config.public.MOCK_MODE) {
+    const guestCartUserId = requireMockCartUserId(event, headers.authorization);
+    user = getMockUserById(guestCartUserId) || getMockUserById(MOCK_CUSTOMER_USER_ID);
+  }
 
   if (!user) {
     throw createError({

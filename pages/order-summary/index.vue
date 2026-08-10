@@ -7,7 +7,7 @@
     <div class="grid grid-cols-1">
       <div class="container px-4">
         <div
-          v-if="isGuestCheckout"
+          v-if="isGuestCheckout && !guestCheckoutMode"
           class="mb-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4 text-blue-800"
         >
           <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
@@ -18,6 +18,23 @@
             <p class="text-xs md:text-sm opacity-90">
               Review your items and configuration here. To finalize the order and apply business discounts, please
               <NuxtLink :to="signinHref" class="underline hover:text-blue-900 transition-colors font-bold"> Sign In </NuxtLink>
+              or choose Checkout as Guest below.
+            </p>
+          </div>
+        </div>
+        <div
+          v-else-if="isGuestCheckoutMode"
+          class="mb-6 mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-4 text-emerald-900"
+        >
+          <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600">
+            <InfoIcon class="w-6 h-6" />
+          </div>
+          <div class="flex-1">
+            <p class="font-bold text-sm md:text-base">Checking out as Guest</p>
+            <p class="text-xs md:text-sm opacity-90">
+              Enter your contact and address details below to complete your order without an account.
+              <NuxtLink :to="signinHref" class="underline hover:text-emerald-950 transition-colors font-bold">Sign in</NuxtLink>
+              if you have a saved profile.
             </p>
           </div>
         </div>
@@ -85,6 +102,7 @@ import { useUser } from '~/composables/useUser';
 import { useCart } from '~/composables/useCart';
 import { usePaymentCards } from '~/composables/usePaymentCards';
 import { useOrder } from '~/composables/useOrder';
+import { useGuestCheckout } from '~/composables/useGuestCheckout';
 import { fetchCustomerCredit } from '~/composables/api/user';
 
 // Stores
@@ -93,6 +111,7 @@ import { useCheckoutStore } from '~/store/checkoutStore';
 
 // Utilities
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { createEmptyGuestAddress, isCompleteGuestContact, isCompleteSavedAddress } from '~/helpers/address.helper';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 
 // Setup and Initialization
@@ -106,6 +125,8 @@ const userId = computed(() => user.value?.firebaseId);
 const authStore = useAuthStore();
 const { token, getGeneralSettings } = storeToRefs(authStore);
 const isGuestCheckout = computed(() => !(token.value || userId.value));
+const { guestCheckoutMode, clearGuestCheckout } = useGuestCheckout();
+const isGuestCheckoutMode = computed(() => isGuestCheckout.value && guestCheckoutMode.value);
 
 // Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
 // (sets hasFetchedCart) so pages never call composables/api/cart directly.
@@ -157,6 +178,7 @@ const order = ref<CheckoutOrderDraft>({
     address: getShipping(),
     billingAddress: getBilling(),
   },
+  guestContact: null,
   paymentDetails: {} as PaymentDetails,
   type: OrderType.Stock,
   backorderOption: null,
@@ -236,7 +258,11 @@ const signinHref = computed(() => {
 const applyMockCheckoutDefaults = () => {
   const config = useRuntimeConfig();
 
-  if (!config.public.MOCK_MODE || !userId.value) {
+  if (!config.public.MOCK_MODE) {
+    return;
+  }
+
+  if (!userId.value && !isGuestCheckoutMode.value) {
     return;
   }
 
@@ -269,7 +295,12 @@ const applyMockCheckoutDefaults = () => {
         type: PaymentTypeEnum.Card,
         card: firstCard,
       };
+      return;
     }
+
+    order.value.paymentDetails = {
+      type: PaymentTypeEnum.Bank,
+    };
   }
 };
 
@@ -279,12 +310,13 @@ const { checkout } = storeToRefs(checkoutStore);
 const stopButtonTrigger = ref(true);
 
 const isCheckoutDisabled = computed(() => {
-  const hasShippingAddress = !!order.value.shippingDetails.address;
-  const hasBillingAddress = !!order.value.shippingDetails.billingAddress;
+  const hasShippingAddress = isCompleteSavedAddress(order.value.shippingDetails.address);
+  const hasBillingAddress = isCompleteSavedAddress(order.value.shippingDetails.billingAddress);
   const hasShippingPreference = !!order.value.deliveryMethod;
   const hasPaymentMethod = !!order.value.paymentDetails && 'type' in order.value.paymentDetails;
+  const hasGuestContact = !isGuestCheckoutMode.value || isCompleteGuestContact(order.value.guestContact);
 
-  return !(hasShippingAddress && hasBillingAddress && hasShippingPreference && hasPaymentMethod);
+  return !(hasShippingAddress && hasBillingAddress && hasShippingPreference && hasPaymentMethod && hasGuestContact);
 });
 
 const isLoadingCheckout = ref(false);
@@ -304,6 +336,8 @@ watch(checkout, async (newVal) => {
           products: order.value.products,
           subtotal: Number(order.value.subtotal || 0),
           total: Number(order.value.total || 0),
+          guestContact: order.value.guestContact,
+          shippingDetails: order.value.shippingDetails,
         }
       );
       stopButtonTrigger.value = false;
@@ -370,8 +404,51 @@ watch(
   }
 );
 
+watch(isGuestCheckout, (isGuest) => {
+  if (!isGuest) {
+    clearGuestCheckout();
+    order.value.shippingDetails.address = getShipping();
+    order.value.shippingDetails.billingAddress = getBilling();
+    order.value.guestContact = null;
+    return;
+  }
+
+  if (!guestCheckoutMode.value) {
+    order.value.shippingDetails.address = null;
+    order.value.shippingDetails.billingAddress = null;
+    order.value.guestContact = null;
+  }
+});
+
+watch(guestCheckoutMode, (enabled) => {
+  if (!isGuestCheckout.value || !enabled) {
+    return;
+  }
+
+  order.value.shippingDetails.address = createEmptyGuestAddress('Shipping');
+  order.value.shippingDetails.billingAddress = createEmptyGuestAddress('Billing');
+  order.value.guestContact = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+  };
+  applyMockCheckoutDefaults();
+});
+
 // Initialization
 onMounted(async () => {
+  if (isGuestCheckoutMode.value) {
+    order.value.shippingDetails.address = createEmptyGuestAddress('Shipping');
+    order.value.shippingDetails.billingAddress = createEmptyGuestAddress('Billing');
+    order.value.guestContact = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+    };
+  }
+
   const shippingPricesPromise = fetchShippingPrices(order.value);
 
   const [, , shippingPrices] = await Promise.all([
