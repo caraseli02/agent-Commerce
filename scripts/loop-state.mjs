@@ -23,14 +23,13 @@ export function processedKeys(state, now = Date.now()) {
 }
 
 /** @param {any} state */
-export function canRepair(state, pr) {
-  return Number(state.attemptsByPr?.[pr] ?? 0) < MAX_REPAIR_ATTEMPTS;
+export function canRepair(state, pr, observedAttempts = 0) {
+  return Math.max(Number(state.attemptsByPr?.[pr] ?? 0), observedAttempts) < MAX_REPAIR_ATTEMPTS;
 }
 
 /** @param {any} state */
 export function beginDispatch(state, { pr, key, head, at }) {
   state.dispatches[key] = { pr, head, startedAt: at, result: 'running' };
-  state.attemptsByPr[pr] = Number(state.attemptsByPr[pr] ?? 0) + 1;
   return state;
 }
 
@@ -40,6 +39,10 @@ export function beginDispatch(state, { pr, key, head, at }) {
  */
 export function finishDispatch(state, { key, result, commentUrl = null, at }) {
   if (!state.dispatches[key]) throw new TypeError(`unknown dispatch key: ${key}`);
+  const record = state.dispatches[key];
+  if (result === 'dispatched' && record.result !== 'dispatched') {
+    state.attemptsByPr[record.pr] = Number(state.attemptsByPr[record.pr] ?? 0) + 1;
+  }
   Object.assign(state.dispatches[key], { result, commentUrl, completedAt: at });
   return state;
 }

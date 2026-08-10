@@ -41,6 +41,7 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 - Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and explicit `/repair` through one hosted repair dispatcher.
 - Never infer a repair command from ordinary top-level prose.
 - Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
+- Count an attempt only after the hosted repair comment is posted successfully. Transient GitHub transport failures remain retryable, and posted GitHub markers provide durable deduplication if local state is lost.
 - Never run repair code, repository scripts, commits, or pushes in the local dispatcher. It may only post a bounded `@codex fix` request for execution in Codex Cloud.
 - Use CI plus an independent hosted reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same repair dispatcher. Humans remain the only merge authority.
 

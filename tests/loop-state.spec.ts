@@ -16,6 +16,12 @@ describe('loop state', () => {
       at: '2026-08-10T10:10:00Z',
     });
     beginDispatch(state, { pr: 42, key: secondKey, head: 'b'.repeat(40), at: '2026-08-10T10:20:00Z' });
+    finishDispatch(state, {
+      key: secondKey,
+      result: 'dispatched',
+      commentUrl: 'https://github.com/acme/repo/pull/42#issuecomment-2',
+      at: '2026-08-10T10:21:00Z',
+    });
 
     expect([...processedKeys(state, Date.parse('2026-08-10T10:21:00Z'))]).toEqual([firstKey, secondKey]);
     expect(canRepair(state, 42)).toBe(false);
@@ -31,6 +37,7 @@ describe('loop state', () => {
     expect(processedKeys(state, Date.parse('2026-08-10T10:05:00Z'))).toContain(key);
     finishDispatch(state, { key, result: 'failed', at: '2026-08-10T10:06:00Z' });
     expect(processedKeys(state, Date.parse('2026-08-10T10:07:00Z'))).not.toContain(key);
+    expect(canRepair(state, 42)).toBe(true);
 
     beginDispatch(state, { pr: 43, key: `${key}:stale`, head, at: '2026-08-10T11:00:00Z' });
     expect(processedKeys(state, Date.parse('2026-08-10T11:05:00Z'))).toContain(`${key}:stale`);

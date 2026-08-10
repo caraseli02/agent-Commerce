@@ -10,6 +10,7 @@ const GREPTILE_ACTION_PATTERN = /Confidence Score:\s*[0-4]\/5|Files Needing Atte
 const GREPTILE_HEAD_PATTERN = /Last reviewed commit:[\s\S]*?commit\/([a-f0-9]{40})/i;
 const GREPTILE_PASS_PATTERN = /Confidence Score:\s*5\/5/i;
 const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks|approved)[.!]?$/i;
+const ECAS_DISPATCH_PATTERN = /<!--\s*ecas-loop:v3\s+role=dispatcher\s+key=([^\s>]+)\s*-->/i;
 
 function signalKey(signal) {
   return `${signal.kind}:${signal.sourceId}:${signal.head}`;
@@ -18,6 +19,16 @@ function signalKey(signal) {
 export function ciPassed(checks = []) {
   const check = checks.find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
   return check?.status === 'COMPLETED' && check.conclusion === 'SUCCESS';
+}
+
+/** @param {any[]} issueComments */
+export function controllerDispatchKeys(issueComments = []) {
+  return new Set(
+    issueComments.flatMap((comment) => {
+      const key = String(comment.body ?? '').match(ECAS_DISPATCH_PATTERN)?.[1];
+      return key ? [key] : [];
+    })
+  );
 }
 
 /** @param {{ pr?: any, reviews?: any[], issueComments?: any[] }} options */
@@ -57,9 +68,10 @@ export function independentReviewPassed({ pr, reviews = [], issueComments = [] }
 export function selectRepairSignal({ pr, issueComments = [], reviews = [], reviewComments = [], processedKeys = new Set() } = {}) {
   const check = (pr?.checks ?? []).find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
   if (!pr?.head) return null;
+  const dispatchedKeys = controllerDispatchKeys(issueComments);
   const pending = (signal) => {
     const candidate = { ...signal, key: signalKey(signal) };
-    return processedKeys.has(candidate.key) ? null : candidate;
+    return processedKeys.has(candidate.key) || dispatchedKeys.has(candidate.key) ? null : candidate;
   };
 
   if (check?.status === 'COMPLETED' && check.conclusion === 'FAILURE') {

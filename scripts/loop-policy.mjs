@@ -1,4 +1,4 @@
-import { ciPassed, independentReviewPassed, selectRepairSignal } from './loop-signals.mjs';
+import { ciPassed, controllerDispatchKeys, independentReviewPassed, selectRepairSignal } from './loop-signals.mjs';
 import { canRepair, processedKeys } from './loop-state.mjs';
 
 function claimedIssue(pr, activeIssues) {
@@ -33,6 +33,8 @@ export function decideNextAction({ state, activeIssues = [], pr, issueComments =
     return { type: 'idle', reason: 'awaiting-independent-review' };
   }
   if (!signal) return { type: 'idle', reason: 'no-pending-signal' };
-  if (!canRepair(state, pr.number)) return { type: 'blocked', reason: 'repair-attempt-limit', pr: pr.number, issue: issue.number };
+  if (!canRepair(state, pr.number, controllerDispatchKeys(issueComments).size)) {
+    return { type: 'blocked', reason: 'repair-attempt-limit', pr: pr.number, issue: issue.number };
+  }
   return { type: 'dispatch', pr: pr.number, issue: issue.number, head: pr.head, signal };
 }

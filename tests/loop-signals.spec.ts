@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { independentReviewPassed, selectRepairSignal } from '../scripts/loop-signals.mjs';
+import { controllerDispatchKeys, independentReviewPassed, selectRepairSignal } from '../scripts/loop-signals.mjs';
 
 describe('selectRepairSignal', () => {
   it('turns a completed current-head CI failure into one stable work key', () => {
@@ -173,18 +173,18 @@ describe('selectRepairSignal', () => {
 
   it('ignores its own hosted-dispatch comments', () => {
     const head = '8'.repeat(40);
+    const comment = {
+      id: 102,
+      user: { login: 'maintainer' },
+      author_association: 'OWNER',
+      body: `@codex fix this.\n<!-- ecas-loop:v3 role=dispatcher key=ci-failure:1:${head} -->`,
+      created_at: '2026-08-10T10:18:00Z',
+    };
+    expect([...controllerDispatchKeys([comment])]).toEqual([`ci-failure:1:${head}`]);
     expect(
       selectRepairSignal({
         pr: { number: 42, head, headCommittedAt: '2026-08-10T10:00:00Z', checks: [] },
-        issueComments: [
-          {
-            id: 102,
-            user: { login: 'maintainer' },
-            author_association: 'OWNER',
-            body: `@codex fix this.\n<!-- ecas-loop:v3 role=dispatcher key=ci-failure:1:${head} -->`,
-            created_at: '2026-08-10T10:18:00Z',
-          },
-        ],
+        issueComments: [comment],
       })
     ).toBeNull();
   });

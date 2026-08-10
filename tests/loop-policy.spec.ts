@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { beginDispatch, createLoopState } from '../scripts/loop-state.mjs';
+import { beginDispatch, createLoopState, finishDispatch } from '../scripts/loop-state.mjs';
 import { decideNextAction } from '../scripts/loop-policy.mjs';
 
 describe('decideNextAction', () => {
@@ -118,7 +118,9 @@ describe('decideNextAction', () => {
     const head = 'c'.repeat(40);
     const state = createLoopState();
     beginDispatch(state, { pr: 42, key: 'first', head, at: '2026-08-10T10:00:00Z' });
+    finishDispatch(state, { key: 'first', result: 'dispatched', at: '2026-08-10T10:01:00Z' });
     beginDispatch(state, { pr: 42, key: 'second', head, at: '2026-08-10T10:05:00Z' });
+    finishDispatch(state, { key: 'second', result: 'dispatched', at: '2026-08-10T10:06:00Z' });
     const base = {
       state,
       activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
@@ -144,5 +146,37 @@ describe('decideNextAction', () => {
       ],
     });
     expect(blocked).toEqual({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
+  });
+
+  it('recovers the dispatch ceiling from durable GitHub markers', () => {
+    const head = '9'.repeat(40);
+    const comments = [1, 2].map((id) => ({
+      id,
+      body: `@codex fix\n<!-- ecas-loop:v3 role=dispatcher key=repair-command:${id}:${head} -->`,
+      author_association: 'OWNER',
+      created_at: '2026-08-10T10:10:00Z',
+    }));
+    comments.push({
+      id: 3,
+      body: '/repair one more',
+      author_association: 'OWNER',
+      created_at: '2026-08-10T10:11:00Z',
+    });
+
+    expect(
+      decideNextAction({
+        state: createLoopState(),
+        activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+        pr: {
+          number: 42,
+          head,
+          headCommittedAt: '2026-08-10T10:00:00Z',
+          linkedIssues: [7],
+          trustedAuthor: true,
+          checks: [],
+        },
+        issueComments: comments,
+      })
+    ).toEqual({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
   });
 });
