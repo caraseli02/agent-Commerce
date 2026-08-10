@@ -42,5 +42,11 @@ Use this file for durable cross-session decisions that should survive context re
   - Impact: `CONTEXT.md` uses Buyer Flow as the glossary term; design doc lives at `docs/buyer-flow-design-contract.md`; treat “Scripted Buyer Path” as a legacy alias in older issues/docs.
 
 - 2026-08-06 — Scope remaining June-review epics to Portfolio Demo depth
+
   - Reason: #101’s Pinia bugs were already fixed; #99/#103 were written as production hardening/SEO programs that conflict with `CONTEXT.md` (Mock Integration Boundary outside production auth/SEO ops).
   - Impact: closed #101; rewrote #99 as demo auth integrity (`requireMockAuth` seam) and closed #109/#111/#113 as `wontfix`; rewrote #103 around `usePageSeo` + public crawl hygiene; children promoted `ready-for-agent` at `priority:p2` so Next track `#426`–`#433` stays first.
+
+- 2026-08-10 — Keep loop engineering event-shaped and proportionate
+
+  - Reason: first-party Anthropic, OpenAI, and GitHub guidance favors simple bounded loops; the earlier 995-line polling controller and mandatory per-action ledger duplicated platform state and exceeded this repository's risk.
+  - Impact: one generic repair path handles exact source/head keys, two attempts, successful-CI evaluation, and human merge. Raw traces plus compact summaries are the default; full ledgers are reserved for materially higher authority or compliance needs.

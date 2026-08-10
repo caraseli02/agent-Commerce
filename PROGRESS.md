@@ -33,6 +33,7 @@
 
 ## Recently completed
 
+- Loop controller simplification: one thin controller plus small pure signal/state/summary modules replaces the 995-line multi-pipeline draft; ordinary PR prose no longer triggers repairs.
 - System-design triage (2026-08-06): closed `#101`; rewrote `#99`/`#103`; `wontfix` `#109`/`#111`/`#113`; promoted slim Security + SEO children.
 - Housekeeping: closed zombie epics `#100`, `#102`, `#104`, `#255`, `#389`.
 - Issue #194 / PR #440 — shared empty states on Scripted Buyer Path.

@@ -26,30 +26,22 @@ Use a recurring or unattended loop only when all four conditions are true:
 
 If any condition is false, use a bounded agent task with a human in the loop. Do not add a system loop that rewrites this workflow without a separate human-approved issue.
 
-## Accountable actor boundary
+## Proportionate observability
 
-Once an agent can change state, its controller must keep an append-only JSONL run ledger. Each line is one completed run and must identify:
+The default controller keeps the raw Codex JSONL trace plus one compact append-only summary per run. The summary records the run and agent IDs, role, issue, PR, exact head, source key, start/end timestamps, token usage, result, and trace path. GitHub owns the live queue and PR state; controller comments are readable status, not a second database.
 
-- the run, acting agent, role, issue, branch, and exact head SHA;
-- allowed read paths, write paths, and commands, plus explicit denials;
-- iteration, token, and dollar budgets alongside actual usage;
-- ordered file and command actions;
-- the stop reason;
-- an evaluator with a different identity, its verdict, and the evaluated head;
-- the accepted change, or `null` when the attempt was rejected.
+Do not duplicate every command and file event into another mandatory ledger for this human-merged portfolio repository. The raw trace remains available for debugging, while CI, commits, PR discussion, and the independent evaluator provide the acceptance evidence.
 
-Write local ledgers under ignored `tmp/`, for example `tmp/loop-runs.jsonl`. Do not commit production run ledgers: PR evidence should contain the relevant summary and verification links, not the potentially sensitive action log.
+Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gains materially higher authority or risk, such as autonomous merge/deploy, customer or payment data, compliance obligations, multiple concurrent writers, or significant metered spend. That tool grants no execution, merge, or self-modification authority.
 
-Validate a ledger and calculate its economics with:
+## Minimal controller contract
 
-```sh
-node scripts/loop-accountability.mjs validate tmp/loop-runs.jsonl
-node scripts/loop-accountability.mjs summary tmp/loop-runs.jsonl
-```
-
-The summary reports attempts, accepted changes, acceptance rate, total cost, and **cost per accepted change**. Rejected attempts remain in total cost. A run is invalid when identity is ambiguous, actions are out of order or outside permission scopes, a denial matches, usage exceeds a budget, the evaluator is the actor, the evaluated SHA differs, or PASS has no accepted change.
-
-The ledger is an accountability contract, not an operating-system audit. The controller must append actions as they occur, copy token and cost usage from provider telemetry rather than estimating it, and the evaluator must compare the claimed actions with Git, CI, and runtime evidence. This tool grants no execution, merge, or self-modification authority.
+- Wake on a repository event when infrastructure permits; the local ChatGPT-authenticated bridge may perform one low-frequency recovery check.
+- Treat `{source ID, current head SHA}` as the idempotency key.
+- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, known Qodo action, explicit `/repair`, and evaluator failure through one repair runner.
+- Never infer a repair command from ordinary top-level prose.
+- Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
+- Run one independent evaluator after successful current-head CI; humans remain the only merge authority.
 
 ## Roles
 
@@ -125,6 +117,8 @@ When an `in-progress` issue already has an open PR, controller logic must route 
 - `PASS`: wait for human review/merge or state cleanup; do not select new work until WIP is clear.
 - `FAIL`: generate a focused repair brief from the evaluator comment and update the same branch/PR.
 - `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
+
+For an ordinary PR conversation comment, a trusted maintainer can explicitly request another bounded attempt with `/repair <instruction>` or `@codex fix <instruction>`. Free-form prose is never an execution trigger.
 
 ## Evaluator report format
 

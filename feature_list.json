@@ -98,6 +98,19 @@
       "validation": "Clean-state checklist covers verification, git status, temporary artifacts, progress, feature state, and PR evidence",
       "status": "passing",
       "evidence": ["docs/agents/session-lifecycle.md", "PROGRESS.md"]
+    },
+    {
+      "id": "H10",
+      "description": "Keep autonomous repair loops small, bounded, and explicit",
+      "validation": "One generic controller path deduplicates source/head signals, limits repairs to two attempts, evaluates successful current-head CI once, and ignores ordinary top-level prose",
+      "status": "passing",
+      "evidence": [
+        "scripts/ecas-loop-controller.mjs",
+        "scripts/loop-policy.mjs",
+        "tests/loop-policy.spec.ts",
+        "tests/loop-signals.spec.ts",
+        "docs/research/modern-loop-engineering-audit.md"
+      ]
     }
   ]
 }
