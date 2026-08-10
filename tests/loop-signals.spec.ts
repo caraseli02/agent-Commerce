@@ -31,6 +31,27 @@ describe('selectRepairSignal', () => {
     });
   });
 
+  it('does not treat non-failure CI conclusions as code repair work', () => {
+    for (const conclusion of ['CANCELLED', 'SKIPPED', 'NEUTRAL']) {
+      expect(
+        selectRepairSignal({
+          pr: {
+            head: '9'.repeat(40),
+            checks: [
+              {
+                workflowName: 'CI',
+                name: 'verify',
+                status: 'COMPLETED',
+                conclusion,
+                detailsUrl: 'https://github.com/acme/repo/actions/runs/12345/job/9',
+              },
+            ],
+          },
+        })
+      ).toBeNull();
+    }
+  });
+
   it('requires an explicit command before ordinary PR prose can trigger a repair', () => {
     const head = 'b'.repeat(40);
     const base = {

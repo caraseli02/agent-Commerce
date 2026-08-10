@@ -58,6 +58,23 @@ describe('decideNextAction', () => {
     expect(action).toEqual({ type: 'evaluate', pr: 42, issue: 7, head });
   });
 
+  it('waits while GitHub is still computing mergeability', () => {
+    const head = '8'.repeat(40);
+    const action = decideNextAction({
+      state: createLoopState(),
+      activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+      pr: {
+        number: 42,
+        head,
+        linkedIssues: [7],
+        mergeable: 'UNKNOWN',
+        checks: [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }],
+      },
+    });
+
+    expect(action).toEqual({ type: 'idle', reason: 'mergeability-pending' });
+  });
+
   it('blocks a third repair and never evaluates the same head twice', () => {
     const head = 'c'.repeat(40);
     const state = createLoopState();

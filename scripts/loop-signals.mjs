@@ -27,7 +27,7 @@ export function selectRepairSignal({ pr, issueComments = [], reviews = [], revie
     return processedKeys.has(candidate.key) ? null : candidate;
   };
 
-  if (check?.status === 'COMPLETED' && check.conclusion !== 'SUCCESS') {
+  if (check?.status === 'COMPLETED' && check.conclusion === 'FAILURE') {
     const sourceId = String(check.detailsUrl ?? '').match(CI_RUN_PATTERN)?.[1];
     if (sourceId) {
       const signal = {

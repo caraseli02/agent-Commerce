@@ -64,7 +64,10 @@ export function normalizeEvaluation(options) {
     return withReason(evaluation, 'FAIL', 'The current head has merge conflicts.');
   }
   if (options.mergeable !== 'MERGEABLE') {
-    return withReason(evaluation, 'BLOCKED', 'GitHub did not confirm that the current head is mergeable.');
+    return {
+      ...withReason(evaluation, 'DEFERRED', 'GitHub has not finished computing mergeability; evaluation will retry.'),
+      stale: true,
+    };
   }
   if (evaluation.total < 8 || rubric.verificationEvidence === 0 || evaluation.evidence.length === 0) {
     return withReason(evaluation, 'FAIL', 'PASS requires at least 8/10 and nonzero verification evidence.');

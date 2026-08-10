@@ -345,27 +345,35 @@ function runEvaluation({ action, pr, state }) {
     sourceKey: `evaluation:${pr.head}`,
     result: `evaluation-${evaluation.verdict.toLowerCase()}`,
   });
-  finishEvaluation(state, { head: pr.head, verdict: evaluation.verdict, at: nowIso() });
-  writeLoopState(STATE_PATH, state);
   const commentUrl = postComment(
     pr.number,
     `${runResult.runId}.md`,
-    `## ECAS evaluator\n\n${evaluation.verdict}\n\n${evaluation.summary}\n\n### Evidence\n\n${
+    `## Evaluator verdict\n\n${evaluation.verdict}\n\n${evaluation.summary}\n\n## Issue / PR\n\n- Issue: #${action.issue}\n- PR: #${
+      pr.number
+    }\n\n## Evidence reviewed\n\n${
       evaluation.evidence.length ? evaluation.evidence.map((item) => `- ${item}`).join('\n') : '- No trusted evidence.'
-    }\n\n### Rubric\n\n- Scope control: ${evaluation.rubric.scopeControl}/2\n- Acceptance criteria: ${
+    }\n\n## Rubric\n\n- Scope control: ${evaluation.rubric.scopeControl}/2\n- Acceptance criteria: ${
       evaluation.rubric.acceptanceCriteria
     }/2\n- Verification evidence: ${evaluation.rubric.verificationEvidence}/2\n- Harness hygiene: ${
       evaluation.rubric.harnessHygiene
     }/2\n- Risk reporting: ${evaluation.rubric.riskReporting}/2\n- Total: ${evaluation.total}/10\n\n- Evaluated head: \`${
       pr.head
-    }\`\n- Trace: \`${basename(runResult.tracePath)}\`\n\n<!-- ecas-loop:v2 role=evaluator head=${pr.head} result=${
-      evaluation.verdict
-    } -->\n`
+    }\`\n- Trace: \`${basename(runResult.tracePath)}\`\n\n## Required follow-up\n\n- ${
+      evaluation.verdict === 'PASS' ? 'None.' : evaluation.summary
+    }\n\n<!-- ecas-loop:v2 role=evaluator head=${pr.head} result=${evaluation.verdict} -->\n`
   );
 
-  if (evaluation.stale) return;
+  const completeEvaluation = () => {
+    finishEvaluation(state, { head: pr.head, verdict: evaluation.verdict, at: nowIso() });
+    writeLoopState(STATE_PATH, state);
+  };
+  if (evaluation.stale) {
+    completeEvaluation();
+    return;
+  }
   if (evaluation.verdict === 'PASS') {
     gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'ready-for-human']);
+    completeEvaluation();
     return;
   }
   if (evaluation.verdict === 'FAIL' && canRepair(state, pr.number)) {
@@ -382,9 +390,11 @@ function runEvaluation({ action, pr, state }) {
       submitted = runRepair({ action: { type: 'repair', issue: action.issue, signal }, pr, state });
     }
     if (!submitted) blockIssue(action.issue);
+    completeEvaluation();
     return;
   }
   blockIssue(action.issue);
+  completeEvaluation();
 }
 
 function loadDecision() {

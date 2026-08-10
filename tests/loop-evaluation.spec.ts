@@ -42,6 +42,7 @@ describe('normalizeEvaluation', () => {
     expect(normalizeEvaluation({ ...base, currentHead: 'b'.repeat(40) }).verdict).toBe('STALE');
     expect(normalizeEvaluation({ ...base, succeeded: false }).verdict).toBe('BLOCKED');
     expect(normalizeEvaluation({ ...base, mergeable: 'CONFLICTING', mergeStateStatus: 'DIRTY' }).verdict).toBe('FAIL');
+    expect(normalizeEvaluation({ ...base, mergeable: 'UNKNOWN' })).toMatchObject({ verdict: 'DEFERRED', stale: true });
     expect(
       normalizeEvaluation({
         ...base,

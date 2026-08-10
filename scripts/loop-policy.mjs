@@ -26,6 +26,7 @@ export function decideNextAction({ state, activeIssues = [], pr, issueComments =
     processedKeys: processedKeys(state),
   });
   if (!signal && ciPassed(pr.checks) && !hasEvaluation(state, pr.head)) {
+    if (pr.mergeable === 'UNKNOWN') return { type: 'idle', reason: 'mergeability-pending' };
     return { type: 'evaluate', pr: pr.number, issue: issue.number, head: pr.head };
   }
   if (!signal) return { type: 'idle', reason: 'no-pending-signal' };
