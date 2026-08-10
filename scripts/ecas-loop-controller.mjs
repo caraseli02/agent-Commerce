@@ -3,7 +3,8 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { acquireLeaseLock, readControllerHealth, recordHeartbeat, releaseLeaseLock } from './loop-controller-runtime.mjs';
 import { ciAllowsEvaluation, findPendingCiSignal } from './loop-ci-intake.mjs';
@@ -12,6 +13,7 @@ import { appendAccountabilityRecord, buildAccountabilityRecord, DEFAULT_LOOP_BUD
 import { failureMatchesCurrentHead, findClaimedIssueForPr } from './loop-work-intake.mjs';
 
 const USER_HOME = process.env.ECAS_CONTROLLER_HOME ?? homedir();
+const CONTROLLER_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO = process.env.ECAS_REPO ?? 'caraseli02/Ecas';
 const REPO_ROOT = process.env.ECAS_REPO_ROOT ?? `${USER_HOME}/Documents/Ecas`;
 const CODEX_HOME = process.env.CODEX_HOME ?? `${USER_HOME}/.codex`;
@@ -19,6 +21,7 @@ const CODEX_BIN = process.env.ECAS_CODEX_BIN ?? '/Applications/ChatGPT.app/Conte
 const AUTOMATION_ROOT = process.env.ECAS_AUTOMATION_ROOT ?? `${CODEX_HOME}/automations/ecas-pr-repair-hook`;
 const RUNS_DIR = join(AUTOMATION_ROOT, 'runs');
 const ACCOUNTABILITY_LEDGER = join(AUTOMATION_ROOT, 'loop-runs.jsonl');
+const EVENT_RECORDER = join(CONTROLLER_DIR, 'codex-event-recorder.mjs');
 const PATH = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
 const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 const TRUSTED_BOTS = new Set(['cursoragent', 'cursoragent[bot]']);
@@ -349,8 +352,21 @@ const runCodexTask = ({ role, pr, attempt, worktree, prompt, accountability = nu
     DEFAULT_LOOP_BUDGETS.max_tokens
   } tokens or $${DEFAULT_LOOP_BUDGETS.max_cost_usd.toFixed(2)} marginal cost.\n- Do not widen scope to consume the remaining budget.`;
   const output = spawnSync(
-    CODEX_BIN,
-    ['exec', '--json', '--sandbox', 'danger-full-access', '--cd', worktree, '-c', 'model_reasoning_effort="high"', budgetedPrompt],
+    process.execPath,
+    [
+      EVENT_RECORDER,
+      logPath,
+      CODEX_BIN,
+      'exec',
+      '--json',
+      '--sandbox',
+      'danger-full-access',
+      '--cd',
+      worktree,
+      '-c',
+      'model_reasoning_effort="high"',
+      budgetedPrompt,
+    ],
     {
       cwd: worktree,
       env: { ...process.env, PATH },
@@ -359,7 +375,6 @@ const runCodexTask = ({ role, pr, attempt, worktree, prompt, accountability = nu
     }
   );
 
-  writeFileSync(logPath, `${output.stdout ?? ''}${output.stderr ?? ''}`, { mode: 0o600 });
   log(`${role} task for PR #${pr} exited ${output.status}; log ${basename(logPath)}`);
   return output.status === 0;
 };

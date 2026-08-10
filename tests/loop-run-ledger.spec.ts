@@ -21,6 +21,7 @@ describe('loop run accountability ledger', () => {
     const actorEvents = eventStream('generator-thread', [
       {
         type: 'item.completed',
+        observed_at: '2026-08-10T12:58:00.000Z',
         item: {
           type: 'file_change',
           changes: [{ path: '/repo/scripts/fix.mjs', kind: 'update' }],
@@ -28,6 +29,7 @@ describe('loop run accountability ledger', () => {
       },
       {
         type: 'item.completed',
+        observed_at: '2026-08-10T12:59:00.000Z',
         item: {
           type: 'command_execution',
           command: 'pnpm exec vitest run tests/fix.spec.ts',
@@ -55,14 +57,15 @@ describe('loop run accountability ledger', () => {
       agent: { id: 'generator-thread', role: 'ci-repair' },
       work: { issue: 42, branch: 'codex/issue-42', head_sha: head },
       usage: { iterations: 1, tokens: 1500, cost_usd: 0 },
+      billing: { mode: 'chatgpt-subscription', cost_source: 'non-metered-local-login' },
       evaluation: { agent_id: 'evaluator-thread', verdict: 'PASS', head_sha: head },
       outcome: { accepted_change: `PR #99 @ ${head}` },
     });
     expect(record.actions).toEqual([
-      { sequence: 1, at: completedAt, kind: 'file', access: 'write', target: 'scripts/fix.mjs' },
+      { sequence: 1, at: '2026-08-10T12:58:00.000Z', kind: 'file', access: 'write', target: 'scripts/fix.mjs' },
       {
         sequence: 2,
-        at: completedAt,
+        at: '2026-08-10T12:59:00.000Z',
         kind: 'command',
         command: 'pnpm exec vitest run tests/fix.spec.ts',
         exit_code: 0,

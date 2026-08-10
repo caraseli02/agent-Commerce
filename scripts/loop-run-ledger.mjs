@@ -42,7 +42,7 @@ function usageFromEvents(events) {
       (usage, event) => ({
         iterations: usage.iterations + 1,
         tokens: usage.tokens + Number(event.usage?.input_tokens ?? 0) + Number(event.usage?.output_tokens ?? 0),
-        cost_usd: usage.cost_usd,
+        cost_usd: usage.cost_usd + Number(event.usage?.cost_usd ?? 0),
       }),
       { iterations: 0, tokens: 0, cost_usd: 0 }
     );
@@ -53,12 +53,13 @@ function actionsFromEvents(events, repoRoot, at) {
 
   for (const event of events) {
     if (event.type !== 'item.completed') continue;
+    const observedAt = event.observed_at ?? at;
 
     if (event.item?.type === 'file_change') {
       for (const change of event.item.changes ?? []) {
         const target = relative(repoRoot, change.path);
         if (!target || target === '..' || target.startsWith('../')) continue;
-        actions.push({ kind: 'file', access: 'write', target });
+        actions.push({ at: observedAt, kind: 'file', access: 'write', target });
       }
     }
 
@@ -67,11 +68,11 @@ function actionsFromEvents(events, repoRoot, at) {
       if (PROHIBITED_COMMANDS.some((pattern) => pattern.test(command))) {
         throw new Error(`prohibited command observed in Codex event stream: ${command}`);
       }
-      actions.push({ kind: 'command', command, exit_code: event.item.exit_code });
+      actions.push({ at: observedAt, kind: 'command', command, exit_code: event.item.exit_code });
     }
   }
 
-  return actions.map((action, index) => ({ sequence: index + 1, at, ...action }));
+  return actions.map((action, index) => ({ sequence: index + 1, ...action }));
 }
 
 /** @param {any} options */
@@ -88,6 +89,7 @@ export function buildAccountabilityRecord({
   verdict,
   completedAt,
   budgets = DEFAULT_LOOP_BUDGETS,
+  billing = { mode: 'chatgpt-subscription', cost_source: 'non-metered-local-login' },
 }) {
   const actorEventList = parseEvents(actorEvents);
   const evaluatorEventList = parseEvents(evaluatorEvents);
@@ -115,6 +117,7 @@ export function buildAccountabilityRecord({
     },
     budgets,
     usage,
+    billing,
     actions: actionsFromEvents(actorEventList, repoRoot, completedAt),
     stop: {
       reason: stopReason,
