@@ -198,7 +198,8 @@ function loadDecision() {
   if (!linked) return { action: { type: 'idle', reason: 'no-linked-open-pr' } };
   const pr = pullContext(linked.number);
   const state = readLoopState(STATE_PATH);
-  const action = decideNextAction({ state, activeIssues: issues, pr, ...collaborationContext(pr.number) });
+  const controllerLogin = gh(['api', 'user', '--jq', '.login']);
+  const action = decideNextAction({ state, activeIssues: issues, pr, controllerLogin, ...collaborationContext(pr.number) });
   return { action, pr, state };
 }
 

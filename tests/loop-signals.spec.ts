@@ -180,11 +180,12 @@ describe('selectRepairSignal', () => {
       body: `@codex fix this.\n<!-- ecas-loop:v3 role=dispatcher key=ci-failure:1:${head} -->`,
       created_at: '2026-08-10T10:18:00Z',
     };
-    expect([...controllerDispatchKeys([comment])]).toEqual([`ci-failure:1:${head}`]);
+    expect([...controllerDispatchKeys([comment], 'maintainer')]).toEqual([`ci-failure:1:${head}`]);
     expect(
       selectRepairSignal({
         pr: { number: 42, head, headCommittedAt: '2026-08-10T10:00:00Z', checks: [] },
         issueComments: [comment],
+        controllerLogin: 'maintainer',
       })
     ).toBeNull();
   });
@@ -193,10 +194,15 @@ describe('selectRepairSignal', () => {
     const head = '8'.repeat(40);
     const marker = `<!-- ecas-loop:v3 role=dispatcher key=ci-failure:1:${head} -->`;
 
-    expect([...controllerDispatchKeys([{ body: marker, author_association: 'NONE', user: { login: 'attacker' } }])]).toEqual([]);
-    expect([...controllerDispatchKeys([{ body: marker, author_association: 'OWNER', user: { login: 'maintainer' } }])]).toEqual([
-      `ci-failure:1:${head}`,
-    ]);
+    expect([...controllerDispatchKeys([{ body: marker, author_association: 'NONE', user: { login: 'attacker' } }], 'maintainer')]).toEqual(
+      []
+    );
+    expect([
+      ...controllerDispatchKeys([{ body: marker, author_association: 'COLLABORATOR', user: { login: 'attacker' } }], 'maintainer'),
+    ]).toEqual([]);
+    expect([
+      ...controllerDispatchKeys([{ body: marker, author_association: 'OWNER', user: { login: 'maintainer' } }], 'maintainer'),
+    ]).toEqual([`ci-failure:1:${head}`]);
   });
 
   it('accepts a trusted root inline review comment on the current head', () => {

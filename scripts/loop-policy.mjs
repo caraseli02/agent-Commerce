@@ -12,9 +12,17 @@ function claimedIssue(pr, activeIssues) {
 }
 
 /**
- * @param {{ state: any, activeIssues?: any[], pr: any, issueComments?: any[], reviews?: any[], reviewComments?: any[] }} options
+ * @param {{ state: any, activeIssues?: any[], pr: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], controllerLogin?: string }} options
  */
-export function decideNextAction({ state, activeIssues = [], pr, issueComments = [], reviews = [], reviewComments = [] }) {
+export function decideNextAction({
+  state,
+  activeIssues = [],
+  pr,
+  issueComments = [],
+  reviews = [],
+  reviewComments = [],
+  controllerLogin = '',
+}) {
   const issue = claimedIssue(pr, activeIssues);
   if (!issue) return { type: 'idle', reason: 'no-single-linked-work-item' };
   if (pr.trustedAuthor !== true) return { type: 'idle', reason: 'untrusted-pr-author' };
@@ -25,6 +33,7 @@ export function decideNextAction({ state, activeIssues = [], pr, issueComments =
     reviews,
     reviewComments,
     processedKeys: processedKeys(state),
+    controllerLogin,
   });
   if (!signal && ciPassed(pr.checks)) {
     if (independentReviewPassed({ pr, reviews, issueComments })) {
@@ -33,7 +42,7 @@ export function decideNextAction({ state, activeIssues = [], pr, issueComments =
     return { type: 'idle', reason: 'awaiting-independent-review' };
   }
   if (!signal) return { type: 'idle', reason: 'no-pending-signal' };
-  if (!canRepair(state, pr.number, controllerDispatchKeys(issueComments).size)) {
+  if (!canRepair(state, pr.number, controllerDispatchKeys(issueComments, controllerLogin).size)) {
     return { type: 'blocked', reason: 'repair-attempt-limit', pr: pr.number, issue: issue.number };
   }
   return { type: 'dispatch', pr: pr.number, issue: issue.number, head: pr.head, signal };

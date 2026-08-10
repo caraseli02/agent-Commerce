@@ -21,11 +21,15 @@ export function ciPassed(checks = []) {
   return check?.status === 'COMPLETED' && check.conclusion === 'SUCCESS';
 }
 
-/** @param {any[]} issueComments */
-export function controllerDispatchKeys(issueComments = []) {
+/** @param {any[]} issueComments @param {string} controllerLogin */
+export function controllerDispatchKeys(issueComments = [], controllerLogin = '') {
+  const expectedLogin = controllerLogin.toLowerCase();
+  if (!expectedLogin) return new Set();
   return new Set(
     issueComments.flatMap((comment) => {
-      if (!TRUSTED_ASSOCIATIONS.has(comment.author_association)) return [];
+      if (!TRUSTED_ASSOCIATIONS.has(comment.author_association) || String(comment.user?.login ?? '').toLowerCase() !== expectedLogin) {
+        return [];
+      }
       const key = String(comment.body ?? '').match(ECAS_DISPATCH_PATTERN)?.[1];
       return key ? [key] : [];
     })
@@ -64,12 +68,19 @@ export function independentReviewPassed({ pr, reviews = [], issueComments = [] }
 }
 
 /**
- * @param {{ pr?: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], processedKeys?: Set<string> }} options
+ * @param {{ pr?: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], processedKeys?: Set<string>, controllerLogin?: string }} options
  */
-export function selectRepairSignal({ pr, issueComments = [], reviews = [], reviewComments = [], processedKeys = new Set() } = {}) {
+export function selectRepairSignal({
+  pr,
+  issueComments = [],
+  reviews = [],
+  reviewComments = [],
+  processedKeys = new Set(),
+  controllerLogin = '',
+} = {}) {
   const check = (pr?.checks ?? []).find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
   if (!pr?.head) return null;
-  const dispatchedKeys = controllerDispatchKeys(issueComments);
+  const dispatchedKeys = controllerDispatchKeys(issueComments, controllerLogin);
   const pending = (signal) => {
     const candidate = { ...signal, key: signalKey(signal) };
     return processedKeys.has(candidate.key) || dispatchedKeys.has(candidate.key) ? null : candidate;
