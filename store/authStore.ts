@@ -146,7 +146,7 @@ export const useAuthStore = defineStore(
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
-      pick: ['loggedInUser', 'userDetails', 'firebaseTempToken', 'userCards', 'generalSettings'],
+      pick: ['loggedInUser', 'userDetails', 'firebaseTempToken', 'generalSettings'],
     },
   }
 );
