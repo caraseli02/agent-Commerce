@@ -48,10 +48,8 @@ const hotSales = ref<ProductBannerInterface[]>([]);
 const myCard = ref<StripeCardInterface | null>(null);
 
 export const useCustomerDashboard = () => {
-  const userDetails = useAuthStore().userDetails;
-  const userCards = useAuthStore().userCards;
   const authStore = useAuthStore();
-  const { getUserDetails } = storeToRefs(authStore);
+  const { getUserDetails, userDetails } = storeToRefs(authStore);
 
   const activeOrders = async () => {
     const { data, status } = await fetchCustomerActiveOrders();
@@ -85,8 +83,8 @@ export const useCustomerDashboard = () => {
   };
 
   const customerInformation = async () => {
-    if (userDetails) {
-      myAccountInformation.value = userDetails;
+    if (userDetails.value) {
+      myAccountInformation.value = userDetails.value;
     }
   };
 
@@ -122,7 +120,8 @@ export const useCustomerDashboard = () => {
       phone: '-',
     });
 
-    const details = userDetails?.accountType === AccountType.Personal ? userDetails?.personalDetails : userDetails?.companyDetails;
+    const details =
+      userDetails.value?.accountType === AccountType.Personal ? userDetails.value?.personalDetails : userDetails.value?.companyDetails;
 
     // get default shipping address
     if (details?.shippingAddress) {
@@ -181,7 +180,8 @@ export const useCustomerDashboard = () => {
   };
 
   const getDefaultCard = async () => {
-    myCard.value = userCards?.find((card) => card.default) ?? null;
+    const cards = (await authStore.addUserCards()) ?? authStore.userCards ?? [];
+    myCard.value = cards.find((card) => card.default) ?? null;
   };
 
   return {

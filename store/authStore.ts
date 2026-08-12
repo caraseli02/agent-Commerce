@@ -74,6 +74,7 @@ export const useAuthStore = defineStore(
     function signOut() {
       loggedInUser.value = null;
       userDetails.value = null;
+      userCards.value = null;
       token.value = '';
       generalSettings.value = null;
 
@@ -91,6 +92,7 @@ export const useAuthStore = defineStore(
 
       loggedInUser.value = null;
       userDetails.value = null;
+      userCards.value = null;
       token.value = '';
       generalSettings.value = null;
     }
