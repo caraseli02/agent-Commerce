@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Epic #457: **#463** Lucide package migration is the only active issue; it is verified locally and awaiting a ready PR/evaluator pass.
+- Epic #457: **#462** production mock-mode runtime acceptance is the only active issue; final ready-PR evidence is being prepared.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
@@ -12,7 +12,8 @@
 - **#461** — PR #488 merged to `origin/main` at `1e80367d` with GitHub Actions and Vercel green. The human merge approved the documented Nuxt framework-package version assertion; the bundled CLI still reports `3.37.0` while the framework package is `4.5.2`.
 - **#458** — PR #489 merged to `origin/main` at `170144c5` after GitHub Actions, Vercel, and direct Greptile review passed (5/5 confidence, no actionable findings). `pnpm deps:outdated` and `pnpm deps:audit` use `--ignore-workspace` to avoid parent-workspace resolution; no package upgrade or lockfile rewrite was made.
 - **#459** — Firebase/VueFire retirement merged through PR #491 (`502df432`) after green CI/Vercel/Greptile and independent PASS (10/10). The `in-progress` label is removed and Epic #457 is checked.
-- **#463** — all static, dynamic, and type-only Lucide references now use `@lucide/vue`; its dynamic namespace is narrowed to Vue components. Frozen install and `pnpm verify` pass. Production mock browser smoke renders 89 storefront and 81 dashboard SVGs with no overlay or console error after reload.
+- **#463** — PR #492 merged to `origin/main` at `468ba76e` after green CI/Vercel/Greptile and independent PASS (10/10). All static, dynamic, and type-only Lucide references now use `@lucide/vue`.
+- **#462** — Nuxt 4 production runtime acceptance: fixed SSR/client hydration parity for viewport-chunked product grids, client-restored order summaries, and initially empty dashboard activity. Focused regression test and `pnpm verify:full` pass; fresh mock production browser evidence covers storefront/search/product images, customer dashboard, cart/order summary, and checkout success with no console errors.
 
 ## Human decisions pending
 

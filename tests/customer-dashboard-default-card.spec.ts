@@ -9,6 +9,18 @@ describe('useCustomerDashboard default card', () => {
     __setMockRuntimeConfig({ public: { MOCK_MODE: true } });
   });
 
+  it('starts activity widgets with render-safe empty values', async () => {
+    const { useCustomerDashboard } = await import('../composables/useCustomerDashboard');
+    const { myActivityData } = useCustomerDashboard();
+
+    expect(myActivityData.value).toEqual({
+      favorites: { products: 0, folders: 0 },
+      monthOrder: 0,
+      returns: 0,
+      totalOrders: 0,
+    });
+  });
+
   it('refetches cards from the API when persisted card state is absent', async () => {
     const defaultCard = {
       id: 'card-default',

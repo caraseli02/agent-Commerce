@@ -210,5 +210,14 @@ export default defineNuxtConfig({
       xl: 1280,
       '2xl': 1536,
     },
+    // Match the Tailwind breakpoint names during SSR; otherwise Nuxt 4
+    // hydrates an empty viewport-dependent product grid before the client
+    // replaces it with its detected breakpoint.
+    defaultBreakpoints: {
+      desktop: 'lg',
+      mobile: 'xs',
+      tablet: 'md',
+    },
+    fallbackBreakpoint: 'lg',
   },
 });
