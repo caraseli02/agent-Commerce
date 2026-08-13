@@ -56,7 +56,10 @@ export default defineNuxtConfig({
   },
   fonts: {
     families: [
-      { name: 'Archivo', provider: 'google', weights: [500, 600, 700] },
+      // Google Fonts retired one Archivo subset URL; resolving it at build time
+      // makes otherwise deterministic production builds fail. Keep the existing
+      // display stack, which falls back to Source Sans 3 when Archivo is absent.
+      { name: 'Archivo', provider: 'none' },
       { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700] },
     ],
   },
