@@ -12,6 +12,13 @@ export default defineNuxtConfig({
   // Nuxt 4 compatibility mode tightens Vue SFC inference; relax until #465.
   typescript: {
     strict: false,
+    tsConfig: {
+      compilerOptions: {
+        // Keep the existing relaxed Options API baseline while Nuxt 4's
+        // generated type projects are adopted incrementally.
+        noImplicitThis: false,
+      },
+    },
   },
 
   modules: [
@@ -20,7 +27,6 @@ export default defineNuxtConfig({
     'nuxt-swiper',
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
-    'nuxt-lodash',
     'nuxt-viewport',
     '@vueuse/nuxt',
     '@nuxtjs/tailwindcss',
@@ -170,15 +176,18 @@ export default defineNuxtConfig({
     },
   },
 
-  lodash: {
-    prefix: '_',
-    prefixSkip: ['string'],
-    upperAfterPrefix: false,
-    exclude: ['map'],
-    alias: [
-      ['camelCase', 'stringToCamelCase'], // => stringToCamelCase
-      ['kebabCase', 'stringToKebab'], // => stringToKebab
-      ['isDate', 'isLodashDate'], // => _isLodashDate
+  imports: {
+    // `nuxt-lodash` only supports Nuxt 3. Keep the two existing auto-imports
+    // on Nuxt 4 without coupling the app to an incompatible Nuxt module.
+    presets: [
+      {
+        from: 'lodash-es',
+        imports: [
+          { name: 'cloneDeep', as: '_cloneDeep' },
+          { name: 'debounce', as: '_debounce' },
+          { name: 'isEqual', as: '_isEqual' },
+        ],
+      },
     ],
   },
 

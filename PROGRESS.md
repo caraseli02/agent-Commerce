@@ -2,15 +2,14 @@
 
 ## Current focus
 
-- Next implementation track first (WIP=1): **P0** `#426` → `#427`, then **P1** `#431`/`#432`, then **P2** `#433`.
+- **Blocked:** `#461` Nuxt 4 application/module upgrade on `feat/461-nuxt4-upgrade`.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- **#427** / PR #447 — checkout post-order routing behind application seam (`feat/427-checkout-post-order-routing`). Awaiting evaluator.
-- **#426** / PR #442 — Order Money callers (open; no evaluator verdict yet).
+- No active implementation issue. `#461` is blocked after the Nuxt 4 build passed but `pnpm typecheck` exposed a cross-surface legacy typing backlog; see the issue blocker comment for the exact errors.
 - Agent queue (`ready-for-agent`):
   - **P0** `#426`, `#427`
   - **P1** `#431`, `#432`

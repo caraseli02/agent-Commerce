@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Pagination } from 'swiper';
+import { A11y, Pagination } from 'swiper/modules';
 import type { ProductBannerInterface } from '~/types/dashboard/client-dashboard';
 import type { ProductInterface } from '~/types/product';
 import { addToCartHelper } from '~/helpers/prices.helper';

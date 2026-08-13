@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Pagination } from 'swiper';
+import { A11y, Pagination } from 'swiper/modules';
 import type { ProductInterface } from '~/types/product';
 
 const props = defineProps<{

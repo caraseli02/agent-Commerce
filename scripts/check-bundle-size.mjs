@@ -1,12 +1,15 @@
 #!/usr/bin/env node
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { access, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { gzipSync } from 'node:zlib';
 
 const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
 const OUTPUT_DIR = path.join(ROOT, '.output/public/_nuxt');
-const PRECOMPUTED_PATH = path.join(ROOT, '.output/server/chunks/build/client.precomputed.mjs');
+const PRECOMPUTED_PATHS = [
+  path.join(ROOT, '.output/server/chunks/virtual/precomputed.mjs'), // Nuxt 4
+  path.join(ROOT, '.output/server/chunks/build/client.precomputed.mjs'), // Nuxt 3
+];
 
 const DEFAULT_CHUNK_LIMIT_BYTES = 500 * 1024;
 const MARKER_CHUNK_LIMITS = {
@@ -43,6 +46,19 @@ function getChunkLimit(markers) {
   }
 
   return Math.max(...markers.map((marker) => MARKER_CHUNK_LIMITS[marker]));
+}
+
+async function getPrecomputedPath() {
+  for (const candidate of PRECOMPUTED_PATHS) {
+    try {
+      await access(candidate);
+      return candidate;
+    } catch {
+      // Try the other Nuxt output layout.
+    }
+  }
+
+  throw new Error(`Unable to find Nuxt route manifest. Checked: ${PRECOMPUTED_PATHS.join(', ')}`);
 }
 
 async function listJavaScriptChunks() {
@@ -227,7 +243,7 @@ async function main() {
   const chunkFiles = await listJavaScriptChunks();
   const classifiedChunks = await classifyChunks(chunkFiles);
   const graph = await buildImportGraph(chunkFiles);
-  const precomputedSource = await readFile(PRECOMPUTED_PATH, 'utf8');
+  const precomputedSource = await readFile(await getPrecomputedPath(), 'utf8');
   const missingDashboardEntries = applyManifestDashboardMarkers(classifiedChunks, precomputedSource);
 
   const sizeViolations = await checkChunkSizes(classifiedChunks);
