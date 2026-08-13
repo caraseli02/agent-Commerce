@@ -31,7 +31,7 @@ const showSideNav = ref(false);
 </script>
 
 <style lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../assets/css/main.css";
 html,
 body,
 div#__nuxt {

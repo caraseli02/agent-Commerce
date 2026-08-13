@@ -35,7 +35,7 @@ onMounted(() => {
 </script>
 
 <style lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../assets/css/main.css";
 .app-scroll {
   @apply scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-slate-700 scrollbar-track-slate-300;
 }

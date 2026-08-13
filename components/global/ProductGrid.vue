@@ -105,7 +105,7 @@ const productsByViewport = computed(() => {
 </script>
 
 <style lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../../assets/css/main.css";
 .homeFeaturedProducts--swiper {
   @apply px-0 pt-0 pb-[30px]!;
 }

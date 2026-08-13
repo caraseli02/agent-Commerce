@@ -173,7 +173,7 @@ const showErrorMsg = ref(true);
 </template>
 
 <style scoped lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../../../../assets/css/main.css";
 label {
   @apply text-slate-500;
 }

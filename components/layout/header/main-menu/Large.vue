@@ -425,7 +425,7 @@ onMounted(async () => {
 </script>
 
 <style lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../../../../assets/css/main.css";
 .headerSubmenu--swiper {
   @apply z-20 pb-[22px] mt-auto md:pb-[38px]!;
 }
@@ -449,7 +449,7 @@ onMounted(async () => {
 </style>
 
 <style lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../../../../assets/css/main.css";
 .animateToRight {
   animation: toRightFromLeft 0.5s forwards linear;
 }

@@ -113,7 +113,7 @@ const vCalendarSlots = computed(() => {
 </template>
 
 <style lang="css">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../../../assets/css/main.css";
 .calendar {
   @apply p-3 text-center !rounded-[0.3rem];
 }

@@ -315,7 +315,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../../assets/css/main.css";
 .scrollbar-custom {
   &::-webkit-scrollbar-thumb {
     background-color: #383b4d !important;

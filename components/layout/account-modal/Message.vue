@@ -60,7 +60,7 @@ const messages = [
 </script>
 
 <style scoped lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../../../assets/css/main.css";
 .homeNews--swiper {
   @apply px-0 pt-0 pb-[30px]!;
 }

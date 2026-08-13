@@ -83,7 +83,7 @@ const slides = ref([
 </script>
 
 <style lang="postcss">
-@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
+@reference "../../assets/css/main.css";
 .orderSummaryExclusiveOffer--swiper .swiper-pagination {
   @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:left-1/2 lg:-translate-x-1/2!;
 }
