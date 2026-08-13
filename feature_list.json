@@ -12,7 +12,11 @@
       "description": "Retire Firebase and Nuxt VueFire while retaining mock-demo authentication",
       "validation": "No Firebase or VueFire runtime imports/configuration remain; documented customer/admin mock auth and protected routes work; pnpm verify passes",
       "status": "active",
-      "evidence": ["#459 claimed with planner brief", "Implementation starts after #458 post-merge ledger cleanup"]
+      "evidence": [
+        "#459 claimed with planner brief",
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/459#issuecomment-5285565516",
+        "Implementation starts after #458 post-merge ledger cleanup"
+      ]
     },
     {
       "id": "C368",
