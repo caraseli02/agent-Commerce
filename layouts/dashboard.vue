@@ -31,6 +31,7 @@ const showSideNav = ref(false);
 </script>
 
 <style lang="postcss">
+@reference "../assets/css/main.css";
 html,
 body,
 div#__nuxt {

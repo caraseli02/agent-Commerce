@@ -104,25 +104,26 @@ const productsByViewport = computed(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="postcss">
+@reference "../../assets/css/main.css";
 .homeFeaturedProducts--swiper {
-  @apply px-0 pt-0 pb-[30px] #{!important};
+  @apply px-0 pt-0 pb-[30px]!;
 }
 
 .homeFeaturedProducts--swiper .swiper-slide {
-  @apply h-auto #{!important};
+  @apply h-auto!;
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination {
-  @apply bottom-0 space-x-1.5 md:space-x-2 #{!important};
+  @apply bottom-0 space-x-1.5 md:space-x-2!;
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-light-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  @apply w-1.5 h-1.5 bg-light-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2!;
   margin-right: 0 !important;
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-gray-300 #{!important};
+  @apply scale-125 bg-gray-300!;
 }
 </style>

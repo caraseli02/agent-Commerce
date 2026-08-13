@@ -173,6 +173,7 @@ const showErrorMsg = ref(true);
 </template>
 
 <style scoped lang="postcss">
+@reference "../../../../assets/css/main.css";
 label {
   @apply text-slate-500;
 }

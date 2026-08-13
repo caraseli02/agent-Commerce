@@ -387,7 +387,8 @@ const deleteNotification = async (notification: Notification, index: number) => 
 Promise.all([fetchNofications()]);
 </script>
 
-<style lang="scss">
+<style lang="postcss">
+@reference "../../assets/css/main.css";
 .notifications-scroll {
   scrollbar-width: thin;
 

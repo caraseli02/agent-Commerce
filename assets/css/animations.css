@@ -1,3 +1,5 @@
+@reference "./main.css";
+
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity duration-150;

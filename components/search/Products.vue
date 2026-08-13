@@ -373,17 +373,18 @@ watch(
 );
 </script>
 
-<style lang="scss">
+<style lang="postcss">
+@reference "../../assets/css/main.css";
 .searchProducts--pagination-item {
-  @apply cursor-pointer flex items-center justify-center w-8 h-8 mx-1 text-sm font-Inter font-semibold rounded-md bg-gray-100 text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white focus-visible:bg-blue-500 focus-visible:text-white #{!important};
+  @apply cursor-pointer flex items-center justify-center w-8 h-8 mx-1 text-sm font-Inter font-semibold rounded-md bg-gray-100 text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white focus-visible:bg-blue-500 focus-visible:text-white!;
 }
 
 .searchProducts--pagination-item-active .searchProducts--pagination-item {
-  @apply bg-blue-500 text-white #{!important};
+  @apply bg-blue-500 text-white!;
 }
 
 .searchProducts--pagination-item_prev,
 .searchProducts--pagination-item_next {
-  @apply hidden #{!important};
+  @apply hidden!;
 }
 </style>

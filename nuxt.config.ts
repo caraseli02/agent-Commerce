@@ -1,3 +1,5 @@
+import tailwindcss from '@tailwindcss/vite';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
@@ -29,7 +31,6 @@ export default defineNuxtConfig({
     'pinia-plugin-persistedstate/nuxt',
     'nuxt-viewport',
     '@vueuse/nuxt',
-    '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
     '@nuxtjs/color-mode',
     '@nuxt/image',
@@ -62,10 +63,6 @@ export default defineNuxtConfig({
       { name: 'Archivo', provider: 'none' },
       { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700] },
     ],
-  },
-
-  tailwindcss: {
-    cssPath: '~/assets/css/main.css',
   },
 
   app: {
@@ -125,6 +122,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-20',
 
   vite: {
+    plugins: [tailwindcss()],
     server: {
       watch: {
         usePolling: false,
@@ -156,8 +154,7 @@ export default defineNuxtConfig({
 
   postcss: {
     plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
+      '@tailwindcss/postcss': {},
     },
   },
 

@@ -516,6 +516,7 @@ watch(region, (newRegion) => {
 </template>
 
 <style scoped lang="postcss">
+@reference "../../../../assets/css/main.css";
 label {
   @apply text-slate-500;
 }

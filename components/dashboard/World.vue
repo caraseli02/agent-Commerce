@@ -117,7 +117,8 @@ const onEachFeature = (feature: { properties?: { name?: string } }, layer: Leafl
 };
 </script>
 
-<style lang="scss">
+<style lang="postcss">
+@reference "../../assets/css/main.css";
 .leaflet-container {
   @apply bg-[#F5FAFF] rounded-xl overflow-hidden aspect-[2.3] xl:h-full xl:w-full;
   .leaflet-pane {
