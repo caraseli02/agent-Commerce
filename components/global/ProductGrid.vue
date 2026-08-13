@@ -59,6 +59,9 @@ const viewport = useViewport();
 const renderedBreakpoint = ref('lg');
 onMounted(() => {
   renderedBreakpoint.value = viewport.breakpoint.value;
+  watch(viewport.breakpoint, (breakpoint) => {
+    renderedBreakpoint.value = breakpoint;
+  });
 });
 
 const productsByViewport = computed(() => {
