@@ -25,6 +25,12 @@ import Emitter from 'tiny-emitter/instance.js';
 import EditBig from '~/assets/icons/edit-big.svg';
 
 const lastNote = ref('');
+
+type NoteSectionInstance = {
+  note: string;
+  rows: number;
+};
+
 export default defineComponent({
   name: 'NoteSection',
   components: {
@@ -38,7 +44,7 @@ export default defineComponent({
     };
   },
   methods: {
-    adjustHeight() {
+    adjustHeight(this: NoteSectionInstance) {
       this.rows = this.note.split('\n').length;
       if (this.rows > 6) {
         this.rows = 6;
@@ -47,7 +53,7 @@ export default defineComponent({
         this.rows = 2;
       }
     },
-    UpdateNote() {
+    UpdateNote(this: NoteSectionInstance) {
       if (this.note !== lastNote.value) {
         Emitter.emit('note', this.note);
         lastNote.value = this.note;

@@ -58,7 +58,7 @@ export default defineComponent({
     },
   },
   computed: {
-    formattedDueDate() {
+    formattedDueDate(this: { accountCredit: CustomerCreditInterface }) {
       return formatReviewerDate(this.accountCredit.dueDate);
     },
   },
