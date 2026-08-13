@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Building2, CheckCircle, FilePenLineIcon, Trash2Icon } from 'lucide-vue-next';
+import { Building2, CheckCircle, FilePenLineIcon, Trash2Icon } from '@lucide/vue';
 
 interface AddressData {
   icon: string;

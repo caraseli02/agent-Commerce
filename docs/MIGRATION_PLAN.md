@@ -6,28 +6,11 @@ This document tracks the migration strategy for deprecated and outdated packages
 
 ## 🔴 Critical: Deprecated Packages
 
-### 1. lucide-vue-next → @lucide/vue (PRIORITY)
+### 1. lucide-vue-next → @lucide/vue
 
-**Status:** ⚠️ Package deprecated  
-**Current Version:** 0.323.0  
-**Target Version:** @lucide/vue (new package)  
-**Impact:** HIGH - Used in 20+ component files  
-**Breaking Changes:** Package rename, API may differ
+**Status:** ✅ Completed by #463
 
-**Files Affected:**
-
-- All components using icon imports from 'lucide-vue-next'
-- Estimated 20+ files across dashboard, layout, and UI components
-
-**Migration Steps:**
-
-1. Install new package: `pnpm add @lucide/vue`
-2. Create a migration script or use find-replace:
-   - Find: `from 'lucide-vue-next'`
-   - Replace: `from '@lucide/vue'`
-3. Test all icon imports still work
-4. Verify icon sizes and styling remain consistent
-5. Remove old package: `pnpm remove lucide-vue-next`
+The deprecated package was replaced across static imports, the dynamic icon loader, and type-only references. The dynamic namespace now accepts only Vue component exports; representative storefront and dashboard production smoke checks confirm current icon rendering.
 
 **Resources:**
 

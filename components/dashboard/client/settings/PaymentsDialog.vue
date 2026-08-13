@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlusCircleIcon } from 'lucide-vue-next';
+import { PlusCircleIcon } from '@lucide/vue';
 
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';

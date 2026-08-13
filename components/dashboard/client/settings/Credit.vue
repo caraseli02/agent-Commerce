@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CreditCard } from 'lucide-vue-next';
+import { CreditCard } from '@lucide/vue';
 
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '~/store/authStore';

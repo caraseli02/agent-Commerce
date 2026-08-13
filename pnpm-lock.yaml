@@ -16,6 +16,9 @@ importers:
 
   .:
     dependencies:
+      '@lucide/vue':
+        specifier: ^1.31.0
+        version: 1.31.0(vue@3.5.41(typescript@5.9.3))
       '@nuxt/fonts':
         specifier: ^0.14.0
         version: 0.14.0(db0@0.3.4)(ioredis@5.11.1)(magic-string@1.2.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.4)(vite@8.2.1(@types/node@25.2.3)(esbuild@0.28.2)(jiti@1.21.7)(sass@1.102.0)(terser@5.46.0)(yaml@2.9.0))
@@ -76,9 +79,6 @@ importers:
       lodash-es:
         specifier: ^4.18.1
         version: 4.18.1
-      lucide-vue-next:
-        specifier: ^0.323.0
-        version: 0.323.0(vue@3.5.41(typescript@5.9.3))
       nuxt-swiper:
         specifier: ^2.0.2
         version: 2.0.2(magic-string@1.2.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.4)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.4)(rollup@4.62.4)(vite@8.2.1(@types/node@25.2.3)(esbuild@0.28.2)(jiti@1.21.7)(sass@1.102.0)(terser@5.46.0)(yaml@2.9.0)))
@@ -1024,6 +1024,11 @@ packages:
 
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
+
+  '@lucide/vue@1.31.0':
+    resolution: {integrity: sha512-NtjEHhcAa7umPh40wrRmlESJqNGdnpc7LziBKFnW3fmlrW0g2xMCDpdWU7WeEHRSl3xOpxbqiFTLKxoK3CoVCg==}
+    peerDependencies:
+      vue: 3.5.41
 
   '@mapbox/node-pre-gyp@2.0.3':
     resolution: {integrity: sha512-uwPAhccfFJlsfCxMYTwOdVfOz3xqyj8xYL3zJj8f0pb30tLohnnFPhLuqp4/qoEz8sNxe4SESZedcBojRefIzg==}
@@ -4138,12 +4143,6 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-vue-next@0.323.0:
-    resolution: {integrity: sha512-Hf++C/pHAZ7RUOw0J7ZBrxHr9KWlwecwK72HxvOgD9uYsqLCbPNSOaaol1ypMCpnTXIvjUIK7t/NVcd2J1u/wA==}
-    deprecated: Package deprecated. Please use @lucide/vue instead.
-    peerDependencies:
-      vue: 3.5.41
-
   magic-regexp@0.10.0:
     resolution: {integrity: sha512-Uly1Bu4lO1hwHUW0CQeSWuRtzCMNO00CmXtS8N6fyvB3B979GOEEeAkiTUDsmbYLAbvpUS/Kt5c4ibosAzVyVg==}
 
@@ -6965,6 +6964,10 @@ snapshots:
       - supports-color
 
   '@kwsites/promise-deferred@1.1.1': {}
+
+  '@lucide/vue@1.31.0(vue@3.5.41(typescript@5.9.3))':
+    dependencies:
+      vue: 3.5.41(typescript@5.9.3)
 
   '@mapbox/node-pre-gyp@2.0.3':
     dependencies:
@@ -10611,10 +10614,6 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
-
-  lucide-vue-next@0.323.0(vue@3.5.41(typescript@5.9.3)):
-    dependencies:
-      vue: 3.5.41(typescript@5.9.3)
 
   magic-regexp@0.10.0:
     dependencies:

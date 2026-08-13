@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Clock, BoxIcon, MapPinIcon } from 'lucide-vue-next';
+import { Clock, BoxIcon, MapPinIcon } from '@lucide/vue';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 
 defineProps<{

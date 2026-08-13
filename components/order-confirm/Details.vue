@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { InfoIcon, SettingsIcon } from 'lucide-vue-next';
+import { InfoIcon, SettingsIcon } from '@lucide/vue';
 import { computed } from 'vue';
 import { formatReviewerDate } from '~/helpers/reviewer-dates';
 import { PaymentTypeEnum } from '~/types';

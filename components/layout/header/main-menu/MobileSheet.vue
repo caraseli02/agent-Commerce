@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUiStore } from '~/store/uiStore';
-import { XIcon, MenuIcon, ChevronRight, ChevronLeftIcon, Building2Icon, HeadsetIcon, GemIcon, UserIcon } from 'lucide-vue-next';
+import { XIcon, MenuIcon, ChevronRight, ChevronLeftIcon, Building2Icon, HeadsetIcon, GemIcon, UserIcon } from '@lucide/vue';
 import { useCategoriesNavigation } from '@/composables/useCategoriesNavigation';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
 

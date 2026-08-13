@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData">
 import type { Table } from '@tanstack/vue-table';
-import { RefreshCwIcon, AlertCircle } from 'lucide-vue-next';
+import { RefreshCwIcon, AlertCircle } from '@lucide/vue';
 
 interface DataTableHeadControlsProps {
   title: string;

@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import { LockKeyholeIcon } from 'lucide-vue-next';
+import { LockKeyholeIcon } from '@lucide/vue';
 import MoreVerticalIcon from '@/assets/icons/dashboard/more-vertical.svg';
 import UserIcon from '@/assets/icons/dashboard/user.svg';
 import DemoTooltip from '~/components/global/DemoTooltip.vue';

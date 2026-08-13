@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertTriangleIcon, ArrowLeft, LoaderIcon, RefreshCw } from 'lucide-vue-next';
+import { AlertTriangleIcon, ArrowLeft, LoaderIcon, RefreshCw } from '@lucide/vue';
 
 const route = useRoute();
 const router = useRouter();

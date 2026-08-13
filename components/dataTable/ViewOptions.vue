@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData">
 import type { Table } from '@tanstack/vue-table';
-import { EyeIcon } from 'lucide-vue-next';
+import { EyeIcon } from '@lucide/vue';
 
 interface DataTableViewOptionsProps {
   table: Table<TData>;

@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData">
 import type { Table } from '@tanstack/vue-table';
-import { ChevronRightIcon, ChevronLeftIcon, ChevronsRightIcon, ChevronsLeftIcon } from 'lucide-vue-next';
+import { ChevronRightIcon, ChevronLeftIcon, ChevronsRightIcon, ChevronsLeftIcon } from '@lucide/vue';
 import UiSelectContent from '~/components/ui/select/SelectContent.vue';
 
 defineProps<{

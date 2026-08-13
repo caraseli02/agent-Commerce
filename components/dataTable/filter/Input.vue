@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData">
 import type { Column } from '@tanstack/vue-table';
-import { PlusCircleIcon, SearchIcon } from 'lucide-vue-next';
+import { PlusCircleIcon, SearchIcon } from '@lucide/vue';
 
 interface DataTableInputFilter {
   column?: Column<TData, unknown>;

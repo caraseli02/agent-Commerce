@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { Printer } from 'lucide-vue-next';
+import { Printer } from '@lucide/vue';
 
 const printPage = () => {
   if (import.meta.client) {

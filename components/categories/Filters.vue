@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SearchIcon, XIcon } from 'lucide-vue-next';
+import { SearchIcon, XIcon } from '@lucide/vue';
 // Define status options
 const statusOptions = [
   { label: 'Published', value: 'published', color: 'bg-green-600' },

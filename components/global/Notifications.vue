@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
 import { differenceInDays, differenceInHours } from 'date-fns';
-import { XIcon, ArrowRight, Settings, ChevronRight } from 'lucide-vue-next';
+import { XIcon, ArrowRight, Settings, ChevronRight } from '@lucide/vue';
 import { storeToRefs } from 'pinia';
 import BellIcon from '@/assets/icons/header/bell.svg';
 import NotificationIcon from '@/assets/icons/dashboard/notification-ringing.svg';

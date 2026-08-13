@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
-import { CheckIcon, PlusCircleIcon } from 'lucide-vue-next';
+import { CheckIcon, PlusCircleIcon } from '@lucide/vue';
 
 import { cn } from '@/lib/utils';
 

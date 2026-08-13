@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NumberFieldDecrementProps } from 'radix-vue';
-import { Minus } from 'lucide-vue-next';
+import { Minus } from '@lucide/vue';
 import { NumberFieldDecrement, useForwardProps } from 'radix-vue';
 import { computed, type HTMLAttributes } from 'vue';
 import { cn } from '@/lib/utils';

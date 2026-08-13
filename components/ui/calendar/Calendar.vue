@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useVModel } from '@vueuse/core';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight } from '@lucide/vue';
 import type { Calendar } from 'v-calendar';
 import { DatePicker } from 'v-calendar';
 import { computed, nextTick, onMounted, ref, useSlots } from 'vue';

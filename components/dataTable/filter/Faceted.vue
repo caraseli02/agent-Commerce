@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="TData">
 import type { Column } from '@tanstack/vue-table';
 import type { Component } from 'vue';
-import { CheckIcon, PlusCircleIcon } from 'lucide-vue-next';
+import { CheckIcon, PlusCircleIcon } from '@lucide/vue';
 import type { OrderStatus } from '~/types/order-summary/item';
 
 import { cn } from '@/lib/utils';

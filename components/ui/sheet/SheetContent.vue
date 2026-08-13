@@ -9,7 +9,7 @@ import {
   DialogPortal,
   useForwardPropsEmits,
 } from 'radix-vue';
-import { X } from 'lucide-vue-next';
+import { X } from '@lucide/vue';
 import { type SheetVariants, sheetVariants } from '.';
 import { cn } from '@/lib/utils';
 

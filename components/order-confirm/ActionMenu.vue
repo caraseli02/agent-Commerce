@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DotsVerticalIcon } from '@radix-icons/vue';
-import { CalendarDays, CheckCircle, MapPin, PackageCheck } from 'lucide-vue-next';
+import { CalendarDays, CheckCircle, MapPin, PackageCheck } from '@lucide/vue';
 
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';

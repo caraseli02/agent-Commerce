@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, LayoutDashboard, PackageOpenIcon, ShoppingCart, TruckIcon, Undo2Icon } from 'lucide-vue-next';
+import { ArrowLeft, LayoutDashboard, PackageOpenIcon, ShoppingCart, TruckIcon, Undo2Icon } from '@lucide/vue';
 import { computed, onMounted, watch } from 'vue';
 import { normalizeOrderConfirmationOrderId, useOrderConfirmation } from '~/composables/useOrderConfirmation';
 

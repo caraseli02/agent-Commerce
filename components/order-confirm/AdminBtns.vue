@@ -8,7 +8,7 @@ import {
   ReceiptTextIcon,
   SettingsIcon,
   Undo2Icon,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 import type { PropType } from 'vue';
 import { OrderStatus, PaymentStatusEnum, type OrderInterface } from '~/types';
 import { toast } from '~/components/ui/toast';

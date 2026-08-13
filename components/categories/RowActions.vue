@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CopyIcon, FileCheck, FileMinus, Trash2Icon } from 'lucide-vue-next';
+import { CopyIcon, FileCheck, FileMinus, Trash2Icon } from '@lucide/vue';
 import type { TaxonomyInterface } from '~/types/dashboard/categories';
 
 defineProps<{

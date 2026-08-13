@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData">
 import type { Table } from '@tanstack/vue-table';
-import { XIcon } from 'lucide-vue-next';
+import { XIcon } from '@lucide/vue';
 import { paymentStatusOptions, paymentTypeOptions } from '~/components/client-table/transaction/options';
 import { TransactionTableColumnsEnum } from '~/components/client-table/transaction/columns.enum';
 

@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from '@lucide/vue';
 import Emitter from 'tiny-emitter/instance.js';
 import FiltersIcon from '@/assets/icons/filters.svg';
 import EyeIcon from '@/assets/icons/eye.svg';

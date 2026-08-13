@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Column, Table } from '@tanstack/vue-table';
-import { ArrowDownWideNarrowIcon, ArrowUpWideNarrowIcon, ChevronsUpDownIcon } from 'lucide-vue-next';
+import { ArrowDownWideNarrowIcon, ArrowUpWideNarrowIcon, ChevronsUpDownIcon } from '@lucide/vue';
 
 import { cn } from '@/lib/utils';
 

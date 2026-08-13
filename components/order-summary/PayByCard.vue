@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertTriangle, CheckCircle2, Trash2Icon } from 'lucide-vue-next';
+import { AlertTriangle, CheckCircle2, Trash2Icon } from '@lucide/vue';
 import { useRouter } from '#app';
 import { usePaymentStore } from '~/store/paymentStore';
 import type { StripeCardInterface } from '~/types';
