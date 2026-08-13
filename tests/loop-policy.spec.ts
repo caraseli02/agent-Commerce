@@ -156,27 +156,18 @@ describe('decideNextAction', () => {
     expect(blocked).toMatchObject({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
   });
 
-  it('recovers the dispatch ceiling from durable GitHub markers', () => {
+  it('recovers the dispatch ceiling from durable local state', () => {
     const head = '9'.repeat(40);
-    const comments = [1, 2].map((id) => ({
-      id,
-      body: `@codex fix\n<!-- ecas-loop:v3 role=dispatcher key=repair-command:${id}:${head} -->`,
-      author_association: 'OWNER',
-      user: { login: 'controller' },
-      created_at: '2026-08-10T10:10:00Z',
-    }));
-    comments.push({
-      id: 3,
-      body: `/repair ${head} one more`,
-      author_association: 'OWNER',
-      user: { login: 'maintainer' },
-      created_at: '2026-08-10T10:11:00Z',
-    });
+    const state = createLoopState();
+    for (const id of [1, 2]) {
+      const key = `repair-command:${id}:${head}`;
+      beginDispatch(state, { pr: 42, key, head, at: '2026-08-10T10:10:00Z' });
+      finishDispatch(state, { key, result: 'dispatched', at: '2026-08-10T10:11:00Z' });
+    }
 
     expect(
       decideNextAction({
-        state: createLoopState(),
-        controllerLogin: 'controller',
+        state,
         activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
         pr: {
           number: 42,
@@ -188,12 +179,20 @@ describe('decideNextAction', () => {
           mergeStateStatus: 'CLEAN',
           checks: [],
         },
-        issueComments: comments,
+        issueComments: [
+          {
+            id: 3,
+            body: `/repair ${head} one more`,
+            author_association: 'OWNER',
+            user: { login: 'maintainer' },
+            created_at: '2026-08-10T10:12:00Z',
+          },
+        ],
       })
     ).toMatchObject({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
   });
 
-  it('does not let untrusted dispatcher markers exhaust the repair ceiling', () => {
+  it('does not let untrusted comments exhaust the local repair ceiling', () => {
     const head = '8'.repeat(40);
     const forgedMarkers = [1, 2].map((id) => ({
       id,
@@ -205,7 +204,6 @@ describe('decideNextAction', () => {
 
     const action = decideNextAction({
       state: createLoopState(),
-      controllerLogin: 'controller',
       activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
       pr: {
         number: 42,
@@ -231,7 +229,7 @@ describe('decideNextAction', () => {
     expect(action).toMatchObject({ type: 'dispatch', signal: { key: `repair-command:3:${head}` } });
   });
 
-  it('never promotes a conflicting or dirty PR', () => {
+  it('does not repair conflicting or dirty PRs', () => {
     const head = 'd'.repeat(40);
     for (const [mergeable, mergeStateStatus] of [
       ['CONFLICTING', 'CLEAN'],
@@ -257,7 +255,7 @@ describe('decideNextAction', () => {
             },
           ],
         })
-      ).toEqual({ type: 'idle', reason: 'awaiting-mergeable-clean-pr' });
+      ).toEqual({ type: 'idle', reason: 'awaiting-non-conflicting-pr' });
     }
   });
 
@@ -289,24 +287,47 @@ describe('decideNextAction', () => {
     ).toEqual({ type: 'idle', reason: 'awaiting-updated-head' });
   });
 
-  it('blocks rather than treating a rejected Codex connector request as a successful repair', () => {
+  it('allows failed-CI repair while GitHub reports an unstable or blocked merge state', () => {
+    const head = 'f'.repeat(40);
+    for (const mergeStateStatus of ['UNSTABLE', 'BLOCKED']) {
+      expect(
+        decideNextAction({
+          state: createLoopState(),
+          activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+          pr: {
+            number: 42,
+            head,
+            linkedIssues: [7],
+            trustedAuthor: true,
+            mergeable: 'MERGEABLE',
+            mergeStateStatus,
+            checks: [
+              {
+                workflowName: 'CI',
+                name: 'verify',
+                status: 'COMPLETED',
+                conclusion: 'FAILURE',
+                detailsUrl: 'https://github.com/acme/repo/actions/runs/1',
+              },
+            ],
+          },
+        })
+      ).toMatchObject({ type: 'dispatch' });
+    }
+  });
+
+  it('blocks crash recovery when a prepared local commit was not published', () => {
     const head = 'f'.repeat(40);
     const state = createLoopState();
     beginDispatch(state, { pr: 42, key: `ci-failure:1:${head}`, head, at: '2026-08-10T10:00:00Z' });
-    finishDispatch(state, { key: `ci-failure:1:${head}`, result: 'dispatched', at: '2026-08-10T10:00:01Z' });
+    finishDispatch(state, { key: `ci-failure:1:${head}`, result: 'dispatched', at: '2026-08-10T10:01:00Z' });
+    state.dispatches[`ci-failure:1:${head}`].preparedHead = 'a'.repeat(40);
     expect(
       decideNextAction({
         state,
         activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
-        pr: { number: 42, head, linkedIssues: [7], trustedAuthor: true, mergeable: 'MERGEABLE', mergeStateStatus: 'CLEAN', checks: [] },
-        issueComments: [
-          {
-            created_at: '2026-08-10T10:00:02Z',
-            user: { login: 'chatgpt-codex-connector' },
-            body: 'To use Codex here, create a Codex account and connect to GitHub.',
-          },
-        ],
+        pr: { number: 42, head, linkedIssues: [7], trustedAuthor: true, mergeable: 'MERGEABLE', mergeStateStatus: 'UNSTABLE', checks: [] },
       })
-    ).toMatchObject({ type: 'blocked', reason: 'codex-connector-rejected' });
+    ).toMatchObject({ type: 'blocked', reason: 'local-push-unreconciled' });
   });
 });

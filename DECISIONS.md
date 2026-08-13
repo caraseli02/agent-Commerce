@@ -46,7 +46,12 @@ Use this file for durable cross-session decisions that should survive context re
   - Reason: #101’s Pinia bugs were already fixed; #99/#103 were written as production hardening/SEO programs that conflict with `CONTEXT.md` (Mock Integration Boundary outside production auth/SEO ops).
   - Impact: closed #101; rewrote #99 as demo auth integrity (`requireMockAuth` seam) and closed #109/#111/#113 as `wontfix`; rewrote #103 around `usePageSeo` + public crawl hygiene; children promoted `ready-for-agent` at `priority:p2` so Next track `#426`–`#433` stays first.
 
+- 2026-08-13 — Execute loop repairs locally on the controller Mac
+
+  - Reason: maintainer decision; Codex Cloud connector dependence is not acceptable for this stage.
+  - Impact: the controller creates an isolated temporary worktree and runs a time/output-bounded local worker. The controller alone commits and pushes the existing PR branch, never merges, and persists attempts before push so crash recovery fails closed.
+
 - 2026-08-10 — Keep loop engineering event-shaped and proportionate
 
   - Reason: first-party Anthropic, OpenAI, and GitHub guidance favors simple bounded loops; the earlier 995-line polling controller and mandatory per-action ledger duplicated platform state and exceeded this repository's risk.
-  - Impact: one generic dispatcher handles exact source/head keys and two attempts, while Codex Cloud performs code execution and CI/hosted review plus human review gate completion. The local process never runs PR code or pushes branches. Compact dispatch summaries are the default; full ledgers are reserved for materially higher authority or compliance needs.
+  - Impact: one generic dispatcher handles exact source/head keys and two attempts, while CI plus independent hosted/human review complete acceptance. Compact dispatch summaries are the default; full ledgers are reserved for materially higher authority or compliance needs.

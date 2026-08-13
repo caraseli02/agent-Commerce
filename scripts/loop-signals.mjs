@@ -9,8 +9,6 @@ const QODO_ACTION_PATTERN = /alt=["'](?:Action required|Remediation recommended)
 const QODO_REVIEW_PATTERN = /<h3>Code Review by Qodo<\/h3>/i;
 const QODO_HEAD_PATTERN = /<!--\s*https:\/\/github\.com\/[^/]+\/[^/]+\/commit\/([a-f0-9]{40})\s*-->/i;
 const GREPTILE_BOTS = new Set(['greptile-apps', 'greptile-apps[bot]']);
-const CODEX_CONNECTOR_BOT = 'chatgpt-codex-connector';
-const CODEX_CONNECTOR_REJECTION = /connect to github|create a codex account/i;
 const GREPTILE_ACTION_PATTERN = /Confidence Score:\s*[0-4]\/5|Files Needing Attention|Issue \d+/i;
 const GREPTILE_HEAD_PATTERN = /Last reviewed commit:[\s\S]*?commit\/([a-f0-9]{40})/i;
 const GREPTILE_PASS_PATTERN = /Confidence Score:\s*5\/5/i;
@@ -38,21 +36,6 @@ export function controllerDispatchKeys(issueComments = [], controllerLogin = '')
       const key = String(comment.body ?? '').match(ECAS_DISPATCH_PATTERN)?.[1];
       return key ? [key] : [];
     })
-  );
-}
-
-export function connectorRejected({ issueComments = [], pr, state } = {}) {
-  const dispatchedAt = Object.values(state?.dispatches ?? {})
-    .filter((record) => record?.pr === pr?.number && record?.head === pr?.head && record?.result === 'dispatched')
-    .map((record) => Date.parse(record.startedAt ?? ''))
-    .filter(Number.isFinite)
-    .sort((left, right) => right - left)[0];
-  if (!Number.isFinite(dispatchedAt)) return false;
-  return issueComments.some(
-    (comment) =>
-      Date.parse(comment.created_at ?? '') >= dispatchedAt &&
-      String(comment.user?.login ?? '').toLowerCase() === CODEX_CONNECTOR_BOT &&
-      CODEX_CONNECTOR_REJECTION.test(String(comment.body ?? ''))
   );
 }
 

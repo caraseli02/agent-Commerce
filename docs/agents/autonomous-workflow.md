@@ -36,16 +36,16 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 
 ## Minimal controller contract
 
-- Wake on a repository event when infrastructure permits; the local ChatGPT-authenticated bridge performs only a low-frequency reconciliation and hosted-task dispatch.
+- Wake on a repository event when infrastructure permits; the local Mac controller performs only low-frequency reconciliation and bounded local repair execution.
 - Treat `{source ID, current head SHA}` as the idempotency key.
-- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and an exact-head `/repair <40-char-sha> <instruction>` command through one hosted repair dispatcher. Bare or stale-head repair commands are ignored.
+- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and an exact-head `/repair <40-char-sha> <instruction>` command through one local repair controller. Bare or stale-head repair commands are ignored.
 - Never infer a repair command from ordinary top-level prose.
 - Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
-- Count an attempt only after the hosted repair comment is posted successfully. Transient GitHub transport failures remain retryable, and posted GitHub markers provide durable deduplication if local state is lost.
-- Never run repair code, repository scripts, commits, or pushes in the local dispatcher. It may only post a bounded `@codex fix` request for execution in Codex Cloud.
+- Persist a local repair attempt before publishing its commit. A crash after persistence is fail-closed: the attempt remains consumed and startup reconciles the PR head rather than allowing a third attempt.
+- The local Mac controller uses an isolated temporary Git worktree at the exact PR head and a bounded local Codex process. The worker cannot use `gh`, network access, commit, push, merge, or inspect unrelated paths; the controller alone commits and pushes the existing PR branch after revalidating the head and lock ownership. It never merges.
 - Use CI plus an independent hosted reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same repair dispatcher. Humans remain the only merge authority.
 
-The Codex GitHub connector must be connected before enabling the dispatcher. If the connector replies with “connect to GitHub,” leave the local service stopped until a maintainer reconnects it in Codex settings.
+Local activation requires the Mac `codex` executable, GitHub CLI authentication for the repository, and a clean controller checkout. No Codex Cloud connector is required. Set `ECAS_REPO_ROOT` to that checkout and optionally `ECAS_CODEX_BIN`; start the controller only after confirming `node scripts/ecas-loop-controller.mjs --inspect` is idle or has the intended single action.
 
 ## Roles
 
@@ -122,7 +122,7 @@ When an `in-progress` issue already has an open PR, controller logic must route 
 - `FAIL`: generate a focused repair brief from the evaluator comment and update the same branch/PR.
 - `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
 
-For an ordinary PR conversation comment, a trusted maintainer can use `/repair <40-char-sha> <instruction>` for the dispatcher or `@codex fix <instruction>` to address Codex Cloud directly. The SHA must be the current PR head at the time of posting; the dispatcher deliberately ignores bare, stale, and direct `@codex fix` comments so it cannot duplicate, replay, or recursively dispatch them. Free-form prose is never an execution trigger.
+For an ordinary PR conversation comment, a trusted maintainer can use `/repair <40-char-sha> <instruction>` to request the bounded local worker. The SHA must be the current PR head at the time of posting; the controller ignores bare and stale commands so it cannot replay work. Free-form prose is never an execution trigger.
 
 ## Evaluator report format
 
