@@ -40,6 +40,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import UiSelectContent from '~/components/ui/select/SelectContent.vue';
 import { toast } from '~/components/ui/toast';
 import { changeStatus } from '~/composables/api/orders';
 

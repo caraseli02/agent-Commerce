@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { MoveIcon } from 'lucide-vue-next';
+import UiSelectContent from '~/components/ui/select/SelectContent.vue';
 
 const { categories, moveCategories, isLocked } = useCategories();
 
