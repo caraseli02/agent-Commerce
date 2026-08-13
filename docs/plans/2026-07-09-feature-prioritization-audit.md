@@ -91,6 +91,10 @@ Start with small, reversible cleanup before deleting large feature folders.
 
 ## Validation Checkpoints
 
+## Framework migration gate
+
+The Nuxt 4 migration tracked in GitHub issue #461 is infrastructure work required to keep the portfolio demo runnable. Its first pass is blocked until the legacy dashboard, order-summary, and dynamic-component typing errors reported by `pnpm typecheck` are resolved in focused slices. Do not bundle reviewer-flow behavior changes into that migration; validate those separately under the downstream flow-verification issue.
+
 Use small bets:
 
 1. Make one removal or nav-hiding change.
