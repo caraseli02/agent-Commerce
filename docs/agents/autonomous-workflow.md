@@ -28,7 +28,7 @@ If any condition is false, use a bounded agent task with a human in the loop. Do
 
 ## Proportionate observability
 
-The default controller keeps one compact append-only summary per dispatch. The summary records the issue, PR, exact head, source key, start/end timestamps, result, and hosted-task comment URL. Hosted Codex owns its execution trace; GitHub owns the live queue and PR state. Controller comments are readable dispatches, not a second database.
+The default controller keeps one compact append-only summary per local attempt. The summary records the issue, PR, exact head, source key, start/end timestamps, result, and publication state. GitHub owns the live queue and PR state; the controller's local state only fences attempts and crash recovery.
 
 Do not duplicate every command and file event into another mandatory ledger for this human-merged portfolio repository. The raw trace remains available for debugging, while CI, commits, PR discussion, and the independent evaluator provide the acceptance evidence.
 
@@ -43,9 +43,9 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 - Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
 - Persist a local repair attempt before publishing its commit. A crash after persistence is fail-closed: the attempt remains consumed and startup reconciles the PR head rather than allowing a third attempt.
 - The local Mac controller uses an isolated temporary Git worktree at the exact PR head and a bounded local Codex process. The worker cannot use `gh`, network access, commit, push, merge, or inspect unrelated paths; the controller alone commits and pushes the existing PR branch after revalidating the head and lock ownership. It never merges.
-- Use CI plus an independent hosted reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same repair dispatcher. Humans remain the only merge authority.
+- Use CI plus an independent reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same local repair controller. Humans remain the only merge authority.
 
-Local activation requires the Mac `codex` executable, GitHub CLI authentication for the repository, and a clean controller checkout. No Codex Cloud connector is required. Set `ECAS_REPO_ROOT` to that checkout and optionally `ECAS_CODEX_BIN`; start the controller only after confirming `node scripts/ecas-loop-controller.mjs --inspect` is idle or has the intended single action.
+Local activation requires the Mac `codex` executable, its local login, GitHub CLI authentication for the repository, and a clean controller checkout. No Codex Cloud connector or hosted executor is used. The controller copies only Codex's `auth.json` into an ephemeral worker home, starts Codex with `--ephemeral --ignore-user-config`, and wraps it in a macOS sandbox profile that permits reads only from the worktree, copied auth material, and runtime files. Set `ECAS_REPO_ROOT` to that checkout and optionally `ECAS_CODEX_BIN`; start the controller only after confirming `node scripts/ecas-loop-controller.mjs --inspect` is idle or has the intended single action.
 
 ## Roles
 

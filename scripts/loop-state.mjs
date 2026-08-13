@@ -5,7 +5,7 @@ const RUNNING_MAX_AGE_MS = 30 * 60 * 1000;
 
 /** @returns {any} */
 export function createLoopState() {
-  return { version: 2, dispatches: {}, attemptsByPr: {} };
+  return { version: 3, dispatches: {}, attemptsByPr: {} };
 }
 
 function freshRunning(record, now) {
@@ -40,8 +40,11 @@ export function beginDispatch(state, { pr, key, head, at }) {
 export function finishDispatch(state, { key, result, commentUrl = null, at }) {
   if (!state.dispatches[key]) throw new TypeError(`unknown dispatch key: ${key}`);
   const record = state.dispatches[key];
-  if (result === 'dispatched' && record.result !== 'dispatched') {
+  // Every launched worker consumes budget.  A timeout, authentication error,
+  // no-change run, or failed pre-commit is still an attempted repair.
+  if (!record.countedAttempt) {
     state.attemptsByPr[record.pr] = Number(state.attemptsByPr[record.pr] ?? 0) + 1;
+    record.countedAttempt = true;
   }
   Object.assign(state.dispatches[key], { result, commentUrl, completedAt: at });
   return state;
@@ -54,10 +57,10 @@ export function readLoopState(path) {
   if (state.version === 1 && state.repairs && state.attemptsByPr) {
     return { version: 2, dispatches: state.repairs, attemptsByPr: state.attemptsByPr };
   }
-  if (state.version !== 2 || !state.dispatches || !state.attemptsByPr) {
+  if (![2, 3].includes(state.version) || !state.dispatches || !state.attemptsByPr) {
     throw new TypeError('invalid loop state');
   }
-  return state;
+  return { ...state, version: 3 };
 }
 
 /** @param {any} state */

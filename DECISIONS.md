@@ -51,6 +51,11 @@ Use this file for durable cross-session decisions that should survive context re
   - Reason: maintainer decision; Codex Cloud connector dependence is not acceptable for this stage.
   - Impact: the controller creates an isolated temporary worktree and runs a time/output-bounded local worker. The controller alone commits and pushes the existing PR branch, never merges, and persists attempts before push so crash recovery fails closed.
 
+- 2026-08-13 — Fence local repair workers with a renewable controller lease and OS read boundary
+
+  - Reason: prompt-only restrictions and a lease shorter than a worker run cannot protect host material or state from a stale controller.
+  - Impact: workers receive a copied auth-only Codex home and macOS sandbox profile, run ephemerally, and may stage only repository changes. Every launched worker consumes the bounded repair budget; state/publication actions require the current lock generation and fresh PR snapshot.
+
 - 2026-08-10 — Keep loop engineering event-shaped and proportionate
 
   - Reason: first-party Anthropic, OpenAI, and GitHub guidance favors simple bounded loops; the earlier 995-line polling controller and mandatory per-action ledger duplicated platform state and exceeded this repository's risk.

@@ -1,14 +1,26 @@
 #!/usr/bin/env node
 
-import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  statSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 import { decideNextAction } from './loop-policy.mjs';
-import { TRUSTED_ASSOCIATIONS } from './loop-signals.mjs';
+import { TRUSTED_ASSOCIATIONS, ciPassed, independentReviewPassed } from './loop-signals.mjs';
 import { appendRunSummary } from './loop-run-summary.mjs';
 import { beginDispatch, finishDispatch, readLoopState, writeLoopState } from './loop-state.mjs';
+import { repairPrompt, sandboxProfile } from './loop-worker.mjs';
 
 const USER_HOME = process.env.ECAS_CONTROLLER_HOME ?? homedir();
 const REPO = process.env.ECAS_REPO ?? 'caraseli02/Ecas';
@@ -18,14 +30,16 @@ const SUMMARY_PATH = join(AUTOMATION_ROOT, 'run-summaries-v3.jsonl');
 const HEARTBEAT_PATH = join(AUTOMATION_ROOT, 'heartbeat-v3.json');
 const LOCK_DIR = join(AUTOMATION_ROOT, 'controller-v3.lock');
 const PATH = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
-const LOCK_MAX_AGE_MS = 10 * 60 * 1000;
-const HEALTH_MAX_AGE_MS = 15 * 60 * 1000;
-const GH_TIMEOUT_MS = 20 * 1000;
 const REPAIR_TIMEOUT_MS = 20 * 60 * 1000;
 const REPAIR_OUTPUT_LIMIT = 2 * 1024 * 1024;
+const LOCK_MAX_AGE_MS = REPAIR_TIMEOUT_MS + 5 * 60 * 1000;
+const HEALTH_MAX_AGE_MS = 15 * 60 * 1000;
+const GH_TIMEOUT_MS = 20 * 1000;
 const REPO_ROOT = process.env.ECAS_REPO_ROOT ?? process.cwd();
 const CODEX_BIN = process.env.ECAS_CODEX_BIN ?? '/Applications/ChatGPT.app/Contents/Resources/codex';
+const EXPECTED_BASE = 'main';
 let lockOwner = null;
+let lockGeneration = null;
 
 mkdirSync(AUTOMATION_ROOT, { recursive: true });
 
@@ -69,7 +83,8 @@ function acquireLock() {
   const owner = `${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   try {
     mkdirSync(LOCK_DIR);
-    writeFileSync(join(LOCK_DIR, 'owner'), owner, { mode: 0o600, flag: 'wx' });
+    lockGeneration = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    writeFileSync(join(LOCK_DIR, 'owner'), JSON.stringify({ owner, generation: lockGeneration }), { mode: 0o600, flag: 'wx' });
     return owner;
   } catch (error) {
     if (error?.code !== 'EEXIST') throw error;
@@ -84,7 +99,8 @@ function acquireLock() {
     }
     try {
       mkdirSync(LOCK_DIR);
-      writeFileSync(join(LOCK_DIR, 'owner'), owner, { mode: 0o600, flag: 'wx' });
+      lockGeneration = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      writeFileSync(join(LOCK_DIR, 'owner'), JSON.stringify({ owner, generation: lockGeneration }), { mode: 0o600, flag: 'wx' });
       return owner;
     } catch (recoveryError) {
       if (recoveryError?.code === 'EEXIST') return false;
@@ -95,14 +111,16 @@ function acquireLock() {
 
 const releaseLock = (owner) => {
   try {
-    if (readFileSync(join(LOCK_DIR, 'owner'), 'utf8') === owner) rmSync(LOCK_DIR, { recursive: true, force: true });
+    const lock = JSON.parse(readFileSync(join(LOCK_DIR, 'owner'), 'utf8'));
+    if (lock.owner === owner && lock.generation === lockGeneration) rmSync(LOCK_DIR, { recursive: true, force: true });
   } catch (error) {
     if (error?.code !== 'ENOENT') throw error;
   }
 };
 
 function assertLockOwner() {
-  if (!lockOwner || !existsSync(LOCK_DIR) || readFileSync(join(LOCK_DIR, 'owner'), 'utf8') !== lockOwner) {
+  const lock = !existsSync(LOCK_DIR) ? null : JSON.parse(readFileSync(join(LOCK_DIR, 'owner'), 'utf8'));
+  if (!lockOwner || !lock || lock.owner !== lockOwner || lock.generation !== lockGeneration) {
     throw new Error('controller lock ownership was lost; aborting before external mutation or execution');
   }
   utimesSync(LOCK_DIR, new Date(), new Date());
@@ -123,12 +141,18 @@ function linkedPull(issueNumber) {
       '--state',
       'open',
       '--json',
-      'number,headRefName,headRefOid,closingIssuesReferences,isCrossRepository',
+      'number,headRefName,headRefOid,baseRefName,closingIssuesReferences,isCrossRepository',
       '--limit',
       '1000',
     ])
   );
-  return pulls.find((pr) => !pr.isCrossRepository && pr.closingIssuesReferences.some((issue) => issue.number === issueNumber));
+  return pulls.find(
+    (pr) =>
+      !pr.isCrossRepository &&
+      pr.baseRefName === EXPECTED_BASE &&
+      pr.headRefName !== EXPECTED_BASE &&
+      pr.closingIssuesReferences.some((issue) => issue.number === issueNumber)
+  );
 }
 
 function pullContext(prNumber) {
@@ -140,19 +164,31 @@ function pullContext(prNumber) {
       '--repo',
       REPO,
       '--json',
-      'number,headRefName,headRefOid,statusCheckRollup,closingIssuesReferences,commits,mergeable,mergeStateStatus',
+      'number,headRefName,headRefOid,baseRefName,statusCheckRollup,closingIssuesReferences,commits,mergeable,mergeStateStatus',
     ])
   );
   const metadata = JSON.parse(gh(['api', `repos/${REPO}/pulls/${prNumber}`]));
+  let protectedHead = true;
+  try {
+    protectedHead = JSON.parse(gh(['api', `repos/${REPO}/branches/${encodeURIComponent(state.headRefName)}`])).protected === true;
+  } catch {
+    // Do not push when branch protection cannot be determined.
+  }
   return {
     number: state.number,
     branch: state.headRefName,
+    base: state.baseRefName,
     head: state.headRefOid,
     headCommittedAt: state.commits.at(-1)?.committedDate,
     linkedIssues: state.closingIssuesReferences.map((issue) => issue.number),
     checks: state.statusCheckRollup,
     mergeable: state.mergeable,
     mergeStateStatus: state.mergeStateStatus,
+    targetSafe:
+      state.baseRefName === EXPECTED_BASE &&
+      state.headRefName !== EXPECTED_BASE &&
+      metadata.head?.repo?.default_branch !== state.headRefName &&
+      !protectedHead,
     trustedAuthor:
       TRUSTED_ASSOCIATIONS.has(metadata.author_association) && metadata.head?.repo?.full_name?.toLowerCase() === REPO.toLowerCase(),
   };
@@ -166,7 +202,56 @@ function collaborationContext(pr) {
   };
 }
 
-function dispatchRepair({ action, pr, state }) {
+function signalWithEvidence(signal) {
+  if (signal.kind !== 'ci-failure') return signal;
+  // The worker is intentionally offline; make the relevant trusted CI output
+  // available inline instead of handing it a URL it cannot open.
+  try {
+    const output = gh(['run', 'view', signal.sourceId, '--repo', REPO, '--log-failed']).slice(-12_000);
+    return { ...signal, evidence: output || 'CI failed but GitHub returned no failed-step log.' };
+  } catch {
+    return { ...signal, evidence: 'CI failed. No local failed-step log could be fetched; inspect repository tests only.' };
+  }
+}
+
+function runWorker(command, options) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, options.args, options);
+    let stdout = '';
+    let stderr = '';
+    const appendOutput = (current, chunk) => `${current}${chunk}`.slice(-REPAIR_OUTPUT_LIMIT);
+    child.stdout?.on('data', (chunk) => {
+      stdout = appendOutput(stdout, chunk);
+    });
+    child.stderr?.on('data', (chunk) => {
+      stderr = appendOutput(stderr, chunk);
+    });
+    let settled = false;
+    const finish = (callback) => (value) => {
+      if (settled) return;
+      settled = true;
+      clearInterval(heartbeat);
+      clearTimeout(timeout);
+      callback(value);
+    };
+    const heartbeat = setInterval(() => {
+      try {
+        assertLockOwner();
+      } catch (error) {
+        child.kill('SIGTERM');
+        finish(reject)(error);
+      }
+    }, 30_000);
+    const timeout = setTimeout(() => {
+      child.kill('SIGTERM');
+      finish(reject)(new Error('local repair timed out'));
+    }, REPAIR_TIMEOUT_MS);
+    child.on('error', finish(reject));
+    child.on('close', (status, signal) => finish(resolve)({ status, signal, stdout, stderr }));
+  });
+}
+
+async function dispatchRepair({ action, pr, state }) {
   const startedAt = nowIso();
   beginDispatch(state, { pr: pr.number, key: action.signal.key, head: pr.head, at: startedAt });
   writeLoopState(STATE_PATH, state);
@@ -177,20 +262,42 @@ function dispatchRepair({ action, pr, state }) {
     worktree = mkdtempSync(join(AUTOMATION_ROOT, `repair-pr${pr.number}-`));
     git(['fetch', '--no-tags', 'origin', pr.branch]);
     git(['worktree', 'add', '--detach', worktree, pr.head]);
-    const prompt = `Repair PR #${pr.number} only at head ${pr.head}. Source: ${action.signal.kind} ${action.signal.sourceUrl}. Read AGENTS.md. Make the smallest safe fix and focused tests. Do not use network, gh, commit, push, merge, or read secrets. Stop if stale or ambiguous.`;
+    const codexHome = join(worktree, '.codex-auth');
+    mkdirSync(codexHome, { mode: 0o700 });
+    const sourceAuth = join(USER_HOME, '.codex', 'auth.json');
+    if (!existsSync(sourceAuth)) throw new Error('local Codex authentication unavailable: expected scoped auth.json is missing');
+    copyFileSync(sourceAuth, join(codexHome, 'auth.json'), 0);
+    const profile = join(worktree, '.ecas-worker.sb');
+    writeFileSync(profile, sandboxProfile({ worktree, codexHome }), { mode: 0o600 });
+    const prompt = repairPrompt({ pr, signal: signalWithEvidence(action.signal) });
     assertLockOwner();
-    const child = spawnSync(CODEX_BIN, ['exec', '--sandbox', 'workspace-write', '--cd', worktree, prompt], {
+    const child = await runWorker('/usr/bin/sandbox-exec', {
+      args: [
+        '-f',
+        profile,
+        CODEX_BIN,
+        'exec',
+        '--ephemeral',
+        '--ignore-user-config',
+        '--sandbox',
+        'workspace-write',
+        '--cd',
+        worktree,
+        prompt,
+      ],
       cwd: worktree,
-      env: { PATH, HOME: worktree, TMPDIR: join(worktree, '.tmp') },
-      encoding: 'utf8',
-      timeout: REPAIR_TIMEOUT_MS,
-      maxBuffer: REPAIR_OUTPUT_LIMIT,
+      env: { PATH, HOME: worktree, CODEX_HOME: codexHome, TMPDIR: join(worktree, '.tmp') },
     });
-    if (child.error || child.status !== 0 || child.signal)
-      throw new Error(`local repair stopped: ${child.error?.message ?? child.signal ?? child.status}`);
+    if (child.status !== 0 || child.signal)
+      throw new Error(`local repair stopped: ${child.signal ?? child.status}: ${child.stderr.slice(-1000)}`);
     if (!revalidateHead(action, pr)) return false;
     if (!git(['status', '--porcelain'], { cwd: worktree })) throw new Error('local repair completed without a change');
-    git(['-c', 'core.hooksPath=/dev/null', 'add', '-A'], { cwd: worktree });
+    const changed = git(['status', '--porcelain'], { cwd: worktree }).split('\n').filter(Boolean);
+    const forbidden = changed.filter((line) => /(^|\s)(\.codex-auth|\.ecas-worker\.sb|\.tmp)(\/|$)/.test(line));
+    if (forbidden.length) throw new Error(`worker modified controller-only artifacts: ${forbidden.join(', ')}`);
+    git(['-c', 'core.hooksPath=/dev/null', 'add', '--', ':(exclude).codex-auth', ':(exclude).ecas-worker.sb', ':(exclude).tmp', '.'], {
+      cwd: worktree,
+    });
     git(['-c', 'core.hooksPath=/dev/null', '-c', 'commit.gpgSign=false', 'commit', '-m', `Automated repair: ${action.signal.kind}`], {
       cwd: worktree,
     });
@@ -245,7 +352,7 @@ function blockIssue(action, state) {
   const pending = action.signal
     ? ` Pending source: ${action.signal.key} (${action.signal.sourceUrl}); observed head: \`${action.head}\`.`
     : ` Observed head: \`${action.head}\`.`;
-  if (!revalidateHead(action, { head: action.head })) return false;
+  if (!revalidateHead(action, { head: action.head }, { requireRepairable: false })) return false;
   gh([
     'issue',
     'comment',
@@ -255,15 +362,19 @@ function blockIssue(action, state) {
     '--body',
     `The linked PR remains blocked for human attention. ${reason}${pending}`,
   ]);
-  if (!revalidateHead(action, { head: action.head })) return false;
+  if (!revalidateHead(action, { head: action.head }, { requireRepairable: false })) return false;
   gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'blocked']);
   return true;
 }
 
-function revalidateHead(action, observedPr) {
+function revalidateHead(action, observedPr, { requireRepairable = true } = {}) {
   assertLockOwner();
   const current = pullContext(action.pr);
-  return current.head === observedPr.head && current.mergeable !== 'CONFLICTING' && current.mergeStateStatus !== 'DIRTY';
+  return current.head === observedPr.head &&
+    current.targetSafe &&
+    (!requireRepairable || (current.mergeable !== 'CONFLICTING' && current.mergeStateStatus !== 'DIRTY'))
+    ? current
+    : null;
 }
 
 function loadDecision() {
@@ -277,16 +388,29 @@ function loadDecision() {
   return { action, pr, state };
 }
 
-function main() {
+async function main() {
   const { action, pr, state } = loadDecision();
   if (action.type === 'idle') return action;
-  if (!revalidateHead(action, pr)) return { type: 'idle', reason: 'head-or-mergeability-changed' };
-  if (action.type === 'dispatch') dispatchRepair({ action, pr, state });
+  let current = revalidateHead(action, pr);
+  if (!current) return { type: 'idle', reason: 'head-or-mergeability-changed' };
+  if (action.type === 'dispatch') await dispatchRepair({ action, pr: current, state });
   if (action.type === 'ready') {
-    if (!revalidateHead(action, pr) || pr.mergeable !== 'MERGEABLE' || pr.mergeStateStatus !== 'CLEAN')
+    current = revalidateHead(action, pr);
+    if (
+      !current ||
+      current.mergeable !== 'MERGEABLE' ||
+      current.mergeStateStatus !== 'CLEAN' ||
+      !ciPassed(current.checks) ||
+      !independentReviewPassed({ pr: current, ...collaborationContext(current.number) })
+    )
       return { type: 'idle', reason: 'head-or-mergeability-changed' };
     assertLockOwner();
     gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'ready-for-human']);
+    current = revalidateHead(action, pr);
+    if (!current || !ciPassed(current.checks) || !independentReviewPassed({ pr: current, ...collaborationContext(current.number) })) {
+      gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--remove-label', 'ready-for-human', '--add-label', 'in-progress']);
+      return { type: 'idle', reason: 'promotion-rolled-back' };
+    }
   }
   if (action.type === 'blocked') blockIssue(action, state);
   return action;
@@ -307,7 +431,7 @@ lockOwner = acquireLock();
 if (!lockOwner) process.exit(0);
 try {
   writeHeartbeat('running');
-  const action = main();
+  const action = await main();
   writeHeartbeat('healthy', { lastAction: action.type, reason: action.reason });
   process.stdout.write(`${JSON.stringify(action, null, 2)}\n`);
 } catch (error) {

@@ -102,7 +102,7 @@
     {
       "id": "H10",
       "description": "Keep autonomous repair loops small, bounded, and explicit",
-      "validation": "One generic local-Mac controller deduplicates source/head signals, persists at most two repair attempts before publishing, runs an isolated timeout-bounded local worker on the existing PR branch, ignores ordinary top-level prose, and promotes only mergeable/CLEAN green current heads with an independent review pass",
+      "validation": "One generic local-Mac controller deduplicates source/head signals, counts every launched repair attempt, runs an auth-scoped ephemeral worker inside a macOS read boundary, fences state with a renewed lease, and promotes only freshly revalidated mergeable/CLEAN green current heads with an independent review pass",
       "status": "active",
       "evidence": [
         "scripts/ecas-loop-controller.mjs",
@@ -110,6 +110,7 @@
         "tests/loop-policy.spec.ts",
         "tests/loop-state.spec.ts",
         "tests/loop-signals.spec.ts",
+        "tests/loop-worker.spec.ts",
         "docs/research/modern-loop-engineering-audit.md"
       ]
     }
