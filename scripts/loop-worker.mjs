@@ -2,7 +2,8 @@ const MAX_EVIDENCE_CHARS = 12_000;
 
 export function boundedEvidence(value = '') {
   return String(value)
-    .replace(/\u0000/g, '')
+    .split(String.fromCharCode(0))
+    .join('')
     .replace(/(?:ghp_|github_pat_|sk-[A-Za-z0-9_-]{12,})\S*/g, '[redacted]')
     .slice(0, MAX_EVIDENCE_CHARS)
     .trim();
@@ -28,10 +29,10 @@ export function repairPrompt({ pr, signal }) {
 
 /** A restrictive macOS profile: host reads are limited to runtime files, the worktree, and a copied auth-only CODEX_HOME. */
 export function sandboxProfile({ worktree, codexHome }) {
-  const quote = (path) => `\"${String(path).replaceAll('\\', '\\\\').replaceAll('"', '\\"')}\"`;
+  const quote = (path) => JSON.stringify(String(path));
   return `(version 1)\n(deny default)\n(allow process*)\n(allow network*)\n(allow file-read* (subpath ${quote(worktree)}) (subpath ${quote(
     codexHome
-  )}) (subpath \"/Applications/ChatGPT.app\") (subpath \"/System\") (subpath \"/usr\") (subpath \"/Library\"))\n(allow file-write* (subpath ${quote(
+  )}) (subpath "/Applications/ChatGPT.app") (subpath "/System") (subpath "/usr") (subpath "/Library"))\n(allow file-write* (subpath ${quote(
     worktree
   )}))\n`;
 }
