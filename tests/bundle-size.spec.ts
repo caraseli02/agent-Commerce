@@ -5,9 +5,12 @@ import { describe, expect, it } from 'vitest';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const OUTPUT_DIR = path.join(ROOT, '.output/public/_nuxt');
-const PRECOMPUTED_PATH = path.join(ROOT, '.output/server/chunks/build/client.precomputed.mjs');
+const PRECOMPUTED_PATHS = [
+  path.join(ROOT, '.output/server/chunks/virtual/precomputed.mjs'),
+  path.join(ROOT, '.output/server/chunks/build/client.precomputed.mjs'),
+];
 
-const hasBuildOutput = existsSync(OUTPUT_DIR) && existsSync(PRECOMPUTED_PATH);
+const hasBuildOutput = existsSync(OUTPUT_DIR) && PRECOMPUTED_PATHS.some((candidate) => existsSync(candidate));
 
 describe('bundle size guardrails', () => {
   it.skipIf(!hasBuildOutput)(
