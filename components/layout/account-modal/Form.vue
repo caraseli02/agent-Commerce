@@ -74,45 +74,6 @@
         {{ errorResponse.description }}
       </p>
     </div>
-    <div v-if="!config.public.MOCK_MODE" class="flex items-center mt-12 mb-6">
-      <div class="h-px flex-1 bg-gray-100" />
-      <span class="text-xs text-gray-400 flex-shrink-0 mx-[18px]"> Or continue with </span>
-      <div class="h-px flex-1 bg-gray-100" />
-    </div>
-    <UiButton
-      v-if="!config.public.MOCK_MODE"
-      type="button"
-      variant="outline"
-      class="group mb-5 w-full border-border py-2 transition-colors duration-300 hover:border-blue-500"
-      @click="loginWithGoogle"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 mr-2 transition-all duration-300">
-        <g clip-path="url(#clip0_154_2471)">
-          <path
-            fill="#4285F4"
-            d="M21.788 12.225c0-.659-.058-1.284-.158-1.892h-9.417v3.758h5.392c-.242 1.234-.95 2.275-2 2.984v2.5h3.216c1.884-1.742 2.967-4.309 2.967-7.35Z"
-          />
-          <path
-            fill="#34A853"
-            d="M12.212 22c2.7 0 4.958-.9 6.608-2.425l-3.216-2.5c-.9.6-2.042.966-3.392.966-2.608 0-4.817-1.758-5.608-4.133H3.287v2.575C4.93 19.75 8.304 22 12.212 22Z"
-          />
-          <path
-            fill="#FBBC05"
-            d="M6.605 13.908A5.803 5.803 0 0 1 6.288 12c0-.667.117-1.308.317-1.908V7.517H3.288a9.884 9.884 0 0 0 0 8.966l3.317-2.575Z"
-          />
-          <path
-            fill="#EA4335"
-            d="M12.212 5.958c1.475 0 2.792.509 3.833 1.5l2.85-2.85C17.17 2.992 14.912 2 12.212 2 8.304 2 4.93 4.25 3.287 7.517l3.317 2.575c.791-2.375 3-4.134 5.608-4.134Z"
-          />
-        </g>
-        <defs>
-          <clipPath id="clip0_154_2471">
-            <path fill="#fff" d="M2 2h20v20H2z" />
-          </clipPath>
-        </defs>
-      </svg>
-      <span class="text-sm font-medium text-slate-500">Google</span>
-    </UiButton>
   </form>
 </template>
 
@@ -195,7 +156,6 @@ const errorResponse = reactive({
 });
 
 const authStore = useAuthStore();
-const { registerUser, getParsedFirebaseJWTToken, getUserToken } = useFirebaseAuth();
 
 const setDemoCredentialsByRole = (role: LoginRole) => {
   email.value.value = LOGIN_CREDENTIALS[role].email;
@@ -387,21 +347,5 @@ const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, t
 
   useNotificationStore().requestRefresh();
   return userDetails as UserInterface;
-};
-
-const loginWithGoogle = async () => {
-  await registerUser();
-  const parsedToken = await getParsedFirebaseJWTToken();
-  const token = (await getUserToken()) as unknown as string;
-  authStore.addToken(token);
-  authStore.addUser(parsedToken);
-
-  // eslint-disable-next-line no-prototype-builtins
-  if (!parsedToken.hasOwnProperty('permissions')) {
-    authStore.addFirebaseToken(token);
-    return navigateTo('/');
-  } else {
-    await fetchUserDetails(parsedToken.user_id);
-  }
 };
 </script>

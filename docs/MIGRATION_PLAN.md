@@ -40,28 +40,11 @@ This document tracks the migration strategy for deprecated and outdated packages
 
 ## ⚠️ Optional: Evaluate Package Usage
 
-### 2. nuxt-vuefire
+### 2. Firebase and nuxt-vuefire
 
-**Status:** ⚠️ Installed but custom Firebase implementation used  
-**Current Version:** 0.1.6  
-**Latest Version:** 1.1.2
+**Status:** ✅ Retired by #459
 
-**Issue:**
-
-- `nuxt-vuefire` is installed but the project uses a custom Firebase implementation in `composables/useFirebaseAuth.ts`
-- The module provides `useFirebaseAuth()` and `useFirestore()` composables that aren't being used
-
-**Options:**
-
-- **Option A:** Remove `nuxt-vuefire` if not providing value
-  - Impact: Minimal, custom implementation already working
-  - Effort: 10 minutes
-- **Option B:** Migrate to use nuxt-vuefire composables fully
-  - Impact: HIGH, requires refactoring auth system
-  - Effort: 4-6 hours
-  - Benefits: Better integration, auto-imports, SSR support
-
-**Recommendation:** Option A - Remove unused dependency to reduce bundle size
+The unused `nuxt-vuefire` package, Firebase SDK, client plugin, runtime configuration, and alternate Firebase auth paths were removed. The self-contained demo now uses its documented Nitro mock authentication endpoints and token cookie only.
 
 ---
 
@@ -89,13 +72,6 @@ These updates require dedicated effort and should be tackled separately:
 - **Latest:** 4.0.2
 - **Effort:** 1-2 days
 - **Requires:** Review breaking changes, update all stores
-
-### 5. Firebase 9 → Firebase 12
-
-- **Current:** 9.23.0
-- **Latest:** 12.17.1
-- **Effort:** 1-2 days
-- **Requires:** Check modular SDK changes, test all auth flows
 
 ### 6. VueUse 10 → VueUse 14
 

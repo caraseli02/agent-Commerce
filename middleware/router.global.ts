@@ -39,10 +39,6 @@ export default defineNuxtRouteMiddleware((to) => {
   const redirectTarget = to.fullPath && to.fullPath !== '/' ? to.fullPath : '';
   const signinPath = redirectTarget ? `/?signin=true&redirect=${encodeURIComponent(redirectTarget)}` : '/?signin=true';
 
-  if (to.name !== 'signup' && authStore.firebaseTempToken != null) {
-    authStore.firebaseTempToken = null;
-  }
-
   if (!requiredPermission) {
     return;
   }

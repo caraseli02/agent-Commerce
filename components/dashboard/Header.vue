@@ -346,7 +346,6 @@ const fetchNofications = async () => {
 
 const handleSignOut = async () => {
   authStore.signOut();
-  await authStore.firebaseSignOut();
   setTimeout(() => {
     emit('close');
   }, 200);

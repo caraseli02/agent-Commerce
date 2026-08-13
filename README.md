@@ -20,7 +20,7 @@ The project includes a storefront, authenticated customer flows, and dashboard s
 - Tailwind CSS
 - Radix Vue / shadcn-nuxt
 - Nitro server routes for mock data
-- Firebase and Stripe integration hooks for live mode
+- Stripe integration hooks for live mode
 
 ## Recommended mode
 
@@ -131,13 +131,6 @@ If you are reviewing this repo for a case study or portfolio walkthrough, start 
 
 These are not required for the bundled mock demo, but the runtime config supports them:
 
-- `NUXT_PUBLIC_FIREBASE_API_KEY`
-- `NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- `NUXT_PUBLIC_FIREBASE_PROJECT_ID`
-- `NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-- `NUXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID`
-- `NUXT_PUBLIC_FIREBASE_APP_ID`
-- `NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
 - `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 
 ## Mock architecture
