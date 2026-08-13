@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Autoplay, Pagination } from 'swiper';
+import { A11y, Autoplay, Pagination } from 'swiper/modules';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import SlideBg from '@/assets/media/home/exclusive-offer-bg.webp';
 import ItemImage from '@/assets/media/home/exclusive-offer-item.png';

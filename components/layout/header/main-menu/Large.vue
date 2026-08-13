@@ -250,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Pagination } from 'swiper';
+import { A11y, Pagination } from 'swiper/modules';
 import { useRouter } from 'vue-router';
 import type { Component } from 'vue';
 import SemiconductorsIcon from '@/assets/icons/header/semiconductors.svg';

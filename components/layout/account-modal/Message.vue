@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Pagination } from 'swiper';
+import { A11y, Pagination } from 'swiper/modules';
 
 const messages = [
   {
