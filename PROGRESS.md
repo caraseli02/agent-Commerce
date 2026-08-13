@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Epic #457: **#462** production mock-mode runtime acceptance is the only active issue; final ready-PR evidence is being prepared.
+- Epic #457: **#465** upgrades the Nuxt 4-compatible TypeScript and Vue type-checking toolchain; ready PR #495 is awaiting required checks and independent evaluation.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
@@ -14,6 +14,8 @@
 - **#459** — Firebase/VueFire retirement merged through PR #491 (`502df432`) after green CI/Vercel/Greptile and independent PASS (10/10). The `in-progress` label is removed and Epic #457 is checked.
 - **#463** — PR #492 merged to `origin/main` at `468ba76e` after green CI/Vercel/Greptile and independent PASS (10/10). All static, dynamic, and type-only Lucide references now use `@lucide/vue`.
 - **#462** — Nuxt 4 production runtime acceptance: fixed SSR/client hydration parity for viewport-chunked product grids, client-restored order summaries, and initially empty dashboard activity. Focused regression test and `pnpm verify:full` pass; fresh mock production browser evidence covers storefront/search/product images, customer dashboard, cart/order summary, and checkout success with no console errors.
+- **#464** — PR #494 merged to `origin/main` at `42066245` after GitHub Actions, Vercel, and requested Greptile review passed. Prettier is 3.9.6; formatting and compatible lint rules are aligned.
+- **#465** — PR #495 upgrades TypeScript to 5.9.3 and `vue-tsc` to 3.3.9, the current Nuxt 4-compatible toolchain. `pnpm typecheck` and `pnpm verify` pass locally; awaiting GitHub Actions and Greptile before evaluator verdict.
 
 ## Human decisions pending
 

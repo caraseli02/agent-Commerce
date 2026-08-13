@@ -11,12 +11,37 @@
       "id": "E457-462",
       "description": "Verify and repair Nuxt 4 mock-mode core demo runtime journeys",
       "validation": "Production mock browser covers storefront/search/product images, customer dashboard, cart/order summary, and checkout confirmation with no console errors; pnpm verify:full passes",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "Planner brief: https://github.com/caraseli02/Ecas/issues/462#issuecomment-5285992123",
         "pnpm verify:full: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list, architecture, and preview smoke)",
         "Focused dashboard empty-state regression test: pass",
-        "Fresh mock production browser: no console errors across storefront, product/search, customer dashboard, cart/order summary, and /checkout/success"
+        "Fresh mock production browser: no console errors across storefront, product/search, customer dashboard, cart/order summary, and /checkout/success",
+        "PR #493 merged to origin/main; GitHub Actions, Vercel, Greptile, and independent evaluator PASS (10/10)"
+      ]
+    },
+    {
+      "id": "E457-464",
+      "description": "Modernize repository formatting and lint tooling for Nuxt 4",
+      "validation": "Prettier 3 formatting is applied consistently and lint remains compatible; pnpm verify passes",
+      "status": "passing",
+      "evidence": [
+        "PR #494 merged to origin/main at 42066245",
+        "pnpm exec prettier --check .: pass",
+        "pnpm lint: pass (0 errors; 2 pre-existing warnings)",
+        "pnpm verify: pass; GitHub Actions, Vercel, requested Greptile review, and independent evaluator PASS (10/10)"
+      ]
+    },
+    {
+      "id": "E457-465",
+      "description": "Upgrade TypeScript and Vue type checking for Nuxt 4",
+      "validation": "Nuxt 4 typechecks with a compatible TypeScript/vue-tsc pair and pnpm verify passes without global type suppression",
+      "status": "active",
+      "evidence": [
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/465#issuecomment-5286353625",
+        "Upgraded TypeScript to 5.9.3 and vue-tsc to 3.3.9; TypeScript 7 was excluded because Nuxt 4 compatibility is the issue contract",
+        "pnpm typecheck: pass",
+        "pnpm verify: pass; ready PR #495 awaits required remote checks and evaluator verdict"
       ]
     },
     {
