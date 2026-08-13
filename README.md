@@ -83,9 +83,17 @@ pnpm pretty
 pnpm test
 pnpm test:e2e
 pnpm verify
+pnpm deps:outdated
+pnpm deps:audit
 ```
 
 Run `pnpm dev` before `pnpm test:e2e`; the Playwright specs target `http://localhost:3000`.
+
+`pnpm deps:outdated` and `pnpm deps:audit` force pnpm to inspect this repository
+rather than a parent workspace. Both commands return a non-zero status when they
+find updates or advisories; that result is the maintenance report, not a command
+failure. Review and upgrade dependencies only through their scoped modernization
+issues.
 
 ## Key review flows
 
