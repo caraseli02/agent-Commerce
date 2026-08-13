@@ -88,7 +88,7 @@ export function useOrder() {
   const buildCheckoutFailure = (
     response: { status?: string; message?: string; data?: unknown } | null | undefined,
     fallbackMessage: string,
-    fallbackType: string
+    fallbackType: string,
   ): CheckoutFailure => {
     const data = (response?.data ?? {}) as {
       message?: unknown;
@@ -104,7 +104,7 @@ export function useOrder() {
 
     return {
       message,
-      type: typeof data.type === 'string' && data.type ? data.type : response?.status ?? fallbackType,
+      type: typeof data.type === 'string' && data.type ? data.type : (response?.status ?? fallbackType),
       code:
         (typeof data.code === 'string' && data.code ? data.code : undefined) ??
         (typeof data.errorCode === 'string' && data.errorCode ? data.errorCode : undefined) ??
@@ -137,7 +137,7 @@ export function useOrder() {
     smallOrder: SmallOrderChargeInterface | null,
     paymentDetails: PaymentDetails,
     note: string,
-    orderSummary?: CheckoutOrderSummary
+    orderSummary?: CheckoutOrderSummary,
   ) => {
     const guestContact = orderSummary?.guestContact;
     const draftShippingAddress = orderSummary?.shippingDetails?.address ?? null;

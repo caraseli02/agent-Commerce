@@ -120,10 +120,10 @@ async function main() {
   if (violations.length > 0) {
     console.error('clean-state validation failed: changed source files introduced debug or handoff-regression patterns.');
     console.error(
-      'Why it matters: handoff validators should catch accidental debug output, stale TODOs, and commented-out code before a PR is handed off.'
+      'Why it matters: handoff validators should catch accidental debug output, stale TODOs, and commented-out code before a PR is handed off.',
     );
     console.error(
-      'Where to look next: remove the temporary artifact or replace the commented/debug line with durable code, then rerun the check.'
+      'Where to look next: remove the temporary artifact or replace the commented/debug line with durable code, then rerun the check.',
     );
 
     for (const violation of violations) {
@@ -134,7 +134,7 @@ async function main() {
   }
 
   process.stdout.write(
-    `Clean-state validation OK: no dirty working tree, no tracked temp artifacts, and ${scanTargets.length} changed source file(s) passed the debug-pattern scan.\n`
+    `Clean-state validation OK: no dirty working tree, no tracked temp artifacts, and ${scanTargets.length} changed source file(s) passed the debug-pattern scan.\n`,
   );
 }
 

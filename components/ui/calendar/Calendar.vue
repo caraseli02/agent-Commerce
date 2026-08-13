@@ -39,7 +39,7 @@ const props = withDefaults(
     modelModifiers: undefined,
     type: 'single',
     columns: 1,
-  }
+  },
 );
 const emits = defineEmits<{
   (e: 'update:modelValue', payload: typeof props.modelValue): void;
@@ -212,9 +212,15 @@ const vCalendarSlots = computed(() => {
 .calendar .vc-slide-down-leave-active,
 .calendar .vc-slide-fade-enter-active,
 .calendar .vc-slide-fade-leave-active {
-  transition: opacity var(--vc-slide-duration) var(--vc-slide-timing), -webkit-transform var(--vc-slide-duration) var(--vc-slide-timing);
-  transition: transform var(--vc-slide-duration) var(--vc-slide-timing), opacity var(--vc-slide-duration) var(--vc-slide-timing);
-  transition: transform var(--vc-slide-duration) var(--vc-slide-timing), opacity var(--vc-slide-duration) var(--vc-slide-timing),
+  transition:
+    opacity var(--vc-slide-duration) var(--vc-slide-timing),
+    -webkit-transform var(--vc-slide-duration) var(--vc-slide-timing);
+  transition:
+    transform var(--vc-slide-duration) var(--vc-slide-timing),
+    opacity var(--vc-slide-duration) var(--vc-slide-timing);
+  transition:
+    transform var(--vc-slide-duration) var(--vc-slide-timing),
+    opacity var(--vc-slide-duration) var(--vc-slide-timing),
     -webkit-transform var(--vc-slide-duration) var(--vc-slide-timing);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;

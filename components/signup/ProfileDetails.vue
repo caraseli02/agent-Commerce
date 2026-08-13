@@ -9,7 +9,7 @@
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
             <label class="flex items-center cursor-pointer">
-              <input :value="details.useContactEmail" type="checkbox" class="sr-only" @change="useContactEmailCheck" >
+              <input :value="details.useContactEmail" type="checkbox" class="sr-only" @change="useContactEmailCheck" />
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2.5"
                 :class="[
@@ -63,7 +63,7 @@
               </button>
             </div>
             <label class="flex items-start cursor-pointer">
-              <input :value="details.agreeToTerms" type="checkbox" class="sr-only" @change="details.agreeToTerms = !details.agreeToTerms" >
+              <input :value="details.agreeToTerms" type="checkbox" class="sr-only" @change="details.agreeToTerms = !details.agreeToTerms" />
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2.5"
                 :class="[

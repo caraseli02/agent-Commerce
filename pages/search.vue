@@ -121,7 +121,7 @@ const {
   },
   {
     watch: [keyword, category, atPage, perPage, sortBy, order, additionalFilters, featureFilters, ignoreCategory, showSimilarOnly],
-  }
+  },
 );
 
 const products = computed(() => searchData.value ?? null);
@@ -134,7 +134,7 @@ watch(
       filters.value = data.filters;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -146,7 +146,7 @@ watch(
       showSimilarOnly.value = false;
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Both `keyword` and `category` live in the URL, so breadcrumb and menu navigation must refresh both.

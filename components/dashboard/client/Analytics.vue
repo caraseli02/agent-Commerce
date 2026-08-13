@@ -145,7 +145,7 @@ const chartOptions = computed(
           radius: 12,
         },
       },
-    } as ApexOptions)
+    }) as ApexOptions,
 );
 
 function shiftMonths(direction: number) {

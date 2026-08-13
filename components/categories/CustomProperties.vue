@@ -15,7 +15,7 @@ const props = withDefaults(
     width: '',
     height: '',
     enabled: false,
-  }
+  },
 );
 
 const customProperties = ref(props.enabled);
@@ -58,7 +58,7 @@ watch(
   (value) => {
     emit('update:enabled', value);
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

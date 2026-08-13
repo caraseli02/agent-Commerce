@@ -12,7 +12,7 @@ const formSchema = toTypedSchema(
     productCode: z.string().min(1, 'Product code is required'),
     email: z.string().email('Invalid email address'),
     details: z.string().optional(),
-  })
+  }),
 );
 
 const { handleSubmit, resetForm, setFieldValue } = useForm({
@@ -49,14 +49,15 @@ const isOpen = defineModel<boolean>();
               class="gap-2"
               :min="100"
               :model-value="value"
-              @update:model-value="(v: number) => {
-                if (v) {
-                  setFieldValue('quantity', v)
+              @update:model-value="
+                (v: number) => {
+                  if (v) {
+                    setFieldValue('quantity', v);
+                  } else {
+                    setFieldValue('quantity', undefined);
+                  }
                 }
-                else {
-                  setFieldValue('quantity', undefined)
-                }
-              }"
+              "
             >
               <UiNumberFieldContent class="max-w-[150px]">
                 <UiNumberFieldDecrement />

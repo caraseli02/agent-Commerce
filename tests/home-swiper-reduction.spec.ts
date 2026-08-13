@@ -22,7 +22,7 @@ describe('home merchandising swiper reduction (#399)', () => {
       const source = readFileSync(resolve(path), 'utf8');
 
       expect(source).not.toContain('Swiper');
-      expect(source).not.toContain('from \'swiper\'');
+      expect(source).not.toContain("from 'swiper'");
       expect(source).toContain(layoutMarker);
     });
   });

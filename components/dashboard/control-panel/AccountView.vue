@@ -261,7 +261,7 @@ watch(
             };
           }) || [];
     }
-  }
+  },
 );
 
 const updateAccountDetails = async () => {

@@ -54,7 +54,7 @@
     "nuxt-svgo": "^5.3.0",
     "nuxt-viewport": "^2.6.0",
     "postcss": "^8.5.26",
-    "prettier": "^2.8.8",
+    "prettier": "^3.9.6",
     "sass": "^1.102.0",
     "shadcn-nuxt": "^2.8.2",
     "tailwind-scrollbar": "^3.1.0",

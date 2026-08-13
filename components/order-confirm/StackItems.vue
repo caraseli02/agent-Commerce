@@ -21,7 +21,7 @@ const stockItems = ref(props.data.products || []);
 const stockOrder = ref(props.data as OrderRequestInterface);
 
 const shippingMethod = computed(() =>
-  generalSettings?.orderSettings?.deliveryTypes.find((type) => type._id === stockOrder.value.shippingDetails.deliveryTypeId)
+  generalSettings?.orderSettings?.deliveryTypes.find((type) => type._id === stockOrder.value.shippingDetails.deliveryTypeId),
 );
 
 const vatPercent = Math.round(DEFAULT_ORDER_VAT_RATE * 100);

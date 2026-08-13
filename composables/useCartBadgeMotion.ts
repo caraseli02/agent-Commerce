@@ -4,7 +4,7 @@ import type { CartInterface, CartProductsInterface } from '~/types/cart';
 const cartUnits = (products: CartProductsInterface[] = []) =>
   products.reduce(
     (total, product) => total + Math.max(0, Number(product.stock ?? 0)) + Math.max(0, Number(product.backorder_stock ?? 0)),
-    0
+    0,
   );
 
 /**

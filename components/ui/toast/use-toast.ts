@@ -108,7 +108,7 @@ function dispatch(action: Action) {
                 ...t,
                 open: false,
               }
-            : t
+            : t,
         ),
       };
       break;

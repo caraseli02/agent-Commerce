@@ -23,7 +23,7 @@
             type="search"
             placeholder="Search parameters"
             class="bg-transparent flex-1 pl-2 pr-8 py-[9px] w-full text-sm placeholder:text-gray-500 focus:outline-none"
-          >
+          />
           <Transition name="fade">
             <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
           </Transition>

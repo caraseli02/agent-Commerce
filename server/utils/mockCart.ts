@@ -95,8 +95,8 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
   const backorder_stock = input.updateOnlyAvailableStock
     ? previousBackorder
     : mode === 'add'
-    ? previousBackorder + incomingBackorder
-    : incomingBackorder || 0;
+      ? previousBackorder + incomingBackorder
+      : incomingBackorder || 0;
 
   const productEntity = resolvedEntity || previous.productEntity;
 
@@ -148,7 +148,7 @@ const hydrateCartFromStorage = (cart: CartInterface): CartInterface => ({
         isFolder: product.isFolder,
       },
       { ...product, productEntity },
-      'set'
+      'set',
     );
   }),
 });
@@ -214,7 +214,7 @@ export const getMockCartForUser = (userId: string) => {
             isFolder: false,
           },
           undefined,
-          'set'
+          'set',
         ),
       ]
     : [];

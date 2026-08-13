@@ -158,7 +158,7 @@ watch(
     productFiltersData.value = parseFilters(props.filters);
     filterData();
   },
-  { deep: true }
+  { deep: true },
 );
 
 Emitter.on('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
@@ -170,7 +170,7 @@ Emitter.on('product-keyword-change', async (value: { keyword: string; products: 
 Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
   for (const option of options) {
     const item = checkedOptions.value.find(
-      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue
+      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
     );
 
     if (item) {
@@ -186,7 +186,7 @@ Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
 Emitter.on('remove-filter-option', async (options: FilterOptions[]) => {
   for (const option of options) {
     const itemIndex = checkedOptions.value.findIndex(
-      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue
+      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
     );
 
     if (itemIndex < 0) {

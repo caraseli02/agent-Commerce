@@ -32,7 +32,7 @@ const fetchAndSetCustomersList = _debounce(
     listItems.value = data.data.items;
     loading.value = false;
   },
-  500
+  500,
 );
 
 fetchAndSetCustomersList(1, 10);

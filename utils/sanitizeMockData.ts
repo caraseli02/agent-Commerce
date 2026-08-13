@@ -89,7 +89,7 @@ export function sanitizeMockData<T>(data: T, options: SanitizeOptions = {}): T {
         sanitizeMockData(item, {
           ...options,
           maxDepth: maxDepth - 1,
-        })
+        }),
       )
       .filter((item) => {
         // Remove null/undefined items if removeNulls is enabled

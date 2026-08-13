@@ -94,7 +94,7 @@
                       searchVal = '';
                     "
                     @blur="showMobileSearch = false"
-                  >
+                  />
                 </form>
               </label>
               <button
@@ -237,21 +237,21 @@ watch(
   (data) => {
     syncHeaderCartFromStore(data);
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 
 watch(
   () => uiStore.accountModalRequestId,
   () => {
     openAccountModal();
-  }
+  },
 );
 
 watch(
   () => notificationStore.refreshRequestId,
   () => {
     void fetchNofications();
-  }
+  },
 );
 
 const fetchList = async () => {
@@ -355,7 +355,7 @@ watch(
       showAccountModal.value = true;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {
@@ -377,6 +377,6 @@ watch(
       unreadNotifications.value = 0;
     }
   },
-  { deep: true }
+  { deep: true },
 );
 </script>

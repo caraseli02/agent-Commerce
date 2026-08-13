@@ -107,7 +107,7 @@ const orderMoney = computed(() =>
     discountAmount: resolvedDiscount.value,
     shippingCost: shipping.value?.price.total || 0,
     smallOrderTiers: props.generalSettings?.orderSettings?.smallOrderCharge,
-  })
+  }),
 );
 
 watch(
@@ -115,7 +115,7 @@ watch(
   (tier) => {
     emit('update:smallOrder', tier?._id ? (tier as SmallOrderChargeInterface) : null);
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const smallOrder = computed(() => orderMoney.value.smallOrderCharge);

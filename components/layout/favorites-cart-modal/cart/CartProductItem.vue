@@ -98,7 +98,7 @@ const productDiscount = ref(0);
 
 const quantity = ref(productItem.value.quantity || minPriceConfiguration.value?.quantity || 10);
 const thumbnailClass = computed(
-  () => 'w-12 h-12 border border-border rounded-lg overflow-hidden object-cover mr-3 md:w-14 md:h-14 flex-shrink-0'
+  () => 'w-12 h-12 border border-border rounded-lg overflow-hidden object-cover mr-3 md:w-14 md:h-14 flex-shrink-0',
 );
 
 const getPricesConfiguration = () => {
@@ -134,6 +134,6 @@ watch(
   () => {
     getPricesConfiguration();
   },
-  { deep: true }
+  { deep: true },
 );
 </script>

@@ -81,7 +81,7 @@ describe('checkout/account domain orchestration', () => {
         city: 'Bucharest',
         postcode: '010000',
         default: false,
-      })
+      }),
     ).toBe(true);
 
     registerClassic.mockResolvedValue({ status: 'success' });
@@ -131,7 +131,7 @@ describe('checkout/account domain orchestration', () => {
         },
         companyDetails: { name: 'Acme' },
         contactDetails: { firstName: 'A', lastName: 'B', phone: '1', email: 'a@b.com' },
-      })
+      }),
     ).toBe(false);
     expect(updateAccountDetails).not.toHaveBeenCalled();
 
@@ -152,7 +152,7 @@ describe('checkout/account domain orchestration', () => {
         companyDetails: { name: 'Acme' },
         contactDetails: { firstName: 'A', lastName: 'B', phone: '1', email: 'a@b.com' },
         shippingAddress: [],
-      })
+      }),
     ).toBe(true);
     expect(updateAccountDetails).toHaveBeenCalledOnce();
   });

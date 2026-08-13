@@ -23,7 +23,7 @@
         :aria-describedby="inputErrorId"
         class="h-11 w-[56px] bg-transparent px-1 text-center text-sm leading-normal text-neutral-700 placeholder:text-[12px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         @change="inputHandlerModified"
-      >
+      />
       <span :id="inputErrorId" class="sr-only" role="alert">{{ inputError }}</span>
     </label>
     <button
@@ -141,7 +141,7 @@ watch(
       emits('update:modelValue', props.object.min);
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 </script>
 

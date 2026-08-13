@@ -93,7 +93,7 @@ describe('storefront product card image fallback', () => {
       menuItems.map((item) => {
         const textNode = item.children.find((child) => child.type === NodeTypes.TEXT);
         return textNode && 'content' in textNode ? textNode.content.trim() : '';
-      })
+      }),
     ).toEqual(['Share', '3D view']);
     expect(getStaticAttrValue(title, 'class')).toContain('min-w-0');
     expect(getStaticAttrValue(title, 'class')).toContain('overflow-hidden');

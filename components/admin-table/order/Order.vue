@@ -26,7 +26,7 @@ const fetchAndSetOrdersList = async (
   page: number,
   perPage: number,
   filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {}
+  sort: Record<string, unknown> = {},
 ) => {
   error.value = false;
 
@@ -154,7 +154,7 @@ watch(
   async () => {
     setActiveFilterHighlight();
   },
-  { deep: true }
+  { deep: true },
 );
 
 const onTabChange = async (filter: TabFilter, table: Table<OrderTableColumns>) => {

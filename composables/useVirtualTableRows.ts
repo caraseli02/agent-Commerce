@@ -12,7 +12,7 @@ export function useVirtualTableRows<TData>(rows: Ref<Row<TData>[]>, scrollContai
       getScrollElement: () => scrollContainerRef.value,
       estimateSize: () => DEFAULT_ROW_HEIGHT,
       overscan: DEFAULT_OVERSCAN,
-    }))
+    })),
   );
 
   const virtualRows = computed(() => rowVirtualizer.value.getVirtualItems());

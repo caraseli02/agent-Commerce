@@ -106,19 +106,19 @@ async function main() {
 
   for (const match of legacyMatches) {
     console.warn(
-      `architecture invariant warning: ${match.relativePath}:${match.lineNumber} is a known legacy auth-header exception (${match.reason}).`
+      `architecture invariant warning: ${match.relativePath}:${match.lineNumber} is a known legacy auth-header exception (${match.reason}).`,
     );
   }
 
   if (violations.length > 0) {
     console.error(
-      'Architecture invariant failed: manual bearer auth headers are only allowed in plugins/api.ts, composables/api/, or test fixtures.'
+      'Architecture invariant failed: manual bearer auth headers are only allowed in plugins/api.ts, composables/api/, or test fixtures.',
     );
     console.error(
-      'Why it matters: Components Marketplace routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.'
+      'Why it matters: Components Marketplace routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.',
     );
     console.error(
-      'Where to look next: move the request into plugins/api.ts, composables/api/, or a service that uses the injected $api/$apiClient layer instead of hand-building auth headers.'
+      'Where to look next: move the request into plugins/api.ts, composables/api/, or a service that uses the injected $api/$apiClient layer instead of hand-building auth headers.',
     );
 
     for (const violation of violations) {
@@ -129,7 +129,7 @@ async function main() {
   }
 
   console.log(
-    `Architecture invariants OK: scanned ${files.length} source file(s); manual Bearer auth headers are confined to approved API boundary files or test fixtures.`
+    `Architecture invariants OK: scanned ${files.length} source file(s); manual Bearer auth headers are confined to approved API boundary files or test fixtures.`,
   );
 }
 

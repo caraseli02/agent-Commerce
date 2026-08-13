@@ -12,7 +12,7 @@ const emblaMainApi = ref<CarouselApi>();
 const emblaThumbnailApi = ref<CarouselApi>();
 
 const selectedIndex = defineModel<number>('selectedIndex');
- 
+
 const isOpen = defineModel<boolean>('open', { default: false });
 
 function onSelect() {

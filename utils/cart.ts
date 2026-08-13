@@ -8,7 +8,7 @@ const defaultDiscount = {
 
 export const applyOptimisticCartAdd = (
   currentCart: CartInterface | null | undefined,
-  productsToAdd: Partial<CartProductsInterface>[]
+  productsToAdd: Partial<CartProductsInterface>[],
 ): CartInterface => {
   const products = [...(currentCart?.products ?? [])];
 

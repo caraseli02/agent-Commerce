@@ -169,7 +169,7 @@ watch(
   (role) => {
     setDemoCredentialsByRole(role);
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const isClientCodeFormat = (value: string) => {

@@ -50,7 +50,7 @@ test.describe('Control panel address CRUD', () => {
 
     await Promise.all([
       page.waitForResponse(
-        (response) => response.url().includes('/api/user/shipping-address/customer-001') && response.request().method() === 'POST'
+        (response) => response.url().includes('/api/user/shipping-address/customer-001') && response.request().method() === 'POST',
       ),
       page.getByRole('button', { name: 'Save', exact: true }).click(),
     ]);
@@ -64,7 +64,7 @@ test.describe('Control panel address CRUD', () => {
 
     await Promise.all([
       page.waitForResponse(
-        (response) => response.url().includes('/api/user/shipping-address/customer-001') && response.request().method() === 'PATCH'
+        (response) => response.url().includes('/api/user/shipping-address/customer-001') && response.request().method() === 'PATCH',
       ),
       editModal.getByRole('button', { name: 'Save', exact: true }).click(),
     ]);
@@ -81,7 +81,7 @@ test.describe('Control panel address CRUD', () => {
     await expect(shippingDeleteModal).toBeVisible();
     await Promise.all([
       page.waitForResponse(
-        (response) => response.url().includes('/api/user/shipping-address/') && response.request().method() === 'DELETE'
+        (response) => response.url().includes('/api/user/shipping-address/') && response.request().method() === 'DELETE',
       ),
       shippingDeleteModal.getByRole('button', { name: 'Delete', exact: true }).click(),
     ]);
@@ -96,7 +96,7 @@ test.describe('Control panel address CRUD', () => {
 
     await Promise.all([
       page.waitForResponse(
-        (response) => response.url().includes('/api/user/billing-address/customer-001') && response.request().method() === 'POST'
+        (response) => response.url().includes('/api/user/billing-address/customer-001') && response.request().method() === 'POST',
       ),
       page.getByRole('button', { name: 'Save', exact: true }).click(),
     ]);
@@ -110,7 +110,7 @@ test.describe('Control panel address CRUD', () => {
 
     await Promise.all([
       page.waitForResponse(
-        (response) => response.url().includes('/api/user/billing-address/customer-001') && response.request().method() === 'PATCH'
+        (response) => response.url().includes('/api/user/billing-address/customer-001') && response.request().method() === 'PATCH',
       ),
       billingEditModal.getByRole('button', { name: 'Save', exact: true }).click(),
     ]);

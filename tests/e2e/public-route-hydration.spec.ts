@@ -44,7 +44,7 @@ test.describe('Public reviewer route hydration', () => {
               },
             ],
           },
-        })
+        }),
       );
     });
 

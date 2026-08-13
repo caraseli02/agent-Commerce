@@ -43,7 +43,7 @@ export async function updateDetails(payload: object) {
     {
       method: 'POST',
       body: payload,
-    }
+    },
   );
 }
 

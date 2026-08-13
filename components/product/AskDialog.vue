@@ -12,7 +12,7 @@ const formSchema = toTypedSchema(
   z.object({
     email: z.string().trim().min(1, 'Required').email('Invalid email address'),
     details: z.string().optional(),
-  })
+  }),
 );
 
 const props = withDefaults(
@@ -23,7 +23,7 @@ const props = withDefaults(
   {
     showTrigger: true,
     triggerClass: '',
-  }
+  },
 );
 
 const { handleSubmit, resetForm } = useForm({

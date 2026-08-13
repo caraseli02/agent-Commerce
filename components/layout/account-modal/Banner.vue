@@ -38,7 +38,7 @@
               :src="BannerItem"
               class="aspect-[1.16] object-contain object-center w-[100px] overflow-hidden self-center shrink-0 max-w-full my-auto"
               alt=""
-            >
+            />
           </div>
         </div>
       </SwiperSlide>

@@ -145,7 +145,7 @@ const orderItems = computed(() => {
     const quantity = Number(item.stock || 0) + Number(item.backorder_stock || 0);
     const discountPrice = item.productEntity
       ? Number(
-          parseProductPriceConfiguration(item.productEntity, user.value as UserInterface, quantity)?.currentConfigurationDiscountPrice || 0
+          parseProductPriceConfiguration(item.productEntity, user.value as UserInterface, quantity)?.currentConfigurationDiscountPrice || 0,
         )
       : 0;
     const effectiveUnitPrice = Number(discountPrice || item.unitPriceAfterDiscounts || item.initialUnitPrice || 0);
@@ -339,7 +339,7 @@ watch(checkout, async (newVal) => {
           total: Number(order.value.total || 0),
           guestContact: order.value.guestContact,
           shippingDetails: order.value.shippingDetails,
-        }
+        },
       );
       stopButtonTrigger.value = false;
     } catch {
@@ -385,7 +385,7 @@ watch(
     syncOrderTotals();
     applyMockCheckoutDefaults();
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(
@@ -394,7 +394,7 @@ watch(
     syncOrderTotals();
     applyMockCheckoutDefaults();
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(
@@ -402,7 +402,7 @@ watch(
   () => {
     syncOrderTotals();
     applyMockCheckoutDefaults();
-  }
+  },
 );
 
 watch(isGuestCheckout, (isGuest) => {

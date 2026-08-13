@@ -357,7 +357,7 @@ export const useMockAuthStore = defineStore(
   {
     // CRITICAL: Never persist mock sessions
     persist: false,
-  }
+  },
 );
 ```
 

@@ -57,14 +57,14 @@ describe('home featured-products performance', () => {
         mockMode: true,
         fetchMock: vi.fn().mockResolvedValue({ data: null }),
         fetchLive: vi.fn(),
-      })
+      }),
     ).resolves.toEqual([]);
     await expect(
       loadFeaturedProducts({
         mockMode: false,
         fetchMock: vi.fn(),
         fetchLive: vi.fn().mockRejectedValue(new Error('network unavailable')),
-      })
+      }),
     ).resolves.toEqual([]);
 
     expect(consoleError).toHaveBeenCalledOnce();

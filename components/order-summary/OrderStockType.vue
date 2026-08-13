@@ -245,7 +245,7 @@ watch(
       shippingPreferencesExpanded.value = true;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -255,7 +255,7 @@ watch(
       paymentMethodExpanded.value = true;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {
@@ -332,7 +332,9 @@ const { showCardsModal } = storeToRefs(paymentStore);
 
 .expand-enter-active,
 .expand-leave-active {
-  transition: max-height 0.5s cubic-bezier(0, 0.3, 0.6, 1), opacity 0.5s ease;
+  transition:
+    max-height 0.5s cubic-bezier(0, 0.3, 0.6, 1),
+    opacity 0.5s ease;
 }
 
 .item {

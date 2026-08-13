@@ -8,7 +8,7 @@
       >
         {{ index }}
       </div>
-      <NuxtImg :src="String(item.cover ?? '')" :alt="item.title" class="w-[65px] h-[65px]" loading="lazy"/>
+      <NuxtImg :src="String(item.cover ?? '')" :alt="item.title" class="w-[65px] h-[65px]" loading="lazy" />
       <div>
         <div class="mb-1 flex flex-col items-start 2xl:flex-row 2xl:items-center">
           <div class="font-semibold leading-tight mr-2.5">

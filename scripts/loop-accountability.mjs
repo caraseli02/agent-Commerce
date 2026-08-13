@@ -406,8 +406,8 @@ export function parseAndValidateLedger(contents) {
     if (firstLineByRunId.has(entry.record.run_id)) {
       errors.push(
         `${recordPrefix(entry.lineNumber, entry.record.run_id)}: duplicate run_id first declared on line ${firstLineByRunId.get(
-          entry.record.run_id
-        )}`
+          entry.record.run_id,
+        )}`,
       );
     } else {
       firstLineByRunId.set(entry.record.run_id, entry.lineNumber);
@@ -422,8 +422,8 @@ export function parseAndValidateLedger(contents) {
       errors.push(
         `${recordPrefix(
           entry.lineNumber,
-          entry.record.run_id
-        )}: duplicate outcome.accepted_change "${acceptedChange}" first declared on line ${firstLineByAcceptedChange.get(acceptedChange)}`
+          entry.record.run_id,
+        )}: duplicate outcome.accepted_change "${acceptedChange}" first declared on line ${firstLineByAcceptedChange.get(acceptedChange)}`,
       );
     } else {
       firstLineByAcceptedChange.set(acceptedChange, entry.lineNumber);
@@ -449,7 +449,7 @@ export function summarizeRuns(runs) {
   const acceptedChanges = new Set(
     runs
       .filter((run) => run?.evaluation?.verdict === 'PASS' && isNonEmptyString(run?.outcome?.accepted_change))
-      .map((run) => run.outcome.accepted_change)
+      .map((run) => run.outcome.accepted_change),
   ).size;
   const totalCost = runs.reduce((sum, run) => sum + (isNonNegativeNumber(run?.usage?.cost_usd) ? run.usage.cost_usd : 0), 0);
 

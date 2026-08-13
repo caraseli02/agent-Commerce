@@ -112,7 +112,7 @@ describe('cart pricing and stock helpers', () => {
       } as never,
       quantity,
       initialRequestedQuantity,
-      { price: 999.99, quantity: 1 }
+      { price: 999.99, quantity: 1 },
     );
 
     expect(quantity.value).toBe(5);

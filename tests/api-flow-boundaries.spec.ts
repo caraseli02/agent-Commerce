@@ -106,21 +106,21 @@ describe('mock API flow boundaries', () => {
           params: { id: created.data.id },
           body: { type: 0, range: { min: 125, max: 275 }, label: 'Updated range' },
         })
-      ).status
+      ).status,
     ).toBe('success');
 
     await expect(
       createPricing({
         ...browserSession,
         body: { type: 1, values: {}, label: 'Poison attempt' },
-      })
+      }),
     ).rejects.toMatchObject({ statusCode: 400 });
     await expect(createPricing({ body: { type: 1, values: [10], label: 'No auth' } })).rejects.toMatchObject({ statusCode: 401 });
     await expect(
       createPricing({
         headers: { authorization: `Bearer ${customerToken}` },
         body: { type: 1, values: [10], label: 'Customer write' },
-      })
+      }),
     ).rejects.toMatchObject({ statusCode: 403 });
 
     const isolatedSession = {

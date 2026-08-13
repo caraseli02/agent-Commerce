@@ -16,7 +16,7 @@
             class="w-[120px] h-[120px] object-contain"
             loading="lazy"
             @error="imageLoadFailed = true"
-          >
+          />
           <svgo-card-placehoder v-else class="w-[120px] h-[120px]" />
         </div>
         <div class="flex flex-col items-start gap-3">

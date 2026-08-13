@@ -130,7 +130,7 @@ export function getProductTaxonomyPath(
         details?: { SummaryData?: { TaxonomyPath?: string | null } | null } | null;
       }
     | null
-    | undefined
+    | undefined,
 ): string {
   if (!product) {
     return '';

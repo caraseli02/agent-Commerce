@@ -140,7 +140,7 @@ describe('optimistic add-to-cart', () => {
         title: 'Could not update cart',
         description: 'Please try again.',
         variant: 'destructive',
-      })
+      }),
     );
   });
 

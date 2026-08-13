@@ -26,7 +26,7 @@ const fetchAndSetTransactionListRaw = async (
   page: number,
   perPage: number,
   filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {}
+  sort: Record<string, unknown> = {},
 ) => {
   loading.value = true;
   error.value = false;

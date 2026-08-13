@@ -41,7 +41,7 @@ describe('buyer path FormInput retirement (#402)', () => {
   it('registers BuyerFormInput at the Nuxt auto-import path (not buyer/BuyerFormInput)', async () => {
     const movedAway = await readFile(join(repoRoot, 'components/buyer/BuyerFormInput.vue'), 'utf8').then(
       () => false,
-      () => true
+      () => true,
     );
     const contents = await readFile(join(repoRoot, 'components/BuyerFormInput.vue'), 'utf8');
 

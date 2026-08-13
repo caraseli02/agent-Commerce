@@ -108,7 +108,7 @@ const formSchema = toTypedSchema(
     }),
     reference: z.string().optional(),
     comments: z.string().optional(),
-  })
+  }),
 );
 
 // Use Vee-Validate form composable

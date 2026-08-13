@@ -120,7 +120,7 @@ const orderFilters = ref<TabFilter[]>([
 
 const computedOrderFilters = computed(() => {
   return orderFilters.value.filter(
-    (filter) => !filter.requiredPermission || loggedInUser.value?.permissions.includes(filter.requiredPermission)
+    (filter) => !filter.requiredPermission || loggedInUser.value?.permissions.includes(filter.requiredPermission),
   );
 });
 

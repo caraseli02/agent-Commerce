@@ -16,7 +16,7 @@ const props = defineProps<{
 }>();
 
 const shippingMethod = computed(() =>
-  generalSettings?.orderSettings?.deliveryTypes.find((type) => type._id === backOrder.value.shippingDetails.deliveryTypeId)
+  generalSettings?.orderSettings?.deliveryTypes.find((type) => type._id === backOrder.value.shippingDetails.deliveryTypeId),
 );
 const type = props.orderType === OrderType.Back ? '' : 'Back';
 const backOrderItems = ref(props.data.products || []);

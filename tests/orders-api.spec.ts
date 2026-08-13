@@ -45,7 +45,7 @@ describe('dashboard orders API adapters', () => {
       {
         sort: 'desc',
       },
-      apiClient
+      apiClient,
     );
 
     expect(apiClient).toHaveBeenCalledWith('/orders', {

@@ -67,7 +67,7 @@ const form = ref({
 
 const handleSubmit = () => {
   const code = route.query.oobCode;
-  const resetCode = Array.isArray(code) ? code[0] ?? '' : code ?? '';
+  const resetCode = Array.isArray(code) ? (code[0] ?? '') : (code ?? '');
   void resetPassword(form.value.email.value, form.value.newPassword.value, form.value.repeatPassword.value, resetCode);
 };
 

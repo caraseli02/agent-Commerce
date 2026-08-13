@@ -73,7 +73,7 @@ export const getMutableRuntimeAddresses = (customerId?: string | null) => {
 export const addRuntimeAddress = (
   customerId: string | null | undefined,
   kind: AddressKind,
-  address: ShippingAddressInterface | BillingAddressInterface
+  address: ShippingAddressInterface | BillingAddressInterface,
 ) => {
   const store = getMutableRuntimeAddresses(customerId);
   const addresses = getAddressList(store, kind);
@@ -98,7 +98,7 @@ export const addRuntimeAddress = (
 export const updateRuntimeAddress = (
   customerId: string | null | undefined,
   kind: AddressKind,
-  address: ShippingAddressInterface | BillingAddressInterface
+  address: ShippingAddressInterface | BillingAddressInterface,
 ) => {
   const store = getMutableRuntimeAddresses(customerId);
   const addresses = getAddressList(store, kind);

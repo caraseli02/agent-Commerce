@@ -84,7 +84,7 @@ function toggleFilterValue(optionValue: string) {
                 :class="
                   cn(
                     'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                    selectedValues.has(option.value) ? 'bg-primary text-primary-foreground' : 'opacity-50 [&_svg]:invisible'
+                    selectedValues.has(option.value) ? 'bg-primary text-primary-foreground' : 'opacity-50 [&_svg]:invisible',
                   )
                 "
               >

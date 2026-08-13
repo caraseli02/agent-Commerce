@@ -108,7 +108,7 @@ const statusColor = computed(
       packaging: 'bg-blue-500',
       transit: 'bg-blue-500',
       fulfilled: 'bg-emerald-500',
-    }[processedOrder.value.trackingStatus] || 'bg-purple-500')
+    })[processedOrder.value.trackingStatus] || 'bg-purple-500',
 );
 
 const statusIcons = {
@@ -238,7 +238,7 @@ const handleMoreOptions = () => {
         <UiBadge
           :class="
             cn(
-              'flex items-start md:items-center justify-end md:justify-start gap-2 bg-light-100 text-neutral-700 font-normal p-0 text-sm rounded-md w-full md:w-auto'
+              'flex items-start md:items-center justify-end md:justify-start gap-2 bg-light-100 text-neutral-700 font-normal p-0 text-sm rounded-md w-full md:w-auto',
             )
           "
         >

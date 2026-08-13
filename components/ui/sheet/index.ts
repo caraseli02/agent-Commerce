@@ -24,7 +24,7 @@ export const sheetVariants = cva(
     defaultVariants: {
       side: 'right',
     },
-  }
+  },
 );
 
 export type SheetVariants = VariantProps<typeof sheetVariants>;

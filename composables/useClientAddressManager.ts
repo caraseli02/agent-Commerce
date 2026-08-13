@@ -74,7 +74,7 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
         .string()
         .min(1, 'Postcode is required')
         .default(options.address.value?.postcode || ''),
-    })
+    }),
   );
 
   const { handleSubmit, setFieldValue } = useForm({

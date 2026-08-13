@@ -95,7 +95,7 @@ watch(
       };
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -110,6 +110,6 @@ watch(
       alias: 'Billing',
     };
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
