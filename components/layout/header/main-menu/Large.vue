@@ -424,30 +424,32 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="scss">
+<style lang="postcss">
+@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
 .headerSubmenu--swiper {
-  @apply z-20 pb-[22px] mt-auto md:pb-[38px] #{!important};
+  @apply z-20 pb-[22px] mt-auto md:pb-[38px]!;
 }
 
 .headerSubmenu--swiper .swiper-slide {
-  @apply h-auto #{!important};
+  @apply h-auto!;
 }
 
 .headerSubmenu--swiper .swiper-pagination {
-  @apply flex justify-center w-full h-2 bottom-1.5 space-x-1.5 md:space-x-2 md:bottom-[15px] #{!important};
+  @apply flex justify-center w-full h-2 bottom-1.5 space-x-1.5 md:space-x-2 md:bottom-[15px]!;
 }
 
 .headerSubmenu--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2!;
   margin-right: 0 !important;
 }
 
 .headerSubmenu--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-white #{!important};
+  @apply scale-125 bg-white!;
 }
 </style>
 
-<style lang="scss">
+<style lang="postcss">
+@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
 .animateToRight {
   animation: toRightFromLeft 0.5s forwards linear;
 }

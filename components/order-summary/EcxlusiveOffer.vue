@@ -82,15 +82,16 @@ const slides = ref([
 ]);
 </script>
 
-<style lang="scss">
+<style lang="postcss">
+@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
 .orderSummaryExclusiveOffer--swiper .swiper-pagination {
-  @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:left-1/2 lg:-translate-x-1/2 #{!important};
+  @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:left-1/2 lg:-translate-x-1/2!;
 }
 .orderSummaryExclusiveOffer--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2!;
   margin-right: 0 !important;
 }
 .orderSummaryExclusiveOffer--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-white #{!important};
+  @apply scale-125 bg-white!;
 }
 </style>

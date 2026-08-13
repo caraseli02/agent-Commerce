@@ -59,8 +59,9 @@ const messages = [
 ];
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="postcss">
+@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
 .homeNews--swiper {
-  @apply px-0 pt-0 pb-[30px] #{!important};
+  @apply px-0 pt-0 pb-[30px]!;
 }
 </style>

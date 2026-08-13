@@ -38,6 +38,7 @@ onMounted(() => {
 </script>
 
 <style lang="postcss">
+@reference "/Users/vladislavcaraseli/.codex/worktrees/89ad/Ecas/assets/css/main.css";
 html,
 body,
 div#__nuxt {
