@@ -8,16 +8,11 @@
   },
   "features": [
     {
-      "id": "E457-458",
-      "description": "Restore repository-scoped dependency-maintenance diagnostics",
-      "validation": "The update and production audit commands inspect this repository rather than a parent pnpm workspace; pnpm verify passes after any package-manager configuration change",
+      "id": "E457-459",
+      "description": "Retire Firebase and Nuxt VueFire while retaining mock-demo authentication",
+      "validation": "No Firebase or VueFire runtime imports/configuration remain; documented customer/admin mock auth and protected routes work; pnpm verify passes",
       "status": "active",
-      "evidence": [
-        "#458 claimed with planner brief",
-        "pnpm outdated fails from this nested checkout with optionalDependencies undefined while resolving parent workspace",
-        "pnpm --ignore-workspace outdated --format json returns repository-scoped update results",
-        "pnpm --ignore-workspace audit --prod reports current production dependency advisories"
-      ]
+      "evidence": ["#459 claimed with planner brief", "Implementation starts after #458 post-merge ledger cleanup"]
     },
     {
       "id": "C368",
