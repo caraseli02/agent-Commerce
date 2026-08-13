@@ -42,6 +42,7 @@ export default defineNuxtConfig({
     dirs: [
       {
         path: '~/components/global',
+        prefix: 'global',
         extensions: ['vue'],
       },
       {
@@ -80,7 +81,13 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['~/assets/css/resets.css', '~/assets/css/utils.css', '~/assets/css/animations.css', '~/assets/css/vendors/v-calendar.css'],
+  css: [
+    '~/assets/css/main.css',
+    '~/assets/css/resets.css',
+    '~/assets/css/utils.css',
+    '~/assets/css/animations.css',
+    '~/assets/css/vendors/v-calendar.css',
+  ],
 
   runtimeConfig: {
     public: {

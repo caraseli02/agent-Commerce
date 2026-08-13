@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Epic #457: **#466** migrates styling to Tailwind CSS 4 with the official Vite/PostCSS integration; local production build, smoke, desktop/mobile storefront checks, and `pnpm verify` pass. This is intentionally one atomic issue because Tailwind 4 requires the dependency, integration, global entrypoint, and every `@apply`-bearing style to move together; splitting them leaves untransformable CSS or a non-building app.
+- Epic #457: **#467** upgrades Pinia and persisted state to the Nuxt 4-compatible release set. The integration keeps mock cart persistence and customer session behavior; the Tailwind 4 global stylesheet and Nuxt `Global*` component prefix were restored after focused production cart coverage exposed the missing registrations.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
@@ -16,6 +16,8 @@
 - **#462** — Nuxt 4 production runtime acceptance: fixed SSR/client hydration parity for viewport-chunked product grids, client-restored order summaries, and initially empty dashboard activity. Focused regression test and `pnpm verify:full` pass; fresh mock production browser evidence covers storefront/search/product images, customer dashboard, cart/order summary, and checkout success with no console errors.
 - **#464** — PR #494 merged to `origin/main` at `42066245` after GitHub Actions, Vercel, and requested Greptile review passed. Prettier is 3.9.6; formatting and compatible lint rules are aligned.
 - **#465** — PR #495 upgrades TypeScript to 5.9.3 and `vue-tsc` to 3.3.9, the current Nuxt 4-compatible toolchain. `pnpm typecheck` and `pnpm verify` pass locally; awaiting GitHub Actions and Greptile before evaluator verdict.
+- **#466** — PR #496 merged to `origin/main` at `1d799340` after GitHub Actions, Vercel, Greptile (5/5), and independent evaluator PASS (10/10). Tailwind CSS 4 now uses the official Vite/PostCSS integration; the global entrypoint and Nuxt `Global*` component prefix are explicitly registered for Nuxt 4 production runtime.
+- **#467** — Pinia 4.0.3, `@pinia/nuxt` 1.0.2, and `pinia-plugin-persistedstate` 4.7.1 resolve without peer overrides. `pnpm verify:full` and focused fresh-production browser coverage of customer session persistence plus cart add/remove/empty state pass; ready for a reviewable PR.
 
 ## Human decisions pending
 
