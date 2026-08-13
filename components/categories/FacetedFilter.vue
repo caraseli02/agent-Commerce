@@ -18,17 +18,23 @@ defineProps<DataTableFacetedFilter>();
 
 const selectedValues = ref<Set<string>>(new Set());
 
-function filterOptions(list: unknown[], term: string) {
-  const options = list as DataTableFacetedFilter['options'];
-  return options.filter((option) => option.label.toLowerCase().includes(term.toLowerCase()));
+function filterOptions(list: string[], term: string) {
+  return list.filter((item) => item.toLowerCase().includes(term.toLowerCase()));
 }
 
 function setFilterValue(value: string[] | undefined) {
-  if (value) {
-    selectedValues.value = new Set(value);
+  selectedValues.value = value ? new Set(value) : new Set();
+}
+
+function toggleFilterValue(optionValue: string) {
+  if (selectedValues.value.has(optionValue)) {
+    selectedValues.value.delete(optionValue);
   } else {
-    selectedValues.value = new Set();
+    selectedValues.value.add(optionValue);
   }
+
+  const filterValues = Array.from(selectedValues.value.values()) as string[];
+  setFilterValue(filterValues.length ? filterValues : undefined);
 }
 </script>
 
@@ -73,23 +79,7 @@ function setFilterValue(value: string[] | undefined) {
         <UiCommandList>
           <UiCommandEmpty>No results found.</UiCommandEmpty>
           <UiCommandGroup>
-            <UiCommandItem
-              v-for="option in options"
-              :key="option.value"
-              :value="option"
-              @select="
-                (e) => {
-                  const isSelected = selectedValues.has(option.value);
-                  if (isSelected) {
-                    selectedValues.delete(option.value);
-                  } else {
-                    selectedValues.add(option.value);
-                  }
-                  const filterValues = Array.from(selectedValues);
-                  setFilterValue(filterValues.length ? filterValues : undefined);
-                }
-              "
-            >
+            <UiCommandItem v-for="option in options" :key="option.value" :value="option" @select="toggleFilterValue(option.value)">
               <div
                 :class="
                   cn(

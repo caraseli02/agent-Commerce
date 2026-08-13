@@ -1,17 +1,20 @@
-import { computed, ref } from 'vue';
-import type { Component, VNode } from 'vue';
-import type { ToastProps } from '.';
+import { computed, shallowRef } from 'vue';
+import type { Component, HTMLAttributes, VNode } from 'vue';
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
 
 export type StringOrVNode = string | VNode | (() => VNode);
 
-type ToasterToast = ToastProps & {
+type ToasterToast = {
   id: string;
   title?: string;
   description?: StringOrVNode;
   action?: Component;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  variant?: 'default' | 'destructive' | 'success' | 'warning';
+  class?: HTMLAttributes['class'];
 };
 
 const actionTypes = {
@@ -68,15 +71,20 @@ function addToRemoveQueue(toastId: string) {
   toastTimeouts.set(toastId, timeout);
 }
 
-const state = ref<State>({
+const state = shallowRef<State>({
   toasts: [],
 });
 
 function dispatch(action: Action) {
   switch (action.type) {
-    case actionTypes.ADD_TOAST:
-      state.value.toasts = [action.toast, ...state.value.toasts].slice(0, TOAST_LIMIT);
+    case actionTypes.ADD_TOAST: {
+      // Radix ToastProps + vue-tsc 3.5 can recurse deeply on spread; mutate in place instead.
+      state.value.toasts.unshift(action.toast);
+      if (state.value.toasts.length > TOAST_LIMIT) {
+        state.value.toasts.length = TOAST_LIMIT;
+      }
       break;
+    }
 
     case actionTypes.UPDATE_TOAST:
       state.value.toasts = state.value.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t));

@@ -10,7 +10,7 @@ defineProps<{
 
 const open = ref(false);
 const search = ref('');
-const debounced = refDebounced(search, 500);
+const debounced = refDebounced(search, 500) as Ref<string>;
 const selectedIcon = defineModel<IconName | null>();
 
 const filteredIcons = computed(() => {

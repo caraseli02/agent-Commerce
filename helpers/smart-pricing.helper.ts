@@ -1,6 +1,6 @@
 import { PriceSettingsTypeEnum, type PriceSettingsInterface, type SmartPricingOption } from '~/model/prices/price-settings.interface';
 
-export const smartPricingRange = (pricing: PriceSettingsInterface[] | []): SmartPricingOption[] => {
+export const smartPricingRange = (pricing: PriceSettingsInterface[]): SmartPricingOption[] => {
   return pricing
     ? pricing
         .filter((smartPricing) => smartPricing.type === PriceSettingsTypeEnum.Range)
@@ -13,7 +13,7 @@ export const smartPricingRange = (pricing: PriceSettingsInterface[] | []): Smart
     : [];
 };
 
-export const smartPricingQuantity = (pricing: PriceSettingsInterface[] | []): SmartPricingOption[] => {
+export const smartPricingQuantity = (pricing: PriceSettingsInterface[]): SmartPricingOption[] => {
   return pricing
     .filter((smartPricing) => smartPricing.type === PriceSettingsTypeEnum.Quantity)
     .map((item, index) => ({
@@ -31,7 +31,7 @@ export const smartPricingQuantity = (pricing: PriceSettingsInterface[] | []): Sm
     }));
 };
 
-export const smartPricingMargin = (pricing: PriceSettingsInterface[] | []): SmartPricingOption[] => {
+export const smartPricingMargin = (pricing: PriceSettingsInterface[]): SmartPricingOption[] => {
   return pricing
     .filter((smartPricing) => smartPricing.type === PriceSettingsTypeEnum.Margins)
     .map((item, index) => ({

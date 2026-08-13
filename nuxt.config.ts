@@ -2,6 +2,18 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
 
+  future: {
+    compatibilityVersion: 4,
+  },
+
+  // Preserve root-level source layout until #461 moves to the Nuxt 4 app directory.
+  srcDir: '.',
+
+  // Nuxt 4 compatibility mode tightens Vue SFC inference; relax until #465.
+  typescript: {
+    strict: false,
+  },
+
   modules: [
     '@nuxt/fonts',
     'nuxt-svgo',

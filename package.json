@@ -38,7 +38,7 @@
     "happy-dom": "^20.11.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
-    "nuxt": "^3.21.1",
+    "nuxt": "3.21.11",
     "nuxt-lodash": "^2.5.3",
     "nuxt-svgo": "^3.7.0",
     "nuxt-viewport": "^2.3.1",

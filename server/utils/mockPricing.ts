@@ -98,7 +98,7 @@ export const getMockPricing = (event: H3Event) => getPricingState(event).pricing
 
 export const createMockPricing = (event: H3Event, input: ReturnType<typeof parseMockPricingInput>) => {
   const state = getPricingState(event);
-  const item: PriceSettingsInterface = { ...input, _id: `price-setting-${state.sequence++}`, linked: false };
+  const item = { ...input, _id: `price-setting-${state.sequence++}`, linked: false } as PriceSettingsInterface;
   state.pricing.push(item);
   return clonePricing(item);
 };
@@ -107,7 +107,7 @@ export const updateMockPricing = (event: H3Event, id: string, input: ReturnType<
   const state = getPricingState(event);
   const index = state.pricing.findIndex((item) => item._id === id);
   if (index < 0) return null;
-  state.pricing[index] = { ...input, _id: id, linked: state.pricing[index].linked };
+  state.pricing[index] = { ...input, _id: id, linked: state.pricing[index].linked } as PriceSettingsInterface;
   return clonePricing(state.pricing[index]);
 };
 

@@ -77,6 +77,12 @@ import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import InvoiceIcon from '@/assets/icons/dashboard/invoice.svg';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 
+type ThreeDotMenuInstance = {
+  profile: { firebaseId: string };
+  $router: { push: (path: string) => void };
+  $emit: (event: string) => void;
+};
+
 export default defineComponent({
   name: 'ThreeDotMenu',
   components: {
@@ -132,33 +138,33 @@ export default defineComponent({
     'active',
   ],
   methods: {
-    profileClicked() {
+    profileClicked(this: ThreeDotMenuInstance) {
       this.$router.push(`/dashboard/customers/${this.profile.firebaseId}`);
       // eslint-disable-next-line vue/require-explicit-emits
       this.$emit('profileClicked');
     },
-    documentClicked() {
+    documentClicked(this: ThreeDotMenuInstance) {
       // eslint-disable-next-line vue/require-explicit-emits
       this.$emit('documentClicked');
     },
-    settingsClicked() {
+    settingsClicked(this: ThreeDotMenuInstance) {
       this.$router.push(`/dashboard/customers/${this.profile.firebaseId}/control-panel`);
       // eslint-disable-next-line vue/require-explicit-emits
       this.$emit('settingsClicked');
     },
-    deactivateClicked() {
+    deactivateClicked(this: ThreeDotMenuInstance) {
       // eslint-disable-next-line vue/require-explicit-emits
       this.$emit('deactivateClicked');
     },
-    trashClicked() {
+    trashClicked(this: ThreeDotMenuInstance) {
       // eslint-disable-next-line vue/require-explicit-emits
       this.$emit('trashClicked');
     },
-    invoiceClicked() {
+    invoiceClicked(this: ThreeDotMenuInstance) {
       // eslint-disable-next-line vue/require-explicit-emits
       this.$emit('invoiceClicked');
     },
-    editClicked() {
+    editClicked(this: ThreeDotMenuInstance) {
       // eslint-disable-next-line vue/require-explicit-emits
       this.$emit('editClicked');
     },
