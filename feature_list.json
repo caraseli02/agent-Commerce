@@ -8,17 +8,15 @@
   },
   "features": [
     {
-      "id": "E457-461",
-      "description": "Restore a fully verified Nuxt 4 migration after merged PR #487 failed CI without evaluator approval",
-      "validation": "Nuxt 4 resolves; configured integrations typecheck and build without disabled-module workarounds; pnpm verify plus mock-mode production preview evidence pass",
+      "id": "E457-458",
+      "description": "Restore repository-scoped dependency-maintenance diagnostics",
+      "validation": "The update and production audit commands inspect this repository rather than a parent pnpm workspace; pnpm verify passes after any package-manager configuration change",
       "status": "active",
       "evidence": [
-        "#461 reopened with in-progress label and remediation sprint contract",
-        "pnpm install --frozen-lockfile --ignore-workspace: pass",
-        "pnpm typecheck: pass on codex/461-nuxt4-verified-remediation",
-        "pnpm verify: pass (62 files / 276 tests)",
-        "pnpm verify:full: pass; production preview smoke /, /cart, /checkout all HTTP 200",
-        "Nuxt framework package: node -p require('./node_modules/nuxt/package.json').version -> 4.5.2; pnpm exec nuxt --version reports bundled CLI 3.37.0 and needs approved epic-criterion correction"
+        "#458 claimed with planner brief",
+        "pnpm outdated fails from this nested checkout with optionalDependencies undefined while resolving parent workspace",
+        "pnpm --ignore-workspace outdated --format json returns repository-scoped update results",
+        "pnpm --ignore-workspace audit --prod reports current production dependency advisories"
       ]
     },
     {
