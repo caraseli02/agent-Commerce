@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Epic #457: **#466** migrates styling to Tailwind CSS 4 with the official Vite/PostCSS integration; local production build, smoke, desktop/mobile storefront checks, and `pnpm verify` pass.
+- Epic #457: **#466** migrates styling to Tailwind CSS 4 with the official Vite/PostCSS integration; local production build, smoke, desktop/mobile storefront checks, and `pnpm verify` pass. This is intentionally one atomic issue because Tailwind 4 requires the dependency, integration, global entrypoint, and every `@apply`-bearing style to move together; splitting them leaves untransformable CSS or a non-building app.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
