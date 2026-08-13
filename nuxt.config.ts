@@ -56,7 +56,10 @@ export default defineNuxtConfig({
   },
   fonts: {
     families: [
-      { name: 'Archivo', provider: 'google', weights: [500, 600, 700] },
+      // Google Fonts retired one Archivo subset URL; resolving it at build time
+      // makes otherwise deterministic production builds fail. Keep the existing
+      // display stack, which falls back to Source Sans 3 when Archivo is absent.
+      { name: 'Archivo', provider: 'none' },
       { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700] },
     ],
   },
@@ -210,5 +213,14 @@ export default defineNuxtConfig({
       xl: 1280,
       '2xl': 1536,
     },
+    // Match the Tailwind breakpoint names during SSR; otherwise Nuxt 4
+    // hydrates an empty viewport-dependent product grid before the client
+    // replaces it with its detected breakpoint.
+    defaultBreakpoints: {
+      desktop: 'lg',
+      mobile: 'xs',
+      tablet: 'md',
+    },
+    fallbackBreakpoint: 'lg',
   },
 });

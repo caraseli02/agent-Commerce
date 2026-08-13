@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoadingCheckout">
+  <div v-if="!isClientReady || isLoadingCheckout">
     <UiSkeleton class="h-full w-full absolute inset-0 z-50" />
     <LoaderIcon class="absolute top-[50%] left-[50%] z-50 animate-spin" />
   </div>
@@ -117,6 +117,7 @@ import type { ShippingOrderPricingResponse } from '~/types/order-summary/shippin
 // Setup and Initialization
 const router = useRouter();
 useHead({ title: 'Order Summary' });
+const isClientReady = useClientReady();
 
 // User Information
 const { user, getShipping, getBilling } = useUser();

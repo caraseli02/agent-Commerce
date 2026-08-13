@@ -38,7 +38,14 @@ const ordersIds = ref<OrderIdItem[]>([]);
 const activeOrderFilter = ref<TabFilter>({
   value: 'home',
 });
-const myActivityData = ref<CustomerDashboardActivityData>({} as CustomerDashboardActivityData);
+const emptyActivityData = (): CustomerDashboardActivityData => ({
+  favorites: { products: 0, folders: 0 },
+  monthOrder: 0,
+  returns: 0,
+  totalOrders: 0,
+});
+
+const myActivityData = ref<CustomerDashboardActivityData>(emptyActivityData());
 const myAccountInformation = ref<UserInterface>({} as UserInterface);
 const myRecentlyBougth = ref<ProductInterface[]>([]);
 const myAddresses = ref<ShippingAddressInterface[]>([]);
@@ -61,7 +68,7 @@ export const useCustomerDashboard = () => {
   };
 
   const activityWidgets = async () => {
-    myActivityData.value = {} as CustomerDashboardActivityData;
+    myActivityData.value = emptyActivityData();
     const favorites = await fetchFavorites();
     const totalOrders = await fetchTotalOrders();
     const returns = await fetchReturns();

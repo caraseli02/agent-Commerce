@@ -53,6 +53,17 @@ function createChunkedArray(chunkSize: number, productList: ProductInterface[]) 
   return chunkedArray;
 }
 const viewport = useViewport();
+// The server cannot know the first visitor's viewport. Keep the initial client
+// render on the configured SSR fallback, then apply the measured breakpoint
+// after hydration so the slide structure is never different during hydration.
+const renderedBreakpoint = ref('lg');
+onMounted(() => {
+  renderedBreakpoint.value = viewport.breakpoint.value;
+  watch(viewport.breakpoint, (breakpoint) => {
+    renderedBreakpoint.value = breakpoint;
+  });
+});
+
 const productsByViewport = computed(() => {
   const rowsNumber = props.rowsNumber ?? 1;
   const breakpointsMasonryBanner = {
@@ -81,15 +92,15 @@ const productsByViewport = computed(() => {
   };
 
   if (props.hasBanner && props.masonryView) {
-    return breakpointsMasonryBanner[viewport.breakpoint.value as keyof typeof breakpoints] || [];
+    return breakpointsMasonryBanner[renderedBreakpoint.value as keyof typeof breakpoints] || [];
   }
   if (props.masonryView) {
-    return breakpointsMasonry[viewport.breakpoint.value as keyof typeof breakpoints] || [];
+    return breakpointsMasonry[renderedBreakpoint.value as keyof typeof breakpoints] || [];
   }
   if (props.orderSummaryView) {
-    return breakpointsOrderSummary[viewport.breakpoint.value as keyof typeof breakpoints] || [];
+    return breakpointsOrderSummary[renderedBreakpoint.value as keyof typeof breakpoints] || [];
   }
-  return breakpoints[viewport.breakpoint.value as keyof typeof breakpoints] || [];
+  return breakpoints[renderedBreakpoint.value as keyof typeof breakpoints] || [];
 });
 </script>
 

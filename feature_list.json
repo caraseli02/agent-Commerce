@@ -3,10 +3,22 @@
   "purpose": "Machine-readable feature list for the Components Marketplace harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
+    {
+      "id": "E457-462",
+      "description": "Verify and repair Nuxt 4 mock-mode core demo runtime journeys",
+      "validation": "Production mock browser covers storefront/search/product images, customer dashboard, cart/order summary, and checkout confirmation with no console errors; pnpm verify:full passes",
+      "status": "active",
+      "evidence": [
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/462#issuecomment-5285992123",
+        "pnpm verify:full: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list, architecture, and preview smoke)",
+        "Focused dashboard empty-state regression test: pass",
+        "Fresh mock production browser: no console errors across storefront, product/search, customer dashboard, cart/order summary, and /checkout/success"
+      ]
+    },
     {
       "id": "E457-463",
       "description": "Migrate deprecated lucide-vue-next imports to @lucide/vue",
