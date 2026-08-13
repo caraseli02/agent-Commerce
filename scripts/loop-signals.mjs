@@ -1,16 +1,21 @@
 const CI_RUN_PATTERN = /\/actions\/runs\/(\d+)(?:\/|$)/;
-const REPAIR_COMMAND_PATTERN = /^\/repair\b\s*(.*)$/i;
-const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+// A repair command is deliberately bound to an exact head.  A comment has no
+// immutable "observed head" field, so accepting an unqualified command would
+// let it replay after a force-push or cherry-pick.
+const REPAIR_COMMAND_PATTERN = /^\/repair\s+([a-f0-9]{40})\b\s+(.+?)\s*$/i;
+export const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 const QODO_BOTS = new Set(['qodo-code-review', 'qodo-code-review[bot]']);
 const QODO_ACTION_PATTERN = /alt=["'](?:Action required|Remediation recommended)["']/i;
 const QODO_REVIEW_PATTERN = /<h3>Code Review by Qodo<\/h3>/i;
 const QODO_HEAD_PATTERN = /<!--\s*https:\/\/github\.com\/[^/]+\/[^/]+\/commit\/([a-f0-9]{40})\s*-->/i;
 const GREPTILE_BOTS = new Set(['greptile-apps', 'greptile-apps[bot]']);
+const CODEX_CONNECTOR_BOT = 'chatgpt-codex-connector';
+const CODEX_CONNECTOR_REJECTION = /connect to github|create a codex account/i;
 const GREPTILE_ACTION_PATTERN = /Confidence Score:\s*[0-4]\/5|Files Needing Attention|Issue \d+/i;
 const GREPTILE_HEAD_PATTERN = /Last reviewed commit:[\s\S]*?commit\/([a-f0-9]{40})/i;
 const GREPTILE_PASS_PATTERN = /Confidence Score:\s*5\/5/i;
 const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks|approved)[.!]?$/i;
-const ECAS_DISPATCH_PATTERN = /<!--\s*ecas-loop:v3\s+role=dispatcher\s+key=([^\s>]+)\s*-->/i;
+const ECAS_DISPATCH_PATTERN = /<!--\s*ecas-loop:v3\s+role=dispatcher\s+key=([^\s>]+)\s*-->\s*$/i;
 
 function signalKey(signal) {
   return `${signal.kind}:${signal.sourceId}:${signal.head}`;
@@ -36,23 +41,36 @@ export function controllerDispatchKeys(issueComments = [], controllerLogin = '')
   );
 }
 
+export function connectorRejected({ issueComments = [], pr, state } = {}) {
+  const dispatchedAt = Object.values(state?.dispatches ?? {})
+    .filter((record) => record?.pr === pr?.number && record?.head === pr?.head && record?.result === 'dispatched')
+    .map((record) => Date.parse(record.startedAt ?? ''))
+    .filter(Number.isFinite)
+    .sort((left, right) => right - left)[0];
+  if (!Number.isFinite(dispatchedAt)) return false;
+  return issueComments.some(
+    (comment) =>
+      Date.parse(comment.created_at ?? '') >= dispatchedAt &&
+      String(comment.user?.login ?? '').toLowerCase() === CODEX_CONNECTOR_BOT &&
+      CODEX_CONNECTOR_REJECTION.test(String(comment.body ?? ''))
+  );
+}
+
 /** @param {{ pr?: any, reviews?: any[], issueComments?: any[] }} options */
 export function independentReviewPassed({ pr, reviews = [], issueComments = [] } = {}) {
   if (!pr?.head) return false;
-  const latestTrustedReviews = new Map();
-  for (const review of [...reviews].reverse()) {
+  const reviewStateByAuthor = new Map();
+  for (const review of reviews) {
     const author = review.user?.login;
-    if (
-      !author ||
-      latestTrustedReviews.has(author) ||
-      review.commit_id !== pr.head ||
-      !TRUSTED_ASSOCIATIONS.has(review.author_association)
-    ) {
+    if (!author || review.commit_id !== pr.head || !TRUSTED_ASSOCIATIONS.has(review.author_association)) {
       continue;
     }
-    latestTrustedReviews.set(author, review.state);
+    // GitHub's COMMENTED review event does not clear a prior request for
+    // changes. Only an approval or a dismissal resolves it.
+    if (review.state === 'CHANGES_REQUESTED') reviewStateByAuthor.set(author, review.state);
+    if (review.state === 'APPROVED' || review.state === 'DISMISSED') reviewStateByAuthor.set(author, review.state);
   }
-  const states = [...latestTrustedReviews.values()];
+  const states = [...reviewStateByAuthor.values()];
   if (states.includes('CHANGES_REQUESTED')) return false;
   if (states.includes('APPROVED')) return true;
 
@@ -77,13 +95,14 @@ export function selectRepairSignal({
   reviewComments = [],
   processedKeys = new Set(),
   controllerLogin = '',
+  ignoreDeduplication = false,
 } = {}) {
   const check = (pr?.checks ?? []).find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
   if (!pr?.head) return null;
   const dispatchedKeys = controllerDispatchKeys(issueComments, controllerLogin);
   const pending = (signal) => {
     const candidate = { ...signal, key: signalKey(signal) };
-    return processedKeys.has(candidate.key) || dispatchedKeys.has(candidate.key) ? null : candidate;
+    return !ignoreDeduplication && (processedKeys.has(candidate.key) || dispatchedKeys.has(candidate.key)) ? null : candidate;
   };
 
   if (check?.status === 'COMPLETED' && check.conclusion === 'FAILURE') {
@@ -101,19 +120,14 @@ export function selectRepairSignal({
     }
   }
 
-  const seenReviewers = new Set();
-  for (const review of [...reviews].reverse()) {
+  const requestedChanges = new Map();
+  for (const review of reviews) {
     const author = review.user?.login;
-    if (!author || seenReviewers.has(author)) continue;
-    seenReviewers.add(author);
-    if (
-      review.state !== 'CHANGES_REQUESTED' ||
-      review.commit_id !== pr.head ||
-      !TRUSTED_ASSOCIATIONS.has(review.author_association) ||
-      !review.id
-    ) {
-      continue;
-    }
+    if (!author || review.commit_id !== pr.head || !TRUSTED_ASSOCIATIONS.has(review.author_association)) continue;
+    if (review.state === 'CHANGES_REQUESTED' && review.id) requestedChanges.set(author, review);
+    if (review.state === 'APPROVED' || review.state === 'DISMISSED') requestedChanges.delete(author);
+  }
+  for (const review of requestedChanges.values()) {
     const signal = {
       kind: 'changes-requested',
       sourceId: String(review.id),
@@ -188,9 +202,9 @@ export function selectRepairSignal({
     if (!TRUSTED_ASSOCIATIONS.has(comment.author_association)) continue;
     const match = body.match(REPAIR_COMMAND_PATTERN);
     if (!match || !comment.id) continue;
-    const createdAt = Date.parse(comment.created_at ?? '');
-    const committedAt = Date.parse(pr.headCommittedAt ?? '');
-    if (!Number.isFinite(createdAt) || !Number.isFinite(committedAt) || createdAt < committedAt) continue;
+    const commandHead = match[1].toLowerCase();
+    const instruction = match[2].trim();
+    if (commandHead !== String(pr.head).toLowerCase() || !instruction) continue;
 
     const signal = {
       kind: 'repair-command',
@@ -198,7 +212,7 @@ export function selectRepairSignal({
       sourceUrl: comment.html_url,
       head: pr.head,
       createdAt: comment.created_at,
-      instruction: match[1].trim(),
+      instruction,
     };
     const candidate = pending(signal);
     if (candidate) return candidate;

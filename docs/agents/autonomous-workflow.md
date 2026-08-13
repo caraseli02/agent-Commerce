@@ -38,7 +38,7 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 
 - Wake on a repository event when infrastructure permits; the local ChatGPT-authenticated bridge performs only a low-frequency reconciliation and hosted-task dispatch.
 - Treat `{source ID, current head SHA}` as the idempotency key.
-- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and explicit `/repair` through one hosted repair dispatcher.
+- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and an exact-head `/repair <40-char-sha> <instruction>` command through one hosted repair dispatcher. Bare or stale-head repair commands are ignored.
 - Never infer a repair command from ordinary top-level prose.
 - Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
 - Count an attempt only after the hosted repair comment is posted successfully. Transient GitHub transport failures remain retryable, and posted GitHub markers provide durable deduplication if local state is lost.
@@ -122,7 +122,7 @@ When an `in-progress` issue already has an open PR, controller logic must route 
 - `FAIL`: generate a focused repair brief from the evaluator comment and update the same branch/PR.
 - `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
 
-For an ordinary PR conversation comment, a trusted maintainer can use `/repair <instruction>` for the dispatcher or `@codex fix <instruction>` to address Codex Cloud directly. The dispatcher deliberately ignores direct `@codex fix` comments so it cannot duplicate or recursively dispatch them. Free-form prose is never an execution trigger.
+For an ordinary PR conversation comment, a trusted maintainer can use `/repair <40-char-sha> <instruction>` for the dispatcher or `@codex fix <instruction>` to address Codex Cloud directly. The SHA must be the current PR head at the time of posting; the dispatcher deliberately ignores bare, stale, and direct `@codex fix` comments so it cannot duplicate, replay, or recursively dispatch them. Free-form prose is never an execution trigger.
 
 ## Evaluator report format
 

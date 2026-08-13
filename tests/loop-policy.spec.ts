@@ -14,6 +14,8 @@ describe('decideNextAction', () => {
         head,
         linkedIssues: [7],
         trustedAuthor: true,
+        mergeable: 'MERGEABLE',
+        mergeStateStatus: 'CLEAN',
         checks: [
           {
             workflowName: 'CI',
@@ -84,6 +86,8 @@ describe('decideNextAction', () => {
         head: 'b'.repeat(40),
         linkedIssues: [7],
         trustedAuthor: true,
+        mergeable: 'MERGEABLE',
+        mergeStateStatus: 'CLEAN',
         checks: [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }],
       },
     });
@@ -101,6 +105,8 @@ describe('decideNextAction', () => {
         head,
         linkedIssues: [7],
         trustedAuthor: true,
+        mergeable: 'MERGEABLE',
+        mergeStateStatus: 'CLEAN',
         checks: [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }],
       },
       issueComments: [
@@ -130,6 +136,8 @@ describe('decideNextAction', () => {
         headCommittedAt: '2026-08-10T10:00:00Z',
         linkedIssues: [7],
         trustedAuthor: true,
+        mergeable: 'MERGEABLE',
+        mergeStateStatus: 'CLEAN',
         checks: [],
       },
     };
@@ -138,14 +146,14 @@ describe('decideNextAction', () => {
       issueComments: [
         {
           id: 333,
-          body: '/repair Try again.',
+          body: `/repair ${head} Try again.`,
           author_association: 'OWNER',
           created_at: '2026-08-10T10:10:00Z',
           html_url: 'https://github.com/acme/repo/pull/42#issuecomment-333',
         },
       ],
     });
-    expect(blocked).toEqual({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
+    expect(blocked).toMatchObject({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
   });
 
   it('recovers the dispatch ceiling from durable GitHub markers', () => {
@@ -159,7 +167,7 @@ describe('decideNextAction', () => {
     }));
     comments.push({
       id: 3,
-      body: '/repair one more',
+      body: `/repair ${head} one more`,
       author_association: 'OWNER',
       user: { login: 'maintainer' },
       created_at: '2026-08-10T10:11:00Z',
@@ -176,11 +184,13 @@ describe('decideNextAction', () => {
           headCommittedAt: '2026-08-10T10:00:00Z',
           linkedIssues: [7],
           trustedAuthor: true,
+          mergeable: 'MERGEABLE',
+          mergeStateStatus: 'CLEAN',
           checks: [],
         },
         issueComments: comments,
       })
-    ).toEqual({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
+    ).toMatchObject({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
   });
 
   it('does not let untrusted dispatcher markers exhaust the repair ceiling', () => {
@@ -203,13 +213,15 @@ describe('decideNextAction', () => {
         headCommittedAt: '2026-08-10T10:00:00Z',
         linkedIssues: [7],
         trustedAuthor: true,
+        mergeable: 'MERGEABLE',
+        mergeStateStatus: 'CLEAN',
         checks: [],
       },
       issueComments: [
         ...forgedMarkers,
         {
           id: 3,
-          body: '/repair handle the real signal',
+          body: `/repair ${head} handle the real signal`,
           author_association: 'OWNER',
           created_at: '2026-08-10T10:11:00Z',
         },
@@ -217,5 +229,84 @@ describe('decideNextAction', () => {
     });
 
     expect(action).toMatchObject({ type: 'dispatch', signal: { key: `repair-command:3:${head}` } });
+  });
+
+  it('never promotes a conflicting or dirty PR', () => {
+    const head = 'd'.repeat(40);
+    for (const [mergeable, mergeStateStatus] of [
+      ['CONFLICTING', 'CLEAN'],
+      ['MERGEABLE', 'DIRTY'],
+    ]) {
+      expect(
+        decideNextAction({
+          state: createLoopState(),
+          activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+          pr: {
+            number: 42,
+            head,
+            linkedIssues: [7],
+            trustedAuthor: true,
+            mergeable,
+            mergeStateStatus,
+            checks: [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }],
+          },
+          issueComments: [
+            {
+              user: { login: 'greptile-apps[bot]' },
+              body: `Confidence Score: 5/5\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
+            },
+          ],
+        })
+      ).toEqual({ type: 'idle', reason: 'awaiting-mergeable-clean-pr' });
+    }
+  });
+
+  it('requires a post-dispatch head before current-head green review can promote', () => {
+    const head = 'e'.repeat(40);
+    const state = createLoopState();
+    beginDispatch(state, { pr: 42, key: `ci-failure:1:${head}`, head, at: '2026-08-10T10:00:00Z' });
+    finishDispatch(state, { key: `ci-failure:1:${head}`, result: 'dispatched', at: '2026-08-10T10:01:00Z' });
+    expect(
+      decideNextAction({
+        state,
+        activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+        pr: {
+          number: 42,
+          head,
+          linkedIssues: [7],
+          trustedAuthor: true,
+          mergeable: 'MERGEABLE',
+          mergeStateStatus: 'CLEAN',
+          checks: [{ workflowName: 'CI', name: 'verify', status: 'COMPLETED', conclusion: 'SUCCESS' }],
+        },
+        issueComments: [
+          {
+            user: { login: 'greptile-apps[bot]' },
+            body: `Confidence Score: 5/5\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
+          },
+        ],
+      })
+    ).toEqual({ type: 'idle', reason: 'awaiting-updated-head' });
+  });
+
+  it('blocks rather than treating a rejected Codex connector request as a successful repair', () => {
+    const head = 'f'.repeat(40);
+    const state = createLoopState();
+    beginDispatch(state, { pr: 42, key: `ci-failure:1:${head}`, head, at: '2026-08-10T10:00:00Z' });
+    finishDispatch(state, { key: `ci-failure:1:${head}`, result: 'dispatched', at: '2026-08-10T10:00:01Z' });
+    expect(
+      decideNextAction({
+        state,
+        activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+        pr: { number: 42, head, linkedIssues: [7], trustedAuthor: true, mergeable: 'MERGEABLE', mergeStateStatus: 'CLEAN', checks: [] },
+        issueComments: [
+          {
+            created_at: '2026-08-10T10:00:02Z',
+            user: { login: 'chatgpt-codex-connector' },
+            body: 'To use Codex here, create a Codex account and connect to GitHub.',
+          },
+        ],
+      })
+    ).toMatchObject({ type: 'blocked', reason: 'codex-connector-rejected' });
   });
 });

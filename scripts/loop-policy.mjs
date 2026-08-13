@@ -1,5 +1,15 @@
-import { ciPassed, controllerDispatchKeys, independentReviewPassed, selectRepairSignal } from './loop-signals.mjs';
+import { ciPassed, connectorRejected, controllerDispatchKeys, independentReviewPassed, selectRepairSignal } from './loop-signals.mjs';
 import { canRepair, processedKeys } from './loop-state.mjs';
+
+function dispatchedHeads(state, pr, issueComments, controllerLogin) {
+  const stateHeads = Object.values(state.dispatches ?? {})
+    .filter((record) => record?.pr === pr && record?.result === 'dispatched')
+    .map((record) => record.head);
+  const markerHeads = [...controllerDispatchKeys(issueComments, controllerLogin)]
+    .map((key) => key.split(':').at(-1))
+    .filter((head) => /^[a-f0-9]{40}$/i.test(head));
+  return new Set([...stateHeads, ...markerHeads]);
+}
 
 function claimedIssue(pr, activeIssues) {
   if (activeIssues.length !== 1) return null;
@@ -26,6 +36,29 @@ export function decideNextAction({
   const issue = claimedIssue(pr, activeIssues);
   if (!issue) return { type: 'idle', reason: 'no-single-linked-work-item' };
   if (pr.trustedAuthor !== true) return { type: 'idle', reason: 'untrusted-pr-author' };
+  if (pr.mergeable !== 'MERGEABLE' || pr.mergeStateStatus !== 'CLEAN') return { type: 'idle', reason: 'awaiting-mergeable-clean-pr' };
+  if (connectorRejected({ issueComments, pr, state }))
+    return { type: 'blocked', reason: 'codex-connector-rejected', pr: pr.number, issue: issue.number, head: pr.head };
+
+  const attempts = controllerDispatchKeys(issueComments, controllerLogin).size;
+  const rawSignal = selectRepairSignal({
+    pr,
+    issueComments,
+    reviews,
+    reviewComments,
+    controllerLogin,
+    ignoreDeduplication: true,
+  });
+  if (rawSignal && !canRepair(state, pr.number, attempts)) {
+    return {
+      type: 'blocked',
+      reason: 'repair-attempt-limit',
+      pr: pr.number,
+      issue: issue.number,
+      head: pr.head,
+      attempts: Math.max(Number(state.attemptsByPr?.[pr.number] ?? 0), attempts),
+    };
+  }
 
   const signal = selectRepairSignal({
     pr,
@@ -36,14 +69,25 @@ export function decideNextAction({
     controllerLogin,
   });
   if (!signal && ciPassed(pr.checks)) {
+    if (dispatchedHeads(state, pr.number, issueComments, controllerLogin).has(pr.head)) {
+      return { type: 'idle', reason: 'awaiting-updated-head' };
+    }
     if (independentReviewPassed({ pr, reviews, issueComments })) {
       return { type: 'ready', pr: pr.number, issue: issue.number, head: pr.head };
     }
     return { type: 'idle', reason: 'awaiting-independent-review' };
   }
   if (!signal) return { type: 'idle', reason: 'no-pending-signal' };
-  if (!canRepair(state, pr.number, controllerDispatchKeys(issueComments, controllerLogin).size)) {
-    return { type: 'blocked', reason: 'repair-attempt-limit', pr: pr.number, issue: issue.number };
+  if (!canRepair(state, pr.number, attempts)) {
+    return {
+      type: 'blocked',
+      reason: 'repair-attempt-limit',
+      pr: pr.number,
+      issue: issue.number,
+      head: pr.head,
+      attempts: Math.max(Number(state.attemptsByPr?.[pr.number] ?? 0), attempts),
+      signal,
+    };
   }
   return { type: 'dispatch', pr: pr.number, issue: issue.number, head: pr.head, signal };
 }

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 import { decideNextAction } from './loop-policy.mjs';
+import { TRUSTED_ASSOCIATIONS } from './loop-signals.mjs';
 import { appendRunSummary } from './loop-run-summary.mjs';
 import { beginDispatch, finishDispatch, readLoopState, writeLoopState } from './loop-state.mjs';
 
@@ -19,17 +20,20 @@ const LOCK_DIR = join(AUTOMATION_ROOT, 'controller-v3.lock');
 const PATH = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
 const LOCK_MAX_AGE_MS = 10 * 60 * 1000;
 const HEALTH_MAX_AGE_MS = 15 * 60 * 1000;
-const TRUSTED_PR_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+const GH_TIMEOUT_MS = 20 * 1000;
 
 mkdirSync(AUTOMATION_ROOT, { recursive: true });
 
 const nowIso = () => new Date().toISOString();
-const gh = (args) =>
-  execFileSync('/opt/homebrew/bin/gh', args, {
+const gh = (args) => {
+  if (existsSync(LOCK_DIR)) utimesSync(LOCK_DIR, new Date(), new Date());
+  return execFileSync('/opt/homebrew/bin/gh', args, {
     encoding: 'utf8',
     env: { ...process.env, PATH },
     maxBuffer: 32 * 1024 * 1024,
+    timeout: GH_TIMEOUT_MS,
   }).trim();
+};
 
 function writeHeartbeat(status, details = {}) {
   writeFileSync(HEARTBEAT_PATH, `${JSON.stringify({ version: 3, status, at: nowIso(), ...details }, null, 2)}\n`, {
@@ -41,23 +45,45 @@ function health() {
   if (!existsSync(HEARTBEAT_PATH)) return { status: 'missing' };
   const heartbeat = JSON.parse(readFileSync(HEARTBEAT_PATH, 'utf8'));
   const ageMs = Date.now() - new Date(heartbeat.at).getTime();
+  if (heartbeat.status === 'failed') return { status: 'failed', ageMs, heartbeat };
   return { status: ageMs <= HEALTH_MAX_AGE_MS ? 'healthy' : 'stale', ageMs, heartbeat };
 }
 
 function acquireLock() {
+  const owner = `${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   try {
     mkdirSync(LOCK_DIR);
-    return true;
+    writeFileSync(join(LOCK_DIR, 'owner'), owner, { mode: 0o600, flag: 'wx' });
+    return owner;
   } catch (error) {
     if (error?.code !== 'EEXIST') throw error;
     if (Date.now() - statSync(LOCK_DIR).mtimeMs <= LOCK_MAX_AGE_MS) return false;
-    rmSync(LOCK_DIR, { recursive: true, force: true });
-    mkdirSync(LOCK_DIR);
-    return true;
+    // Atomically move the stale lock away. Never recursively remove the path:
+    // a recovering controller must not delete a lock acquired by a peer.
+    try {
+      renameSync(LOCK_DIR, `${LOCK_DIR}.stale-${owner}`);
+    } catch (recoveryError) {
+      if (recoveryError?.code === 'ENOENT' || recoveryError?.code === 'EEXIST') return false;
+      throw recoveryError;
+    }
+    try {
+      mkdirSync(LOCK_DIR);
+      writeFileSync(join(LOCK_DIR, 'owner'), owner, { mode: 0o600, flag: 'wx' });
+      return owner;
+    } catch (recoveryError) {
+      if (recoveryError?.code === 'EEXIST') return false;
+      throw recoveryError;
+    }
   }
 }
 
-const releaseLock = () => rmSync(LOCK_DIR, { recursive: true, force: true });
+const releaseLock = (owner) => {
+  try {
+    if (readFileSync(join(LOCK_DIR, 'owner'), 'utf8') === owner) rmSync(LOCK_DIR, { recursive: true, force: true });
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+};
 const paginated = (endpoint) => JSON.parse(gh(['api', '--paginate', '--slurp', endpoint])).flat();
 
 function activeIssues() {
@@ -75,6 +101,8 @@ function linkedPull(issueNumber) {
       'open',
       '--json',
       'number,headRefName,headRefOid,closingIssuesReferences,isCrossRepository',
+      '--limit',
+      '1000',
     ])
   );
   return pulls.find((pr) => !pr.isCrossRepository && pr.closingIssuesReferences.some((issue) => issue.number === issueNumber));
@@ -89,7 +117,7 @@ function pullContext(prNumber) {
       '--repo',
       REPO,
       '--json',
-      'number,headRefName,headRefOid,statusCheckRollup,closingIssuesReferences,commits',
+      'number,headRefName,headRefOid,statusCheckRollup,closingIssuesReferences,commits,mergeable,mergeStateStatus',
     ])
   );
   const metadata = JSON.parse(gh(['api', `repos/${REPO}/pulls/${prNumber}`]));
@@ -100,8 +128,10 @@ function pullContext(prNumber) {
     headCommittedAt: state.commits.at(-1)?.committedDate,
     linkedIssues: state.closingIssuesReferences.map((issue) => issue.number),
     checks: state.statusCheckRollup,
+    mergeable: state.mergeable,
+    mergeStateStatus: state.mergeStateStatus,
     trustedAuthor:
-      TRUSTED_PR_ASSOCIATIONS.has(metadata.author_association) && metadata.head?.repo?.full_name?.toLowerCase() === REPO.toLowerCase(),
+      TRUSTED_ASSOCIATIONS.has(metadata.author_association) && metadata.head?.repo?.full_name?.toLowerCase() === REPO.toLowerCase(),
   };
 }
 
@@ -165,7 +195,9 @@ function dispatchRepair({ action, pr, state }) {
   let result = 'failed';
   let commentUrl = null;
   try {
-    commentUrl = postDispatch(pr.number, dispatchBody({ action, pr }));
+    const body = dispatchBody({ action, pr });
+    if (!revalidateHead(action, pr)) return false;
+    commentUrl = postDispatch(pr.number, body);
     result = 'dispatched';
     return true;
   } finally {
@@ -187,8 +219,33 @@ function dispatchRepair({ action, pr, state }) {
   }
 }
 
-function blockIssue(issue) {
-  gh(['issue', 'edit', String(issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'blocked']);
+function blockIssue(action, state) {
+  const attempts = Math.max(Number(action.attempts ?? 0), Number(state.attemptsByPr?.[action.pr] ?? 0), 0);
+  const reason =
+    action.reason === 'codex-connector-rejected'
+      ? 'Codex Cloud rejected the hosted repair request because its GitHub connector is not connected. Reconnect the connector in Codex settings, then remove `blocked` and restore the appropriate workflow label before retrying.'
+      : `The repair-attempt limit (${attempts}) was reached. Review the posted repair requests and their source evidence, decide whether to provide a new exact-head \`/repair <40-char-sha> <instruction>\` command or fix the branch manually, then remove \`blocked\` and restore the appropriate workflow label.`;
+  const pending = action.signal
+    ? ` Pending source: ${action.signal.key} (${action.signal.sourceUrl}); observed head: \`${action.head}\`.`
+    : ` Observed head: \`${action.head}\`.`;
+  if (!revalidateHead(action, { head: action.head })) return false;
+  gh([
+    'issue',
+    'comment',
+    String(action.issue),
+    '--repo',
+    REPO,
+    '--body',
+    `The linked PR remains blocked for human attention. ${reason}${pending}`,
+  ]);
+  if (!revalidateHead(action, { head: action.head })) return false;
+  gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'blocked']);
+  return true;
+}
+
+function revalidateHead(action, observedPr) {
+  const current = pullContext(action.pr);
+  return current.head === observedPr.head && current.mergeable === 'MERGEABLE' && current.mergeStateStatus === 'CLEAN';
 }
 
 function loadDecision() {
@@ -205,11 +262,13 @@ function loadDecision() {
 
 function main() {
   const { action, pr, state } = loadDecision();
+  if (action.type === 'idle') return action;
+  if (!revalidateHead(action, pr)) return { type: 'idle', reason: 'head-or-mergeability-changed' };
   if (action.type === 'dispatch') dispatchRepair({ action, pr, state });
   if (action.type === 'ready') {
     gh(['issue', 'edit', String(action.issue), '--repo', REPO, '--remove-label', 'in-progress', '--add-label', 'ready-for-human']);
   }
-  if (action.type === 'blocked') blockIssue(action.issue);
+  if (action.type === 'blocked') blockIssue(action, state);
   return action;
 }
 
@@ -224,7 +283,8 @@ if (process.argv.includes('--inspect')) {
   process.exit(0);
 }
 
-if (!acquireLock()) process.exit(0);
+const lockOwner = acquireLock();
+if (!lockOwner) process.exit(0);
 try {
   writeHeartbeat('running');
   const action = main();
@@ -234,5 +294,5 @@ try {
   writeHeartbeat('failed', { error: error instanceof Error ? error.message : String(error) });
   throw error;
 } finally {
-  releaseLock();
+  releaseLock(lockOwner);
 }
