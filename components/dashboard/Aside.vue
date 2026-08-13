@@ -210,7 +210,7 @@ const navDOM = ref<HTMLElement>();
 const showTopNavLayer = ref(false);
 const showBottomNavLayer = ref(false);
 
-const nav = ref([
+const nav = ref<NavItem[]>([
   {
     label: 'Dashboard',
     to: '/dashboard',

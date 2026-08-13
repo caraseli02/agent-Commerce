@@ -204,6 +204,7 @@ export default defineNuxtConfig({
   },
 
   svgo: {
+    dts: true,
     svgo: true,
     defaultImport: 'component',
     svgoConfig: {

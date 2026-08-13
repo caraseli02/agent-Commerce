@@ -2,18 +2,17 @@
 
 ## Current focus
 
-- **Blocked:** `#461` Nuxt 4 application/module upgrade on `feat/461-nuxt4-upgrade`.
+- Epic #457: **#461** Nuxt 4 verification remediation is the only active issue on `codex/461-nuxt4-verified-remediation`.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
 
 ## In progress
 
-- No active implementation issue. `#461` is blocked after the Nuxt 4 build passed but `pnpm typecheck` exposed a cross-surface legacy typing backlog; see the issue blocker comment for the exact errors.
-- Agent queue (`ready-for-agent`):
-  - **P0** `#426`, `#427`
-  - **P1** `#431`, `#432`
-  - **P2** `#433`, then Security `#105`/`#106`/`#107`/`#108`/`#110`/`#112`/`#114`, SEO `#186`→`#189`→`#187`→`#188`→`#190`
+- **#461** — PR #487 merged prematurely with failed CI and no independent evaluator PASS. The issue was reopened, stale `blocked` label removed, and a focused remediation branch created from `origin/main` (`bf293e01d1430f712835b08862638502c6815671`).
+- Verification: `pnpm verify` and `pnpm verify:full` pass, including a mock-mode production-preview smoke of `/`, `/cart`, and `/checkout` (all HTTP 200). `pnpm typecheck` now passes after Nuxt-module typing remediation.
+- PR #488's template evidence now names `pnpm build`, `pnpm lint`, and `pnpm test` explicitly. The first Actions rerun retained the original pull-request event payload, so this documentation commit triggers a fresh event for the corrected body.
+- Blocker requiring an explicit epic decision: `pnpm exec nuxt --version` prints the bundled Nuxt CLI version (`3.37.0`) although the resolved framework package is `nuxt@4.5.2`. This command cannot prove the framework major under Nuxt's current CLI packaging; the corrective PR will document the exact replacement evidence (`node -p "require('./node_modules/nuxt/package.json').version"` → `4.5.2`) and await approval before evaluator PASS.
 
 ## Human decisions pending
 

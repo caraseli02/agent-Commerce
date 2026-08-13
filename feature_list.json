@@ -3,10 +3,24 @@
   "purpose": "Machine-readable feature list for the Components Marketplace harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
+    {
+      "id": "E457-461",
+      "description": "Restore a fully verified Nuxt 4 migration after merged PR #487 failed CI without evaluator approval",
+      "validation": "Nuxt 4 resolves; configured integrations typecheck and build without disabled-module workarounds; pnpm verify plus mock-mode production preview evidence pass",
+      "status": "active",
+      "evidence": [
+        "#461 reopened with in-progress label and remediation sprint contract",
+        "pnpm install --frozen-lockfile --ignore-workspace: pass",
+        "pnpm typecheck: pass on codex/461-nuxt4-verified-remediation",
+        "pnpm verify: pass (62 files / 276 tests)",
+        "pnpm verify:full: pass; production preview smoke /, /cart, /checkout all HTTP 200",
+        "Nuxt framework package: node -p require('./node_modules/nuxt/package.json').version -> 4.5.2; pnpm exec nuxt --version reports bundled CLI 3.37.0 and needs approved epic-criterion correction"
+      ]
+    },
     {
       "id": "C368",
       "description": "Cart stock clamp, volume tiers, mixed-line quantity integrity, cart-fetch gating, and P2 storefront QA (#368 / PR #364)",
