@@ -547,7 +547,7 @@ export const getOrderWidgetTotal = (type?: string) => {
       return orders.reduce(
         (sum, order) =>
           sum + (order.products || []).reduce((itemsSum: number, item: DemoOrderProduct) => itemsSum + Number(item.stock || 0), 0),
-        0
+        0,
       );
     case 'returns':
       return 9;

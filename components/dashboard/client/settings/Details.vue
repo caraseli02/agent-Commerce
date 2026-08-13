@@ -23,7 +23,7 @@ const hasUserDetails = computed(() => Boolean(getUserDetails.value));
 const accountType = computed(() => getUserDetails.value?.accountType ?? AccountType.Business);
 const isPersonalAccount = computed(() => accountType.value === AccountType.Personal);
 const activeAddress = computed(() =>
-  isPersonalAccount.value ? getUserDetails.value?.personalDetails?.address : getUserDetails.value?.companyDetails?.address
+  isPersonalAccount.value ? getUserDetails.value?.personalDetails?.address : getUserDetails.value?.companyDetails?.address,
 );
 
 interface Country {
@@ -149,7 +149,7 @@ const formSchema = toTypedSchema(
       })
       .min(1)
       .default(getUserDetails.value?.personalDetails?.lastName || ''),
-  })
+  }),
 );
 
 const formBusinessSchema = toTypedSchema(
@@ -195,7 +195,7 @@ const formBusinessSchema = toTypedSchema(
       .default(getUserDetails.value?.companyDetails?.bank_iban || '')
       .transform((e: string) => (e === '' ? undefined : e))
       .optional(),
-  })
+  }),
 );
 
 const { handleSubmit, setFieldValue, meta } = useForm({

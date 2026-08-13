@@ -81,7 +81,7 @@ export const handleDeleteAddress = async (
   event: Parameters<typeof getRouterParam>[0],
   kind: AddressKind,
   addressId?: string | null,
-  targetUserId?: string | null
+  targetUserId?: string | null,
 ) => {
   const customerId = requireAddressActor(event, targetUserId);
   const deleted = deleteRuntimeAddress(customerId, kind, addressId);

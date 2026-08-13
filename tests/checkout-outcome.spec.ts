@@ -69,7 +69,7 @@ describe('resolveCheckoutOutcome', () => {
       }),
       'ord-6',
       PaymentTypeEnum.Card,
-      { mockMode: false }
+      { mockMode: false },
     );
 
     expect(outcome).toEqual({ kind: 'redirect', url: 'https://stripe.test/redirect' });

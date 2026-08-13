@@ -22,7 +22,7 @@ const props = defineProps<{
 
 const isCardInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.Card && (props.paymentMethod.info as CardInfo).provider);
 const isCreditInfo = computed(
-  () => props.paymentMethod.type === PaymentTypeEnum.Credit && (props.paymentMethod.info as CustomerCreditInterface).limit
+  () => props.paymentMethod.type === PaymentTypeEnum.Credit && (props.paymentMethod.info as CustomerCreditInterface).limit,
 );
 const isBankInfo = computed(() => props.paymentMethod.type === PaymentTypeEnum.Bank && (props.paymentMethod.info as BankInfo).text);
 </script>

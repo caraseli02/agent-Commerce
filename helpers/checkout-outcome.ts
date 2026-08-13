@@ -25,7 +25,7 @@ export function resolveCheckoutOutcome(
   response: PlaceOrderInterface,
   orderId: string,
   paymentType: PaymentTypeEnum,
-  options: { mockMode: boolean }
+  options: { mockMode: boolean },
 ): CheckoutOutcome {
   if (!isValidOrderId(orderId)) {
     return {

@@ -34,9 +34,9 @@
             alt="Img"
             class="absolute bottom-8 left-1/2 -translate-x-1/2 w-[205px] object-contain md:w-[200px] md:left-[unset] md:translate-x-0 md:right-10 lg:w-[165px] lg:right-1/2 lg:translate-x-1/2 lg:top-5"
             loading="lazy"
-          >
+          />
         </div>
-        <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" >
+        <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
         <div
           class="absolute z-10 top-0 left-0 w-full h-full opacity-75 rounded-md pointer-events-none"
           :style="{

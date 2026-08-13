@@ -47,7 +47,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       :class="
         cn(
           'fixed inset-0 z-50 bg-[rgba(47,50,65,0.10)] backdrop-blur-[7.5px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-          props.overlayClassName
+          props.overlayClassName,
         )
       "
     />

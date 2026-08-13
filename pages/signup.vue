@@ -179,7 +179,7 @@ const handleContactDetailsContinue = () => {
       contactDetails.value.firstName,
       contactDetails.value.lastName,
       contactDetails.value.companyEmail,
-      contactDetails.value.confirmCompanyEmail
+      contactDetails.value.confirmCompanyEmail,
     );
   }
 

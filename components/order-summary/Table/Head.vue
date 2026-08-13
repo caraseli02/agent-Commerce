@@ -44,7 +44,7 @@ const cartStore = useCartStore();
 const products = computed(() => cartStore.cart?.products ?? []);
 
 const selectedProductIds = computed(() =>
-  products.value.filter((product: CartProductsInterface) => product.selected).map((product) => product.id)
+  products.value.filter((product: CartProductsInterface) => product.selected).map((product) => product.id),
 );
 
 const selectedItems = computed(() => selectedProductIds.value.length);

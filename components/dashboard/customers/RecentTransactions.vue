@@ -40,8 +40,8 @@
                   transaction.status === 'success'
                     ? 'text-[#00D395]'
                     : transaction.status === 'declined'
-                    ? 'text-rose-500'
-                    : 'text-[#FF8A00]',
+                      ? 'text-rose-500'
+                      : 'text-[#FF8A00]',
                 ]"
                 >{{ transaction.status }}</span
               >

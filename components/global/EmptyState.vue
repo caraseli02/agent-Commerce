@@ -79,7 +79,7 @@ const props = withDefaults(
     variant: 'empty',
     headingId: undefined,
     compact: false,
-  }
+  },
 );
 
 const generatedHeadingId = useId();

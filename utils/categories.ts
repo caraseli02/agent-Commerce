@@ -119,11 +119,11 @@ export const apiRequest = async (url: string, method: IMethod, token: string, bo
       error instanceof Error
         ? error.message
         : typeof error === 'object' &&
-          error !== null &&
-          'description' in error &&
-          typeof (error as { description?: unknown }).description === 'string'
-        ? (error as { description: string }).description
-        : 'An error occurred during the request.';
+            error !== null &&
+            'description' in error &&
+            typeof (error as { description?: unknown }).description === 'string'
+          ? (error as { description: string }).description
+          : 'An error occurred during the request.';
     toast({
       title: 'Error',
       description,

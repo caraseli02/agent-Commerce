@@ -205,7 +205,7 @@ watch(
   async () => {
     await fetchCart();
   },
-  { deep: true }
+  { deep: true },
 );
 
 const getPricesConfiguration = () => {

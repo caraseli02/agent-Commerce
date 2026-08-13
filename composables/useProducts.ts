@@ -15,7 +15,7 @@ export function useProducts() {
     perPage = 10,
     sort: Record<string, unknown> = {},
     additionalfilters: Record<string, unknown> = {},
-    featuresFilters: ProductParametricDataFeaturesInterface[] = []
+    featuresFilters: ProductParametricDataFeaturesInterface[] = [],
   ) => {
     return await fetchSearchProduct(keyword, category, page, perPage, sort, additionalfilters, featuresFilters);
   };
@@ -24,7 +24,7 @@ export function useProducts() {
     keyword: string,
     category: string | null,
     page = 1,
-    perPage = 10
+    perPage = 10,
   ): Promise<{ items: ProductInterface[]; searchData: SearchData } | null> => {
     const response = await searchProducts(keyword, category, page, perPage);
     const data = response.data;
@@ -57,7 +57,7 @@ export function useProducts() {
   const loadSimilarProductsByFeatures = async (
     features: ProductParametricDataFeaturesInterface[],
     page = 1,
-    perPage = 10
+    perPage = 10,
   ): Promise<SearchData | undefined> => {
     const response = await searchProducts('', null, page, perPage, {}, {}, features);
     return response.data;

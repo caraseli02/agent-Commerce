@@ -160,7 +160,7 @@ const resolveMerchandiseSubtotal = (products: OrderProductLike[] = []) => {
         const itemSubtotal = Number(item.subtotal || Number(item.unitPriceAfterDiscounts || 0) * Number(item.stock || 0));
         return sum + itemSubtotal;
       }, 0)
-      .toFixed(2)
+      .toFixed(2),
   );
 };
 

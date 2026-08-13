@@ -41,7 +41,7 @@ async function collectSourceFiles(dir: string): Promise<string[]> {
       }
 
       return /\.(ts|vue)$/.test(entry.name) ? [path] : [];
-    })
+    }),
   );
 
   return files.flat();

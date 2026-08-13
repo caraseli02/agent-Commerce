@@ -20,7 +20,7 @@ const props = withDefaults(
   }>(),
   {
     label: '',
-  }
+  },
 );
 const { toast } = useToast();
 const defaultIcon = ref(CopyIcon);

@@ -152,7 +152,7 @@ const addToCart = async (product: ProductBannerInterface) => {
       _id: product._id,
       stock: availableStock,
     } as ProductInterface,
-    stock
+    stock,
   )) as { status?: string; changed?: boolean } | null;
 
   if (response?.status !== 'success' || response.changed === false) {

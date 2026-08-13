@@ -465,7 +465,7 @@ describe('order confirmation module', () => {
       expect.objectContaining({
         title: 'Error',
         description: 'Invoice is not available for the moment',
-      })
+      }),
     );
   });
 });

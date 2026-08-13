@@ -56,7 +56,7 @@ async function loadCategoryLabels() {
   await getCategories();
   categoryLabels.value = buildSlugPathCrumbs(
     resolveCategoryPath(category.value),
-    (path) => findCategoryByPath(path, categories.value)?.name
+    (path) => findCategoryByPath(path, categories.value)?.name,
   );
 }
 

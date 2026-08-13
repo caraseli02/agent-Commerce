@@ -150,13 +150,13 @@ async function main() {
 
   if (violations.length > 0) {
     console.error(
-      'UI conventions failed: modal and layout modal surfaces must use shadcn primitives (UiButton, UiInput, UiDialog) instead of native <button> or <input>.'
+      'UI conventions failed: modal and layout modal surfaces must use shadcn primitives (UiButton, UiInput, UiDialog) instead of native <button> or <input>.',
     );
     console.error(
-      'Why it matters: new modal work should follow the design system so accessibility, theming, and dialog behavior stay consistent.'
+      'Why it matters: new modal work should follow the design system so accessibility, theming, and dialog behavior stay consistent.',
     );
     console.error(
-      'Where to look next: replace native elements with UiButton/UiInput/UiDialog, or add the file to scripts/verify-ui-conventions.mjs only when it is an approved legacy exception tracked by an open migration issue.'
+      'Where to look next: replace native elements with UiButton/UiInput/UiDialog, or add the file to scripts/verify-ui-conventions.mjs only when it is an approved legacy exception tracked by an open migration issue.',
     );
 
     for (const violation of violations) {
@@ -167,7 +167,7 @@ async function main() {
   }
 
   console.log(
-    `UI conventions OK: scanned ${scopedCount} scoped modal file(s); ${grandfatheredCount} legacy file(s) grandfathered; no new native <button>/<input> violations.`
+    `UI conventions OK: scanned ${scopedCount} scoped modal file(s); ${grandfatheredCount} legacy file(s) grandfathered; no new native <button>/<input> violations.`,
   );
 }
 

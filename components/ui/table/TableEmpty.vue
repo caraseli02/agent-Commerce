@@ -12,7 +12,7 @@ const props = withDefaults(
   {
     class: undefined,
     colspan: 1,
-  }
+  },
 );
 
 const delegatedProps = computed(() => {

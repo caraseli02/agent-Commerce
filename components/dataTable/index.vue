@@ -71,9 +71,9 @@ watch(
       rightIndex,
       pageSize,
       transformFiltersToObject(table.getState().columnFilters),
-      transformSortingKeys(table.getState().sorting[0])
+      transformSortingKeys(table.getState().sorting[0]),
     );
-  }
+  },
 );
 
 const refresh = ref(false);
@@ -85,7 +85,7 @@ watch(refresh, async () => {
     rightIndex,
     pageSize,
     transformFiltersToObject(table.getState().columnFilters),
-    transformSortingKeys(table.getState().sorting[0])
+    transformSortingKeys(table.getState().sorting[0]),
   );
   setTimeout(() => {
     refresh.value = false;
@@ -99,7 +99,7 @@ watchDebounced(
     table.setPageIndex(0);
     props.fetchFn(1, pageSize, transformFiltersToObject(table.getState().columnFilters), transformSortingKeys(table.getState().sorting[0]));
   },
-  { debounce: 500, maxWait: 1000 }
+  { debounce: 500, maxWait: 1000 },
 );
 
 // watch(

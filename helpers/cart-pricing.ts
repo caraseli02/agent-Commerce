@@ -52,7 +52,7 @@ export type ClampCartQuantityResult = {
 export const clampCartQuantity = (
   product: ProductWithPricing,
   requestedStock: number,
-  options: ClampCartQuantityOptions = {}
+  options: ClampCartQuantityOptions = {},
 ): ClampCartQuantityResult => {
   const requested = Math.max(0, Number(requestedStock) || 0);
 

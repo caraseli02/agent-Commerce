@@ -4,7 +4,7 @@ import type { UserInterface } from '~/types/auth/user-interface';
 export const paymentInfoHelper = (
   order: OrderInterface,
   userDetails: UserInterface,
-  _userCards: StripeCardInterface[]
+  _userCards: StripeCardInterface[],
 ): PaymentInfo | null => {
   const creditInfo = userDetails.adminSettings?.customerCredit;
 

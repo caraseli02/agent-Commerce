@@ -13,16 +13,13 @@ const PRECOMPUTED_PATHS = [
 const hasBuildOutput = existsSync(OUTPUT_DIR) && PRECOMPUTED_PATHS.some((candidate) => existsSync(candidate));
 
 describe('bundle size guardrails', () => {
-  it.skipIf(!hasBuildOutput)(
-    'keeps dashboard chart/map chunks out of storefront route graphs after build',
-    () => {
-      const output = execSync('node scripts/check-bundle-size.mjs', {
-        cwd: ROOT,
-        encoding: 'utf8',
-        env: process.env,
-      });
+  it.skipIf(!hasBuildOutput)('keeps dashboard chart/map chunks out of storefront route graphs after build', () => {
+    const output = execSync('node scripts/check-bundle-size.mjs', {
+      cwd: ROOT,
+      encoding: 'utf8',
+      env: process.env,
+    });
 
-      expect(output).toContain('Bundle size check passed');
-    }
-  );
+    expect(output).toContain('Bundle size check passed');
+  });
 });

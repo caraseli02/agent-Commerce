@@ -11,7 +11,7 @@ describe('useCartBadgeMotion', () => {
         matches: false,
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
-      })
+      }),
     );
     vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
       cb(0);
@@ -26,7 +26,7 @@ describe('useCartBadgeMotion', () => {
       {
         products: [{ id: 'a', stock: 1 }],
       } as CartInterface,
-      { animate: false }
+      { animate: false },
     );
     expect(isPulsing.value).toBe(false);
 
@@ -60,7 +60,7 @@ describe('useCartBadgeMotion', () => {
           { id: 'b', stock: 1 },
         ],
       } as CartInterface,
-      { animate: false }
+      { animate: false },
     );
 
     syncFromCart({

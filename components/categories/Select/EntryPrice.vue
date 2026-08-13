@@ -22,7 +22,7 @@ const props = withDefaults(
   }>(),
   {
     entryPrice: '',
-  }
+  },
 );
 
 const open = ref(false);

@@ -25,7 +25,7 @@ const features = reactive<ProductParametricDataFeaturesInterface[]>(
   props.features?.map((item) => {
     item.checked = false;
     return item;
-  })
+  }),
 );
 
 const totalSimilarProducts = ref<number>(0);
@@ -168,7 +168,7 @@ onMounted(() => {
                   type="checkbox"
                   class="peer sr-only"
                   :aria-label="`Include ${item.FeatureName} in similar-product search`"
-                >
+                />
                 <span
                   class="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-border transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 group-hover:border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500"
                   aria-hidden="true"

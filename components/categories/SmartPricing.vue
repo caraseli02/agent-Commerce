@@ -13,7 +13,7 @@ const props = withDefaults(
     quantity: '',
     margin: '',
     enabled: false,
-  }
+  },
 );
 
 const emit = defineEmits<{
@@ -46,7 +46,7 @@ watch(
     }
     emit('update:enabled', value);
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

@@ -231,7 +231,7 @@ async function checkStorefrontRouteBudgets(graph, precomputedSource) {
 
     if (gzipBytes > STOREFRONT_ROUTE_GZIP_LIMIT_BYTES) {
       violations.push(
-        `${routeKey} reaches ${formatKilobytes(gzipBytes)} gzip (limit ${formatKilobytes(STOREFRONT_ROUTE_GZIP_LIMIT_BYTES)})`
+        `${routeKey} reaches ${formatKilobytes(gzipBytes)} gzip (limit ${formatKilobytes(STOREFRONT_ROUTE_GZIP_LIMIT_BYTES)})`,
       );
     }
   }
@@ -253,7 +253,7 @@ async function main() {
 
   const dashboardChunks = [...classifiedChunks.values()].filter((chunk) => chunk.markers.length > 0);
   console.log(
-    `Bundle size check: scanned ${chunkFiles.length} client chunk(s); dashboard-only markers found in ${dashboardChunks.length} chunk(s).`
+    `Bundle size check: scanned ${chunkFiles.length} client chunk(s); dashboard-only markers found in ${dashboardChunks.length} chunk(s).`,
   );
 
   for (const chunk of dashboardChunks) {
@@ -274,7 +274,7 @@ async function main() {
   }
 
   console.log(
-    'Bundle size check passed: dashboard chart/map chunks stay isolated and within configured limits; storefront route gzip budgets passed.'
+    'Bundle size check passed: dashboard chart/map chunks stay isolated and within configured limits; storefront route gzip budgets passed.',
   );
 }
 

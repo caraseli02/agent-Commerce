@@ -59,7 +59,7 @@ export const initializeQuantities = (
   data: CartInterface | null | undefined,
   quantity: Ref<number>,
   initialRequestedQuantity: Ref<number>,
-  _minPriceConfiguration: PriceConfigurationSettingsInterface
+  _minPriceConfiguration: PriceConfigurationSettingsInterface,
 ) => {
   if (!data?.products?.length) {
     // Empty cart must clear any prior baseline so PDP shows enabled "Add to cart".
@@ -93,7 +93,7 @@ const showStockClampToast = async (maxStock: number, adjustedStock: number) => {
 export const addToCartHelper = async (
   product: ProductInterface,
   stock: number,
-  options?: { currentCartQuantity?: number; isDelta?: boolean }
+  options?: { currentCartQuantity?: number; isDelta?: boolean },
 ) => {
   const currentCartQuantity = Math.max(0, Number(options?.currentCartQuantity ?? 0));
   const incomingDelta = Number(stock) || 0;

@@ -32,9 +32,15 @@ describe('guest cart isolation', () => {
   });
 
   it('keeps guest carts isolated by cookie and migrates the matching cart on login', async () => {
-    const { default: cartGetHandler } = (await import('../server/api/cart.get')) as { default: (event: unknown) => Promise<{ data: { _id: string; products: Array<{ id: string }> } }> };
-    const { default: cartPostHandler } = (await import('../server/api/cart.post')) as { default: (event: unknown) => Promise<{ data: { _id: string; products: Array<{ id: string }> } }> };
-    const { default: loginHandler } = (await import('../server/api/auth/login.post')) as { default: (event: unknown) => Promise<{ token: string; data: { token: string } }> };
+    const { default: cartGetHandler } = (await import('../server/api/cart.get')) as {
+      default: (event: unknown) => Promise<{ data: { _id: string; products: Array<{ id: string }> } }>;
+    };
+    const { default: cartPostHandler } = (await import('../server/api/cart.post')) as {
+      default: (event: unknown) => Promise<{ data: { _id: string; products: Array<{ id: string }> } }>;
+    };
+    const { default: loginHandler } = (await import('../server/api/auth/login.post')) as {
+      default: (event: unknown) => Promise<{ token: string; data: { token: string } }>;
+    };
 
     const guestOne = createEvent();
     const guestTwo = createEvent();

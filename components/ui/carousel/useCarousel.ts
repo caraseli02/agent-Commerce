@@ -10,7 +10,7 @@ const [useProvideCarousel, useInjectCarousel] = createInjectionState(
         ...opts,
         axis: orientation === 'horizontal' ? 'x' : 'y',
       },
-      plugins
+      plugins,
     );
 
     function scrollPrev() {
@@ -39,7 +39,7 @@ const [useProvideCarousel, useInjectCarousel] = createInjectionState(
     });
 
     return { carouselRef: emblaNode, carouselApi: emblaApi, canScrollPrev, canScrollNext, scrollPrev, scrollNext, orientation };
-  }
+  },
 );
 
 function useCarousel() {

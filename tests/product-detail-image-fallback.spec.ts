@@ -64,7 +64,7 @@ describe('product detail image fallback', () => {
     const ast = baseParse(descriptor.template!.content);
     const root = collectElements(ast, 'div')[0];
     const fallbackSurface = collectElements(ast, 'div').find(
-      (el) => getStaticAttrValue(el, 'role') === 'img' && (getStaticAttrValue(el, 'class') || '').includes('absolute inset-0')
+      (el) => getStaticAttrValue(el, 'role') === 'img' && (getStaticAttrValue(el, 'class') || '').includes('absolute inset-0'),
     );
     const packageIcon = collectElements(ast, 'Package')[0];
 

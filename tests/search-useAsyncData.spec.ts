@@ -36,7 +36,7 @@ describe('search useAsyncData contract', () => {
   it('builds deterministic cache keys from search query values', () => {
     expect(searchResultsCacheKey(baseQuery)).toBe('search-results::capacitor::audio::1::10::manufacturerCode::asc::{"inStock":true}::[]');
     expect(searchResultsCacheKey({ ...baseQuery, keyword: ' resistor ' })).toBe(
-      searchResultsCacheKey({ ...baseQuery, keyword: 'resistor' })
+      searchResultsCacheKey({ ...baseQuery, keyword: 'resistor' }),
     );
   });
 
@@ -68,7 +68,7 @@ describe('search useAsyncData contract', () => {
 
     await expect(loadSearchResults({ ...baseQuery, keyword: ' resistor ' }, fetchSearch)).resolves.toEqual(searchData);
     await expect(loadSearchResults({ ...baseQuery, keyword: ' resistor ' }, fetchSearch)).resolves.toEqual(
-      await loadSearchResults({ ...baseQuery, keyword: 'resistor' }, fetchSearch)
+      await loadSearchResults({ ...baseQuery, keyword: 'resistor' }, fetchSearch),
     );
   });
 

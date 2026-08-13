@@ -130,5 +130,5 @@ export const useAuthStore = defineStore(
       storage: piniaPluginPersistedstate.localStorage(),
       pick: ['loggedInUser', 'userDetails', 'generalSettings'],
     },
-  }
+  },
 );

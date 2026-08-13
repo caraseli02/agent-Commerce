@@ -28,7 +28,7 @@
                 type="search"
                 placeholder="Type here"
                 class="w-full px-2.5 pt-[5px] pb-1.5 pr-10 h-8 text-xs placeholder:text-gray-500 focus:outline-none"
-              >
+              />
               <FiltersIcon class="absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
             </label>
           </div>
@@ -39,7 +39,7 @@
                 :key="index"
                 class="group flex items-center justify-between cursor-pointer px-2.5"
               >
-                <input v-model="option.checked" type="checkbox" class="sr-only" >
+                <input v-model="option.checked" type="checkbox" class="sr-only" />
                 <span class="text-xs font-Inter transition-colors duration-300 group-hover:text-blue-500">
                   {{ option.label }} ({{ option.quantity }})
                 </span>

@@ -7,6 +7,6 @@ export enum WidgetTypeEnum {
   'Average Order Value' = 'average-order-value',
   'Active Cart Sessions' = 'active-cart-sessions',
   'Products Sold' = 'products-sold',
-  'Returns' = 'returns',
-  'Refunds' = 'refunds',
+  Returns = 'returns',
+  Refunds = 'refunds',
 }

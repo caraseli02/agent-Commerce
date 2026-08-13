@@ -80,16 +80,14 @@ function getCartProductThumbnail(item: CartProductsInterface) {
 }
 
 const mapCartItems = () => {
-  items.value = (cart.value?.products || []).map(
-    (item: CartProductsInterface): CartLineItem => ({
-      id: item.id,
-      title: item.productEntity?.name ?? '',
-      description: item.productEntity?.description,
-      image: getCartProductThumbnail(item),
-      productEntity: item.productEntity!,
-      quantity: Number(item.stock) + Number(item.backorder_stock || 0),
-    })
-  );
+  items.value = (cart.value?.products || []).map((item: CartProductsInterface): CartLineItem => ({
+    id: item.id,
+    title: item.productEntity?.name ?? '',
+    description: item.productEntity?.description,
+    image: getCartProductThumbnail(item),
+    productEntity: item.productEntity!,
+    quantity: Number(item.stock) + Number(item.backorder_stock || 0),
+  }));
 };
 
 watch(
@@ -97,7 +95,7 @@ watch(
   () => {
     mapCartItems();
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 
 const deleteProduct = async (object: { id: string }) => {

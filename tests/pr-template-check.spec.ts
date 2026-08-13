@@ -110,7 +110,7 @@ describe('PR template completeness gate', () => {
       expect.arrayContaining([
         'Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.',
         'Known risks section must check at least one option or explicitly say none.',
-      ])
+      ]),
     );
   });
 
@@ -138,7 +138,7 @@ describe('PR template completeness gate', () => {
 
     expect(result.status).toBe('failed');
     expect(result.violations).toEqual(
-      expect.arrayContaining(['Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.'])
+      expect.arrayContaining(['Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.']),
     );
   });
 
@@ -164,7 +164,7 @@ Looks good overall.`,
     expect(result.violations).toEqual(
       expect.arrayContaining([
         'Evaluator rubric is missing fields for: Scope control, Acceptance criteria, Verification evidence, Harness hygiene, Risk reporting.',
-      ])
+      ]),
     );
   });
 

@@ -12,7 +12,7 @@ describe('account demo credentials', () => {
     expect(source).toContain('Hidden for demo sign-in');
     expect(source).toContain('Demo passwords stay hidden');
     expect(source).toContain(
-      'const resolvePasswordForSignin = () => password.value.value || LOGIN_CREDENTIALS[selectedLoginRole.value].password'
+      'const resolvePasswordForSignin = () => password.value.value || LOGIN_CREDENTIALS[selectedLoginRole.value].password',
     );
     expect(source).toContain('password: passwordForSignin');
     expect(source).toContain("password.value.value = ''");

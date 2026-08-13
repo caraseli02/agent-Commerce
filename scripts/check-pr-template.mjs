@@ -104,7 +104,7 @@ export function assessPrTemplate({ body, labels = [] } = {}) {
 
   if (!trimmedBody) {
     violations.push(
-      'PR body is empty. Add the Components Marketplace PR template sections or apply the skip-pr-template-check label for an approved human hotfix.'
+      'PR body is empty. Add the Components Marketplace PR template sections or apply the skip-pr-template-check label for an approved human hotfix.',
     );
   }
 

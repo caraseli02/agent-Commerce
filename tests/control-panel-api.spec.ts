@@ -18,7 +18,7 @@ describe('control-panel API adapter', () => {
         method?: string;
         body?: unknown;
         params?: unknown;
-      }
+      },
     ): Promise<T> => {
       apiRequests.push({
         resource,
@@ -112,7 +112,7 @@ describe('control-panel API adapter', () => {
         method?: string;
         body?: unknown;
         params?: unknown;
-      }
+      },
     ): Promise<T> => {
       apiRequests.push({
         resource,

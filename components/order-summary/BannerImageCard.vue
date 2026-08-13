@@ -17,7 +17,7 @@
       </div>
     </div>
     <div>
-      <img class="min-w-[280px] min-h-[240px] object-contain" :src="HotSaleItem" alt="Electronic component" loading="lazy" >
+      <img class="min-w-[280px] min-h-[240px] object-contain" :src="HotSaleItem" alt="Electronic component" loading="lazy" />
     </div>
   </div>
 </template>

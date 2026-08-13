@@ -11,7 +11,7 @@ const props = withDefaults(
   {
     class: undefined,
     testId: undefined,
-  }
+  },
 );
 </script>
 
@@ -22,7 +22,7 @@ const props = withDefaults(
     :class="
       cn(
         'max-w-full overflow-x-auto rounded-xl scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
-        props.class
+        props.class,
       )
     "
     role="region"

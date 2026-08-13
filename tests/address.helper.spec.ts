@@ -22,7 +22,7 @@ describe('address.helper', () => {
         city: 'San Francisco',
         postcode: '94105',
         default: true,
-      })
+      }),
     ).toBe(true);
 
     expect(
@@ -35,7 +35,7 @@ describe('address.helper', () => {
         city: 'N/A',
         postcode: 'N/A',
         default: false,
-      })
+      }),
     ).toBe(false);
 
     expect(isCompleteSavedAddress(null)).toBe(false);
@@ -49,7 +49,7 @@ describe('address.helper', () => {
         lastName: 'Doe',
         email: 'jane@example.com',
         phone: '+15550100',
-      })
+      }),
     ).toBe(true);
 
     expect(
@@ -58,7 +58,7 @@ describe('address.helper', () => {
         lastName: 'Doe',
         email: 'jane@example.com',
         phone: '+15550100',
-      })
+      }),
     ).toBe(false);
 
     expect(
@@ -67,7 +67,7 @@ describe('address.helper', () => {
         lastName: 'Doe',
         email: 'not-an-email',
         phone: '+15550100',
-      })
+      }),
     ).toBe(false);
   });
 });

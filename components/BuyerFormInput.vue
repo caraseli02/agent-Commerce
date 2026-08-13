@@ -91,7 +91,7 @@ const inputClasses = computed(() =>
     props.size === 'lg' ? 'h-12 rounded-lg py-2.5' : 'h-11 rounded-md py-2',
     props.disabled && props.showDisabledStyles
       ? 'disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none'
-      : undefined
-  )
+      : undefined,
+  ),
 );
 </script>

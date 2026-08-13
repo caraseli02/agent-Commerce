@@ -91,7 +91,7 @@ describe('loop accountability ledger', () => {
     });
 
     expect(() => parseAndValidateLedger(asJsonl(run))).toThrowError(
-      'line 1, run run-332-001: write target "server/api/admin-secret.ts" is outside permissions.write_paths'
+      'line 1, run run-332-001: write target "server/api/admin-secret.ts" is outside permissions.write_paths',
     );
   });
 
@@ -219,7 +219,7 @@ describe('loop accountability ledger', () => {
 
   it('rejects duplicate run identities in the append-only ledger', () => {
     expect(() => parseAndValidateLedger(asJsonl(validRun(), validRun()))).toThrowError(
-      'line 2, run run-332-001: duplicate run_id first declared on line 1'
+      'line 2, run run-332-001: duplicate run_id first declared on line 1',
     );
   });
 
@@ -227,7 +227,7 @@ describe('loop accountability ledger', () => {
     const secondRun = validRun({ run_id: 'run-332-002' });
 
     expect(() => parseAndValidateLedger(asJsonl(validRun(), secondRun))).toThrowError(
-      'line 2, run run-332-002: duplicate outcome.accepted_change "PR #333" first declared on line 1'
+      'line 2, run run-332-002: duplicate outcome.accepted_change "PR #333" first declared on line 1',
     );
   });
 

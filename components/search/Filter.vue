@@ -22,7 +22,7 @@
           placeholder="Type here"
           class="w-full border border-border bg-white rounded px-2.5 pt-[5px] pb-1.5 pr-10 text-xs placeholder:text-gray-500 transition-colors duration-300 focus:outline-none focus:border-blue-500"
           @input="onInput"
-        >
+        />
         <FiltersIcon class="absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
       </label>
     </div>
@@ -33,7 +33,7 @@
           :key="option.rawFilter.FeatureValue"
           class="group flex items-start justify-between cursor-pointer px-2.5"
         >
-          <input type="checkbox" class="sr-only" @click="toggleOption(option)" >
+          <input type="checkbox" class="sr-only" @click="toggleOption(option)" />
           <span class="text-xs font-Inter transition-colors duration-300 group-hover:text-blue-500">
             {{ `${useTrimText(option.value + option.unit)} (${option.rawFilter.count})` }}
           </span>
@@ -84,7 +84,7 @@ watch(
     }
     options.value = parseOptions();
   },
-  { deep: true }
+  { deep: true },
 );
 
 const searchValue = ref('');

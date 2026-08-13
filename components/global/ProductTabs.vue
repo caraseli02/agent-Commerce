@@ -66,7 +66,7 @@ watch(
       emit('newProducts', []);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

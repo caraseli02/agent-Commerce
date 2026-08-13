@@ -21,7 +21,7 @@ const statuses = ref(
     value: status,
     label: status.charAt(0).toUpperCase() + status.slice(1),
     color: statusColors[status],
-  }))
+  })),
 );
 const paymentStatuses = ref(paymentStatusOptions);
 

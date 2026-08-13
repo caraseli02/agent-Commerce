@@ -15,7 +15,7 @@
       type="button"
       variant="ghost"
       class="w-full items-stretch justify-start gap-3 rounded-lg py-3 pl-3 pr-20 text-neutral-800 hover:bg-zinc-100 hover:text-blue-500"
-      @click="emit('close'), menuItem.action()"
+      @click="(emit('close'), menuItem.action())"
     >
       <component :is="menuItem.icon" class="w-6 h-6" />
       <div class="transition-all text-sm font-medium leading-6 whitespace-nowrap">

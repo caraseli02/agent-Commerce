@@ -78,6 +78,6 @@ watch(
       productList.value = newVal;
       isLoading.value = false;
     }
-  }
+  },
 );
 </script>

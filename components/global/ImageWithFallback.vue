@@ -93,7 +93,7 @@ watch(
     currentSrc.value = normalizeImageSrc(newSrc);
     await nextTick();
     checkImageHealth();
-  }
+  },
 );
 
 onMounted(() => {

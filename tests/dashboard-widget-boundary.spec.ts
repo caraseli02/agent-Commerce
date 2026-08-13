@@ -52,7 +52,7 @@ describe('dashboard widget error boundaries', () => {
   it('provides alert fallback UI with recovery navigation', () => {
     const ast = parseTemplate(boundaryPath);
     const alerts = collectElements(ast, 'div').filter((element) =>
-      element.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'role' && prop.value?.content === 'alert')
+      element.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'role' && prop.value?.content === 'alert'),
     );
 
     expect(alerts).toHaveLength(1);

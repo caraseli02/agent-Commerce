@@ -25,8 +25,8 @@
 
       <div class="mb-10 px-5">
         <p class="mb-5 text-sm text-slate-500">
-          Choose a demo currency to preview pricing labels on demo.app. This portfolio build does not include locale
-          translation — storefront copy stays in English.
+          Choose a demo currency to preview pricing labels on demo.app. This portfolio build does not include locale translation —
+          storefront copy stays in English.
         </p>
         <FormSelect
           v-model="currency"

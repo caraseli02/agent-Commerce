@@ -50,7 +50,7 @@ onMounted(() => {
   if (route.params.view === ControlPanelTabsEnum.Settings) {
     router.replace({
       path: `/dashboard/customers/${route.params.slug}/control-panel/${defaultControlPanelView(
-        customerDetails.value.accountType ?? AccountType.Personal
+        customerDetails.value.accountType ?? AccountType.Personal,
       )}`,
     });
     return;
@@ -59,7 +59,7 @@ onMounted(() => {
   if (!Object.values(ControlPanelTabsEnum).includes(route.params.view as ControlPanelTabsEnum)) {
     router.replace({
       path: `/dashboard/customers/${route.params.slug}/control-panel/${defaultControlPanelView(
-        customerDetails.value.accountType ?? AccountType.Personal
+        customerDetails.value.accountType ?? AccountType.Personal,
       )}`,
     });
   } else {

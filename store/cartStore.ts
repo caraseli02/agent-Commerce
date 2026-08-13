@@ -156,5 +156,5 @@ export const useCartStore = defineStore(
       // Session-scoped fetch flag and in-flight ids must not revive across reloads.
       pick: ['cart', 'orderClientSecret', 'previousCheckoutError'],
     },
-  }
+  },
 );

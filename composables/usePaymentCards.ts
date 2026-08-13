@@ -34,7 +34,7 @@ export function usePaymentCards() {
     (nextCard) => {
       card.value = nextCard;
     },
-    { deep: true }
+    { deep: true },
   );
 
   watch(
@@ -46,7 +46,7 @@ export function usePaymentCards() {
         isNewCardSelected.value = false;
       }
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   return {

@@ -143,7 +143,7 @@ test.describe('Synthetic mobile performance', () => {
     });
 
     console.log(
-      `Synthetic mobile medians: FCP ${round(fcp)}ms, LCP ${round(lcp)}ms, CLS ${round(cls)}, interaction ${round(interaction)}ms`
+      `Synthetic mobile medians: FCP ${round(fcp)}ms, LCP ${round(lcp)}ms, CLS ${round(cls)}, interaction ${round(interaction)}ms`,
     );
 
     expect(fcp, 'FCP exceeded the synthetic mobile budget.').toBeLessThanOrEqual(PERFORMANCE_BUDGETS.fcp);

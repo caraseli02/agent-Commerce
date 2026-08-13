@@ -42,7 +42,7 @@ watch(
     props.column?.setFilterValue(filterValue);
     date.value = undefined;
   },
-  { deep: true }
+  { deep: true },
 );
 
 const selectedValues = computed(() => props.column?.getFilterValue()) as unknown as [string, string];

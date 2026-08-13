@@ -71,7 +71,7 @@ test.describe('Browse → Product Detail', () => {
 
     const updateCartButton = page.getByRole('button', { name: 'Add to cart — selected quantity' });
     const cartPostResponse = page.waitForResponse(
-      (response) => response.url().includes('/api/cart') && response.request().method() === 'POST'
+      (response) => response.url().includes('/api/cart') && response.request().method() === 'POST',
     );
     await updateCartButton.dblclick();
     await cartPostResponse;
@@ -99,7 +99,7 @@ test.describe('Browse → Product Detail', () => {
           cart: {
             products: [{ id: 'prod-2', stock: 1, backorder_stock: 0, isFolder: false }],
           },
-        })
+        }),
       );
     });
     await page.reload({ waitUntil: 'networkidle' });
@@ -236,7 +236,7 @@ test.describe('Browse → Product Detail', () => {
       const items = [...document.querySelectorAll('[role="menuitem"]')] as HTMLElement[];
       return items.some(
         (item) =>
-          item.textContent?.trim() === 'Print this page' && !!(item.offsetWidth || item.offsetHeight || item.getClientRects().length)
+          item.textContent?.trim() === 'Print this page' && !!(item.offsetWidth || item.offsetHeight || item.getClientRects().length),
       );
     });
 

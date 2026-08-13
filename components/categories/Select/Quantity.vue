@@ -20,7 +20,7 @@ const props = withDefaults(
   {
     quantity: '',
     filterLength: null,
-  }
+  },
 );
 
 const pricingStore = usePricingStore();
