@@ -1,6 +1,6 @@
 # ECAS — Agent Harness
 
-ECAS is a Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Firebase, Stripe hooks, and local Nitro mock endpoints.
+ECAS is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Stripe hooks, and local Nitro mock endpoints.
 
 ## Current mode
 
@@ -129,7 +129,7 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 ## Architecture notes
 
 - API access goes through `plugins/api.ts` for the shared `$apiClient` and plain domain functions in `composables/api/*` for mutations/orchestration.
-- Auth uses Firebase plus local token/session state.
+- Auth uses local mock token/session state.
 - `server/api/` is the mock backend for portfolio/demo work.
 - UI uses shadcn-vue / Radix-style primitives with Tailwind.
 

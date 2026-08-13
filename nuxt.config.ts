@@ -84,13 +84,6 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
-      firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      firebaseProjectID: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
-      firebaseStorageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      firebaseMessageSenderID: process.env.NUXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
-      firebaseAppID: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
-      firebaseMeasurementID: process.env.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',
       MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE === 'true',
@@ -141,10 +134,6 @@ export default defineNuxtConfig({
           manualChunks(id) {
             if (!id.includes('node_modules')) {
               return undefined;
-            }
-
-            if (id.includes('firebase')) {
-              return 'vendor-firebase';
             }
 
             if (id.includes('swiper')) {

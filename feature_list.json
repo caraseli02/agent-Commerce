@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the Components Marketplace harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
+    "active_feature_count": 0,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -11,11 +11,14 @@
       "id": "E457-459",
       "description": "Retire Firebase and Nuxt VueFire while retaining mock-demo authentication",
       "validation": "No Firebase or VueFire runtime imports/configuration remain; documented customer/admin mock auth and protected routes work; pnpm verify passes",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "#459 claimed with planner brief",
         "Planner brief: https://github.com/caraseli02/Ecas/issues/459#issuecomment-5285565516",
-        "Implementation starts after #458 post-merge ledger cleanup"
+        "Removed firebase and nuxt-vuefire package/runtime integration; runtime-import scan is clean",
+        "pnpm install --frozen-lockfile --ignore-workspace: pass",
+        "pnpm verify: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list and UI checks)",
+        "Mock production browser: customer/admin sign-in, customer sign-out and reload cleanup, protected-route redirect, and signup route pass; console clean after reload"
       ]
     },
     {

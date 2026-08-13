@@ -1,5 +1,4 @@
 import { useNuxtApp } from '#app';
-import useFirebaseAuth from '~/composables/useFirebaseAuth';
 import type { LoginRequest } from '~/model/auth/request/LoginRequest';
 import type { ProductResponse } from '~/types/product';
 import type {
@@ -16,21 +15,6 @@ export async function login(payload: LoginRequest): Promise<ProductResponse> {
   return await $apiClient<ProductResponse>(`${RESOURCE}/login`, {
     method: 'POST',
     body: payload,
-  });
-}
-
-export async function registerFirebase(payload: SignupPersonalPayload | SignupBusinessPayload) {
-  const { $apiClient } = useNuxtApp();
-  const token = await useFirebaseAuth().getUserToken();
-
-  return await $apiClient(`${RESOURCE}/firebase/register`, {
-    method: 'POST',
-    body: payload,
-    ...(token
-      ? {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      : {}),
   });
 }
 

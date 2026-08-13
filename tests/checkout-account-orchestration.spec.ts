@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const validateAddress = vi.fn();
 const registerClassic = vi.fn();
-const registerFirebase = vi.fn();
 const updateAccountDetails = vi.fn();
 const userCards = vi.fn();
 const updateCardAsDefault = vi.fn();
@@ -15,7 +14,6 @@ vi.mock('~/composables/api/orders', () => ({
 
 vi.mock('~/composables/api/auth', () => ({
   registerClassic: (...args: unknown[]) => registerClassic(...args),
-  registerFirebase: (...args: unknown[]) => registerFirebase(...args),
 }));
 
 vi.mock('~/composables/api/control-panel', () => ({
@@ -70,7 +68,7 @@ describe('checkout/account domain orchestration', () => {
     vi.clearAllMocks();
   });
 
-  it('useSignup validates addresses and routes classic vs firebase register policy', async () => {
+  it('useSignup validates addresses and registers the mock-demo account', async () => {
     const { useSignup } = await import('~/composables/useSignup');
     const { isSignupAddressValid, registerSignupAccount } = useSignup();
 
@@ -88,7 +86,6 @@ describe('checkout/account domain orchestration', () => {
 
     registerClassic.mockResolvedValue({ status: 'success' });
     await registerSignupAccount({
-      mode: 'classic',
       payload: {
         account: {
           accountType: 0,
@@ -113,43 +110,6 @@ describe('checkout/account domain orchestration', () => {
       },
     });
     expect(registerClassic).toHaveBeenCalledOnce();
-    expect(registerFirebase).not.toHaveBeenCalled();
-
-    registerFirebase.mockResolvedValue({ status: 'success' });
-    await registerSignupAccount({
-      mode: 'firebase',
-      firebaseId: 'fb-1',
-      payload: {
-        account: {
-          accountType: 0,
-          role: 2,
-          profileDetails: { email: 'a@b.com', password: 'secret' },
-          contactDetails: { firstName: 'A', lastName: 'B', phone: '1', email: 'a@b.com' },
-          personalDetails: {
-            firstName: 'A',
-            lastName: 'B',
-            address: {
-              _id: '',
-              name1: 'Line 1',
-              country: 'RO',
-              region: 'B',
-              city: 'Bucharest',
-              postcode: '010000',
-            },
-            shippingAddress: [],
-            billingAddress: [],
-          },
-        },
-      },
-    });
-
-    const firebasePayload = registerFirebase.mock.calls[0][0] as {
-      account: { firebaseId?: string; profileDetails: { password?: string } };
-      isAlreadyRegisteredWithFirebase?: boolean;
-    };
-    expect(firebasePayload.account.firebaseId).toBe('fb-1');
-    expect(firebasePayload.account.profileDetails.password).toBeUndefined();
-    expect(firebasePayload.isAlreadyRegisteredWithFirebase).toBe(true);
   });
 
   it('useControlPanel validates then saves organization details', async () => {

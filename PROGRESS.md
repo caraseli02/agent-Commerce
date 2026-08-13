@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Epic #457: **#459** Firebase/VueFire retirement is the only active issue; its planner brief is recorded and implementation starts after the #458 ledger cleanup lands.
+- Epic #457: **#459** Firebase/VueFire retirement is the only active issue; it is verified locally and awaiting a ready PR/evaluator pass.
 - Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
 - After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
 - GitHub Issues remain the primary task queue.
@@ -11,7 +11,7 @@
 
 - **#461** — PR #488 merged to `origin/main` at `1e80367d` with GitHub Actions and Vercel green. The human merge approved the documented Nuxt framework-package version assertion; the bundled CLI still reports `3.37.0` while the framework package is `4.5.2`.
 - **#458** — PR #489 merged to `origin/main` at `170144c5` after GitHub Actions, Vercel, and direct Greptile review passed (5/5 confidence, no actionable findings). `pnpm deps:outdated` and `pnpm deps:audit` use `--ignore-workspace` to avoid parent-workspace resolution; no package upgrade or lockfile rewrite was made.
-- **#459** — claimed with `in-progress` label and a planner brief. Scope is removal of Firebase and nuxt-vuefire while retaining the documented mock auth flows.
+- **#459** — Firebase, nuxt-vuefire, their runtime config/plugin, and the unsupported live auth paths are removed. `pnpm install --frozen-lockfile --ignore-workspace`, focused auth orchestration tests (276/276), `pnpm typecheck`, `pnpm build`, and `pnpm verify` pass. Fresh mock-production browser evidence covers customer sign-in/sign-out (including post-reload cleanup), admin sign-in, protected-route redirect, and signup route; the post-reload console is clean. The retained `firebaseId` fields are legacy mock-domain payload identifiers, not SDK configuration or imports.
 
 ## Human decisions pending
 
