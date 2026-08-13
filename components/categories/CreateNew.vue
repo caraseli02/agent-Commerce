@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useCategories } from '@/composables/useCategories';
+import UiSelectContent from '~/components/ui/select/SelectContent.vue';
 import type { ICreatePayload } from '~/types/dashboard/categories';
 
 const title = ref('');
