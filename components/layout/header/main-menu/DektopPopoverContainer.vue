@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
-import { Building2Icon, ChevronRight, GemIcon, HeadsetIcon } from 'lucide-vue-next';
+import { Building2Icon, ChevronRight, GemIcon, HeadsetIcon } from '@lucide/vue';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
 import SemiconductorsIcon from '@/assets/icons/header/semiconductors.svg';
 import PassiveIcon from '@/assets/icons/header/passive.svg';

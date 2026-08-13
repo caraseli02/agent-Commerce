@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Row } from '@tanstack/vue-table';
-import { LockKeyholeIcon } from 'lucide-vue-next';
+import { LockKeyholeIcon } from '@lucide/vue';
 
 export interface ActionOptionsConfiguration {
   label: string;

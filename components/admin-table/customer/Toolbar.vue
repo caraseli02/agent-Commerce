@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData">
 import type { Table } from '@tanstack/vue-table';
-import { XIcon } from 'lucide-vue-next';
+import { XIcon } from '@lucide/vue';
 import { CustomerTableColumnsEnum } from '~/components/admin-table/customer/columns.enum';
 import { accountType } from '~/components/admin-table/customer/options';
 

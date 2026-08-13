@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { InfoIcon } from 'lucide-vue-next';
+import { InfoIcon } from '@lucide/vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { OrderType } from '~/types';
 import type { OrderRequestInterface } from '~/types';
@@ -69,7 +69,9 @@ const payment = computed(() => {
               <NuxtImg
                 :src="item?.productEntity?.details?.ProductImage?.ProductImageSmall"
                 alt="Product image"
-                class="aspect-square max-h-[60px] min-w-[60px] lg:max-h-[72px] lg:w-[72px] rounded-lg" loading="lazy"/>
+                class="aspect-square max-h-[60px] min-w-[60px] lg:max-h-[72px] lg:w-[72px] rounded-lg"
+                loading="lazy"
+              />
             </figure>
             <div class="flex flex-col w-full max-w-[254px] md:max-w-none lg:max-w-[328px]">
               <div class="flex flex-col sm:flex-row sm:gap-2">

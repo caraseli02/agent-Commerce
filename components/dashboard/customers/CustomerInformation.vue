@@ -183,7 +183,7 @@
 <script setup lang="ts">
 import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import Emitter from 'tiny-emitter/instance.js';
-import { LockKeyholeIcon } from 'lucide-vue-next';
+import { LockKeyholeIcon } from '@lucide/vue';
 import Avatar from '@/assets/icons/dashboard/avatar.png';
 import DotsVerticalIcon from '@/assets/icons/dots-vertical.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { XIcon, MenuIcon } from 'lucide-vue-next';
+import { XIcon, MenuIcon } from '@lucide/vue';
 import PopoverContainer from './DektopPopoverContainer.vue';
 import { useCategoriesNavigation } from '@/composables/useCategoriesNavigation';
 

@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { cartReadCacheKey, loadCartRead } from '~/composables/loadCartRead';
-import { InfoIcon, LoaderIcon } from 'lucide-vue-next';
+import { InfoIcon, LoaderIcon } from '@lucide/vue';
 import { storeToRefs } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
 import { useHead, useRouter, useRuntimeConfig } from '#app';

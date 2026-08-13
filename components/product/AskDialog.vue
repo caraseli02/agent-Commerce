@@ -2,7 +2,7 @@
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
-import { MessageCircleQuestion } from 'lucide-vue-next';
+import { MessageCircleQuestion } from '@lucide/vue';
 
 import { cn } from '@/lib/utils';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';

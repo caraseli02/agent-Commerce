@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckCircle } from 'lucide-vue-next';
+import { CheckCircle } from '@lucide/vue';
 
 interface Props {
   orderId?: string;

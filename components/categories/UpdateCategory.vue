@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { PencilLine } from 'lucide-vue-next';
+import { PencilLine } from '@lucide/vue';
 import { useCategories } from '@/composables/useCategories';
 import type { ICreatePayload, TaxonomyInterface } from '~/types/dashboard/categories';
 import type { IconName } from '@/types/Icons';

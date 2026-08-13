@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { MoreVertical, PrinterIcon } from 'lucide-vue-next';
+import { MoreVertical, PrinterIcon } from '@lucide/vue';
 
 import type { ProductDetail, ProductImageInterface } from '~/types/product';
 import { useProducts } from '~/composables/useProducts';

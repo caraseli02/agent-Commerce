@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="TData">
-import { PlusCircleIcon } from 'lucide-vue-next';
+import { PlusCircleIcon } from '@lucide/vue';
 import { ref } from 'vue';
 import type { Column } from '@tanstack/vue-table';
 import { cn } from '@/lib/utils';

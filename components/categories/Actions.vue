@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowDownNarrowWide, ArrowUpNarrowWide, CopyIcon, RefreshCcw, Trash2Icon } from 'lucide-vue-next';
+import { ArrowDownNarrowWide, ArrowUpNarrowWide, CopyIcon, RefreshCcw, Trash2Icon } from '@lucide/vue';
 
 const { selectedCategories, duplicateCategory, deleteCategories, getCategories, sortOrder, categories, isLocked } = useCategories();
 

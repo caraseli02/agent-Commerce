@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { CopyIcon, CheckIcon } from 'lucide-vue-next';
+import { CopyIcon, CheckIcon } from '@lucide/vue';
 import { useToast } from '@/components/ui/toast/use-toast';
 
 const props = withDefaults(

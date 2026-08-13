@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { SquarePen } from 'lucide-vue-next';
+import { SquarePen } from '@lucide/vue';
 import CADModelsIcon from '@/assets/icons/cad-models.svg';
 import PDFIcon from '@/assets/icons/pdf.svg';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';

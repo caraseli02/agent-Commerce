@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CopyIcon, FilePenLineIcon } from 'lucide-vue-next';
+import { CopyIcon, FilePenLineIcon } from '@lucide/vue';
 import { onMounted, ref, watch } from 'vue';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';

@@ -110,7 +110,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
-import { MoreHorizontal } from 'lucide-vue-next';
+import { MoreHorizontal } from '@lucide/vue';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
 import { addToCartHelper, parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { useCart } from '~/composables/useCart';

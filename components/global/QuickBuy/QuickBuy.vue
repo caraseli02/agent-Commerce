@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from '@lucide/vue';
 import { ref, onMounted } from 'vue';
 import QuickBuyIcon from '@/assets/icons/quick-buy-2.svg';
 import CartIcon from '@/assets/icons/cart.svg';

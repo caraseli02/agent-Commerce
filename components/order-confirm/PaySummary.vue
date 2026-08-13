@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { InfoIcon } from 'lucide-vue-next';
+import { InfoIcon } from '@lucide/vue';
 import type { PropType } from 'vue';
 import { OrderType } from '~/types';
 import type { PaymentSummaryInterface } from '~/types';

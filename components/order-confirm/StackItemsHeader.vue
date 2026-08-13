@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, BarcodeIcon, InfoIcon, MapPin } from 'lucide-vue-next';
+import { ArrowRight, BarcodeIcon, InfoIcon, MapPin } from '@lucide/vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { ref } from 'vue';
 import { formatReviewerDateTime } from '~/helpers/reviewer-dates';

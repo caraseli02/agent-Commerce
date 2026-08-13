@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData">
 import type { Table } from '@tanstack/vue-table';
-import { XIcon } from 'lucide-vue-next';
+import { XIcon } from '@lucide/vue';
 import { orderType, statusColors } from './options';
 import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.enum';
 
