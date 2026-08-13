@@ -10,7 +10,7 @@
 ## In progress
 
 - **#461** — PR #488 merged to `origin/main` at `1e80367d` with GitHub Actions and Vercel green. The human merge approved the documented Nuxt framework-package version assertion; the bundled CLI still reports `3.37.0` while the framework package is `4.5.2`.
-- **#458** — PR #489 merged to `origin/main` at `170144c5` after GitHub Actions, Vercel, and direct Greptile review passed. `pnpm deps:outdated` and `pnpm deps:audit` use `--ignore-workspace` to avoid parent-workspace resolution; no package upgrade or lockfile rewrite was made.
+- **#458** — PR #489 merged to `origin/main` at `170144c5` after GitHub Actions, Vercel, and direct Greptile review passed (5/5 confidence, no actionable findings). `pnpm deps:outdated` and `pnpm deps:audit` use `--ignore-workspace` to avoid parent-workspace resolution; no package upgrade or lockfile rewrite was made.
 - **#459** — claimed with `in-progress` label and a planner brief. Scope is removal of Firebase and nuxt-vuefire while retaining the documented mock auth flows.
 
 ## Human decisions pending
