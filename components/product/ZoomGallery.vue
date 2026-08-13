@@ -12,8 +12,8 @@ const emblaMainApi = ref<CarouselApi>();
 const emblaThumbnailApi = ref<CarouselApi>();
 
 const selectedIndex = defineModel<number>('selectedIndex');
-// eslint-disable-next-line vue/require-prop-types
-const isOpen = defineModel('open', { default: false });
+ 
+const isOpen = defineModel<boolean>('open', { default: false });
 
 function onSelect() {
   if (!emblaMainApi.value || !emblaThumbnailApi.value) return;
