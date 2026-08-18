@@ -62,6 +62,7 @@ import { ProductAction } from '~/types/cart';
 import type { ProductActionObject } from '~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 
@@ -85,6 +86,7 @@ const productItem = ref<CartLineItem>(props.product);
 const emits = defineEmits(['delete-product']);
 
 const authStore = useAuthStore();
+const { removeFromCart } = useCart();
 const { getUserDetails } = storeToRefs(authStore);
 
 const minPriceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(undefined);
@@ -122,7 +124,8 @@ const getPricesConfiguration = () => {
 
 getPricesConfiguration();
 
-const deleteItemFromCart = () => {
+const deleteItemFromCart = async () => {
+  await removeFromCart({ products: [props.product?.id] });
   emits('delete-product', props.product);
 };
 

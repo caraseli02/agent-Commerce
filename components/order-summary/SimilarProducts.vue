@@ -19,7 +19,6 @@ import { fetchProductTab } from '~/composables/api/products';
 const props = defineProps({
   loading: {
     type: Boolean,
-    required: true,
     default: false,
   },
 });
