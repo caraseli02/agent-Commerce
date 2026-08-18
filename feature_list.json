@@ -24,14 +24,28 @@
       "id": "E457-466",
       "description": "Migrate storefront and dashboard styling from Tailwind CSS 3 to 4",
       "validation": "Tailwind 4 build integration preserves custom theme values, responsive layout, and component style `@apply` output; pnpm verify and representative mock browser checks pass",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "Planner brief: https://github.com/caraseli02/Ecas/issues/466#issuecomment-5286425031",
         "Official Tailwind Nuxt/Vite migration path: @tailwindcss/vite, @tailwindcss/postcss, @import tailwindcss, and explicit legacy @config",
         "pnpm build: pass without Tailwind transformation warnings",
         "pnpm smoke: pass in production mock mode",
         "pnpm verify: pass (Nuxt 4.5.2 build, lint, typecheck, 277 tests, feature-list and UI checks)",
-        "Mock browser: storefront desktop and 390px mobile render meaningful content with no error overlay; screenshots at /tmp/ecas-466-storefront-desktop.png and /tmp/ecas-466-storefront-mobile.png"
+        "Mock browser: storefront desktop and 390px mobile render meaningful content with no error overlay; screenshots at /tmp/ecas-466-storefront-desktop.png and /tmp/ecas-466-storefront-mobile.png",
+        "PR #496 merged to origin/main; GitHub Actions, Vercel, Greptile 5/5, and independent evaluator PASS (10/10)"
+      ]
+    },
+    {
+      "id": "E457-467",
+      "description": "Upgrade Pinia and persisted state integration for Nuxt 4",
+      "validation": "Pinia, @pinia/nuxt, and pinia-plugin-persistedstate resolve without peer overrides; mock cart persistence and customer sign-in/sign-out behavior work in a production browser; pnpm verify:full passes",
+      "status": "active",
+      "evidence": [
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/467#issuecomment-5286665263",
+        "Resolved versions: pinia 4.0.3, @pinia/nuxt 1.0.2, pinia-plugin-persistedstate 4.7.1; pnpm why reports no peer conflict or override",
+        "pnpm install --frozen-lockfile: pass (parent workspace emitted unrelated missing supabase-bin warnings)",
+        "pnpm verify:full: pass after the final focused Nuxt 4 runtime repair",
+        "Fresh production Playwright: account-order-history and cart-chrome-coordination both pass; cart add/remove updates the badge and renders the empty state"
       ]
     },
     {

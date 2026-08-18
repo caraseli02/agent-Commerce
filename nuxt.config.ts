@@ -45,6 +45,11 @@ export default defineNuxtConfig({
         extensions: ['vue'],
       },
       {
+        path: '~/components/global',
+        prefix: 'global',
+        extensions: ['vue'],
+      },
+      {
         path: '~/components/ui',
         extensions: ['vue'],
       },
@@ -80,7 +85,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['~/assets/css/resets.css', '~/assets/css/utils.css', '~/assets/css/animations.css', '~/assets/css/vendors/v-calendar.css'],
+  css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
     public: {
@@ -107,7 +112,6 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/dashboard/**': { appMiddleware: ['auth'], ssr: false },
-    '/checkout/**': { appMiddleware: ['auth'] },
     '/product/categories': { appMiddleware: ['auth'] },
   },
   devServer: {
@@ -149,12 +153,6 @@ export default defineNuxtConfig({
           },
         },
       },
-    },
-  },
-
-  postcss: {
-    plugins: {
-      '@tailwindcss/postcss': {},
     },
   },
 

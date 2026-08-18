@@ -58,7 +58,7 @@ const props = withDefaults(
   defineProps<{
     heading: string;
     description?: string;
-    suggestions?: string[];
+    suggestions?: readonly string[];
     illustration?: Component;
     primaryLabel?: string;
     primaryTo?: string;

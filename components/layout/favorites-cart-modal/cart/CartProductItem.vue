@@ -125,8 +125,8 @@ const getPricesConfiguration = () => {
 getPricesConfiguration();
 
 const deleteItemFromCart = async () => {
-  emits('delete-product', props.product);
   await removeFromCart({ products: [props.product?.id] });
+  emits('delete-product', props.product);
 };
 
 watch(
