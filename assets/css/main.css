@@ -1,5 +1,302 @@
-@config "../../tailwind.config.js";
 @import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* Tailwind v4 CSS-first config (migrated from tailwind.config.js — see PR).
+   This replaces the old @config "tailwind.config.js" bridge. */
+
+/* color-mode uses the `.dark` class strategy, not prefers-color-scheme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* v4 auto-detects sources; the explicit set below mirrors the old
+   content[] array to be safe, and @source inline(...) keeps the
+   dynamic grid-cols utilities (formerly the safelist[]) generated. */
+@source './components/**/*.{js,vue,ts}';
+@source './layouts/**/*.vue';
+@source './pages/**/*.vue';
+@source './plugins/**/*.{js,ts}';
+@source './nuxt.config.{js,ts}';
+@source './app.vue';
+@source './utils/**/*.{js,ts,html}';
+
+@source inline("grid-cols-[359px,154px,254px,244px,129px,148px,104px]");
+@source inline("grid-cols-[154px,359px,254px,244px,129px,148px,104px]");
+@source inline("grid-cols-[212px,212px,256px,256px,232px,224px]");
+@source inline("grid-cols-[50px,191px,191px,191px,191px,191px,191px,minmax(196px,1fr)]");
+@source inline("grid-cols-[158px,149px,228px,275px,141px,220px,136px,85px]");
+@source inline("grid-cols-[50px,191px,191px,191px,191px,228px,191px,minmax(196px,1fr)]");
+
+/* v4-compatible plugin equivalent. tailwind-scrollbar is already v4-compatible
+   (peer tailwindcss 4.x). tw-animate-css is imported at the top as it replaces
+   the v3 tailwindcss-animate plugin and provides the animate-in, fade, slide,
+   zoom utilities (plus accordion). */
+@plugin 'tailwind-scrollbar' {
+  nocompatible: true;
+}
+
+/* v4 breakpoint overrides: keep xs:390 and 2xl:1440 from the old config. */
+@theme {
+  --breakpoint-xs: 390px;
+  --breakpoint-2xl: 1440px;
+
+  /* ---- colors (theme.extend.colors) ---- */
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-light-50: #fdfdfd;
+  --color-light-100: #f9f9f9;
+  --color-light-200: #f6f6f6;
+  --color-light-300: #f2f2f2;
+  --color-light-400: #efefef;
+  --color-light-500: #ebebeb;
+  --color-light-600: #d6d6d6;
+  --color-light-700: #a7a7a7;
+  --color-light-800: #818181;
+  --color-light-900: #636363;
+  --color-grey-50: #f8f8f8;
+  --color-grey-100: #ebebeb;
+  --color-grey-200: #e1e1e1;
+  --color-grey-300: #d3d3d3;
+  --color-grey-400: #cacaca;
+  --color-grey-500: #bdbdbd;
+  --color-grey-600: #acacac;
+  --color-grey-700: #868686;
+  --color-grey-800: #686868;
+  --color-grey-900: #4f4f4f;
+  --color-stone-50: #f5f5f5;
+  --color-stone-100: #e0e0e0;
+  --color-stone-200: #d1d1d1;
+  --color-stone-300: #bbbbbb;
+  --color-stone-400: #aeaeae;
+  --color-stone-500: #9a9a9a;
+  --color-stone-600: #8c8c8c;
+  --color-stone-700: #6d6d6d;
+  --color-stone-800: #555555;
+  --color-stone-900: #414141;
+  --color-dark-50: #ebebed;
+  --color-dark-100: #c1c2c8;
+  --color-dark-200: #a3a5ad;
+  --color-dark-300: #7a7c88;
+  --color-dark-400: #606271;
+  --color-dark-500: #383b4d;
+  --color-dark-600: #333646;
+  --color-dark-700: #282a37;
+  --color-dark-800: #1f202a;
+  --color-dark-900: #181920;
+  --color-slate-50: #efeff2;
+  --color-slate-100: #cdced5;
+  --color-slate-200: #b5b7c1;
+  --color-slate-300: #9396a5;
+  --color-slate-400: #7e8193;
+  --color-slate-500: #5e6278;
+  --color-slate-600: #56596d;
+  --color-slate-700: #434655;
+  --color-slate-800: #343642;
+  --color-slate-900: #272932;
+  --color-neutral-50: #ececec;
+  --color-neutral-100: #c4c4c4;
+  --color-neutral-200: #a7a7a7;
+  --color-neutral-300: #7f7f7f;
+  --color-neutral-400: #666666;
+  --color-neutral-500: #404040;
+  --color-neutral-600: #3a3a3a;
+  --color-neutral-700: #2d2d3d;
+  --color-neutral-800: #232323;
+  --color-neutral-900: #1b1b1b;
+  --color-blue-50: #e6f2ff;
+  --color-blue-100: #b0d7ff;
+  --color-blue-200: #8ac4ff;
+  --color-blue-300: #54a9ff;
+  --color-blue-400: #3399ff;
+  --color-blue-500: #007fff;
+  --color-blue-600: #0074e8;
+  --color-blue-700: #005ab5;
+  --color-blue-800: #00468c;
+  --color-blue-900: #00356b;
+  --color-indigo-50: #ece6ff;
+  --color-indigo-100: #c4b0ff;
+  --color-indigo-200: #a88aff;
+  --color-indigo-300: #8054ff;
+  --color-indigo-400: #6833ff;
+  --color-indigo-500: #4200ff;
+  --color-indigo-600: #3c00e8;
+  --color-indigo-700: #2f00b5;
+  --color-indigo-800: #24008c;
+  --color-indigo-900: #1c006b;
+  --color-purple-50: #f6eff8;
+  --color-purple-100: #e3ceea;
+  --color-purple-200: #d5b6e0;
+  --color-purple-300: #c294d2;
+  --color-purple-400: #b680c9;
+  --color-purple-500: #a460bc;
+  --color-purple-600: #9557ab;
+  --color-purple-700: #744485;
+  --color-purple-800: #5a3567;
+  --color-purple-900: #45284f;
+  --color-pink-50: #ffeef6;
+  --color-pink-100: #fec9e2;
+  --color-pink-200: #fdafd5;
+  --color-pink-300: #fc8ac1;
+  --color-pink-400: #fc74b5;
+  --color-pink-500: #fb51a3;
+  --color-pink-600: #e44a94;
+  --color-pink-700: #b23a74;
+  --color-pink-800: #8a2d5a;
+  --color-pink-900: #692244;
+  --color-lime-50: #f3fae8;
+  --color-lime-100: #d9efb7;
+  --color-lime-200: #c6e894;
+  --color-lime-300: #addd63;
+  --color-lime-400: #9dd645;
+  --color-lime-500: #84cc16;
+  --color-lime-600: #78ba14;
+  --color-lime-700: #5e9110;
+  --color-lime-800: #49700c;
+  --color-lime-900: #375609;
+  --color-green-50: #e6fbf4;
+  --color-green-100: #b0f1de;
+  --color-green-200: #8aebce;
+  --color-green-300: #54e2b8;
+  --color-green-400: #33dcaa;
+  --color-green-500: #00d395;
+  --color-green-600: #00c088;
+  --color-green-700: #00966a;
+  --color-green-800: #007452;
+  --color-green-900: #00593f;
+  --color-teal-50: #e6fafb;
+  --color-teal-100: #b0f2f6;
+  --color-teal-200: #8aedf3;
+  --color-teal-300: #54e3ec;
+  --color-teal-400: #33dbe5;
+  --color-teal-500: #00d6dc;
+  --color-teal-600: #00c6c6;
+  --color-teal-700: #00aba9;
+  --color-teal-800: #009291;
+  --color-teal-900: #007272;
+  --color-yellow-50: #fffae6;
+  --color-yellow-100: #ffeeb0;
+  --color-yellow-200: #ffe68a;
+  --color-yellow-300: #ffdb54;
+  --color-yellow-400: #ffd433;
+  --color-yellow-500: #ffc900;
+  --color-yellow-600: #e8b700;
+  --color-yellow-700: #b58f00;
+  --color-yellow-800: #8c6f00;
+  --color-yellow-900: #6b5400;
+  --color-amber-50: #fff7e6;
+  --color-amber-100: #ffe7b0;
+  --color-amber-200: #ffdb8a;
+  --color-amber-300: #ffcb54;
+  --color-amber-400: #ffc133;
+  --color-amber-500: #ffb100;
+  --color-amber-600: #e8a100;
+  --color-amber-700: #b57e00;
+  --color-amber-800: #8c6100;
+  --color-amber-900: #6b4a00;
+  --color-orange-50: #fff3e6;
+  --color-orange-100: #ffdbb0;
+  --color-orange-200: #ffc98a;
+  --color-orange-300: #ffb154;
+  --color-orange-400: #ffa133;
+  --color-orange-500: #ff8a00;
+  --color-orange-600: #e87e00;
+  --color-orange-700: #b56200;
+  --color-orange-800: #8c4c00;
+  --color-orange-900: #6b3a00;
+  --color-red-50: #ffebeb;
+  --color-red-100: #ffbfbf;
+  --color-red-200: #ffa1a1;
+  --color-red-300: #ff7676;
+  --color-red-400: #ff5b5b;
+  --color-red-500: #ff3232;
+  --color-red-600: #e82e2e;
+  --color-red-700: #b52424;
+  --color-red-800: #8c1c1c;
+  --color-red-900: #6b1515;
+  --color-rose-50: #ffeded;
+  --color-rose-100: #fdc7c7;
+  --color-rose-200: #fdacac;
+  --color-rose-300: #fc8686;
+  --color-rose-400: #fb6f6f;
+  --color-rose-500: #fa4b4b;
+  --color-rose-600: #e44444;
+  --color-rose-700: #b23535;
+  --color-rose-800: #8a2929;
+  --color-rose-900: #692020;
+
+  /* ---- fontFamily ---- */
+  --font-sans: Source Sans 3, sans-serif;
+  --font-display: Archivo, sans-serif;
+  --font-Inter: Source Sans 3, sans-serif;
+  --font-Poppins: Archivo, sans-serif;
+
+  /* ---- boxShadow ---- */
+  --shadow-xs: 0px 0px 8px rgba(133, 133, 133, 0.25);
+  --shadow-s: 0px 0px 8px rgba(133, 133, 133, 0.25);
+  --shadow-m: 0px 0px 16px rgba(133, 133, 133, 0.25);
+  --shadow-l: 0px 0px 24px rgba(133, 133, 133, 0.25);
+  --shadow-xl: 0px 0px 32px rgba(133, 133, 133, 0.25);
+  --shadow-xxl: 0px 0px 48px rgba(133, 133, 133, 0.25);
+
+  /* ---- animation (keyframes: tw-animate-css provides accordion-* /
+     enter / exit; `ping` is built into Tailwind core) ---- */
+  --animate-ping-once: ping 1s cubic-bezier(0, 0, 0.2, 1) 1;
+
+  /* ---- container settings (theme.extend.container) ----
+     NOTE: v4 has no built-in `container` utility config; the app uses
+     `.container` 48x. The v3 config had center:true, custom screens
+     (xs:390px, 2xl:1440px), and padding (DEFAULT:1rem, md:1.5rem).
+     Below we redefine `.container` via @utility to match those semantics. */
+  --container-center: true;
+  --container-padding-x: 1rem;
+  --container-padding-md: 1.5rem;
+}
+
+/* `.container` utility matching the previous v3 config:
+   - centered, padded (1rem, 1.5rem at md+), max-width per breakpoint. */
+@utility container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--container-padding-x);
+
+  @media (min-width: 768px) {
+    padding-inline: var(--container-padding-md);
+  }
+
+  @media (min-width: 390px) {
+    max-width: 390px;
+  }
+  @media (min-width: 640px) {
+    max-width: 640px;
+  }
+  @media (min-width: 768px) {
+    max-width: 768px;
+  }
+  @media (min-width: 1024px) {
+    max-width: 1024px;
+  }
+  @media (min-width: 1280px) {
+    max-width: 1280px;
+  }
+  @media (min-width: 1440px) {
+    max-width: 1440px;
+  }
+}
 
 :root {
   /* Industrial palette — OKLCH-derived, tinted toward hue 235 */
