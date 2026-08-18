@@ -5,11 +5,11 @@ import type { Ref } from 'vue';
 const DEFAULT_ROW_HEIGHT = 53;
 const DEFAULT_OVERSCAN = 5;
 
-export function useVirtualTableRows<TData>(rows: Ref<Row<TData>[]>, scrollContainerRef: Ref<HTMLElement | null>) {
+export function useVirtualTableRows<TData>(rows: Ref<Row<TData>[]>, scrollContainerRef: { value?: unknown }) {
   const rowVirtualizer = useVirtualizer(
     computed(() => ({
       count: rows.value.length,
-      getScrollElement: () => scrollContainerRef.value,
+      getScrollElement: () => (scrollContainerRef.value as Element | null | undefined) ?? null,
       estimateSize: () => DEFAULT_ROW_HEIGHT,
       overscan: DEFAULT_OVERSCAN,
     })),
