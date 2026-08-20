@@ -5,10 +5,12 @@
       :slides-per-view="1"
       :space-between="15"
       :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
+      :pagination="
+        {
+          bulletElement: 'button',
+          clickable: true,
+        } as any
+      "
       :breakpoints="{
         768: {
           spaceBetween: 20,

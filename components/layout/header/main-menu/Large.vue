@@ -55,15 +55,17 @@
       </button>
       <Swiper
         ref="swiperDOM"
-        :key="isBannerExpanded"
+        :key="String(isBannerExpanded)"
         :modules="[A11y, Pagination]"
         :slides-per-view="isBannerExpanded ? 4 : 3"
         :space-between="10"
         :grab-cursor="true"
-        :pagination="{
-          bulletElement: 'button',
-          clickable: true,
-        }"
+        :pagination="
+          {
+            bulletElement: 'button',
+            clickable: true,
+          } as any
+        "
         :breakpoints="{
           1024: {
             slidesPerView: isBannerExpanded ? 5 : 4,

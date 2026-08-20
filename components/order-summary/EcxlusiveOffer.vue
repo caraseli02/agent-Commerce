@@ -2,16 +2,20 @@
   <div class="relative overflow-x-hidden rounded-2xl border border-slate-200 aspect-[1.24] md:aspect-auto shadow-sm">
     <Swiper
       :modules="[A11y, Pagination, Autoplay]"
-      :autoplay="{
-        delay: 5000,
-      }"
+      :autoplay="
+        {
+          delay: 5000,
+        } as any
+      "
       :slides-per-view="1"
       :space-between="15"
       :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
+      :pagination="
+        {
+          bulletElement: 'button',
+          clickable: true,
+        } as any
+      "
       class="orderSummaryExclusiveOffer--swiper w-full h-full"
     >
       <SwiperSlide v-for="(item, index) in slides" :key="index">
