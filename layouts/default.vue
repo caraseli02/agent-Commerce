@@ -37,7 +37,7 @@ onMounted(() => {
 });
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../assets/css/main.css";
 html,
 body,

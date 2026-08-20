@@ -44,7 +44,7 @@
           <p class="mt-1 text-sm">Try again before continuing checkout.</p>
           <UiButton type="button" class="mt-3" @click="refreshCartRead()">Try again</UiButton>
         </div>
-        <div class="gap-6 xl:grid xl:grid-cols-[1fr,392px]">
+        <div class="gap-6 xl:grid xl:grid-cols-[1fr_392px]">
           <div class="flex flex-col gap-9 max-w-[992px]">
             <OrderSummaryBackOrderWarning v-if="showWarning" />
             <OrderSummaryTable

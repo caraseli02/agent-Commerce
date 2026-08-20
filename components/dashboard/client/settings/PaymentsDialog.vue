@@ -172,7 +172,7 @@ const showErrorMsg = ref(true);
   </UiDialog>
 </template>
 
-<style scoped lang="postcss">
+<style scoped>
 @reference "../../../../assets/css/main.css";
 label {
   @apply text-slate-500;

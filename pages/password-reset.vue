@@ -24,7 +24,7 @@
           label="Repeat Password"
           placeholder="Repeat Password"
         />
-        <div class="grid grid-cols-[140px,1fr] gap-4 mt-4">
+        <div class="grid grid-cols-[140px_1fr] gap-4 mt-4">
           <NuxtLink
             to="/"
             class="flex items-center justify-center px-8 py-2 rounded-lg bg-gray-100 leading-[1.67] h-12 text-slate-500 font-medium"

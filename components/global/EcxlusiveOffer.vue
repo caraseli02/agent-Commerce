@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
 import { A11y, Autoplay, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import SlideBg from '@/assets/media/home/exclusive-offer-bg.webp';
 import ItemImage from '@/assets/media/home/exclusive-offer-item.png';
@@ -62,7 +63,7 @@ const slides = ref([
 ]);
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../../assets/css/main.css";
 .homeExclusiveOffer--swiper .swiper-pagination {
   @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:-translate-x-24 xl:translate-x-0!;

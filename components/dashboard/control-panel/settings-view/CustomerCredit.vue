@@ -17,7 +17,7 @@
     </div>
     <p class="text-sm leading-[1.71] mb-[68px] md:mb-7 lg:mb-9">Change to customer credit account.</p>
     <div
-      class="md:grid md:grid-cols-[200px,1fr] md:grid-rows-[repeat(2,auto)] md:items-center md:gap-x-9 md:gap-y-8 lg:grid-cols-1 lg:gap-y-9 xl:gap-y-4"
+      class="md:grid md:grid-cols-[200px_1fr] md:grid-rows-[repeat(2,auto)] md:items-center md:gap-x-9 md:gap-y-8 lg:grid-cols-1 lg:gap-y-9 xl:gap-y-4"
     >
       <SkeletonLoader v-if="loading" class="w-full h-[71px] max-md:mb-12" />
       <div

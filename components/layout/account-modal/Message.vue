@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 
 const messages = [
   {
@@ -59,7 +60,7 @@ const messages = [
 ];
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 @reference "../../../assets/css/main.css";
 .homeNews--swiper {
   @apply px-0 pt-0 pb-[30px]!;

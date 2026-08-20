@@ -314,7 +314,7 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../../assets/css/main.css";
 .scrollbar-custom {
   &::-webkit-scrollbar-thumb {

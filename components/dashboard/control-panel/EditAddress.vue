@@ -100,7 +100,7 @@
             </FormItem>
           </FormField>
 
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-[auto,auto,1fr] md:pl-0">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-[auto_auto_1fr] md:pl-0">
             <UiButton
               v-if="deleteButtonEnable"
               variant="outline"

@@ -4,7 +4,7 @@
       <div class="leading-normal font-semibold">Customers by Country</div>
       <WarningIcon v-if="error" class="w-6 h-6" />
     </div>
-    <div v-if="countries.length > 0" class="grid grid-cols-1 xl:flex-1" :class="[loading ? 'xl:grid-cols-[auto,1fr] xl:gap-x-12' : '']">
+    <div v-if="countries.length > 0" class="grid grid-cols-1 xl:flex-1" :class="[loading ? 'xl:grid-cols-[auto_1fr] xl:gap-x-12' : '']">
       <div class="" :class="[loading ? 'md:w-[220px] xl:mr-0' : 'xl:mr-10']">
         <SkeletonLoader v-if="loading" class="w-2/3 h-[52px] mb-4 md:w-full" />
         <template v-else>
