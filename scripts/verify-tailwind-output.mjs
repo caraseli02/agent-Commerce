@@ -3,7 +3,10 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 
-const cssRoot = path.join(process.cwd(), '.output/public/_nuxt');
+const isVercelBuild = process.env.NITRO_PRESET === 'vercel' || process.env.VERCEL === '1';
+const cssRoots = isVercelBuild
+  ? [path.join(process.cwd(), '.vercel/output/static/_nuxt')]
+  : [path.join(process.cwd(), '.output/public/_nuxt')];
 const forbiddenDirectives = /@(apply|reference)\b/;
 const requiredGlobalUtilities = [/\.flex\{display:flex\}/, /\.bg-blue-500\{background-color:var\(--color-blue-500\)\}/];
 
@@ -29,9 +32,11 @@ async function cssAssets(dir) {
   return assets.flat();
 }
 
-const assets = await cssAssets(cssRoot).catch(() => []);
+const assets = (await Promise.all(cssRoots.map((root) => cssAssets(root).catch(() => [])))).flat();
 if (assets.length === 0) {
-  console.error('Tailwind output guard failed: Nuxt emitted no production CSS assets under .output/public/_nuxt.');
+  console.error(
+    `Tailwind output guard failed: Nuxt emitted no production CSS assets under ${cssRoots.map((root) => path.relative(process.cwd(), root)).join(' or ')}.`,
+  );
   process.exit(1);
 }
 
