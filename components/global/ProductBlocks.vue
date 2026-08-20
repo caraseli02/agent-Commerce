@@ -8,7 +8,7 @@
       :initial-products="fetchedProducts"
       @new-products="onProductsLoaded"
     />
-    <div :class="['md:flex flex-col xl:grid', { 'xl:grid-cols-[auto,1fr]': slots.banner }]">
+    <div :class="['md:flex flex-col xl:grid', { 'xl:grid-cols-[auto_1fr]': slots.banner }]">
       <slot name="banner" />
       <div v-if="isLoading" class="px-1 mt-6 md:pr-0 min-h-[284px] w-full" aria-busy="true" aria-live="polite">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

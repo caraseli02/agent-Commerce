@@ -2,16 +2,20 @@
   <div class="relative overflow-x-hidden rounded-2xl border border-slate-200 aspect-[1.24] md:aspect-auto shadow-sm">
     <Swiper
       :modules="[A11y, Pagination, Autoplay]"
-      :autoplay="{
-        delay: 5000,
-      }"
+      :autoplay="
+        {
+          delay: 5000,
+        } as any
+      "
       :slides-per-view="1"
       :space-between="15"
       :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
+      :pagination="
+        {
+          bulletElement: 'button',
+          clickable: true,
+        } as any
+      "
       class="orderSummaryExclusiveOffer--swiper w-full h-full"
     >
       <SwiperSlide v-for="(item, index) in slides" :key="index">
@@ -50,6 +54,7 @@
 
 <script setup lang="ts">
 import { A11y, Autoplay, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import SlideBg from '@/assets/media/home/exclusive-offer-bg.webp';
 import ItemImage from '@/assets/media/home/exclusive-offer-item.png';
 
@@ -82,7 +87,7 @@ const slides = ref([
 ]);
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../../assets/css/main.css";
 .orderSummaryExclusiveOffer--swiper .swiper-pagination {
   @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:left-1/2 lg:-translate-x-1/2!;

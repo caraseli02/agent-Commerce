@@ -1,8 +1,14 @@
 @import 'tailwindcss';
+@import 'swiper/css';
+@import 'swiper/css/pagination';
 @import './resets.css';
 @import './utils.css';
 @import './animations.css';
 @import './vendors/v-calendar.css';
+
+@plugin 'tailwind-scrollbar' {
+  nocompatible: true;
+}
 
 @theme {
   /* Breakpoints */

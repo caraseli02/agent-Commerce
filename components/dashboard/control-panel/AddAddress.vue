@@ -100,7 +100,7 @@
             </FormItem>
           </FormField>
 
-          <div class="grid grid-cols-[auto,1fr] gap-4 md:pl-0">
+          <div class="grid grid-cols-[auto_1fr] gap-4 md:pl-0">
             <UiButton variant="secondary" class="px-[41px] leading-[1.75] text-slate-500" type="button" @click="onCloseDialog()">
               Cancel
             </UiButton>

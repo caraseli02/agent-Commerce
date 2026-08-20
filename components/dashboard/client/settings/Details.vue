@@ -515,7 +515,7 @@ watch(region, (newRegion) => {
   <div v-else class="bg-white shadow-l rounded-xl p-6 text-sm text-slate-500">Loading account details...</div>
 </template>
 
-<style scoped lang="postcss">
+<style scoped>
 @reference "../../../../assets/css/main.css";
 label {
   @apply text-slate-500;

@@ -8,10 +8,12 @@
       :slides-per-view="1"
       :space-between="15"
       :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
+      :pagination="
+        {
+          bulletElement: 'button',
+          clickable: true,
+        } as any
+      "
       class="homeFeaturedProducts--swiper w-[100%] h-[100%] block"
     >
       <SwiperSlide v-for="(item, index) in slides" :key="index">
@@ -117,6 +119,7 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import type { ProductBannerInterface } from '~/types/dashboard/client-dashboard';
 import type { ProductInterface } from '~/types/product';
 import { addToCartHelper } from '~/helpers/prices.helper';
@@ -166,7 +169,7 @@ const addToCart = async (product: ProductBannerInterface) => {
 };
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../../../assets/css/main.css";
 .homeFeaturedProducts--swiper {
   @apply px-0 pt-0 pb-[30px]!;

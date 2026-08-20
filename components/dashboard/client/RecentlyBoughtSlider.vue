@@ -17,10 +17,12 @@
         :slides-per-view="1"
         :space-between="15"
         :grab-cursor="true"
-        :pagination="{
-          bulletElement: 'button',
-          clickable: true,
-        }"
+        :pagination="
+          {
+            bulletElement: 'button',
+            clickable: true,
+          } as any
+        "
         :breakpoints="{
           768: {
             slidesPerView: 2,
@@ -53,6 +55,7 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 
 const data = [
   {
@@ -83,7 +86,7 @@ const data = [
 ];
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../../../assets/css/main.css";
 .homeFeaturedProducts--swiper {
   @apply px-0 pt-0 pb-[30px]!;

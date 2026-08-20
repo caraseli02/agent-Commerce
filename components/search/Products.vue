@@ -3,7 +3,7 @@
     <div v-if="totalItems" class="container">
       <div class="font-semibold font-Inter mb-[15px] md:hidden">Products Found ({{ totalItems }})</div>
       <div
-        class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 mb-6 md:grid-cols-[auto,auto] md:justify-start md:gap-x-6 md:gap-y-4 md:px-5 md:py-5 md:mb-8 lg:flex lg:flex-wrap lg:items-center lg:gap-4"
+        class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 mb-6 md:grid-cols-[auto_auto] md:justify-start md:gap-x-6 md:gap-y-4 md:px-5 md:py-5 md:mb-8 lg:flex lg:flex-wrap lg:items-center lg:gap-4"
       >
         <label class="flex items-center">
           <span class="text-sm flex-shrink-0 mr-2.5">Show</span>
@@ -373,7 +373,7 @@ watch(
 );
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../../assets/css/main.css";
 .searchProducts--pagination-item {
   @apply cursor-pointer flex items-center justify-center w-8 h-8 mx-1 text-sm font-Inter font-semibold rounded-md bg-gray-100 text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white focus-visible:bg-blue-500 focus-visible:text-white!;

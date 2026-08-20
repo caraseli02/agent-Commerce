@@ -1,8 +1,8 @@
 <template>
   <div
     v-click-outside="() => handleClickOutside()"
-    class="grid grid-cols-[0px,1fr] rounded-b-md border border-border shadow-sm max-h-[calc(100vh-178px)] md:h-[448px] xl:h-[550px] transition-all duration-150"
-    :class="[isBannerExpanded ? '' : 'grid-cols-[0px,1fr] md:grid-cols-[260px,1fr] lg:grid-cols-[260px,1fr] xl:grid-cols-[290px,1fr]']"
+    class="grid grid-cols-[0px_1fr] rounded-b-md border border-border shadow-sm max-h-[calc(100vh-178px)] md:h-[448px] xl:h-[550px] transition-all duration-150"
+    :class="[isBannerExpanded ? '' : 'grid-cols-[0px_1fr] md:grid-cols-[260px_1fr] lg:grid-cols-[260px_1fr] xl:grid-cols-[290px_1fr]']"
   >
     <div
       class="relative z-40 flex flex-col gap-1 p-2.5 bg-white border-r border-gray-200 max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-bl-md w-[260px] transition-opacity duration-200 xl:w-[290px] xl:py-[13px] xl:gap-1"
@@ -55,15 +55,17 @@
       </button>
       <Swiper
         ref="swiperDOM"
-        :key="isBannerExpanded"
+        :key="String(isBannerExpanded)"
         :modules="[A11y, Pagination]"
         :slides-per-view="isBannerExpanded ? 4 : 3"
         :space-between="10"
         :grab-cursor="true"
-        :pagination="{
-          bulletElement: 'button',
-          clickable: true,
-        }"
+        :pagination="
+          {
+            bulletElement: 'button',
+            clickable: true,
+          } as any
+        "
         :breakpoints="{
           1024: {
             slidesPerView: isBannerExpanded ? 5 : 4,
@@ -190,7 +192,7 @@
       </div>
     </div>
     <div
-      class="hidden relative z-30 col-start-2 row-start-1 grid-cols-[1fr,340px] gap-[25px] bg-white font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:grid xl:gap-0"
+      class="hidden relative z-30 col-start-2 row-start-1 grid-cols-[1fr_340px] gap-[25px] bg-white font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:grid xl:gap-0"
       :class="[selectedCategory ? '' : 'opacity-0 pointer-events-none -translate-x-10']"
     >
       <div>
@@ -251,6 +253,7 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import { useRouter } from 'vue-router';
 import type { Component } from 'vue';
 import SemiconductorsIcon from '@/assets/icons/header/semiconductors.svg';
@@ -424,7 +427,7 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../../../../assets/css/main.css";
 .headerSubmenu--swiper {
   @apply z-20 pb-[22px] mt-auto md:pb-[38px]!;
@@ -448,7 +451,7 @@ onMounted(async () => {
 }
 </style>
 
-<style lang="postcss">
+<style>
 @reference "../../../../assets/css/main.css";
 .animateToRight {
   animation: toRightFromLeft 0.5s forwards linear;

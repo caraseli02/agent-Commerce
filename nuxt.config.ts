@@ -85,6 +85,8 @@ export default defineNuxtConfig({
     },
   },
 
+  // This is the only emitting Tailwind entry. Files that use `@apply` reference
+  // it so their separately bundled SFC styles share the same theme context.
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {

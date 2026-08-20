@@ -105,7 +105,7 @@
               <!--              </Tooltip> -->
             </div>
             <div class="grid grid-cols-1 gap-2">
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">User Name</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{
@@ -115,32 +115,32 @@
                   }}
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Name</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{ firstName }}
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Surname</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{ lastName }}
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Country</div>
                 <div class="flex items-center text-sm font-medium leading-[1.75] break-all">
                   <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" loading="lazy" />
                   <span>{{ country?.label ? country.label : 'N/A' }} </span>
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Mobile Number</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{ customerInformation?.contactDetails?.phone }}
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Address</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{ customerInformation?.personalDetails?.address.name1 || 'N/A' }}

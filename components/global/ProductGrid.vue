@@ -4,10 +4,12 @@
     :slides-per-view="1"
     :space-between="15"
     :grab-cursor="true"
-    :pagination="{
-      bulletElement: 'button',
-      clickable: true,
-    }"
+    :pagination="
+      {
+        bulletElement: 'button',
+        clickable: true,
+      } as any
+    "
     class="homeFeaturedProducts--swiper w-[100%] block"
   >
     <SwiperSlide v-for="(item, index) in productsByViewport" :key="index">
@@ -28,6 +30,7 @@
 
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import type { ProductInterface } from '~/types/product';
 
 const props = defineProps<{
@@ -104,7 +107,7 @@ const productsByViewport = computed(() => {
 });
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../../assets/css/main.css";
 .homeFeaturedProducts--swiper {
   @apply px-0 pt-0 pb-[30px]!;

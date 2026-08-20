@@ -37,7 +37,7 @@
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-[auto,1fr] gap-4">
+      <div class="grid grid-cols-[auto_1fr] gap-4">
         <UiButton variant="secondary" class="px-8 py-2 text-sm font-medium leading-[1.71] text-slate-500" @click="closeModal">
           Cancel
         </UiButton>

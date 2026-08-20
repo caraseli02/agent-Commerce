@@ -1,7 +1,7 @@
 <template>
-  <div class="grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-[1fr,460px]">
+  <div class="grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-[1fr_460px]">
     <div
-      class="relative bg-white grid grid-cols-1 gap-4 overflow-hidden md:min-h-[700px] md:gap-6 lg:grid-cols-2 lg:gap-6 xl:grid-cols-1 xl:gap-0 xl:order-2 xl:grid-rows-[auto,1fr] xl:shadow-xs xl:rounded-xl xl:overflow-hidden"
+      class="relative bg-white grid grid-cols-1 gap-4 overflow-hidden md:min-h-[700px] md:gap-6 lg:grid-cols-2 lg:gap-6 xl:grid-cols-1 xl:gap-0 xl:order-2 xl:grid-rows-[auto_1fr] xl:shadow-xs xl:rounded-xl xl:overflow-hidden"
     >
       <Transition name="slide-from-right">
         <DashboardControlPanelSettingsViewCustomerCreditEdit

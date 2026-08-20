@@ -30,7 +30,7 @@ const isSideNavCollapsedOnDesktop = ref(true);
 const showSideNav = ref(false);
 </script>
 
-<style lang="postcss">
+<style>
 @reference "../assets/css/main.css";
 html,
 body,
