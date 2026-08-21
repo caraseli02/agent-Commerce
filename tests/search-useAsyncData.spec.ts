@@ -22,6 +22,7 @@ const baseQuery = {
 describe('search useAsyncData contract', () => {
   it('loads search results through useAsyncData with stable cache keys and error UI', () => {
     const searchPage = readFileSync(searchPagePath, 'utf8');
+    const searchProducts = readFileSync(resolve('components/search/Products.vue'), 'utf8');
 
     expect(searchPage).toContain('searchResultsCacheKey(searchQuery.value)');
     expect(searchPage).toContain('loadSearchResults(searchQuery.value)');
@@ -31,6 +32,9 @@ describe('search useAsyncData contract', () => {
     expect(searchPage).toContain('motion-reduce:animate-none');
     expect(searchPage).not.toContain('onMounted(');
     expect(searchPage).not.toContain('async function getProduct');
+    expect(searchProducts).toContain("import EmptyState from '~/components/global/EmptyState.vue'");
+    expect(searchProducts).toContain('<EmptyState');
+    expect(searchProducts).not.toContain('<GlobalEmptyState');
   });
 
   it('builds deterministic cache keys from search query values', () => {

@@ -23,7 +23,7 @@ describe('empty state UX contract (#194)', () => {
   it('uses the shared empty state for no search results', () => {
     const products = source('components/search/Products.vue');
 
-    expect(products).toContain('GlobalEmptyState');
+    expect(products).toContain('<EmptyState');
     expect(products).toContain('searchEmptyPreset');
     expect(products).not.toContain('No products found');
   });

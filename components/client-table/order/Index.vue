@@ -96,6 +96,9 @@ await fetchAndSetOrdersList(1, 10);
       :columns="columns"
       :loading="loading"
       :total-items="totalItems"
+      :show-scroll-hint="true"
+      scroll-hint="Scroll to view more order details"
+      table-min-width="720px"
     >
       <template #header="{ table, makeRefresh }">
         <DataTableHeadControls :error="error" title="Orders List" :table="table" @refresh="makeRefresh()">

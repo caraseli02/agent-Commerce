@@ -269,7 +269,7 @@
       </div>
     </div>
     <div v-else class="container">
-      <GlobalEmptyState
+      <EmptyState
         v-bind="searchEmptyPreset"
         :description="
           keyword
@@ -288,6 +288,7 @@ import CheckIcon from '@/assets/icons/check.svg';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import type { SearchData } from '~/types/product';
+import EmptyState from '~/components/global/EmptyState.vue';
 import { searchEmptyPreset } from '~/components/global/empty-state-presets';
 
 const props = defineProps<{
