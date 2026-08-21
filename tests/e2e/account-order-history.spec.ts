@@ -32,5 +32,15 @@ test.describe('Order History / Account View', () => {
     await expect(page.getByText(/active orders/i)).toBeVisible();
     await expect(page.getByRole('heading', { name: /orders list/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /ORD-2024-0001/i }).first()).toBeVisible();
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const table = page.getByRole('region', { name: 'Data table' });
+    const scrollHint = page.getByText(/scroll to view more order details/i);
+    await expect(table).toBeVisible();
+    await expect(scrollHint).toBeVisible();
+    await page.getByTestId('virtualized-table-scroll').evaluate((element) => {
+      element.scrollLeft = element.scrollWidth;
+    });
+    await expect(scrollHint).toHaveCount(0);
   });
 });

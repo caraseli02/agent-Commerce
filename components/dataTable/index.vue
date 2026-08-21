@@ -13,6 +13,9 @@ interface Props {
   pageCount: number;
   totalItems: number;
   loading: boolean;
+  showScrollHint?: boolean;
+  scrollHint?: string;
+  tableMinWidth?: string;
 }
 
 const props = defineProps<Props>();
@@ -137,9 +140,16 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
     <slot name="header" :make-refresh="() => (refresh = true)" :table="table" />
     <slot name="toolbar" :table="table" />
     <div class="rounded-xl border relative min-h-[650px]">
-      <SharedScrollableRegion class="min-h-[650px]" label="Data table" test-id="dashboard-data-table">
+      <SharedScrollableRegion
+        class="min-h-[650px]"
+        label="Data table"
+        test-id="dashboard-data-table"
+        :show-scroll-hint="showScrollHint"
+        :scroll-hint="scrollHint"
+        scroll-target-selector="[data-testid='virtualized-table-scroll']"
+      >
         <div ref="scrollContainerRef" class="max-h-[600px] overflow-y-auto" data-testid="virtualized-table-scroll">
-          <UiTable>
+          <UiTable :table-style="tableMinWidth ? { minWidth: tableMinWidth } : undefined">
             <UiTableHeader class="sticky top-0 z-10 bg-light-200">
               <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
                 <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
