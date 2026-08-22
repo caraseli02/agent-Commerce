@@ -14,7 +14,7 @@ export default defineConfig({
   },
   test: {
     include: ['tests/**/*.spec.ts'],
-    exclude: ['tests/e2e/**', 'tests/performance/**', 'node_modules/**', '.nuxt/**', '.output/**'],
+    exclude: ['tests/e2e/**', 'tests/performance/**', 'tests/visual/**', 'node_modules/**', '.nuxt/**', '.output/**'],
     coverage: {
       provider: 'v8',
       include: ['composables/api/**/*.ts', 'store/**/*.ts'],
