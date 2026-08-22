@@ -68,6 +68,19 @@ Use this policy to keep PRs reviewable and avoid scattering one-off artifacts ac
 - **Tracked `tmp/` files** are discouraged by default. If a `tmp/` artifact must be kept for review, document why it is retained and clean it up in the same task or follow-up.
 - **Runtime links** in PR text should point at the exact route, log, or screenshot that proves the changed behavior.
 
+## Local visual-regression pilot
+
+The visual suite is a local review aid for the Tailwind/Nuxt recovery work. It is **not** a required check, does not block merges, and has no CI job, artifact upload, Docker/Linux baseline, or visual SaaS integration.
+
+- Run `pnpm test:visual` to build the app and exercise the visual matrix against a fresh local Nitro preview at `http://127.0.0.1:3100`. It must not be pointed at `pnpm dev`.
+- Run `pnpm test:visual:update` only when intentionally accepting a visual change. It writes the committed PNG baselines under `tests/visual/__screenshots__/`.
+- On a mismatch, Playwright writes actual and diff images under `test-results/visual/`; open `playwright-report/visual/index.html` for the HTML report. Expected images are the baseline PNGs beside the visual spec.
+- Treat an update as a code-review decision: inspect expected, actual, and diff images; confirm the change protects the intended page rather than hiding a loading/auth/error state; then keep only the deliberate baseline change.
+- First diagnose mismatches through the test's console, hydration, page-error, failed-request, and 5xx assertions. Do not widen screenshot tolerance or mask icons, navigation, headers, product cards, or protected content merely to make a run pass.
+- Baselines are currently local Chromium captures and include the platform token in their filename. Text rasterization and browser/OS rendering can differ on Linux, so future CI adoption needs a separately reviewed Linux baseline strategy rather than overwriting this pilot's local images.
+
+The pilot fixes light color scheme, `en-US`, UTC, reduced motion, isolated Playwright pages, mock data/auth/cart setup, font readiness, and disabled transitions. The shared 100-pixel allowance only absorbs trivial local raster variation; it is not a layout tolerance.
+
 Example evidence block for a future PR:
 
 ```md

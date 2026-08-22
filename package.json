@@ -17,6 +17,8 @@
     "deps:audit": "pnpm --ignore-workspace audit --prod",
     "clean-state": "node scripts/check-clean-state.mjs",
     "test:e2e": "playwright test",
+    "test:visual": "playwright test --config=playwright.visual.config.ts",
+    "test:visual:update": "playwright test --config=playwright.visual.config.ts --update-snapshots",
     "verify": "node scripts/verify.mjs",
     "verify:full": "node scripts/verify.mjs --full",
     "verify:handoff": "node scripts/verify.mjs --handoff",
