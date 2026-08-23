@@ -2,80 +2,35 @@
 
 ## Current focus
 
-- Epic #457: **#467** upgrades Pinia and persisted state to the Nuxt 4-compatible release set. The integration keeps mock cart persistence and customer session behavior; the Tailwind 4 global stylesheet and Nuxt `Global*` component prefix were restored after focused production cart coverage exposed the missing registrations.
-- Buyer Flow as-built map: `docs/buyer-flow-architecture.md` (companion to `docs/buyer-flow-design-contract.md`).
-- After that (also `priority:p2`): portfolio-scoped **Security #99** children and **SEO #103** children.
-- GitHub Issues remain the primary task queue.
+- No active migration ticket. Epic #457’s Nuxt 4 recovery sequence is merged through PR #502 at `14d6d763`.
+- Next migration frontier: #468 (Zod 4); do not start it until its dependency/state wording is reconciled.
+- GitHub Issues remain the primary task queue; WIP is currently 0 (`in-progress` is empty).
+- PR #503 is tracking-only: it reconciles this durable state and changes no application behavior.
 
 ## In progress
 
-- **#461** — PR #488 merged to `origin/main` at `1e80367d` with GitHub Actions and Vercel green. The human merge approved the documented Nuxt framework-package version assertion; the bundled CLI still reports `3.37.0` while the framework package is `4.5.2`.
-- **#458** — PR #489 merged to `origin/main` at `170144c5` after GitHub Actions, Vercel, and direct Greptile review passed (5/5 confidence, no actionable findings). `pnpm deps:outdated` and `pnpm deps:audit` use `--ignore-workspace` to avoid parent-workspace resolution; no package upgrade or lockfile rewrite was made.
-- **#459** — Firebase/VueFire retirement merged through PR #491 (`502df432`) after green CI/Vercel/Greptile and independent PASS (10/10). The `in-progress` label is removed and Epic #457 is checked.
-- **#463** — PR #492 merged to `origin/main` at `468ba76e` after green CI/Vercel/Greptile and independent PASS (10/10). All static, dynamic, and type-only Lucide references now use `@lucide/vue`.
-- **#462** — Nuxt 4 production runtime acceptance: fixed SSR/client hydration parity for viewport-chunked product grids, client-restored order summaries, and initially empty dashboard activity. Focused regression test and `pnpm verify:full` pass; fresh mock production browser evidence covers storefront/search/product images, customer dashboard, cart/order summary, and checkout success with no console errors.
-- **#464** — PR #494 merged to `origin/main` at `42066245` after GitHub Actions, Vercel, and requested Greptile review passed. Prettier is 3.9.6; formatting and compatible lint rules are aligned.
-- **#465** — PR #495 upgrades TypeScript to 5.9.3 and `vue-tsc` to 3.3.9, the current Nuxt 4-compatible toolchain. `pnpm typecheck` and `pnpm verify` pass locally; awaiting GitHub Actions and Greptile before evaluator verdict.
-- **#466** — PR #496 merged to `origin/main` at `1d799340` after GitHub Actions, Vercel, Greptile (5/5), and independent evaluator PASS (10/10). Tailwind CSS 4 now uses the official Vite/PostCSS integration; the global entrypoint and Nuxt `Global*` component prefix are explicitly registered for Nuxt 4 production runtime.
-- **#467** — Pinia 4.0.3, `@pinia/nuxt` 1.0.2, and `pinia-plugin-persistedstate` 4.7.1 resolve without peer overrides. `pnpm verify:full` and focused fresh-production browser coverage of customer session persistence plus cart add/remove/empty state pass; ready for a reviewable PR.
+- None; no migration ticket is active and no issue has the `in-progress` label.
 
-## Human decisions pending
+## Recently verified recovery
 
-- **#316** (`ready-for-human`) — choose severity:low auto-merge vs evaluator policy (options in issue comment).
-- **#121** (`ready-for-human`) — Stripe payment integration plan (HITL).
-
-## Architecture note (cross-runtime cart pricing)
-
-- Shared pure helpers live in `helpers/cart-pricing.ts` (`resolveTierUnitPrice`, `clampCartQuantity`, `calculateCartLinePricing`).
-- Client re-exports via `helpers/prices.helper.ts` (may toast / call `useCart`).
-- Nitro mock cart imports `helpers/cart-pricing.ts` directly — do not import `prices.helper.ts` from `server/` (it pulls Vue composables and breaks Nitro).
-- Order Money: `helpers/order-money.ts` (`calculateOrderMoney`); finish remaining callers via #426.
-- Checkout post-order: `helpers/checkout-outcome.ts` (`resolveCheckoutOutcome`); `useOrder` applies outcomes — see #427.
-- Security seam (planned): `server/utils/requireMockAuth` — see epic #99.
-- SEO seam (planned): `usePageSeo` — see epic #103.
-
-## Recently completed
-
-- System-design triage (2026-08-06): closed `#101`; rewrote `#99`/`#103`; `wontfix` `#109`/`#111`/`#113`; promoted slim Security + SEO children.
-- Housekeeping: closed zombie epics `#100`, `#102`, `#104`, `#255`, `#389`.
-- Issue #194 / PR #440 — shared empty states on Scripted Buyer Path.
-- Issue #404 / PR #439 — contract product `model/` trees to canonical `types/product` namespace.
-- Issue #429 / PR #438 — browse/search application seam (`useProducts`).
-- Issue #430 / PR #437 — cart update signals without event bus.
-- Issue #425 / PR #434 — Order Money module on Scripted Buyer Path.
-- Issue #402 / PR #424 — retire FormInput on Scripted Buyer Path.
-- Issue #403 / PR #423 — order and dashboard type namespace consolidation.
-- Issue #399 / PR #417 — reduce Swiper weight on home merchandising surfaces.
-- Issue #390 / PR #405 — CLAUDE.md API guidance synced with live `composables/api` architecture.
-- Issue #385 / PR #386 — optimistic add-to-cart on Scripted Buyer Path.
-- Issue #349 / PR #383 — dashboard bundle split and bundle-size guardrails.
-- Issue #348 / PR #382 — persist reviewer cart sessions across server restarts.
-- Issue #301 / PR #387 — refactor stabilization PRD completed with timeline.
-- Issue #368 / PR #364 — storefront hardening merged to `main`.
-
-## Blocked / known baseline failures
-
-- No app-code baseline failures.
-- `#433` is `ready-for-agent` but still prefer landing after `#427`.
-- `#187`/`#188` prefer after `#186`; `#107` prefers `#108` util first.
-- Local note: this repo can sit under a parent pnpm workspace; use `pnpm --config.manage-package-manager-versions=false` if package-manager self-install loops appear.
+- PR #497 merged #467 at `0c930cab`; Pinia 4.0.3, `@pinia/nuxt` 1.0.2, persisted state 4.7.1, cart/session production checks, and `pnpm verify:full` passed.
+- PR #500 merged at `34e2c8b8`; the final Tailwind 4 setup is Vite-only and CSS-first: `@tailwindcss/vite` processes the global `assets/css/main.css` source entrypoint into built CSS assets; that source owns the Tailwind imports, theme, and plugins.
+- PR #501 merged at `f232ec6f`; search no-result rendering and narrow customer order history were recovered with focused production browser evidence.
+- PR #502 merged at `14d6d763`; the local Chromium/macOS Playwright visual pilot and 18 reviewed baselines are documented in `docs/agents/verification.md`.
 
 ## Verification baseline
 
-- `gh issue list --state open --label ready-for-agent`
-- `gh label list --limit 50 | grep '^in-progress\b'`
-- `./init.sh`
+- `./scripts/validate-feature-list.sh`
 - `pnpm verify` — fast default gate
 - `pnpm verify:full` — architecture invariants and preview smoke
 - `pnpm verify:handoff` — clean-tree handoff gate
 
-## Notes
+## Human decisions pending
 
-- Use this file only for durable cross-session state, not transient task notes.
-- Do not duplicate GitHub Issues here; mirror only the active issue/PR and baseline facts needed by the next session.
-- Open tracking epics (not pickup targets): `#99` Security (demo-scoped), `#103` SEO foundation.
+- #316 (`ready-for-human`) — choose severity:low auto-merge versus evaluator policy.
+- #121 (`ready-for-human`) — decide the Stripe payment integration plan (HITL).
 
-## CI note (PR template gate)
+## Blocked / known baseline failures
 
-- Cursor-bot PRs were failing `check-pr-template.mjs` on verification wording (`— pass` vs `— outcome: pass`) and blank evaluator rubric scores.
-- Gate now requires Verification / Known risks / Evaluator rubric only (Related lectures removed). Rubric numeric scores are evaluator-owned; generators may leave `/10` placeholders.
+- #468 is open and labeled `ready-for-agent`, but its body still says it is blocked by #461; it remains untouched in this reconciliation.
+- PRs #501 and #502 passed their technical/application verification (including local `pnpm verify` and focused browser/visual checks); their overall GitHub `verify` jobs were red only because `check-pr-template.mjs` rejected PR metadata, not because those technical checks failed.
