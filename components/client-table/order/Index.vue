@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { columns } from './columns';
+import GlobalEmptyState from '~/components/global/EmptyState.vue';
 import type { OrderInterface, OrderTableColumns } from '~/types';
 import { fetchOrders } from '~/composables/api/orders';
 import { ordersEmptyPreset } from '~/components/global/empty-state-presets';
