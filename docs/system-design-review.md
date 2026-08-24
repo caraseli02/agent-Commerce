@@ -454,14 +454,14 @@ Preferred checkout intent shape is conceptually closer to:
 
 ```ts
 type CheckoutRequest = {
-  cartId: string;
-  shippingAddress: AddressInput;
-  billingAddress?: AddressInput;
-  deliveryMethodId: string;
-  paymentMethodId: string;
-  note?: string;
-  idempotencyKey: string;
-};
+  cartId: string
+  shippingAddress: AddressInput
+  billingAddress?: AddressInput
+  deliveryMethodId: string
+  paymentMethodId: string
+  note?: string
+  idempotencyKey: string
+}
 ```
 
 The request should not treat these as authoritative client inputs:
@@ -482,16 +482,16 @@ Authenticated customer identity should be derived from the server-side session/t
 
 Current working classification:
 
-| State/data                        | Ownership                                        |
-| --------------------------------- | ------------------------------------------------ |
-| Product search/filter UI state    | frontend/navigation owned                        |
-| Product price                     | backend authoritative                            |
-| Cart UI state                     | frontend owned                                   |
-| Authoritative cart                | shared representation, backend authoritative     |
-| Inventory availability            | backend authoritative                            |
-| Checkout total                    | backend authoritative                            |
-| Order status                      | backend authoritative                            |
-| Modal open/closed                 | frontend owned                                   |
+| State/data | Ownership |
+| --- | --- |
+| Product search/filter UI state | frontend/navigation owned |
+| Product price | backend authoritative |
+| Cart UI state | frontend owned |
+| Authoritative cart | shared representation, backend authoritative |
+| Inventory availability | backend authoritative |
+| Checkout total | backend authoritative |
+| Order status | backend authoritative |
+| Modal open/closed | frontend owned |
 | Logged-in customer representation | shared, backend authoritative for identity/authz |
 
 Useful frontend state categories:
@@ -1006,22 +1006,22 @@ Frontend         → presentation/interaction representation, not business autho
 
 # 10. Current checkout vs production target
 
-| Area                     | Current implementation                              | Production-quality target                     | Gap                         |
-| ------------------------ | --------------------------------------------------- | --------------------------------------------- | --------------------------- |
-| Identity                 | server resolves mock auth/guest user                | server-authenticated identity                 | foundation exists           |
-| Cart                     | server-side mock cart + session persistence         | durable authoritative cart                    | persistence replacement     |
-| Cart pricing             | server mock cart recalculates against mock products | server authoritative                          | useful foundation           |
-| Checkout total           | client values may override fallback calculation     | server-only calculation                       | high                        |
-| Products in order        | request products can be preferred                   | reload authoritative cart lines               | high                        |
-| Order persistence        | runtime in-memory Map                               | durable relational persistence                | high                        |
-| Initial order state      | runtime order immediately created for mock success  | durable PENDING_PAYMENT                       | high                        |
-| Inventory reservation    | not modeled                                         | atomic reservation                            | high                        |
-| Payment                  | simulated success                                   | provider abstraction + Payment record         | expected future integration |
-| Idempotency              | no complete checkout guarantee identified           | mandatory                                     | high                        |
-| Partial failure recovery | minimal in mock path                                | explicit recoverable states                   | high                        |
-| Cart clearing            | clears immediately after mock order creation        | clear purchased items after committed success | medium/high                 |
-| Webhook/reconciliation   | unnecessary for deterministic mock                  | required for real provider                    | future integration          |
-| Frontend outcome model   | `CheckoutOutcome` abstraction exists                | explicit business result model                | good direction              |
+| Area | Current implementation | Production-quality target | Gap |
+| --- | --- | --- | --- |
+| Identity | server resolves mock auth/guest user | server-authenticated identity | foundation exists |
+| Cart | server-side mock cart + session persistence | durable authoritative cart | persistence replacement |
+| Cart pricing | server mock cart recalculates against mock products | server authoritative | useful foundation |
+| Checkout total | client values may override fallback calculation | server-only calculation | high |
+| Products in order | request products can be preferred | reload authoritative cart lines | high |
+| Order persistence | runtime in-memory Map | durable relational persistence | high |
+| Initial order state | runtime order immediately created for mock success | durable PENDING_PAYMENT | high |
+| Inventory reservation | not modeled | atomic reservation | high |
+| Payment | simulated success | provider abstraction + Payment record | expected future integration |
+| Idempotency | no complete checkout guarantee identified | mandatory | high |
+| Partial failure recovery | minimal in mock path | explicit recoverable states | high |
+| Cart clearing | clears immediately after mock order creation | clear purchased items after committed success | medium/high |
+| Webhook/reconciliation | unnecessary for deterministic mock | required for real provider | future integration |
+| Frontend outcome model | `CheckoutOutcome` abstraction exists | explicit business result model | good direction |
 
 The current mock checkout should not be described simply as "bad." It is optimized for a deterministic portfolio walkthrough. The production-readiness gap is that its current deterministic shortcuts do not yet model the invariants required by a real checkout.
 
