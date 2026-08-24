@@ -8,6 +8,20 @@
   },
   "features": [
     {
+      "id": "E457-469",
+      "description": "Upgrade reviewer-visible date formatting from date-fns 2 to date-fns 4",
+      "validation": "date-fns 4 resolves without compatibility changes; reviewer date helper tests, typecheck, pnpm verify, and representative production mock browser date rendering pass",
+      "status": "passing",
+      "evidence": [
+        "Claimed #469 on codex/469-date-fns-4 with a focused sprint contract",
+        "date-fns 4.4.0 installed; existing named imports compile unchanged",
+        "pnpm exec vitest run tests/reviewer-dates.spec.ts: pass (5 tests)",
+        "pnpm typecheck: pass",
+        "pnpm verify: pass",
+        "Fresh production mock browser: storefront rendered meaningful content; customer dashboard showed formatted dates such as 15 January 2023, 11:30, with no error overlay or console errors"
+      ]
+    },
+    {
       "id": "E457-462",
       "description": "Verify and repair Nuxt 4 mock-mode core demo runtime journeys",
       "validation": "Production mock browser covers storefront/search/product images, customer dashboard, cart/order summary, and checkout confirmation with no console errors; pnpm verify:full passes",

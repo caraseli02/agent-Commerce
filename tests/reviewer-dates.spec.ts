@@ -15,6 +15,14 @@ describe('reviewer date formatting', () => {
     expect(formatReviewerDate(iso)).toBe(format(parseISO(iso), 'dd MMMM yyyy'));
   });
 
+  it('keeps date-only strings and Date inputs on the supported date-fns 4 path', () => {
+    const dateOnly = '2026-08-24';
+    const date = new Date(2026, 7, 24, 9, 45);
+
+    expect(formatReviewerDate(dateOnly)).toBe(format(parseISO(dateOnly), 'dd MMMM yyyy'));
+    expect(formatReviewerDateTime(date)).toBe(format(date, 'dd MMMM yyyy, HH:mm'));
+  });
+
   it('returns a deliberate fallback for missing values', () => {
     expect(formatReviewerDate(null)).toBe(REVIEWER_DATE_FALLBACK);
     expect(formatReviewerDateTime(undefined)).toBe(REVIEWER_DATE_FALLBACK);

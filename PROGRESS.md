@@ -2,14 +2,13 @@
 
 ## Current focus
 
-- No active migration ticket. Epic #457’s Nuxt 4 recovery sequence is merged through PR #502 at `14d6d763`.
-- Next migration frontier: #468 (Zod 4); do not start it until its dependency/state wording is reconciled.
-- GitHub Issues remain the primary task queue; WIP is currently 0 (`in-progress` is empty).
-- PR #503 is tracking-only: it reconciles this durable state and changes no application behavior.
+- #469 — Upgrade date formatting to date-fns 4; claimed on `codex/469-date-fns-4`.
+- #468 remains deliberately deferred and untouched.
+- GitHub Issues remain the primary task queue; WIP is 1 (#469).
 
 ## In progress
 
-- None; no migration ticket is active and no issue has the `in-progress` label.
+- #469: dependency and focused coverage are complete; full verification and clean handoff remain.
 
 ## Recently verified recovery
 
