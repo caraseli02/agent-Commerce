@@ -198,7 +198,12 @@
       "description": "Mock Integration Boundary for auth skip and payment UI (#433)",
       "validation": "pnpm verify passes; tests/mock-integration.spec.ts covers mock vs live outcomes for auth skip and payment visibility at the application/adapter seam; UI no longer branches on MOCK_MODE for those behaviors",
       "status": "active",
-      "evidence": []
+      "evidence": [
+        "PR #505: https://github.com/caraseli02/Ecas/pull/505",
+        "pnpm verify: pass (build, lint, typecheck, test, feature-list, UI conventions)",
+        "Mock smoke: preview boots in mock mode; GET / -> 200 with storefront content; GET /api/orders -> 200",
+        "tests/mock-integration.spec.ts: mock vs live outcomes for isPaymentManagementVisible, canSkipAuthenticatedUser, requiresDemoToken, isDemoCheckoutAssistEnabled"
+      ]
     }
   ]
 }

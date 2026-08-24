@@ -9,7 +9,7 @@
 
 ## In progress
 
-- Issue #433 — Mock Integration Boundary for auth skip and payment UI. Centralized the demo auth-skip and payment-visibility decisions in `helpers/mock-integration.ts`; refactored `PaymentMethodSection.vue`, `pages/order-summary/index.vue`, and `middleware/auth.ts` to use the seam; added `tests/mock-integration.spec.ts`. Awaiting `pnpm verify` + mock checkout/auth smoke, then PR.
+- Issue #433 — Mock Integration Boundary for auth skip and payment UI. Centralized the demo auth-skip and payment-visibility decisions in `helpers/mock-integration.ts`; refactored `PaymentMethodSection.vue`, `pages/order-summary/index.vue`, and `middleware/auth.ts` to use the seam; added `tests/mock-integration.spec.ts`. `pnpm verify` passed and a mock smoke confirmed the app boots with mock wiring intact. **PR #505 open; awaiting evaluator review.**
 
 ## Recently verified recovery
 
