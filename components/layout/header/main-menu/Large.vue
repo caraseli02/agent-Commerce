@@ -54,8 +54,8 @@
         View More
       </button>
       <Swiper
-        ref="swiperDOM"
         v-if="shouldInitSwiper"
+        ref="swiperDOM"
         :key="String(isBannerExpanded)"
         :modules="[A11y, Pagination]"
         :slides-per-view="isBannerExpanded ? 4 : 3"
