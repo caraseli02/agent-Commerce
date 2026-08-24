@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-6">
     <div class="flex flex-row justify-between items-center">
       <span class="text-neutral-700 text-sm font-medium leading-6">Select Payment</span>
-      <button v-if="paymentManagementVisible" class="group">
+      <button v-if="paymentManagementVisible" data-testid="payment-management" class="group">
         <SettingCog class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
       </button>
     </div>
