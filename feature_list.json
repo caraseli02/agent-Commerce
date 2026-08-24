@@ -192,6 +192,20 @@
       "validation": "Clean-state checklist covers verification, git status, temporary artifacts, progress, feature state, and PR evidence",
       "status": "passing",
       "evidence": ["docs/agents/session-lifecycle.md", "PROGRESS.md"]
+    },
+    {
+      "id": "I433",
+      "description": "Mock Integration Boundary for auth skip and payment UI (#433)",
+      "validation": "pnpm verify:full passes; consumer-level mock/live tests cover auth skip (useCart) and payment visibility (OrderStockType) at the mock-integration seam; buyer-flow UI no longer branches on MOCK_MODE for those behaviors",
+      "status": "passing",
+      "evidence": [
+        "PR #505: https://github.com/caraseli02/Ecas/pull/505 (CI verify + Vercel checks SUCCESS)",
+        "components/order-summary/OrderStockType.vue routes payment modal visibility through isPaymentManagementVisible (no ad-hoc MOCK_MODE checks)",
+        "composables/useCart.ts routes auth-prompt skip through canSkipAuthenticatedUser",
+        "Consumer seam contract tests in tests/mock-integration.spec.ts cover useCart auth skip and OrderStockType payment visibility across mock/live modes",
+        "pnpm verify: pass (build, lint, typecheck, test, feature-list validation, UI conventions)",
+        "Mock smoke: GET / -> 200 storefront content; POST /api/auth/login customer@demo.com -> 200; checkout flow renders payment step without cards modal"
+      ]
     }
   ]
 }

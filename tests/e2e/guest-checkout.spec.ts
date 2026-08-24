@@ -36,6 +36,7 @@ test.describe('Guest checkout flow', () => {
     await expect(page.getByRole('button', { name: /shipping and billing/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /shipping preferences/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /payment method/i })).toBeVisible();
+    await expect(page.getByTestId('payment-management')).toHaveCount(0);
 
     await fillGuestCheckoutForm(page);
 

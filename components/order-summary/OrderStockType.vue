@@ -130,7 +130,7 @@
             @update-payment-details="emits('update-payment-details', $event)"
           />
         </Transition>
-        <AppModal v-if="!config.public.MOCK_MODE" v-model="showCardsModal" side="right">
+        <AppModal v-if="paymentManagementVisible" v-model="showCardsModal" side="right">
           <OrderSummaryPaymentModal :order="order" />
         </AppModal>
       </div>
@@ -150,6 +150,7 @@ import WarningErrorYellow from '@/assets/icons/warning-error-yellow.svg';
 import WarningErrorHuge from '@/assets/icons/warning-error-huge.svg';
 import DemoTooltip from '~/components/global/DemoTooltip.vue';
 import { isCompleteSavedAddress } from '~/helpers/address.helper';
+import { isPaymentManagementVisible } from '~/helpers/mock-integration';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import type { BackorderShippingTypesInterface } from '~/types/general-settings/general-settings';
 import { useUser } from '~/composables/useUser';
@@ -167,6 +168,7 @@ const props = defineProps<{
 
 const emits = defineEmits(['update-payment-details']);
 const config = useRuntimeConfig();
+const paymentManagementVisible = isPaymentManagementVisible(Boolean(config.public.MOCK_MODE));
 
 const shippingAndBillingExpanded = ref(false);
 const shippingPreferencesExpanded = ref(false);
@@ -261,7 +263,7 @@ watch(
 onMounted(() => {
   // eslint-disable-next-line vue/no-mutating-props
   props.order.type = orderType.value;
-  if (config.public.MOCK_MODE) {
+  if (!paymentManagementVisible) {
     showCardsModal.value = false;
   }
 
