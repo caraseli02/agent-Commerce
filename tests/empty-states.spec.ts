@@ -52,6 +52,7 @@ describe('empty state UX contract (#194)', () => {
     expect(ordersTable).toContain('ordersEmptyPreset');
     expect(ordersTable).toContain("variant: 'error'");
     expect(ordersTable).toContain('GlobalEmptyState');
+    expect(ordersTable).toContain("import GlobalEmptyState from '~/components/global/EmptyState.vue'");
     expect(ordersTable).toContain('aria-busy="true"');
     expect(ordersTable).toContain('Loading orders…');
   });
@@ -69,6 +70,7 @@ describe('empty state UX contract (#194)', () => {
 
     expect(activity).toContain('favoritesEmptyPreset');
     expect(activity).toContain('hasFavorites');
+    expect(activity).toContain("import GlobalEmptyState from '~/components/global/EmptyState.vue'");
     expect(existsSync(resolve(repoRoot, 'components/layout/favorites-cart-modal/favorites/Index.vue'))).toBe(false);
   });
 

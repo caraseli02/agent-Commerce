@@ -51,6 +51,21 @@
       ]
     },
     {
+      "id": "E457-470",
+      "description": "Upgrade dashboard charts to a Nuxt 4-compatible ApexCharts pair",
+      "validation": "ApexCharts and vue3-apexcharts resolve with compatible peers; customer dashboard charts render in an authenticated mock browser without runtime errors; pnpm verify passes",
+      "status": "passing",
+      "evidence": [
+        "Upgraded apexcharts to 5.10.1 and vue3-apexcharts to 1.11.1; adapter peer requirement is apexcharts >=5.10.0",
+        "pnpm install --frozen-lockfile --ignore-workspace: pass",
+        "pnpm typecheck: pass; pnpm test: pass (288 passed, 1 skipped)",
+        "pnpm verify: pass (build, lint, typecheck, test, feature-list validation, and UI conventions)",
+        "Bundle guard: dashboard ApexCharts chunks are 494.6 KB and 496.3 KB, within the 550 KB budget",
+        "Focused authenticated mock browser smoke at tests/e2e/dashboard-charts.spec.ts: pass; /dashboard/customers rendered two Apex canvases and /dashboard/customers/customer-001 rendered the Net Margin chart, with no chart runtime errors",
+        "Full dashboard console smoke: pass (admin and customer representative routes); explicit GlobalEmptyState imports resolved the earlier customer-profile/customer-home warnings"
+      ]
+    },
+    {
       "id": "E457-464",
       "description": "Modernize repository formatting and lint tooling for Nuxt 4",
       "validation": "Prettier 3 formatting is applied consistently and lint remains compatible; pnpm verify passes",
