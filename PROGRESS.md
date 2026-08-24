@@ -2,14 +2,13 @@
 
 ## Current focus
 
-- No active migration ticket. Epic #457’s Nuxt 4 recovery sequence is merged through PR #502 at `14d6d763`.
-- Next migration frontier: #468 (Zod 4); do not start it until its dependency/state wording is reconciled.
-- GitHub Issues remain the primary task queue; WIP=1: issue #433 (Mock Integration Boundary for auth skip and payment UI) is active on branch `fix/issue-433`.
-- PR #503 is tracking-only: it reconciles this durable state and changes no application behavior.
+- #469 — Upgrade date formatting to date-fns 4; PR #508 is open on `codex/469-date-fns-4`, awaiting evaluator review.
+- #468 remains deliberately deferred and untouched.
+- GitHub Issues remain the primary task queue; WIP is 1 (#469).
 
 ## In progress
 
-- Issue #433 — Mock Integration Boundary for auth skip and payment UI. Centralized the demo auth-skip and payment-visibility decisions in `helpers/mock-integration.ts`; refactored `PaymentMethodSection.vue`, `pages/order-summary/index.vue`, and `middleware/auth.ts` to use the seam; added `tests/mock-integration.spec.ts`. `pnpm verify` passed and a mock smoke confirmed the app boots with mock wiring intact. **PR #505 open; awaiting evaluator review.**
+- #469: date-fns 4.4.0 is implemented and verified; wait for evaluator review of PR #508.
 
 ## Recently verified recovery
 
