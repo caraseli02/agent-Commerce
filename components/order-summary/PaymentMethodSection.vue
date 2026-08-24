@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-6">
     <div class="flex flex-row justify-between items-center">
       <span class="text-neutral-700 text-sm font-medium leading-6">Select Payment</span>
-      <button v-if="!config.public.MOCK_MODE" class="group">
+      <button v-if="paymentManagementVisible" class="group">
         <SettingCog class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
       </button>
     </div>
@@ -13,7 +13,7 @@
         @click="selectPaymentOption({ type: PaymentTypeEnum.Card, info: null })"
       >
         <UiButton
-          v-if="cards.length > 0 && !config.public.MOCK_MODE"
+          v-if="cards.length > 0 && paymentManagementVisible"
           size="xs"
           variant="link"
           class="flex gap-2 items-center justify-end hover:underline pt-4"
@@ -34,7 +34,7 @@
           :has-card="true"
           :is-expired="cardExpired(card)"
           :is-default="card.default"
-          :enable-edit="!config.public.MOCK_MODE"
+          :enable-edit="paymentManagementVisible"
           show-pay-with-label
           @select-payment-option="selectPaymentOption({ type: PaymentTypeEnum.Card, info: $event })"
         />
@@ -49,7 +49,7 @@
         />
         <OrderSummaryPayByCard
           v-else-if="!card && availablePaymentMethods.includes(PaymentTypeEnum.Card)"
-          :enable-edit="!config.public.MOCK_MODE"
+          :enable-edit="paymentManagementVisible"
           view="payment"
           :cards="false"
           :is-new-card-selected="false"
@@ -138,6 +138,7 @@ import BankIcon from '@/assets/icons/bank.svg';
 import PieChart from '@/assets/icons/pie-chart.svg';
 import MoneyIcon from '@/assets/icons/money.svg';
 import { PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails, type StripeCardInterface } from '~/types';
+import { isPaymentManagementVisible } from '~/helpers/mock-integration';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
 import { useAuthStore } from '~/store/authStore';
 import { usePaymentStore } from '~/store/paymentStore';
@@ -145,6 +146,7 @@ import { usePaymentCards } from '~/composables/usePaymentCards';
 
 const paymentStore = usePaymentStore();
 const config = useRuntimeConfig();
+const paymentManagementVisible = isPaymentManagementVisible(Boolean(config.public.MOCK_MODE));
 
 const { card, cards, isNewCardSelected } = usePaymentCards();
 
