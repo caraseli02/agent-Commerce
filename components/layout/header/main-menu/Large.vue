@@ -55,6 +55,7 @@
       </button>
       <Swiper
         ref="swiperDOM"
+        v-if="shouldInitSwiper"
         :key="String(isBannerExpanded)"
         :modules="[A11y, Pagination]"
         :slides-per-view="isBannerExpanded ? 4 : 3"
@@ -396,7 +397,14 @@ const handleClickOutside = () => {
 };
 
 const isBannerExpanded = ref(false);
+const shouldInitSwiper = ref(false);
+const hasEverOpened = ref(false);
+
 const handleTogglerMouseEnter = (event: MouseEvent) => {
+  if (!hasEverOpened.value) {
+    hasEverOpened.value = true;
+    shouldInitSwiper.value = true;
+  }
   const svg = (event.target as HTMLInputElement).querySelector('svg');
   if (isBannerExpanded.value) {
     svg?.classList.add('animateToRight');
