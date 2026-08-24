@@ -16,6 +16,7 @@ import { useCartStore } from '~/store/cartStore';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 import { loadCartRead } from '~/composables/loadCartRead';
 import { applyOptimisticCartAdd, calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
+import { canSkipAuthenticatedUser } from '~/helpers/mock-integration';
 
 export type AddToCartResult = {
   status: 'success';
@@ -52,7 +53,7 @@ export function useCart() {
     const config = useRuntimeConfig();
     const token = useCookie('token').value;
 
-    if (token || config.public.MOCK_MODE) {
+    if (canSkipAuthenticatedUser(Boolean(config.public.MOCK_MODE), Boolean(token))) {
       return false;
     }
 

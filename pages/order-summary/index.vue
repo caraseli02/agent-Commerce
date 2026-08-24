@@ -112,6 +112,7 @@ import { useCheckoutStore } from '~/store/checkoutStore';
 // Utilities
 import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
 import { createEmptyGuestAddress, isCompleteGuestContact, isCompleteSavedAddress } from '~/helpers/address.helper';
+import { canSkipAuthenticatedUser, isDemoCheckoutAssistEnabled } from '~/helpers/mock-integration';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 
 // Setup and Initialization
@@ -205,7 +206,7 @@ const accountCredit = ref<CustomerCreditInterface>({
 
 const getCustomerCredit = async () => {
   const config = useRuntimeConfig();
-  if (!userId.value && !config.public.MOCK_MODE) return;
+  if (!canSkipAuthenticatedUser(Boolean(config.public.MOCK_MODE), Boolean(userId.value))) return;
 
   const idToUse = userId.value || 'guest-user-session';
 
@@ -259,7 +260,7 @@ const signinHref = computed(() => {
 const applyMockCheckoutDefaults = () => {
   const config = useRuntimeConfig();
 
-  if (!config.public.MOCK_MODE) {
+  if (!isDemoCheckoutAssistEnabled(Boolean(config.public.MOCK_MODE))) {
     return;
   }
 
