@@ -18,6 +18,8 @@
         "pnpm exec vitest run tests/reviewer-dates.spec.ts: pass (5 tests)",
         "pnpm typecheck: pass",
         "pnpm verify: pass",
+        "pnpm verify:full: pass (62 files, 278 tests, architecture checks, and production smoke routes)",
+        "pnpm verify:handoff: pass from a clean working tree",
         "Fresh production mock browser: storefront rendered meaningful content; customer dashboard showed formatted dates such as 15 January 2023, 11:30, with no error overlay or console errors"
       ]
     },

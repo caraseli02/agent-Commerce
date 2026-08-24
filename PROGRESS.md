@@ -2,13 +2,13 @@
 
 ## Current focus
 
-- #469 — Upgrade date formatting to date-fns 4; claimed on `codex/469-date-fns-4`.
+- #469 — Upgrade date formatting to date-fns 4; PR #508 is open on `codex/469-date-fns-4`, awaiting evaluator review.
 - #468 remains deliberately deferred and untouched.
 - GitHub Issues remain the primary task queue; WIP is 1 (#469).
 
 ## In progress
 
-- #469: dependency and focused coverage are complete; full verification and clean handoff remain.
+- #469: date-fns 4.4.0 is implemented and verified; wait for evaluator review of PR #508.
 
 ## Recently verified recovery
 
