@@ -32,7 +32,6 @@ export default defineNuxtConfig({
     'nuxt-viewport',
     '@vueuse/nuxt',
     'shadcn-nuxt',
-    '@nuxtjs/color-mode',
     '@nuxt/image',
     '@nuxt/eslint',
     '~/modules/shadcn-components-dir-fix',
