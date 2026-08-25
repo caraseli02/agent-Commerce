@@ -2,12 +2,14 @@
 
 ## Current focus
 
-- Epic #457 — issue #470 upgrades the dashboard ApexCharts integration on branch `codex/470-dashboard-charts`.
+- Epic #457 — issue #472 is blocked: TanStack Table 9 requires a dedicated migration of the shared data-table type and feature contract, beyond this ticket's small dependency-upgrade scope.
 - Zod 4 issue #468 remains deferred: stable `@vee-validate/zod` 4.15.1 supports only Zod 3, so no peer override is permitted.
 
 ## In progress
 
 - Issue #470 — upgraded to `apexcharts` 5.10.1 and `vue3-apexcharts` 1.11.1, resolving the adapter's ApexCharts 5.10+ peer requirement while preserving the 550 KB dashboard chart budget. Added focused authenticated browser smoke coverage for the customer-dashboard charts.
+
+- Issue #472 — evaluated Table 9.1.2 and Virtual 3.13.36. Table 9 replaces `useVueTable`, `getState`, and the v8 row-model configuration with explicit feature registrations and feature-parameterized types across all shared/dashboard table components. Both scoped migration attempts were reverted; the current 8.21.3/3.13.18 pair remains verified on Nuxt 4.
 
 ## Recently verified recovery
 
