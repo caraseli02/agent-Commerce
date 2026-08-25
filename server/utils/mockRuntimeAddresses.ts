@@ -31,7 +31,8 @@ const ensureDefaultAddress = <T extends { default: boolean }>(addresses: T[]) =>
   const hasDefault = addresses.some((address) => address.default);
 
   if (!hasDefault) {
-    addresses[0].default = true;
+    const firstAddress = addresses[0];
+    if (firstAddress) firstAddress.default = true;
   }
 };
 
@@ -108,10 +109,12 @@ export const updateRuntimeAddress = (
     return null;
   }
 
+  const existingAddress = addresses[index];
+  if (!existingAddress) return null;
   const updatedAddress = {
-    ...addresses[index],
+    ...existingAddress,
     ...address,
-    _id: addresses[index]._id,
+    _id: existingAddress._id,
   };
 
   if (updatedAddress.default) {
@@ -135,11 +138,14 @@ export const deleteRuntimeAddress = (customerId: string | null | undefined, kind
     return false;
   }
 
-  const wasDefault = addresses[index].default;
+  const address = addresses[index];
+  if (!address) return false;
+  const wasDefault = address.default;
   addresses.splice(index, 1);
 
   if (wasDefault && addresses.length) {
-    addresses[0].default = true;
+    const firstAddress = addresses[0];
+    if (firstAddress) firstAddress.default = true;
   }
 
   ensureDefaultAddress(addresses);

@@ -67,6 +67,14 @@ const splitName = (name = 'Demo User') => {
 
 const normalizeUserId = (userId?: string) => String(userId || DEFAULT_USER_ID);
 
+function requireFixture<T>(fixture: T | undefined, name: string): T {
+  if (fixture === undefined) {
+    throw new Error(`Mock fixture ${name} must contain at least one entry`);
+  }
+
+  return fixture;
+}
+
 export const resolveCustomerId = (userId?: string) => {
   const normalizedUserId = normalizeUserId(userId);
 
@@ -80,7 +88,7 @@ export const resolveCustomerId = (userId?: string) => {
 export const getDemoCustomer = (userId?: string) => {
   const customerId = resolveCustomerId(userId);
 
-  return mockCustomers.find((customer) => customer._id === customerId) || mockCustomers[0];
+  return mockCustomers.find((customer) => customer._id === customerId) ?? requireFixture(mockCustomers[0], 'mockCustomers');
 };
 
 export const getDemoAddresses = (userId?: string) => {
@@ -272,7 +280,7 @@ export const expandMockOrders = (targetCount = resolveMockOrdersCount()): MockDa
   const expanded: MockDashboardOrder[] = [...mockOrders];
 
   for (let sequence = mockOrders.length + 1; sequence <= targetCount; sequence += 1) {
-    const template = mockOrders[(sequence - 1) % mockOrders.length];
+    const template = requireFixture(mockOrders[(sequence - 1) % mockOrders.length], 'mockOrders');
     expanded.push(buildSyntheticOrder(template, sequence));
   }
 
@@ -287,7 +295,7 @@ const mapOrderItems = (order: MockDashboardOrder) => {
   };
 
   return (order.itemsDetails || []).map((item: MockDashboardOrderItem) => {
-    const product = mockProducts.find((entry) => entry._id === item.productId) || mockProducts[0];
+    const product = mockProducts.find((entry) => entry._id === item.productId) ?? requireFixture(mockProducts[0], 'mockProducts');
     const quantity = Number(item.quantity || 1);
     const price = Number(item.price || 0);
 

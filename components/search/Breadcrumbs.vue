@@ -16,7 +16,7 @@
           </NuxtLink>
         </div>
         <div class="hidden font-semibold md:block">
-          {{ categoryLabels[categoryLabels.length - 1].name }}
+          {{ categoryLabels.at(-1)?.name }}
         </div>
       </div>
     </div>

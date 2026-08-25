@@ -104,7 +104,8 @@ export const purgeExpiredSessions = (namespace: string, ttlMs: number, maxEntrie
   entries.sort((a, b) => a.updatedAt - b.updatedAt);
   const overflow = entries.length - maxEntries;
   for (let i = 0; i < overflow; i++) {
-    unlinkSync(entries[i].path);
+    const entry = entries[i];
+    if (entry) unlinkSync(entry.path);
   }
 };
 

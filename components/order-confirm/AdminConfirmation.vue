@@ -51,7 +51,7 @@ onMounted(() => {
   <section class="px-4 py-6 md:p-6 flex flex-col gap-10 shadow-s rounded-xl">
     <OrderConfirmHeader
       :order-id="orderResponse.data?.order?.shortId || ''"
-      :order-type="getOrderTypeValueByOrder()"
+      :order-type="getOrderTypeValueByOrder() ?? { value: resolvedOrderTypeValue, label: 'Unknown', badge: { bg: '', text: '' } }"
       :date="date"
       :shipping-method="shippingMethodLabel"
       :pickup-date="stockOrder?.shippingDetails?.statusTracking?.estimatedPickUpDate"

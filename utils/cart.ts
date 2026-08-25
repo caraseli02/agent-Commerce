@@ -20,11 +20,13 @@ export const applyOptimisticCartAdd = (
 
     const index = products.findIndex((item) => item.id === incoming.id);
     if (index >= 0) {
-      const nextStock = Number(products[index].stock ?? 0) + stockDelta;
+      const existingProduct = products[index];
+      if (!existingProduct) continue;
+      const nextStock = Number(existingProduct.stock ?? 0) + stockDelta;
       if (nextStock <= 0) {
         products.splice(index, 1);
       } else {
-        products[index] = { ...products[index], stock: nextStock };
+        products[index] = { ...existingProduct, stock: nextStock };
       }
       continue;
     }

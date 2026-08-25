@@ -31,13 +31,14 @@ export default defineNuxtPlugin((nuxtApp) => {
       };
 
       if (typeof document !== 'undefined') {
-        document.addEventListener('click', handlers[id].callback);
+        document.addEventListener('click', handlers[id]!.callback);
       }
     },
     beforeUnmount(el) {
       const id = el.getAttribute('dir-id');
       if (id && typeof document !== 'undefined') {
-        document.removeEventListener('click', handlers[id].callback);
+        const handler = handlers[id];
+        if (handler) document.removeEventListener('click', handler.callback);
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete handlers[id];
       }

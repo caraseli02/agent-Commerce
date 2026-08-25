@@ -126,9 +126,10 @@ describe('quality gate 6 pure logic coverage', () => {
       ];
 
       expect(checkForInputErrors(fields)).toBe(true);
-      expect(fields[0].error).toBe('Please fill out this field');
-      expect(fields[1].error).toBe('Please provide a valid email address or a valid client code');
-      expect(fields[2].error).toBe('');
+      const [requiredField, invalidEmailField, validClientCodeField] = fields;
+      expect(requiredField?.error).toBe('Please fill out this field');
+      expect(invalidEmailField?.error).toBe('Please provide a valid email address or a valid client code');
+      expect(validClientCodeField?.error).toBe('');
 
       const contact = {
         email: { value: 'buyer@example.com', error: '' },

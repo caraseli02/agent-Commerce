@@ -67,7 +67,7 @@ useHead({
 });
 
 const productStore = useProductStore();
-const { similarProducts, similarProductFeatures, showSimilarOnly } = storeToRefs(productStore);
+const { similarProducts, similarProductFeatures } = storeToRefs(productStore);
 const route = useRoute();
 const keyword = ref((route.query.keyword ?? route.query.q)?.toString() ?? '');
 
@@ -110,17 +110,14 @@ const {
   pending,
   error,
   refresh,
-} = await useAsyncData<SearchData | null>(
+} = await useAsyncData<SearchData>(
   () => searchResultsCacheKey(searchQuery.value),
-  () => {
-    if (showSimilarOnly.value) {
-      return Promise.resolve(null);
-    }
-
-    return loadSearchResults(searchQuery.value);
-  },
+  () => loadSearchResults(searchQuery.value),
   {
-    watch: [keyword, category, atPage, perPage, sortBy, order, additionalFilters, featureFilters, ignoreCategory, showSimilarOnly],
+    // Search initialization explicitly refreshes after transferred similar-product
+    // filters are applied, so the handler only ever returns real search data.
+    immediate: false,
+    watch: [keyword, category, atPage, perPage, sortBy, order, additionalFilters, featureFilters, ignoreCategory],
   },
 );
 
@@ -137,17 +134,24 @@ watch(
   { immediate: true },
 );
 
+let initializedFromSimilarProducts = false;
+
 watch(
   [similarProducts, similarProductFeatures],
-  (newValues) => {
+  async (newValues) => {
     if (newValues[0] && newValues[1]) {
+      initializedFromSimilarProducts = true;
       featureFilters.value = newValues[1];
       atPage.value = 1;
-      showSimilarOnly.value = false;
+      await refresh();
     }
   },
-  { deep: true },
+  { deep: true, immediate: true },
 );
+
+if (!initializedFromSimilarProducts) {
+  await refresh();
+}
 
 // Both `keyword` and `category` live in the URL, so breadcrumb and menu navigation must refresh both.
 // Reset pager state and remount SearchProducts (via searchResultsKey) so UI controls match fetched data.

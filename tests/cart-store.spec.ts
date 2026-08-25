@@ -96,11 +96,17 @@ describe('cart store flow boundary', () => {
     const { useCartStore } = await import('../store/cartStore');
     const cartStore = useCartStore();
 
+    const product = sampleCart.products?.[0];
+    expect(product).toBeDefined();
+    if (!product) {
+      throw new Error('Expected the cart fixture to contain a product');
+    }
+
     cartStore.setCart({
       ...sampleCart,
       products: [
         {
-          ...sampleCart.products[0],
+          ...product,
           stock: 2,
           backorder_stock: 1,
           unitPriceAfterDiscounts: 10,

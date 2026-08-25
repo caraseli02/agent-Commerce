@@ -26,6 +26,9 @@ describe('search useAsyncData contract', () => {
 
     expect(searchPage).toContain('searchResultsCacheKey(searchQuery.value)');
     expect(searchPage).toContain('loadSearchResults(searchQuery.value)');
+    expect(searchPage).toContain('immediate: false');
+    expect(searchPage).toContain('initializedFromSimilarProducts');
+    expect(searchPage).not.toContain('Promise.resolve(null)');
     expect(searchPage).toContain('v-if="pending"');
     expect(searchPage).toContain('v-else-if="error"');
     expect(searchPage).toContain('role="alert"');

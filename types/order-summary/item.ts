@@ -374,7 +374,7 @@ export enum OrderType {
 // The 'as T' is a type assertion to help TypeScript
 export const getOrderById = <T extends { [index: string]: number }>(enumValue: number): string | null => {
   const keys = Object.keys(OrderType as unknown as T).filter((x) => (OrderType as unknown as T)[x] === enumValue);
-  return keys.length > 0 ? keys[0] : null;
+  return keys[0] ?? null;
 };
 
 export interface OrderTypeInfo {

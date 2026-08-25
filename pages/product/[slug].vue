@@ -111,8 +111,8 @@ const {
   error,
   refresh,
 } = await useAsyncData<ProductDetail>(
-  () => productDetailCacheKey(productSlug.value),
-  () => loadProductBySlug(productSlug.value),
+  () => productDetailCacheKey(productSlug.value ?? ''),
+  () => loadProductBySlug(productSlug.value ?? ''),
   {
     watch: [productSlug],
   },

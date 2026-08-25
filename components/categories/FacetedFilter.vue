@@ -18,8 +18,12 @@ defineProps<DataTableFacetedFilter>();
 
 const selectedValues = ref<Set<string>>(new Set());
 
-function filterOptions(list: DataTableFacetedFilter['options'], term: string) {
-  return list.filter((option) => option.label.toLowerCase().includes(term.toLowerCase()));
+function isFacetOption(value: unknown): value is DataTableFacetedFilter['options'][number] {
+  return typeof value === 'object' && value !== null && 'label' in value && typeof value.label === 'string';
+}
+
+function filterOptions(list: unknown[], term: string) {
+  return list.filter(isFacetOption).filter((option) => option.label.toLowerCase().includes(term.toLowerCase()));
 }
 
 function setFilterValue(value: string[] | undefined) {

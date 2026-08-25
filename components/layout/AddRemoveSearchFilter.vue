@@ -163,6 +163,7 @@ const parseFilters = () => {
     }
 
     const featureKey = featureKeys[0];
+    if (!featureKey) continue;
     const featureValues = wrapper.feature[featureKey] ?? [];
 
     item.filter = featureValues;

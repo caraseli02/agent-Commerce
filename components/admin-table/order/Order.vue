@@ -100,7 +100,7 @@ const orderFilters = ref<TabFilter[]>([
   },
 ] as TabFilter[]);
 
-const activeOrderFilter = ref<TabFilter>(orderFilters.value[0]);
+const activeOrderFilter = ref<TabFilter>(orderFilters.value[0] ?? { label: 'All', total_items: 0 });
 const filterHighlightWidth = ref(0);
 const filterHightlightLeft = ref(0);
 

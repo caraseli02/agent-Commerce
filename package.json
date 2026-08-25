@@ -1,6 +1,9 @@
 {
   "private": true,
   "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "build": "node scripts/build-with-tailwind-guard.mjs",
     "dev": "nuxt dev",

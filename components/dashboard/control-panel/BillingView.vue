@@ -202,7 +202,7 @@ const handleDeleteAddress = async (index: number) => {
   if (!props.id || props.accountType === null || typeof props.accountType === 'undefined') {
     return;
   }
-  if (defaultAddressIndex.value === index) {
+  if (defaultAddressIndex.value === index && addresses.value[0]) {
     addresses.value[0].default = true;
   }
   await deleteBilling(addresses.value[index]?._id || '', route.params.slug as string);

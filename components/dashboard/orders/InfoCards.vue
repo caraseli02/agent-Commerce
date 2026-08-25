@@ -417,6 +417,8 @@ const cards = ref<WidgetCard[]>([
 ]);
 
 const getWidgedData = async (data: WidgetCard, index: number) => {
+  const card = cards.value[index];
+  if (!card) return;
   const type: WidgetApiType = WidgetTypeEnum[data.menu.selected.label];
   const range = type !== 'active-cart-sessions' && type !== 'total-stock-value' ? data.range.selected.value : -1;
   const response = await fetchWidget(type, range);
@@ -424,11 +426,11 @@ const getWidgedData = async (data: WidgetCard, index: number) => {
     return;
   }
   const formattedTotal = await setWidgetValueFormat(type, response.data.total);
-  const selectedValue = cards.value[index].menu.selected.value;
+  const selectedValue = card.menu.selected.value;
   if (isRef(selectedValue)) {
     selectedValue.value = formattedTotal;
   } else {
-    cards.value[index].menu.selected.value = formattedTotal;
+    card.menu.selected.value = formattedTotal;
   }
 };
 </script>

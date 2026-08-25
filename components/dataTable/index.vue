@@ -74,7 +74,7 @@ watch(
       rightIndex,
       pageSize,
       transformFiltersToObject(table.getState().columnFilters),
-      transformSortingKeys(table.getState().sorting[0]),
+      transformSortingKeys(table.getState().sorting[0] ?? { id: '', desc: false }),
     );
   },
 );
@@ -88,7 +88,7 @@ watch(refresh, async () => {
     rightIndex,
     pageSize,
     transformFiltersToObject(table.getState().columnFilters),
-    transformSortingKeys(table.getState().sorting[0]),
+    transformSortingKeys(table.getState().sorting[0] ?? { id: '', desc: false }),
   );
   setTimeout(() => {
     refresh.value = false;
@@ -100,7 +100,12 @@ watchDebounced(
   () => {
     const { pageSize } = table.getState().pagination;
     table.setPageIndex(0);
-    props.fetchFn(1, pageSize, transformFiltersToObject(table.getState().columnFilters), transformSortingKeys(table.getState().sorting[0]));
+    props.fetchFn(
+      1,
+      pageSize,
+      transformFiltersToObject(table.getState().columnFilters),
+      transformSortingKeys(table.getState().sorting[0] ?? { id: '', desc: false }),
+    );
   },
   { debounce: 500, maxWait: 1000 },
 );
@@ -131,6 +136,12 @@ const loadingSize = computed(async () => {
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const tableRows = computed(() => table.getRowModel().rows);
 const { virtualRows, paddingTop, paddingBottom } = useVirtualTableRows(tableRows, scrollContainerRef);
+const visibleVirtualRows = computed(() =>
+  virtualRows.value.flatMap((virtualRow) => {
+    const row = tableRows.value[virtualRow.index];
+    return row ? [{ virtualRow, row }] : [];
+  }),
+);
 const leafColumnCount = computed(() => table.getAllLeafColumns().length);
 </script>
 
@@ -163,13 +174,13 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
                   <td :colspan="leafColumnCount" class="p-0 border-0" :style="{ height: `${paddingTop}px` }" />
                 </tr>
                 <UiTableRow
-                  v-for="virtualRow in virtualRows"
-                  :key="tableRows[virtualRow.index].id"
+                  v-for="{ virtualRow, row } in visibleVirtualRows"
+                  :key="row.id"
                   class="hover:bg-light-200"
-                  :data-state="tableRows[virtualRow.index].getIsSelected() && 'selected'"
+                  :data-state="row.getIsSelected() && 'selected'"
                   :data-index="virtualRow.index"
                 >
-                  <UiTableCell v-for="cell in tableRows[virtualRow.index].getVisibleCells()" :key="cell.id">
+                  <UiTableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                     <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                   </UiTableCell>
                 </UiTableRow>

@@ -62,6 +62,13 @@ describe('product gallery layout regression', () => {
     const ast = baseParse(descriptor.template!.content);
     const root = collectElements(ast, 'div')[0];
     const imageNodes = collectElements(ast, 'ImageWithFallback');
+    const heroImage = imageNodes[0];
+
+    expect(root).toBeDefined();
+    expect(heroImage).toBeDefined();
+    if (!root || !heroImage) {
+      throw new Error('Expected the gallery template to include its root and hero image');
+    }
 
     expect(getStaticAttrValue(root, 'class')).toContain('lg:h-full');
     expect(getStaticAttrValue(root, 'class')).toContain('flex-col');
@@ -76,11 +83,10 @@ describe('product gallery layout regression', () => {
     expect(source).toContain('<ul');
     expect(source).toContain('Show product image');
 
-    expect(imageNodes.length).toBeGreaterThanOrEqual(1);
-    expect(hasProp(imageNodes[0], 'class-name')).toBe(true);
-    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('h-full');
-    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('w-full');
-    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('object-contain');
-    expect(getStaticAttrValue(imageNodes[0], 'class-name')).toContain('lg:object-cover');
+    expect(hasProp(heroImage, 'class-name')).toBe(true);
+    expect(getStaticAttrValue(heroImage, 'class-name')).toContain('h-full');
+    expect(getStaticAttrValue(heroImage, 'class-name')).toContain('w-full');
+    expect(getStaticAttrValue(heroImage, 'class-name')).toContain('object-contain');
+    expect(getStaticAttrValue(heroImage, 'class-name')).toContain('lg:object-cover');
   });
 });

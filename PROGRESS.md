@@ -2,6 +2,7 @@
 
 ## Current focus
 
+- Nuxt 4 revalidation is complete: project references are adopted, global type relaxations are removed, and E457-465 passes strict typecheck plus full verification without a global suppression.
 - Epic #457 — #473 is complete on `codex/473-nuxt-ui-modules`; #472 remains blocked pending a dedicated TanStack Table 9 migration.
 - Zod 4 issue #468 remains deferred: stable `@vee-validate/zod` 4.15.1 supports only Zod 3, so no peer override is permitted.
 
