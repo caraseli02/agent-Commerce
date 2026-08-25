@@ -2,12 +2,12 @@
 
 ## Current focus
 
-- Epic #457 — issue #470 upgrades the dashboard ApexCharts integration on branch `codex/470-dashboard-charts`.
+- Epic #457 — #473 is complete on `codex/473-nuxt-ui-modules`; #472 remains blocked pending a dedicated TanStack Table 9 migration.
 - Zod 4 issue #468 remains deferred: stable `@vee-validate/zod` 4.15.1 supports only Zod 3, so no peer override is permitted.
 
 ## In progress
 
-- Issue #470 — upgraded to `apexcharts` 5.10.1 and `vue3-apexcharts` 1.11.1, resolving the adapter's ApexCharts 5.10+ peer requirement while preserving the 550 KB dashboard chart budget. Added focused authenticated browser smoke coverage for the customer-dashboard charts.
+- None.
 
 ## Recently verified recovery
 
@@ -16,6 +16,7 @@
 - PR #501 merged at `f232ec6f`; search no-result rendering and narrow customer order history were recovered with focused production browser evidence.
 - PR #502 merged at `14d6d763`; the local Chromium/macOS Playwright visual pilot and 18 reviewed baselines are documented in `docs/agents/verification.md`.
 - PR #508 merged at `80fabbe6`; date-fns 4.4.0 is installed with reviewer date-helper and production browser verification.
+- Issue #473 — `@nuxt/image` upgraded from 2.0.0 to 2.1.0. The remaining image, SVG, Swiper, shadcn, color-mode, viewport, fonts, and Leaflet modules were already at their current Nuxt 4-compatible releases. Focused image tests, the direct product-detail browser route, typecheck, and `pnpm verify` pass.
 
 ## Verification baseline
 

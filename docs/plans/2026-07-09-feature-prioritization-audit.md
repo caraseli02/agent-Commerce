@@ -93,7 +93,7 @@ Start with small, reversible cleanup before deleting large feature folders.
 
 ## Framework migration gate
 
-The Nuxt 4 migration tracked in GitHub issue #461 is infrastructure work required to keep the portfolio demo runnable. Its first pass is blocked until the legacy dashboard, order-summary, and dynamic-component typing errors reported by `pnpm typecheck` are resolved in focused slices. Do not bundle reviewer-flow behavior changes into that migration; validate those separately under the downstream flow-verification issue.
+The Nuxt 4 migration tracked in GitHub issue #461 is complete and verified. The remaining framework-epic work is not a generic type-check backlog: Zod 4 remains deferred until the stable vee-validate adapter supports it, while TanStack Table 9 requires a dedicated shared-table API and type-contract migration. Do not bundle reviewer-flow behavior changes into either follow-up; validate them separately.
 
 Use small bets:
 
