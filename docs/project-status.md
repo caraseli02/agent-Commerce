@@ -1,12 +1,12 @@
 # Project Status
 
-Last updated: 2026-08-13
+Last updated: 2026-08-25
 
 ## Current state
 
 Components Marketplace remains a self-contained Nuxt e-commerce portfolio demo. Recent merges hardened the Scripted Buyer Path (cart pricing, checkout states, storefront QA) and mobile dashboard tables. Open PRs cover session persistence, bundle splitting, and optimistic add-to-cart.
 
-The Nuxt 4 upgrade is currently blocked on a legacy cross-surface type-check backlog. The migration branch builds successfully and its bundle-size guard supports Nuxt 4's generated manifest layout, but `pnpm typecheck` must pass before the upgrade can be review-ready. Keep its repair scope limited to migration-caused typing compatibility; core-flow behavior remains with the downstream verification issue.
+The Nuxt 4 migration is complete and verified in mock mode. The remaining modernization follow-ups are intentionally narrow: Zod 4 is deferred until its stable vee-validate adapter supports it, and TanStack Table 9 needs a dedicated shared-table contract migration. The current Nuxt 4-compatible Table 8 / Virtual 3 pair remains in place until that migration is separately scoped.
 
 ## Current planning controls
 
@@ -16,4 +16,4 @@ The Nuxt 4 upgrade is currently blocked on a legacy cross-surface type-check bac
 
 ## Next work
 
-Prioritize one independently verifiable cleanup from the removal backlog at a time. Keep harness-skill changes separate from runtime app behavior in future pull requests whenever practical.
+Prioritize one independently verifiable cleanup from the removal backlog at a time. For the framework epic, keep the Zod 4 deferral and TanStack Table 9 migration separate from ordinary dependency maintenance.
