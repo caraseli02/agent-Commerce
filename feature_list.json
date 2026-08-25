@@ -82,6 +82,20 @@
       ]
     },
     {
+      "id": "E457-473",
+      "description": "Modernize remaining Nuxt UI modules after the framework upgrade",
+      "validation": "Current Nuxt 4-compatible UI modules resolve without new peer warnings; image integration typechecks, focused image tests, browser table smoke, and pnpm verify pass",
+      "status": "passing",
+      "evidence": [
+        "Audited the image, SVG, Swiper, shadcn, color-mode, viewport, fonts, and Leaflet cohort against the npm registry; all except image were already at their current Nuxt 4-compatible release",
+        "Upgraded @nuxt/image from 2.0.0 to 2.1.0",
+        "pnpm exec vitest run tests/product-detail-image-fallback.spec.ts tests/cart-side-panel-thumbnail.spec.ts tests/gallery-layout.spec.ts: pass (8 tests)",
+        "pnpm typecheck: pass",
+        "Playwright dashboard virtualized-table smoke: pass (2 tests, including 390px viewport)",
+        "pnpm verify: pass"
+      ]
+    },
+    {
       "id": "E457-464",
       "description": "Modernize repository formatting and lint tooling for Nuxt 4",
       "validation": "Prettier 3 formatting is applied consistently and lint remains compatible; pnpm verify passes",

@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Epic #457 — issue #472 is blocked: TanStack Table 9 requires a dedicated migration of the shared data-table type and feature contract, beyond this ticket's small dependency-upgrade scope.
+- Epic #457 — issue #473 upgrades `@nuxt/image` to 2.1.0; #472 remains blocked pending a dedicated TanStack Table 9 migration.
 - Zod 4 issue #468 remains deferred: stable `@vee-validate/zod` 4.15.1 supports only Zod 3, so no peer override is permitted.
 
 ## In progress
@@ -10,6 +10,8 @@
 - Issue #470 — upgraded to `apexcharts` 5.10.1 and `vue3-apexcharts` 1.11.1, resolving the adapter's ApexCharts 5.10+ peer requirement while preserving the 550 KB dashboard chart budget. Added focused authenticated browser smoke coverage for the customer-dashboard charts.
 
 - Issue #472 — evaluated Table 9.1.2 and Virtual 3.13.36. Table 9 replaces `useVueTable`, `getState`, and the v8 row-model configuration with explicit feature registrations and feature-parameterized types across all shared/dashboard table components. Both scoped migration attempts were reverted; the current 8.21.3/3.13.18 pair remains verified on Nuxt 4.
+
+- Issue #473 — `@nuxt/image` upgraded from 2.0.0 to 2.1.0. The remaining image, SVG, Swiper, shadcn, color-mode, viewport, fonts, and Leaflet modules were already at their current Nuxt 4-compatible releases. Focused image tests, typecheck, dashboard table browser smoke, and `pnpm verify` pass.
 
 ## Recently verified recovery
 
