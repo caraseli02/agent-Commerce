@@ -91,7 +91,7 @@
         "Upgraded @nuxt/image from 2.0.0 to 2.1.0",
         "pnpm exec vitest run tests/product-detail-image-fallback.spec.ts tests/cart-side-panel-thumbnail.spec.ts tests/gallery-layout.spec.ts: pass (8 tests)",
         "pnpm typecheck: pass",
-        "Playwright dashboard virtualized-table smoke: pass (2 tests, including 390px viewport)",
+        "Playwright product-detail smoke at /product/prod-1: pass; product details, price tiers, stock, add-to-cart control, and runtime console all passed with the Nuxt Image integration active",
         "pnpm verify: pass"
       ]
     },
