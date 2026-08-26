@@ -9,19 +9,20 @@ describe('mock admin orders seed', () => {
 
     const expanded = expandMockOrders();
     expect(expanded).toHaveLength(DEFAULT_MOCK_ORDERS_COUNT);
-    expect(expanded[0].orderNumber).toBe('ORD-2024-0001');
-    expect(expanded[29].orderNumber).toBe('ORD-2024-0030');
-    expect(expanded[119].orderNumber).toBe('ORD-2024-0120');
+    const [first, thirtieth, oneHundredTwentieth] = [expanded[0], expanded[29], expanded[119]];
+    expect(first?.orderNumber).toBe('ORD-2024-0001');
+    expect(thirtieth?.orderNumber).toBe('ORD-2024-0030');
+    expect(oneHundredTwentieth?.orderNumber).toBe('ORD-2024-0120');
   });
 
   it('maps padded fixtures into the admin orders API contract', () => {
     const orders = getDemoOrders();
 
     expect(orders.length).toBeGreaterThanOrEqual(120);
-    expect(orders[0].shortId).toBe('ORD-2024-0001');
-    expect(orders[0]._id).toBe('ord-1');
-    expect(orders[119].shortId).toBe('ORD-2024-0120');
-    expect(orders[119]._id).toBe('ord-120');
+    expect(orders[0]?.shortId).toBe('ORD-2024-0001');
+    expect(orders[0]?._id).toBe('ord-1');
+    expect(orders[119]?.shortId).toBe('ORD-2024-0120');
+    expect(orders[119]?._id).toBe('ord-120');
   });
 
   it('honors MOCK_ORDERS_COUNT for stress runs', () => {

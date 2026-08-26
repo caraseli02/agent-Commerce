@@ -59,6 +59,7 @@ import Emitter from 'tiny-emitter/instance.js';
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
+import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearchTransfer';
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
 import { useProductStore } from '~/store/productStore';
 
@@ -67,7 +68,7 @@ useHead({
 });
 
 const productStore = useProductStore();
-const { similarProducts, similarProductFeatures, showSimilarOnly } = storeToRefs(productStore);
+const { similarProducts, similarProductFeatures } = storeToRefs(productStore);
 const route = useRoute();
 const keyword = ref((route.query.keyword ?? route.query.q)?.toString() ?? '');
 
@@ -110,17 +111,14 @@ const {
   pending,
   error,
   refresh,
-} = await useAsyncData<SearchData | null>(
+} = await useAsyncData<SearchData>(
   () => searchResultsCacheKey(searchQuery.value),
-  () => {
-    if (showSimilarOnly.value) {
-      return Promise.resolve(null);
-    }
-
-    return loadSearchResults(searchQuery.value);
-  },
+  () => loadSearchResults(searchQuery.value),
   {
-    watch: [keyword, category, atPage, perPage, sortBy, order, additionalFilters, featureFilters, ignoreCategory, showSimilarOnly],
+    // Search initialization explicitly refreshes after transferred similar-product
+    // filters are applied, so the handler only ever returns real search data.
+    immediate: false,
+    watch: [keyword, category, atPage, perPage, sortBy, order, additionalFilters, featureFilters, ignoreCategory],
   },
 );
 
@@ -137,17 +135,14 @@ watch(
   { immediate: true },
 );
 
-watch(
-  [similarProducts, similarProductFeatures],
-  (newValues) => {
-    if (newValues[0] && newValues[1]) {
-      featureFilters.value = newValues[1];
-      atPage.value = 1;
-      showSimilarOnly.value = false;
-    }
-  },
-  { deep: true },
-);
+const initializeSearchFromRoute = () => {
+  featureFilters.value = consumeSimilarSearchTransfer(route.query.similar === 'true', similarProducts.value, similarProductFeatures.value);
+  similarProducts.value = null;
+  similarProductFeatures.value = null;
+};
+
+initializeSearchFromRoute();
+await refresh();
 
 // Both `keyword` and `category` live in the URL, so breadcrumb and menu navigation must refresh both.
 // Reset pager state and remount SearchProducts (via searchResultsKey) so UI controls match fetched data.
@@ -158,6 +153,7 @@ watch(route, (value) => {
   ignoreCategory.value = false;
   atPage.value = 1;
   perPage.value = 10;
+  initializeSearchFromRoute();
 });
 
 Emitter.on('register-filter-option', (filter: ProductParametricDataFeaturesInterface[]) => {

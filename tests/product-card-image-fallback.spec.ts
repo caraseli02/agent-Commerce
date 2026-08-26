@@ -59,6 +59,10 @@ describe('storefront product card image fallback', () => {
     expect(fallbackImages).toHaveLength(1);
 
     const fallbackImage = fallbackImages[0];
+    expect(fallbackImage).toBeDefined();
+    if (!fallbackImage) {
+      throw new Error('Expected the product card to render an ImageWithFallback');
+    }
 
     expect(hasProp(fallbackImage, 'src')).toBe(true);
     expect(hasProp(fallbackImage, 'alt')).toBe(true);
@@ -85,10 +89,16 @@ describe('storefront product card image fallback', () => {
       return className.includes('md:hidden') && className.includes('ml-auto') && className.includes('shrink-0');
     });
     const menuItems = collectElements(ast, 'UiDropdownMenuItem');
+    const dropdownMenu = collectElements(ast, 'UiDropdownMenu')[0];
 
     expect(optionsButton).toBeTruthy();
     expect(menuWrapper).toBeTruthy();
     expect(menuItems).toHaveLength(2);
+    expect(title).toBeDefined();
+    expect(dropdownMenu).toBeDefined();
+    if (!title || !dropdownMenu) {
+      throw new Error('Expected the product card title and dropdown menu');
+    }
     expect(
       menuItems.map((item) => {
         const textNode = item.children.find((child) => child.type === NodeTypes.TEXT);
@@ -99,7 +109,7 @@ describe('storefront product card image fallback', () => {
     expect(getStaticAttrValue(title, 'class')).toContain('overflow-hidden');
     expect(getStaticAttrValue(title, 'class')).toContain('md:truncate');
     // Class must live on a real DOM wrapper — UiDropdownMenu/Root does not forward class attrs.
-    expect(getStaticAttrValue(collectElements(ast, 'UiDropdownMenu')[0], 'class')).toBeUndefined();
+    expect(getStaticAttrValue(dropdownMenu, 'class')).toBeUndefined();
   });
   it('keeps the mobile card compact while preserving desktop card behavior', () => {
     const source = readFileSync(productCardPath, 'utf8');
@@ -111,6 +121,11 @@ describe('storefront product card image fallback', () => {
     const rootCard = collectElements(ast, 'div')[0];
     const cartButton = collectElements(ast, 'button').find((button) => getStaticAttrValue(button, 'aria-label') === 'Add product to cart');
     const actionsGroup = collectElements(ast, 'div').find((el) => getStaticAttrValue(el, 'aria-label') === 'Product actions');
+
+    expect(rootCard).toBeDefined();
+    if (!rootCard) {
+      throw new Error('Expected the product card root element');
+    }
 
     expect(getStaticAttrValue(rootCard, 'class')).toContain('grid-cols-[108px_minmax(0,1fr)]');
     expect(getStaticAttrValue(rootCard, 'class')).toContain('md:flex');

@@ -132,10 +132,12 @@ export const useCustomerDashboard = () => {
 
     // get default shipping address
     if (details?.shippingAddress) {
-      shipping.value = details?.shippingAddress.find((address) => address.default) || details?.shippingAddress[0];
+      const defaultShipping = details.shippingAddress.find((address) => address.default) ?? details.shippingAddress[0];
+      if (defaultShipping) shipping.value = defaultShipping;
     }
     if (details?.billingAddress) {
-      billing.value = details?.billingAddress.find((address) => address.default) || details?.billingAddress[0];
+      const defaultBilling = details.billingAddress.find((address) => address.default) ?? details.billingAddress[0];
+      if (defaultBilling) billing.value = defaultBilling;
     }
     myAddresses.value.push(shipping.value);
     myAddresses.value.push(billing.value);

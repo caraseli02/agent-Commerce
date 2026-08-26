@@ -68,7 +68,7 @@ import FiltersIcon from '@/assets/icons/filters.svg';
 import CheckIcon from '@/assets/icons/check.svg';
 import XIcon from '@/assets/icons/x.svg';
 import { useTrimText } from '@/composables/text';
-import type { FilterOptions, ProductFilters } from '~/types/product';
+import type { FilterOptions, ProductFilters, SearchFiltersCategories } from '~/types/product';
 
 defineEmits(['close', 'add-filter-option']);
 
@@ -113,7 +113,7 @@ const parseOptions = (): FilterOptions[] => {
     return [];
   }
 
-  const filtered = props.filter[key].filter((item) => item.FeatureName === key) || [];
+  const filtered = props.filter[key]?.filter((item) => item.FeatureName === key) ?? [];
 
   return filtered.map((item) => ({
     value: item.FeatureValue,
@@ -136,7 +136,7 @@ const toggleOption = (option: FilterOptions) => {
 };
 
 const FeatureName = computed(() => {
-  return filter.value ? Object.keys(filter.value)[0] : '';
+  return filter.value ? (Object.keys(filter.value)[0] ?? '') : '';
 });
 
 const selectedAll = computed(() => {
@@ -144,7 +144,7 @@ const selectedAll = computed(() => {
 });
 
 const totalProducts = computed(() => {
-  return props.filter?.[FeatureName.value].reduce((total, obj) => obj.count + total, 0);
+  return props.filter?.[FeatureName.value]?.reduce((total: number, obj: SearchFiltersCategories) => obj.count + total, 0) ?? 0;
 });
 
 const handleAll = () => {

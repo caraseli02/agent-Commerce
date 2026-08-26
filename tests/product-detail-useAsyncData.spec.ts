@@ -12,9 +12,9 @@ describe('product detail useAsyncData contract', () => {
   it('uses a stable cache key per slug and watches route slug changes', () => {
     const productPage = readFileSync(productPagePath, 'utf8');
 
-    expect(productPage).toContain('productDetailCacheKey(productSlug.value)');
+    expect(productPage).toContain("productDetailCacheKey(productSlug.value ?? '')");
     expect(productPage).toContain('watch: [productSlug]');
-    expect(productPage).toContain('loadProductBySlug(productSlug.value)');
+    expect(productPage).toContain("loadProductBySlug(productSlug.value ?? '')");
     expect(productPage).toContain('useProducts');
     expect(productPage).toContain('v-if="pending"');
     expect(productPage).toContain('v-else-if="error"');

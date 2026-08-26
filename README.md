@@ -1,19 +1,19 @@
 # Components Marketplace
 
-Nuxt 3 e-commerce frontend prepared as a **self-contained portfolio demo**.
+Nuxt 4 e-commerce frontend prepared as a **self-contained portfolio demo**.
 
 The project includes a storefront, authenticated customer flows, and dashboard surfaces backed by local Nitro mock endpoints so the app can be reviewed without a live backend.
 
 ## Why this repo matters
 
-- Full Nuxt 3 + Vue 3 + TypeScript application
+- Full Nuxt 4 + Vue 3 + TypeScript application
 - Storefront + account + dashboard flows in one codebase
 - Local mock API built into the repo for portfolio demos
 - Good fit for case study walkthroughs, screenshots, and reviewer smoke tests
 
 ## Stack
 
-- Nuxt 3
+- Nuxt 4
 - Vue 3 Composition API
 - TypeScript
 - Pinia

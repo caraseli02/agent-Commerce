@@ -20,23 +20,17 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import chartDesigns from '@/chart-designs/progressBar.json';
-
-type ProgressBarInstance = {
-  value: { limit: number; spent: number };
-  chartSeriesOne: object[];
-  chartSeriesTwo: object[];
-  chartSeriesThree: object[];
-  chartSeriesFour: object[];
-  chartOptions: typeof chartDesigns;
-  $refs: Record<string, HTMLElement | undefined>;
-  setChartData(): void;
-};
 
 export default defineComponent({
   name: 'ProgressBar',
-  // eslint-disable-next-line vue/require-prop-types
-  props: ['value'],
+  props: {
+    value: {
+      type: Object as PropType<{ limit: number; spent: number }>,
+      required: true,
+    },
+  },
   data() {
     return {
       chartSeriesOne: [
@@ -94,19 +88,23 @@ export default defineComponent({
     this.renderChart('chart4', this.chartOptions.progressBarFour, this.chartSeriesFour, 2400);
   },
   methods: {
-    renderChart(this: ProgressBarInstance, refName: string, options: object, series: object, delay: number) {
+    renderChart(refName: string, options: object, series: object, delay: number) {
       options = Object.assign(options, {
         series: series,
       });
       setTimeout(async () => {
         const { default: ApexCharts } = await import('apexcharts');
-        const chart = new ApexCharts(this.$refs[refName], options);
+        const target = this.$refs[refName];
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+        const chart = new ApexCharts(target, options);
         chart.render();
       }, delay);
     },
-    setChartData(this: ProgressBarInstance) {
+    setChartData() {
       const { limit, spent } = this.value;
-      let barValues = [0, 0, 0, 0];
+      let barValues: [number, number, number, number] = [0, 0, 0, 0];
       const progress = spent / limit;
       if (progress < 0.5) {
         barValues = [progress * 2, 0, 0, 0];

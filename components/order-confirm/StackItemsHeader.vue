@@ -23,6 +23,9 @@ const statuses = ref(
     color: statusColors[status],
   })),
 );
+const fallbackStatus = { value: OrderStatus.Pending, label: 'Pending', color: statusColors[OrderStatus.Pending] ?? '' };
+const fallbackOrderType = { value: 'Unknown', label: 'Unknown', badge: { bg: '', text: '' } };
+const fallbackPaymentStatus = { value: 'Unknown', label: 'Unknown', color: '' };
 const paymentStatuses = ref(paymentStatusOptions);
 
 const user = authStore.userDetails;
@@ -55,15 +58,19 @@ const generateAWB = async () => {
 };
 
 const getStatusByOrder = () => {
-  return statuses.value.find((status) => status.value === props.order.status) || statuses.value[0];
+  return statuses.value.find((status) => status.value === props.order.status) ?? statuses.value[0] ?? fallbackStatus;
 };
 
 const getOrderTypeValueByOrder = () => {
-  return orderType.find((type) => type.value === props.order.type) || orderType[0];
+  return orderType.find((type) => type.value === props.order.type) ?? orderType[0] ?? fallbackOrderType;
 };
 
 const getPaymentStatusValueByOrder = () => {
-  return paymentStatuses.value.find((status) => status.value === props.order.paymentDetails?.status) || paymentStatuses.value[0];
+  return (
+    paymentStatuses.value.find((status) => status.value === props.order.paymentDetails?.status) ??
+    paymentStatuses.value[0] ??
+    fallbackPaymentStatus
+  );
 };
 
 const showTrackingDialog = ref(false);

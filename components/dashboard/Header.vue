@@ -361,7 +361,9 @@ const getCurrentDate = (date: string) => {
 };
 
 const markNotificationAsRead = async (notification: Notification, index: number) => {
-  if (notifications.value[index].seen !== true) {
+  const selectedNotification = notifications.value[index];
+  if (!selectedNotification) return;
+  if (selectedNotification.seen !== true) {
     unreadNotifications.value--;
   }
 
@@ -371,7 +373,7 @@ const markNotificationAsRead = async (notification: Notification, index: number)
     return;
   }
 
-  notifications.value[index].seen = true;
+  selectedNotification.seen = true;
 };
 
 const deleteNotification = async (notification: Notification, index: number) => {

@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the Components Marketplace harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -115,8 +115,41 @@
       "evidence": [
         "Planner brief: https://github.com/caraseli02/Ecas/issues/465#issuecomment-5286353625",
         "Upgraded TypeScript to 5.9.3 and vue-tsc to 3.3.9; TypeScript 7 was excluded because Nuxt 4 compatibility is the issue contract",
+        "Historical PR #495 passed under temporary relaxed Nuxt type settings",
+        "2026-08-26 revalidation adopted Nuxt's four project references and removed strict:false / noImplicitThis:false; 225 explicit strictness errors were resolved without a global compiler suppression",
         "pnpm typecheck: pass",
-        "pnpm verify: pass; PR #495 merged to origin/main after green GitHub verify, Vercel, Greptile 5/5, and independent evaluator PASS (10/10)"
+        "pnpm verify:full: pass (Nuxt 4.5.2 build, lint, 290 tests, feature-list validation, architecture checks, and preview smoke)",
+        "Focused browser flow: selecting a product specification, opening similar products, and rendering /search?similar=true passes in Chromium"
+      ]
+    },
+    {
+      "id": "E457-460",
+      "description": "Prepare the final Nuxt 3 patch for the Nuxt 4 migration",
+      "validation": "Nuxt 3.21.11 compatibility preparation preserves the root-level layout and passes mock-mode verification before the Nuxt 4 upgrade",
+      "status": "blocked",
+      "evidence": [
+        "Historical references identify issue #460 and PR #481, but this repository does not retain exact mock-mode verification evidence matching this feature's validation."
+      ]
+    },
+    {
+      "id": "E457-461",
+      "description": "Upgrade the application and configured modules to Nuxt 4",
+      "validation": "Nuxt 4 and configured modules start in mock mode while preserving the root-level layout and custom Vite chunking",
+      "status": "passing",
+      "evidence": [
+        "Issue #461 closed 2026-08-13; implementation merged in commit bf293e01 (PR #487)",
+        "Nuxt 4.5.2 is resolved; configured modules and the local shadcn module initialize in verification",
+        "#461 explicitly required retaining the root-level source layout; nuxt.config.ts keeps srcDir: '.'",
+        "Official-source revalidation and durable outcomes: docs/research/2026-08-25-nuxt-4-migration-revalidation.md"
+      ]
+    },
+    {
+      "id": "E457-471",
+      "description": "Upgrade VueUse utilities for Nuxt 4",
+      "validation": "@vueuse/core and @vueuse/nuxt 14.4.0 preserve composable behavior and SSR safety; focused checks, typecheck, and repository verification pass",
+      "status": "blocked",
+      "evidence": [
+        "package.json resolves VueUse 14.4.0, but the repository does not retain focused composable and SSR-safety evidence matching this feature's validation."
       ]
     },
     {
@@ -237,6 +270,19 @@
       "validation": "Clean-state checklist covers verification, git status, temporary artifacts, progress, feature state, and PR evidence",
       "status": "passing",
       "evidence": ["docs/agents/session-lifecycle.md", "PROGRESS.md"]
+    },
+    {
+      "id": "E457-513",
+      "description": "Repair PR #512 Nuxt 4 revalidation state and workflow hygiene",
+      "validation": "Similar-product transfer state is consumed once; normal search resets transferred features; PR-only artifacts are removed; pnpm verify and pnpm verify:full pass; issue #513 and PR #512 remain linked for independent evaluation",
+      "status": "active",
+      "evidence": [
+        "Issue #513 is claimed in-progress on codex/nuxt4-revalidation and tracks this repair.",
+        "pnpm exec vitest run tests/consume-similar-search-transfer.spec.ts tests/search-useAsyncData.spec.ts tests/mock-runtime-addresses.spec.ts tests/cart-session-persistence.spec.ts: pass (12 tests).",
+        "pnpm typecheck: pass.",
+        "pnpm verify: pass.",
+        "pnpm verify:full: pass."
+      ]
     },
     {
       "id": "I433",

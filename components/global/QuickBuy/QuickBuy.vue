@@ -13,8 +13,10 @@ const products = ref<Omit<QuickBuyItem, 'index'>[]>([
 ]);
 
 const updateProduct = (payload: QuickBuyItem) => {
-  products.value[payload.index].code = payload.code;
-  products.value[payload.index].quantity = payload.quantity;
+  const product = products.value[payload.index];
+  if (!product) return;
+  product.code = payload.code;
+  product.quantity = payload.quantity;
 };
 
 const removeProduct = (index: number) => {

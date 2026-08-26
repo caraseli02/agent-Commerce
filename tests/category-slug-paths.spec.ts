@@ -118,8 +118,13 @@ describe('category slug paths', () => {
       expect(node.id).toBe('6640cce35fbc8c0fd9f7ed05');
       expect(node.path).toBe('semiconductors');
       expect(node.alias).toBe('semiconductors');
-      expect(node.subcategory?.[0].path).toBe('semiconductors/interface-ics');
-      expect(node.subcategory?.[0].id).toBe('6640d32a5fbc8c0fd9f7ed1a');
+      const child = node.subcategory?.[0];
+      expect(child).toBeDefined();
+      if (!child) {
+        throw new Error('Expected the mapped demo node to include its child category');
+      }
+      expect(child.path).toBe('semiconductors/interface-ics');
+      expect(child.id).toBe('6640d32a5fbc8c0fd9f7ed1a');
     });
 
     it('exposes the catalog categories with catalog-aligned counts', () => {
@@ -212,7 +217,12 @@ describe('category slug paths', () => {
     it('filters by slug path, ancestor path, and taxonomy leaf', async () => {
       const leaf = await searchWith({ category: 'semiconductors/microcontrollers' });
       expect(leaf.total_items).toBe(1);
-      expect(leaf.items[0].path).toBe('semiconductors/microcontrollers');
+      const firstLeafItem = leaf.items[0];
+      expect(firstLeafItem).toBeDefined();
+      if (!firstLeafItem) {
+        throw new Error('Expected the microcontrollers search to return a product');
+      }
+      expect(firstLeafItem.path).toBe('semiconductors/microcontrollers');
 
       const branch = await searchWith({ category: 'semiconductors' });
       expect(branch.total_items).toBe(2);

@@ -147,7 +147,8 @@ const removeItem = (index: number) => {
 };
 
 const getFilterSlug = (filter: ProductFilters) => {
-  return filter[Object.keys(filter)[0]][0]?.FeatureID;
+  const key = Object.keys(filter)[0];
+  return key ? filter[key]?.[0]?.FeatureID : undefined;
 };
 
 filterData();

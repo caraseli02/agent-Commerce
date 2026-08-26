@@ -44,9 +44,9 @@ export function humanizeCategorySlug(slug: string): string {
     const prev = merged[merged.length - 1];
     const lower = part.toLowerCase();
     const attachWithHyphen =
-      Boolean(prev) && (/^\d/.test(lower) || /^[a-z]\d/i.test(lower) || (/^[a-z]$/i.test(lower) && prev.length <= 4));
+      prev !== undefined && (/^\d/.test(lower) || /^[a-z]\d/i.test(lower) || (/^[a-z]$/i.test(lower) && prev.length <= 4));
 
-    if (attachWithHyphen) {
+    if (attachWithHyphen && prev) {
       // Short left-hand tokens in a hyphen join are usually acronyms (USB-C, RS-485).
       const left = prev.length <= 3 && /^[a-z]+$/i.test(prev) ? prev.toUpperCase() : prev;
       merged[merged.length - 1] = `${left}-${part}`;
@@ -89,7 +89,7 @@ export function buildCategoryCrumbs(names: string[]): CategoryCrumb[] {
       continue;
     }
 
-    const parentPath = crumbs.length > 0 ? `${crumbs[crumbs.length - 1].path}/` : '';
+    const parentPath = crumbs.length > 0 ? `${crumbs[crumbs.length - 1]!.path}/` : '';
     crumbs.push({ name, path: `${parentPath}${slug}` });
   }
 

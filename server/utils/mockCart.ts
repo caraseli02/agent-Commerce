@@ -187,7 +187,8 @@ const purgeExpiredCarts = () => {
     const byOldest = [...cartsByUserId.entries()].sort((a, b) => a[1].updatedAt - b[1].updatedAt);
     const overflow = byOldest.length - MAX_CARTS;
     for (let i = 0; i < overflow; i++) {
-      removeStoredCart(byOldest[i][0]);
+      const oldest = byOldest[i];
+      if (oldest) removeStoredCart(oldest[0]);
     }
   }
 

@@ -23,7 +23,7 @@ const handleSelect = (event: CustomEvent) => {
 };
 
 onMounted(() => {
-  value.value = banks[0].value;
+  value.value = banks[0]?.value ?? '';
 });
 
 const selectedBank = computed(() => banks.find((bank) => bank.value === value.value));

@@ -1,15 +1,10 @@
 #!/usr/bin/env node
 import { access, readdir, readFile, stat } from 'node:fs/promises';
-import path from 'node:path';
 import process from 'node:process';
 import { gzipSync } from 'node:zlib';
 
-const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
-const OUTPUT_DIR = path.join(ROOT, '.output/public/_nuxt');
-const PRECOMPUTED_PATHS = [
-  path.join(ROOT, '.output/server/chunks/virtual/precomputed.mjs'), // Nuxt 4
-  path.join(ROOT, '.output/server/chunks/build/client.precomputed.mjs'), // Nuxt 3
-];
+import { OUTPUT_DIR, PRECOMPUTED_PATH } from './bundle-size-paths.mjs';
+import path from 'node:path';
 
 const DEFAULT_CHUNK_LIMIT_BYTES = 500 * 1024;
 const MARKER_CHUNK_LIMITS = {
@@ -49,16 +44,12 @@ function getChunkLimit(markers) {
 }
 
 async function getPrecomputedPath() {
-  for (const candidate of PRECOMPUTED_PATHS) {
-    try {
-      await access(candidate);
-      return candidate;
-    } catch {
-      // Try the other Nuxt output layout.
-    }
+  try {
+    await access(PRECOMPUTED_PATH);
+    return PRECOMPUTED_PATH;
+  } catch {
+    throw new Error(`Unable to find Nuxt 4 route manifest: ${PRECOMPUTED_PATH}`);
   }
-
-  throw new Error(`Unable to find Nuxt route manifest. Checked: ${PRECOMPUTED_PATHS.join(', ')}`);
 }
 
 async function listJavaScriptChunks() {

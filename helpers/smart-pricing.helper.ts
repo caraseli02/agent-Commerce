@@ -20,7 +20,9 @@ export const smartPricingQuantity = (pricing: PriceSettingsInterface[]): SmartPr
       selected: false,
       value: item.values
         ? item.values.reduce<string[]>((acc, curr, i) => {
-            const prevMax = i === 0 ? 0 : parseInt(acc[i - 1].split(' - ')[1]) + 1;
+            const previousRange = i === 0 ? undefined : acc[i - 1];
+            const previousMaximum = previousRange?.split(' - ')[1];
+            const prevMax = previousMaximum ? parseInt(previousMaximum, 10) + 1 : 0;
             const range = `${prevMax} - ${curr}`;
             acc.push(range);
             return acc;

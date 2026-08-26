@@ -4,24 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineNuxtConfig({
   devtools: { enabled: false },
 
-  future: {
-    compatibilityVersion: 4,
-  },
-
-  // Preserve root-level source layout until #461 moves to the Nuxt 4 app directory.
+  // #461 intentionally preserves the root-level source layout.
   srcDir: '.',
-
-  // Nuxt 4 compatibility mode tightens Vue SFC inference; relax until #465.
-  typescript: {
-    strict: false,
-    tsConfig: {
-      compilerOptions: {
-        // Keep the existing relaxed Options API baseline while Nuxt 4's
-        // generated type projects are adopted incrementally.
-        noImplicitThis: false,
-      },
-    },
-  },
 
   modules: [
     '@nuxt/fonts',

@@ -19,7 +19,7 @@ export function useVirtualTableRows<TData>(rows: Ref<Row<TData>[]>, scrollContai
 
   const paddingTop = computed(() => {
     const items = virtualRows.value;
-    return items.length > 0 ? items[0].start : 0;
+    return items[0]?.start ?? 0;
   });
 
   const paddingBottom = computed(() => {
@@ -28,7 +28,7 @@ export function useVirtualTableRows<TData>(rows: Ref<Row<TData>[]>, scrollContai
       return 0;
     }
 
-    return rowVirtualizer.value.getTotalSize() - items[items.length - 1].end;
+    return rowVirtualizer.value.getTotalSize() - (items[items.length - 1]?.end ?? 0);
   });
 
   return {
