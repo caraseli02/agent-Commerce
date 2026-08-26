@@ -314,6 +314,23 @@ test.describe('Browse → Product Detail', () => {
     await expect(coreCheckbox).toBeChecked();
   });
 
+  test('similar-product selection preserves results after search navigation', async ({ page }) => {
+    await page.goto('/product/prod-1');
+    // The specifications table is server-rendered; wait for client hydration before toggling it.
+    await page.waitForTimeout(1_000);
+
+    const coreCheckbox = page.getByRole('checkbox', { name: 'Include Core in similar-product search' });
+    await coreCheckbox.focus();
+    await coreCheckbox.press('Space');
+    await expect(coreCheckbox).toBeChecked();
+    const similarProducts = page.getByRole('button', { name: /Show similar products/ });
+    await expect(similarProducts).toBeEnabled();
+
+    await similarProducts.click();
+    await expect(page).toHaveURL(/\/search\?similar=true/);
+    await expect(page.getByText(/Products Found \([1-9]\d*\)/).last()).toBeVisible();
+  });
+
   test('product page shows breadcrumbs navigation', async ({ page }) => {
     await page.goto('/product/prod-1');
 

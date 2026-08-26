@@ -1,6 +1,6 @@
 # Nuxt 4 migration revalidation — final outcomes
 
-Date: 2026-08-25
+Date: 2026-08-25 (revalidated 2026-08-26)
 
 This report records the follow-up to the audit of `c7e36ae0`. It intentionally
 keeps the root-level layout required by closed issue #461 and does not opt into
@@ -8,22 +8,22 @@ Nuxt 5 compatibility mode.
 
 ## Resolved findings
 
-| Finding                                                            | Outcome                                                                                                                                    | Evidence                                                                                                                                               |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Async-data handler returned `null` during similar-product transfer | Resolved in source with `enabled: computed(() => !showSimilarOnly.value)` and an explicit refresh after transferred filters clear the gate | `pnpm exec vitest run tests/search-useAsyncData.spec.ts` (5 passing tests)                                                                             |
-| README identified Nuxt 3                                           | Resolved                                                                                                                                   | `README.md` now consistently says Nuxt 4                                                                                                               |
-| Migration plan presented completed work as future work             | Resolved                                                                                                                                   | `docs/MIGRATION_PLAN.md` records completed Nuxt, Tailwind, Pinia, VueUse, chart, date-fns, formatting, and lint migrations; resolved peers are removed |
-| Missing epic #457 source record                                    | Resolved                                                                                                                                   | Restored `2026-08-09-nuxt-4-upgrade-evaluation.md` with official Nuxt citations                                                                        |
-| `future.compatibilityVersion: 4`                                   | Removed as redundant; no value of 5 was added                                                                                              | `nuxt.config.ts`                                                                                                                                       |
-| Node support declaration absent                                    | Resolved                                                                                                                                   | `package.json` declares `node >=24 <25`, matching CI Node 24                                                                                           |
-| Nuxt 3/4 precomputed manifest path fallback                        | Resolved narrowly                                                                                                                          | The bundle guard uses the Nuxt 4 manifest path only, in a shared helper                                                                                |
+| Finding                                                            | Outcome                                                                                                                                                       | Evidence                                                                                                                                               |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Async-data handler returned `null` during similar-product transfer | Resolved with a truthy `loadSearchResults` handler, deferred `immediate: false` initialization, and an explicit refresh after transferred filters are applied | `pnpm exec vitest run tests/search-useAsyncData.spec.ts` (5 passing tests); targeted Chromium E2E flow                                                 |
+| README identified Nuxt 3                                           | Resolved                                                                                                                                                      | `README.md` now consistently says Nuxt 4                                                                                                               |
+| Migration plan presented completed work as future work             | Resolved                                                                                                                                                      | `docs/MIGRATION_PLAN.md` records completed Nuxt, Tailwind, Pinia, VueUse, chart, date-fns, formatting, and lint migrations; resolved peers are removed |
+| Missing epic #457 source record                                    | Resolved                                                                                                                                                      | Restored `2026-08-09-nuxt-4-upgrade-evaluation.md` with official Nuxt citations                                                                        |
+| `future.compatibilityVersion: 4`                                   | Removed as redundant; no value of 5 was added                                                                                                                 | `nuxt.config.ts`                                                                                                                                       |
+| Node support declaration absent                                    | Resolved                                                                                                                                                      | `package.json` declares `node >=24 <25`, matching CI Node 24                                                                                           |
+| Nuxt 3/4 precomputed manifest path fallback                        | Resolved narrowly                                                                                                                                             | The bundle guard uses the Nuxt 4 manifest path only, in a shared helper                                                                                |
 
 ## Runtime evidence
 
 - Frozen local install: `pnpm install --frozen-lockfile --ignore-workspace` passed with pnpm 10.18.3.
 - Production build: `pnpm build` passed on Nuxt 4.5.2.
 - Search route: `GET /search?keyword=capacitor` returned HTTP 200 from the local production server.
-- Chromium browser check passes: selecting Core, opening “Show similar products,” and rendering search results at `/search?similar=true`.
+- Chromium browser check: selecting Core exposed `Show similar products (24)` as enabled; activating it navigated to `/search?similar=true` and rendered `Products Found (24)` with no console errors. `pnpm exec playwright test tests/e2e/browse-product.spec.ts --grep 'similar-product selection'` passed (1 test); the same truthy-result contract has 5 focused Vitest checks.
 
 ## TypeScript project-reference revalidation
 
