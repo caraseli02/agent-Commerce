@@ -62,17 +62,13 @@ limited to separately scoped compatibility follow-ups.
 
 ### 8. Prettier 2 → Prettier 3
 
-- **Current:** 2.8.8
-- **Latest:** 3.9.6
-- **Effort:** 1 hour
-- **Requires:** May reformat entire codebase
+- **Status:** ✅ Completed (Prettier 3.9.6)
+- **Outcome:** Repository formatting is managed by Prettier 3; `pnpm verify` includes the compatible lint/typecheck/test gate.
 
 ### 9. ESLint 9 → ESLint 10
 
-- **Current:** 9.39.5
-- **Latest:** 10.8.0
-- **Effort:** 2-3 hours
-- **Requires:** Review new rules, update config
+- **Status:** ✅ Completed (ESLint 10.8.1)
+- **Outcome:** ESLint 10 is the installed lint engine; `pnpm lint` remains part of the repository verification gate.
 
 ### 10. TypeScript 5 → TypeScript 7
 

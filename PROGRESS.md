@@ -2,13 +2,13 @@
 
 ## Current focus
 
-- Nuxt 4 revalidation is complete: project references are adopted, global type relaxations are removed, and E457-465 passes strict typecheck plus full verification without a global suppression.
+- Issue #513 / PR #512 — repair Nuxt 4 revalidation state and workflow hygiene on `codex/nuxt4-revalidation`: consume similar-search transfer state once, remove PR-only artifacts, reconcile durable records, and rerun the current-head checks.
 - Epic #457 — #473 is complete on `codex/473-nuxt-ui-modules`; #472 remains blocked pending a dedicated TanStack Table 9 migration.
 - Zod 4 issue #468 remains deferred: stable `@vee-validate/zod` 4.15.1 supports only Zod 3, so no peer override is permitted.
 
 ## In progress
 
-- None.
+- #513 is claimed `in-progress` and linked to PR #512. Focused regression tests, `pnpm verify`, and `pnpm verify:full` pass locally; the pushed current head still needs CI and an independent evaluator verdict.
 
 ## Recently verified recovery
 

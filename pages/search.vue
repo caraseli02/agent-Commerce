@@ -59,6 +59,7 @@ import Emitter from 'tiny-emitter/instance.js';
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
+import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearchTransfer';
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
 import { useProductStore } from '~/store/productStore';
 
@@ -134,24 +135,14 @@ watch(
   { immediate: true },
 );
 
-let initializedFromSimilarProducts = false;
+const initializeSearchFromRoute = () => {
+  featureFilters.value = consumeSimilarSearchTransfer(route.query.similar === 'true', similarProducts.value, similarProductFeatures.value);
+  similarProducts.value = null;
+  similarProductFeatures.value = null;
+};
 
-watch(
-  [similarProducts, similarProductFeatures],
-  async (newValues) => {
-    if (newValues[0] && newValues[1]) {
-      initializedFromSimilarProducts = true;
-      featureFilters.value = newValues[1];
-      atPage.value = 1;
-      await refresh();
-    }
-  },
-  { deep: true, immediate: true },
-);
-
-if (!initializedFromSimilarProducts) {
-  await refresh();
-}
+initializeSearchFromRoute();
+await refresh();
 
 // Both `keyword` and `category` live in the URL, so breadcrumb and menu navigation must refresh both.
 // Reset pager state and remount SearchProducts (via searchResultsKey) so UI controls match fetched data.
@@ -162,6 +153,7 @@ watch(route, (value) => {
   ignoreCategory.value = false;
   atPage.value = 1;
   perPage.value = 10;
+  initializeSearchFromRoute();
 });
 
 Emitter.on('register-filter-option', (filter: ProductParametricDataFeaturesInterface[]) => {
