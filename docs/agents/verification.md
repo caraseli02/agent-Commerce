@@ -71,7 +71,7 @@ Use this policy to keep PRs reviewable and avoid scattering one-off artifacts ac
 
 ## Local visual-regression pilot
 
-The visual suite is a local review aid for the Tailwind/Nuxt recovery work. It is **not** a required check, does not block merges, and has no CI job, artifact upload, Docker/Linux baseline, or visual SaaS integration.
+The visual suite is a local review aid for the Tailwind/Nuxt recovery work. On macOS, where reviewed baselines exist, Husky runs it before normal pushes so visual mismatches block the usual local push/PR workflow. Other platforms print an explicit skip message after `pnpm verify`. The suite is not a GitHub required check, does not independently block merges, and has no CI job, artifact upload, Docker/Linux baseline, or visual SaaS integration.
 
 - Run `pnpm test:visual` to build the app and exercise the visual matrix against a fresh local Nitro preview at `http://127.0.0.1:3100`. It must not be pointed at `pnpm dev`.
 - Run `pnpm test:visual:update` only when intentionally accepting a visual change. It writes the committed PNG baselines under `tests/visual/__screenshots__/`.
@@ -97,7 +97,7 @@ Example evidence block for a future PR:
 ## Local gate ownership
 
 - **Pre-commit:** `lint-staged` runs Prettier on staged files only.
-- **Pre-push:** `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` (see `.husky/pre-push`). Prefer `pnpm verify` locally so coverage thresholds and `feature_list.json` validation are included.
+- **Pre-push:** `pnpm verify` on every platform, followed on macOS by `pnpm test:visual` against a fresh production preview (see `.husky/pre-push`). A failed command stops the normal push before a PR is created or updated; non-macOS platforms report that the visual step is skipped until reviewed baselines exist.
 - **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
 - **CI:** `pnpm verify` (build, lint, typecheck, coverage-enforced tests, and `feature_list.json` validation). Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
 - **Evaluator pass check:** before marking a PR review-ready, confirm `gh pr view --json mergeable,mergeStateStatus` and do not pass any PR that is `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`.

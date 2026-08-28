@@ -132,7 +132,7 @@ watch(
       filters.value = data.filters;
     }
   },
-  { immediate: true },
+  { immediate: true, flush: 'sync' },
 );
 
 const initializeSearchFromRoute = () => {
