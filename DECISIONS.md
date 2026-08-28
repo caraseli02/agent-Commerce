@@ -64,3 +64,8 @@ Use this file for durable cross-session decisions that should survive context re
 
   - Reason: concurrent checkout, duplicate requests, provider timeouts, and partial failures can otherwise oversell inventory, double-charge customers, create duplicate orders, or lose recovery context.
   - Impact: target checkout creates durable `PENDING_PAYMENT` state, atomically reserves inventory, uses idempotency for payment/checkout attempts, treats ambiguous provider responses as unknown rather than failed, supports webhook/reconciliation recovery, and clears purchased cart state only after the purchase is safely committed. Detailed reasoning lives in `docs/system-design-review.md`.
+
+- 2026-08-28 — Validate PR descriptions separately from application CI using current GitHub metadata
+
+  - Reason: the former check ran at the end of `pnpm verify` against the immutable workflow-event snapshot, so PR descriptions completed after creation still appeared empty or incomplete and made otherwise-green application checks red.
+  - Impact: `pnpm verify` covers repository behavior only; the trusted `PR template / check` workflow fetches the current PR body and reruns on description or label edits.

@@ -12,6 +12,7 @@
 
 ## Recently verified recovery
 
+- PR-template CI failures were traced to stale `pull_request` event snapshots and metadata validation being embedded in the full application gate. The checker now loads current GitHub PR metadata in a focused trusted workflow that reruns on description/label edits; `pnpm verify` no longer fails on PR-description state. Focused regression tests and `pnpm verify` pass.
 - PR #497 merged #467 at `0c930cab`; Pinia 4.0.3, `@pinia/nuxt` 1.0.2, persisted state 4.7.1, cart/session production checks, and `pnpm verify:full` passed.
 - PR #500 merged at `34e2c8b8`; the final Tailwind 4 setup is Vite-only and CSS-first: `@tailwindcss/vite` processes the global `assets/css/main.css` source entrypoint into built CSS assets; that source owns the Tailwind imports, theme, and plugins.
 - PR #501 merged at `f232ec6f`; search no-result rendering and narrow customer order history were recovered with focused production browser evidence.
@@ -34,5 +35,5 @@
 ## Blocked / known baseline failures
 
 - #468 is open and labeled `ready-for-agent`, but its body still says it is blocked by #461; it remains untouched in this reconciliation.
-- PRs #501 and #502 passed their technical/application verification (including local `pnpm verify` and focused browser/visual checks); their overall GitHub `verify` jobs were red only because `check-pr-template.mjs` rejected PR metadata, not because those technical checks failed.
+- Historical PRs #501, #502, #509, #510, and #512 passed their technical/application verification but ended with red `verify` jobs at the former embedded PR-description check. That coupling is removed; PR-description validation now reports through the focused `PR template / check` workflow.
 - None for the #470 chart migration. The previous customer-profile/customer-home `GlobalEmptyState` and `runtimeConfig.toJSON` warnings were resolved by explicit empty-state imports; the full dashboard console smoke now passes.

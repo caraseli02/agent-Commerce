@@ -24,7 +24,8 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
 5. **PR template completeness gate**
    - `node scripts/check-pr-template.mjs`
-   - This runs inside `pnpm verify` / CI on pull-request events and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
+   - The focused `PR template / check` workflow runs separately from application CI and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
+   - The workflow reads the current PR description from GitHub instead of trusting the immutable event snapshot. Description and label edits automatically rerun only this focused check; they do not rerun `pnpm verify`.
    - The gate expects filled verification outcomes, known-risks evidence, and rubric scores; it skips when the PR carries the documented `skip-pr-template-check` or `human-hotfix` label so a human hotfix can intentionally bypass the agent template.
 6. **Clean-state handoff validator**
    - `node scripts/check-clean-state.mjs`
@@ -150,7 +151,7 @@ Mechanical gates do **not** enforce design-system consistency. Evaluators must c
 - **Modals and dialogs:** prefer `UiDialog`, `UiDialogContent`, `UiButton`, `UiInput`, and `UiLabel` from shadcn-nuxt over raw `<button>`, `<input>`, and `<label>` unless the issue explicitly calls for a legacy/native pattern.
 - **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `CustomProductPartNumberModal.vue`).
 - **Runtime evidence for UI:** modal and route changes need browser smoke on the affected flow, not only `pnpm verify` static output. Issue acceptance criteria that mention smoke-testing must show route/viewport evidence in the PR body.
-- **PR template completeness:** generator PRs must fill the template sections (verification outcomes, known risks, evaluator rubric). Rubric numeric scores are filled by the evaluator before PASS; generators may leave `/10` placeholders. `node scripts/check-pr-template.mjs` enforces this in CI, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when CI passes.
+- **PR template completeness:** generator PRs must fill the template sections (verification outcomes, known risks, evaluator rubric) before opening the PR. Rubric numeric scores are filled by the evaluator before PASS; generators may leave `/10` placeholders. The focused `PR template / check` workflow enforces this against current GitHub metadata, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when application CI passes.
 
 ## Agent-oriented failure messages
 

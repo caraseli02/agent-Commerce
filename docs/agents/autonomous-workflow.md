@@ -93,7 +93,7 @@ The generator must:
 2. Start from clean latest `main` and work on the claimed branch only.
 3. Make the smallest change that satisfies the issue.
 4. Run local pre-flight verification from the brief.
-5. Open or update a PR linked with `Closes #<issue>`.
+5. Open or update a PR linked with `Closes #<issue>`. Populate `.github/pull_request_template.md` in the initial create command; do not open an empty PR and patch its description later.
 6. End with `PR ready for evaluator`, not `done`.
 
 The generator's checks are useful evidence, but they are not the final done gate.
