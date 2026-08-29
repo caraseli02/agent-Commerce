@@ -14,6 +14,7 @@ const GREPTILE_HEAD_PATTERN = /Last reviewed commit:[\s\S]*?commit\/([a-f0-9]{40
 const GREPTILE_PASS_PATTERN = /Confidence Score:\s*5\/5/i;
 const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks|approved)[.!]?$/i;
 const ECAS_DISPATCH_PATTERN = /<!--\s*ecas-loop:v3\s+role=dispatcher\s+key=([^\s>]+)\s*-->\s*$/i;
+const DISPATCH_MARKER_MAX_AGE_MS = 30 * 60 * 1000;
 
 function signalKey(signal) {
   return `${signal.kind}:${signal.sourceId}:${signal.head}`;
@@ -25,7 +26,7 @@ export function ciPassed(checks = []) {
 }
 
 /** @param {any[]} issueComments @param {string} controllerLogin */
-export function controllerDispatchKeys(issueComments = [], controllerLogin = '') {
+export function controllerDispatchKeys(issueComments = [], controllerLogin = '', now = null) {
   const expectedLogin = controllerLogin.toLowerCase();
   if (!expectedLogin) return new Set();
   return new Set(
@@ -33,9 +34,11 @@ export function controllerDispatchKeys(issueComments = [], controllerLogin = '')
       if (!TRUSTED_ASSOCIATIONS.has(comment.author_association) || String(comment.user?.login ?? '').toLowerCase() !== expectedLogin) {
         return [];
       }
+      const createdAt = Date.parse(comment.created_at ?? '');
+      if (Number.isFinite(now) && (!Number.isFinite(createdAt) || now - createdAt > DISPATCH_MARKER_MAX_AGE_MS)) return [];
       const key = String(comment.body ?? '').match(ECAS_DISPATCH_PATTERN)?.[1];
       return key ? [key] : [];
-    })
+    }),
   );
 }
 
@@ -69,7 +72,7 @@ export function independentReviewPassed({ pr, reviews = [], issueComments = [] }
 }
 
 /**
- * @param {{ pr?: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], processedKeys?: Set<string>, controllerLogin?: string }} options
+ * @param {{ pr?: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], processedKeys?: Set<string>, controllerLogin?: string, ignoreDeduplication?: boolean, now?: number }} options
  */
 export function selectRepairSignal({
   pr,
@@ -79,10 +82,11 @@ export function selectRepairSignal({
   processedKeys = new Set(),
   controllerLogin = '',
   ignoreDeduplication = false,
+  now = Date.now(),
 } = {}) {
   const check = (pr?.checks ?? []).find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
   if (!pr?.head) return null;
-  const dispatchedKeys = controllerDispatchKeys(issueComments, controllerLogin);
+  const dispatchedKeys = controllerDispatchKeys(issueComments, controllerLogin, now);
   const pending = (signal) => {
     const candidate = { ...signal, key: signalKey(signal) };
     return !ignoreDeduplication && (processedKeys.has(candidate.key) || dispatchedKeys.has(candidate.key)) ? null : candidate;

@@ -73,7 +73,7 @@ describe('decideNextAction', () => {
         state: createLoopState(),
         activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
         pr: { number: 42, head: '7'.repeat(40), linkedIssues: [7], checks: [] },
-      })
+      }),
     ).toEqual({ type: 'idle', reason: 'untrusted-pr-author' });
   });
 
@@ -156,6 +156,47 @@ describe('decideNextAction', () => {
     expect(blocked).toMatchObject({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
   });
 
+  it('does not launch a different signal while one hosted writer is in flight for the same PR head', () => {
+    const head = 'd'.repeat(40);
+    const state = createLoopState();
+    beginDispatch(state, { pr: 42, key: `ci-failure:1:${head}`, head, at: '2026-08-10T10:00:00Z' });
+    finishDispatch(state, { key: `ci-failure:1:${head}`, result: 'published', at: '2026-08-10T10:01:00Z' });
+
+    const action = decideNextAction({
+      state,
+      now: Date.parse('2026-08-10T10:05:00Z'),
+      activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
+      pr: {
+        number: 42,
+        head,
+        linkedIssues: [7],
+        trustedAuthor: true,
+        mergeable: 'MERGEABLE',
+        mergeStateStatus: 'UNSTABLE',
+        checks: [
+          {
+            workflowName: 'CI',
+            name: 'verify',
+            status: 'COMPLETED',
+            conclusion: 'FAILURE',
+            detailsUrl: 'https://github.com/acme/repo/actions/runs/1',
+          },
+        ],
+      },
+      issueComments: [
+        {
+          id: 9,
+          body: `/repair ${head} Try a different fix.`,
+          author_association: 'OWNER',
+          created_at: '2026-08-10T10:04:00Z',
+          html_url: 'https://github.com/acme/repo/pull/42#issuecomment-9',
+        },
+      ],
+    });
+
+    expect(action).toEqual({ type: 'idle', reason: 'awaiting-hosted-repair' });
+  });
+
   it('recovers the dispatch ceiling from durable local state', () => {
     const head = '9'.repeat(40);
     const state = createLoopState();
@@ -188,7 +229,7 @@ describe('decideNextAction', () => {
             created_at: '2026-08-10T10:12:00Z',
           },
         ],
-      })
+      }),
     ).toMatchObject({ type: 'blocked', reason: 'repair-attempt-limit', pr: 42, issue: 7 });
   });
 
@@ -254,7 +295,7 @@ describe('decideNextAction', () => {
               body: `Confidence Score: 5/5\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
             },
           ],
-        })
+        }),
       ).toEqual({ type: 'idle', reason: 'awaiting-non-conflicting-pr' });
     }
   });
@@ -283,7 +324,7 @@ describe('decideNextAction', () => {
             body: `Confidence Score: 5/5\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
           },
         ],
-      })
+      }),
     ).toEqual({ type: 'idle', reason: 'awaiting-updated-head' });
   });
 
@@ -311,23 +352,8 @@ describe('decideNextAction', () => {
               },
             ],
           },
-        })
+        }),
       ).toMatchObject({ type: 'dispatch' });
     }
-  });
-
-  it('blocks crash recovery when a prepared local commit was not published', () => {
-    const head = 'f'.repeat(40);
-    const state = createLoopState();
-    beginDispatch(state, { pr: 42, key: `ci-failure:1:${head}`, head, at: '2026-08-10T10:00:00Z' });
-    finishDispatch(state, { key: `ci-failure:1:${head}`, result: 'dispatched', at: '2026-08-10T10:01:00Z' });
-    state.dispatches[`ci-failure:1:${head}`].preparedHead = 'a'.repeat(40);
-    expect(
-      decideNextAction({
-        state,
-        activeIssues: [{ number: 7, state: 'OPEN', labels: [{ name: 'in-progress' }] }],
-        pr: { number: 42, head, linkedIssues: [7], trustedAuthor: true, mergeable: 'MERGEABLE', mergeStateStatus: 'UNSTABLE', checks: [] },
-      })
-    ).toMatchObject({ type: 'blocked', reason: 'local-push-unreconciled' });
   });
 });

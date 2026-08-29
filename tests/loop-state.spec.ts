@@ -11,21 +11,21 @@ describe('loop state', () => {
     beginDispatch(state, { pr: 42, key: firstKey, head: 'a'.repeat(40), at: '2026-08-10T10:00:00Z' });
     finishDispatch(state, {
       key: firstKey,
-      result: 'dispatched',
+      result: 'published',
       commentUrl: 'https://github.com/acme/repo/pull/42#issuecomment-1',
       at: '2026-08-10T10:10:00Z',
     });
     beginDispatch(state, { pr: 42, key: secondKey, head: 'b'.repeat(40), at: '2026-08-10T10:20:00Z' });
     finishDispatch(state, {
       key: secondKey,
-      result: 'dispatched',
+      result: 'published',
       commentUrl: 'https://github.com/acme/repo/pull/42#issuecomment-2',
       at: '2026-08-10T10:21:00Z',
     });
 
     expect([...processedKeys(state, Date.parse('2026-08-10T10:21:00Z'))]).toEqual([firstKey, secondKey]);
     expect(canRepair(state, 42)).toBe(false);
-    expect(state.dispatches[firstKey]).toMatchObject({ result: 'dispatched' });
+    expect(state.dispatches[firstKey]).toMatchObject({ result: 'published' });
   });
 
   it('retries failed or stale-running dispatches without duplicating live work', () => {

@@ -28,7 +28,7 @@ If any condition is false, use a bounded agent task with a human in the loop. Do
 
 ## Proportionate observability
 
-The default controller keeps one compact append-only summary per local attempt. The summary records the issue, PR, exact head, source key, start/end timestamps, result, and publication state. GitHub owns the live queue and PR state; the controller's local state only fences attempts and crash recovery.
+The default controller keeps one compact append-only summary per hosted dispatch attempt. The summary records the issue, PR, exact head, source key, start/end timestamps, result, and comment URL. GitHub owns the live queue and PR state; the controller's local state only fences dispatch attempts and crash recovery.
 
 Do not duplicate every command and file event into another mandatory ledger for this human-merged portfolio repository. The raw trace remains available for debugging, while CI, commits, PR discussion, and the independent evaluator provide the acceptance evidence.
 
@@ -36,16 +36,16 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 
 ## Minimal controller contract
 
-- Wake on a repository event when infrastructure permits; the local Mac controller performs only low-frequency reconciliation and bounded local repair execution.
+- Wake on a repository event when infrastructure permits; the local controller performs only low-frequency reconciliation and bounded hosted-task dispatch.
 - Treat `{source ID, current head SHA}` as the idempotency key.
-- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and an exact-head `/repair <40-char-sha> <instruction>` command through one local repair controller. Bare or stale-head repair commands are ignored.
+- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and an exact-head `/repair <40-char-sha> <instruction>` command through one hosted repair dispatcher. Bare or stale-head repair commands are ignored.
 - Never infer a repair command from ordinary top-level prose.
 - Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
-- Persist a local repair attempt before publishing its commit. A crash after persistence is fail-closed: the attempt remains consumed and startup reconciles the PR head rather than allowing a third attempt.
-- The local Mac controller uses an isolated temporary Git worktree at the exact PR head and a bounded local Codex process. The worker cannot use `gh`, network access, commit, push, merge, or inspect unrelated paths; the controller alone commits and pushes the existing PR branch after revalidating the head and lock ownership. It never merges.
-- Use CI plus an independent reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same local repair controller. Humans remain the only merge authority.
+- Persist the attempt before posting its hosted repair request. A published request remains in flight for 30 minutes; if the head does not change, the same signal may consume the next bounded attempt. Block only after the second in-flight window expires. A crash after persistence is fail-closed: the attempt remains consumed rather than allowing an unbounded retry.
+- Never run repair code, repository scripts, Git commits, or pushes in the local dispatcher. It may only read GitHub state, post a bounded `@codex fix` request, and update the linked issue after exact-head revalidation.
+- Use CI plus an independent reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same hosted dispatcher. Humans remain the only merge authority.
 
-Local activation requires the Mac `codex` executable, its local login, GitHub CLI authentication for the repository, and a clean controller checkout. No Codex Cloud connector or hosted executor is used. The controller copies only Codex's `auth.json` into an ephemeral worker home, starts Codex with `--ephemeral --ignore-user-config`, and wraps it in a macOS sandbox profile that permits reads only from the worktree, copied auth material, and runtime files. Set `ECAS_REPO_ROOT` to that checkout and optionally `ECAS_CODEX_BIN`; start the controller only after confirming `node scripts/ecas-loop-controller.mjs --inspect` is idle or has the intended single action.
+Activation requires GitHub CLI authentication and a connected Codex GitHub connector. Start with `ECAS_LOOP_OBSERVE_ONLY=true` so reconciliation decisions are visible without GitHub or attempt-state mutations; the local lock and heartbeat still report controller health. Enable dispatch only after observe-only output matches the intended single action and the connector can accept a manual `@codex fix` request. If the connector asks to be connected, keep the dispatcher in observe-only mode until a maintainer reconnects it.
 
 ## Roles
 
@@ -122,7 +122,7 @@ When an `in-progress` issue already has an open PR, controller logic must route 
 - `FAIL`: generate a focused repair brief from the evaluator comment and update the same branch/PR.
 - `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
 
-For an ordinary PR conversation comment, a trusted maintainer can use `/repair <40-char-sha> <instruction>` to request the bounded local worker. The SHA must be the current PR head at the time of posting; the controller ignores bare and stale commands so it cannot replay work. Free-form prose is never an execution trigger.
+For an ordinary PR conversation comment, a trusted maintainer can use `/repair <40-char-sha> <instruction>` to request a bounded hosted repair. The SHA must be the current PR head at the time of posting; the dispatcher ignores bare and stale commands so it cannot replay work. Free-form prose and direct `@codex fix` comments are never redispatched.
 
 ## Evaluator report format
 

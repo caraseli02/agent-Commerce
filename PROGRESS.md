@@ -2,16 +2,17 @@
 
 ## Current focus
 
-- Issue #513 / PR #512 — repair Nuxt 4 revalidation state and workflow hygiene on `codex/nuxt4-revalidation`: consume similar-search transfer state once, remove PR-only artifacts, reconcile durable records, and rerun the current-head checks.
+- PR #478 — replace the unsafe local repair worker with a bounded hosted-dispatch controller, add lifecycle coverage, reconcile the workflow contract, and verify against current `main`.
 - Epic #457 — #473 is complete on `codex/473-nuxt-ui-modules`; #472 remains blocked pending a dedicated TanStack Table 9 migration.
 - Zod 4 issue #468 remains deferred: stable `@vee-validate/zod` 4.15.1 supports only Zod 3, so no peer override is permitted.
 
 ## In progress
 
-- #513 is claimed `in-progress` and linked to PR #512. Focused regression tests, `pnpm verify`, and `pnpm verify:full` pass locally; the pushed current head still needs CI and an independent evaluator verdict.
+- PR #478 is repaired on the current branch, which includes current `main`. Focused hosted-dispatch lifecycle, policy, signal, state tests, `pnpm verify`, and two independent final reviews pass after resolving their lifecycle findings. `pnpm verify:handoff` was run from the clean repair commit and stopped only at the inherited architecture-invariant failure recorded below.
 
 ## Recently verified recovery
 
+- PR #512 merged to `main` at `4f834279`; its durable feature record is reconciled to passing.
 - PR-template CI failures were traced to stale `pull_request` event snapshots and metadata validation being embedded in the full application gate. The checker now loads current GitHub PR metadata in a focused trusted workflow that reruns on description/label edits; `pnpm verify` no longer fails on PR-description state. Focused regression tests and `pnpm verify` pass.
 - PR #497 merged #467 at `0c930cab`; Pinia 4.0.3, `@pinia/nuxt` 1.0.2, persisted state 4.7.1, cart/session production checks, and `pnpm verify:full` passed.
 - PR #500 merged at `34e2c8b8`; the final Tailwind 4 setup is Vite-only and CSS-first: `@tailwindcss/vite` processes the global `assets/css/main.css` source entrypoint into built CSS assets; that source owns the Tailwind imports, theme, and plugins.
@@ -34,6 +35,8 @@
 
 ## Blocked / known baseline failures
 
+- `pnpm verify:full` reaches the architecture gate, then fails with `scripts/check-pr-template.mjs:174 contains forbidden manual auth header: Authorization: Bearer ${token}`. Both that line and the detecting invariant are present on current `origin/main` (`c9da1489`), so this is an inherited baseline failure outside PR #478's loop-controller scope; the default `pnpm verify` gate passes.
+- Hosted repair activation requires a connected Codex GitHub connector. Keep `ECAS_LOOP_OBSERVE_ONLY=true` until a manual connector dispatch is confirmed.
 - #468 is open and labeled `ready-for-agent`, but its body still says it is blocked by #461; it remains untouched in this reconciliation.
 - Historical PRs #501, #502, #509, #510, and #512 passed their technical/application verification but ended with red `verify` jobs at the former embedded PR-description check. That coupling is removed; PR-description validation now reports through the focused `PR template / check` workflow.
 - None for the #470 chart migration. The previous customer-profile/customer-home `GlobalEmptyState` and `runtimeConfig.toJSON` warnings were resolved by explicit empty-state imports; the full dashboard console smoke now passes.

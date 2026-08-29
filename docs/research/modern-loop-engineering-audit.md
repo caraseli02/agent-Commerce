@@ -43,7 +43,7 @@ The controller should coordinate this flow, not become a second workflow platfor
 ### Keep
 
 - WIP=1 and exact current-head binding.
-- Isolated worktrees and explicit denied destructive/merge actions.
+- Hosted execution isolation and explicit denied destructive/merge actions.
 - Two-attempt ceiling, blocker escalation, and human merge gate.
 - Deterministic `pnpm verify`/PR-contract checks.
 - Independent final evaluator where acceptance is objective.
@@ -73,4 +73,4 @@ Do not add another repair feature to the present controller. First make a simpli
 
 ## PR #478 outcome
 
-The implementation ultimately removed local agent execution instead of trying to harden it with more controller machinery. The local controller is now a small reconciliation/dispatch bridge: it recognizes exact current-head signals, deduplicates them, enforces the two-attempt ceiling, and posts a bounded hosted Codex request. It cannot run PR code, read agent output, commit, or push. CI, hosted review, and human merge remain separate gates. Activation waits for the repository's Codex GitHub connector to be reconnected.
+The implementation removed local agent execution instead of trying to harden it with more controller machinery. The local controller is a reconciliation/dispatch bridge: it recognizes exact current-head signals, deduplicates them, enforces the two-attempt ceiling, and posts a bounded hosted Codex request. It cannot run PR code, read agent output, commit, or push. CI, hosted review, and human merge remain separate gates. Observe-only mode is the required rollout path until the repository's Codex GitHub connector is confirmed healthy.

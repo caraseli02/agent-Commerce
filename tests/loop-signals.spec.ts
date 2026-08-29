@@ -47,7 +47,7 @@ describe('selectRepairSignal', () => {
               },
             ],
           },
-        })
+        }),
       ).toBeNull();
     }
   });
@@ -72,21 +72,21 @@ describe('selectRepairSignal', () => {
       selectRepairSignal({
         pr: base,
         issueComments: [{ ...trustedComment, body: 'Please fix the failing checkout test.' }],
-      })
+      }),
     ).toBeNull();
 
     expect(
       selectRepairSignal({
         pr: base,
         issueComments: [{ ...trustedComment, body: '@codex fix the failing checkout test.' }],
-      })
+      }),
     ).toBeNull();
 
     expect(
       selectRepairSignal({
         pr: base,
         issueComments: [{ ...trustedComment, body: `/repair ${head} Fix the failing checkout test.` }],
-      })
+      }),
     ).toEqual({
       kind: 'repair-command',
       sourceId: '77',
@@ -109,7 +109,7 @@ describe('selectRepairSignal', () => {
           { ...comment, id: 2, body: `/repair ${'b'.repeat(40)} fix` },
           { ...comment, id: 3, body: `/repair ${head}   ` },
         ],
-      })
+      }),
     ).toBeNull();
   });
 
@@ -164,7 +164,7 @@ describe('selectRepairSignal', () => {
       selectRepairSignal({
         pr: { number: 42, head: 'e'.repeat(40), checks: [] },
         issueComments: [qodoComment],
-      })
+      }),
     ).toBeNull();
   });
 
@@ -201,8 +201,41 @@ describe('selectRepairSignal', () => {
         pr: { number: 42, head, headCommittedAt: '2026-08-10T10:00:00Z', checks: [] },
         issueComments: [comment],
         controllerLogin: 'maintainer',
-      })
+        now: Date.parse('2026-08-10T10:19:00Z'),
+      }),
     ).toBeNull();
+  });
+
+  it('allows a stalled controller dispatch marker to retry after its in-flight window', () => {
+    const head = '8'.repeat(40);
+    const key = `ci-failure:1:${head}`;
+    const comment = {
+      id: 102,
+      user: { login: 'maintainer' },
+      author_association: 'OWNER',
+      body: `@codex fix this.\n<!-- ecas-loop:v3 role=dispatcher key=${key} -->`,
+      created_at: '2026-08-10T10:18:00Z',
+    };
+    const signal = selectRepairSignal({
+      pr: {
+        number: 42,
+        head,
+        checks: [
+          {
+            workflowName: 'CI',
+            name: 'verify',
+            status: 'COMPLETED',
+            conclusion: 'FAILURE',
+            detailsUrl: 'https://github.com/acme/repo/actions/runs/1',
+          },
+        ],
+      },
+      issueComments: [comment],
+      controllerLogin: 'maintainer',
+      now: Date.parse('2026-08-10T10:49:00Z'),
+    });
+
+    expect(signal).toMatchObject({ key });
   });
 
   it('does not trust dispatcher markers from untrusted commenters', () => {
@@ -210,7 +243,7 @@ describe('selectRepairSignal', () => {
     const marker = `<!-- ecas-loop:v3 role=dispatcher key=ci-failure:1:${head} -->`;
 
     expect([...controllerDispatchKeys([{ body: marker, author_association: 'NONE', user: { login: 'attacker' } }], 'maintainer')]).toEqual(
-      []
+      [],
     );
     expect([
       ...controllerDispatchKeys([{ body: marker, author_association: 'COLLABORATOR', user: { login: 'attacker' } }], 'maintainer'),
@@ -307,14 +340,14 @@ describe('independentReviewPassed', () => {
             body: `<h3>Confidence Score: 5/5</h3>\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
           },
         ],
-      })
+      }),
     ).toBe(true);
 
     expect(
       independentReviewPassed({
         pr: { head },
         reviews: [{ user: { login: 'reviewer' }, author_association: 'MEMBER', commit_id: head, state: 'APPROVED' }],
-      })
+      }),
     ).toBe(true);
   });
 
@@ -329,7 +362,7 @@ describe('independentReviewPassed', () => {
             body: `<h3>Confidence Score: 4/5</h3>\nIssue 1\nLast reviewed commit: https://github.com/acme/repo/commit/${head}`,
           },
         ],
-      })
+      }),
     ).toBe(false);
     expect(
       independentReviewPassed({
@@ -338,7 +371,7 @@ describe('independentReviewPassed', () => {
           { user: { login: 'reviewer' }, author_association: 'MEMBER', commit_id: head, state: 'APPROVED' },
           { user: { login: 'reviewer' }, author_association: 'MEMBER', commit_id: head, state: 'CHANGES_REQUESTED' },
         ],
-      })
+      }),
     ).toBe(false);
   });
 

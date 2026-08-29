@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the Components Marketplace harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
+    "active_feature_count": 0,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -272,16 +272,35 @@
       "evidence": ["docs/agents/session-lifecycle.md", "PROGRESS.md"]
     },
     {
+      "id": "H10",
+      "description": "Keep autonomous repair dispatch small, bounded, and externally executed",
+      "validation": "The local controller only reconciles exact-head GitHub state and dispatches hosted repairs; observe-only mode has no GitHub or attempt-state mutations; attempts are crash-safe, in-flight-aware, and bounded; promotion requires current-head CI and independent review",
+      "status": "passing",
+      "evidence": [
+        "scripts/loop-controller-runtime.mjs",
+        "scripts/ecas-loop-controller.mjs",
+        "tests/loop-controller-runtime.spec.ts",
+        "tests/loop-policy.spec.ts",
+        "tests/loop-signals.spec.ts",
+        "tests/loop-state.spec.ts",
+        "docs/agents/autonomous-workflow.md",
+        "Focused controller tests: 37 tests pass.",
+        "pnpm verify: pass (69 files, 331 tests).",
+        "Independent standards and workflow reviews completed; lifecycle findings resolved."
+      ]
+    },
+    {
       "id": "E457-513",
       "description": "Repair PR #512 Nuxt 4 revalidation state and workflow hygiene",
-      "validation": "Similar-product transfer state is consumed once; normal search resets transferred features; PR-only artifacts are removed; pnpm verify and pnpm verify:full pass; issue #513 and PR #512 remain linked for independent evaluation",
-      "status": "active",
+      "validation": "Similar-product transfer state is consumed once; normal search resets transferred features; PR-only artifacts are removed; pnpm verify and pnpm verify:full pass; PR #512 is merged",
+      "status": "passing",
       "evidence": [
         "Issue #513 is claimed in-progress on codex/nuxt4-revalidation and tracks this repair.",
         "pnpm exec vitest run tests/consume-similar-search-transfer.spec.ts tests/search-useAsyncData.spec.ts tests/mock-runtime-addresses.spec.ts tests/cart-session-persistence.spec.ts: pass (12 tests).",
         "pnpm typecheck: pass.",
         "pnpm verify: pass.",
-        "pnpm verify:full: pass."
+        "pnpm verify:full: pass.",
+        "PR #512 merged to main in commit 4f834279."
       ]
     },
     {

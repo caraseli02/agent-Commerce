@@ -1,9 +1,9 @@
 import { ciPassed, independentReviewPassed, selectRepairSignal } from './loop-signals.mjs';
-import { canRepair, processedKeys } from './loop-state.mjs';
+import { canRepair, hasInFlightDispatch, processedKeys } from './loop-state.mjs';
 
 function dispatchedHeads(state, pr) {
   const stateHeads = Object.values(state.dispatches ?? {})
-    .filter((record) => record?.pr === pr && record?.result === 'dispatched')
+    .filter((record) => record?.pr === pr && ['published', 'dispatched'].includes(record?.result))
     .map((record) => record.head);
   return new Set(stateHeads);
 }
@@ -19,7 +19,7 @@ function claimedIssue(pr, activeIssues) {
 }
 
 /**
- * @param {{ state: any, activeIssues?: any[], pr: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], controllerLogin?: string }} options
+ * @param {{ state: any, activeIssues?: any[], pr: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], controllerLogin?: string, now?: number }} options
  */
 export function decideNextAction({
   state,
@@ -29,6 +29,7 @@ export function decideNextAction({
   reviews = [],
   reviewComments = [],
   controllerLogin = '',
+  now = Date.now(),
 }) {
   const issue = claimedIssue(pr, activeIssues);
   if (!issue) return { type: 'idle', reason: 'no-single-linked-work-item' };
@@ -36,51 +37,16 @@ export function decideNextAction({
   // Repairs need only a non-conflicting head: GitHub reports failed/pending
   // checks as UNSTABLE/BLOCKED. Promotion is deliberately stricter below.
   if (pr.mergeable === 'CONFLICTING' || pr.mergeStateStatus === 'DIRTY') return { type: 'idle', reason: 'awaiting-non-conflicting-pr' };
+  if (hasInFlightDispatch(state, pr.number, pr.head, now)) return { type: 'idle', reason: 'awaiting-hosted-repair' };
   const attempts = Number(state.attemptsByPr?.[pr.number] ?? 0);
-  const unreconciled = Object.entries(state.dispatches ?? {}).find(
-    ([, record]) =>
-      record?.pr === pr.number &&
-      record?.result === 'dispatched' &&
-      record.preparedHead &&
-      record.preparedHead !== pr.head &&
-      record.publishedHead !== record.preparedHead
-  );
-  if (unreconciled)
-    return {
-      type: 'blocked',
-      reason: 'local-push-unreconciled',
-      pr: pr.number,
-      issue: issue.number,
-      head: pr.head,
-      attempts,
-      signal: { key: unreconciled[0], sourceUrl: 'local run summary' },
-    };
-  const rawSignal = selectRepairSignal({
-    pr,
-    issueComments,
-    reviews,
-    reviewComments,
-    controllerLogin,
-    ignoreDeduplication: true,
-  });
-  if (rawSignal && !canRepair(state, pr.number, attempts)) {
-    return {
-      type: 'blocked',
-      reason: 'repair-attempt-limit',
-      pr: pr.number,
-      issue: issue.number,
-      head: pr.head,
-      attempts: Math.max(Number(state.attemptsByPr?.[pr.number] ?? 0), attempts),
-    };
-  }
-
   const signal = selectRepairSignal({
     pr,
     issueComments,
     reviews,
     reviewComments,
-    processedKeys: processedKeys(state),
+    processedKeys: processedKeys(state, now),
     controllerLogin,
+    now,
   });
   if (!signal && ciPassed(pr.checks)) {
     if (dispatchedHeads(state, pr.number).has(pr.head)) {
