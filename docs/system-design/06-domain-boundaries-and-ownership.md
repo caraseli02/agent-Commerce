@@ -1,7 +1,7 @@
 # System Design #6 — Domain Boundaries and Ownership
 
-Status: Accepted for the current design phase  
-Date: 2026-08-28
+Status: Accepted — boundaries and transaction/recovery invariants validated  
+Date: 2026-08-29
 
 ## Purpose
 
@@ -10,6 +10,8 @@ This document records the domain-boundary work completed in system-design step #
 The goal is not to force the application into a textbook DDD structure. The goal is to identify where business state and invariants actually belong, keep cross-domain workflows explicit, and avoid coupling modules through shared implementation models.
 
 The conclusions below were tested against the current Nuxt/Nitro repository rather than derived only from an idealized architecture.
+
+The original boundary decisions were followed by an adversarial transaction/recovery review. That review did not change the accepted capability map, but it tightened the contracts around idempotency, payment retries, order expiry, reservation races, cart reconciliation, and reliable event delivery.
 
 ## Current implementation observations
 
@@ -95,12 +97,14 @@ The following are intentionally not separate bounded contexts at this stage:
 | Purchased unit price | Orders |
 | Order total | Orders |
 | Order lifecycle/status | Orders |
+| Order payment deadline | Orders |
 | Current saved customer data | Accounts |
 | Historical customer/address snapshot | Orders |
 | Payment attempt status | Payments |
 | External payment-provider result | Payments interprets provider truth |
 | Order transition to `PAID` | Orders |
 | Cross-module sequencing | Checkout/application workflow |
+| Place-order request idempotency | Checkout/application workflow with durable persistence |
 
 A key distinction is:
 
@@ -122,6 +126,7 @@ A minimal Cart model should represent customer intent rather than a full product
 type Cart = {
   id: CartId
   ownerId: CustomerId | GuestSessionId
+  version: number
   items: CartItem[]
   createdAt: Date
   updatedAt: Date
@@ -133,12 +138,15 @@ type CartItem = {
 }
 ```
 
+`version` represents the logical cart revision used by checkout/reconciliation. It can be implemented using another concurrency token if preferred; the design requirement is that checkout can distinguish the cart snapshot that was ordered from later customer edits.
+
 ### Owns
 
 - Which products the customer intends to buy.
 - Requested quantity.
 - Cart owner/session association.
 - Cart lifecycle.
+- Cart revision/version.
 
 ### Does not own
 
@@ -156,6 +164,7 @@ type CartItem = {
 - A logical product/variant should not appear as duplicate independent lines unless the business explicitly supports that.
 - The cart belongs to one owner/session.
 - Removed items are not part of the cart.
+- A checkout must be able to identify the cart revision from which the Order was produced.
 
 An empty cart is valid Cart state. "An empty cart cannot be checked out" is a PlaceOrder/Checkout precondition, not a Cart invariant.
 
@@ -233,6 +242,26 @@ catalog.quote({ productId, quantity })
 
 and return an authoritative current quote.
 
+### Price authority before and after Order creation
+
+Catalog is authoritative for the current price while checkout is constructing a new commercial transaction.
+
+If the cart/UI showed €7 but the authoritative quote is now €8, checkout uses the authoritative €8 and informs the customer about the change before the Order is finalized according to the chosen UX policy.
+
+Once the Order exists, the price captured in the Order becomes authoritative for that Order:
+
+```text
+Before Order creation:
+Catalog quote is price authority.
+
+After Order creation:
+Order snapshot is price authority for payment/retry of that Order.
+```
+
+A retry of an existing Order must not silently reprice it using the current Catalog price.
+
+If future business policy gives an accepted quote a limited lifetime, expiry must be explicit. The old Order is expired/cancelled according to policy and a new quote/new Order is created after customer acceptance; the historical Order is not silently mutated.
+
 ### Pricing extraction rule
 
 Do not extract Pricing merely because files or APIs use the word "pricing".
@@ -268,12 +297,15 @@ Reservations have their own lifecycle:
 ```ts
 type Reservation = {
   id: ReservationId
+  checkoutRequestId: CheckoutRequestId
   orderId?: OrderId
   items: ReservationItem[]
   expiresAt: Date
   status: 'active' | 'committed' | 'released' | 'expired'
 }
 ```
+
+The checkout-level correlation key exists before an Order ID necessarily exists. Inventory therefore must not depend exclusively on `orderId` to deduplicate the first reservation attempt.
 
 ### Owns
 
@@ -305,6 +337,7 @@ type FulfillmentPlan = {
 ### Invariants
 
 - The same inventory cannot be reserved twice for the same logical allocation.
+- Repeating the same logical checkout request must not create duplicate independent reservations.
 - Released reservations no longer contribute to `reserved`.
 - Expired reservations cannot be committed.
 - Reservation state transitions are valid.
@@ -324,13 +357,17 @@ Order owns an immutable/historical commercial snapshot, not live Catalog or Acco
 ```ts
 type Order = {
   id: OrderId
+  checkoutRequestId: CheckoutRequestId
+  sourceCartId: CartId
+  sourceCartVersion: number
   customer: OrderCustomerSnapshot
   items: OrderItem[]
   shippingAddress: AddressSnapshot
   billingAddress: AddressSnapshot
   money: OrderMoney
   status: OrderStatus
-  paymentId?: PaymentId
+  paidByPaymentId?: PaymentId
+  paymentDeadlineAt: Date
   createdAt: Date
 }
 ```
@@ -345,6 +382,8 @@ type OrderItem = {
 }
 ```
 
+`paidByPaymentId` means the successful/captured payment that settled the Order. It is intentionally not a generic singular `paymentId`, because one Order may have multiple failed or incomplete Payment attempts.
+
 ### Owns
 
 - Order identity.
@@ -353,7 +392,9 @@ type OrderItem = {
 - Historical customer/address snapshot.
 - Monetary snapshot and final order total.
 - Order lifecycle/status transitions.
-- Reference to payment, without owning provider payment truth.
+- Payment deadline/expiry policy.
+- Reference to the successful settlement, without owning provider payment truth.
+- Source checkout/cart correlation needed for safe reconciliation.
 
 ### Invariants
 
@@ -361,17 +402,21 @@ Examples:
 
 - Order must contain at least one item.
 - Monetary totals must be derived from validated authoritative inputs.
+- Order monetary values do not silently change because Catalog prices change later.
 - Invalid status transitions are rejected.
 - `CANCELLED -> SHIPPED` is invalid.
 - `SHIPPED -> PROCESSING` is invalid.
 - `PENDING_PAYMENT` cannot normally be shipped.
+- `EXPIRED` cannot later become `PAID` through a normal customer retry.
 - Only eligible orders can be cancelled.
 - Later Catalog or Account updates must not mutate historical Order snapshots.
+- A payment retry for an existing Order charges the amount due from the Order snapshot, not today's Catalog price.
 
 Orders should evolve toward behavioral transitions such as:
 
 ```ts
 order.confirmPayment(paymentId)
+order.expirePaymentWindow()
 order.startProcessing()
 order.ship(tracking)
 order.cancel()
@@ -379,9 +424,9 @@ order.cancel()
 
 rather than arbitrary external assignment of `order.status`.
 
-### Pending-payment decision
+### Pending-payment and expiry decision
 
-An Order may remain `PENDING_PAYMENT` even after a payment attempt fails and its inventory reservation later expires.
+An Order may remain `PENDING_PAYMENT` after an individual Payment attempt fails and even after the corresponding short-lived inventory reservation expires.
 
 Important invariant:
 
@@ -389,7 +434,26 @@ Important invariant:
 PENDING_PAYMENT does not guarantee active inventory reservation.
 ```
 
-A later payment retry must revalidate current Catalog/Inventory conditions and create a new reservation before a new charge attempt if no active reservation remains.
+However, `PENDING_PAYMENT` is not an indefinite terminal parking state. Orders have a separate payment deadline:
+
+```text
+reservation.expiresAt
+!=
+order.paymentDeadlineAt
+```
+
+The reservation TTL protects inventory availability and is normally shorter. The Order payment deadline defines how long that historical Order remains eligible for another payment attempt.
+
+Conceptually:
+
+```text
+PENDING_PAYMENT
+  ├── valid successful settlement → PAID
+  ├── explicit eligible cancellation → CANCELLED
+  └── paymentDeadlineAt reached → EXPIRED
+```
+
+A later payment retry must first verify that the Order is still `PENDING_PAYMENT` and before `paymentDeadlineAt`. If no active reservation remains, Inventory availability/backorder policy must be revalidated and a new reservation established before starting a new charge attempt.
 
 ---
 
@@ -411,34 +475,55 @@ type Payment = {
 }
 ```
 
-Potential statuses:
+Potential semantic statuses:
 
 ```text
 PENDING
+REQUIRES_ACTION
+PROCESSING
 SUCCEEDED
 FAILED
+CANCELLED
 REFUND_PENDING
 REFUNDED
 ```
+
+Exact provider-specific statuses do not need to leak into the domain, but the model must distinguish at least:
+
+```text
+definitive failure
+!=
+customer action required
+!=
+provider still processing / outcome not yet known
+!=
+definitive success
+```
+
+A network timeout while contacting the provider is not evidence that the payment failed.
 
 ### Owns
 
 - Payment attempts.
 - Amount sent to payment provider.
 - Provider reference.
-- Local payment status.
+- Local interpretation of provider payment state.
 - Refund lifecycle.
-- Idempotency.
+- Provider-operation idempotency.
 
 ### Invariants
 
-- One idempotency key must not create duplicate charges.
-- A succeeded payment does not become failed because of a later retry attempt.
+- One provider idempotency key must not create duplicate charges for the same logical provider operation.
+- A succeeded Payment attempt does not become failed because of a later retry attempt.
+- A provider/network timeout must not be interpreted as definitive failure without reconciliation/provider evidence.
 - Refund amount cannot exceed captured amount.
 - Refunded payments must have had captured funds.
 - External provider result is authoritative for card/provider-backed payment success.
+- The amount of a Payment attempt for an existing Order comes from the Order amount due, not a fresh Catalog quote.
+- Unless the business explicitly supports split/tendered payments, successful captured amount for an Order must not exceed the Order amount due.
+- Unless explicitly required otherwise, only one unresolved charge attempt may be active for an Order at a time.
 
-One Order can have multiple attempts:
+One Order can have multiple sequential attempts:
 
 ```text
 Order: PENDING_PAYMENT
@@ -449,6 +534,12 @@ Payment #3: SUCCEEDED
 ```
 
 This is why Payment attempt state should not be collapsed into Order status.
+
+### Provider idempotency is not checkout idempotency
+
+Payment provider idempotency prevents duplicate execution of the same provider operation. It does not, by itself, prevent a retried checkout request from creating a second Order, second Reservation, and a logically different Payment attempt.
+
+PlaceOrder idempotency therefore belongs at the application-workflow boundary in addition to provider-level Payment idempotency.
 
 ---
 
@@ -499,19 +590,41 @@ Authentication may later become a separate capability if its behavior becomes in
 
 Checkout is currently an application workflow rather than a bounded context.
 
-It owns sequencing, not authoritative business state.
+It owns sequencing and cross-domain request correlation, not authoritative product/order/payment/inventory business state.
 
 Conceptually:
 
 ```text
 PlaceOrder workflow
   ├── Accounts: identify/resolve customer input
-  ├── Cart: read customer intent
-  ├── Catalog: revalidate sellability and current price
-  ├── Inventory: plan/reserve fulfillment
-  ├── Orders: create PENDING_PAYMENT historical snapshot
-  └── Payments: start payment attempt
+  ├── Cart: read intent + cart revision
+  ├── Catalog: revalidate sellability and authoritative current price
+  ├── Inventory: plan/reserve fulfillment using checkoutRequestId
+  ├── Orders: create immutable PENDING_PAYMENT historical snapshot
+  └── Payments: create/start initial payment attempt
 ```
+
+A PlaceOrder command should carry a client-generated or server-issued stable logical request key plus the cart revision being ordered:
+
+```ts
+type PlaceOrderCommand = {
+  checkoutRequestId: CheckoutRequestId
+  cartId: CartId
+  cartVersion: number
+  // customer/address/payment-method input omitted here
+}
+```
+
+The durable invariant is:
+
+```text
+same checkout identity + same checkoutRequestId
+→ same logical PlaceOrder result
+```
+
+A retry caused by a lost HTTP response must return/recover the already-created logical checkout result rather than create a new Order/Reservation/charge chain.
+
+The exact persistence mechanism is deferred to later database/reliability design, but idempotency cannot exist only in browser memory.
 
 Checkout does not own:
 
@@ -528,7 +641,9 @@ If a future persistent `CheckoutSession` gains its own meaningful lifecycle — 
 | Use case | Decision owner | Orchestrator / coordination |
 | --- | --- | --- |
 | AddToCart | Cart | Add-to-cart application use case; Catalog validation may participate |
-| PlaceOrder | Multiple domains | Checkout workflow |
+| PlaceOrder | Multiple domains | Checkout workflow; owns logical request idempotency |
+| RetryPayment | Orders/Payments/Inventory each own their decision | Payment-recovery workflow |
+| Finalize successful payment | Payments owns provider success; Orders/Inventory own transitions | Payment-finalization workflow |
 | CancelOrder | Orders decides cancel eligibility | Cancel-order workflow coordinates Orders, Payments, Inventory |
 | Mark/confirm payment | Payments owns payment success | Payment confirmation flow; Orders owns resulting order transition |
 | Change order lifecycle state | Orders | Orders application use case unless cross-domain consequences require a workflow |
@@ -562,6 +677,10 @@ payments.start(...)
 
 Do not replace these with request/reply events merely to appear event-driven.
 
+For the current modular-monolith target, operations that can safely participate in the same database transaction should prefer normal ACID transaction boundaries rather than introducing distributed-saga machinery for architectural symmetry.
+
+The external payment provider remains a real asynchronous/external consistency boundary and must be handled accordingly.
+
 ### Event candidates
 
 | Event | Producer | Typical use |
@@ -569,7 +688,7 @@ Do not replace these with request/reply events merely to appear event-driven.
 | `ProductPriceChanged` | Catalog | projections/cache invalidation; not checkout authority |
 | `InventoryReserved` | Inventory | audit/analytics after synchronous reserve |
 | `OrderCreated` | Orders | reporting/audit after synchronous create |
-| `PaymentSucceeded` | Payments | important cross-module signal to Orders |
+| `PaymentSucceeded` | Payments | important cross-module signal to payment-finalization workflow |
 | `PaymentFailed` | Payments | retry/recovery UX/process |
 | `OrderPaid` | Orders | notifications/fulfillment/analytics |
 | `OrderCancelled` | Orders | notifications/audit after critical cancellation workflow |
@@ -578,23 +697,52 @@ Do not replace these with request/reply events merely to appear event-driven.
 
 ### Important payment flow
 
+Conceptually:
+
 ```text
-Stripe/provider webhook
+Provider webhook / reconciliation
         ↓
 Payments
-PENDING → SUCCEEDED
+PROCESSING/PENDING → SUCCEEDED
         ↓
 PaymentSucceeded
         ↓
-Orders
-PENDING_PAYMENT → PAID
-        ↓
-OrderPaid
-        ↓
+Payment-finalization workflow
+        ├── Inventory: ensure/commit valid allocation
+        └── Orders: PENDING_PAYMENT → PAID
+                ↓
+             OrderPaid
+                ↓
 notifications / analytics / future fulfillment reactions
 ```
 
 Payments must not directly mutate Orders through repository internals. Orders must not depend on Stripe/provider implementation.
+
+### Reliable publication rule
+
+A durable state change and the integration event representing that state change must not rely on two unrelated best-effort writes.
+
+Bad failure mode:
+
+```text
+Payment row → SUCCEEDED
+process crashes
+PaymentSucceeded event never recorded/published
+Order remains PENDING_PAYMENT
+```
+
+If `PaymentSucceeded`/similar events become asynchronous durable contracts, the target design must use a reliability mechanism such as a transactional outbox or equivalent:
+
+```text
+single DB transaction
+  ├── payment status = SUCCEEDED
+  └── durable outbox record = PaymentSucceeded
+COMMIT
+```
+
+The relay/consumer side must be idempotent because external providers and durable event delivery may produce duplicates or retries.
+
+This requirement does not imply introducing Kafka/RabbitMQ. An in-process/DB-backed outbox is sufficient until scale or deployment boundaries justify more infrastructure.
 
 ## Failure/recovery decision: failed payment
 
@@ -602,9 +750,9 @@ For the reviewed scenario:
 
 1. Catalog confirms the current price.
 2. Inventory reserves items.
-3. Order is created as `PENDING_PAYMENT`.
+3. Order is created as `PENDING_PAYMENT` with an immutable monetary snapshot and `paymentDeadlineAt`.
 4. Payment starts.
-5. Provider reports payment failure.
+5. Provider definitively reports payment failure.
 6. Customer does nothing for the retry/reservation window.
 
 Accepted ownership/result:
@@ -613,9 +761,19 @@ Accepted ownership/result:
 
 The failed attempt becomes `FAILED`; it does not remain `PENDING` after the provider has definitively reported failure.
 
+If the provider result is not definitive — for example a timeout, required customer action, or asynchronous processing — the attempt remains in an unresolved semantic state and is reconciled instead of immediately treated as failed.
+
 ### Order
 
-Order remains `PENDING_PAYMENT` so another payment attempt may be made.
+Order remains `PENDING_PAYMENT` while it is before `paymentDeadlineAt`, so another eligible Payment attempt may be made.
+
+When the payment deadline is reached without successful settlement:
+
+```text
+PENDING_PAYMENT → EXPIRED
+```
+
+Order expiry is separate from reservation expiry.
 
 ### Inventory
 
@@ -639,10 +797,12 @@ A `PENDING_PAYMENT` Order whose previous reservation has expired cannot simply b
 
 Before another charge attempt:
 
-1. Revalidate product sellability/current price as required.
-2. Revalidate Inventory/backorder availability.
-3. Create a new active reservation.
-4. Start a new idempotent Payment attempt.
+1. Confirm the Order is still `PENDING_PAYMENT` and before `paymentDeadlineAt`.
+2. Revalidate any sellability constraints that still matter for fulfillment; do not replace the existing Order price with a fresh Catalog price.
+3. Revalidate Inventory/backorder availability.
+4. Create a new active reservation correlated with the existing checkout/order.
+5. Verify that no successful settlement or conflicting unresolved charge attempt already exists.
+6. Start a new idempotent Payment attempt for the existing Order amount due.
 
 Possible lifecycle:
 
@@ -657,12 +817,202 @@ Payment pay_2: FAILED
 Payment pay_3: SUCCEEDED
 ```
 
-After successful payment:
+The amount for `pay_2`/`pay_3` comes from `ord_123.money`, not a new Catalog quote.
+
+If business policy later says the old quoted Order may no longer be honored, `ord_123` must be explicitly expired/cancelled and a fresh Order created from a fresh accepted quote. The existing Order is not repriced in place.
+
+## #6.1 — Transaction and recovery invariants
+
+The adversarial review identified seven reliability contracts required before step #6 can be considered implementation-ready.
+
+### 1. PlaceOrder is idempotent as a workflow
+
+Provider Payment idempotency is insufficient.
+
+Failure scenario:
 
 ```text
-Order: PENDING_PAYMENT → PAID
-Reservation: ACTIVE → COMMITTED
+POST /checkout
+  reserve inventory ✓
+  create Order ✓
+  response lost ✗
+
+client retries POST /checkout
 ```
+
+The retry must not create a second logical Order/Reservation/payment chain.
+
+Required contract:
+
+```text
+(checkout identity, checkoutRequestId)
+→ at most one logical PlaceOrder result
+```
+
+The same request may safely be replayed and should resolve to the existing result or its current recoverable state.
+
+### 2. Pending Orders have an explicit payment lifetime
+
+`PENDING_PAYMENT` is retryable but not permanent.
+
+```text
+reservation TTL       = inventory hold lifetime
+paymentDeadlineAt     = Order payment/retry lifetime
+```
+
+These clocks serve different purposes and must not be conflated.
+
+### 3. Order price is locked for retries
+
+Initial checkout:
+
+```text
+Cart projection
+  ↓
+Catalog authoritative quote
+  ↓
+customer is informed/accepts relevant price change
+  ↓
+Order immutable monetary snapshot
+```
+
+Existing Order retry:
+
+```text
+Order amount due
+→ Payment amount
+```
+
+not:
+
+```text
+current Catalog price
+→ silently mutate/reprice existing Order
+```
+
+### 4. Concurrent Payment attempts cannot overcharge an Order
+
+Different Payment attempts may legitimately have different provider idempotency keys. Therefore provider-level idempotency alone does not prevent:
+
+```text
+Tab A retry → Payment A → SUCCEEDED
+Tab B retry → Payment B → SUCCEEDED
+```
+
+Required policy for the current single-payment model:
+
+- before starting a new attempt, verify the Order is still payable;
+- prevent conflicting active charge attempts for the same Order;
+- a successful settlement atomically/consistently closes normal retry eligibility;
+- total captured amount must not exceed amount due;
+- duplicate/late provider success signals must be safely idempotent;
+- unexpected double capture is an exceptional compensation/refund case, not a valid steady state.
+
+Implementation may use database uniqueness/locking/compare-and-set semantics later; step #6 fixes the invariant, not the storage primitive.
+
+### 5. Payment outcome can be unresolved
+
+The system distinguishes:
+
+```text
+FAILED
+```
+
+from:
+
+```text
+REQUIRES_ACTION / PROCESSING / outcome not yet known
+```
+
+A timeout after sending a request to the provider cannot trigger a fresh independent charge merely because the local HTTP request failed. The existing provider operation is reconciled using its provider reference/idempotency key/webhook state first.
+
+### 6. Payment success racing reservation expiry has an explicit recovery path
+
+Race:
+
+```text
+reservation ACTIVE
+        ↓
+reservation expires/releases
+        ↓
+late PaymentSucceeded arrives
+```
+
+Payment success must not blindly assume the Reservation is still commit-able.
+
+Finalization workflow:
+
+```text
+PaymentSucceeded
+  ↓
+Order still eligible for settlement?
+  ↓
+valid active reservation/allocation?
+  ├── yes → commit allocation + mark Order PAID
+  └── no  → attempt fresh allocation according to Inventory/backorder policy
+               ├── possible → allocate/commit + mark Order PAID
+               └── impossible → compensation path
+```
+
+The compensation path may require refund/void/manual recovery depending on provider semantics and later business policy. The important invariant is that a successfully captured Payment must never disappear while the Order silently remains an ordinary unpaid Order.
+
+If authorization-before-capture is later adopted, this flow may instead reserve/revalidate before capture; that is an implementation refinement, not a boundary change.
+
+### 7. Successful checkout reconciles the ordered Cart revision, not blindly the live Cart
+
+Race:
+
+```text
+Cart v10: A × 2, B × 1
+checkout starts from v10
+
+customer edits another tab
+Cart v11: A × 2, B × 1, C × 5
+
+payment for v10 succeeds
+```
+
+A blind `cart.clear()` would incorrectly remove `C × 5`.
+
+The Order therefore records enough source-cart correlation to reconcile only the purchased intent from the checkout snapshot.
+
+Conceptually:
+
+```text
+payment success for Order built from Cart v10
+→ remove/reconcile quantities represented by that Order
+→ preserve unrelated changes introduced in later Cart revisions
+```
+
+Exact merge semantics are deferred to the Cart/public-contract design, but clearing the current Cart unconditionally is rejected.
+
+## Payment-success consistency boundary
+
+The ideal logical outcome after successful payment is:
+
+```text
+Payment: SUCCEEDED
+Order: PAID
+Reservation/allocation: COMMITTED
+```
+
+Because the external provider cannot participate in the application's database transaction, this is an eventually consistent cross-boundary process with explicit recovery.
+
+Within the ECAS modular monolith, local state changes that can share one database transaction should do so where that materially reduces impossible intermediate states. Domain boundaries do not require separate databases or prevent an application service from coordinating a transaction across module repositories through controlled infrastructure.
+
+The design therefore rejects both extremes:
+
+```text
+bad: pretend provider + DB are one atomic transaction
+```
+
+and:
+
+```text
+bad: introduce distributed microservice/saga infrastructure for every local module transition
+```
+
+The target is a modular monolith with strong local transactions and explicit recovery around true external boundaries.
 
 ## Module dependency rules
 
@@ -680,6 +1030,8 @@ The current accepted rules are:
 10. Frontend DTOs/Pinia stores are not backend domain models.
 11. Shared kernel/types must stay small; do not create giant shared `Product`, `Order`, or `User` models used by every capability.
 12. The dependency graph should remain acyclic.
+13. Domain-to-domain implementation imports are avoided; any cross-module contract dependency must be deliberate, public, and minimal rather than treated as an absolute industry prohibition.
+14. Application workflows may coordinate a shared local database transaction without collapsing the logical domain boundaries.
 
 ## Read-model rule
 
@@ -712,9 +1064,12 @@ The step #6 review identified several concrete target improvements in the existi
 - Current cancellation route reports success even if the runtime order does not exist.
 - Current Order model embeds broad `UserInterface`/Cart-derived models rather than narrow historical snapshots.
 - Current `/orders/new` route is simultaneously transport, checkout orchestration, order creation, cart cleanup, and payment simulation.
+- Current checkout does not yet expose a durable logical PlaceOrder idempotency key.
+- Current immediate cart clearing cannot safely represent asynchronous payment plus later cart edits.
+- Current simplified Payment states do not represent action-required/processing/unknown outcomes.
 - Current frontend store names (`checkoutStore`, `paymentStore`, etc.) do not represent server bounded contexts and should not be used to derive backend architecture.
 
-These are not all immediate refactor tasks. They are evidence used to define the target boundaries.
+These are not all immediate refactor tasks. They are evidence used to define the target boundaries and future contracts.
 
 ## Deliberately rejected / deferred architecture
 
@@ -727,6 +1082,8 @@ Do not introduce the following merely for architectural symmetry:
 - event-based request/reply for immediate Catalog/Inventory/Order queries;
 - a shared global `Product`, `Customer`, or `Order` model across modules;
 - fake microservice-style isolation that makes ordinary modular-monolith use cases harder to understand.
+
+Reliability mechanisms such as durable idempotency records, transactional outbox, database constraints, locking, or compare-and-set are not rejected; they should be introduced only where the concrete invariant requires them.
 
 The architecture should become more sophisticated only when a concrete business or reliability requirement demands it.
 
@@ -751,7 +1108,15 @@ Application workflows/use cases
 External payment provider is a boundary behind Payments:
 
 ```text
-Stripe/provider → Payments → payment facts/events → Orders
+Stripe/provider
+      ↓
+Payments
+      ↓
+durable payment facts/events
+      ↓
+application finalization/recovery workflow
+      ├── Orders
+      └── Inventory
 ```
 
 ## Step #6 exit criteria
@@ -770,10 +1135,21 @@ Completed:
 - [x] Synchronous calls vs event-driven reactions defined.
 - [x] Payment-failure/retry/reservation-expiry scenario validated.
 - [x] Deferred/uncertain boundaries explicitly recorded.
+- [x] PlaceOrder workflow idempotency defined separately from provider Payment idempotency.
+- [x] `PENDING_PAYMENT` Order expiry/payment deadline defined.
+- [x] Existing-Order payment retry uses the immutable Order price rather than current Catalog price.
+- [x] Concurrent Payment-attempt/overcharge invariant defined.
+- [x] Unresolved/processing Payment outcome distinguished from definitive failure.
+- [x] Reservation-expiry vs late-payment-success race has an explicit recovery/compensation path.
+- [x] Successful checkout reconciles the ordered Cart revision rather than blindly clearing the live Cart.
+- [x] Reliable publication requirement defined for durable cross-module payment events.
+- [x] Local ACID transaction use distinguished from true external/distributed consistency boundaries.
+
+Step #6 is now considered complete at the design/invariant level. Storage schemas, lock/constraint primitives, concrete outbox implementation, and public TypeScript contracts belong to subsequent design/implementation steps.
 
 ## Next: #7 — Public module contracts and dependency graph
 
-Step #7 should turn these ownership decisions into explicit interfaces without implementing the full refactor yet.
+Step #7 should turn these ownership and reliability decisions into explicit interfaces without implementing the full refactor yet.
 
 Questions to answer:
 
@@ -783,6 +1159,8 @@ Questions to answer:
 - Which workflows may depend on which module contracts?
 - Where are synchronous calls appropriate?
 - Which integration events are public contracts?
+- What explicit contracts represent `checkoutRequestId`, cart revision, order amount due, reservation correlation, and payment-finalization results?
+- Which operations need transaction boundaries or concurrency guards at the application layer?
 - How will forbidden imports and dependency cycles eventually be enforced?
 
 The expected output is a small public-contract/dependency specification that can later guide database design, checkout sequencing, API design, reliability work, and incremental migration of the current Nitro code.
