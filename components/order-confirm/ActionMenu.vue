@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DotsVerticalIcon } from '@radix-icons/vue';
-import { CalendarDays, CheckCircle, MapPin, PackageCheck } from 'lucide-vue-next';
+import { CalendarDays, CheckCircle, MapPin, PackageCheck } from '@lucide/vue';
 
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import UiSelectContent from '~/components/ui/select/SelectContent.vue';
 import { toast } from '~/components/ui/toast';
 import { OrderStatus, PaymentStatusEnum, PaymentTypeEnum, type MarkAsPaidRequestInterface, type OrderInterface } from '~/types';
 import { cancelOrder as cancelOrderApi, changeStatus as changeStatusApi, markAsPaid as markAsPaidApi } from '~/composables/api/orders';
@@ -107,7 +108,7 @@ const formSchema = toTypedSchema(
     }),
     reference: z.string().optional(),
     comments: z.string().optional(),
-  })
+  }),
 );
 
 // Use Vee-Validate form composable

@@ -25,7 +25,10 @@
 
     <PaymentSessionCardForm v-else-if="getOrderClientSecret" />
 
-    <section v-else class="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm md:p-8">
+    <section
+      v-else
+      class="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm md:p-8"
+    >
       <AlertTriangleIcon class="h-10 w-10 text-amber-600" />
       <div class="space-y-2">
         <h1 class="text-2xl font-semibold text-slate-900">No checkout failure details to show</h1>
@@ -48,7 +51,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { AlertTriangleIcon } from 'lucide-vue-next';
+import { AlertTriangleIcon } from '@lucide/vue';
 import { useCartStore } from '~/store/cartStore';
 import { cancelOrder as cancelOrderApi } from '~/composables/api/orders';
 

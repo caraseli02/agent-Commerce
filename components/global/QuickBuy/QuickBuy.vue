@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from '@lucide/vue';
 import { ref, onMounted } from 'vue';
 import QuickBuyIcon from '@/assets/icons/quick-buy-2.svg';
 import CartIcon from '@/assets/icons/cart.svg';
@@ -13,8 +13,10 @@ const products = ref<Omit<QuickBuyItem, 'index'>[]>([
 ]);
 
 const updateProduct = (payload: QuickBuyItem) => {
-  products.value[payload.index].code = payload.code;
-  products.value[payload.index].quantity = payload.quantity;
+  const product = products.value[payload.index];
+  if (!product) return;
+  product.code = payload.code;
+  product.quantity = payload.quantity;
 };
 
 const removeProduct = (index: number) => {

@@ -1,14 +1,14 @@
 <template>
   <div class="rounded-md shadow-m px-[15px] py-2 font-Inter">
     <div
-      class="grid grid-cols-[75px,1fr,100px,64px,145px,120px,120px] items-center 2xl:grid-cols-[32px,75px,1fr,100px,64px,145px,130px,120px]"
+      class="grid grid-cols-[75px_1fr_100px_64px_145px_120px_120px] items-center 2xl:grid-cols-[32px_75px_1fr_100px_64px_145px_130px_120px]"
     >
       <div
         class="flex items-center justify-center w-[22px] h-[22px] border border-border rounded text-sm font-medium leading-tight text-slate-500 max-2xl:hidden"
       >
         {{ index }}
       </div>
-      <NuxtImg :src="String(item.cover ?? '')" :alt="item.title" class="w-[65px] h-[65px]" loading="lazy"/>
+      <NuxtImg :src="String(item.cover ?? '')" :alt="item.title" class="w-[65px] h-[65px]" loading="lazy" />
       <div>
         <div class="mb-1 flex flex-col items-start 2xl:flex-row 2xl:items-center">
           <div class="font-semibold leading-tight mr-2.5">

@@ -20,12 +20,17 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import chartDesigns from '@/chart-designs/progressBar.json';
 
 export default defineComponent({
   name: 'ProgressBar',
-  // eslint-disable-next-line vue/require-prop-types
-  props: ['value'],
+  props: {
+    value: {
+      type: Object as PropType<{ limit: number; spent: number }>,
+      required: true,
+    },
+  },
   data() {
     return {
       chartSeriesOne: [
@@ -89,13 +94,17 @@ export default defineComponent({
       });
       setTimeout(async () => {
         const { default: ApexCharts } = await import('apexcharts');
-        const chart = new ApexCharts(this.$refs[refName], options);
+        const target = this.$refs[refName];
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+        const chart = new ApexCharts(target, options);
         chart.render();
       }, delay);
     },
     setChartData() {
       const { limit, spent } = this.value;
-      let barValues = [0, 0, 0, 0];
+      let barValues: [number, number, number, number] = [0, 0, 0, 0];
       const progress = spent / limit;
       if (progress < 0.5) {
         barValues = [progress * 2, 0, 0, 0];

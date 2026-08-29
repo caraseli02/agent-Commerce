@@ -16,6 +16,7 @@ import { useCartStore } from '~/store/cartStore';
 import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 import { loadCartRead } from '~/composables/loadCartRead';
 import { applyOptimisticCartAdd, calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
+import { canSkipAuthenticatedUser } from '~/helpers/mock-integration';
 
 export type AddToCartResult = {
   status: 'success';
@@ -52,7 +53,7 @@ export function useCart() {
     const config = useRuntimeConfig();
     const token = useCookie('token').value;
 
-    if (token || config.public.MOCK_MODE) {
+    if (canSkipAuthenticatedUser(Boolean(config.public.MOCK_MODE), Boolean(token))) {
       return false;
     }
 
@@ -63,7 +64,7 @@ export function useCart() {
 
   const clampCartProducts = async (
     products: Partial<CartProductsInterface>[] = [],
-    mode: 'add' | 'set'
+    mode: 'add' | 'set',
   ): Promise<CartProductsInterface[]> => {
     let wasClamped = false;
     let clampMessage = '';
@@ -239,7 +240,7 @@ export function useCart() {
 
   const showWarning = computed(() => {
     return cartItems.value.some(
-      (item: CartProductsInterface) => item.productEntity?.stock !== undefined && item.productEntity.stock < item.stock
+      (item: CartProductsInterface) => item.productEntity?.stock !== undefined && item.productEntity.stock < item.stock,
     );
   });
 

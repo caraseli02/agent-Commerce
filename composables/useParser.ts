@@ -1,6 +1,9 @@
 export default function useParser() {
   function parseJwt(token: string): unknown {
     const base64Url = token.split('.')[1];
+    if (!base64Url) {
+      throw new Error('Invalid JWT: payload is missing');
+    }
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const JSONPayload = decodeURIComponent(
       window
@@ -9,7 +12,7 @@ export default function useParser() {
         ?.map(function (c) {
           return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         })
-        .join('')
+        .join(''),
     );
 
     return JSON.parse(JSONPayload);

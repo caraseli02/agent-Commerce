@@ -58,7 +58,7 @@ watch(
       Object.assign(settings, newSettings);
     }
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 </script>
 

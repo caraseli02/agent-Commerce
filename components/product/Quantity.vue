@@ -98,7 +98,9 @@
               v-if="minPriceConfiguration"
               v-model="quantity"
               size="lg"
-              :object="{ id: product._id, min: minPriceConfiguration.quantity, max: product.stock, action: 'update' } as ProductActionObject"
+              :object="
+                { id: product._id, min: minPriceConfiguration.quantity, max: product.stock, action: 'update' } as ProductActionObject
+              "
             />
           </div>
           <button
@@ -118,10 +120,11 @@
           </button>
         </div>
         <p
-          v-if="showAlreadyInCartMessage"
           id="cart-qty-unchanged-hint"
           data-testid="cart-qty-unchanged-hint"
-          class="text-xs leading-snug text-slate-500"
+          class="min-h-[1.125rem] text-xs leading-snug text-slate-500"
+          :class="{ invisible: !showAlreadyInCartMessage }"
+          :aria-hidden="!showAlreadyInCartMessage"
         >
           Already in your cart (qty {{ initialRequestedQuantity }})
         </p>
@@ -172,11 +175,11 @@ const isCartButtonDisabled = computed(
     !isCartReady.value ||
     isAddingToCart.value ||
     quantity.value < 1 ||
-    (isInCart.value && quantity.value === initialRequestedQuantity.value)
+    (isInCart.value && quantity.value === initialRequestedQuantity.value),
 );
 // Explain disabled Update cart when qty matches the in-cart baseline (no-op).
 const showAlreadyInCartMessage = computed(
-  () => isCartReady.value && !isAddingToCart.value && isInCart.value && quantity.value === initialRequestedQuantity.value
+  () => isCartReady.value && !isAddingToCart.value && isInCart.value && quantity.value === initialRequestedQuantity.value,
 );
 
 const minPriceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(undefined);

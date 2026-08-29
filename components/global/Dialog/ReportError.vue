@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertTriangle } from 'lucide-vue-next';
+import { AlertTriangle } from '@lucide/vue';
 
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
@@ -16,7 +16,7 @@ const props = withDefaults(
   {
     showTrigger: true,
     triggerClass: '',
-  }
+  },
 );
 
 const formSchema = toTypedSchema(
@@ -24,7 +24,7 @@ const formSchema = toTypedSchema(
     description: z.string().min(10, {
       message: 'Description must be at least 10 characters.',
     }),
-  })
+  }),
 );
 
 const { handleSubmit, resetForm } = useForm({

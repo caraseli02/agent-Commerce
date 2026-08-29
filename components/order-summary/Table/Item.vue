@@ -16,7 +16,7 @@
         :key="stockItem ? `${item.id} - ${item.stock}` : `${item.id} - ${item.backorder_stock}`"
         ref="tab"
         :item="item"
-        :short-stock="(shortStock as boolean)"
+        :short-stock="shortStock as boolean"
         :stock-item="stockItem"
         class="item"
         @update-quantity="emits('updateQuantity')"
@@ -85,7 +85,9 @@ onMounted(setupMediaQuery);
 
 .expand-enter-active,
 .expand-leave-active {
-  transition: max-height 0.5s cubic-bezier(0, 0.3, 0.6, 1), opacity 0.5s ease;
+  transition:
+    max-height 0.5s cubic-bezier(0, 0.3, 0.6, 1),
+    opacity 0.5s ease;
 }
 
 .item {

@@ -19,5 +19,5 @@ export const useRegionalPreferencesStore = defineStore(
       setCurrency,
     };
   },
-  { persist: { storage: piniaPluginPersistedstate.localStorage() } }
+  { persist: { storage: piniaPluginPersistedstate.localStorage() } },
 );

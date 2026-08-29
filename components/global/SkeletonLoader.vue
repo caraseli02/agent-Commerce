@@ -42,7 +42,7 @@ const props = withDefaults(
     bgClass: 'bg-gray-100',
     cssClass: '',
     shimmerColor: '#FFFFFF',
-  }
+  },
 );
 
 const { type, bgClass, cssClass, shimmerColor } = toRefs(props);

@@ -207,7 +207,7 @@ const handleDeleteAddress = async (index: number) => {
     return;
   }
 
-  if (defaultAddressIndex.value === index) {
+  if (defaultAddressIndex.value === index && addresses.value[0]) {
     addresses.value[0].default = true;
   }
 

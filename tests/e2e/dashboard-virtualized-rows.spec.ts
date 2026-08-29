@@ -26,7 +26,7 @@ test.describe('Dashboard virtualized orders table', () => {
     await Promise.all([
       page.waitForResponse(
         (response) =>
-          response.url().includes('/api/orders') && response.request().method() === 'GET' && response.url().includes('perPage=50')
+          response.url().includes('/api/orders') && response.request().method() === 'GET' && response.url().includes('perPage=50'),
       ),
       page.getByRole('option', { name: '50' }).click(),
     ]);

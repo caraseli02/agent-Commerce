@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from '@lucide/vue';
 import Emitter from 'tiny-emitter/instance.js';
 import FiltersIcon from '@/assets/icons/filters.svg';
 import EyeIcon from '@/assets/icons/eye.svg';
@@ -147,7 +147,8 @@ const removeItem = (index: number) => {
 };
 
 const getFilterSlug = (filter: ProductFilters) => {
-  return filter[Object.keys(filter)[0]][0]?.FeatureID;
+  const key = Object.keys(filter)[0];
+  return key ? filter[key]?.[0]?.FeatureID : undefined;
 };
 
 filterData();
@@ -158,7 +159,7 @@ watch(
     productFiltersData.value = parseFilters(props.filters);
     filterData();
   },
-  { deep: true }
+  { deep: true },
 );
 
 Emitter.on('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
@@ -170,7 +171,7 @@ Emitter.on('product-keyword-change', async (value: { keyword: string; products: 
 Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
   for (const option of options) {
     const item = checkedOptions.value.find(
-      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue
+      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
     );
 
     if (item) {
@@ -186,7 +187,7 @@ Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
 Emitter.on('remove-filter-option', async (options: FilterOptions[]) => {
   for (const option of options) {
     const itemIndex = checkedOptions.value.findIndex(
-      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue
+      (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
     );
 
     if (itemIndex < 0) {

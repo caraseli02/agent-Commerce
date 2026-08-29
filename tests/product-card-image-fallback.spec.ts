@@ -59,6 +59,10 @@ describe('storefront product card image fallback', () => {
     expect(fallbackImages).toHaveLength(1);
 
     const fallbackImage = fallbackImages[0];
+    expect(fallbackImage).toBeDefined();
+    if (!fallbackImage) {
+      throw new Error('Expected the product card to render an ImageWithFallback');
+    }
 
     expect(hasProp(fallbackImage, 'src')).toBe(true);
     expect(hasProp(fallbackImage, 'alt')).toBe(true);
@@ -85,21 +89,27 @@ describe('storefront product card image fallback', () => {
       return className.includes('md:hidden') && className.includes('ml-auto') && className.includes('shrink-0');
     });
     const menuItems = collectElements(ast, 'UiDropdownMenuItem');
+    const dropdownMenu = collectElements(ast, 'UiDropdownMenu')[0];
 
     expect(optionsButton).toBeTruthy();
     expect(menuWrapper).toBeTruthy();
     expect(menuItems).toHaveLength(2);
+    expect(title).toBeDefined();
+    expect(dropdownMenu).toBeDefined();
+    if (!title || !dropdownMenu) {
+      throw new Error('Expected the product card title and dropdown menu');
+    }
     expect(
       menuItems.map((item) => {
         const textNode = item.children.find((child) => child.type === NodeTypes.TEXT);
         return textNode && 'content' in textNode ? textNode.content.trim() : '';
-      })
+      }),
     ).toEqual(['Share', '3D view']);
     expect(getStaticAttrValue(title, 'class')).toContain('min-w-0');
     expect(getStaticAttrValue(title, 'class')).toContain('overflow-hidden');
     expect(getStaticAttrValue(title, 'class')).toContain('md:truncate');
     // Class must live on a real DOM wrapper — UiDropdownMenu/Root does not forward class attrs.
-    expect(getStaticAttrValue(collectElements(ast, 'UiDropdownMenu')[0], 'class')).toBeUndefined();
+    expect(getStaticAttrValue(dropdownMenu, 'class')).toBeUndefined();
   });
   it('keeps the mobile card compact while preserving desktop card behavior', () => {
     const source = readFileSync(productCardPath, 'utf8');
@@ -108,13 +118,18 @@ describe('storefront product card image fallback', () => {
     expect(descriptor.template).toBeTruthy();
 
     const ast = baseParse(descriptor.template!.content);
-    const rootLink = collectElements(ast, 'NuxtLink')[0];
+    const rootCard = collectElements(ast, 'div')[0];
     const cartButton = collectElements(ast, 'button').find((button) => getStaticAttrValue(button, 'aria-label') === 'Add product to cart');
     const actionsGroup = collectElements(ast, 'div').find((el) => getStaticAttrValue(el, 'aria-label') === 'Product actions');
 
-    expect(getStaticAttrValue(rootLink, 'class')).toContain('grid-cols-[108px_minmax(0,1fr)]');
-    expect(getStaticAttrValue(rootLink, 'class')).toContain('md:flex');
-    expect(getStaticAttrValue(rootLink, 'class')).toContain('md:min-h-[280px]');
+    expect(rootCard).toBeDefined();
+    if (!rootCard) {
+      throw new Error('Expected the product card root element');
+    }
+
+    expect(getStaticAttrValue(rootCard, 'class')).toContain('grid-cols-[108px_minmax(0,1fr)]');
+    expect(getStaticAttrValue(rootCard, 'class')).toContain('md:flex');
+    expect(getStaticAttrValue(rootCard, 'class')).toContain('md:min-h-[280px]');
 
     expect(cartButton).toBeTruthy();
     expect(getStaticAttrValue(cartButton!, 'class')).toContain('col-start-2');
@@ -126,5 +141,27 @@ describe('storefront product card image fallback', () => {
     expect(source).not.toContain('SvgoCardHeartIcon');
     expect(source).not.toContain('SvgoCardShareIcon');
     expect(source).not.toContain('SvgoCardD3Icon');
+  });
+
+  it('links only the image and title to the product page', () => {
+    const source = readFileSync(productCardPath, 'utf8');
+    const { descriptor } = parseSfc(source);
+
+    expect(descriptor.template).toBeTruthy();
+
+    const ast = baseParse(descriptor.template!.content);
+    const links = collectElements(ast, 'NuxtLink');
+    const imageLink = links.find((link) => hasProp(link, 'aria-label'));
+    const titleLink = collectElements(ast, 'h3')[0]?.children.find((child) => child.type === NodeTypes.ELEMENT) as ElementNode | undefined;
+
+    expect(links).toHaveLength(2);
+    expect(imageLink).toBeTruthy();
+    expect(titleLink?.tag).toBe('NuxtLink');
+    expect(hasProp(imageLink!, 'to')).toBe(true);
+    expect(hasProp(titleLink!, 'to')).toBe(true);
+    expect(source).not.toContain('absolute inset-0');
+    expect(source).toContain('group-hover:scale-[1.02]');
+    expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:underline');
+    expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:text-blue-600');
   });
 });

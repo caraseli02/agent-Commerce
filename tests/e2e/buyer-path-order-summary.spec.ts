@@ -109,6 +109,16 @@ test.describe('Scripted Buyer Path — cart to checkout entry', () => {
     await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText(/Viewing Summary as Guest/i)).toBeVisible();
 
+    await expect(page.getByTestId('guest-address-prompt')).toBeVisible();
+    await expect(page.getByTestId('checkout-as-guest')).toBeVisible();
+    await expect(page.getByText('Order Type')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /shipping and billing/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /shipping preferences/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /payment method/i })).toHaveCount(0);
+    await expect(page.getByTestId('billing-guest-empty')).toHaveCount(0);
+    await expect(page.getByTestId('shipping-guest-empty')).toHaveCount(0);
+    await expect(page.getByText('N/A', { exact: true })).toHaveCount(0);
+
     const paymentSummary = page.getByText('Payment Summary', { exact: true });
     await expect(paymentSummary).toBeVisible();
     // Order summary can render Subtotal/Total in cart chrome and summary panels.

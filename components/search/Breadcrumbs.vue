@@ -16,7 +16,7 @@
           </NuxtLink>
         </div>
         <div class="hidden font-semibold md:block">
-          {{ categoryLabels[categoryLabels.length - 1].name }}
+          {{ categoryLabels.at(-1)?.name }}
         </div>
       </div>
     </div>
@@ -56,7 +56,7 @@ async function loadCategoryLabels() {
   await getCategories();
   categoryLabels.value = buildSlugPathCrumbs(
     resolveCategoryPath(category.value),
-    (path) => findCategoryByPath(path, categories.value)?.name
+    (path) => findCategoryByPath(path, categories.value)?.name,
   );
 }
 

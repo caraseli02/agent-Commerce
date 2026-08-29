@@ -30,7 +30,11 @@ type EventTimingObserverOptions = PerformanceObserverInit & {
 
 const median = (values: number[]) => {
   const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor(sorted.length / 2)];
+  const middle = sorted[Math.floor(sorted.length / 2)];
+  if (middle === undefined) {
+    throw new Error('Cannot calculate a median without samples');
+  }
+  return middle;
 };
 
 const round = (value: number) => Math.round(value * 100) / 100;
@@ -143,7 +147,7 @@ test.describe('Synthetic mobile performance', () => {
     });
 
     console.log(
-      `Synthetic mobile medians: FCP ${round(fcp)}ms, LCP ${round(lcp)}ms, CLS ${round(cls)}, interaction ${round(interaction)}ms`
+      `Synthetic mobile medians: FCP ${round(fcp)}ms, LCP ${round(lcp)}ms, CLS ${round(cls)}, interaction ${round(interaction)}ms`,
     );
 
     expect(fcp, 'FCP exceeded the synthetic mobile budget.').toBeLessThanOrEqual(PERFORMANCE_BUDGETS.fcp);

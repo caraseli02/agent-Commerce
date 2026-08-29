@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SearchIcon } from 'lucide-vue-next';
+import { SearchIcon } from '@lucide/vue';
 import type { IconName } from '@/types/Icons'; // Correctly using the imported type
 import IconAsync from '@/components/icon/Async.vue';
 import { iconList } from '@/data/iconNames';
@@ -10,7 +10,7 @@ defineProps<{
 
 const open = ref(false);
 const search = ref('');
-const debounced = refDebounced(search, 500);
+const debounced = refDebounced(search, 500) as Ref<string>;
 const selectedIcon = defineModel<IconName | null>();
 
 const filteredIcons = computed(() => {

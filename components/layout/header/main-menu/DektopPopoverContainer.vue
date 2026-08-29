@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
-import { Building2Icon, ChevronRight, GemIcon, HeadsetIcon } from 'lucide-vue-next';
+import { Building2Icon, ChevronRight, GemIcon, HeadsetIcon } from '@lucide/vue';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
 import SemiconductorsIcon from '@/assets/icons/header/semiconductors.svg';
 import PassiveIcon from '@/assets/icons/header/passive.svg';
@@ -13,7 +13,9 @@ import IndustrialFurnitureIcon from '@/assets/icons/header/industrial-furniture.
 import type { TaxonomyInterface } from '~/types/dashboard/categories';
 
 const { selectedCategories, onCategoryClick, browseCategory } = useCategoriesNavigation();
-const { categories, getCategories } = useCategories();
+const { categories, getCategories, isLoading } = useCategories();
+
+const SKELETON_ROW_COUNT = 9;
 
 const categoryIconMap: Record<string, Component> = {
   Semiconductors: SemiconductorsIcon,
@@ -64,9 +66,7 @@ const handleChildClick = (category: TaxonomyInterface) => onCategoryClick(catego
 const handleViewAll = (category: TaxonomyInterface) => browseCategory(category);
 const resetSelection = () => (selectedCategories.value = []);
 
-onMounted(async () => {
-  await getCategories();
-});
+void getCategories();
 </script>
 
 <template>
@@ -78,9 +78,29 @@ onMounted(async () => {
         class="h-full min-h-0 pr-2 border-r border-[#D5D8DD] overflow-y-auto scrollbar-thin"
         role="navigation"
         aria-label="Product categories"
+        :aria-busy="isLoading"
       >
+        <div v-if="isLoading" class="space-y-0" aria-live="polite">
+          <div
+            v-for="n in SKELETON_ROW_COUNT"
+            :key="`category-skeleton-${n}`"
+            class="w-full h-[58px] flex items-center justify-between gap-3 px-3 py-2"
+            aria-hidden="true"
+          >
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <UiSkeleton class="w-6 h-6 flex-shrink-0 rounded-md" />
+              <div class="min-w-0 flex-1 space-y-1.5">
+                <UiSkeleton class="h-3.5 rounded" :class="n % 3 === 0 ? 'w-[55%]' : n % 3 === 1 ? 'w-[70%]' : 'w-[62%]'" />
+                <UiSkeleton class="h-3 w-[38%] rounded" />
+              </div>
+            </div>
+            <UiSkeleton class="w-5 h-5 flex-shrink-0 rounded" />
+          </div>
+          <span class="sr-only">Loading categories…</span>
+        </div>
         <button
           v-for="category in categories"
+          v-else
           :key="category.id"
           type="button"
           class="group w-full h-[58px] flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-left transition-colors duration-200 hover:bg-[#ECEFF3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"

@@ -104,7 +104,7 @@ export function assessPrTemplate({ body, labels = [] } = {}) {
 
   if (!trimmedBody) {
     violations.push(
-      'PR body is empty. Add the Components Marketplace PR template sections or apply the skip-pr-template-check label for an approved human hotfix.'
+      'PR body is empty. Add the Components Marketplace PR template sections or apply the skip-pr-template-check label for an approved human hotfix.',
     );
   }
 
@@ -167,6 +167,34 @@ async function loadGitHubEvent() {
   return JSON.parse(raw);
 }
 
+async function fetchCurrentPullRequest({ repository, number, token }) {
+  const response = await fetch(`https://api.github.com/repos/${repository}/pulls/${number}`, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Unable to load current PR metadata from GitHub (HTTP ${response.status}).`);
+  }
+
+  return response.json();
+}
+
+export async function resolvePullRequestContext(event, fetchCurrentPullRequest) {
+  if (!event?.pull_request) {
+    return null;
+  }
+
+  if (!fetchCurrentPullRequest) {
+    return event.pull_request;
+  }
+
+  return fetchCurrentPullRequest(event.pull_request.number);
+}
+
 async function main() {
   const event = await loadGitHubEvent();
 
@@ -175,8 +203,12 @@ async function main() {
     return;
   }
 
-  const labels = (event.pull_request.labels ?? []).map((label) => label?.name).filter(Boolean);
-  const result = assessPrTemplate({ body: event.pull_request.body, labels });
+  const repository = process.env.GITHUB_REPOSITORY;
+  const token = process.env.GITHUB_TOKEN;
+  const loadCurrentPullRequest = repository && token ? (number) => fetchCurrentPullRequest({ repository, number, token }) : null;
+  const pullRequest = await resolvePullRequestContext(event, loadCurrentPullRequest);
+  const labels = (pullRequest.labels ?? []).map((label) => label?.name).filter(Boolean);
+  const result = assessPrTemplate({ body: pullRequest.body, labels });
 
   if (result.status === 'skipped' || result.status === 'passed') {
     console.log(result.reason);

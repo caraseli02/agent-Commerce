@@ -36,7 +36,7 @@ export function searchResultsCacheKey(query: SearchResultsQuery): string {
 
 export async function loadSearchResults(
   query: SearchResultsQuery,
-  fetchSearch: typeof fetchSearchProduct = fetchSearchProduct
+  fetchSearch: typeof fetchSearchProduct = fetchSearchProduct,
 ): Promise<SearchData> {
   const { keyword, category, page, perPage, sortBy, sortOrder, additionalFilters = {}, featureFilters = [] } = query;
   // Keep request keyword aligned with searchResultsCacheKey (which uses keyword.trim()).

@@ -6,28 +6,11 @@ This document tracks the migration strategy for deprecated and outdated packages
 
 ## 🔴 Critical: Deprecated Packages
 
-### 1. lucide-vue-next → @lucide/vue (PRIORITY)
+### 1. lucide-vue-next → @lucide/vue
 
-**Status:** ⚠️ Package deprecated  
-**Current Version:** 0.323.0  
-**Target Version:** @lucide/vue (new package)  
-**Impact:** HIGH - Used in 20+ component files  
-**Breaking Changes:** Package rename, API may differ
+**Status:** ✅ Completed by #463
 
-**Files Affected:**
-
-- All components using icon imports from 'lucide-vue-next'
-- Estimated 20+ files across dashboard, layout, and UI components
-
-**Migration Steps:**
-
-1. Install new package: `pnpm add @lucide/vue`
-2. Create a migration script or use find-replace:
-   - Find: `from 'lucide-vue-next'`
-   - Replace: `from '@lucide/vue'`
-3. Test all icon imports still work
-4. Verify icon sizes and styling remain consistent
-5. Remove old package: `pnpm remove lucide-vue-next`
+The deprecated package was replaced across static imports, the dynamic icon loader, and type-only references. The dynamic namespace now accepts only Vue component exports; representative storefront and dashboard production smoke checks confirm current icon rendering.
 
 **Resources:**
 
@@ -40,90 +23,52 @@ This document tracks the migration strategy for deprecated and outdated packages
 
 ## ⚠️ Optional: Evaluate Package Usage
 
-### 2. nuxt-vuefire
+### 2. Firebase and nuxt-vuefire
 
-**Status:** ⚠️ Installed but custom Firebase implementation used  
-**Current Version:** 0.1.6  
-**Latest Version:** 1.1.2
+**Status:** ✅ Retired by #459
 
-**Issue:**
-
-- `nuxt-vuefire` is installed but the project uses a custom Firebase implementation in `composables/useFirebaseAuth.ts`
-- The module provides `useFirebaseAuth()` and `useFirestore()` composables that aren't being used
-
-**Options:**
-
-- **Option A:** Remove `nuxt-vuefire` if not providing value
-  - Impact: Minimal, custom implementation already working
-  - Effort: 10 minutes
-- **Option B:** Migrate to use nuxt-vuefire composables fully
-  - Impact: HIGH, requires refactoring auth system
-  - Effort: 4-6 hours
-  - Benefits: Better integration, auto-imports, SSR support
-
-**Recommendation:** Option A - Remove unused dependency to reduce bundle size
+The unused `nuxt-vuefire` package, Firebase SDK, client plugin, runtime configuration, and alternate Firebase auth paths were removed. The self-contained demo now uses its documented Nitro mock authentication endpoints and token cookie only.
 
 ---
 
-## 📊 Major Version Updates (Future)
+## 📊 Major Version Updates
 
-These updates require dedicated effort and should be tackled separately:
+The completed migrations below are retained as a durable record. Remaining work is
+limited to separately scoped compatibility follow-ups.
 
 ### 3. Tailwind CSS v3 → Tailwind CSS v4
 
-- **Current:** 3.4.19
-- **Target:** 4.x
-- **Effort:** 1-2 days
-- **Requires:** Refactoring `@apply` directives in SCSS components, migrating theme definitions to `@theme` blocks, updating PostCSS configuration, and verifying all component styles.
+- **Status:** ✅ Completed (Tailwind 4.3.3)
+- **Outcome:** Vite-only, CSS-first integration in `assets/css/main.css`; production mock and visual checks passed.
 
 ### 4. Nuxt 3 → Nuxt 4
 
-- **Current:** 3.21.11
-- **Latest:** 4.5.2
-- **Effort:** 2-3 days
-- **Requires:** Full migration guide review, testing all routes/features
+- **Status:** ✅ Completed (Nuxt 4.5.2)
+- **Outcome:** Root source layout is intentionally retained under `srcDir: '.'` per #461; runtime verification uses local Nitro mock endpoints.
 
 ### 4. Pinia 2 → Pinia 4
 
-- **Current:** 2.3.1
-- **Latest:** 4.0.2
-- **Effort:** 1-2 days
-- **Requires:** Review breaking changes, update all stores
-
-### 5. Firebase 9 → Firebase 12
-
-- **Current:** 9.23.0
-- **Latest:** 12.17.1
-- **Effort:** 1-2 days
-- **Requires:** Check modular SDK changes, test all auth flows
+- **Status:** ✅ Completed (Pinia 4.0.3, `@pinia/nuxt` 1.0.2, persisted state 4.7.1)
+- **Outcome:** Cart persistence and mock session flows passed production-browser verification.
 
 ### 6. VueUse 10 → VueUse 14
 
-- **Current:** 10.11.1
-- **Latest:** 14.4.0
-- **Effort:** 4-6 hours
-- **Requires:** Review API changes for composables in use
+- **Status:** ✅ Completed (VueUse 14.4.0)
 
-### 7. ApexCharts 3 → ApexCharts 6
+### 7. ApexCharts 3 → ApexCharts 5
 
-- **Current:** 3.54.1
-- **Latest:** 6.7.0
-- **Effort:** 2-4 hours
-- **Requires:** Test all charts still render correctly
+- **Status:** ✅ Completed (ApexCharts 5.10.1 with vue3-apexcharts 1.11.1)
+- **Outcome:** The compatible chart pair replaced the old peer-conflicting combination; dashboard smoke passed.
 
 ### 8. Prettier 2 → Prettier 3
 
-- **Current:** 2.8.8
-- **Latest:** 3.9.6
-- **Effort:** 1 hour
-- **Requires:** May reformat entire codebase
+- **Status:** ✅ Completed (Prettier 3.9.6)
+- **Outcome:** Repository formatting is managed by Prettier 3; `pnpm verify` includes the compatible lint/typecheck/test gate.
 
 ### 9. ESLint 9 → ESLint 10
 
-- **Current:** 9.39.5
-- **Latest:** 10.8.0
-- **Effort:** 2-3 hours
-- **Requires:** Review new rules, update config
+- **Status:** ✅ Completed (ESLint 10.8.1)
+- **Outcome:** ESLint 10 is the installed lint engine; `pnpm lint` remains part of the repository verification gate.
 
 ### 10. TypeScript 5 → TypeScript 7
 
@@ -141,40 +86,24 @@ These updates require dedicated effort and should be tackled separately:
 
 ### 12. date-fns 2 → date-fns 4
 
-- **Current:** 2.30.0
-- **Latest:** 4.4.0
-- **Effort:** 2-3 hours
-- **Requires:** Test date formatting in 10+ files
+- **Status:** ✅ Completed (date-fns 4.4.0)
+- **Outcome:** Named imports remained compatible; focused date-helper tests and browser rendering passed.
 
 ---
 
 ## 📅 Recommended Timeline
 
-### Phase 1: Quick Wins (1 week)
+### Completed migrations
 
 1. ✅ Remove unused packages (DONE)
-2. Migrate lucide-vue-next → @lucide/vue
-3. Evaluate and potentially remove nuxt-vuefire
-4. Apply safe patch updates
+1. Retired Firebase / VueFire and migrated `lucide-vue-next`.
+1. Migrated Nuxt, Tailwind, Pinia, VueUse, charts, date-fns, Prettier, and ESLint.
 
-### Phase 2: Developer Experience (2-3 weeks)
+### Remaining separately scoped work
 
-5. Update Prettier 3 (may require codebase reformat)
-6. Update ESLint 10
-7. Update VueUse 14
-
-### Phase 3: Core Dependencies (1 month)
-
-8. Update Firebase 12
-9. Update date-fns 4
-10. Update Zod 4
-11. Update ApexCharts 6
-
-### Phase 4: Major Framework Updates (2-3 months)
-
-12. Nuxt 4 migration (dedicated sprint)
-13. Pinia 4 migration
-14. TypeScript 7 migration
+1. Zod 4 remains deferred because stable `@vee-validate/zod` 4.15.1 supports Zod 3.
+2. TanStack Table 9 requires a dedicated shared-table contract migration.
+3. TypeScript 7 is outside the Nuxt 4 migration scope.
 
 ---
 
@@ -206,16 +135,6 @@ After each update, verify:
 
 ## Peer Dependency Warnings
 
-Current warnings to address:
-
-```
-├─┬ tailwind-scrollbar 3.1.0
-│ └── ✕ unmet peer tailwindcss@3.x: found 4.3.3
-├─┬ pinia-plugin-persistedstate 4.7.1
-│ ├── ✕ unmet peer @pinia/nuxt@>=0.10.0: found 0.5.5
-│ └── ✕ unmet peer pinia@>=3.0.0: found 2.3.1
-└─┬ vue3-apexcharts 1.11.1
-  └── ✕ unmet peer apexcharts@>=5.10.0: found 3.54.1
-```
-
-These will likely be resolved by updating the related packages in Phase 3 and 4.
+The Tailwind scrollbar, Pinia persisted-state, and ApexCharts peer conflicts
+recorded here were resolved by the completed migrations above. Do not re-add peer
+overrides for those packages.

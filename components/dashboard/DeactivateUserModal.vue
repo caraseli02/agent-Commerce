@@ -28,7 +28,7 @@
               {{ user.name }}
             </div>
             <div class="flex cursor-default items-center gap-3">
-              <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="mr-2 w-8 rounded" loading="lazy" >
+              <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="mr-2 w-8 rounded" loading="lazy" />
               <div class="rounded-[25px] bg-blue-500 px-2 text-xs font-semibold leading-[1.67] text-white">10%</div>
             </div>
           </div>
@@ -37,7 +37,7 @@
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-[auto,1fr] gap-4">
+      <div class="grid grid-cols-[auto_1fr] gap-4">
         <UiButton variant="secondary" class="px-8 py-2 text-sm font-medium leading-[1.71] text-slate-500" @click="closeModal">
           Cancel
         </UiButton>

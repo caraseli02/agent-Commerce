@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, CheckCircle2, LayoutDashboard, ShoppingBag, TruckIcon } from 'lucide-vue-next';
+import { ArrowRight, CheckCircle2, LayoutDashboard, ShoppingBag, TruckIcon } from '@lucide/vue';
 import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import { useCartStore } from '~/store/cartStore';
 import { useOrderConfirmation } from '~/composables/useOrderConfirmation';

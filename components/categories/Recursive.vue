@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// eslint-disable-next-line import/no-self-import
 import DomainsRecursive from './Recursive.vue';
 import type { TaxonomyInterface } from '~/types/dashboard/categories';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';

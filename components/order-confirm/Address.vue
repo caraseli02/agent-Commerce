@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckIcon } from 'lucide-vue-next';
+import { CheckIcon } from '@lucide/vue';
 // Define the data object with properties
 const props = defineProps<{
   shippingAddress: {

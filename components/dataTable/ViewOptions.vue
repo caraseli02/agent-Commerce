@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData">
 import type { Table } from '@tanstack/vue-table';
-import { EyeIcon } from 'lucide-vue-next';
+import { EyeIcon } from '@lucide/vue';
 
 interface DataTableViewOptionsProps {
   table: Table<TData>;
@@ -9,7 +9,7 @@ interface DataTableViewOptionsProps {
 const props = defineProps<DataTableViewOptionsProps>();
 
 const columns = computed(() =>
-  props.table.getAllColumns().filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
+  props.table.getAllColumns().filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide()),
 );
 </script>
 

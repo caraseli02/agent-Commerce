@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { Package } from 'lucide-vue-next';
+import { Package } from '@lucide/vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -93,7 +93,7 @@ watch(
     currentSrc.value = normalizeImageSrc(newSrc);
     await nextTick();
     checkImageHealth();
-  }
+  },
 );
 
 onMounted(() => {

@@ -126,9 +126,10 @@ describe('quality gate 6 pure logic coverage', () => {
       ];
 
       expect(checkForInputErrors(fields)).toBe(true);
-      expect(fields[0].error).toBe('Please fill out this field');
-      expect(fields[1].error).toBe('Please provide a valid email address or a valid client code');
-      expect(fields[2].error).toBe('');
+      const [requiredField, invalidEmailField, validClientCodeField] = fields;
+      expect(requiredField?.error).toBe('Please fill out this field');
+      expect(invalidEmailField?.error).toBe('Please provide a valid email address or a valid client code');
+      expect(validClientCodeField?.error).toBe('');
 
       const contact = {
         email: { value: 'buyer@example.com', error: '' },
@@ -189,7 +190,7 @@ describe('quality gate 6 pure logic coverage', () => {
         { userId: 'user-1', startDate: '', endDate: '', products: [] },
         emptyQuantity,
         emptyRequestedQuantity,
-        { price: 100, quantity: 5 }
+        { price: 100, quantity: 5 },
       );
       expect(emptyQuantity.value).toBe(0);
       expect(emptyRequestedQuantity.value).toBe(0);
@@ -206,13 +207,13 @@ describe('quality gate 6 pure logic coverage', () => {
         } as CartInterface,
         absentQuantity,
         absentRequestedQuantity,
-        { price: 100, quantity: 5 }
+        { price: 100, quantity: 5 },
       );
       expect(absentQuantity.value).toBe(0);
       expect(absentRequestedQuantity.value).toBe(0);
 
       expect(() =>
-        initializeQuantities(sampleProduct, null, emptyQuantity, emptyRequestedQuantity, { price: 100, quantity: 5 })
+        initializeQuantities(sampleProduct, null, emptyQuantity, emptyRequestedQuantity, { price: 100, quantity: 5 }),
       ).not.toThrow();
       expect(emptyRequestedQuantity.value).toBe(0);
     });

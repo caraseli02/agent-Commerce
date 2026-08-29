@@ -64,15 +64,19 @@ describe('product detail image fallback', () => {
     const ast = baseParse(descriptor.template!.content);
     const root = collectElements(ast, 'div')[0];
     const fallbackSurface = collectElements(ast, 'div').find(
-      (el) => getStaticAttrValue(el, 'role') === 'img' && (getStaticAttrValue(el, 'class') || '').includes('absolute inset-0')
+      (el) => getStaticAttrValue(el, 'role') === 'img' && (getStaticAttrValue(el, 'class') || '').includes('absolute inset-0'),
     );
     const packageIcon = collectElements(ast, 'Package')[0];
 
-    expect(getStaticAttrValue(root, 'class')).toContain('relative block');
+    expect(root).toBeDefined();
     expect(fallbackSurface).toBeTruthy();
-    expect(getStaticAttrValue(fallbackSurface!, 'class')).toContain('bg-light-200');
-    expect(getStaticAttrValue(fallbackSurface!, 'class')).toContain('ring-1');
     expect(packageIcon).toBeTruthy();
+    if (!root || !fallbackSurface || !packageIcon) {
+      throw new Error('Expected the fallback template to include its root, surface, and package icon');
+    }
+    expect(getStaticAttrValue(root, 'class')).toContain('relative block');
+    expect(getStaticAttrValue(fallbackSurface, 'class')).toContain('bg-light-200');
+    expect(getStaticAttrValue(fallbackSurface, 'class')).toContain('ring-1');
     expect(getStaticAttrValue(packageIcon, 'class')).toContain('text-slate-400');
     expect(getStaticAttrValue(packageIcon, 'aria-hidden')).toBe('true');
     expect(source).not.toContain('unsplash');

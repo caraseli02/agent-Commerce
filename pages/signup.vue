@@ -27,7 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '~~/store/authStore';
 import {
   AccountType,
   type FirebaseBusinessAccount as SignupBusinessPayload,
@@ -48,16 +47,9 @@ import { useSignupState } from '@/composables/signup/useSignupState';
 
 const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirmationEmail } = useFormValidation();
 
-const authStore = useAuthStore();
-
 const { toast } = useToast();
 
 const { isSignupAddressValid, registerSignupAccount } = useSignup();
-
-const { logout } = useFirebaseAuth();
-
-const firebaseToken = authStore.getToken();
-const userInfo = authStore.loggedInUser;
 
 const {
   currentStep,
@@ -187,7 +179,7 @@ const handleContactDetailsContinue = () => {
       contactDetails.value.firstName,
       contactDetails.value.lastName,
       contactDetails.value.companyEmail,
-      contactDetails.value.confirmCompanyEmail
+      contactDetails.value.confirmCompanyEmail,
     );
   }
 
@@ -249,16 +241,12 @@ const backToSelectMenu = async () => {
 const handleSubmit = async () => {
   let inputsToCheck: InputObject[] = [];
 
-  if (firebaseToken) {
-    inputsToCheck = [profileDetails.value.accountEmail, profileDetails.value.confirmAccountEmail];
-  } else {
-    inputsToCheck = [
-      profileDetails.value.accountEmail,
-      profileDetails.value.confirmAccountEmail,
-      profileDetails.value.password,
-      profileDetails.value.repeatPassword,
-    ];
-  }
+  inputsToCheck = [
+    profileDetails.value.accountEmail,
+    profileDetails.value.confirmAccountEmail,
+    profileDetails.value.password,
+    profileDetails.value.repeatPassword,
+  ];
 
   const hasError =
     checkForInputErrors(inputsToCheck) ||
@@ -393,14 +381,8 @@ const handleSubmit = async () => {
     }
 
     try {
-      if (!firebaseToken) {
-        payload.account.profileDetails.password = profileDetails.value.password.value;
-      }
-
       await registerSignupAccount({
-        mode: firebaseToken ? 'firebase' : 'classic',
         payload,
-        firebaseId: userInfo?.user_id,
       });
 
       toast({
@@ -409,7 +391,6 @@ const handleSubmit = async () => {
         description: 'Account created successfully',
       });
 
-      await logout();
       // TODO: Notification banner
     } catch (error) {
       console.error('Failed to create account', error);
@@ -436,7 +417,6 @@ useHead({
 });
 
 onBeforeRouteLeave(() => {
-  authStore.$reset();
-  logout();
+  clearFormData();
 });
 </script>

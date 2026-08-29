@@ -25,12 +25,13 @@ const features = reactive<ProductParametricDataFeaturesInterface[]>(
   props.features?.map((item) => {
     item.checked = false;
     return item;
-  })
+  }),
 );
 
 const totalSimilarProducts = ref<number>(0);
 const similarProducts = ref<SearchDataItems | null>(null);
 const similarFilters = ref<ProductFilters | null>(null);
+let latestSimilarSearch = 0;
 
 const visibleFeatures = computed(() => features?.filter((feature) => feature?.FeatureValue !== '') ?? []);
 const canShowSimilar = computed(() => !isLoading.value && totalSimilarProducts.value > 0);
@@ -52,15 +53,25 @@ const setActiveFilter = (filter: string) => {
   setFilterLine();
 };
 
-watch(features, async () => {
-  await searchSimilarProducts();
-});
+watch(
+  features,
+  async () => {
+    await searchSimilarProducts();
+  },
+  { deep: true },
+);
 
 const searchSimilarProducts = async () => {
+  const searchId = ++latestSimilarSearch;
   isLoading.value = true;
 
-  checkedFeatures.value = features.filter((item) => item.checked);
-  const data = await loadSimilarProductsByFeatures(checkedFeatures.value, 1, 10);
+  const selectedFeatures = features.filter((item) => item.checked);
+  checkedFeatures.value = selectedFeatures;
+  const data = await loadSimilarProductsByFeatures(selectedFeatures, 1, 10);
+
+  if (searchId !== latestSimilarSearch) {
+    return;
+  }
 
   if (!data) {
     totalSimilarProducts.value = 0;
@@ -70,7 +81,7 @@ const searchSimilarProducts = async () => {
     return;
   }
 
-  totalSimilarProducts.value = !checkedFeatures.value.length ? 0 : data.items.total_items;
+  totalSimilarProducts.value = !selectedFeatures.length ? 0 : data.items.total_items;
   similarProducts.value = data.items;
   similarFilters.value = data.filters;
 
@@ -82,22 +93,22 @@ const showSimilarProducts = async () => {
     return;
   }
 
-  productStore.showSimilarOnly = true;
-  await router.push({
-    path: '/search',
-    query: { similar: 'true' },
-  });
-
   if (!similarProducts.value || !checkedFeatures.value) {
     return;
   }
 
+  // Transfer the complete state before changing routes so Search can hydrate it
+  // during setup instead of observing a post-navigation race.
   productStore.setSimilarProducts({
     filtersCount: 0,
     filters: similarFilters.value ?? {},
     items: similarProducts.value,
   });
   productStore.setSimilarProductFeatures(checkedFeatures.value);
+  await router.push({
+    path: '/search',
+    query: { similar: 'true' },
+  });
 };
 
 const toggleFeature = (item: ProductParametricDataFeaturesInterface) => {
@@ -168,7 +179,7 @@ onMounted(() => {
                   type="checkbox"
                   class="peer sr-only"
                   :aria-label="`Include ${item.FeatureName} in similar-product search`"
-                >
+                />
                 <span
                   class="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-border transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 group-hover:border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500"
                   aria-hidden="true"

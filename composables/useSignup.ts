@@ -1,16 +1,12 @@
-import { registerClassic, registerFirebase } from '~/composables/api/auth';
+import { registerClassic } from '~/composables/api/auth';
 import { validateAddress as validateAddressApi } from '~/composables/api/orders';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 import type { FirebaseBusinessAccount as SignupBusinessPayload, FirebasePersonalAccount as SignupPersonalPayload } from '~~/types';
 
 type SignupPayload = SignupPersonalPayload | SignupBusinessPayload;
 
-export type SignupRegisterMode = 'classic' | 'firebase';
-
 export interface RegisterSignupAccountInput {
-  mode: SignupRegisterMode;
   payload: SignupPayload;
-  firebaseId?: string;
 }
 
 function isAddressValidationResult(value: unknown): value is { data: { valid: boolean } } {
@@ -33,18 +29,8 @@ export function useSignup() {
     return result.data.valid;
   };
 
-  const registerSignupAccount = async ({ mode, payload, firebaseId }: RegisterSignupAccountInput) => {
-    const accountPayload = structuredClone(payload) as SignupPayload;
-
-    if (mode === 'firebase') {
-      delete accountPayload.account.profileDetails.password;
-      accountPayload.account.firebaseId = firebaseId;
-      accountPayload.isAlreadyRegisteredWithFirebase = true;
-      return await registerFirebase(accountPayload);
-    }
-
-    accountPayload.isAlreadyRegisteredWithFirebase = false;
-    return await registerClassic(accountPayload);
+  const registerSignupAccount = async ({ payload }: RegisterSignupAccountInput) => {
+    return await registerClassic(structuredClone(payload) as SignupPayload);
   };
 
   return {

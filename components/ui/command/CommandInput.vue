@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type HTMLAttributes, computed } from 'vue';
-import { Search } from 'lucide-vue-next';
+import { Search } from '@lucide/vue';
 import { ComboboxInput, type ComboboxInputProps, useForwardProps } from 'radix-vue';
 import { cn } from '@/lib/utils';
 
@@ -32,7 +32,7 @@ const forwardedProps = useForwardProps(delegatedProps);
       :class="
         cn(
           'flex text-gray-600 h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-slate-400',
-          props.class
+          props.class,
         )
       "
     />

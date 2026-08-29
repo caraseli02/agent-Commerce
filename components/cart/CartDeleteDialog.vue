@@ -49,7 +49,7 @@ const props = withDefaults(
     description: undefined,
     confirmLabel: 'Delete',
     cancelLabel: 'Cancel',
-  }
+  },
 );
 
 const emits = defineEmits<{
@@ -64,7 +64,7 @@ const ids = computed(() =>
   resolveCartDeleteProductIds({
     productIds: props.productIds,
     productId: props.productId,
-  })
+  }),
 );
 
 const resolvedTitle = computed(() =>
@@ -72,7 +72,7 @@ const resolvedTitle = computed(() =>
     productIds: props.productIds,
     productId: props.productId,
     title: props.title,
-  })
+  }),
 );
 
 const resolvedDescription = computed(() =>
@@ -80,7 +80,7 @@ const resolvedDescription = computed(() =>
     productIds: props.productIds,
     productId: props.productId,
     description: props.description,
-  })
+  }),
 );
 
 const onOpenChange = (open: boolean) => {

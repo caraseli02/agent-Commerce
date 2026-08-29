@@ -156,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { MoreHorizontal } from 'lucide-vue-next';
+import { MoreHorizontal } from '@lucide/vue';
 import { useClipboard } from '@vueuse/core';
 import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -205,7 +205,7 @@ watch(
   async () => {
     await fetchCart();
   },
-  { deep: true }
+  { deep: true },
 );
 
 const getPricesConfiguration = () => {

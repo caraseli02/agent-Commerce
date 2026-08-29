@@ -42,21 +42,30 @@ Use this file for durable cross-session decisions that should survive context re
   - Impact: `CONTEXT.md` uses Buyer Flow as the glossary term; design doc lives at `docs/buyer-flow-design-contract.md`; treat “Scripted Buyer Path” as a legacy alias in older issues/docs.
 
 - 2026-08-06 — Scope remaining June-review epics to Portfolio Demo depth
-
   - Reason: #101’s Pinia bugs were already fixed; #99/#103 were written as production hardening/SEO programs that conflict with `CONTEXT.md` (Mock Integration Boundary outside production auth/SEO ops).
   - Impact: closed #101; rewrote #99 as demo auth integrity (`requireMockAuth` seam) and closed #109/#111/#113 as `wontfix`; rewrote #103 around `usePageSeo` + public crawl hygiene; children promoted `ready-for-agent` at `priority:p2` so Next track `#426`–`#433` stays first.
 
-- 2026-08-13 — Execute loop repairs locally on the controller Mac
+- 2026-08-24 — Treat Components Marketplace as production-quality architecture delivered through a demo-safe environment
 
-  - Reason: maintainer decision; Codex Cloud connector dependence is not acceptable for this stage.
-  - Impact: the controller creates an isolated temporary worktree and runs a time/output-bounded local worker. The controller alone commits and pushes the existing PR branch, never merges, and persists attempts before push so crash recovery fails closed.
+  - Reason: the portfolio should demonstrate production-minded web application design even when real traffic, live payments, and production infrastructure are intentionally absent.
+  - Impact: mock/sandbox implementations remain valid for the demo, but business-critical boundaries, security, failure handling, state ownership, and replaceability should be evaluated against production-quality expectations. See `docs/system-design-review.md`.
 
-- 2026-08-13 — Fence local repair workers with a renewable controller lease and OS read boundary
+- 2026-08-24 — Keep Nuxt/Nitro as a modular monolith for the current target production envelope
 
-  - Reason: prompt-only restrictions and a lease shorter than a worker run cannot protect host material or state from a stale controller.
-  - Impact: workers receive a copied auth-only Codex home and macOS sandbox profile, run ephemerally, and may stage only repository changes. Every launched worker consumes the bounded repair budget; state/publication actions require the current lock generation and fresh PR snapshot.
+  - Reason: the current target (roughly thousands of products, low thousands of users/day, tens of concurrent users, and tens/low hundreds of orders/day) does not justify a separate backend service. Traffic growth alone is not a sufficient service-split driver.
+  - Impact: prefer strengthening server-side modules and adding a production-grade relational database before creating a separate Node backend. Split services only when independent clients, deployments, teams, workloads, or domain boundaries justify it.
 
-- 2026-08-10 — Keep loop engineering event-shaped and proportionate
+- 2026-08-24 — Server establishes authoritative e-commerce business truth
 
-  - Reason: first-party Anthropic, OpenAI, and GitHub guidance favors simple bounded loops; the earlier 995-line polling controller and mandatory per-action ledger duplicated platform state and exceeded this repository's risk.
-  - Impact: one generic dispatcher handles exact source/head keys and two attempts, while CI plus independent hosted/human review complete acceptance. Compact dispatch summaries are the default; full ledgers are reserved for materially higher authority or compliance needs.
+  - Reason: browser state is untrusted and may be stale or manipulated.
+  - Impact: price, stock, checkout totals, order state, payment state, cart ownership, and authorization must be validated/established server-side. Checkout requests should communicate user intent rather than authoritative commercial totals.
+
+- 2026-08-24 — Production checkout requires atomic inventory reservation, idempotency, and recoverable payment state
+
+  - Reason: concurrent checkout, duplicate requests, provider timeouts, and partial failures can otherwise oversell inventory, double-charge customers, create duplicate orders, or lose recovery context.
+  - Impact: target checkout creates durable `PENDING_PAYMENT` state, atomically reserves inventory, uses idempotency for payment/checkout attempts, treats ambiguous provider responses as unknown rather than failed, supports webhook/reconciliation recovery, and clears purchased cart state only after the purchase is safely committed. Detailed reasoning lives in `docs/system-design-review.md`.
+
+- 2026-08-28 — Validate PR descriptions separately from application CI using current GitHub metadata
+
+  - Reason: the former check ran at the end of `pnpm verify` against the immutable workflow-event snapshot, so PR descriptions completed after creation still appeared empty or incomplete and made otherwise-green application checks red.
+  - Impact: `pnpm verify` covers repository behavior only; the trusted `PR template / check` workflow fetches the current PR body and reruns on description or label edits.

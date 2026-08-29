@@ -4,10 +4,12 @@
     :slides-per-view="1"
     :space-between="15"
     :grab-cursor="true"
-    :pagination="{
-      bulletElement: 'button',
-      clickable: true,
-    }"
+    :pagination="
+      {
+        bulletElement: 'button',
+        clickable: true,
+      } as any
+    "
     class="homeFeaturedProducts--swiper w-[100%] block"
   >
     <SwiperSlide v-for="(item, index) in productsByViewport" :key="index">
@@ -27,7 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Pagination } from 'swiper';
+import { A11y, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import type { ProductInterface } from '~/types/product';
 
 const props = defineProps<{
@@ -53,6 +56,17 @@ function createChunkedArray(chunkSize: number, productList: ProductInterface[]) 
   return chunkedArray;
 }
 const viewport = useViewport();
+// The server cannot know the first visitor's viewport. Keep the initial client
+// render on the configured SSR fallback, then apply the measured breakpoint
+// after hydration so the slide structure is never different during hydration.
+const renderedBreakpoint = ref('lg');
+onMounted(() => {
+  renderedBreakpoint.value = viewport.breakpoint.value;
+  watch(viewport.breakpoint, (breakpoint) => {
+    renderedBreakpoint.value = breakpoint;
+  });
+});
+
 const productsByViewport = computed(() => {
   const rowsNumber = props.rowsNumber ?? 1;
   const breakpointsMasonryBanner = {
@@ -81,37 +95,38 @@ const productsByViewport = computed(() => {
   };
 
   if (props.hasBanner && props.masonryView) {
-    return breakpointsMasonryBanner[viewport.breakpoint.value as keyof typeof breakpoints] || [];
+    return breakpointsMasonryBanner[renderedBreakpoint.value as keyof typeof breakpoints] || [];
   }
   if (props.masonryView) {
-    return breakpointsMasonry[viewport.breakpoint.value as keyof typeof breakpoints] || [];
+    return breakpointsMasonry[renderedBreakpoint.value as keyof typeof breakpoints] || [];
   }
   if (props.orderSummaryView) {
-    return breakpointsOrderSummary[viewport.breakpoint.value as keyof typeof breakpoints] || [];
+    return breakpointsOrderSummary[renderedBreakpoint.value as keyof typeof breakpoints] || [];
   }
-  return breakpoints[viewport.breakpoint.value as keyof typeof breakpoints] || [];
+  return breakpoints[renderedBreakpoint.value as keyof typeof breakpoints] || [];
 });
 </script>
 
-<style lang="scss">
+<style>
+@reference "../../assets/css/main.css";
 .homeFeaturedProducts--swiper {
-  @apply px-0 pt-0 pb-[30px] #{!important};
+  @apply px-0 pt-0 pb-[30px]!;
 }
 
 .homeFeaturedProducts--swiper .swiper-slide {
-  @apply h-auto #{!important};
+  @apply h-auto!;
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination {
-  @apply bottom-0 space-x-1.5 md:space-x-2 #{!important};
+  @apply bottom-0 space-x-1.5 md:space-x-2!;
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-light-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  @apply w-1.5 h-1.5 bg-light-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2!;
   margin-right: 0 !important;
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-gray-300 #{!important};
+  @apply scale-125 bg-gray-300!;
 }
 </style>

@@ -73,7 +73,7 @@
       <NewProducts> Similar Products </NewProducts>
       <Banner class="hidden lg:flex xl:hidden" />
       <div class="container mb-[30px] lg:mb-10 xl:mb-[60px]">
-        <div class="grid grid-cols-1 gap-[15px] md:grid-cols-[40%,calc(60%-20px)] md:gap-5 xl:grid-cols-[41%,calc(59%-20px)]">
+        <div class="grid grid-cols-1 gap-[15px] md:grid-cols-[40%_calc(60%-20px)] md:gap-5 xl:grid-cols-[41%_calc(59%-20px)]">
           <QuickBuy />
           <EcxlusiveOffer />
         </div>
@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { MoreVertical, PrinterIcon } from 'lucide-vue-next';
+import { MoreVertical, PrinterIcon } from '@lucide/vue';
 
 import type { ProductDetail, ProductImageInterface } from '~/types/product';
 import { useProducts } from '~/composables/useProducts';
@@ -111,18 +111,18 @@ const {
   error,
   refresh,
 } = await useAsyncData<ProductDetail>(
-  () => productDetailCacheKey(productSlug.value),
-  () => loadProductBySlug(productSlug.value),
+  () => productDetailCacheKey(productSlug.value ?? ''),
+  () => loadProductBySlug(productSlug.value ?? ''),
   {
     watch: [productSlug],
-  }
+  },
 );
 
 const seoTitle = computed(() => product.value?.name || 'Product');
 const seoDescription = computed(
   () =>
     product.value?.description ||
-    'Review product details, availability, pricing, and specifications in the Components Marketplace portfolio demo.'
+    'Review product details, availability, pricing, and specifications in the Components Marketplace portfolio demo.',
 );
 const seoImage = computed(() => product.value?.details?.ProductImage?.ProductImageLarge || '');
 

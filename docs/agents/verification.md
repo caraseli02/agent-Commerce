@@ -24,7 +24,8 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
 5. **PR template completeness gate**
    - `node scripts/check-pr-template.mjs`
-   - This runs inside `pnpm verify` / CI on pull-request events and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
+   - The focused `PR template / check` workflow runs separately from application CI and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
+   - The workflow reads the current PR description from GitHub instead of trusting the immutable event snapshot. Description and label edits automatically rerun only this focused check; they do not rerun `pnpm verify`.
    - The gate expects filled verification outcomes, known-risks evidence, and rubric scores; it skips when the PR carries the documented `skip-pr-template-check` or `human-hotfix` label so a human hotfix can intentionally bypass the agent template.
 6. **Clean-state handoff validator**
    - `node scripts/check-clean-state.mjs`
@@ -67,6 +68,19 @@ Use this policy to keep PRs reviewable and avoid scattering one-off artifacts ac
 - **Temporary artifacts** belong in `tmp/` during capture and should be removed before handoff unless the issue explicitly asks to retain them.
 - **Tracked `tmp/` files** are discouraged by default. If a `tmp/` artifact must be kept for review, document why it is retained and clean it up in the same task or follow-up.
 - **Runtime links** in PR text should point at the exact route, log, or screenshot that proves the changed behavior.
+
+## Local visual-regression pilot
+
+The visual suite is a local review aid for the Tailwind/Nuxt recovery work. It is **not** a required check, does not block merges, and has no CI job, artifact upload, Docker/Linux baseline, or visual SaaS integration.
+
+- Run `pnpm test:visual` to build the app and exercise the visual matrix against a fresh local Nitro preview at `http://127.0.0.1:3100`. It must not be pointed at `pnpm dev`.
+- Run `pnpm test:visual:update` only when intentionally accepting a visual change. It writes the committed PNG baselines under `tests/visual/__screenshots__/`.
+- On a mismatch, Playwright writes actual and diff images under `test-results/visual/`; open `playwright-report/visual/index.html` for the HTML report. Expected images are the baseline PNGs beside the visual spec.
+- Treat an update as a code-review decision: inspect expected, actual, and diff images; confirm the change protects the intended page rather than hiding a loading/auth/error state; then keep only the deliberate baseline change.
+- First diagnose mismatches through the test's console, hydration, page-error, failed-request, and 5xx assertions. Do not widen screenshot tolerance or mask icons, navigation, headers, product cards, or protected content merely to make a run pass.
+- Baselines are currently local Chromium captures and include the platform token in their filename. Text rasterization and browser/OS rendering can differ on Linux, so future CI adoption needs a separately reviewed Linux baseline strategy rather than overwriting this pilot's local images.
+
+The pilot fixes light color scheme, `en-US`, UTC, reduced motion, isolated Playwright pages, mock data/auth/cart setup, font readiness, and disabled transitions. The shared 100-pixel allowance only absorbs trivial local raster variation; it is not a layout tolerance.
 
 Example evidence block for a future PR:
 
@@ -137,7 +151,7 @@ Mechanical gates do **not** enforce design-system consistency. Evaluators must c
 - **Modals and dialogs:** prefer `UiDialog`, `UiDialogContent`, `UiButton`, `UiInput`, and `UiLabel` from shadcn-nuxt over raw `<button>`, `<input>`, and `<label>` unless the issue explicitly calls for a legacy/native pattern.
 - **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `CustomProductPartNumberModal.vue`).
 - **Runtime evidence for UI:** modal and route changes need browser smoke on the affected flow, not only `pnpm verify` static output. Issue acceptance criteria that mention smoke-testing must show route/viewport evidence in the PR body.
-- **PR template completeness:** generator PRs must fill the template sections (verification outcomes, known risks, evaluator rubric). Rubric numeric scores are filled by the evaluator before PASS; generators may leave `/10` placeholders. `node scripts/check-pr-template.mjs` enforces this in CI, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when CI passes.
+- **PR template completeness:** generator PRs must fill the template sections (verification outcomes, known risks, evaluator rubric) before opening the PR. Rubric numeric scores are filled by the evaluator before PASS; generators may leave `/10` placeholders. The focused `PR template / check` workflow enforces this against current GitHub metadata, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when application CI passes.
 
 ## Agent-oriented failure messages
 

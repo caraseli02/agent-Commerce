@@ -19,7 +19,7 @@ const props = withDefaults(
   {
     margin: '',
     filterLength: null,
-  }
+  },
 );
 
 const pricingStore = usePricingStore();
@@ -31,7 +31,7 @@ const selectedId = ref<string | null>(null);
 const filteredMargin = computed(() =>
   props.filterLength !== null
     ? marginOptions.value.filter((item: SmartPricingOption) => item.value.length === props.filterLength)
-    : marginOptions.value
+    : marginOptions.value,
 );
 
 const selectedLabel = computed(() => {
@@ -53,7 +53,7 @@ watch(
       selectedId.value = null;
       emit('update:margin', '');
     }
-  }
+  },
 );
 
 watchEffect(() => {

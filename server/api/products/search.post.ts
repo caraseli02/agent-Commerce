@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
         query.name ||
         query.manufacturer ||
         query.manufacturerCode ||
-        ''
+        '',
     );
   const keyword = String(keywordSource || '')
     .trim()
@@ -68,8 +68,8 @@ export default defineEventHandler(async (event) => {
           alias: p.alias,
           taxonomyPath: getProductTaxonomyPath(p),
         },
-        category
-      )
+        category,
+      ),
     );
   }
 

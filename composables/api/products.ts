@@ -53,7 +53,7 @@ export async function fetchSearchProduct(
   perPage = 10,
   sort: Record<string, unknown> = {},
   additionalfilters: Record<string, unknown> = {},
-  featuresFilters: ProductParametricDataFeaturesInterface[] = []
+  featuresFilters: ProductParametricDataFeaturesInterface[] = [],
 ): Promise<ProductSearchResponse> {
   const { $apiClient } = useNuxtApp();
   let filters: Record<string, unknown> = {};

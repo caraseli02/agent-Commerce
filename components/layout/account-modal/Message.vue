@@ -5,10 +5,12 @@
       :slides-per-view="1"
       :space-between="15"
       :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
+      :pagination="
+        {
+          bulletElement: 'button',
+          clickable: true,
+        } as any
+      "
       :breakpoints="{
         768: {
           spaceBetween: 0,
@@ -41,7 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Pagination } from 'swiper';
+import { A11y, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 
 const messages = [
   {
@@ -59,8 +62,9 @@ const messages = [
 ];
 </script>
 
-<style scoped lang="scss">
+<style scoped>
+@reference "../../../assets/css/main.css";
 .homeNews--swiper {
-  @apply px-0 pt-0 pb-[30px] #{!important};
+  @apply px-0 pt-0 pb-[30px]!;
 }
 </style>

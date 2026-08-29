@@ -23,14 +23,14 @@
             type="search"
             placeholder="Search parameters"
             class="bg-transparent flex-1 pl-2 pr-8 py-[9px] w-full text-sm placeholder:text-gray-500 focus:outline-none"
-          >
+          />
           <Transition name="fade">
             <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
           </Transition>
         </label>
       </div>
       <div class="mb-[34px] lg:mb-[42px]">
-        <div class="grid grid-cols-[repeat(2,1fr),auto] gap-2 px-6 mb-2 md:px-8">
+        <div class="grid grid-cols-[repeat(2,1fr)_auto] gap-2 px-6 mb-2 md:px-8">
           <button class="flex items-center" @click="parametersOrder ? (parametersOrder = 0) : (parametersOrder = 1)">
             <span class="text-sm font-medium tracking-[0.6px] mr-2"> Parameters </span>
             <CaretIcon
@@ -52,7 +52,7 @@
             <div
               v-for="item in filteredItems"
               :key="item.parameter"
-              class="group grid grid-cols-[repeat(2,1fr),auto] gap-2 rounded-[3px] odd:bg-[#F2F2F2] px-2 pt-[5px] pb-1.5 cursor-pointer transition-colors duration-300 hover:text-blue-500"
+              class="group grid grid-cols-[repeat(2,1fr)_auto] gap-2 rounded-[3px] odd:bg-[#F2F2F2] px-2 pt-[5px] pb-1.5 cursor-pointer transition-colors duration-300 hover:text-blue-500"
               @click="toggleItem(item)"
             >
               <div class="text-xs font-medium font-Inter leading-tight">
@@ -163,6 +163,7 @@ const parseFilters = () => {
     }
 
     const featureKey = featureKeys[0];
+    if (!featureKey) continue;
     const featureValues = wrapper.feature[featureKey] ?? [];
 
     item.filter = featureValues;

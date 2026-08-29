@@ -87,14 +87,14 @@
                             notification.title === 'Others'
                               ? 'text-slate-500'
                               : notification.title === 'Password change' || notification.title === 'Reset password'
-                              ? 'text-blue-500'
-                              : notification.title === 'Removed'
-                              ? 'text-rose-500'
-                              : notification.title === 'Completed'
-                              ? 'text-[#00D395]'
-                              : notification.title === 'Pending'
-                              ? 'text-[#FFB100]'
-                              : 'text-[#A460BC]',
+                                ? 'text-blue-500'
+                                : notification.title === 'Removed'
+                                  ? 'text-rose-500'
+                                  : notification.title === 'Completed'
+                                    ? 'text-[#00D395]'
+                                    : notification.title === 'Pending'
+                                      ? 'text-[#FFB100]'
+                                      : 'text-[#A460BC]',
                           ]"
                         />
                         <span v-if="!notification.seen" class="flex w-2 h-2 flex-shrink-0 bg-blue-500 rounded-full mr-2" />
@@ -173,7 +173,7 @@
           <div class="relative">
             <button class="flex items-center text-left" @click="showOptions = !showOptions">
               <div class="relative lg:mr-4">
-                <img :src="DashboardAvatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover" loading="lazy" >
+                <img :src="DashboardAvatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover" loading="lazy" />
                 <div class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white" />
               </div>
               <div class="flex flex-col max-lg:hidden">
@@ -234,7 +234,7 @@
                     type="search"
                     placeholder="Search"
                     class="bg-transparent flex-1 w-full px-3 py-2.5 text-sm leading-[1.43] placeholder:text-gray-500 focus:outline-none"
-                  >
+                  />
                 </form>
               </label>
               <SearchIcon v-if="!searchValue" class="flex-shrink-0 w-5 h-5 text-gray-500" />
@@ -308,7 +308,7 @@ watch(
   () => notificationStore.refreshRequestId,
   () => {
     void fetchNofications();
-  }
+  },
 );
 
 watch(
@@ -318,7 +318,7 @@ watch(
       notifications.value = [];
       unreadNotifications.value = 0;
     }
-  }
+  },
 );
 
 const fetchNofications = async () => {
@@ -346,7 +346,6 @@ const fetchNofications = async () => {
 
 const handleSignOut = async () => {
   authStore.signOut();
-  await authStore.firebaseSignOut();
   setTimeout(() => {
     emit('close');
   }, 200);
@@ -362,7 +361,9 @@ const getCurrentDate = (date: string) => {
 };
 
 const markNotificationAsRead = async (notification: Notification, index: number) => {
-  if (notifications.value[index].seen !== true) {
+  const selectedNotification = notifications.value[index];
+  if (!selectedNotification) return;
+  if (selectedNotification.seen !== true) {
     unreadNotifications.value--;
   }
 
@@ -372,7 +373,7 @@ const markNotificationAsRead = async (notification: Notification, index: number)
     return;
   }
 
-  notifications.value[index].seen = true;
+  selectedNotification.seen = true;
 };
 
 const deleteNotification = async (notification: Notification, index: number) => {
@@ -388,7 +389,8 @@ const deleteNotification = async (notification: Notification, index: number) => 
 Promise.all([fetchNofications()]);
 </script>
 
-<style lang="scss">
+<style>
+@reference "../../assets/css/main.css";
 .notifications-scroll {
   scrollbar-width: thin;
 

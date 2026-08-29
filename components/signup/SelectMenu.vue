@@ -133,6 +133,6 @@ watch(
   },
   {
     immediate: true,
-  }
+  },
 );
 </script>

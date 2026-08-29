@@ -115,35 +115,33 @@ const fetchAndSetNewCustomers = async (_time = 7) => {
 
   loading.value = false;
 
-  people.value = data.data?.map(
-    (user: UserInterface): DashboardCustomerTableItem => ({
-      avatar: Avatar,
-      name:
-        user.accountType === AccountType.Personal
-          ? `${user?.personalDetails?.firstName ?? ''} ${user?.personalDetails?.lastName ?? ''}`.trim()
-          : `${user?.contactDetails?.firstName ?? ''} ${user?.contactDetails?.lastName ?? ''}`.trim(),
-      email: user.profileDetails?.email ?? '-',
-      account: getAccountTypeById(user.accountType ?? AccountType.Personal) || '-',
-      company: user.companyDetails?.name || '-',
-      registered: formatReviewerDate(user.createdAt),
-      spent: user.spent ?? 0,
-      ordersCount: user.ordersCount ?? 0,
-      id: user._id ?? user.firebaseId ?? '',
-      firebaseId: user.firebaseId ?? '',
-      active: user.status === AccountStatusEnum.Active,
-      address: user.personalDetails?.address ??
-        user.companyDetails?.address ?? {
-          country: '',
-          region: '',
-          city: '',
-          name1: '',
-          name2: '',
-          postcode: '',
-          _id: '',
-        },
-      flag: { label: '', value: '', icon: '', regions: [] },
-    })
-  );
+  people.value = data.data?.map((user: UserInterface): DashboardCustomerTableItem => ({
+    avatar: Avatar,
+    name:
+      user.accountType === AccountType.Personal
+        ? `${user?.personalDetails?.firstName ?? ''} ${user?.personalDetails?.lastName ?? ''}`.trim()
+        : `${user?.contactDetails?.firstName ?? ''} ${user?.contactDetails?.lastName ?? ''}`.trim(),
+    email: user.profileDetails?.email ?? '-',
+    account: getAccountTypeById(user.accountType ?? AccountType.Personal) || '-',
+    company: user.companyDetails?.name || '-',
+    registered: formatReviewerDate(user.createdAt),
+    spent: user.spent ?? 0,
+    ordersCount: user.ordersCount ?? 0,
+    id: user._id ?? user.firebaseId ?? '',
+    firebaseId: user.firebaseId ?? '',
+    active: user.status === AccountStatusEnum.Active,
+    address: user.personalDetails?.address ??
+      user.companyDetails?.address ?? {
+        country: '',
+        region: '',
+        city: '',
+        name1: '',
+        name2: '',
+        postcode: '',
+        _id: '',
+      },
+    flag: { label: '', value: '', icon: '', regions: [] },
+  }));
 };
 
 fetchAndSetNewCustomers();

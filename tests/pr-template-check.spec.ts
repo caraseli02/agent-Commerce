@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { assessPrTemplate } from '../scripts/check-pr-template.mjs';
+import { assessPrTemplate, resolvePullRequestContext } from '../scripts/check-pr-template.mjs';
 
 type AssessPrTemplate = (args: { body?: string; labels?: string[] }) => {
   status: 'passed' | 'failed' | 'skipped';
@@ -71,6 +71,25 @@ const cursorBotBody = `## Summary
 - Risk reporting: /10`;
 
 describe('PR template completeness gate', () => {
+  it('uses current GitHub metadata instead of a stale workflow-event body', async () => {
+    const staleEvent = {
+      pull_request: {
+        number: 502,
+        body: '',
+        labels: [],
+      },
+    };
+    const fetchCurrentPullRequest = async () => ({
+      number: 502,
+      body: completeBody,
+      labels: [],
+    });
+
+    const pullRequest = await resolvePullRequestContext(staleEvent, fetchCurrentPullRequest);
+
+    expect(pullRequest.body).toBe(completeBody);
+  });
+
   it('passes a fully filled generator PR body', () => {
     const result = assess({ body: completeBody });
 
@@ -110,7 +129,7 @@ describe('PR template completeness gate', () => {
       expect.arrayContaining([
         'Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.',
         'Known risks section must check at least one option or explicitly say none.',
-      ])
+      ]),
     );
   });
 
@@ -138,7 +157,7 @@ describe('PR template completeness gate', () => {
 
     expect(result.status).toBe('failed');
     expect(result.violations).toEqual(
-      expect.arrayContaining(['Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.'])
+      expect.arrayContaining(['Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.']),
     );
   });
 
@@ -164,7 +183,7 @@ Looks good overall.`,
     expect(result.violations).toEqual(
       expect.arrayContaining([
         'Evaluator rubric is missing fields for: Scope control, Acceptance criteria, Verification evidence, Harness hygiene, Risk reporting.',
-      ])
+      ]),
     );
   });
 

@@ -31,7 +31,7 @@ const rangeSchema = z
 const valuesSchema = z.array(z.number().finite().int().positive()).min(1).max(20);
 const quantitySchema = z.object({
   type: z.literal(PriceSettingsTypeEnum.Quantity),
-  values: valuesSchema.refine((values) => values.every((value, index) => index === 0 || value > values[index - 1]), {
+  values: valuesSchema.refine((values) => values.every((value, index) => index === 0 || value > (values[index - 1] ?? value)), {
     message: 'Quantity values must be strictly increasing',
   }),
   label: z.string().trim().min(1).max(80),
@@ -98,7 +98,7 @@ export const getMockPricing = (event: H3Event) => getPricingState(event).pricing
 
 export const createMockPricing = (event: H3Event, input: ReturnType<typeof parseMockPricingInput>) => {
   const state = getPricingState(event);
-  const item: PriceSettingsInterface = { ...input, _id: `price-setting-${state.sequence++}`, linked: false };
+  const item = { ...input, _id: `price-setting-${state.sequence++}`, linked: false } as PriceSettingsInterface;
   state.pricing.push(item);
   return clonePricing(item);
 };
@@ -107,8 +107,11 @@ export const updateMockPricing = (event: H3Event, id: string, input: ReturnType<
   const state = getPricingState(event);
   const index = state.pricing.findIndex((item) => item._id === id);
   if (index < 0) return null;
-  state.pricing[index] = { ...input, _id: id, linked: state.pricing[index].linked };
-  return clonePricing(state.pricing[index]);
+  const existing = state.pricing[index];
+  if (!existing) return null;
+  const updated = { ...input, _id: id, linked: existing.linked } as PriceSettingsInterface;
+  state.pricing[index] = updated;
+  return clonePricing(updated);
 };
 
 export const deleteMockPricing = (event: H3Event, id: string) => {

@@ -125,7 +125,7 @@ describe('checkout order composable flow boundary', () => {
         subtotal: 1499.99,
         total: 1509.98,
         products: [],
-      }
+      },
     );
 
     expect(apiRequests).toMatchObject([
@@ -193,7 +193,7 @@ describe('checkout order composable flow boundary', () => {
             },
           },
         ],
-      }
+      },
     );
 
     expect(sentOrders).toHaveLength(1);
@@ -248,7 +248,7 @@ describe('checkout order composable flow boundary', () => {
         subtotal: 1499.99,
         total: 1509.98,
         products: [],
-      }
+      },
     );
 
     const cartStore = useCartStore();
@@ -295,7 +295,7 @@ describe('checkout order composable flow boundary', () => {
         subtotal: 1499.99,
         total: 1509.98,
         products: [],
-      }
+      },
     );
 
     const cartStore = useCartStore();
@@ -372,7 +372,7 @@ describe('checkout order composable flow boundary', () => {
         subtotal: 1499.99,
         total: 1509.98,
         products: [],
-      }
+      },
     );
 
     const cartStore = useCartStore();
@@ -443,7 +443,7 @@ describe('checkout order composable flow boundary', () => {
         subtotal: 1499.99,
         total: 1509.98,
         products: [],
-      }
+      },
     );
 
     const cartStore = useCartStore();
@@ -495,7 +495,7 @@ describe('checkout order composable flow boundary', () => {
         subtotal: 1499.99,
         total: 1509.98,
         products: [],
-      }
+      },
     );
 
     const cartStore = useCartStore();

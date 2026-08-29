@@ -11,11 +11,13 @@
     <UiButton size="lg" @click="triggerFileUpload"> Upload SVG icon </UiButton>
 
     <!-- Hidden File Input -->
-    <input ref="fileInput" type="file" accept=".svg" class="hidden" @change="handleFileUpload" >
+    <input ref="fileInput" type="file" accept=".svg" class="hidden" @change="handleFileUpload" />
   </div>
 </template>
 
 <script setup>
+import { sanitizeSvg } from '~/utils/sanitizeSvg';
+
 const emit = defineEmits(['update:svgPreview']);
 
 const fileInput = ref(null);
@@ -44,6 +46,15 @@ const handleFileUpload = (event) => {
 
     reader.onload = (e) => {
       let svgContent = e.target.result;
+
+      // Sanitize at the upload/emit boundary — strip XSS vectors before
+      // the content is rendered via v-html or stored by the parent.
+      svgContent = sanitizeSvg(svgContent);
+
+      if (!svgContent) {
+        errorMessage.value = 'Invalid or unsafe SVG file.';
+        return;
+      }
 
       // Optionally, modify the SVG dimensions to fit within a certain boundary
       svgContent = adjustSvgDimensions(svgContent);

@@ -22,7 +22,7 @@
 import { defineAsyncComponent } from 'vue';
 import type { ApexOptions } from 'apexcharts';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-vue-next';
+import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 
 const ApexChart = defineAsyncComponent(() => import('vue3-apexcharts'));
 
@@ -60,91 +60,93 @@ const computedSeries = computed(() => {
     },
   ];
 });
-const chartOptions = computed(() => ({
-  chart: {
-    type: 'bar',
-    toolbar: {
-      show: false,
-    },
-  },
-  plotOptions: {
-    bar: {
-      borderRadius: 4,
-      horizontal: false,
-      columnWidth: '45%',
-    },
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  stroke: {
-    show: true,
-    width: 2,
-    colors: ['transparent'],
-  },
-  xaxis: {
-    categories: visibleMonths.value,
-    axisBorder: {
-      show: false,
-    },
-    axisTicks: {
-      show: false,
-    },
-    labels: {
-      style: {
-        colors: '#777',
-        fontSize: '12px',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+const chartOptions = computed(
+  () =>
+    ({
+      chart: {
+        type: 'bar',
+        toolbar: {
+          show: false,
+        },
       },
-    },
-  },
-  yaxis: {
-    labels: {
-      style: {
-        colors: '#777',
-        fontSize: '14px',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+      plotOptions: {
+        bar: {
+          borderRadius: 4,
+          horizontal: false,
+          columnWidth: '45%',
+        },
       },
-    },
-  },
-  fill: {
-    opacity: 1,
-  },
-  tooltip: {
-    y: {
-      formatter: function (val: number) {
-        return val + ' Orders';
+      dataLabels: {
+        enabled: false,
       },
-    },
-  },
-  colors: ['#008FFB'],
-  grid: {
-    show: false,
-    borderColor: '#e7e7e7',
-    strokeDashArray: 0,
-    xaxis: {
-      lines: {
-        show: false,
-      },
-    },
-    yaxis: {
-      lines: {
+      stroke: {
         show: true,
+        width: 2,
+        colors: ['transparent'],
       },
-    },
-  },
-  legend: {
-    position: 'top',
-    horizontalAlign: 'right',
-    floating: true,
-    offsetY: -25,
-    offsetX: -5,
-    markers: {
-      radius: 12,
-    },
-  },
-}) as ApexOptions);
-
+      xaxis: {
+        categories: visibleMonths.value,
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+        labels: {
+          style: {
+            colors: '#777',
+            fontSize: '12px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+          },
+        },
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: '#777',
+            fontSize: '14px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+          },
+        },
+      },
+      fill: {
+        opacity: 1,
+      },
+      tooltip: {
+        y: {
+          formatter: function (val: number) {
+            return val + ' Orders';
+          },
+        },
+      },
+      colors: ['#008FFB'],
+      grid: {
+        show: false,
+        borderColor: '#e7e7e7',
+        strokeDashArray: 0,
+        xaxis: {
+          lines: {
+            show: false,
+          },
+        },
+        yaxis: {
+          lines: {
+            show: true,
+          },
+        },
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'right',
+        floating: true,
+        offsetY: -25,
+        offsetX: -5,
+        markers: {
+          radius: 12,
+        },
+      },
+    }) as ApexOptions,
+);
 
 function shiftMonths(direction: number) {
   let newIdx = currentIndex.value + direction;

@@ -8,12 +8,12 @@
         <h3 class="leading-[1.5] font-semibold mb-4">Alerts and Notifications</h3>
         <p class="text-sm leading-[1.71] mb-8">Change to alerts and notification settings.</p>
         <div class="grid grid-cols-1 gap-6">
-          <div class="grid grid-cols-[1fr,50px,50px]">
+          <div class="grid grid-cols-[1fr_50px_50px]">
             <div />
             <div class="text-sm leading-[1.71] text-center">Email</div>
             <div class="text-sm leading-[1.71] text-right">App</div>
           </div>
-          <div v-for="(item, index) in alertsAndNotifications" :key="index" class="grid grid-cols-[1fr,50px,50px]">
+          <div v-for="(item, index) in alertsAndNotifications" :key="index" class="grid grid-cols-[1fr_50px_50px]">
             <div class="text-sm leading-[1.71] text-left">
               {{ item.label }}
             </div>
@@ -27,7 +27,7 @@
                     item.email = !item.email;
                     markSettingAsRead(item, 'email');
                   "
-                >
+                />
                 <div
                   class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                   :class="[
@@ -48,7 +48,7 @@
                     item.app = !item.app;
                     markSettingAsRead(item, 'app');
                   "
-                >
+                />
                 <div
                   class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                   :class="[
@@ -65,7 +65,7 @@
       <div class="border border-border rounded-xl p-4 md:p-6">
         <h3 class="leading-[1.5] font-semibold mb-4">Security</h3>
         <p class="text-sm leading-[1.71] mb-8">Send a password reset link.</p>
-        <form class="md:grid md:items-end md:grid-cols-[1fr,auto] md:gap-4" @submit.prevent="">
+        <form class="md:grid md:items-end md:grid-cols-[1fr_auto] md:gap-4" @submit.prevent="">
           <FormInput
             v-model="securityEmail"
             label="Account Email"
@@ -98,7 +98,7 @@
                   item.email = !item.email;
                   markSettingAsRead(item, 'email');
                 "
-              >
+              />
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                 :class="[

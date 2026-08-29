@@ -33,7 +33,7 @@ const addProductToCart = async (page: Page) => {
   await expect(addToCartButton).toBeEnabled();
 
   const cartPostPromise = page.waitForResponse(
-    (response) => response.url().includes('/api/cart') && response.request().method() === 'POST'
+    (response) => response.url().includes('/api/cart') && response.request().method() === 'POST',
   );
   await addToCartButton.click();
   const cartPostResponse = await cartPostPromise;

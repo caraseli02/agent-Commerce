@@ -5,10 +5,12 @@
       :slides-per-view="1"
       :space-between="15"
       :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
+      :pagination="
+        {
+          bulletElement: 'button',
+          clickable: true,
+        } as any
+      "
       :breakpoints="{
         768: {
           spaceBetween: 20,
@@ -38,7 +40,7 @@
               :src="BannerItem"
               class="aspect-[1.16] object-contain object-center w-[100px] overflow-hidden self-center shrink-0 max-w-full my-auto"
               alt=""
-            >
+            />
           </div>
         </div>
       </SwiperSlide>
@@ -47,7 +49,8 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Pagination } from 'swiper';
+import { A11y, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import BannerItem from '@/assets/media/home/banner-item.png';
 
 const slides = [

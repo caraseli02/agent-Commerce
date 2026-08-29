@@ -210,7 +210,7 @@ const navDOM = ref<HTMLElement>();
 const showTopNavLayer = ref(false);
 const showBottomNavLayer = ref(false);
 
-const nav = ref([
+const nav = ref<NavItem[]>([
   {
     label: 'Dashboard',
     to: '/dashboard',
@@ -314,7 +314,8 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style lang="scss">
+<style>
+@reference "../../assets/css/main.css";
 .scrollbar-custom {
   &::-webkit-scrollbar-thumb {
     background-color: #383b4d !important;

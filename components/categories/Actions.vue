@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowDownNarrowWide, ArrowUpNarrowWide, CopyIcon, RefreshCcw, Trash2Icon } from 'lucide-vue-next';
+import { ArrowDownNarrowWide, ArrowUpNarrowWide, CopyIcon, RefreshCcw, Trash2Icon } from '@lucide/vue';
 
 const { selectedCategories, duplicateCategory, deleteCategories, getCategories, sortOrder, categories, isLocked } = useCategories();
 
@@ -41,7 +41,7 @@ const toggleSortOrder = () => {
           variant="secondary"
           size="sm"
           :disabled="selectedCategories.length !== 1 || isLocked"
-          @click="duplicateCategory(selectedCategories[0], findParentId(categories, selectedCategories[0]))"
+          @click="selectedCategories[0] && duplicateCategory(selectedCategories[0], findParentId(categories, selectedCategories[0]))"
         >
           <CopyIcon class="w-4 h-4" />
           Duplicate

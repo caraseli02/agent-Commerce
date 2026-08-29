@@ -29,7 +29,7 @@ const fetchAndSetActivityLogs = async (
   page: number,
   perPage: number,
   filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {}
+  sort: Record<string, unknown> = {},
 ) => {
   error.value = false;
 

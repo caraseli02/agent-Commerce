@@ -1,6 +1,6 @@
 <template>
   <label class="flex cursor-pointer">
-    <input :value="checkAll" type="checkbox" class="sr-only" @change="$emit('checkAll')" >
+    <input :value="checkAll" type="checkbox" class="sr-only" @change="$emit('checkAll')" />
     <div
       class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
       :class="[checkAll ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300']"

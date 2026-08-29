@@ -13,6 +13,9 @@ interface Props {
   pageCount: number;
   totalItems: number;
   loading: boolean;
+  showScrollHint?: boolean;
+  scrollHint?: string;
+  tableMinWidth?: string;
 }
 
 const props = defineProps<Props>();
@@ -71,9 +74,9 @@ watch(
       rightIndex,
       pageSize,
       transformFiltersToObject(table.getState().columnFilters),
-      transformSortingKeys(table.getState().sorting[0])
+      transformSortingKeys(table.getState().sorting[0] ?? { id: '', desc: false }),
     );
-  }
+  },
 );
 
 const refresh = ref(false);
@@ -85,7 +88,7 @@ watch(refresh, async () => {
     rightIndex,
     pageSize,
     transformFiltersToObject(table.getState().columnFilters),
-    transformSortingKeys(table.getState().sorting[0])
+    transformSortingKeys(table.getState().sorting[0] ?? { id: '', desc: false }),
   );
   setTimeout(() => {
     refresh.value = false;
@@ -97,9 +100,14 @@ watchDebounced(
   () => {
     const { pageSize } = table.getState().pagination;
     table.setPageIndex(0);
-    props.fetchFn(1, pageSize, transformFiltersToObject(table.getState().columnFilters), transformSortingKeys(table.getState().sorting[0]));
+    props.fetchFn(
+      1,
+      pageSize,
+      transformFiltersToObject(table.getState().columnFilters),
+      transformSortingKeys(table.getState().sorting[0] ?? { id: '', desc: false }),
+    );
   },
-  { debounce: 500, maxWait: 1000 }
+  { debounce: 500, maxWait: 1000 },
 );
 
 // watch(
@@ -128,6 +136,12 @@ const loadingSize = computed(async () => {
 const scrollContainerRef = ref<HTMLElement | null>(null);
 const tableRows = computed(() => table.getRowModel().rows);
 const { virtualRows, paddingTop, paddingBottom } = useVirtualTableRows(tableRows, scrollContainerRef);
+const visibleVirtualRows = computed(() =>
+  virtualRows.value.flatMap((virtualRow) => {
+    const row = tableRows.value[virtualRow.index];
+    return row ? [{ virtualRow, row }] : [];
+  }),
+);
 const leafColumnCount = computed(() => table.getAllLeafColumns().length);
 </script>
 
@@ -137,9 +151,16 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
     <slot name="header" :make-refresh="() => (refresh = true)" :table="table" />
     <slot name="toolbar" :table="table" />
     <div class="rounded-xl border relative min-h-[650px]">
-      <SharedScrollableRegion class="min-h-[650px]" label="Data table" test-id="dashboard-data-table">
+      <SharedScrollableRegion
+        class="min-h-[650px]"
+        label="Data table"
+        test-id="dashboard-data-table"
+        :show-scroll-hint="showScrollHint"
+        :scroll-hint="scrollHint"
+        scroll-target-selector="[data-testid='virtualized-table-scroll']"
+      >
         <div ref="scrollContainerRef" class="max-h-[600px] overflow-y-auto" data-testid="virtualized-table-scroll">
-          <UiTable>
+          <UiTable :table-style="tableMinWidth ? { minWidth: tableMinWidth } : undefined">
             <UiTableHeader class="sticky top-0 z-10 bg-light-200">
               <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
                 <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
@@ -153,13 +174,13 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
                   <td :colspan="leafColumnCount" class="p-0 border-0" :style="{ height: `${paddingTop}px` }" />
                 </tr>
                 <UiTableRow
-                  v-for="virtualRow in virtualRows"
-                  :key="tableRows[virtualRow.index].id"
+                  v-for="{ virtualRow, row } in visibleVirtualRows"
+                  :key="row.id"
                   class="hover:bg-light-200"
-                  :data-state="tableRows[virtualRow.index].getIsSelected() && 'selected'"
+                  :data-state="row.getIsSelected() && 'selected'"
                   :data-index="virtualRow.index"
                 >
-                  <UiTableCell v-for="cell in tableRows[virtualRow.index].getVisibleCells()" :key="cell.id">
+                  <UiTableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                     <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                   </UiTableCell>
                 </UiTableRow>

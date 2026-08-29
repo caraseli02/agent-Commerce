@@ -27,7 +27,7 @@ async function collectSourceFiles(dir: string): Promise<string[]> {
       }
 
       return [path];
-    })
+    }),
   );
 
   return files.flat();

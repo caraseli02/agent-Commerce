@@ -24,9 +24,10 @@ export const parseProductPriceConfiguration = (product: ProductInterface | null 
 
   if (quantity) {
     for (let i = product.priceConfiguration.configuration.length - 1; i >= 0; i--) {
-      if (quantity >= product.priceConfiguration.configuration[i].quantity) {
-        unitPrice = product.priceConfiguration.configuration[i].price;
-        currentPriceConfiguration = product.priceConfiguration.configuration[i];
+      const configuration = product.priceConfiguration.configuration[i];
+      if (configuration && quantity >= configuration.quantity) {
+        unitPrice = configuration.price;
+        currentPriceConfiguration = configuration;
         break;
       }
     }
@@ -40,9 +41,10 @@ export const parseProductPriceConfiguration = (product: ProductInterface | null 
   let discountPrice = 0;
 
   discountPrice = productDiscount ? unitPrice * (1 - productDiscount / 100) : unitPrice * (1 - userDiscount / 100);
+  const currentConfigurationPrice = currentPriceConfiguration?.price ?? 0;
   const currentConfigurationDiscountPrice = productDiscount
-    ? currentPriceConfiguration?.price * (1 - productDiscount / 100)
-    : currentPriceConfiguration?.price * (1 - userDiscount / 100);
+    ? currentConfigurationPrice * (1 - productDiscount / 100)
+    : currentConfigurationPrice * (1 - userDiscount / 100);
 
   return {
     userDiscount: userDiscount,
@@ -59,7 +61,7 @@ export const initializeQuantities = (
   data: CartInterface | null | undefined,
   quantity: Ref<number>,
   initialRequestedQuantity: Ref<number>,
-  _minPriceConfiguration: PriceConfigurationSettingsInterface
+  _minPriceConfiguration: PriceConfigurationSettingsInterface,
 ) => {
   if (!data?.products?.length) {
     // Empty cart must clear any prior baseline so PDP shows enabled "Add to cart".
@@ -93,7 +95,7 @@ const showStockClampToast = async (maxStock: number, adjustedStock: number) => {
 export const addToCartHelper = async (
   product: ProductInterface,
   stock: number,
-  options?: { currentCartQuantity?: number; isDelta?: boolean }
+  options?: { currentCartQuantity?: number; isDelta?: boolean },
 ) => {
   const currentCartQuantity = Math.max(0, Number(options?.currentCartQuantity ?? 0));
   const incomingDelta = Number(stock) || 0;

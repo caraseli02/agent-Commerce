@@ -1,40 +1,41 @@
-/* .scrollbar-thin {
-    scrollbar-width: thin;
+.scrollbar-thin {
+  scrollbar-width: thin;
 }
 .scrollbar-thin::-webkit-scrollbar {
-    @apply w-1;
+  width: 4px;
+  height: 4px;
 }
 .scrollbar-thin::-webkit-scrollbar-track {
-    @apply bg-transparent;
+  background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(31, 31, 60, 0.1);
-    @apply rounded-[20px] border-transparent;
+  background: rgba(31, 31, 60, 0.15);
+  border-radius: 20px;
 }
 
 .scrollbar-none::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 .scrollbar-none {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-} */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
 .swiper-visible.swiper {
-  @apply overflow-visible;
+  overflow: visible;
 }
 
 .max-h-vh {
   max-height: calc(100 * var(--vh));
 }
-
-/* .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-.hide-scrollbar::-webkit-scrollbar {
-    display: none;
-} */
 
 .line-clamp-3 {
   display: -webkit-box;

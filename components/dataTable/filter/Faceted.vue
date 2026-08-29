@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="TData">
 import type { Column } from '@tanstack/vue-table';
 import type { Component } from 'vue';
-import { CheckIcon, PlusCircleIcon } from 'lucide-vue-next';
+import { CheckIcon, PlusCircleIcon } from '@lucide/vue';
 import type { OrderStatus } from '~/types/order-summary/item';
 
 import { cn } from '@/lib/utils';
@@ -127,7 +127,7 @@ const activeFilterValues = computed((): string[] => {
                   :class="
                     cn(
                       'mr-3 flex h-4 w-4 items-center justify-center rounded',
-                      selectedValues.has(option.value) ? 'bg-blue-500 text-white' : 'opacity-50 [&_svg]:invisible border border-grey-600'
+                      selectedValues.has(option.value) ? 'bg-blue-500 text-white' : 'opacity-50 [&_svg]:invisible border border-grey-600',
                     )
                   "
                 >
@@ -171,7 +171,7 @@ const activeFilterValues = computed((): string[] => {
                   :class="
                     cn(
                       'mr-3 flex h-4 w-4 items-center justify-center rounded',
-                      selectedValues.has(value) ? 'bg-blue-500 text-white' : 'opacity-50 [&_svg]:invisible border border-grey-600'
+                      selectedValues.has(value) ? 'bg-blue-500 text-white' : 'opacity-50 [&_svg]:invisible border border-grey-600',
                     )
                   "
                 >

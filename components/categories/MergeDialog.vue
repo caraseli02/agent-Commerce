@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { MergeIcon } from 'lucide-vue-next';
+import { MergeIcon } from '@lucide/vue';
+import UiSelectContent from '~/components/ui/select/SelectContent.vue';
 
 const { categories, mergeCategories, isLocked } = useCategories();
 

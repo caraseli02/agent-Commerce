@@ -1,26 +1,26 @@
 # Components Marketplace
 
-Nuxt 3 e-commerce frontend prepared as a **self-contained portfolio demo**.
+Nuxt 4 e-commerce frontend prepared as a **self-contained portfolio demo**.
 
 The project includes a storefront, authenticated customer flows, and dashboard surfaces backed by local Nitro mock endpoints so the app can be reviewed without a live backend.
 
 ## Why this repo matters
 
-- Full Nuxt 3 + Vue 3 + TypeScript application
+- Full Nuxt 4 + Vue 3 + TypeScript application
 - Storefront + account + dashboard flows in one codebase
 - Local mock API built into the repo for portfolio demos
 - Good fit for case study walkthroughs, screenshots, and reviewer smoke tests
 
 ## Stack
 
-- Nuxt 3
+- Nuxt 4
 - Vue 3 Composition API
 - TypeScript
 - Pinia
 - Tailwind CSS
 - Radix Vue / shadcn-nuxt
 - Nitro server routes for mock data
-- Firebase and Stripe integration hooks for live mode
+- Stripe integration hooks for live mode
 
 ## Recommended mode
 
@@ -83,9 +83,17 @@ pnpm pretty
 pnpm test
 pnpm test:e2e
 pnpm verify
+pnpm deps:outdated
+pnpm deps:audit
 ```
 
 Run `pnpm dev` before `pnpm test:e2e`; the Playwright specs target `http://localhost:3000`.
+
+`pnpm deps:outdated` and `pnpm deps:audit` force pnpm to inspect this repository
+rather than a parent workspace. Both commands return a non-zero status when they
+find updates or advisories; that result is the maintenance report, not a command
+failure. Review and upgrade dependencies only through their scoped modernization
+issues.
 
 ## Key review flows
 
@@ -123,13 +131,6 @@ If you are reviewing this repo for a case study or portfolio walkthrough, start 
 
 These are not required for the bundled mock demo, but the runtime config supports them:
 
-- `NUXT_PUBLIC_FIREBASE_API_KEY`
-- `NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- `NUXT_PUBLIC_FIREBASE_PROJECT_ID`
-- `NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-- `NUXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID`
-- `NUXT_PUBLIC_FIREBASE_APP_ID`
-- `NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
 - `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 
 ## Mock architecture

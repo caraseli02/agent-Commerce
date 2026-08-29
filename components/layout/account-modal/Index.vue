@@ -110,7 +110,6 @@ const handleSignedIn = () => {
 
 const handleSignOut = async () => {
   authStore.signOut();
-  await authStore.firebaseSignOut();
   setTimeout(() => {
     isOpen.value = false;
     emit('close');

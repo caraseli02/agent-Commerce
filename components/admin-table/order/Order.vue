@@ -26,7 +26,7 @@ const fetchAndSetOrdersList = async (
   page: number,
   perPage: number,
   filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {}
+  sort: Record<string, unknown> = {},
 ) => {
   error.value = false;
 
@@ -100,7 +100,7 @@ const orderFilters = ref<TabFilter[]>([
   },
 ] as TabFilter[]);
 
-const activeOrderFilter = ref<TabFilter>(orderFilters.value[0]);
+const activeOrderFilter = ref<TabFilter>(orderFilters.value[0] ?? { label: 'All', total_items: 0 });
 const filterHighlightWidth = ref(0);
 const filterHightlightLeft = ref(0);
 
@@ -154,7 +154,7 @@ watch(
   async () => {
     setActiveFilterHighlight();
   },
-  { deep: true }
+  { deep: true },
 );
 
 const onTabChange = async (filter: TabFilter, table: Table<OrderTableColumns>) => {

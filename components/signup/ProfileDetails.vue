@@ -8,8 +8,8 @@
         </div>
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
-            <label v-if="!firebaseToken" class="flex items-center cursor-pointer">
-              <input :value="details.useContactEmail" type="checkbox" class="sr-only" @change="useContactEmailCheck" >
+            <label class="flex items-center cursor-pointer">
+              <input :value="details.useContactEmail" type="checkbox" class="sr-only" @change="useContactEmailCheck" />
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2.5"
                 :class="[
@@ -22,16 +22,12 @@
               </div>
               <span class="text-sm text-slate-500"> Use Contact E-mail </span>
             </label>
-            <div v-if="firebaseToken" class="bg-amber-400 px-3 py-1 rounded">
-              <small>You are logged in with Google, so you are not allowed to change your email account.</small>
-            </div>
             <BuyerFormInput
               v-model="details.accountEmail.value"
               :error="details.accountEmail.error"
               type="email"
               label="Account E-mail"
               placeholder="Account E-mail"
-              :disabled="!!firebaseToken"
             />
             <BuyerFormInput
               v-model="details.confirmAccountEmail.value"
@@ -39,10 +35,8 @@
               type="email"
               label="Confirm Account E-mail"
               placeholder="Confirm Account E-mail"
-              :disabled="!!firebaseToken"
             />
             <FormPassword
-              v-if="!firebaseToken"
               v-model="details.password.value"
               :error="details.password.error"
               label="Password"
@@ -50,7 +44,6 @@
               handle-strength
             />
             <FormPassword
-              v-if="!firebaseToken"
               v-model="details.repeatPassword.value"
               :error="details.repeatPassword.error"
               label="Repeat Password"
@@ -70,7 +63,7 @@
               </button>
             </div>
             <label class="flex items-start cursor-pointer">
-              <input :value="details.agreeToTerms" type="checkbox" class="sr-only" @change="details.agreeToTerms = !details.agreeToTerms" >
+              <input :value="details.agreeToTerms" type="checkbox" class="sr-only" @change="details.agreeToTerms = !details.agreeToTerms" />
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2.5"
                 :class="[
@@ -124,34 +117,21 @@ import QuestionIcon from '@/assets/icons/question-circle.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import CheckIcon from '@/assets/icons/check.svg';
 import type { SignupProfileDetails, SignupContactDetails, SignupAccountType } from '~~/types';
-import { useAuthStore } from '~~/store/authStore';
 
 defineEmits(['continue', 'back']);
 
 const details = useState<SignupProfileDetails>('signup-profile-details');
 const contact = useState<SignupContactDetails>('signup-contact-details');
 const selectedType = useState<SignupAccountType>('signup-account-type');
-const firebaseToken = useAuthStore().firebaseTempToken;
-
-if (firebaseToken) {
-  const { getParsedFirebaseJWTToken } = useFirebaseAuth();
-  const parsedToken = await getParsedFirebaseJWTToken();
-
-  details.value.accountEmail.value = parsedToken.email;
-  details.value.confirmAccountEmail.value = parsedToken.email;
-}
-
 const useContactEmailCheck = () => {
   details.value.useContactEmail = !details.value.useContactEmail;
 
-  if (!firebaseToken) {
-    if (selectedType.value === 'business' || selectedType.value === 'sole-trader') {
-      details.value.accountEmail.value = details.value.useContactEmail ? contact.value.companyEmail.value : '';
-      details.value.confirmAccountEmail.value = details.value.useContactEmail ? contact.value.companyEmail.value : '';
-    } else {
-      details.value.accountEmail.value = details.value.useContactEmail ? contact.value.email.value : '';
-      details.value.confirmAccountEmail.value = details.value.useContactEmail ? contact.value.email.value : '';
-    }
+  if (selectedType.value === 'business' || selectedType.value === 'sole-trader') {
+    details.value.accountEmail.value = details.value.useContactEmail ? contact.value.companyEmail.value : '';
+    details.value.confirmAccountEmail.value = details.value.useContactEmail ? contact.value.companyEmail.value : '';
+  } else {
+    details.value.accountEmail.value = details.value.useContactEmail ? contact.value.email.value : '';
+    details.value.confirmAccountEmail.value = details.value.useContactEmail ? contact.value.email.value : '';
   }
 };
 

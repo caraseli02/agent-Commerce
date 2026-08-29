@@ -104,30 +104,30 @@ export default defineComponent({
     DeliveryMethodEnum() {
       return DeliveryMethodEnum;
     },
-    isMixedOrBackOrder(): boolean {
+    isMixedOrBackOrder(this: { order: CheckoutOrderDraft }): boolean {
       return this.order.type === OrderType.Back || this.order.type === OrderType.Mixed;
     },
-    isStockOrder(): boolean {
+    isStockOrder(this: { order: CheckoutOrderDraft }): boolean {
       return this.order.type === OrderType.Stock;
     },
-    isMixedOrStockOrder(): boolean {
+    isMixedOrStockOrder(this: { order: CheckoutOrderDraft }): boolean {
       return this.order.type === OrderType.Stock || this.order.type === OrderType.Mixed;
     },
   },
   methods: {
-    selectBackorderPreference(option: BackorderShippingTypesInterface) {
+    selectBackorderPreference(this: { order: CheckoutOrderDraft }, option: BackorderShippingTypesInterface) {
       if (this.order) {
         // eslint-disable-next-line vue/no-mutating-props
         this.order.backorderOption = option;
       }
     },
-    selectStockorderPreference(option: StockorderShippingTypesInterface) {
+    selectStockorderPreference(this: { order: CheckoutOrderDraft }, option: StockorderShippingTypesInterface) {
       if (this.order) {
         // eslint-disable-next-line vue/no-mutating-props
         this.order.stockorderOption = option;
       }
     },
-    selectDeliveryMethod(option: ShippingOrderPricingOption) {
+    selectDeliveryMethod(this: { order: CheckoutOrderDraft }, option: ShippingOrderPricingOption) {
       // eslint-disable-next-line vue/no-mutating-props
       this.order.deliveryMethod = option;
     },

@@ -4,7 +4,7 @@ Project-level guidance for Claude Code working in **Components Marketplace**.
 
 ## What Components Marketplace is
 
-A Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Firebase, Stripe hooks, and local Nitro mock endpoints.
+A Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Stripe hooks, and local Nitro mock endpoints.
 
 ## How to work here
 
@@ -74,7 +74,7 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 - API flow: `plugins/api.ts` (`$apiClient`) → `composables/api/*` domain functions → domain composables (`useCart`, `useOrder`, etc.) → Pinia/UI. See `CONTEXT.md` § API access for the full contract.
 - Do not add a class-based service registry, `HttpFactory`, `useFetchAPI`, or component-level `$api.<domain>` calls.
 - Mock backend: `server/api/`
-- Auth/session state: Firebase + Pinia + token cookie
+- Auth/session state: local mock token + Pinia + token cookie
 - UI: shadcn-vue / Radix-style primitives + Tailwind
 
 ## Verification order

@@ -241,6 +241,13 @@ export interface StripeCardInfoInterface {
   is_expired: boolean;
 }
 
+export interface GuestCheckoutContact {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
 export interface CheckoutOrderDraft {
   total: number;
   subtotal: number;
@@ -248,9 +255,10 @@ export interface CheckoutOrderDraft {
   products: CartProductsInterface[];
   discount: { value: number; total: number };
   shippingDetails: {
-    address: ShippingAddressInterface;
-    billingAddress: ShippingAddressInterface;
+    address: ShippingAddressInterface | null;
+    billingAddress: ShippingAddressInterface | null;
   };
+  guestContact?: GuestCheckoutContact | null;
   paymentDetails: PaymentDetails;
   type: OrderType;
   backorderOption: BackorderShippingTypesInterface | null;
@@ -366,7 +374,7 @@ export enum OrderType {
 // The 'as T' is a type assertion to help TypeScript
 export const getOrderById = <T extends { [index: string]: number }>(enumValue: number): string | null => {
   const keys = Object.keys(OrderType as unknown as T).filter((x) => (OrderType as unknown as T)[x] === enumValue);
-  return keys.length > 0 ? keys[0] : null;
+  return keys[0] ?? null;
 };
 
 export interface OrderTypeInfo {

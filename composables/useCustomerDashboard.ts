@@ -38,7 +38,14 @@ const ordersIds = ref<OrderIdItem[]>([]);
 const activeOrderFilter = ref<TabFilter>({
   value: 'home',
 });
-const myActivityData = ref<CustomerDashboardActivityData>({} as CustomerDashboardActivityData);
+const emptyActivityData = (): CustomerDashboardActivityData => ({
+  favorites: { products: 0, folders: 0 },
+  monthOrder: 0,
+  returns: 0,
+  totalOrders: 0,
+});
+
+const myActivityData = ref<CustomerDashboardActivityData>(emptyActivityData());
 const myAccountInformation = ref<UserInterface>({} as UserInterface);
 const myRecentlyBougth = ref<ProductInterface[]>([]);
 const myAddresses = ref<ShippingAddressInterface[]>([]);
@@ -48,10 +55,8 @@ const hotSales = ref<ProductBannerInterface[]>([]);
 const myCard = ref<StripeCardInterface | null>(null);
 
 export const useCustomerDashboard = () => {
-  const userDetails = useAuthStore().userDetails;
-  const userCards = useAuthStore().userCards;
   const authStore = useAuthStore();
-  const { getUserDetails } = storeToRefs(authStore);
+  const { getUserDetails, userDetails } = storeToRefs(authStore);
 
   const activeOrders = async () => {
     const { data, status } = await fetchCustomerActiveOrders();
@@ -63,7 +68,7 @@ export const useCustomerDashboard = () => {
   };
 
   const activityWidgets = async () => {
-    myActivityData.value = {} as CustomerDashboardActivityData;
+    myActivityData.value = emptyActivityData();
     const favorites = await fetchFavorites();
     const totalOrders = await fetchTotalOrders();
     const returns = await fetchReturns();
@@ -85,8 +90,8 @@ export const useCustomerDashboard = () => {
   };
 
   const customerInformation = async () => {
-    if (userDetails) {
-      myAccountInformation.value = userDetails;
+    if (userDetails.value) {
+      myAccountInformation.value = userDetails.value;
     }
   };
 
@@ -122,14 +127,17 @@ export const useCustomerDashboard = () => {
       phone: '-',
     });
 
-    const details = userDetails?.accountType === AccountType.Personal ? userDetails?.personalDetails : userDetails?.companyDetails;
+    const details =
+      userDetails.value?.accountType === AccountType.Personal ? userDetails.value?.personalDetails : userDetails.value?.companyDetails;
 
     // get default shipping address
     if (details?.shippingAddress) {
-      shipping.value = details?.shippingAddress.find((address) => address.default) || details?.shippingAddress[0];
+      const defaultShipping = details.shippingAddress.find((address) => address.default) ?? details.shippingAddress[0];
+      if (defaultShipping) shipping.value = defaultShipping;
     }
     if (details?.billingAddress) {
-      billing.value = details?.billingAddress.find((address) => address.default) || details?.billingAddress[0];
+      const defaultBilling = details.billingAddress.find((address) => address.default) ?? details.billingAddress[0];
+      if (defaultBilling) billing.value = defaultBilling;
     }
     myAddresses.value.push(shipping.value);
     myAddresses.value.push(billing.value);
@@ -181,7 +189,8 @@ export const useCustomerDashboard = () => {
   };
 
   const getDefaultCard = async () => {
-    myCard.value = userCards?.find((card) => card.default) ?? null;
+    const cards = (await authStore.addUserCards()) ?? authStore.userCards ?? [];
+    myCard.value = cards.find((card) => card.default) ?? null;
   };
 
   return {

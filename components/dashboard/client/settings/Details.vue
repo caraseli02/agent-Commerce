@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CopyIcon, FilePenLineIcon } from 'lucide-vue-next';
+import { CopyIcon, FilePenLineIcon } from '@lucide/vue';
 import { onMounted, ref, watch } from 'vue';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
@@ -23,7 +23,7 @@ const hasUserDetails = computed(() => Boolean(getUserDetails.value));
 const accountType = computed(() => getUserDetails.value?.accountType ?? AccountType.Business);
 const isPersonalAccount = computed(() => accountType.value === AccountType.Personal);
 const activeAddress = computed(() =>
-  isPersonalAccount.value ? getUserDetails.value?.personalDetails?.address : getUserDetails.value?.companyDetails?.address
+  isPersonalAccount.value ? getUserDetails.value?.personalDetails?.address : getUserDetails.value?.companyDetails?.address,
 );
 
 interface Country {
@@ -149,7 +149,7 @@ const formSchema = toTypedSchema(
       })
       .min(1)
       .default(getUserDetails.value?.personalDetails?.lastName || ''),
-  })
+  }),
 );
 
 const formBusinessSchema = toTypedSchema(
@@ -195,7 +195,7 @@ const formBusinessSchema = toTypedSchema(
       .default(getUserDetails.value?.companyDetails?.bank_iban || '')
       .transform((e: string) => (e === '' ? undefined : e))
       .optional(),
-  })
+  }),
 );
 
 const { handleSubmit, setFieldValue, meta } = useForm({
@@ -515,7 +515,8 @@ watch(region, (newRegion) => {
   <div v-else class="bg-white shadow-l rounded-xl p-6 text-sm text-slate-500">Loading account details...</div>
 </template>
 
-<style scoped lang="postcss">
+<style scoped>
+@reference "../../../../assets/css/main.css";
 label {
   @apply text-slate-500;
 }

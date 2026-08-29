@@ -1,21 +1,22 @@
 #!/usr/bin/env node
-import { readdir, readFile, stat } from 'node:fs/promises';
-import path from 'node:path';
+import { access, readdir, readFile, stat } from 'node:fs/promises';
 import process from 'node:process';
+import { gzipSync } from 'node:zlib';
 
-const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
-const OUTPUT_DIR = path.join(ROOT, '.output/public/_nuxt');
-const PRECOMPUTED_PATH = path.join(ROOT, '.output/server/chunks/build/client.precomputed.mjs');
+import { OUTPUT_DIR, PRECOMPUTED_PATH } from './bundle-size-paths.mjs';
+import path from 'node:path';
 
 const DEFAULT_CHUNK_LIMIT_BYTES = 500 * 1024;
 const MARKER_CHUNK_LIMITS = {
   apexcharts: 550 * 1024,
   'vue3-apexcharts': 550 * 1024,
-  '@vue-leaflet': 350 * 1024,
-  'leaflet/dist/leaflet': 350 * 1024,
+  leaflet: 350 * 1024,
 };
 
 const DASHBOARD_ONLY_MARKERS = Object.keys(MARKER_CHUNK_LIMITS);
+const DASHBOARD_ENTRY_LIMITS = {
+  'components/dashboard/World.vue': 350 * 1024,
+};
 
 const STOREFRONT_ROUTE_KEYS = [
   'pages/index.vue',
@@ -24,6 +25,7 @@ const STOREFRONT_ROUTE_KEYS = [
   'pages/order-summary/index.vue',
   'pages/checkout/index.vue',
 ];
+const STOREFRONT_ROUTE_GZIP_LIMIT_BYTES = 360 * 1024;
 
 function formatKilobytes(bytes) {
   return `${(bytes / 1024).toFixed(1)} kB`;
@@ -39,6 +41,15 @@ function getChunkLimit(markers) {
   }
 
   return Math.max(...markers.map((marker) => MARKER_CHUNK_LIMITS[marker]));
+}
+
+async function getPrecomputedPath() {
+  try {
+    await access(PRECOMPUTED_PATH);
+    return PRECOMPUTED_PATH;
+  } catch {
+    throw new Error(`Unable to find Nuxt 4 route manifest: ${PRECOMPUTED_PATH}`);
+  }
 }
 
 async function listJavaScriptChunks() {
@@ -136,6 +147,33 @@ function extractRouteStaticImports(precomputedSource, routeKey) {
   return [...importsMatch[1].matchAll(/"([^"]+\.js)"/g)].map((match) => normalizeChunkName(match[1]));
 }
 
+function extractDynamicEntryFile(precomputedSource, sourceKey) {
+  const escapedSourceKey = sourceKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const entryPattern = new RegExp(`"${escapedSourceKey}":\\{[^}]*file:"([^"]+)"`);
+  const entryMatch = precomputedSource.match(entryPattern);
+
+  return entryMatch?.[1] ?? null;
+}
+
+function applyManifestDashboardMarkers(classifiedChunks, precomputedSource) {
+  const missingEntries = [];
+
+  for (const [sourceKey, limit] of Object.entries(DASHBOARD_ENTRY_LIMITS)) {
+    const entryFile = extractDynamicEntryFile(precomputedSource, sourceKey);
+
+    if (!entryFile || !classifiedChunks.has(entryFile)) {
+      missingEntries.push(sourceKey);
+      continue;
+    }
+
+    const chunk = classifiedChunks.get(entryFile);
+    chunk.markers.push(sourceKey);
+    chunk.limit = Math.max(chunk.limit, limit);
+  }
+
+  return missingEntries;
+}
+
 async function checkChunkSizes(classifiedChunks) {
   const violations = [];
 
@@ -173,23 +211,49 @@ async function checkStorefrontIsolation(classifiedChunks, graph, precomputedSour
   return violations;
 }
 
+async function checkStorefrontRouteBudgets(graph, precomputedSource) {
+  const violations = [];
+
+  for (const routeKey of STOREFRONT_ROUTE_KEYS) {
+    const entryFiles = extractRouteEntryFiles(precomputedSource, routeKey);
+    const reachable = collectReachableChunks(entryFiles, graph);
+    const chunks = await Promise.all([...reachable].map((fileName) => readFile(path.join(OUTPUT_DIR, fileName))));
+    const gzipBytes = chunks.reduce((total, contents) => total + gzipSync(contents, { level: 9 }).length, 0);
+
+    if (gzipBytes > STOREFRONT_ROUTE_GZIP_LIMIT_BYTES) {
+      violations.push(
+        `${routeKey} reaches ${formatKilobytes(gzipBytes)} gzip (limit ${formatKilobytes(STOREFRONT_ROUTE_GZIP_LIMIT_BYTES)})`,
+      );
+    }
+  }
+
+  return violations;
+}
+
 async function main() {
   const chunkFiles = await listJavaScriptChunks();
   const classifiedChunks = await classifyChunks(chunkFiles);
   const graph = await buildImportGraph(chunkFiles);
-  const precomputedSource = await readFile(PRECOMPUTED_PATH, 'utf8');
+  const precomputedSource = await readFile(await getPrecomputedPath(), 'utf8');
+  const missingDashboardEntries = applyManifestDashboardMarkers(classifiedChunks, precomputedSource);
 
   const sizeViolations = await checkChunkSizes(classifiedChunks);
   const isolationViolations = await checkStorefrontIsolation(classifiedChunks, graph, precomputedSource);
-  const violations = [...sizeViolations, ...isolationViolations];
+  const budgetViolations = await checkStorefrontRouteBudgets(graph, precomputedSource);
+  const violations = [...sizeViolations, ...isolationViolations, ...budgetViolations];
 
   const dashboardChunks = [...classifiedChunks.values()].filter((chunk) => chunk.markers.length > 0);
   console.log(
-    `Bundle size check: scanned ${chunkFiles.length} client chunk(s); dashboard-only markers found in ${dashboardChunks.length} chunk(s).`
+    `Bundle size check: scanned ${chunkFiles.length} client chunk(s); dashboard-only markers found in ${dashboardChunks.length} chunk(s).`,
   );
 
   for (const chunk of dashboardChunks) {
     console.log(`- ${chunk.fileName}: ${formatKilobytes(chunk.size)} (${chunk.markers.join(', ')})`);
+  }
+
+  if (missingDashboardEntries.length > 0) {
+    console.error(`Bundle size check failed: dashboard entries missing from client manifest: ${missingDashboardEntries.join(', ')}`);
+    process.exit(1);
   }
 
   if (violations.length > 0) {
@@ -200,7 +264,9 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('Bundle size check passed: dashboard chart/map chunks stay isolated and within configured limits.');
+  console.log(
+    'Bundle size check passed: dashboard chart/map chunks stay isolated and within configured limits; storefront route gzip budgets passed.',
+  );
 }
 
 main().catch((error) => {

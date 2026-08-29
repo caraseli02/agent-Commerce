@@ -1,6 +1,6 @@
 # Components Marketplace Context
 
-Components Marketplace is a Nuxt 3 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Firebase hooks, Stripe hooks, and local Nitro mock endpoints.
+Components Marketplace is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Stripe hooks, and local Nitro mock endpoints.
 
 ## Language
 
@@ -80,3 +80,10 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 - UI pages and components call `useOrder.makeCheckout`; they must not branch on `MOCK_MODE` for post-order routing.
 - `helpers/checkout-outcome.ts` maps a placed-order API response to a small outcome (`success`, `session`, `fail`, `redirect`, `noop`). Mock mode is an adapter input to `resolveCheckoutOutcome`, not a separate router path in pages.
 - `useOrder` owns applying the outcome (router push, client secret storage, fail redirect). Live Stripe vs mock short-circuit share the same outcome type and apply path.
+
+## Mock Integration Boundary seam
+
+- `helpers/mock-integration.ts` centralizes the demo auth-skip and payment-visibility decisions behind pure functions (`isPaymentManagementVisible`, `canSkipAuthenticatedUser`, `requiresDemoToken`, `isDemoCheckoutAssistEnabled`). Mock mode is an adapter input, not a branch in UI surfaces.
+- Buyer-flow UI (`components/order-summary/PaymentMethodSection.vue`) and pages (`pages/order-summary/index.vue`) call these helpers instead of reading `MOCK_MODE` directly for those behaviors.
+- `middleware/auth.ts` uses `requiresDemoToken` rather than branching on `MOCK_MODE` for demo-token enforcement.
+- Tests cover mock vs live outcomes in `tests/mock-integration.spec.ts`; `pnpm verify` and a mock checkout/auth smoke protect the seam.

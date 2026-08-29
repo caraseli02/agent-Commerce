@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { columns } from './columns';
+import GlobalEmptyState from '~/components/global/EmptyState.vue';
 import type { OrderInterface, OrderTableColumns } from '~/types';
 import { fetchOrders } from '~/composables/api/orders';
 import { ordersEmptyPreset } from '~/components/global/empty-state-presets';
@@ -41,7 +42,7 @@ const fetchAndSetOrdersList = async (
   page: number,
   perPage: number,
   filters: Record<string, unknown> = {},
-  sort: Record<string, unknown> = {}
+  sort: Record<string, unknown> = {},
 ) => {
   loading.value = true;
   error.value = false;
@@ -96,6 +97,9 @@ await fetchAndSetOrdersList(1, 10);
       :columns="columns"
       :loading="loading"
       :total-items="totalItems"
+      :show-scroll-hint="true"
+      scroll-hint="Scroll to view more order details"
+      table-min-width="720px"
     >
       <template #header="{ table, makeRefresh }">
         <DataTableHeadControls :error="error" title="Orders List" :table="table" @refresh="makeRefresh()">

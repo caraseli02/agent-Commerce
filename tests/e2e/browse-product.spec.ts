@@ -24,7 +24,7 @@ test.describe('Browse → Product Detail', () => {
     await page.goto('/product/prod-1');
 
     // Product name is visible
-    await expect(page.getByText('STM32F407VGT6 Microcontroller', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'STM32F407VGT6 Microcontroller' })).toBeVisible();
 
     // Price tiers are displayed
     await expect(page.getByText('999.99').first()).toBeVisible();
@@ -71,7 +71,7 @@ test.describe('Browse → Product Detail', () => {
 
     const updateCartButton = page.getByRole('button', { name: 'Add to cart — selected quantity' });
     const cartPostResponse = page.waitForResponse(
-      (response) => response.url().includes('/api/cart') && response.request().method() === 'POST'
+      (response) => response.url().includes('/api/cart') && response.request().method() === 'POST',
     );
     await updateCartButton.dblclick();
     await cartPostResponse;
@@ -99,7 +99,7 @@ test.describe('Browse → Product Detail', () => {
           cart: {
             products: [{ id: 'prod-2', stock: 1, backorder_stock: 0, isFolder: false }],
           },
-        })
+        }),
       );
     });
     await page.reload({ waitUntil: 'networkidle' });
@@ -112,7 +112,7 @@ test.describe('Browse → Product Detail', () => {
     await expect(quantityInput).toHaveValue('1');
     await expect(cartButton).toContainText(/Add to cart/i);
     await expect(cartButton).toBeEnabled();
-    await expect(purchasePanel.getByTestId('cart-qty-unchanged-hint')).toHaveCount(0);
+    await expect(purchasePanel.getByTestId('cart-qty-unchanged-hint')).not.toBeVisible();
 
     const firstAdd = page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
     await cartButton.click();
@@ -128,7 +128,7 @@ test.describe('Browse → Product Detail', () => {
     await purchasePanel.getByRole('button', { name: 'Increase quantity' }).click();
     await expect(quantityInput).toHaveValue('2');
     await expect(cartButton).toBeEnabled();
-    await expect(unchangedHint).toHaveCount(0);
+    await expect(unchangedHint).not.toBeVisible();
 
     const cartResponse = await page.request.get('/api/cart');
     const cartJson = (await cartResponse.json()) as { data?: { products?: Array<{ id?: string; stock?: number }> } };
@@ -173,7 +173,7 @@ test.describe('Browse → Product Detail', () => {
     await increase.click();
     await expect(quantityInput).toHaveValue('3');
     await expect(cartButton).toBeEnabled();
-    await expect(unchangedHint).toHaveCount(0);
+    await expect(unchangedHint).not.toBeVisible();
 
     const updateAdd = page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
     await cartButton.click();
@@ -236,7 +236,7 @@ test.describe('Browse → Product Detail', () => {
       const items = [...document.querySelectorAll('[role="menuitem"]')] as HTMLElement[];
       return items.some(
         (item) =>
-          item.textContent?.trim() === 'Print this page' && !!(item.offsetWidth || item.offsetHeight || item.getClientRects().length)
+          item.textContent?.trim() === 'Print this page' && !!(item.offsetWidth || item.offsetHeight || item.getClientRects().length),
       );
     });
 
@@ -312,6 +312,23 @@ test.describe('Browse → Product Detail', () => {
     await coreCheckbox.focus();
     await coreCheckbox.press('Space');
     await expect(coreCheckbox).toBeChecked();
+  });
+
+  test('similar-product selection preserves results after search navigation', async ({ page }) => {
+    await page.goto('/product/prod-1');
+    // The specifications table is server-rendered; wait for client hydration before toggling it.
+    await page.waitForTimeout(1_000);
+
+    const coreCheckbox = page.getByRole('checkbox', { name: 'Include Core in similar-product search' });
+    await coreCheckbox.focus();
+    await coreCheckbox.press('Space');
+    await expect(coreCheckbox).toBeChecked();
+    const similarProducts = page.getByRole('button', { name: /Show similar products/ });
+    await expect(similarProducts).toBeEnabled();
+
+    await similarProducts.click();
+    await expect(page).toHaveURL(/\/search\?similar=true/);
+    await expect(page.getByText(/Products Found \([1-9]\d*\)/).last()).toBeVisible();
   });
 
   test('product page shows breadcrumbs navigation', async ({ page }) => {

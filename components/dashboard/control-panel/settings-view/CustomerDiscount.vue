@@ -22,12 +22,12 @@
             type="number"
             placeholder="Discount (i.e. 5, 10, 17)"
             class="bg-transparent px-2 text-sm w-full transition-colors duration-300 focus:outline-none"
-          >
+          />
         </div>
       </template>
     </div>
     <div
-      class="grid grid-cols-1 gap-4 md:grid-cols-[auto,1fr] lg:grid-cols-1 lg:mt-auto"
+      class="grid grid-cols-1 gap-4 md:grid-cols-[auto_1fr] lg:grid-cols-1 lg:mt-auto"
       :class="[error || loading ? ' opacity-0 pointer-events-none' : '']"
     >
       <button

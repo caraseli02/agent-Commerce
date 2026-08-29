@@ -9,7 +9,7 @@ import {
   DialogPortal,
   useForwardPropsEmits,
 } from 'radix-vue';
-import { X } from 'lucide-vue-next';
+import { X } from '@lucide/vue';
 import { type SheetVariants, sheetVariants } from '.';
 import { cn } from '@/lib/utils';
 
@@ -47,7 +47,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       :class="
         cn(
           'fixed inset-0 z-50 bg-[rgba(47,50,65,0.10)] backdrop-blur-[7.5px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-          props.overlayClassName
+          props.overlayClassName,
         )
       "
     />

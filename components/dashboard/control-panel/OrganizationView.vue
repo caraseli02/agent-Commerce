@@ -156,7 +156,7 @@
         placeholder="Bank Name"
       />
     </div>
-    <div v-if="isEditing" class="grid grid-cols-[auto,1fr] gap-4 mt-9 xl:w-1/2 xl:ml-auto xl:pl-4">
+    <div v-if="isEditing" class="grid grid-cols-[auto_1fr] gap-4 mt-9 xl:w-1/2 xl:ml-auto xl:pl-4">
       <button
         class="flex items-center justify-center w-full text-left px-[31px] py-2 rounded-lg transition-colors duration-300 bg-[#F2F2F2] text-slate-500 md:px-[91px] xl:px-[61px]"
         @click="isEditing = false"
@@ -324,7 +324,7 @@ watch(
             };
           }) || [];
     }
-  }
+  },
 );
 
 const updateAccountDetails = async () => {

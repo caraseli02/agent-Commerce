@@ -1,7 +1,7 @@
 <template>
   <div class="app-scroll flex min-h-screen flex-col">
     <LayoutHeader />
-    <main class="flex flex-1 flex-col pt-[var(--mobile-header-height,100px)] md:pt-[110px]">
+    <main class="flex flex-1 flex-col pt-[var(--mobile-header-height,100px)] md:pt-[130px]">
       <slot />
     </main>
     <LayoutFooter />
@@ -20,13 +20,13 @@ const calcViewportHeight = () => {
       'resize',
       _debounce(function () {
         document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-      }, 100)
+      }, 100),
     );
     window.addEventListener(
       'orientationchange',
       _debounce(function () {
         document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-      }, 100)
+      }, 100),
     );
   }
 };
@@ -37,7 +37,8 @@ onMounted(() => {
 });
 </script>
 
-<style lang="postcss">
+<style>
+@reference "../assets/css/main.css";
 html,
 body,
 div#__nuxt {

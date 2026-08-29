@@ -8,6 +8,178 @@
   },
   "features": [
     {
+      "id": "E457-469",
+      "description": "Upgrade reviewer-visible date formatting from date-fns 2 to date-fns 4",
+      "validation": "date-fns 4 resolves without compatibility changes; reviewer date helper tests, typecheck, pnpm verify, and representative production mock browser date rendering pass",
+      "status": "passing",
+      "evidence": [
+        "Claimed #469 on codex/469-date-fns-4 with a focused sprint contract",
+        "date-fns 4.4.0 installed; existing named imports compile unchanged",
+        "pnpm exec vitest run tests/reviewer-dates.spec.ts: pass (5 tests)",
+        "pnpm typecheck: pass",
+        "pnpm verify: pass",
+        "pnpm verify:full: pass (62 files, 278 tests, architecture checks, and production smoke routes)",
+        "pnpm verify:handoff: pass from a clean working tree",
+        "Fresh production mock browser: storefront rendered meaningful content; customer dashboard showed formatted dates such as 15 January 2023, 11:30, with no error overlay or console errors"
+      ]
+    },
+    {
+      "id": "E457-462",
+      "description": "Verify and repair Nuxt 4 mock-mode core demo runtime journeys",
+      "validation": "Production mock browser covers storefront/search/product images, customer dashboard, cart/order summary, and checkout confirmation with no console errors; pnpm verify:full passes",
+      "status": "passing",
+      "evidence": [
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/462#issuecomment-5285992123",
+        "pnpm verify:full: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list, architecture, and preview smoke)",
+        "Focused dashboard empty-state regression test: pass",
+        "Fresh mock production browser: no console errors across storefront, product/search, customer dashboard, cart/order summary, and /checkout/success",
+        "PR #493 merged to origin/main; GitHub Actions, Vercel, Greptile, and independent evaluator PASS (10/10)"
+      ]
+    },
+    {
+      "id": "E457-466",
+      "description": "Migrate storefront and dashboard styling from Tailwind CSS 3 to 4",
+      "validation": "Final Tailwind 4 Vite-only, CSS-first integration preserves custom theme values, responsive layout, and component style `@apply` output; pnpm verify and representative mock browser checks pass",
+      "status": "passing",
+      "evidence": [
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/466#issuecomment-5286425031",
+        "Final architecture: @tailwindcss/vite is the only Tailwind build integration; assets/css/main.css is the CSS-first entrypoint with @import tailwindcss, @theme, and @plugin; no PostCSS Tailwind integration or legacy @config is required",
+        "pnpm build and pnpm smoke: pass in production mock mode without Tailwind transformation warnings",
+        "pnpm verify: pass (Nuxt 4.5.2 build, lint, typecheck, 277 tests, feature-list and UI checks)",
+        "Mock production browser: storefront desktop and 390px mobile render meaningful content with no error overlay",
+        "PR #496 merged at 1d799340; PR #500 merged at 34e2c8b8 with GitHub verify and Vercel success",
+        "PR #501 merged at f232ec6f: no-result search and narrow customer order-history recovery; PR body records pnpm verify and focused production browser pass",
+        "PR #502 merged at 14d6d763: local Chromium/macOS Playwright visual pilot, 18 reviewed baselines, and pnpm test:visual 9/9 are recorded in the PR and docs/agents/verification.md; no CI visual gate"
+      ]
+    },
+    {
+      "id": "E457-467",
+      "description": "Upgrade Pinia and persisted state integration for Nuxt 4",
+      "validation": "Pinia, @pinia/nuxt, and pinia-plugin-persistedstate resolve without peer overrides; mock cart persistence and customer sign-in/sign-out behavior work in a production browser; pnpm verify:full passes",
+      "status": "passing",
+      "evidence": [
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/467#issuecomment-5286665263",
+        "Resolved versions: pinia 4.0.3, @pinia/nuxt 1.0.2, pinia-plugin-persistedstate 4.7.1; pnpm why reports no peer conflict or override",
+        "pnpm install --frozen-lockfile: pass (parent workspace emitted unrelated missing supabase-bin warnings)",
+        "pnpm verify:full: pass after the final focused Nuxt 4 runtime repair",
+        "Fresh production Playwright: account-order-history and cart-chrome-coordination both pass; cart add/remove updates the badge and renders the empty state",
+        "PR #497 merged at 0c930cab; GitHub verify and Vercel succeeded, while an earlier evaluator comment was BLOCKED and is not treated as a pass"
+      ]
+    },
+    {
+      "id": "E457-470",
+      "description": "Upgrade dashboard charts to a Nuxt 4-compatible ApexCharts pair",
+      "validation": "ApexCharts and vue3-apexcharts resolve with compatible peers; customer dashboard charts render in an authenticated mock browser without runtime errors; pnpm verify passes",
+      "status": "passing",
+      "evidence": [
+        "Upgraded apexcharts to 5.10.1 and vue3-apexcharts to 1.11.1; adapter peer requirement is apexcharts >=5.10.0",
+        "pnpm install --frozen-lockfile --ignore-workspace: pass",
+        "pnpm typecheck: pass; pnpm test: pass (288 passed, 1 skipped)",
+        "pnpm verify: pass (build, lint, typecheck, test, feature-list validation, and UI conventions)",
+        "Bundle guard: dashboard ApexCharts chunks are 494.6 KB and 496.3 KB, within the 550 KB budget",
+        "Focused authenticated mock browser smoke at tests/e2e/dashboard-charts.spec.ts: pass; /dashboard/customers rendered two Apex canvases and /dashboard/customers/customer-001 rendered the Net Margin chart, with no chart runtime errors",
+        "Full dashboard console smoke: pass (admin and customer representative routes); explicit GlobalEmptyState imports resolved the earlier customer-profile/customer-home warnings"
+      ]
+    },
+    {
+      "id": "E457-473",
+      "description": "Modernize remaining Nuxt UI modules after the framework upgrade",
+      "validation": "Current Nuxt 4-compatible UI modules resolve without new peer warnings; image integration typechecks, focused image tests, browser table smoke, and pnpm verify pass",
+      "status": "passing",
+      "evidence": [
+        "Audited the image, SVG, Swiper, shadcn, color-mode, viewport, fonts, and Leaflet cohort against the npm registry; all except image were already at their current Nuxt 4-compatible release",
+        "Upgraded @nuxt/image from 2.0.0 to 2.1.0",
+        "pnpm exec vitest run tests/product-detail-image-fallback.spec.ts tests/cart-side-panel-thumbnail.spec.ts tests/gallery-layout.spec.ts: pass (8 tests)",
+        "pnpm typecheck: pass",
+        "Playwright product-detail smoke at /product/prod-1: pass; product details, price tiers, stock, add-to-cart control, and runtime console all passed with the Nuxt Image integration active",
+        "pnpm verify: pass"
+      ]
+    },
+    {
+      "id": "E457-464",
+      "description": "Modernize repository formatting and lint tooling for Nuxt 4",
+      "validation": "Prettier 3 formatting is applied consistently and lint remains compatible; pnpm verify passes",
+      "status": "passing",
+      "evidence": [
+        "PR #494 merged to origin/main at 42066245",
+        "pnpm exec prettier --check .: pass",
+        "pnpm lint: pass (0 errors; 2 pre-existing warnings)",
+        "pnpm verify: pass; GitHub Actions, Vercel, requested Greptile review, and independent evaluator PASS (10/10)"
+      ]
+    },
+    {
+      "id": "E457-465",
+      "description": "Upgrade TypeScript and Vue type checking for Nuxt 4",
+      "validation": "Nuxt 4 typechecks with a compatible TypeScript/vue-tsc pair and pnpm verify passes without global type suppression",
+      "status": "passing",
+      "evidence": [
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/465#issuecomment-5286353625",
+        "Upgraded TypeScript to 5.9.3 and vue-tsc to 3.3.9; TypeScript 7 was excluded because Nuxt 4 compatibility is the issue contract",
+        "Historical PR #495 passed under temporary relaxed Nuxt type settings",
+        "2026-08-26 revalidation adopted Nuxt's four project references and removed strict:false / noImplicitThis:false; 225 explicit strictness errors were resolved without a global compiler suppression",
+        "pnpm typecheck: pass",
+        "pnpm verify:full: pass (Nuxt 4.5.2 build, lint, 290 tests, feature-list validation, architecture checks, and preview smoke)",
+        "Focused browser flow: selecting a product specification, opening similar products, and rendering /search?similar=true passes in Chromium"
+      ]
+    },
+    {
+      "id": "E457-460",
+      "description": "Prepare the final Nuxt 3 patch for the Nuxt 4 migration",
+      "validation": "Nuxt 3.21.11 compatibility preparation preserves the root-level layout and passes mock-mode verification before the Nuxt 4 upgrade",
+      "status": "blocked",
+      "evidence": [
+        "Historical references identify issue #460 and PR #481, but this repository does not retain exact mock-mode verification evidence matching this feature's validation."
+      ]
+    },
+    {
+      "id": "E457-461",
+      "description": "Upgrade the application and configured modules to Nuxt 4",
+      "validation": "Nuxt 4 and configured modules start in mock mode while preserving the root-level layout and custom Vite chunking",
+      "status": "passing",
+      "evidence": [
+        "Issue #461 closed 2026-08-13; implementation merged in commit bf293e01 (PR #487)",
+        "Nuxt 4.5.2 is resolved; configured modules and the local shadcn module initialize in verification",
+        "#461 explicitly required retaining the root-level source layout; nuxt.config.ts keeps srcDir: '.'",
+        "Official-source revalidation and durable outcomes: docs/research/2026-08-25-nuxt-4-migration-revalidation.md"
+      ]
+    },
+    {
+      "id": "E457-471",
+      "description": "Upgrade VueUse utilities for Nuxt 4",
+      "validation": "@vueuse/core and @vueuse/nuxt 14.4.0 preserve composable behavior and SSR safety; focused checks, typecheck, and repository verification pass",
+      "status": "blocked",
+      "evidence": [
+        "package.json resolves VueUse 14.4.0, but the repository does not retain focused composable and SSR-safety evidence matching this feature's validation."
+      ]
+    },
+    {
+      "id": "E457-463",
+      "description": "Migrate deprecated lucide-vue-next imports to @lucide/vue",
+      "validation": "No legacy package imports remain; static and dynamic icons typecheck and render on representative storefront and dashboard routes; pnpm verify passes",
+      "status": "passing",
+      "evidence": [
+        "#463 claimed with planner brief: https://github.com/caraseli02/Ecas/issues/463#issuecomment-5285904726",
+        "pnpm install --frozen-lockfile --ignore-workspace: pass",
+        "pnpm verify: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list and UI checks)",
+        "Runtime import scan: no lucide-vue-next usage remains outside historical docs",
+        "Mock production browser: storefront 89 SVGs and dashboard 81 SVGs; no error overlay or console error after reload"
+      ]
+    },
+    {
+      "id": "E457-459",
+      "description": "Retire Firebase and Nuxt VueFire while retaining mock-demo authentication",
+      "validation": "No Firebase or VueFire runtime imports/configuration remain; documented customer/admin mock auth and protected routes work; pnpm verify passes",
+      "status": "passing",
+      "evidence": [
+        "#459 claimed with planner brief",
+        "Planner brief: https://github.com/caraseli02/Ecas/issues/459#issuecomment-5285565516",
+        "Removed firebase and nuxt-vuefire package/runtime integration; runtime-import scan is clean",
+        "pnpm install --frozen-lockfile --ignore-workspace: pass",
+        "pnpm verify: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list and UI checks)",
+        "Mock production browser: customer/admin sign-in, customer sign-out and reload cleanup, protected-route redirect, and signup route pass; console clean after reload"
+      ]
+    },
+    {
       "id": "C368",
       "description": "Cart stock clamp, volume tiers, mixed-line quantity integrity, cart-fetch gating, and P2 storefront QA (#368 / PR #364)",
       "validation": "initializeQuantities uses available stock only; mixed-line mock cart reduce preserves backorder; hasFetchedCart only after successful refresh; P2: SSR-safe guest checkout gate, dashboard CTAs, auth footer links, Lei currency, category counts + View all navigate; pnpm verify + runtime evidence",
@@ -100,18 +272,30 @@
       "evidence": ["docs/agents/session-lifecycle.md", "PROGRESS.md"]
     },
     {
-      "id": "H10",
-      "description": "Keep autonomous repair loops small, bounded, and explicit",
-      "validation": "One generic local-Mac controller deduplicates source/head signals, counts every launched repair attempt, runs an auth-scoped ephemeral worker inside a macOS read boundary, fences state with a renewed lease, and promotes only freshly revalidated mergeable/CLEAN green current heads with an independent review pass",
+      "id": "E457-513",
+      "description": "Repair PR #512 Nuxt 4 revalidation state and workflow hygiene",
+      "validation": "Similar-product transfer state is consumed once; normal search resets transferred features; PR-only artifacts are removed; pnpm verify and pnpm verify:full pass; issue #513 and PR #512 remain linked for independent evaluation",
       "status": "active",
       "evidence": [
-        "scripts/ecas-loop-controller.mjs",
-        "scripts/loop-policy.mjs",
-        "tests/loop-policy.spec.ts",
-        "tests/loop-state.spec.ts",
-        "tests/loop-signals.spec.ts",
-        "tests/loop-worker.spec.ts",
-        "docs/research/modern-loop-engineering-audit.md"
+        "Issue #513 is claimed in-progress on codex/nuxt4-revalidation and tracks this repair.",
+        "pnpm exec vitest run tests/consume-similar-search-transfer.spec.ts tests/search-useAsyncData.spec.ts tests/mock-runtime-addresses.spec.ts tests/cart-session-persistence.spec.ts: pass (12 tests).",
+        "pnpm typecheck: pass.",
+        "pnpm verify: pass.",
+        "pnpm verify:full: pass."
+      ]
+    },
+    {
+      "id": "I433",
+      "description": "Mock Integration Boundary for auth skip and payment UI (#433)",
+      "validation": "pnpm verify:full passes; consumer-level mock/live tests cover auth skip (useCart) and payment visibility (OrderStockType) at the mock-integration seam; buyer-flow UI no longer branches on MOCK_MODE for those behaviors",
+      "status": "passing",
+      "evidence": [
+        "PR #505: https://github.com/caraseli02/Ecas/pull/505 (CI verify + Vercel checks SUCCESS)",
+        "components/order-summary/OrderStockType.vue routes payment modal visibility through isPaymentManagementVisible (no ad-hoc MOCK_MODE checks)",
+        "composables/useCart.ts routes auth-prompt skip through canSkipAuthenticatedUser",
+        "Consumer seam contract tests in tests/mock-integration.spec.ts cover useCart auth skip and OrderStockType payment visibility across mock/live modes",
+        "pnpm verify: pass (build, lint, typecheck, test, feature-list validation, UI conventions)",
+        "Mock smoke: GET / -> 200 storefront content; POST /api/auth/login customer@demo.com -> 200; checkout flow renders payment step without cards modal"
       ]
     }
   ]

@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import useFirebaseAuth from '~/composables/useFirebaseAuth';
 import { useCartStore } from '~/store/cartStore';
 import { useNotificationStore } from '~/store/notificationStore';
 import { userCards as fetchUserCards } from '~/composables/api/user';
@@ -16,7 +15,6 @@ export const useAuthStore = defineStore(
       token: '',
       loggedInUser: null as UserInfoJWT | null,
       userDetails: null as UserInterface | null,
-      firebaseTempToken: null as string | null,
       userCards: null as StripeCardInterface[] | null,
       generalSettings: null as GeneralSettingsInterface | null,
     };
@@ -32,7 +30,6 @@ export const useAuthStore = defineStore(
     });
     const loggedInUser = ref<UserInfoJWT | null>(initialState.loggedInUser);
     const userDetails = ref<UserInterface | null>(initialState.userDetails);
-    const firebaseTempToken = ref<string | null>(initialState.firebaseTempToken);
     const userCards = ref<StripeCardInterface[] | null>(initialState.userCards);
     const generalSettings = ref<GeneralSettingsInterface | null>(initialState.generalSettings);
 
@@ -63,10 +60,6 @@ export const useAuthStore = defineStore(
       return userCards.value as StripeCardInterface[];
     }
 
-    function addFirebaseToken(tokenValue: string) {
-      firebaseTempToken.value = tokenValue;
-    }
-
     function addGeneralSettings(settings: GeneralSettingsInterface) {
       generalSettings.value = settings;
     }
@@ -74,6 +67,7 @@ export const useAuthStore = defineStore(
     function signOut() {
       loggedInUser.value = null;
       userDetails.value = null;
+      userCards.value = null;
       token.value = '';
       generalSettings.value = null;
 
@@ -82,17 +76,9 @@ export const useAuthStore = defineStore(
 
       if (import.meta.client) {
         localStorage.removeItem('auth-store');
+        // The persistence subscriber flushes after this action; remove its stale write too.
+        queueMicrotask(() => localStorage.removeItem('auth-store'));
       }
-    }
-
-    async function firebaseSignOut() {
-      const firebaseAuth = useFirebaseAuth();
-      await firebaseAuth.logout();
-
-      loggedInUser.value = null;
-      userDetails.value = null;
-      token.value = '';
-      generalSettings.value = null;
     }
 
     function getToken() {
@@ -109,7 +95,6 @@ export const useAuthStore = defineStore(
       token.value = initialState.token;
       loggedInUser.value = initialState.loggedInUser;
       userDetails.value = initialState.userDetails;
-      firebaseTempToken.value = initialState.firebaseTempToken;
       userCards.value = initialState.userCards;
       generalSettings.value = initialState.generalSettings;
     }
@@ -119,7 +104,6 @@ export const useAuthStore = defineStore(
       token,
       loggedInUser,
       userDetails,
-      firebaseTempToken,
       userCards,
       generalSettings,
 
@@ -128,10 +112,8 @@ export const useAuthStore = defineStore(
       addUser,
       addUserDetail,
       addUserCards,
-      addFirebaseToken,
       addGeneralSettings,
       signOut,
-      firebaseSignOut,
       getToken,
 
       // Getters
@@ -146,7 +128,7 @@ export const useAuthStore = defineStore(
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
-      pick: ['loggedInUser', 'userDetails', 'firebaseTempToken', 'userCards', 'generalSettings'],
+      pick: ['loggedInUser', 'userDetails', 'generalSettings'],
     },
-  }
+  },
 );

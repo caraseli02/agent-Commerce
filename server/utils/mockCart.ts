@@ -95,8 +95,8 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
   const backorder_stock = input.updateOnlyAvailableStock
     ? previousBackorder
     : mode === 'add'
-    ? previousBackorder + incomingBackorder
-    : incomingBackorder || 0;
+      ? previousBackorder + incomingBackorder
+      : incomingBackorder || 0;
 
   const productEntity = resolvedEntity || previous.productEntity;
 
@@ -148,7 +148,7 @@ const hydrateCartFromStorage = (cart: CartInterface): CartInterface => ({
         isFolder: product.isFolder,
       },
       { ...product, productEntity },
-      'set'
+      'set',
     );
   }),
 });
@@ -187,7 +187,8 @@ const purgeExpiredCarts = () => {
     const byOldest = [...cartsByUserId.entries()].sort((a, b) => a[1].updatedAt - b[1].updatedAt);
     const overflow = byOldest.length - MAX_CARTS;
     for (let i = 0; i < overflow; i++) {
-      removeStoredCart(byOldest[i][0]);
+      const oldest = byOldest[i];
+      if (oldest) removeStoredCart(oldest[0]);
     }
   }
 
@@ -214,7 +215,7 @@ export const getMockCartForUser = (userId: string) => {
             isFolder: false,
           },
           undefined,
-          'set'
+          'set',
         ),
       ]
     : [];

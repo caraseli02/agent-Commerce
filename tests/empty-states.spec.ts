@@ -23,7 +23,7 @@ describe('empty state UX contract (#194)', () => {
   it('uses the shared empty state for no search results', () => {
     const products = source('components/search/Products.vue');
 
-    expect(products).toContain('GlobalEmptyState');
+    expect(products).toContain('<EmptyState');
     expect(products).toContain('searchEmptyPreset');
     expect(products).not.toContain('No products found');
   });
@@ -52,6 +52,7 @@ describe('empty state UX contract (#194)', () => {
     expect(ordersTable).toContain('ordersEmptyPreset');
     expect(ordersTable).toContain("variant: 'error'");
     expect(ordersTable).toContain('GlobalEmptyState');
+    expect(ordersTable).toContain("import GlobalEmptyState from '~/components/global/EmptyState.vue'");
     expect(ordersTable).toContain('aria-busy="true"');
     expect(ordersTable).toContain('Loading orders…');
   });
@@ -69,6 +70,23 @@ describe('empty state UX contract (#194)', () => {
 
     expect(activity).toContain('favoritesEmptyPreset');
     expect(activity).toContain('hasFavorites');
+    expect(activity).toContain("import GlobalEmptyState from '~/components/global/EmptyState.vue'");
     expect(existsSync(resolve(repoRoot, 'components/layout/favorites-cart-modal/favorites/Index.vue'))).toBe(false);
+  });
+
+  it('shows guest-friendly empty states for checkout addresses instead of N/A placeholders', () => {
+    const shippingBilling = source('components/order-summary/ShippingAndBillingSection.vue');
+    const orderStockType = source('components/order-summary/OrderStockType.vue');
+    const checkoutButtons = source('components/order-summary/CheckoutButtons.vue');
+    const useUser = source('composables/useUser.ts');
+
+    expect(orderStockType).toContain('guest-address-prompt');
+    expect(orderStockType).toContain('Checkout as Guest');
+    expect(checkoutButtons).toContain('checkout-as-guest');
+    expect(shippingBilling).toContain('GuestCheckoutAddressForm');
+    expect(shippingBilling).not.toContain('billing-guest-empty');
+    expect(shippingBilling).not.toContain('shipping-guest-empty');
+    expect(orderStockType).toContain('showGuestSignInWall');
+    expect(useUser).not.toContain("alias: 'N/A'");
   });
 });

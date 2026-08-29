@@ -3,7 +3,7 @@
     <div v-if="totalItems" class="container">
       <div class="font-semibold font-Inter mb-[15px] md:hidden">Products Found ({{ totalItems }})</div>
       <div
-        class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 mb-6 md:grid-cols-[auto,auto] md:justify-start md:gap-x-6 md:gap-y-4 md:px-5 md:py-5 md:mb-8 lg:flex lg:flex-wrap lg:items-center lg:gap-4"
+        class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 mb-6 md:grid-cols-[auto_auto] md:justify-start md:gap-x-6 md:gap-y-4 md:px-5 md:py-5 md:mb-8 lg:flex lg:flex-wrap lg:items-center lg:gap-4"
       >
         <label class="flex items-center">
           <span class="text-sm flex-shrink-0 mr-2.5">Show</span>
@@ -48,7 +48,7 @@
                     class="sr-only"
                     @change="showShowOptions = false"
                     @click="option?.key && emits('show-filter', option?.key)"
-                  >
+                  />
                   <span class="flex w-full text-left text-sm rounded-[5px]">
                     {{ option.name }}
                   </span>
@@ -269,7 +269,7 @@
       </div>
     </div>
     <div v-else class="container">
-      <GlobalEmptyState
+      <EmptyState
         v-bind="searchEmptyPreset"
         :description="
           keyword
@@ -288,6 +288,7 @@ import CheckIcon from '@/assets/icons/check.svg';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import type { SearchData } from '~/types/product';
+import EmptyState from '~/components/global/EmptyState.vue';
 import { searchEmptyPreset } from '~/components/global/empty-state-presets';
 
 const props = defineProps<{
@@ -304,7 +305,7 @@ watch(
   () => {
     setProductsList();
   },
-  { deep: true }
+  { deep: true },
 );
 
 const show = ref({ name: 'All products', key: {} });
@@ -369,21 +370,22 @@ watch(
   async ([_atPage]) => {
     emits('at-page', _atPage);
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
-<style lang="scss">
+<style>
+@reference "../../assets/css/main.css";
 .searchProducts--pagination-item {
-  @apply cursor-pointer flex items-center justify-center w-8 h-8 mx-1 text-sm font-Inter font-semibold rounded-md bg-gray-100 text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white focus-visible:bg-blue-500 focus-visible:text-white #{!important};
+  @apply cursor-pointer flex items-center justify-center w-8 h-8 mx-1 text-sm font-Inter font-semibold rounded-md bg-gray-100 text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white focus-visible:bg-blue-500 focus-visible:text-white!;
 }
 
 .searchProducts--pagination-item-active .searchProducts--pagination-item {
-  @apply bg-blue-500 text-white #{!important};
+  @apply bg-blue-500 text-white!;
 }
 
 .searchProducts--pagination-item_prev,
 .searchProducts--pagination-item_next {
-  @apply hidden #{!important};
+  @apply hidden!;
 }
 </style>

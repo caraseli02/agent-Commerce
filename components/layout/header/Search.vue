@@ -15,7 +15,7 @@
             showSearchResults = false;
             $emit('blur');
           "
-        >
+        />
       </form>
       <div
         class="flex h-full cursor-pointer items-center justify-center bg-primary px-4 transition-colors hover:bg-primary/90"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
-import { CheckIcon, PlusCircleIcon } from 'lucide-vue-next';
+import { CheckIcon, PlusCircleIcon } from '@lucide/vue';
 
 import { cn } from '@/lib/utils';
 
@@ -18,17 +18,27 @@ defineProps<DataTableFacetedFilter>();
 
 const selectedValues = ref<Set<string>>(new Set());
 
+function isFacetOption(value: unknown): value is DataTableFacetedFilter['options'][number] {
+  return typeof value === 'object' && value !== null && 'label' in value && typeof value.label === 'string';
+}
+
 function filterOptions(list: unknown[], term: string) {
-  const options = list as DataTableFacetedFilter['options'];
-  return options.filter((option) => option.label.toLowerCase().includes(term.toLowerCase()));
+  return list.filter(isFacetOption).filter((option) => option.label.toLowerCase().includes(term.toLowerCase()));
 }
 
 function setFilterValue(value: string[] | undefined) {
-  if (value) {
-    selectedValues.value = new Set(value);
+  selectedValues.value = value ? new Set(value) : new Set();
+}
+
+function toggleFilterValue(optionValue: string) {
+  if (selectedValues.value.has(optionValue)) {
+    selectedValues.value.delete(optionValue);
   } else {
-    selectedValues.value = new Set();
+    selectedValues.value.add(optionValue);
   }
+
+  const filterValues = Array.from(selectedValues.value.values()) as string[];
+  setFilterValue(filterValues.length ? filterValues : undefined);
 }
 </script>
 
@@ -73,28 +83,12 @@ function setFilterValue(value: string[] | undefined) {
         <UiCommandList>
           <UiCommandEmpty>No results found.</UiCommandEmpty>
           <UiCommandGroup>
-            <UiCommandItem
-              v-for="option in options"
-              :key="option.value"
-              :value="option"
-              @select="
-                (e) => {
-                  const isSelected = selectedValues.has(option.value);
-                  if (isSelected) {
-                    selectedValues.delete(option.value);
-                  } else {
-                    selectedValues.add(option.value);
-                  }
-                  const filterValues = Array.from(selectedValues);
-                  setFilterValue(filterValues.length ? filterValues : undefined);
-                }
-              "
-            >
+            <UiCommandItem v-for="option in options" :key="option.value" :value="option" @select="toggleFilterValue(option.value)">
               <div
                 :class="
                   cn(
                     'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                    selectedValues.has(option.value) ? 'bg-primary text-primary-foreground' : 'opacity-50 [&_svg]:invisible'
+                    selectedValues.has(option.value) ? 'bg-primary text-primary-foreground' : 'opacity-50 [&_svg]:invisible',
                   )
                 "
               >

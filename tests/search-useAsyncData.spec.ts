@@ -22,21 +22,31 @@ const baseQuery = {
 describe('search useAsyncData contract', () => {
   it('loads search results through useAsyncData with stable cache keys and error UI', () => {
     const searchPage = readFileSync(searchPagePath, 'utf8');
+    const searchProducts = readFileSync(resolve('components/search/Products.vue'), 'utf8');
 
     expect(searchPage).toContain('searchResultsCacheKey(searchQuery.value)');
     expect(searchPage).toContain('loadSearchResults(searchQuery.value)');
+    expect(searchPage).toContain('immediate: false');
+    expect(searchPage).toContain('consumeSimilarSearchTransfer');
+    expect(searchPage).toContain("route.query.similar === 'true'");
+    expect(searchPage).toContain('similarProducts.value = null');
+    expect(searchPage).toContain('similarProductFeatures.value = null');
+    expect(searchPage).not.toContain('Promise.resolve(null)');
     expect(searchPage).toContain('v-if="pending"');
     expect(searchPage).toContain('v-else-if="error"');
     expect(searchPage).toContain('role="alert"');
     expect(searchPage).toContain('motion-reduce:animate-none');
     expect(searchPage).not.toContain('onMounted(');
     expect(searchPage).not.toContain('async function getProduct');
+    expect(searchProducts).toContain("import EmptyState from '~/components/global/EmptyState.vue'");
+    expect(searchProducts).toContain('<EmptyState');
+    expect(searchProducts).not.toContain('<GlobalEmptyState');
   });
 
   it('builds deterministic cache keys from search query values', () => {
     expect(searchResultsCacheKey(baseQuery)).toBe('search-results::capacitor::audio::1::10::manufacturerCode::asc::{"inStock":true}::[]');
     expect(searchResultsCacheKey({ ...baseQuery, keyword: ' resistor ' })).toBe(
-      searchResultsCacheKey({ ...baseQuery, keyword: 'resistor' })
+      searchResultsCacheKey({ ...baseQuery, keyword: 'resistor' }),
     );
   });
 
@@ -68,7 +78,7 @@ describe('search useAsyncData contract', () => {
 
     await expect(loadSearchResults({ ...baseQuery, keyword: ' resistor ' }, fetchSearch)).resolves.toEqual(searchData);
     await expect(loadSearchResults({ ...baseQuery, keyword: ' resistor ' }, fetchSearch)).resolves.toEqual(
-      await loadSearchResults({ ...baseQuery, keyword: 'resistor' }, fetchSearch)
+      await loadSearchResults({ ...baseQuery, keyword: 'resistor' }, fetchSearch),
     );
   });
 

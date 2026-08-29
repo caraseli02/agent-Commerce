@@ -34,7 +34,7 @@ const roundMoney = (value: number) => Number(Number(value).toFixed(2));
 
 export const resolveSmallOrderCharge = (
   subtotal: number,
-  tiers: SmallOrderChargeTier[] = []
+  tiers: SmallOrderChargeTier[] = [],
 ): { charge: number; tier: SmallOrderChargeTier | null } => {
   const normalizedSubtotal = Number(subtotal) || 0;
 

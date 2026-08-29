@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Building2Icon, PlusCircleIcon } from 'lucide-vue-next';
+import { Building2Icon, PlusCircleIcon } from '@lucide/vue';
 import { ref, toRef } from 'vue';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -146,7 +146,8 @@ const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubm
   </UiDialog>
 </template>
 
-<style scoped lang="postcss">
+<style scoped>
+@reference "../../../../assets/css/main.css";
 label {
   @apply text-slate-500;
 }

@@ -1,6 +1,11 @@
+import tailwindcss from '@tailwindcss/vite';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
+
+  // #461 intentionally preserves the root-level source layout.
+  srcDir: '.',
 
   modules: [
     '@nuxt/fonts',
@@ -8,12 +13,9 @@ export default defineNuxtConfig({
     'nuxt-swiper',
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
-    'nuxt-lodash',
     'nuxt-viewport',
     '@vueuse/nuxt',
-    '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
-    '@nuxtjs/color-mode',
     '@nuxt/image',
     '@nuxt/eslint',
     '~/modules/shadcn-components-dir-fix',
@@ -23,6 +25,11 @@ export default defineNuxtConfig({
     dirs: [
       {
         path: '~/components/global',
+        extensions: ['vue'],
+      },
+      {
+        path: '~/components/global',
+        prefix: 'global',
         extensions: ['vue'],
       },
       {
@@ -38,13 +45,12 @@ export default defineNuxtConfig({
   },
   fonts: {
     families: [
-      { name: 'Archivo', provider: 'google', weights: [500, 600, 700] },
+      // Google Fonts retired one Archivo subset URL; resolving it at build time
+      // makes otherwise deterministic production builds fail. Keep the existing
+      // display stack, which falls back to Source Sans 3 when Archivo is absent.
+      { name: 'Archivo', provider: 'none' },
       { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700] },
     ],
-  },
-
-  tailwindcss: {
-    cssPath: '~/assets/css/main.css',
   },
 
   app: {
@@ -59,20 +65,26 @@ export default defineNuxtConfig({
           content: 'width=device-width, initial-scale=1',
         },
       ],
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          href: '/favicon.svg',
+        },
+        {
+          rel: 'apple-touch-icon',
+          href: '/favicon.svg',
+        },
+      ],
     },
   },
 
-  css: ['~/assets/css/resets.css', '~/assets/css/utils.css', '~/assets/css/animations.css', '~/assets/css/vendors/v-calendar.css'],
+  // This is the only emitting Tailwind entry. Files that use `@apply` reference
+  // it so their separately bundled SFC styles share the same theme context.
+  css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
     public: {
-      firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
-      firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      firebaseProjectID: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
-      firebaseStorageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      firebaseMessageSenderID: process.env.NUXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
-      firebaseAppID: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
-      firebaseMeasurementID: process.env.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',
       MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE === 'true',
@@ -96,7 +108,6 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/dashboard/**': { appMiddleware: ['auth'], ssr: false },
-    '/checkout/**': { appMiddleware: ['auth'] },
     '/product/categories': { appMiddleware: ['auth'] },
   },
   devServer: {
@@ -111,6 +122,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-20',
 
   vite: {
+    plugins: [tailwindcss()],
     server: {
       watch: {
         usePolling: false,
@@ -123,10 +135,6 @@ export default defineNuxtConfig({
           manualChunks(id) {
             if (!id.includes('node_modules')) {
               return undefined;
-            }
-
-            if (id.includes('firebase')) {
-              return 'vendor-firebase';
             }
 
             if (id.includes('swiper')) {
@@ -144,13 +152,6 @@ export default defineNuxtConfig({
     },
   },
 
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  },
-
   eslint: {
     checker: false,
     config: {
@@ -158,15 +159,18 @@ export default defineNuxtConfig({
     },
   },
 
-  lodash: {
-    prefix: '_',
-    prefixSkip: ['string'],
-    upperAfterPrefix: false,
-    exclude: ['map'],
-    alias: [
-      ['camelCase', 'stringToCamelCase'], // => stringToCamelCase
-      ['kebabCase', 'stringToKebab'], // => stringToKebab
-      ['isDate', 'isLodashDate'], // => _isLodashDate
+  imports: {
+    // `nuxt-lodash` only supports Nuxt 3. Keep the two existing auto-imports
+    // on Nuxt 4 without coupling the app to an incompatible Nuxt module.
+    presets: [
+      {
+        from: 'lodash-es',
+        imports: [
+          { name: 'cloneDeep', as: '_cloneDeep' },
+          { name: 'debounce', as: '_debounce' },
+          { name: 'isEqual', as: '_isEqual' },
+        ],
+      },
     ],
   },
 
@@ -183,6 +187,7 @@ export default defineNuxtConfig({
   },
 
   svgo: {
+    dts: true,
     svgo: true,
     defaultImport: 'component',
     svgoConfig: {
@@ -199,5 +204,14 @@ export default defineNuxtConfig({
       xl: 1280,
       '2xl': 1536,
     },
+    // Match the Tailwind breakpoint names during SSR; otherwise Nuxt 4
+    // hydrates an empty viewport-dependent product grid before the client
+    // replaces it with its detected breakpoint.
+    defaultBreakpoints: {
+      desktop: 'lg',
+      mobile: 'xs',
+      tablet: 'md',
+    },
+    fallbackBreakpoint: 'lg',
   },
 });

@@ -2,16 +2,20 @@
   <div class="relative overflow-x-hidden rounded-2xl border border-slate-200 aspect-[1.24] md:aspect-auto shadow-sm">
     <Swiper
       :modules="[A11y, Pagination, Autoplay]"
-      :autoplay="{
-        delay: 5000,
-      }"
+      :autoplay="
+        {
+          delay: 5000,
+        } as any
+      "
       :slides-per-view="1"
       :space-between="15"
       :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
+      :pagination="
+        {
+          bulletElement: 'button',
+          clickable: true,
+        } as any
+      "
       class="orderSummaryExclusiveOffer--swiper w-full h-full"
     >
       <SwiperSlide v-for="(item, index) in slides" :key="index">
@@ -34,9 +38,9 @@
             alt="Img"
             class="absolute bottom-8 left-1/2 -translate-x-1/2 w-[205px] object-contain md:w-[200px] md:left-[unset] md:translate-x-0 md:right-10 lg:w-[165px] lg:right-1/2 lg:translate-x-1/2 lg:top-5"
             loading="lazy"
-          >
+          />
         </div>
-        <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" >
+        <img :src="item.bg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
         <div
           class="absolute z-10 top-0 left-0 w-full h-full opacity-75 rounded-md pointer-events-none"
           :style="{
@@ -49,7 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Autoplay, Pagination } from 'swiper';
+import { A11y, Autoplay, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import SlideBg from '@/assets/media/home/exclusive-offer-bg.webp';
 import ItemImage from '@/assets/media/home/exclusive-offer-item.png';
 
@@ -82,15 +87,16 @@ const slides = ref([
 ]);
 </script>
 
-<style lang="scss">
+<style>
+@reference "../../assets/css/main.css";
 .orderSummaryExclusiveOffer--swiper .swiper-pagination {
-  @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:left-1/2 lg:-translate-x-1/2 #{!important};
+  @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:left-1/2 lg:-translate-x-1/2!;
 }
 .orderSummaryExclusiveOffer--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2!;
   margin-right: 0 !important;
 }
 .orderSummaryExclusiveOffer--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-white #{!important};
+  @apply scale-125 bg-white!;
 }
 </style>

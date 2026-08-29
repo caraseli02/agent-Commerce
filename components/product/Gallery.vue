@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { BoxIcon, Share2Icon } from 'lucide-vue-next';
+import { BoxIcon, Share2Icon } from '@lucide/vue';
 
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import type { ProductDetail, ProductImageInterface } from '~/types/product';

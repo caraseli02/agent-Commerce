@@ -2,16 +2,20 @@
   <div class="relative min-h-[340px] overflow-x-hidden rounded-md md:aspect-auto md:min-h-0">
     <Swiper
       :modules="[A11y, Pagination, Autoplay]"
-      :autoplay="{
-        delay: 5000,
-      }"
+      :autoplay="
+        {
+          delay: 5000,
+        } as any
+      "
       :slides-per-view="1"
       :space-between="15"
       :grab-cursor="true"
-      :pagination="{
-        bulletElement: 'button',
-        clickable: true,
-      }"
+      :pagination="
+        {
+          bulletElement: 'button',
+          clickable: true,
+        } as any
+      "
       class="homeExclusiveOffer--swiper w-full h-full"
     >
       <SwiperSlide v-for="(item, index) in slides" :key="index">
@@ -41,7 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import { A11y, Autoplay, Pagination } from 'swiper';
+import { A11y, Autoplay, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import SlideBg from '@/assets/media/home/exclusive-offer-bg.webp';
 import ItemImage from '@/assets/media/home/exclusive-offer-item.png';
@@ -62,15 +67,16 @@ const slides = ref([
 ]);
 </script>
 
-<style lang="scss">
+<style>
+@reference "../../assets/css/main.css";
 .homeExclusiveOffer--swiper .swiper-pagination {
-  @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:-translate-x-24 xl:translate-x-0 #{!important};
+  @apply bottom-[15px] space-x-1.5 md:space-x-2 lg:-translate-x-24 xl:translate-x-0!;
 }
 .homeExclusiveOffer--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2 #{!important};
+  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2!;
   margin-right: 0 !important;
 }
 .homeExclusiveOffer--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-white #{!important};
+  @apply scale-125 bg-white!;
 }
 </style>

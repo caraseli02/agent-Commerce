@@ -51,7 +51,7 @@
     <template v-else>
       <div class="flex items-start md:items-center" :class="[isLoading ? 'mb-3' : 'mb-5']">
         <SkeletonLoader v-if="isLoading" type="circle" class="w-16 h-16 mr-4" />
-        <img v-else :src="Avatar" alt="Name" class="w-16 h-16 flex-shrink-0 rounded-full object-cover mr-4" loading="lazy" >
+        <img v-else :src="Avatar" alt="Name" class="w-16 h-16 flex-shrink-0 rounded-full object-cover mr-4" loading="lazy" />
         <div class="md:grid md:grid-cols-[repeat(2,auto)] md:justify-between md:flex-1">
           <SkeletonLoader v-if="isLoading" class="w-[140px] h-5 mb-2" />
           <div v-else class="flex md:flex-row-reverse">
@@ -101,7 +101,7 @@
               </div>
             </div>
             <div class="grid grid-cols-1 gap-2">
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">User Name</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{
@@ -111,7 +111,7 @@
                   }}
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Name</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{
@@ -121,7 +121,7 @@
                   }}
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Surname</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{
@@ -131,20 +131,20 @@
                   }}
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Country</div>
                 <div class="flex items-center text-sm font-medium leading-[1.75] break-all">
-                  <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" loading="lazy" >
+                  <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="w-8 rounded mr-2" loading="lazy" />
                   <span>{{ country?.label ? country.label : 'N/A' }} </span>
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Mobile Number</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{ customerInformation.contactDetails.phone }}
                 </div>
               </div>
-              <div class="grid grid-cols-[140px,1fr] gap-3">
+              <div class="grid grid-cols-[140px_1fr] gap-3">
                 <div class="text-sm text-slate-500 leading-[1.75]">Address</div>
                 <div class="text-sm font-medium leading-[1.75] break-all">
                   {{ customerInformation?.personalDetails?.address.name1 || 'N/A' }}
@@ -183,7 +183,7 @@
 <script setup lang="ts">
 import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
 import Emitter from 'tiny-emitter/instance.js';
-import { LockKeyholeIcon } from 'lucide-vue-next';
+import { LockKeyholeIcon } from '@lucide/vue';
 import Avatar from '@/assets/icons/dashboard/avatar.png';
 import DotsVerticalIcon from '@/assets/icons/dots-vertical.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
