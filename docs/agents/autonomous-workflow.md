@@ -36,7 +36,7 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 
 ## Minimal controller contract
 
-- Wake from macOS cron every ten minutes; one local controller process performs low-frequency reconciliation and one bounded repair at a time.
+- Wake from macOS cron every 30 minutes; one local controller process performs low-frequency reconciliation and one bounded repair at a time.
 - Treat `{source ID, current head SHA}` as the idempotency key.
 - Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and an exact-head `/repair <40-char-sha> <instruction>` command through one local repair worker. Bare or stale-head repair commands are ignored.
 - Never infer a repair command from ordinary top-level prose.
@@ -52,7 +52,7 @@ Activation requires GitHub CLI authentication plus a dedicated, spend-limited Op
 Run one reconciliation with `ECAS_LOOP_OBSERVE_ONLY=true node scripts/ecas-loop-controller.mjs`; use `node scripts/ecas-loop-controller.mjs --inspect` for a mutation-free decision and `node scripts/ecas-loop-controller.mjs --health` for heartbeat status. Install cron only from a trusted, merged checkout. On this Mac the intended entry is:
 
 ```cron
-*/10 * * * * cd /Users/vladislavcaraseli/Documents/Ecas && ECAS_REPO_ROOT=/Users/vladislavcaraseli/Documents/Ecas /opt/homebrew/bin/node scripts/ecas-loop-controller.mjs >> /Users/vladislavcaraseli/.codex/automations/ecas-pr-repair-hook/cron.log 2>&1
+*/30 * * * * cd /Users/vladislavcaraseli/Documents/Ecas && ECAS_REPO_ROOT=/Users/vladislavcaraseli/Documents/Ecas /opt/homebrew/bin/node scripts/ecas-loop-controller.mjs >> /Users/vladislavcaraseli/.codex/automations/ecas-pr-repair-hook/cron.log 2>&1
 ```
 
 The cron entry is deliberately not committed or installed by the PR. Activate it after this controller is merged, the stable checkout is updated, the Keychain item exists, and an observe-only run selects the expected action.
