@@ -1,5 +1,7 @@
+import { appendFileSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+
 import { decideNextAction } from './loop-policy.mjs';
-import { appendRunSummary } from './loop-run-summary.mjs';
 import { beginDispatch, finishDispatch, readLoopState, writeLoopState } from './loop-state.mjs';
 
 const MAX_EVIDENCE_CHARS = 8_000;
@@ -56,6 +58,11 @@ function sameAction(expected, current) {
     (expected.signal?.key ?? null) === (current.signal?.key ?? null) &&
     String(expected.signal?.instruction ?? '').trim() === String(current.signal?.instruction ?? '').trim()
   );
+}
+
+function appendRunSummary(path, summary) {
+  mkdirSync(dirname(path), { recursive: true });
+  appendFileSync(path, `${JSON.stringify(summary)}\n`, { mode: 0o600 });
 }
 
 /**

@@ -72,7 +72,7 @@ export function independentReviewPassed({ pr, reviews = [], issueComments = [] }
 }
 
 /**
- * @param {{ pr?: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], processedKeys?: Set<string>, controllerLogin?: string, ignoreDeduplication?: boolean, now?: number }} options
+ * @param {{ pr?: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], processedKeys?: Set<string>, controllerLogin?: string, now?: number }} options
  */
 export function selectRepairSignal({
   pr,
@@ -81,7 +81,6 @@ export function selectRepairSignal({
   reviewComments = [],
   processedKeys = new Set(),
   controllerLogin = '',
-  ignoreDeduplication = false,
   now = Date.now(),
 } = {}) {
   const check = (pr?.checks ?? []).find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
@@ -89,7 +88,7 @@ export function selectRepairSignal({
   const dispatchedKeys = controllerDispatchKeys(issueComments, controllerLogin, now);
   const pending = (signal) => {
     const candidate = { ...signal, key: signalKey(signal) };
-    return !ignoreDeduplication && (processedKeys.has(candidate.key) || dispatchedKeys.has(candidate.key)) ? null : candidate;
+    return processedKeys.has(candidate.key) || dispatchedKeys.has(candidate.key) ? null : candidate;
   };
 
   if (check?.status === 'COMPLETED' && check.conclusion === 'FAILURE') {

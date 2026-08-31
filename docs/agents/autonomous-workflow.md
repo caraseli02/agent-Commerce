@@ -47,6 +47,8 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 
 Activation requires GitHub CLI authentication and a connected Codex GitHub connector. Start with `ECAS_LOOP_OBSERVE_ONLY=true` so reconciliation decisions are visible without GitHub or attempt-state mutations; the local lock and heartbeat still report controller health. Enable dispatch only after observe-only output matches the intended single action and the connector can accept a manual `@codex fix` request. If the connector asks to be connected, keep the dispatcher in observe-only mode until a maintainer reconnects it.
 
+Run one reconciliation with `ECAS_LOOP_OBSERVE_ONLY=true node scripts/ecas-loop-controller.mjs`; use `node scripts/ecas-loop-controller.mjs --inspect` for a mutation-free decision and `node scripts/ecas-loop-controller.mjs --health` for heartbeat status. After activation, an external low-frequency scheduler may run `node scripts/ecas-loop-controller.mjs`; no scheduler configuration is committed to this repository.
+
 ## Roles
 
 | Role      | Responsibility                                                                                  | Must not do                                                       |

@@ -33,12 +33,12 @@ export function decideNextAction({
 }) {
   const issue = claimedIssue(pr, activeIssues);
   if (!issue) return { type: 'idle', reason: 'no-single-linked-work-item' };
+  if (pr.targetSafe !== true) return { type: 'idle', reason: 'unsafe-pr-target' };
   if (pr.trustedAuthor !== true) return { type: 'idle', reason: 'untrusted-pr-author' };
   // Repairs need only a non-conflicting head: GitHub reports failed/pending
   // checks as UNSTABLE/BLOCKED. Promotion is deliberately stricter below.
   if (pr.mergeable === 'CONFLICTING' || pr.mergeStateStatus === 'DIRTY') return { type: 'idle', reason: 'awaiting-non-conflicting-pr' };
   if (hasInFlightDispatch(state, pr.number, pr.head, now)) return { type: 'idle', reason: 'awaiting-hosted-repair' };
-  const attempts = Number(state.attemptsByPr?.[pr.number] ?? 0);
   const signal = selectRepairSignal({
     pr,
     issueComments,
@@ -59,14 +59,14 @@ export function decideNextAction({
     return { type: 'idle', reason: 'awaiting-independent-review' };
   }
   if (!signal) return { type: 'idle', reason: 'no-pending-signal' };
-  if (!canRepair(state, pr.number, attempts)) {
+  if (!canRepair(state, pr.number)) {
     return {
       type: 'blocked',
       reason: 'repair-attempt-limit',
       pr: pr.number,
       issue: issue.number,
       head: pr.head,
-      attempts: Math.max(Number(state.attemptsByPr?.[pr.number] ?? 0), attempts),
+      attempts: Number(state.attemptsByPr?.[pr.number] ?? 0),
       signal,
     };
   }

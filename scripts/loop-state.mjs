@@ -40,8 +40,8 @@ export function processedKeys(state, now = Date.now()) {
 }
 
 /** @param {any} state */
-export function canRepair(state, pr, observedAttempts = 0) {
-  return Math.max(Number(state.attemptsByPr?.[pr] ?? 0), observedAttempts) < MAX_REPAIR_ATTEMPTS;
+export function canRepair(state, pr) {
+  return Number(state.attemptsByPr?.[pr] ?? 0) < MAX_REPAIR_ATTEMPTS;
 }
 
 /** @param {any} state */
@@ -71,13 +71,10 @@ export function finishDispatch(state, { key, result, commentUrl = null, at }) {
 export function readLoopState(path) {
   if (!existsSync(path)) return createLoopState();
   const state = JSON.parse(readFileSync(path, 'utf8'));
-  if (state.version === 1 && state.repairs && state.attemptsByPr) {
-    return { version: 2, dispatches: state.repairs, attemptsByPr: state.attemptsByPr };
-  }
-  if (![2, 3].includes(state.version) || !state.dispatches || !state.attemptsByPr) {
+  if (state.version !== 3 || !state.dispatches || !state.attemptsByPr) {
     throw new TypeError('invalid loop state');
   }
-  return { ...state, version: 3 };
+  return state;
 }
 
 /** @param {any} state */

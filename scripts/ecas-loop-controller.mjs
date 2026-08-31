@@ -134,7 +134,7 @@ function pullContext(prNumber) {
       '--repo',
       REPO,
       '--json',
-      'number,headRefName,headRefOid,baseRefName,statusCheckRollup,closingIssuesReferences,commits,mergeable,mergeStateStatus',
+      'number,state,headRefName,headRefOid,baseRefName,statusCheckRollup,closingIssuesReferences,commits,mergeable,mergeStateStatus',
     ]),
   );
   const metadata = JSON.parse(gh(['api', `repos/${REPO}/pulls/${prNumber}`]));
@@ -155,6 +155,7 @@ function pullContext(prNumber) {
     mergeable: state.mergeable,
     mergeStateStatus: state.mergeStateStatus,
     targetSafe:
+      state.state === 'OPEN' &&
       state.baseRefName === EXPECTED_BASE &&
       state.headRefName !== EXPECTED_BASE &&
       metadata.head?.repo?.default_branch !== state.headRefName &&

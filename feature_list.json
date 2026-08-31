@@ -284,8 +284,8 @@
         "tests/loop-signals.spec.ts",
         "tests/loop-state.spec.ts",
         "docs/agents/autonomous-workflow.md",
-        "Focused controller tests: 37 tests pass.",
-        "pnpm verify: pass (69 files, 331 tests).",
+        "Focused controller tests: 34 tests pass.",
+        "pnpm verify: pass (69 files, 328 tests).",
         "Independent standards and workflow reviews completed; lifecycle findings resolved."
       ]
     },
