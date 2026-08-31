@@ -26,6 +26,8 @@ export default defineEventHandler(async (event) => {
         quote = {
           currency: quoteResult.quote.currency,
           merchandiseTotal: quoteResult.quote.merchandiseTotal.minor / 100,
+          smallOrderCharge: quoteResult.quote.smallOrderCharge.minor / 100,
+          smallOrderTier: quoteResult.quote.smallOrderTier,
           lines: quoteResult.quote.lines.map((line) => ({
             productId: line.productId,
             quantity: line.quantity,

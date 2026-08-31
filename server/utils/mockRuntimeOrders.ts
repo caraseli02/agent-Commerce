@@ -71,6 +71,7 @@ type CreateOrderPayload = {
   currency?: string;
   type?: OrderType;
   shippingCost?: number;
+  smallOrderCost?: number;
 };
 
 type RuntimeOrderNote = {
@@ -164,13 +165,13 @@ const resolveMerchandiseSubtotal = (products: OrderProductLike[] = []) => {
   );
 };
 
-const calculateOrderTotals = (products: OrderProductLike[] = [], shippingCost = 0) => {
+const calculateOrderTotals = (products: OrderProductLike[] = [], shippingCost = 0, smallOrderCost = 0) => {
   const subtotal = resolveMerchandiseSubtotal(products);
   const orderMoney = calculateOrderMoney({ subtotal, shippingCost });
 
   return {
     subtotal: orderMoney.subtotal,
-    total: orderMoney.grandTotal,
+    total: Number((orderMoney.grandTotal + smallOrderCost).toFixed(2)),
   };
 };
 
@@ -251,7 +252,9 @@ export const buildRuntimeOrder = (payload: CreateOrderPayload, user: UserInterfa
   const products = payload.products || [];
   const rawShippingCost = Number(payload.shippingCost ?? 19.9);
   const shippingCost = Number.isFinite(rawShippingCost) ? rawShippingCost : 19.9;
-  const totals = calculateOrderTotals(products, shippingCost);
+  const rawSmallOrderCost = Number(payload.smallOrderCost ?? 0);
+  const smallOrderCost = Number.isFinite(rawSmallOrderCost) ? rawSmallOrderCost : 0;
+  const totals = calculateOrderTotals(products, shippingCost, smallOrderCost);
   const noteMessage = payload.note?.message;
 
   const order: RuntimeOrder = {
@@ -272,7 +275,7 @@ export const buildRuntimeOrder = (payload: CreateOrderPayload, user: UserInterfa
     status: OrderStatus.Pending,
     type: payload.type ?? 0,
     shippingCost,
-    smallOrderCost: 0,
+    smallOrderCost,
     discount: {
       value: 0,
       startDate: new Date().toISOString(),

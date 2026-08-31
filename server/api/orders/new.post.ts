@@ -1,7 +1,6 @@
 import { placeOrder, PlaceOrderError } from '~/server/application/checkout/place-order';
-import { getMockUserById, getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { createMockGuestCheckoutUser, getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
 import { requireMockCartUserId } from '~/server/utils/mockCart';
-import { MOCK_CUSTOMER_USER_ID } from '~/utils/mockAuth';
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Record<string, unknown>;
@@ -12,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   if (!user && process.env.NUXT_PUBLIC_MOCK_MODE === 'true') {
     cartOwnerId = requireMockCartUserId(event, headers.authorization);
-    user = getMockUserById(cartOwnerId) || getMockUserById(MOCK_CUSTOMER_USER_ID);
+    user = createMockGuestCheckoutUser(cartOwnerId);
   }
 
   if (!user || !cartOwnerId) {

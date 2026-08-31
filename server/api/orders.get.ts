@@ -1,5 +1,7 @@
 import { getDemoOrders, getDemoOrdersForUser } from '~/server/utils/mockDashboardDemo';
 import { orders } from '~/server/domain/orders';
+import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { AccountRole } from '~/types/signup/form';
 
 const parseStartDate = (value?: string) => {
   if (!value) {
@@ -33,9 +35,14 @@ export default defineEventHandler(async (event) => {
 
   const page = Number.parseInt(query.page || '1', 10);
   const perPage = Number.parseInt(query.perPage || '10', 10);
+  const authenticatedUser = getMockUserFromAuthHeader(getHeaders(event).authorization);
+  if (!authenticatedUser) {
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
+  }
+  const scopedUserId = authenticatedUser.role === AccountRole.Admin ? query.userId : authenticatedUser._id;
 
-  const runtimeOrders = await orders.list(query.userId);
-  let items = [...runtimeOrders, ...(query.userId ? getDemoOrdersForUser(query.userId) : getDemoOrders())];
+  const runtimeOrders = await orders.list(scopedUserId);
+  let items = [...runtimeOrders, ...(scopedUserId ? getDemoOrdersForUser(scopedUserId) : getDemoOrders())];
 
   if (query.status) {
     const statusFilters = String(query.status)

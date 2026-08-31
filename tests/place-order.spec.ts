@@ -8,6 +8,7 @@ import type { CreatePendingOrderInput } from '~/server/domain/orders';
 import type { EnsurePaymentResult } from '~/server/domain/payments';
 import { createPlaceOrderCoordinator, createPlaceOrderUseCase, type PlaceOrderCommand } from '~/server/application/checkout/place-order';
 import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import type { SmallOrderChargeTier } from '~/helpers/order-money';
 
 let checkoutStoreDir = '';
 
@@ -110,6 +111,11 @@ const makeDependencies = () => {
               minor: 100_00,
               currency: 'RON' as const,
             },
+            smallOrderCharge: {
+              minor: 0,
+              currency: 'RON' as const,
+            },
+            smallOrderTier: null as SmallOrderChargeTier | null,
           },
         })),
         quoteDelivery: vi.fn(async () => ({
@@ -243,6 +249,7 @@ describe('PlaceOrder application workflow', () => {
           }),
         ],
         shippingCostMinor: 1990,
+        smallOrderCostMinor: 0,
       }),
     );
 
@@ -250,5 +257,39 @@ describe('PlaceOrder application workflow', () => {
     expect(orderInput).not.toHaveProperty('total');
     expect(orderInput).not.toHaveProperty('subtotal');
     expect(orderInput).not.toHaveProperty('products');
+  });
+
+  it('persists a server-quoted small-order charge instead of trusting the browser', async () => {
+    const { dependencies, createPending } = makeDependencies();
+    dependencies.catalog.quoteItems.mockResolvedValueOnce({
+      kind: 'quoted',
+      quote: {
+        currency: 'RON',
+        quotedAt: new Date('2026-08-31T00:00:00.000Z'),
+        lines: [
+          {
+            productId: 'prod-1',
+            sku: 'MCU-001',
+            name: 'Microcontroller',
+            quantity: 1,
+            unitPrice: { minor: 40_00, currency: 'RON' },
+            lineTotal: { minor: 40_00, currency: 'RON' },
+          },
+        ],
+        merchandiseTotal: { minor: 40_00, currency: 'RON' },
+        smallOrderCharge: { minor: 4_99, currency: 'RON' },
+        smallOrderTier: { _id: 'soc-001', min: 0, max: 50, price: 4.99 },
+      },
+    });
+    const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
+
+    await placeOrder(
+      makeCommand({
+        checkoutRequestId: 'checkout-small-order',
+        order: { ...makeCommand().order, smallOrderChargeId: 'attacker-selected-tier' },
+      }),
+    );
+
+    expect(createPending).toHaveBeenCalledWith(expect.objectContaining({ smallOrderCostMinor: 499 }));
   });
 });

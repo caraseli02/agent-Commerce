@@ -20,6 +20,13 @@ export interface ShippingOrderPricingResponse {
   quote?: {
     currency: 'RON';
     merchandiseTotal: number;
+    smallOrderCharge: number;
+    smallOrderTier: {
+      _id?: string;
+      min: number;
+      max: number;
+      price: number;
+    } | null;
     lines: Array<{
       productId: string;
       quantity: number;

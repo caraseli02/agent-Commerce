@@ -295,7 +295,7 @@ export const createPlaceOrderUseCase = (
         cartRevision: cartResult.snapshot.revision,
         operation: async () => {
           const reservationResult = await dependencies.inventory.reserve({
-            reservationKey: requestKey,
+            reservationKey: `${ownerId}:${requestKey}`,
             expiresAt: new Date(Date.now() + 15 * 60 * 1000),
             items: cartResult.snapshot.items,
           });
@@ -349,6 +349,7 @@ export const createPlaceOrderUseCase = (
                   ? (command.order.paymentDetails as Record<string, unknown>)
                   : undefined,
               shippingCostMinor: Math.round(deliveryQuote.option.price.total * 100),
+              smallOrderCostMinor: quoteResult.quote.smallOrderCharge.minor,
               orderType: resolveOrderType(command.order),
               notes: resolveNotes(command.order),
             });

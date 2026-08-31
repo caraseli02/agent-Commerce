@@ -187,6 +187,20 @@ export const getMockUserById = (userId?: string | null) => {
   return match?.user || null;
 };
 
+export const createMockGuestCheckoutUser = (ownerId: string): MockUser => ({
+  ...customerUser,
+  _id: ownerId,
+  firebaseId: ownerId,
+  contactDetails: { ...customerUser.contactDetails },
+  adminSettings: {
+    ...customerUser.adminSettings,
+    discount: {
+      ...customerUser.adminSettings!.discount!,
+      value: 0,
+    },
+  },
+});
+
 export const getMockUserByCredentials = (credentials: { email?: string; clientCode?: string; password?: string }) => {
   return mockUsers.find((entry) => {
     const hasValidPassword = entry.credentials.password === credentials.password;

@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 let checkoutStoreDir = '';
 
@@ -20,6 +20,21 @@ describe('durable PlaceOrder persistence', () => {
   beforeAll(() => {
     checkoutStoreDir = mkdtempSync(join(tmpdir(), 'place-order-persistence-'));
     process.env.CHECKOUT_DATABASE_PATH = join(checkoutStoreDir, 'checkout.sqlite');
+  });
+
+  beforeEach(async () => {
+    const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
+    const database = await getCheckoutDatabase();
+    for (const table of [
+      'checkout_claims',
+      'checkout_payments',
+      'checkout_orders',
+      'checkout_reservations',
+      'checkout_inventory',
+      'checkout_carts',
+    ]) {
+      await database.execute(`DELETE FROM ${table}`);
+    }
   });
 
   afterAll(() => {
@@ -114,8 +129,77 @@ describe('durable PlaceOrder persistence', () => {
     const [paymentsCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_payments');
     const [reservationsCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_reservations');
 
-    expect(Number(ordersCount?.total)).toBe(2);
-    expect(Number(paymentsCount?.total)).toBe(2);
-    expect(Number(reservationsCount?.total)).toBe(2);
+    expect(Number(ordersCount?.total)).toBe(1);
+    expect(Number(paymentsCount?.total)).toBe(1);
+    expect(Number(reservationsCount?.total)).toBe(1);
+  });
+
+  it('namespaces identical checkout request IDs and reservations by customer', async () => {
+    const [{ getMockCartForUser, addProductsToMockCart }, { getMockUserById }, { placeOrder }, { getCheckoutDatabase }] = await Promise.all(
+      [
+        import('../server/utils/mockCart'),
+        import('../server/utils/mockUsers'),
+        import('../server/application/checkout/place-order'),
+        import('../server/infrastructure/checkout-database'),
+      ],
+    );
+    const firstUser = getMockUserById('mock-customer-1')!;
+    const secondUser = { ...firstUser, _id: 'mock-customer-2', firebaseId: 'mock-customer-2' };
+    const firstCart = await getMockCartForUser('mock-customer-1');
+    const secondCart = await getMockCartForUser('mock-customer-2');
+    await addProductsToMockCart(firstCart, [{ id: 'prod-1', stock: 1, isFolder: false }]);
+    await addProductsToMockCart(secondCart, [{ id: 'prod-1', stock: 1, isFolder: false }]);
+
+    const [first, second] = await Promise.all([
+      placeOrder({
+        checkoutRequestId: 'shared-request-id',
+        cartId: String(firstCart._id),
+        cartOwnerId: 'mock-customer-1',
+        user: firstUser,
+        order: orderInput,
+      }),
+      placeOrder({
+        checkoutRequestId: 'shared-request-id',
+        cartId: String(secondCart._id),
+        cartOwnerId: 'mock-customer-2',
+        user: secondUser,
+        order: orderInput,
+      }),
+    ]);
+
+    expect(first.orderId).not.toBe(second.orderId);
+    const database = await getCheckoutDatabase();
+    const reservations = await database.query<{ reservation_key: string }>(
+      'SELECT reservation_key FROM checkout_reservations ORDER BY reservation_key',
+    );
+    expect(reservations.map((row) => row.reservation_key)).toEqual([
+      'mock-customer-1:shared-request-id',
+      'mock-customer-2:shared-request-id',
+    ]);
+  });
+
+  it('keeps a guest quote and persisted snapshot on the zero-discount guest policy', async () => {
+    const [cartModule, userModule, checkoutModule, ordersModule] = await Promise.all([
+      import('../server/utils/mockCart'),
+      import('../server/utils/mockUsers'),
+      import('../server/application/checkout/place-order'),
+      import('../server/domain/orders'),
+    ]);
+    const ownerId = 'guest-user-session-pricing';
+    const user = userModule.createMockGuestCheckoutUser(ownerId);
+    const cart = await cartModule.getMockCartForUser(ownerId);
+    await cartModule.addProductsToMockCart(cart, [{ id: 'prod-1', stock: 1, isFolder: false }]);
+
+    const result = await checkoutModule.placeOrder({
+      checkoutRequestId: 'guest-pricing-request',
+      cartId: String(cart._id),
+      cartOwnerId: ownerId,
+      user,
+      order: orderInput,
+    });
+    const persisted = await ordersModule.orders.findById(result.orderId);
+
+    expect(user.adminSettings?.discount?.value).toBe(0);
+    expect(persisted?.order.subtotal).toBe(999.99);
   });
 });

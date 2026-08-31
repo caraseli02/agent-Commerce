@@ -22,6 +22,7 @@ export type CreatePendingOrderInput = {
   shippingDetails?: Record<string, unknown>;
   paymentDetails?: Record<string, unknown>;
   shippingCostMinor: number;
+  smallOrderCostMinor: number;
   orderType?: number;
   notes?: Array<{ sender?: string; message?: string }>;
 };
@@ -55,6 +56,7 @@ const fingerprintOrder = (input: CreatePendingOrderInput) =>
     shippingDetails: input.shippingDetails,
     paymentDetails: input.paymentDetails,
     shippingCostMinor: input.shippingCostMinor,
+    smallOrderCostMinor: input.smallOrderCostMinor,
     orderType: input.orderType,
     notes: input.notes,
   });
@@ -101,6 +103,7 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
       shippingDetails: input.shippingDetails,
       paymentDetails: input.paymentDetails,
       shippingCost: input.shippingCostMinor / 100,
+      smallOrderCost: input.smallOrderCostMinor / 100,
       currency: 'ron',
       type: input.orderType,
       note: firstNote ? { sender: firstNote.sender, message: firstNote.message } : undefined,

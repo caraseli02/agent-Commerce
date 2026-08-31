@@ -250,7 +250,7 @@ const syncOrderTotals = () => {
   const subtotal = Number(order.value.subtotal || 0);
   const vat = Number((subtotal * 0.19).toFixed(2));
   const shippingFee = Number(order.value.deliveryMethod?.price?.total || 0);
-  const smallOrderFee = Number(order.value.smallOrder?.price || 0);
+  const smallOrderFee = Number(authoritativeQuote.value?.smallOrderCharge ?? order.value.smallOrder?.price ?? 0);
 
   order.value.total = Number((subtotal + vat + shippingFee + smallOrderFee).toFixed(2));
   order.value.shippingCost = shippingFee;
@@ -320,8 +320,23 @@ const isCheckoutDisabled = computed(() => {
   const hasShippingPreference = !!order.value.deliveryMethod;
   const hasPaymentMethod = !!order.value.paymentDetails && 'type' in order.value.paymentDetails;
   const hasGuestContact = !isGuestCheckoutMode.value || isCompleteGuestContact(order.value.guestContact);
+  const hasAuthoritativeQuote = Boolean(
+    authoritativeQuote.value &&
+    authoritativeQuote.value.lines.length === cartItems.value.length &&
+    authoritativeQuote.value.lines.every((line) => {
+      const item = cartItems.value.find((candidate) => candidate.id === line.productId);
+      return item && line.quantity === Number(item.stock || 0) + Number(item.backorder_stock || 0);
+    }),
+  );
 
-  return !(hasShippingAddress && hasBillingAddress && hasShippingPreference && hasPaymentMethod && hasGuestContact);
+  return !(
+    hasShippingAddress &&
+    hasBillingAddress &&
+    hasShippingPreference &&
+    hasPaymentMethod &&
+    hasGuestContact &&
+    hasAuthoritativeQuote
+  );
 });
 
 const isLoadingCheckout = ref(false);
@@ -374,9 +389,34 @@ const deleteSelected = () => {
   cartItems.value = cartItems.value.filter((item) => !item.selected);
 };
 
+let quoteRequestVersion = 0;
+const refreshAuthoritativePricing = async () => {
+  const requestVersion = ++quoteRequestVersion;
+
+  if (!cartId.value || !cartItems.value.length) {
+    authoritativeQuote.value = undefined;
+    return;
+  }
+
+  authoritativeQuote.value = undefined;
+  let response: ShippingOrderPricingResponse | null = null;
+  try {
+    response = await fetchShippingPrices({ ...order.value, cartId: cartId.value });
+  } catch {
+    if (requestVersion === quoteRequestVersion) authoritativeQuote.value = undefined;
+    return;
+  }
+  if (requestVersion !== quoteRequestVersion) return;
+
+  shippingPreferences.value = response;
+  authoritativeQuote.value = response?.quote;
+  const tier = response?.quote?.smallOrderTier;
+  order.value.smallOrder = tier?._id ? { ...tier, _id: tier._id } : null;
+  syncOrderTotals();
+};
+
 const updateSubtotal = async (items: CartProductsInterface[], checkoutOrder: CheckoutOrderDraft) => {
-  shippingPreferences.value = await fetchShippingPrices({ ...checkoutOrder, cartId: cartId.value });
-  authoritativeQuote.value = shippingPreferences.value?.quote;
+  await refreshAuthoritativePricing();
   await calculateSubtotal(items, checkoutOrder);
   syncOrderTotals();
 };
@@ -385,6 +425,7 @@ const updateSubtotal = async (items: CartProductsInterface[], checkoutOrder: Che
 watch(
   cartItems,
   async () => {
+    await refreshAuthoritativePricing();
     await calculateSubtotal(cartItems.value, order.value);
     calculateDiscount(cartItems.value, order);
     syncOrderTotals();
@@ -392,6 +433,8 @@ watch(
   },
   { deep: true },
 );
+
+watch([cartId, token, userId], () => refreshAuthoritativePricing());
 
 watch(
   [shippingPreferences, cards],
@@ -455,16 +498,13 @@ onMounted(async () => {
     };
   }
 
-  const shippingPricesPromise = fetchShippingPrices({ ...order.value, cartId: cartId.value });
+  await refreshCartRead();
 
-  const [, , shippingPrices] = await Promise.all([
+  await Promise.all([
     fetchCards(), // Fetch user's payment cards
     getCustomerCredit(), // Fetch customer credit information
-    shippingPricesPromise,
+    refreshAuthoritativePricing(),
   ]);
-
-  shippingPreferences.value = shippingPrices; // Fetch shipping prices
-  authoritativeQuote.value = shippingPrices?.quote;
 
   // Initial calculations
   await calculateSubtotal(cartItems.value, order.value);
