@@ -67,13 +67,13 @@ The application layer owns cross-domain sequencing. Each module owns only its st
 Allowed:
 
 ```ts
-import { orders } from '~/server/modules/orders'
+import { orders } from '~/server/domain/orders'
 ```
 
 Forbidden outside the owning module:
 
 ```ts
-import { ordersRepository } from '~/server/modules/orders/internal/repository'
+import { ordersRepository } from '~/server/domain/orders/internal/repository'
 ```
 
 `index.ts` is the public module firewall.
@@ -99,7 +99,7 @@ server/
       finalize-payment.ts
       cancel-order.ts
 
-  modules/
+  domain/
     catalog/
       index.ts
       internal/
@@ -125,7 +125,9 @@ server/
       internal/
 ```
 
-Do not pre-create `domain/`, `ports/`, `adapters/`, `services/`, and `repositories/` in every module. Add internal structure only when a module becomes complex enough to justify it.
+`server/domain` is intentionally used instead of `server/modules`: in this Nuxt/Nitro application, `server/modules` participates in framework module discovery and caused business package entry points to be loaded as Nitro modules during `nuxt prepare`.
+
+Do not pre-create `ports/`, `adapters/`, `services/`, and `repositories/` inside every domain package. Add internal structure only when a package becomes complex enough to justify it.
 
 ---
 
@@ -700,8 +702,8 @@ Do not add dependency-cruiser or another architecture dependency yet.
 
 Initial executable rules:
 
-1. `server/api/**` and `server/application/**` cannot import `server/modules/*/internal/**`.
-2. one module cannot import another module's `internal/**` files.
+1. `server/api/**` and `server/application/**` cannot import `server/domain/*/internal/**`.
+2. one domain package cannot import another domain package's `internal/**` files.
 3. behavioral contract specs for the three critical races are recorded before implementation and activated as the corresponding workflows are introduced.
 
 ---
