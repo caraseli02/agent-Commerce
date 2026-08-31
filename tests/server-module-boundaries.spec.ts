@@ -73,10 +73,6 @@ describe('server module boundaries', () => {
 
 describe('checkout workflow contracts to activate during implementation', () => {
   it.todo(
-    'PlaceOrder is idempotent: retrying the same checkoutRequestId and fingerprint returns the same logical order, while conflicting reuse is rejected and the same cart revision cannot create two active orders',
-  );
-
-  it.todo(
     'payment finalization is idempotent and monotonic: duplicate or late provider success events settle the order at most once and stale events cannot regress a terminal payment state',
   );
 
