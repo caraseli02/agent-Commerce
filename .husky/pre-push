@@ -1,4 +1,7 @@
-pnpm run build
-pnpm run lint
-pnpm run typecheck
-pnpm run test
+pnpm verify
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  pnpm test:visual
+else
+  echo "Skipping pnpm test:visual: committed visual baselines currently support macOS only."
+fi

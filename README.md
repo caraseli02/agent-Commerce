@@ -168,5 +168,5 @@ Planning docs:
 
 - Package manager for this repo is **pnpm**
 - `.env` is ignored; use `.env.example` as the template
-- Local gates are documented in `docs/agents/verification.md`; pre-commit formats staged files, pre-push runs the full verification set, and CI mirrors pre-push
+- Local gates are documented in `docs/agents/verification.md`; pre-commit formats staged files, pre-push runs `pnpm verify` plus the reviewed macOS visual suite when supported, and CI runs `pnpm verify`
 - For portfolio demos, validate the key review flows above before capturing screenshots or video
