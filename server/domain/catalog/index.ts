@@ -22,9 +22,13 @@ export type CatalogQuote = Readonly<{
   merchandiseTotal: CatalogMoney;
 }>;
 
-export type QuoteItemsResult = { kind: 'quoted'; quote: CatalogQuote } | { kind: 'unavailable'; productId: string };
+export type QuoteItemsResult =
+  | { kind: 'quoted'; quote: CatalogQuote }
+  | { kind: 'unavailable'; productId: string };
 
-const quoteItems = async (input: { items: readonly { productId: string; quantity: number }[] }): Promise<QuoteItemsResult> => {
+const quoteItems = async (input: {
+  items: readonly { productId: string; quantity: number }[];
+}): Promise<QuoteItemsResult> => {
   const lines: CatalogQuoteLine[] = [];
 
   for (const requested of input.items) {

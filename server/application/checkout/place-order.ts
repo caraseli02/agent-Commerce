@@ -79,9 +79,7 @@ const normalizeForFingerprint = (value: unknown): unknown => {
 };
 
 const stableFingerprint = (value: unknown) =>
-  createHash('sha256')
-    .update(JSON.stringify(normalizeForFingerprint(value)))
-    .digest('hex');
+  createHash('sha256').update(JSON.stringify(normalizeForFingerprint(value))).digest('hex');
 
 const resolvePaymentType = (order: LegacyOrderInput) => {
   if (!order.paymentDetails || typeof order.paymentDetails !== 'object') {
@@ -151,7 +149,12 @@ export const createPlaceOrderCoordinator = () => {
     return existing.promise;
   };
 
-  const run = (input: { requestKey: string; fingerprint: string; semanticKey: string; operation: () => Promise<PlaceOrderResult> }) => {
+  const run = (input: {
+    requestKey: string;
+    fingerprint: string;
+    semanticKey: string;
+    operation: () => Promise<PlaceOrderResult>;
+  }) => {
     const existing = lookup(input.requestKey, input.fingerprint);
 
     if (existing) {
@@ -161,7 +164,11 @@ export const createPlaceOrderCoordinator = () => {
     const semanticOwner = bySemanticKey.get(input.semanticKey);
 
     if (semanticOwner && semanticOwner !== input.requestKey) {
-      throw new PlaceOrderError('checkout_already_started', 409, 'This cart revision already has an active checkout.');
+      throw new PlaceOrderError(
+        'checkout_already_started',
+        409,
+        'This cart revision already has an active checkout.',
+      );
     }
 
     const promise = Promise.resolve().then(input.operation);
@@ -243,7 +250,11 @@ export const createPlaceOrderUseCase = (
     });
 
     if (quoteResult.kind === 'unavailable') {
-      throw new PlaceOrderError('product_unavailable', 409, `Product ${quoteResult.productId} is no longer available for checkout.`);
+      throw new PlaceOrderError(
+        'product_unavailable',
+        409,
+        `Product ${quoteResult.productId} is no longer available for checkout.`,
+      );
     }
 
     const semanticKey = `${ownerId}:${cartId}:${cartResult.snapshot.revision}`;
@@ -260,11 +271,19 @@ export const createPlaceOrderUseCase = (
         });
 
         if (reservationResult.kind === 'conflict') {
-          throw new PlaceOrderError('reservation_conflict', 409, 'The checkout reservation key was already used with different inventory.');
+          throw new PlaceOrderError(
+            'reservation_conflict',
+            409,
+            'The checkout reservation key was already used with different inventory.',
+          );
         }
 
         if (reservationResult.kind === 'unavailable') {
-          throw new PlaceOrderError('inventory_unavailable', 409, `Insufficient inventory for product ${reservationResult.productId}.`);
+          throw new PlaceOrderError(
+            'inventory_unavailable',
+            409,
+            `Insufficient inventory for product ${reservationResult.productId}.`,
+          );
         }
 
         const reservation = reservationResult.reservation;
@@ -310,7 +329,11 @@ export const createPlaceOrderUseCase = (
 
           if (orderResult.kind === 'conflict') {
             await dependencies.inventory.release(reservation.id);
-            throw new PlaceOrderError('order_idempotency_conflict', 409, 'The checkout request ID conflicts with an existing order.');
+            throw new PlaceOrderError(
+              'order_idempotency_conflict',
+              409,
+              'The checkout request ID conflicts with an existing order.',
+            );
           }
 
           orderId = orderResult.orderId;
@@ -337,7 +360,11 @@ export const createPlaceOrderUseCase = (
           });
 
           if (orderPaymentResult.kind === 'not-found') {
-            throw new PlaceOrderError('order_recovery_required', 500, 'Payment succeeded but the order could not be finalized.');
+            throw new PlaceOrderError(
+              'order_recovery_required',
+              500,
+              'Payment succeeded but the order could not be finalized.',
+            );
           }
 
           await dependencies.cart.completeCheckout({

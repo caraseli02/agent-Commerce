@@ -4,9 +4,9 @@
 
 - PR #478 — run bounded repair from this Mac via cron, with an isolated local Codex worktree and controller-owned credentials/publication.
 
-## In progress
+## Verified
 
-- The hosted `@codex fix` handoff has been replaced with a local exact-head worker. Focused controller/worker lifecycle tests pass; final verification and PR handoff remain.
+- The hosted `@codex fix` handoff is replaced with a local exact-head worker. Focused controller/worker tests and `pnpm verify` pass after merging current `main`; the adversarial Keychain and push-race findings are resolved.
 - Cron activation waits until the controller is merged into the trusted checkout, a dedicated spend-limited API key exists in macOS Keychain, and observe-only selects the intended action.
 
 ## Current main baseline
@@ -38,4 +38,4 @@
 
 ## Next checkpoint
 
-- Finish PR #478 verification, update its description, and merge it before installing cron in `/Users/vladislavcaraseli/Documents/Ecas`.
+- Update PR #478's description and merge it before installing cron in `/Users/vladislavcaraseli/Documents/Ecas`.

@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the Components Marketplace harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
+    "active_feature_count": 0,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -275,7 +275,7 @@
       "id": "H10",
       "description": "Keep autonomous local repair isolated, bounded, and cron-driven",
       "validation": "The Mac controller runs one exact-head repair in an isolated temporary worktree without exposing reusable credentials; observe-only has no mutations; attempts are crash-safe and bounded; trusted code alone publishes; promotion requires current-head CI and independent review",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "scripts/loop-controller-runtime.mjs",
         "scripts/ecas-loop-controller.mjs",
@@ -285,7 +285,9 @@
         "tests/loop-signals.spec.ts",
         "tests/loop-state.spec.ts",
         "docs/agents/autonomous-workflow.md",
-        "Focused controller and worker tests: pass (pending final verification)."
+        "Focused controller and worker suite: pass (5 files, 36 tests).",
+        "pnpm verify: pass after merging current main (72 files, 337 passed, 2 todo).",
+        "Adversarial security review completed; Keychain IPC and exact-head push findings resolved."
       ]
     },
     {

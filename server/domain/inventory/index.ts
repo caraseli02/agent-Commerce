@@ -22,10 +22,18 @@ export type ReserveInventoryResult =
   | { kind: 'unavailable'; productId: string; requested: number; available: number };
 
 export type CommitReservationResult =
-  { kind: 'committed' } | { kind: 'already-committed' } | { kind: 'expired' } | { kind: 'released' } | { kind: 'not-found' };
+  | { kind: 'committed' }
+  | { kind: 'already-committed' }
+  | { kind: 'expired' }
+  | { kind: 'released' }
+  | { kind: 'not-found' };
 
 export type ReleaseReservationResult =
-  { kind: 'released' } | { kind: 'already-released' } | { kind: 'committed' } | { kind: 'expired' } | { kind: 'not-found' };
+  | { kind: 'released' }
+  | { kind: 'already-released' }
+  | { kind: 'committed' }
+  | { kind: 'expired' }
+  | { kind: 'not-found' };
 
 type InventoryRow = {
   onHand: number;

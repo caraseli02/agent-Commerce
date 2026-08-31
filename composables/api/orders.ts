@@ -14,7 +14,8 @@ function getApiClient(apiClient?: $Fetch) {
   return apiClient ?? useNuxtApp().$apiClient;
 }
 
-const createCheckoutRequestId = () => globalThis.crypto?.randomUUID?.() ?? `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+const createCheckoutRequestId = () =>
+  globalThis.crypto?.randomUUID?.() ?? `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 const buildCheckoutIntentKey = (order: OrderRequestInterface) =>
   JSON.stringify({

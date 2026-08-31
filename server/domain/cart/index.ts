@@ -15,9 +15,16 @@ export type CheckoutCartSnapshot = Readonly<{
   items: readonly CheckoutCartItem[];
 }>;
 
-export type GetCheckoutCartResult = { kind: 'found'; snapshot: CheckoutCartSnapshot } | { kind: 'not-found' } | { kind: 'forbidden' };
+export type GetCheckoutCartResult =
+  | { kind: 'found'; snapshot: CheckoutCartSnapshot }
+  | { kind: 'not-found' }
+  | { kind: 'forbidden' };
 
-export type CompleteCheckoutResult = { kind: 'completed' } | { kind: 'cart-changed' } | { kind: 'not-found' } | { kind: 'forbidden' };
+export type CompleteCheckoutResult =
+  | { kind: 'completed' }
+  | { kind: 'cart-changed' }
+  | { kind: 'not-found' }
+  | { kind: 'forbidden' };
 
 type RevisionRecord = {
   fingerprint: string;

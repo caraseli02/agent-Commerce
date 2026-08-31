@@ -3,7 +3,11 @@ import type { UserInterface } from '~/types/auth/user-interface';
 import { PaymentStatusEnum } from '~/types/order-summary/item';
 import type { CreatePendingOrderInput } from '~/server/domain/orders';
 import type { EnsurePaymentResult } from '~/server/domain/payments';
-import { createPlaceOrderCoordinator, createPlaceOrderUseCase, type PlaceOrderCommand } from '~/server/application/checkout/place-order';
+import {
+  createPlaceOrderCoordinator,
+  createPlaceOrderUseCase,
+  type PlaceOrderCommand,
+} from '~/server/application/checkout/place-order';
 
 const user = {
   _id: 'customer-1',

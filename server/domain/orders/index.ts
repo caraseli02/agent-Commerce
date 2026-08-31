@@ -25,9 +25,15 @@ export type CreatePendingOrderInput = {
   notes?: Array<{ sender?: string; message?: string }>;
 };
 
-export type CreatePendingOrderResult = { kind: 'created'; orderId: string } | { kind: 'existing'; orderId: string } | { kind: 'conflict' };
+export type CreatePendingOrderResult =
+  | { kind: 'created'; orderId: string }
+  | { kind: 'existing'; orderId: string }
+  | { kind: 'conflict' };
 
-export type ConfirmOrderPaymentResult = { kind: 'confirmed' } | { kind: 'already-confirmed' } | { kind: 'not-found' };
+export type ConfirmOrderPaymentResult =
+  | { kind: 'confirmed' }
+  | { kind: 'already-confirmed' }
+  | { kind: 'not-found' };
 
 type ExistingCheckout = {
   fingerprint: string;
