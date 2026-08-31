@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
 import type { UserInterface } from '~/types/auth/user-interface';
-import { cart as defaultCart } from '~/server/modules/cart';
-import { catalog as defaultCatalog } from '~/server/modules/catalog';
-import { inventory as defaultInventory } from '~/server/modules/inventory';
-import { orders as defaultOrders } from '~/server/modules/orders';
-import { payments as defaultPayments } from '~/server/modules/payments';
+import { cart as defaultCart } from '~/server/domain/cart';
+import { catalog as defaultCatalog } from '~/server/domain/catalog';
+import { inventory as defaultInventory } from '~/server/domain/inventory';
+import { orders as defaultOrders } from '~/server/domain/orders';
+import { payments as defaultPayments } from '~/server/domain/payments';
 
 type LegacyOrderInput = Record<string, unknown> & {
   checkoutRequestId?: unknown;

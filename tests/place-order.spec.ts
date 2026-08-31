@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { PaymentStatusEnum } from '~/types/order-summary/item';
-import type { CreatePendingOrderInput } from '~/server/modules/orders';
+import type { CreatePendingOrderInput } from '~/server/domain/orders';
 import {
   createPlaceOrderCoordinator,
   createPlaceOrderUseCase,
