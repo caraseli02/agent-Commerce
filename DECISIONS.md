@@ -70,7 +70,7 @@ Use this file for durable cross-session decisions that should survive context re
   - Reason: the former check ran at the end of `pnpm verify` against the immutable workflow-event snapshot, so PR descriptions completed after creation still appeared empty or incomplete and made otherwise-green application checks red.
   - Impact: `pnpm verify` covers repository behavior only; the trusted `PR template / check` workflow fetches the current PR body and reruns on description or label edits.
 
-- 2026-08-29 — Keep autonomous repair execution outside the local controller
+- 2026-08-31 — Run bounded autonomous repair locally without exposing host credentials
 
-  - Reason: a local authenticated worker combined untrusted PR evidence, host credentials, repository writes, and controller-owned Git publication in one boundary that could not be made proportionate or reliably testable.
-  - Impact: the local process only reconciles exact-head GitHub state and posts bounded hosted `@codex fix` requests. It never runs PR code, invokes Codex locally, commits, or pushes. Rollout begins in `ECAS_LOOP_OBSERVE_ONLY=true` mode, every attempted dispatch is durably counted before the external comment, and a published request gets a 30-minute in-flight window before retry or final blocking.
+  - Reason: hosted Codex moves the work away from this Mac, while giving a PR-controlled worker direct access to reusable host credentials makes prompt-injection exfiltration possible.
+  - Impact: macOS cron runs the trusted controller from the merged checkout. Codex repairs a temporary exact-head worktree under `sandbox-exec`; it gets only a disposable localhost proxy token. The controller alone reads a dedicated Keychain API key, revalidates GitHub state, commits, and pushes. Attempts are durably counted before launch and remain capped at two.

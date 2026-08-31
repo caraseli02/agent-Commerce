@@ -27,7 +27,7 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/Ecas`. Use th
 - The generator may only implement the issue already claimed by the planner.
 - The generator opens or updates a PR, but does not declare final completion.
 - If an `in-progress` issue has an open PR, do not select new work. Wait for evaluator, or repair that same PR when the evaluator fails it.
-- Use `/repair <40-char-current-head-sha> <instruction>` to request a bounded hosted repair. Ordinary conversation does not trigger code changes.
+- Use `/repair <40-char-current-head-sha> <instruction>` to request a bounded repair by the local Mac worker. Ordinary conversation does not trigger code changes.
 - The evaluator independently checks the PR and moves the issue toward `ready-for-human` only after evidence passes.
 
 ## When a skill says "publish to the issue tracker"

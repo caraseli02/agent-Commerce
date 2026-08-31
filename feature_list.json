@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the Components Marketplace harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -273,20 +273,19 @@
     },
     {
       "id": "H10",
-      "description": "Keep autonomous repair dispatch small, bounded, and externally executed",
-      "validation": "The local controller only reconciles exact-head GitHub state and dispatches hosted repairs; observe-only mode has no GitHub or attempt-state mutations; attempts are crash-safe, in-flight-aware, and bounded; promotion requires current-head CI and independent review",
-      "status": "passing",
+      "description": "Keep autonomous local repair isolated, bounded, and cron-driven",
+      "validation": "The Mac controller runs one exact-head repair in an isolated temporary worktree without exposing reusable credentials; observe-only has no mutations; attempts are crash-safe and bounded; trusted code alone publishes; promotion requires current-head CI and independent review",
+      "status": "active",
       "evidence": [
         "scripts/loop-controller-runtime.mjs",
         "scripts/ecas-loop-controller.mjs",
+        "scripts/loop-worker.mjs",
         "tests/loop-controller-runtime.spec.ts",
         "tests/loop-policy.spec.ts",
         "tests/loop-signals.spec.ts",
         "tests/loop-state.spec.ts",
         "docs/agents/autonomous-workflow.md",
-        "Focused controller tests: 34 tests pass.",
-        "pnpm verify: pass (69 files, 328 tests).",
-        "Independent standards and workflow reviews completed; lifecycle findings resolved."
+        "Focused controller and worker tests: pass (pending final verification)."
       ]
     },
     {

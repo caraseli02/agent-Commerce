@@ -28,7 +28,7 @@ If any condition is false, use a bounded agent task with a human in the loop. Do
 
 ## Proportionate observability
 
-The default controller keeps one compact append-only summary per hosted dispatch attempt. The summary records the issue, PR, exact head, source key, start/end timestamps, result, and comment URL. GitHub owns the live queue and PR state; the controller's local state only fences dispatch attempts and crash recovery.
+The default controller keeps one compact append-only summary per local repair attempt. The summary records the issue, PR, exact head, source key, start/end timestamps, result, and published head. GitHub owns the live queue and PR state; the controller's local state fences repair attempts and crash recovery.
 
 Do not duplicate every command and file event into another mandatory ledger for this human-merged portfolio repository. The raw trace remains available for debugging, while CI, commits, PR discussion, and the independent evaluator provide the acceptance evidence.
 
@@ -36,18 +36,25 @@ Use the stricter `scripts/loop-accountability.mjs` ledger only when the loop gai
 
 ## Minimal controller contract
 
-- Wake on a repository event when infrastructure permits; the local controller performs only low-frequency reconciliation and bounded hosted-task dispatch.
+- Wake from macOS cron every ten minutes; one local controller process performs low-frequency reconciliation and one bounded repair at a time.
 - Treat `{source ID, current head SHA}` as the idempotency key.
-- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and an exact-head `/repair <40-char-sha> <instruction>` command through one hosted repair dispatcher. Bare or stale-head repair commands are ignored.
+- Route CI failure, formal `CHANGES_REQUESTED`, trusted root inline review, actionable Qodo/Greptile feedback, and an exact-head `/repair <40-char-sha> <instruction>` command through one local repair worker. Bare or stale-head repair commands are ignored.
 - Never infer a repair command from ordinary top-level prose.
 - Allow at most two repair attempts for a PR, then mark the linked issue blocked for human attention.
-- Persist the attempt before posting its hosted repair request. A published request remains in flight for 30 minutes; if the head does not change, the same signal may consume the next bounded attempt. Block only after the second in-flight window expires. A crash after persistence is fail-closed: the attempt remains consumed rather than allowing an unbounded retry.
-- Never run repair code, repository scripts, Git commits, or pushes in the local dispatcher. It may only read GitHub state, post a bounded `@codex fix` request, and update the linked issue after exact-head revalidation.
-- Use CI plus an independent reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same hosted dispatcher. Humans remain the only merge authority.
+- Persist the attempt before launching the worker. A crash therefore consumes an attempt instead of permitting an unbounded retry. A fresh running record prevents overlapping cron invocations; a stale record may use the second and final attempt.
+- Run Codex in a temporary exact-head worktree under a macOS sandbox. The worker can read/write only that worktree and its disposable runtime, cannot inspect other processes, and cannot use network from model-generated commands. It receives no GitHub credential and no reusable Codex/OpenAI credential.
+- Keep API authentication, exact-head revalidation, commit, and push in the trusted controller. A localhost Responses proxy substitutes a dedicated Keychain API key for a random per-run token and accepts only the Responses endpoints.
+- Use CI plus an independent reviewer or human review after each update. Current-head Greptile 5/5 or a trusted approval promotes the linked issue to `ready-for-human`; actionable current-head feedback returns through the same local worker. Humans remain the only merge authority.
 
-Activation requires GitHub CLI authentication and a connected Codex GitHub connector. Start with `ECAS_LOOP_OBSERVE_ONLY=true` so reconciliation decisions are visible without GitHub or attempt-state mutations; the local lock and heartbeat still report controller health. Enable dispatch only after observe-only output matches the intended single action and the connector can accept a manual `@codex fix` request. If the connector asks to be connected, keep the dispatcher in observe-only mode until a maintainer reconnects it.
+Activation requires GitHub CLI authentication plus a dedicated, spend-limited OpenAI API key stored in macOS Keychain with account `openai` and service `ecas-loop-openai-api-key`. Do not place the key in the repository, crontab, shell profile, or controller environment. Start with `ECAS_LOOP_OBSERVE_ONLY=true` so decisions are visible without GitHub, worker, or attempt-state mutations.
 
-Run one reconciliation with `ECAS_LOOP_OBSERVE_ONLY=true node scripts/ecas-loop-controller.mjs`; use `node scripts/ecas-loop-controller.mjs --inspect` for a mutation-free decision and `node scripts/ecas-loop-controller.mjs --health` for heartbeat status. After activation, an external low-frequency scheduler may run `node scripts/ecas-loop-controller.mjs`; no scheduler configuration is committed to this repository.
+Run one reconciliation with `ECAS_LOOP_OBSERVE_ONLY=true node scripts/ecas-loop-controller.mjs`; use `node scripts/ecas-loop-controller.mjs --inspect` for a mutation-free decision and `node scripts/ecas-loop-controller.mjs --health` for heartbeat status. Install cron only from a trusted, merged checkout. On this Mac the intended entry is:
+
+```cron
+*/10 * * * * cd /Users/vladislavcaraseli/Documents/Ecas && ECAS_REPO_ROOT=/Users/vladislavcaraseli/Documents/Ecas /opt/homebrew/bin/node scripts/ecas-loop-controller.mjs >> /Users/vladislavcaraseli/.codex/automations/ecas-pr-repair-hook/cron.log 2>&1
+```
+
+The cron entry is deliberately not committed or installed by the PR. Activate it after this controller is merged, the stable checkout is updated, the Keychain item exists, and an observe-only run selects the expected action.
 
 ## Roles
 
@@ -124,7 +131,7 @@ When an `in-progress` issue already has an open PR, controller logic must route 
 - `FAIL`: generate a focused repair brief from the evaluator comment and update the same branch/PR.
 - `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
 
-For an ordinary PR conversation comment, a trusted maintainer can use `/repair <40-char-sha> <instruction>` to request a bounded hosted repair. The SHA must be the current PR head at the time of posting; the dispatcher ignores bare and stale commands so it cannot replay work. Free-form prose and direct `@codex fix` comments are never redispatched.
+For an ordinary PR conversation comment, a trusted maintainer can use `/repair <40-char-sha> <instruction>` to request a bounded local repair. The SHA must be the current PR head at the time of posting; the controller ignores bare and stale commands so it cannot replay work. Free-form prose and direct `@codex fix` comments never trigger it.
 
 ## Evaluator report format
 

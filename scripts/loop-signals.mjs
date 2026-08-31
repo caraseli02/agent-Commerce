@@ -13,8 +13,6 @@ const GREPTILE_ACTION_PATTERN = /Confidence Score:\s*[0-4]\/5|Files Needing Atte
 const GREPTILE_HEAD_PATTERN = /Last reviewed commit:[\s\S]*?commit\/([a-f0-9]{40})/i;
 const GREPTILE_PASS_PATTERN = /Confidence Score:\s*5\/5/i;
 const POSITIVE_ONLY_PATTERN = /^(?:lgtm|looks good(?: to me)?|nice(?: work)?|thanks|approved)[.!]?$/i;
-const ECAS_DISPATCH_PATTERN = /<!--\s*ecas-loop:v3\s+role=dispatcher\s+key=([^\s>]+)\s*-->\s*$/i;
-const DISPATCH_MARKER_MAX_AGE_MS = 30 * 60 * 1000;
 
 function signalKey(signal) {
   return `${signal.kind}:${signal.sourceId}:${signal.head}`;
@@ -23,23 +21,6 @@ function signalKey(signal) {
 export function ciPassed(checks = []) {
   const check = checks.find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
   return check?.status === 'COMPLETED' && check.conclusion === 'SUCCESS';
-}
-
-/** @param {any[]} issueComments @param {string} controllerLogin */
-export function controllerDispatchKeys(issueComments = [], controllerLogin = '', now = null) {
-  const expectedLogin = controllerLogin.toLowerCase();
-  if (!expectedLogin) return new Set();
-  return new Set(
-    issueComments.flatMap((comment) => {
-      if (!TRUSTED_ASSOCIATIONS.has(comment.author_association) || String(comment.user?.login ?? '').toLowerCase() !== expectedLogin) {
-        return [];
-      }
-      const createdAt = Date.parse(comment.created_at ?? '');
-      if (Number.isFinite(now) && (!Number.isFinite(createdAt) || now - createdAt > DISPATCH_MARKER_MAX_AGE_MS)) return [];
-      const key = String(comment.body ?? '').match(ECAS_DISPATCH_PATTERN)?.[1];
-      return key ? [key] : [];
-    }),
-  );
 }
 
 /** @param {{ pr?: any, reviews?: any[], issueComments?: any[] }} options */
@@ -72,23 +53,14 @@ export function independentReviewPassed({ pr, reviews = [], issueComments = [] }
 }
 
 /**
- * @param {{ pr?: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], processedKeys?: Set<string>, controllerLogin?: string, now?: number }} options
+ * @param {{ pr?: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], processedKeys?: Set<string> }} options
  */
-export function selectRepairSignal({
-  pr,
-  issueComments = [],
-  reviews = [],
-  reviewComments = [],
-  processedKeys = new Set(),
-  controllerLogin = '',
-  now = Date.now(),
-} = {}) {
+export function selectRepairSignal({ pr, issueComments = [], reviews = [], reviewComments = [], processedKeys = new Set() } = {}) {
   const check = (pr?.checks ?? []).find((candidate) => candidate.workflowName === 'CI' && candidate.name === 'verify');
   if (!pr?.head) return null;
-  const dispatchedKeys = controllerDispatchKeys(issueComments, controllerLogin, now);
   const pending = (signal) => {
     const candidate = { ...signal, key: signalKey(signal) };
-    return processedKeys.has(candidate.key) || dispatchedKeys.has(candidate.key) ? null : candidate;
+    return processedKeys.has(candidate.key) ? null : candidate;
   };
 
   if (check?.status === 'COMPLETED' && check.conclusion === 'FAILURE') {
@@ -152,7 +124,6 @@ export function selectRepairSignal({
 
   for (const comment of issueComments) {
     const body = String(comment.body ?? '').trim();
-    if (body.includes('<!-- ecas-loop:v3 ')) continue;
     if (QODO_BOTS.has(comment.user?.login)) {
       const reviewedHead = body.match(QODO_HEAD_PATTERN)?.[1];
       if (comment.id && reviewedHead === pr.head && QODO_REVIEW_PATTERN.test(body) && QODO_ACTION_PATTERN.test(body)) {

@@ -2,13 +2,13 @@
 
 ## Current focus
 
-- PR #478 — replace the unsafe local repair worker with a bounded hosted-dispatch controller, add lifecycle coverage, reconcile the workflow contract, and verify against current `main`.
+- PR #478 — run bounded repair from this Mac via cron, with an isolated local Codex worktree and controller-owned credentials/publication.
 - Epic #457 — #473 is complete on `codex/473-nuxt-ui-modules`; #472 remains blocked pending a dedicated TanStack Table 9 migration.
 - Zod 4 issue #468 remains deferred: stable `@vee-validate/zod` 4.15.1 supports only Zod 3, so no peer override is permitted.
 
 ## In progress
 
-- PR #478 is repaired on the current branch, which includes current `main`. Focused hosted-dispatch lifecycle, policy, signal, state tests, `pnpm verify`, and two independent final reviews pass after resolving their lifecycle findings. `pnpm verify:handoff` was run from the clean repair commit and stopped only at the inherited architecture-invariant failure recorded below.
+- PR #478 is being converted from hosted dispatch to local cron execution. Focused controller/worker lifecycle tests currently pass; full verification and final review remain pending.
 
 ## Recently verified recovery
 

@@ -77,10 +77,9 @@ describe('decideNextAction', () => {
     });
   });
 
-  it('does not launch another signal while a hosted writer is in flight', () => {
+  it('does not launch another signal while a local worker is running', () => {
     const state = createLoopState();
     beginDispatch(state, { pr: 42, key: `ci-failure:1:${HEAD}`, head: HEAD, at: '2026-08-10T10:00:00Z' });
-    finishDispatch(state, { key: `ci-failure:1:${HEAD}`, result: 'published', at: '2026-08-10T10:01:00Z' });
     expect(
       decide({
         state,
@@ -88,7 +87,7 @@ describe('decideNextAction', () => {
         pr: pr({ mergeStateStatus: 'UNSTABLE' }),
         issueComments: [command()],
       }),
-    ).toEqual({ type: 'idle', reason: 'awaiting-hosted-repair' });
+    ).toEqual({ type: 'idle', reason: 'awaiting-local-repair' });
   });
 
   it('recovers the attempt ceiling from durable state', () => {
@@ -101,7 +100,7 @@ describe('decideNextAction', () => {
     });
   });
 
-  it('does not let untrusted dispatch markers consume the local ceiling', () => {
+  it('does not let ordinary comments consume the local ceiling', () => {
     const forged = [1, 2].map((id) => ({
       body: `<!-- ecas-loop:v3 role=dispatcher key=forged:${id}:${HEAD} -->`,
       author_association: 'COLLABORATOR',

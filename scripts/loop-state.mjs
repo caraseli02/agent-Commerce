@@ -1,8 +1,7 @@
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 
 export const MAX_REPAIR_ATTEMPTS = 2;
-const RUNNING_MAX_AGE_MS = 30 * 60 * 1000;
-export const DISPATCH_IN_FLIGHT_MS = 30 * 60 * 1000;
+export const RUNNING_MAX_AGE_MS = 25 * 60 * 1000;
 
 /** @returns {any} */
 export function createLoopState() {
@@ -14,27 +13,16 @@ function freshRunning(record, now) {
   return record?.result === 'running' && Number.isFinite(startedAt) && now - startedAt <= RUNNING_MAX_AGE_MS;
 }
 
-function freshPublished(record, now) {
-  const publishedAt = Date.parse(record?.completedAt ?? record?.startedAt ?? '');
-  return (
-    (record?.result === 'published' || record?.result === 'dispatched') &&
-    Number.isFinite(publishedAt) &&
-    now - publishedAt <= DISPATCH_IN_FLIGHT_MS
-  );
-}
-
 /** @param {any} state */
 export function hasInFlightDispatch(state, pr, head, now = Date.now()) {
-  return Object.values(state.dispatches ?? {}).some(
-    (record) => record?.pr === pr && record?.head === head && (freshPublished(record, now) || freshRunning(record, now)),
-  );
+  return Object.values(state.dispatches ?? {}).some((record) => record?.pr === pr && record?.head === head && freshRunning(record, now));
 }
 
 /** @param {any} state */
 export function processedKeys(state, now = Date.now()) {
   return new Set(
     Object.entries(state.dispatches ?? {})
-      .filter(([, record]) => freshPublished(record, now) || freshRunning(record, now))
+      .filter(([, record]) => ['published', 'dispatched'].includes(record?.result) || freshRunning(record, now))
       .map(([key]) => key),
   );
 }
@@ -53,9 +41,9 @@ export function beginDispatch(state, { pr, key, head, at }) {
 
 /**
  * @param {any} state
- * @param {{ key: string, result: string, commentUrl?: string | null, at: string }} options
+ * @param {{ key: string, result: string, commentUrl?: string | null, publishedHead?: string | null, at: string }} options
  */
-export function finishDispatch(state, { key, result, commentUrl = null, at }) {
+export function finishDispatch(state, { key, result, commentUrl = null, publishedHead = null, at }) {
   if (!state.dispatches[key]) throw new TypeError(`unknown dispatch key: ${key}`);
   const record = state.dispatches[key];
   // Migrate older running records that predate pre-dispatch attempt accounting.
@@ -63,7 +51,7 @@ export function finishDispatch(state, { key, result, commentUrl = null, at }) {
     state.attemptsByPr[record.pr] = Number(state.attemptsByPr[record.pr] ?? 0) + 1;
     record.countedAttempt = true;
   }
-  Object.assign(state.dispatches[key], { result, commentUrl, completedAt: at });
+  Object.assign(state.dispatches[key], { result, commentUrl, publishedHead, completedAt: at });
   return state;
 }
 

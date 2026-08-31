@@ -19,7 +19,7 @@ function claimedIssue(pr, activeIssues) {
 }
 
 /**
- * @param {{ state: any, activeIssues?: any[], pr: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], controllerLogin?: string, now?: number }} options
+ * @param {{ state: any, activeIssues?: any[], pr: any, issueComments?: any[], reviews?: any[], reviewComments?: any[], now?: number }} options
  */
 export function decideNextAction({
   state,
@@ -28,7 +28,6 @@ export function decideNextAction({
   issueComments = [],
   reviews = [],
   reviewComments = [],
-  controllerLogin = '',
   now = Date.now(),
 }) {
   const issue = claimedIssue(pr, activeIssues);
@@ -38,15 +37,13 @@ export function decideNextAction({
   // Repairs need only a non-conflicting head: GitHub reports failed/pending
   // checks as UNSTABLE/BLOCKED. Promotion is deliberately stricter below.
   if (pr.mergeable === 'CONFLICTING' || pr.mergeStateStatus === 'DIRTY') return { type: 'idle', reason: 'awaiting-non-conflicting-pr' };
-  if (hasInFlightDispatch(state, pr.number, pr.head, now)) return { type: 'idle', reason: 'awaiting-hosted-repair' };
+  if (hasInFlightDispatch(state, pr.number, pr.head, now)) return { type: 'idle', reason: 'awaiting-local-repair' };
   const signal = selectRepairSignal({
     pr,
     issueComments,
     reviews,
     reviewComments,
     processedKeys: processedKeys(state, now),
-    controllerLogin,
-    now,
   });
   if (!signal && ciPassed(pr.checks)) {
     if (dispatchedHeads(state, pr.number).has(pr.head)) {

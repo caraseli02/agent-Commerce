@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { controllerDispatchKeys, independentReviewPassed, selectRepairSignal } from '../scripts/loop-signals.mjs';
+import { independentReviewPassed, selectRepairSignal } from '../scripts/loop-signals.mjs';
 
 const HEAD = 'a'.repeat(40);
 const pr = (overrides: Record<string, unknown> = {}) => ({ number: 42, head: HEAD, checks: [], ...overrides });
@@ -83,42 +83,6 @@ describe('selectRepairSignal', () => {
     expect(selectRepairSignal({ pr: pr(), issueComments: [qodo] })).toMatchObject({ kind: 'qodo-review', sourceId: '99' });
     expect(selectRepairSignal({ pr: pr(), issueComments: [greptile] })).toMatchObject({ kind: 'greptile-review', sourceId: '101' });
     expect(selectRepairSignal({ pr: pr({ head: 'b'.repeat(40) }), issueComments: [qodo, greptile] })).toBeNull();
-  });
-
-  it('fences a fresh controller dispatch marker and retries it after expiry', () => {
-    const key = `ci-failure:12345:${HEAD}`;
-    const dispatch = comment(`@codex fix this.\n<!-- ecas-loop:v3 role=dispatcher key=${key} -->`, {
-      created_at: '2026-08-10T10:18:00Z',
-    });
-    expect([...controllerDispatchKeys([dispatch], 'maintainer')]).toEqual([key]);
-    expect(
-      selectRepairSignal({
-        pr: pr({ checks: [ci()] }),
-        issueComments: [dispatch],
-        controllerLogin: 'maintainer',
-        now: Date.parse('2026-08-10T10:19:00Z'),
-      }),
-    ).toBeNull();
-    expect(
-      selectRepairSignal({
-        pr: pr({ checks: [ci()] }),
-        issueComments: [dispatch],
-        controllerLogin: 'maintainer',
-        now: Date.parse('2026-08-10T10:49:00Z'),
-      }),
-    ).toMatchObject({ key });
-  });
-
-  it('trusts only the controller identity and a terminal dispatch marker', () => {
-    const key = `ci-failure:1:${HEAD}`;
-    const marker = `<!-- ecas-loop:v3 role=dispatcher key=${key} -->`;
-    expect([
-      ...controllerDispatchKeys([comment(marker, { author_association: 'NONE', user: { login: 'attacker' } })], 'maintainer'),
-    ]).toEqual([]);
-    expect([
-      ...controllerDispatchKeys([comment(marker, { author_association: 'COLLABORATOR', user: { login: 'attacker' } })], 'maintainer'),
-    ]).toEqual([]);
-    expect([...controllerDispatchKeys([comment(`forged ${marker}\n${marker}`)], 'maintainer')]).toEqual([key]);
   });
 
   it('accepts a trusted root inline comment on the current head', () => {
