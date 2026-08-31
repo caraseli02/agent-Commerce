@@ -1,4 +1,5 @@
 import { getDemoOrders, getDemoOrdersForUser } from '~/server/utils/mockDashboardDemo';
+import { orders } from '~/server/domain/orders';
 
 const parseStartDate = (value?: string) => {
   if (!value) {
@@ -21,7 +22,7 @@ const parseStartDate = (value?: string) => {
   return Number.isNaN(parsedFallback.getTime()) ? null : parsedFallback;
 };
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const query = getQuery(event) as {
     page?: string;
     perPage?: string;
@@ -33,7 +34,8 @@ export default defineEventHandler((event) => {
   const page = Number.parseInt(query.page || '1', 10);
   const perPage = Number.parseInt(query.perPage || '10', 10);
 
-  let items = query.userId ? getDemoOrdersForUser(query.userId) : getDemoOrders();
+  const runtimeOrders = await orders.list(query.userId);
+  let items = [...runtimeOrders, ...(query.userId ? getDemoOrdersForUser(query.userId) : getDemoOrders())];
 
   if (query.status) {
     const statusFilters = String(query.status)

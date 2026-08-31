@@ -129,6 +129,7 @@ const { token, getGeneralSettings } = storeToRefs(authStore);
 const isGuestCheckout = computed(() => !(token.value || userId.value));
 const { guestCheckoutMode, clearGuestCheckout } = useGuestCheckout();
 const isGuestCheckoutMode = computed(() => isGuestCheckout.value && guestCheckoutMode.value);
+const authoritativeQuote = ref<ShippingOrderPricingResponse['quote']>(undefined);
 
 // Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
 // (sets hasFetchedCart) so pages never call composables/api/cart directly.
@@ -150,12 +151,14 @@ const orderItems = computed(() => {
         )
       : 0;
     const effectiveUnitPrice = Number(discountPrice || item.unitPriceAfterDiscounts || item.initialUnitPrice || 0);
-    const lineTotal = Number((effectiveUnitPrice * quantity).toFixed(2));
+    const quotedLine = authoritativeQuote.value?.lines.find((line) => line.productId === item.id);
+    const unitPrice = quotedLine?.unitPrice ?? effectiveUnitPrice;
+    const lineTotal = quotedLine?.lineTotal ?? Number((unitPrice * quantity).toFixed(2));
 
     return {
       ...rest,
-      initialUnitPrice: effectiveUnitPrice,
-      unitPriceAfterDiscounts: effectiveUnitPrice,
+      initialUnitPrice: unitPrice,
+      unitPriceAfterDiscounts: unitPrice,
       subtotal: lineTotal,
       total: lineTotal,
     } as CartProductsInterface;
@@ -372,7 +375,8 @@ const deleteSelected = () => {
 };
 
 const updateSubtotal = async (items: CartProductsInterface[], checkoutOrder: CheckoutOrderDraft) => {
-  shippingPreferences.value = await fetchShippingPrices(checkoutOrder);
+  shippingPreferences.value = await fetchShippingPrices({ ...checkoutOrder, cartId: cartId.value });
+  authoritativeQuote.value = shippingPreferences.value?.quote;
   await calculateSubtotal(items, checkoutOrder);
   syncOrderTotals();
 };
@@ -451,7 +455,7 @@ onMounted(async () => {
     };
   }
 
-  const shippingPricesPromise = fetchShippingPrices(order.value);
+  const shippingPricesPromise = fetchShippingPrices({ ...order.value, cartId: cartId.value });
 
   const [, , shippingPrices] = await Promise.all([
     fetchCards(), // Fetch user's payment cards
@@ -460,6 +464,7 @@ onMounted(async () => {
   ]);
 
   shippingPreferences.value = shippingPrices; // Fetch shipping prices
+  authoritativeQuote.value = shippingPrices?.quote;
 
   // Initial calculations
   await calculateSubtotal(cartItems.value, order.value);

@@ -69,3 +69,8 @@ Use this file for durable cross-session decisions that should survive context re
 
   - Reason: the former check ran at the end of `pnpm verify` against the immutable workflow-event snapshot, so PR descriptions completed after creation still appeared empty or incomplete and made otherwise-green application checks red.
   - Impact: `pnpm verify` covers repository behavior only; the trusted `PR template / check` workflow fetches the current PR body and reruns on description or label edits.
+
+- 2026-08-31 — Use one relational checkout adapter for the PlaceOrder hardening slice
+
+  - Reason: carts, checkout claims, orders, inventory reservations, and payment state must survive separate Vercel invocations, while the portfolio demo must remain self-contained locally.
+  - Impact: local mock review defaults to SQLite; Vercel requires shared PostgreSQL and fails closed without `DATABASE_URL`/`POSTGRES_URL`. PlaceOrder remains a synchronous application workflow over public domain APIs and does not add services, brokers, sagas, or `finalizePayment`.

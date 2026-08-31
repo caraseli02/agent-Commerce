@@ -5,12 +5,20 @@ import type { AddToCartRequestInterface, CartInterface, CartProductsInterface } 
 import {
   calculateCartLinePricing,
   clampCartQuantity,
+  resolveCustomerUnitPrice,
   resolveTierUnitPrice,
   type ClampCartQuantityOptions,
   type ClampCartQuantityResult,
 } from '~/helpers/cart-pricing';
 
-export { calculateCartLinePricing, clampCartQuantity, resolveTierUnitPrice, type ClampCartQuantityOptions, type ClampCartQuantityResult };
+export {
+  calculateCartLinePricing,
+  clampCartQuantity,
+  resolveCustomerUnitPrice,
+  resolveTierUnitPrice,
+  type ClampCartQuantityOptions,
+  type ClampCartQuantityResult,
+};
 
 export const parseProductPriceConfiguration = (product: ProductInterface | null | undefined, userDetails: UserInterface, quantity = 0) => {
   let unitPrice = 0;
@@ -41,10 +49,7 @@ export const parseProductPriceConfiguration = (product: ProductInterface | null 
   let discountPrice = 0;
 
   discountPrice = productDiscount ? unitPrice * (1 - productDiscount / 100) : unitPrice * (1 - userDiscount / 100);
-  const currentConfigurationPrice = currentPriceConfiguration?.price ?? 0;
-  const currentConfigurationDiscountPrice = productDiscount
-    ? currentConfigurationPrice * (1 - productDiscount / 100)
-    : currentConfigurationPrice * (1 - userDiscount / 100);
+  const currentConfigurationDiscountPrice = resolveCustomerUnitPrice(product, userDiscount, quantity);
 
   return {
     userDiscount: userDiscount,

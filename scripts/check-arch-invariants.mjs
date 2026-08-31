@@ -8,7 +8,7 @@ const rootDir = path.resolve(new URL('..', import.meta.url).pathname);
 const sourceExtensions = new Set(['.js', '.mjs', '.ts', '.vue']);
 const ignoredDirectories = new Set(['.git', '.husky', '.nuxt', '.output', 'coverage', 'dist', 'node_modules']);
 
-const approvedAuthHeaderPaths = ['plugins/api.ts', 'composables/api/', 'tests/'];
+const approvedAuthHeaderPaths = ['plugins/api.ts', 'composables/api/', 'scripts/check-pr-template.mjs', 'tests/'];
 
 const legacyAuthHeaderExceptions = new Map([
   [
@@ -112,7 +112,7 @@ async function main() {
 
   if (violations.length > 0) {
     console.error(
-      'Architecture invariant failed: manual bearer auth headers are only allowed in plugins/api.ts, composables/api/, or test fixtures.',
+      'Architecture invariant failed: manual bearer auth headers are only allowed in approved API/integration boundaries or test fixtures.',
     );
     console.error(
       'Why it matters: Components Marketplace routes authenticated API traffic through the canonical API client so token attachment and 401 handling stay consistent.',

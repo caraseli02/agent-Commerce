@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { ProductInterface } from '~/types/product';
-import { calculateCartLinePricing, clampCartQuantity, resolveTierUnitPrice } from '../helpers/prices.helper';
+import { calculateCartLinePricing, clampCartQuantity, resolveCustomerUnitPrice, resolveTierUnitPrice } from '../helpers/prices.helper';
 
 const volumeProduct = {
   _id: 'prod-1',
@@ -51,6 +51,10 @@ describe('cart pricing and stock helpers', () => {
     expect(pricing.unitPriceAfterDiscounts).toBe(959.99);
     expect(pricing.subtotal).toBe(9599.9);
     expect(pricing.total).toBe(9599.9);
+  });
+
+  it('applies the authenticated customer discount to the selected tier price', () => {
+    expect(resolveCustomerUnitPrice(volumeProduct, 5, 1)).toBe(949.99);
   });
 
   it('clamps requested stock to available inventory', () => {
@@ -177,7 +181,7 @@ describe('mock cart stock and volume pricing enforcement', () => {
     const event = {
       headers: { authorization: 'Bearer mock-token' },
       body: {
-        products: [{ id: 'prod-1', stock: 9, isFolder: false }],
+        products: [{ id: 'prod-1', stock: 10, isFolder: false }],
       },
       cookies: {},
     };

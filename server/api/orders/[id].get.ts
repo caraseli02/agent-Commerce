@@ -1,9 +1,9 @@
 import { findDemoOrder } from '~/server/utils/mockDashboardDemo';
-import { findRuntimeOrder } from '~/server/utils/mockRuntimeOrders';
+import { orders } from '~/server/domain/orders';
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id');
-  const runtimeOrder = findRuntimeOrder(id);
+  const runtimeOrder = await orders.findById(id);
 
   if (runtimeOrder) {
     return {

@@ -3,24 +3,13 @@ import { getCookie, setCookie, type H3Event } from 'h3';
 import { calculateCartLinePricing, clampCartQuantity } from '~/helpers/cart-pricing';
 import { mockProducts } from '~/server/utils/mockProducts';
 import { parseMockUserIdFromToken } from '~/server/utils/mockUsers';
-import { deleteSession, loadSession, purgeExpiredSessions, saveSession } from '~/server/utils/mockSessionStore';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
 import type { DiscountInterface } from '~/types/auth/account-settings';
 
-const CART_TTL_MS = 60 * 60 * 1000;
-const MAX_CARTS = 250;
-const CART_SESSION_NAMESPACE = 'cart';
 const GUEST_CART_USER_ID = 'guest-user-session';
 const GUEST_SESSION_COOKIE = 'guest-session-id';
 
-type StoredCart = {
-  cart: CartInterface;
-  updatedAt: number;
-};
-
-const cartsByUserId = new Map<string, StoredCart>();
-
 const nowIso = () => new Date().toISOString();
-const nowMs = () => Date.now();
 
 const normalizeGuestSessionId = (guestSessionId?: string | null) => {
   const normalized = String(guestSessionId || '').trim();
@@ -153,109 +142,81 @@ const hydrateCartFromStorage = (cart: CartInterface): CartInterface => ({
   }),
 });
 
-const persistStoredCart = (userId: string, stored: StoredCart) => {
-  cartsByUserId.set(userId, stored);
-  saveSession(CART_SESSION_NAMESPACE, userId, serializeCartForStorage(stored.cart), stored.updatedAt);
+type CartRow = {
+  owner_id: string;
+  cart_id: string;
+  revision: number;
+  payload_json: string;
 };
 
-const removeStoredCart = (userId: string) => {
-  cartsByUserId.delete(userId);
-  deleteSession(CART_SESSION_NAMESPACE, userId);
-};
-
-const loadStoredCartFromDisk = (userId: string): StoredCart | null => {
-  const envelope = loadSession<CartInterface>(CART_SESSION_NAMESPACE, userId);
-  if (!envelope?.value) {
-    return null;
-  }
-
-  const cart = hydrateCartFromStorage(envelope.value);
-  const stored = { cart, updatedAt: envelope.updatedAt };
-  cartsByUserId.set(userId, stored);
-  return stored;
-};
-
-const purgeExpiredCarts = () => {
-  const cutoff = nowMs() - CART_TTL_MS;
-  for (const [userId, stored] of cartsByUserId.entries()) {
-    if (stored.updatedAt < cutoff) {
-      removeStoredCart(userId);
-    }
-  }
-
-  if (cartsByUserId.size > MAX_CARTS) {
-    const byOldest = [...cartsByUserId.entries()].sort((a, b) => a[1].updatedAt - b[1].updatedAt);
-    const overflow = byOldest.length - MAX_CARTS;
-    for (let i = 0; i < overflow; i++) {
-      const oldest = byOldest[i];
-      if (oldest) removeStoredCart(oldest[0]);
-    }
-  }
-
-  purgeExpiredSessions(CART_SESSION_NAMESPACE, CART_TTL_MS, MAX_CARTS);
-};
-
-export const getMockCartForUser = (userId: string) => {
-  purgeExpiredCarts();
-
-  const existing = cartsByUserId.get(userId) || loadStoredCartFromDisk(userId);
-  if (existing?.cart) {
-    existing.cart.products = Array.isArray(existing.cart.products) ? existing.cart.products : [];
-    existing.updatedAt = nowMs();
-    return existing.cart;
-  }
-
-  const defaultProduct = resolveMockProduct('prod-1');
-  const starterProducts: CartProductsInterface[] = defaultProduct
-    ? [
-        normalizeCartProduct(
-          {
-            id: defaultProduct._id,
-            stock: 1,
-            isFolder: false,
-          },
-          undefined,
-          'set',
-        ),
-      ]
-    : [];
-
-  const cart: CartInterface = {
-    _id: `mock-cart-${userId}`,
-    userId,
-    products: starterProducts,
-    startDate: nowIso(),
-    endDate: nowIso(),
-  };
-
-  persistStoredCart(userId, { cart, updatedAt: nowMs() });
+const parseCartRow = (row: CartRow) => {
+  const cart = hydrateCartFromStorage(JSON.parse(row.payload_json) as CartInterface);
+  cart.products = Array.isArray(cart.products) ? cart.products : [];
   return cart;
 };
 
-export const findMockCartById = (cartId?: string | null) => {
+const selectCartForOwner = async (userId: string) => {
+  const database = await getCheckoutDatabase();
+  const lock = database.dialect === 'postgres' ? ' FOR UPDATE' : '';
+  const rows = await database.query<CartRow>(
+    `SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE owner_id = ?${lock}`,
+    [userId],
+  );
+  return rows[0] || null;
+};
+
+const persistCart = async (cart: CartInterface) => {
+  if (!cart.userId) return;
+  const database = await getCheckoutDatabase();
+  await database.execute(
+    `UPDATE checkout_carts
+       SET payload_json = ?, revision = revision + 1, updated_at = ?
+     WHERE owner_id = ?`,
+    [JSON.stringify(serializeCartForStorage(cart)), nowIso(), cart.userId],
+  );
+};
+
+export const getMockCartForUser = async (userId: string) =>
+  withCheckoutTransaction(async () => {
+    const database = await getCheckoutDatabase();
+    const timestamp = nowIso();
+    const cart: CartInterface = {
+      _id: `mock-cart-${userId}`,
+      userId,
+      products: [],
+      startDate: timestamp,
+      endDate: timestamp,
+    };
+
+    await database.execute(
+      `INSERT INTO checkout_carts (owner_id, cart_id, revision, payload_json, updated_at)
+       VALUES (?, ?, 1, ?, ?)
+       ON CONFLICT (owner_id) DO NOTHING`,
+      [userId, String(cart._id), JSON.stringify(cart), timestamp],
+    );
+
+    const row = await selectCartForOwner(userId);
+    if (!row) {
+      throw new Error(`Checkout cart ${cart._id} could not be loaded after creation.`);
+    }
+
+    return parseCartRow(row);
+  });
+
+export const findMockCartById = async (cartId?: string | null) => {
   const normalizedId = String(cartId || '').trim();
 
   if (!normalizedId) {
     return null;
   }
 
-  for (const stored of cartsByUserId.values()) {
-    if (stored.cart?._id === normalizedId) {
-      stored.updatedAt = nowMs();
-      return stored.cart;
-    }
-  }
-
-  if (normalizedId.startsWith('mock-cart-')) {
-    const userId = normalizedId.slice('mock-cart-'.length);
-    const stored = loadStoredCartFromDisk(userId);
-    if (stored?.cart?._id === normalizedId) {
-      stored.updatedAt = nowMs();
-      return stored.cart;
-    }
-  }
-
-  return null;
+  const database = await getCheckoutDatabase();
+  const lock = database.dialect === 'postgres' ? ' FOR UPDATE' : '';
+  const rows = await database.query<CartRow>(
+    `SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE cart_id = ?${lock}`,
+    [normalizedId],
+  );
+  return rows[0] ? parseCartRow(rows[0]) : null;
 };
 
 export const requireMockCartUserId = (event: H3Event, authorizationHeader?: string | null) => {
@@ -280,7 +241,7 @@ export const requireMockCartUserId = (event: H3Event, authorizationHeader?: stri
   return buildGuestCartUserId(guestSessionId) || GUEST_CART_USER_ID;
 };
 
-export const addProductsToMockCart = (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
+export const addProductsToMockCart = async (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
   const list = Array.isArray(cart.products) ? cart.products : [];
 
   for (const raw of products) {
@@ -301,13 +262,11 @@ export const addProductsToMockCart = (cart: CartInterface, products: Partial<Car
   }
 
   cart.products = list.filter((item) => item.id);
-  if (cart.userId) {
-    persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
-  }
+  await persistCart(cart);
   return cart;
 };
 
-export const mergeGuestCartIntoMockCart = (userId?: string | null, guestSessionId?: string | null) => {
+export const mergeGuestCartIntoMockCart = async (userId?: string | null, guestSessionId?: string | null) => {
   const normalizedUserId = String(userId || '').trim();
   const guestUserId = buildGuestCartUserId(guestSessionId);
 
@@ -315,30 +274,29 @@ export const mergeGuestCartIntoMockCart = (userId?: string | null, guestSessionI
     return null;
   }
 
-  purgeExpiredCarts();
-
   if (!guestUserId) {
-    return getMockCartForUser(normalizedUserId);
+    return await getMockCartForUser(normalizedUserId);
   }
 
-  const guestCartEntry = cartsByUserId.get(guestUserId) || loadStoredCartFromDisk(guestUserId);
-  if (!guestCartEntry?.cart) {
-    return getMockCartForUser(normalizedUserId);
+  const guestCart = await findMockCartById(`mock-cart-${guestUserId}`);
+  if (!guestCart) {
+    return await getMockCartForUser(normalizedUserId);
   }
 
-  const guestProducts = (guestCartEntry.cart.products || []).filter((product) => product.id);
-  const userCart = getMockCartForUser(normalizedUserId);
+  const guestProducts = (guestCart.products || []).filter((product) => product.id);
+  const userCart = await getMockCartForUser(normalizedUserId);
 
   if (guestProducts.length) {
-    addProductsToMockCart(userCart, guestProducts);
+    await addProductsToMockCart(userCart, guestProducts);
   }
 
-  removeStoredCart(guestUserId);
+  const database = await getCheckoutDatabase();
+  await database.execute('DELETE FROM checkout_carts WHERE owner_id = ?', [guestUserId]);
 
   return userCart;
 };
 
-export const setProductsInMockCart = (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
+export const setProductsInMockCart = async (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
   const list = Array.isArray(cart.products) ? cart.products : [];
 
   for (const raw of products) {
@@ -359,23 +317,19 @@ export const setProductsInMockCart = (cart: CartInterface, products: Partial<Car
   }
 
   cart.products = list.filter((item) => item.id);
-  if (cart.userId) {
-    persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
-  }
+  await persistCart(cart);
   return cart;
 };
 
-export const removeProductsFromMockCart = (cart: CartInterface, ids: string[] = []) => {
+export const removeProductsFromMockCart = async (cart: CartInterface, ids: string[] = []) => {
   const normalizedIds = ids.map((id) => String(id)).filter(Boolean);
   cart.products = (cart.products || []).filter((product) => !normalizedIds.includes(product.id));
-  if (cart.userId) {
-    persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
-  }
+  await persistCart(cart);
   return cart;
 };
 
-export const clearMockCartById = (cartId?: string | null) => {
-  const cart = findMockCartById(cartId);
+export const clearMockCartById = async (cartId?: string | null) => {
+  const cart = await findMockCartById(cartId);
 
   if (!cart) {
     return null;
@@ -383,9 +337,7 @@ export const clearMockCartById = (cartId?: string | null) => {
 
   cart.products = [];
 
-  if (cart.userId) {
-    persistStoredCart(cart.userId, { cart, updatedAt: nowMs() });
-  }
+  await persistCart(cart);
 
   return cart;
 };

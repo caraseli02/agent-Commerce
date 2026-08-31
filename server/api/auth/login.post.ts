@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const token = createMockToken(match.user._id || 'mock-customer-1');
-  mergeGuestCartIntoMockCart(match.user._id, getCookie(event, 'guest-session-id'));
+  await mergeGuestCartIntoMockCart(match.user._id, getCookie(event, 'guest-session-id'));
 
   return {
     status: 'success',

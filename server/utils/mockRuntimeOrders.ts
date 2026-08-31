@@ -245,7 +245,7 @@ const normalizePaymentDetails = (paymentDetails: PaymentDetailsInput = {}): Runt
   };
 };
 
-export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterface) => {
+export const buildRuntimeOrder = (payload: CreateOrderPayload, user: UserInterface) => {
   const orderId = generateOrderId();
   const shortId = generateShortId();
   const products = payload.products || [];
@@ -293,15 +293,16 @@ export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterf
     updatedAt: new Date().toISOString(),
   };
 
-  runtimeOrders.set(orderId, {
-    order,
-    children: [],
-  });
-
   return {
     orderId,
     order,
   };
+};
+
+export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterface) => {
+  const created = buildRuntimeOrder(payload, user);
+  runtimeOrders.set(created.orderId, { order: created.order, children: [] });
+  return created;
 };
 
 export const findRuntimeOrder = (id?: string | null) => {

@@ -1,13 +1,15 @@
-import { describe, expect, it, vi } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { PaymentStatusEnum } from '~/types/order-summary/item';
 import type { CreatePendingOrderInput } from '~/server/domain/orders';
 import type { EnsurePaymentResult } from '~/server/domain/payments';
-import {
-  createPlaceOrderCoordinator,
-  createPlaceOrderUseCase,
-  type PlaceOrderCommand,
-} from '~/server/application/checkout/place-order';
+import { createPlaceOrderCoordinator, createPlaceOrderUseCase, type PlaceOrderCommand } from '~/server/application/checkout/place-order';
+import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+
+let checkoutStoreDir = '';
 
 const user = {
   _id: 'customer-1',
@@ -25,6 +27,7 @@ const makeCommand = (overrides: Partial<PlaceOrderCommand> = {}): PlaceOrderComm
     shippingCost: 9.99,
     type: 0,
     shippingDetails: {
+      deliveryTypeId: '1',
       address: {
         name1: 'Main Street 1',
       },
@@ -109,6 +112,13 @@ const makeDependencies = () => {
             },
           },
         })),
+        quoteDelivery: vi.fn(async () => ({
+          kind: 'quoted' as const,
+          option: {
+            service: { id: 1, courierName: 'Demo Express', name: 'Standard Delivery' },
+            price: { total: 19.9, noVat: 16.72 },
+          },
+        })),
       },
       inventory: {
         reserve: vi.fn(async () => ({
@@ -146,6 +156,21 @@ const makeDependencies = () => {
 };
 
 describe('PlaceOrder application workflow', () => {
+  beforeAll(() => {
+    checkoutStoreDir = mkdtempSync(join(tmpdir(), 'place-order-coordinator-'));
+    process.env.CHECKOUT_DATABASE_PATH = join(checkoutStoreDir, 'checkout.sqlite');
+  });
+
+  beforeEach(async () => {
+    const database = await getCheckoutDatabase();
+    await database.execute('DELETE FROM checkout_claims');
+  });
+
+  afterAll(() => {
+    delete process.env.CHECKOUT_DATABASE_PATH;
+    rmSync(checkoutStoreDir, { recursive: true, force: true });
+  });
+
   it('returns the same logical order for the same request and performs side effects once', async () => {
     const { dependencies, createPending } = makeDependencies();
     const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
@@ -173,7 +198,10 @@ describe('PlaceOrder application workflow', () => {
         makeCommand({
           order: {
             ...makeCommand().order,
-            shippingCost: 19.99,
+            shippingDetails: {
+              deliveryTypeId: '2',
+              address: { name1: 'Main Street 1' },
+            },
           },
         }),
       ),
@@ -214,6 +242,7 @@ describe('PlaceOrder application workflow', () => {
             lineTotalMinor: 100_00,
           }),
         ],
+        shippingCostMinor: 1990,
       }),
     );
 

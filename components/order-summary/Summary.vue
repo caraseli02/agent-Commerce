@@ -97,8 +97,8 @@ const emit = defineEmits<{
 
 const showSmallOrderModal = ref(false);
 
-const resolvedSubtotal = computed(() => Number(getCartSubtotal.value || props.order.subtotal || 0));
-const resolvedDiscount = computed(() => Number(itemsDiscount.value || props.order.discount?.total || 0));
+const resolvedSubtotal = computed(() => Number(props.order.subtotal || getCartSubtotal.value || 0));
+const resolvedDiscount = computed(() => Number(props.order.discount?.total || itemsDiscount.value || 0));
 const shipping = computed(() => props.order.deliveryMethod);
 
 const orderMoney = computed(() =>

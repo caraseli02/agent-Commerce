@@ -17,4 +17,14 @@ export interface ShippingOrderPricingOption {
 export interface ShippingOrderPricingResponse {
   selected: ShippingOrderPricingOption;
   list: ShippingOrderPricingOption[];
+  quote?: {
+    currency: 'RON';
+    merchandiseTotal: number;
+    lines: Array<{
+      productId: string;
+      quantity: number;
+      unitPrice: number;
+      lineTotal: number;
+    }>;
+  };
 }

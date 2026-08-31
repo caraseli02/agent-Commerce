@@ -30,6 +30,7 @@ Mock mode keeps the app self-contained:
 
 - no external backend required
 - local Nitro endpoints answer API requests
+- checkout state uses a local SQLite database under `.data/`
 - demo credentials work out of the box once `.env` is created
 
 ## Demo credentials
@@ -127,6 +128,12 @@ If you are reviewing this repo for a case study or portfolio walkthrough, start 
 - `NUXT_PUBLIC_MOCK_MODE=true`
 - `NUXT_PUBLIC_BASE_URL_API=/api`
 
+Local development needs no database setting; checkout state defaults to
+`.data/checkout.sqlite`. A Vercel deployment must set `DATABASE_URL` (or
+`POSTGRES_URL`) to a shared PostgreSQL database. The checkout adapter fails
+closed on Vercel when neither variable is available so it cannot silently fall
+back to process-local state.
+
 ### Optional for live integrations
 
 These are not required for the bundled mock demo, but the runtime config supports them:
@@ -139,6 +146,8 @@ When `NUXT_PUBLIC_MOCK_MODE=true`:
 
 - the app routes API traffic to local Nitro endpoints under `server/api/`
 - dashboard and storefront demo data come from the repository itself
+- carts, checkout claims, inventory reservations, payments, and newly-created
+  orders share one relational checkout store
 - reviewers can inspect the product without a separate backend deploy
 - the same self-contained data contract is used by `pnpm dev` and intentional
   `pnpm build && pnpm preview` demo deployments

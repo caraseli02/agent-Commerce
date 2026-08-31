@@ -2,7 +2,6 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { clearSessionNamespace } from '../server/utils/mockSessionStore';
 
 vi.mock('h3', () => ({
   getCookie: (event: { cookies?: Record<string, string> }, name: string) => event.cookies?.[name],
@@ -40,8 +39,7 @@ describe('cart session persistence', () => {
   beforeEach(() => {
     tempStoreDir = mkdtempSync(join(tmpdir(), 'components-marketplace-cart-session-'));
     process.env.NUXT_PUBLIC_MOCK_MODE = 'true';
-    process.env.MOCK_SESSION_STORE_DIR = tempStoreDir;
-    clearSessionNamespace('cart');
+    process.env.CHECKOUT_DATABASE_PATH = join(tempStoreDir, 'checkout.sqlite');
     vi.resetModules();
   });
 
@@ -49,10 +47,10 @@ describe('cart session persistence', () => {
     if (tempStoreDir) {
       rmSync(tempStoreDir, { recursive: true, force: true });
     }
-    delete process.env.MOCK_SESSION_STORE_DIR;
+    delete process.env.CHECKOUT_DATABASE_PATH;
   });
 
-  it('seeds a first-time reviewer cart with prod-1', async () => {
+  it('starts a first-time reviewer cart empty', async () => {
     const { default: cartGetHandler } = (await import('../server/api/cart.get')) as {
       default: (event: unknown) => Promise<{ data: { products: Array<{ id: string; stock: number }> } }>;
     };
@@ -60,9 +58,7 @@ describe('cart session persistence', () => {
     const guestEvent = createEvent();
     const cart = await cartGetHandler(guestEvent);
 
-    expect(cart.data.products).toHaveLength(1);
-    expect(cart.data.products[0]?.id).toBe('prod-1');
-    expect(cart.data.products[0]?.stock).toBe(1);
+    expect(cart.data.products).toEqual([]);
   });
 
   it('keeps reviewer carts isolated across browser sessions', async () => {
@@ -140,9 +136,9 @@ describe('cart session persistence', () => {
     installH3Mocks();
 
     const { findMockCartById } = await import('../server/utils/mockCart');
-    const resolved = findMockCartById(cart.data._id);
+    const resolved = await findMockCartById(cart.data._id);
 
     expect(resolved?._id).toBe(cart.data._id);
-    expect(resolved?.products.some((product) => product.id === 'prod-1')).toBe(true);
+    expect(resolved?.products).toEqual([]);
   });
 });
