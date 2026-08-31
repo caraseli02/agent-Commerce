@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { PaymentStatusEnum } from '~/types/order-summary/item';
 import type { CreatePendingOrderInput } from '~/server/domain/orders';
+import type { EnsurePaymentResult } from '~/server/domain/payments';
 import {
   createPlaceOrderCoordinator,
   createPlaceOrderUseCase,
@@ -43,6 +44,17 @@ const makeDependencies = () => {
 
   const confirmPayment = vi.fn(async (_input: { orderId: string; paymentId: string }) => ({
     kind: 'confirmed' as const,
+  }));
+
+  const ensurePayment = vi.fn(async (): Promise<EnsurePaymentResult> => ({
+    kind: 'succeeded',
+    paymentId: 'payment-1',
+    status: PaymentStatusEnum.Paid,
+    useExistingPaymentMethod: false,
+    clientSecret: undefined,
+    result: {
+      status: 'succeeded',
+    },
   }));
 
   return {
@@ -127,16 +139,7 @@ const makeDependencies = () => {
         confirmPayment,
       },
       payments: {
-        ensurePayment: vi.fn(async () => ({
-          kind: 'succeeded' as const,
-          paymentId: 'payment-1',
-          status: PaymentStatusEnum.Paid,
-          useExistingPaymentMethod: false,
-          clientSecret: undefined,
-          result: {
-            status: 'succeeded' as const,
-          },
-        })),
+        ensurePayment,
       },
     },
   };
