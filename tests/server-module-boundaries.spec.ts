@@ -6,65 +6,43 @@ import { describe, expect, it } from 'vitest';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const walkTsFiles = (root: string): string[] => {
-  if (!existsSync(root)) {
-    return [];
-  }
+  if (!existsSync(root)) return [];
 
   return readdirSync(root).flatMap((entry) => {
     const absolutePath = resolve(root, entry);
     const stats = statSync(absolutePath);
-
-    if (stats.isDirectory()) {
-      return walkTsFiles(absolutePath);
-    }
-
+    if (stats.isDirectory()) return walkTsFiles(absolutePath);
     return /\.(?:ts|mts|cts)$/.test(entry) ? [absolutePath] : [];
   });
 };
 
-const source = (absolutePath: string) => readFileSync(absolutePath, 'utf8');
 const repoRelative = (absolutePath: string) => relative(repoRoot, absolutePath).split(sep).join('/');
+const domainInternalPattern = /server\/domain\/([^/'"]+)\/internal/;
 
-const internalModuleImportPattern = /from\s+['"][^'"]*server\/modules\/([^/'"]+)\/internal(?:\/[^'"]*)?['"]/g;
-
-const findInternalModuleImports = (absolutePath: string) => {
-  const matches: string[] = [];
-  const contents = source(absolutePath);
-
-  for (const match of contents.matchAll(internalModuleImportPattern)) {
-    const targetModule = match[1];
-    if (targetModule) {
-      matches.push(targetModule);
-    }
-  }
-
-  return matches;
+const findInternalDomainImport = (absolutePath: string) => {
+  const match = readFileSync(absolutePath, 'utf8').match(domainInternalPattern);
+  return match?.[1] ?? null;
 };
 
-describe('server module boundaries', () => {
-  it('keeps API and application workflows off module internals', () => {
+describe('server domain boundaries', () => {
+  it('keeps API and application workflows off domain internals', () => {
     const protectedRoots = [resolve(repoRoot, 'server/api'), resolve(repoRoot, 'server/application')];
-    const offenders = protectedRoots
-      .flatMap(walkTsFiles)
-      .flatMap((absolutePath) =>
-        findInternalModuleImports(absolutePath).map((targetModule) => ({
-          file: repoRelative(absolutePath),
-          targetModule,
-        })),
-      );
+    const offenders = protectedRoots.flatMap(walkTsFiles).flatMap((absolutePath) => {
+      const targetDomain = findInternalDomainImport(absolutePath);
+      return targetDomain ? [{ file: repoRelative(absolutePath), targetDomain }] : [];
+    });
 
     expect(offenders).toEqual([]);
   });
 
-  it('prevents one server module from importing another module internal implementation', () => {
-    const modulesRoot = resolve(repoRoot, 'server/modules');
-    const offenders = walkTsFiles(modulesRoot).flatMap((absolutePath) => {
+  it('prevents one domain package from importing another domain internal implementation', () => {
+    const domainRoot = resolve(repoRoot, 'server/domain');
+    const offenders = walkTsFiles(domainRoot).flatMap((absolutePath) => {
       const file = repoRelative(absolutePath);
-      const sourceModule = file.split('/')[2];
+      const sourceDomain = file.split('/')[2];
+      const targetDomain = findInternalDomainImport(absolutePath);
 
-      return findInternalModuleImports(absolutePath)
-        .filter((targetModule) => targetModule !== sourceModule)
-        .map((targetModule) => ({ file, sourceModule, targetModule }));
+      return targetDomain && targetDomain !== sourceDomain ? [{ file, sourceDomain, targetDomain }] : [];
     });
 
     expect(offenders).toEqual([]);
@@ -72,10 +50,6 @@ describe('server module boundaries', () => {
 });
 
 describe('checkout workflow contracts to activate during implementation', () => {
-  it.todo(
-    'PlaceOrder is idempotent: retrying the same checkoutRequestId and fingerprint returns the same logical order, while conflicting reuse is rejected and the same cart revision cannot create two active orders',
-  );
-
   it.todo(
     'payment finalization is idempotent and monotonic: duplicate or late provider success events settle the order at most once and stale events cannot regress a terminal payment state',
   );

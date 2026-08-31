@@ -1,7 +1,8 @@
 import type { $Fetch } from 'ofetch';
 import { describe, expect, it, vi } from 'vitest';
 
-import { fetchOrders, fetchWidget, getOrderById } from '~/composables/api/orders';
+import { fetchOrders, fetchWidget, getOrderById, sendOrder } from '~/composables/api/orders';
+import type { OrderRequestInterface } from '~/types';
 
 describe('dashboard orders API adapters', () => {
   it('fetchWidget requests the selected dashboard metric with its time range', async () => {
@@ -90,5 +91,63 @@ describe('dashboard orders API adapters', () => {
         method: 'GET',
       },
     });
+  });
+
+  it('reuses the same checkout request ID when transport fails before the response is received', async () => {
+    const requests: Array<{ body?: Record<string, unknown> }> = [];
+    const apiClient = vi.fn(async (_url: string, options: Record<string, unknown>) => {
+      requests.push({
+        body: options.body as Record<string, unknown>,
+      });
+
+      if (requests.length === 1) {
+        throw new Error('response lost');
+      }
+
+      return {
+        status: 'success',
+        data: {
+          orderId: 'order-idempotent-1',
+          status: 1,
+          useExistingPaymentMethod: false,
+        },
+      };
+    }) as unknown as $Fetch;
+
+    const order = {
+      cartId: 'cart-idempotency-test',
+      products: [
+        {
+          id: 'prod-1',
+          stock: 1,
+          backorder_stock: 0,
+        },
+      ],
+      shippingDetails: {
+        address: {
+          name1: 'Main Street 1',
+        },
+      },
+      paymentDetails: {
+        type: 2,
+      },
+      shippingCost: 9.99,
+      type: 0,
+      notes: [],
+    } as unknown as OrderRequestInterface;
+
+    await expect(sendOrder(order, apiClient)).rejects.toThrow('response lost');
+    await expect(sendOrder(order, apiClient)).resolves.toMatchObject({
+      status: 'success',
+      data: {
+        orderId: 'order-idempotent-1',
+      },
+    });
+
+    const firstRequestId = requests[0]?.body?.checkoutRequestId;
+    const secondRequestId = requests[1]?.body?.checkoutRequestId;
+
+    expect(typeof firstRequestId).toBe('string');
+    expect(firstRequestId).toBe(secondRequestId);
   });
 });

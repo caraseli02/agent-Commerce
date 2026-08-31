@@ -8,9 +8,30 @@ import type { PlaceOrderInterface } from '~/types/order';
 const RESOURCE = '/orders';
 const ORDERS_DASHBOARD_RESOURCE = '/dashboard/orders/admin';
 
+const pendingCheckoutRequestIds = new Map<string, string>();
+
 function getApiClient(apiClient?: $Fetch) {
   return apiClient ?? useNuxtApp().$apiClient;
 }
+
+const createCheckoutRequestId = () =>
+  globalThis.crypto?.randomUUID?.() ?? `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+const buildCheckoutIntentKey = (order: OrderRequestInterface) =>
+  JSON.stringify({
+    cartId: order.cartId,
+    products: (order.products || []).map((product) => ({
+      id: product.id,
+      stock: product.stock,
+      backorderStock: product.backorder_stock,
+    })),
+    shippingDetails: order.shippingDetails,
+    paymentType: order.paymentDetails?.type,
+    stripeCardId: order.stripeCardId,
+    shippingCost: order.shippingCost,
+    type: order.type,
+    notes: order.notes,
+  });
 
 export async function fetchWidget(type: WidgetApiType, time: number, apiClient?: $Fetch) {
   const $apiClient = getApiClient(apiClient);
@@ -37,13 +58,26 @@ export async function fetchOrders(page: number, perPage: number, filters = {}, s
   });
 }
 
-export async function sendOrder(order: OrderRequestInterface) {
-  const $apiClient = getApiClient();
+export async function sendOrder(order: OrderRequestInterface, apiClient?: $Fetch) {
+  const $apiClient = getApiClient(apiClient);
+  const intentKey = buildCheckoutIntentKey(order);
+  const checkoutRequestId = pendingCheckoutRequestIds.get(intentKey) ?? createCheckoutRequestId();
 
-  return await $apiClient<PlaceOrderInterface>(`${RESOURCE}/new`, {
+  pendingCheckoutRequestIds.set(intentKey, checkoutRequestId);
+
+  const response = await $apiClient<PlaceOrderInterface>(`${RESOURCE}/new`, {
     method: 'POST',
-    body: order,
+    body: {
+      ...order,
+      checkoutRequestId,
+    },
   });
+
+  if (response.status === 'success') {
+    pendingCheckoutRequestIds.delete(intentKey);
+  }
+
+  return response;
 }
 
 export async function getOrderById(id: string, apiClient?: $Fetch) {
