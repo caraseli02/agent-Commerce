@@ -8,7 +8,7 @@
 - Preserve the modular-monolith dependency direction: Nitro adapter → checkout
   application workflow → public Cart/Catalog/Inventory/Orders/Payments APIs.
 
-## In progress
+## Implemented
 
 - Replace process-local checkout state with one relational adapter: SQLite for
   local mock review and PostgreSQL through `DATABASE_URL`/`POSTGRES_URL` on
@@ -24,8 +24,10 @@
 
 - Root causes in the hardening handoff were rechecked against `origin/main` and
   all six were present.
-- `pnpm verify`: pass — build, lint, typecheck, 304 tests + 2 todo, coverage,
+- `pnpm verify`: pass — build, lint, typecheck, 309 tests + 2 todo, coverage,
   feature-list validation, and UI conventions.
+- `pnpm verify:full`: pass — includes architecture invariants and built-preview
+  route smoke.
 - Focused persistence suite: pass — restart replay, canonical read/list,
   duplicate request, same-cart-revision race, pricing, and empty cart.
 - Built-preview API smoke: one add → quantity 1; server quote `949.99`; browser
@@ -35,11 +37,26 @@
   Payment Summary both showing `949.99 Lei`.
 - Browser page/content/error-overlay/console checks: pass with no console
   errors.
+- Independent correctness/specification and project-standards reviews: pass
+  with no remaining findings.
+- PR #523: https://github.com/caraseli02/Ecas/pull/523 — GitHub CI, PR-template,
+  and Vercel deployment checks pass.
+
+## Blocked
+
+- The deployed-preview buyer smoke cannot run yet because the Vercel project
+  has no `DATABASE_URL`/`POSTGRES_URL`. Authenticated CLI smoke reached the
+  preview, and `/api/auth/login` failed closed with the expected
+  `DATABASE_URL is required for durable checkout state on Vercel` runtime log.
+- Creating or attaching a managed PostgreSQL database is an external resource
+  change and requires user authorization. Keep this feature `active` until the
+  database is attached and the 13-step preview buyer smoke passes.
 
 ## Next checkpoint
 
-1. Run `pnpm verify:full`.
-2. Review the complete diff against the handoff and architecture standards.
-3. Commit, open a focused PR, wait for CI/Vercel preview, and repeat the buyer
-   smoke against the deployed preview.
-4. Run `pnpm verify:handoff` from the final clean tree.
+1. Attach a managed PostgreSQL database to the Vercel preview environment and
+   redeploy PR #523.
+2. Run the 13-step buyer smoke from the production-hardening handoff against
+   the deployed preview.
+3. Record the deployed evidence, mark `SD-PLACE-ORDER-HARDENING` passing, and
+   run `pnpm verify:handoff` from the final clean tree.

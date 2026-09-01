@@ -291,10 +291,11 @@
       "validation": "The handoff P0/P1 tests pass across independent service instances; server-authoritative pricing reconciles at 949.99 Lei; pnpm verify, verify:full, deployed preview buyer smoke, and verify:handoff pass; no finalizePayment implementation",
       "status": "active",
       "evidence": [
-        "pnpm verify: pass (304 tests + 2 todo).",
+        "pnpm verify and pnpm verify:full: pass (309 tests + 2 todo).",
         "Focused persistence/read-after-write/idempotency/race/pricing/cart tests: pass.",
         "Local built-preview API smoke: same replayed order ID, canonical read/history, cart clear, 949.99 Lei persisted subtotal.",
-        "Playwright buyer flow and browser console/error-overlay checks: pass."
+        "Playwright buyer flow, 9 visual flows, and browser console/error-overlay checks: pass.",
+        "PR #523 CI/template/Vercel deployment checks: pass; deployed buyer smoke is blocked because the Vercel preview has no DATABASE_URL/POSTGRES_URL."
       ]
     },
     {
