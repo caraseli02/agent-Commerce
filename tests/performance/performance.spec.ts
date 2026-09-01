@@ -64,7 +64,7 @@ const observeVitals = async (page: Page) => {
       interactions: [] as number[],
     };
 
-    Object.defineProperty(window, '__ecasSyntheticVitals', {
+    Object.defineProperty(window, '__agentCommerceSyntheticVitals', {
       configurable: true,
       value: vitals,
     });
@@ -95,7 +95,7 @@ const observeVitals = async (page: Page) => {
 
 const collectVitals = async (page: Page): Promise<SyntheticVitals> =>
   page.evaluate(() => {
-    const vitals = window.__ecasSyntheticVitals;
+    const vitals = window.__agentCommerceSyntheticVitals;
     return {
       fcp: vitals.fcp,
       lcp: vitals.lcp,
@@ -106,7 +106,7 @@ const collectVitals = async (page: Page): Promise<SyntheticVitals> =>
 
 declare global {
   interface Window {
-    __ecasSyntheticVitals: {
+    __agentCommerceSyntheticVitals: {
       cls: number;
       fcp: number | null;
       interactions: number[];
