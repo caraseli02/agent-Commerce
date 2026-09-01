@@ -2,7 +2,6 @@ import { defineConfig, devices } from '@playwright/test';
 
 const previewPort = 3100;
 const baseURL = `http://127.0.0.1:${previewPort}`;
-const checkoutDatabasePath = `test-results/visual/checkout-${process.pid}.sqlite`;
 
 /**
  * Local visual-regression pilot.
@@ -58,7 +57,6 @@ export default defineConfig({
       PORT: String(previewPort),
       NUXT_PUBLIC_MOCK_MODE: 'true',
       NUXT_PUBLIC_BASE_URL_API: '/api',
-      CHECKOUT_DATABASE_PATH: checkoutDatabasePath,
     },
   },
 });

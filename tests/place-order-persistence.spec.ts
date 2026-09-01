@@ -1,9 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-
-let checkoutStoreDir = '';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const orderInput = {
   shippingCost: 19.9,
@@ -17,11 +12,6 @@ const orderInput = {
 };
 
 describe('durable PlaceOrder persistence', () => {
-  beforeAll(() => {
-    checkoutStoreDir = mkdtempSync(join(tmpdir(), 'place-order-persistence-'));
-    process.env.CHECKOUT_DATABASE_PATH = join(checkoutStoreDir, 'checkout.sqlite');
-  });
-
   beforeEach(async () => {
     const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
     const database = await getCheckoutDatabase();
@@ -37,24 +27,42 @@ describe('durable PlaceOrder persistence', () => {
     }
   });
 
-  afterAll(() => {
-    delete process.env.CHECKOUT_DATABASE_PATH;
-    rmSync(checkoutStoreDir, { recursive: true, force: true });
-  });
-
   it('replays, reads, and lists one checkout across independent service instances', async () => {
-    const [{ getMockCartForUser, addProductsToMockCart }, { getMockUserById }, { placeOrder }] = await Promise.all([
-      import('../server/utils/mockCart'),
-      import('../server/utils/mockUsers'),
-      import('../server/application/checkout/place-order'),
-    ]);
-    const user = getMockUserById('mock-customer-1');
+    const [cartModule, userModule, checkoutModule, cartDomain, catalogModule, inventoryModule, ordersModule, paymentsModule] =
+      await Promise.all([
+        import('../server/utils/mockCart'),
+        import('../server/utils/mockUsers'),
+        import('../server/application/checkout/place-order'),
+        import('../server/domain/cart'),
+        import('../server/domain/catalog'),
+        import('../server/domain/inventory'),
+        import('../server/domain/orders'),
+        import('../server/domain/payments'),
+      ]);
+    const user = userModule.getMockUserById('mock-customer-1');
     expect(user).toBeDefined();
 
-    const cart = await getMockCartForUser('mock-customer-1');
-    await addProductsToMockCart(cart, [{ id: 'prod-1', stock: 1, isFolder: false }]);
+    const cart = await cartModule.getMockCartForUser('mock-customer-1');
+    await cartModule.addProductsToMockCart(cart, [{ id: 'prod-1', stock: 1, isFolder: false }]);
+    const dependencies = {
+      cart: cartDomain.cart,
+      catalog: catalogModule.catalog,
+      inventory: inventoryModule.inventory,
+      orders: ordersModule.orders,
+      payments: paymentsModule.payments,
+    };
+    const firstInstance = checkoutModule.createPlaceOrderUseCase(dependencies, checkoutModule.createPlaceOrderCoordinator());
+    const independentInstance = checkoutModule.createPlaceOrderUseCase(dependencies, checkoutModule.createPlaceOrderCoordinator());
 
-    const first = await placeOrder({
+    const first = await firstInstance({
+      checkoutRequestId: 'checkout-durable-1',
+      cartId: String(cart._id),
+      cartOwnerId: 'mock-customer-1',
+      user: user!,
+      order: orderInput,
+    });
+
+    const replay = await independentInstance({
       checkoutRequestId: 'checkout-durable-1',
       cartId: String(cart._id),
       cartOwnerId: 'mock-customer-1',
@@ -63,13 +71,12 @@ describe('durable PlaceOrder persistence', () => {
     });
 
     vi.resetModules();
-
     const [{ placeOrder: restartedPlaceOrder }, { orders: restartedOrders }, { getCheckoutDatabase }] = await Promise.all([
       import('../server/application/checkout/place-order'),
       import('../server/domain/orders'),
       import('../server/infrastructure/checkout-database'),
     ]);
-    const replay = await restartedPlaceOrder({
+    const restartedReplay = await restartedPlaceOrder({
       checkoutRequestId: 'checkout-durable-1',
       cartId: String(cart._id),
       cartOwnerId: 'mock-customer-1',
@@ -80,6 +87,7 @@ describe('durable PlaceOrder persistence', () => {
     const independentList = await restartedOrders.list('mock-customer-1');
 
     expect(replay).toEqual(first);
+    expect(restartedReplay).toEqual(first);
     expect(independentRead?.order._id).toBe(first.orderId);
     expect(independentRead?.order.products[0]).toMatchObject({
       id: 'prod-1',
@@ -89,6 +97,53 @@ describe('durable PlaceOrder persistence', () => {
     expect(independentRead?.order.subtotal).toBe(949.99);
     expect(independentList.some((order) => order._id === first.orderId)).toBe(true);
 
+    const database = await getCheckoutDatabase();
+    const [ordersCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_orders');
+    const [paymentsCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_payments');
+    const [reservationsCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_reservations');
+
+    expect(Number(ordersCount?.total)).toBe(1);
+    expect(Number(paymentsCount?.total)).toBe(1);
+    expect(Number(reservationsCount?.total)).toBe(1);
+  });
+
+  it('returns one result when the same checkout request is submitted rapidly by independent instances', async () => {
+    const [cartModule, userModule, checkoutModule, cartDomain, catalogModule, inventoryModule, ordersModule, paymentsModule] =
+      await Promise.all([
+        import('../server/utils/mockCart'),
+        import('../server/utils/mockUsers'),
+        import('../server/application/checkout/place-order'),
+        import('../server/domain/cart'),
+        import('../server/domain/catalog'),
+        import('../server/domain/inventory'),
+        import('../server/domain/orders'),
+        import('../server/domain/payments'),
+      ]);
+    const user = userModule.getMockUserById('mock-customer-1')!;
+    const cart = await cartModule.getMockCartForUser('mock-customer-1');
+    await cartModule.addProductsToMockCart(cart, [{ id: 'prod-1', stock: 1, isFolder: false }]);
+    const dependencies = {
+      cart: cartDomain.cart,
+      catalog: catalogModule.catalog,
+      inventory: inventoryModule.inventory,
+      orders: ordersModule.orders,
+      payments: paymentsModule.payments,
+    };
+    const command = {
+      checkoutRequestId: 'checkout-rapid-repeat',
+      cartId: String(cart._id),
+      cartOwnerId: 'mock-customer-1',
+      user,
+      order: orderInput,
+    };
+
+    const [first, replay] = await Promise.all([
+      checkoutModule.createPlaceOrderUseCase(dependencies, checkoutModule.createPlaceOrderCoordinator())(command),
+      checkoutModule.createPlaceOrderUseCase(dependencies, checkoutModule.createPlaceOrderCoordinator())(command),
+    ]);
+
+    expect(replay).toEqual(first);
+    const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
     const database = await getCheckoutDatabase();
     const [ordersCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_orders');
     const [paymentsCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_payments');

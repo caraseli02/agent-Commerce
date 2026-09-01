@@ -157,9 +157,8 @@ const parseCartRow = (row: CartRow) => {
 
 const selectCartForOwner = async (userId: string) => {
   const database = await getCheckoutDatabase();
-  const lock = database.dialect === 'postgres' ? ' FOR UPDATE' : '';
   const rows = await database.query<CartRow>(
-    `SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE owner_id = ?${lock}`,
+    'SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE owner_id = $1 FOR UPDATE',
     [userId],
   );
   return rows[0] || null;
@@ -170,8 +169,8 @@ const persistCart = async (cart: CartInterface) => {
   const database = await getCheckoutDatabase();
   await database.execute(
     `UPDATE checkout_carts
-       SET payload_json = ?, revision = revision + 1, updated_at = ?
-     WHERE owner_id = ?`,
+       SET payload_json = $1, revision = revision + 1, updated_at = $2
+     WHERE owner_id = $3`,
     [JSON.stringify(serializeCartForStorage(cart)), nowIso(), cart.userId],
   );
 };
@@ -190,7 +189,7 @@ export const getMockCartForUser = async (userId: string) =>
 
     await database.execute(
       `INSERT INTO checkout_carts (owner_id, cart_id, revision, payload_json, updated_at)
-       VALUES (?, ?, 1, ?, ?)
+       VALUES ($1, $2, 1, $3, $4)
        ON CONFLICT (owner_id) DO NOTHING`,
       [userId, String(cart._id), JSON.stringify(cart), timestamp],
     );
@@ -211,9 +210,8 @@ export const findMockCartById = async (cartId?: string | null) => {
   }
 
   const database = await getCheckoutDatabase();
-  const lock = database.dialect === 'postgres' ? ' FOR UPDATE' : '';
   const rows = await database.query<CartRow>(
-    `SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE cart_id = ?${lock}`,
+    'SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE cart_id = $1 FOR UPDATE',
     [normalizedId],
   );
   return rows[0] ? parseCartRow(rows[0]) : null;
@@ -291,7 +289,7 @@ export const mergeGuestCartIntoMockCart = async (userId?: string | null, guestSe
   }
 
   const database = await getCheckoutDatabase();
-  await database.execute('DELETE FROM checkout_carts WHERE owner_id = ?', [guestUserId]);
+  await database.execute('DELETE FROM checkout_carts WHERE owner_id = $1', [guestUserId]);
 
   return userCart;
 };

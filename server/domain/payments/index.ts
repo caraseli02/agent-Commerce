@@ -19,7 +19,7 @@ const ensurePayment = async (input: {
   useExistingPaymentMethod: boolean;
 }): Promise<EnsurePaymentResult> => {
   const database = await getCheckoutDatabase();
-  const rows = await database.query<PaymentRow>(`SELECT id, payload_json FROM checkout_payments WHERE order_id = ?`, [input.orderId]);
+  const rows = await database.query<PaymentRow>('SELECT id, payload_json FROM checkout_payments WHERE order_id = $1', [input.orderId]);
   if (rows[0]) return JSON.parse(rows[0].payload_json) as EnsurePaymentResult;
 
   const result: EnsurePaymentResult = {
@@ -31,7 +31,7 @@ const ensurePayment = async (input: {
     result: input.paymentType === PaymentTypeEnum.Card ? { status: 'succeeded' } : undefined,
   };
 
-  await database.execute(`INSERT INTO checkout_payments (id, order_id, payload_json, created_at) VALUES (?, ?, ?, ?)`, [
+  await database.execute('INSERT INTO checkout_payments (id, order_id, payload_json, created_at) VALUES ($1, $2, $3, $4)', [
     result.paymentId,
     input.orderId,
     JSON.stringify(result),

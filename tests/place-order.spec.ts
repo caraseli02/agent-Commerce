@@ -1,7 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { PaymentStatusEnum } from '~/types/order-summary/item';
 import type { CreatePendingOrderInput } from '~/server/domain/orders';
@@ -9,8 +6,6 @@ import type { EnsurePaymentResult } from '~/server/domain/payments';
 import { createPlaceOrderCoordinator, createPlaceOrderUseCase, type PlaceOrderCommand } from '~/server/application/checkout/place-order';
 import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 import type { SmallOrderChargeTier } from '~/helpers/order-money';
-
-let checkoutStoreDir = '';
 
 const user = {
   _id: 'customer-1',
@@ -162,19 +157,9 @@ const makeDependencies = () => {
 };
 
 describe('PlaceOrder application workflow', () => {
-  beforeAll(() => {
-    checkoutStoreDir = mkdtempSync(join(tmpdir(), 'place-order-coordinator-'));
-    process.env.CHECKOUT_DATABASE_PATH = join(checkoutStoreDir, 'checkout.sqlite');
-  });
-
   beforeEach(async () => {
     const database = await getCheckoutDatabase();
     await database.execute('DELETE FROM checkout_claims');
-  });
-
-  afterAll(() => {
-    delete process.env.CHECKOUT_DATABASE_PATH;
-    rmSync(checkoutStoreDir, { recursive: true, force: true });
   });
 
   it('returns the same logical order for the same request and performs side effects once', async () => {

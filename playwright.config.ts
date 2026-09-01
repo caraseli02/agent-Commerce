@@ -3,10 +3,16 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Playwright configuration for Components Marketplace E2E user-flow specs.
  *
- * Specs live in tests/e2e/ and are excluded from the Vitest suite.
- * The dev server must be running (pnpm dev) — these are real-browser
- * flow specs against the actual rendered app.
+ * Specs live in tests/e2e/ and are excluded from the Vitest suite. The normal
+ * `pnpm test:e2e` command starts its own built server so it inherits the
+ * isolated PostgreSQL schema created by the test wrapper. Set
+ * PLAYWRIGHT_BASE_URL only when deliberately testing an externally managed
+ * deployment.
  */
+const previewPort = 3000;
+const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
+const baseURL = externalBaseUrl || `http://localhost:${previewPort}`;
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: false,
@@ -19,7 +25,7 @@ export default defineConfig({
     timeout: 10_000,
   },
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
+    baseURL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -30,4 +36,19 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+  webServer: externalBaseUrl
+    ? undefined
+    : {
+        command: 'pnpm build && node .output/server/index.mjs',
+        url: baseURL,
+        timeout: 120_000,
+        reuseExistingServer: false,
+        env: {
+          ...process.env,
+          HOST: '127.0.0.1',
+          PORT: String(previewPort),
+          NUXT_PUBLIC_MOCK_MODE: 'true',
+          NUXT_PUBLIC_BASE_URL_API: '/api',
+        },
+      },
 });

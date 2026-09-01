@@ -67,7 +67,7 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
   const fingerprint = fingerprintOrder(input);
   const customerId = String(input.user._id || input.user.firebaseId || '');
   const database = await getCheckoutDatabase();
-  const existingRows = await database.query<OrderRow>(`SELECT * FROM checkout_orders WHERE customer_id = ? AND checkout_request_id = ?`, [
+  const existingRows = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE customer_id = $1 AND checkout_request_id = $2', [
     customerId,
     input.checkoutRequestId,
   ]);
@@ -79,7 +79,7 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
 
   const semanticRows = await database.query<OrderRow>(
     `SELECT * FROM checkout_orders
-      WHERE customer_id = ? AND source_cart_id = ? AND source_cart_revision = ?`,
+      WHERE customer_id = $1 AND source_cart_id = $2 AND source_cart_revision = $3`,
     [customerId, input.cartId, Number(input.cartRevision)],
   );
   if (semanticRows.length) return { kind: 'conflict' };
@@ -118,7 +118,7 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
     `INSERT INTO checkout_orders (
        id, customer_id, checkout_request_id, source_cart_id, source_cart_revision,
        fingerprint, payload_json, paid_by_payment_id, created_at, updated_at
-     ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)`,
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8, $9)`,
     [
       created.orderId,
       customerId,
@@ -137,8 +137,7 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
 
 const confirmPayment = async (input: { orderId: string; paymentId: string }): Promise<ConfirmOrderPaymentResult> => {
   const database = await getCheckoutDatabase();
-  const lock = database.dialect === 'postgres' ? ' FOR UPDATE' : '';
-  const rows = await database.query<OrderRow>(`SELECT * FROM checkout_orders WHERE id = ?${lock}`, [input.orderId]);
+  const rows = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE id = $1 FOR UPDATE', [input.orderId]);
   const row = rows[0];
   if (!row) return { kind: 'not-found' };
   if (row.paid_by_payment_id) return { kind: 'already-confirmed' };
@@ -148,8 +147,8 @@ const confirmPayment = async (input: { orderId: string; paymentId: string }): Pr
   payload.order.updatedAt = new Date().toISOString();
   await database.execute(
     `UPDATE checkout_orders
-        SET payload_json = ?, paid_by_payment_id = ?, updated_at = ?
-      WHERE id = ?`,
+        SET payload_json = $1, paid_by_payment_id = $2, updated_at = $3
+      WHERE id = $4`,
     [JSON.stringify(payload), input.paymentId, payload.order.updatedAt, input.orderId],
   );
   return { kind: 'confirmed' };
@@ -172,7 +171,7 @@ const findById = async (id?: string | null) => {
 const list = async (customerId?: string) => {
   const database = await getCheckoutDatabase();
   const rows = customerId
-    ? await database.query<OrderRow>(`SELECT * FROM checkout_orders WHERE customer_id = ? ORDER BY created_at DESC`, [customerId])
+    ? await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE customer_id = $1 ORDER BY created_at DESC', [customerId])
     : await database.query<OrderRow>(`SELECT * FROM checkout_orders ORDER BY created_at DESC`);
   return rows.map((row) => parseOrder(row).order);
 };

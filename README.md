@@ -30,7 +30,7 @@ Mock mode keeps the app self-contained:
 
 - no external backend required
 - local Nitro endpoints answer API requests
-- checkout state uses a local SQLite database under `.data/`
+- checkout state uses the configured PostgreSQL database after `pnpm db:migrate`
 - demo credentials work out of the box once `.env` is created
 
 ## Demo credentials
@@ -88,7 +88,8 @@ pnpm deps:outdated
 pnpm deps:audit
 ```
 
-Run `pnpm dev` before `pnpm test:e2e`; the Playwright specs target `http://localhost:3000`.
+`pnpm test:e2e` starts its own server at `http://localhost:3000` against an
+isolated PostgreSQL schema. Do not start a separate server for that command.
 
 `pnpm deps:outdated` and `pnpm deps:audit` force pnpm to inspect this repository
 rather than a parent workspace. Both commands return a non-zero status when they
@@ -128,11 +129,35 @@ If you are reviewing this repo for a case study or portfolio walkthrough, start 
 - `NUXT_PUBLIC_MOCK_MODE=true`
 - `NUXT_PUBLIC_BASE_URL_API=/api`
 
-Local development needs no database setting; checkout state defaults to
-`.data/checkout.sqlite`. A Vercel deployment must set `DATABASE_URL` (or
-`POSTGRES_URL`) to a shared PostgreSQL database. The checkout adapter fails
-closed on Vercel when neither variable is available so it cannot silently fall
-back to process-local state.
+Checkout persistence requires PostgreSQL in every environment. Set
+`DATABASE_URL`, run `pnpm db:migrate`, then start the app. Tests create an
+isolated PostgreSQL schema for each run, so they exercise the same transaction
+and constraint semantics as deployments. Vercel deployments use the same
+`DATABASE_URL` contract and run migrations during the build; do not provide a
+SQLite path or an alternative connection-variable fallback.
+
+Repository commands load `.env` first and then `.env.local`, so the standard
+`cp .env.example .env` setup continues to work while local credentials can stay
+in ignored `.env.local`. `DATABASE_URL_UNPOOLED` is optional and is used only by
+the isolated-test-schema runner for Neon administration; the application itself
+uses `DATABASE_URL` only.
+
+For Vercel, connect the Neon resource to Development, Preview, and Production
+in Storage. Enable Neon Preview Branching so each pull request receives an
+isolated branch. The integration injects the branch-specific `DATABASE_URL`
+during the deployment; no credentials belong in this repository.
+
+The Vercel/Neon setup is a one-time dashboard action: open **Storage** → the
+`ecas` Neon resource → **Connect Project**, select this project and all three
+environments, then enable **Preview Branching** under deployment configuration.
+Require the resource to be active before deployments. The repository's Vercel
+build command runs `pnpm db:migrate` before Nuxt builds; it never creates
+checkout tables on a runtime request.
+
+`pnpm test:e2e` starts its own built Nitro server inside that isolated schema.
+Set `PLAYWRIGHT_BASE_URL` only when intentionally targeting an externally
+managed deployment; in that case the caller owns the database/environment
+alignment.
 
 ### Optional for live integrations
 

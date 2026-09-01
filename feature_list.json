@@ -291,11 +291,11 @@
       "validation": "The handoff P0/P1 tests pass across independent service instances; server-authoritative pricing reconciles at 949.99 Lei; pnpm verify, verify:full, deployed preview buyer smoke, and verify:handoff pass; no finalizePayment implementation",
       "status": "active",
       "evidence": [
-        "pnpm verify and pnpm verify:full: pass (309 tests + 2 todo).",
-        "Focused persistence/read-after-write/idempotency/race/pricing/cart tests: pass.",
-        "Local built-preview API smoke: same replayed order ID, canonical read/history, cart clear, 949.99 Lei persisted subtotal.",
-        "Playwright buyer flow, 9 visual flows, and browser console/error-overlay checks: pass.",
-        "PR #523 CI/template/Vercel deployment checks: pass; deployed buyer smoke is blocked because the Vercel preview has no DATABASE_URL/POSTGRES_URL."
+        "pnpm db:migrate passed against the configured PostgreSQL development database; focused migration/constraint and module-restart/race tests passed (9 tests).",
+        "pnpm verify:handoff passed: build, lint, typecheck, PostgreSQL-backed coverage suite (314 passed + 2 todo), architecture invariants, built-preview route smoke, and clean-state validation.",
+        "pnpm test:e2e starts its own built Nitro server in the isolated PostgreSQL schema and never reuses a separately started server.",
+        "No CI, Vercel preview deployment, evaluator approval, or deployed buyer-smoke outcome is claimed for the current unpushed commit.",
+        "Preview Branching/Preview environment connection and the deployed buyer smoke remain required."
       ]
     },
     {

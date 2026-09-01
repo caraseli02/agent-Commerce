@@ -39,9 +39,8 @@ const normalizeItems = (cart: CartInterface) =>
 
 const readCart = async (cartId: string) => {
   const database = await getCheckoutDatabase();
-  const lock = database.dialect === 'postgres' ? ' FOR UPDATE' : '';
   const rows = await database.query<CartRow>(
-    `SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE cart_id = ?${lock}`,
+    'SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE cart_id = $1 FOR UPDATE',
     [cartId],
   );
   return rows[0] || null;
@@ -81,8 +80,8 @@ const completeCheckout = async (input: {
   const database = await getCheckoutDatabase();
   const changed = await database.execute(
     `UPDATE checkout_carts
-       SET payload_json = ?, revision = revision + 1, updated_at = ?
-     WHERE cart_id = ? AND owner_id = ? AND revision = ?`,
+       SET payload_json = $1, revision = revision + 1, updated_at = $2
+     WHERE cart_id = $3 AND owner_id = $4 AND revision = $5`,
     [JSON.stringify(cart), new Date().toISOString(), input.cartId, input.ownerId, Number(input.expectedRevision)],
   );
 

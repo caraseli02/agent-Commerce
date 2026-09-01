@@ -10,9 +10,8 @@
 
 ## In progress
 
-- Replace process-local checkout state with one relational adapter: SQLite for
-  local mock review and PostgreSQL through `DATABASE_URL`/`POSTGRES_URL` on
-  Vercel.
+- Use PostgreSQL through `DATABASE_URL` as the only checkout persistence
+  engine in local development, tests/CI, Vercel preview, and production.
 - Make order create/read/list canonical, checkout claims database-enforced,
   cart completion revision-aware, and inventory/payment state durable.
 - Reconcile authenticated customer pricing through the server Catalog quote;
@@ -24,38 +23,30 @@
 
 - Root causes in the hardening handoff were rechecked against `origin/main` and
   all six were present.
-- `pnpm verify`: pass — build, lint, typecheck, 309 tests + 2 todo, coverage,
-  feature-list validation, and UI conventions.
-- `pnpm verify:full`: pass — includes architecture invariants and built-preview
-  route smoke.
-- Focused persistence suite: pass — restart replay, canonical read/list,
-  duplicate request, same-cart-revision race, pricing, and empty cart.
-- Built-preview API smoke: one add → quantity 1; server quote `949.99`; browser
-  totals ignored; persisted shipping `19.90`; persisted total `1150.39`; retry
-  returns the same order ID; read/history find it; cart clears.
-- Playwright buyer-flow smoke: pass, including authenticated STM32 line and
-  Payment Summary both showing `949.99 Lei`.
-- Browser page/content/error-overlay/console checks: pass with no console
-  errors.
-- Independent correctness/specification and project-standards reviews: pass
-  with no remaining findings.
-- PR #523: https://github.com/caraseli02/Ecas/pull/523 — GitHub CI, PR-template,
-  and Vercel deployment checks pass.
+- `pnpm db:migrate`: pass against the configured PostgreSQL development
+  database, including the compatible legacy-schema migration path.
+- Focused PostgreSQL migration/constraint and durable PlaceOrder suite: pass
+  (9 tests), including concurrent migrators and `vi.resetModules()` replay,
+  canonical read, and history list.
+- `pnpm verify:handoff`: pass — build, lint, typecheck, PostgreSQL-backed
+  coverage suite (314 passed + 2 todo), architecture invariants, built-preview
+  route smoke, and clean-state validation.
+- `pnpm test:e2e` now starts its own built Nitro server and cannot reuse a
+  separately started server with the wrong database schema.
+- No GitHub CI, Vercel deployment, evaluator, or deployed-preview evidence is
+  claimed for the current unpushed commit.
 
 ## Blocked / known baseline failures
 
-- The deployed-preview buyer smoke cannot run yet because the Vercel project
-  has no `DATABASE_URL`/`POSTGRES_URL`. Authenticated CLI smoke reached the
-  preview, and `/api/auth/login` failed closed with the expected
-  `DATABASE_URL is required for durable checkout state on Vercel` runtime log.
-- Creating or attaching a managed PostgreSQL database is an external resource
-  change and requires user authorization. Keep this feature `active` until the
-  database is attached and the 13-step preview buyer smoke passes.
+- The Vercel/Neon Preview configuration and all deployed-buyer evidence remain
+  outstanding for this current commit. Before the deployed buyer smoke, enable
+  Preview Branching/connect Preview in Vercel Storage, then deploy the PR so
+  its build can run `pnpm db:migrate` against the preview branch.
 
 ## Next checkpoint
 
-1. Attach a managed PostgreSQL database to the Vercel preview environment and
-   redeploy PR #523.
+1. Enable Neon Preview Branching/connect Preview in Vercel Storage and deploy
+   PR #523.
 2. Run the 13-step buyer smoke from the production-hardening handoff against
    the deployed preview.
 3. Record the deployed evidence, mark `SD-PLACE-ORDER-HARDENING` passing, and

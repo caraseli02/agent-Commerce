@@ -133,7 +133,7 @@ export const createPlaceOrderCoordinator = () => {
     const rows = await database.query<{ fingerprint: string; result_json: string | null }>(
       `SELECT fingerprint, result_json
          FROM checkout_claims
-        WHERE owner_id = ? AND request_id = ?`,
+        WHERE owner_id = $1 AND request_id = $2`,
       [ownerId, requestKey],
     );
     const row = rows[0];
@@ -175,7 +175,7 @@ export const createPlaceOrderCoordinator = () => {
     const inserted = await database.query<{ request_id: string }>(
       `INSERT INTO checkout_claims (
          owner_id, request_id, fingerprint, cart_id, cart_revision, result_json, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, ?, NULL, ?, ?)
+       ) VALUES ($1, $2, $3, $4, $5, NULL, $6, $7)
        ON CONFLICT DO NOTHING
        RETURNING request_id`,
       [input.ownerId, input.requestKey, input.fingerprint, input.cartId, Number(input.cartRevision), timestamp, timestamp],
@@ -188,7 +188,7 @@ export const createPlaceOrderCoordinator = () => {
       const semanticRows = await database.query<{ request_id: string; result_json: string | null }>(
         `SELECT request_id, result_json
            FROM checkout_claims
-          WHERE owner_id = ? AND cart_id = ? AND cart_revision = ?`,
+          WHERE owner_id = $1 AND cart_id = $2 AND cart_revision = $3`,
         [input.ownerId, input.cartId, Number(input.cartRevision)],
       );
 
@@ -201,7 +201,7 @@ export const createPlaceOrderCoordinator = () => {
     }
 
     const result = await input.operation();
-    await database.execute(`UPDATE checkout_claims SET result_json = ?, updated_at = ? WHERE owner_id = ? AND request_id = ?`, [
+    await database.execute(`UPDATE checkout_claims SET result_json = $1, updated_at = $2 WHERE owner_id = $3 AND request_id = $4`, [
       JSON.stringify(result),
       new Date().toISOString(),
       input.ownerId,

@@ -21,3 +21,4 @@ blob-report/
 
 .idea
 firebase
+.env.local

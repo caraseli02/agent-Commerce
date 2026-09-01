@@ -60,10 +60,9 @@ const toPublicReservation = (row: ReservationRow): InventoryReservation => ({
 
 const readReservation = async (column: 'id' | 'reservation_key', value: string) => {
   const database = await getCheckoutDatabase();
-  const lock = database.dialect === 'postgres' ? ' FOR UPDATE' : '';
   const rows = await database.query<ReservationRow>(
     `SELECT id, reservation_key, fingerprint, items_json, expires_at, status
-       FROM checkout_reservations WHERE ${column} = ?${lock}`,
+       FROM checkout_reservations WHERE ${column} = $1 FOR UPDATE`,
     [value],
   );
   return rows[0] || null;
@@ -74,8 +73,8 @@ const changeReservedQuantity = async (items: readonly ReservationItem[], directi
   for (const item of items) {
     await database.execute(
       `UPDATE checkout_inventory
-          SET reserved = reserved + ?
-        WHERE product_id = ?`,
+          SET reserved = reserved + $1
+        WHERE product_id = $2`,
       [direction * item.immediateQuantity, item.productId],
     );
   }
@@ -87,7 +86,7 @@ const expireIfNeeded = async (row: ReservationRow) => {
   const items = JSON.parse(row.items_json) as ReservationItem[];
   await changeReservedQuantity(items, -1);
   const database = await getCheckoutDatabase();
-  await database.execute(`UPDATE checkout_reservations SET status = 'expired' WHERE id = ?`, [row.id]);
+  await database.execute("UPDATE checkout_reservations SET status = 'expired' WHERE id = $1", [row.id]);
   row.status = 'expired';
   return row;
 };
@@ -97,14 +96,13 @@ const ensureInventoryRow = async (productId: string) => {
   const database = await getCheckoutDatabase();
   await database.execute(
     `INSERT INTO checkout_inventory (product_id, on_hand, reserved)
-     VALUES (?, ?, 0)
+     VALUES ($1, $2, 0)
      ON CONFLICT (product_id) DO NOTHING`,
     [productId, Math.max(0, Number(product?.stock || 0))],
   );
 
-  const lock = database.dialect === 'postgres' ? ' FOR UPDATE' : '';
   const rows = await database.query<InventoryRow>(
-    `SELECT product_id, on_hand, reserved FROM checkout_inventory WHERE product_id = ?${lock}`,
+    'SELECT product_id, on_hand, reserved FROM checkout_inventory WHERE product_id = $1 FOR UPDATE',
     [productId],
   );
   return rows[0];
@@ -147,7 +145,7 @@ const reserve = async (input: {
   const database = await getCheckoutDatabase();
   await database.execute(
     `INSERT INTO checkout_reservations (id, reservation_key, fingerprint, items_json, expires_at, status)
-     VALUES (?, ?, ?, ?, ?, 'active')`,
+     VALUES ($1, $2, $3, $4, $5, 'active')`,
     [reservation.id, reservation.reservationKey, fingerprint, JSON.stringify(reservation.items), reservation.expiresAt.toISOString()],
   );
   await changeReservedQuantity(reservation.items, 1);
@@ -168,12 +166,12 @@ const commit = async (reservationId: string): Promise<CommitReservationResult> =
   for (const item of items) {
     await database.execute(
       `UPDATE checkout_inventory
-          SET reserved = reserved - ?, on_hand = on_hand - ?
-        WHERE product_id = ?`,
+          SET reserved = reserved - $1, on_hand = on_hand - $2
+        WHERE product_id = $3`,
       [item.immediateQuantity, item.immediateQuantity, item.productId],
     );
   }
-  await database.execute(`UPDATE checkout_reservations SET status = 'committed' WHERE id = ?`, [reservationId]);
+  await database.execute("UPDATE checkout_reservations SET status = 'committed' WHERE id = $1", [reservationId]);
   return { kind: 'committed' };
 };
 
@@ -188,7 +186,7 @@ const release = async (reservationId: string): Promise<ReleaseReservationResult>
   const items = JSON.parse(row.items_json) as ReservationItem[];
   await changeReservedQuantity(items, -1);
   const database = await getCheckoutDatabase();
-  await database.execute(`UPDATE checkout_reservations SET status = 'released' WHERE id = ?`, [reservationId]);
+  await database.execute("UPDATE checkout_reservations SET status = 'released' WHERE id = $1", [reservationId]);
   return { kind: 'released' };
 };
 
