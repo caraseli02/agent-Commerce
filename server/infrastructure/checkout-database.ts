@@ -12,6 +12,16 @@ export type CheckoutDatabase = {
 const transactionContext = new AsyncLocalStorage<CheckoutDatabase>();
 let postgresPool: Pool | null = null;
 
+const certificateVerifyingSslModeAliases = new Set(['prefer', 'require', 'verify-ca']);
+
+export const normalizePostgresConnectionString = (connectionString: string) => {
+  const connectionUrl = new URL(connectionString);
+  if (!certificateVerifyingSslModeAliases.has(connectionUrl.searchParams.get('sslmode') ?? '')) return connectionString;
+
+  connectionUrl.searchParams.set('sslmode', 'verify-full');
+  return connectionUrl.toString();
+};
+
 const createPostgresExecutor = (client: Pool | PoolClient): CheckoutDatabase => ({
   async query<T extends Record<string, unknown>>(sql: string, parameters: readonly SqlValue[] = []) {
     const result = await client.query<T & QueryResultRow>(sql, [...parameters]);
@@ -30,7 +40,7 @@ const createPostgresPool = () => {
   }
 
   const pool = new Pool({
-    connectionString,
+    connectionString: normalizePostgresConnectionString(connectionString),
     max: 5,
     idleTimeoutMillis: 5_000,
     connectionTimeoutMillis: 10_000,
