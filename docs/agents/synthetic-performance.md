@@ -1,6 +1,6 @@
 # Synthetic performance testing
 
-ECAS is a demo project without sufficient visitor volume for useful real-user
+agent-Commerce is a demo project without sufficient visitor volume for useful real-user
 Core Web Vitals data. It therefore uses a repeatable synthetic performance check
 instead of a paid real-user monitoring service.
 
@@ -13,7 +13,7 @@ Playwright-only test declarations.
 To check the deployed demo, run:
 
 ```sh
-PLAYWRIGHT_BASE_URL=https://ecas-nine.vercel.app pnpm test:performance
+PLAYWRIGHT_BASE_URL=https://agentcommerce.vercel.app pnpm test:performance
 ```
 
 The test takes three cold-cache samples on a 412px mobile viewport with a Fast

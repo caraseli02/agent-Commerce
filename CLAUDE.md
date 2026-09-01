@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-Project-level guidance for Claude Code working in **Components Marketplace**.
+Project-level guidance for Claude Code working in the **agent-Commerce** repository.
 
-## What Components Marketplace is
+## What agent-Commerce is
 
-A Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Stripe hooks, and local Nitro mock endpoints.
+A Nuxt 4 + TypeScript e-commerce demo, branded as Components Marketplace, with Vue 3, Pinia, Tailwind CSS, Stripe hooks, and local Nitro mock endpoints.
 
 ## How to work here
 
@@ -40,7 +40,7 @@ A Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind CSS, Stripe ho
 
 ### Issue tracker
 
-GitHub Issues in `caraseli02/components-marketplace`. See `docs/agents/issue-tracker.md`.
+GitHub Issues in `caraseli02/agent-Commerce`. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

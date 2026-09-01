@@ -13,7 +13,7 @@ System-design step #6 established authoritative ownership and transaction/recove
 - which dependencies are forbidden;
 - which retry/concurrency semantics public contracts must preserve.
 
-The goal is a pragmatic modular monolith, not a microservice simulation. ECAS should gain explicit business boundaries without adding brokers, distributed-saga infrastructure, or deep Clean Architecture folder hierarchies before the application needs them.
+The goal is a pragmatic modular monolith, not a microservice simulation. agent-Commerce should gain explicit business boundaries without adding brokers, distributed-saga infrastructure, or deep Clean Architecture folder hierarchies before the application needs them.
 
 This design was adversarially checked against duplicate checkout submission, duplicate/out-of-order payment events, reservation expiry, changed carts, and cancellation racing a processing payment.
 
@@ -435,12 +435,12 @@ Conceptually:
 
 ```text
 Order
-  -> ECAS Payment
+  -> agent-Commerce Payment
        -> provider PaymentIntent/payment object
             -> one or more provider attempts/charges
 ```
 
-ECAS may record attempt history, but `retryPayment()` must not automatically mean `create a brand-new provider payment object`.
+agent-Commerce may record attempt history, but `retryPayment()` must not automatically mean `create a brand-new provider payment object`.
 
 ### Provider-event rule
 
@@ -674,7 +674,7 @@ Payment can be SUCCEEDED while Order is temporarily PENDING_PAYMENT,
 but recovery must reliably converge the workflow.
 ```
 
-At ECAS scale, do not introduce Kafka/RabbitMQ or a distributed saga framework merely to satisfy the diagram.
+At agent-Commerce scale, do not introduce Kafka/RabbitMQ or a distributed saga framework merely to satisfy the diagram.
 
 Prefer initially:
 
@@ -819,4 +819,4 @@ Thin API
             -> private module internals
 ```
 
-This is the architecture to implement incrementally from the current ECAS server. The next implementation work should activate the contract tests one workflow at a time rather than performing a repository-wide rewrite.
+This is the architecture to implement incrementally from the current agent-Commerce server. The next implementation work should activate the contract tests one workflow at a time rather than performing a repository-wide rewrite.

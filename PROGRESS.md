@@ -1,4 +1,4 @@
-# Components Marketplace Progress
+# agent-Commerce Progress
 
 ## Current focus
 
@@ -40,6 +40,7 @@
 
 ## Existing modernization baseline
 
+- Repository identity is `caraseli02/agent-Commerce`; the Vercel project and deployment use `agentcommerce` / `agentcommerce.vercel.app`. Legacy project-name text, URLs, browser-test identifiers, and local environment settings were removed on 2026-09-01; `pnpm verify` and the deployed URL check passed.
 - Nuxt 4 migration is complete and verified in mock mode.
 - Zod 4 remains deferred until the stable vee-validate adapter supports it.
 - TanStack Table 9 remains a separate dedicated migration; current Nuxt 4-compatible Table 8 / Virtual 3 stays in place.

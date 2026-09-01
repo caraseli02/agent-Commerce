@@ -1,6 +1,6 @@
-# Components Marketplace
+# agent-Commerce
 
-Nuxt 4 e-commerce frontend prepared as a **self-contained portfolio demo**.
+Components Marketplace is a Nuxt 4 e-commerce frontend prepared as a **self-contained portfolio demo** in the agent-Commerce repository.
 
 The project includes a storefront, authenticated customer flows, and dashboard surfaces backed by local Nitro mock endpoints so the app can be reviewed without a live backend.
 
