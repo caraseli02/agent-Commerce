@@ -1,6 +1,6 @@
-# ECAS — Agent Harness
+# agent-Commerce — Agent Harness
 
-ECAS is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Stripe hooks, and local Nitro mock endpoints.
+agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Stripe hooks, and local Nitro mock endpoints.
 
 ## Current mode
 

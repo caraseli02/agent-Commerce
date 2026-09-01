@@ -5,7 +5,7 @@ Date: 2026-08-29
 
 ## Purpose
 
-This document records the domain-boundary work completed in system-design step #6 for ECAS.
+This document records the domain-boundary work completed in system-design step #6 for agent-Commerce.
 
 The goal is not to force the application into a textbook DDD structure. The goal is to identify where business state and invariants actually belong, keep cross-domain workflows explicit, and avoid coupling modules through shared implementation models.
 
@@ -998,7 +998,7 @@ Reservation/allocation: COMMITTED
 
 Because the external provider cannot participate in the application's database transaction, this is an eventually consistent cross-boundary process with explicit recovery.
 
-Within the ECAS modular monolith, local state changes that can share one database transaction should do so where that materially reduces impossible intermediate states. Domain boundaries do not require separate databases or prevent an application service from coordinating a transaction across module repositories through controlled infrastructure.
+Within the agent-Commerce modular monolith, local state changes that can share one database transaction should do so where that materially reduces impossible intermediate states. Domain boundaries do not require separate databases or prevent an application service from coordinating a transaction across module repositories through controlled infrastructure.
 
 The design therefore rejects both extremes:
 
@@ -1058,7 +1058,7 @@ The step #6 review identified several concrete target improvements in the existi
 
 - `CartProductsInterface` is currently a mixed domain/read/UI model.
 - Client cart requests are much larger and more authoritative-looking than necessary.
-- Current cart code clamps requested quantity using Product stock even though Cart should primarily preserve customer intent and ECAS supports backordering.
+- Current cart code clamps requested quantity using Product stock even though Cart should primarily preserve customer intent and agent-Commerce supports backordering.
 - Current runtime Order creation accepts client-provided `total`/`subtotal` when present; production checkout must derive authoritative monetary values server-side.
 - Current Orders runtime utility directly mutates Payment status during order cancellation.
 - Current cancellation route reports success even if the runtime order does not exist.

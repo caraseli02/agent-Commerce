@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "purpose": "Machine-readable feature list for the Components Marketplace harness",
+  "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
     "active_feature_count": 1,
@@ -29,7 +29,7 @@
       "validation": "Production mock browser covers storefront/search/product images, customer dashboard, cart/order summary, and checkout confirmation with no console errors; pnpm verify:full passes",
       "status": "passing",
       "evidence": [
-        "Planner brief: https://github.com/caraseli02/Ecas/issues/462#issuecomment-5285992123",
+        "Planner brief: https://github.com/caraseli02/agent-Commerce/issues/462#issuecomment-5285992123",
         "pnpm verify:full: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list, architecture, and preview smoke)",
         "Focused dashboard empty-state regression test: pass",
         "Fresh mock production browser: no console errors across storefront, product/search, customer dashboard, cart/order summary, and /checkout/success",
@@ -42,7 +42,7 @@
       "validation": "Final Tailwind 4 Vite-only, CSS-first integration preserves custom theme values, responsive layout, and component style `@apply` output; pnpm verify and representative mock browser checks pass",
       "status": "passing",
       "evidence": [
-        "Planner brief: https://github.com/caraseli02/Ecas/issues/466#issuecomment-5286425031",
+        "Planner brief: https://github.com/caraseli02/agent-Commerce/issues/466#issuecomment-5286425031",
         "Final architecture: @tailwindcss/vite is the only Tailwind build integration; assets/css/main.css is the CSS-first entrypoint with @import tailwindcss, @theme, and @plugin; no PostCSS Tailwind integration or legacy @config is required",
         "pnpm build and pnpm smoke: pass in production mock mode without Tailwind transformation warnings",
         "pnpm verify: pass (Nuxt 4.5.2 build, lint, typecheck, 277 tests, feature-list and UI checks)",
@@ -58,7 +58,7 @@
       "validation": "Pinia, @pinia/nuxt, and pinia-plugin-persistedstate resolve without peer overrides; mock cart persistence and customer sign-in/sign-out behavior work in a production browser; pnpm verify:full passes",
       "status": "passing",
       "evidence": [
-        "Planner brief: https://github.com/caraseli02/Ecas/issues/467#issuecomment-5286665263",
+        "Planner brief: https://github.com/caraseli02/agent-Commerce/issues/467#issuecomment-5286665263",
         "Resolved versions: pinia 4.0.3, @pinia/nuxt 1.0.2, pinia-plugin-persistedstate 4.7.1; pnpm why reports no peer conflict or override",
         "pnpm install --frozen-lockfile: pass (parent workspace emitted unrelated missing supabase-bin warnings)",
         "pnpm verify:full: pass after the final focused Nuxt 4 runtime repair",
@@ -113,7 +113,7 @@
       "validation": "Nuxt 4 typechecks with a compatible TypeScript/vue-tsc pair and pnpm verify passes without global type suppression",
       "status": "passing",
       "evidence": [
-        "Planner brief: https://github.com/caraseli02/Ecas/issues/465#issuecomment-5286353625",
+        "Planner brief: https://github.com/caraseli02/agent-Commerce/issues/465#issuecomment-5286353625",
         "Upgraded TypeScript to 5.9.3 and vue-tsc to 3.3.9; TypeScript 7 was excluded because Nuxt 4 compatibility is the issue contract",
         "Historical PR #495 passed under temporary relaxed Nuxt type settings",
         "2026-08-26 revalidation adopted Nuxt's four project references and removed strict:false / noImplicitThis:false; 225 explicit strictness errors were resolved without a global compiler suppression",
@@ -158,7 +158,7 @@
       "validation": "No legacy package imports remain; static and dynamic icons typecheck and render on representative storefront and dashboard routes; pnpm verify passes",
       "status": "passing",
       "evidence": [
-        "#463 claimed with planner brief: https://github.com/caraseli02/Ecas/issues/463#issuecomment-5285904726",
+        "#463 claimed with planner brief: https://github.com/caraseli02/agent-Commerce/issues/463#issuecomment-5285904726",
         "pnpm install --frozen-lockfile --ignore-workspace: pass",
         "pnpm verify: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list and UI checks)",
         "Runtime import scan: no lucide-vue-next usage remains outside historical docs",
@@ -172,7 +172,7 @@
       "status": "passing",
       "evidence": [
         "#459 claimed with planner brief",
-        "Planner brief: https://github.com/caraseli02/Ecas/issues/459#issuecomment-5285565516",
+        "Planner brief: https://github.com/caraseli02/agent-Commerce/issues/459#issuecomment-5285565516",
         "Removed firebase and nuxt-vuefire package/runtime integration; runtime-import scan is clean",
         "pnpm install --frozen-lockfile --ignore-workspace: pass",
         "pnpm verify: pass (Nuxt 4.5.2 build, lint, typecheck, 276 tests, feature-list and UI checks)",
@@ -290,7 +290,7 @@
       "validation": "pnpm verify:full passes; consumer-level mock/live tests cover auth skip (useCart) and payment visibility (OrderStockType) at the mock-integration seam; buyer-flow UI no longer branches on MOCK_MODE for those behaviors",
       "status": "passing",
       "evidence": [
-        "PR #505: https://github.com/caraseli02/Ecas/pull/505 (CI verify + Vercel checks SUCCESS)",
+        "PR #505: https://github.com/caraseli02/agent-Commerce/pull/505 (CI verify + Vercel checks SUCCESS)",
         "components/order-summary/OrderStockType.vue routes payment modal visibility through isPaymentManagementVisible (no ad-hoc MOCK_MODE checks)",
         "composables/useCart.ts routes auth-prompt skip through canSkipAuthenticatedUser",
         "Consumer seam contract tests in tests/mock-integration.spec.ts cover useCart auth skip and OrderStockType payment visibility across mock/live modes",

@@ -1,6 +1,6 @@
 # Refactor Stabilization and Review Documentation PRD
 
-GitHub issue: [#301](https://github.com/caraseli02/Ecas/issues/301)
+GitHub issue: [#301](https://github.com/caraseli02/agent-Commerce/issues/301)
 
 ## Problem Statement
 
