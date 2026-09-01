@@ -8,7 +8,7 @@
 - Preserve the modular-monolith dependency direction: Nitro adapter → checkout
   application workflow → public Cart/Catalog/Inventory/Orders/Payments APIs.
 
-## Implemented
+## In progress
 
 - Replace process-local checkout state with one relational adapter: SQLite for
   local mock review and PostgreSQL through `DATABASE_URL`/`POSTGRES_URL` on
@@ -20,7 +20,7 @@
   Summary, PlaceOrder snapshot, success read, and history read.
 - Fresh carts start empty. No `finalizePayment` implementation is included.
 
-## Verification evidence so far
+## Verification baseline
 
 - Root causes in the hardening handoff were rechecked against `origin/main` and
   all six were present.
@@ -42,7 +42,7 @@
 - PR #523: https://github.com/caraseli02/Ecas/pull/523 — GitHub CI, PR-template,
   and Vercel deployment checks pass.
 
-## Blocked
+## Blocked / known baseline failures
 
 - The deployed-preview buyer smoke cannot run yet because the Vercel project
   has no `DATABASE_URL`/`POSTGRES_URL`. Authenticated CLI smoke reached the
