@@ -6,6 +6,7 @@ import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-mon
 import { OrderType } from '~/types';
 import type { OrderInterface, OrderRequestInterface } from '~/types';
 import { useAuthStore } from '~/store/authStore';
+import { toPersistedOrderLineMoneyView } from '~/helpers/checkout-quote';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const lgAndLarger = breakpoints.greaterOrEqual('lg'); // sm and larger
@@ -24,34 +25,29 @@ const shippingMethod = computed(() =>
   generalSettings?.orderSettings?.deliveryTypes.find((type) => type._id === stockOrder.value.shippingDetails.deliveryTypeId),
 );
 
-const vatPercent = Math.round(DEFAULT_ORDER_VAT_RATE * 100);
-
-const lineVatAmount = (quantity: number, unitPrice: number) => calculateOrderMoney({ subtotal: quantity * unitPrice }).vatAmount;
-
-const lineSubtotalWithVat = (quantity: number, unitPrice: number) => {
-  const money = calculateOrderMoney({ subtotal: quantity * unitPrice });
-  return money.subtotal + money.vatAmount;
-};
+const persistedMoney = computed(() => (stockOrder.value as unknown as OrderInterface).money);
+const vatPercent = computed(() => Math.round((persistedMoney.value?.vatRate ?? DEFAULT_ORDER_VAT_RATE) * 100));
 
 const payment = computed(() => {
   const subtotal = Number(stockOrder.value.subtotal.toFixed(2));
   const discountRate = stockOrder.value.discount?.value || 0;
-  const orderMoney = calculateOrderMoney({
+  const fallbackMoney = calculateOrderMoney({
     subtotal,
-    discountRate,
+    discountRate: discountRate / 100,
     shippingCost: stockOrder.value.shippingCost || 0,
   });
+  const money = persistedMoney.value;
   const smallOrderCharge = stockOrder.value.smallOrderCost || 0;
   const total = Number(stockOrder.value.total?.toFixed(2));
 
   return {
     subtotal,
     discountRate,
-    discountAmount: orderMoney.discountAmount.toFixed(2),
-    handlingCharge: smallOrderCharge,
-    shippingCost: stockOrder.value.shippingCost || 0,
-    taxRate: Math.round(orderMoney.vatRate * 100),
-    taxAmount: orderMoney.vatAmount,
+    discountAmount: (money?.discountAmount ?? fallbackMoney.discountAmount).toFixed(2),
+    handlingCharge: money?.smallOrderCharge ?? smallOrderCharge,
+    shippingCost: money?.shippingCost ?? stockOrder.value.shippingCost ?? 0,
+    taxRate: Math.round((money?.vatRate ?? fallbackMoney.vatRate) * 100),
+    taxAmount: money?.vatAmount ?? fallbackMoney.vatAmount,
     stockOrderTotal: total,
   };
 });
@@ -142,13 +138,13 @@ const payment = computed(() => {
             </div>
             <div class="flex justify-center items-end flex-col text-sm min-w-[86px]">
               <p>
-                {{ lineVatAmount(item.stock, item.unitPriceAfterDiscounts).toFixed(2) }}
+                {{ toPersistedOrderLineMoneyView(item, persistedMoney?.vatRate ?? DEFAULT_ORDER_VAT_RATE).vatTotal.toFixed(2) }}
                 <span>Lei</span>
               </p>
             </div>
             <div class="flex justify-center flex-col text-sm min-w-[86px] text-end">
               <p>
-                {{ (item.stock * item.unitPriceAfterDiscounts).toFixed(2) }}
+                {{ toPersistedOrderLineMoneyView(item, persistedMoney?.vatRate ?? DEFAULT_ORDER_VAT_RATE).subtotal.toFixed(2) }}
                 <span> Lei</span>
               </p>
             </div>
@@ -196,14 +192,14 @@ const payment = computed(() => {
               </article>
               <article class="flex gap-5 justify-between mt-1 w-full leading-6 text-neutral-800 max-md:flex-wrap max-md:max-w-full">
                 <p>Tax (VAT {{ vatPercent }}%)</p>
-                <p>{{ lineVatAmount(item.stock, item.unitPriceAfterDiscounts).toFixed(2) }} Lei</p>
+                <p>{{ toPersistedOrderLineMoneyView(item, persistedMoney?.vatRate ?? DEFAULT_ORDER_VAT_RATE).vatTotal.toFixed(2) }} Lei</p>
               </article>
               <article
                 class="flex gap-5 justify-between mt-1 w-full leading-6 whitespace-nowrap text-neutral-800 max-md:flex-wrap max-md:max-w-full"
               >
                 <p>Subtotal</p>
                 <p>
-                  {{ lineSubtotalWithVat(item.stock, item.unitPriceAfterDiscounts).toFixed(2) }}
+                  {{ toPersistedOrderLineMoneyView(item, persistedMoney?.vatRate ?? DEFAULT_ORDER_VAT_RATE).subtotal.toFixed(2) }}
                   Lei
                 </p>
               </article>

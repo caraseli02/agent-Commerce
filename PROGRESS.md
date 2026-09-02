@@ -10,7 +10,22 @@
 
 ## In progress
 
-- None. PlaceOrder production hardening is complete and awaiting PR #523 review/merge.
+Follow-up implementation is complete; database verification is blocked.
+
+- Follow-up acceptance hardening on `codex/place-order-read-money-reconciliation`
+  removes route-level demo order fallbacks, scopes canonical order reads to the
+  trusted customer, and carries every payable-money component through one
+  Catalog quote into the checkout UI and immutable Order snapshot.
+- Out of scope: payment finalization, new infrastructure, or unrelated checkout
+  refactors.
+- Expected files: Orders/Catalog public modules, order API adapters, checkout
+  summary integration, focused route/quote/persistence tests, and durable state.
+- Database-independent evidence: 29 focused Vitest tests pass; build, lint,
+  typecheck, formatting, architecture invariants, and UI conventions pass.
+- `pnpm verify` reaches its PostgreSQL coverage step after build, bundle-size,
+  lint, and typecheck pass, then stops because `DATABASE_URL` is absent.
+- PostgreSQL persistence/E2E cases are implemented but cannot execute in this
+  worktree until a database URL is supplied.
 
 ## Completed PlaceOrder hardening
 
@@ -92,9 +107,12 @@ Nitro API
 
 ## Blocked / known baseline failures
 
-- None for the PlaceOrder production-hardening slice.
+- This worktree has no `DATABASE_URL`, so PostgreSQL-backed tests cannot start.
+  The exact failure is `DATABASE_URL is required for PostgreSQL-backed tests.`
 
 ## Next checkpoint
 
-1. Review and merge PR #523.
-2. Only after merge, resume the system-design sequence with `finalizePayment`.
+1. Run the full PostgreSQL-backed verification ladder when credentials are
+   available.
+2. Only after this slice passes, resume the system-design sequence with
+   `finalizePayment`.

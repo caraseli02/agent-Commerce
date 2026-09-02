@@ -74,3 +74,8 @@ Use this file for durable cross-session decisions that should survive context re
 
   - Reason: carts, checkout claims, orders, inventory reservations, and payment state must survive separate Vercel invocations, and the accepted checkout guarantees rely on PostgreSQL transaction isolation, row locks, and uniqueness constraints.
   - Impact: local development, tests/CI, Vercel previews, and production use `DATABASE_URL` with explicit migrations. SQLite compatibility code and runtime schema creation are removed. PlaceOrder remains a synchronous application workflow over public domain APIs and does not add services, brokers, sagas, or `finalizePayment`.
+
+- 2026-09-02 — Orders owns the sole persisted checkout read model; Catalog owns the complete payable quote
+
+  - Reason: route-level fixture fallbacks and browser-side money calculations allowed order history, checkout, and confirmation to disagree or bypass customer scope.
+  - Impact: demo orders are idempotently imported through Orders in mock mode, order detail/list reads are database-backed and customer-scoped, and Catalog allocates all final line and aggregate money in minor units before Orders persists the immutable snapshot. No `finalizePayment` behavior is added.

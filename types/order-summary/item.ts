@@ -40,6 +40,17 @@ export interface OrderNotesInterface {
   updatedAt?: string;
 }
 
+export interface OrderMoneySnapshotInterface {
+  currency: 'RON';
+  subtotal: number;
+  discountAmount: number;
+  shippingCost: number;
+  smallOrderCharge: number;
+  vatRate: number;
+  vatAmount: number;
+  total: number;
+}
+
 export interface OrderInterface {
   _id: string;
   shortId: string;
@@ -62,6 +73,7 @@ export interface OrderInterface {
   shippingCost?: number;
   smallOrderCost?: number;
   discount?: DiscountInterface;
+  money?: OrderMoneySnapshotInterface;
   notes: OrderNotesInterface[];
   createdAt?: string;
   updatedAt?: string;

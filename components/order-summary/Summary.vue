@@ -57,7 +57,7 @@
           <button class="group ml-2">
             <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
           </button>
-          <span class="text-neutral-700 text-sm font-normal leading-6 ml-6">(VAT 19%)</span>
+          <span class="text-neutral-700 text-sm font-normal leading-6 ml-6">(VAT {{ vatPercent }}%)</span>
         </div>
         <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ calculatedVAT }} Lei</span>
         <UiSkeleton v-else class="h-4 w-20" />
@@ -76,56 +76,35 @@
 import { storeToRefs } from 'pinia';
 import OrderSummarySmallOrderModal from './SmallOrderModal.vue';
 import InformationIcon from '~/assets/icons/information.svg';
-import { calculateOrderMoney } from '~/helpers/order-money';
+import { toCheckoutMoneyView, type CheckoutQuote } from '~/helpers/checkout-quote';
 import type { CheckoutOrderDraft } from '~/types';
-import type { GeneralSettingsInterface, SmallOrderChargeInterface } from '~/types/general-settings/general-settings';
 import { useCartStore } from '~/store/cartStore';
 
 const cartStore = useCartStore();
-const { getCartSubtotal, itemsDiscount, hasFetchedCart } = storeToRefs(cartStore);
+const { hasFetchedCart } = storeToRefs(cartStore);
 // Wait for a completed cart fetch — client mount alone still races the async cart load.
-const isSummaryReady = computed(() => hasFetchedCart.value);
+const isSummaryReady = computed(() => hasFetchedCart.value && Boolean(props.quote));
 
 const props = defineProps<{
   order: CheckoutOrderDraft;
-  generalSettings: GeneralSettingsInterface | null;
-}>();
-
-const emit = defineEmits<{
-  'update:smallOrder': [value: SmallOrderChargeInterface | null];
+  quote?: CheckoutQuote;
 }>();
 
 const showSmallOrderModal = ref(false);
 
-const resolvedSubtotal = computed(() => Number(props.order.subtotal || getCartSubtotal.value || 0));
-const resolvedDiscount = computed(() => Number(props.order.discount?.total || itemsDiscount.value || 0));
+const money = computed(() => (props.quote ? toCheckoutMoneyView(props.quote) : null));
+const resolvedSubtotal = computed(() => money.value?.subtotal ?? 0);
+const resolvedDiscount = computed(() => money.value?.discountAmount ?? 0);
 const shipping = computed(() => props.order.deliveryMethod);
-
-const orderMoney = computed(() =>
-  calculateOrderMoney({
-    subtotal: resolvedSubtotal.value,
-    discountAmount: resolvedDiscount.value,
-    shippingCost: shipping.value?.price.total || 0,
-    smallOrderTiers: props.generalSettings?.orderSettings?.smallOrderCharge,
-  }),
-);
-
-watch(
-  () => orderMoney.value.matchedSmallOrderTier,
-  (tier) => {
-    emit('update:smallOrder', tier?._id ? (tier as SmallOrderChargeInterface) : null);
-  },
-  { immediate: true },
-);
-
-const smallOrder = computed(() => orderMoney.value.smallOrderCharge);
-const calculatedVAT = computed(() => orderMoney.value.vatAmount);
-const calculatedTotal = computed(() => orderMoney.value.grandTotal);
+const smallOrder = computed(() => money.value?.smallOrderCharge ?? 0);
+const calculatedVAT = computed(() => money.value?.vatAmount ?? 0);
+const calculatedTotal = computed(() => money.value?.total ?? 0);
+const vatPercent = computed(() => Math.round((money.value?.vatRate ?? 0) * 100));
 
 const shippingText = computed(() => {
   if (!shipping.value) return '';
 
   return `${shipping.value.service.courierName} (${shipping.value.service.courierName})`;
 });
-const formattedShippingPrice = computed(() => `${shipping.value?.price.total.toFixed(2)} Lei`);
+const formattedShippingPrice = computed(() => `${(money.value?.shippingCost ?? 0).toFixed(2)} Lei`);
 </script>

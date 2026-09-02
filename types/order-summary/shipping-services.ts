@@ -20,7 +20,12 @@ export interface ShippingOrderPricingResponse {
   quote?: {
     currency: 'RON';
     merchandiseTotal: number;
+    discountTotal: number;
+    shippingTotal: number;
     smallOrderCharge: number;
+    vatRate: number;
+    vatTotal: number;
+    grandTotal: number;
     smallOrderTier: {
       _id?: string;
       min: number;
@@ -30,8 +35,12 @@ export interface ShippingOrderPricingResponse {
     lines: Array<{
       productId: string;
       quantity: number;
+      listUnitPrice: number;
+      discountPercent: number;
+      discountTotal: number;
       unitPrice: number;
       lineTotal: number;
+      vatTotal: number;
     }>;
   };
 }

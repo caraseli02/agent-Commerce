@@ -67,6 +67,9 @@ export interface CartProductsInterface {
    */
   subtotal: number;
 
+  /** Server-allocated VAT for this checkout/order line. */
+  vatTotal?: number;
+
   /**
    * Value of the applied discount
    */

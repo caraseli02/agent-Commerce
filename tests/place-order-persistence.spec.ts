@@ -27,6 +27,33 @@ describe('durable PlaceOrder persistence', () => {
     }
   });
 
+  it('persists demo history in Orders with canonical customer ownership and reconciled money', async () => {
+    const previousMockMode = process.env.NUXT_PUBLIC_MOCK_MODE;
+    process.env.NUXT_PUBLIC_MOCK_MODE = 'true';
+
+    try {
+      const { orders } = await import('../server/domain/orders');
+      const secondCustomerOrders = await orders.list('customer-002');
+      const defaultCustomerOrders = await orders.list('mock-customer-1');
+      const adminOrders = await orders.list();
+
+      expect(defaultCustomerOrders.some((order) => order.shortId === 'ORD-2024-0001')).toBe(true);
+      expect(defaultCustomerOrders.some((order) => order.shortId === 'ORD-2024-0002')).toBe(false);
+      expect(secondCustomerOrders.some((order) => order.shortId === 'ORD-2024-0002')).toBe(true);
+      expect(adminOrders.some((order) => order.shortId === 'ORD-2024-0001')).toBe(true);
+      expect(adminOrders.some((order) => order.shortId === 'ORD-2024-0002')).toBe(true);
+
+      const first = defaultCustomerOrders.find((order) => order.shortId === 'ORD-2024-0001');
+      expect(first?.money).toBeDefined();
+      if (!first?.money) throw new Error('Expected persisted demo order money');
+      expect(first.money.total).toBe(first.money.subtotal + first.money.shippingCost + first.money.vatAmount);
+      expect(first?.shippingDetails.stockorderShippingType.price.total).toBe(first?.money.shippingCost);
+    } finally {
+      if (previousMockMode === undefined) delete process.env.NUXT_PUBLIC_MOCK_MODE;
+      else process.env.NUXT_PUBLIC_MOCK_MODE = previousMockMode;
+    }
+  });
+
   it('replays, reads, and lists one checkout across independent service instances', async () => {
     const [cartModule, userModule, checkoutModule, cartDomain, catalogModule, inventoryModule, ordersModule, paymentsModule] =
       await Promise.all([
@@ -83,22 +110,42 @@ describe('durable PlaceOrder persistence', () => {
       user: user!,
       order: orderInput,
     });
-    const independentRead = await restartedOrders.findById(first.orderId);
+    const independentRead = await restartedOrders.findById(first.orderId, 'mock-customer-1');
+    const crossCustomerRead = await restartedOrders.findById(first.orderId, 'mock-customer-2');
     const independentList = await restartedOrders.list('mock-customer-1');
+    const crossCustomerList = await restartedOrders.list('mock-customer-2');
 
     expect(replay).toEqual(first);
     expect(restartedReplay).toEqual(first);
     expect(independentRead?.order._id).toBe(first.orderId);
     expect(independentRead?.order.products[0]).toMatchObject({
       id: 'prod-1',
+      initialUnitPrice: 999.99,
       unitPriceAfterDiscounts: 949.99,
+      discount: expect.objectContaining({ value: 5, total: 50 }),
       subtotal: 949.99,
+      vatTotal: 180.5,
     });
     expect(independentRead?.order.subtotal).toBe(949.99);
+    expect(independentRead?.order.money).toEqual({
+      currency: 'RON',
+      subtotal: 949.99,
+      discountAmount: 50,
+      shippingCost: 19.9,
+      smallOrderCharge: 0,
+      vatRate: 0.19,
+      vatAmount: 180.5,
+      total: 1150.39,
+    });
+    expect(independentRead?.order.total).toBe(1150.39);
     expect(independentList.some((order) => order._id === first.orderId)).toBe(true);
+    expect(crossCustomerRead).toBeNull();
+    expect(crossCustomerList.some((order) => order._id === first.orderId)).toBe(false);
 
     const database = await getCheckoutDatabase();
-    const [ordersCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_orders');
+    const [ordersCount] = await database.query<{ total: number }>(
+      "SELECT COUNT(*) AS total FROM checkout_orders WHERE checkout_request_id NOT LIKE 'demo-seed:%'",
+    );
     const [paymentsCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_payments');
     const [reservationsCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_reservations');
 

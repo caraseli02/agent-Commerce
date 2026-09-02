@@ -66,7 +66,7 @@
               @update-payment-details="order.paymentDetails = $event"
             />
             <OrderSummaryNoteSection />
-            <OrderSummary :order="order" :general-settings="generalSettings" @update:small-order="order.smallOrder = $event" />
+            <OrderSummary :order="order" :quote="authoritativeQuote" />
             <OrderSummaryCheckoutButtons
               :is-checkout-disabled="isCheckoutDisabled"
               :is-guest-checkout="isGuestCheckout"
@@ -133,7 +133,7 @@ const authoritativeQuote = ref<ShippingOrderPricingResponse['quote']>(undefined)
 
 // Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
 // (sets hasFetchedCart) so pages never call composables/api/cart directly.
-const { cartId, cartItems, calculateSubtotal, calculateDiscount, showWarning, fetchShippingPrices, refreshCart } = useCart();
+const { cartId, cartItems, showWarning, fetchShippingPrices, refreshCart } = useCart();
 
 const {
   pending: cartReadPending,
@@ -154,12 +154,21 @@ const orderItems = computed(() => {
     const quotedLine = authoritativeQuote.value?.lines.find((line) => line.productId === item.id);
     const unitPrice = quotedLine?.unitPrice ?? effectiveUnitPrice;
     const lineTotal = quotedLine?.lineTotal ?? Number((unitPrice * quantity).toFixed(2));
+    const listUnitPrice = quotedLine?.listUnitPrice ?? unitPrice;
 
     return {
       ...rest,
-      initialUnitPrice: unitPrice,
+      initialUnitPrice: listUnitPrice,
       unitPriceAfterDiscounts: unitPrice,
+      discount: quotedLine
+        ? {
+            value: quotedLine.discountPercent,
+            startDate: '',
+            endDate: '',
+          }
+        : rest.discount,
       subtotal: lineTotal,
+      vatTotal: quotedLine?.vatTotal,
       total: lineTotal,
     } as CartProductsInterface;
   });
@@ -242,18 +251,21 @@ const getCustomerCredit = async () => {
 const shippingPreferences = ref(null as ShippingOrderPricingResponse | null);
 const syncCheckoutProducts = () => {
   order.value.products = orderItems.value;
-  order.value.subtotal = Number(orderItems.value.reduce((sum, item) => sum + Number(item.subtotal || 0), 0).toFixed(2));
-  order.value.discount.total = 0;
+  const quote = authoritativeQuote.value;
+  if (!quote) return;
+
+  order.value.subtotal = quote.merchandiseTotal;
+  order.value.discount.total = quote.discountTotal;
+  const discountPercentages = new Set(quote.lines.map((line) => line.discountPercent));
+  order.value.discount.value = discountPercentages.size === 1 ? (quote.lines[0]?.discountPercent ?? 0) : 0;
 };
 const syncOrderTotals = () => {
   syncCheckoutProducts();
-  const subtotal = Number(order.value.subtotal || 0);
-  const vat = Number((subtotal * 0.19).toFixed(2));
-  const shippingFee = Number(order.value.deliveryMethod?.price?.total || 0);
-  const smallOrderFee = Number(authoritativeQuote.value?.smallOrderCharge ?? order.value.smallOrder?.price ?? 0);
+  const quote = authoritativeQuote.value;
+  if (!quote) return;
 
-  order.value.total = Number((subtotal + vat + shippingFee + smallOrderFee).toFixed(2));
-  order.value.shippingCost = shippingFee;
+  order.value.total = quote.grandTotal;
+  order.value.shippingCost = quote.shippingTotal;
 };
 const signinHref = computed(() => {
   const routePath = router.currentRoute.value.fullPath || '/order-summary';
@@ -410,14 +422,14 @@ const refreshAuthoritativePricing = async () => {
 
   shippingPreferences.value = response;
   authoritativeQuote.value = response?.quote;
+  if (response?.selected) order.value.deliveryMethod = response.selected;
   const tier = response?.quote?.smallOrderTier;
   order.value.smallOrder = tier?._id ? { ...tier, _id: tier._id } : null;
   syncOrderTotals();
 };
 
-const updateSubtotal = async (items: CartProductsInterface[], checkoutOrder: CheckoutOrderDraft) => {
+const updateSubtotal = async (_items: CartProductsInterface[], _checkoutOrder: CheckoutOrderDraft) => {
   await refreshAuthoritativePricing();
-  await calculateSubtotal(items, checkoutOrder);
   syncOrderTotals();
 };
 
@@ -426,8 +438,6 @@ watch(
   cartItems,
   async () => {
     await refreshAuthoritativePricing();
-    await calculateSubtotal(cartItems.value, order.value);
-    calculateDiscount(cartItems.value, order);
     syncOrderTotals();
     applyMockCheckoutDefaults();
   },
@@ -435,6 +445,10 @@ watch(
 );
 
 watch([cartId, token, userId], () => refreshAuthoritativePricing());
+watch(
+  () => order.value.deliveryMethod?.service.id,
+  () => refreshAuthoritativePricing(),
+);
 
 watch(
   [shippingPreferences, cards],
@@ -505,10 +519,6 @@ onMounted(async () => {
     getCustomerCredit(), // Fetch customer credit information
     refreshAuthoritativePricing(),
   ]);
-
-  // Initial calculations
-  await calculateSubtotal(cartItems.value, order.value);
-  calculateDiscount(cartItems.value, order);
 
   syncOrderTotals();
   applyMockCheckoutDefaults();

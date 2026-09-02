@@ -1,4 +1,3 @@
-import { getDemoOrders, getDemoOrdersForUser } from '~/server/utils/mockDashboardDemo';
 import { orders } from '~/server/domain/orders';
 import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
 import { AccountRole } from '~/types/signup/form';
@@ -41,8 +40,7 @@ export default defineEventHandler(async (event) => {
   }
   const scopedUserId = authenticatedUser.role === AccountRole.Admin ? query.userId : authenticatedUser._id;
 
-  const runtimeOrders = await orders.list(scopedUserId);
-  let items = [...runtimeOrders, ...(scopedUserId ? getDemoOrdersForUser(scopedUserId) : getDemoOrders())];
+  let items = await orders.list(scopedUserId);
 
   if (query.status) {
     const statusFilters = String(query.status)

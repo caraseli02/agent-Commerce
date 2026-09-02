@@ -289,7 +289,7 @@
       "id": "SD-PLACE-ORDER-HARDENING",
       "description": "Harden PlaceOrder persistence, canonical order reads, idempotency, pricing, and fresh-cart behavior for production runtime boundaries",
       "validation": "The handoff P0/P1 tests pass across independent service instances; server-authoritative pricing reconciles at 949.99 Lei; pnpm verify, verify:full, deployed preview buyer smoke, and verify:handoff pass; no finalizePayment implementation",
-      "status": "passing",
+      "status": "blocked",
       "evidence": [
         "pnpm db:migrate passed against the configured PostgreSQL development database; focused migration/constraint and module-restart/race tests passed (9 tests).",
         "pnpm verify:handoff passed before deployment; final pnpm verify:full passed with build, lint, typecheck, PostgreSQL-backed coverage suite (320 passed + 2 todo), architecture invariants, and built-preview route smoke.",
@@ -298,7 +298,11 @@
         "PR #523 GitHub PostgreSQL CI, PR-template check, Vercel deployment, and Vercel Preview Comments passed at commit 1db98811.",
         "The Neon-backed Vercel preview passed deployed cross-request smoke: empty fresh cart, one STM32 Add = quantity 1, authenticated price 949.99, idempotent replay, canonical order read/history, durable cart completion, and at most one order for racing request IDs on one cart revision.",
         "Final preview runtime error-log query returned no order-flow errors after normalizing Neon SSL aliases to verify-full.",
-        "No finalizePayment implementation is included."
+        "No finalizePayment implementation is included.",
+        "Follow-up branch codex/place-order-read-money-reconciliation removes route fixture fallbacks and persists demo fixtures through Orders with customer ownership.",
+        "One Catalog checkout quote now supplies line/list/discount/VAT allocations plus subtotal, shipping, handling, VAT, and grand total to UI, placement, persistence, success, and history views.",
+        "Database-independent follow-up checks pass: build, lint, typecheck, 29 focused Vitest tests, architecture invariants, UI conventions, formatting, and git diff checks.",
+        "Blocked: pnpm verify reaches PostgreSQL coverage after its earlier gates pass, then stops because this worktree has no DATABASE_URL; the PostgreSQL persistence and E2E acceptance cases remain unexecuted."
       ]
     },
     {

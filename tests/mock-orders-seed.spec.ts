@@ -23,6 +23,15 @@ describe('mock admin orders seed', () => {
     expect(orders[0]?._id).toBe('ord-1');
     expect(orders[119]?.shortId).toBe('ORD-2024-0120');
     expect(orders[119]?._id).toBe('ord-120');
+    expect(orders[0]?.userId).toBe('mock-customer-1');
+    expect(orders[1]?.userId).toBe('customer-002');
+    expect(orders[0]?.money).toMatchObject({
+      subtotal: 1499.99,
+      shippingCost: 0,
+      vatRate: 0,
+      vatAmount: 0,
+      total: 1499.99,
+    });
   });
 
   it('honors MOCK_ORDERS_COUNT for stress runs', () => {

@@ -81,7 +81,7 @@ const makeDependencies = () => {
         })),
       },
       catalog: {
-        quoteItems: vi.fn(async () => ({
+        quoteCheckout: vi.fn(async () => ({
           kind: 'quoted' as const,
           quote: {
             currency: 'RON' as const,
@@ -92,6 +92,15 @@ const makeDependencies = () => {
                 sku: 'MCU-001',
                 name: 'Microcontroller',
                 quantity: 1,
+                listUnitPrice: {
+                  minor: 105_00,
+                  currency: 'RON' as const,
+                },
+                discountPercent: 5,
+                discountTotal: {
+                  minor: 5_00,
+                  currency: 'RON' as const,
+                },
                 unitPrice: {
                   minor: 100_00,
                   currency: 'RON' as const,
@@ -100,10 +109,18 @@ const makeDependencies = () => {
                   minor: 100_00,
                   currency: 'RON' as const,
                 },
+                vatTotal: {
+                  minor: 19_00,
+                  currency: 'RON' as const,
+                },
               },
             ],
             merchandiseTotal: {
               minor: 100_00,
+              currency: 'RON' as const,
+            },
+            discountTotal: {
+              minor: 5_00,
               currency: 'RON' as const,
             },
             smallOrderCharge: {
@@ -111,13 +128,14 @@ const makeDependencies = () => {
               currency: 'RON' as const,
             },
             smallOrderTier: null as SmallOrderChargeTier | null,
-          },
-        })),
-        quoteDelivery: vi.fn(async () => ({
-          kind: 'quoted' as const,
-          option: {
-            service: { id: 1, courierName: 'Demo Express', name: 'Standard Delivery' },
-            price: { total: 19.9, noVat: 16.72 },
+            deliveryOption: {
+              service: { id: 1, courierName: 'Demo Express', name: 'Standard Delivery' },
+              price: { total: 19.9, noVat: 16.72 },
+            },
+            shippingTotal: { minor: 19_90, currency: 'RON' as const },
+            vatRate: 0.19,
+            vatTotal: { minor: 19_00, currency: 'RON' as const },
+            grandTotal: { minor: 138_90, currency: 'RON' as const },
           },
         })),
       },
@@ -229,12 +247,24 @@ describe('PlaceOrder application workflow', () => {
         items: [
           expect.objectContaining({
             productId: 'prod-1',
+            listUnitPriceMinor: 105_00,
+            discountPercent: 5,
+            discountTotalMinor: 5_00,
+            vatTotalMinor: 19_00,
             unitPriceMinor: 100_00,
             lineTotalMinor: 100_00,
           }),
         ],
-        shippingCostMinor: 1990,
-        smallOrderCostMinor: 0,
+        money: {
+          currency: 'RON',
+          merchandiseTotalMinor: 100_00,
+          discountTotalMinor: 5_00,
+          shippingTotalMinor: 19_90,
+          smallOrderChargeMinor: 0,
+          vatRate: 0.19,
+          vatTotalMinor: 19_00,
+          grandTotalMinor: 138_90,
+        },
       }),
     );
 
@@ -246,7 +276,7 @@ describe('PlaceOrder application workflow', () => {
 
   it('persists a server-quoted small-order charge instead of trusting the browser', async () => {
     const { dependencies, createPending } = makeDependencies();
-    dependencies.catalog.quoteItems.mockResolvedValueOnce({
+    dependencies.catalog.quoteCheckout.mockResolvedValueOnce({
       kind: 'quoted',
       quote: {
         currency: 'RON',
@@ -257,13 +287,26 @@ describe('PlaceOrder application workflow', () => {
             sku: 'MCU-001',
             name: 'Microcontroller',
             quantity: 1,
+            listUnitPrice: { minor: 40_00, currency: 'RON' },
+            discountPercent: 0,
+            discountTotal: { minor: 0, currency: 'RON' },
             unitPrice: { minor: 40_00, currency: 'RON' },
             lineTotal: { minor: 40_00, currency: 'RON' },
+            vatTotal: { minor: 7_60, currency: 'RON' },
           },
         ],
         merchandiseTotal: { minor: 40_00, currency: 'RON' },
+        discountTotal: { minor: 0, currency: 'RON' },
         smallOrderCharge: { minor: 4_99, currency: 'RON' },
         smallOrderTier: { _id: 'soc-001', min: 0, max: 50, price: 4.99 },
+        deliveryOption: {
+          service: { id: 1, courierName: 'Demo Express', name: 'Standard Delivery' },
+          price: { total: 19.9, noVat: 16.72 },
+        },
+        shippingTotal: { minor: 19_90, currency: 'RON' },
+        vatRate: 0.19,
+        vatTotal: { minor: 7_60, currency: 'RON' },
+        grandTotal: { minor: 72_49, currency: 'RON' },
       },
     });
     const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
@@ -275,6 +318,8 @@ describe('PlaceOrder application workflow', () => {
       }),
     );
 
-    expect(createPending).toHaveBeenCalledWith(expect.objectContaining({ smallOrderCostMinor: 499 }));
+    expect(createPending).toHaveBeenCalledWith(
+      expect.objectContaining({ money: expect.objectContaining({ smallOrderChargeMinor: 499, grandTotalMinor: 7249 }) }),
+    );
   });
 });
