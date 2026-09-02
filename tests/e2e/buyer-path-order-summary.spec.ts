@@ -31,12 +31,17 @@ const warmMockApi = async (request: APIRequestContext) => {
       continue;
     }
 
+    const login = (await loginResponse.json()) as { data?: { token?: string } };
+    const authorization = `Bearer ${login.data?.token || ''}`;
+
     const cartProbe = await request.post('/api/cart', {
-      data: { productId: 'prod-2', quantity: 1 },
+      headers: { authorization },
+      data: { products: [{ id: 'prod-2', stock: 1, backorder_stock: 0, isFolder: false }] },
     });
 
     if (cartProbe.ok()) {
       await request.delete('/api/cart', {
+        headers: { authorization },
         data: { products: ['prod-1', 'prod-2'] },
       });
       return;
@@ -92,21 +97,26 @@ test.describe('Scripted Buyer Path — cart to checkout entry', () => {
   });
 
   test.beforeEach(async ({ request }) => {
+    const loginResponse = await request.post('/api/auth/login', {
+      data: { email: 'customer@demo.com', password: 'customer123' },
+    });
+    const login = (await loginResponse.json()) as { data?: { token?: string } };
     await request.delete('/api/cart', {
+      headers: { authorization: `Bearer ${login.data?.token || ''}` },
       data: { products: ['prod-1', 'prod-2'] },
     });
   });
 
   test('guest buyer reaches order summary from cart and can enter secure checkout after sign-in', async ({ page }) => {
-    await navigateTo(page, '/product/prod-2');
-    await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await navigateTo(page, '/product/prod-1');
+    await expect(page.getByText('STM32F407VGT6 Microcontroller', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 
     await addProductToCart(page);
 
     await navigateThroughCart(page);
     await expect(page).toHaveURL(/\/order-summary$/);
     await expect(page.getByRole('heading', { name: /order summary/i })).toBeVisible();
-    await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('STM32F407VGT6 Microcontroller', { exact: true }).filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText(/Viewing Summary as Guest/i)).toBeVisible();
 
     await expect(page.getByTestId('guest-address-prompt')).toBeVisible();
@@ -137,8 +147,10 @@ test.describe('Scripted Buyer Path — cart to checkout entry', () => {
 
     await expect(page).toHaveURL(/\/order-summary$/);
     await expect(page.getByRole('heading', { name: /order summary/i })).toBeVisible();
-    await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('STM32F407VGT6 Microcontroller', { exact: true }).filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText(/Viewing Summary as Guest/i)).toHaveCount(0);
+    await expect(page.getByText('949.99 Lei', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(paymentSummary.locator('../..').getByText('949.99 Lei', { exact: true })).toBeVisible();
 
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
     await expect(secureCheckoutButton).toBeVisible();

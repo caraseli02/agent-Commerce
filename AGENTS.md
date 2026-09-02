@@ -179,6 +179,7 @@ Update the harness whenever:
 Standard commands live in `README.md` and `package.json` scripts; this section only captures non-obvious caveats.
 
 - **`.env` is required for the app to actually work.** Mock mode reads `NUXT_PUBLIC_MOCK_MODE=true` from `.env` (see `nuxt.config.ts` `runtimeConfig.public.MOCK_MODE`). Without `.env` there is no data source (no live backend), so the storefront renders empty. The startup update script copies `.env.example` → `.env` when missing; if you wipe `.env`, recreate it with `cp .env.example .env`.
+- **Checkout also requires PostgreSQL.** Set `DATABASE_URL` in `.env` or ignored `.env.local`, run `pnpm db:migrate`, then start the app. The application no longer falls back to SQLite; test commands load `.env` then `.env.local` and create an isolated PostgreSQL schema.
 - **Demo login credentials:** use `customer@demo.com` / `customer123` or `admin@demo.com` / `admin123` (defined in `server/utils/mockUsers.ts` and documented in `README.md`).
 - **Mock mode is an explicit portfolio-demo contract.** With `NUXT_PUBLIC_MOCK_MODE=true`, both `pnpm dev` and `pnpm build && pnpm preview` use the repository's sample Nitro routes. It contains public sample data only and must not be connected to real customer data.
 - Dev server is ready ~10s after `pnpm dev`; confirm with `curl -sf http://localhost:3000/` before browser testing.

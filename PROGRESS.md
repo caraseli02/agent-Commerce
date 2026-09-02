@@ -2,23 +2,39 @@
 
 ## Current focus
 
-- System design #6 and #7 are accepted and committed. The active architecture work now moves from documentation to implementation.
-- First vertical slice: implement `PlaceOrder` behind an application-layer seam, introduce only the public module contracts it needs, and activate the duplicate-checkout idempotency contract test.
-- Preserve mock-mode behavior while removing orchestration from `server/api/orders/new.post.ts` incrementally; do not turn the project into a microservice/saga framework exercise.
+- Production-harden the existing `PlaceOrder` vertical slice from
+  `docs/system-design/place-order-production-hardening.md` before any
+  `finalizePayment` work.
+- Preserve the modular-monolith dependency direction: Nitro adapter → checkout
+  application workflow → public Cart/Catalog/Inventory/Orders/Payments APIs.
 
 ## In progress
 
-- Checkout architecture migration from `server/api` + `server/utils` coupling toward:
+- None. PlaceOrder production hardening is complete and awaiting PR #523 review/merge.
 
-  ```text
-  Nitro API
-    -> application workflow
-      -> public module contracts
-        -> private module internals
-  ```
+## Completed PlaceOrder hardening
 
-- `tests/server-module-boundaries.spec.ts` already enforces that API/application code cannot import module internals and that one module cannot import another module's internals.
-- Three adversarial checkout contracts are recorded for implementation: duplicate `PlaceOrder`, duplicate/late payment success, and cancellation while payment is processing.
+- PostgreSQL through `DATABASE_URL` is the only checkout persistence
+  engine in local development, tests/CI, Vercel preview, and production.
+- Order create/read/list is canonical, checkout claims are database-enforced,
+  cart completion revision-aware, and inventory/payment state durable.
+- Authenticated customer pricing is reconciled through the server Catalog quote;
+  the demo STM32 price is `999.99 × 95% = 949.99 Lei` in the line, Payment
+  Summary, PlaceOrder snapshot, success read, and history read.
+- Fresh carts start empty. No `finalizePayment` implementation is included.
+
+The implementation preserves the accepted architecture direction:
+
+```text
+Nitro API
+  -> application workflow
+    -> public module contracts
+      -> private module internals
+```
+
+- `tests/server-module-boundaries.spec.ts` enforces that API/application code
+  cannot import module internals and that one module cannot import another
+  module's internals.
 
 ## Recently completed system-design work
 
@@ -47,24 +63,38 @@
 
 ## Verification baseline
 
-- `./scripts/validate-feature-list.sh`
-- `pnpm verify` — fast default gate
-- `pnpm verify:full` — architecture invariants and preview smoke
-- `pnpm verify:handoff` — clean-tree handoff gate
+- Root causes in the hardening handoff were rechecked against `origin/main` and
+  all six were present.
+- `pnpm db:migrate`: pass against the configured PostgreSQL development
+  database, including the compatible legacy-schema migration path.
+- Focused PostgreSQL migration/constraint and durable PlaceOrder suite: pass
+  (9 tests), including concurrent migrators and `vi.resetModules()` replay,
+  canonical read, and history list.
+- `pnpm verify:full`: pass — build, lint, typecheck, PostgreSQL-backed coverage
+  suite (320 passed + 2 todo), architecture invariants, and built-preview route
+  smoke.
+- Focused critical browser flows: pass (4/4), covering order-summary entry,
+  customer sign-in and `949.99 Lei` reconciliation, successful PlaceOrder and
+  success read-back, order history, and checkout failure handling.
+- Pre-push verification: pass — `pnpm verify` plus visual browser matrix (9/9).
+- `pnpm test:e2e` now starts its own built Nitro server and cannot reuse a
+  separately started server with the wrong database schema.
+- PR #523 checks pass: PostgreSQL-backed GitHub CI, PR template, Vercel build,
+  and Vercel Preview Comments.
+- Vercel preview migration/build pass against the connected Neon Preview
+  database branch. Deployed cross-request smoke passes: fresh cart is empty,
+  one STM32 Add yields quantity 1, authenticated price persists as `949.99`,
+  replay returns the same order, canonical read/history return that order, cart
+  completion is durable, and two request IDs racing one cart revision create at
+  most one order. Runtime error logs are empty after the final smoke.
+- PostgreSQL SSL aliases from Neon are normalized to `verify-full`, preserving
+  certificate verification without the pg future-semantics runtime warning.
 
-## Human decisions pending
+## Blocked / known baseline failures
 
-- #316 (`ready-for-human`) — choose severity:low auto-merge versus evaluator policy.
-- #121 (`ready-for-human`) — decide the production Stripe payment integration plan (HITL). The current checkout architecture may model the Payments boundary without forcing the real provider integration yet.
+- None for the PlaceOrder production-hardening slice.
 
-## Next implementation checkpoint
+## Next checkpoint
 
-`PlaceOrder` is complete only when:
-
-1. the API route is a thin transport adapter;
-2. orchestration lives in `server/application/checkout`;
-3. involved modules are accessed through public entry points;
-4. the same checkout request returns the same logical order;
-5. conflicting idempotency-key reuse is rejected;
-6. the same cart revision cannot create two active orders through different request IDs;
-7. the first pending checkout contract test becomes an executable passing test.
+1. Review and merge PR #523.
+2. Only after merge, resume the system-design sequence with `finalizePayment`.

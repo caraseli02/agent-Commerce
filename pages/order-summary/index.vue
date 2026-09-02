@@ -129,6 +129,7 @@ const { token, getGeneralSettings } = storeToRefs(authStore);
 const isGuestCheckout = computed(() => !(token.value || userId.value));
 const { guestCheckoutMode, clearGuestCheckout } = useGuestCheckout();
 const isGuestCheckoutMode = computed(() => isGuestCheckout.value && guestCheckoutMode.value);
+const authoritativeQuote = ref<ShippingOrderPricingResponse['quote']>(undefined);
 
 // Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
 // (sets hasFetchedCart) so pages never call composables/api/cart directly.
@@ -150,12 +151,14 @@ const orderItems = computed(() => {
         )
       : 0;
     const effectiveUnitPrice = Number(discountPrice || item.unitPriceAfterDiscounts || item.initialUnitPrice || 0);
-    const lineTotal = Number((effectiveUnitPrice * quantity).toFixed(2));
+    const quotedLine = authoritativeQuote.value?.lines.find((line) => line.productId === item.id);
+    const unitPrice = quotedLine?.unitPrice ?? effectiveUnitPrice;
+    const lineTotal = quotedLine?.lineTotal ?? Number((unitPrice * quantity).toFixed(2));
 
     return {
       ...rest,
-      initialUnitPrice: effectiveUnitPrice,
-      unitPriceAfterDiscounts: effectiveUnitPrice,
+      initialUnitPrice: unitPrice,
+      unitPriceAfterDiscounts: unitPrice,
       subtotal: lineTotal,
       total: lineTotal,
     } as CartProductsInterface;
@@ -247,7 +250,7 @@ const syncOrderTotals = () => {
   const subtotal = Number(order.value.subtotal || 0);
   const vat = Number((subtotal * 0.19).toFixed(2));
   const shippingFee = Number(order.value.deliveryMethod?.price?.total || 0);
-  const smallOrderFee = Number(order.value.smallOrder?.price || 0);
+  const smallOrderFee = Number(authoritativeQuote.value?.smallOrderCharge ?? order.value.smallOrder?.price ?? 0);
 
   order.value.total = Number((subtotal + vat + shippingFee + smallOrderFee).toFixed(2));
   order.value.shippingCost = shippingFee;
@@ -317,8 +320,23 @@ const isCheckoutDisabled = computed(() => {
   const hasShippingPreference = !!order.value.deliveryMethod;
   const hasPaymentMethod = !!order.value.paymentDetails && 'type' in order.value.paymentDetails;
   const hasGuestContact = !isGuestCheckoutMode.value || isCompleteGuestContact(order.value.guestContact);
+  const hasAuthoritativeQuote = Boolean(
+    authoritativeQuote.value &&
+    authoritativeQuote.value.lines.length === cartItems.value.length &&
+    authoritativeQuote.value.lines.every((line) => {
+      const item = cartItems.value.find((candidate) => candidate.id === line.productId);
+      return item && line.quantity === Number(item.stock || 0) + Number(item.backorder_stock || 0);
+    }),
+  );
 
-  return !(hasShippingAddress && hasBillingAddress && hasShippingPreference && hasPaymentMethod && hasGuestContact);
+  return !(
+    hasShippingAddress &&
+    hasBillingAddress &&
+    hasShippingPreference &&
+    hasPaymentMethod &&
+    hasGuestContact &&
+    hasAuthoritativeQuote
+  );
 });
 
 const isLoadingCheckout = ref(false);
@@ -371,8 +389,34 @@ const deleteSelected = () => {
   cartItems.value = cartItems.value.filter((item) => !item.selected);
 };
 
+let quoteRequestVersion = 0;
+const refreshAuthoritativePricing = async () => {
+  const requestVersion = ++quoteRequestVersion;
+
+  if (!cartId.value || !cartItems.value.length) {
+    authoritativeQuote.value = undefined;
+    return;
+  }
+
+  authoritativeQuote.value = undefined;
+  let response: ShippingOrderPricingResponse | null = null;
+  try {
+    response = await fetchShippingPrices({ ...order.value, cartId: cartId.value });
+  } catch {
+    if (requestVersion === quoteRequestVersion) authoritativeQuote.value = undefined;
+    return;
+  }
+  if (requestVersion !== quoteRequestVersion) return;
+
+  shippingPreferences.value = response;
+  authoritativeQuote.value = response?.quote;
+  const tier = response?.quote?.smallOrderTier;
+  order.value.smallOrder = tier?._id ? { ...tier, _id: tier._id } : null;
+  syncOrderTotals();
+};
+
 const updateSubtotal = async (items: CartProductsInterface[], checkoutOrder: CheckoutOrderDraft) => {
-  shippingPreferences.value = await fetchShippingPrices(checkoutOrder);
+  await refreshAuthoritativePricing();
   await calculateSubtotal(items, checkoutOrder);
   syncOrderTotals();
 };
@@ -381,6 +425,7 @@ const updateSubtotal = async (items: CartProductsInterface[], checkoutOrder: Che
 watch(
   cartItems,
   async () => {
+    await refreshAuthoritativePricing();
     await calculateSubtotal(cartItems.value, order.value);
     calculateDiscount(cartItems.value, order);
     syncOrderTotals();
@@ -388,6 +433,8 @@ watch(
   },
   { deep: true },
 );
+
+watch([cartId, token, userId], () => refreshAuthoritativePricing());
 
 watch(
   [shippingPreferences, cards],
@@ -451,15 +498,13 @@ onMounted(async () => {
     };
   }
 
-  const shippingPricesPromise = fetchShippingPrices(order.value);
+  await refreshCartRead();
 
-  const [, , shippingPrices] = await Promise.all([
+  await Promise.all([
     fetchCards(), // Fetch user's payment cards
     getCustomerCredit(), // Fetch customer credit information
-    shippingPricesPromise,
+    refreshAuthoritativePricing(),
   ]);
-
-  shippingPreferences.value = shippingPrices; // Fetch shipping prices
 
   // Initial calculations
   await calculateSubtotal(cartItems.value, order.value);

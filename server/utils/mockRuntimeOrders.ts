@@ -71,6 +71,7 @@ type CreateOrderPayload = {
   currency?: string;
   type?: OrderType;
   shippingCost?: number;
+  smallOrderCost?: number;
 };
 
 type RuntimeOrderNote = {
@@ -164,13 +165,13 @@ const resolveMerchandiseSubtotal = (products: OrderProductLike[] = []) => {
   );
 };
 
-const calculateOrderTotals = (products: OrderProductLike[] = [], shippingCost = 0) => {
+const calculateOrderTotals = (products: OrderProductLike[] = [], shippingCost = 0, smallOrderCost = 0) => {
   const subtotal = resolveMerchandiseSubtotal(products);
   const orderMoney = calculateOrderMoney({ subtotal, shippingCost });
 
   return {
     subtotal: orderMoney.subtotal,
-    total: orderMoney.grandTotal,
+    total: Number((orderMoney.grandTotal + smallOrderCost).toFixed(2)),
   };
 };
 
@@ -245,13 +246,15 @@ const normalizePaymentDetails = (paymentDetails: PaymentDetailsInput = {}): Runt
   };
 };
 
-export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterface) => {
+export const buildRuntimeOrder = (payload: CreateOrderPayload, user: UserInterface) => {
   const orderId = generateOrderId();
   const shortId = generateShortId();
   const products = payload.products || [];
   const rawShippingCost = Number(payload.shippingCost ?? 19.9);
   const shippingCost = Number.isFinite(rawShippingCost) ? rawShippingCost : 19.9;
-  const totals = calculateOrderTotals(products, shippingCost);
+  const rawSmallOrderCost = Number(payload.smallOrderCost ?? 0);
+  const smallOrderCost = Number.isFinite(rawSmallOrderCost) ? rawSmallOrderCost : 0;
+  const totals = calculateOrderTotals(products, shippingCost, smallOrderCost);
   const noteMessage = payload.note?.message;
 
   const order: RuntimeOrder = {
@@ -272,7 +275,7 @@ export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterf
     status: OrderStatus.Pending,
     type: payload.type ?? 0,
     shippingCost,
-    smallOrderCost: 0,
+    smallOrderCost,
     discount: {
       value: 0,
       startDate: new Date().toISOString(),
@@ -293,15 +296,16 @@ export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterf
     updatedAt: new Date().toISOString(),
   };
 
-  runtimeOrders.set(orderId, {
-    order,
-    children: [],
-  });
-
   return {
     orderId,
     order,
   };
+};
+
+export const createRuntimeOrder = (payload: CreateOrderPayload, user: UserInterface) => {
+  const created = buildRuntimeOrder(payload, user);
+  runtimeOrders.set(created.orderId, { order: created.order, children: [] });
+  return created;
 };
 
 export const findRuntimeOrder = (id?: string | null) => {

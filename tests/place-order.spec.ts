@@ -1,13 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { PaymentStatusEnum } from '~/types/order-summary/item';
 import type { CreatePendingOrderInput } from '~/server/domain/orders';
 import type { EnsurePaymentResult } from '~/server/domain/payments';
-import {
-  createPlaceOrderCoordinator,
-  createPlaceOrderUseCase,
-  type PlaceOrderCommand,
-} from '~/server/application/checkout/place-order';
+import { createPlaceOrderCoordinator, createPlaceOrderUseCase, type PlaceOrderCommand } from '~/server/application/checkout/place-order';
+import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import type { SmallOrderChargeTier } from '~/helpers/order-money';
 
 const user = {
   _id: 'customer-1',
@@ -25,6 +23,7 @@ const makeCommand = (overrides: Partial<PlaceOrderCommand> = {}): PlaceOrderComm
     shippingCost: 9.99,
     type: 0,
     shippingDetails: {
+      deliveryTypeId: '1',
       address: {
         name1: 'Main Street 1',
       },
@@ -107,6 +106,18 @@ const makeDependencies = () => {
               minor: 100_00,
               currency: 'RON' as const,
             },
+            smallOrderCharge: {
+              minor: 0,
+              currency: 'RON' as const,
+            },
+            smallOrderTier: null as SmallOrderChargeTier | null,
+          },
+        })),
+        quoteDelivery: vi.fn(async () => ({
+          kind: 'quoted' as const,
+          option: {
+            service: { id: 1, courierName: 'Demo Express', name: 'Standard Delivery' },
+            price: { total: 19.9, noVat: 16.72 },
           },
         })),
       },
@@ -146,6 +157,11 @@ const makeDependencies = () => {
 };
 
 describe('PlaceOrder application workflow', () => {
+  beforeEach(async () => {
+    const database = await getCheckoutDatabase();
+    await database.execute('DELETE FROM checkout_claims');
+  });
+
   it('returns the same logical order for the same request and performs side effects once', async () => {
     const { dependencies, createPending } = makeDependencies();
     const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
@@ -173,7 +189,10 @@ describe('PlaceOrder application workflow', () => {
         makeCommand({
           order: {
             ...makeCommand().order,
-            shippingCost: 19.99,
+            shippingDetails: {
+              deliveryTypeId: '2',
+              address: { name1: 'Main Street 1' },
+            },
           },
         }),
       ),
@@ -214,6 +233,8 @@ describe('PlaceOrder application workflow', () => {
             lineTotalMinor: 100_00,
           }),
         ],
+        shippingCostMinor: 1990,
+        smallOrderCostMinor: 0,
       }),
     );
 
@@ -221,5 +242,39 @@ describe('PlaceOrder application workflow', () => {
     expect(orderInput).not.toHaveProperty('total');
     expect(orderInput).not.toHaveProperty('subtotal');
     expect(orderInput).not.toHaveProperty('products');
+  });
+
+  it('persists a server-quoted small-order charge instead of trusting the browser', async () => {
+    const { dependencies, createPending } = makeDependencies();
+    dependencies.catalog.quoteItems.mockResolvedValueOnce({
+      kind: 'quoted',
+      quote: {
+        currency: 'RON',
+        quotedAt: new Date('2026-08-31T00:00:00.000Z'),
+        lines: [
+          {
+            productId: 'prod-1',
+            sku: 'MCU-001',
+            name: 'Microcontroller',
+            quantity: 1,
+            unitPrice: { minor: 40_00, currency: 'RON' },
+            lineTotal: { minor: 40_00, currency: 'RON' },
+          },
+        ],
+        merchandiseTotal: { minor: 40_00, currency: 'RON' },
+        smallOrderCharge: { minor: 4_99, currency: 'RON' },
+        smallOrderTier: { _id: 'soc-001', min: 0, max: 50, price: 4.99 },
+      },
+    });
+    const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
+
+    await placeOrder(
+      makeCommand({
+        checkoutRequestId: 'checkout-small-order',
+        order: { ...makeCommand().order, smallOrderChargeId: 'attacker-selected-tier' },
+      }),
+    );
+
+    expect(createPending).toHaveBeenCalledWith(expect.objectContaining({ smallOrderCostMinor: 499 }));
   });
 });

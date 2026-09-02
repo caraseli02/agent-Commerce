@@ -3,7 +3,7 @@ import { getMockCartForUser, requireMockCartUserId } from '~/server/utils/mockCa
 export default defineEventHandler(async (event) => {
   const headers = getHeaders(event);
   const userId = requireMockCartUserId(event, headers.authorization);
-  const cart = getMockCartForUser(userId);
+  const cart = await getMockCartForUser(userId);
 
   return {
     status: 'success',

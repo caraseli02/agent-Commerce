@@ -11,6 +11,7 @@ type ProductPriceHistoryEntry = {
 export type ProductWithPricing =
   | {
       stock?: number;
+      adminSettings?: { discount?: { value?: number } };
       priceConfiguration?: ProductPriceTier;
       priceHistory?: ProductPriceHistoryEntry[];
     }
@@ -37,6 +38,15 @@ export const resolveTierUnitPrice = (product: ProductWithPricing, quantity = 0) 
   const activePrice = product?.priceHistory?.find((entry) => entry?.active)?.price ?? product?.priceHistory?.[0]?.price ?? 0;
 
   return Number(activePrice) || 0;
+};
+
+export const resolveCustomerUnitPrice = (product: ProductWithPricing, customerDiscountPercent = 0, quantity = 0) => {
+  const tierPrice = resolveTierUnitPrice(product, quantity);
+  const productDiscount = Math.max(0, Number(product?.adminSettings?.discount?.value || 0));
+  const customerDiscount = Math.max(0, Number(customerDiscountPercent || 0));
+  const appliedDiscount = productDiscount || customerDiscount;
+
+  return Number((tierPrice * (1 - appliedDiscount / 100)).toFixed(2));
 };
 
 export type ClampCartQuantityOptions = {

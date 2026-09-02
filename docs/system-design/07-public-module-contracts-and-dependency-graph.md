@@ -67,13 +67,13 @@ The application layer owns cross-domain sequencing. Each module owns only its st
 Allowed:
 
 ```ts
-import { orders } from '~/server/domain/orders'
+import { orders } from '~/server/domain/orders';
 ```
 
 Forbidden outside the owning module:
 
 ```ts
-import { ordersRepository } from '~/server/domain/orders/internal/repository'
+import { ordersRepository } from '~/server/domain/orders/internal/repository';
 ```
 
 `index.ts` is the public module firewall.
@@ -161,9 +161,9 @@ Use integer minor units instead of floating-point major units:
 
 ```ts
 type Money = Readonly<{
-  minor: number
-  currency: CurrencyCode
-}>
+  minor: number;
+  currency: CurrencyCode;
+}>;
 ```
 
 Example:
@@ -191,26 +191,26 @@ Checkout needs an authoritative commercial quote, not an entire Product model.
 ```ts
 type QuoteItemsInput = {
   items: readonly {
-    productId: ProductId
-    quantity: number
-  }[]
-}
+    productId: ProductId;
+    quantity: number;
+  }[];
+};
 
 type CatalogQuoteLine = {
-  productId: ProductId
-  sku: string
-  name: string
-  quantity: number
-  unitPrice: Money
-}
+  productId: ProductId;
+  sku: string;
+  name: string;
+  quantity: number;
+  unitPrice: Money;
+};
 
 type CatalogQuote = {
-  lines: readonly CatalogQuoteLine[]
-  quotedAt: Date
-}
+  lines: readonly CatalogQuoteLine[];
+  quotedAt: Date;
+};
 
 interface CatalogService {
-  quoteItems(input: QuoteItemsInput): Promise<CatalogQuote>
+  quoteItems(input: QuoteItemsInput): Promise<CatalogQuote>;
 }
 ```
 
@@ -226,33 +226,26 @@ Checkout reads a stable intent snapshot with a revision token.
 
 ```ts
 type CartSnapshot = {
-  cartId: CartId
-  ownerId: CustomerId | GuestSessionId
-  revision: CartRevision
+  cartId: CartId;
+  ownerId: CustomerId | GuestSessionId;
+  revision: CartRevision;
   items: readonly {
-    productId: ProductId
-    quantity: number
-  }[]
-}
+    productId: ProductId;
+    quantity: number;
+  }[];
+};
 
 interface CartService {
-  getSnapshot(input: {
-    cartId: CartId
-    ownerId: CustomerId | GuestSessionId
-  }): Promise<CartSnapshot>
+  getSnapshot(input: { cartId: CartId; ownerId: CustomerId | GuestSessionId }): Promise<CartSnapshot>;
 
-  completeCheckout(
-    input: CompleteCheckoutInput,
-  ): Promise<CompleteCheckoutResult>
+  completeCheckout(input: CompleteCheckoutInput): Promise<CompleteCheckoutResult>;
 }
 ```
 
 Initial reconciliation policy:
 
 ```ts
-type CompleteCheckoutResult =
-  | { kind: 'completed' }
-  | { kind: 'cart-changed' }
+type CompleteCheckoutResult = { kind: 'completed' } | { kind: 'cart-changed' };
 ```
 
 `completeCheckout` mutates the cart only if the current cart revision still matches the revision used by the checkout.
@@ -275,31 +268,21 @@ Inventory exposes allocation capabilities rather than stock records/repositories
 
 ```ts
 type ReserveInventoryInput = {
-  reservationKey: ReservationKey
-  items: readonly RequestedInventoryItem[]
-  expiresAt: Date
-}
+  reservationKey: ReservationKey;
+  items: readonly RequestedInventoryItem[];
+  expiresAt: Date;
+};
 
-type IdempotentResult<T> =
-  | { kind: 'created'; value: T }
-  | { kind: 'existing'; value: T }
+type IdempotentResult<T> = { kind: 'created'; value: T } | { kind: 'existing'; value: T };
 
 interface InventoryService {
-  reserve(
-    input: ReserveInventoryInput,
-  ): Promise<IdempotentResult<InventoryReservation>>
+  reserve(input: ReserveInventoryInput): Promise<IdempotentResult<InventoryReservation>>;
 
-  commit(
-    reservationId: ReservationId,
-  ): Promise<CommitReservationResult>
+  commit(reservationId: ReservationId): Promise<CommitReservationResult>;
 
-  release(
-    reservationId: ReservationId,
-  ): Promise<ReleaseReservationResult>
+  release(reservationId: ReservationId): Promise<ReleaseReservationResult>;
 
-  allocatePaidOrder(
-    input: AllocatePaidOrderInput,
-  ): Promise<PaidOrderAllocationResult>
+  allocatePaidOrder(input: AllocatePaidOrderInput): Promise<PaidOrderAllocationResult>;
 }
 ```
 
@@ -318,11 +301,7 @@ commit later assuming still ACTIVE
 `commit()` must atomically/conditionally perform the transition and report the actual result:
 
 ```ts
-type CommitReservationResult =
-  | { kind: 'committed' }
-  | { kind: 'already-committed' }
-  | { kind: 'expired' }
-  | { kind: 'released' }
+type CommitReservationResult = { kind: 'committed' } | { kind: 'already-committed' } | { kind: 'expired' } | { kind: 'released' };
 ```
 
 An expired/released reservation cannot be resurrected by `commit()`.
@@ -330,10 +309,7 @@ An expired/released reservation cannot be resurrected by `commit()`.
 If payment succeeds after reservation expiry, the application workflow asks Inventory for a new paid-order allocation:
 
 ```ts
-type PaidOrderAllocationResult =
-  | { kind: 'allocated' }
-  | { kind: 'backordered' }
-  | { kind: 'unavailable' }
+type PaidOrderAllocationResult = { kind: 'allocated' } | { kind: 'backordered' } | { kind: 'unavailable' };
 ```
 
 Inventory decides whether/how goods can be allocated. The application workflow decides what cross-domain recovery follows.
@@ -346,37 +322,29 @@ Orders exposes business transitions, not repository CRUD.
 
 ```ts
 type CreatePendingOrderInput = {
-  checkoutRequestId: CheckoutRequestId
-  customer: OrderCustomerSnapshot
-  items: readonly OrderItemSnapshot[]
-  shippingAddress: AddressSnapshot
-  billingAddress: AddressSnapshot
-  reservationId: ReservationId
+  checkoutRequestId: CheckoutRequestId;
+  customer: OrderCustomerSnapshot;
+  items: readonly OrderItemSnapshot[];
+  shippingAddress: AddressSnapshot;
+  billingAddress: AddressSnapshot;
+  reservationId: ReservationId;
   sourceCart: {
-    cartId: CartId
-    revision: CartRevision
-  }
-  paymentDeadlineAt: Date
-}
+    cartId: CartId;
+    revision: CartRevision;
+  };
+  paymentDeadlineAt: Date;
+};
 
 interface OrdersService {
-  createPending(
-    input: CreatePendingOrderInput,
-  ): Promise<IdempotentResult<PendingOrder>>
+  createPending(input: CreatePendingOrderInput): Promise<IdempotentResult<PendingOrder>>;
 
-  getPayable(orderId: OrderId): Promise<PayableOrder | null>
+  getPayable(orderId: OrderId): Promise<PayableOrder | null>;
 
-  markPaid(
-    input: MarkOrderPaidInput,
-  ): Promise<MarkOrderPaidResult>
+  markPaid(input: MarkOrderPaidInput): Promise<MarkOrderPaidResult>;
 
-  requestCancellation(
-    orderId: OrderId,
-  ): Promise<RequestCancellationResult>
+  requestCancellation(orderId: OrderId): Promise<RequestCancellationResult>;
 
-  confirmCancellation(
-    orderId: OrderId,
-  ): Promise<ConfirmCancellationResult>
+  confirmCancellation(orderId: OrderId): Promise<ConfirmCancellationResult>;
 }
 ```
 
@@ -384,11 +352,11 @@ interface OrdersService {
 
 ```ts
 type PayableOrder = {
-  orderId: OrderId
-  amountDue: Money
-  paymentDeadlineAt: Date
-  reservationId: ReservationId | null
-}
+  orderId: OrderId;
+  amountDue: Money;
+  paymentDeadlineAt: Date;
+  reservationId: ReservationId | null;
+};
 ```
 
 The application must not load an Order aggregate and assign `status = 'PAID'`. `markPaid()` enforces the Orders state transition.
@@ -407,25 +375,15 @@ For Stripe-like providers, the normal default is one provider payment intent/obj
 
 ```ts
 interface PaymentsService {
-  ensurePayment(
-    input: EnsurePaymentInput,
-  ): Promise<EnsurePaymentResult>
+  ensurePayment(input: EnsurePaymentInput): Promise<EnsurePaymentResult>;
 
-  retryPayment(
-    paymentId: PaymentId,
-  ): Promise<RetryPaymentResult>
+  retryPayment(paymentId: PaymentId): Promise<RetryPaymentResult>;
 
-  ingestProviderEvent(
-    event: ProviderPaymentEvent,
-  ): Promise<PaymentEventResult>
+  ingestProviderEvent(event: ProviderPaymentEvent): Promise<PaymentEventResult>;
 
-  requestCancellation(
-    paymentId: PaymentId,
-  ): Promise<PaymentCancellationResult>
+  requestCancellation(paymentId: PaymentId): Promise<PaymentCancellationResult>;
 
-  refund(
-    paymentId: PaymentId,
-  ): Promise<RefundResult>
+  refund(paymentId: PaymentId): Promise<RefundResult>;
 }
 ```
 
@@ -447,13 +405,13 @@ agent-Commerce may record attempt history, but `retryPayment()` must not automat
 Do not expose a generic setter such as:
 
 ```ts
-applyProviderStatus('processing')
+applyProviderStatus('processing');
 ```
 
 Provider events are facts to interpret:
 
 ```ts
-ingestProviderEvent(event)
+ingestProviderEvent(event);
 ```
 
 Payments owns:
@@ -476,20 +434,15 @@ Checkout needs narrow current-customer facts and validated addresses, not the co
 
 ```ts
 type CheckoutCustomerSnapshot = {
-  customerId: CustomerId
-  name: string
-  email: string
-}
+  customerId: CustomerId;
+  name: string;
+  email: string;
+};
 
 interface AccountsService {
-  getCheckoutCustomer(
-    customerId: CustomerId,
-  ): Promise<CheckoutCustomerSnapshot>
+  getCheckoutCustomer(customerId: CustomerId): Promise<CheckoutCustomerSnapshot>;
 
-  getCheckoutAddress(input: {
-    customerId: CustomerId
-    addressId: AddressId
-  }): Promise<CheckoutAddress>
+  getCheckoutAddress(input: { customerId: CustomerId; addressId: AddressId }): Promise<CheckoutAddress>;
 }
 ```
 
@@ -516,23 +469,23 @@ Transport becomes thin:
 
 ```ts
 export default defineEventHandler(async (event) => {
-  const command = await readBody<PlaceOrderCommand>(event)
-  const actor = requireAuthenticatedActor(event)
+  const command = await readBody<PlaceOrderCommand>(event);
+  const actor = requireAuthenticatedActor(event);
 
-  return placeOrder(actor, command)
-})
+  return placeOrder(actor, command);
+});
 ```
 
 Conceptual command:
 
 ```ts
 type PlaceOrderCommand = {
-  checkoutRequestId: CheckoutRequestId
-  cartId: CartId
-  expectedCartRevision: CartRevision
-  shippingAddressId: AddressId
-  billingAddressId: AddressId
-}
+  checkoutRequestId: CheckoutRequestId;
+  cartId: CartId;
+  expectedCartRevision: CartRevision;
+  shippingAddressId: AddressId;
+  billingAddressId: AddressId;
+};
 ```
 
 Sequence:
@@ -615,11 +568,11 @@ Persist a durable application-level record equivalent to:
 
 ```ts
 type CheckoutIdempotencyRecord = {
-  customerId: CustomerId
-  checkoutRequestId: CheckoutRequestId
-  fingerprint: string
-  orderId: OrderId
-}
+  customerId: CustomerId;
+  checkoutRequestId: CheckoutRequestId;
+  fingerprint: string;
+  orderId: OrderId;
+};
 ```
 
 Required behavior:

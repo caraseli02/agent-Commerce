@@ -5,6 +5,7 @@ import { catalog as defaultCatalog } from '~/server/domain/catalog';
 import { inventory as defaultInventory } from '~/server/domain/inventory';
 import { orders as defaultOrders } from '~/server/domain/orders';
 import { payments as defaultPayments } from '~/server/domain/payments';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
 
 type LegacyOrderInput = Record<string, unknown> & {
   checkoutRequestId?: unknown;
@@ -46,17 +47,16 @@ export class PlaceOrderError extends Error {
 }
 
 type PlaceOrderDependencies = {
-  cart: typeof defaultCart;
-  catalog: typeof defaultCatalog;
-  inventory: typeof defaultInventory;
-  orders: typeof defaultOrders;
-  payments: typeof defaultPayments;
+  cart: Pick<typeof defaultCart, 'getSnapshot' | 'completeCheckout'>;
+  catalog: Pick<typeof defaultCatalog, 'quoteItems' | 'quoteDelivery'>;
+  inventory: Pick<typeof defaultInventory, 'reserve' | 'commit' | 'release'>;
+  orders: Pick<typeof defaultOrders, 'createPending' | 'confirmPayment'>;
+  payments: Pick<typeof defaultPayments, 'ensurePayment'>;
 };
 
 type ExecutionRecord = {
   fingerprint: string;
-  semanticKey: string;
-  promise: Promise<PlaceOrderResult>;
+  result: PlaceOrderResult | null;
 };
 
 export type PlaceOrderCoordinator = ReturnType<typeof createPlaceOrderCoordinator>;
@@ -79,7 +79,9 @@ const normalizeForFingerprint = (value: unknown): unknown => {
 };
 
 const stableFingerprint = (value: unknown) =>
-  createHash('sha256').update(JSON.stringify(normalizeForFingerprint(value))).digest('hex');
+  createHash('sha256')
+    .update(JSON.stringify(normalizeForFingerprint(value)))
+    .digest('hex');
 
 const resolvePaymentType = (order: LegacyOrderInput) => {
   if (!order.paymentDetails || typeof order.paymentDetails !== 'object') {
@@ -90,14 +92,12 @@ const resolvePaymentType = (order: LegacyOrderInput) => {
   return typeof paymentType === 'number' ? paymentType : undefined;
 };
 
-const resolveShippingCostMinor = (order: LegacyOrderInput) => {
-  const shippingCost = Number(order.shippingCost ?? 0);
-
-  if (!Number.isFinite(shippingCost) || shippingCost < 0) {
-    throw new PlaceOrderError('invalid_shipping_cost', 400, 'Shipping cost must be a valid non-negative amount.');
-  }
-
-  return Math.round(shippingCost * 100);
+const resolveDeliveryServiceId = (order: LegacyOrderInput) => {
+  if (!order.shippingDetails || typeof order.shippingDetails !== 'object') return undefined;
+  const shippingDetails = order.shippingDetails as Record<string, unknown>;
+  return typeof shippingDetails.deliveryTypeId === 'string' || typeof shippingDetails.deliveryTypeId === 'number'
+    ? shippingDetails.deliveryTypeId
+    : undefined;
 };
 
 const resolveOrderType = (order: LegacyOrderInput) => (typeof order.type === 'number' ? order.type : undefined);
@@ -122,23 +122,27 @@ const requestFingerprint = (command: PlaceOrderCommand) =>
     shippingDetails: command.order.shippingDetails,
     paymentType: resolvePaymentType(command.order),
     stripeCardId: command.order.stripeCardId,
-    shippingCost: command.order.shippingCost,
+    deliveryServiceId: resolveDeliveryServiceId(command.order),
     type: command.order.type,
     notes: resolveNotes(command.order),
   });
 
 export const createPlaceOrderCoordinator = () => {
-  const byRequest = new Map<string, ExecutionRecord>();
-  const bySemanticKey = new Map<string, string>();
+  const lookup = async (ownerId: string, requestKey: string, fingerprint: string) => {
+    const database = await getCheckoutDatabase();
+    const rows = await database.query<{ fingerprint: string; result_json: string | null }>(
+      `SELECT fingerprint, result_json
+         FROM checkout_claims
+        WHERE owner_id = $1 AND request_id = $2`,
+      [ownerId, requestKey],
+    );
+    const row = rows[0];
 
-  const lookup = (requestKey: string, fingerprint: string) => {
-    const existing = byRequest.get(requestKey);
-
-    if (!existing) {
+    if (!row) {
       return null;
     }
 
-    if (existing.fingerprint !== fingerprint) {
+    if (row.fingerprint !== fingerprint) {
       throw new PlaceOrderError(
         'idempotency_conflict',
         409,
@@ -146,41 +150,64 @@ export const createPlaceOrderCoordinator = () => {
       );
     }
 
-    return existing.promise;
+    return {
+      fingerprint: row.fingerprint,
+      result: row.result_json ? (JSON.parse(row.result_json) as PlaceOrderResult) : null,
+    } satisfies ExecutionRecord;
   };
 
-  const run = (input: {
+  const run = async (input: {
+    ownerId: string;
     requestKey: string;
     fingerprint: string;
-    semanticKey: string;
+    cartId: string;
+    cartRevision: string;
     operation: () => Promise<PlaceOrderResult>;
   }) => {
-    const existing = lookup(input.requestKey, input.fingerprint);
+    const existing = await lookup(input.ownerId, input.requestKey, input.fingerprint);
 
-    if (existing) {
-      return existing;
+    if (existing?.result) {
+      return existing.result;
     }
 
-    const semanticOwner = bySemanticKey.get(input.semanticKey);
+    const database = await getCheckoutDatabase();
+    const timestamp = new Date().toISOString();
+    const inserted = await database.query<{ request_id: string }>(
+      `INSERT INTO checkout_claims (
+         owner_id, request_id, fingerprint, cart_id, cart_revision, result_json, created_at, updated_at
+       ) VALUES ($1, $2, $3, $4, $5, NULL, $6, $7)
+       ON CONFLICT DO NOTHING
+       RETURNING request_id`,
+      [input.ownerId, input.requestKey, input.fingerprint, input.cartId, Number(input.cartRevision), timestamp, timestamp],
+    );
 
-    if (semanticOwner && semanticOwner !== input.requestKey) {
-      throw new PlaceOrderError(
-        'checkout_already_started',
-        409,
-        'This cart revision already has an active checkout.',
+    if (!inserted.length) {
+      const requestOwner = await lookup(input.ownerId, input.requestKey, input.fingerprint);
+      if (requestOwner?.result) return requestOwner.result;
+
+      const semanticRows = await database.query<{ request_id: string; result_json: string | null }>(
+        `SELECT request_id, result_json
+           FROM checkout_claims
+          WHERE owner_id = $1 AND cart_id = $2 AND cart_revision = $3`,
+        [input.ownerId, input.cartId, Number(input.cartRevision)],
       );
+
+      const semanticOwner = semanticRows[0];
+      if (semanticOwner && semanticOwner.request_id !== input.requestKey) {
+        throw new PlaceOrderError('checkout_already_started', 409, 'This cart revision already has an active checkout.');
+      }
+
+      throw new PlaceOrderError('checkout_in_progress', 409, 'This checkout request is already being processed.');
     }
 
-    const promise = Promise.resolve().then(input.operation);
-
-    byRequest.set(input.requestKey, {
-      fingerprint: input.fingerprint,
-      semanticKey: input.semanticKey,
-      promise,
-    });
-    bySemanticKey.set(input.semanticKey, input.requestKey);
-
-    return promise;
+    const result = await input.operation();
+    await database.execute(`UPDATE checkout_claims SET result_json = $1, updated_at = $2 WHERE owner_id = $3 AND request_id = $4`, [
+      JSON.stringify(result),
+      new Date().toISOString(),
+      input.ownerId,
+      input.requestKey,
+    ]);
+    return result;
   };
 
   return {
@@ -208,186 +235,179 @@ export const createPlaceOrderUseCase = (
     const fingerprint = requestFingerprint(command);
     const explicitRequestKey = command.checkoutRequestId?.trim();
 
-    if (explicitRequestKey) {
-      const previous = coordinator.lookup(explicitRequestKey, fingerprint);
+    return withCheckoutTransaction(async () => {
+      if (explicitRequestKey) {
+        const previous = await coordinator.lookup(ownerId, explicitRequestKey, fingerprint);
 
-      if (previous) {
-        return previous;
+        if (previous?.result) {
+          return previous.result;
+        }
       }
-    }
 
-    const cartResult = await dependencies.cart.getSnapshot({
-      cartId,
-      ownerId,
-    });
-
-    if (cartResult.kind === 'not-found') {
-      throw new PlaceOrderError('cart_not_found', 404, 'The checkout cart was not found.');
-    }
-
-    if (cartResult.kind === 'forbidden') {
-      throw new PlaceOrderError('cart_forbidden', 403, 'The checkout cart does not belong to the current session.');
-    }
-
-    if (!cartResult.snapshot.items.length) {
-      throw new PlaceOrderError('cart_empty', 409, 'An empty cart cannot be checked out.');
-    }
-
-    const requestKey =
-      explicitRequestKey ??
-      `legacy-${stableFingerprint({
-        ownerId,
+      const cartResult = await dependencies.cart.getSnapshot({
         cartId,
-        revision: cartResult.snapshot.revision,
+        ownerId,
+      });
+
+      if (cartResult.kind === 'not-found') {
+        throw new PlaceOrderError('cart_not_found', 404, 'The checkout cart was not found.');
+      }
+
+      if (cartResult.kind === 'forbidden') {
+        throw new PlaceOrderError('cart_forbidden', 403, 'The checkout cart does not belong to the current session.');
+      }
+
+      if (!cartResult.snapshot.items.length) {
+        throw new PlaceOrderError('cart_empty', 409, 'An empty cart cannot be checked out.');
+      }
+
+      const requestKey =
+        explicitRequestKey ??
+        `legacy-${stableFingerprint({
+          ownerId,
+          cartId,
+          revision: cartResult.snapshot.revision,
+          fingerprint,
+        })}`;
+
+      const quoteResult = await dependencies.catalog.quoteItems({
+        customer: command.user,
+        items: cartResult.snapshot.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.immediateQuantity + item.backorderQuantity,
+        })),
+      });
+
+      if (quoteResult.kind === 'unavailable') {
+        throw new PlaceOrderError('product_unavailable', 409, `Product ${quoteResult.productId} is no longer available for checkout.`);
+      }
+
+      const deliveryQuote = await dependencies.catalog.quoteDelivery(resolveDeliveryServiceId(command.order));
+      if (deliveryQuote.kind === 'unavailable') {
+        throw new PlaceOrderError('delivery_unavailable', 409, 'The selected delivery service is no longer available.');
+      }
+
+      return coordinator.run({
+        ownerId,
+        requestKey,
         fingerprint,
-      })}`;
+        cartId,
+        cartRevision: cartResult.snapshot.revision,
+        operation: async () => {
+          const reservationResult = await dependencies.inventory.reserve({
+            reservationKey: `${ownerId}:${requestKey}`,
+            expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+            items: cartResult.snapshot.items,
+          });
 
-    const quoteResult = await dependencies.catalog.quoteItems({
-      items: cartResult.snapshot.items.map((item) => ({
-        productId: item.productId,
-        quantity: item.immediateQuantity + item.backorderQuantity,
-      })),
-    });
+          if (reservationResult.kind === 'conflict') {
+            throw new PlaceOrderError(
+              'reservation_conflict',
+              409,
+              'The checkout reservation key was already used with different inventory.',
+            );
+          }
 
-    if (quoteResult.kind === 'unavailable') {
-      throw new PlaceOrderError(
-        'product_unavailable',
-        409,
-        `Product ${quoteResult.productId} is no longer available for checkout.`,
-      );
-    }
+          if (reservationResult.kind === 'unavailable') {
+            throw new PlaceOrderError('inventory_unavailable', 409, `Insufficient inventory for product ${reservationResult.productId}.`);
+          }
 
-    const semanticKey = `${ownerId}:${cartId}:${cartResult.snapshot.revision}`;
+          const reservation = reservationResult.reservation;
+          let orderId: string | null = null;
 
-    return coordinator.run({
-      requestKey,
-      fingerprint,
-      semanticKey,
-      operation: async () => {
-        const reservationResult = await dependencies.inventory.reserve({
-          reservationKey: requestKey,
-          expiresAt: new Date(Date.now() + 15 * 60 * 1000),
-          items: cartResult.snapshot.items,
-        });
+          try {
+            const items = quoteResult.quote.lines.map((line) => {
+              const cartItem = cartResult.snapshot.items.find((item) => item.productId === line.productId);
 
-        if (reservationResult.kind === 'conflict') {
-          throw new PlaceOrderError(
-            'reservation_conflict',
-            409,
-            'The checkout reservation key was already used with different inventory.',
-          );
-        }
+              if (!cartItem) {
+                throw new PlaceOrderError('quote_cart_mismatch', 409, 'The authoritative quote no longer matches the cart.');
+              }
 
-        if (reservationResult.kind === 'unavailable') {
-          throw new PlaceOrderError(
-            'inventory_unavailable',
-            409,
-            `Insufficient inventory for product ${reservationResult.productId}.`,
-          );
-        }
+              return {
+                productId: line.productId,
+                sku: line.sku,
+                name: line.name,
+                immediateQuantity: cartItem.immediateQuantity,
+                backorderQuantity: cartItem.backorderQuantity,
+                unitPriceMinor: line.unitPrice.minor,
+                lineTotalMinor: line.lineTotal.minor,
+              };
+            });
 
-        const reservation = reservationResult.reservation;
-        let orderId: string | null = null;
+            const orderResult = await dependencies.orders.createPending({
+              checkoutRequestId: requestKey,
+              cartId,
+              cartRevision: cartResult.snapshot.revision,
+              user: command.user,
+              items,
+              shippingDetails:
+                command.order.shippingDetails && typeof command.order.shippingDetails === 'object'
+                  ? (command.order.shippingDetails as Record<string, unknown>)
+                  : undefined,
+              paymentDetails:
+                command.order.paymentDetails && typeof command.order.paymentDetails === 'object'
+                  ? (command.order.paymentDetails as Record<string, unknown>)
+                  : undefined,
+              shippingCostMinor: Math.round(deliveryQuote.option.price.total * 100),
+              smallOrderCostMinor: quoteResult.quote.smallOrderCharge.minor,
+              orderType: resolveOrderType(command.order),
+              notes: resolveNotes(command.order),
+            });
 
-        try {
-          const items = quoteResult.quote.lines.map((line) => {
-            const cartItem = cartResult.snapshot.items.find((item) => item.productId === line.productId);
-
-            if (!cartItem) {
-              throw new PlaceOrderError('quote_cart_mismatch', 409, 'The authoritative quote no longer matches the cart.');
+            if (orderResult.kind === 'conflict') {
+              await dependencies.inventory.release(reservation.id);
+              throw new PlaceOrderError('order_idempotency_conflict', 409, 'The checkout request ID conflicts with an existing order.');
             }
 
+            orderId = orderResult.orderId;
+
+            const payment = await dependencies.payments.ensurePayment({
+              orderId,
+              paymentType: resolvePaymentType(command.order),
+              useExistingPaymentMethod: Boolean(command.order.stripeCardId),
+            });
+
+            const commitResult = await dependencies.inventory.commit(reservation.id);
+
+            if (commitResult.kind !== 'committed' && commitResult.kind !== 'already-committed') {
+              throw new PlaceOrderError(
+                'inventory_recovery_required',
+                409,
+                'Payment succeeded but the inventory reservation could not be committed.',
+              );
+            }
+
+            const orderPaymentResult = await dependencies.orders.confirmPayment({
+              orderId,
+              paymentId: payment.paymentId,
+            });
+
+            if (orderPaymentResult.kind === 'not-found') {
+              throw new PlaceOrderError('order_recovery_required', 500, 'Payment succeeded but the order could not be finalized.');
+            }
+
+            await dependencies.cart.completeCheckout({
+              cartId,
+              ownerId,
+              expectedRevision: cartResult.snapshot.revision,
+            });
+
             return {
-              productId: line.productId,
-              sku: line.sku,
-              name: line.name,
-              immediateQuantity: cartItem.immediateQuantity,
-              backorderQuantity: cartItem.backorderQuantity,
-              unitPriceMinor: line.unitPrice.minor,
-              lineTotalMinor: line.lineTotal.minor,
+              orderId,
+              status: payment.status,
+              useExistingPaymentMethod: payment.useExistingPaymentMethod,
+              clientSecret: payment.clientSecret,
+              result: payment.result,
             };
-          });
+          } catch (error) {
+            if (!orderId) {
+              await dependencies.inventory.release(reservation.id);
+            }
 
-          const orderResult = await dependencies.orders.createPending({
-            checkoutRequestId: requestKey,
-            cartId,
-            cartRevision: cartResult.snapshot.revision,
-            user: command.user,
-            items,
-            shippingDetails:
-              command.order.shippingDetails && typeof command.order.shippingDetails === 'object'
-                ? (command.order.shippingDetails as Record<string, unknown>)
-                : undefined,
-            paymentDetails:
-              command.order.paymentDetails && typeof command.order.paymentDetails === 'object'
-                ? (command.order.paymentDetails as Record<string, unknown>)
-                : undefined,
-            shippingCostMinor: resolveShippingCostMinor(command.order),
-            orderType: resolveOrderType(command.order),
-            notes: resolveNotes(command.order),
-          });
-
-          if (orderResult.kind === 'conflict') {
-            await dependencies.inventory.release(reservation.id);
-            throw new PlaceOrderError(
-              'order_idempotency_conflict',
-              409,
-              'The checkout request ID conflicts with an existing order.',
-            );
+            throw error;
           }
-
-          orderId = orderResult.orderId;
-
-          const payment = await dependencies.payments.ensurePayment({
-            orderId,
-            paymentType: resolvePaymentType(command.order),
-            useExistingPaymentMethod: Boolean(command.order.stripeCardId),
-          });
-
-          const commitResult = await dependencies.inventory.commit(reservation.id);
-
-          if (commitResult.kind !== 'committed' && commitResult.kind !== 'already-committed') {
-            throw new PlaceOrderError(
-              'inventory_recovery_required',
-              409,
-              'Payment succeeded but the inventory reservation could not be committed.',
-            );
-          }
-
-          const orderPaymentResult = await dependencies.orders.confirmPayment({
-            orderId,
-            paymentId: payment.paymentId,
-          });
-
-          if (orderPaymentResult.kind === 'not-found') {
-            throw new PlaceOrderError(
-              'order_recovery_required',
-              500,
-              'Payment succeeded but the order could not be finalized.',
-            );
-          }
-
-          await dependencies.cart.completeCheckout({
-            cartId,
-            ownerId,
-            expectedRevision: cartResult.snapshot.revision,
-          });
-
-          return {
-            orderId,
-            status: payment.status,
-            useExistingPaymentMethod: payment.useExistingPaymentMethod,
-            clientSecret: payment.clientSecret,
-            result: payment.result,
-          };
-        } catch (error) {
-          if (!orderId) {
-            await dependencies.inventory.release(reservation.id);
-          }
-
-          throw error;
-        }
-      },
+        },
+      });
     });
   };
 };

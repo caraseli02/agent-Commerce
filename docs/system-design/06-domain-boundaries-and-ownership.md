@@ -85,26 +85,26 @@ The following are intentionally not separate bounded contexts at this stage:
 
 ## Authoritative ownership matrix
 
-| Concern | Authoritative owner |
-| --- | --- |
-| Product identity, SKU, sellability | Catalog |
-| Current product pricing policy | Catalog |
-| Requested product quantity | Cart |
-| On-hand / available stock | Inventory |
-| Reservations and reservation expiry | Inventory |
-| Backorder fulfillment policy | Inventory |
-| Purchased item snapshot | Orders |
-| Purchased unit price | Orders |
-| Order total | Orders |
-| Order lifecycle/status | Orders |
-| Order payment deadline | Orders |
-| Current saved customer data | Accounts |
-| Historical customer/address snapshot | Orders |
-| Payment attempt status | Payments |
-| External payment-provider result | Payments interprets provider truth |
-| Order transition to `PAID` | Orders |
-| Cross-module sequencing | Checkout/application workflow |
-| Place-order request idempotency | Checkout/application workflow with durable persistence |
+| Concern                              | Authoritative owner                                    |
+| ------------------------------------ | ------------------------------------------------------ |
+| Product identity, SKU, sellability   | Catalog                                                |
+| Current product pricing policy       | Catalog                                                |
+| Requested product quantity           | Cart                                                   |
+| On-hand / available stock            | Inventory                                              |
+| Reservations and reservation expiry  | Inventory                                              |
+| Backorder fulfillment policy         | Inventory                                              |
+| Purchased item snapshot              | Orders                                                 |
+| Purchased unit price                 | Orders                                                 |
+| Order total                          | Orders                                                 |
+| Order lifecycle/status               | Orders                                                 |
+| Order payment deadline               | Orders                                                 |
+| Current saved customer data          | Accounts                                               |
+| Historical customer/address snapshot | Orders                                                 |
+| Payment attempt status               | Payments                                               |
+| External payment-provider result     | Payments interprets provider truth                     |
+| Order transition to `PAID`           | Orders                                                 |
+| Cross-module sequencing              | Checkout/application workflow                          |
+| Place-order request idempotency      | Checkout/application workflow with durable persistence |
 
 A key distinction is:
 
@@ -124,18 +124,18 @@ A minimal Cart model should represent customer intent rather than a full product
 
 ```ts
 type Cart = {
-  id: CartId
-  ownerId: CustomerId | GuestSessionId
-  version: number
-  items: CartItem[]
-  createdAt: Date
-  updatedAt: Date
-}
+  id: CartId;
+  ownerId: CustomerId | GuestSessionId;
+  version: number;
+  items: CartItem[];
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 type CartItem = {
-  productId: ProductId
-  quantity: number
-}
+  productId: ProductId;
+  quantity: number;
+};
 ```
 
 `version` represents the logical cart revision used by checkout/reconciliation. It can be implemented using another concurrency token if preferred; the design requirement is that checkout can distinguish the cart snapshot that was ordered from later customer edits.
@@ -195,16 +195,16 @@ Catalog owns the definition of the sellable product and, for now, its current pr
 
 ```ts
 type Product = {
-  id: ProductId
-  sku: string
-  name: string
-  description: string
-  manufacturer: string
-  categoryId: CategoryId
-  status: ProductStatus
-  attributes: ProductAttribute[]
-  pricingPolicy: ProductPricingPolicy
-}
+  id: ProductId;
+  sku: string;
+  name: string;
+  description: string;
+  manufacturer: string;
+  categoryId: CategoryId;
+  status: ProductStatus;
+  attributes: ProductAttribute[];
+  pricingPolicy: ProductPricingPolicy;
+};
 ```
 
 ### Owns
@@ -237,7 +237,7 @@ type Product = {
 A useful public query later may look like:
 
 ```ts
-catalog.quote({ productId, quantity })
+catalog.quote({ productId, quantity });
 ```
 
 and return an authoritative current quote.
@@ -285,24 +285,24 @@ Inventory has stronger evidence for an independent module because reservations a
 
 ```ts
 type InventoryItem = {
-  productId: ProductId
-  onHand: number
-  reserved: number
-  backorderPolicy: BackorderPolicy
-}
+  productId: ProductId;
+  onHand: number;
+  reserved: number;
+  backorderPolicy: BackorderPolicy;
+};
 ```
 
 Reservations have their own lifecycle:
 
 ```ts
 type Reservation = {
-  id: ReservationId
-  checkoutRequestId: CheckoutRequestId
-  orderId?: OrderId
-  items: ReservationItem[]
-  expiresAt: Date
-  status: 'active' | 'committed' | 'released' | 'expired'
-}
+  id: ReservationId;
+  checkoutRequestId: CheckoutRequestId;
+  orderId?: OrderId;
+  items: ReservationItem[];
+  expiresAt: Date;
+  status: 'active' | 'committed' | 'released' | 'expired';
+};
 ```
 
 The checkout-level correlation key exists before an Order ID necessarily exists. Inventory therefore must not depend exclusively on `orderId` to deduplicate the first reservation attempt.
@@ -329,9 +329,9 @@ Example:
 
 ```ts
 type FulfillmentPlan = {
-  immediateQuantity: number
-  backorderQuantity: number
-}
+  immediateQuantity: number;
+  backorderQuantity: number;
+};
 ```
 
 ### Invariants
@@ -356,30 +356,30 @@ Order owns an immutable/historical commercial snapshot, not live Catalog or Acco
 
 ```ts
 type Order = {
-  id: OrderId
-  checkoutRequestId: CheckoutRequestId
-  sourceCartId: CartId
-  sourceCartVersion: number
-  customer: OrderCustomerSnapshot
-  items: OrderItem[]
-  shippingAddress: AddressSnapshot
-  billingAddress: AddressSnapshot
-  money: OrderMoney
-  status: OrderStatus
-  paidByPaymentId?: PaymentId
-  paymentDeadlineAt: Date
-  createdAt: Date
-}
+  id: OrderId;
+  checkoutRequestId: CheckoutRequestId;
+  sourceCartId: CartId;
+  sourceCartVersion: number;
+  customer: OrderCustomerSnapshot;
+  items: OrderItem[];
+  shippingAddress: AddressSnapshot;
+  billingAddress: AddressSnapshot;
+  money: OrderMoney;
+  status: OrderStatus;
+  paidByPaymentId?: PaymentId;
+  paymentDeadlineAt: Date;
+  createdAt: Date;
+};
 ```
 
 ```ts
 type OrderItem = {
-  productId: ProductId
-  sku: string
-  name: string
-  unitPrice: Money
-  quantity: number
-}
+  productId: ProductId;
+  sku: string;
+  name: string;
+  unitPrice: Money;
+  quantity: number;
+};
 ```
 
 `paidByPaymentId` means the successful/captured payment that settled the Order. It is intentionally not a generic singular `paymentId`, because one Order may have multiple failed or incomplete Payment attempts.
@@ -415,11 +415,11 @@ Examples:
 Orders should evolve toward behavioral transitions such as:
 
 ```ts
-order.confirmPayment(paymentId)
-order.expirePaymentWindow()
-order.startProcessing()
-order.ship(tracking)
-order.cancel()
+order.confirmPayment(paymentId);
+order.expirePaymentWindow();
+order.startProcessing();
+order.ship(tracking);
+order.cancel();
 ```
 
 rather than arbitrary external assignment of `order.status`.
@@ -465,14 +465,14 @@ Payments is an independent authority for payment attempts, but should remain a s
 
 ```ts
 type Payment = {
-  id: PaymentId
-  orderId: OrderId
-  amount: Money
-  provider: PaymentProvider
-  providerReference?: string
-  status: PaymentStatus
-  idempotencyKey: string
-}
+  id: PaymentId;
+  orderId: OrderId;
+  amount: Money;
+  provider: PaymentProvider;
+  providerReference?: string;
+  status: PaymentStatus;
+  idempotencyKey: string;
+};
 ```
 
 Potential semantic statuses:
@@ -551,13 +551,13 @@ Accounts owns current customer/account information.
 
 ```ts
 type Customer = {
-  id: CustomerId
-  name: string
-  email: string
-  phone?: string
-  shippingAddresses: Address[]
-  billingAddresses: Address[]
-}
+  id: CustomerId;
+  name: string;
+  email: string;
+  phone?: string;
+  shippingAddresses: Address[];
+  billingAddresses: Address[];
+};
 ```
 
 ### Owns
@@ -608,11 +608,11 @@ A PlaceOrder command should carry a client-generated or server-issued stable log
 
 ```ts
 type PlaceOrderCommand = {
-  checkoutRequestId: CheckoutRequestId
-  cartId: CartId
-  cartVersion: number
+  checkoutRequestId: CheckoutRequestId;
+  cartId: CartId;
+  cartVersion: number;
   // customer/address/payment-method input omitted here
-}
+};
 ```
 
 The durable invariant is:
@@ -638,17 +638,17 @@ If a future persistent `CheckoutSession` gains its own meaningful lifecycle — 
 
 ## Cross-domain use-case ownership
 
-| Use case | Decision owner | Orchestrator / coordination |
-| --- | --- | --- |
-| AddToCart | Cart | Add-to-cart application use case; Catalog validation may participate |
-| PlaceOrder | Multiple domains | Checkout workflow; owns logical request idempotency |
-| RetryPayment | Orders/Payments/Inventory each own their decision | Payment-recovery workflow |
-| Finalize successful payment | Payments owns provider success; Orders/Inventory own transitions | Payment-finalization workflow |
-| CancelOrder | Orders decides cancel eligibility | Cancel-order workflow coordinates Orders, Payments, Inventory |
-| Mark/confirm payment | Payments owns payment success | Payment confirmation flow; Orders owns resulting order transition |
-| Change order lifecycle state | Orders | Orders application use case unless cross-domain consequences require a workflow |
-| Update product | Catalog | Catalog use case |
-| Adjust inventory | Inventory | Inventory use case |
+| Use case                     | Decision owner                                                   | Orchestrator / coordination                                                     |
+| ---------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| AddToCart                    | Cart                                                             | Add-to-cart application use case; Catalog validation may participate            |
+| PlaceOrder                   | Multiple domains                                                 | Checkout workflow; owns logical request idempotency                             |
+| RetryPayment                 | Orders/Payments/Inventory each own their decision                | Payment-recovery workflow                                                       |
+| Finalize successful payment  | Payments owns provider success; Orders/Inventory own transitions | Payment-finalization workflow                                                   |
+| CancelOrder                  | Orders decides cancel eligibility                                | Cancel-order workflow coordinates Orders, Payments, Inventory                   |
+| Mark/confirm payment         | Payments owns payment success                                    | Payment confirmation flow; Orders owns resulting order transition               |
+| Change order lifecycle state | Orders                                                           | Orders application use case unless cross-domain consequences require a workflow |
+| Update product               | Catalog                                                          | Catalog use case                                                                |
+| Adjust inventory             | Inventory                                                        | Inventory use case                                                              |
 
 ## Synchronous calls vs events
 
@@ -683,17 +683,17 @@ The external payment provider remains a real asynchronous/external consistency b
 
 ### Event candidates
 
-| Event | Producer | Typical use |
-| --- | --- | --- |
-| `ProductPriceChanged` | Catalog | projections/cache invalidation; not checkout authority |
-| `InventoryReserved` | Inventory | audit/analytics after synchronous reserve |
-| `OrderCreated` | Orders | reporting/audit after synchronous create |
-| `PaymentSucceeded` | Payments | important cross-module signal to payment-finalization workflow |
-| `PaymentFailed` | Payments | retry/recovery UX/process |
-| `OrderPaid` | Orders | notifications/fulfillment/analytics |
-| `OrderCancelled` | Orders | notifications/audit after critical cancellation workflow |
-| `ReservationReleased` | Inventory | audit/monitoring |
-| `OrderShipped` | Orders | notifications/tracking-related reactions |
+| Event                 | Producer  | Typical use                                                    |
+| --------------------- | --------- | -------------------------------------------------------------- |
+| `ProductPriceChanged` | Catalog   | projections/cache invalidation; not checkout authority         |
+| `InventoryReserved`   | Inventory | audit/analytics after synchronous reserve                      |
+| `OrderCreated`        | Orders    | reporting/audit after synchronous create                       |
+| `PaymentSucceeded`    | Payments  | important cross-module signal to payment-finalization workflow |
+| `PaymentFailed`       | Payments  | retry/recovery UX/process                                      |
+| `OrderPaid`           | Orders    | notifications/fulfillment/analytics                            |
+| `OrderCancelled`      | Orders    | notifications/audit after critical cancellation workflow       |
+| `ReservationReleased` | Inventory | audit/monitoring                                               |
+| `OrderShipped`        | Orders    | notifications/tracking-related reactions                       |
 
 ### Important payment flow
 

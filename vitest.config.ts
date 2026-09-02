@@ -13,6 +13,8 @@ export default defineConfig({
     },
   },
   test: {
+    fileParallelism: false,
+    testTimeout: 30_000,
     include: ['tests/**/*.spec.ts'],
     exclude: ['tests/e2e/**', 'tests/performance/**', 'tests/visual/**', 'node_modules/**', '.nuxt/**', '.output/**'],
     coverage: {

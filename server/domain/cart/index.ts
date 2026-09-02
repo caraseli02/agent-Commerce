@@ -1,4 +1,5 @@
-import { clearMockCartById, findMockCartById } from '~/server/utils/mockCart';
+import type { CartInterface } from '~/types/cart';
+import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 
 export type CartRevision = string;
 
@@ -15,25 +16,18 @@ export type CheckoutCartSnapshot = Readonly<{
   items: readonly CheckoutCartItem[];
 }>;
 
-export type GetCheckoutCartResult =
-  | { kind: 'found'; snapshot: CheckoutCartSnapshot }
-  | { kind: 'not-found' }
-  | { kind: 'forbidden' };
+export type GetCheckoutCartResult = { kind: 'found'; snapshot: CheckoutCartSnapshot } | { kind: 'not-found' } | { kind: 'forbidden' };
 
-export type CompleteCheckoutResult =
-  | { kind: 'completed' }
-  | { kind: 'cart-changed' }
-  | { kind: 'not-found' }
-  | { kind: 'forbidden' };
+export type CompleteCheckoutResult = { kind: 'completed' } | { kind: 'cart-changed' } | { kind: 'not-found' } | { kind: 'forbidden' };
 
-type RevisionRecord = {
-  fingerprint: string;
+type CartRow = {
+  owner_id: string;
+  cart_id: string;
   revision: number;
+  payload_json: string;
 };
 
-const revisions = new Map<string, RevisionRecord>();
-
-const normalizeItems = (cart: { products?: Array<{ id?: string; stock?: number; backorder_stock?: number }> }) =>
+const normalizeItems = (cart: CartInterface) =>
   (cart.products || [])
     .filter((item) => typeof item.id === 'string' && item.id.trim())
     .map((item) => ({
@@ -43,64 +37,29 @@ const normalizeItems = (cart: { products?: Array<{ id?: string; stock?: number; 
     }))
     .filter((item) => item.immediateQuantity + item.backorderQuantity > 0);
 
-const fingerprintItems = (items: readonly CheckoutCartItem[]) =>
-  JSON.stringify(
-    [...items]
-      .sort((a, b) => a.productId.localeCompare(b.productId))
-      .map((item) => [item.productId, item.immediateQuantity, item.backorderQuantity]),
+const readCart = async (cartId: string) => {
+  const database = await getCheckoutDatabase();
+  const rows = await database.query<CartRow>(
+    'SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE cart_id = $1 FOR UPDATE',
+    [cartId],
   );
-
-const observeRevision = (cartId: string, items: readonly CheckoutCartItem[]) => {
-  const fingerprint = fingerprintItems(items);
-  const existing = revisions.get(cartId);
-
-  if (!existing) {
-    const created = { fingerprint, revision: 1 };
-    revisions.set(cartId, created);
-    return String(created.revision);
-  }
-
-  if (existing.fingerprint !== fingerprint) {
-    existing.fingerprint = fingerprint;
-    existing.revision += 1;
-  }
-
-  return String(existing.revision);
-};
-
-const recordMutation = (cartId: string, items: readonly CheckoutCartItem[]) => {
-  const fingerprint = fingerprintItems(items);
-  const existing = revisions.get(cartId);
-
-  if (!existing) {
-    revisions.set(cartId, { fingerprint, revision: 1 });
-    return;
-  }
-
-  existing.fingerprint = fingerprint;
-  existing.revision += 1;
+  return rows[0] || null;
 };
 
 const getSnapshot = async (input: { cartId: string; ownerId: string }): Promise<GetCheckoutCartResult> => {
-  const cart = findMockCartById(input.cartId);
+  const row = await readCart(input.cartId);
 
-  if (!cart) {
-    return { kind: 'not-found' };
-  }
+  if (!row) return { kind: 'not-found' };
+  if (row.owner_id !== input.ownerId) return { kind: 'forbidden' };
 
-  if (cart.userId && cart.userId !== input.ownerId) {
-    return { kind: 'forbidden' };
-  }
-
-  const items = normalizeItems(cart);
-
+  const cart = JSON.parse(row.payload_json) as CartInterface;
   return {
     kind: 'found',
     snapshot: {
-      cartId: input.cartId,
-      ownerId: input.ownerId,
-      revision: observeRevision(input.cartId, items),
-      items,
+      cartId: row.cart_id,
+      ownerId: row.owner_id,
+      revision: String(row.revision),
+      items: normalizeItems(cart),
     },
   };
 };
@@ -110,27 +69,23 @@ const completeCheckout = async (input: {
   ownerId: string;
   expectedRevision: CartRevision;
 }): Promise<CompleteCheckoutResult> => {
-  const cart = findMockCartById(input.cartId);
+  const row = await readCart(input.cartId);
 
-  if (!cart) {
-    return { kind: 'not-found' };
-  }
+  if (!row) return { kind: 'not-found' };
+  if (row.owner_id !== input.ownerId) return { kind: 'forbidden' };
+  if (String(row.revision) !== input.expectedRevision) return { kind: 'cart-changed' };
 
-  if (cart.userId && cart.userId !== input.ownerId) {
-    return { kind: 'forbidden' };
-  }
+  const cart = JSON.parse(row.payload_json) as CartInterface;
+  cart.products = [];
+  const database = await getCheckoutDatabase();
+  const changed = await database.execute(
+    `UPDATE checkout_carts
+       SET payload_json = $1, revision = revision + 1, updated_at = $2
+     WHERE cart_id = $3 AND owner_id = $4 AND revision = $5`,
+    [JSON.stringify(cart), new Date().toISOString(), input.cartId, input.ownerId, Number(input.expectedRevision)],
+  );
 
-  const currentItems = normalizeItems(cart);
-  const currentRevision = observeRevision(input.cartId, currentItems);
-
-  if (currentRevision !== input.expectedRevision) {
-    return { kind: 'cart-changed' };
-  }
-
-  clearMockCartById(input.cartId);
-  recordMutation(input.cartId, []);
-
-  return { kind: 'completed' };
+  return changed === 1 ? { kind: 'completed' } : { kind: 'cart-changed' };
 };
 
 export const cart = {

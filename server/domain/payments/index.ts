@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { PaymentStatusEnum, PaymentTypeEnum } from '~/types/order-summary/item';
+import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 
 export type EnsurePaymentResult = Readonly<{
   kind: 'succeeded';
@@ -7,23 +8,19 @@ export type EnsurePaymentResult = Readonly<{
   status: PaymentStatusEnum.Paid;
   useExistingPaymentMethod: boolean;
   clientSecret?: undefined;
-  result?: {
-    status: 'succeeded';
-  };
+  result?: { status: 'succeeded' };
 }>;
 
-const paymentsByOrder = new Map<string, EnsurePaymentResult>();
+type PaymentRow = { id: string; payload_json: string };
 
 const ensurePayment = async (input: {
   orderId: string;
   paymentType?: number;
   useExistingPaymentMethod: boolean;
 }): Promise<EnsurePaymentResult> => {
-  const existing = paymentsByOrder.get(input.orderId);
-
-  if (existing) {
-    return existing;
-  }
+  const database = await getCheckoutDatabase();
+  const rows = await database.query<PaymentRow>('SELECT id, payload_json FROM checkout_payments WHERE order_id = $1', [input.orderId]);
+  if (rows[0]) return JSON.parse(rows[0].payload_json) as EnsurePaymentResult;
 
   const result: EnsurePaymentResult = {
     kind: 'succeeded',
@@ -34,10 +31,13 @@ const ensurePayment = async (input: {
     result: input.paymentType === PaymentTypeEnum.Card ? { status: 'succeeded' } : undefined,
   };
 
-  paymentsByOrder.set(input.orderId, result);
+  await database.execute('INSERT INTO checkout_payments (id, order_id, payload_json, created_at) VALUES ($1, $2, $3, $4)', [
+    result.paymentId,
+    input.orderId,
+    JSON.stringify(result),
+    new Date().toISOString(),
+  ]);
   return result;
 };
 
-export const payments = {
-  ensurePayment,
-};
+export const payments = { ensurePayment };

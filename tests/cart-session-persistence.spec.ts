@@ -1,8 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { clearSessionNamespace } from '../server/utils/mockSessionStore';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('h3', () => ({
   getCookie: (event: { cookies?: Record<string, string> }, name: string) => event.cookies?.[name],
@@ -30,29 +26,28 @@ const createEvent = (overrides: { headers?: Record<string, string>; body?: unkno
   cookies: overrides.cookies || {},
 });
 
-let tempStoreDir = '';
-
 describe('cart session persistence', () => {
   beforeAll(() => {
     installH3Mocks();
   });
 
-  beforeEach(() => {
-    tempStoreDir = mkdtempSync(join(tmpdir(), 'components-marketplace-cart-session-'));
+  beforeEach(async () => {
     process.env.NUXT_PUBLIC_MOCK_MODE = 'true';
-    process.env.MOCK_SESSION_STORE_DIR = tempStoreDir;
-    clearSessionNamespace('cart');
-    vi.resetModules();
-  });
-
-  afterEach(() => {
-    if (tempStoreDir) {
-      rmSync(tempStoreDir, { recursive: true, force: true });
+    const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
+    const database = await getCheckoutDatabase();
+    for (const table of [
+      'checkout_claims',
+      'checkout_payments',
+      'checkout_orders',
+      'checkout_reservations',
+      'checkout_inventory',
+      'checkout_carts',
+    ]) {
+      await database.execute(`DELETE FROM ${table}`);
     }
-    delete process.env.MOCK_SESSION_STORE_DIR;
   });
 
-  it('seeds a first-time reviewer cart with prod-1', async () => {
+  it('starts a first-time reviewer cart empty', async () => {
     const { default: cartGetHandler } = (await import('../server/api/cart.get')) as {
       default: (event: unknown) => Promise<{ data: { products: Array<{ id: string; stock: number }> } }>;
     };
@@ -60,9 +55,7 @@ describe('cart session persistence', () => {
     const guestEvent = createEvent();
     const cart = await cartGetHandler(guestEvent);
 
-    expect(cart.data.products).toHaveLength(1);
-    expect(cart.data.products[0]?.id).toBe('prod-1');
-    expect(cart.data.products[0]?.stock).toBe(1);
+    expect(cart.data.products).toEqual([]);
   });
 
   it('keeps reviewer carts isolated across browser sessions', async () => {
@@ -111,24 +104,15 @@ describe('cart session persistence', () => {
     const guestSessionId = guestEvent.cookies['guest-session-id'];
     expect(guestSessionId).toBeDefined();
 
-    vi.resetModules();
-    installH3Mocks();
+    const { findMockCartById } = await import('../server/utils/mockCart');
+    const restartedCart = await findMockCartById(`mock-cart-guest-user-session-${guestSessionId}`);
 
-    const { default: restartedCartGetHandler } = (await import('../server/api/cart.get')) as {
-      default: (event: unknown) => Promise<{ data: { products: Array<{ id: string; stock: number }> } }>;
-    };
-
-    const restartedCart = await restartedCartGetHandler({
-      cookies: {
-        'guest-session-id': guestSessionId,
-      },
-    });
-
-    const prod2 = restartedCart.data.products.find((product) => product.id === 'prod-2');
+    expect(restartedCart).not.toBeNull();
+    const prod2 = restartedCart?.products.find((product) => product.id === 'prod-2');
     expect(prod2?.stock).toBe(2);
   });
 
-  it('resolves carts by id after a simulated server restart', async () => {
+  it('resolves carts by id after an independent cart read', async () => {
     const { default: cartGetHandler } = (await import('../server/api/cart.get')) as {
       default: (event: unknown) => Promise<{ data: { _id: string; products: Array<{ id: string }> } }>;
     };
@@ -136,13 +120,10 @@ describe('cart session persistence', () => {
     const guestEvent = createEvent();
     const cart = await cartGetHandler(guestEvent);
 
-    vi.resetModules();
-    installH3Mocks();
-
     const { findMockCartById } = await import('../server/utils/mockCart');
-    const resolved = findMockCartById(cart.data._id);
+    const resolved = await findMockCartById(cart.data._id);
 
     expect(resolved?._id).toBe(cart.data._id);
-    expect(resolved?.products.some((product) => product.id === 'prod-1')).toBe(true);
+    expect(resolved?.products).toEqual([]);
   });
 });

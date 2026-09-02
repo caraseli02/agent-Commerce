@@ -1,4 +1,5 @@
 import { PaymentTypeEnum } from '~/types/order-summary/item';
+import { catalog } from '~/server/domain/catalog';
 
 export default defineEventHandler(async (_event) => {
   return {
@@ -74,14 +75,7 @@ export default defineEventHandler(async (_event) => {
             type: PaymentTypeEnum.Bank,
           },
         ],
-        smallOrderCharge: [
-          {
-            _id: 'soc-001',
-            min: 0,
-            max: 50,
-            price: 4.99,
-          },
-        ],
+        smallOrderCharge: catalog.smallOrderTiers,
       },
       productSettings: {
         _id: 'prod-set-001',
