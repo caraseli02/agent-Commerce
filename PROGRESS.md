@@ -10,11 +10,15 @@
 
 ## In progress
 
-- Use PostgreSQL through `DATABASE_URL` as the only checkout persistence
+- None. PlaceOrder production hardening is complete and awaiting PR #523 review/merge.
+
+## Completed PlaceOrder hardening
+
+- PostgreSQL through `DATABASE_URL` is the only checkout persistence
   engine in local development, tests/CI, Vercel preview, and production.
-- Make order create/read/list canonical, checkout claims database-enforced,
+- Order create/read/list is canonical, checkout claims are database-enforced,
   cart completion revision-aware, and inventory/payment state durable.
-- Reconcile authenticated customer pricing through the server Catalog quote;
+- Authenticated customer pricing is reconciled through the server Catalog quote;
   the demo STM32 price is `999.99 × 95% = 949.99 Lei` in the line, Payment
   Summary, PlaceOrder snapshot, success read, and history read.
 - Fresh carts start empty. No `finalizePayment` implementation is included.
@@ -66,26 +70,31 @@ Nitro API
 - Focused PostgreSQL migration/constraint and durable PlaceOrder suite: pass
   (9 tests), including concurrent migrators and `vi.resetModules()` replay,
   canonical read, and history list.
-- `pnpm verify:handoff`: pass — build, lint, typecheck, PostgreSQL-backed
-  coverage suite (314 passed + 2 todo), architecture invariants, built-preview
-  route smoke, and clean-state validation.
+- `pnpm verify:full`: pass — build, lint, typecheck, PostgreSQL-backed coverage
+  suite (320 passed + 2 todo), architecture invariants, and built-preview route
+  smoke.
+- Focused critical browser flows: pass (4/4), covering order-summary entry,
+  customer sign-in and `949.99 Lei` reconciliation, successful PlaceOrder and
+  success read-back, order history, and checkout failure handling.
+- Pre-push verification: pass — `pnpm verify` plus visual browser matrix (9/9).
 - `pnpm test:e2e` now starts its own built Nitro server and cannot reuse a
   separately started server with the wrong database schema.
-- No GitHub CI, Vercel deployment, evaluator, or deployed-preview evidence is
-  claimed for the current unpushed commit.
+- PR #523 checks pass: PostgreSQL-backed GitHub CI, PR template, Vercel build,
+  and Vercel Preview Comments.
+- Vercel preview migration/build pass against the connected Neon Preview
+  database branch. Deployed cross-request smoke passes: fresh cart is empty,
+  one STM32 Add yields quantity 1, authenticated price persists as `949.99`,
+  replay returns the same order, canonical read/history return that order, cart
+  completion is durable, and two request IDs racing one cart revision create at
+  most one order. Runtime error logs are empty after the final smoke.
+- PostgreSQL SSL aliases from Neon are normalized to `verify-full`, preserving
+  certificate verification without the pg future-semantics runtime warning.
 
 ## Blocked / known baseline failures
 
-- The Vercel/Neon Preview configuration and all deployed-buyer evidence remain
-  outstanding for this current commit. Before the deployed buyer smoke, enable
-  Preview Branching/connect Preview in Vercel Storage, then deploy the PR so
-  its build can run `pnpm db:migrate` against the preview branch.
+- None for the PlaceOrder production-hardening slice.
 
 ## Next checkpoint
 
-1. Enable Neon Preview Branching/connect Preview in Vercel Storage and deploy
-   PR #523.
-2. Run the 13-step buyer smoke from the production-hardening handoff against
-   the deployed preview.
-3. Record the deployed evidence, mark `SD-PLACE-ORDER-HARDENING` passing, and
-   run `pnpm verify:handoff` from the final clean tree.
+1. Review and merge PR #523.
+2. Only after merge, resume the system-design sequence with `finalizePayment`.
