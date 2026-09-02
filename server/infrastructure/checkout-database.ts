@@ -1,6 +1,9 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { attachDatabasePool } from '@vercel/functions';
 import { Pool, type PoolClient, type QueryResultRow } from 'pg';
+import { normalizePostgresConnectionString } from './postgres-connection-string.mjs';
+
+export { normalizePostgresConnectionString };
 
 type SqlValue = string | number | null;
 
@@ -11,16 +14,6 @@ export type CheckoutDatabase = {
 
 const transactionContext = new AsyncLocalStorage<CheckoutDatabase>();
 let postgresPool: Pool | null = null;
-
-const certificateVerifyingSslModeAliases = new Set(['prefer', 'require', 'verify-ca']);
-
-export const normalizePostgresConnectionString = (connectionString: string) => {
-  const connectionUrl = new URL(connectionString);
-  if (!certificateVerifyingSslModeAliases.has(connectionUrl.searchParams.get('sslmode') ?? '')) return connectionString;
-
-  connectionUrl.searchParams.set('sslmode', 'verify-full');
-  return connectionUrl.toString();
-};
 
 const createPostgresExecutor = (client: Pool | PoolClient): CheckoutDatabase => ({
   async query<T extends Record<string, unknown>>(sql: string, parameters: readonly SqlValue[] = []) {

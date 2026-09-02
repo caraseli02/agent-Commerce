@@ -3,6 +3,9 @@ import { readdir, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import pg from 'pg';
+import { normalizePostgresConnectionString } from '../server/infrastructure/postgres-connection-string.mjs';
+
+export { normalizePostgresConnectionString };
 
 const { Pool } = pg;
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
@@ -16,10 +19,17 @@ const sqlForKnownRuntimeSchema = async (client, filename, sql) => {
   return existing.rows[0]?.table_name ? sql.replaceAll('CREATE TABLE ', 'CREATE TABLE IF NOT EXISTS ') : sql;
 };
 
+/**
+ * @param {string} connectionString
+ * @param {new (options: { connectionString: string, max: number }) => any} [PoolConstructor]
+ */
+export const createMigrationPool = (connectionString, PoolConstructor = Pool) =>
+  new PoolConstructor({ connectionString: normalizePostgresConnectionString(connectionString), max: 1 });
+
 export const migrate = async (connectionString = process.env.DATABASE_URL) => {
   if (!connectionString) throw new Error('DATABASE_URL is required to run checkout migrations.');
 
-  const pool = new Pool({ connectionString, max: 1 });
+  const pool = createMigrationPool(connectionString);
   let client;
   try {
     client = await pool.connect();
