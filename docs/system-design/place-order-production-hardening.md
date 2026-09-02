@@ -1,10 +1,12 @@
 # PlaceOrder Production Hardening Handoff
 
-Status: **Completed by PR #523 (`fa532db2`)**
+Status: **Partially completed by PR #523 (`fa532db2`)**
 
-This was not a new numbered system-design phase. It was the hardening pass for
-the `PlaceOrder` vertical slice introduced after System Design #7. It is
-retained as the acceptance record and implementation handoff for PR #523.
+This is not a new numbered system-design phase. It is the hardening pass for
+the `PlaceOrder` vertical slice introduced after System Design #7. PR #523
+delivered the durable persistence foundation, but this document remains the
+acceptance record for the remaining canonical-read and pricing-reconciliation
+requirements.
 
 ## Why this exists
 
@@ -141,7 +143,7 @@ Separately, the new server Catalog quote currently resolves tier pricing but doe
 
 The browser must not independently decide the final payable price. The persisted order snapshot must be produced from one server-authoritative quote/pricing policy.
 
-## Original hardening scope (completed)
+## Hardening scope
 
 This is a **focused PlaceOrder hardening pass**, not a general application refactor.
 

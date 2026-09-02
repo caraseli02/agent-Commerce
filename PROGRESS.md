@@ -2,27 +2,29 @@
 
 ## Current focus
 
-- Begin the next checkout workflow: `finalizePayment`.
+- Complete the remaining `PlaceOrder` production-hardening acceptance gaps
+  before beginning `finalizePayment`.
 - Preserve the modular-monolith dependency direction: Nitro adapter → checkout
   application workflow → public Cart/Catalog/Inventory/Orders/Payments APIs.
 
 ## In progress
 
-- `finalizePayment` is the next vertical slice. It must model durable payment
-  event ingestion, idempotent settlement, reservation-expiry recovery, and
-  revision-safe cart completion without bypassing public module APIs.
-- #121 remains the human decision for the live Stripe integration. The mock
-  payment boundary can support workflow design and tests before that decision.
+- Canonical Orders reads remain incomplete: the detail and history endpoints
+  still retain static demo-order fallbacks instead of using one Orders-owned
+  persisted/read-model source.
+- Checkout commits server-quoted prices, but the UI independently derives VAT,
+  shipping, and the final total. Full summary reconciliation is not yet proven.
 
-## Completed PlaceOrder hardening
+## Delivered PlaceOrder hardening foundation
 
 - PostgreSQL through `DATABASE_URL` is the only checkout persistence
   engine in local development, tests/CI, Vercel preview, and production.
-- Order create/read/list is canonical, checkout claims are database-enforced,
-  cart completion revision-aware, and inventory/payment state durable.
-- Authenticated customer pricing is reconciled through the server Catalog quote;
-  the demo STM32 price is `999.99 × 95% = 949.99 Lei` in the line, Payment
-  Summary, PlaceOrder snapshot, success read, and history read.
+- Checkout-created orders are durable and readable through the Orders module;
+  checkout claims are database-enforced, cart completion is revision-aware, and
+  inventory/payment state is durable.
+- Server `PlaceOrder` persists Catalog-quoted merchandise, delivery, and
+  small-order values; the demo STM32 line price is `949.99 Lei` for the
+  authenticated customer.
 - Fresh carts start empty. No `finalizePayment` implementation is included.
 - PR #523 merged as `fa532db2`; its PostgreSQL-backed verification and deployed
   preview buyer smoke passed.
@@ -94,14 +96,17 @@ Nitro API
 - PostgreSQL SSL aliases from Neon are normalized to `verify-full`, preserving
   certificate verification without the pg future-semantics runtime warning.
 
-## Blocked / known baseline failures
+## Remaining acceptance gaps
 
-- None for the PlaceOrder production-hardening slice.
+- The two public Orders read endpoints still combine durable checkout orders
+  with static demo orders.
+- The client-side payment summary is not a server-returned final-money quote,
+  so agreement across the quote, UI, persisted order, success, and history is
+  not yet established by tests.
 
 ## Next checkpoint
 
-1. Define the narrow `finalizePayment` command/result contracts and activate
-   the duplicate/late payment-success recovery scenario.
-2. Implement idempotent settlement through the existing public module APIs.
-3. Decide the production Stripe integration plan in #121 before adding a live
-   provider adapter.
+1. Complete the canonical Orders read-model migration for detail and history.
+2. Make final checkout-summary money server-authoritative or prove the UI and
+   persisted values reconcile from the same policy.
+3. Re-run the PlaceOrder acceptance checks before starting `finalizePayment`.
