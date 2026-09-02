@@ -2,15 +2,17 @@
 
 ## Current focus
 
-- Production-harden the existing `PlaceOrder` vertical slice from
-  `docs/system-design/place-order-production-hardening.md` before any
-  `finalizePayment` work.
+- Begin the next checkout workflow: `finalizePayment`.
 - Preserve the modular-monolith dependency direction: Nitro adapter → checkout
   application workflow → public Cart/Catalog/Inventory/Orders/Payments APIs.
 
 ## In progress
 
-- None. PlaceOrder production hardening is complete and awaiting PR #523 review/merge.
+- `finalizePayment` is the next vertical slice. It must model durable payment
+  event ingestion, idempotent settlement, reservation-expiry recovery, and
+  revision-safe cart completion without bypassing public module APIs.
+- #121 remains the human decision for the live Stripe integration. The mock
+  payment boundary can support workflow design and tests before that decision.
 
 ## Completed PlaceOrder hardening
 
@@ -22,6 +24,8 @@
   the demo STM32 price is `999.99 × 95% = 949.99 Lei` in the line, Payment
   Summary, PlaceOrder snapshot, success read, and history read.
 - Fresh carts start empty. No `finalizePayment` implementation is included.
+- PR #523 merged as `fa532db2`; its PostgreSQL-backed verification and deployed
+  preview buyer smoke passed.
 
 The implementation preserves the accepted architecture direction:
 
@@ -96,5 +100,8 @@ Nitro API
 
 ## Next checkpoint
 
-1. Review and merge PR #523.
-2. Only after merge, resume the system-design sequence with `finalizePayment`.
+1. Define the narrow `finalizePayment` command/result contracts and activate
+   the duplicate/late payment-success recovery scenario.
+2. Implement idempotent settlement through the existing public module APIs.
+3. Decide the production Stripe integration plan in #121 before adding a live
+   provider adapter.
