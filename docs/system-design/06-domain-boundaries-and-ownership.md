@@ -13,7 +13,14 @@ The conclusions below were tested against the current Nuxt/Nitro repository rath
 
 The original boundary decisions were followed by an adversarial transaction/recovery review. That review did not change the accepted capability map, but it tightened the contracts around idempotency, payment retries, order expiry, reservation races, cart reconciliation, and reliable event delivery.
 
-## Current implementation observations
+## Pre-PlaceOrder implementation observations
+
+The observations in this section describe the baseline used to derive the
+boundaries. PR #523 subsequently implemented and production-hardened the
+`PlaceOrder` slice: the order route is now a thin adapter, orchestration lives
+in `server/application/checkout`, and checkout state is durable. They remain
+useful migration context for the unimplemented payment-finalization and
+cancellation workflows.
 
 The current server is primarily organized as transport and utility code:
 

@@ -17,7 +17,13 @@ The goal is a pragmatic modular monolith, not a microservice simulation. agent-C
 
 This design was adversarially checked against duplicate checkout submission, duplicate/out-of-order payment events, reservation expiry, changed carts, and cancellation racing a processing payment.
 
-## Current implementation pressure
+## Pre-PlaceOrder implementation pressure
+
+The examples below describe the baseline that motivated this design. PR #523
+implemented and production-hardened the `PlaceOrder` slice with a thin route,
+an application workflow, public module APIs, and durable checkout persistence.
+They remain relevant to the unimplemented payment-finalization and
+cancellation workflows.
 
 The current server is still organized mainly as `server/api` plus `server/utils`.
 

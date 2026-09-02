@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -289,16 +289,17 @@
       "id": "SD-PLACE-ORDER-HARDENING",
       "description": "Harden PlaceOrder persistence, canonical order reads, idempotency, pricing, and fresh-cart behavior for production runtime boundaries",
       "validation": "The handoff P0/P1 tests pass across independent service instances; server-authoritative pricing reconciles at 949.99 Lei; pnpm verify, verify:full, deployed preview buyer smoke, and verify:handoff pass; no finalizePayment implementation",
-      "status": "passing",
+      "status": "active",
       "evidence": [
         "pnpm db:migrate passed against the configured PostgreSQL development database; focused migration/constraint and module-restart/race tests passed (9 tests).",
         "pnpm verify:handoff passed before deployment; final pnpm verify:full passed with build, lint, typecheck, PostgreSQL-backed coverage suite (320 passed + 2 todo), architecture invariants, and built-preview route smoke.",
         "pnpm test:e2e starts its own built Nitro server in the isolated PostgreSQL schema and never reuses a separately started server.",
         "Focused critical browser suite passed 4/4; the visual browser matrix passed 9/9 during pre-push verification.",
         "PR #523 GitHub PostgreSQL CI, PR-template check, Vercel deployment, and Vercel Preview Comments passed at commit 1db98811.",
-        "The Neon-backed Vercel preview passed deployed cross-request smoke: empty fresh cart, one STM32 Add = quantity 1, authenticated price 949.99, idempotent replay, canonical order read/history, durable cart completion, and at most one order for racing request IDs on one cart revision.",
+        "The Neon-backed Vercel preview passed deployed cross-request smoke: empty fresh cart, one STM32 Add = quantity 1, authenticated price 949.99, idempotent replay, checkout-created order read/history, durable cart completion, and at most one order for racing request IDs on one cart revision.",
         "Final preview runtime error-log query returned no order-flow errors after normalizing Neon SSL aliases to verify-full.",
-        "No finalizePayment implementation is included."
+        "No finalizePayment implementation is included.",
+        "Acceptance remains active: /api/orders and /api/orders/:id retain static demo-order fallbacks, and full server-quote/UI/persisted-total reconciliation is not yet established."
       ]
     },
     {

@@ -1,8 +1,12 @@
 # PlaceOrder Production Hardening Handoff
 
-Status: **Required before continuing to `finalizePayment` system-design implementation**
+Status: **Partially completed by PR #523 (`fa532db2`)**
 
-This is not a new numbered system-design phase. It is a hardening pass for the `PlaceOrder` vertical slice introduced after System Design #7.
+This is not a new numbered system-design phase. It is the hardening pass for
+the `PlaceOrder` vertical slice introduced after System Design #7. PR #523
+delivered the durable persistence foundation, but this document remains the
+acceptance record for the remaining canonical-read and pricing-reconciliation
+requirements.
 
 ## Why this exists
 
@@ -56,21 +60,21 @@ Do not introduce Kafka/RabbitMQ, a distributed saga framework, microservices, or
 
 Production smoke failed in the buyer order flow.
 
-| Check | Result |
-| --- | --- |
-| Homepage | Pass |
-| Add STM32 | Fail — one click resulted in quantity `2` |
-| Cart counter/total | Fail — counter `1`, quantity `2`, total `1999.98 Lei` |
-| Order summary | Rendered, but pricing was inconsistent |
-| Demo customer sign-in | Pass |
-| Checkout UI | Pass |
-| Place order | Intermittent — first `POST /api/orders/new` returned 404 |
-| Retry/rapid submit | Reached `/checkout/success?id=<order-id>` |
-| Success state | Fail — `Order details unavailable` |
-| Cart cleared | Pass |
-| Order history | Fail — new reference absent |
-| Console/network | Fail — hydration mismatch warnings + checkout 404 |
-| Duplicate protection | Inconclusive/unsafe across runtime instances |
+| Check                 | Result                                                   |
+| --------------------- | -------------------------------------------------------- |
+| Homepage              | Pass                                                     |
+| Add STM32             | Fail — one click resulted in quantity `2`                |
+| Cart counter/total    | Fail — counter `1`, quantity `2`, total `1999.98 Lei`    |
+| Order summary         | Rendered, but pricing was inconsistent                   |
+| Demo customer sign-in | Pass                                                     |
+| Checkout UI           | Pass                                                     |
+| Place order           | Intermittent — first `POST /api/orders/new` returned 404 |
+| Retry/rapid submit    | Reached `/checkout/success?id=<order-id>`                |
+| Success state         | Fail — `Order details unavailable`                       |
+| Cart cleared          | Pass                                                     |
+| Order history         | Fail — new reference absent                              |
+| Console/network       | Fail — hydration mismatch warnings + checkout 404        |
+| Duplicate protection  | Inconclusive/unsafe across runtime instances             |
 
 Additional pricing regression after authenticated sign-in:
 
@@ -139,7 +143,7 @@ Separately, the new server Catalog quote currently resolves tier pricing but doe
 
 The browser must not independently decide the final payable price. The persisted order snapshot must be produced from one server-authoritative quote/pricing policy.
 
-## Required scope for the next Codex task
+## Hardening scope
 
 This is a **focused PlaceOrder hardening pass**, not a general application refactor.
 
