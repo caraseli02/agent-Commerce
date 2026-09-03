@@ -1,5 +1,13 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('h3', () => ({
+  getCookie: (event: { cookies?: Record<string, string> }, name: string) => event.cookies?.[name],
+  setCookie: (event: { cookies?: Record<string, string> }, name: string, value: string) => {
+    event.cookies ||= {};
+    event.cookies[name] = value;
+  },
+}));
+
 const { findOrder, listOrders } = vi.hoisted(() => ({
   findOrder: vi.fn(async (..._args: unknown[]) => null as unknown),
   listOrders: vi.fn(async (..._args: unknown[]) => [] as unknown[]),
@@ -90,5 +98,55 @@ describe('orders route customer scope', () => {
     findOrder.mockClear();
     await expect(handler({ params: { id: 'another-customer-order' } })).rejects.toMatchObject({ statusCode: 401 });
     expect(findOrder).not.toHaveBeenCalled();
+  });
+
+  it('allows a guest to read only an order owned by its matching session cookie', async () => {
+    const canonicalOrder = { order: { _id: 'guest-order-1' }, children: [] };
+    findOrder.mockResolvedValueOnce(canonicalOrder);
+    const { default: handler } = (await import('../server/api/orders/[id].get')) as {
+      default: (event: unknown) => Promise<unknown>;
+    };
+
+    await expect(handler({ params: { id: 'guest-order-1' }, cookies: { 'guest-session-id': 'guest-owner-1' } })).resolves.toEqual({
+      status: 'success',
+      data: canonicalOrder,
+    });
+    expect(findOrder).toHaveBeenCalledWith('guest-order-1', 'guest-user-session-guest-owner-1');
+  });
+
+  it('rejects a guest reading an order outside its session owner scope', async () => {
+    const { default: handler } = (await import('../server/api/orders/[id].get')) as {
+      default: (event: unknown) => Promise<unknown>;
+    };
+
+    await expect(
+      handler({ params: { id: 'another-guest-order' }, cookies: { 'guest-session-id': 'guest-owner-1' } }),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+    });
+    expect(findOrder).toHaveBeenCalledWith('another-guest-order', 'guest-user-session-guest-owner-1');
+  });
+
+  it('lets an admin read the unscoped order list and detail', async () => {
+    const canonicalOrder = { order: { _id: 'admin-visible-order' }, children: [] };
+    listOrders.mockResolvedValueOnce([{ _id: 'admin-visible-order' }]);
+    findOrder.mockResolvedValueOnce(canonicalOrder);
+    const { default: listHandler } = (await import('../server/api/orders.get')) as {
+      default: (event: unknown) => Promise<unknown>;
+    };
+    const { default: detailHandler } = (await import('../server/api/orders/[id].get')) as {
+      default: (event: unknown) => Promise<unknown>;
+    };
+    const authorization = `Bearer demo-token::mock-admin-1::${Date.now()}`;
+
+    await expect(listHandler({ headers: { authorization } })).resolves.toMatchObject({
+      data: { items: [{ _id: 'admin-visible-order' }] },
+    });
+    await expect(detailHandler({ headers: { authorization }, params: { id: 'admin-visible-order' } })).resolves.toEqual({
+      status: 'success',
+      data: canonicalOrder,
+    });
+    expect(listOrders).toHaveBeenCalledWith(undefined);
+    expect(findOrder).toHaveBeenCalledWith('admin-visible-order', undefined);
   });
 });
