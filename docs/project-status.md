@@ -1,18 +1,28 @@
 # Project Status
 
-Last updated: 2026-08-31
+Last updated: 2026-09-02
 
 ## Current state
 
 Components Marketplace remains a self-contained Nuxt e-commerce portfolio demo. The Nuxt 4 migration and the recent buyer-flow stabilization work remain in place, while the current architecture track is now focused on making checkout/order behavior explicit and safe rather than adding more surface-area features.
 
-System-design steps #6 and #7 are complete at the design level:
+System-design steps #6 and #7 are complete at the design level. The first
+checkout vertical slice has a durable implementation foundation, but its full
+production-hardening acceptance criteria are not yet complete:
 
 - [`docs/system-design/06-domain-boundaries-and-ownership.md`](system-design/06-domain-boundaries-and-ownership.md) defines authoritative ownership for Catalog, Cart, Inventory, Orders, Payments, Accounts, and checkout/application workflows, including retry, expiry, reservation, cart-revision, and payment-recovery invariants.
 - [`docs/system-design/07-public-module-contracts-and-dependency-graph.md`](system-design/07-public-module-contracts-and-dependency-graph.md) defines the modular-monolith dependency direction, public module contracts, module firewall, retry/idempotency semantics, and adversarial checkout/payment/cancellation contracts.
-- `tests/server-module-boundaries.spec.ts` actively protects the module-internal import boundary and records the first three checkout race-condition contracts to activate during implementation.
+- `tests/server-module-boundaries.spec.ts` actively protects the module-internal import boundary.
+- PR #523 delivered durable PostgreSQL-backed `PlaceOrder` persistence,
+  cross-instance idempotency, revision-aware cart completion, and deployed
+  buyer-flow verification.
 
-The existing mock server still mixes transport, cart, order, pricing, inventory-like, and payment responsibilities. The next phase is therefore a vertical implementation migration rather than another broad design pass.
+`PlaceOrder` now uses a thin Nitro adapter and an application workflow over
+public Cart, Catalog, Inventory, Orders, and Payments APIs. The remaining
+hardening work is to make Orders detail/history reads one Orders-owned read
+model and establish full UI-to-persisted checkout-total reconciliation. Payment
+finalization, provider-event recovery, and cancellation follow only after that
+work is complete.
 
 ## Current planning controls
 
@@ -24,10 +34,10 @@ The existing mock server still mixes transport, cart, order, pricing, inventory-
 
 ## Next work
 
-Implement the architecture as small vertical slices, beginning with `PlaceOrder`:
+Complete the remaining `PlaceOrder` hardening acceptance work.
 
-1. Introduce the minimal public module seams required by `PlaceOrder`.
-2. Move checkout orchestration out of `server/api/orders/new.post.ts` into the application layer.
-3. Make duplicate `PlaceOrder` submissions idempotent and activate the first pending checkout contract test.
-4. Preserve current mock-mode behavior while replacing direct cross-domain utility coupling incrementally.
-5. Continue afterward with payment finalization and cancellation/recovery rather than expanding module structure prematurely.
+1. Replace public route demo-order fallbacks with one Orders-owned read model.
+2. Reconcile the server quote, UI summary, persisted order, success, and
+   history totals through one policy.
+3. Run the complete `PlaceOrder` hardening acceptance suite, then begin
+   `finalizePayment`.

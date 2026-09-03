@@ -289,20 +289,22 @@
       "id": "SD-PLACE-ORDER-HARDENING",
       "description": "Harden PlaceOrder persistence, canonical order reads, idempotency, pricing, and fresh-cart behavior for production runtime boundaries",
       "validation": "The handoff P0/P1 tests pass across independent service instances; server-authoritative pricing reconciles at 949.99 Lei; pnpm verify, verify:full, deployed preview buyer smoke, and verify:handoff pass; no finalizePayment implementation",
-      "status": "blocked",
+      "status": "passing",
       "evidence": [
         "pnpm db:migrate passed against the configured PostgreSQL development database; focused migration/constraint and module-restart/race tests passed (9 tests).",
         "pnpm verify:handoff passed before deployment; final pnpm verify:full passed with build, lint, typecheck, PostgreSQL-backed coverage suite (320 passed + 2 todo), architecture invariants, and built-preview route smoke.",
         "pnpm test:e2e starts its own built Nitro server in the isolated PostgreSQL schema and never reuses a separately started server.",
         "Focused critical browser suite passed 4/4; the visual browser matrix passed 9/9 during pre-push verification.",
         "PR #523 GitHub PostgreSQL CI, PR-template check, Vercel deployment, and Vercel Preview Comments passed at commit 1db98811.",
-        "The Neon-backed Vercel preview passed deployed cross-request smoke: empty fresh cart, one STM32 Add = quantity 1, authenticated price 949.99, idempotent replay, canonical order read/history, durable cart completion, and at most one order for racing request IDs on one cart revision.",
+        "The Neon-backed Vercel preview passed deployed cross-request smoke: empty fresh cart, one STM32 Add = quantity 1, authenticated price 949.99, idempotent replay, checkout-created order read/history, durable cart completion, and at most one order for racing request IDs on one cart revision.",
         "Final preview runtime error-log query returned no order-flow errors after normalizing Neon SSL aliases to verify-full.",
         "No finalizePayment implementation is included.",
         "Follow-up branch codex/place-order-read-money-reconciliation removes route fixture fallbacks and persists demo fixtures through Orders with customer ownership.",
         "One Catalog checkout quote now supplies line/list/discount/VAT allocations plus subtotal, shipping, handling, VAT, and grand total to UI, placement, persistence, success, and history views.",
-        "Database-independent follow-up checks pass: build, lint, typecheck, 29 focused Vitest tests, architecture invariants, UI conventions, formatting, and git diff checks.",
-        "Blocked: pnpm verify reaches PostgreSQL coverage after its earlier gates pass, then stops because this worktree has no DATABASE_URL; the PostgreSQL persistence and E2E acceptance cases remain unexecuted."
+        "PostgreSQL-backed pnpm verify passes: build, bundle budgets, lint, typecheck, 74 Vitest files with 337 passed and 2 todo, coverage, feature-list validation, and UI conventions.",
+        "The pre-push Playwright visual matrix passes 9/9 after updating the two scoped persisted-order baselines.",
+        "Authenticated browser evidence reconciles quote, persisted detail, and history at subtotal 949.99, discount 50.00, shipping 19.90, VAT 180.50, and total 1150.39; unauthenticated order reads return 401.",
+        "Terra independently evaluated the route-scope fix and visual baseline update as PASS with no findings; PR #526 automated GitHub and Vercel checks pass."
       ]
     },
     {

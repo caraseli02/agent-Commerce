@@ -2,41 +2,38 @@
 
 ## Current focus
 
-- Production-harden the existing `PlaceOrder` vertical slice from
-  `docs/system-design/place-order-production-hardening.md` before any
-  `finalizePayment` work.
+- Review and merge PR #526, which completes the remaining `PlaceOrder`
+  production-hardening acceptance gaps before `finalizePayment` begins.
 - Preserve the modular-monolith dependency direction: Nitro adapter → checkout
   application workflow → public Cart/Catalog/Inventory/Orders/Payments APIs.
 
 ## In progress
 
-Follow-up implementation is complete; database verification is blocked.
-
 - Follow-up acceptance hardening on `codex/place-order-read-money-reconciliation`
   removes route-level demo order fallbacks, scopes canonical order reads to the
   trusted customer, and carries every payable-money component through one
   Catalog quote into the checkout UI and immutable Order snapshot.
+- PostgreSQL-backed `pnpm verify` passes: 74 test files, 337 tests passed, and 2
+  todo. The pre-push visual browser matrix passes 9/9.
+- Authenticated runtime evidence reconciles the quote, persisted order, success,
+  and history total at `1150.39 Lei`; unauthenticated order reads return 401.
+- PR #526 is open as a draft with all automated GitHub and Vercel checks passing.
 - Out of scope: payment finalization, new infrastructure, or unrelated checkout
   refactors.
-- Expected files: Orders/Catalog public modules, order API adapters, checkout
-  summary integration, focused route/quote/persistence tests, and durable state.
-- Database-independent evidence: 29 focused Vitest tests pass; build, lint,
-  typecheck, formatting, architecture invariants, and UI conventions pass.
-- `pnpm verify` reaches its PostgreSQL coverage step after build, bundle-size,
-  lint, and typecheck pass, then stops because `DATABASE_URL` is absent.
-- PostgreSQL persistence/E2E cases are implemented but cannot execute in this
-  worktree until a database URL is supplied.
 
-## Completed PlaceOrder hardening
+## Delivered PlaceOrder hardening foundation
 
 - PostgreSQL through `DATABASE_URL` is the only checkout persistence
   engine in local development, tests/CI, Vercel preview, and production.
-- Order create/read/list is canonical, checkout claims are database-enforced,
-  cart completion revision-aware, and inventory/payment state durable.
-- Authenticated customer pricing is reconciled through the server Catalog quote;
-  the demo STM32 price is `999.99 × 95% = 949.99 Lei` in the line, Payment
-  Summary, PlaceOrder snapshot, success read, and history read.
+- Checkout-created orders are durable and readable through the Orders module;
+  checkout claims are database-enforced, cart completion is revision-aware, and
+  inventory/payment state is durable.
+- Server `PlaceOrder` persists Catalog-quoted merchandise, delivery, and
+  small-order values; the demo STM32 line price is `949.99 Lei` for the
+  authenticated customer.
 - Fresh carts start empty. No `finalizePayment` implementation is included.
+- PR #523 merged as `fa532db2`; its PostgreSQL-backed verification and deployed
+  preview buyer smoke passed.
 
 The implementation preserves the accepted architecture direction:
 
@@ -105,14 +102,13 @@ Nitro API
 - PostgreSQL SSL aliases from Neon are normalized to `verify-full`, preserving
   certificate verification without the pg future-semantics runtime warning.
 
-## Blocked / known baseline failures
+## Remaining acceptance gaps
 
-- This worktree has no `DATABASE_URL`, so PostgreSQL-backed tests cannot start.
-  The exact failure is `DATABASE_URL is required for PostgreSQL-backed tests.`
+- None in the scoped `PlaceOrder` hardening implementation. Human review and
+  merge of PR #526 remain.
 
 ## Next checkpoint
 
-1. Run the full PostgreSQL-backed verification ladder when credentials are
-   available.
-2. Only after this slice passes, resume the system-design sequence with
+1. Review and merge PR #526.
+2. After the hardening slice lands, resume the system-design sequence with
    `finalizePayment`.
