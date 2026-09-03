@@ -1,18 +1,21 @@
-import { findDemoOrder } from '~/server/utils/mockDashboardDemo';
 import { orders } from '~/server/domain/orders';
+import { getExistingMockCartUserId } from '~/server/utils/mockCart';
+import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { AccountRole } from '~/types/signup/form';
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id');
-  const runtimeOrder = await orders.findById(id);
+  const authorization = getHeaders(event).authorization;
+  const authenticatedUser = getMockUserFromAuthHeader(authorization);
+  const guestOwnerId =
+    !authenticatedUser && process.env.NUXT_PUBLIC_MOCK_MODE === 'true' ? getExistingMockCartUserId(event, authorization) : null;
 
-  if (runtimeOrder) {
-    return {
-      status: 'success',
-      data: runtimeOrder,
-    };
+  if (!authenticatedUser && !guestOwnerId) {
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
   }
 
-  const order = findDemoOrder(id);
+  const scopedCustomerId = authenticatedUser?.role === AccountRole.Admin ? undefined : authenticatedUser?._id || guestOwnerId || undefined;
+  const order = await orders.findById(id, scopedCustomerId);
 
   if (!order) {
     throw createError({
@@ -23,9 +26,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     status: 'success',
-    data: {
-      order,
-      children: [],
-    },
+    data: order,
   };
 });

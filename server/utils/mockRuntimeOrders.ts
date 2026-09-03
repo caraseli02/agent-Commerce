@@ -9,6 +9,23 @@ type OrderProductLike = {
   total?: number;
   unitPriceAfterDiscounts?: number;
   stock?: number;
+  discount?: {
+    value?: number;
+    total?: number;
+    startDate?: string;
+    endDate?: string;
+  };
+};
+
+type RuntimeOrderMoney = {
+  currency: 'RON';
+  subtotal: number;
+  discountAmount: number;
+  shippingCost: number;
+  smallOrderCharge: number;
+  vatRate: number;
+  vatAmount: number;
+  total: number;
 };
 
 type ShippingAddressLike = {
@@ -72,6 +89,7 @@ type CreateOrderPayload = {
   type?: OrderType;
   shippingCost?: number;
   smallOrderCost?: number;
+  money?: RuntimeOrderMoney;
 };
 
 type RuntimeOrderNote = {
@@ -134,6 +152,7 @@ type RuntimeOrder = {
   shippingCost: number;
   smallOrderCost: number;
   discount: RuntimeOrderDiscount;
+  money: RuntimeOrderMoney;
   notes: RuntimeOrderNote[];
   createdAt: string;
   updatedAt: string;
@@ -255,6 +274,18 @@ export const buildRuntimeOrder = (payload: CreateOrderPayload, user: UserInterfa
   const rawSmallOrderCost = Number(payload.smallOrderCost ?? 0);
   const smallOrderCost = Number.isFinite(rawSmallOrderCost) ? rawSmallOrderCost : 0;
   const totals = calculateOrderTotals(products, shippingCost, smallOrderCost);
+  const fallbackMoney = calculateOrderMoney({ subtotal: totals.subtotal, shippingCost });
+  const money: RuntimeOrderMoney = payload.money || {
+    currency: 'RON',
+    subtotal: totals.subtotal,
+    discountAmount: 0,
+    shippingCost,
+    smallOrderCharge: smallOrderCost,
+    vatRate: fallbackMoney.vatRate,
+    vatAmount: fallbackMoney.vatAmount,
+    total: totals.total,
+  };
+  const discountPercentages = new Set(products.map((product) => Number(product.discount?.value || 0)));
   const noteMessage = payload.note?.message;
 
   const order: RuntimeOrder = {
@@ -268,19 +299,20 @@ export const buildRuntimeOrder = (payload: CreateOrderPayload, user: UserInterfa
     products,
     shippingDetails: normalizeShippingDetails(payload.shippingDetails),
     paymentDetails: normalizePaymentDetails(payload.paymentDetails),
-    total: Number(payload.total ?? totals.total),
-    subtotal: Number(payload.subtotal ?? totals.subtotal),
+    total: money.total,
+    subtotal: money.subtotal,
     margin: 0,
     currency: payload.currency || 'ron',
     status: OrderStatus.Pending,
     type: payload.type ?? 0,
-    shippingCost,
-    smallOrderCost,
+    shippingCost: money.shippingCost,
+    smallOrderCost: money.smallOrderCharge,
     discount: {
-      value: 0,
+      value: discountPercentages.size === 1 ? (discountPercentages.values().next().value ?? 0) : 0,
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
     },
+    money,
     notes: noteMessage
       ? [
           {

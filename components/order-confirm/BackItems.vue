@@ -2,8 +2,10 @@
 import { InfoIcon } from '@lucide/vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { OrderType } from '~/types';
-import type { OrderRequestInterface } from '~/types';
+import type { OrderInterface, OrderRequestInterface } from '~/types';
 import { useAuthStore } from '~/store/authStore';
+import { toPersistedOrderLineMoneyView } from '~/helpers/checkout-quote';
+import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const lgAndLarger = breakpoints.greaterOrEqual('lg'); // sm and larger
@@ -21,22 +23,25 @@ const shippingMethod = computed(() =>
 const type = props.orderType === OrderType.Back ? '' : 'Back';
 const backOrderItems = ref(props.data.products || []);
 const backOrder = ref(props.data as OrderRequestInterface);
+const persistedMoney = computed(() => (backOrder.value as unknown as OrderInterface).money);
+const effectiveVatRate = computed(() => persistedMoney.value?.vatRate ?? DEFAULT_ORDER_VAT_RATE);
 
 const payment = computed(() => {
   const subtotal = Number(backOrder.value.subtotal.toFixed(2));
   const discountRate = backOrder.value.discount?.value || 0;
-  const discountAmount = (discountRate * subtotal).toFixed(2);
   const smallOrderCharge = backOrder.value.smallOrderCost || 0;
-  const taxRate = 19; // Consider moving to a dynamic setting or config
-  const taxAmount = subtotal * (taxRate / 100);
   const shippingType = backOrder.value.shippingCost || 0;
+  const fallbackMoney = calculateOrderMoney({ subtotal, discountRate: discountRate / 100, shippingCost: shippingType });
+  const discountAmount = (persistedMoney.value?.discountAmount ?? fallbackMoney.discountAmount).toFixed(2);
+  const taxRate = Math.round(effectiveVatRate.value * 100);
+  const taxAmount = persistedMoney.value?.vatAmount ?? fallbackMoney.vatAmount;
   const total = Number(backOrder.value.total?.toFixed(2));
   return {
     subtotal,
     discountRate,
     discountAmount,
-    handlingCharge: smallOrderCharge, // Consider making dynamic if applicable
-    shippingCost: shippingType, // Consider making dynamic if applicable
+    handlingCharge: persistedMoney.value?.smallOrderCharge ?? smallOrderCharge,
+    shippingCost: persistedMoney.value?.shippingCost ?? shippingType,
     taxRate,
     taxAmount,
     backOrderTotal: total, // Include other charges dynamically if needed
@@ -121,13 +126,13 @@ const payment = computed(() => {
             </div>
             <div class="flex flex-col p-6 text-sm">
               <p v-if="item.backorder_stock">
-                {{ ((item?.backorder_stock * item.unitPriceAfterDiscounts * 0.19) / 100).toFixed(2) }}
+                {{ toPersistedOrderLineMoneyView(item, effectiveVatRate).vatTotal.toFixed(2) }}
                 <span class="font-semibold">Lei</span>
               </p>
             </div>
             <div class="flex flex-col p-6 text-sm">
               <p v-if="item.backorder_stock">
-                {{ (item.backorder_stock * item.unitPriceAfterDiscounts).toFixed(2) }}
+                {{ toPersistedOrderLineMoneyView(item, effectiveVatRate).subtotal.toFixed(2) }}
                 <span class="font-semibold">Lei</span>
               </p>
             </div>
@@ -155,15 +160,13 @@ const payment = computed(() => {
               </article>
               <article class="flex gap-5 justify-between mt-1 w-full leading-6 text-neutral-800 max-md:flex-wrap max-md:max-w-full">
                 <p>Tax (VAT 19%)</p>
-                <p v-if="item.backorder_stock">
-                  {{ ((item?.backorder_stock * item.unitPriceAfterDiscounts * 0.19) / 100).toFixed(2) }} Lei
-                </p>
+                <p v-if="item.backorder_stock">{{ toPersistedOrderLineMoneyView(item, effectiveVatRate).vatTotal.toFixed(2) }} Lei</p>
               </article>
               <article
                 class="flex gap-5 justify-between mt-1 w-full leading-6 whitespace-nowrap text-neutral-800 max-md:flex-wrap max-md:max-w-full"
               >
                 <p>Subtotal</p>
-                <p v-if="item.backorder_stock">{{ (item.backorder_stock * item.unitPriceAfterDiscounts).toFixed(2) }} Lei</p>
+                <p v-if="item.backorder_stock">{{ toPersistedOrderLineMoneyView(item, effectiveVatRate).subtotal.toFixed(2) }} Lei</p>
               </article>
             </section>
           </template>

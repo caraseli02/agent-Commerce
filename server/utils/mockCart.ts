@@ -26,6 +26,13 @@ const buildGuestCartUserId = (guestSessionId?: string | null) => {
   return normalized ? `${GUEST_CART_USER_ID}-${normalized}` : '';
 };
 
+export const getExistingMockCartUserId = (event: H3Event, authorizationHeader?: string | null) => {
+  const userId = parseMockUserIdFromToken(authorizationHeader);
+  if (userId) return userId;
+
+  return buildGuestCartUserId(getCookie(event, GUEST_SESSION_COOKIE));
+};
+
 const buildDefaultDiscount = (): DiscountInterface => ({
   value: 0,
   startDate: nowIso(),
@@ -218,15 +225,10 @@ export const findMockCartById = async (cartId?: string | null) => {
 };
 
 export const requireMockCartUserId = (event: H3Event, authorizationHeader?: string | null) => {
-  const userId = parseMockUserIdFromToken(authorizationHeader);
+  const userId = getExistingMockCartUserId(event, authorizationHeader);
 
   if (userId) {
     return userId;
-  }
-
-  const existingGuestSessionId = getCookie(event, GUEST_SESSION_COOKIE);
-  if (existingGuestSessionId) {
-    return buildGuestCartUserId(existingGuestSessionId) || GUEST_CART_USER_ID;
   }
 
   const guestSessionId = crypto.randomUUID();

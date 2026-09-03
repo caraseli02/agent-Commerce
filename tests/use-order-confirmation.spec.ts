@@ -413,6 +413,50 @@ describe('order confirmation module', () => {
     expect(downloadDocument).toHaveBeenCalledWith('inv-stock-1');
   });
 
+  it('renders the persisted server money snapshot without recomputing checkout totals', async () => {
+    const response = buildStockOrderResponse();
+    getOrderById.mockResolvedValue({
+      ...response,
+      data: {
+        ...response.data,
+        order: {
+          ...response.data.order,
+          subtotal: 0.01,
+          total: 0.01,
+          shippingCost: 0.01,
+          smallOrderCost: 0.01,
+          discount: { value: 5 },
+          money: {
+            currency: 'RON',
+            subtotal: 949.99,
+            discountAmount: 50,
+            shippingCost: 29.9,
+            smallOrderCharge: 4.99,
+            vatRate: 0.19,
+            vatAmount: 180.5,
+            total: 1165.38,
+          },
+        },
+      },
+    });
+
+    const { useOrderConfirmation } = await import('../composables/useOrderConfirmation');
+    const confirmation = useOrderConfirmation('order-authoritative-money');
+    await confirmation.loadOrderConfirmation();
+
+    expect(confirmation.paymentSummary.value).toMatchObject({
+      subtotal: 949.99,
+      discountPercentage: 5,
+      discountAmount: 50,
+      handlingCharge: 4.99,
+      shippingCost: 29.9,
+      taxPercentage: 19,
+      taxAmount: 180.5,
+      orderTotal: 1165.38,
+      smallOrderCharge: 4.99,
+    });
+  });
+
   it('splits a mixed order into stock and backorder children and builds the mixed summary', async () => {
     getOrderById.mockResolvedValue(buildMixedOrderResponse());
     downloadDocument.mockResolvedValue(true);

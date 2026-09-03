@@ -40,11 +40,16 @@ export const resolveTierUnitPrice = (product: ProductWithPricing, quantity = 0) 
   return Number(activePrice) || 0;
 };
 
-export const resolveCustomerUnitPrice = (product: ProductWithPricing, customerDiscountPercent = 0, quantity = 0) => {
-  const tierPrice = resolveTierUnitPrice(product, quantity);
+export const resolveAppliedDiscountPercent = (product: ProductWithPricing, customerDiscountPercent = 0) => {
   const productDiscount = Math.max(0, Number(product?.adminSettings?.discount?.value || 0));
   const customerDiscount = Math.max(0, Number(customerDiscountPercent || 0));
-  const appliedDiscount = productDiscount || customerDiscount;
+
+  return productDiscount || customerDiscount;
+};
+
+export const resolveCustomerUnitPrice = (product: ProductWithPricing, customerDiscountPercent = 0, quantity = 0) => {
+  const tierPrice = resolveTierUnitPrice(product, quantity);
+  const appliedDiscount = resolveAppliedDiscountPercent(product, customerDiscountPercent);
 
   return Number((tierPrice * (1 - appliedDiscount / 100)).toFixed(2));
 };

@@ -2,18 +2,24 @@
 
 ## Current focus
 
-- Complete the remaining `PlaceOrder` production-hardening acceptance gaps
-  before beginning `finalizePayment`.
+- Review and merge PR #526, which completes the remaining `PlaceOrder`
+  production-hardening acceptance gaps before `finalizePayment` begins.
 - Preserve the modular-monolith dependency direction: Nitro adapter → checkout
   application workflow → public Cart/Catalog/Inventory/Orders/Payments APIs.
 
 ## In progress
 
-- Canonical Orders reads remain incomplete: the detail and history endpoints
-  still retain static demo-order fallbacks instead of using one Orders-owned
-  persisted/read-model source.
-- Checkout commits server-quoted prices, but the UI independently derives VAT,
-  shipping, and the final total. Full summary reconciliation is not yet proven.
+- Follow-up acceptance hardening on `codex/place-order-read-money-reconciliation`
+  removes route-level demo order fallbacks, scopes canonical order reads to the
+  trusted customer, and carries every payable-money component through one
+  Catalog quote into the checkout UI and immutable Order snapshot.
+- PostgreSQL-backed `pnpm verify` passes: 74 test files, 337 tests passed, and 2
+  todo. The pre-push visual browser matrix passes 9/9.
+- Authenticated runtime evidence reconciles the quote, persisted order, success,
+  and history total at `1150.39 Lei`; unauthenticated order reads return 401.
+- PR #526 is open as a draft with all automated GitHub and Vercel checks passing.
+- Out of scope: payment finalization, new infrastructure, or unrelated checkout
+  refactors.
 
 ## Delivered PlaceOrder hardening foundation
 
@@ -98,15 +104,11 @@ Nitro API
 
 ## Remaining acceptance gaps
 
-- The two public Orders read endpoints still combine durable checkout orders
-  with static demo orders.
-- The client-side payment summary is not a server-returned final-money quote,
-  so agreement across the quote, UI, persisted order, success, and history is
-  not yet established by tests.
+- None in the scoped `PlaceOrder` hardening implementation. Human review and
+  merge of PR #526 remain.
 
 ## Next checkpoint
 
-1. Complete the canonical Orders read-model migration for detail and history.
-2. Make final checkout-summary money server-authoritative or prove the UI and
-   persisted values reconcile from the same policy.
-3. Re-run the PlaceOrder acceptance checks before starting `finalizePayment`.
+1. Review and merge PR #526.
+2. After the hardening slice lands, resume the system-design sequence with
+   `finalizePayment`.

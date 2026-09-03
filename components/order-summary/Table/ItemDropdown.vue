@@ -21,17 +21,15 @@
               </div>
             </div>
             <div v-if="item.discount?.value" class="flex flex-col text-center h-[36px] justify-center">
-              <span v-if="discounts?.productDiscount" class="line-through text-neutral-700 text-sm font-normal leading-5"
+              <span v-if="hasDiscount" class="line-through text-neutral-700 text-sm font-normal leading-5"
                 >{{ item.initialUnitPrice.toFixed(2) }} Lei</span
               >
-              <span class="text-sm font-normal leading-5" :class="discounts?.productDiscount ? 'text-rose-500' : ''"
-                >{{ discounts?.currentConfigurationDiscountPrice.toFixed(2) }} Lei</span
+              <span class="text-sm font-normal leading-5" :class="hasDiscount ? 'text-rose-500' : ''"
+                >{{ item.unitPriceAfterDiscounts.toFixed(2) }} Lei</span
               >
             </div>
             <div v-else class="flex flex-col text-center h-[36px] justify-center">
-              <span class="text-neutral-700 text-sm font-normal leading-5"
-                >{{ discounts?.currentConfigurationDiscountPrice.toFixed(2) }} Lei</span
-              >
+              <span class="text-neutral-700 text-sm font-normal leading-5">{{ item.unitPriceAfterDiscounts.toFixed(2) }} Lei</span>
             </div>
           </div>
           <div class="flex flex-row justify-between items-center xl:flex-col xl:gap-4">
@@ -86,14 +84,12 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { storeToRefs } from 'pinia';
 import ProductDetails from './ProductDetails.vue';
 import AdditionalDetails from './AdditionalDetails.vue';
 import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import { useAuthStore } from '~/store/authStore';
-import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
+import { DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
+import { toPersistedOrderLineMoneyView } from '~/helpers/checkout-quote';
 import { ProductAction, type CartProductsInterface } from '~/types/cart';
 
 import { OrderType } from '~/types';
@@ -111,9 +107,6 @@ const showDeliveryDetails = ref(false);
 const deleteItem = ref(false);
 const quantity = ref(props.stockItem ? props.item.stock : props.item.backorder_stock);
 
-const authStore = useAuthStore();
-const { getUserDetails } = storeToRefs(authStore);
-
 watch(
   [quantity, deleteItem],
   () => {
@@ -122,28 +115,18 @@ watch(
   { immediate: true },
 );
 
-const discounts = computed(() => {
-  if (!props.item.productEntity) {
-    return null;
-  }
-  const backorder_stock = props.item.backorder_stock || 0;
-  return parseProductPriceConfiguration(props.item.productEntity, getUserDetails.value, props.item.stock + backorder_stock);
-});
+const hasDiscount = computed(() => Number(props.item.discount?.value || 0) > 0);
+const lineMoney = computed(() => toPersistedOrderLineMoneyView(props.item));
 
 const vatPercent = Math.round(DEFAULT_ORDER_VAT_RATE * 100);
 
 const taxPrice = computed(() => {
-  if (!quantity.value) return 0;
-  const subtotalValue = quantity.value * (discounts.value?.currentConfigurationDiscountPrice || 0);
-  return calculateOrderMoney({ subtotal: subtotalValue }).vatAmount;
+  return lineMoney.value.vatTotal;
 });
 
 const subtotal = computed(() => {
-  if (!discounts.value) {
-    return 0;
-  }
   if (!quantity.value) return 0;
-  return quantity.value * (discounts.value.currentConfigurationDiscountPrice || 0);
+  return lineMoney.value.subtotal;
 });
 
 function togglePackagingDetails() {

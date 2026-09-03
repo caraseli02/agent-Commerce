@@ -1,8 +1,8 @@
-import { resolveCustomerUnitPrice } from '~/helpers/cart-pricing';
+import { resolveAppliedDiscountPercent, resolveCustomerUnitPrice, resolveTierUnitPrice } from '~/helpers/cart-pricing';
 import { mockProducts } from '~/server/utils/mockProducts';
 import type { UserInterface } from '~/types/auth/user-interface';
 import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
-import { resolveSmallOrderCharge, type SmallOrderChargeTier } from '~/helpers/order-money';
+import { DEFAULT_ORDER_VAT_RATE, resolveSmallOrderCharge, type SmallOrderChargeTier } from '~/helpers/order-money';
 
 export type CatalogMoney = Readonly<{
   minor: number;
@@ -14,6 +14,9 @@ export type CatalogQuoteLine = Readonly<{
   sku: string;
   name: string;
   quantity: number;
+  listUnitPrice: CatalogMoney;
+  discountPercent: number;
+  discountTotal: CatalogMoney;
   unitPrice: CatalogMoney;
   lineTotal: CatalogMoney;
 }>;
@@ -23,11 +26,25 @@ export type CatalogQuote = Readonly<{
   quotedAt: Date;
   lines: readonly CatalogQuoteLine[];
   merchandiseTotal: CatalogMoney;
+  discountTotal: CatalogMoney;
   smallOrderCharge: CatalogMoney;
   smallOrderTier: SmallOrderChargeTier | null;
 }>;
 
 export type QuoteItemsResult = { kind: 'quoted'; quote: CatalogQuote } | { kind: 'unavailable'; productId: string };
+
+export type CatalogCheckoutQuote = Omit<CatalogQuote, 'lines'> &
+  Readonly<{
+    lines: readonly (CatalogQuoteLine & { vatTotal: CatalogMoney })[];
+    deliveryOption: ShippingOrderPricingOption;
+    shippingTotal: CatalogMoney;
+    vatRate: number;
+    vatTotal: CatalogMoney;
+    grandTotal: CatalogMoney;
+  }>;
+
+export type QuoteCheckoutResult =
+  { kind: 'quoted'; quote: CatalogCheckoutQuote } | { kind: 'unavailable'; productId: string } | { kind: 'delivery-unavailable' };
 
 const deliveryOptions: readonly ShippingOrderPricingOption[] = [
   { service: { id: 1, courierName: 'Demo Express', name: 'Standard Delivery' }, price: { total: 19.9, noVat: 16.72 } },
@@ -51,13 +68,19 @@ const quoteItems = async (input: {
 
     const quantity = Math.max(0, Number(requested.quantity || 0));
     const customerDiscount = Number(input.customer?.adminSettings?.discount?.value || 0);
+    const listUnitPriceMinor = Math.round(resolveTierUnitPrice(product, quantity) * 100);
+    const discountPercent = resolveAppliedDiscountPercent(product, customerDiscount);
     const unitPriceMinor = Math.round(resolveCustomerUnitPrice(product, customerDiscount, quantity) * 100);
+    const discountTotalMinor = (listUnitPriceMinor - unitPriceMinor) * quantity;
 
     lines.push({
       productId: product._id,
       sku: product.code,
       name: product.name,
       quantity,
+      listUnitPrice: { minor: listUnitPriceMinor, currency: 'RON' },
+      discountPercent,
+      discountTotal: { minor: discountTotalMinor, currency: 'RON' },
       unitPrice: {
         minor: unitPriceMinor,
         currency: 'RON',
@@ -70,6 +93,7 @@ const quoteItems = async (input: {
   }
 
   const totalMinor = lines.reduce((sum, line) => sum + line.lineTotal.minor, 0);
+  const discountTotalMinor = lines.reduce((sum, line) => sum + line.discountTotal.minor, 0);
   const smallOrder = resolveSmallOrderCharge(totalMinor / 100, [...smallOrderTiers]);
 
   return {
@@ -80,6 +104,10 @@ const quoteItems = async (input: {
       lines,
       merchandiseTotal: {
         minor: totalMinor,
+        currency: 'RON',
+      },
+      discountTotal: {
+        minor: discountTotalMinor,
         currency: 'RON',
       },
       smallOrderCharge: {
@@ -97,9 +125,46 @@ const quoteDelivery = async (serviceId?: string | number | null) => {
   return option ? { kind: 'quoted' as const, option } : { kind: 'unavailable' as const };
 };
 
+const quoteCheckout = async (input: {
+  customer?: UserInterface;
+  items: readonly { productId: string; quantity: number }[];
+  deliveryServiceId?: string | number | null;
+}): Promise<QuoteCheckoutResult> => {
+  const merchandise = await quoteItems(input);
+  if (merchandise.kind === 'unavailable') return merchandise;
+
+  const delivery = await quoteDelivery(input.deliveryServiceId);
+  if (delivery.kind === 'unavailable') return { kind: 'delivery-unavailable' };
+
+  const shippingMinor = Math.round(delivery.option.price.total * 100);
+  const vatMinor = Math.round(merchandise.quote.merchandiseTotal.minor * DEFAULT_ORDER_VAT_RATE);
+  let allocatedVatMinor = 0;
+  const lines = merchandise.quote.lines.map((line, index, allLines) => {
+    const lineVatMinor =
+      index === allLines.length - 1 ? vatMinor - allocatedVatMinor : Math.round(line.lineTotal.minor * DEFAULT_ORDER_VAT_RATE);
+    allocatedVatMinor += lineVatMinor;
+    return { ...line, vatTotal: { minor: lineVatMinor, currency: 'RON' as const } };
+  });
+  const grandTotalMinor = merchandise.quote.merchandiseTotal.minor + merchandise.quote.smallOrderCharge.minor + shippingMinor + vatMinor;
+
+  return {
+    kind: 'quoted',
+    quote: {
+      ...merchandise.quote,
+      lines,
+      deliveryOption: delivery.option,
+      shippingTotal: { minor: shippingMinor, currency: 'RON' },
+      vatRate: DEFAULT_ORDER_VAT_RATE,
+      vatTotal: { minor: vatMinor, currency: 'RON' },
+      grandTotal: { minor: grandTotalMinor, currency: 'RON' },
+    },
+  };
+};
+
 export const catalog = {
   quoteItems,
   quoteDelivery,
+  quoteCheckout,
   deliveryOptions,
   smallOrderTiers,
 };

@@ -1,6 +1,7 @@
 import type { UserInterface } from '~/types/auth/user-interface';
 import { PaymentStatusEnum } from '~/types/order-summary/item';
 import { buildRuntimeOrder } from '~/server/utils/mockRuntimeOrders';
+import { getDemoOrders } from '~/server/utils/mockDashboardDemo';
 import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 
 export type PendingOrderItem = Readonly<{
@@ -9,8 +10,23 @@ export type PendingOrderItem = Readonly<{
   name: string;
   immediateQuantity: number;
   backorderQuantity: number;
+  listUnitPriceMinor: number;
+  discountPercent: number;
+  discountTotalMinor: number;
+  vatTotalMinor: number;
   unitPriceMinor: number;
   lineTotalMinor: number;
+}>;
+
+export type PendingOrderMoney = Readonly<{
+  currency: 'RON';
+  merchandiseTotalMinor: number;
+  discountTotalMinor: number;
+  shippingTotalMinor: number;
+  smallOrderChargeMinor: number;
+  vatRate: number;
+  vatTotalMinor: number;
+  grandTotalMinor: number;
 }>;
 
 export type CreatePendingOrderInput = {
@@ -21,8 +37,7 @@ export type CreatePendingOrderInput = {
   items: readonly PendingOrderItem[];
   shippingDetails?: Record<string, unknown>;
   paymentDetails?: Record<string, unknown>;
-  shippingCostMinor: number;
-  smallOrderCostMinor: number;
+  money: PendingOrderMoney;
   orderType?: number;
   notes?: Array<{ sender?: string; message?: string }>;
 };
@@ -55,13 +70,52 @@ const fingerprintOrder = (input: CreatePendingOrderInput) =>
     items: input.items,
     shippingDetails: input.shippingDetails,
     paymentDetails: input.paymentDetails,
-    shippingCostMinor: input.shippingCostMinor,
-    smallOrderCostMinor: input.smallOrderCostMinor,
+    money: input.money,
     orderType: input.orderType,
     notes: input.notes,
   });
 
 const parseOrder = (row: OrderRow) => JSON.parse(row.payload_json) as PersistedOrderResponse;
+
+const ensureDemoOrdersPersisted = async () => {
+  if (process.env.NUXT_PUBLIC_MOCK_MODE !== 'true') return;
+
+  const database = await getCheckoutDatabase();
+  const demoOrders = getDemoOrders();
+  const [seedCount] = await database.query<{ total: number }>(
+    "SELECT COUNT(*) AS total FROM checkout_orders WHERE checkout_request_id LIKE 'demo-seed:%'",
+  );
+  if (Number(seedCount?.total || 0) >= demoOrders.length) return;
+
+  for (const order of demoOrders) {
+    const seedKey = `demo-seed:${order._id}`;
+    const persistedDemoOrder = {
+      ...order,
+      discount: {
+        value: 0,
+        startDate: order.createdAt,
+        endDate: order.updatedAt,
+      },
+    } as unknown as OrderRecord;
+    await database.execute(
+      `INSERT INTO checkout_orders (
+         id, customer_id, checkout_request_id, source_cart_id, source_cart_revision,
+         fingerprint, payload_json, paid_by_payment_id, created_at, updated_at
+       ) VALUES ($1, $2, $3, $4, 0, $5, $6, NULL, $7, $8)
+       ON CONFLICT (id) DO NOTHING`,
+      [
+        order._id,
+        order.userId || order.user._id,
+        seedKey,
+        seedKey,
+        seedKey,
+        JSON.stringify({ order: persistedDemoOrder, children: [] } satisfies PersistedOrderResponse),
+        order.createdAt,
+        order.updatedAt,
+      ],
+    );
+  }
+};
 
 const createPending = async (input: CreatePendingOrderInput): Promise<CreatePendingOrderResult> => {
   const fingerprint = fingerprintOrder(input);
@@ -90,9 +144,16 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
     name: item.name,
     stock: item.immediateQuantity,
     backorder_stock: item.backorderQuantity,
-    initialUnitPrice: item.unitPriceMinor / 100,
+    initialUnitPrice: item.listUnitPriceMinor / 100,
     unitPriceAfterDiscounts: item.unitPriceMinor / 100,
+    discount: {
+      value: item.discountPercent,
+      total: item.discountTotalMinor / 100,
+      startDate: '',
+      endDate: '',
+    },
     subtotal: item.lineTotalMinor / 100,
+    vatTotal: item.vatTotalMinor / 100,
     total: item.lineTotalMinor / 100,
   }));
   const firstNote = input.notes?.find((note) => typeof note.message === 'string' && note.message.trim());
@@ -102,8 +163,16 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
       products,
       shippingDetails: input.shippingDetails,
       paymentDetails: input.paymentDetails,
-      shippingCost: input.shippingCostMinor / 100,
-      smallOrderCost: input.smallOrderCostMinor / 100,
+      money: {
+        currency: input.money.currency,
+        subtotal: input.money.merchandiseTotalMinor / 100,
+        discountAmount: input.money.discountTotalMinor / 100,
+        shippingCost: input.money.shippingTotalMinor / 100,
+        smallOrderCharge: input.money.smallOrderChargeMinor / 100,
+        vatRate: input.money.vatRate,
+        vatAmount: input.money.vatTotalMinor / 100,
+        total: input.money.grandTotalMinor / 100,
+      },
       currency: 'ron',
       type: input.orderType,
       note: firstNote ? { sender: firstNote.sender, message: firstNote.message } : undefined,
@@ -154,21 +223,36 @@ const confirmPayment = async (input: { orderId: string; paymentId: string }): Pr
   return { kind: 'confirmed' };
 };
 
-const findById = async (id?: string | null) => {
+const findById = async (id?: string | null, customerId?: string) => {
   if (!id) return null;
   const searchId = String(id).toLowerCase();
   const database = await getCheckoutDatabase();
-  const rows = await database.query<OrderRow>(`SELECT * FROM checkout_orders ORDER BY created_at DESC`);
+  let rows = customerId
+    ? await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE customer_id = $1 ORDER BY created_at DESC', [customerId])
+    : await database.query<OrderRow>(`SELECT * FROM checkout_orders ORDER BY created_at DESC`);
   const row = rows.find((candidate) => {
     const payload = parseOrder(candidate);
     const orderId = String(payload.order._id || '').toLowerCase();
     const shortId = String(payload.order.shortId || '').toLowerCase();
     return orderId === searchId || shortId === searchId || shortId.replace('#', '') === searchId;
   });
-  return row ? parseOrder(row) : null;
+  if (row) return parseOrder(row);
+
+  await ensureDemoOrdersPersisted();
+  rows = customerId
+    ? await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE customer_id = $1 ORDER BY created_at DESC', [customerId])
+    : await database.query<OrderRow>(`SELECT * FROM checkout_orders ORDER BY created_at DESC`);
+  const seededRow = rows.find((candidate) => {
+    const payload = parseOrder(candidate);
+    const orderId = String(payload.order._id || '').toLowerCase();
+    const shortId = String(payload.order.shortId || '').toLowerCase();
+    return orderId === searchId || shortId === searchId || shortId.replace('#', '') === searchId;
+  });
+  return seededRow ? parseOrder(seededRow) : null;
 };
 
 const list = async (customerId?: string) => {
+  await ensureDemoOrdersPersisted();
   const database = await getCheckoutDatabase();
   const rows = customerId
     ? await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE customer_id = $1 ORDER BY created_at DESC', [customerId])

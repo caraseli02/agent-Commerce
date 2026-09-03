@@ -48,7 +48,7 @@ export class PlaceOrderError extends Error {
 
 type PlaceOrderDependencies = {
   cart: Pick<typeof defaultCart, 'getSnapshot' | 'completeCheckout'>;
-  catalog: Pick<typeof defaultCatalog, 'quoteItems' | 'quoteDelivery'>;
+  catalog: Pick<typeof defaultCatalog, 'quoteCheckout'>;
   inventory: Pick<typeof defaultInventory, 'reserve' | 'commit' | 'release'>;
   orders: Pick<typeof defaultOrders, 'createPending' | 'confirmPayment'>;
   payments: Pick<typeof defaultPayments, 'ensurePayment'>;
@@ -270,8 +270,9 @@ export const createPlaceOrderUseCase = (
           fingerprint,
         })}`;
 
-      const quoteResult = await dependencies.catalog.quoteItems({
+      const quoteResult = await dependencies.catalog.quoteCheckout({
         customer: command.user,
+        deliveryServiceId: resolveDeliveryServiceId(command.order),
         items: cartResult.snapshot.items.map((item) => ({
           productId: item.productId,
           quantity: item.immediateQuantity + item.backorderQuantity,
@@ -282,8 +283,7 @@ export const createPlaceOrderUseCase = (
         throw new PlaceOrderError('product_unavailable', 409, `Product ${quoteResult.productId} is no longer available for checkout.`);
       }
 
-      const deliveryQuote = await dependencies.catalog.quoteDelivery(resolveDeliveryServiceId(command.order));
-      if (deliveryQuote.kind === 'unavailable') {
+      if (quoteResult.kind === 'delivery-unavailable') {
         throw new PlaceOrderError('delivery_unavailable', 409, 'The selected delivery service is no longer available.');
       }
 
@@ -329,6 +329,10 @@ export const createPlaceOrderUseCase = (
                 name: line.name,
                 immediateQuantity: cartItem.immediateQuantity,
                 backorderQuantity: cartItem.backorderQuantity,
+                listUnitPriceMinor: line.listUnitPrice.minor,
+                discountPercent: line.discountPercent,
+                discountTotalMinor: line.discountTotal.minor,
+                vatTotalMinor: line.vatTotal.minor,
                 unitPriceMinor: line.unitPrice.minor,
                 lineTotalMinor: line.lineTotal.minor,
               };
@@ -340,16 +344,27 @@ export const createPlaceOrderUseCase = (
               cartRevision: cartResult.snapshot.revision,
               user: command.user,
               items,
-              shippingDetails:
-                command.order.shippingDetails && typeof command.order.shippingDetails === 'object'
+              shippingDetails: {
+                ...(command.order.shippingDetails && typeof command.order.shippingDetails === 'object'
                   ? (command.order.shippingDetails as Record<string, unknown>)
-                  : undefined,
+                  : {}),
+                deliveryTypeId: String(quoteResult.quote.deliveryOption.service.id),
+                stockorderShippingType: quoteResult.quote.deliveryOption,
+              },
               paymentDetails:
                 command.order.paymentDetails && typeof command.order.paymentDetails === 'object'
                   ? (command.order.paymentDetails as Record<string, unknown>)
                   : undefined,
-              shippingCostMinor: Math.round(deliveryQuote.option.price.total * 100),
-              smallOrderCostMinor: quoteResult.quote.smallOrderCharge.minor,
+              money: {
+                currency: quoteResult.quote.currency,
+                merchandiseTotalMinor: quoteResult.quote.merchandiseTotal.minor,
+                discountTotalMinor: quoteResult.quote.discountTotal.minor,
+                shippingTotalMinor: quoteResult.quote.shippingTotal.minor,
+                smallOrderChargeMinor: quoteResult.quote.smallOrderCharge.minor,
+                vatRate: quoteResult.quote.vatRate,
+                vatTotalMinor: quoteResult.quote.vatTotal.minor,
+                grandTotalMinor: quoteResult.quote.grandTotal.minor,
+              },
               orderType: resolveOrderType(command.order),
               notes: resolveNotes(command.order),
             });

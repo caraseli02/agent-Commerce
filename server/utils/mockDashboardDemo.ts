@@ -1,5 +1,6 @@
 import { mockCustomers, mockOrders, mockTransactions } from '~/server/utils/mockDashboardData';
 import { mockProducts } from '~/server/utils/mockProducts';
+import { MOCK_CUSTOMER_USER_ID } from '~/utils/mockAuth';
 
 type MockDashboardOrder = (typeof mockOrders)[number];
 type MockDashboardOrderItem = MockDashboardOrder['itemsDetails'][number];
@@ -14,6 +15,7 @@ type DemoOrderProduct = {
   unitPriceAfterDiscounts: number;
   subtotal: number;
   total: number;
+  vatTotal: number;
   discount: {
     value: number;
     startDate: string;
@@ -308,6 +310,7 @@ const mapOrderItems = (order: MockDashboardOrder) => {
       unitPriceAfterDiscounts: price,
       subtotal: Number((price * quantity).toFixed(2)),
       total: Number((price * quantity * 1.19).toFixed(2)),
+      vatTotal: 0,
       discount: defaultDiscount,
       productEntity: product,
     };
@@ -318,13 +321,18 @@ const mapOrderToContract = (order: MockDashboardOrder, index: number, userId?: s
   const customerId = order.customerId || resolveCustomerId(userId);
   const customer = mockCustomers.find((entry) => entry._id === customerId) || getDemoCustomer(userId);
   const name = splitName(customer.name);
+  const ownerId = userId ? normalizeUserId(userId) : customerId === DEFAULT_CUSTOMER_ID ? MOCK_CUSTOMER_USER_ID : customerId;
+  const products = mapOrderItems(order);
+  const subtotal = Number(products.reduce((sum, product) => sum + product.subtotal, 0).toFixed(2));
+  const total = Number(order.total || subtotal);
+  const shippingCost = Number(Math.max(0, total - subtotal).toFixed(2));
 
   return {
     _id: toDemoOrderId(index),
     shortId: order.orderNumber,
     user: {
-      _id: normalizeUserId(userId),
-      firebaseId: normalizeUserId(userId),
+      _id: ownerId,
+      firebaseId: ownerId,
       role: 2,
       accountType: 0,
       verified: true,
@@ -336,10 +344,10 @@ const mapOrderToContract = (order: MockDashboardOrder, index: number, userId?: s
         phone: customer.phone,
       },
     },
-    userId: normalizeUserId(userId),
+    userId: ownerId,
     userName: customer.name,
     userEmail: customer.email,
-    products: mapOrderItems(order),
+    products,
     shippingDetails: {
       firstName: name.firstName,
       lastName: name.lastName,
@@ -370,8 +378,8 @@ const mapOrderToContract = (order: MockDashboardOrder, index: number, userId?: s
       deliveryTypeId: 'demo-delivery',
       stockorderShippingType: {
         price: {
-          total: 19.9,
-          noVat: 16.72,
+          total: shippingCost,
+          noVat: shippingCost,
         },
         service: {
           id: 1,
@@ -391,14 +399,29 @@ const mapOrderToContract = (order: MockDashboardOrder, index: number, userId?: s
       invoiceId: `inv-${toDemoOrderId(index)}`,
       invoiceShortId: `INV-${String(index + 1).padStart(4, '0')}`,
     },
-    total: Number(order.total || 0),
-    subtotal: Number((Number(order.total || 0) * 0.84).toFixed(2)),
+    total,
+    subtotal,
     margin: 0,
     currency: 'Lei',
     status: toOrderStatus(order.status),
     type: 0,
-    shippingCost: 19.9,
+    shippingCost,
     smallOrderCost: 0,
+    discount: {
+      value: 0,
+      startDate: order.createdAt,
+      endDate: order.deliveredAt || order.shippedAt || order.cancelledAt || order.createdAt,
+    },
+    money: {
+      currency: 'RON' as const,
+      subtotal,
+      discountAmount: 0,
+      shippingCost,
+      smallOrderCharge: 0,
+      vatRate: 0,
+      vatAmount: 0,
+      total,
+    },
     notes: [
       {
         _id: `note-${toDemoOrderId(index)}`,
