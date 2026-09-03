@@ -6,6 +6,14 @@
     :filters="filters"
     :fetched-products="productList ?? []"
   >
+    <template #header>
+      <section class="mb-1 flex flex-col gap-1 px-2 md:flex-row md:items-end md:justify-between md:px-3">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-900 md:text-2xl">Featured inventory</h2>
+          <p class="text-sm text-slate-500">Compare live catalog options before you commit to a shortlist.</p>
+        </div>
+      </section>
+    </template>
     <template #banner>
       <div class="md:pt-6 md:pr-0 h-[calc(100%-30px)] mx-2 md:mx-3 xl:mx-0 xl:mr-3 xl:min-w-[330px] xl:min-h-[592px]">
         <div
@@ -17,8 +25,7 @@
             class-name="h-[100px] w-[120px] md:h-auto md:w-[290px] md:max-h-[240px] xl:w-full object-contain"
           />
           <div class="flex-1 flex gap-4 flex-col justify-center xl:justify-start xl:items-start">
-            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Contract pricing</p>
-            <div class="font-semibold text-sm xl:text-xl">Volume rates on in-stock lines</div>
+            <div class="font-semibold text-sm xl:text-xl">Better rates on in-stock lines</div>
             <p class="text-xs text-slate-600 md:text-[13px] xl:text-base">
               Qualifying quantities unlock better unit pricing on semiconductors, passives, and connectors — without leaving the catalog.
             </p>
@@ -26,7 +33,7 @@
               to="/search"
               class="flex w-fit bg-primary text-[13px] font-medium px-3 py-1.5 rounded-lg text-primary-foreground md:text-sm md:px-6 md:py-[11px] xl:mt-6"
             >
-              Review tiers
+              Browse in-stock catalog
             </NuxtLink>
           </div>
         </div>

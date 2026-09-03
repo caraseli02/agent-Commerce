@@ -4,7 +4,7 @@ import type { QuickBuyItem } from '~/types/product';
 
 const localQuantity = ref(1);
 
-const props = defineProps<QuickBuyItem>();
+const props = defineProps<QuickBuyItem & { error?: string; canRemove?: boolean }>();
 const localCode = ref(props.code);
 
 const emit = defineEmits<{
@@ -27,10 +27,31 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex w-full items-center gap-1.5">
-    <UiInput v-model="localCode" type="text" placeholder="Product Code" @input="emitUpdate" />
-    <QuantityButtons v-model="localQuantity" class="w-full" size="lg" />
-    <UiButton variant="ghost" size="icon" class="min-w-8 min-h-8" @click="emit('removeProduct', index)">
+  <div class="grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-start gap-1.5">
+    <div class="min-w-0">
+      <label :for="`quick-buy-part-${index}`" class="sr-only">Part number {{ index + 1 }}</label>
+      <UiInput
+        :id="`quick-buy-part-${index}`"
+        v-model="localCode"
+        type="text"
+        placeholder="Manufacturer part number"
+        :aria-invalid="Boolean(error)"
+        :aria-describedby="error ? `quick-buy-error-${index}` : undefined"
+        @input="emitUpdate"
+      />
+      <p v-if="error" :id="`quick-buy-error-${index}`" class="mt-1 text-xs font-medium text-amber-700" role="alert">{{ error }}</p>
+    </div>
+    <div aria-label="Quantity">
+      <QuantityButtons v-model="localQuantity" size="lg" />
+    </div>
+    <UiButton
+      variant="ghost"
+      size="icon"
+      class="min-h-11 min-w-11"
+      :disabled="canRemove === false"
+      :aria-label="`Remove part ${index + 1}`"
+      @click="emit('removeProduct', index)"
+    >
       <Trash2 class="w-4 h-4" />
     </UiButton>
   </div>
