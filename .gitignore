@@ -19,6 +19,11 @@ test-results/
 playwright-report/
 blob-report/
 
+# Impeccable local/generated state
+.impeccable/config.local.json
+.impeccable/critique/
+.agents/skills/impeccable/scripts/.impeccable/
+
 .idea
 firebase
 .env.local
