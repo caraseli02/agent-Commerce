@@ -10,7 +10,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "eslint . --ignore-pattern 'node_modules' --ignore-pattern '.nuxt' --ignore-pattern '.output' --ignore-pattern 'dist'",
+    "lint": "eslint . --ignore-pattern 'node_modules' --ignore-pattern '.nuxt' --ignore-pattern '.output' --ignore-pattern 'dist' --ignore-pattern '.agents/skills/impeccable/**'",
     "pretty": "prettier --write .",
     "typecheck": "nuxt typecheck",
     "db:migrate": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-migrate.mjs",

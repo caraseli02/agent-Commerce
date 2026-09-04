@@ -1,11 +1,11 @@
 <template>
-  <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mx-2 md:mx-3 xl:mx-3">
+  <div class="mx-2 flex flex-col gap-4 py-4 md:mx-3 md:items-start md:justify-between md:py-0 xl:mx-3 md:flex-row">
     <!-- Visually hidden on mobile rather than display:none, so the section keeps a
          reachable h2 and the product h3s do not break heading order. -->
     <h2 class="sr-only text-xl font-medium md:not-sr-only md:block">
       {{ sectionHeading }}
     </h2>
-    <div class="relative flex items-center gap-4 xl:gap-6 mb-6 md:mb-0 overflow-x-auto max-w-full pb-1">
+    <div class="relative flex max-w-full items-center gap-4 overflow-x-auto pb-1 xl:gap-6">
       <p v-for="(filter, index) in filters" :key="index" class="relative overflow-hidden shrink-0">
         <button
           class="relative text-sm font-medium pb-[13px] transition-colors duration-300 motion-reduce:transition-none hover:text-blue-700 md:text-base md:pb-3 whitespace-nowrap"

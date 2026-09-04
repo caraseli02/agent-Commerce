@@ -3,8 +3,8 @@
     <div class="container">
       <h2 class="text-xl font-semibold mb-[11px] md:mb-4">News</h2>
       <ul class="grid grid-cols-1 gap-[15px] px-1 pt-1 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 xl:grid-cols-4">
-        <li v-for="(item, index) in news" :key="index">
-          <NuxtLink :to="`/`" class="flex flex-col rounded-md bg-white shadow-xs">
+        <li v-for="item in news" :key="item.slug">
+          <article class="flex h-full flex-col rounded-xl border border-slate-200 bg-white shadow-[0_2px_8px_rgba(15,23,42,0.05)]">
             <ImageWithFallback
               :src="item.cover"
               alt="Cover"
@@ -22,7 +22,7 @@
                 {{ item.date }}
               </div>
             </div>
-          </NuxtLink>
+          </article>
         </li>
       </ul>
     </div>

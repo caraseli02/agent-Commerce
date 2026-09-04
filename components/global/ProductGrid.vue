@@ -13,7 +13,7 @@
     class="homeFeaturedProducts--swiper w-[100%] block"
   >
     <SwiperSlide v-for="(item, index) in productsByViewport" :key="index">
-      <div class="grid items-stretch gap-6 mt-6" :class="[computedCols, hasBanner ? 'px-2 md:px-3' : 'px-2']">
+      <div class="grid items-stretch gap-6" :class="[hasBanner ? 'mt-0 xl:mt-6 px-2 md:px-3' : 'mt-6 px-2', computedCols]">
         <template v-if="Array.isArray(item)">
           <ProductCard
             v-for="(product, productIndex) in item"
@@ -110,7 +110,7 @@ const productsByViewport = computed(() => {
 <style>
 @reference "../../assets/css/main.css";
 .homeFeaturedProducts--swiper {
-  @apply px-0 pt-0 pb-[30px]!;
+  @apply px-0 pt-0 pb-8!;
 }
 
 .homeFeaturedProducts--swiper .swiper-slide {
