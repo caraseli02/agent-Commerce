@@ -27,11 +27,12 @@ describe('home merchandising swiper reduction (#399)', () => {
     });
   });
 
-  it('home page still lazy-loads merchandising sections that retain Swiper carousels', () => {
+  it('home page keeps the procurement surfaces and omits removed merchandising sections', () => {
     const source = readFileSync(resolve('pages/index.vue'), 'utf8');
 
     expect(source).toContain('LazyEcxlusiveOffer');
-    expect(source).toContain('LazyNews');
-    expect(source).toContain('LazyManufacturers');
+    expect(source).toContain('LazyQuickBuy');
+    expect(source).not.toContain('LazyNews');
+    expect(source).not.toContain('LazyManufacturers');
   });
 });
