@@ -88,17 +88,19 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
 </script>
 
 <template>
-  <div class="rounded-2xl border border-slate-200 bg-white px-5 py-6 shadow-[0_4px_16px_rgba(15,23,42,0.06)] md:px-8">
-    <div class="flex flex-col items-center mb-[13px] px-[15px] md:px-2.5">
-      <QuickBuyIcon class="mr-2" />
-      <h2 class="text-2xl font-semibold text-slate-900">Quick Buy</h2>
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_16px_rgba(15,23,42,0.06)] md:p-6">
+    <div class="flex items-start gap-3">
+      <QuickBuyIcon class="mt-0.5 h-9 w-9 shrink-0" />
+      <div>
+        <h2 class="text-xl font-semibold text-slate-900">Quick Buy</h2>
+        <p class="mt-1 text-sm leading-5 text-slate-500">
+          Have a part list ready? Add manufacturer part numbers and quantities directly to your cart.
+        </p>
+      </div>
     </div>
-    <p class="mx-auto mb-6 max-w-lg px-[15px] text-center text-sm leading-5 text-slate-500 md:px-2.5 lg:mb-7">
-      Have a part list ready? Add manufacturer part numbers and quantities directly to your cart.
-    </p>
     <div
       v-if="successMessage"
-      class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800"
+      class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800"
       role="status"
       aria-live="polite"
     >
@@ -109,7 +111,7 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
       <UiDialogTrigger as-child>
         <button
           type="button"
-          class="mt-3 flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-600 py-2 text-white transition-colors motion-reduce:transition-none hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+          class="mt-5 flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-600 py-2 text-white transition-colors motion-reduce:transition-none hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
         >
           <CartIcon class="w-6 h-6 mr-2" />
           <span class="text-sm font-medium">Add to cart</span>
@@ -149,5 +151,5 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
         </UiDialogFooter>
       </UiDialogContent>
     </UiDialog>
-  </div>
+  </section>
 </template>

@@ -3,15 +3,11 @@
     <HomeHero />
     <HomeFeaturedProducts />
     <div class="container mb-10 lg:mb-14 xl:mb-16">
-      <div class="mx-auto max-w-3xl">
+      <div class="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
         <LazyQuickBuy />
+        <LazyEcxlusiveOffer />
       </div>
     </div>
-    <div class="container mb-10 lg:mb-14 xl:mb-16">
-      <LazyEcxlusiveOffer />
-    </div>
-    <LazyNews />
-    <LazyManufacturers />
   </div>
 </template>
 
