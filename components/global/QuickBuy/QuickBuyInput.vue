@@ -21,6 +21,13 @@ watch(localQuantity, (newQuantity) => {
   emit('updateProduct', { index: props.index, code: localCode.value, quantity: localQuantity.value });
 });
 
+watch(
+  () => props.code,
+  (code) => {
+    localCode.value = code;
+  },
+);
+
 onMounted(() => {
   localQuantity.value = props.quantity;
 });

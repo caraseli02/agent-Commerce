@@ -88,7 +88,7 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
 </script>
 
 <template>
-  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_16px_rgba(15,23,42,0.06)] md:p-6">
+  <section class="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_16px_rgba(15,23,42,0.06)] md:p-6">
     <div class="flex items-start gap-3">
       <QuickBuyIcon class="mt-0.5 h-9 w-9 shrink-0" />
       <div>
@@ -107,49 +107,81 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
       {{ successMessage }}
       <NuxtLink to="/cart" class="ml-1 font-semibold underline underline-offset-2 hover:text-emerald-950">View cart</NuxtLink>
     </div>
-    <UiDialog v-model:open="isOpen">
-      <UiDialogTrigger as-child>
-        <button
-          type="button"
-          class="mt-5 flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-600 py-2 text-white transition-colors motion-reduce:transition-none hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
-        >
+    <form class="mt-5 hidden min-h-0 flex-1 flex-col lg:flex" @submit.prevent="addToCart">
+      <div class="grid gap-2" aria-live="polite">
+        <QuickBuyInput
+          v-for="(product, index) in products"
+          :key="`desktop-${index}`"
+          :index="index"
+          :code="product.code"
+          :quantity="product.quantity"
+          :error="isInvalidRow(product) ? 'Add a part number or remove this row.' : ''"
+          :can-remove="products.length > 1"
+          @update-product="updateProduct"
+          @remove-product="removeProduct"
+        />
+      </div>
+      <p v-if="formError" class="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" role="alert">
+        {{ formError }}
+      </p>
+      <div class="mt-auto flex gap-2.5 pt-4">
+        <UiButton type="button" variant="secondary" class="min-h-11" @click="addProduct">
+          <PlusIcon class="w-5 h-5" />
+          <span class="ml-1.5 text-sm">Add part</span>
+        </UiButton>
+        <UiButton type="submit" :disabled="isLoading" class="min-h-11 flex-1">
           <CartIcon class="w-6 h-6 mr-2" />
-          <span class="text-sm font-medium">Add to cart</span>
-        </button>
-      </UiDialogTrigger>
-      <UiDialogContent class="max-w-[358px] sm:max-w-[640px] rounded-lg">
-        <UiDialogHeader>
-          <UiDialogTitle>Quick buy</UiDialogTitle>
-        </UiDialogHeader>
-        <p class="text-sm text-slate-500">Paste one or more manufacturer part numbers from your BOM. Remove any rows you do not need.</p>
-        <div class="grid gap-4 py-4" aria-live="polite">
-          <QuickBuyInput
-            v-for="(product, index) in products"
-            :key="index"
-            :index="index"
-            :code="product.code"
-            :quantity="product.quantity"
-            :error="isInvalidRow(product) ? 'Add a part number or remove this row.' : ''"
-            :can-remove="products.length > 1"
-            @update-product="updateProduct"
-            @remove-product="removeProduct"
-          />
-        </div>
-        <p v-if="formError" class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900" role="alert">
-          {{ formError }}
-        </p>
-        <UiDialogFooter class="w-full">
-          <div class="flex gap-2.5 w-full">
-            <UiButton variant="secondary" @click="addProduct">
-              <PlusIcon class="w-5 h-5" />
-            </UiButton>
-            <UiButton :disabled="isLoading" class="w-full" @click="addToCart">
-              <CartIcon class="w-6 h-6 mr-2" />
-              <span class="text-sm font-medium">{{ isLoading ? 'Adding parts…' : 'Add to cart' }}</span>
-            </UiButton>
+          <span class="text-sm font-medium">{{ isLoading ? 'Adding parts…' : 'Add to cart' }}</span>
+        </UiButton>
+      </div>
+    </form>
+    <div class="mt-auto pt-6 lg:hidden">
+      <UiDialog v-model:open="isOpen">
+        <UiDialogTrigger as-child>
+          <button
+            type="button"
+            class="flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-600 py-2 text-white transition-colors motion-reduce:transition-none hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+          >
+            <CartIcon class="w-6 h-6 mr-2" />
+            <span class="text-sm font-medium">Add to cart</span>
+          </button>
+        </UiDialogTrigger>
+        <UiDialogContent
+          class="!inset-0 !flex !h-[100dvh] !w-screen !max-w-none !translate-x-0 !translate-y-0 flex-col gap-5 overflow-y-auto !border-0 rounded-none p-5 sm:!inset-auto sm:!left-1/2 sm:!top-1/2 sm:!grid sm:!h-auto sm:!w-full sm:!max-w-[640px] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:rounded-lg sm:!border sm:p-6"
+        >
+          <UiDialogHeader>
+            <UiDialogTitle>Quick buy</UiDialogTitle>
+          </UiDialogHeader>
+          <p class="text-sm text-slate-500">Paste one or more manufacturer part numbers from your BOM. Remove any rows you do not need.</p>
+          <div class="grid gap-4 py-4" aria-live="polite">
+            <QuickBuyInput
+              v-for="(product, index) in products"
+              :key="index"
+              :index="index"
+              :code="product.code"
+              :quantity="product.quantity"
+              :error="isInvalidRow(product) ? 'Add a part number or remove this row.' : ''"
+              :can-remove="products.length > 1"
+              @update-product="updateProduct"
+              @remove-product="removeProduct"
+            />
           </div>
-        </UiDialogFooter>
-      </UiDialogContent>
-    </UiDialog>
+          <p v-if="formError" class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900" role="alert">
+            {{ formError }}
+          </p>
+          <UiDialogFooter class="mt-auto w-full pb-[max(0.25rem,env(safe-area-inset-bottom))] sm:pb-0">
+            <div class="flex gap-2.5 w-full">
+              <UiButton variant="secondary" @click="addProduct">
+                <PlusIcon class="w-5 h-5" />
+              </UiButton>
+              <UiButton :disabled="isLoading" class="w-full" @click="addToCart">
+                <CartIcon class="w-6 h-6 mr-2" />
+                <span class="text-sm font-medium">{{ isLoading ? 'Adding parts…' : 'Add to cart' }}</span>
+              </UiButton>
+            </div>
+          </UiDialogFooter>
+        </UiDialogContent>
+      </UiDialog>
+    </div>
   </section>
 </template>

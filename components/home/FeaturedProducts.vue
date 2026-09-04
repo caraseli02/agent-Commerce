@@ -15,23 +15,25 @@
       </section>
     </template>
     <template #banner>
-      <div class="md:pt-6 md:pr-0 h-[calc(100%-30px)] mx-2 md:mx-3 xl:mx-0 xl:mr-3 xl:min-w-[330px] xl:min-h-[592px]">
+      <div class="order-1 h-[calc(100%-30px)] mx-2 md:pt-6 md:pr-0 md:mx-3 xl:order-2 xl:mx-0 xl:mr-3 xl:min-w-[330px]">
         <div
-          class="flex h-full gap-4 md:gap-[40px] bg-slate-50 border border-slate-200 rounded-xl p-6 md:m-0 xl:flex-col xl:w-[330px] xl:mb-[30px]"
+          class="flex h-full gap-4 rounded-xl border border-slate-200 bg-slate-50 p-6 md:m-0 md:gap-6 xl:w-[330px] xl:flex-col xl:gap-6 xl:mb-[30px]"
         >
           <ImageWithFallback
             :src="PromoItem"
             alt="Electronic component kit"
-            class-name="h-[100px] w-[120px] md:h-auto md:w-[290px] md:max-h-[240px] xl:w-full object-contain"
+            class-name="h-[100px] w-[120px] object-contain md:h-auto md:w-[290px] md:max-h-[240px] xl:h-[180px] xl:w-full xl:shrink-0"
           />
-          <div class="flex-1 flex gap-4 flex-col justify-center xl:justify-start xl:items-start">
-            <div class="font-semibold text-sm xl:text-xl">Better rates on in-stock lines</div>
-            <p class="text-xs text-slate-600 md:text-[13px] xl:text-base">
-              Qualifying quantities unlock better unit pricing on semiconductors, passives, and connectors — without leaving the catalog.
-            </p>
+          <div class="flex flex-1 flex-col justify-center gap-4 xl:items-start xl:justify-start">
+            <div>
+              <div class="text-sm font-semibold xl:text-xl">Better rates on in-stock lines</div>
+              <p class="mt-3 text-xs text-slate-600 md:text-[13px] xl:text-base">
+                Qualifying quantities unlock better unit pricing on semiconductors, passives, and connectors — without leaving the catalog.
+              </p>
+            </div>
             <NuxtLink
               to="/search"
-              class="flex w-fit bg-primary text-[13px] font-medium px-3 py-1.5 rounded-lg text-primary-foreground md:text-sm md:px-6 md:py-[11px] xl:mt-6"
+              class="flex w-fit rounded-lg bg-primary px-3 py-1.5 text-[13px] font-medium text-primary-foreground md:px-6 md:py-[11px] md:text-sm xl:mt-auto"
             >
               Browse in-stock catalog
             </NuxtLink>

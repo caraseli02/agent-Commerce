@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:pb-3 md:pt-10 xl:pt-[34px]"
+    class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:py-4"
   >
     <NuxtLink
       :to="productRoute"
