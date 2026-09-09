@@ -23,6 +23,9 @@
         "corepack pnpm verify:handoff passed build, bundle, lint, typecheck, coverage, feature-list, and UI checks: 75 files, 349 passed, 2 todo, 87.56s; coverage 46.47% statements, 37.97% branches, 40.11% functions, 47% lines",
         "Handoff architecture validation reports unchanged tracked baseline .agents/skills/impeccable/scripts/generate-image.mjs manual Bearer headers at lines 410 and 416; parent reproduced the finding from the exact base archive and made no unrelated validator change",
         "Built-preview smoke passed /, /cart, and /checkout with HTTP 200; clean-state validation passed with 10 changed source files",
+        "Visual hook passed 7/9 cases; the two homepage failures reproduce on exact base 95bcef63 at mobile 96,449 changed pixels and desktop 623,075 changed pixels, with identical current/base PNG SHA-256 hashes; no snapshots were updated or bypass used",
+        "Handoff architecture validation has the documented unchanged tracked baseline manual Bearer-header exception",
+        "Code and tests are complete; publication is blocked by these baseline visual and architecture exceptions pending a one-time user exception",
         "Handoff target is a reviewable PR from codex/payment-preparation-boundary; it is not merged and the feature stays active pending evaluator review"
       ]
     },

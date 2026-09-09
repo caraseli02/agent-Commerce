@@ -15,7 +15,8 @@
   documentation and tracking slice.
 - Tested: focused PostgreSQL/payment-preparation suite, strengthened race test,
   typecheck, built buyer-path browser E2E, smoke, and the verification gate all
-  pass; handoff has one documented unchanged-baseline architecture exception.
+  pass; visual and handoff gates expose documented unchanged-baseline
+  exceptions.
 - Handoff target: reviewable PR from `codex/payment-preparation-boundary`; not
   merged.
 - Scope: atomically persist checkout claim, authoritative Order snapshot,
@@ -54,22 +55,32 @@ tests/cart-session-persistence.spec.ts tests/checkout-postgres-boundary.spec.ts`
 - `corepack pnpm verify:handoff` passed build, bundle, lint, typecheck,
   coverage, feature-list, and UI checks: 75 files, 349 passed, 2 todo, 87.56s
   (46.47% statements, 37.97% branches, 40.11% functions, 47% lines).
+- Normal `corepack pnpm verify` also passes with 75 files, 349 passed, and 2
+  todo in 87.62s.
 - The handoff architecture validator reports the unchanged tracked baseline
   `.agents/skills/impeccable/scripts/generate-image.mjs` manual Bearer headers
   at lines 410 and 416. Parent reproduced the finding from the exact base
   archive; this task does not alter that unrelated baseline.
 - Built-preview smoke passed `/`, `/cart`, and `/checkout` with HTTP 200, and
   clean-state validation passed with 10 changed source files.
+- The visual hook reported 7/9 cases passing; the two homepage cases fail at
+  the existing mobile 96,449-pixel and desktop 623,075-pixel baselines. Exact-base commit
+  `95bcef63` reproduces the same failures, and SHA-256 hashes of the actual
+  PNGs match between the current source and the base. No snapshots were
+  updated and no hook bypass was used; the UI is unchanged.
 
 ## Verification baseline
 
 - Historical PlaceOrder hardening merged as PR #526 at `e6de8c63`; its evidence
   is baseline context only and does not claim this slice is implemented.
 - Focused test, typecheck, race, and browser E2E evidence are recorded above.
-  Verification is complete with the documented unchanged-baseline architecture
-  exception; evaluator PR review/publication remains pending.
+  Code and tests are complete. Publication is blocked by the documented
+  unchanged-baseline visual and architecture exceptions pending a one-time user
+  exception; evaluator PR review has not started.
 
 ## Next verification
 
-1. Publish the durable handoff target on `codex/payment-preparation-boundary`.
-2. Await evaluator PR review; keep this feature active until it passes.
+1. Resolve the one-time user exception for the unchanged baseline visual and
+   architecture failures.
+2. Publish the durable handoff target on `codex/payment-preparation-boundary`;
+   keep this feature active until evaluator review passes.
