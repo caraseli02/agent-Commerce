@@ -72,7 +72,7 @@ Orders
 → historical commercial transaction + order lifecycle
 
 Payments
-→ payment attempts + payment truth
+→ one logical local Payment per Order/checkout + payment truth
 
 Accounts
 → current customer/account information
@@ -107,7 +107,7 @@ The following are intentionally not separate bounded contexts at this stage:
 | Order payment deadline               | Orders                                                 |
 | Current saved customer data          | Accounts                                               |
 | Historical customer/address snapshot | Orders                                                 |
-| Payment attempt status               | Payments                                               |
+| Logical Payment status               | Payments                                               |
 | External payment-provider result     | Payments interprets provider truth                     |
 | Order transition to `PAID`           | Orders                                                 |
 | Cross-module sequencing              | Checkout/application workflow                          |
@@ -389,7 +389,7 @@ type OrderItem = {
 };
 ```
 
-`paidByPaymentId` means the successful/captured payment that settled the Order. It is intentionally not a generic singular `paymentId`, because one Order may have multiple failed or incomplete Payment attempts.
+`paidByPaymentId` means the successful/captured logical Payment that settled the Order. It remains distinct from the Order's preparation correlation; provider attempts, if introduced later, remain subordinate to that Payment.
 
 ### Owns
 
@@ -433,7 +433,7 @@ rather than arbitrary external assignment of `order.status`.
 
 ### Pending-payment and expiry decision
 
-An Order may remain `PENDING_PAYMENT` after an individual Payment attempt fails and even after the corresponding short-lived inventory reservation expires.
+An Order may remain `PENDING_PAYMENT` after its logical Payment becomes `FAILED` and even after the corresponding short-lived inventory reservation expires.
 
 Important invariant:
 
@@ -466,7 +466,7 @@ A later payment retry must first verify that the Order is still `PENDING_PAYMENT
 
 ## Payments
 
-Payments is an independent authority for payment attempts, but should remain a small module until complexity justifies richer layering.
+Payments owns one logical local Payment for each prepared Order/checkout. Provider-side attempts, charges, and provider-specific lifecycle details remain behind the Payments boundary and are deferred from this preparation slice.
 
 ### Authoritative state
 
@@ -475,27 +475,35 @@ type Payment = {
   id: PaymentId;
   orderId: OrderId;
   amount: Money;
-  provider: PaymentProvider;
+  provider?: PaymentProvider;
   providerReference?: string;
-  status: PaymentStatus;
+  status: 'PENDING' | 'PAID' | 'FAILED';
   idempotencyKey: string;
 };
 ```
 
-Potential semantic statuses:
+The preparation slice deliberately keeps the local status model small:
 
 ```text
-PENDING
-REQUIRES_ACTION
-PROCESSING
-SUCCEEDED
-FAILED
-CANCELLED
-REFUND_PENDING
-REFUNDED
+PENDING → PAID | FAILED
 ```
 
-Exact provider-specific statuses do not need to leak into the domain, but the model must distinguish at least:
+Checkout preparation separately tracks workflow progress on the durable claim:
+
+```text
+prepared → payment_pending → finalized
+                         └→ recovery_required
+```
+
+`payment_pending` preserves the prepared Order, reservation, and Payment IDs
+when continuation crashes before local `PAID`. After local `PAID`, a failed
+inventory, Order, or cart finalization moves the claim to `recovery_required`
+while preserving the same tuple. A replay resumes those identities; it does
+not create replacements. The portfolio mock may mark the local Payment `PAID`
+after the preparation commit, but that is demo continuation and does not
+implement provider reconciliation or production finalization.
+
+Provider-specific statuses do not leak into this local model. Later provider continuation/reconciliation may distinguish:
 
 ```text
 definitive failure
@@ -511,40 +519,42 @@ A network timeout while contacting the provider is not evidence that the payment
 
 ### Owns
 
-- Payment attempts.
+- The durable logical Payment and its Order correlation.
 - Amount sent to payment provider.
 - Provider reference.
 - Local interpretation of provider payment state.
-- Refund lifecycle.
 - Provider-operation idempotency.
+
+Refund lifecycle, captured-amount accounting, unresolved provider outcomes, and concurrency between provider attempts are deferred invariants for the later finalization/reconciliation slice.
 
 ### Invariants
 
-- One provider idempotency key must not create duplicate charges for the same logical provider operation.
-- A succeeded Payment attempt does not become failed because of a later retry attempt.
-- A provider/network timeout must not be interpreted as definitive failure without reconciliation/provider evidence.
-- Refund amount cannot exceed captured amount.
-- Refunded payments must have had captured funds.
-- External provider result is authoritative for card/provider-backed payment success.
-- The amount of a Payment attempt for an existing Order comes from the Order amount due, not a fresh Catalog quote.
-- Unless the business explicitly supports split/tendered payments, successful captured amount for an Order must not exceed the Order amount due.
-- Unless explicitly required otherwise, only one unresolved charge attempt may be active for an Order at a time.
+- One logical Order/checkout preparation creates at most one local Payment.
+- The local Payment ID is durable before any provider continuation and is reused on replay.
+- The Payment amount comes from the immutable Order amount due, not a fresh Catalog quote.
+- `PENDING`, `PAID`, and `FAILED` are the only local statuses in this slice.
 
-One Order can have multiple sequential attempts:
+Future provider/recovery invariants remain accepted but deferred:
+
+- one provider idempotency key must not create duplicate charges;
+- provider/network timeout is unresolved until provider evidence or reconciliation;
+- refund amount cannot exceed captured amount and refunds require captured funds;
+- successful captured amount cannot exceed the Order amount due;
+- conflicting provider attempts must not overcharge an Order.
+
+Provider-side attempts belong under the one logical Payment:
 
 ```text
 Order: PENDING_PAYMENT
-
-Payment #1: FAILED
-Payment #2: FAILED
-Payment #3: SUCCEEDED
+  -> Payment: PENDING
+       -> provider attempts/charges (future)
 ```
 
-This is why Payment attempt state should not be collapsed into Order status.
+Provider retries do not create additional local Payments for the same logical checkout.
 
 ### Provider idempotency is not checkout idempotency
 
-Payment provider idempotency prevents duplicate execution of the same provider operation. It does not, by itself, prevent a retried checkout request from creating a second Order, second Reservation, and a logically different Payment attempt.
+Payment provider idempotency prevents duplicate execution of the same provider operation. It does not, by itself, prevent a retried checkout request from creating a second Order, second Reservation, and a second local Payment.
 
 PlaceOrder idempotency therefore belongs at the application-workflow boundary in addition to provider-level Payment idempotency.
 
@@ -608,7 +618,7 @@ PlaceOrder workflow
   ├── Catalog: revalidate sellability and authoritative current price
   ├── Inventory: plan/reserve fulfillment using checkoutRequestId
   ├── Orders: create immutable PENDING_PAYMENT historical snapshot
-  └── Payments: create/start initial payment attempt
+  └── Payments: prepare one local Payment
 ```
 
 A PlaceOrder command should carry a client-generated or server-issued stable logical request key plus the cart revision being ordered:
@@ -710,7 +720,7 @@ Conceptually:
 Provider webhook / reconciliation
         ↓
 Payments
-PROCESSING/PENDING → SUCCEEDED
+PENDING → PAID
         ↓
 PaymentSucceeded
         ↓
@@ -732,7 +742,7 @@ A durable state change and the integration event representing that state change 
 Bad failure mode:
 
 ```text
-Payment row → SUCCEEDED
+Payment row → PAID
 process crashes
 PaymentSucceeded event never recorded/published
 Order remains PENDING_PAYMENT
@@ -742,7 +752,7 @@ If `PaymentSucceeded`/similar events become asynchronous durable contracts, the 
 
 ```text
 single DB transaction
-  ├── payment status = SUCCEEDED
+  ├── payment status = PAID
   └── durable outbox record = PaymentSucceeded
 COMMIT
 ```
@@ -750,6 +760,13 @@ COMMIT
 The relay/consumer side must be idempotent because external providers and durable event delivery may produce duplicates or retries.
 
 This requirement does not imply introducing Kafka/RabbitMQ. An in-process/DB-backed outbox is sufficient until scale or deployment boundaries justify more infrastructure.
+
+## Deferred provider failure/recovery design
+
+The following behavior is an accepted future contract, not implemented by the
+preparation slice. It preserves the timeout, refund, captured-amount,
+reservation-race, and recovery invariants for the later provider/finalization
+work.
 
 ## Failure/recovery decision: failed payment
 
@@ -766,13 +783,13 @@ Accepted ownership/result:
 
 ### Payment
 
-The failed attempt becomes `FAILED`; it does not remain `PENDING` after the provider has definitively reported failure.
+The local Payment becomes `FAILED` only after a definitive provider result is available. Provider continuation and reconciliation are not implemented by the preparation slice.
 
-If the provider result is not definitive — for example a timeout, required customer action, or asynchronous processing — the attempt remains in an unresolved semantic state and is reconciled instead of immediately treated as failed.
+If the provider result is not definitive — for example a timeout, required customer action, or asynchronous processing — the local Payment remains `PENDING`; reconciliation is deferred.
 
 ### Order
 
-Order remains `PENDING_PAYMENT` while it is before `paymentDeadlineAt`, so another eligible Payment attempt may be made.
+Order remains `PENDING_PAYMENT` while it is before `paymentDeadlineAt`, so the existing logical Payment may be continued according to future provider policy.
 
 When the payment deadline is reached without successful settlement:
 
@@ -808,8 +825,8 @@ Before another charge attempt:
 2. Revalidate any sellability constraints that still matter for fulfillment; do not replace the existing Order price with a fresh Catalog price.
 3. Revalidate Inventory/backorder availability.
 4. Create a new active reservation correlated with the existing checkout/order.
-5. Verify that no successful settlement or conflicting unresolved charge attempt already exists.
-6. Start a new idempotent Payment attempt for the existing Order amount due.
+5. Verify that no successful settlement or conflicting unresolved provider operation already exists.
+6. Continue the existing logical Payment using the existing Order amount due.
 
 Possible lifecycle:
 
@@ -819,12 +836,11 @@ Order ord_123: PENDING_PAYMENT
 Reservation res_1: EXPIRED
 Reservation res_2: ACTIVE
 
-Payment pay_1: FAILED
-Payment pay_2: FAILED
-Payment pay_3: SUCCEEDED
+Payment pay_1: PENDING
+  -> provider attempts/charges (future)
 ```
 
-The amount for `pay_2`/`pay_3` comes from `ord_123.money`, not a new Catalog quote.
+The amount for every provider continuation comes from `ord_123.money`, not a new Catalog quote.
 
 If business policy later says the old quoted Order may no longer be honored, `ord_123` must be explicitly expired/cancelled and a fresh Order created from a fresh accepted quote. The existing Order is not repriced in place.
 
@@ -897,16 +913,16 @@ current Catalog price
 → silently mutate/reprice existing Order
 ```
 
-### 4. Concurrent Payment attempts cannot overcharge an Order
+### 4. Future provider attempts cannot overcharge one logical Payment
 
-Different Payment attempts may legitimately have different provider idempotency keys. Therefore provider-level idempotency alone does not prevent:
+Different provider attempts may later have different provider idempotency keys. Therefore provider-level idempotency alone does not prevent:
 
 ```text
-Tab A retry → Payment A → SUCCEEDED
-Tab B retry → Payment B → SUCCEEDED
+Tab A retry → provider attempt A → PAID
+Tab B retry → provider attempt B → PAID
 ```
 
-Required policy for the current single-payment model:
+Required deferred policy for the current single-payment model:
 
 - before starting a new attempt, verify the Order is still payable;
 - prevent conflicting active charge attempts for the same Order;
@@ -917,7 +933,7 @@ Required policy for the current single-payment model:
 
 Implementation may use database uniqueness/locking/compare-and-set semantics later; step #6 fixes the invariant, not the storage primitive.
 
-### 5. Payment outcome can be unresolved
+### 5. Provider outcome can be unresolved (deferred)
 
 The system distinguishes:
 
@@ -928,7 +944,7 @@ FAILED
 from:
 
 ```text
-REQUIRES_ACTION / PROCESSING / outcome not yet known
+provider requires action / processing / outcome not yet known
 ```
 
 A timeout after sending a request to the provider cannot trigger a fresh independent charge merely because the local HTTP request failed. The existing provider operation is reconciled using its provider reference/idempotency key/webhook state first.
@@ -998,7 +1014,7 @@ Exact merge semantics are deferred to the Cart/public-contract design, but clear
 The ideal logical outcome after successful payment is:
 
 ```text
-Payment: SUCCEEDED
+Payment: PAID
 Order: PAID
 Reservation/allocation: COMMITTED
 ```
@@ -1137,7 +1153,7 @@ Completed:
 - [x] Cross-domain workflows identified.
 - [x] Checkout classified as orchestration rather than a bounded context for now.
 - [x] Cart intent separated from Inventory truth.
-- [x] Order state separated from Payment attempt state.
+- [x] Order state separated from logical Payment state.
 - [x] Reservation lifecycle separated from Order lifecycle.
 - [x] Synchronous calls vs event-driven reactions defined.
 - [x] Payment-failure/retry/reservation-expiry scenario validated.

@@ -359,17 +359,15 @@ SHIPPED         → DELIVERED
 
 Actual cancellation rules depend on fulfillment progress.
 
-Payment should have an independent state machine, for example:
+The first preparation slice uses a small independent local Payment state machine:
 
 ```text
 PENDING
-AUTHORIZED
-SUCCEEDED
+PAID
 FAILED
-REFUNDED
 ```
 
-This allows valid combinations such as:
+Later provider reconciliation may add richer semantic states and refund lifecycle. Those states are intentionally deferred. The current local model still allows combinations such as:
 
 ```text
 Order = CANCELLED
@@ -454,14 +452,14 @@ Preferred checkout intent shape is conceptually closer to:
 
 ```ts
 type CheckoutRequest = {
-  cartId: string
-  shippingAddress: AddressInput
-  billingAddress?: AddressInput
-  deliveryMethodId: string
-  paymentMethodId: string
-  note?: string
-  idempotencyKey: string
-}
+  cartId: string;
+  shippingAddress: AddressInput;
+  billingAddress?: AddressInput;
+  deliveryMethodId: string;
+  paymentMethodId: string;
+  note?: string;
+  idempotencyKey: string;
+};
 ```
 
 The request should not treat these as authoritative client inputs:
@@ -482,16 +480,16 @@ Authenticated customer identity should be derived from the server-side session/t
 
 Current working classification:
 
-| State/data | Ownership |
-| --- | --- |
-| Product search/filter UI state | frontend/navigation owned |
-| Product price | backend authoritative |
-| Cart UI state | frontend owned |
-| Authoritative cart | shared representation, backend authoritative |
-| Inventory availability | backend authoritative |
-| Checkout total | backend authoritative |
-| Order status | backend authoritative |
-| Modal open/closed | frontend owned |
+| State/data                        | Ownership                                        |
+| --------------------------------- | ------------------------------------------------ |
+| Product search/filter UI state    | frontend/navigation owned                        |
+| Product price                     | backend authoritative                            |
+| Cart UI state                     | frontend owned                                   |
+| Authoritative cart                | shared representation, backend authoritative     |
+| Inventory availability            | backend authoritative                            |
+| Checkout total                    | backend authoritative                            |
+| Order status                      | backend authoritative                            |
+| Modal open/closed                 | frontend owned                                   |
 | Logged-in customer representation | shared, backend authoritative for identity/authz |
 
 Useful frontend state categories:
@@ -849,19 +847,20 @@ The client should be able to retrieve authoritative checkout/order state after a
 6. Server calculates authoritative subtotal/total
         ↓
 7. DB transaction:
+   - claim checkout ownership
    - create PENDING_PAYMENT order
-   - atomically create inventory reservations
-   - commit
+   - atomically create inventory reservation
+   - create one local PENDING Payment
+   - persist relational correlations
         ↓
-8. Create durable Payment/PaymentAttempt
-   with provider reference + idempotency key
+8. Commit durable claim/order/reservation/payment IDs
         ↓
-9. Send payment request to provider
+9. Continue at the provider boundary (outside the retryable transaction)
         ↓
 10. Resolve provider result
         ↓
 11. On success, short DB transaction:
-    - Payment → SUCCEEDED
+    - Payment → PAID
     - Order → PAID
     - commit inventory reservation/sale
     - clear purchased cart items
@@ -881,7 +880,7 @@ That gives later operations a stable aggregate identifier:
 orderId = ord_123
 ```
 
-Inventory reservations and payment attempts can reference the same order and become recoverable.
+Inventory reservation and the one logical Payment can reference the same Order and become recoverable.
 
 ## 9.3 Why reserve inventory before payment?
 
@@ -916,10 +915,18 @@ Preferred:
 
 ```text
 short DB transaction
-→ commit durable order + reservation
+→ commit durable claim + order + reservation + local Payment
 → external provider call
 → short finalization transaction
 ```
+
+In mock mode, the existing post-commit local demo completion may continue
+after preparation. It does not represent production provider finalization or
+reconciliation. If the continuation request crashes before local `PAID`, the
+durable claim remains `payment_pending`; replay resumes its persisted
+`orderId`, `reservationId`, and `paymentId`. If local `PAID` is recorded but
+inventory, order, or cart finalization fails, the claim becomes
+`recovery_required` while retaining those same IDs.
 
 ## 9.5 Idempotency
 
@@ -927,7 +934,7 @@ Conceptual identifiers:
 
 ```text
 orderId = ord_123
-paymentAttemptId = pay_456
+paymentId = pay_456
 idempotencyKey = checkout_ord_123
 ```
 
@@ -975,7 +982,7 @@ Example recovery path:
 Provider payment succeeded
 → server crashed before local PAID update
 → provider webhook later arrives
-→ lookup providerPaymentId
+→ lookup providerReference
 → finalizePayment(orderId)
 ```
 
@@ -1006,22 +1013,22 @@ Frontend         → presentation/interaction representation, not business autho
 
 # 10. Current checkout vs production target
 
-| Area | Current implementation | Production-quality target | Gap |
-| --- | --- | --- | --- |
-| Identity | server resolves mock auth/guest user | server-authenticated identity | foundation exists |
-| Cart | server-side mock cart + session persistence | durable authoritative cart | persistence replacement |
-| Cart pricing | server mock cart recalculates against mock products | server authoritative | useful foundation |
-| Checkout total | client values may override fallback calculation | server-only calculation | high |
-| Products in order | request products can be preferred | reload authoritative cart lines | high |
-| Order persistence | runtime in-memory Map | durable relational persistence | high |
-| Initial order state | runtime order immediately created for mock success | durable PENDING_PAYMENT | high |
-| Inventory reservation | not modeled | atomic reservation | high |
-| Payment | simulated success | provider abstraction + Payment record | expected future integration |
-| Idempotency | no complete checkout guarantee identified | mandatory | high |
-| Partial failure recovery | minimal in mock path | explicit recoverable states | high |
-| Cart clearing | clears immediately after mock order creation | clear purchased items after committed success | medium/high |
-| Webhook/reconciliation | unnecessary for deterministic mock | required for real provider | future integration |
-| Frontend outcome model | `CheckoutOutcome` abstraction exists | explicit business result model | good direction |
+| Area                     | Current implementation                                                  | Production-quality target                     | Gap                                  |
+| ------------------------ | ----------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------ |
+| Identity                 | server resolves mock auth/guest user                                    | server-authenticated identity                 | foundation exists                    |
+| Cart                     | server-side mock cart + session persistence                             | durable authoritative cart                    | persistence replacement              |
+| Cart pricing             | server mock cart recalculates against mock products                     | server authoritative                          | useful foundation                    |
+| Checkout total           | client values may override fallback calculation                         | server-only calculation                       | high                                 |
+| Products in order        | request products can be preferred                                       | reload authoritative cart lines               | high                                 |
+| Order persistence        | PostgreSQL-backed checkout Order snapshot                               | durable relational persistence                | foundation exists                    |
+| Initial order state      | durable PENDING_PAYMENT during preparation                              | durable PENDING_PAYMENT                       | foundation exists                    |
+| Inventory reservation    | durable reservation during preparation                                  | atomic reservation                            | finalization policy deferred         |
+| Payment                  | one local PENDING Payment; mock continuation can mark PAID after commit | provider abstraction after commit             | provider continuation/reconciliation |
+| Idempotency              | durable claim, aliases, and cart-revision uniqueness                    | mandatory                                     | focused verification pending         |
+| Partial failure recovery | claim can retain IDs and become recovery_required                       | explicit recoverable states                   | recovery workflow deferred           |
+| Cart clearing            | revision-aware completion after local PAID                              | clear purchased items after committed success | provider finalization deferred       |
+| Webhook/reconciliation   | unnecessary for deterministic mock                                      | required for real provider                    | future integration                   |
+| Frontend outcome model   | `CheckoutOutcome` abstraction exists                                    | explicit business result model                | good direction                       |
 
 The current mock checkout should not be described simply as "bad." It is optimized for a deterministic portfolio walkthrough. The production-readiness gap is that its current deterministic shortcuts do not yet model the invariants required by a real checkout.
 

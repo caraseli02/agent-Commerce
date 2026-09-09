@@ -35,16 +35,9 @@ describe('cart session persistence', () => {
     process.env.NUXT_PUBLIC_MOCK_MODE = 'true';
     const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
     const database = await getCheckoutDatabase();
-    for (const table of [
-      'checkout_claims',
-      'checkout_payments',
-      'checkout_orders',
-      'checkout_reservations',
-      'checkout_inventory',
-      'checkout_carts',
-    ]) {
-      await database.execute(`DELETE FROM ${table}`);
-    }
+    await database.execute(
+      'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
+    );
   });
 
   it('starts a first-time reviewer cart empty', async () => {

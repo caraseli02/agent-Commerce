@@ -15,16 +15,9 @@ describe('durable PlaceOrder persistence', () => {
   beforeEach(async () => {
     const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
     const database = await getCheckoutDatabase();
-    for (const table of [
-      'checkout_claims',
-      'checkout_payments',
-      'checkout_orders',
-      'checkout_reservations',
-      'checkout_inventory',
-      'checkout_carts',
-    ]) {
-      await database.execute(`DELETE FROM ${table}`);
-    }
+    await database.execute(
+      'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
+    );
   });
 
   it('persists demo history in Orders with canonical customer ownership and reconciled money', async () => {
@@ -201,7 +194,7 @@ describe('durable PlaceOrder persistence', () => {
     expect(Number(reservationsCount?.total)).toBe(1);
   });
 
-  it('allows only one checkout when different request IDs race on one cart revision', async () => {
+  it('converges different request IDs with the same input on one cart revision', async () => {
     const [{ getMockCartForUser, addProductsToMockCart }, { getMockUserById }, checkoutModule] = await Promise.all([
       import('../server/utils/mockCart'),
       import('../server/utils/mockUsers'),
@@ -222,8 +215,12 @@ describe('durable PlaceOrder persistence', () => {
       checkoutModule.placeOrder({ ...command, checkoutRequestId: 'checkout-race-b' }),
     ]);
 
-    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
-    expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1);
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(2);
+    expect(results.filter((result) => result.status === 'rejected')).toHaveLength(0);
+    const fulfilled = results.filter(
+      (result): result is Extract<(typeof results)[number], { status: 'fulfilled' }> => result.status === 'fulfilled',
+    );
+    expect(fulfilled[0]?.value.orderId).toBe(fulfilled[1]?.value.orderId);
 
     const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
     const database = await getCheckoutDatabase();

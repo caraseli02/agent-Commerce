@@ -3,10 +3,26 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
+    {
+      "id": "PAYMENT-PREPARATION",
+      "description": "Durable local payment preparation boundary before external provider I/O",
+      "validation": "One atomic preparation persists checkout claim, immutable Order, reservation, one local Payment, and relational correlations; replay and concurrent checkout recover the same IDs; provider continuation is outside the retryable transaction; focused tests and parent verification evidence pass",
+      "status": "active",
+      "evidence": [
+        "Designed in docs/system-design-review.md, docs/system-design/06-domain-boundaries-and-ownership.md, and docs/system-design/07-public-module-contracts-and-dependency-graph.md",
+        "DECISIONS.md records the commit-before-provider boundary and deferred scope",
+        "Parent focused PostgreSQL/payment-preparation command passed on 2026-09-09: 5 files, 31 tests, 70.49s",
+        "corepack pnpm typecheck passed from both Sol and Terra",
+        "Source-revision cart recovery fix is covered by the focused tests",
+        "Built buyer-path E2E passed on 2026-09-09: 4 tests in 58.0s, covering account history, guest checkout entry, mock failure UI, and mock checkout success",
+        "Strengthened original-snapshot race test passed on 2026-09-09: 1 targeted test, 9 skipped, 3.36s",
+        "Full handoff verification and PR creation remain pending; merge is not requested for this task"
+      ]
+    },
     {
       "id": "E457-469",
       "description": "Upgrade reviewer-visible date formatting from date-fns 2 to date-fns 4",
