@@ -181,9 +181,19 @@ describe('durable payment preparation boundary', () => {
     const { checkout, command, dependencies } = await setupCheckout();
     const getSnapshot = vi.fn(dependencies.cart.getSnapshot);
     let serializationFailure = true;
+    let notifyInjected!: () => void;
+    const injected = new Promise<void>((resolve) => {
+      notifyInjected = resolve;
+    });
+    let releaseSerializationFailure!: () => void;
+    const releaseSerialization = new Promise<void>((resolve) => {
+      releaseSerializationFailure = resolve;
+    });
     const preparePayment = vi.fn(async (input: Parameters<typeof dependencies.payments.preparePayment>[0]) => {
       if (serializationFailure) {
         serializationFailure = false;
+        notifyInjected();
+        await releaseSerialization;
         throw Object.assign(new Error('simulated serialization failure'), { code: '40001' });
       }
       return dependencies.payments.preparePayment(input);
@@ -194,10 +204,11 @@ describe('durable payment preparation boundary', () => {
     );
     const concurrent = checkout.createPlaceOrderUseCase(dependencies, checkout.createPlaceOrderCoordinator());
 
-    const [first, second] = await Promise.all([
-      retrying({ ...command, checkoutRequestId: 'payment-retry-alias-a' }),
-      concurrent({ ...command, checkoutRequestId: 'payment-retry-alias-b' }),
-    ]);
+    const retryingResult = retrying({ ...command, checkoutRequestId: 'payment-retry-alias-a' });
+    await injected;
+    const concurrentResult = concurrent({ ...command, checkoutRequestId: 'payment-retry-alias-b' });
+    releaseSerializationFailure();
+    const [first, second] = await Promise.all([retryingResult, concurrentResult]);
 
     expect(first.orderId).toBe(second.orderId);
     expect(serializationFailure).toBe(false);
