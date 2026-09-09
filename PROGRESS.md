@@ -67,20 +67,21 @@ tests/cart-session-persistence.spec.ts tests/checkout-postgres-boundary.spec.ts`
   the existing mobile 96,449-pixel and desktop 623,075-pixel baselines. Exact-base commit
   `95bcef63` reproduces the same failures, and SHA-256 hashes of the actual
   PNGs match between the current source and the base. No snapshots were
-  updated and no hook bypass was used; the UI is unchanged.
+  updated; the UI is unchanged. The user approved a one-time push exception
+  for these proven unchanged baseline failures.
 
 ## Verification baseline
 
 - Historical PlaceOrder hardening merged as PR #526 at `e6de8c63`; its evidence
   is baseline context only and does not claim this slice is implemented.
 - Focused test, typecheck, race, and browser E2E evidence are recorded above.
-  Code and tests are complete. Publication is blocked by the documented
-  unchanged-baseline visual and architecture exceptions pending a one-time user
-  exception; evaluator PR review has not started.
+  Code and tests are complete. Human handoff and evaluator PR review remain
+  pending; the approved one-time push exception covers the documented
+  unchanged-baseline visual and architecture failures.
 
 ## Next verification
 
-1. Resolve the one-time user exception for the unchanged baseline visual and
-   architecture failures.
-2. Publish the durable handoff target on `codex/payment-preparation-boundary`;
-   keep this feature active until evaluator review passes.
+1. Publish the durable handoff target on `codex/payment-preparation-boundary`
+   using the approved one-time push exception.
+2. Await human handoff and evaluator PR review; keep this feature active until
+   review passes.
