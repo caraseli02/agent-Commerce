@@ -75,13 +75,12 @@ tests/cart-session-persistence.spec.ts tests/checkout-postgres-boundary.spec.ts`
 - Historical PlaceOrder hardening merged as PR #526 at `e6de8c63`; its evidence
   is baseline context only and does not claim this slice is implemented.
 - Focused test, typecheck, race, and browser E2E evidence are recorded above.
-  Code and tests are complete. Human handoff and evaluator PR review remain
-  pending; the approved one-time push exception covers the documented
-  unchanged-baseline visual and architecture failures.
+  Code and tests are complete; the final published PR verdict is recorded in
+  the PR body. Human review and merge remain. The approved one-time push
+  exception covers the documented unchanged-baseline visual and architecture
+  failures.
 
 ## Next verification
 
-1. Publish the durable handoff target on `codex/payment-preparation-boundary`
-   using the approved one-time push exception.
-2. Await human handoff and evaluator PR review; keep this feature active until
-   review passes.
+1. Review the published PR for `codex/payment-preparation-boundary`.
+2. Await human review; keep WIP=1 and this feature active until review passes.

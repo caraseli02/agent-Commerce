@@ -26,7 +26,7 @@
         "Visual hook passed 7/9 cases; the two homepage failures reproduce on exact base 95bcef63 at mobile 96,449 changed pixels and desktop 623,075 changed pixels, with identical current/base PNG SHA-256 hashes; no snapshots were updated and the UI is unchanged",
         "Handoff architecture validation has the documented unchanged tracked baseline manual Bearer-header exception",
         "Code and tests are complete; the user approved a one-time push exception for the proven unchanged visual and architecture baseline failures",
-        "Handoff target is a reviewable PR from codex/payment-preparation-boundary; it is not yet created or merged, and the feature stays active pending human handoff and evaluator review"
+        "Handoff target is the reviewable PR from codex/payment-preparation-boundary; it is not merged, and the feature stays active while the PR awaits human review"
       ]
     },
     {
