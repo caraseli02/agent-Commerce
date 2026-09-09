@@ -20,7 +20,10 @@
         "Source-revision cart recovery fix is covered by the focused tests",
         "Built buyer-path E2E passed on 2026-09-09: 4 tests in 58.0s, covering account history, guest checkout entry, mock failure UI, and mock checkout success",
         "Strengthened original-snapshot race test passed on 2026-09-09: 1 targeted test, 9 skipped, 3.36s",
-        "Full handoff verification and PR creation remain pending; merge is not requested for this task"
+        "corepack pnpm verify:handoff passed build, bundle, lint, typecheck, coverage, feature-list, and UI checks: 75 files, 349 passed, 2 todo, 87.56s; coverage 46.47% statements, 37.97% branches, 40.11% functions, 47% lines",
+        "Handoff architecture validation reports unchanged tracked baseline .agents/skills/impeccable/scripts/generate-image.mjs manual Bearer headers at lines 410 and 416; parent reproduced the finding from the exact base archive and made no unrelated validator change",
+        "Built-preview smoke passed /, /cart, and /checkout with HTTP 200; clean-state validation passed with 10 changed source files",
+        "Handoff target is a reviewable PR from codex/payment-preparation-boundary; it is not merged and the feature stays active pending evaluator review"
       ]
     },
     {
