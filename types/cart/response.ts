@@ -32,6 +32,12 @@ export interface CartProductsInterface {
    */
   id: string;
 
+  /** Immutable product identity captured when an order is created. */
+  name?: string;
+
+  /** Immutable product code/SKU captured when an order is created. */
+  code?: string;
+
   /** Number of pieces wanted for a specific product */
   stock: number;
 

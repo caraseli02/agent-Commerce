@@ -26,7 +26,8 @@
         "Visual hook passed 7/9 cases; the two homepage failures reproduce on exact base 95bcef63 at mobile 96,449 changed pixels and desktop 623,075 changed pixels, with identical current/base PNG SHA-256 hashes; no snapshots were updated and the UI is unchanged",
         "Handoff architecture validation has the documented unchanged tracked baseline manual Bearer-header exception",
         "Code and tests are complete; the user approved a one-time push exception for the proven unchanged visual and architecture baseline failures",
-        "Handoff target is the reviewable PR from codex/payment-preparation-boundary; it is not merged, and the feature stays active while the PR awaits human review"
+        "Handoff target is the reviewable PR from codex/payment-preparation-boundary; it is not merged, and the feature stays active while the PR awaits human review",
+        "2026-09-11 PR #529 repair: retain guest cart revision through atomic login merge; add rollback/FAILED replay and durable-order UI assertions. verify and verify:full exit 0 (359 passed, 2 todo), E2E 13 passed, visual 9 passed; final hydration suite 3 passed. Local repair branch codex/pr529-findings, original preview unchanged."
       ]
     },
     {

@@ -7,6 +7,7 @@ import { OrderType } from '~/types';
 import type { OrderInterface, OrderRequestInterface } from '~/types';
 import { useAuthStore } from '~/store/authStore';
 import { toPersistedOrderLineMoneyView } from '~/helpers/checkout-quote';
+import { resolveOrderLineIdentity } from '~/helpers/order-line-identity';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const lgAndLarger = breakpoints.greaterOrEqual('lg'); // sm and larger
@@ -85,7 +86,7 @@ const payment = computed(() => {
                 <span class="text-sm font-medium leading-6 text-gray-500">Item:</span>
                 <div class="flex gap-5 justify-between">
                   <span class="text-sm font-medium leading-6 text-neutral-700 max-w-[150px] md:max-w-[235px] lg:max-w-[328px] truncate">{{
-                    item.productEntity?.name
+                    resolveOrderLineIdentity(item).name || item.id
                   }}</span>
                   <span
                     v-if="item.discount.value"
@@ -95,16 +96,28 @@ const payment = computed(() => {
                   </span>
                 </div>
               </div>
-              <div class="flex flex-row gap-2 text-sm font-medium leading-6 whitespace-nowrap">
-                <span class="text-gray-500">Description:</span>
+              <div v-if="resolveOrderLineIdentity(item).code" class="flex flex-row gap-2 text-sm font-medium leading-6 whitespace-nowrap">
+                <span class="text-gray-500">Code:</span>
                 <span class="text-ellipsis text-neutral-700 w-full max-w-[150px] md:max-w-[235px] lg:max-w-[328px] truncate">
-                  {{ item.productEntity?.description }}
+                  {{ resolveOrderLineIdentity(item).code }}
                 </span>
               </div>
-              <div class="flex flex-row gap-2 text-sm font-medium leading-6 whitespace-nowrap">
+              <div
+                v-if="resolveOrderLineIdentity(item).description"
+                class="flex flex-row gap-2 text-sm font-medium leading-6 whitespace-nowrap"
+              >
+                <span class="text-gray-500">Description:</span>
+                <span class="text-ellipsis text-neutral-700 w-full max-w-[150px] md:max-w-[235px] lg:max-w-[328px] truncate">
+                  {{ resolveOrderLineIdentity(item).description }}
+                </span>
+              </div>
+              <div
+                v-if="resolveOrderLineIdentity(item).manufacturer"
+                class="flex flex-row gap-2 text-sm font-medium leading-6 whitespace-nowrap"
+              >
                 <span class="text-gray-500">Manufacturer:</span>
                 <span class="truncate text-neutral-700 max-w-[150px] md:max-w-[235px] lg:max-w-[328px]">{{
-                  item.productEntity?.manufacturer
+                  resolveOrderLineIdentity(item).manufacturer
                 }}</span>
               </div>
             </div>
@@ -129,8 +142,7 @@ const payment = computed(() => {
               <p>{{ item.stock }}</p>
             </div>
             <div class="flex justify-center items-center text-sm min-w-[86px]">
-              <span class="flex shrink-0 self-stretch my-auto w-3 h-3 rounded-full bg-emerald-500 mr-1" aria-hidden="true" />
-              <p>16</p>
+              <p class="text-slate-500">Not available</p>
             </div>
             <div class="flex justify-center items-center text-sm min-w-[86px]">
               <span class="flex shrink-0 self-stretch my-auto w-3 h-3 rounded-full bg-emerald-500 mr-1" aria-hidden="true" />
@@ -171,14 +183,10 @@ const payment = computed(() => {
                 <p>{{ item.stock }}</p>
               </article>
               <article
-                v-if="orderType === OrderType.Back"
                 class="flex gap-5 justify-between mt-1 w-full leading-6 whitespace-nowrap text-neutral-800 max-md:flex-wrap max-md:max-w-full"
               >
                 <p>Delivered</p>
-                <p class="flex gap-1">
-                  <span class="flex shrink-0 self-stretch my-auto w-3 h-3 rounded-full bg-emerald-500 mr-1" aria-hidden="true" />
-                  {{ item.backorder_stock }}
-                </p>
+                <p class="text-slate-500">Not available</p>
               </article>
               <article
                 v-if="orderType === OrderType.Back"

@@ -9,6 +9,7 @@
       v-for="item in stockItems"
       :key="`stock-${item.id}`"
       :item="item"
+      :quote-line="quote?.lines.find((line) => line.productId === item.id)"
       :stock-item="true"
       @update-quantity="updateSubtotal"
     />
@@ -20,6 +21,7 @@
       v-for="item in backOrderItems"
       :key="`back-${item.id}`"
       :item="item"
+      :quote-line="quote?.lines.find((line) => line.productId === item.id)"
       :stock-item="false"
       @update-quantity="updateSubtotal"
     />
@@ -28,11 +30,13 @@
 
 <script setup lang="ts">
 import type { CartProductsInterface } from '~/types/cart';
+import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
 import { useCartStore } from '~/store/cartStore';
 import { useClientReady } from '~/composables/useClientReady';
 
 defineProps<{
   loading: boolean;
+  quote?: ShippingOrderPricingResponse['quote'];
 }>();
 
 const emits = defineEmits(['checkAll', 'updateSubtotal', 'deleteSelected']);

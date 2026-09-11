@@ -15,21 +15,21 @@
             <span class="text-neutral-700 text-center text-sm font-normal leading-6 xl:gap-4 px-0 xl:px-4 whitespace-nowrap"
               >Unit Price</span
             >
-            <div v-if="stockItem && item.discount.value" class="flex lg:hidden">
+            <div v-if="stockItem && lineMoney.discountPercent" class="flex lg:hidden">
               <div class="px-2 border-[1px] rounded-[25px] border-rose-500 bg-white ml-4 flex items-center lg:hidden">
-                <span class="text-xs font-semibold leading-5 text-rose-500">{{ item.discount.value }} %</span>
+                <span class="text-xs font-semibold leading-5 text-rose-500">{{ lineMoney.discountPercent }} %</span>
               </div>
             </div>
-            <div v-if="item.discount?.value" class="flex flex-col text-center h-[36px] justify-center">
+            <div v-if="lineMoney.discountPercent" class="flex flex-col text-center h-[36px] justify-center">
               <span v-if="hasDiscount" class="line-through text-neutral-700 text-sm font-normal leading-5"
-                >{{ item.initialUnitPrice.toFixed(2) }} Lei</span
+                >{{ lineMoney.listUnitPrice.toFixed(2) }} Lei</span
               >
               <span class="text-sm font-normal leading-5" :class="hasDiscount ? 'text-rose-500' : ''"
-                >{{ item.unitPriceAfterDiscounts.toFixed(2) }} Lei</span
+                >{{ lineMoney.unitPrice.toFixed(2) }} Lei</span
               >
             </div>
             <div v-else class="flex flex-col text-center h-[36px] justify-center">
-              <span class="text-neutral-700 text-sm font-normal leading-5">{{ item.unitPriceAfterDiscounts.toFixed(2) }} Lei</span>
+              <span class="text-neutral-700 text-sm font-normal leading-5">{{ lineMoney.unitPrice.toFixed(2) }} Lei</span>
             </div>
           </div>
           <div class="flex flex-row justify-between items-center xl:flex-col xl:gap-4">
@@ -88,8 +88,7 @@ import ProductDetails from './ProductDetails.vue';
 import AdditionalDetails from './AdditionalDetails.vue';
 import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import { DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
-import { toPersistedOrderLineMoneyView } from '~/helpers/checkout-quote';
+import { resolveOrderSummaryLineMoney, type OrderSummaryQuoteLine } from '~/helpers/order-summary-line-money';
 import { ProductAction, type CartProductsInterface } from '~/types/cart';
 
 import { OrderType } from '~/types';
@@ -98,6 +97,7 @@ const emits = defineEmits(['updateQuantity']);
 
 const props = defineProps<{
   item: CartProductsInterface;
+  quoteLine?: OrderSummaryQuoteLine;
   shortStock: boolean;
   stockItem: boolean;
 }>();
@@ -115,17 +115,16 @@ watch(
   { immediate: true },
 );
 
-const hasDiscount = computed(() => Number(props.item.discount?.value || 0) > 0);
-const lineMoney = computed(() => toPersistedOrderLineMoneyView(props.item));
+const lineMoney = computed(() => resolveOrderSummaryLineMoney(props.item, props.quoteLine, props.stockItem ? 'stock' : 'backorder'));
+const hasDiscount = computed(() => lineMoney.value.discountPercent > 0);
 
-const vatPercent = Math.round(DEFAULT_ORDER_VAT_RATE * 100);
+const vatPercent = 19;
 
 const taxPrice = computed(() => {
   return lineMoney.value.vatTotal;
 });
 
 const subtotal = computed(() => {
-  if (!quantity.value) return 0;
   return lineMoney.value.subtotal;
 });
 

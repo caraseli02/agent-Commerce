@@ -16,6 +16,7 @@
         :key="stockItem ? `${item.id} - ${item.stock}` : `${item.id} - ${item.backorder_stock}`"
         ref="tab"
         :item="item"
+        :quote-line="quoteLine"
         :short-stock="shortStock as boolean"
         :stock-item="stockItem"
         class="item"
@@ -29,9 +30,11 @@
 <script setup lang="ts">
 import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import type { CartProductsInterface } from '~/types/cart';
+import type { OrderSummaryQuoteLine } from '~/helpers/order-summary-line-money';
 
 const props = defineProps<{
   item: CartProductsInterface;
+  quoteLine?: OrderSummaryQuoteLine;
   stockItem: boolean;
 }>();
 

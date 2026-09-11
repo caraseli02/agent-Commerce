@@ -2,6 +2,21 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## PR #529 findings repair — 2026-09-11
+
+- Retain and clear the guest cart during login merge instead of deleting it.
+  Its revision sequence is part of durable checkout identity. Transfer and clear
+  share a serializable transaction so repeated merges cannot duplicate items.
+- Render checkout line amounts from the same quote as the summary. Allocate split
+  stock/backorder totals complementarily to preserve cents; keep cart mutation
+  state separate from display values.
+- Historical order identity comes from the immutable snapshot. Missing fulfillment
+  data is displayed as unavailable; it must not be inferred from ordered quantity.
+- Hydration starts from server-visible state: header cart text waits for mount,
+  footer auth links use the session cookie, and company details wait for order load.
+- Exclude bundled `.agents` tooling from application architecture scanning, and
+  accept only the reviewed homepage redesign snapshots inherited from PR #528.
+
 ## Format
 
 - Date

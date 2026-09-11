@@ -261,6 +261,35 @@ describe('durable payment preparation boundary', () => {
     expect(new Set(claims.map((claim) => claim.payment_id)).size).toBe(2);
   });
 
+  it('keeps a guest cart incarnation after login merge so a recreated purchase cannot alias its completed order', async () => {
+    const ownerId = 'guest-user-session-payment-recreation';
+    const { checkout, command, dependencies } = await setupCheckout(ownerId);
+    const placeOrder = checkout.createPlaceOrderUseCase(dependencies, checkout.createPlaceOrderCoordinator());
+    const firstCommand = { ...command, checkoutRequestId: 'payment-guest-recreation-first' };
+    const first = await placeOrder(firstCommand);
+    const { addProductsToMockCart, findMockCartById, mergeGuestCartIntoMockCart } = await import('../server/utils/mockCart');
+
+    await mergeGuestCartIntoMockCart('mock-customer-1', 'payment-recreation');
+    const retainedGuestCart = await findMockCartById(command.cartId);
+    expect(retainedGuestCart?.products).toEqual([]);
+    await addProductsToMockCart(retainedGuestCart!, [{ id: 'prod-2', stock: 1, isFolder: false }]);
+
+    const second = await placeOrder({ ...command, checkoutRequestId: 'payment-guest-recreation-second' });
+    const replay = await placeOrder(firstCommand);
+
+    expect(second.orderId).not.toBe(first.orderId);
+    expect(replay.orderId).toBe(first.orderId);
+    const database = await getCheckoutDatabase();
+    const claims = await database.query<{ cart_revision: number; order_id: string; payment_id: string }>(
+      'SELECT cart_revision, order_id, payment_id FROM checkout_claims WHERE owner_id = $1 ORDER BY cart_revision',
+      [ownerId],
+    );
+    expect(claims).toHaveLength(2);
+    expect(claims[1]!.cart_revision).toBeGreaterThan(claims[0]!.cart_revision);
+    expect(new Set(claims.map((claim) => claim.order_id)).size).toBe(2);
+    expect(new Set(claims.map((claim) => claim.payment_id)).size).toBe(2);
+  });
+
   it('retries local preparation after serialization without retrying payment continuation', async () => {
     const { checkout, command, dependencies } = await setupCheckout();
     let serializationFailure = true;
@@ -281,6 +310,79 @@ describe('durable payment preparation boundary', () => {
     await expect(placeOrder(command)).resolves.toMatchObject({ orderId: expect.any(String) });
     expect(preparePayment).toHaveBeenCalledTimes(2);
     expect(continuePayment).toHaveBeenCalledTimes(1);
+  });
+
+  it('rolls back every preparation row after a permanent failure following Payment creation', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const failure = new Error('permanent preparation failure');
+    const preparePayment = vi.fn(async (input: Parameters<typeof dependencies.payments.preparePayment>[0]) => {
+      await dependencies.payments.preparePayment(input);
+      throw failure;
+    });
+    const continuePayment = vi.fn(dependencies.payments.continuePayment);
+    const placeOrder = checkout.createPlaceOrderUseCase(
+      { ...dependencies, payments: { ...dependencies.payments, preparePayment, continuePayment } },
+      checkout.createPlaceOrderCoordinator(),
+    );
+
+    await expect(placeOrder(command)).rejects.toBe(failure);
+    const database = await getCheckoutDatabase();
+    const [counts] = await database.query<{
+      aliases: string;
+      claims: string;
+      orders: string;
+      reservations: string;
+      payments: string;
+    }>(`SELECT
+          (SELECT COUNT(*) FROM checkout_claim_aliases) AS aliases,
+          (SELECT COUNT(*) FROM checkout_claims) AS claims,
+          (SELECT COUNT(*) FROM checkout_orders) AS orders,
+          (SELECT COUNT(*) FROM checkout_reservations) AS reservations,
+          (SELECT COUNT(*) FROM checkout_payments) AS payments`);
+    expect(counts).toEqual({ aliases: '0', claims: '0', orders: '0', reservations: '0', payments: '0' });
+    expect(preparePayment).toHaveBeenCalledTimes(1);
+    expect(continuePayment).not.toHaveBeenCalled();
+  });
+
+  it('persists a failed continuation and rejects replay without re-quoting or continuing again', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const quoteCheckout = vi.fn(dependencies.catalog.quoteCheckout);
+    const continuePayment = vi.fn(async () => ({ kind: 'failed' as const, providerReference: 'provider-failure' }));
+    const placeOrder = checkout.createPlaceOrderUseCase(
+      { ...dependencies, catalog: { quoteCheckout }, payments: { ...dependencies.payments, continuePayment } },
+      checkout.createPlaceOrderCoordinator(),
+    );
+
+    await expect(placeOrder(command)).rejects.toMatchObject({ code: 'payment_failed', statusCode: 409 });
+    const database = await getCheckoutDatabase();
+    const [failed] = await database.query<{
+      order_id: string;
+      payment_id: string;
+      status: string;
+      workflow_status: string;
+      provider_reference: string | null;
+    }>(
+      `SELECT claim.order_id, claim.payment_id, payment.status, claim.workflow_status, payment.provider_reference
+         FROM checkout_claims claim JOIN checkout_payments payment ON payment.id = claim.payment_id
+        WHERE claim.owner_id = $1 AND claim.request_id = $2`,
+      [command.cartOwnerId, command.checkoutRequestId],
+    );
+    expect(failed).toMatchObject({ status: 'FAILED', workflow_status: 'payment_pending', provider_reference: 'provider-failure' });
+
+    await expect(placeOrder(command)).rejects.toMatchObject({ code: 'payment_failed', statusCode: 409 });
+    const [counts] = await database.query<{ orders: string; payments: string }>(
+      'SELECT (SELECT COUNT(*) FROM checkout_orders) AS orders, (SELECT COUNT(*) FROM checkout_payments) AS payments',
+    );
+    const [replayed] = await database.query<{ order_id: string; payment_id: string }>(
+      'SELECT order_id, payment_id FROM checkout_claims WHERE owner_id = $1 AND request_id = $2',
+      [command.cartOwnerId, command.checkoutRequestId],
+    );
+    expect(counts).toEqual({ orders: '1', payments: '1' });
+    expect(replayed).toEqual({ order_id: failed?.order_id, payment_id: failed?.payment_id });
+    expect(quoteCheckout).toHaveBeenCalledTimes(1);
+    expect(continuePayment).toHaveBeenCalledTimes(1);
+    expect(failed?.order_id).toBeTruthy();
+    expect(failed?.payment_id).toBeTruthy();
   });
 
   it('rejects an ambient checkout transaction before it writes or continues a payment', async () => {

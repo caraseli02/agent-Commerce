@@ -16,6 +16,16 @@ function collectHydrationMessages(page: import('@playwright/test').Page) {
 }
 
 test.describe('Public reviewer route hydration', () => {
+  test('expired session with a persisted profile keeps signed-out footer links and clean hydration', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('auth-store', JSON.stringify({ userDetails: { _id: 'mock-customer-1', role: 'customer' } }));
+    });
+    const hydrationMessages = collectHydrationMessages(page);
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await expect(page.locator('footer').getByRole('link', { name: 'Sign in to demo' })).toBeVisible();
+    expect(hydrationMessages).toEqual([]);
+  });
+
   test('route sweep has no hydration mismatch warnings', async ({ page }) => {
     for (const route of PUBLIC_REVIEWER_ROUTES) {
       const hydrationMessages = collectHydrationMessages(page);

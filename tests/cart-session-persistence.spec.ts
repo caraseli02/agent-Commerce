@@ -119,4 +119,20 @@ describe('cart session persistence', () => {
     expect(resolved?._id).toBe(cart.data._id);
     expect(resolved?.products).toEqual([]);
   });
+
+  it('serializes repeated guest merges without duplicating transferred products', async () => {
+    const { addProductsToMockCart, getMockCartForUser, mergeGuestCartIntoMockCart } = await import('../server/utils/mockCart');
+    const guestCart = await getMockCartForUser('guest-user-session-concurrent-merge');
+    await addProductsToMockCart(guestCart, [{ id: 'prod-2', stock: 1, isFolder: false }]);
+
+    await Promise.all([
+      mergeGuestCartIntoMockCart('mock-customer-1', 'concurrent-merge'),
+      mergeGuestCartIntoMockCart('mock-customer-1', 'concurrent-merge'),
+    ]);
+
+    const retainedGuestCart = await getMockCartForUser('guest-user-session-concurrent-merge');
+    const customerCart = await getMockCartForUser('mock-customer-1');
+    expect(retainedGuestCart.products).toEqual([]);
+    expect(customerCart.products).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'prod-2', stock: 1 })]));
+  });
 });

@@ -266,35 +266,38 @@ export const addProductsToMockCart = async (cart: CartInterface, products: Parti
   return cart;
 };
 
-export const mergeGuestCartIntoMockCart = async (userId?: string | null, guestSessionId?: string | null) => {
-  const normalizedUserId = String(userId || '').trim();
-  const guestUserId = buildGuestCartUserId(guestSessionId);
+export const mergeGuestCartIntoMockCart = async (userId?: string | null, guestSessionId?: string | null) =>
+  withCheckoutTransaction(async () => {
+    const normalizedUserId = String(userId || '').trim();
+    const guestUserId = buildGuestCartUserId(guestSessionId);
 
-  if (!normalizedUserId) {
-    return null;
-  }
+    if (!normalizedUserId) {
+      return null;
+    }
 
-  if (!guestUserId) {
-    return await getMockCartForUser(normalizedUserId);
-  }
+    if (!guestUserId) {
+      return await getMockCartForUser(normalizedUserId);
+    }
 
-  const guestCart = await findMockCartById(`mock-cart-${guestUserId}`);
-  if (!guestCart) {
-    return await getMockCartForUser(normalizedUserId);
-  }
+    const guestCart = await findMockCartById(`mock-cart-${guestUserId}`);
+    if (!guestCart) {
+      return await getMockCartForUser(normalizedUserId);
+    }
 
-  const guestProducts = (guestCart.products || []).filter((product) => product.id);
-  const userCart = await getMockCartForUser(normalizedUserId);
+    const guestProducts = (guestCart.products || []).filter((product) => product.id);
+    const userCart = await getMockCartForUser(normalizedUserId);
 
-  if (guestProducts.length) {
-    await addProductsToMockCart(userCart, guestProducts);
-  }
+    if (guestProducts.length) {
+      await addProductsToMockCart(userCart, guestProducts);
+    }
 
-  const database = await getCheckoutDatabase();
-  await database.execute('DELETE FROM checkout_carts WHERE owner_id = $1', [guestUserId]);
+    // Keep the revision sequence: checkout claims still reference this guest cart
+    // after login, so recreating revision 1 could alias a later purchase to them.
+    guestCart.products = [];
+    await persistCart(guestCart);
 
-  return userCart;
-};
+    return userCart;
+  });
 
 export const setProductsInMockCart = async (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
   const list = Array.isArray(cart.products) ? cart.products : [];
