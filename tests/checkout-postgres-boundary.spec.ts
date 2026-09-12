@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Pool } from 'pg';
@@ -6,6 +6,19 @@ import { describe, expect, it } from 'vitest';
 import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
+const legacyMigration = () => source('server/infrastructure/migrations/001_checkout.sql');
+
+const installLegacySchema = async (pool: Pool) => {
+  const sql = legacyMigration();
+  await pool.query(sql);
+  await pool.query(
+    'CREATE TABLE checkout_schema_migrations (filename TEXT PRIMARY KEY, checksum TEXT NOT NULL, applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW())',
+  );
+  await pool.query('INSERT INTO checkout_schema_migrations (filename, checksum) VALUES ($1, $2)', [
+    '001_checkout.sql',
+    createHash('sha256').update(sql).digest('hex'),
+  ]);
+};
 
 describe('checkout PostgreSQL persistence boundary', () => {
   it('keeps the runtime adapter PostgreSQL-only and leaves schema creation to migrations', () => {
@@ -23,6 +36,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
 
   it('defines the accepted PlaceOrder uniqueness guarantees in an explicit migration', () => {
     const migration = source('server/infrastructure/migrations/001_checkout.sql');
+    const paymentPreparationMigration = source('server/infrastructure/migrations/002_payment_preparation.sql');
     const migrationRunner = source('scripts/db-migrate.mjs');
 
     expect(migration).toContain('CREATE TABLE checkout_claims');
@@ -32,6 +46,14 @@ describe('checkout PostgreSQL persistence boundary', () => {
     expect(migration).toContain('UNIQUE (customer_id, source_cart_id, source_cart_revision)');
     expect(migration).toContain('reservation_key TEXT NOT NULL UNIQUE');
     expect(migration).toContain('order_id TEXT NOT NULL UNIQUE');
+    expect(paymentPreparationMigration).toContain('CREATE TABLE checkout_claim_aliases');
+    expect(paymentPreparationMigration).toContain("CHECK (status IN ('PENDING', 'PAID', 'FAILED'))");
+    expect(paymentPreparationMigration).toContain('CHECK (amount_minor >= 0)');
+    expect(paymentPreparationMigration).toContain('FOREIGN KEY (order_id) REFERENCES checkout_orders(id)');
+    expect(paymentPreparationMigration).toContain('FOREIGN KEY (paid_by_payment_id, id) REFERENCES checkout_payments(id, order_id)');
+    expect(paymentPreparationMigration).toContain(
+      "CHECK (workflow_status IN ('prepared', 'payment_pending', 'finalized', 'recovery_required'))",
+    );
     expect(migrationRunner).toContain('pg_advisory_xact_lock');
     expect(migrationRunner).toContain('sqlForKnownRuntimeSchema');
   });
@@ -48,7 +70,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
           AND columns.constraint_name = constraints.constraint_name
         WHERE constraints.table_schema = current_schema()
           AND constraints.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
-          AND constraints.table_name IN ('checkout_claims', 'checkout_orders', 'checkout_reservations', 'checkout_payments')
+          AND constraints.table_name IN ('checkout_claims', 'checkout_claim_aliases', 'checkout_orders', 'checkout_reservations', 'checkout_payments')
         GROUP BY constraints.table_name, constraints.constraint_type, constraints.constraint_name`,
     );
 
@@ -60,6 +82,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         'checkout_orders:UNIQUE:customer_id,source_cart_id,source_cart_revision',
         'checkout_reservations:UNIQUE:reservation_key',
         'checkout_payments:UNIQUE:order_id',
+        'checkout_claim_aliases:PRIMARY KEY:owner_id,request_id',
       ]),
     );
   });
@@ -89,7 +112,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(1);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(2);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -104,6 +127,100 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrationPool.end();
       await adminPool.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
       await adminPool.end();
+    }
+  });
+
+  it('upgrades a populated legacy checkout without changing its completed tuple and quarantines incomplete results', async () => {
+    const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+    expect(connectionString).toBeTruthy();
+    const schema = `ecas_payment_upgrade_${randomUUID().replaceAll('-', '')}`;
+    const schemaIdentifier = `"${schema}"`;
+    const url = new URL(connectionString!);
+    url.searchParams.set('options', `-c search_path=${schema}`);
+    const admin = new Pool({ connectionString, max: 1 });
+    const pool = new Pool({ connectionString: url.toString(), max: 1 });
+    try {
+      await admin.query(`CREATE SCHEMA ${schemaIdentifier}`);
+      await installLegacySchema(pool);
+      const timestamp = '2026-09-01T00:00:00.000Z';
+      const orderPayload = JSON.stringify({ order: { money: { total: 12.34, currency: 'RON' } } });
+      await pool.query(
+        `INSERT INTO checkout_orders (id, customer_id, checkout_request_id, source_cart_id, source_cart_revision, fingerprint, payload_json, paid_by_payment_id, created_at, updated_at)
+         VALUES ('ord-legacy', 'owner-legacy', 'request-legacy', 'cart-legacy', 4, 'fp', $1, 'pay-legacy', $2, $2)`,
+        [orderPayload, timestamp],
+      );
+      await pool.query(
+        "INSERT INTO checkout_reservations (id, reservation_key, fingerprint, items_json, expires_at, status) VALUES ('res-legacy', 'owner-legacy:request-legacy', 'fp', '[]', $1, 'committed')",
+        [timestamp],
+      );
+      await pool.query(
+        "INSERT INTO checkout_payments (id, order_id, payload_json, created_at) VALUES ('pay-legacy', 'ord-legacy', '{\"paymentId\":\"pay-legacy\"}', $1)",
+        [timestamp],
+      );
+      await pool.query(
+        "INSERT INTO checkout_claims (owner_id, request_id, fingerprint, cart_id, cart_revision, result_json, created_at, updated_at) VALUES ('owner-legacy', 'request-legacy', 'fp', 'cart-legacy', 4, '{\"orderId\":\"ord-legacy\"}', $1, $1), ('owner-incomplete', 'request-incomplete', 'fp2', 'cart-incomplete', 1, '{\"orderId\":\"ghost\"}', $1, $1)",
+        [timestamp],
+      );
+      const { migrate } = await import('../scripts/db-migrate.mjs');
+      await migrate(url.toString());
+      const result = await pool.query<{
+        order_id: string;
+        reservation_id: string;
+        payment_id: string;
+        workflow_status: string;
+        status: string;
+        amount_minor: number;
+        paid_by_payment_id: string;
+      }>(
+        `SELECT claim.order_id, claim.reservation_id, claim.payment_id, claim.workflow_status, payment.status, payment.amount_minor, orders.paid_by_payment_id
+           FROM checkout_claims claim JOIN checkout_payments payment ON payment.id = claim.payment_id JOIN checkout_orders orders ON orders.id = claim.order_id
+          WHERE claim.owner_id = 'owner-legacy'`,
+      );
+      expect(result.rows[0]).toMatchObject({
+        order_id: 'ord-legacy',
+        reservation_id: 'res-legacy',
+        payment_id: 'pay-legacy',
+        workflow_status: 'finalized',
+        status: 'PAID',
+        amount_minor: 1234,
+        paid_by_payment_id: 'pay-legacy',
+      });
+      const incomplete = await pool.query<{ workflow_status: string; order_id: string | null; payment_id: string | null }>(
+        "SELECT workflow_status, order_id, payment_id FROM checkout_claims WHERE owner_id = 'owner-incomplete'",
+      );
+      expect(incomplete.rows[0]).toEqual({ workflow_status: 'recovery_required', order_id: null, payment_id: null });
+    } finally {
+      await pool.end();
+      await admin.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
+      await admin.end();
+    }
+  });
+
+  it('fails closed when legacy order money is missing or negative', async () => {
+    const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+    expect(connectionString).toBeTruthy();
+    const schema = `ecas_payment_invalid_${randomUUID().replaceAll('-', '')}`;
+    const schemaIdentifier = `"${schema}"`;
+    const url = new URL(connectionString!);
+    url.searchParams.set('options', `-c search_path=${schema}`);
+    const admin = new Pool({ connectionString, max: 1 });
+    const pool = new Pool({ connectionString: url.toString(), max: 1 });
+    try {
+      await admin.query(`CREATE SCHEMA ${schemaIdentifier}`);
+      await installLegacySchema(pool);
+      await pool.query(
+        "INSERT INTO checkout_orders (id, customer_id, checkout_request_id, source_cart_id, source_cart_revision, fingerprint, payload_json, paid_by_payment_id, created_at, updated_at) VALUES ('ord-invalid', 'owner-invalid', 'request-invalid', 'cart-invalid', 1, 'fp', '{\"order\":{\"money\":{\"total\":-1,\"currency\":\"RON\"}}}', NULL, '2026-09-01T00:00:00.000Z', '2026-09-01T00:00:00.000Z')",
+      );
+      const { migrate } = await import('../scripts/db-migrate.mjs');
+      await expect(migrate(url.toString())).rejects.toThrow(
+        'checkout order money backfill requires a complete non-negative amount and currency',
+      );
+      const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
+      expect(Number(migrations.rows[0]?.total)).toBe(1);
+    } finally {
+      await pool.end();
+      await admin.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
+      await admin.end();
     }
   });
 });

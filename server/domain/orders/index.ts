@@ -60,6 +60,8 @@ type OrderRow = {
   paid_by_payment_id: string | null;
   created_at: string;
   updated_at: string;
+  grand_total_minor: number;
+  currency: 'RON';
 };
 
 const fingerprintOrder = (input: CreatePendingOrderInput) =>
@@ -100,8 +102,8 @@ const ensureDemoOrdersPersisted = async () => {
     await database.execute(
       `INSERT INTO checkout_orders (
          id, customer_id, checkout_request_id, source_cart_id, source_cart_revision,
-         fingerprint, payload_json, paid_by_payment_id, created_at, updated_at
-       ) VALUES ($1, $2, $3, $4, 0, $5, $6, NULL, $7, $8)
+         fingerprint, payload_json, paid_by_payment_id, created_at, updated_at, grand_total_minor, currency
+       ) VALUES ($1, $2, $3, $4, 0, $5, $6, NULL, $7, $8, $9, $10)
        ON CONFLICT (id) DO NOTHING`,
       [
         order._id,
@@ -112,6 +114,8 @@ const ensureDemoOrdersPersisted = async () => {
         JSON.stringify({ order: persistedDemoOrder, children: [] } satisfies PersistedOrderResponse),
         order.createdAt,
         order.updatedAt,
+        Math.round(Number(order.money?.total ?? order.total ?? 0) * 100),
+        String(order.money?.currency ?? 'RON').toUpperCase(),
       ],
     );
   }
@@ -186,8 +190,9 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
   await database.execute(
     `INSERT INTO checkout_orders (
        id, customer_id, checkout_request_id, source_cart_id, source_cart_revision,
-       fingerprint, payload_json, paid_by_payment_id, created_at, updated_at
-     ) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8, $9)`,
+       fingerprint, payload_json, paid_by_payment_id, created_at, updated_at,
+       grand_total_minor, currency
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8, $9, $10, $11)`,
     [
       created.orderId,
       customerId,
@@ -198,6 +203,8 @@ const createPending = async (input: CreatePendingOrderInput): Promise<CreatePend
       JSON.stringify(payload),
       timestamp,
       timestamp,
+      input.money.grandTotalMinor,
+      input.money.currency,
     ],
   );
 
@@ -221,6 +228,22 @@ const confirmPayment = async (input: { orderId: string; paymentId: string }): Pr
     [JSON.stringify(payload), input.paymentId, payload.order.updatedAt, input.orderId],
   );
   return { kind: 'confirmed' };
+};
+
+export type OrderPaymentPreparation = Readonly<{
+  orderId: string;
+  grandTotalMinor: number;
+  currency: 'RON';
+  paidByPaymentId: string | null;
+}>;
+
+const getPaymentPreparation = async (orderId: string): Promise<OrderPaymentPreparation | null> => {
+  const database = await getCheckoutDatabase();
+  const rows = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE id = $1', [orderId]);
+  const row = rows[0];
+  return row
+    ? { orderId: row.id, grandTotalMinor: Number(row.grand_total_minor), currency: row.currency, paidByPaymentId: row.paid_by_payment_id }
+    : null;
 };
 
 const findById = async (id?: string | null, customerId?: string) => {
@@ -260,4 +283,4 @@ const list = async (customerId?: string) => {
   return rows.map((row) => parseOrder(row).order);
 };
 
-export const orders = { createPending, confirmPayment, findById, list };
+export const orders = { createPending, confirmPayment, getPaymentPreparation, findById, list };

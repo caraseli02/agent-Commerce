@@ -158,7 +158,7 @@ export function useOrderConfirmation(orderId: MaybeRefOrGetter<string | undefine
   });
 
   const paymentMethodRecord = computed(() => paymentMethod.value as unknown as Record<string, unknown> | undefined);
-  const showCompanyDetails = computed(() => authStore.getUserDetails?.role === 2);
+  const showCompanyDetails = computed(() => Boolean(orderResponse.value.data?.order) && authStore.getUserDetails?.role === 2);
 
   const resolvedOrderTypeValue = computed(() => orderTypeValue.value ?? OrderType.Stock);
 

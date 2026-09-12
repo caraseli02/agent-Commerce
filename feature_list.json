@@ -3,10 +3,33 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
+    {
+      "id": "PAYMENT-PREPARATION",
+      "description": "Durable local payment preparation boundary before external provider I/O",
+      "validation": "One atomic preparation persists checkout claim, immutable Order, reservation, one local Payment, and relational correlations; replay and concurrent checkout recover the same IDs; provider continuation is outside the retryable transaction; focused tests and parent verification evidence pass",
+      "status": "active",
+      "evidence": [
+        "Designed in docs/system-design-review.md, docs/system-design/06-domain-boundaries-and-ownership.md, and docs/system-design/07-public-module-contracts-and-dependency-graph.md",
+        "DECISIONS.md records the commit-before-provider boundary and deferred scope",
+        "Parent focused PostgreSQL/payment-preparation command passed on 2026-09-09: 5 files, 31 tests, 70.49s",
+        "corepack pnpm typecheck passed from both Sol and Terra",
+        "Source-revision cart recovery fix is covered by the focused tests",
+        "Built buyer-path E2E passed on 2026-09-09: 4 tests in 58.0s, covering account history, guest checkout entry, mock failure UI, and mock checkout success",
+        "Strengthened original-snapshot race test passed on 2026-09-09: 1 targeted test, 9 skipped, 3.36s",
+        "corepack pnpm verify:handoff passed build, bundle, lint, typecheck, coverage, feature-list, and UI checks: 75 files, 349 passed, 2 todo, 87.56s; coverage 46.47% statements, 37.97% branches, 40.11% functions, 47% lines",
+        "Handoff architecture validation reports unchanged tracked baseline .agents/skills/impeccable/scripts/generate-image.mjs manual Bearer headers at lines 410 and 416; parent reproduced the finding from the exact base archive and made no unrelated validator change",
+        "Built-preview smoke passed /, /cart, and /checkout with HTTP 200; clean-state validation passed with 10 changed source files",
+        "Visual hook passed 7/9 cases; the two homepage failures reproduce on exact base 95bcef63 at mobile 96,449 changed pixels and desktop 623,075 changed pixels, with identical current/base PNG SHA-256 hashes; no snapshots were updated and the UI is unchanged",
+        "Handoff architecture validation has the documented unchanged tracked baseline manual Bearer-header exception",
+        "Code and tests are complete; the user approved a one-time push exception for the proven unchanged visual and architecture baseline failures",
+        "Handoff target is the reviewable PR from codex/payment-preparation-boundary; it is not merged, and the feature stays active while the PR awaits human review",
+        "2026-09-11 PR #529 repair: retain guest cart revision through atomic login merge; add rollback/FAILED replay and durable-order UI assertions. verify and verify:full exit 0 (359 passed, 2 todo), E2E 13 passed, visual 9 passed; final hydration suite 3 passed. Local repair branch codex/pr529-findings, original preview unchanged."
+      ]
+    },
     {
       "id": "E457-469",
       "description": "Upgrade reviewer-visible date formatting from date-fns 2 to date-fns 4",

@@ -47,8 +47,8 @@ import Logo from '@/assets/media/logo.svg';
 import { useAuthStore } from '~/store/authStore';
 
 const authStore = useAuthStore();
-const { token, userDetails } = storeToRefs(authStore);
-const isSignedIn = computed(() => Boolean(token.value || userDetails.value));
+const { token } = storeToRefs(authStore);
+const isSignedIn = computed(() => Boolean(token.value));
 
 const navItems = computed(() => ({
   Storefront: [

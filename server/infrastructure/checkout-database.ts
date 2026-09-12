@@ -5,7 +5,7 @@ import { normalizePostgresConnectionString } from './postgres-connection-string.
 
 export { normalizePostgresConnectionString };
 
-type SqlValue = string | number | null;
+type SqlValue = string | number | boolean | null;
 
 export type CheckoutDatabase = {
   query<T extends Record<string, unknown>>(sql: string, parameters?: readonly SqlValue[]): Promise<T[]>;
@@ -50,6 +50,12 @@ const getPostgresPool = () => {
 };
 
 export const getCheckoutDatabase = async () => transactionContext.getStore() ?? createPostgresExecutor(getPostgresPool());
+
+export const assertOutsideCheckoutTransaction = (operation = 'Payment continuation') => {
+  if (transactionContext.getStore()) {
+    throw new Error(`${operation} cannot run inside a checkout transaction.`);
+  }
+};
 
 const isRetryablePostgresTransactionError = (error: unknown) => {
   const code = (error as { code?: unknown })?.code;

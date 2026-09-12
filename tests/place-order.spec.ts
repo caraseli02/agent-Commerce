@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UserInterface } from '~/types/auth/user-interface';
-import { PaymentStatusEnum } from '~/types/order-summary/item';
-import type { CreatePendingOrderInput } from '~/server/domain/orders';
-import type { EnsurePaymentResult } from '~/server/domain/payments';
 import { createPlaceOrderCoordinator, createPlaceOrderUseCase, type PlaceOrderCommand } from '~/server/application/checkout/place-order';
+import { inventory as realInventory } from '~/server/domain/inventory';
+import { orders as realOrders } from '~/server/domain/orders';
+import { payments as realPayments } from '~/server/domain/payments';
 import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 import type { SmallOrderChargeTier } from '~/helpers/order-money';
 
@@ -36,25 +36,14 @@ const makeCommand = (overrides: Partial<PlaceOrderCommand> = {}): PlaceOrderComm
 });
 
 const makeDependencies = () => {
-  const createPending = vi.fn(async (_input: CreatePendingOrderInput) => ({
-    kind: 'created' as const,
-    orderId: 'order-1',
-  }));
-
-  const confirmPayment = vi.fn(async (_input: { orderId: string; paymentId: string }) => ({
-    kind: 'confirmed' as const,
-  }));
-
-  const ensurePayment = vi.fn(async (): Promise<EnsurePaymentResult> => ({
-    kind: 'succeeded',
-    paymentId: 'payment-1',
-    status: PaymentStatusEnum.Paid,
-    useExistingPaymentMethod: false,
-    clientSecret: undefined,
-    result: {
-      status: 'succeeded',
-    },
-  }));
+  const createPending = vi.fn(realOrders.createPending);
+  const confirmPayment = vi.fn(realOrders.confirmPayment);
+  const getOrderPaymentPreparation = vi.fn(realOrders.getPaymentPreparation);
+  const preparePayment = vi.fn(realPayments.preparePayment);
+  const getPaymentPreparation = vi.fn(realPayments.getPaymentPreparation);
+  const continuePayment = vi.fn(realPayments.continuePayment);
+  const completePayment = vi.fn(realPayments.completePayment);
+  const failPayment = vi.fn(realPayments.failPayment);
 
   return {
     createPending,
@@ -140,35 +129,21 @@ const makeDependencies = () => {
         })),
       },
       inventory: {
-        reserve: vi.fn(async () => ({
-          kind: 'created' as const,
-          reservation: {
-            id: 'reservation-1',
-            reservationKey: 'checkout-1',
-            items: [
-              {
-                productId: 'prod-1',
-                immediateQuantity: 1,
-                backorderQuantity: 0,
-              },
-            ],
-            expiresAt: new Date('2026-08-31T00:15:00.000Z'),
-            status: 'active' as const,
-          },
-        })),
-        commit: vi.fn(async () => ({
-          kind: 'committed' as const,
-        })),
-        release: vi.fn(async () => ({
-          kind: 'released' as const,
-        })),
+        reserve: vi.fn(realInventory.reserve),
+        commit: vi.fn(realInventory.commit),
+        release: vi.fn(realInventory.release),
       },
       orders: {
         createPending,
         confirmPayment,
+        getPaymentPreparation: getOrderPaymentPreparation,
       },
       payments: {
-        ensurePayment,
+        preparePayment,
+        getPaymentPreparation,
+        continuePayment,
+        completePayment,
+        failPayment,
       },
     },
   };
@@ -177,7 +152,9 @@ const makeDependencies = () => {
 describe('PlaceOrder application workflow', () => {
   beforeEach(async () => {
     const database = await getCheckoutDatabase();
-    await database.execute('DELETE FROM checkout_claims');
+    await database.execute(
+      'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
+    );
   });
 
   it('returns the same logical order for the same request and performs side effects once', async () => {
@@ -189,10 +166,10 @@ describe('PlaceOrder application workflow', () => {
     const second = await placeOrder(command);
 
     expect(first).toEqual(second);
-    expect(first.orderId).toBe('order-1');
+    expect(first.orderId).toBeTruthy();
     expect(createPending).toHaveBeenCalledTimes(1);
     expect(dependencies.inventory.reserve).toHaveBeenCalledTimes(1);
-    expect(dependencies.payments.ensurePayment).toHaveBeenCalledTimes(1);
+    expect(dependencies.payments.preparePayment).toHaveBeenCalledTimes(1);
     expect(dependencies.cart.completeCheckout).toHaveBeenCalledTimes(1);
   });
 
@@ -222,16 +199,13 @@ describe('PlaceOrder application workflow', () => {
     expect(createPending).toHaveBeenCalledTimes(1);
   });
 
-  it('prevents two request IDs from creating two orders for the same cart revision', async () => {
+  it('converges same-input request IDs on one cart revision', async () => {
     const { dependencies, createPending } = makeDependencies();
     const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
 
-    await placeOrder(makeCommand({ checkoutRequestId: 'checkout-a' }));
-
-    await expect(placeOrder(makeCommand({ checkoutRequestId: 'checkout-b' }))).rejects.toMatchObject({
-      code: 'checkout_already_started',
-      statusCode: 409,
-    });
+    const first = await placeOrder(makeCommand({ checkoutRequestId: 'checkout-a' }));
+    const second = await placeOrder(makeCommand({ checkoutRequestId: 'checkout-b' }));
+    expect(second.orderId).toBe(first.orderId);
 
     expect(createPending).toHaveBeenCalledTimes(1);
   });

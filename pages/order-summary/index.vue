@@ -49,6 +49,7 @@
             <OrderSummaryBackOrderWarning v-if="showWarning" />
             <OrderSummaryTable
               :loading="loading || cartReadPending"
+              :quote="authoritativeQuote"
               @update-subtotal="updateSubtotal($event, order)"
               @delete-selected="deleteSelected"
             />

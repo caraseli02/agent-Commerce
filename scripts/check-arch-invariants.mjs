@@ -6,7 +6,7 @@ import process from 'node:process';
 const rootDir = path.resolve(new URL('..', import.meta.url).pathname);
 
 const sourceExtensions = new Set(['.js', '.mjs', '.ts', '.vue']);
-const ignoredDirectories = new Set(['.git', '.husky', '.nuxt', '.output', 'coverage', 'dist', 'node_modules']);
+const ignoredDirectories = new Set(['.agents', '.git', '.husky', '.nuxt', '.output', 'coverage', 'dist', 'node_modules']);
 
 const approvedAuthHeaderPaths = ['plugins/api.ts', 'composables/api/', 'scripts/check-pr-template.mjs', 'tests/'];
 

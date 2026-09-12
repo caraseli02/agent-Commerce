@@ -375,23 +375,35 @@ Cancellation is deliberately split into request and confirmation because payment
 
 Payments owns local payment state and interpretation of payment-provider facts.
 
-The public model should not imply that every customer retry creates a new provider payment object.
+One logical local Payment belongs to one prepared Order/checkout. The public model must not imply that a customer retry creates another local Payment.
 
 For Stripe-like providers, the normal default is one provider payment intent/object for the logical Order/checkout payment and reuse/reconciliation across interrupted attempts where supported.
 
 ```ts
 interface PaymentsService {
-  ensurePayment(input: EnsurePaymentInput): Promise<EnsurePaymentResult>;
-
-  retryPayment(paymentId: PaymentId): Promise<RetryPaymentResult>;
-
-  ingestProviderEvent(event: ProviderPaymentEvent): Promise<PaymentEventResult>;
-
-  requestCancellation(paymentId: PaymentId): Promise<PaymentCancellationResult>;
-
-  refund(paymentId: PaymentId): Promise<RefundResult>;
+  preparePayment(input: PreparePaymentInput): Promise<PreparePaymentResult>;
 }
 ```
+
+The preparation seam is intentionally small:
+
+```ts
+type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED';
+
+type PaymentNextAction = { type: 'none' } | { type: 'client-secret'; clientSecret: string } | { type: 'redirect'; url: string };
+
+type PreparePaymentResult = {
+  paymentId: PaymentId;
+  orderId: OrderId;
+  status: PaymentStatus;
+  providerReference?: string;
+  nextAction?: PaymentNextAction;
+};
+```
+
+`nextAction` is an optional seam for a later provider continuation. This slice does not create provider objects or persist provider-specific states.
+
+Provider-event ingestion, retry, cancellation, refund, and finalization contracts remain deferred until provider truth and recovery are implemented.
 
 ### Payment identity and attempts
 
@@ -400,11 +412,10 @@ Conceptually:
 ```text
 Order
   -> agent-Commerce Payment
-       -> provider PaymentIntent/payment object
-            -> one or more provider attempts/charges
+       -> one or more provider attempts/charges (future)
 ```
 
-agent-Commerce may record attempt history, but `retryPayment()` must not automatically mean `create a brand-new provider payment object`.
+The local Payment is the durable identity. Provider attempts/charges, if later needed, remain subordinate provider records; `retryPayment()` must not create a brand-new local Payment for the same Order.
 
 ### Provider-event rule
 
@@ -430,7 +441,7 @@ Payments owns:
 
 Webhook/event handling must tolerate duplicates and out-of-order delivery.
 
-A duplicate event cannot re-run settlement. A late `processing` event cannot regress a local `SUCCEEDED` payment back to `PROCESSING`.
+A duplicate event cannot re-run settlement. A late `processing` event cannot regress a local `PAID` payment back to `PENDING`.
 
 ---
 
@@ -501,12 +512,17 @@ trusted actor identity
   -> Accounts customer/address validation
   -> Cart stable snapshot
   -> Catalog authoritative quote
-  -> Inventory idempotent reservation
-  -> Orders idempotent PENDING_PAYMENT creation
-  -> Payments ensure logical payment
+  -> one retryable local transaction:
+       claim/idempotency ownership
+       + Inventory idempotent reservation
+       + Orders idempotent PENDING_PAYMENT creation
+       + Payments prepare one local Payment
+       + relational correlations
+  -> COMMIT durable IDs
+  -> optional provider continuation outside the retryable transaction
 ```
 
-The actual persistence implementation must honor #6 transaction/recovery invariants; this sequence is a responsibility graph, not permission to perform unsafe dual writes.
+The retryable transaction performs local preparation only. No external provider call may execute inside its automatic retry callback. A replay returns the persisted claim, Order, reservation, and Payment IDs; it does not re-quote an existing Order.
 
 ### `retryOrderPayment`
 
@@ -524,7 +540,7 @@ No Catalog repricing occurs for an existing Order.
 Triggered/retried after Payments establishes definitive success:
 
 ```text
-Payment SUCCEEDED
+Payment PAID
   -> attempt Inventory.commit(existing reservation)
        -> committed/already committed
             -> Orders.markPaid()
@@ -629,7 +645,7 @@ When a payment-provider webhook changes durable Payment state and the applicatio
 Target rule:
 
 ```text
-Payment can be SUCCEEDED while Order is temporarily PENDING_PAYMENT,
+Payment can be PAID while Order is temporarily PENDING_PAYMENT,
 but recovery must reliably converge the workflow.
 ```
 
@@ -692,7 +708,7 @@ Two different keys racing on the same unchanged cart revision cannot both create
 
 ```text
 provider succeeded event
-  -> Payment becomes SUCCEEDED
+  -> Payment becomes PAID
   -> finalization executes
 
 same event delivered again
@@ -704,15 +720,15 @@ same event delivered again
 Out-of-order stale events cannot regress terminal state:
 
 ```text
-SUCCEEDED
-  -X-> PROCESSING
+PAID
+  -X-> PENDING
 ```
 
 ### C. Cancellation while payment is processing
 
 ```text
 Order PENDING_PAYMENT
-Payment PROCESSING
+Payment PENDING
 user requests cancel
 ```
 

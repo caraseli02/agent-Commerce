@@ -35,16 +35,9 @@ describe('cart session persistence', () => {
     process.env.NUXT_PUBLIC_MOCK_MODE = 'true';
     const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
     const database = await getCheckoutDatabase();
-    for (const table of [
-      'checkout_claims',
-      'checkout_payments',
-      'checkout_orders',
-      'checkout_reservations',
-      'checkout_inventory',
-      'checkout_carts',
-    ]) {
-      await database.execute(`DELETE FROM ${table}`);
-    }
+    await database.execute(
+      'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
+    );
   });
 
   it('starts a first-time reviewer cart empty', async () => {
@@ -125,5 +118,21 @@ describe('cart session persistence', () => {
 
     expect(resolved?._id).toBe(cart.data._id);
     expect(resolved?.products).toEqual([]);
+  });
+
+  it('serializes repeated guest merges without duplicating transferred products', async () => {
+    const { addProductsToMockCart, getMockCartForUser, mergeGuestCartIntoMockCart } = await import('../server/utils/mockCart');
+    const guestCart = await getMockCartForUser('guest-user-session-concurrent-merge');
+    await addProductsToMockCart(guestCart, [{ id: 'prod-2', stock: 1, isFolder: false }]);
+
+    await Promise.all([
+      mergeGuestCartIntoMockCart('mock-customer-1', 'concurrent-merge'),
+      mergeGuestCartIntoMockCart('mock-customer-1', 'concurrent-merge'),
+    ]);
+
+    const retainedGuestCart = await getMockCartForUser('guest-user-session-concurrent-merge');
+    const customerCart = await getMockCartForUser('mock-customer-1');
+    expect(retainedGuestCart.products).toEqual([]);
+    expect(customerCart.products).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'prod-2', stock: 1 })]));
   });
 });

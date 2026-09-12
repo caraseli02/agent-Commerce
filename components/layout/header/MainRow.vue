@@ -63,7 +63,7 @@
                   :class="[showCartBadge ? 'opacity-100' : 'opacity-0', isCartPulsing ? 'cart-badge-pop' : '']"
                   :aria-hidden="!showCartBadge"
                 >
-                  {{ cartItems }}
+                  {{ isClientReady ? cartItems : 0 }}
                 </span>
               </div>
               <div
@@ -159,7 +159,7 @@ const isClientReady = useClientReady();
 const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
 const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
 const showCartTotal = computed(() => isClientReady.value && totalCartPrice.value > 0);
-const formattedCartTotal = computed(() => `${Number(totalCartPrice.value || 0).toFixed(2)} Lei`);
+const formattedCartTotal = computed(() => `${Number(isClientReady.value ? totalCartPrice.value || 0 : 0).toFixed(2)} Lei`);
 const { getCart, getCartSubtotal } = storeToRefs(cartStore);
 
 const notificationStore = useNotificationStore();

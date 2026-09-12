@@ -2,6 +2,21 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## PR #529 findings repair — 2026-09-11
+
+- Retain and clear the guest cart during login merge instead of deleting it.
+  Its revision sequence is part of durable checkout identity. Transfer and clear
+  share a serializable transaction so repeated merges cannot duplicate items.
+- Render checkout line amounts from the same quote as the summary. Allocate split
+  stock/backorder totals complementarily to preserve cents; keep cart mutation
+  state separate from display values.
+- Historical order identity comes from the immutable snapshot. Missing fulfillment
+  data is displayed as unavailable; it must not be inferred from ordered quantity.
+- Hydration starts from server-visible state: header cart text waits for mount,
+  footer auth links use the session cookie, and company details wait for order load.
+- Exclude bundled `.agents` tooling from application architecture scanning, and
+  accept only the reviewed homepage redesign snapshots inherited from PR #528.
+
 ## Format
 
 - Date
@@ -79,3 +94,17 @@ Use this file for durable cross-session decisions that should survive context re
 
   - Reason: route-level fixture fallbacks and browser-side money calculations allowed order history, checkout, and confirmation to disagree or bypass customer scope.
   - Impact: demo orders are idempotently imported through Orders in mock mode, order detail/list reads are database-backed and customer-scoped, and Catalog allocates all final line and aggregate money in minor units before Orders persists the immutable snapshot. No `finalizePayment` behavior is added.
+
+- 2026-09-08 — Prepare one durable local Payment before provider continuation
+
+  - Reason: a retryable serializable transaction must not perform external
+    payment I/O, because a provider success followed by transaction rollback can
+    otherwise lose the local identity and create a second logical checkout on
+    retry.
+  - Impact: one atomic local preparation establishes the checkout claim,
+    immutable Order, reservation, one `PENDING` Payment, and relational IDs;
+    commit happens before any provider continuation. Replays recover the same
+    `orderId`, `reservationId`, and `paymentId`. The local status model is
+    `PENDING`/`PAID`/`FAILED`, with neutral `providerReference` and optional
+    `PaymentNextAction` seams. Provider attempts, Stripe, webhooks, refunds,
+    queues, outbox/cron recovery, and finalization remain deferred.

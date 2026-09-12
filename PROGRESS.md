@@ -2,113 +2,52 @@
 
 ## Current focus
 
-- Review and merge PR #526, which completes the remaining `PlaceOrder`
-  production-hardening acceptance gaps before `finalizePayment` begins.
-- Preserve the modular-monolith dependency direction: Nitro adapter → checkout
-  application workflow → public Cart/Catalog/Inventory/Orders/Payments APIs.
+- PR #529 findings repairs on `codex/pr529-findings`, based on
+  `6db459f08567cc5e5c0ae85278ffbafcbd9b51ee` (remote head rechecked unchanged).
+- Preserve the modular checkout preparation boundary and its deferred provider scope.
 
 ## In progress
 
-- Follow-up acceptance hardening on `codex/place-order-read-money-reconciliation`
-  removes route-level demo order fallbacks, scopes canonical order reads to the
-  trusted customer, and carries every payable-money component through one
-  Catalog quote into the checkout UI and immutable Order snapshot.
-- PostgreSQL-backed `pnpm verify` passes: 74 test files, 337 tests passed, and 2
-  todo. The pre-push visual browser matrix passes 9/9.
-- Authenticated runtime evidence reconciles the quote, persisted order, success,
-  and history total at `1150.39 Lei`; unauthenticated order reads return 401.
-- PR #526 is open as a draft with all automated GitHub and Vercel checks passing.
-- Out of scope: payment finalization, new infrastructure, or unrelated checkout
-  refactors.
+- Implemented: atomic login merge retains guest cart revision history; authoritative
+  checkout row money; immutable order name/code; truthful unavailable fulfillment;
+  persisted-cart header, expired-session footer, and order-company-section hydration; architecture scan tooling exclusion.
+- Added PostgreSQL rollback, failed continuation replay, guest reuse, concurrent
+  merge, line-money allocation, identity, and durable-order browser regressions.
+- Reviewed and updated only the two homepage snapshots inherited from PR #528.
+- Visual (9 tests), manual browser checks, and clean snapshot handoff passed.
+  Repairs are ready for the authorized push to PR #529; no merge performed.
 
-## Delivered PlaceOrder hardening foundation
+## Blocked / known baseline failures
 
-- PostgreSQL through `DATABASE_URL` is the only checkout persistence
-  engine in local development, tests/CI, Vercel preview, and production.
-- Checkout-created orders are durable and readable through the Orders module;
-  checkout claims are database-enforced, cart completion is revision-aware, and
-  inventory/payment state is durable.
-- Server `PlaceOrder` persists Catalog-quoted merchandise, delivery, and
-  small-order values; the demo STM32 line price is `949.99 Lei` for the
-  authenticated customer.
-- Fresh carts start empty. No `finalizePayment` implementation is included.
-- PR #523 merged as `fa532db2`; its PostgreSQL-backed verification and deployed
-  preview buyer smoke passed.
-
-The implementation preserves the accepted architecture direction:
-
-```text
-Nitro API
-  -> application workflow
-    -> public module contracts
-      -> private module internals
-```
-
-- `tests/server-module-boundaries.spec.ts` enforces that API/application code
-  cannot import module internals and that one module cannot import another
-  module's internals.
-
-## Recently completed system-design work
-
-- `docs/system-design/06-domain-boundaries-and-ownership.md`
-  - Catalog owns current product/pricing policy.
-  - Cart owns purchase intent and revision.
-  - Inventory owns stock/reservations/backorders.
-  - Orders own the immutable historical commercial snapshot and order lifecycle.
-  - Payments own provider/payment truth.
-  - Accounts own current customer information.
-  - Application workflows own cross-domain sequencing.
-  - Transaction/recovery invariants cover checkout idempotency, payment deadlines, immutable retry pricing, payment concurrency/unknown states, reservation/payment races, cart reconciliation, and reliable recovery.
-
-- `docs/system-design/07-public-module-contracts-and-dependency-graph.md`
-  - Defines public module firewalls and forbidden internal imports.
-  - Uses narrow immutable DTOs instead of shared giant domain models.
-  - Defines idempotent reservation/order creation, monotonic payment-event handling, conditional inventory transitions, changed-cart safety, and cancellation that waits for payment truth.
-  - Keeps the target as a pragmatic modular monolith.
-
-## Existing modernization baseline
-
-- Repository identity is `caraseli02/agent-Commerce`; the Vercel project and deployment use `agentcommerce` / `agentcommerce.vercel.app`. Legacy project-name text, URLs, browser-test identifiers, and local environment settings were removed on 2026-09-01; `pnpm verify` and the deployed URL check passed.
-- Nuxt 4 migration is complete and verified in mock mode.
-- Zod 4 remains deferred until the stable vee-validate adapter supports it.
-- TanStack Table 9 remains a separate dedicated migration; current Nuxt 4-compatible Table 8 / Virtual 3 stays in place.
+- Original PR QA found a blocking cart identity regression plus inherited display,
+  hydration, architecture-scan, and homepage-snapshot findings. Repairs are now
+  implemented; the original QA report remains preserved as historical evidence.
+- Existing nonblocking warnings: `utils/categories.ts` legacy architecture warning,
+  Vitest/coverage package version mismatch, and Vite native-config migration warning.
+- Real provider I/O, webhooks, provider-attempt ownership, reconciliation, refunds,
+  cancellation, and automated recovery remain deferred by this PR.
 
 ## Verification baseline
 
-- Root causes in the hardening handoff were rechecked against `origin/main` and
-  all six were present.
-- `pnpm db:migrate`: pass against the configured PostgreSQL development
-  database, including the compatible legacy-schema migration path.
-- Focused PostgreSQL migration/constraint and durable PlaceOrder suite: pass
-  (9 tests), including concurrent migrators and `vi.resetModules()` replay,
-  canonical read, and history list.
-- `pnpm verify:full`: pass — build, lint, typecheck, PostgreSQL-backed coverage
-  suite (320 passed + 2 todo), architecture invariants, and built-preview route
-  smoke.
-- Focused critical browser flows: pass (4/4), covering order-summary entry,
-  customer sign-in and `949.99 Lei` reconciliation, successful PlaceOrder and
-  success read-back, order history, and checkout failure handling.
-- Pre-push verification: pass — `pnpm verify` plus visual browser matrix (9/9).
-- `pnpm test:e2e` now starts its own built Nitro server and cannot reuse a
-  separately started server with the wrong database schema.
-- PR #523 checks pass: PostgreSQL-backed GitHub CI, PR template, Vercel build,
-  and Vercel Preview Comments.
-- Vercel preview migration/build pass against the connected Neon Preview
-  database branch. Deployed cross-request smoke passes: fresh cart is empty,
-  one STM32 Add yields quantity 1, authenticated price persists as `949.99`,
-  replay returns the same order, canonical read/history return that order, cart
-  completion is durable, and two request IDs racing one cart revision create at
-  most one order. Runtime error logs are empty after the final smoke.
-- PostgreSQL SSL aliases from Neon are normalized to `verify-full`, preserving
-  certificate verification without the pg future-semantics runtime warning.
+- Initialization: exit 0, 75 files / 349 passed / 2 todo.
+- Focused repair tests: exit 0, 7 files / 41 passed.
+- `pnpm verify`: exit 0, 77 files / 359 passed / 2 todo.
+- `pnpm verify:full`: exit 0, including architecture and preview smoke.
+- Buyer/history/cart/result/hydration E2E: exit 0, 13 passed; new durable order
+  readback asserts identity and unavailable fulfillment at 1440×900 and 390×844.
+- Hydration reproduction: persisted-cart route sweep failed before and passed after
+  the header fix (2 tests). Scanner negative fixture still fails as intended.
+- Authenticated readback mismatch was traced to the company section appearing from
+  persisted profile state before order load; it now waits for the order response.
+  Development and final production browser regressions passed (5 final tests).
+- Final hydration E2E: exit 0, 3 passed, including expired profile without a token.
+- In-app purchase `ord-1789131043833-557` / `ORD-290867`: saved identity,
+  mobile/desktop amounts, reload, and history confirmed; total 1150.39 RON.
+- `pnpm verify:handoff`: exit 0 on clean snapshot `6b750105`, including 359 tests,
+  architecture, smoke, and clean-state validation. The snapshot is a disposable verification copy; repairs are prepared for PR #529.
+- Full session evidence is in the Codex session artifact `pr529-evidence` directory.
 
-## Remaining acceptance gaps
+## Next verification
 
-- None in the scoped `PlaceOrder` hardening implementation. Human review and
-  merge of PR #526 remain.
-
-## Next checkpoint
-
-1. Review and merge PR #526.
-2. After the hardening slice lands, resume the system-design sequence with
-   `finalizePayment`.
+- Review the local repair diff; verification is complete.
+- Human review of the local repair diff; PR #529 remains the sole active feature.
