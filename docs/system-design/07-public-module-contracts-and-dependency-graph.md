@@ -266,6 +266,32 @@ current revision != checkout revision
 
 This intentionally chooses a potentially stale cart over silently deleting products the customer added after payment started. More precise line-level reconciliation can be introduced later if required.
 
+Paid-checkout finalization and Cart cleanup have separate commit boundaries. The
+workflow first commits Inventory, Order, and its durable finalized result. It then
+attempts `completeCheckout` in a separate PostgreSQL transaction using the Cart ID,
+owner, and revision stored on the checkout claim. `completed`, `cart-changed`,
+`not-found`, `forbidden`, and cleanup exceptions are all non-fatal once checkout is
+successful: Cart availability cannot roll back payment or Order truth.
+
+Finalized request replays repeat the same revision-aware cleanup attempt. This
+closes the crash window between checkout finalization and Cart cleanup without a
+new process-local recovery flag:
+
+```text
+crash before cleanup
+  -> finalized replay retries revision N
+
+cleanup revision N committed but response lost
+  -> replay sees a different revision and leaves it unchanged
+
+customer created revision N+1
+  -> cleanup is a no-op and preserves the entire newer cart
+```
+
+This iteration deliberately does not subtract purchased quantities or merge
+overlapping lines from a newer Cart. That policy needs a separate product decision
+and line-identity contract.
+
 ---
 
 ## 7. Inventory public contract

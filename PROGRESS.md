@@ -2,26 +2,21 @@
 
 ## Current focus
 
-- PR #529 findings repairs on `codex/pr529-findings`, based on
-  `6db459f08567cc5e5c0ae85278ffbafcbd9b51ee` (remote head rechecked unchanged).
-- Preserve the modular checkout preparation boundary and its deferred provider scope.
+- Issue #532 on `codex/532-revision-aware-cart-completion`.
+- Keep paid Order/Payment finalization independent from revision-aware Cart cleanup.
 
 ## In progress
 
-- Implemented: atomic login merge retains guest cart revision history; authoritative
-  checkout row money; immutable order name/code; truthful unavailable fulfillment;
-  persisted-cart header, expired-session footer, and order-company-section hydration; architecture scan tooling exclusion.
-- Added PostgreSQL rollback, failed continuation replay, guest reuse, concurrent
-  merge, line-money allocation, identity, and durable-order browser regressions.
-- Reviewed and updated only the two homepage snapshots inherited from PR #528.
-- Visual (9 tests), manual browser checks, and clean snapshot handoff passed.
-  Repairs are ready for the authorized push to PR #529; no merge performed.
+- Separated successful checkout finalization from best-effort cart completion so
+  cleanup failures cannot turn a paid Order into a failed checkout.
+- Finalized replays retry cleanup using the persisted cart ID and revision;
+  preserve every newer cart revision without subtracting overlapping lines.
+- PostgreSQL regressions cover cleanup rollback/retry, stale and repopulated carts,
+  independent instances, duplicate requests, and concurrent checkout claims.
 
 ## Blocked / known baseline failures
 
-- Original PR QA found a blocking cart identity regression plus inherited display,
-  hydration, architecture-scan, and homepage-snapshot findings. Repairs are now
-  implemented; the original QA report remains preserved as historical evidence.
+- None for issue #532.
 - Existing nonblocking warnings: `utils/categories.ts` legacy architecture warning,
   Vitest/coverage package version mismatch, and Vite native-config migration warning.
 - Real provider I/O, webhooks, provider-attempt ownership, reconciliation, refunds,
@@ -29,6 +24,13 @@
 
 ## Verification baseline
 
+- Issue #532 focused PostgreSQL suite: 6 files, 40 tests passed; the final
+  review-repair subset passed 2 files and 18 tests.
+- `pnpm verify`: pass before the review repair; 77 files, 361 tests passed, 2 todo.
+- Final `pnpm verify:full`: pass; 78 files, 364 tests passed, 2 todo; coverage 46.47%
+  statements, 37.97% branches, 40.11% functions, and 47% lines.
+- Architecture invariants and built-preview smoke for `/`, `/cart`, and
+  `/checkout` passed.
 - Initialization: exit 0, 75 files / 349 passed / 2 todo.
 - Focused repair tests: exit 0, 7 files / 41 passed.
 - `pnpm verify`: exit 0, 77 files / 359 passed / 2 todo.
@@ -49,5 +51,7 @@
 
 ## Next verification
 
-- Review the local repair diff; verification is complete.
-- Human review of the local repair diff; PR #529 remains the sole active feature.
+- Open the generator PR from reviewed commit `9dd6fe90` (or its documentation-only
+  amendment).
+- Vercel Preview buyer checkout smoke after deployment, then independent evaluator
+  review and `pnpm verify:handoff` from the clean committed branch.

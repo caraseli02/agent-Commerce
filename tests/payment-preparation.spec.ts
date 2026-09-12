@@ -428,6 +428,137 @@ describe('durable payment preparation boundary', () => {
     expect(continuePayment).toHaveBeenCalledTimes(1);
   });
 
+  it('replays a finalized order after cleanup loses its response before mutating the cart', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const quoteCheckout = vi.fn(dependencies.catalog.quoteCheckout);
+    const continuePayment = vi.fn(dependencies.payments.continuePayment);
+    const cleanupLostResponse = vi.fn(async () => {
+      throw new Error('simulated lost response before cart cleanup');
+    });
+    const firstInstance = checkout.createPlaceOrderUseCase(
+      {
+        ...dependencies,
+        cart: { ...dependencies.cart, completeCheckout: cleanupLostResponse },
+        catalog: { quoteCheckout },
+        payments: { ...dependencies.payments, continuePayment },
+      },
+      checkout.createPlaceOrderCoordinator(),
+    );
+
+    const firstResult = await firstInstance(command);
+    expect(firstResult.orderId).toEqual(expect.any(String));
+
+    const database = await getCheckoutDatabase();
+    const [afterLostResponse] = await database.query<{
+      workflow_status: string;
+      payment_status: string;
+      paid_by_payment_id: string | null;
+      payload_json: string;
+    }>(
+      `SELECT claim.workflow_status, payment.status AS payment_status, orders.paid_by_payment_id, cart.payload_json
+         FROM checkout_claims AS claim
+         JOIN checkout_payments AS payment ON payment.id = claim.payment_id
+         JOIN checkout_orders AS orders ON orders.id = claim.order_id
+         JOIN checkout_carts AS cart ON cart.cart_id = claim.cart_id
+        WHERE claim.owner_id = $1 AND claim.request_id = $2`,
+      [command.cartOwnerId, command.checkoutRequestId],
+    );
+    expect(afterLostResponse).toMatchObject({
+      workflow_status: 'finalized',
+      payment_status: 'PAID',
+      paid_by_payment_id: expect.any(String),
+    });
+    expect(JSON.parse(afterLostResponse!.payload_json).products).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'prod-1' })]),
+    );
+
+    const freshInstance = checkout.createPlaceOrderUseCase(
+      {
+        ...dependencies,
+        catalog: { quoteCheckout },
+        payments: { ...dependencies.payments, continuePayment },
+      },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(freshInstance(command)).resolves.toMatchObject({ orderId: firstResult.orderId });
+    const [afterReplay] = await database.query<{ payload_json: string }>('SELECT payload_json FROM checkout_carts WHERE cart_id = $1', [
+      command.cartId,
+    ]);
+    expect(JSON.parse(afterReplay!.payload_json).products).toEqual([]);
+    expect(quoteCheckout).toHaveBeenCalledTimes(1);
+    expect(continuePayment).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a paid order finalized when cart cleanup rolls back, then a fresh coordinator replay clears the original cart revision', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const cleanupFailure = new Error('simulated cart cleanup rollback');
+    const completeCheckout = vi.fn(async (input: Parameters<typeof dependencies.cart.completeCheckout>[0]) => {
+      await dependencies.cart.completeCheckout(input);
+      throw cleanupFailure;
+    });
+    const placeOrder = checkout.createPlaceOrderUseCase(
+      { ...dependencies, cart: { ...dependencies.cart, completeCheckout } },
+      checkout.createPlaceOrderCoordinator(),
+    );
+
+    await expect(placeOrder(command)).resolves.toMatchObject({ orderId: expect.any(String) });
+
+    const database = await getCheckoutDatabase();
+    const [afterFailedCleanup] = await database.query<{
+      workflow_status: string;
+      payment_status: string;
+      paid_by_payment_id: string | null;
+      payload_json: string;
+    }>(
+      `SELECT claim.workflow_status, payment.status AS payment_status, orders.paid_by_payment_id, cart.payload_json
+         FROM checkout_claims AS claim
+         JOIN checkout_payments AS payment ON payment.id = claim.payment_id
+         JOIN checkout_orders AS orders ON orders.id = claim.order_id
+         JOIN checkout_carts AS cart ON cart.cart_id = claim.cart_id
+        WHERE claim.owner_id = $1 AND claim.request_id = $2`,
+      [command.cartOwnerId, command.checkoutRequestId],
+    );
+    expect(afterFailedCleanup).toMatchObject({
+      workflow_status: 'finalized',
+      payment_status: 'PAID',
+      paid_by_payment_id: expect.any(String),
+    });
+    expect(JSON.parse(afterFailedCleanup!.payload_json).products).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'prod-1' })]),
+    );
+
+    await expect(checkout.createPlaceOrderUseCase(dependencies, checkout.createPlaceOrderCoordinator())(command)).resolves.toMatchObject({
+      orderId: expect.any(String),
+    });
+    const [afterReplay] = await database.query<{ payload_json: string }>('SELECT payload_json FROM checkout_carts WHERE cart_id = $1', [
+      command.cartId,
+    ]);
+    expect(JSON.parse(afterReplay!.payload_json).products).toEqual([]);
+  });
+
+  it('retries cart cleanup on a finalized replay without clearing a newly repopulated revision', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const completeCheckout = vi.fn(dependencies.cart.completeCheckout);
+    const placeOrder = checkout.createPlaceOrderUseCase(
+      { ...dependencies, cart: { ...dependencies.cart, completeCheckout } },
+      checkout.createPlaceOrderCoordinator(),
+    );
+
+    await placeOrder(command);
+    const { addProductsToMockCart, getMockCartForUser } = await import('../server/utils/mockCart');
+    await addProductsToMockCart(await getMockCartForUser(command.cartOwnerId), [{ id: 'prod-2', stock: 1, isFolder: false }]);
+
+    await expect(placeOrder(command)).resolves.toMatchObject({ orderId: expect.any(String) });
+    const database = await getCheckoutDatabase();
+    const [cartRow] = await database.query<{ payload_json: string }>('SELECT payload_json FROM checkout_carts WHERE cart_id = $1', [
+      command.cartId,
+    ]);
+    expect(completeCheckout).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(cartRow!.payload_json).products).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'prod-2', stock: 1 })]),
+    );
+  });
+
   it('finishes a crashed prepared checkout without clearing cart changes made after its immutable snapshot', async () => {
     const { checkout, cart, command, dependencies } = await setupCheckout();
     const crashing = checkout.createPlaceOrderUseCase(
@@ -447,10 +578,15 @@ describe('durable payment preparation boundary', () => {
     await addProductsToMockCart(cart, [{ id: 'prod-2', stock: 1, isFolder: false }]);
     const result = await checkout.createPlaceOrderUseCase(dependencies, checkout.createPlaceOrderCoordinator())(command);
     const database = await getCheckoutDatabase();
-    const [cartRow] = await database.query<{ payload_json: string }>('SELECT payload_json FROM checkout_carts WHERE cart_id = $1', [
-      command.cartId,
-    ]);
+    const [cartRow] = await database.query<{ payload_json: string; workflow_status: string }>(
+      `SELECT cart.payload_json, claim.workflow_status
+         FROM checkout_carts AS cart
+         JOIN checkout_claims AS claim ON claim.cart_id = cart.cart_id
+        WHERE cart.cart_id = $1 AND claim.owner_id = $2`,
+      [command.cartId, command.cartOwnerId],
+    );
     expect(result.orderId).toBeTruthy();
+    expect(cartRow?.workflow_status).toBe('finalized');
     expect(JSON.parse(cartRow!.payload_json).products).toEqual(
       expect.arrayContaining([expect.objectContaining({ id: 'prod-2', stock: 1 })]),
     );
