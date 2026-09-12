@@ -31,6 +31,10 @@
   statements, 37.97% branches, 40.11% functions, and 47% lines.
 - Architecture invariants and built-preview smoke for `/`, `/cart`, and
   `/checkout` passed.
+- Vercel Preview buyer smoke passed on
+  `agentcommerce-aiusnc84y-caraseli02s-projects.vercel.app`: the demo buyer
+  completed order `ord-1789243391022-9181` (`ORD-248769`), the success and order
+  confirmation views remained reachable, and reopening the cart showed it empty.
 - Initialization: exit 0, 75 files / 349 passed / 2 todo.
 - Focused repair tests: exit 0, 7 files / 41 passed.
 - `pnpm verify`: exit 0, 77 files / 359 passed / 2 todo.
@@ -51,7 +55,4 @@
 
 ## Next verification
 
-- Open the generator PR from reviewed commit `9dd6fe90` (or its documentation-only
-  amendment).
-- Vercel Preview buyer checkout smoke after deployment, then independent evaluator
-  review and `pnpm verify:handoff` from the clean committed branch.
+- Independent evaluator review for PR #533 at the final branch head.

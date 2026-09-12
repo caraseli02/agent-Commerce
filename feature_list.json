@@ -17,7 +17,8 @@
         "Focused PostgreSQL checkout suite passed: 6 files, 40 tests; final review-repair subset passed 2 files, 18 tests.",
         "pnpm verify passed before review repair: 77 files, 361 tests passed, 2 todo; coverage thresholds passed.",
         "Final pnpm verify:full passed: 78 files, 364 tests passed, 2 todo, with architecture invariants and built-preview smoke for /, /cart, and /checkout.",
-        "Independent standards and spec reviews reported no findings after the crash-window and deterministic PostgreSQL race tests were added."
+        "Independent standards and spec reviews reported no findings after the crash-window and deterministic PostgreSQL race tests were added.",
+        "Vercel Preview buyer smoke passed: demo order ord-1789243391022-9181 (ORD-248769) confirmed, its order view remained reachable, and the completed cart reopened empty."
       ]
     },
     {
