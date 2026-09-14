@@ -2,7 +2,7 @@
   <div class="container my-10 flex min-h-[50vh] flex-col items-center gap-8">
     <template v-if="cartStore.previousCheckoutError">
       <section class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border-[1.5px] border-red-500 bg-light-100 p-6">
-        <h4 class="text-2xl font-medium">Payment failed</h4>
+        <h4 class="text-2xl font-medium">{{ checkoutReviewChangedTitle }}</h4>
         <AlertTriangleIcon class="h-10 w-10 stroke-2 text-red-500" />
         <p>Reason: {{ getPreviousCheckoutError?.message || 'Something went wrong' }}</p>
       </section>
@@ -18,7 +18,7 @@
           <span class="text-sm font-medium leading-[1.42857]"> Cancel order </span>
         </UiButton>
         <UiButton class="w-fit" @click="retryCheckout">
-          <span class="text-sm font-medium leading-[1.42857]"> Try again </span>
+          <span class="text-sm font-medium leading-[1.42857]"> {{ isCheckoutReviewChanged ? 'Review updated cart' : 'Try again' }} </span>
         </UiButton>
       </div>
     </template>
@@ -60,6 +60,12 @@ const router = useRouter();
 
 const cartStore = useCartStore();
 const { getPreviousCheckoutError, getOrderClientSecret } = storeToRefs(cartStore);
+const isCheckoutReviewChanged = computed(() => ['cart_changed', 'quote_changed'].includes(getPreviousCheckoutError.value?.code ?? ''));
+const checkoutReviewChangedTitle = computed(() => {
+  if (getPreviousCheckoutError.value?.code === 'cart_changed') return 'Your cart changed';
+  if (getPreviousCheckoutError.value?.code === 'quote_changed') return 'Your checkout price changed';
+  return 'Payment failed';
+});
 
 const orderId = ref<string>();
 

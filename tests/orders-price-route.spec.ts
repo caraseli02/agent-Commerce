@@ -43,6 +43,10 @@ describe('orders pricing route', () => {
       status: 'success',
       data: {
         selected: { service: { id: 2 }, price: { total: 29.9 } },
+        review: {
+          cartRevision: '1',
+          quoteFingerprint: expect.any(String),
+        },
         quote: {
           merchandiseTotal: 949.99,
           discountTotal: 50,

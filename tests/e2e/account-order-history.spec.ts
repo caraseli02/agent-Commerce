@@ -35,10 +35,18 @@ test.describe('Order History / Account View', () => {
     });
     expect(cartResponse.ok()).toBe(true);
     const cart = (await cartResponse.json()).data;
+    const priceResponse = await page.request.post('/api/orders/price', {
+      headers,
+      data: { order: { cartId: cart._id } },
+    });
+    expect(priceResponse.ok()).toBe(true);
+    const review = (await priceResponse.json()).data.review as { cartRevision: string; quoteFingerprint: string };
     const orderResponse = await page.request.post('/api/orders/new', {
       headers,
       data: {
         cartId: cart._id,
+        reviewedCartRevision: review.cartRevision,
+        reviewedQuoteFingerprint: review.quoteFingerprint,
         checkoutRequestId: `order-display-${Date.now()}`,
         type: 0,
         shippingDetails: { address: { name1: 'QA demo' }, billingAddress: { name1: 'QA demo' } },

@@ -116,6 +116,8 @@ describe('dashboard orders API adapters', () => {
 
     const order = {
       cartId: 'cart-idempotency-test',
+      reviewedCartRevision: '7',
+      reviewedQuoteFingerprint: 'quote-7',
       products: [
         {
           id: 'prod-1',

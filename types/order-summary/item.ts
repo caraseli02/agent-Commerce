@@ -104,6 +104,8 @@ export interface OrderRequestInterface {
   userEmail: string;
   businessId?: string;
   cartId?: string;
+  reviewedCartRevision?: string;
+  reviewedQuoteFingerprint?: string;
   products: CartProductsInterface[];
   shippingDetails: OrderShippingDetailsInterface;
   stripeCardId?: unknown;

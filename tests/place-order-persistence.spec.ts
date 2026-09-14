@@ -147,6 +147,71 @@ describe('durable PlaceOrder persistence', () => {
     expect(Number(reservationsCount?.total)).toBe(1);
   });
 
+  it('rejects checkout when another tab changes the cart after its quote was reviewed', async () => {
+    const [cartModule, userModule, checkoutModule, cartDomain, catalogModule, inventoryModule, ordersModule, paymentsModule] =
+      await Promise.all([
+        import('../server/utils/mockCart'),
+        import('../server/utils/mockUsers'),
+        import('../server/application/checkout/place-order'),
+        import('../server/domain/cart'),
+        import('../server/domain/catalog'),
+        import('../server/domain/inventory'),
+        import('../server/domain/orders'),
+        import('../server/domain/payments'),
+      ]);
+    const user = userModule.getMockUserById('mock-customer-1')!;
+    const cart = await cartModule.getMockCartForUser('mock-customer-1');
+    await cartModule.addProductsToMockCart(cart, [{ id: 'prod-1', stock: 1, isFolder: false }]);
+    const reviewedCartRevision = cart.revision;
+    expect(reviewedCartRevision).toBeTruthy();
+
+    let releaseSnapshot!: () => void;
+    const snapshotMayRead = new Promise<void>((resolve) => {
+      releaseSnapshot = resolve;
+    });
+    let markSnapshotRequested!: () => void;
+    const snapshotRequested = new Promise<void>((resolve) => {
+      markSnapshotRequested = resolve;
+    });
+    const placeOrder = checkoutModule.createPlaceOrderUseCase(
+      {
+        cart: {
+          ...cartDomain.cart,
+          getSnapshot: async (input) => {
+            markSnapshotRequested();
+            await snapshotMayRead;
+            return await cartDomain.cart.getSnapshot(input);
+          },
+        },
+        catalog: catalogModule.catalog,
+        inventory: inventoryModule.inventory,
+        orders: ordersModule.orders,
+        payments: paymentsModule.payments,
+      },
+      checkoutModule.createPlaceOrderCoordinator(),
+    );
+
+    const submission = placeOrder({
+      checkoutRequestId: 'checkout-stale-review',
+      cartId: String(cart._id),
+      cartOwnerId: 'mock-customer-1',
+      reviewedCartRevision,
+      user,
+      order: orderInput,
+    });
+    await snapshotRequested;
+    await cartModule.addProductsToMockCart(cart, [{ id: 'prod-2', stock: 1, isFolder: false }]);
+    releaseSnapshot();
+
+    await expect(submission).rejects.toMatchObject({ code: 'cart_changed', statusCode: 409 });
+    const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
+    const database = await getCheckoutDatabase();
+    const [orderCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_orders');
+    const [reservationCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_reservations');
+    expect(Number(orderCount?.total)).toBe(0);
+    expect(Number(reservationCount?.total)).toBe(0);
+  });
+
   it('returns one result when the same checkout request is submitted rapidly by independent instances', async () => {
     const [cartModule, userModule, checkoutModule, cartDomain, catalogModule, inventoryModule, ordersModule, paymentsModule] =
       await Promise.all([

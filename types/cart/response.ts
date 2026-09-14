@@ -20,6 +20,8 @@ export interface CartResponse {
 
 export interface CartInterface {
   _id?: string;
+  /** Server-issued version used to bind a checkout to the cart the buyer reviewed. */
+  revision?: string;
   userId: string;
   products: CartProductsInterface[];
   startDate: string;

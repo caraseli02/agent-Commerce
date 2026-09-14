@@ -39,6 +39,7 @@ describe('mock API flow boundaries', () => {
   it('adds products through the cart endpoint and converts the cart into a paid mock order', async () => {
     const { createMockToken } = await import('../server/utils/mockUsers');
     const cartHandler = (await import('../server/api/cart.post')).default as (event: unknown) => Promise<unknown>;
+    const priceHandler = (await import('../server/api/orders/price.post')).default as (event: unknown) => Promise<unknown>;
     const orderHandler = (await import('../server/api/orders/new.post')).default as (event: unknown) => Promise<unknown>;
 
     const token = createMockToken('mock-customer-1');
@@ -47,14 +48,20 @@ describe('mock API flow boundaries', () => {
       body: {
         products: [{ id: 'prod-2', stock: 1, isFolder: false }],
       },
-    })) as { data: { _id: string; products: Array<{ id: string }> } };
+    })) as { data: { _id: string; revision: string; products: Array<{ id: string }> } };
 
     expect(cartResponse.data.products.some((product) => product.id === 'prod-2')).toBe(true);
+    const priceResponse = (await priceHandler({
+      headers: { authorization: `Bearer ${token}` },
+      body: { order: { cartId: cartResponse.data._id } },
+    })) as { data: { review: { cartRevision: string; quoteFingerprint: string } } };
 
     const orderResponse = (await orderHandler({
       headers: { authorization: `Bearer ${token}` },
       body: {
         cartId: cartResponse.data._id,
+        reviewedCartRevision: priceResponse.data.review.cartRevision,
+        reviewedQuoteFingerprint: priceResponse.data.review.quoteFingerprint,
         paymentDetails: { type: PaymentTypeEnum.Card },
       },
     })) as { status: string; data: { orderId: string; status: PaymentStatusEnum; result?: { status: string } } };
@@ -63,6 +70,25 @@ describe('mock API flow boundaries', () => {
     expect(orderResponse.data.orderId).toMatch(/^ord-/);
     expect(orderResponse.data.status).toBe(PaymentStatusEnum.Paid);
     expect(orderResponse.data.result?.status).toBe('succeeded');
+  });
+
+  it('requires the server-issued cart revision before accepting checkout', async () => {
+    const { createMockToken } = await import('../server/utils/mockUsers');
+    const orderHandler = (await import('../server/api/orders/new.post')).default as (event: unknown) => Promise<unknown>;
+    const token = createMockToken('mock-customer-1');
+
+    await expect(
+      orderHandler({
+        headers: { authorization: `Bearer ${token}` },
+        body: {
+          cartId: 'mock-cart-mock-customer-1',
+          paymentDetails: { type: PaymentTypeEnum.Card },
+        },
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 409,
+      statusMessage: expect.stringContaining('review is no longer current'),
+    });
   });
 
   it('supports the smart-pricing API loaded during admin sign-in', async () => {

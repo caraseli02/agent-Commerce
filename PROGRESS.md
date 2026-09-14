@@ -2,21 +2,24 @@
 
 ## Current focus
 
-- Issue #532 on `codex/532-revision-aware-cart-completion`.
-- Keep paid Order/Payment finalization independent from revision-aware Cart cleanup.
+- Issue #536 on `codex/536-reject-stale-cart-checkout`.
+- Bind a checkout submission to the server-issued cart revision and quote fingerprint from the buyer's reviewed order.
 
 ## In progress
 
-- Separated successful checkout finalization from best-effort cart completion so
-  cleanup failures cannot turn a paid Order into a failed checkout.
-- Finalized replays retry cleanup using the persisted cart ID and revision;
-  preserve every newer cart revision without subtracting overlapping lines.
-- PostgreSQL regressions cover cleanup rollback/retry, stale and repopulated carts,
-  independent instances, duplicate requests, and concurrent checkout claims.
+- The quote route returns a revision plus a deterministic payable-quote fingerprint;
+  the browser submits both with the checkout intent, and `/api/orders/new` requires them.
+- The application workflow rejects a mismatched revision or quote fingerprint before quote,
+  reservation, Payment, or Order creation. The failure view calls this a cart
+  change rather than a payment failure.
+- Focused contract tests, lint, and typecheck pass. The new PostgreSQL race test
+  is present but cannot run locally until a `DATABASE_URL` is configured.
 
 ## Blocked / known baseline failures
 
-- None for issue #532.
+- Local PostgreSQL-backed verification and browser runtime proof for #536 are
+  blocked: `.env` has mock public settings but no `DATABASE_URL`, and this host
+  has no `psql`, `pg_isready`, Docker, or Podman runtime.
 - Existing nonblocking warnings: `utils/categories.ts` legacy architecture warning,
   Vitest/coverage package version mismatch, and Vite native-config migration warning.
 - Real provider I/O, webhooks, provider-attempt ownership, reconciliation, refunds,
@@ -55,4 +58,5 @@
 
 ## Next verification
 
-- Independent evaluator review for PR #533 at the final branch head.
+- With a PostgreSQL `DATABASE_URL`: run the focused checkout/cart suite, then
+  `pnpm verify:full` and the stale-review browser flow before opening evaluator handoff.

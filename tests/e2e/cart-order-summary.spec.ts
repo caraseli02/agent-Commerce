@@ -142,4 +142,41 @@ test.describe('Product Detail → Checkout Confirmation', () => {
     await expect(page.getByRole('heading', { name: /payment failed/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /try again/i })).toBeEnabled();
   });
+
+  test('requires a fresh review when another tab changes the cart before checkout', async ({ page }) => {
+    await navigateTo(page, '/product/prod-2');
+    await addProductToCart(page);
+    await navigateTo(page, '/order-summary');
+    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+
+    const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
+    const loginResponse = await Promise.all([
+      page.waitForResponse((response) => response.url().includes('/api/auth/login') && response.request().method() === 'POST'),
+      signInButton.click(),
+    ]).then(([response]) => response);
+    const loginPayload = (await loginResponse.json()) as { data?: { token?: string } };
+    const token = loginPayload.data?.token;
+    expect(token).toBeTruthy();
+    await expect(page).toHaveURL(/\/order-summary$/);
+
+    const cartChange = await page.request.post('/api/cart', {
+      headers: { authorization: `Bearer ${token}` },
+      data: { products: [{ id: 'prod-1', stock: 1, isFolder: false }] },
+    });
+    expect(cartChange.ok()).toBe(true);
+
+    const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
+    await expect(secureCheckoutButton).toBeEnabled();
+    const [placeOrderResponse] = await Promise.all([
+      page.waitForResponse((response) => response.url().includes('/api/orders/new') && response.request().method() === 'POST'),
+      page.waitForURL(/\/checkout\/fail/),
+      secureCheckoutButton.click(),
+    ]);
+
+    expect(placeOrderResponse.status()).toBe(409);
+    await expect(page.getByRole('heading', { name: /your cart changed/i })).toBeVisible();
+    await expect(page.getByText(/review the updated items and total/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /review updated cart/i })).toBeEnabled();
+    expect(page.url()).not.toMatch(/\/checkout\/success/);
+  });
 });
