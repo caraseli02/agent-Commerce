@@ -295,7 +295,21 @@ export const createPlaceOrderUseCase =
     const prepared = requirePreparedClaim(claim);
     let payment = await dependencies.payments.getPaymentPreparation(prepared.payment_id);
     if (!payment) throw new PlaceOrderError('checkout_repair_required', 500, 'The persisted checkout Payment is missing.');
+    const completeCartCheckout = async () => {
+      try {
+        await withCheckoutTransaction(async () => {
+          await dependencies.cart.completeCheckout({
+            cartId: prepared.cart_id,
+            ownerId: prepared.owner_id,
+            expectedRevision: String(prepared.cart_revision),
+          });
+        });
+      } catch {
+        // Cart cleanup is a best-effort retryable step after durable order finalization.
+      }
+    };
     if (prepared.workflow_status === 'finalized') {
+      await completeCartCheckout();
       if (!prepared.result_json) return toLegacyPaymentResult(payment);
       const persisted = JSON.parse(prepared.result_json) as Partial<PlaceOrderResult>;
       return {
@@ -329,13 +343,6 @@ export const createPlaceOrderUseCase =
         const confirmation = await dependencies.orders.confirmPayment({ orderId: prepared.order_id, paymentId: prepared.payment_id });
         if (confirmation.kind === 'not-found')
           throw new PlaceOrderError('order_recovery_required', 500, 'The paid Order could not be finalized.');
-        const cartCompletion = await dependencies.cart.completeCheckout({
-          cartId: prepared.cart_id,
-          ownerId,
-          expectedRevision: String(prepared.cart_revision),
-        });
-        if (cartCompletion.kind === 'not-found' || cartCompletion.kind === 'forbidden')
-          throw new PlaceOrderError('cart_recovery_required', 409, 'The paid checkout cart requires recovery.');
         const result = toLegacyPaymentResult(payment!);
         const database = await getCheckoutDatabase();
         await database.execute(
@@ -354,6 +361,7 @@ export const createPlaceOrderUseCase =
       });
       throw error;
     }
+    await completeCartCheckout();
     return toLegacyPaymentResult(payment);
   };
 

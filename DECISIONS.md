@@ -108,3 +108,15 @@ Use this file for durable cross-session decisions that should survive context re
     `PENDING`/`PAID`/`FAILED`, with neutral `providerReference` and optional
     `PaymentNextAction` seams. Provider attempts, Stripe, webhooks, refunds,
     queues, outbox/cron recovery, and finalization remain deferred.
+
+- 2026-09-12 — Finalize paid checkout before best-effort revision-aware Cart cleanup
+
+  - Reason: payment and Order truth must survive a missing, changed, or temporarily
+    unavailable Cart, and cleanup for revision `N` must never destroy intent added
+    in revision `N+1`.
+  - Impact: Inventory commit, Order confirmation, and the finalized checkout claim
+    commit together before Cart cleanup runs in a separate PostgreSQL transaction.
+    Cleanup compares the persisted checkout revision, treats every cleanup outcome
+    as non-fatal after checkout success, and is retried by finalized replays. A
+    revision mismatch preserves the complete newer cart; automatic line subtraction
+    or merging remains deferred.

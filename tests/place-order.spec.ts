@@ -157,7 +157,7 @@ describe('PlaceOrder application workflow', () => {
     );
   });
 
-  it('returns the same logical order for the same request and performs side effects once', async () => {
+  it('returns the same logical order for the same request, preserving durable side effects while retrying cart cleanup', async () => {
     const { dependencies, createPending } = makeDependencies();
     const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
     const command = makeCommand();
@@ -170,7 +170,7 @@ describe('PlaceOrder application workflow', () => {
     expect(createPending).toHaveBeenCalledTimes(1);
     expect(dependencies.inventory.reserve).toHaveBeenCalledTimes(1);
     expect(dependencies.payments.preparePayment).toHaveBeenCalledTimes(1);
-    expect(dependencies.cart.completeCheckout).toHaveBeenCalledTimes(1);
+    expect(dependencies.cart.completeCheckout).toHaveBeenCalledTimes(2);
   });
 
   it('rejects reuse of the same checkoutRequestId with different checkout parameters', async () => {

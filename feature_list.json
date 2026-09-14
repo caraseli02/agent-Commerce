@@ -8,10 +8,24 @@
   },
   "features": [
     {
+      "id": "I532",
+      "description": "Harden cart completion with revision-aware checkout semantics (#532)",
+      "validation": "Paid checkout finalization commits independently from best-effort revision-aware cart cleanup; retries, stale revisions, concurrent completion, crash recovery, independent instances, full verification, and Vercel Preview smoke pass",
+      "status": "active",
+      "evidence": [
+        "Issue #532 claimed on codex/532-revision-aware-cart-completion.",
+        "Focused PostgreSQL checkout suite passed: 6 files, 40 tests; final review-repair subset passed 2 files, 18 tests.",
+        "pnpm verify passed before review repair: 77 files, 361 tests passed, 2 todo; coverage thresholds passed.",
+        "Final pnpm verify:full passed: 78 files, 364 tests passed, 2 todo, with architecture invariants and built-preview smoke for /, /cart, and /checkout.",
+        "Independent standards and spec reviews reported no findings after the crash-window and deterministic PostgreSQL race tests were added.",
+        "Vercel Preview buyer smoke passed: demo order ord-1789243391022-9181 (ORD-248769) confirmed, its order view remained reachable, and the completed cart reopened empty."
+      ]
+    },
+    {
       "id": "PAYMENT-PREPARATION",
       "description": "Durable local payment preparation boundary before external provider I/O",
       "validation": "One atomic preparation persists checkout claim, immutable Order, reservation, one local Payment, and relational correlations; replay and concurrent checkout recover the same IDs; provider continuation is outside the retryable transaction; focused tests and parent verification evidence pass",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "Designed in docs/system-design-review.md, docs/system-design/06-domain-boundaries-and-ownership.md, and docs/system-design/07-public-module-contracts-and-dependency-graph.md",
         "DECISIONS.md records the commit-before-provider boundary and deferred scope",
@@ -27,7 +41,8 @@
         "Handoff architecture validation has the documented unchanged tracked baseline manual Bearer-header exception",
         "Code and tests are complete; the user approved a one-time push exception for the proven unchanged visual and architecture baseline failures",
         "Handoff target is the reviewable PR from codex/payment-preparation-boundary; it is not merged, and the feature stays active while the PR awaits human review",
-        "2026-09-11 PR #529 repair: retain guest cart revision through atomic login merge; add rollback/FAILED replay and durable-order UI assertions. verify and verify:full exit 0 (359 passed, 2 todo), E2E 13 passed, visual 9 passed; final hydration suite 3 passed. Local repair branch codex/pr529-findings, original preview unchanged."
+        "2026-09-11 PR #529 repair: retain guest cart revision through atomic login merge; add rollback/FAILED replay and durable-order UI assertions. verify and verify:full exit 0 (359 passed, 2 todo), E2E 13 passed, visual 9 passed; final hydration suite 3 passed. Local repair branch codex/pr529-findings, original preview unchanged.",
+        "PR #529 merged into main as 6c9e6db7 on 2026-09-12."
       ]
     },
     {
