@@ -2,24 +2,18 @@
 
 ## Current focus
 
-- Issue #536 on `codex/536-reject-stale-cart-checkout`.
-- Bind a checkout submission to the server-issued cart revision and quote fingerprint from the buyer's reviewed order.
+- PR #548 on `codex/535-checkout-qa-followups` combines the #536 stale-review guard with remaining #535 buyer QA repairs.
+- Preserve server-issued review identity, buyer-visible checkout consistency, and account-data privacy.
 
 ## In progress
 
-- The quote route returns a revision plus a deterministic payable-quote fingerprint;
-  the browser submits both with the checkout intent, and `/api/orders/new` requires them.
-- The application workflow rejects a mismatched revision or quote fingerprint before quote,
-  reservation, Payment, or Order creation. The failure view calls this a cart
-  change rather than a payment failure.
-- Focused contract tests, lint, and typecheck pass. The new PostgreSQL race test
-  is present but cannot run locally until a `DATABASE_URL` is configured.
+- The quote route returns a revision plus a deterministic payable-quote fingerprint; checkout requires both and rejects a stale review before an Order, Payment, or reservation is created.
+- Credit payment remains visible with an actionable insufficient-balance/facility explanation; public tracking no longer renders static customer, address, or payment fixtures.
+- Paid transaction history is derived from durable Orders, checkout drafts restore only within the session, and exact order IDs filter server-side.
 
 ## Blocked / known baseline failures
 
-- Local PostgreSQL-backed verification and browser runtime proof for #536 are
-  blocked: `.env` has mock public settings but no `DATABASE_URL`, and this host
-  has no `psql`, `pg_isready`, Docker, or Podman runtime.
+- Local PostgreSQL-backed verification and browser runtime proof remain blocked: `.env` has mock public settings but no `DATABASE_URL`, and this host has no PostgreSQL/Docker runtime.
 - Existing nonblocking warnings: `utils/categories.ts` legacy architecture warning,
   Vitest/coverage package version mismatch, and Vite native-config migration warning.
 - Real provider I/O, webhooks, provider-attempt ownership, reconciliation, refunds,
@@ -58,5 +52,4 @@
 
 ## Next verification
 
-- With a PostgreSQL `DATABASE_URL`: run the focused checkout/cart suite, then
-  `pnpm verify:full` and the stale-review browser flow before opening evaluator handoff.
+- Start mock Nuxt with a PostgreSQL `DATABASE_URL`, run the focused checkout/cart suite and `pnpm verify:full`, then exercise stale-review, guest draft, credit, tracking, transaction-history, ID-search, address, and sign-out browser flows.

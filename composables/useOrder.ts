@@ -50,6 +50,9 @@ export function useOrder() {
   const orderRequestObject = ref<OrderRequestInterface>({} as OrderRequestInterface);
 
   const checkoutFailPath = { path: '/checkout/fail' } as const;
+  const clearCheckoutDraft = () => {
+    if (import.meta.client) sessionStorage.removeItem('checkout-draft-v1');
+  };
 
   const goToCheckoutFail = async (error: CheckoutFailure) => {
     cartStore.setPreviousCheckoutError(error);
@@ -68,8 +71,10 @@ export function useOrder() {
           break;
         }
         if (outcome.destination === 'checkout-success') {
+          clearCheckoutDraft();
           await router.push({ path: '/checkout/success', query: { id: outcome.orderId } });
         } else {
+          clearCheckoutDraft();
           await router.push({ path: '/order-summary/' + outcome.orderId, query: { new: 'true' } });
         }
         break;
@@ -130,7 +135,6 @@ export function useOrder() {
       const details = payload.data && typeof payload.data === 'object' ? (payload.data as Record<string, unknown>) : payload;
       const message = details.message ?? payload.message ?? response.statusMessage ?? response.message;
       const code = details.code ?? payload.code;
-
       return {
         message: typeof message === 'string' && message.trim() ? message : 'Unable to complete checkout. Please try again.',
         type:

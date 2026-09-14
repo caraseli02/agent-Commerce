@@ -34,6 +34,17 @@
       ]
     },
     {
+      "id": "I535",
+      "description": "Resolve remaining buyer checkout QA findings from epic #535 (#537-#547)",
+      "validation": "Authoritative price/stock behavior remains intact; checkout conflicts are distinct from generic payment failures; refresh behavior is explicit; credit, order tracking, transaction history, order search, addresses, and sign-out cart isolation are covered by focused tests and runtime verification",
+      "status": "blocked",
+      "evidence": [
+        "Implementation started on codex/535-checkout-qa-followups from main commit 81ca251f.",
+        "Initialization dependency install is blocked by DNS resolution of registry.npmjs.org; focused tests cannot run until dependencies are restored.",
+        "Independent re-verifier reviewed #536-#547. It found and the implementation fixed error-code propagation, completed-draft cleanup, and exact ID server filtering; code-inspection verdict passed for #537-#547, while #536 remains unverified because GitHub issue access and runtime tests are unavailable."
+      ]
+    },
+    {
       "id": "PAYMENT-PREPARATION",
       "description": "Durable local payment preparation boundary before external provider I/O",
       "validation": "One atomic preparation persists checkout claim, immutable Order, reservation, one local Payment, and relational correlations; replay and concurrent checkout recover the same IDs; provider continuation is outside the retryable transaction; focused tests and parent verification evidence pass",

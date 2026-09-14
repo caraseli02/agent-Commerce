@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
     status?: string;
     userId?: string;
     startDate?: string;
+    shortId?: string;
   };
 
   const page = Number.parseInt(query.page || '1', 10);
@@ -41,6 +42,14 @@ export default defineEventHandler(async (event) => {
   const scopedUserId = authenticatedUser.role === AccountRole.Admin ? query.userId : authenticatedUser._id;
 
   let items = await orders.list(scopedUserId);
+
+  if (query.shortId?.trim()) {
+    const expected = query.shortId.trim().toLowerCase().replace(/^#/, '');
+    items = items.filter((order) => {
+      const shortId = String(order.shortId || '').toLowerCase().replace(/^#/, '');
+      return shortId === expected || String(order._id || '').toLowerCase() === expected;
+    });
+  }
 
   if (query.status) {
     const statusFilters = String(query.status)
