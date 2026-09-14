@@ -17,6 +17,11 @@ export interface ShippingOrderPricingOption {
 export interface ShippingOrderPricingResponse {
   selected: ShippingOrderPricingOption;
   list: ShippingOrderPricingOption[];
+  /** Server-issued identity for the cart revision and payable quote the buyer reviewed. */
+  review?: {
+    cartRevision: string;
+    quoteFingerprint: string;
+  };
   quote?: {
     currency: 'RON';
     merchandiseTotal: number;

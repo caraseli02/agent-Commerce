@@ -5,6 +5,7 @@ import { inventory as realInventory } from '~/server/domain/inventory';
 import { orders as realOrders } from '~/server/domain/orders';
 import { payments as realPayments } from '~/server/domain/payments';
 import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { createCheckoutReviewFingerprint } from '~/server/application/checkout/review-fingerprint';
 import type { SmallOrderChargeTier } from '~/helpers/order-money';
 
 const user = {
@@ -15,6 +16,7 @@ const makeCommand = (overrides: Partial<PlaceOrderCommand> = {}): PlaceOrderComm
   checkoutRequestId: 'checkout-1',
   cartId: 'cart-1',
   cartOwnerId: 'customer-1',
+  reviewedCartRevision: '7',
   user,
   order: {
     total: 0.01,
@@ -208,6 +210,51 @@ describe('PlaceOrder application workflow', () => {
     expect(second.orderId).toBe(first.orderId);
 
     expect(createPending).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a stale reviewed cart before reserving inventory or creating an Order', async () => {
+    const { dependencies, createPending } = makeDependencies();
+    dependencies.cart.getSnapshot.mockResolvedValueOnce({
+      kind: 'found',
+      snapshot: {
+        cartId: 'cart-1',
+        ownerId: 'customer-1',
+        revision: '8',
+        items: [{ productId: 'prod-1', immediateQuantity: 2, backorderQuantity: 0 }],
+      },
+    });
+    const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
+
+    await expect(placeOrder(makeCommand())).rejects.toMatchObject({
+      code: 'cart_changed',
+      statusCode: 409,
+      message: expect.stringContaining('cart changed after you reviewed'),
+    });
+
+    expect(dependencies.catalog.quoteCheckout).not.toHaveBeenCalled();
+    expect(dependencies.inventory.reserve).not.toHaveBeenCalled();
+    expect(createPending).not.toHaveBeenCalled();
+  });
+
+  it('rejects a changed payable quote before reserving inventory or creating an Order', async () => {
+    const { dependencies, createPending } = makeDependencies();
+    const changedQuote = await dependencies.catalog.quoteCheckout();
+    if (changedQuote.kind !== 'quoted') throw new Error('Expected test quote.');
+    const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());
+
+    await expect(
+      placeOrder(
+        makeCommand({
+          reviewedQuoteFingerprint: createCheckoutReviewFingerprint('7', {
+            ...changedQuote.quote,
+            grandTotal: { minor: 1, currency: 'RON' },
+          }),
+        }),
+      ),
+    ).rejects.toMatchObject({ code: 'quote_changed', statusCode: 409 });
+
+    expect(dependencies.inventory.reserve).not.toHaveBeenCalled();
+    expect(createPending).not.toHaveBeenCalled();
   });
 
   it('builds the Order from the authoritative Catalog quote rather than client product totals', async () => {

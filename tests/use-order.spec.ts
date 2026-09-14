@@ -126,6 +126,7 @@ describe('checkout order composable flow boundary', () => {
         total: 1509.98,
         products: [],
       },
+      { cartRevision: '7', quoteFingerprint: 'quote-7' },
     );
 
     expect(apiRequests).toMatchObject([
@@ -135,6 +136,7 @@ describe('checkout order composable flow boundary', () => {
       { resource: '/cart', method: 'GET' },
     ]);
     expect(sentOrders).toHaveLength(1);
+    expect(sentOrders[0]).toMatchObject({ reviewedCartRevision: '7', reviewedQuoteFingerprint: 'quote-7' });
     expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/success', query: { id: 'ord-composable-1' } });
   });
 

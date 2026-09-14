@@ -1,5 +1,6 @@
 import { cart } from '~/server/domain/cart';
 import { catalog } from '~/server/domain/catalog';
+import { createCheckoutReviewFingerprint } from '~/server/application/checkout/review-fingerprint';
 import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
 import { requireMockCartUserId } from '~/server/utils/mockCart';
 
@@ -58,6 +59,10 @@ export default defineEventHandler(async (event) => {
           data: {
             selected: quoteResult.quote.deliveryOption,
             list: catalog.deliveryOptions,
+            review: {
+              cartRevision: cartResult.snapshot.revision,
+              quoteFingerprint: createCheckoutReviewFingerprint(cartResult.snapshot.revision, quoteResult.quote),
+            },
             quote,
           },
         };

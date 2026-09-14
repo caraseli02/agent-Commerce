@@ -123,7 +123,7 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
   } as CartProductsInterface;
 };
 
-const serializeCartForStorage = (cart: CartInterface): CartInterface => ({
+const serializeCartForStorage = ({ revision: _revision, ...cart }: CartInterface): CartInterface => ({
   ...cart,
   products: (cart.products || []).map(({ productEntity: _productEntity, ...product }) => product),
 });
@@ -159,6 +159,7 @@ type CartRow = {
 const parseCartRow = (row: CartRow) => {
   const cart = hydrateCartFromStorage(JSON.parse(row.payload_json) as CartInterface);
   cart.products = Array.isArray(cart.products) ? cart.products : [];
+  cart.revision = String(row.revision);
   return cart;
 };
 
@@ -174,12 +175,14 @@ const selectCartForOwner = async (userId: string) => {
 const persistCart = async (cart: CartInterface) => {
   if (!cart.userId) return;
   const database = await getCheckoutDatabase();
-  await database.execute(
+  const rows = await database.query<{ revision: number }>(
     `UPDATE checkout_carts
        SET payload_json = $1, revision = revision + 1, updated_at = $2
-     WHERE owner_id = $3`,
+     WHERE owner_id = $3
+     RETURNING revision`,
     [JSON.stringify(serializeCartForStorage(cart)), nowIso(), cart.userId],
   );
+  if (rows[0]) cart.revision = String(rows[0].revision);
 };
 
 export const getMockCartForUser = async (userId: string) =>

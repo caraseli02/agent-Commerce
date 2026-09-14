@@ -131,6 +131,7 @@ const isGuestCheckout = computed(() => !(token.value || userId.value));
 const { guestCheckoutMode, clearGuestCheckout } = useGuestCheckout();
 const isGuestCheckoutMode = computed(() => isGuestCheckout.value && guestCheckoutMode.value);
 const authoritativeQuote = ref<ShippingOrderPricingResponse['quote']>(undefined);
+const checkoutReview = ref<ShippingOrderPricingResponse['review']>();
 
 // Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
 // (sets hasFetchedCart) so pages never call composables/api/cart directly.
@@ -372,6 +373,7 @@ watch(checkout, async (newVal) => {
           guestContact: order.value.guestContact,
           shippingDetails: order.value.shippingDetails,
         },
+        checkoutReview.value,
       );
       stopButtonTrigger.value = false;
     } catch {
@@ -408,6 +410,7 @@ const refreshAuthoritativePricing = async () => {
 
   if (!cartId.value || !cartItems.value.length) {
     authoritativeQuote.value = undefined;
+    checkoutReview.value = undefined;
     return;
   }
 
@@ -416,13 +419,17 @@ const refreshAuthoritativePricing = async () => {
   try {
     response = await fetchShippingPrices({ ...order.value, cartId: cartId.value });
   } catch {
-    if (requestVersion === quoteRequestVersion) authoritativeQuote.value = undefined;
+    if (requestVersion === quoteRequestVersion) {
+      authoritativeQuote.value = undefined;
+      checkoutReview.value = undefined;
+    }
     return;
   }
   if (requestVersion !== quoteRequestVersion) return;
 
   shippingPreferences.value = response;
   authoritativeQuote.value = response?.quote;
+  checkoutReview.value = response?.review;
   if (response?.selected) order.value.deliveryMethod = response.selected;
   const tier = response?.quote?.smallOrderTier;
   order.value.smallOrder = tier?._id ? { ...tier, _id: tier._id } : null;

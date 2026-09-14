@@ -6,6 +6,7 @@ import { inventory as defaultInventory } from '~/server/domain/inventory';
 import { orders as defaultOrders } from '~/server/domain/orders';
 import { payments as defaultPayments, toLegacyPaymentResult } from '~/server/domain/payments';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { createCheckoutReviewFingerprint } from './review-fingerprint';
 
 type LegacyOrderInput = Record<string, unknown> & {
   checkoutRequestId?: unknown;
@@ -20,6 +21,10 @@ export type PlaceOrderCommand = {
   checkoutRequestId?: string;
   cartId: string;
   cartOwnerId: string;
+  /** The server-issued cart revision attached to the buyer's reviewed quote. */
+  reviewedCartRevision?: string;
+  /** Server-generated fingerprint of the payable quote the buyer reviewed. */
+  reviewedQuoteFingerprint?: string;
   user: UserInterface;
   order: LegacyOrderInput;
 };
@@ -99,6 +104,8 @@ const requestFingerprint = (command: PlaceOrderCommand) =>
   stableFingerprint({
     cartId: command.cartId,
     cartOwnerId: command.cartOwnerId,
+    reviewedCartRevision: command.reviewedCartRevision,
+    reviewedQuoteFingerprint: command.reviewedQuoteFingerprint,
     shippingDetails: command.order.shippingDetails,
     paymentType: resolvePaymentType(command.order),
     stripeCardId: command.order.stripeCardId,
@@ -168,6 +175,13 @@ export const createPlaceOrderUseCase =
         if (cartResult.kind === 'not-found') throw new PlaceOrderError('cart_not_found', 404, 'The checkout cart was not found.');
         if (cartResult.kind === 'forbidden')
           throw new PlaceOrderError('cart_forbidden', 403, 'The checkout cart does not belong to the current session.');
+        if (command.reviewedCartRevision && command.reviewedCartRevision !== cartResult.snapshot.revision) {
+          throw new PlaceOrderError(
+            'cart_changed',
+            409,
+            'Your cart changed after you reviewed this order. Return to the order summary to review the updated items and total before placing your order.',
+          );
+        }
         const requestKey =
           explicitKey ?? `legacy-${stableFingerprint({ ownerId, cartId, revision: cartResult.snapshot.revision, fingerprint })}`;
         const database = await getCheckoutDatabase();
@@ -202,6 +216,16 @@ export const createPlaceOrderUseCase =
           throw new PlaceOrderError('product_unavailable', 409, `Product ${quoteResult.productId} is no longer available for checkout.`);
         if (quoteResult.kind === 'delivery-unavailable')
           throw new PlaceOrderError('delivery_unavailable', 409, 'The selected delivery service is no longer available.');
+        if (
+          command.reviewedQuoteFingerprint &&
+          command.reviewedQuoteFingerprint !== createCheckoutReviewFingerprint(cartResult.snapshot.revision, quoteResult.quote)
+        ) {
+          throw new PlaceOrderError(
+            'quote_changed',
+            409,
+            'Pricing changed after you reviewed this order. Return to the order summary to review the updated items and total before placing your order.',
+          );
+        }
         const timestamp = new Date().toISOString();
         const insertedClaim = await database.query<{ request_id: string }>(
           `INSERT INTO checkout_claims (owner_id, request_id, fingerprint, cart_id, cart_revision, result_json, created_at, updated_at, workflow_status)

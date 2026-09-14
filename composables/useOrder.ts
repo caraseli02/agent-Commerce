@@ -35,6 +35,11 @@ interface CheckoutOrderSummary {
   };
 }
 
+interface CheckoutReview {
+  cartRevision: string;
+  quoteFingerprint: string;
+}
+
 export function useOrder() {
   const router = useRouter();
   const config = useRuntimeConfig();
@@ -114,11 +119,32 @@ export function useOrder() {
   };
 
   const buildCheckoutException = (error: unknown): CheckoutFailure => {
-    if (error instanceof Error) {
+    if (error && typeof error === 'object') {
+      const response = error as {
+        message?: unknown;
+        name?: unknown;
+        statusMessage?: unknown;
+        data?: unknown;
+      };
+      const payload = response.data && typeof response.data === 'object' ? (response.data as Record<string, unknown>) : {};
+      const details = payload.data && typeof payload.data === 'object' ? (payload.data as Record<string, unknown>) : payload;
+      const message = details.message ?? payload.message ?? response.statusMessage ?? response.message;
+      const code = details.code ?? payload.code;
+
       return {
-        message: error.message || 'Unable to complete checkout. Please try again.',
-        type: error.name || 'checkout_exception',
-        code: error.name || 'checkout_exception',
+        message: typeof message === 'string' && message.trim() ? message : 'Unable to complete checkout. Please try again.',
+        type:
+          typeof code === 'string' && code
+            ? code
+            : typeof response.name === 'string' && response.name
+              ? response.name
+              : 'checkout_exception',
+        code:
+          typeof code === 'string' && code
+            ? code
+            : typeof response.name === 'string' && response.name
+              ? response.name
+              : 'checkout_exception',
       };
     }
 
@@ -138,6 +164,7 @@ export function useOrder() {
     paymentDetails: PaymentDetails,
     note: string,
     orderSummary?: CheckoutOrderSummary,
+    checkoutReview?: CheckoutReview,
   ) => {
     const guestContact = orderSummary?.guestContact;
     const draftShippingAddress = orderSummary?.shippingDetails?.address ?? null;
@@ -167,6 +194,8 @@ export function useOrder() {
       orderRequestObject.value = {
         isDraft: false,
         cartId: cartId,
+        reviewedCartRevision: checkoutReview?.cartRevision,
+        reviewedQuoteFingerprint: checkoutReview?.quoteFingerprint,
         currency: 'ron',
         type: orderType,
         products: orderSummary?.products ?? [],
@@ -239,6 +268,8 @@ export function useOrder() {
       orderRequestObject.value = {
         isDraft: false,
         cartId: cartId,
+        reviewedCartRevision: checkoutReview?.cartRevision,
+        reviewedQuoteFingerprint: checkoutReview?.quoteFingerprint,
         currency: 'ron',
         type: orderType,
         products: orderSummary?.products ?? [],
