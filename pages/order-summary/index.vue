@@ -133,6 +133,8 @@ const isGuestCheckoutMode = computed(() => isGuestCheckout.value && guestCheckou
 const authoritativeQuote = ref<ShippingOrderPricingResponse['quote']>(undefined);
 const checkoutReview = ref<ShippingOrderPricingResponse['review']>();
 const CHECKOUT_DRAFT_STORAGE_KEY = 'checkout-draft-v1';
+const restoredCardId = ref<string | null>(null);
+const requiresPaymentReselection = ref(false);
 
 // Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
 // (sets hasFetchedCart) so pages never call composables/api/cart directly.
@@ -214,7 +216,11 @@ const restoreCheckoutDraft = () => {
     if (draft.guestContact) order.value.guestContact = draft.guestContact;
     if (draft.deliveryMethod) order.value.deliveryMethod = draft.deliveryMethod;
     if (draft.backorderOption) order.value.backorderOption = draft.backorderOption;
-    if (draft.paymentDetails?.type !== undefined) order.value.paymentDetails = { type: draft.paymentDetails.type } as PaymentDetails;
+    if (draft.paymentDetails?.type !== undefined) {
+      order.value.paymentDetails = { type: draft.paymentDetails.type } as PaymentDetails;
+      const storedCardId = (draft.paymentDetails as PaymentDetails & { cardId?: unknown }).cardId;
+      restoredCardId.value = typeof storedCardId === 'string' ? storedCardId : null;
+    }
   } catch {
     sessionStorage.removeItem(CHECKOUT_DRAFT_STORAGE_KEY);
   }
@@ -229,7 +235,10 @@ const persistCheckoutDraft = () => {
       guestContact: order.value.guestContact,
       deliveryMethod: order.value.deliveryMethod,
       backorderOption: order.value.backorderOption,
-      paymentDetails: order.value.paymentDetails?.type === undefined ? undefined : { type: order.value.paymentDetails.type },
+      paymentDetails:
+        order.value.paymentDetails?.type === undefined
+          ? undefined
+          : { type: order.value.paymentDetails.type, cardId: order.value.paymentDetails.card?.id },
     }),
   );
 };
@@ -331,7 +340,7 @@ const applyMockCheckoutDefaults = () => {
     }
   }
 
-  if (!order.value.paymentDetails || !('type' in order.value.paymentDetails)) {
+  if ((!order.value.paymentDetails || !('type' in order.value.paymentDetails)) && !requiresPaymentReselection.value) {
     if (card.value?.id) {
       order.value.paymentDetails = {
         type: PaymentTypeEnum.Card,
@@ -353,6 +362,18 @@ const applyMockCheckoutDefaults = () => {
       type: PaymentTypeEnum.Bank,
     };
   }
+};
+
+const restoreSavedCardSelection = () => {
+  if (order.value.paymentDetails?.type !== PaymentTypeEnum.Card || !restoredCardId.value) return;
+  const savedCard = cards.value.find((candidate) => candidate.id === restoredCardId.value);
+  if (savedCard) {
+    order.value.paymentDetails = { type: PaymentTypeEnum.Card, card: savedCard };
+  } else {
+    order.value.paymentDetails = {} as PaymentDetails;
+    requiresPaymentReselection.value = true;
+  }
+  restoredCardId.value = null;
 };
 
 // Checkout Control
@@ -558,6 +579,7 @@ onMounted(async () => {
     refreshAuthoritativePricing(),
   ]);
 
+  restoreSavedCardSelection();
   syncOrderTotals();
   applyMockCheckoutDefaults();
   loading.value = false;

@@ -11,6 +11,15 @@ Use this file for durable cross-session decisions that should survive context re
   - Reason: demo fixture transactions can disagree with checkout truth and make failed attempts appear paid.
   - Impact: pending, failed, and duplicate checkout attempts are omitted; public callers receive 401.
 
+## Post-merge QA follow-up — 2026-09-15
+
+- Store only a saved-card identifier in a checkout session draft; restore it only when that card still exists, otherwise leave checkout disabled until the buyer selects payment again.
+  - Reason: a payment type alone can silently switch a buyer to a different saved card after refresh.
+  - Impact: card details remain outside browser storage and the refresh state is explicit.
+- Clear checkout drafts on sign-out and when the authenticated identity changes.
+  - Reason: a session draft may contain contact and address information that belongs to a prior account.
+  - Impact: a later buyer never sees the prior buyer’s draft fields.
+
 ## PR #529 findings repair — 2026-09-11
 
 - Retain and clear the guest cart during login merge instead of deleting it.
