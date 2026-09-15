@@ -40,8 +40,9 @@
       "status": "blocked",
       "evidence": [
         "Implementation started on codex/535-checkout-qa-followups from main commit 81ca251f.",
-        "Initialization dependency install is blocked by DNS resolution of registry.npmjs.org; focused tests cannot run until dependencies are restored.",
-        "Independent re-verifier reviewed #536-#547. It found and the implementation fixed error-code propagation, completed-draft cleanup, and exact ID server filtering; code-inspection verdict passed for #537-#547, while #536 remains unverified because GitHub issue access and runtime tests are unavailable."
+        "2026-09-15: locked dependency install restored successfully; pnpm typecheck and the public transaction-history route test pass.",
+        "2026-09-15: buyer-facing cart_empty recovery, tracking return destination, checkout-draft account isolation, saved-card restoration/reselection, and admin customer transaction scope were repaired; browser regression tests cover cart_empty, saved-card reselection, sign-out draft clearing, and tracking return.",
+        "Browser checkout and PostgreSQL-backed HTTP seams remain blocked on this host because DATABASE_URL is unset and no local PostgreSQL/Docker runtime is available."
       ]
     },
     {

@@ -120,6 +120,68 @@ test.describe('Checkout result states', () => {
     await expect(page.getByRole('button', { name: /cancel order/i })).toBeEnabled();
   });
 
+  test('an empty cart failure sends the buyer back to a cart review instead of calling it a payment failure', async ({ page }) => {
+    await navigateTo(page, '/product/prod-2');
+    await page
+      .getByRole('button', { name: /add to cart/i })
+      .first()
+      .click();
+    await navigateTo(page, '/order-summary');
+    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    await submitCustomerSignIn(page);
+
+    await page.route('**/api/orders/new', async (route) => {
+      if (route.request().method() !== 'POST') return route.continue();
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: { code: 'cart_empty', message: 'An empty cart cannot be checked out.' } }),
+      });
+    });
+
+    await Promise.all([page.waitForURL(/\/checkout\/fail/), page.getByRole('button', { name: /secure checkout/i }).click()]);
+
+    await expect(page.getByRole('heading', { name: /your cart is empty/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /review cart/i })).toBeEnabled();
+    await expect(page.getByRole('heading', { name: /payment failed/i })).toHaveCount(0);
+  });
+
+  test('a refresh with a removed saved card requires the buyer to choose payment again', async ({ page }) => {
+    await navigateTo(page, '/product/prod-2');
+    await page
+      .getByRole('button', { name: /add to cart/i })
+      .first()
+      .click();
+    await signInThroughOrderSummary(page);
+    await expect(page.getByRole('button', { name: /secure checkout/i })).toBeEnabled();
+
+    await page.evaluate(() => {
+      sessionStorage.setItem('checkout-draft-v1', JSON.stringify({ paymentDetails: { type: 0, cardId: 'card-removed-by-user' } }));
+    });
+    await page.reload({ waitUntil: 'networkidle' });
+
+    await expect(page.getByRole('button', { name: /secure checkout/i })).toBeDisabled();
+    await page.getByRole('button', { name: /pay by card/i }).click();
+    await expect(page.getByRole('button', { name: /secure checkout/i })).toBeEnabled();
+  });
+
+  test('signing out clears the checkout contact and address draft before another buyer can sign in', async ({ page }) => {
+    await signInThroughOrderSummary(page);
+    await page.evaluate(() => {
+      sessionStorage.setItem(
+        'checkout-draft-v1',
+        JSON.stringify({
+          guestContact: { firstName: 'Buyer A', email: 'buyer-a@example.com' },
+          shippingDetails: { address: { name1: 'A' } },
+        }),
+      );
+    });
+
+    await page.getByRole('button', { name: /open my account/i }).click();
+    await page.getByRole('button', { name: /sign out/i }).click();
+    await expect.poll(() => page.evaluate(() => sessionStorage.getItem('checkout-draft-v1'))).toBeNull();
+  });
+
   test('stateful checkout success keeps confirmed order details', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
     await page

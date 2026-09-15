@@ -18,7 +18,9 @@
           <span class="text-sm font-medium leading-[1.42857]"> Cancel order </span>
         </UiButton>
         <UiButton class="w-fit" @click="retryCheckout">
-          <span class="text-sm font-medium leading-[1.42857]"> {{ isCheckoutReviewChanged ? 'Review updated cart' : 'Try again' }} </span>
+          <span class="text-sm font-medium leading-[1.42857]">
+            {{ isCartEmpty ? 'Review cart' : isCheckoutReviewChanged ? 'Review updated cart' : 'Try again' }}
+          </span>
         </UiButton>
       </div>
     </template>
@@ -69,9 +71,12 @@ const checkoutReviewCodes = new Set([
   'idempotency_conflict',
   'product_unavailable',
   'inventory_unavailable',
+  'cart_empty',
 ]);
 const isCheckoutReviewChanged = computed(() => checkoutReviewCodes.has(getPreviousCheckoutError.value?.code ?? ''));
+const isCartEmpty = computed(() => getPreviousCheckoutError.value?.code === 'cart_empty');
 const checkoutReviewChangedTitle = computed(() => {
+  if (isCartEmpty.value) return 'Your cart is empty';
   if (getPreviousCheckoutError.value?.code === 'cart_changed') return 'Your cart changed';
   if (['quote_changed', 'quote_cart_mismatch'].includes(getPreviousCheckoutError.value?.code ?? '')) return 'Your checkout price changed';
   if (isCheckoutReviewChanged.value) return 'Checkout needs review';

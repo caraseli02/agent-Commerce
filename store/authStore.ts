@@ -34,11 +34,16 @@ export const useAuthStore = defineStore(
     const generalSettings = ref<GeneralSettingsInterface | null>(initialState.generalSettings);
 
     // Actions
+    function clearCheckoutDraft() {
+      if (import.meta.client) sessionStorage.removeItem('checkout-draft-v1');
+    }
+
     function addToken(tokenValue: string) {
       token.value = tokenValue;
     }
 
     function addUser(user: UserInfoJWT) {
+      if (loggedInUser.value?.user_id && loggedInUser.value.user_id !== user.user_id) clearCheckoutDraft();
       loggedInUser.value = user;
     }
 
@@ -73,6 +78,7 @@ export const useAuthStore = defineStore(
 
       useCartStore().emptyCart();
       useNotificationStore().clearOnSignOut();
+      clearCheckoutDraft();
 
       if (import.meta.client) {
         localStorage.removeItem('auth-store');
