@@ -142,19 +142,20 @@ in ignored `.env.local`. `DATABASE_URL_UNPOOLED` is optional and is used only by
 the isolated-test-schema runner for Neon administration; the application itself
 uses `DATABASE_URL` only.
 
-For Vercel, connect the Neon resource to Development, Preview, and Production
-in Storage. This portfolio demo uses the shared `vercel-dev` Neon branch for
+For Vercel, this portfolio demo uses the shared `vercel-dev` Neon branch for
 all Preview deployments; do not enable Neon Preview Branching for individual
-pull requests. Preview deployments receive that branch's `DATABASE_URL`, while
-Production continues to use the default `production` branch. No credentials
-belong in this repository.
+pull requests. Configure the Vercel Preview-scoped `DATABASE_URL` with the
+connection string for `vercel-dev`. Production continues to use the default
+`production` branch. No credentials belong in this repository.
 
 The Vercel/Neon setup is a one-time dashboard action: open **Storage** → the
-`ecas` Neon resource → **Connect Project**, select this project and all three
-environments, then disable **Preview Branching** and select `vercel-dev` for
-Preview. Require the resource to be active before deployments. The repository's
-Vercel build command runs `pnpm db:migrate` before Nuxt builds; it never creates
-checkout tables on a runtime request.
+`ecas` Neon resource → **Connect Project**, enable Development and Production,
+and leave **Create a database branch for deployment** off for Preview. Then add
+the `vercel-dev` connection string as `DATABASE_URL`, scoped to the Preview
+environment in **Project Settings** → **Environment Variables**. Require the
+resource to be active before deployments. The repository's Vercel build command
+runs `pnpm db:migrate` before Nuxt builds; it never creates checkout tables on
+a runtime request.
 
 `pnpm test:e2e` starts its own built Nitro server inside that isolated schema.
 Set `PLAYWRIGHT_BASE_URL` only when intentionally targeting an externally
