@@ -60,10 +60,21 @@ const router = useRouter();
 
 const cartStore = useCartStore();
 const { getPreviousCheckoutError, getOrderClientSecret } = storeToRefs(cartStore);
-const isCheckoutReviewChanged = computed(() => ['cart_changed', 'quote_changed'].includes(getPreviousCheckoutError.value?.code ?? ''));
+const checkoutReviewCodes = new Set([
+  'cart_changed',
+  'quote_changed',
+  'quote_cart_mismatch',
+  'stale_cart',
+  'checkout_already_started',
+  'idempotency_conflict',
+  'product_unavailable',
+  'inventory_unavailable',
+]);
+const isCheckoutReviewChanged = computed(() => checkoutReviewCodes.has(getPreviousCheckoutError.value?.code ?? ''));
 const checkoutReviewChangedTitle = computed(() => {
   if (getPreviousCheckoutError.value?.code === 'cart_changed') return 'Your cart changed';
-  if (getPreviousCheckoutError.value?.code === 'quote_changed') return 'Your checkout price changed';
+  if (['quote_changed', 'quote_cart_mismatch'].includes(getPreviousCheckoutError.value?.code ?? '')) return 'Your checkout price changed';
+  if (isCheckoutReviewChanged.value) return 'Checkout needs review';
   return 'Payment failed';
 });
 

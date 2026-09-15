@@ -76,10 +76,11 @@
         </div>
       </button>
       <button
-        v-if="availablePaymentMethods.includes(PaymentTypeEnum.Credit) && accountCredit.available > 0"
+        v-if="availablePaymentMethods.includes(PaymentTypeEnum.Credit)"
+        data-testid="credit-payment-option"
         class="p-3 flex flex-col gap-3 border rounded-lg hover:bg-[#007FFF0D] hover:border-blue-500 transition duration-300 group"
         :class="order.paymentDetails?.type === 1 ? 'border-blue-500 bg-[#007FFF0D]' : 'border-grey-300 bg-white'"
-        :disabled="accountCredit.active"
+        :disabled="creditUnavailableReason !== null"
         @click="selectPaymentOption({ type: PaymentTypeEnum.Credit })"
       >
         <div class="flex flex-row justify-between w-full">
@@ -99,6 +100,9 @@
             </button>
           </div>
         </div>
+        <p v-if="creditUnavailableReason" class="text-left text-xs leading-5 text-slate-500" data-testid="credit-unavailable-reason">
+          {{ creditUnavailableReason }}
+        </p>
       </button>
       <Transition name="fade-bottom">
         <div v-if="showCreditInfoModal" v-click-outside="() => (showCreditInfoModal = false)" class="absolute bottom-[160px] right-0">
@@ -128,7 +132,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRuntimeConfig } from '#app';
 import SettingCog from '@/assets/icons/setting-cog.svg';
@@ -163,6 +167,14 @@ const authStore = useAuthStore();
 
 const { getGeneralSettings } = storeToRefs(authStore);
 const availablePaymentMethods = ref<PaymentTypeEnum[]>([]);
+const creditUnavailableReason = computed(() => {
+  if (!props.accountCredit.active) return 'Credit checkout is unavailable because this account has no active credit facility.';
+  if (props.accountCredit.freeze) return 'Credit checkout is temporarily unavailable because this account is frozen.';
+  if (Number(props.accountCredit.available || 0) < Number(props.order.total || 0)) {
+    return `Credit checkout requires ${Number(props.order.total || 0).toFixed(2)} Lei, but only ${Number(props.accountCredit.available || 0).toFixed(2)} Lei is available.`;
+  }
+  return null;
+});
 
 const paymentMethods = () => {
   getGeneralSettings.value?.orderSettings?.paymentMethods.forEach((method) => {

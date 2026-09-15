@@ -22,6 +22,12 @@ export const columns: ColumnDef<OrderTableColumns>[] = [
   {
     accessorKey: OrderTableColumnsEnum.SHORT_ID,
     header: ({ column }) => renderColumnHeader(column, 'Order'),
+    filterFn: (row, id, value) => {
+      const query = String(value ?? '').trim().toLowerCase().replace(/^#/, '');
+      if (!query) return true;
+      const shortId = String(row.getValue(id) ?? '').toLowerCase().replace(/^#/, '');
+      return shortId === query || String(row.original._id ?? '').toLowerCase() === query;
+    },
     cell: ({ row }) =>
       h(IdCell, {
         IdCell: row.getValue(OrderTableColumnsEnum.SHORT_ID) as string,

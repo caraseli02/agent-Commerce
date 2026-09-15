@@ -2,6 +2,15 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Epic #535 QA repair — 2026-09-14
+
+- Keep checkout choices and guest contact/address data in `sessionStorage`, never durable browser storage, and persist only the payment type (not card details).
+  - Reason: a refresh should not silently erase a valid checkout draft, while payment credentials must remain outside browser persistence.
+  - Impact: successful checkout should clear this session draft in the completion flow; failed checkout can safely retry it.
+- Derive transaction history only from authenticated customers' paid durable Orders.
+  - Reason: demo fixture transactions can disagree with checkout truth and make failed attempts appear paid.
+  - Impact: pending, failed, and duplicate checkout attempts are omitted; public callers receive 401.
+
 ## PR #529 findings repair — 2026-09-11
 
 - Retain and clear the guest cart during login merge instead of deleting it.

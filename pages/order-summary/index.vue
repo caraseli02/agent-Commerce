@@ -132,6 +132,7 @@ const { guestCheckoutMode, clearGuestCheckout } = useGuestCheckout();
 const isGuestCheckoutMode = computed(() => isGuestCheckout.value && guestCheckoutMode.value);
 const authoritativeQuote = ref<ShippingOrderPricingResponse['quote']>(undefined);
 const checkoutReview = ref<ShippingOrderPricingResponse['review']>();
+const CHECKOUT_DRAFT_STORAGE_KEY = 'checkout-draft-v1';
 
 // Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
 // (sets hasFetchedCart) so pages never call composables/api/cart directly.
@@ -201,6 +202,37 @@ const order = ref<CheckoutOrderDraft>({
   deliveryMethod: null,
   smallOrder: null,
 });
+
+// A refresh must not silently discard a buyer's selected payment, delivery, or
+// guest contact/address data. Keep the draft only for this browser session and
+// never persist card details.
+const restoreCheckoutDraft = () => {
+  if (!import.meta.client) return;
+  try {
+    const draft = JSON.parse(sessionStorage.getItem(CHECKOUT_DRAFT_STORAGE_KEY) || '{}') as Partial<CheckoutOrderDraft>;
+    if (draft.shippingDetails) order.value.shippingDetails = draft.shippingDetails;
+    if (draft.guestContact) order.value.guestContact = draft.guestContact;
+    if (draft.deliveryMethod) order.value.deliveryMethod = draft.deliveryMethod;
+    if (draft.backorderOption) order.value.backorderOption = draft.backorderOption;
+    if (draft.paymentDetails?.type !== undefined) order.value.paymentDetails = { type: draft.paymentDetails.type } as PaymentDetails;
+  } catch {
+    sessionStorage.removeItem(CHECKOUT_DRAFT_STORAGE_KEY);
+  }
+};
+
+const persistCheckoutDraft = () => {
+  if (!import.meta.client) return;
+  sessionStorage.setItem(
+    CHECKOUT_DRAFT_STORAGE_KEY,
+    JSON.stringify({
+      shippingDetails: order.value.shippingDetails,
+      guestContact: order.value.guestContact,
+      deliveryMethod: order.value.deliveryMethod,
+      backorderOption: order.value.backorderOption,
+      paymentDetails: order.value.paymentDetails?.type === undefined ? undefined : { type: order.value.paymentDetails.type },
+    }),
+  );
+};
 
 // General Settings
 const generalSettings = computed(() => getGeneralSettings.value);
@@ -507,17 +539,15 @@ watch(guestCheckoutMode, (enabled) => {
   applyMockCheckoutDefaults();
 });
 
+watch(order, persistCheckoutDraft, { deep: true });
+
 // Initialization
 onMounted(async () => {
+  restoreCheckoutDraft();
   if (isGuestCheckoutMode.value) {
-    order.value.shippingDetails.address = createEmptyGuestAddress('Shipping');
-    order.value.shippingDetails.billingAddress = createEmptyGuestAddress('Billing');
-    order.value.guestContact = {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-    };
+    order.value.shippingDetails.address ??= createEmptyGuestAddress('Shipping');
+    order.value.shippingDetails.billingAddress ??= createEmptyGuestAddress('Billing');
+    order.value.guestContact ??= { firstName: '', lastName: '', email: '', phone: '' };
   }
 
   await refreshCartRead();
