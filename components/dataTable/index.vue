@@ -16,6 +16,7 @@ interface Props {
   showScrollHint?: boolean;
   scrollHint?: string;
   tableMinWidth?: string;
+  emptyMessage?: string;
 }
 
 const props = defineProps<Props>();
@@ -192,7 +193,7 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
               <div v-else class="w-full min-h-[600px]">
                 <section class="absolute inset-0 flex flex-col items-center justify-center text-center">
                   <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-                  <div class="w-full">No results.</div>
+                  <div class="w-full">{{ emptyMessage || 'No results.' }}</div>
                 </section>
               </div>
             </UiTableBody>
