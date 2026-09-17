@@ -228,6 +228,10 @@ const restoreCheckoutDraft = () => {
 
 const persistCheckoutDraft = () => {
   if (!import.meta.client) return;
+  if (isGuestCheckout.value && !guestCheckoutMode.value) {
+    sessionStorage.removeItem(CHECKOUT_DRAFT_STORAGE_KEY);
+    return;
+  }
   sessionStorage.setItem(
     CHECKOUT_DRAFT_STORAGE_KEY,
     JSON.stringify({

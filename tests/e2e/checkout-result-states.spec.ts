@@ -112,6 +112,7 @@ test.describe('Checkout result states', () => {
     });
 
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
+    await expect(secureCheckoutButton).toBeEnabled();
     await Promise.all([page.waitForURL(/\/checkout\/fail/), secureCheckoutButton.click()]);
 
     await expect(page.getByRole('heading', { name: /payment failed/i })).toBeVisible();
@@ -139,7 +140,9 @@ test.describe('Checkout result states', () => {
       });
     });
 
-    await Promise.all([page.waitForURL(/\/checkout\/fail/), page.getByRole('button', { name: /secure checkout/i }).click()]);
+    const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
+    await expect(secureCheckoutButton).toBeEnabled();
+    await Promise.all([page.waitForURL(/\/checkout\/fail/), secureCheckoutButton.click()]);
 
     await expect(page.getByRole('heading', { name: /your cart is empty/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /review cart/i })).toBeEnabled();
@@ -193,6 +196,7 @@ test.describe('Checkout result states', () => {
     await submitCustomerSignIn(page);
 
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
+    await expect(secureCheckoutButton).toBeEnabled();
     await Promise.all([
       page.waitForResponse((response) => response.url().includes('/api/orders/new') && response.request().method() === 'POST'),
       page.waitForURL(/\/checkout\/success\?id=/),
