@@ -528,7 +528,7 @@ watch(
   },
 );
 
-watch(isGuestCheckout, (isGuest) => {
+watch([isGuestCheckout, userId], ([isGuest]) => {
   if (!isGuest) {
     clearGuestCheckout();
     order.value.shippingDetails.address = getShipping();
@@ -565,6 +565,15 @@ watch(order, persistCheckoutDraft, { deep: true });
 // Initialization
 onMounted(async () => {
   restoreCheckoutDraft();
+  if (!isGuestCheckout.value) {
+    if (!isCompleteSavedAddress(order.value.shippingDetails.address)) {
+      order.value.shippingDetails.address = getShipping();
+    }
+    if (!isCompleteSavedAddress(order.value.shippingDetails.billingAddress)) {
+      order.value.shippingDetails.billingAddress = getBilling();
+    }
+    order.value.guestContact = null;
+  }
   if (isGuestCheckoutMode.value) {
     order.value.shippingDetails.address ??= createEmptyGuestAddress('Shipping');
     order.value.shippingDetails.billingAddress ??= createEmptyGuestAddress('Billing');

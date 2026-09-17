@@ -159,13 +159,15 @@ test.describe('Product Detail → Checkout Confirmation', () => {
     expect(token).toBeTruthy();
     await expect(page).toHaveURL(/\/order-summary$/);
 
+    const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
+    await expect(secureCheckoutButton).toBeEnabled();
+
     const cartChange = await page.request.post('/api/cart', {
       headers: { authorization: `Bearer ${token}` },
       data: { products: [{ id: 'prod-1', stock: 1, isFolder: false }] },
     });
     expect(cartChange.ok()).toBe(true);
 
-    const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
     await expect(secureCheckoutButton).toBeEnabled();
     const [placeOrderResponse] = await Promise.all([
       page.waitForResponse((response) => response.url().includes('/api/orders/new') && response.request().method() === 'POST'),
