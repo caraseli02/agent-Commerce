@@ -175,7 +175,9 @@ test.describe('Checkout result states', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     await expect(page.getByRole('button', { name: /secure checkout/i })).toBeDisabled();
+    await expect(page.getByRole('alert').filter({ hasText: /saved card is no longer available/i })).toBeVisible();
     await page.getByRole('button', { name: /pay by card/i }).click();
+    await expect(page.getByRole('alert').filter({ hasText: /saved card is no longer available/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /secure checkout/i })).toBeEnabled();
   });
 

@@ -1,5 +1,12 @@
 <template>
   <div class="flex flex-col gap-6">
+    <div
+      v-if="requiresPaymentReselection"
+      role="alert"
+      class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-5 text-amber-900"
+    >
+      Your saved card is no longer available. Choose another payment method to continue.
+    </div>
     <div class="flex flex-row justify-between items-center">
       <span class="text-neutral-700 text-sm font-medium leading-6">Select Payment</span>
       <button v-if="paymentManagementVisible" data-testid="payment-management" class="group">
@@ -158,6 +165,7 @@ const { card, cards, isNewCardSelected } = usePaymentCards();
 const props = defineProps<{
   order: CheckoutOrderDraft;
   accountCredit: CustomerCreditInterface;
+  requiresPaymentReselection?: boolean;
 }>();
 
 const emits = defineEmits(['update-payment-details', 'change-is-new-card-selected']);

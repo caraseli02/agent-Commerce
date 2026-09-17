@@ -63,8 +63,9 @@
               :items="cartItems"
               :account-credit="accountCredit"
               :order="order"
+              :requires-payment-reselection="requiresPaymentReselection"
               :shipping-preferences="shippingPreferences"
-              @update-payment-details="order.paymentDetails = $event"
+              @update-payment-details="updatePaymentDetails"
             />
             <OrderSummaryNoteSection />
             <OrderSummary :order="order" :quote="authoritativeQuote" />
@@ -380,6 +381,11 @@ const restoreSavedCardSelection = () => {
   restoredCardId.value = null;
 };
 
+const updatePaymentDetails = (paymentDetails: PaymentDetails) => {
+  order.value.paymentDetails = paymentDetails;
+  requiresPaymentReselection.value = false;
+};
+
 // Checkout Control
 const checkoutStore = useCheckoutStore();
 const { checkout } = storeToRefs(checkoutStore);
@@ -532,12 +538,16 @@ watch(
   },
 );
 
+const syncAuthenticatedCheckoutProfile = () => {
+  clearGuestCheckout();
+  order.value.shippingDetails.address = getShipping();
+  order.value.shippingDetails.billingAddress = getBilling();
+  order.value.guestContact = null;
+};
+
 watch([isGuestCheckout, userId], ([isGuest]) => {
   if (!isGuest) {
-    clearGuestCheckout();
-    order.value.shippingDetails.address = getShipping();
-    order.value.shippingDetails.billingAddress = getBilling();
-    order.value.guestContact = null;
+    syncAuthenticatedCheckoutProfile();
     return;
   }
 
@@ -570,9 +580,7 @@ watch(order, persistCheckoutDraft, { deep: true });
 onMounted(async () => {
   restoreCheckoutDraft();
   if (!isGuestCheckout.value) {
-    order.value.shippingDetails.address = getShipping();
-    order.value.shippingDetails.billingAddress = getBilling();
-    order.value.guestContact = null;
+    syncAuthenticatedCheckoutProfile();
   }
   if (isGuestCheckoutMode.value) {
     order.value.shippingDetails.address ??= createEmptyGuestAddress('Shipping');

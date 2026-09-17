@@ -15,7 +15,10 @@ const cloneAddresses = (store: RuntimeAddressStore): RuntimeAddressStore => ({
   billingAddress: store.billingAddress.map((address) => ({ ...address })),
 });
 
-const normalizeCustomerId = (customerId?: string | null) => resolveCustomerId(customerId || undefined);
+const normalizeCustomerId = (customerId?: string | null) => {
+  const explicitCustomerId = String(customerId || '').trim();
+  return explicitCustomerId || resolveCustomerId();
+};
 
 const createAddressId = (kind: AddressKind) => `${kind}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 

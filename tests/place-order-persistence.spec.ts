@@ -208,8 +208,10 @@ describe('durable PlaceOrder persistence', () => {
     const database = await getCheckoutDatabase();
     const [orderCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_orders');
     const [reservationCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_reservations');
+    const [paymentCount] = await database.query<{ total: number }>('SELECT COUNT(*) AS total FROM checkout_payments');
     expect(Number(orderCount?.total)).toBe(0);
     expect(Number(reservationCount?.total)).toBe(0);
+    expect(Number(paymentCount?.total)).toBe(0);
   });
 
   it('returns one result when the same checkout request is submitted rapidly by independent instances', async () => {

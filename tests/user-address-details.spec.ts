@@ -59,4 +59,39 @@ describe('signed-in address setup', () => {
       expect.arrayContaining([expect.objectContaining({ alias: 'Checkout Billing', default: true })]),
     );
   });
+
+  it('keeps business-user runtime addresses isolated and returns them from the same profile boundary', async () => {
+    const { createMockToken } = await import('../server/utils/mockUsers');
+    const shippingHandler = (await import('../server/api/user/shipping-address/index.post')).default as (
+      event: unknown,
+    ) => Promise<unknown>;
+    const detailsHandler = (await import('../server/api/user/[userId]/details.get')).default as unknown as (event: unknown) => unknown;
+    const token = createMockToken('mock-admin-1');
+    const headers = { authorization: `Bearer ${token}` };
+
+    await shippingHandler({
+      headers,
+      body: {
+        address: {
+          alias: 'Admin Warehouse',
+          name1: '1 Admin Way',
+          country: 'US',
+          region: 'California',
+          city: 'San Francisco',
+          postcode: '94105',
+          default: true,
+        },
+      },
+    });
+    const response = (await detailsHandler({ headers, params: { userId: 'mock-admin-1' } })) as {
+      data: { companyDetails?: { shippingAddress: Array<{ alias?: string; default: boolean }> } };
+    };
+
+    expect(response.data.companyDetails?.shippingAddress).toEqual(
+      expect.arrayContaining([expect.objectContaining({ alias: 'Admin Warehouse', default: true })]),
+    );
+    expect(response.data.companyDetails?.shippingAddress).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ alias: 'Checkout Shipping' })]),
+    );
+  });
 });
