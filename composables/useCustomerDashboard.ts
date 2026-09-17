@@ -20,7 +20,7 @@ import type { BillingAddressInterface, ShippingAddressInterface, UserInterface }
 import type { ProductInterface } from '~/types/product';
 import { AccountType } from '~/types';
 import type { StripeCardInterface } from '~/types';
-import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { resolveProductBrowsePricing } from '~/helpers/prices.helper';
 import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 interface OrderIdItem {
@@ -163,10 +163,10 @@ export const useCustomerDashboard = () => {
     const currencyLabel = useRegionalPreferencesStore().currency?.label || 'Lei';
 
     hotSales.value = myMonthHotSale.value.map((slide): ProductBannerInterface => {
-      const discountPrice = parseProductPriceConfiguration(slide, getUserDetails.value, slide.stock);
+      const discountPrice = resolveProductBrowsePricing(slide, getUserDetails.value);
       return {
         title: `${currMonthName} hot sale`,
-        discount: `${slide.adminSettings?.discount?.value ?? 0} %`,
+        discount: `${discountPrice?.productDiscount || discountPrice?.userDiscount || 0} %`,
         productCode: slide.manufacturerCode ?? '',
         description: slide.description ?? '',
         details: slide.variant ?? slide.measure ?? '',

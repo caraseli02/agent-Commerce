@@ -112,7 +112,7 @@ import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import { MoreHorizontal } from '@lucide/vue';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
-import { addToCartHelper, parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { addToCartHelper, resolveProductBrowsePricing } from '~/helpers/prices.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';
@@ -134,11 +134,13 @@ const productRoute = computed(() => `/product/${props.product.alias || props.pro
 
 const isThisProductAdding = computed(() => isProductAddInFlight(props.product._id ?? ''));
 
-const discountsHelper = parseProductPriceConfiguration(props.product, getUserDetails.value, props.product?.stock);
+const discountsHelper = computed(() => resolveProductBrowsePricing(props.product, getUserDetails.value));
 
-const priceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(discountsHelper?.minimumOrderQuantityConfiguration);
-const discountPrice = ref(discountsHelper?.discountPrice || 0);
-const productDiscount = ref(discountsHelper?.productDiscount || 0);
+const priceConfiguration = computed<PriceConfigurationSettingsInterface | undefined>(
+  () => discountsHelper.value?.minimumOrderQuantityConfiguration,
+);
+const discountPrice = computed(() => discountsHelper.value?.discountPrice || 0);
+const productDiscount = computed(() => discountsHelper.value?.productDiscount || discountsHelper.value?.userDiscount || 0);
 
 const addToCart = async (product: ProductInterface, stockToAdd = 1) => {
   if (isProductAddInFlight(product._id ?? '')) {
