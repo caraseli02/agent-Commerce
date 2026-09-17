@@ -90,7 +90,7 @@ const customerUser: MockUser = {
       tillDue: '30',
       term: 30,
       freeze: false,
-      active: false,
+      active: true,
     },
     marketingPreferences: {
       cookiesPolicy: { email: true, app: false },

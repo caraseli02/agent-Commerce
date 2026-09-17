@@ -144,6 +144,7 @@ import MoneyIcon from '@/assets/icons/money.svg';
 import { PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails, type StripeCardInterface } from '~/types';
 import { isPaymentManagementVisible } from '~/helpers/mock-integration';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import { resolveCreditUnavailableReason } from '~/helpers/checkout-credit';
 import { useAuthStore } from '~/store/authStore';
 import { usePaymentStore } from '~/store/paymentStore';
 import { usePaymentCards } from '~/composables/usePaymentCards';
@@ -167,14 +168,7 @@ const authStore = useAuthStore();
 
 const { getGeneralSettings } = storeToRefs(authStore);
 const availablePaymentMethods = ref<PaymentTypeEnum[]>([]);
-const creditUnavailableReason = computed(() => {
-  if (!props.accountCredit.active) return 'Credit checkout is unavailable because this account has no active credit facility.';
-  if (props.accountCredit.freeze) return 'Credit checkout is temporarily unavailable because this account is frozen.';
-  if (Number(props.accountCredit.available || 0) < Number(props.order.total || 0)) {
-    return `Credit checkout requires ${Number(props.order.total || 0).toFixed(2)} Lei, but only ${Number(props.accountCredit.available || 0).toFixed(2)} Lei is available.`;
-  }
-  return null;
-});
+const creditUnavailableReason = computed(() => resolveCreditUnavailableReason(props.accountCredit, Number(props.order.total || 0)));
 
 const paymentMethods = () => {
   getGeneralSettings.value?.orderSettings?.paymentMethods.forEach((method) => {
