@@ -85,7 +85,13 @@ describe('cart pricing and stock helpers', () => {
   });
 
   it('clamps requested stock to available inventory', () => {
-    expect(clampCartQuantity(volumeProduct, 1000)).toEqual({
+    expect(clampCartQuantity(volumeProduct, 150)).toEqual({
+      stock: 150,
+      wasClamped: false,
+      maxStock: 150,
+    });
+
+    expect(clampCartQuantity(volumeProduct, 151)).toEqual({
       stock: 150,
       wasClamped: true,
       maxStock: 150,

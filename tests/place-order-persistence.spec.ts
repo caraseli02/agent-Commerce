@@ -342,6 +342,59 @@ describe('durable PlaceOrder persistence', () => {
     ]);
   });
 
+  it('allows only one concurrent checkout when two customers compete for the last stock', async () => {
+    const [{ getMockCartForUser, addProductsToMockCart }, { getMockUserById }, { placeOrder }, { getCheckoutDatabase }] = await Promise.all(
+      [
+        import('../server/utils/mockCart'),
+        import('../server/utils/mockUsers'),
+        import('../server/application/checkout/place-order'),
+        import('../server/infrastructure/checkout-database'),
+      ],
+    );
+    const firstUser = getMockUserById('mock-customer-1')!;
+    const secondUser = { ...firstUser, _id: 'stock-race-customer-2', firebaseId: 'stock-race-customer-2' };
+    const firstCart = await getMockCartForUser('stock-race-customer-1');
+    const secondCart = await getMockCartForUser('stock-race-customer-2');
+    await addProductsToMockCart(firstCart, [{ id: 'prod-1', stock: 100, isFolder: false }]);
+    await addProductsToMockCart(secondCart, [{ id: 'prod-1', stock: 100, isFolder: false }]);
+
+    const results = await Promise.allSettled([
+      placeOrder({
+        checkoutRequestId: 'stock-race-request-1',
+        cartId: String(firstCart._id),
+        cartOwnerId: 'stock-race-customer-1',
+        user: { ...firstUser, _id: 'stock-race-customer-1', firebaseId: 'stock-race-customer-1' },
+        order: orderInput,
+      }),
+      placeOrder({
+        checkoutRequestId: 'stock-race-request-2',
+        cartId: String(secondCart._id),
+        cartOwnerId: 'stock-race-customer-2',
+        user: secondUser,
+        order: orderInput,
+      }),
+    ]);
+
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+    const rejected = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+    expect(rejected?.reason).toMatchObject({ code: 'inventory_unavailable', statusCode: 409 });
+
+    const database = await getCheckoutDatabase();
+    const [counts] = await database.query<{ orders: string; payments: string; paid: string }>(
+      `SELECT
+        (SELECT COUNT(*) FROM checkout_orders) AS orders,
+        (SELECT COUNT(*) FROM checkout_payments) AS payments,
+        (SELECT COUNT(*) FROM checkout_payments WHERE status = 'PAID') AS paid`,
+    );
+    const [inventory] = await database.query<{ on_hand: number; reserved: number }>(
+      'SELECT on_hand, reserved FROM checkout_inventory WHERE product_id = $1',
+      ['prod-1'],
+    );
+
+    expect(counts).toEqual({ orders: '1', payments: '1', paid: '1' });
+    expect(inventory).toEqual({ on_hand: 50, reserved: 0 });
+  });
+
   it('keeps a guest quote and persisted snapshot on the zero-discount guest policy', async () => {
     const [cartModule, userModule, checkoutModule, ordersModule] = await Promise.all([
       import('../server/utils/mockCart'),
