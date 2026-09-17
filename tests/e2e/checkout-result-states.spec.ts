@@ -16,6 +16,15 @@ const submitCustomerSignIn = async (page: Page) => {
   ]);
 };
 
+const addProductToCart = async (page: Page) => {
+  const button = page.getByRole('button', { name: /add to cart/i }).first();
+  const [response] = await Promise.all([
+    page.waitForResponse((candidate) => candidate.url().includes('/api/cart') && candidate.request().method() === 'POST'),
+    button.click(),
+  ]);
+  expect(response.ok()).toBe(true);
+};
+
 const signInThroughOrderSummary = async (page: Page) => {
   await navigateTo(page, '/order-summary');
   await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
@@ -53,6 +62,17 @@ const assertDisabledSetupBoundary = async (page: Page) => {
 
 test.describe('Checkout result states', () => {
   test.beforeEach(async ({ request }) => {
+    const loginResponse = await request.post('/api/auth/login', {
+      data: { email: 'customer@demo.com', password: 'customer123' },
+    });
+    const loginPayload = (await loginResponse.json()) as { token?: string; data?: { token?: string } };
+    const token = loginPayload.token || loginPayload.data?.token;
+    if (token) {
+      await request.delete('/api/cart', {
+        headers: { authorization: `Bearer ${token}` },
+        data: { products: ['prod-1', 'prod-2'] },
+      });
+    }
     await request.delete('/api/cart', {
       data: { products: ['prod-1', 'prod-2'] },
     });
@@ -87,10 +107,7 @@ test.describe('Checkout result states', () => {
 
   test('stateful checkout failure keeps order-specific recovery actions', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
-    await page
-      .getByRole('button', { name: /add to cart/i })
-      .first()
-      .click();
+    await addProductToCart(page);
     await navigateTo(page, '/order-summary');
     await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
     await submitCustomerSignIn(page);
@@ -123,10 +140,7 @@ test.describe('Checkout result states', () => {
 
   test('an empty cart failure sends the buyer back to a cart review instead of calling it a payment failure', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
-    await page
-      .getByRole('button', { name: /add to cart/i })
-      .first()
-      .click();
+    await addProductToCart(page);
     await navigateTo(page, '/order-summary');
     await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
     await submitCustomerSignIn(page);
@@ -151,10 +165,7 @@ test.describe('Checkout result states', () => {
 
   test('a refresh with a removed saved card requires the buyer to choose payment again', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
-    await page
-      .getByRole('button', { name: /add to cart/i })
-      .first()
-      .click();
+    await addProductToCart(page);
     await signInThroughOrderSummary(page);
     await expect(page.getByRole('button', { name: /secure checkout/i })).toBeEnabled();
 
@@ -187,10 +198,7 @@ test.describe('Checkout result states', () => {
 
   test('stateful checkout success keeps confirmed order details', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
-    await page
-      .getByRole('button', { name: /add to cart/i })
-      .first()
-      .click();
+    await addProductToCart(page);
     await navigateTo(page, '/order-summary');
     await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
     await submitCustomerSignIn(page);
