@@ -570,12 +570,8 @@ watch(order, persistCheckoutDraft, { deep: true });
 onMounted(async () => {
   restoreCheckoutDraft();
   if (!isGuestCheckout.value) {
-    if (!isCompleteSavedAddress(order.value.shippingDetails.address)) {
-      order.value.shippingDetails.address = getShipping();
-    }
-    if (!isCompleteSavedAddress(order.value.shippingDetails.billingAddress)) {
-      order.value.shippingDetails.billingAddress = getBilling();
-    }
+    order.value.shippingDetails.address = getShipping();
+    order.value.shippingDetails.billingAddress = getBilling();
     order.value.guestContact = null;
   }
   if (isGuestCheckoutMode.value) {

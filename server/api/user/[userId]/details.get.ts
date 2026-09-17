@@ -1,5 +1,6 @@
 import { UserPermissionsEnum } from '~/types/auth/permissions';
 import { getMockUserById, getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { getRuntimeAddresses } from '~/server/utils/mockRuntimeAddresses';
 
 export default defineEventHandler((event) => {
   const headers = getHeaders(event);
@@ -31,8 +32,25 @@ export default defineEventHandler((event) => {
     });
   }
 
+  const addresses = getRuntimeAddresses(user._id);
+  const userWithCurrentAddresses = user.personalDetails
+    ? {
+        ...user,
+        personalDetails: {
+          ...user.personalDetails,
+          ...addresses,
+        },
+      }
+    : {
+        ...user,
+        companyDetails: {
+          ...user.companyDetails,
+          ...addresses,
+        },
+      };
+
   return {
     status: 'success',
-    data: user,
+    data: userWithCurrentAddresses,
   };
 });
