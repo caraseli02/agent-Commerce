@@ -61,6 +61,12 @@ export const parseProductPriceConfiguration = (product: ProductInterface | null 
   } as unknown as ProductDiscountsHelperInterface;
 };
 
+export const resolveProductBrowsePricing = (product: ProductInterface | null | undefined, userDetails: UserInterface) => {
+  const minimumQuantity = Number(product?.priceConfiguration?.configuration[0]?.quantity ?? 1);
+
+  return parseProductPriceConfiguration(product, userDetails, minimumQuantity);
+};
+
 export const initializeQuantities = (
   product: ProductInterface,
   data: CartInterface | null | undefined,

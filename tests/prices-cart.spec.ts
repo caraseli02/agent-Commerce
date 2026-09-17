@@ -1,6 +1,16 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { ProductInterface } from '~/types/product';
-import { calculateCartLinePricing, clampCartQuantity, resolveCustomerUnitPrice, resolveTierUnitPrice } from '../helpers/prices.helper';
+import {
+  calculateCartLinePricing,
+  clampCartQuantity,
+  resolveCustomerUnitPrice,
+  resolveProductBrowsePricing,
+  resolveTierUnitPrice,
+} from '../helpers/prices.helper';
+import { catalog } from '../server/domain/catalog';
+import { getClientDashboardData } from '../server/utils/mockDashboardDemo';
+import { getMockUserById } from '../server/utils/mockUsers';
+import { MOCK_CUSTOMER_USER_ID } from '../utils/mockAuth';
 
 const volumeProduct = {
   _id: 'prod-1',
@@ -57,8 +67,31 @@ describe('cart pricing and stock helpers', () => {
     expect(resolveCustomerUnitPrice(volumeProduct, 5, 1)).toBe(949.99);
   });
 
+  it('uses the same minimum-quantity price for product browsing and the authoritative quote', async () => {
+    const customer = getMockUserById(MOCK_CUSTOMER_USER_ID);
+    const product = getClientDashboardData(MOCK_CUSTOMER_USER_ID).monthHotSale[0] as ProductInterface;
+    const browsePricing = resolveProductBrowsePricing(product, customer!);
+    const quote = await catalog.quoteItems({
+      customer: customer!,
+      items: [{ productId: product._id!, quantity: browsePricing!.minimumOrderQuantityConfiguration!.quantity }],
+    });
+
+    expect(browsePricing?.minimumOrderQuantityConfiguration).toMatchObject({ quantity: 1, price: 999.99 });
+    expect(browsePricing?.currentConfigurationDiscountPrice).toBe(949.99);
+    expect(quote.kind).toBe('quoted');
+    if (quote.kind === 'quoted') {
+      expect(quote.quote.lines[0]?.unitPrice.minor).toBe(94_999);
+    }
+  });
+
   it('clamps requested stock to available inventory', () => {
-    expect(clampCartQuantity(volumeProduct, 1000)).toEqual({
+    expect(clampCartQuantity(volumeProduct, 150)).toEqual({
+      stock: 150,
+      wasClamped: false,
+      maxStock: 150,
+    });
+
+    expect(clampCartQuantity(volumeProduct, 151)).toEqual({
       stock: 150,
       wasClamped: true,
       maxStock: 150,

@@ -12,6 +12,15 @@ import type {
 const RESOURCE = '/products';
 
 export async function fetchSingleProduct(id: string): Promise<ProductDetailResponse> {
+  const config = useRuntimeConfig();
+
+  if (config.public.MOCK_MODE && import.meta.server) {
+    const requestFetch = useRequestFetch();
+    return await requestFetch<ProductDetailResponse>(`/api${RESOURCE}/${id}`, {
+      method: 'GET',
+    });
+  }
+
   const { $apiClient } = useNuxtApp();
 
   return await $apiClient<ProductDetailResponse>(`${RESOURCE}/${id}`, {

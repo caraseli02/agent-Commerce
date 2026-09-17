@@ -1,5 +1,12 @@
 <template>
   <div class="flex flex-col gap-6">
+    <div
+      v-if="requiresPaymentReselection"
+      role="alert"
+      class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-5 text-amber-900"
+    >
+      Your saved card is no longer available. Choose another payment method to continue.
+    </div>
     <div class="flex flex-row justify-between items-center">
       <span class="text-neutral-700 text-sm font-medium leading-6">Select Payment</span>
       <button v-if="paymentManagementVisible" data-testid="payment-management" class="group">
@@ -144,6 +151,7 @@ import MoneyIcon from '@/assets/icons/money.svg';
 import { PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails, type StripeCardInterface } from '~/types';
 import { isPaymentManagementVisible } from '~/helpers/mock-integration';
 import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import { resolveCreditUnavailableReason } from '~/helpers/checkout-credit';
 import { useAuthStore } from '~/store/authStore';
 import { usePaymentStore } from '~/store/paymentStore';
 import { usePaymentCards } from '~/composables/usePaymentCards';
@@ -157,6 +165,7 @@ const { card, cards, isNewCardSelected } = usePaymentCards();
 const props = defineProps<{
   order: CheckoutOrderDraft;
   accountCredit: CustomerCreditInterface;
+  requiresPaymentReselection?: boolean;
 }>();
 
 const emits = defineEmits(['update-payment-details', 'change-is-new-card-selected']);
@@ -167,14 +176,7 @@ const authStore = useAuthStore();
 
 const { getGeneralSettings } = storeToRefs(authStore);
 const availablePaymentMethods = ref<PaymentTypeEnum[]>([]);
-const creditUnavailableReason = computed(() => {
-  if (!props.accountCredit.active) return 'Credit checkout is unavailable because this account has no active credit facility.';
-  if (props.accountCredit.freeze) return 'Credit checkout is temporarily unavailable because this account is frozen.';
-  if (Number(props.accountCredit.available || 0) < Number(props.order.total || 0)) {
-    return `Credit checkout requires ${Number(props.order.total || 0).toFixed(2)} Lei, but only ${Number(props.accountCredit.available || 0).toFixed(2)} Lei is available.`;
-  }
-  return null;
-});
+const creditUnavailableReason = computed(() => resolveCreditUnavailableReason(props.accountCredit, Number(props.order.total || 0)));
 
 const paymentMethods = () => {
   getGeneralSettings.value?.orderSettings?.paymentMethods.forEach((method) => {

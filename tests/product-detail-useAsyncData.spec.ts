@@ -7,8 +7,18 @@ import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProd
 import type { ProductDetail } from '~/types/product';
 
 const productPagePath = resolve('pages/product/[slug].vue');
+const productsApiPath = resolve('composables/api/products.ts');
 
 describe('product detail useAsyncData contract', () => {
+  it('uses the request-context fetch for mock SSR product loads', () => {
+    const productsApi = readFileSync(productsApiPath, 'utf8');
+
+    expect(productsApi).toContain('if (config.public.MOCK_MODE && import.meta.server)');
+    expect(productsApi).toContain('const requestFetch = useRequestFetch()');
+    expect(productsApi).toContain('`/api${RESOURCE}/${id}`');
+    expect(productsApi).toContain('$apiClient<ProductDetailResponse>');
+  });
+
   it('uses a stable cache key per slug and watches route slug changes', () => {
     const productPage = readFileSync(productPagePath, 'utf8');
 

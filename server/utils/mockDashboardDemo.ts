@@ -509,16 +509,7 @@ export const getClientDashboardData = (userId?: string) => {
     productInfo: product,
   }));
 
-  const hotSale = mockProducts.slice(0, 5).map((product, index) => ({
-    ...product,
-    adminSettings: {
-      discount: {
-        value: 10 + index,
-        startDate: '2024-01-01T00:00:00.000Z',
-        endDate: '2027-01-01T00:00:00.000Z',
-      },
-    },
-  }));
+  const hotSale = mockProducts.slice(0, 5);
 
   return {
     activeOrders: recentOrders.slice(0, 4).map((order) => ({

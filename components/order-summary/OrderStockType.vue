@@ -126,6 +126,7 @@
             v-if="paymentMethodExpanded"
             :order="order"
             :account-credit="accountCredit"
+            :requires-payment-reselection="requiresPaymentReselection"
             class="item"
             @update-payment-details="emits('update-payment-details', $event)"
           />
@@ -163,6 +164,7 @@ const props = defineProps<{
   items: CartProductsInterface[];
   accountCredit: CustomerCreditInterface;
   order: CheckoutOrderDraft;
+  requiresPaymentReselection?: boolean;
   shippingPreferences: ShippingOrderPricingResponse | null;
 }>();
 

@@ -63,8 +63,9 @@
               :items="cartItems"
               :account-credit="accountCredit"
               :order="order"
+              :requires-payment-reselection="requiresPaymentReselection"
               :shipping-preferences="shippingPreferences"
-              @update-payment-details="order.paymentDetails = $event"
+              @update-payment-details="updatePaymentDetails"
             />
             <OrderSummaryNoteSection />
             <OrderSummary :order="order" :quote="authoritativeQuote" />
@@ -228,6 +229,10 @@ const restoreCheckoutDraft = () => {
 
 const persistCheckoutDraft = () => {
   if (!import.meta.client) return;
+  if (isGuestCheckout.value && !guestCheckoutMode.value) {
+    sessionStorage.removeItem(CHECKOUT_DRAFT_STORAGE_KEY);
+    return;
+  }
   sessionStorage.setItem(
     CHECKOUT_DRAFT_STORAGE_KEY,
     JSON.stringify({
@@ -374,6 +379,11 @@ const restoreSavedCardSelection = () => {
     requiresPaymentReselection.value = true;
   }
   restoredCardId.value = null;
+};
+
+const updatePaymentDetails = (paymentDetails: PaymentDetails) => {
+  order.value.paymentDetails = paymentDetails;
+  requiresPaymentReselection.value = false;
 };
 
 // Checkout Control
@@ -528,12 +538,16 @@ watch(
   },
 );
 
-watch(isGuestCheckout, (isGuest) => {
+const syncAuthenticatedCheckoutProfile = () => {
+  clearGuestCheckout();
+  order.value.shippingDetails.address = getShipping();
+  order.value.shippingDetails.billingAddress = getBilling();
+  order.value.guestContact = null;
+};
+
+watch([isGuestCheckout, userId], ([isGuest]) => {
   if (!isGuest) {
-    clearGuestCheckout();
-    order.value.shippingDetails.address = getShipping();
-    order.value.shippingDetails.billingAddress = getBilling();
-    order.value.guestContact = null;
+    syncAuthenticatedCheckoutProfile();
     return;
   }
 
@@ -565,6 +579,9 @@ watch(order, persistCheckoutDraft, { deep: true });
 // Initialization
 onMounted(async () => {
   restoreCheckoutDraft();
+  if (!isGuestCheckout.value) {
+    syncAuthenticatedCheckoutProfile();
+  }
   if (isGuestCheckoutMode.value) {
     order.value.shippingDetails.address ??= createEmptyGuestAddress('Shipping');
     order.value.shippingDetails.billingAddress ??= createEmptyGuestAddress('Billing');

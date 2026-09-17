@@ -70,6 +70,23 @@ test.describe('Order History / Account View', () => {
     expect(hydrationMessages).toEqual([]);
   });
 
+  test('exact order search filters results and keeps a useful no-match state', async ({ page }) => {
+    await signInAsCustomer(page);
+    await page.goto('/dashboard/client?tab=orders', { waitUntil: 'networkidle' });
+
+    const table = page.getByRole('region', { name: 'Data table' });
+    const filter = page.getByPlaceholder('Filter orders...');
+    await filter.fill('ORD-2024-0001');
+    await expect(table.getByRole('link', { name: /ORD-2024-0001/i })).toBeVisible();
+    await expect(table.getByRole('link', { name: /ORD-2024-0005/i })).toHaveCount(0);
+
+    await filter.fill('ORD-NO-MATCH');
+    await expect(page.getByText('No orders match your search.', { exact: true })).toBeVisible();
+    await expect(filter).toHaveValue('ORD-NO-MATCH');
+    await expect(page.getByRole('button', { name: /reset/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'No orders yet' })).toHaveCount(0);
+  });
+
   test('signed-in customer can view account order history', async ({ page }) => {
     await signInAsCustomer(page);
 
