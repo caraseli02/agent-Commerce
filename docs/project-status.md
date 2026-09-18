@@ -28,15 +28,15 @@ The local checkout model now has strong retry/concurrency semantics. The remaini
 - GitHub Issues are the task queue.
 - `PROGRESS.md` is the current session/progress mirror.
 - `feature_list.json` is the machine-readable feature state and keeps WIP limited to one active feature.
-- #536 is complete/passing.
-- Epic #535 stays active until its still-open child issues are reconciled against the implementation merged through #550.
+- #536 and epic #535 are complete/passing. The reconciliation closed #537-#542 and #544-#547 after current-main coverage and preview-browser checks; #543 had already merged and closed.
+
+The recorded reconciliation evidence is: stable product/cart/refreshed checkout pricing (#537); 150/151 and last-stock safeguards (#538); cart-change recovery (#539/#543); restored checkout drafts (#540); credit shortfall explanation (#541); unsigned tracking protection (#542); linked Paid transaction history (#544); exact and no-match order search (#545); saved checkout addresses (#546); and cart/draft identity isolation (#547). No residual #535 defect was reproduced.
 
 ## Next work
 
-1. Reconcile #535 child issues (#537-#547) against current `main`, closing only those whose acceptance criteria are evidenced and isolating any remaining defect.
-2. Start issue #121 as the next system-design decision: choose the provider contract while preserving the existing Payments boundary and mock mode.
-3. Define durable provider-attempt identity/idempotency and unknown-outcome reconciliation before real provider I/O.
-4. Implement Stripe/provider adapter and webhook/event correlation without leaking provider SDK types across the Payments public API.
-5. Add retry-safe payment finalization/recovery, then handle late success, payment retry, cancellation races, refunds, and automated recovery only as justified by explicit failure cases.
+1. Start issue #121 as the next system-design decision: choose the provider contract while preserving the existing Payments boundary and mock mode.
+2. Define durable provider-attempt identity/idempotency and unknown-outcome reconciliation before real provider I/O.
+3. Implement Stripe/provider adapter and webhook/event correlation without leaking provider SDK types across the Payments public API.
+4. Add retry-safe payment finalization/recovery, then handle late success, payment retry, cancellation races, refunds, and automated recovery only as justified by explicit failure cases.
 
 Nuxt source-layout migration, SEO, dependency upgrades, caching, and AI/agent features remain separate backlog tracks and should not displace the payment-lifecycle system-design sequence unless priorities intentionally change.

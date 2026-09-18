@@ -3,13 +3,8 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
-    "status_values": [
-      "not_started",
-      "active",
-      "blocked",
-      "passing"
-    ]
+    "active_feature_count": 0,
+    "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
     {
@@ -42,7 +37,7 @@
       "id": "I535",
       "description": "Resolve remaining buyer checkout QA findings from epic #535 (#537-#547)",
       "validation": "Authoritative price/stock behavior remains intact; checkout conflicts are distinct from generic payment failures; refresh behavior is explicit; credit, order tracking, transaction history, order search, addresses, and sign-out cart isolation are covered by focused tests and runtime verification",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "Implementation started on codex/535-checkout-qa-followups from main commit 81ca251f.",
         "2026-09-15: locked dependency install restored successfully; pnpm typecheck and the public transaction-history route test pass.",
@@ -50,7 +45,8 @@
         "PR #548 merged on 2026-09-15 with checkout QA fixes for stale-review/conflict messaging, draft persistence, credit clarity, tracking privacy, transaction history, and exact order lookup.",
         "PR #549 merged on 2026-09-15 with cart_empty recovery, identity-safe checkout draft clearing, saved-card reselection, tracking return navigation, and admin transaction scoping.",
         "PR #550 merged on 2026-09-17 with shared pricing/credit calculations, saved checkout addresses, sign-out isolation, stock-boundary and concurrent-last-stock coverage, payment reselection/result-state coverage, order-history no-match behavior, and protected-preview product SSR.",
-        "The #535 child issues remain open and require acceptance-criteria reconciliation against current main before the epic is marked passing; open issue state alone is not treated as evidence that a defect still reproduces."
+        "2026-09-18 reconciliation closed #537-#542 and #544-#547 after acceptance-criteria review against current main, focused coverage, and preview-browser checks; #543 was already merged/closed and no remaining defect was reproduced.",
+        "Browser evidence: stable product/cart/refreshed checkout pricing (#537); 151 rejected against 150 stock (#538); valid restored checkout (#540); explicit credit shortfall (#541); linked Paid transaction rows (#544); exact order search reduced to one row (#545); saved billing/shipping addresses (#546); and distinct guest/customer carts (#547)."
       ]
     },
     {
@@ -275,51 +271,35 @@
       "description": "Keep AGENTS.md compact and router-like",
       "validation": "AGENTS.md answers the fresh-session questions and links to focused topic docs",
       "status": "passing",
-      "evidence": [
-        "AGENTS.md",
-        "docs/agents/harness-audit.md"
-      ]
+      "evidence": ["AGENTS.md", "docs/agents/harness-audit.md"]
     },
     {
       "id": "H02",
       "description": "Persist cross-session state in PROGRESS.md",
       "validation": "A new session can read current focus, blocked items, and verification baseline",
       "status": "passing",
-      "evidence": [
-        "PROGRESS.md"
-      ]
+      "evidence": ["PROGRESS.md"]
     },
     {
       "id": "H03",
       "description": "Record durable design decisions in DECISIONS.md",
       "validation": "Important architectural and harness choices are written down outside chat",
       "status": "passing",
-      "evidence": [
-        "DECISIONS.md"
-      ]
+      "evidence": ["DECISIONS.md"]
     },
     {
       "id": "H04",
       "description": "Separate initialization from implementation",
       "validation": "A fresh checkout can run one initialization command before feature work",
       "status": "passing",
-      "evidence": [
-        "init.sh",
-        "AGENTS.md",
-        "CLAUDE.md",
-        "docs/agents/session-lifecycle.md"
-      ]
+      "evidence": ["init.sh", "AGENTS.md", "CLAUDE.md", "docs/agents/session-lifecycle.md"]
     },
     {
       "id": "H05",
       "description": "Keep only one task active at a time",
       "validation": "WIP=1 is enforced in issue pickup, feature list policy, and lifecycle rules",
       "status": "passing",
-      "evidence": [
-        "feature_list.json",
-        "docs/agents/issue-tracker.md",
-        "docs/agents/session-lifecycle.md"
-      ]
+      "evidence": ["feature_list.json", "docs/agents/issue-tracker.md", "docs/agents/session-lifecycle.md"]
     },
     {
       "id": "H06",
@@ -340,31 +320,21 @@
       "description": "Prevent premature victory with executable done gates",
       "validation": "Agents must run static, targeted, and runtime checks before saying done",
       "status": "passing",
-      "evidence": [
-        "docs/agents/verification.md",
-        "AGENTS.md",
-        "CLAUDE.md"
-      ]
+      "evidence": ["docs/agents/verification.md", "AGENTS.md", "CLAUDE.md"]
     },
     {
       "id": "H08",
       "description": "Make session process observable",
       "validation": "Each coding task records a sprint contract, verification evidence, risks, and handoff",
       "status": "passing",
-      "evidence": [
-        "docs/agents/session-lifecycle.md",
-        "docs/agents/verification.md"
-      ]
+      "evidence": ["docs/agents/session-lifecycle.md", "docs/agents/verification.md"]
     },
     {
       "id": "H09",
       "description": "Leave a clean state at the end of every session",
       "validation": "Clean-state checklist covers verification, git status, temporary artifacts, progress, feature state, and PR evidence",
       "status": "passing",
-      "evidence": [
-        "docs/agents/session-lifecycle.md",
-        "PROGRESS.md"
-      ]
+      "evidence": ["docs/agents/session-lifecycle.md", "PROGRESS.md"]
     },
     {
       "id": "E457-513",

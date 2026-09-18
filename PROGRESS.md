@@ -3,8 +3,8 @@
 ## Current focus
 
 - Checkout/order hardening through PR #550 is merged on `main`.
-- Reconcile epic #535 child-issue state and evidence against current `main`; do not reopen already-landed checkout fixes without a reproduced gap.
-- The next major system-design frontier after that reconciliation is issue #121: external payment-provider ownership, provider idempotency, unknown-outcome reconciliation, webhooks, and retry-safe payment finalization.
+- Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
+- The next major system-design frontier is issue #121: external payment-provider ownership, provider idempotency, unknown-outcome reconciliation, webhooks, and retry-safe payment finalization.
 
 ## Completed checkout hardening
 
@@ -18,9 +18,30 @@
 
 ## Active tracking
 
-- #536 is closed/completed and is tracked as `passing`.
-- Epic #535 remains `active` only because its child issues (#537-#547) are still open and need acceptance-criteria reconciliation against the merged implementation. Their open state must not be interpreted as proof that the reported defects still reproduce.
-- Keep WIP at one: finish the #535 evidence/issue reconciliation before promoting the provider-integration track to active implementation.
+- #536 and #535 are closed/completed and tracked as `passing`.
+- The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
+- Keep WIP at zero until issue #121 is explicitly promoted to active implementation.
+
+## Reconciliation evidence
+
+- #537: shared-price coverage and a product → order-summary → refresh browser check kept the 999.99 Lei line subtotal and 1,209.89 Lei named total stable.
+- #538: stock boundary/race coverage plus preview rejection of 151 against 150 available.
+- #539/#543: 409 cart/quote validation is distinct from payment failure; cart-empty recovery coverage returns the buyer to cart review.
+- #540: refresh restored a valid prepared checkout and left Secure Checkout enabled.
+- #541: the preview exposed the 3,800.00 Lei available / 162,810.12 Lei required credit explanation and alternative methods.
+- #542: unsigned tracking renders only the account sign-in gate; tracking-privacy coverage exercises the owner return path.
+- #544: Transaction History displayed linked Paid rows for completed orders with matching identifier, type, date, and amount.
+- #545: exact `ORD-525044` browser search reduced four rows to the single match after its debounce; the no-match test also covers recovery.
+- #546: signed-in checkout displayed complete billing and default shipping addresses.
+- #547: draft-clear-on-sign-out coverage and the independent guest/customer carts in the preview confirmed identity isolation.
+
+## In progress
+
+- None. #535 is complete; #121 has not yet been promoted to active work.
+
+## Blocked / known baseline failures
+
+- No #535 acceptance-criteria defect remains. Local PostgreSQL-backed work still requires a configured database when the next payment-lifecycle slice starts.
 
 ## Remaining architecture
 
@@ -38,6 +59,9 @@
 
 ## Next work
 
-1. Reconcile each open #535 child issue against current `main`; close only when its acceptance criteria are demonstrably satisfied and record any genuinely remaining gap.
-2. Once #535 tracking is truthful, start the #121 payment-provider ADR/design decision.
-3. Then implement provider-attempt identity/idempotency, Stripe adapter behavior, webhook/reconciliation handling, and retry-safe payment finalization in separate failure-oriented slices.
+1. Start the #121 payment-provider ADR/design decision.
+2. Then implement provider-attempt identity/idempotency, Stripe adapter behavior, webhook/reconciliation handling, and retry-safe payment finalization in separate failure-oriented slices.
+
+## Next verification
+
+- Run `./scripts/validate-feature-list.sh` and the PR template check after recording this reconciliation, then confirm PR #551 is mergeable with green checks.
