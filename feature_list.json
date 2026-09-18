@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
+    "active_feature_count": 0,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
@@ -26,23 +26,27 @@
       "id": "I536",
       "description": "Reject checkout when the reviewed cart changes (#536)",
       "validation": "A checkout request carries the server-issued cart revision and quote fingerprint from its reviewed order; a changed cart or price snapshot creates no Order, reservation, or Payment and the buyer sees a clear review-again explanation.",
-      "status": "active",
+      "status": "passing",
       "evidence": [
-        "Issue #536 claimed on codex/536-reject-stale-cart-checkout.",
         "Focused non-database contract tests passed: 3 files, 12 tests; pnpm lint and pnpm typecheck passed.",
-        "PostgreSQL-focused race coverage is implemented but awaits a configured DATABASE_URL for execution."
+        "PR #543 merged to main as 29db3494 on 2026-09-14 and implements server-issued cart revision plus deterministic quote fingerprint rejection before durable checkout side effects.",
+        "Issue #536 is closed with state reason completed."
       ]
     },
     {
       "id": "I535",
       "description": "Resolve remaining buyer checkout QA findings from epic #535 (#537-#547)",
       "validation": "Authoritative price/stock behavior remains intact; checkout conflicts are distinct from generic payment failures; refresh behavior is explicit; credit, order tracking, transaction history, order search, addresses, and sign-out cart isolation are covered by focused tests and runtime verification",
-      "status": "blocked",
+      "status": "passing",
       "evidence": [
         "Implementation started on codex/535-checkout-qa-followups from main commit 81ca251f.",
         "2026-09-15: locked dependency install restored successfully; pnpm typecheck and the public transaction-history route test pass.",
         "2026-09-15: buyer-facing cart_empty recovery, tracking return destination, checkout-draft account isolation, saved-card restoration/reselection, and admin customer transaction scope were repaired; browser regression tests cover cart_empty, saved-card reselection, sign-out draft clearing, and tracking return.",
-        "Browser checkout and PostgreSQL-backed HTTP seams remain blocked on this host because DATABASE_URL is unset and no local PostgreSQL/Docker runtime is available."
+        "PR #548 merged on 2026-09-15 with checkout QA fixes for stale-review/conflict messaging, draft persistence, credit clarity, tracking privacy, transaction history, and exact order lookup.",
+        "PR #549 merged on 2026-09-15 with cart_empty recovery, identity-safe checkout draft clearing, saved-card reselection, tracking return navigation, and admin transaction scoping.",
+        "PR #550 merged on 2026-09-17 with shared pricing/credit calculations, saved checkout addresses, sign-out isolation, stock-boundary and concurrent-last-stock coverage, payment reselection/result-state coverage, order-history no-match behavior, and protected-preview product SSR.",
+        "2026-09-18 reconciliation closed #537-#542 and #544-#547 after acceptance-criteria review against current main, focused coverage, and preview-browser checks; #543 was already merged/closed and no remaining defect was reproduced.",
+        "Browser evidence: stable product/cart/refreshed checkout pricing (#537); 151 rejected against 150 stock (#538); valid restored checkout (#540); explicit credit shortfall (#541); linked Paid transaction rows (#544); exact order search reduced to one row (#545); saved billing/shipping addresses (#546); and distinct guest/customer carts (#547)."
       ]
     },
     {
@@ -64,7 +68,6 @@
         "Visual hook passed 7/9 cases; the two homepage failures reproduce on exact base 95bcef63 at mobile 96,449 changed pixels and desktop 623,075 changed pixels, with identical current/base PNG SHA-256 hashes; no snapshots were updated and the UI is unchanged",
         "Handoff architecture validation has the documented unchanged tracked baseline manual Bearer-header exception",
         "Code and tests are complete; the user approved a one-time push exception for the proven unchanged visual and architecture baseline failures",
-        "Handoff target is the reviewable PR from codex/payment-preparation-boundary; it is not merged, and the feature stays active while the PR awaits human review",
         "2026-09-11 PR #529 repair: retain guest cart revision through atomic login merge; add rollback/FAILED replay and durable-order UI assertions. verify and verify:full exit 0 (359 passed, 2 todo), E2E 13 passed, visual 9 passed; final hydration suite 3 passed. Local repair branch codex/pr529-findings, original preview unchanged.",
         "PR #529 merged into main as 6c9e6db7 on 2026-09-12."
       ]
