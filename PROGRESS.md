@@ -2,56 +2,42 @@
 
 ## Current focus
 
-- Post-merge #535/#536 follow-up repair on current main; no new PR opened.
-- Preserve server-issued review identity, buyer-visible checkout consistency, and account-data privacy.
+- Checkout/order hardening through PR #550 is merged on `main`.
+- Reconcile epic #535 child-issue state and evidence against current `main`; do not reopen already-landed checkout fixes without a reproduced gap.
+- The next major system-design frontier after that reconciliation is issue #121: external payment-provider ownership, provider idempotency, unknown-outcome reconciliation, webhooks, and retry-safe payment finalization.
 
-## In progress
+## Completed checkout hardening
 
-- The quote route returns a revision plus a deterministic payable-quote fingerprint; checkout requires both and rejects a stale review before an Order, Payment, or reservation is created.
-- Credit payment remains visible with an actionable insufficient-balance/facility explanation; public tracking no longer renders static customer, address, or payment fixtures.
-- Paid transaction history is derived from durable Orders, checkout drafts restore only within the session, and exact order IDs filter server-side.
-- Follow-up repair adds owner-safe draft clearing on sign-out/account switch, restores a saved card only by its stored ID (otherwise checkout requires a new explicit selection), maps cart_empty to cart review, sends tracking sign-in to the client orders tab, and lets admins scope transactions to a selected customer.
-- Independent correctness review found no implementation defects. `pnpm typecheck`, `pnpm lint`, and the transaction-route authorization test pass; focused Playwright discovery lists 10 cases, but execution cannot bind its isolated local server.
+- PR #523 made PostgreSQL the authoritative checkout persistence engine across independent requests/instances and established durable checkout claims, Orders, reservations, and payment state.
+- PR #526 made persisted Orders the canonical read model and carried one server-authoritative quote through checkout, persistence, confirmation, and history.
+- PR #529 established the commit-before-provider boundary: one local `PENDING` Payment and its Order/reservation identities are persisted before payment continuation; provider continuation runs outside the retryable checkout transaction.
+- PR #533 finalizes paid Inventory/Order/checkout state before best-effort, revision-aware Cart cleanup so a newer cart revision is never destroyed by an older checkout.
+- PR #543 closed #536 by requiring the server-issued cart revision and quote fingerprint and rejecting stale reviews before Order, Payment, or reservation creation.
+- PRs #548 and #549 repaired the remaining browser QA regressions around cart-change recovery, checkout drafts, saved-card reselection, tracking privacy/return behavior, transaction scope, and order-history behavior.
+- PR #550 hardened shared pricing/credit behavior, saved addresses, sign-out draft isolation, stock boundaries and concurrent last-stock checkout, payment reselection/result states, order-history no-match handling, and protected-preview product SSR.
 
-## Blocked / known baseline failures
+## Active tracking
 
-- Local PostgreSQL-backed verification and browser runtime proof remain blocked: `.env` has mock public settings but no `DATABASE_URL`, and this host has no PostgreSQL/Docker runtime. A pre-existing localhost:3000 process also prevents Playwright from starting its isolated preview.
-- Existing nonblocking warnings: `utils/categories.ts` legacy architecture warning,
-  Vitest/coverage package version mismatch, and Vite native-config migration warning.
-- Real provider I/O, webhooks, provider-attempt ownership, reconciliation, refunds,
-  cancellation, and automated recovery remain deferred by this PR.
+- #536 is closed/completed and is tracked as `passing`.
+- Epic #535 remains `active` only because its child issues (#537-#547) are still open and need acceptance-criteria reconciliation against the merged implementation. Their open state must not be interpreted as proof that the reported defects still reproduce.
+- Keep WIP at one: finish the #535 evidence/issue reconciliation before promoting the provider-integration track to active implementation.
+
+## Remaining architecture
+
+- Real provider I/O is still absent. The current Payments implementation has durable local `PENDING` / `PAID` / `FAILED` state but mock payment continuation.
+- Provider-attempt ownership/idempotency, timeout/unknown-result reconciliation, webhook signature/event handling, duplicate/out-of-order event safety, retry-safe `finalizePayment`, late-success policy, payment retry, cancellation races, refunds, and automated recovery remain future payment-lifecycle work.
+- Do not add queues, brokers, microservices, or saga infrastructure unless a demonstrated recovery requirement justifies them.
 
 ## Verification baseline
 
-- Issue #532 focused PostgreSQL suite: 6 files, 40 tests passed; the final
-  review-repair subset passed 2 files and 18 tests.
-- `pnpm verify`: pass before the review repair; 77 files, 361 tests passed, 2 todo.
-- Final `pnpm verify:full`: pass; 78 files, 364 tests passed, 2 todo; coverage 46.47%
-  statements, 37.97% branches, 40.11% functions, and 47% lines.
-- Architecture invariants and built-preview smoke for `/`, `/cart`, and
-  `/checkout` passed.
-- Vercel Preview buyer smoke passed on
-  `agentcommerce-aiusnc84y-caraseli02s-projects.vercel.app`: the demo buyer
-  completed order `ord-1789243391022-9181` (`ORD-248769`), the success and order
-  confirmation views remained reachable, and reopening the cart showed it empty.
-- Initialization: exit 0, 75 files / 349 passed / 2 todo.
-- Focused repair tests: exit 0, 7 files / 41 passed.
-- `pnpm verify`: exit 0, 77 files / 359 passed / 2 todo.
-- `pnpm verify:full`: exit 0, including architecture and preview smoke.
-- Buyer/history/cart/result/hydration E2E: exit 0, 13 passed; new durable order
-  readback asserts identity and unavailable fulfillment at 1440×900 and 390×844.
-- Hydration reproduction: persisted-cart route sweep failed before and passed after
-  the header fix (2 tests). Scanner negative fixture still fails as intended.
-- Authenticated readback mismatch was traced to the company section appearing from
-  persisted profile state before order load; it now waits for the order response.
-  Development and final production browser regressions passed (5 final tests).
-- Final hydration E2E: exit 0, 3 passed, including expired profile without a token.
-- In-app purchase `ord-1789131043833-557` / `ORD-290867`: saved identity,
-  mobile/desktop amounts, reload, and history confirmed; total 1150.39 RON.
-- `pnpm verify:handoff`: exit 0 on clean snapshot `6b750105`, including 359 tests,
-  architecture, smoke, and clean-state validation. The snapshot is a disposable verification copy; repairs are prepared for PR #529.
-- Full session evidence is in the Codex session artifact `pr529-evidence` directory.
+- PR #550 reports `pnpm build`, `pnpm lint`, and `pnpm typecheck` passing.
+- Its earlier full gate records 376 tests passed with 2 todo; the final product-SSR focused Vitest run passed 8 tests.
+- The latest GitHub `verify` and Vercel Preview rebuild for the PR head passed.
+- PostgreSQL persistence coverage now includes a deterministic last-stock race in which two independent customers compete for the same stock and exactly one checkout succeeds, producing one Order, one Payment, and one paid result.
+- Earlier checkout hardening already includes PostgreSQL concurrency/replay/crash coverage, independent-instance behavior, production-preview route smoke, and authenticated buyer-flow evidence.
 
-## Next verification
+## Next work
 
-- Start mock Nuxt with a PostgreSQL `DATABASE_URL` on a free port, run the focused checkout/cart suite and `pnpm verify:full`, then exercise stale-review, guest draft, saved-card refresh, credit, tracking return, transaction-history, ID-search, address, and sign-out browser flows.
+1. Reconcile each open #535 child issue against current `main`; close only when its acceptance criteria are demonstrably satisfied and record any genuinely remaining gap.
+2. Once #535 tracking is truthful, start the #121 payment-provider ADR/design decision.
+3. Then implement provider-attempt identity/idempotency, Stripe adapter behavior, webhook/reconciliation handling, and retry-safe payment finalization in separate failure-oriented slices.

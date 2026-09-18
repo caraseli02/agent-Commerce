@@ -1,43 +1,42 @@
 # Project Status
 
-Last updated: 2026-09-02
+Last updated: 2026-09-18
 
 ## Current state
 
-Components Marketplace remains a self-contained Nuxt e-commerce portfolio demo. The Nuxt 4 migration and the recent buyer-flow stabilization work remain in place, while the current architecture track is now focused on making checkout/order behavior explicit and safe rather than adding more surface-area features.
+Components Marketplace remains a self-contained Nuxt e-commerce portfolio demo with a pragmatic modular-monolith architecture. The checkout/order hardening track has moved beyond the original local-persistence and authoritative-pricing gaps: durable PostgreSQL checkout state, canonical Orders reads, server-authoritative commercial snapshots, stale-review rejection, payment preparation, revision-aware Cart completion, and the major buyer-facing QA repairs are now merged.
 
-System-design steps #6 and #7 are complete at the design level. The first
-checkout vertical slice has a durable implementation foundation, but its full
-production-hardening acceptance criteria are not yet complete:
+System-design steps #6 and #7 remain the source of truth for ownership and dependency direction:
 
-- [`docs/system-design/06-domain-boundaries-and-ownership.md`](system-design/06-domain-boundaries-and-ownership.md) defines authoritative ownership for Catalog, Cart, Inventory, Orders, Payments, Accounts, and checkout/application workflows, including retry, expiry, reservation, cart-revision, and payment-recovery invariants.
-- [`docs/system-design/07-public-module-contracts-and-dependency-graph.md`](system-design/07-public-module-contracts-and-dependency-graph.md) defines the modular-monolith dependency direction, public module contracts, module firewall, retry/idempotency semantics, and adversarial checkout/payment/cancellation contracts.
-- `tests/server-module-boundaries.spec.ts` actively protects the module-internal import boundary.
-- PR #523 delivered durable PostgreSQL-backed `PlaceOrder` persistence,
-  cross-instance idempotency, revision-aware cart completion, and deployed
-  buyer-flow verification.
+- [`docs/system-design/06-domain-boundaries-and-ownership.md`](system-design/06-domain-boundaries-and-ownership.md) defines authoritative ownership for Catalog, Cart, Inventory, Orders, Payments, Accounts, and application workflows.
+- [`docs/system-design/07-public-module-contracts-and-dependency-graph.md`](system-design/07-public-module-contracts-and-dependency-graph.md) defines the modular-monolith dependency direction, public domain APIs, module firewall, and checkout/payment invariants.
+- `tests/server-module-boundaries.spec.ts` protects the domain import boundary.
 
-`PlaceOrder` now uses a thin Nitro adapter and an application workflow over
-public Cart, Catalog, Inventory, Orders, and Payments APIs. The remaining
-hardening work is to make Orders detail/history reads one Orders-owned read
-model and establish full UI-to-persisted checkout-total reconciliation. Payment
-finalization, provider-event recovery, and cancellation follow only after that
-work is complete.
+## Delivered checkout milestones
+
+- PR #523 — PostgreSQL-only durable checkout persistence, cross-instance idempotency, reservations, Orders, and payment state.
+- PR #526 — Orders-owned canonical reads and one server-authoritative checkout money policy.
+- PR #529 — durable local Payment preparation before provider continuation; stable Order/reservation/Payment identities survive retry and recovery.
+- PR #533 — paid checkout finalization commits before revision-aware best-effort Cart cleanup.
+- PR #543 — stale cart/quote review identity is rejected before durable side effects.
+- PRs #548, #549, and #550 — buyer-flow QA hardening across pricing, checkout recovery, credit, addresses, order history, tracking/privacy, draft isolation, stock races, payment reselection/result states, and protected-preview SSR.
+
+The local checkout model now has strong retry/concurrency semantics. The remaining architectural gap is the external payment boundary: the repository still uses mock provider continuation and therefore does not yet prove provider-attempt idempotency, ambiguous timeout reconciliation, webhook/event deduplication, or provider-driven finalization recovery.
 
 ## Current planning controls
 
-- [System Design #6](system-design/06-domain-boundaries-and-ownership.md) is the source of truth for business ownership and transaction/recovery invariants.
-- [System Design #7](system-design/07-public-module-contracts-and-dependency-graph.md) is the source of truth for module APIs and allowed dependency direction.
-- [Feature Prioritization Audit](plans/2026-07-09-feature-prioritization-audit.md) still defines the broader portfolio-demo cleanup constraints.
-- [Refactor Stabilization and Review Documentation PRD](prds/2026-07-09-refactor-stabilization-prd.md) remains the broader stabilization reference.
-- GitHub Issues remain the task queue; `PROGRESS.md` mirrors the active implementation focus and verification baseline.
+- GitHub Issues are the task queue.
+- `PROGRESS.md` is the current session/progress mirror.
+- `feature_list.json` is the machine-readable feature state and keeps WIP limited to one active feature.
+- #536 is complete/passing.
+- Epic #535 stays active until its still-open child issues are reconciled against the implementation merged through #550.
 
 ## Next work
 
-Complete the remaining `PlaceOrder` hardening acceptance work.
+1. Reconcile #535 child issues (#537-#547) against current `main`, closing only those whose acceptance criteria are evidenced and isolating any remaining defect.
+2. Start issue #121 as the next system-design decision: choose the provider contract while preserving the existing Payments boundary and mock mode.
+3. Define durable provider-attempt identity/idempotency and unknown-outcome reconciliation before real provider I/O.
+4. Implement Stripe/provider adapter and webhook/event correlation without leaking provider SDK types across the Payments public API.
+5. Add retry-safe payment finalization/recovery, then handle late success, payment retry, cancellation races, refunds, and automated recovery only as justified by explicit failure cases.
 
-1. Replace public route demo-order fallbacks with one Orders-owned read model.
-2. Reconcile the server quote, UI summary, persisted order, success, and
-   history totals through one policy.
-3. Run the complete `PlaceOrder` hardening acceptance suite, then begin
-   `finalizePayment`.
+Nuxt source-layout migration, SEO, dependency upgrades, caching, and AI/agent features remain separate backlog tracks and should not displace the payment-lifecycle system-design sequence unless priorities intentionally change.
