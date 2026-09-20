@@ -4,7 +4,8 @@
 
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
-- The next major system-design frontier is issue #121: external payment-provider ownership, provider idempotency, unknown-outcome reconciliation, webhooks, and retry-safe payment finalization.
+- Issue #121 is now in ADR review on `docs/121-stripe-payment-provider-adr`.
+- The proposed accepted contract is recorded in `docs/system-design/08-stripe-payment-provider-and-recovery.md`; no live Stripe implementation is included in that ADR slice.
 
 ## Completed checkout hardening
 
@@ -37,7 +38,7 @@
 
 ## In progress
 
-- None. #535 is complete; #121 has not yet been promoted to active work.
+- #121 — Stripe provider ADR/design review. The ADR fixes the Payments/Stripe boundary, local Payment states, explicit Stripe IDs, provider idempotency, webhook deduplication, browser recovery, late-success handling, full-refund semantics, and the sandbox validation ladder.
 
 ## Blocked / known baseline failures
 
@@ -46,7 +47,9 @@
 ## Remaining architecture
 
 - Real provider I/O is still absent. The current Payments implementation has durable local `PENDING` / `PAID` / `FAILED` state but mock payment continuation.
-- Provider-attempt ownership/idempotency, timeout/unknown-result reconciliation, webhook signature/event handling, duplicate/out-of-order event safety, retry-safe `finalizePayment`, late-success policy, payment retry, cancellation races, refunds, and automated recovery remain future payment-lifecycle work.
+- #121 now proposes the first Stripe slice: `PENDING / PROCESSING / PAID / FAILED`, explicit Checkout Session/PaymentIntent IDs, deterministic Payment-derived provider idempotency, durable webhook deduplication, browser/provider reconciliation, late-success allocation/backorder recovery, and durable full refunds.
+- Implementation remains pending until the ADR is reviewed/accepted.
+- Cancellation races and proactive/background recovery remain later payment-lifecycle work.
 - Do not add queues, brokers, microservices, or saga infrastructure unless a demonstrated recovery requirement justifies them.
 
 ## Verification baseline
@@ -59,9 +62,17 @@
 
 ## Next work
 
-1. Start the #121 payment-provider ADR/design decision.
-2. Then implement provider-attempt identity/idempotency, Stripe adapter behavior, webhook/reconciliation handling, and retry-safe payment finalization in separate failure-oriented slices.
+1. Review and accept `docs/system-design/08-stripe-payment-provider-and-recovery.md` for #121.
+2. After ADR acceptance, create focused implementation issues for:
+   - Payment persistence/state migration;
+   - Stripe adapter + Checkout Session idempotency;
+   - Payment Element/customer-action flow;
+   - webhook + reconciliation + retry-safe finalization;
+   - late-success/full-refund recovery;
+   - Stripe sandbox deployment validation.
+3. Keep provider-attempt persistence, partial refunds, app-owned saved cards, manual capture, and background queues deferred until a demonstrated requirement justifies them.
 
 ## Next verification
 
-- Run `./scripts/validate-feature-list.sh` and the PR template check after recording this reconciliation, then confirm PR #551 is mergeable with green checks.
+- For this docs-only ADR PR: run the repository documentation/harness checks required by the PR template and confirm the changed Markdown renders correctly.
+- Implementation PRs must later validate CI/mock + PostgreSQL behavior, local Stripe sandbox/CLI behavior, and Vercel Preview + Stripe sandbox behavior.
