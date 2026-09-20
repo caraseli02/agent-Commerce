@@ -2,6 +2,26 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Stripe provider ADR — 2026-09-20
+
+- Use Stripe Checkout Sessions with Elements / Payment Element behind the Payments module boundary.
+  - Reason: it keeps secure payment collection and 3DS in Stripe while preserving agent-Commerce ownership of Cart, Inventory, immutable Order pricing, local Payment identity, and recovery.
+  - Impact: application workflows consume provider-neutral Payments results; Stripe SDK types remain inside Payments.
+- Refine local Payment state to `PENDING / PROCESSING / PAID / FAILED`, persist explicit Stripe Checkout Session and PaymentIntent IDs, and retire ambiguous `provider_reference`.
+  - Reason: real provider work has an in-progress/unknown period, and the two Stripe identifiers serve different recovery purposes.
+  - Impact: recoverable declines remain payable; `PAID` cannot regress because of stale provider events.
+- Reuse a deterministic Payment-derived Stripe idempotency key when the same Checkout Session create is retried after timeout.
+  - Reason: a lost HTTP response is an unknown outcome, not evidence that a new provider operation should be created.
+  - Impact: the first implementation keeps one logical Payment and one active provider session model; provider-attempt history remains deferred.
+- Deduplicate Stripe webhooks durably by recording the event ID and corresponding local Payment transition in the same PostgreSQL transaction.
+  - Reason: a crash must not mark a provider event handled without committing its local state change.
+  - Impact: duplicate delivery is harmless; slow provider reconciliation stays outside the short local transaction.
+- Model refunds as separate durable full-refund operations with `PENDING / SUCCEEDED / FAILED`; the original successful Payment remains `PAID`.
+  - Reason: refund is a later financial fact, not a rewrite of payment history.
+  - Impact: partial refunds, app-owned saved cards, manual capture, queues, and provider-attempt tables remain out of the first Stripe slice.
+
+See `docs/system-design/08-stripe-payment-provider-and-recovery.md`.
+
 ## Epic #535 QA repair — 2026-09-14
 
 - Keep checkout choices and guest contact/address data in `sessionStorage`, never durable browser storage, and persist only the payment type (not card details).
