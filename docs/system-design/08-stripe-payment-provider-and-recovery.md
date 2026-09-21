@@ -255,17 +255,21 @@ than reading a state and later assuming it is unchanged.
 
 ## 6. Persistence decision
 
-Extend `checkout_payments` with explicit provider fields:
+Extend `checkout_payments` with explicit Stripe correlation fields:
 
 ```text
-provider                    TEXT NOT NULL
 stripe_checkout_session_id  TEXT NULL
 stripe_payment_intent_id    TEXT NULL
 ```
 
-Initial provider values are expected to be `mock` and `stripe`.
-
 Both Stripe IDs are unique when present.
+
+Do not persist a generic `provider` discriminator in the first implementation.
+Stripe is the only real runtime payment provider in scope. The mock provider is a
+deterministic test adapter, not a business/domain provider identity that needs to
+be stored in PostgreSQL. If agent-Commerce later genuinely supports multiple real
+payment providers, provider identity can be introduced then with concrete
+requirements.
 
 The existing generic `provider_reference` column is retired once the migration
 and code change are complete. It must not remain as an ambiguous second source
@@ -769,7 +773,6 @@ guarantee.
 ### Slice A — Payment persistence/state migration
 
 - add `PROCESSING`;
-- add `provider`;
 - add unique nullable Stripe Checkout Session / PaymentIntent IDs;
 - remove `provider_reference`;
 - keep current local Payment identity/Order correlation.
