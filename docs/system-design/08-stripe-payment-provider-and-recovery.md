@@ -209,6 +209,16 @@ Use only four persisted local states:
 A normal card decline, invalid payment method, or other recoverable customer
 payment-method failure must not terminally fail the logical Payment.
 
+`PENDING -> PROCESSING` occurs only after ECAS has successfully created or
+recovered the Stripe Checkout Session and can durably associate that provider
+operation with the local Payment. Starting an outbound Stripe request alone does
+not justify `PROCESSING`.
+
+If Stripe creates the Session but the response is lost, the local Payment may
+remain `PENDING`. A retry uses the same deterministic idempotency key, recovers
+the same Stripe Session, persists its identity, and only then moves the local
+Payment to `PROCESSING`.
+
 Stripe-specific states such as `requires_action` are translated into
 provider-neutral continuation results / `PaymentNextAction`; they are not
 additional ECAS database states.
@@ -217,7 +227,7 @@ additional ECAS database states.
 
 | Current | Provider/local fact | Next | Notes |
 | --- | --- | --- | --- |
-| `PENDING` | provider operation starts | `PROCESSING` | Stripe Checkout Session/provider work exists |
+| `PENDING` | Stripe Checkout Session is successfully created or recovered and its identity can be persisted | `PROCESSING` | Do not move to `PROCESSING` merely because an outbound Stripe request was started |
 | `PROCESSING` | customer action required | `PROCESSING` | return `nextAction`; no new DB state |
 | `PROCESSING` | recoverable payment-method failure | `PENDING` | customer may retry |
 | `PROCESSING` | definitive success | `PAID` | monotonic success |
