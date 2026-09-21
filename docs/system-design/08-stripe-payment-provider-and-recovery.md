@@ -367,9 +367,27 @@ Browser
   -> ECAS backend
        -> PostgreSQL first
        -> Stripe only when local provider state is uncertain
-       -> apply valid local transition
-       -> retry local finalization if PAID
+       -> apply valid local Payment transition inside Payments
+       -> application workflow retries local finalization if PAID
 ```
+
+`reconcilePayment()` performs one bounded provider reconciliation request. It
+waits a reasonable amount of time for the Stripe API call itself to answer, but
+it does not loop internally waiting for Stripe's payment state to stop being
+`processing`.
+
+If Stripe still reports processing:
+
+```text
+Payments.reconcilePayment()
+  -> return PROCESSING
+  -> browser may retry ECAS reconciliation for a limited period
+  -> Stripe webhook remains an independent completion path
+```
+
+The UI may poll ECAS briefly for a smoother experience, but must stop aggressive
+polling after a bounded period and continue showing a safe processing/finalizing
+state. A long-running provider payment must not hold a Vercel request open.
 
 The frontend must not treat a Stripe redirect, Payment Element callback, or URL
 parameter as authoritative settlement.
@@ -382,6 +400,11 @@ Payment received — finishing your order
 
 3D Secure and other additional authentication remain Stripe UI/provider
 concerns. They do not create an ECAS `REQUIRES_3DS` persistence state.
+
+Payments owns interpreting Stripe truth and moving the local Payment to
+`PAID`; Payments does **not** finalize Inventory, Orders, or Cart. Once the
+application workflow observes `PAID`, it owns retry-safe cross-domain
+finalization.
 
 ---
 
