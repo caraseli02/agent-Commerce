@@ -689,8 +689,21 @@ type PaymentRefund = Readonly<{
 
 First implementation supports full refunds only.
 
+For that scope, PostgreSQL enforces one logical Refund per Payment:
+
+```text
+UNIQUE (payment_id)
+UNIQUE (stripe_refund_id)   -- when non-NULL
+```
+
+This keeps retry/recovery on the same durable Refund row if the Stripe request
+times out or its response is lost, instead of creating duplicate local refund
+intents. A failed or uncertain provider operation is reconciled against that same
+logical Refund.
+
 Partial refunds, arbitrary customer-service refund UI, and multi-refund allocation
-are out of scope.
+are out of scope. If multiple or partial refunds become a real requirement later,
+the one-Refund-per-Payment constraint and model must be deliberately redesigned.
 
 Refund creation/retry must be idempotent and reconciled with Stripe after
 unknown outcomes.
