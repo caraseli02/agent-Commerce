@@ -160,6 +160,24 @@ interface PaymentsService {
 The exact TypeScript names may change during implementation, but these
 responsibilities and boundary rules are fixed.
 
+### Public-operation ownership
+
+- `preparePayment()` creates or recovers the durable provider-agnostic local Payment only. It does not know about cards, Link, Payment Element, or Stripe Sessions.
+- `getPayment()` reads the provider-neutral local Payment view; Stripe IDs remain internal Payments persistence details.
+- `initiatePayment()` establishes or recovers the current usable provider payment flow. It must be idempotent and must not blindly create replacement provider work after a timeout.
+- `reconcilePayment()` explicitly checks provider truth when local state may be stale or uncertain. It owns resulting local Payment transitions.
+- `requestFullRefund()` is called when an application workflow determines compensation is required; Payments owns creating/recovering/reconciling the Stripe refund and its durable local Refund state.
+- `completePayment()`, `failPayment()`, and the old vague `continuePayment()` do not remain public application-facing commands in the Stripe contract.
+
+The application layer decides cross-domain consequences, not provider truth. For example:
+
+```text
+Inventory allocation impossible after confirmed payment
+  -> application decides a refund is required
+  -> Payments.requestFullRefund(...)
+  -> Payments owns Stripe refund truth/state
+```
+
 ### Provider-specific ingress
 
 The Stripe webhook endpoint may expose one narrow Stripe-specific entry point
