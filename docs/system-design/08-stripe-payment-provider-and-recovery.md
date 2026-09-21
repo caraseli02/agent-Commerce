@@ -304,7 +304,7 @@ PENDING | PAID | FAILED
 to:
 
 ```text
-PENDING | PROCESSING | PAID | FAILED
+PENDING | PROCESSING | PAID | CANCELED
 ```
 
 A local Payment is created and committed before either Stripe identifier exists,
@@ -383,7 +383,7 @@ sequenceDiagram
     B->>A: Place order
     A->>DB: Validate/prepare Cart, Order, Reservation, Payment
     DB-->>A: Commit pay-123 PENDING
-    A->>P: continuePayment(pay-123)
+    A->>P: initiatePayment(pay-123)
     P->>S: Create Checkout Session (stable idempotency key)
     S-->>P: cs_* + client secret
     P->>DB: Persist Stripe IDs / PROCESSING
@@ -411,7 +411,7 @@ sequenceDiagram
     participant DB as PostgreSQL
     participant S as Stripe
 
-    A->>P: continuePayment(pay-123)
+    A->>P: initiatePayment(pay-123)
     P->>S: Create session, key payment:pay-123
     S--xP: Response lost / timeout
     Note over DB: pay-123 remains durable
