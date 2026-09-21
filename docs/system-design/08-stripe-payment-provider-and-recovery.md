@@ -214,6 +214,18 @@ recovered the Stripe Checkout Session and can durably associate that provider
 operation with the local Payment. Starting an outbound Stripe request alone does
 not justify `PROCESSING`.
 
+Persist the Checkout Session identity and the `PROCESSING` transition in the
+same PostgreSQL transaction. The invariant is:
+
+```text
+Payment.status = PROCESSING
+        =>
+stripe_checkout_session_id is durably present
+```
+
+Do not allow a committed half-state where the Payment is `PROCESSING` without
+its provider session identity.
+
 If Stripe creates the Session but the response is lost, the local Payment may
 remain `PENDING`. A retry uses the same deterministic idempotency key, recovers
 the same Stripe Session, persists its identity, and only then moves the local
