@@ -264,6 +264,19 @@ stripe_payment_intent_id    TEXT NULL
 
 Both Stripe IDs are unique when present.
 
+The first implementation also enforces one logical Payment per Order with a
+database uniqueness constraint on `order_id`:
+
+```text
+UNIQUE (order_id)
+UNIQUE (stripe_checkout_session_id)   -- when non-NULL
+UNIQUE (stripe_payment_intent_id)     -- when non-NULL
+```
+
+The application may still perform lookup/recovery logic, but PostgreSQL is the
+final concurrency-safe authority preventing two logical Payment rows from being
+attached to the same Order.
+
 Do not persist a generic `provider` discriminator in the first implementation.
 Stripe is the only real runtime payment provider in scope. The mock provider is a
 deterministic test adapter, not a business/domain provider identity that needs to
