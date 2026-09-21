@@ -274,6 +274,12 @@ PENDING | PROCESSING | PAID | FAILED
 A local Payment is created and committed before either Stripe identifier exists,
 so both Stripe columns are nullable.
 
+`stripe_checkout_session_id` is normally persisted first. The
+`stripe_payment_intent_id` remains `NULL` until Stripe actually exposes the
+PaymentIntent for that Checkout Session; it is then filled in during provider
+initiation, reconciliation, or webhook handling. Do not invent or require a
+PaymentIntent ID before Stripe provides one.
+
 Conceptual timeline:
 
 ```text
