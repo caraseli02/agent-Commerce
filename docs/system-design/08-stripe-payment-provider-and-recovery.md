@@ -32,7 +32,7 @@ Current `server/domain/payments/index.ts` already provides:
 - `preparePayment()` before provider continuation;
 - `getPaymentPreparation()`;
 - `continuePayment()` outside the retryable checkout transaction;
-- local `PENDING / PAID / FAILED` state;
+- local `PENDING / PROCESSING / PAID / CANCELED` state;
 - a provider-neutral `PaymentNextAction` seam.
 
 Current `placeOrder` persists the checkout claim, immutable Order, inventory
@@ -127,7 +127,7 @@ from a Nitro route.
 Keep the application-facing contract small and provider-neutral.
 
 ```ts
-type PaymentStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'FAILED';
+type PaymentStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'CANCELED';
 
 type PaymentNextAction =
   | Readonly<{ type: 'none' }>
@@ -146,7 +146,12 @@ interface PaymentsService {
 
   getPayment(paymentId: PaymentId): Promise<PaymentView | null>;
 
-  continuePayment(input: { paymentId: PaymentId }): Promise<PaymentContinuationResult>;
+  initiatePayment(input: { paymentId: PaymentId }): Promise<PaymentContinuationResult>;
+
+  cancelPayment(input: {
+    paymentId: PaymentId;
+    reason: PaymentCancellationReason;
+  }): Promise<PaymentView>;
 
   reconcilePayment(input: { paymentId: PaymentId }): Promise<PaymentReconciliationResult>;
 
@@ -166,6 +171,7 @@ responsibilities and boundary rules are fixed.
 - `getPayment()` reads the provider-neutral local Payment view; Stripe IDs remain internal Payments persistence details.
 - `initiatePayment()` establishes or recovers the current usable provider payment flow. It must be idempotent and must not blindly create replacement provider work after a timeout.
 - `reconcilePayment()` explicitly checks provider truth when local state may be stale or uncertain. It owns resulting local Payment transitions.
+- `cancelPayment()` is called when the application determines the Order is permanently no longer payable. Payments owns safely making the provider flow unusable/reconciling provider truth before committing a terminal local cancellation.
 - `requestFullRefund()` is called when an application workflow determines compensation is required; Payments owns creating/recovering/reconciling the Stripe refund and its durable local Refund state.
 - `completePayment()`, `failPayment()`, and the old vague `continuePayment()` do not remain public application-facing commands in the Stripe contract.
 
@@ -204,7 +210,7 @@ Use only four persisted local states:
 | `PENDING` | The logical payment is still payable/retryable. |
 | `PROCESSING` | A provider operation exists but the result is not yet definitive. |
 | `PAID` | Provider success has been confirmed locally. |
-| `FAILED` | The logical payment is terminal and cannot continue under current policy. |
+| `CANCELED` | The logical payment is terminal because the application no longer permits this Order to be paid. |
 
 A normal card decline, invalid payment method, or other recoverable customer
 payment-method failure must not terminally fail the logical Payment.
@@ -244,9 +250,10 @@ additional ECAS database states.
 | `PROCESSING` | recoverable payment-method failure | `PENDING` | customer may retry |
 | `PROCESSING` | definitive success | `PAID` | monotonic success |
 | `PENDING` | definitive success during reconciliation | `PAID` | handles lost/local-lagged responses |
-| `PENDING` / `PROCESSING` | terminal logical failure | `FAILED` | no further payment continuation |
-| `PAID` | duplicate/stale failure/processing event | `PAID` | success must not regress |
-| `FAILED` | stale non-success event | `FAILED` | terminal failure remains terminal unless a separate explicit recovery policy changes it |
+| `PENDING` | application determines the Order is permanently no longer payable | `CANCELED` | no provider payment flow exists that can still collect money |
+| `PROCESSING` | application requests cancellation | reconcile/expire provider flow first | do not commit `CANCELED` until Payments has established that the provider cannot still collect money |
+| `PAID` | duplicate/stale failure/processing/cancellation signal | `PAID` | success must not regress |
+| `CANCELED` | stale non-success event | `CANCELED` | terminal cancellation remains terminal |
 
 The implementation must enforce transitions conditionally in PostgreSQL rather
 than reading a state and later assuming it is unchanged.
@@ -414,7 +421,7 @@ sequenceDiagram
     P->>DB: Persist cs_* / pi_* when available
 ```
 
-Provider timeout is never converted directly to local `FAILED`.
+Provider timeout is never converted directly to local `CANCELED`.
 
 ---
 
@@ -536,7 +543,7 @@ change owned payment/refund truth.
 | --- | --- |
 | `checkout.session.completed` | Correlate the local Payment and reconcile definitive provider payment state; finalize only when success is confirmed. |
 | `checkout.session.async_payment_succeeded` | Reconcile and transition the local Payment to `PAID` if valid; trigger/retry finalization. |
-| `checkout.session.async_payment_failed` | Reconcile; return the logical Payment to retryable `PENDING` when appropriate, or terminal `FAILED` only under explicit terminal policy. |
+| `checkout.session.async_payment_failed` | Reconcile; return the logical Payment to retryable `PENDING` when appropriate. Provider payment failure alone does not mean the logical Payment is `CANCELED`. |
 | `refund.created` | Correlate the local Refund and reconcile its current Stripe status. |
 | `refund.updated` | Reconcile the local Refund; update to `SUCCEEDED` or remain `PENDING` as provider truth requires. |
 | `refund.failed` | Reconcile and mark the local Refund `FAILED` when definitive. |
@@ -584,7 +591,7 @@ Payment PAID
             -> notify customer
 ```
 
-A successful Payment must never be rewritten to `FAILED` because fulfillment
+A successful Payment must never be rewritten to `CANCELED` because fulfillment
 later became impossible.
 
 ---
@@ -879,7 +886,7 @@ This ADR refines, but does not replace:
 - `07-public-module-contracts-and-dependency-graph.md`.
 
 Where those documents describe the earlier preparation-only
-`PENDING / PAID / FAILED` model or neutral `providerReference`, this ADR is the
+`PENDING / PROCESSING / PAID / CANCELED` model or neutral `providerReference`, this ADR is the
 accepted provider-specific refinement for the Stripe implementation slice.
 
 The invariant that remains unchanged is:
