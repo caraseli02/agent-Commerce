@@ -520,6 +520,55 @@ Before reopening/continuing provider payment:
 Same commercial intent recovers the same checkout/payment identity. Changed
 commercial intent creates a new checkout after explicit review.
 
+### Expired provider-session UX
+
+An expired/unusable Stripe Checkout Session does **not** automatically eject the
+buyer from the checkout/payment experience.
+
+Keep the existing payment view/modal visible while ECAS performs business
+revalidation. Temporarily disable payment submission and show an explicit
+intermediate state such as:
+
+```text
+Your payment session expired.
+We're checking that your order is still available…
+```
+
+Recovery flow:
+
+```text
+buyer returns to payment
+  -> current Stripe session is no longer usable
+  -> keep payment UI visible but disabled
+  -> application workflow revalidates Order + Inventory
+       -> still payable / reservation valid or safely re-established
+            -> Payments establishes/recover a usable Stripe session
+            -> reload/re-enable Payment Element in the same payment experience
+       -> no longer payable / inventory unavailable
+            -> do not create provider payment work
+            -> keep the checkout context visible
+            -> explain why payment cannot continue
+            -> offer an explicit path back to order/cart review
+```
+
+Do not redirect the customer away merely because the provider session expired.
+Only move them out of the payment step when the revalidated business state makes
+payment impossible or requires explicit commercial review.
+
+This cross-domain recovery belongs in an application workflow (for example
+`resumeOrderPayment`), not inside Payments:
+
+```text
+resumeOrderPayment
+  -> Orders: is the existing Order still payable?
+  -> Inventory: is reservation valid or can it be re-established?
+  -> Payments.initiatePayment(existing paymentId)
+```
+
+`Payments.initiatePayment()` remains responsible only for establishing or
+recovering provider payment work. It must not decide inventory availability or
+Order payability.
+
 ---
 
 ## 14. Refund contract
