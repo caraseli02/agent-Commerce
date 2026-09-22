@@ -32,7 +32,7 @@ Current `server/domain/payments/index.ts` already provides:
 - `preparePayment()` before provider continuation;
 - `getPaymentPreparation()`;
 - `continuePayment()` outside the retryable checkout transaction;
-- local `PENDING / PROCESSING / PAID / CANCELED` state;
+- local `PENDING / PAID / FAILED` state;
 - a provider-neutral `PaymentNextAction` seam.
 
 Current `placeOrder` persists the checkout claim, immutable Order, inventory
@@ -54,8 +54,33 @@ The current gaps are provider-specific:
 
 ## 2. Accepted provider choice
 
-Use the Stripe Checkout Sessions API with Stripe Elements / Payment Element for
-the customer-facing payment UI.
+Use the Stripe **Payment Intents API + Payment Element** for the first real
+provider integration.
+
+Stripe recommends Checkout Sessions for most integrations because it manages more
+checkout features for the application. agent-Commerce deliberately chooses the
+lower-level Payment Intents API because this system already owns its checkout
+state: Cart, pricing, Inventory, immutable Order creation, retry policy, and
+recovery. Stripe's responsibility here is intentionally narrower: collect the
+already-finalized Order amount safely.
+
+This is a deliberate feature trade-off:
+
+```text
+agent-Commerce owns checkout/commercial state
+            |
+            v
+one durable local Payment
+            |
+            v
+one Stripe PaymentIntent
+            |
+            v
+Payment Element / Stripe authentication
+```
+
+The design does not model Stripe Checkout Session expiry/replacement or provider
+session generations in the first implementation.
 
 agent-Commerce keeps control of:
 
@@ -78,6 +103,11 @@ The browser must never authoritatively decide that an Order is paid.
 The amount and currency sent to Stripe come from the immutable persisted Order
 snapshot, never from browser totals and never from a fresh Catalog reprice of an
 existing Order.
+
+References:
+
+- https://docs.stripe.com/payments/payment-element
+- https://docs.stripe.com/api/payment_intents
 
 ---
 
@@ -106,14 +136,14 @@ Stripe SDK types stay inside the Payments implementation boundary.
 Allowed:
 
 ```ts
-const result = await payments.continuePayment({ paymentId });
+const result = await payments.initiatePayment({ paymentId });
 ```
 
 Forbidden:
 
 ```ts
 // application workflow
-const session = await stripe.checkout.sessions.create(...);
+const intent = await stripe.paymentIntents.create(...);
 ```
 
 A provider-specific webhook transport route is allowed, but it enters Payments
@@ -207,51 +237,40 @@ Use only four persisted local states:
 
 | State | Meaning |
 | --- | --- |
-| `PENDING` | The logical payment is still payable/retryable. |
-| `PROCESSING` | A provider operation exists but the result is not yet definitive. |
+| `PENDING` | The logical Payment is still payable/retryable. It may already have a reusable Stripe PaymentIntent. |
+| `PROCESSING` | Stripe is actively processing the payment or the provider outcome is temporarily uncertain. |
 | `PAID` | Provider success has been confirmed locally. |
-| `CANCELED` | The logical payment is terminal because the application no longer permits this Order to be paid. |
+| `CANCELED` | The logical Payment is terminal because the application no longer permits this Order to be paid and Payments has established that the provider can no longer collect money. |
 
-A normal card decline, invalid payment method, or other recoverable customer
-payment-method failure must not terminally fail the logical Payment.
+Creating/recovering a Stripe PaymentIntent does **not** by itself move the local
+Payment to `PROCESSING`. A PaymentIntent can exist while the customer has not
+yet completed a payment attempt.
 
-`PENDING -> PROCESSING` occurs only after ECAS has successfully created or
-recovered the Stripe Checkout Session and can durably associate that provider
-operation with the local Payment. Starting an outbound Stripe request alone does
-not justify `PROCESSING`.
-
-Persist the Checkout Session identity and the `PROCESSING` transition in the
-same PostgreSQL transaction. The invariant is:
+That gives `PENDING` a simple meaning:
 
 ```text
-Payment.status = PROCESSING
-        =>
-stripe_checkout_session_id is durably present
+the Order can still be paid
 ```
 
-Do not allow a committed half-state where the Payment is `PROCESSING` without
-its provider session identity.
+A normal card decline, invalid payment method, or other recoverable
+payment-method failure returns/remains `PENDING`; it does not terminally fail
+the logical Payment.
 
-If Stripe creates the Session but the response is lost, the local Payment may
-remain `PENDING`. A retry uses the same deterministic idempotency key, recovers
-the same Stripe Session, persists its identity, and only then moves the local
-Payment to `PROCESSING`.
-
-Stripe-specific states such as `requires_action` are translated into
-provider-neutral continuation results / `PaymentNextAction`; they are not
-additional ECAS database states.
+Stripe-specific statuses such as `requires_payment_method`,
+`requires_confirmation`, and `requires_action` remain internal provider
+details. They are translated into provider-neutral results / `PaymentNextAction`
+instead of becoming additional ECAS database states.
 
 ### Valid transition table
 
 | Current | Provider/local fact | Next | Notes |
 | --- | --- | --- | --- |
-| `PENDING` | Stripe Checkout Session is successfully created or recovered and its identity can be persisted | `PROCESSING` | Do not move to `PROCESSING` merely because an outbound Stripe request was started |
-| `PROCESSING` | customer action required | `PROCESSING` | return `nextAction`; no new DB state |
-| `PROCESSING` | recoverable payment-method failure | `PENDING` | customer may retry |
-| `PROCESSING` | definitive success | `PAID` | monotonic success |
-| `PENDING` | definitive success during reconciliation | `PAID` | handles lost/local-lagged responses |
-| `PENDING` | application determines the Order is permanently no longer payable | `CANCELED` | no provider payment flow exists that can still collect money |
-| `PROCESSING` | application requests cancellation | reconcile/expire provider flow first | do not commit `CANCELED` until Payments has established that the provider cannot still collect money |
+| `PENDING` | PaymentIntent created/recovered; customer can still act | `PENDING` | return the client secret / Payment Element action; provider identity is durable but payment is not processing yet |
+| `PENDING` | Stripe reports active processing or provider outcome is unknown after confirmation | `PROCESSING` | provider work is now in flight/uncertain |
+| `PROCESSING` | recoverable payment-method failure | `PENDING` | customer may retry on the same logical Payment/PaymentIntent |
+| `PENDING` / `PROCESSING` | definitive success | `PAID` | monotonic success |
+| `PENDING` | application determines the Order is permanently no longer payable | `CANCELED` | cancel the PaymentIntent first when one exists |
+| `PROCESSING` | application requests cancellation | reconcile/cancel provider state first | do not commit `CANCELED` until Payments has established that Stripe cannot still collect money |
 | `PAID` | duplicate/stale failure/processing/cancellation signal | `PAID` | success must not regress |
 | `CANCELED` | stale non-success event | `CANCELED` | terminal cancellation remains terminal |
 
@@ -263,21 +282,21 @@ than reading a state and later assuming it is unchanged.
 `cancelPayment()` means "make this logical Payment permanently unable to
 collect money", not merely "set a local status to canceled".
 
-For a `PENDING` Payment with no provider flow, cancellation can become local
+If no PaymentIntent exists yet, a `PENDING` Payment can become local
 `CANCELED` directly.
 
-For a `PROCESSING` Payment, Payments must first establish provider truth and
-make the current Stripe Checkout Session unusable when it is still open. The
-local Payment may become `CANCELED` only after Payments has established that
-the provider can no longer collect money.
+If a PaymentIntent exists, Payments asks Stripe to cancel it when its Stripe
+status is cancelable. Only after cancellation/reconciliation establishes that
+the PaymentIntent cannot still collect money may the local Payment become
+`CANCELED`.
 
 There is an unavoidable race where the customer may complete payment while ECAS
-is attempting to cancel the provider flow:
+is attempting to cancel:
 
 ```text
 application decides Order is no longer payable
   -> Payments.cancelPayment()
-  -> provider session is already completed / payment succeeds concurrently
+  -> Stripe already succeeded concurrently
   -> reconcile provider truth
   -> Payment = PAID
   -> application performs paid-order recovery
@@ -288,48 +307,51 @@ application decides Order is no longer payable
 A successful provider payment always wins over a concurrent local cancellation
 request. Never force `PAID -> CANCELED`.
 
-The full refund is therefore a compensating recovery for edge cases such as
-late/concurrent provider success when the Order can no longer be fulfilled. It
-is not the normal implementation of cancellation.
+The full refund is therefore a compensating recovery for late/concurrent success
+when the Order can no longer be fulfilled. It is not the normal implementation
+of cancellation.
 
 ---
 
 ## 6. Persistence decision
 
-Extend `checkout_payments` with explicit Stripe correlation fields:
+Keep provider persistence intentionally small:
 
 ```text
-stripe_checkout_session_id  TEXT NULL
-stripe_payment_intent_id    TEXT NULL
+checkout_payments
+-----------------
+id
+order_id
+status
+amount_minor
+currency
+stripe_payment_intent_id  TEXT NULL
+...
 ```
 
-Both Stripe IDs are unique when present.
-
-The first implementation also enforces one logical Payment per Order with a
-database uniqueness constraint on `order_id`:
+The first implementation enforces:
 
 ```text
 UNIQUE (order_id)
-UNIQUE (stripe_checkout_session_id)   -- when non-NULL
-UNIQUE (stripe_payment_intent_id)     -- when non-NULL
+UNIQUE (stripe_payment_intent_id)   -- when non-NULL
 ```
 
 The application may still perform lookup/recovery logic, but PostgreSQL is the
 final concurrency-safe authority preventing two logical Payment rows from being
 attached to the same Order.
 
+Do not add Checkout Session identity, provider-session generations, or provider-
+attempt rows.
+
 Do not persist a generic `provider` discriminator in the first implementation.
-Stripe is the only real runtime payment provider in scope. The mock provider is a
-deterministic test adapter, not a business/domain provider identity that needs to
-be stored in PostgreSQL. If agent-Commerce later genuinely supports multiple real
-payment providers, provider identity can be introduced then with concrete
-requirements.
+Stripe is the only real runtime payment provider in scope. The mock provider is
+a deterministic test adapter, not a business/domain provider identity stored in
+PostgreSQL.
 
 The existing generic `provider_reference` column is retired once the migration
-and code change are complete. It must not remain as an ambiguous second source
-of provider identity.
+and code change are complete.
 
-The payment status constraint changes from:
+The payment status constraint changes from the current implementation:
 
 ```text
 PENDING | PAID | FAILED
@@ -341,46 +363,52 @@ to:
 PENDING | PROCESSING | PAID | CANCELED
 ```
 
-A local Payment is created and committed before either Stripe identifier exists,
-so both Stripe columns are nullable.
-
-`stripe_checkout_session_id` is normally persisted first. The
-`stripe_payment_intent_id` remains `NULL` until Stripe actually exposes the
-PaymentIntent for that Checkout Session; it is then filled in during provider
-initiation, reconciliation, or webhook handling. Do not invent or require a
-PaymentIntent ID before Stripe provides one.
+The durable local Payment is committed before the external provider call, so
+`stripe_payment_intent_id` starts as `NULL`.
 
 Conceptual timeline:
 
 ```text
 pay-123 PENDING
-stripe IDs = NULL
+stripe_payment_intent_id = NULL
       |
       | local transaction commits
       v
-Stripe Checkout Session create
+Stripe PaymentIntent create/recover
       |
       v
-persist cs_* and, when available, pi_*
+persist pi_123
+      |
+      v
+Payment stays PENDING until customer/provider activity is genuinely in flight
 ```
+
+Persisting the PaymentIntent identity is independent from setting
+`PROCESSING`; the existence of a PaymentIntent alone does not mean money is
+being processed.
 
 ---
 
-## 7. Stripe Checkout Session idempotency
+## 7. Stripe PaymentIntent identity and idempotency
 
-The initial Checkout Session create uses a deterministic Stripe idempotency key
-derived from the durable local Payment identity.
+Use one durable Stripe PaymentIntent for one logical local Payment / Order.
 
-Conceptually:
+Stripe recommends one PaymentIntent per order or customer session and notes that
+the same PaymentIntent records the history of payment attempts while producing
+at most one successful charge.
+
+The initial PaymentIntent create uses a deterministic Stripe idempotency key
+derived from the durable local Payment identity:
 
 ```text
-payment:pay-123
+payment:pay-123:intent
 ```
 
-Retries of the same create operation reuse the same idempotency key.
+Retries of that same create operation reuse the same key.
 
 A network timeout or lost response is an unknown outcome, not permission to
-blindly create a second Checkout Session.
+create another PaymentIntent. The retry uses the same idempotency key, recovers
+the same Stripe object, and persists its `pi_*` identity.
 
 Attach non-sensitive ECAS correlation metadata where useful:
 
@@ -389,18 +417,11 @@ paymentId = pay-123
 orderId   = ord-456
 ```
 
-Do not store card data, customer secrets, addresses, or other sensitive values in
-Stripe metadata merely for convenience.
+Do not store card data, customer secrets, addresses, or other sensitive values
+in Stripe metadata merely for convenience.
 
-### Deferred complexity
-
-The first Stripe slice does not add a provider-attempt table.
-
-If the product later needs intentionally abandoned/replaced provider sessions for
-the same local Payment, the design must introduce an explicit versioned provider
-attempt identity (or equivalent) before using multiple create idempotency keys.
-
-Do not generate random replacement idempotency keys after a timeout.
+Because customer retries can reuse the same PaymentIntent, the first
+implementation does not need a provider-attempt/session-generation table.
 
 ---
 
@@ -418,18 +439,18 @@ sequenceDiagram
     A->>DB: Validate/prepare Cart, Order, Reservation, Payment
     DB-->>A: Commit pay-123 PENDING
     A->>P: initiatePayment(pay-123)
-    P->>S: Create Checkout Session (stable idempotency key)
-    S-->>P: cs_* + client secret
-    P->>DB: Persist Stripe IDs / PROCESSING
+    P->>S: Create/recover PaymentIntent (stable idempotency key)
+    S-->>P: pi_* + client secret
+    P->>DB: Persist pi_*
     P-->>A: requires-action + client secret
     A-->>B: Render Payment Element
     B->>S: Confirm payment / 3DS if required
     B->>A: Ask ECAS for current payment state
     A->>P: reconcilePayment(pay-123)
     P->>DB: Read local state
-    P->>S: Retrieve current provider state if uncertain
-    P->>DB: Apply valid state transition
-    P-->>A: PAID / PROCESSING / retryable result
+    P->>S: Retrieve PaymentIntent if local state is uncertain
+    P->>DB: Apply valid provider-neutral transition
+    P-->>A: PAID / PROCESSING / PENDING
 ```
 
 Browser completion/return is not authoritative payment truth.
@@ -446,16 +467,17 @@ sequenceDiagram
     participant S as Stripe
 
     A->>P: initiatePayment(pay-123)
-    P->>S: Create session, key payment:pay-123
+    P->>S: Create PaymentIntent, key payment:pay-123:intent
     S--xP: Response lost / timeout
-    Note over DB: pay-123 remains durable
-    A->>P: retry/reconcile pay-123
-    P->>S: Retry same create operation with same key
-    S-->>P: Same logical Checkout Session result
-    P->>DB: Persist cs_* / pi_* when available
+    Note over DB: pay-123 remains durable; pi_* may still be NULL locally
+    A->>P: retry initiatePayment(pay-123)
+    P->>S: Retry same create operation with same idempotency key
+    S-->>P: Same PaymentIntent result
+    P->>DB: Persist pi_*
 ```
 
-Provider timeout is never converted directly to local `CANCELED`.
+Provider timeout is never converted directly to local `CANCELED` or to a new
+logical Payment.
 
 ---
 
@@ -575,15 +597,16 @@ change owned payment/refund truth.
 
 | Stripe event | Initial ECAS behavior |
 | --- | --- |
-| `checkout.session.completed` | Correlate the local Payment and reconcile definitive provider payment state; finalize only when success is confirmed. |
-| `checkout.session.async_payment_succeeded` | Reconcile and transition the local Payment to `PAID` if valid; trigger/retry finalization. |
-| `checkout.session.async_payment_failed` | Reconcile; return the logical Payment to retryable `PENDING` when appropriate. Provider payment failure alone does not mean the logical Payment is `CANCELED`. |
+| `payment_intent.succeeded` | Reconcile and transition the local Payment to `PAID` if valid; trigger/retry application finalization. |
+| `payment_intent.processing` | Reconcile and keep/move the local Payment to `PROCESSING` when provider work is genuinely in flight. |
+| `payment_intent.payment_failed` | Reconcile; return the logical Payment to retryable `PENDING` when appropriate. A provider attempt failure does not mean the logical Payment is `CANCELED`. |
+| `payment_intent.canceled` | Reconcile a deliberate cancellation and move to local `CANCELED` only when success cannot have won the race. |
 | `refund.created` | Correlate the local Refund and reconcile its current Stripe status. |
 | `refund.updated` | Reconcile the local Refund; update to `SUCCEEDED` or remain `PENDING` as provider truth requires. |
 | `refund.failed` | Reconcile and mark the local Refund `FAILED` when definitive. |
 
-`checkout.session.expired` and broader Stripe event coverage are deferred unless
-implementation proves they are required for a correctness gap.
+Broader Stripe event coverage is deferred unless implementation proves it is
+required for a correctness gap.
 
 Webhook arrival order is never used as the source of truth.
 
@@ -647,17 +670,15 @@ Before reopening/continuing provider payment:
 Same commercial intent recovers the same checkout/payment identity. Changed
 commercial intent creates a new checkout after explicit review.
 
-### Expired provider-session UX
+### Returning to an unfinished payment
 
-An expired/unusable Stripe Checkout Session does **not** automatically eject the
-buyer from the checkout/payment experience.
+There is no requirement to create a new provider session merely because the
+customer returns later.
 
-Keep the existing payment view/modal visible while ECAS performs business
-revalidation. Temporarily disable payment submission and show an explicit
-intermediate state such as:
+Keep the payment view/modal visible while ECAS revalidates business state.
+Temporarily disable payment submission and show:
 
 ```text
-Your payment session expired.
 We're checking that your order is still available…
 ```
 
@@ -665,25 +686,23 @@ Recovery flow:
 
 ```text
 buyer returns to payment
-  -> current Stripe session is no longer usable
-  -> keep payment UI visible but disabled
-  -> application workflow revalidates Order + Inventory
+  -> application revalidates Order + Inventory
        -> still payable / reservation valid or safely re-established
-            -> Payments establishes/recover a usable Stripe session
-            -> reload/re-enable Payment Element in the same payment experience
+            -> Payments retrieves/reuses the same PaymentIntent
+            -> re-enable/re-render Payment Element in place
        -> no longer payable / inventory unavailable
-            -> do not create provider payment work
-            -> keep the checkout context visible
+            -> Payments safely cancels the PaymentIntent when one exists
+            -> keep checkout context visible
             -> explain why payment cannot continue
-            -> offer an explicit path back to order/cart review
+            -> offer a path back to order/cart review
 ```
 
-Do not redirect the customer away merely because the provider session expired.
-Only move them out of the payment step when the revalidated business state makes
-payment impossible or requires explicit commercial review.
+Do not redirect the customer away merely because time passed. Only leave the
+payment step when revalidated business state makes payment impossible or
+requires explicit commercial review.
 
-This cross-domain recovery belongs in an application workflow (for example
-`resumeOrderPayment`), not inside Payments:
+This cross-domain recovery belongs in an application workflow such as
+`resumeOrderPayment`:
 
 ```text
 resumeOrderPayment
@@ -692,9 +711,8 @@ resumeOrderPayment
   -> Payments.initiatePayment(existing paymentId)
 ```
 
-`Payments.initiatePayment()` remains responsible only for establishing or
-recovering provider payment work. It must not decide inventory availability or
-Order payability.
+`Payments.initiatePayment()` creates or recovers the existing PaymentIntent. It
+must not decide inventory availability or Order payability.
 
 ---
 
@@ -801,7 +819,7 @@ webhook forwarding to exercise:
 
 Validate the deployed browser/server/runtime boundary:
 
-- real Checkout Session creation from a Preview deployment;
+- real PaymentIntent creation/recovery from a Preview deployment;
 - Payment Element rendering and return flow;
 - HTTPS webhook delivery/signature verification;
 - payment success -> local finalization;
@@ -840,17 +858,18 @@ guarantee.
 ### Slice A — Payment persistence/state migration
 
 - add `PROCESSING`;
-- add unique nullable Stripe Checkout Session / PaymentIntent IDs;
+- add one unique nullable Stripe PaymentIntent ID;
 - remove `provider_reference`;
 - keep current local Payment identity/Order correlation.
 
-### Slice B — Stripe adapter + Checkout Session creation
+### Slice B — Stripe adapter + PaymentIntent creation
 
 - Stripe SDK isolated inside Payments;
-- Checkout Sessions + Payment Element client-secret contract;
+- one PaymentIntent per logical local Payment / Order;
+- Payment Element client-secret contract;
 - deterministic Payment-derived Stripe idempotency key;
 - metadata correlation;
-- retry/timeout reconciliation for session creation.
+- retry/timeout recovery of the same PaymentIntent.
 
 ### Slice C — payment UI / customer-action flow
 
