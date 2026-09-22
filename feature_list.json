@@ -3,10 +3,21 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },
   "features": [
+    {
+      "id": "I554",
+      "description": "Expand Payment persistence compatibly for Stripe PaymentIntent (#554)",
+      "validation": "PostgreSQL migration preserves legacy Payment rows and writers, accepts the transition statuses and omitted legacy boolean, persists nullable Stripe identity/timestamps, and enforces one Payment per Order and unique non-null PaymentIntent IDs; Stripe activation remains off",
+      "status": "active",
+      "evidence": [
+        "PR #552 merged as cd3036a1 before implementation began.",
+        "Claimed on codex/554-payment-schema; first PR is limited to schema expansion and PostgreSQL compatibility tests.",
+        "Local build, lint, and typecheck passed; focused PostgreSQL verification is blocked by the configured Neon credential (28P01). Repository CI provides an isolated PostgreSQL service."
+      ]
+    },
     {
       "id": "I532",
       "description": "Harden cart completion with revision-aware checkout semantics (#532)",
