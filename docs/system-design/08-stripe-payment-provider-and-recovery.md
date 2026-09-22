@@ -479,6 +479,12 @@ Order or local Payment as paid. After confirmation/return, the browser asks ECAS
 for current state; Payments reconciliation and/or the Stripe webhook establish
 provider truth, and the application workflow performs cross-domain finalization.
 
+Do not add an ECAS state-changing request merely because the buyer clicked
+`Pay`. The browser may immediately show a local "Processing payment…" UI, but
+the persisted Payment remains `PENDING` until Stripe truth observed through
+reconciliation/webhook justifies `PROCESSING`, `PAID`, or a return to
+`PENDING`.
+
 Do not add a server-side PaymentIntent confirmation endpoint in the first slice
 unless a demonstrated payment method or provider requirement needs one.
 
