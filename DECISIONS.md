@@ -22,8 +22,10 @@ Use this file for durable cross-session decisions that should survive context re
   - If payment success wins a later race, preserve `PAID` and compensate through paid-order recovery/refund when needed.
 - Webhook deduplication covers the provider transition, not the entire request.
   - Event ID + Payment transition commit atomically.
-  - For `payment_intent.succeeded`, critical application finalization must succeed (or already be complete) before returning `2xx`.
-  - If finalization fails after `Payment=PAID`, return non-`2xx`; duplicate Stripe delivery skips the already-applied Payment transition but retries unfinished finalization.
+  - For normal fulfillment, `payment_intent.succeeded` returns `2xx` only after critical Inventory/Order/claim finalization succeeds or is already complete.
+  - For a durable `REFUND` recovery decision, fulfillment is forbidden; Order becomes `ON_HOLD` and claim becomes `compensation_pending`.
+  - The original payment-success webhook may acknowledge the REFUND branch only after a durable Stripe Refund ID exists (or the Refund already succeeded). Before that, duplicate delivery resumes the same compensation path.
+  - Refund `FAILED` / unsafe-unknown states keep the Order `ON_HOLD` and claim in compensation recovery; they never fall back to fulfillment.
   - Best-effort revision-aware Cart cleanup is not part of the webhook acknowledgment gate.
 - Late paid-order recovery uses one durable application-owned decision: `ALLOCATE / BACKORDER / REFUND`.
   - The decision is selected once under PostgreSQL coordination.
@@ -31,10 +33,11 @@ Use this file for durable cross-session decisions that should survive context re
 - Refund remains a separate durable financial fact with `PENDING / SUCCEEDED / FAILED`; original Payment remains `PAID`.
   - First slice supports one full Refund per Payment only.
   - Refund webhook/reconciliation belongs to #558.
-- Roll out the schema with a compatible expand -> contract sequence.
-  - Phase A temporarily accepts both legacy `FAILED` and new `PROCESSING/CANCELED` states and adds `DEFAULT FALSE` for legacy `use_existing_payment_method NOT NULL`.
-  - New code stops treating `payment_type`, `use_existing_payment_method`, and `provider_reference` as authoritative, but old writers remain DB-compatible.
-  - Only after every writer sharing the database is upgraded/retired/isolated do we backfill `FAILED -> CANCELED`, tighten the status constraint, and drop legacy columns.
+- Roll out payments with three separate gates: schema expansion -> Stripe activation -> schema contraction.
+  - Phase A keeps old writers SQL-compatible: legacy `FAILED` remains temporarily valid and `use_existing_payment_method NOT NULL` gets `DEFAULT FALSE`.
+  - Stripe activation stays OFF while any deployment sharing the database can still execute mock `continuePayment()/completePayment()` and fabricate `PAID`.
+  - Before activation, enumerate and upgrade/retire/isolate every unsafe writer and pass a cross-version replay proving an old deployment cannot mutate a Stripe-backed Payment/Order to `PAID`.
+  - Only later, after all old writers are gone/isolated, backfill `FAILED -> CANCELED`, tighten the status constraint, and drop legacy columns.
 - Backend recovery precedes UI acceptance.
   - Implementation order is #554 -> #555 -> #557 -> #556/#558 -> #559.
   - `resumeOrderPayment` is an application workflow; Orders owns payability, Inventory owns reservation renewal, Payments owns provider truth.
