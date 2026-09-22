@@ -4,8 +4,8 @@
 
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
-- Issue #121 is now in ADR review on `docs/121-stripe-payment-provider-adr`.
-- The proposed accepted contract is recorded in `docs/system-design/08-stripe-payment-provider-and-recovery.md`; no live Stripe implementation is included in that ADR slice.
+- PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
+- Issue #554 is active on `codex/554-payment-schema`. PR #560 covers only compatible PostgreSQL Payment schema expansion and focused tests; Stripe provider activation remains off.
 
 ## Completed checkout hardening
 
@@ -21,7 +21,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- Keep WIP at zero until issue #121 is explicitly promoted to active implementation.
+- WIP is #554 only. The schema PR precedes application Payment compatibility and activation-safety work.
 
 ## Reconciliation evidence
 
@@ -38,17 +38,20 @@
 
 ## In progress
 
-- #121 — Stripe provider ADR/design re-review. The ADR now also separates schema expansion from Stripe activation, drains unsafe mock writers before activation, and defines the refund compensation webhook completion path.
+- #554 — implement the compatible Payment schema expansion while retaining `FAILED`, the mock-era columns, and old-writer compatibility.
 
 ## Blocked / known baseline failures
 
-- No #535 acceptance-criteria defect remains. Local PostgreSQL-backed work still requires a configured database when the next payment-lifecycle slice starts.
+- No #535 acceptance-criteria defect remains.
+- `./init.sh` cannot install from npm in this environment (`ENOTFOUND registry.npmjs.org`); existing dependencies are installed. The configured `.env.local` PostgreSQL URL reaches Neon only outside the sandbox but is rejected with `28P01` password authentication failure. Focused local PostgreSQL verification is blocked pending a valid credential; PR CI has its own PostgreSQL service.
+- `pnpm verify` completed build, bundle-size, lint, and typecheck, then stopped before tests because the sandbox could not resolve the configured Neon host. The same focused test with network access reached Neon and failed authentication (`28P01`).
+- PR #560 PostgreSQL CI passed `pnpm verify`: 81 test files, 378 tests passed, 2 todo. The focused `checkout-postgres-boundary.spec.ts` suite passed all 7 tests. The PR template check and Vercel deployment passed; independent schema evaluation found no code defects and rated the slice 9/10, with the tracking update recorded here.
 
 ## Remaining architecture
 
 - Real provider I/O is still absent. The current Payments implementation has durable local `PENDING` / `PAID` / `FAILED` state but mock payment continuation.
 - #121 proposes `PENDING / PROCESSING / PAID / CANCELED`, one PaymentIntent per logical Payment, bounded idempotency, create/cancel coordination, webhook-driven finalization, durable ALLOCATE/BACKORDER/REFUND recovery, and explicit `ON_HOLD + compensation_pending` refund continuation.
-- Implementation remains pending until the ADR is reviewed/accepted.
+- The ADR is merged; #554 Phase A begins with a schema-only PR. The current runtime still uses mock payment continuation and must remain Stripe-inactive.
 - Cancellation/create races, provider-initiated cancellation, idempotency-window expiry, and paid-recovery/refund races are now defined in the ADR; proactive/background recovery remains later payment-lifecycle work.
 - Do not add queues, brokers, microservices, or saga infrastructure unless a demonstrated recovery requirement justifies them.
 
@@ -62,18 +65,17 @@
 
 ## Next work
 
-1. Re-review `docs/system-design/08-stripe-payment-provider-and-recovery.md` and PR #552 after the recovery/rollout fixes.
-2. Review implementation issues in dependency order:
-   - #554 — compatible persistence expansion while Stripe activation remains off for DBs reachable by unsafe mock writers;
+1. Obtain human review/merge for #554's compatible schema PR #560, then implement application Payment compatibility in a later #554 PR.
+2. Continue implementation issues in dependency order:
    - #555 — PaymentIntent creation, bounded idempotency, and create/cancel coordination;
    - #557 — webhook/reconciliation, retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart;
    - #556 — Payment Element/card + 3DS UI after backend recovery is available;
    - #558 — mutually exclusive late-success decision, `ON_HOLD` compensation continuation, full Refund, and refund webhooks;
    - #559 — unsafe-writer retirement + cross-version replay + Stripe activation gate, then Vercel validation and later schema contract gate.
-3. After #552 merges, start with #554; #556 must not start before #557's backend recovery contract is available.
+3. Do not activate Stripe while any shared-database deployment can execute mock `continuePayment()/completePayment()`; #559 owns that proof. #556 must not start before #557's backend recovery contract is available.
 4. Keep provider-attempt persistence, partial refunds, app-owned saved cards, manual capture, and background queues deferred until a demonstrated requirement justifies them.
 
 ## Next verification
 
-- For this docs-only ADR PR: run the repository documentation/harness checks required by the PR template and confirm the changed Markdown renders correctly.
-- Implementation PRs must later validate CI/mock + PostgreSQL behavior, local Stripe sandbox/CLI behavior, and Vercel Preview + Stripe sandbox behavior.
+- For #554 PR 1: PostgreSQL CI `pnpm verify` passed, including the focused migration test. Local `pnpm build`, `pnpm lint`, `pnpm typecheck`, feature-list validation, and clean-state validation passed; local PostgreSQL runs still require a valid credential. Recheck CI after this tracking update.
+- Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.

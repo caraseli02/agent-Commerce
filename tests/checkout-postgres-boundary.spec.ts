@@ -20,6 +20,16 @@ const installLegacySchema = async (pool: Pool) => {
   ]);
 };
 
+const installPaymentPreparationSchema = async (pool: Pool) => {
+  await installLegacySchema(pool);
+  const sql = source('server/infrastructure/migrations/002_payment_preparation.sql');
+  await pool.query(sql);
+  await pool.query('INSERT INTO checkout_schema_migrations (filename, checksum) VALUES ($1, $2)', [
+    '002_payment_preparation.sql',
+    createHash('sha256').update(sql).digest('hex'),
+  ]);
+};
+
 describe('checkout PostgreSQL persistence boundary', () => {
   it('keeps the runtime adapter PostgreSQL-only and leaves schema creation to migrations', () => {
     const adapter = source('server/infrastructure/checkout-database.ts');
@@ -37,6 +47,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('defines the accepted PlaceOrder uniqueness guarantees in an explicit migration', () => {
     const migration = source('server/infrastructure/migrations/001_checkout.sql');
     const paymentPreparationMigration = source('server/infrastructure/migrations/002_payment_preparation.sql');
+    const stripeCompatibilityMigration = source('server/infrastructure/migrations/003_stripe_payment_compatibility.sql');
     const migrationRunner = source('scripts/db-migrate.mjs');
 
     expect(migration).toContain('CREATE TABLE checkout_claims');
@@ -48,6 +59,8 @@ describe('checkout PostgreSQL persistence boundary', () => {
     expect(migration).toContain('order_id TEXT NOT NULL UNIQUE');
     expect(paymentPreparationMigration).toContain('CREATE TABLE checkout_claim_aliases');
     expect(paymentPreparationMigration).toContain("CHECK (status IN ('PENDING', 'PAID', 'FAILED'))");
+    expect(stripeCompatibilityMigration).toContain("CHECK (status IN ('PENDING', 'PROCESSING', 'PAID', 'FAILED', 'CANCELED'))");
+    expect(stripeCompatibilityMigration).toContain('UNIQUE (stripe_payment_intent_id)');
     expect(paymentPreparationMigration).toContain('CHECK (amount_minor >= 0)');
     expect(paymentPreparationMigration).toContain('FOREIGN KEY (order_id) REFERENCES checkout_orders(id)');
     expect(paymentPreparationMigration).toContain('FOREIGN KEY (paid_by_payment_id, id) REFERENCES checkout_payments(id, order_id)');
@@ -112,7 +125,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(2);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(3);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -127,6 +140,114 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrationPool.end();
       await adminPool.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
       await adminPool.end();
+    }
+  });
+
+  it('upgrades populated Payments while preserving legacy writes and enforcing Stripe identity', async () => {
+    const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+    expect(connectionString).toBeTruthy();
+    const schema = `ecas_stripe_expand_${randomUUID().replaceAll('-', '')}`;
+    const schemaIdentifier = `"${schema}"`;
+    const url = new URL(connectionString!);
+    url.searchParams.set('options', `-c search_path=${schema}`);
+    const admin = new Pool({ connectionString, max: 1 });
+    const pool = new Pool({ connectionString: url.toString(), max: 2 });
+    const timestamp = '2026-09-01T00:00:00.000Z';
+    const createOrder = (id: string) =>
+      pool.query(
+        `INSERT INTO checkout_orders (
+           id, customer_id, checkout_request_id, source_cart_id, source_cart_revision,
+           fingerprint, payload_json, created_at, updated_at, grand_total_minor, currency
+         ) VALUES ($1, $1, $1, $1, 1, 'fp', '{}', $2, $2, 100, 'RON')`,
+        [id, timestamp],
+      );
+    const insertPayment = (id: string, status: string) =>
+      pool.query(
+        `INSERT INTO checkout_payments (
+           id, order_id, payload_json, created_at, status, amount_minor, currency,
+           payment_type, use_existing_payment_method, provider_reference, updated_at
+         ) VALUES ($1, $2, '{}', $3, $4, 100, 'RON', 1, TRUE, NULL, $3)`,
+        [`pay-${id}`, id, timestamp, status],
+      );
+
+    try {
+      await admin.query(`CREATE SCHEMA ${schemaIdentifier}`);
+      await installPaymentPreparationSchema(pool);
+      for (const status of ['PENDING', 'PAID', 'FAILED']) {
+        const id = `ord-${status.toLowerCase()}`;
+        await createOrder(id);
+        await insertPayment(id, status);
+      }
+
+      const { migrate } = await import('../scripts/db-migrate.mjs');
+      await migrate(url.toString());
+      await migrate(url.toString());
+      const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
+      expect(Number(migrations.rows[0]?.total)).toBe(3);
+
+      const existing = await pool.query<{
+        status: string;
+        stripe_payment_intent_id: string | null;
+        stripe_payment_intent_create_started_at: Date | null;
+        cancellation_requested_at: Date | null;
+      }>(
+        'SELECT status, stripe_payment_intent_id, stripe_payment_intent_create_started_at, cancellation_requested_at FROM checkout_payments ORDER BY status',
+      );
+      expect(existing.rows.map(({ status }) => status)).toEqual(['FAILED', 'PAID', 'PENDING']);
+      expect(
+        existing.rows.every(
+          ({ stripe_payment_intent_id, stripe_payment_intent_create_started_at, cancellation_requested_at }) =>
+            stripe_payment_intent_id === null && stripe_payment_intent_create_started_at === null && cancellation_requested_at === null,
+        ),
+      ).toBe(true);
+
+      await createOrder('ord-old-writer');
+      await insertPayment('ord-old-writer', 'PENDING');
+      await pool.query("UPDATE checkout_payments SET status = 'FAILED' WHERE id = 'pay-ord-old-writer'");
+      const legacy = await pool.query<{ status: string; payment_type: number; use_existing_payment_method: boolean }>(
+        "SELECT status, payment_type, use_existing_payment_method FROM checkout_payments WHERE id = 'pay-ord-old-writer'",
+      );
+      expect(legacy.rows[0]).toEqual({ status: 'FAILED', payment_type: 1, use_existing_payment_method: true });
+
+      await createOrder('ord-new-writer');
+      await pool.query(
+        `INSERT INTO checkout_payments (id, order_id, payload_json, created_at, status, amount_minor, currency, updated_at)
+         VALUES ('pay-new-writer', 'ord-new-writer', '{}', $1, 'PROCESSING', 100, 'RON', $1)`,
+        [timestamp],
+      );
+      const expanded = await pool.query<{ status: string; use_existing_payment_method: boolean }>(
+        "SELECT status, use_existing_payment_method FROM checkout_payments WHERE id = 'pay-new-writer'",
+      );
+      expect(expanded.rows[0]).toEqual({ status: 'PROCESSING', use_existing_payment_method: false });
+      await pool.query("UPDATE checkout_payments SET status = 'CANCELED' WHERE id = 'pay-new-writer'");
+
+      const timestamps = await pool.query<{
+        stripe_payment_intent_create_started_at: Date;
+        cancellation_requested_at: Date;
+      }>(
+        `UPDATE checkout_payments
+            SET stripe_payment_intent_id = 'pi-schema-proof',
+                stripe_payment_intent_create_started_at = $1,
+                cancellation_requested_at = $1
+          WHERE id = 'pay-new-writer'
+          RETURNING stripe_payment_intent_create_started_at, cancellation_requested_at`,
+        [timestamp],
+      );
+      expect(timestamps.rows[0]?.stripe_payment_intent_create_started_at.toISOString()).toBe(timestamp);
+      expect(timestamps.rows[0]?.cancellation_requested_at.toISOString()).toBe(timestamp);
+      await expect(
+        pool.query("UPDATE checkout_payments SET stripe_payment_intent_id = 'pi-schema-proof' WHERE id = 'pay-ord-pending'"),
+      ).rejects.toMatchObject({ code: '23505' });
+
+      await createOrder('ord-race');
+      const race = await Promise.allSettled([insertPayment('ord-race', 'PENDING'), insertPayment('ord-race', 'PENDING')]);
+      expect(race.filter(({ status }) => status === 'fulfilled')).toHaveLength(1);
+      expect(race.filter(({ status }) => status === 'rejected')).toHaveLength(1);
+      expect(race.find(({ status }) => status === 'rejected')).toMatchObject({ reason: { code: '23505' } });
+    } finally {
+      await pool.end();
+      await admin.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
+      await admin.end();
     }
   });
 
