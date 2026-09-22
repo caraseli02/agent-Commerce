@@ -400,6 +400,38 @@ Persisting the PaymentIntent identity is independent from setting
 `PROCESSING`; the existence of a PaymentIntent alone does not mean money is
 being processed.
 
+### Migration from the current mock Payment schema
+
+Use a small expand -> migrate -> contract sequence rather than a destructive
+one-step migration.
+
+First migration / implementation slice:
+
+1. add nullable `stripe_payment_intent_id` with uniqueness when present;
+2. replace the status constraint with
+   `PENDING / PROCESSING / PAID / CANCELED`;
+3. backfill existing `FAILED` rows to `CANCELED`;
+4. preserve existing `PENDING` and `PAID` rows unchanged;
+5. stop new application code from reading/writing
+   `payment_type`, `use_existing_payment_method`, and
+   `provider_reference`.
+
+The `FAILED -> CANCELED` mapping is intentionally conservative. The current
+application already treats those rows as terminal and refuses further payment
+continuation, so the migration must not silently reopen them.
+
+The obsolete columns may remain physically present for one deployment while the
+new code no longer treats them as authoritative. After Preview validation proves
+that no current code depends on them, a small follow-up cleanup migration drops:
+
+```text
+payment_type
+use_existing_payment_method
+provider_reference
+```
+
+No compatibility framework or dual-write path is introduced.
+
 ---
 
 ## 7. Stripe PaymentIntent identity and idempotency
