@@ -703,14 +703,17 @@ Required behavior:
    instead of trusting arrival order.
 5. Record the Stripe event ID and its corresponding local Payment transition in
    the same short PostgreSQL transaction.
-6. For payment success, run the retry-safe **critical application finalization**
-   after that transaction and before acknowledging success.
-7. Return `2xx` for a success event only when critical finalization is already
-   complete or has just completed successfully.
-8. If critical finalization fails/crashes, return a non-`2xx` response so Stripe
-   retries delivery.
-9. On duplicate delivery, deduplicate the provider Payment transition but still
-   inspect/retry unfinished application finalization.
+6. For payment success, run the retry-safe application completion path after
+   that transaction and before acknowledging success.
+7. For fulfillment branches, return `2xx` only after critical Inventory/Order/
+   claim finalization is already complete or has just completed successfully.
+8. For the `REFUND` branch, return `2xx` only after compensation state is
+   durable **and** a Stripe Refund ID is durably known (or Refund success is
+   already durable). Settlement may continue asynchronously afterward.
+9. If the applicable fulfillment/compensation acknowledgment gate is not met,
+   return non-`2xx` so Stripe retries delivery.
+10. On duplicate delivery, deduplicate the provider Payment transition but still
+    inspect/retry unfinished fulfillment or compensation work.
 
 "Duplicate event is a no-op" applies only to the already-committed provider
 transition. It does **not** mean the whole webhook request becomes a no-op.
