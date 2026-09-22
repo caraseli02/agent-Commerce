@@ -5,7 +5,7 @@
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
 - PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
-- Issue #554 is active on `codex/554-payment-schema`. Its first PR covers only compatible PostgreSQL Payment schema expansion and focused tests; Stripe provider activation remains off.
+- Issue #554 is active on `codex/554-payment-schema`. PR #560 covers only compatible PostgreSQL Payment schema expansion and focused tests; Stripe provider activation remains off.
 
 ## Completed checkout hardening
 
@@ -45,6 +45,7 @@
 - No #535 acceptance-criteria defect remains.
 - `./init.sh` cannot install from npm in this environment (`ENOTFOUND registry.npmjs.org`); existing dependencies are installed. The configured `.env.local` PostgreSQL URL reaches Neon only outside the sandbox but is rejected with `28P01` password authentication failure. Focused local PostgreSQL verification is blocked pending a valid credential; PR CI has its own PostgreSQL service.
 - `pnpm verify` completed build, bundle-size, lint, and typecheck, then stopped before tests because the sandbox could not resolve the configured Neon host. The same focused test with network access reached Neon and failed authentication (`28P01`).
+- PR #560 PostgreSQL CI passed `pnpm verify`: 81 test files, 378 tests passed, 2 todo. The focused `checkout-postgres-boundary.spec.ts` suite passed all 7 tests. The PR template check and Vercel deployment passed; independent schema evaluation found no code defects and rated the slice 9/10, with the tracking update recorded here.
 
 ## Remaining architecture
 
@@ -64,7 +65,7 @@
 
 ## Next work
 
-1. Validate and review #554's compatible schema PR using the isolated PostgreSQL CI service, then implement application Payment compatibility in a later #554 PR.
+1. Obtain human review/merge for #554's compatible schema PR #560, then implement application Payment compatibility in a later #554 PR.
 2. Continue implementation issues in dependency order:
    - #555 — PaymentIntent creation, bounded idempotency, and create/cancel coordination;
    - #557 — webhook/reconciliation, retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart;
@@ -76,5 +77,5 @@
 
 ## Next verification
 
-- For #554 PR 1: run the focused migration test and `pnpm verify` in PostgreSQL CI; local `pnpm build`, `pnpm lint`, and `pnpm typecheck` pass, while local PostgreSQL runs require a valid credential. Run clean-tree handoff checks when verification is available.
+- For #554 PR 1: PostgreSQL CI `pnpm verify` passed, including the focused migration test. Local `pnpm build`, `pnpm lint`, `pnpm typecheck`, feature-list validation, and clean-state validation passed; local PostgreSQL runs still require a valid credential. Recheck CI after this tracking update.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.

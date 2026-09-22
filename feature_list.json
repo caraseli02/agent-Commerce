@@ -15,7 +15,8 @@
       "evidence": [
         "PR #552 merged as cd3036a1 before implementation began.",
         "Claimed on codex/554-payment-schema; first PR is limited to schema expansion and PostgreSQL compatibility tests.",
-        "Local build, lint, and typecheck passed; focused PostgreSQL verification is blocked by the configured Neon credential (28P01). Repository CI provides an isolated PostgreSQL service."
+        "Local build, lint, and typecheck passed; focused local PostgreSQL verification is blocked by the configured Neon credential (28P01).",
+        "PR #560 PostgreSQL CI passed pnpm verify: 81 files, 378 tests passed, 2 todo; checkout-postgres-boundary.spec.ts passed 7 tests. Independent evaluation found no code defects and rated the schema slice 9/10."
       ]
     },
     {
