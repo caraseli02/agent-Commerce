@@ -210,7 +210,7 @@ responsibilities and boundary rules are fixed.
 
 ### Public-operation ownership
 
-- `preparePayment()` creates or recovers the durable provider-agnostic local Payment only. It does not know about cards, Link, Payment Element, or Stripe Sessions.
+- `preparePayment()` creates or recovers the durable provider-agnostic local Payment only. It does not know about cards, Link, Payment Element, or Stripe PaymentIntent details.
 - `getPayment()` reads the provider-neutral local Payment view; Stripe IDs remain internal Payments persistence details.
 - `initiatePayment()` establishes or recovers the current usable provider payment flow. It must be idempotent and must not blindly create replacement provider work after a timeout.
 - `reconcilePayment()` explicitly checks provider truth when local state may be stale or uncertain. It owns resulting local Payment transitions.
@@ -935,10 +935,13 @@ guarantee.
 
 ### Slice A — Payment persistence/state migration
 
-- add `PROCESSING`;
+- add `PROCESSING` and `CANCELED`, with existing `FAILED -> CANCELED`;
 - add one unique nullable Stripe PaymentIntent ID;
-- remove `provider_reference`;
+- stop reading/writing `payment_type`, `use_existing_payment_method`, and `provider_reference`;
+- keep those obsolete columns physically present until Preview validation confirms the new code no longer depends on them;
 - keep current local Payment identity/Order correlation.
+
+A small follow-up cleanup migration drops the obsolete columns after that validation.
 
 ### Slice B — Stripe adapter + PaymentIntent creation
 
@@ -998,8 +1001,7 @@ and accepted.
 
 ### Accepted limitations
 
-- no provider-attempt history means intentionally replacing one Stripe Checkout
-  Session for the same local Payment is not yet modeled;
+- one logical local Payment intentionally maps to one reusable Stripe PaymentIntent; intentionally replacing it with multiple provider PaymentIntents is out of scope for the first slice;
 - only full refunds are supported;
 - no application-owned saved-card wallet;
 - no proactive/background recovery if the customer never returns and no webhook
@@ -1017,7 +1019,7 @@ This ADR refines, but does not replace:
 - `07-public-module-contracts-and-dependency-graph.md`.
 
 Where those documents describe the earlier preparation-only
-`PENDING / PROCESSING / PAID / CANCELED` model or neutral `providerReference`, this ADR is the
+`PENDING / PAID / FAILED` model or neutral `providerReference`, this ADR is the
 accepted provider-specific refinement for the Stripe implementation slice.
 
 The invariant that remains unchanged is:
