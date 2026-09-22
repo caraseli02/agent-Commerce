@@ -19,6 +19,9 @@ Use this file for durable cross-session decisions that should survive context re
 - Confirm the PaymentIntent client-side through Stripe.js / Payment Element; do not route card details or normal PaymentIntent confirmation through Nitro.
   - Reason: Stripe's browser components already own secure payment collection and authentication, while ECAS only needs to create/recover the PaymentIntent and later reconcile provider truth.
   - Impact: browser confirmation is not authoritative Order/payment completion; webhook/reconciliation still establish local truth and the application workflow still finalizes Orders/Inventory.
+- Migrate the current mock Payment schema with a small expand -> migrate -> contract sequence.
+  - Reason: existing `FAILED` rows are already terminal in current code and should conservatively become `CANCELED`, while obsolete mock/saved-card columns can be removed only after the new code no longer depends on them.
+  - Impact: preserve `PENDING` and `PAID`, map `FAILED -> CANCELED`, add nullable unique `stripe_payment_intent_id`, stop using `payment_type` / `use_existing_payment_method` / `provider_reference`, then drop those columns in a later cleanup migration after Preview validation.
 - Deduplicate Stripe webhooks durably by recording the event ID and corresponding local Payment transition in the same PostgreSQL transaction.
   - Reason: a crash must not mark a provider event handled without committing its local state change.
   - Impact: duplicate delivery is harmless; slow provider reconciliation stays outside the short local transaction.
