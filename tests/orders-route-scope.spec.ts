@@ -20,6 +20,7 @@ vi.mock('~/server/domain/orders', () => ({
 describe('orders route customer scope', () => {
   beforeAll(() => {
     vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);
+    vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: true } }));
     vi.stubGlobal('getQuery', (event: { query?: Record<string, string> }) => event.query || {});
     vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers || {});
     vi.stubGlobal('getRouterParam', (event: { params?: Record<string, string> }, key: string) => event.params?.[key]);

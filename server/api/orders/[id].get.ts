@@ -6,9 +6,9 @@ import { AccountRole } from '~/types/signup/form';
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id');
   const authorization = getHeaders(event).authorization;
+  const mockModeEnabled = String(useRuntimeConfig(event).public.MOCK_MODE) === 'true';
   const authenticatedUser = getMockUserFromAuthHeader(authorization);
-  const guestOwnerId =
-    !authenticatedUser && process.env.NUXT_PUBLIC_MOCK_MODE === 'true' ? getExistingMockCartUserId(event, authorization) : null;
+  const guestOwnerId = !authenticatedUser && mockModeEnabled ? getExistingMockCartUserId(event, authorization) : null;
 
   if (!authenticatedUser && !guestOwnerId) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });

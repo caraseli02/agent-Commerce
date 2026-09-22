@@ -5,7 +5,7 @@
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
 - PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
-- Issue #554 is active on `codex/554-payment-state-compatibility`. PR #560 merged the compatible PostgreSQL Payment schema as `1a61a252`; draft PR #561 makes mock checkout fail closed for transitional Payment states and provider markers. Stripe provider activation remains off.
+- Issue #554 is active on `codex/554-payment-state-compatibility`. PR #560 merged the compatible PostgreSQL Payment schema as `1a61a252`; PR #561 makes mock checkout fail closed for transitional Payment states and provider markers and repairs deployed guest checkout runtime-config detection. Stripe provider activation remains off.
 
 ## Completed checkout hardening
 
@@ -43,11 +43,11 @@
 ## Blocked / known baseline failures
 
 - No #535 acceptance-criteria defect remains.
-- `./init.sh` cannot install from npm in this environment (`ENOTFOUND registry.npmjs.org`); existing dependencies are installed. The configured `.env.local` PostgreSQL URL reaches Neon only outside the sandbox but is rejected with `28P01` password authentication failure. Focused local PostgreSQL verification is blocked pending a valid credential; PR CI has its own PostgreSQL service.
-- `pnpm verify` completed build, bundle-size, lint, and typecheck, then stopped before tests because the sandbox could not resolve the configured Neon host. The same focused test with network access reached Neon and failed authentication (`28P01`).
+- `./init.sh` cannot install from npm in this environment (`ENOTFOUND registry.npmjs.org`); existing dependencies are installed.
+- The ignored local `.env.local` now uses a valid stable `vercel-dev` Neon connection, with pooled application and direct migration/test URLs. No credential is stored in tracked files.
 - PR #560 PostgreSQL CI passed `pnpm verify`: 81 test files, 378 tests passed, 2 todo. The focused `checkout-postgres-boundary.spec.ts` suite passed all 7 tests. The PR template check and Vercel deployment passed; independent schema evaluation found no code defects and rated the slice 9/10. PR #560 merged as `1a61a252`.
-- For the next #554 slice, local `pnpm verify` passed build, bundle-size, lint, and typecheck, then stopped before Vitest at sandbox DNS resolution. The focused PostgreSQL run with network access again stopped before Vitest because the configured Neon credential failed authentication (`28P01`); use the isolated PostgreSQL CI service for behavioral proof.
-- PR #561's isolated PostgreSQL 17 CI passed `pnpm verify`: 81 test files, 387 tests passed, 2 todo, including Payment replay/marker guards. The PR template checker and Vercel deployment passed. Preview browser smoke completed a signed-in mock card checkout through `/order-summary` to `/checkout/success?id=ord-1790087040552-4581`, showing Payment Confirmed and RON 2,846.13. A guest attempt instead returned 401 before PlaceOrder because the deployed `orders/new` route requires the mock-mode runtime flag for guest identity; this route/configuration behavior is outside PR #561's Payment-state logic. The first signed-in attempt was correctly rejected for insufficient `prod-1` stock in the demo cart; reducing its quantity to one and refreshing the review allowed success.
+- PR #561's earlier isolated PostgreSQL 17 CI passed `pnpm verify`: 81 test files, 387 tests passed, 2 todo, including Payment replay/marker guards. The PR template checker and Vercel deployment passed. Preview browser smoke completed a signed-in mock card checkout through `/order-summary` to `/checkout/success?id=ord-1790087040552-4581`, showing Payment Confirmed and RON 2,846.13.
+- The guest Preview 401 was traced to `orders/new` and `orders/[id]` reading the raw process environment instead of Nuxt runtime config. Both routes now use `useRuntimeConfig(event)`, and regression coverage proves guest creation/read when the raw variable is unavailable. Local `pnpm verify` passes against Neon: 81 files, 388 tests passed, 2 todo. Updated PR CI and deployed guest-browser evidence are pending.
 
 ## Remaining architecture
 
@@ -79,5 +79,5 @@
 
 ## Next verification
 
-- For #554's Payment-state PR: PR #561's independent evaluator found no code defect and returned PASS, 10/10, after PostgreSQL CI, signed-in Preview checkout, clean-state validation, and `MERGEABLE/CLEAN` checks. Keep the guest 401 disclosed for a separate Preview runtime-config investigation. Local PostgreSQL runs still require a valid credential. Human review/merge of this PR is next; then continue the remaining #554 slices.
+- For #554's Payment-state PR: push the guest runtime-config repair to PR #561, require updated PostgreSQL CI, verify guest checkout through the new Vercel Preview in a browser, then repeat independent evaluation and clean-state validation before returning the PR to human review.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.
