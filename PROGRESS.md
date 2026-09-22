@@ -79,5 +79,5 @@
 
 ## Next verification
 
-- For #554's Payment-state PR: review PR #561's final CI and Preview evidence and obtain an independent evaluator verdict. Local PostgreSQL runs still require a valid credential; Preview guest checkout's 401 needs a separate runtime-config investigation before claiming that flow works on Vercel.
+- For #554's Payment-state PR: PR #561's independent evaluator found no code defect and returned PASS, 10/10, after PostgreSQL CI, signed-in Preview checkout, clean-state validation, and `MERGEABLE/CLEAN` checks. Keep the guest 401 disclosed for a separate Preview runtime-config investigation. Local PostgreSQL runs still require a valid credential. Human review/merge of this PR is next; then continue the remaining #554 slices.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.
