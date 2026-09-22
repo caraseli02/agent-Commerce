@@ -385,7 +385,7 @@ first implementation.
 The existing generic `provider_reference` is retired after compatibility
 validation.
 
-### Compatible rollout from the current mock schema
+### Compatible rollout from the current mock Payment schema
 
 The existing deployment has:
 
@@ -394,13 +394,18 @@ status = PENDING | PAID | FAILED
 use_existing_payment_method NOT NULL
 ```
 
-and older deployed writers may still write `FAILED`. Preview deployments also
-share database state, so "retain the old columns" alone is not a safe
-expand/contract strategy.
+and older deployed writers can still run the mock-era path where
+`continuePayment()` simulates success and `completePayment()` can move a
+matching `PENDING` Payment to `PAID`.
 
-Use two explicit phases.
+That creates **two distinct rollout gates**:
 
-#### Phase A — compatible expand
+1. schema compatibility;
+2. provider activation safety.
+
+Schema expansion alone does not make Stripe safe to enable.
+
+#### Phase A — compatible schema expansion
 
 1. add nullable unique `stripe_payment_intent_id`;
 2. add nullable `stripe_payment_intent_create_started_at` and
@@ -408,28 +413,61 @@ Use two explicit phases.
 3. expand the database status constraint temporarily to accept both models:
    `PENDING / PROCESSING / PAID / FAILED / CANCELED`;
 4. add a safe `DEFAULT FALSE` to `use_existing_payment_method` while keeping
-   its existing `NOT NULL` constraint, so new inserts that stop specifying the
-   legacy field remain valid;
-5. new code stops using `payment_type`, `use_existing_payment_method`, and
+   its existing `NOT NULL` constraint;
+5. new code stops treating `payment_type`, `use_existing_payment_method`, and
    `provider_reference` as authoritative business data;
 6. new code treats any legacy `FAILED` row as terminal and never reopens it.
 
-No immediate `FAILED -> CANCELED` backfill occurs while an older writer that
-can still emit `FAILED` shares the database.
+During Phase A, **Stripe-backed payment creation remains disabled** on any
+database that is still reachable by an older deployment capable of mock
+completion.
 
-#### Phase B — controlled contract
+A server-side provider activation gate (for example a deployment/environment
+setting such as `PAYMENTS_PROVIDER=stripe`) stays off until the activation
+preconditions below are proven. The exact flag name is an implementation detail;
+the invariant is not.
 
-Only after all writers using that database are upgraded, retired, or isolated:
+#### Phase B — Stripe activation gate
+
+Before the first Stripe-backed PaymentIntent is created against a database:
+
+1. enumerate every deployment/runtime that can write that checkout database;
+2. upgrade, retire, or isolate every deployment that can still execute mock
+   `continuePayment()/completePayment()`;
+3. verify old Preview URLs either no longer write the shared database or point to
+   an isolated database;
+4. run a cross-version replay test proving an old deployment cannot mutate a
+   Stripe-candidate Payment/Order to `PAID`;
+5. only then enable the Stripe provider activation gate for that database.
+
+This gate is stronger than SQL compatibility. It protects the payment-authority
+invariant:
+
+```text
+only Stripe truth may make a Stripe-backed Payment PAID
+```
+
+No Stripe-backed Payment may coexist in a database with a reachable writer that
+can fabricate payment success.
+
+#### Phase C — controlled schema contract
+
+Only after every writer using that database is upgraded, retired, or isolated:
 
 1. backfill remaining `FAILED -> CANCELED`;
 2. tighten the status constraint to
    `PENDING / PROCESSING / PAID / CANCELED`;
 3. drop `payment_type`, `use_existing_payment_method`, and
-   `provider_reference` (and the temporary default with the column);
+   `provider_reference`;
 4. verify no Preview deployment points an older writer at the contracted schema.
 
-This is still a small expand -> contract rollout; it does not introduce
-dual-write compatibility infrastructure.
+The provider activation gate (Phase B) may happen before the destructive schema
+contract (Phase C), but never before unsafe mock writers are drained/isolated.
+
+This remains a pragmatic expand -> activate -> contract rollout; it does not
+introduce dual-write compatibility infrastructure.
+
+---
 
 ---
 
@@ -714,26 +752,54 @@ payment_intent.succeeded
   -> short transaction:
        event ID + Payment=PAID
   -> application.finalizePaidCheckout(payment/order/claim)
-       -> Inventory commit/allocation
-       -> Order paid
-       -> checkout claim finalized
-  -> success?
+       -> normal active reservation?
+            -> Inventory commit
+            -> Order paid
+            -> claim finalized
+       -> expired reservation?
+            -> durable recovery decision:
+                 ALLOCATE / BACKORDER / REFUND
+  -> acknowledgment gate reached?
        yes -> 2xx
        no  -> non-2xx
 ```
 
-If Stripe retries after the Payment transition was already committed:
+For `ALLOCATE` and `BACKORDER`, the existing critical finalization rule
+applies: the Order/Inventory/claim decision must be durably complete before
+`2xx`.
+
+For `REFUND`, fulfillment is forbidden. The success webhook uses a distinct
+**compensation completion gate**:
 
 ```text
-duplicate event ID
-  -> skip provider transition
-  -> checkout already finalized?
-       yes -> 2xx
-       no  -> retry finalizePaidCheckout()
+paid_recovery_decision = REFUND
+  -> Order lifecycle = ON_HOLD
+  -> claim workflow = compensation_pending
+  -> durable Refund row exists
+  -> Payments.requestFullRefund()
+  -> stripe_refund_id durably known?
+       yes -> original payment success webhook may return 2xx
+       no  -> return non-2xx so duplicate delivery resumes compensation
 ```
 
+The original success webhook does **not** wait for the refund to settle
+`SUCCEEDED`. Once a durable Stripe Refund ID is known, refund webhooks and
+explicit refund reconciliation provide an independent continuation path.
+
+If the process crashes after committing `REFUND` but before creating/recovering
+the provider Refund, duplicate delivery follows the already-committed decision
+and calls `requestFullRefund()` again. It must never fall back to Inventory
+allocation.
+
+If the Refund is `PENDING` with a known Stripe ID, fulfillment remains blocked
+and the original success webhook can acknowledge because provider refund identity
+is durable. If the Refund becomes `FAILED`, or its creation outcome remains
+unknown without a safe provider ID, the Order stays `ON_HOLD`, the claim stays
+in compensation recovery, and fulfillment remains permanently prohibited until
+refund recovery is explicitly resolved.
+
 Best-effort revision-aware Cart cleanup is **not** required before webhook
-acknowledgment; the critical paid-order finalization is.
+acknowledgment.
 
 This first slice intentionally keeps critical finalization bounded and local to
 the PostgreSQL-backed modular monolith. If it later cannot complete within a
@@ -784,8 +850,7 @@ An expired reservation cannot be resurrected. When a paid order reaches this
 path, concurrent recovery calls must not be allowed to choose conflicting
 outcomes such as "fulfill" and "refund".
 
-Persist one nullable application-owned decision on the checkout claim, for
-example:
+Persist one nullable application-owned decision on the checkout claim:
 
 ```text
 paid_recovery_decision =
@@ -799,24 +864,49 @@ coordination.
 
 For `ALLOCATE`, the Inventory allocation and durable decision are committed as
 one coordinated database unit so a later recovery cannot switch to refund.
+
 For `BACKORDER`, the backorder/Order state and decision are durably committed
-before returning. For `REFUND`, the decision is committed **before** any Stripe
-refund request; after that, no recovery path may allocate/fulfill the Order.
+before returning.
+
+For `REFUND`, fulfillment is permanently prohibited once the decision commits.
+Commit the following local compensation state **before** any Stripe refund call:
 
 ```text
-Payment PAID + reservation expired
-  -> lock/recover checkout claim
-  -> decision already exists?
-       yes -> retry that decision only
-       no  -> ask Inventory/business policy
-               allocated  -> commit ALLOCATE + allocation
-               backorder  -> commit BACKORDER + fulfillment state
-               unavailable-> commit REFUND
-  -> REFUND decision -> Payments.requestFullRefund()
+Payment = PAID
+Order lifecycle = ON_HOLD
+checkout claim workflow_status = compensation_pending
+paid_recovery_decision = REFUND
 ```
 
+The immutable Order/payment history remains paid; `ON_HOLD` means commercial
+fulfillment is blocked while compensation is being recovered.
+
+Then create/recover one durable Refund:
+
+```text
+compensation_pending
+  -> requestFullRefund()
+       -> provider refund identity known
+            -> keep compensation_pending until provider settlement
+       -> refund SUCCEEDED
+            -> Order lifecycle = CANCELED
+            -> claim workflow_status = finalized
+       -> refund FAILED / unsafe unknown outcome
+            -> claim workflow_status = compensation_recovery_required
+            -> Order remains ON_HOLD
+            -> never allocate/backorder
+```
+
+`compensation_recovery_required` is application workflow state, not a Payment
+status. It keeps the Order visibly non-fulfillable while an operator or explicit
+reconciliation resolves refund truth.
+
+Duplicate `payment_intent.succeeded` delivery after `REFUND` commits resumes
+the **same** compensation path. It must not re-run the allocation decision.
+
 A successful Payment must never be rewritten to `CANCELED` because fulfillment
-later became impossible.
+later became impossible. The Order may become lifecycle `CANCELED` after a
+successful refund while Payment remains `PAID`.
 
 ---
 
@@ -913,7 +1003,8 @@ UNIQUE (stripe_refund_id)   -- when non-NULL
 ```
 
 The application may call `requestFullRefund()` only after the durable paid
-recovery decision is `REFUND`.
+recovery decision is `REFUND` and the claim has entered
+`compensation_pending`.
 
 Before the first Stripe create call, persist
 `stripe_refund_create_started_at`. Refund creation then follows the same bounded
@@ -928,12 +1019,33 @@ ID unknown + create_started_at < 24h
 
 ID unknown + create_started_at >= 24h
   -> do not create again automatically
-  -> keep durable Refund PENDING
+  -> Refund remains PENDING
+  -> claim = compensation_recovery_required
+  -> Order remains ON_HOLD
   -> surface operational/manual recovery required
 ```
 
-Manual recovery must establish whether Stripe already created the refund before a
-new provider refund may be authorized.
+### Original payment-success webhook and refund continuation
+
+The original `payment_intent.succeeded` webhook may acknowledge the REFUND
+branch only after a Stripe Refund ID is durably attached to the local Refund (or
+the Refund has already reached `SUCCEEDED`).
+
+Before that point, failures/crashes return non-`2xx` so Stripe duplicate
+delivery re-enters the same compensation workflow.
+
+Once `stripe_refund_id` is known:
+
+- `PENDING`: original payment-success webhook may return `2xx`; refund
+  webhook/reconciliation owns completion.
+- `SUCCEEDED`: move Order lifecycle to `CANCELED`, finalize the claim, and
+  keep Payment `PAID`.
+- `FAILED`: move claim to `compensation_recovery_required`; keep Order
+  `ON_HOLD`; do not fulfill. Operator/explicit reconciliation may repair/retry
+  only under the same one-Refund-per-Payment safety rules.
+- provider outcome unknown with no durable Refund ID: do not acknowledge the
+  payment-success webhook as complete; duplicate delivery keeps retrying until a
+  safe provider identity or manual recovery decision is established.
 
 Refund webhook events (`refund.created`, `refund.updated`, `refund.failed`)
 belong to the refund slice (#558), not the generic payment webhook slice.
@@ -948,6 +1060,8 @@ allocation remain out of scope.
 | Failure | Required behavior |
 | --- | --- |
 | Browser retries PlaceOrder | Existing checkout claim / Payment is recovered; no duplicate Order/Payment. |
+| Old mock deployment shares DB before Stripe activation | Stripe activation remains disabled until that writer is upgraded/retired/isolated. |
+| Cross-version replay targets a Stripe-candidate checkout | Old deployment cannot mutate the shared Stripe Payment/Order to `PAID`. |
 | PaymentIntent create request times out (<24h) | Retry the same create operation with the same key; recover the same intent. |
 | PaymentIntent ID remains unknown beyond safe idempotency window | Do not create automatically; mark checkout recovery-required and require operational reconciliation. |
 | Cancellation races PaymentIntent creation | `cancellation_requested_at` prevents a client secret from being returned after cancellation wins; recover/cancel provider object if creation had started. |
@@ -956,12 +1070,16 @@ allocation remain out of scope.
 | Browser refreshes during 3DS | Browser asks ECAS; ECAS reads PostgreSQL then reconciles Stripe if required. |
 | Duplicate non-success webhook | Provider transition is deduplicated safely. |
 | Success webhook crashes after Payment=PAID but before finalization | Return non-2xx; Stripe retry sees duplicate event ID but retries unfinished application finalization. |
+| REFUND decision commits, then process crashes before Refund create | Return non-2xx; duplicate success webhook resumes `requestFullRefund()`; fulfillment is forbidden. |
+| Refund ID known but Refund still PENDING | Original success webhook may acknowledge; refund webhook/reconciliation continues independently. |
+| Refund FAILED | Order stays ON_HOLD, claim becomes compensation_recovery_required, fulfillment remains blocked. |
+| Refund provider outcome unknown with no safe ID | No blind second refund and no fulfillment; payment-success webhook remains unacknowledged until safe identity/manual recovery. |
 | Success webhook response is lost after finalization | Duplicate retry observes finalized checkout and returns 2xx without repeating side effects. |
 | Out-of-order failure after success | Local `PAID` does not regress. |
 | Webhook provider-transition DB transaction crashes | Event ID and Payment transition both roll back; retry remains safe. |
 | Concurrent late-paid recovery sees stock/refund possibilities | One durable `paid_recovery_decision` wins; fulfillment and refund are mutually exclusive. |
 | Refund create outcome unknown (<24h) | Retry same logical Refund/create key. |
-| Refund ID unknown beyond safe idempotency window | No blind second refund; keep PENDING and require manual reconciliation. |
+| Refund ID unknown beyond safe idempotency window | No blind second refund; claim stays compensation_recovery_required and Order stays ON_HOLD. |
 | Newer Cart revision exists after payment | Finalized purchase remains true; cleanup must not destroy the newer Cart. |
 
 ---
@@ -977,12 +1095,16 @@ Use the mock provider with real PostgreSQL semantics to test:
 - local Payment state transitions;
 - compatible Phase-A migration with legacy `FAILED` writers;
 - `use_existing_payment_method` default compatibility;
+- Stripe activation gate remains disabled while an unsafe mock writer is present;
+- cross-version replay harness proves old mock completion cannot touch Stripe-
+  candidate rows after activation prerequisites are satisfied;
 - checkout/payment idempotency;
 - PaymentIntent unknown-result recovery inside and beyond the safe replay window;
 - cancellation-versus-create races, including "cancellation wins before client secret";
 - duplicate/out-of-order event handling;
 - crash after `Payment=PAID` commit but before finalization, with **no browser return**;
-- duplicate success webhook retrying unfinished finalization;
+- crash immediately after `paid_recovery_decision=REFUND` commits, with **no browser return**;
+- duplicate success webhook resumes Refund creation rather than fulfillment;
 - PostgreSQL concurrency/conditional transitions;
 - mutually exclusive late-success `ALLOCATE / BACKORDER / REFUND` decisions;
 - refund timeout/retry and idempotency-window expiry.
@@ -999,24 +1121,34 @@ webhook forwarding to exercise:
 - provider-canceled PaymentIntent behavior;
 - webhook signature verification;
 - duplicate success event replay after forced local finalization failure;
+- duplicate success event replay after forced crash immediately after the REFUND
+  decision;
 - full refund and refund reconciliation.
 
 ### Level 3 — Vercel Preview + Stripe sandbox
 
 Validate the deployed browser/server/runtime boundary:
 
+- enumerate every deployment that can write the shared checkout database;
+- prove old mock-completion deployments are upgraded, retired, or isolated
+  **before enabling Stripe-backed payment creation**;
+- run a cross-version replay smoke proving an old Preview URL cannot mark a
+  Stripe-backed Payment/Order paid;
+- only then enable the server-side Stripe provider activation gate;
 - real PaymentIntent creation/recovery from a Preview deployment;
 - Payment Element rendering and return flow;
 - HTTPS webhook delivery/signature verification;
 - payment success -> retry-safe local finalization;
+- REFUND decision -> durable Refund identity -> safe webhook acknowledgment;
 - refresh/resume recovery before enabling Stripe UI;
 - independent serverless invocation behavior;
-- full-refund recovery path where practical;
-- shared-database compatibility while older Preview writers exist.
+- full-refund recovery path where practical.
 
-Before Phase-B schema contraction, prove every writer against that database is
-upgraded, retired, or isolated. Production real-money rollout remains out of
-scope.
+Phase-C schema contraction is a later gate: only after every writer against that
+database is upgraded, retired, or isolated do we remove legacy `FAILED` and
+drop legacy columns.
+
+Production real-money rollout remains out of scope.
 
 ---
 
@@ -1050,8 +1182,10 @@ Implementation order follows backend dependencies rather than UI order.
   `cancellation_requested_at`;
 - temporarily allow legacy `FAILED` plus new `PROCESSING/CANCELED` states;
 - add safe default for legacy `use_existing_payment_method NOT NULL`;
-- keep old writers compatible;
-- defer destructive contraction until all shared-database writers are retired/upgraded.
+- keep old writers schema-compatible;
+- keep Stripe provider activation **off** while any writer sharing the DB can
+  still perform mock payment completion;
+- add the activation precondition to the implementation contract.
 
 ### Slice B / #555 — PaymentIntent adapter + creation/cancellation coordination
 
@@ -1068,11 +1202,14 @@ Implementation order follows backend dependencies rather than UI order.
 - Stripe signature verification;
 - durable event-ID dedup + same-transaction provider transition;
 - duplicate success delivery retries unfinished finalization;
-- success `2xx` only after critical finalization is complete;
+- success `2xx` only after critical fulfillment finalization **or** the REFUND
+  branch has a durable provider Refund identity;
 - `reconcilePayment()`;
 - application-owned `resumeOrderPayment()` with Inventory-owned reservation renewal;
 - provider-canceled PaymentIntent terminalization + explicit new-revision checkout restart;
-- no refund webhook handling in this slice.
+- compensation claim states (`compensation_pending` /
+  `compensation_recovery_required`) and Order `ON_HOLD` semantics are defined
+  here, while refund provider operations/events are owned by #558.
 
 ### Slice D / #556 — Payment Element card + 3DS UI
 
@@ -1087,17 +1224,24 @@ Implementation order follows backend dependencies rather than UI order.
 
 - transactional `paid_recovery_decision` preventing fulfillment/refund conflict;
 - expired-reservation allocation/backorder/refund branches;
+- durable compensation continuation after `REFUND` commits;
 - durable full Refund entity;
 - refund create-start timing and bounded idempotency;
-- refund webhook/reconciliation ownership.
+- refund webhook/reconciliation ownership;
+- duplicate payment-success delivery resumes refund creation until durable
+  `stripe_refund_id` exists.
 
-### Slice F / #559 — sandbox deployment validation + contract gate
+### Slice F / #559 — Stripe activation + sandbox deployment validation + contract gate
 
 - deterministic CI/mock + PostgreSQL coverage;
 - local Stripe sandbox/CLI evidence;
+- enumerate/retire/upgrade/isolate unsafe mock writers;
+- cross-version replay proving old deployments cannot fabricate `PAID` on a
+  Stripe-backed checkout;
+- only then enable Stripe provider creation against the shared DB;
 - Vercel Preview + Stripe sandbox smoke;
-- verify older shared-database writers are upgraded/retired/isolated;
-- only then perform/prepare Phase-B status/legacy-column contraction;
+- later verify all old writers are gone before Phase-C status/legacy-column
+  contraction;
 - document remaining production-only risks.
 
 Issue dependency order:
@@ -1111,7 +1255,8 @@ Issue dependency order:
               \-> #559
 ```
 
-#559 requires both the UI and refund/backend recovery slices.
+#559 requires both the UI and refund/backend recovery slices and contains the
+**Stripe activation gate** as well as the later schema-contract gate.
 
 ---
 
