@@ -98,6 +98,19 @@ Stripe owns:
 - 3D Secure and other required customer authentication;
 - provider-side payment/refund truth.
 
+### First-slice payment-method scope
+
+The first Stripe implementation supports **card payments only**, including cards
+that require 3D Secure / additional authentication.
+
+Do not enable redirect-based bank methods, delayed bank-transfer methods, or
+other asynchronous payment-method families in the first slice. This keeps the
+provider lifecycle narrow while the core PaymentIntent, webhook, reconciliation,
+retry, and recovery guarantees are validated.
+
+Payment Element remains the UI primitive, but its first implementation is
+configured for the card-only scope.
+
 The browser must never authoritatively decide that an Order is paid.
 
 The amount and currency sent to Stripe come from the immutable persisted Order
