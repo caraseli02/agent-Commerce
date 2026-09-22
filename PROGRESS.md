@@ -64,7 +64,7 @@
 
 1. Review and accept `docs/system-design/08-stripe-payment-provider-and-recovery.md` for #121.
 2. After ADR acceptance, create focused implementation issues for:
-   - Payment persistence/state migration;
+   - Payment persistence/state migration (`FAILED -> CANCELED`, add `stripe_payment_intent_id`, stop using legacy payment columns);
    - Stripe adapter + one-PaymentIntent-per-Payment idempotency;
    - Payment Element/customer-action flow;
    - webhook + reconciliation + retry-safe finalization;
