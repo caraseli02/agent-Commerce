@@ -7,6 +7,9 @@ Use this file for durable cross-session decisions that should survive context re
 - Use Stripe Payment Intents + Payment Element behind the Payments module boundary.
   - Reason: Stripe recommends Checkout Sessions for most integrations, but agent-Commerce intentionally owns its checkout/commercial state already; the provider's role is narrowed to collecting the immutable Order amount.
   - Impact: one local Payment maps to one reusable Stripe PaymentIntent; Checkout Session expiry/replacement and provider-session generations are not modeled in the first slice.
+- Scope the first Stripe integration to card payments only, including 3D Secure.
+  - Reason: cards exercise the important success, decline, authentication, timeout, webhook, and recovery paths without introducing delayed/redirect payment-method families.
+  - Impact: Payment Element remains the UI, but non-card payment methods are deferred until the core lifecycle is proven.
 - Refine local Payment state to `PENDING / PROCESSING / PAID / CANCELED`, persist one explicit Stripe PaymentIntent ID, and retire ambiguous `provider_reference`.
   - Reason: PaymentIntent existence does not itself mean payment is processing; `PENDING` remains payable/retryable, `PROCESSING` means provider work is genuinely in flight/uncertain, and `CANCELED` means payment can no longer collect money.
   - Impact: recoverable declines return/remain `PENDING`; `PAID` cannot regress because of stale provider events or concurrent cancellation.
