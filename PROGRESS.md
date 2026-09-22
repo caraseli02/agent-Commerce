@@ -63,14 +63,15 @@
 ## Next work
 
 1. Review and accept `docs/system-design/08-stripe-payment-provider-and-recovery.md` for #121.
-2. After ADR acceptance, create focused implementation issues for:
-   - Payment persistence/state migration (`FAILED -> CANCELED`, add `stripe_payment_intent_id`, stop using legacy payment columns);
-   - Stripe adapter + one-PaymentIntent-per-Payment idempotency;
-   - Payment Element/customer-action flow;
-   - webhook + reconciliation + retry-safe finalization;
-   - late-success/full-refund recovery;
-   - Stripe sandbox deployment validation.
-3. Keep provider-attempt persistence, partial refunds, app-owned saved cards, manual capture, and background queues deferred until a demonstrated requirement justifies them.
+2. Review the prepared implementation issues (all blocked on accepting/merging #552):
+   - #554 — Payment persistence/state migration (`FAILED -> CANCELED`, add `stripe_payment_intent_id`, stop using legacy payment columns);
+   - #555 — Stripe adapter + one-PaymentIntent-per-Payment idempotency;
+   - #556 — Payment Element/card + 3DS customer-action flow;
+   - #557 — webhook + reconciliation + retry-safe paid finalization;
+   - #558 — late-success/full-refund recovery;
+   - #559 — local + Vercel Preview Stripe sandbox validation.
+3. After #552 merges, start with #554.
+4. Keep provider-attempt persistence, partial refunds, app-owned saved cards, manual capture, and background queues deferred until a demonstrated requirement justifies them.
 
 ## Next verification
 
