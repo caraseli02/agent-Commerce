@@ -455,6 +455,33 @@ sequenceDiagram
 
 Browser completion/return is not authoritative payment truth.
 
+### Client-side payment confirmation
+
+The first implementation uses Stripe's Payment Element in the browser to confirm
+the PaymentIntent.
+
+```text
+Nitro / Payments
+  -> create or recover PaymentIntent
+  -> return client secret
+
+Browser
+  -> render Payment Element
+  -> user submits payment
+  -> Stripe.js confirms the PaymentIntent
+  -> Stripe handles card data and required authentication
+```
+
+Card/payment-method details do not pass through the Nitro API.
+
+The browser may display immediate provider UI results, but it must not mark the
+Order or local Payment as paid. After confirmation/return, the browser asks ECAS
+for current state; Payments reconciliation and/or the Stripe webhook establish
+provider truth, and the application workflow performs cross-domain finalization.
+
+Do not add a server-side PaymentIntent confirmation endpoint in the first slice
+unless a demonstrated payment method or provider requirement needs one.
+
 ---
 
 ## 9. Timeout / lost-response recovery sequence
