@@ -258,6 +258,40 @@ additional ECAS database states.
 The implementation must enforce transitions conditionally in PostgreSQL rather
 than reading a state and later assuming it is unchanged.
 
+### Cancellation race and compensating refund
+
+`cancelPayment()` means "make this logical Payment permanently unable to
+collect money", not merely "set a local status to canceled".
+
+For a `PENDING` Payment with no provider flow, cancellation can become local
+`CANCELED` directly.
+
+For a `PROCESSING` Payment, Payments must first establish provider truth and
+make the current Stripe Checkout Session unusable when it is still open. The
+local Payment may become `CANCELED` only after Payments has established that
+the provider can no longer collect money.
+
+There is an unavoidable race where the customer may complete payment while ECAS
+is attempting to cancel the provider flow:
+
+```text
+application decides Order is no longer payable
+  -> Payments.cancelPayment()
+  -> provider session is already completed / payment succeeds concurrently
+  -> reconcile provider truth
+  -> Payment = PAID
+  -> application performs paid-order recovery
+       -> allocate/backorder if business policy allows
+       -> otherwise requestFullRefund()
+```
+
+A successful provider payment always wins over a concurrent local cancellation
+request. Never force `PAID -> CANCELED`.
+
+The full refund is therefore a compensating recovery for edge cases such as
+late/concurrent provider success when the Order can no longer be fulfilled. It
+is not the normal implementation of cancellation.
+
 ---
 
 ## 6. Persistence decision
