@@ -38,7 +38,7 @@
 
 ## In progress
 
-- #121 — Stripe provider ADR/design review. The ADR fixes the Payments/Stripe boundary, local Payment states, explicit Stripe IDs, provider idempotency, webhook deduplication, browser recovery, late-success handling, full-refund semantics, and the sandbox validation ladder.
+- #121 — Stripe provider ADR/design review. The ADR fixes the Payments/Stripe boundary around one reusable PaymentIntent per logical Payment, local Payment states, provider idempotency, webhook deduplication, browser recovery, late-success handling, full-refund semantics, and the sandbox validation ladder.
 
 ## Blocked / known baseline failures
 
@@ -47,9 +47,9 @@
 ## Remaining architecture
 
 - Real provider I/O is still absent. The current Payments implementation has durable local `PENDING` / `PAID` / `FAILED` state but mock payment continuation.
-- #121 now proposes the first Stripe slice: `PENDING / PROCESSING / PAID / FAILED`, explicit Checkout Session/PaymentIntent IDs, deterministic Payment-derived provider idempotency, durable webhook deduplication, browser/provider reconciliation, late-success allocation/backorder recovery, and durable full refunds.
+- #121 now proposes the first Stripe slice: `PENDING / PROCESSING / PAID / CANCELED`, one explicit Stripe PaymentIntent ID, deterministic Payment-derived PaymentIntent idempotency, durable webhook deduplication, browser/provider reconciliation, late-success allocation/backorder recovery, and durable full refunds.
 - Implementation remains pending until the ADR is reviewed/accepted.
-- Cancellation races and proactive/background recovery remain later payment-lifecycle work.
+- Cancellation races are now defined in the ADR; proactive/background recovery remains later payment-lifecycle work.
 - Do not add queues, brokers, microservices, or saga infrastructure unless a demonstrated recovery requirement justifies them.
 
 ## Verification baseline
@@ -65,7 +65,7 @@
 1. Review and accept `docs/system-design/08-stripe-payment-provider-and-recovery.md` for #121.
 2. After ADR acceptance, create focused implementation issues for:
    - Payment persistence/state migration;
-   - Stripe adapter + Checkout Session idempotency;
+   - Stripe adapter + one-PaymentIntent-per-Payment idempotency;
    - Payment Element/customer-action flow;
    - webhook + reconciliation + retry-safe finalization;
    - late-success/full-refund recovery;
