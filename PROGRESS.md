@@ -38,7 +38,7 @@
 
 ## In progress
 
-- #121 — Stripe provider ADR/design review. The ADR fixes the Payments/Stripe boundary around one reusable PaymentIntent per logical Payment, local Payment states, provider idempotency, webhook deduplication, browser recovery, late-success handling, full-refund semantics, and the sandbox validation ladder.
+- #121 — Stripe provider ADR/design re-review. The ADR now also covers bounded Stripe idempotency, create/cancel coordination, retryable webhook finalization, provider-canceled checkout restart, mutually exclusive paid recovery, and compatible shared-database rollout.
 
 ## Blocked / known baseline failures
 
@@ -47,9 +47,9 @@
 ## Remaining architecture
 
 - Real provider I/O is still absent. The current Payments implementation has durable local `PENDING` / `PAID` / `FAILED` state but mock payment continuation.
-- #121 now proposes the first Stripe slice: `PENDING / PROCESSING / PAID / CANCELED`, one explicit Stripe PaymentIntent ID, deterministic Payment-derived PaymentIntent idempotency, durable webhook deduplication, browser/provider reconciliation, late-success allocation/backorder recovery, and durable full refunds.
+- #121 proposes the first Stripe slice with `PENDING / PROCESSING / PAID / CANCELED`, one PaymentIntent per logical Payment, durable create-start/cancellation coordination, bounded idempotency recovery, webhook-driven retry-safe finalization, mutually exclusive late-success recovery, and durable full refunds.
 - Implementation remains pending until the ADR is reviewed/accepted.
-- Cancellation races are now defined in the ADR; proactive/background recovery remains later payment-lifecycle work.
+- Cancellation/create races, provider-initiated cancellation, idempotency-window expiry, and paid-recovery/refund races are now defined in the ADR; proactive/background recovery remains later payment-lifecycle work.
 - Do not add queues, brokers, microservices, or saga infrastructure unless a demonstrated recovery requirement justifies them.
 
 ## Verification baseline
@@ -62,15 +62,15 @@
 
 ## Next work
 
-1. Review and accept `docs/system-design/08-stripe-payment-provider-and-recovery.md` for #121.
-2. Review the prepared implementation issues (all blocked on accepting/merging #552):
-   - #554 — Payment persistence/state migration (`FAILED -> CANCELED`, add `stripe_payment_intent_id`, stop using legacy payment columns);
-   - #555 — Stripe adapter + one-PaymentIntent-per-Payment idempotency;
-   - #556 — Payment Element/card + 3DS customer-action flow;
-   - #557 — webhook + reconciliation + retry-safe paid finalization;
-   - #558 — late-success/full-refund recovery;
-   - #559 — local + Vercel Preview Stripe sandbox validation.
-3. After #552 merges, start with #554.
+1. Re-review `docs/system-design/08-stripe-payment-provider-and-recovery.md` and PR #552 after the recovery/rollout fixes.
+2. Review implementation issues in dependency order:
+   - #554 — compatible persistence expansion for mixed old/new writers;
+   - #555 — PaymentIntent creation, bounded idempotency, and create/cancel coordination;
+   - #557 — webhook/reconciliation, retry-safe paid finalization, `resumeOrderPayment`, and terminal canceled-checkout restart;
+   - #556 — Payment Element/card + 3DS UI after backend recovery is available;
+   - #558 — mutually exclusive late-success decision, full Refund, and refund webhooks;
+   - #559 — local + Vercel Preview validation and Phase-B contract gate.
+3. After #552 merges, start with #554; #556 must not start before #557's backend recovery contract is available.
 4. Keep provider-attempt persistence, partial refunds, app-owned saved cards, manual capture, and background queues deferred until a demonstrated requirement justifies them.
 
 ## Next verification
