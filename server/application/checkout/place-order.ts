@@ -333,6 +333,8 @@ export const createPlaceOrderUseCase =
       }
     };
     if (prepared.workflow_status === 'finalized') {
+      if (payment.status !== 'PAID')
+        throw new PlaceOrderError('payment_recovery_required', 409, 'The finalized checkout Payment requires recovery.');
       await completeCartCheckout();
       if (!prepared.result_json) return toLegacyPaymentResult(payment);
       const persisted = JSON.parse(prepared.result_json) as Partial<PlaceOrderResult>;
@@ -344,21 +346,28 @@ export const createPlaceOrderUseCase =
         result: persisted.result?.status === 'succeeded' ? { status: 'succeeded' } : undefined,
       };
     }
-    if (payment.status === 'FAILED') throw new PlaceOrderError('payment_failed', 409, 'The prepared Payment failed.');
+    if (payment.status === 'FAILED' || payment.status === 'CANCELED')
+      throw new PlaceOrderError('payment_failed', 409, 'The prepared Payment is terminal and cannot be resumed.');
+    if (payment.status === 'PROCESSING')
+      throw new PlaceOrderError('payment_recovery_required', 409, 'The Payment is still processing and requires recovery.');
     if (payment.status === 'PENDING') {
       const continuation = await dependencies.payments.continuePayment({ paymentId: payment.paymentId });
       if (continuation.kind === 'failed') {
-        await withCheckoutTransaction(async () =>
+        const failure = await withCheckoutTransaction(async () =>
           dependencies.payments.failPayment({ paymentId: payment!.paymentId, providerReference: continuation.providerReference }),
         );
+        if (failure.kind !== 'failed') throw new PlaceOrderError('payment_recovery_required', 409, 'The Payment state requires recovery.');
         throw new PlaceOrderError('payment_failed', 409, 'The prepared Payment failed.');
       }
+      if (continuation.kind === 'recovery-required')
+        throw new PlaceOrderError('payment_recovery_required', 409, 'The Payment state requires recovery.');
       const completed = await withCheckoutTransaction(async () =>
         dependencies.payments.completePayment({ paymentId: payment!.paymentId, providerReference: continuation.providerReference }),
       );
       if (completed.kind !== 'paid') throw new PlaceOrderError('payment_recovery_required', 409, 'The Payment state requires recovery.');
       payment = completed.payment;
     }
+    if (payment.status !== 'PAID') throw new PlaceOrderError('payment_recovery_required', 409, 'The Payment state requires recovery.');
     try {
       await withCheckoutTransaction(async () => {
         const commit = await dependencies.inventory.commit(prepared.reservation_id);
