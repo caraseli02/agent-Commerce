@@ -13,6 +13,9 @@ Use this file for durable cross-session decisions that should survive context re
 - Use one deterministic Payment-derived idempotency key for PaymentIntent creation and recover the same PaymentIntent after timeout/lost response.
   - Reason: a lost HTTP response is an unknown outcome, not evidence that another provider payment object should be created.
   - Impact: the first implementation needs no provider-attempt/session-generation table.
+- Confirm the PaymentIntent client-side through Stripe.js / Payment Element; do not route card details or normal PaymentIntent confirmation through Nitro.
+  - Reason: Stripe's browser components already own secure payment collection and authentication, while ECAS only needs to create/recover the PaymentIntent and later reconcile provider truth.
+  - Impact: browser confirmation is not authoritative Order/payment completion; webhook/reconciliation still establish local truth and the application workflow still finalizes Orders/Inventory.
 - Deduplicate Stripe webhooks durably by recording the event ID and corresponding local Payment transition in the same PostgreSQL transaction.
   - Reason: a crash must not mark a provider event handled without committing its local state change.
   - Impact: duplicate delivery is harmless; slow provider reconciliation stays outside the short local transaction.
