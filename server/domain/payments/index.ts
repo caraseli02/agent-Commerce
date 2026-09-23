@@ -5,10 +5,13 @@ import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/
 export type PaymentNextAction =
   Readonly<{ type: 'none' }> | Readonly<{ type: 'client-secret'; clientSecret: string }> | Readonly<{ type: 'redirect'; url: string }>;
 
+export type PaymentStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'CANCELED';
+export type PersistedPaymentStatus = PaymentStatus | 'FAILED';
+
 export type PaymentPreparation = Readonly<{
   paymentId: string;
   orderId: string;
-  status: 'PENDING' | 'PAID' | 'FAILED';
+  status: PersistedPaymentStatus;
   amountMinor: number;
   currency: 'RON';
   paymentType?: number;
@@ -18,9 +21,11 @@ export type PaymentPreparation = Readonly<{
 export type PreparePaymentResult = { kind: 'prepared' | 'existing'; payment: PaymentPreparation };
 export type ContinuePaymentResult =
   | { kind: 'succeeded'; nextAction: PaymentNextAction; providerReference: string | null }
-  | { kind: 'failed'; providerReference: string | null };
+  | { kind: 'failed'; providerReference: string | null }
+  | { kind: 'recovery-required' };
 export type CompletePaymentResult =
   { kind: 'paid'; payment: PaymentPreparation } | { kind: 'failed' | 'not-found'; payment?: PaymentPreparation };
+export type FailPaymentResult = { kind: 'failed' } | { kind: 'recovery-required' };
 
 type PaymentRow = {
   id: string;
@@ -31,6 +36,9 @@ type PaymentRow = {
   payment_type: number | null;
   use_existing_payment_method: boolean;
   provider_reference: string | null;
+  stripe_payment_intent_id: string | null;
+  stripe_payment_intent_create_started_at: Date | null;
+  cancellation_requested_at: Date | null;
 };
 const toPreparation = (row: PaymentRow): PaymentPreparation => ({
   paymentId: row.id,
@@ -43,10 +51,14 @@ const toPreparation = (row: PaymentRow): PaymentPreparation => ({
   providerReference: row.provider_reference,
 });
 
-const getPaymentPreparation = async (paymentId: string) => {
+const getPaymentRow = async (paymentId: string) => {
   const database = await getCheckoutDatabase();
   const rows = await database.query<PaymentRow>('SELECT * FROM checkout_payments WHERE id = $1', [paymentId]);
-  return rows[0] ? toPreparation(rows[0]) : null;
+  return rows[0] ?? null;
+};
+const getPaymentPreparation = async (paymentId: string) => {
+  const row = await getPaymentRow(paymentId);
+  return row ? toPreparation(row) : null;
 };
 
 const preparePayment = async (input: {
@@ -95,18 +107,29 @@ const preparePayment = async (input: {
 
 const continuePayment = async (input: { paymentId: string }): Promise<ContinuePaymentResult> => {
   assertOutsideCheckoutTransaction('Payment continuation');
-  const payment = await getPaymentPreparation(input.paymentId);
+  const payment = await getPaymentRow(input.paymentId);
   if (!payment) throw new Error('The prepared Payment was not found.');
-  if (payment.status === 'FAILED') {
-    return { kind: 'failed', providerReference: payment.providerReference };
+  if (payment.status === 'FAILED' || payment.status === 'CANCELED') {
+    return { kind: 'failed', providerReference: payment.provider_reference };
   }
-  return { kind: 'succeeded', nextAction: { type: 'none' }, providerReference: payment.providerReference };
+  if (
+    payment.status !== 'PENDING' ||
+    payment.stripe_payment_intent_id !== null ||
+    payment.stripe_payment_intent_create_started_at !== null ||
+    payment.cancellation_requested_at !== null
+  )
+    return { kind: 'recovery-required' };
+  return { kind: 'succeeded', nextAction: { type: 'none' }, providerReference: payment.provider_reference };
 };
 
 const completePayment = async (input: { paymentId: string; providerReference: string | null }): Promise<CompletePaymentResult> => {
   const database = await getCheckoutDatabase();
   const updated = await database.execute(
-    `UPDATE checkout_payments SET status = 'PAID', provider_reference = $1, updated_at = $2 WHERE id = $3 AND status = 'PENDING'`,
+    `UPDATE checkout_payments SET status = 'PAID', provider_reference = $1, updated_at = $2
+      WHERE id = $3 AND status = 'PENDING'
+        AND stripe_payment_intent_id IS NULL
+        AND stripe_payment_intent_create_started_at IS NULL
+        AND cancellation_requested_at IS NULL`,
     [input.providerReference, new Date().toISOString(), input.paymentId],
   );
   const payment = await getPaymentPreparation(input.paymentId);
@@ -115,12 +138,19 @@ const completePayment = async (input: { paymentId: string; providerReference: st
   return { kind: 'paid', payment };
 };
 
-const failPayment = async (input: { paymentId: string; providerReference: string | null }) => {
+const failPayment = async (input: { paymentId: string; providerReference: string | null }): Promise<FailPaymentResult> => {
   const database = await getCheckoutDatabase();
-  await database.execute(
-    `UPDATE checkout_payments SET status = 'FAILED', provider_reference = $1, updated_at = $2 WHERE id = $3 AND status = 'PENDING'`,
+  const updated = await database.execute(
+    `UPDATE checkout_payments SET status = 'FAILED', provider_reference = $1, updated_at = $2
+      WHERE id = $3 AND status = 'PENDING'
+        AND stripe_payment_intent_id IS NULL
+        AND stripe_payment_intent_create_started_at IS NULL
+        AND cancellation_requested_at IS NULL`,
     [input.providerReference, new Date().toISOString(), input.paymentId],
   );
+  if (updated) return { kind: 'failed' };
+  const payment = await getPaymentPreparation(input.paymentId);
+  return payment?.status === 'FAILED' ? { kind: 'failed' } : { kind: 'recovery-required' };
 };
 
 export const toLegacyPaymentResult = (payment: PaymentPreparation) => ({

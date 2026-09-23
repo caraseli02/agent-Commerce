@@ -385,6 +385,149 @@ describe('durable payment preparation boundary', () => {
     expect(failed?.payment_id).toBeTruthy();
   });
 
+  it.each([
+    ['PROCESSING', 'payment_recovery_required'],
+    ['CANCELED', 'payment_failed'],
+    ['FAILED', 'payment_failed'],
+  ])('does not finalize a replayed %s Payment as paid', async (status, errorCode) => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const crash = new Error('stop after Payment preparation');
+    const first = checkout.createPlaceOrderUseCase(
+      {
+        ...dependencies,
+        payments: {
+          ...dependencies.payments,
+          continuePayment: vi.fn(async () => {
+            throw crash;
+          }),
+        },
+      },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(first(command)).rejects.toBe(crash);
+    const database = await getCheckoutDatabase();
+    const [prepared] = await database.query<{ payment_id: string }>('SELECT payment_id FROM checkout_claims WHERE owner_id = $1', [
+      command.cartOwnerId,
+    ]);
+    await database.execute('UPDATE checkout_payments SET status = $1 WHERE id = $2', [status, prepared!.payment_id]);
+    expect(await dependencies.payments.getPaymentPreparation(prepared!.payment_id)).toMatchObject({ status });
+
+    const continuePayment = vi.fn(dependencies.payments.continuePayment);
+    const replay = checkout.createPlaceOrderUseCase(
+      { ...dependencies, payments: { ...dependencies.payments, continuePayment } },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(replay(command)).rejects.toMatchObject({ code: errorCode, statusCode: 409 });
+    expect(continuePayment).not.toHaveBeenCalled();
+    const [state] = await database.query<{
+      payment_status: string;
+      workflow_status: string;
+      paid_by_payment_id: string | null;
+      reservation_status: string;
+    }>(
+      `SELECT payment.status AS payment_status, claim.workflow_status, orders.paid_by_payment_id,
+              reservation.status AS reservation_status
+         FROM checkout_claims claim
+         JOIN checkout_payments payment ON payment.id = claim.payment_id
+         JOIN checkout_orders orders ON orders.id = claim.order_id
+         JOIN checkout_reservations reservation ON reservation.id = claim.reservation_id
+        WHERE claim.owner_id = $1`,
+      [command.cartOwnerId],
+    );
+    expect(state).toEqual({
+      payment_status: status,
+      workflow_status: 'payment_pending',
+      paid_by_payment_id: null,
+      reservation_status: 'active',
+    });
+  });
+
+  it.each([
+    ['stripe_payment_intent_id', 'pi_existing'],
+    ['stripe_payment_intent_create_started_at', '2026-09-22T00:00:00.000Z'],
+    ['cancellation_requested_at', '2026-09-22T00:00:00.000Z'],
+  ])('refuses mock continuation when a PENDING Payment has %s', async (column, value) => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const crash = new Error('stop after Payment preparation');
+    const first = checkout.createPlaceOrderUseCase(
+      {
+        ...dependencies,
+        payments: {
+          ...dependencies.payments,
+          continuePayment: vi.fn(async () => {
+            throw crash;
+          }),
+        },
+      },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(first(command)).rejects.toBe(crash);
+    const database = await getCheckoutDatabase();
+    const [prepared] = await database.query<{ payment_id: string }>('SELECT payment_id FROM checkout_claims WHERE owner_id = $1', [
+      command.cartOwnerId,
+    ]);
+    await database.execute(`UPDATE checkout_payments SET ${column} = $1 WHERE id = $2`, [value, prepared!.payment_id]);
+
+    const replay = checkout.createPlaceOrderUseCase(dependencies, checkout.createPlaceOrderCoordinator());
+    await expect(replay(command)).rejects.toMatchObject({ code: 'payment_recovery_required', statusCode: 409 });
+    const [state] = await database.query<{ status: string; workflow_status: string; paid_by_payment_id: string | null }>(
+      `SELECT payment.status, claim.workflow_status, orders.paid_by_payment_id
+         FROM checkout_claims claim JOIN checkout_payments payment ON payment.id = claim.payment_id
+         JOIN checkout_orders orders ON orders.id = claim.order_id WHERE claim.owner_id = $1`,
+      [command.cartOwnerId],
+    );
+    expect(state).toEqual({ status: 'PENDING', workflow_status: 'payment_pending', paid_by_payment_id: null });
+  });
+
+  it.each(['succeeded', 'failed'] as const)(
+    'does not accept a %s mock outcome when provider creation starts before the conditional Payment update',
+    async (outcome) => {
+      const { checkout, command, dependencies } = await setupCheckout();
+      const database = await getCheckoutDatabase();
+      const continuePayment = vi.fn(async ({ paymentId }: { paymentId: string }) => {
+        await database.execute('UPDATE checkout_payments SET stripe_payment_intent_create_started_at = NOW() WHERE id = $1', [paymentId]);
+        return outcome === 'succeeded'
+          ? { kind: 'succeeded' as const, nextAction: { type: 'none' as const }, providerReference: null }
+          : { kind: 'failed' as const, providerReference: null };
+      });
+      const placeOrder = checkout.createPlaceOrderUseCase(
+        { ...dependencies, payments: { ...dependencies.payments, continuePayment } },
+        checkout.createPlaceOrderCoordinator(),
+      );
+      await expect(placeOrder(command)).rejects.toMatchObject({ code: 'payment_recovery_required', statusCode: 409 });
+      const [state] = await database.query<{ status: string; workflow_status: string; paid_by_payment_id: string | null }>(
+        `SELECT payment.status, claim.workflow_status, orders.paid_by_payment_id
+           FROM checkout_claims claim JOIN checkout_payments payment ON payment.id = claim.payment_id
+           JOIN checkout_orders orders ON orders.id = claim.order_id WHERE claim.owner_id = $1`,
+        [command.cartOwnerId],
+      );
+      expect(state).toEqual({ status: 'PENDING', workflow_status: 'payment_pending', paid_by_payment_id: null });
+      expect(continuePayment).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('does not return a paid result from a finalized claim whose Payment no longer reads PAID', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const placeOrder = checkout.createPlaceOrderUseCase(dependencies, checkout.createPlaceOrderCoordinator());
+    await expect(placeOrder(command)).resolves.toMatchObject({ orderId: expect.any(String) });
+    const database = await getCheckoutDatabase();
+    await database.execute(
+      `UPDATE checkout_payments SET status = 'PROCESSING'
+        WHERE id = (SELECT payment_id FROM checkout_claims WHERE owner_id = $1)`,
+      [command.cartOwnerId],
+    );
+
+    const replay = checkout.createPlaceOrderUseCase(dependencies, checkout.createPlaceOrderCoordinator());
+    await expect(replay(command)).rejects.toMatchObject({ code: 'payment_recovery_required', statusCode: 409 });
+    const [claim] = await database.query<{ workflow_status: string; paid_by_payment_id: string }>(
+      `SELECT claim.workflow_status, orders.paid_by_payment_id
+         FROM checkout_claims claim JOIN checkout_orders orders ON orders.id = claim.order_id
+        WHERE claim.owner_id = $1`,
+      [command.cartOwnerId],
+    );
+    expect(claim).toMatchObject({ workflow_status: 'finalized', paid_by_payment_id: expect.any(String) });
+  });
+
   it('rejects an ambient checkout transaction before it writes or continues a payment', async () => {
     const { checkout, command, dependencies } = await setupCheckout();
     const continuePayment = vi.fn(dependencies.payments.continuePayment);

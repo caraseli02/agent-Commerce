@@ -1,8 +1,21 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { PaymentStatusEnum, PaymentTypeEnum } from '../types/order-summary/item';
 
+vi.mock('h3', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('h3')>();
+  return {
+    ...actual,
+    getCookie: (event: { cookies?: Record<string, string> }, name: string) => event.cookies?.[name],
+    setCookie: (event: { cookies?: Record<string, string> }, name: string, value: string) => {
+      event.cookies ??= {};
+      event.cookies[name] = value;
+    },
+  };
+});
+
 const installH3Mocks = () => {
   vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);
+  vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: true } }));
   vi.stubGlobal('readBody', async (event: { body?: unknown }) => event.body ?? {});
   vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers ?? {});
   vi.stubGlobal('getRouterParam', (event: { params?: Record<string, string> }, name: string) => event.params?.[name]);
@@ -70,6 +83,46 @@ describe('mock API flow boundaries', () => {
     expect(orderResponse.data.orderId).toMatch(/^ord-/);
     expect(orderResponse.data.status).toBe(PaymentStatusEnum.Paid);
     expect(orderResponse.data.result?.status).toBe('succeeded');
+  });
+
+  it('uses Nuxt runtime config for guest checkout when the raw process variable is unavailable', async () => {
+    const previousMockMode = process.env.NUXT_PUBLIC_MOCK_MODE;
+    process.env.NUXT_PUBLIC_MOCK_MODE = 'false';
+
+    try {
+      const cartHandler = (await import('../server/api/cart.post')).default as (event: unknown) => Promise<unknown>;
+      const priceHandler = (await import('../server/api/orders/price.post')).default as (event: unknown) => Promise<unknown>;
+      const orderHandler = (await import('../server/api/orders/new.post')).default as (event: unknown) => Promise<unknown>;
+      const orderReadHandler = (await import('../server/api/orders/[id].get')).default as (event: unknown) => Promise<unknown>;
+      const browserSession = { headers: {}, cookies: {} as Record<string, string> };
+
+      const cartResponse = (await cartHandler({
+        ...browserSession,
+        body: { products: [{ id: 'prod-2', stock: 1, isFolder: false }] },
+      })) as { data: { _id: string; revision: string } };
+      const priceResponse = (await priceHandler({
+        ...browserSession,
+        body: { order: { cartId: cartResponse.data._id } },
+      })) as { data: { review: { cartRevision: string; quoteFingerprint: string } } };
+      const orderResponse = (await orderHandler({
+        ...browserSession,
+        body: {
+          cartId: cartResponse.data._id,
+          reviewedCartRevision: priceResponse.data.review.cartRevision,
+          reviewedQuoteFingerprint: priceResponse.data.review.quoteFingerprint,
+          paymentDetails: { type: PaymentTypeEnum.Card },
+        },
+      })) as { status: string; data: { orderId: string; status: PaymentStatusEnum } };
+
+      expect(orderResponse).toMatchObject({ status: 'success', data: { status: PaymentStatusEnum.Paid } });
+      await expect(orderReadHandler({ ...browserSession, params: { id: orderResponse.data.orderId } })).resolves.toMatchObject({
+        status: 'success',
+        data: { order: { _id: orderResponse.data.orderId } },
+      });
+    } finally {
+      if (previousMockMode === undefined) delete process.env.NUXT_PUBLIC_MOCK_MODE;
+      else process.env.NUXT_PUBLIC_MOCK_MODE = previousMockMode;
+    }
   });
 
   it('requires the server-issued cart revision before accepting checkout', async () => {

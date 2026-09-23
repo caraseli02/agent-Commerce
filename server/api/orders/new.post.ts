@@ -5,11 +5,12 @@ import { requireMockCartUserId } from '~/server/utils/mockCart';
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Record<string, unknown>;
   const headers = getHeaders(event);
+  const mockModeEnabled = String(useRuntimeConfig(event).public.MOCK_MODE) === 'true';
 
   let user = getMockUserFromAuthHeader(headers.authorization);
   let cartOwnerId = user?._id || '';
 
-  if (!user && process.env.NUXT_PUBLIC_MOCK_MODE === 'true') {
+  if (!user && mockModeEnabled) {
     cartOwnerId = requireMockCartUserId(event, headers.authorization);
     user = createMockGuestCheckoutUser(cartOwnerId);
   }
