@@ -60,6 +60,10 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 
 ## Evidence policy
 
+### Stripe activation cross-version proof
+
+`tests/payment-preparation.spec.ts` reproduces the pre-#561 mock `completePayment` SQL against a Payment carrying a Stripe intent marker. The old predicate still changes that row to `PAID` on the compatible schema. This is evidence that schema expansion and the current deployment's guarded writer do not make a shared database safe for Stripe activation. #559 must enumerate and retire or isolate every reachable old writer, then replay the old deployment against the activation candidate and prove it cannot mark a Stripe-backed Payment or Order paid. Keep Stripe creation disabled until that deployment-level proof passes.
+
 Use this policy to keep PRs reviewable and avoid scattering one-off artifacts across the repo.
 
 - **Command output** stays in the PR body or PR comments when it is part of the proof. Keep the exact command and the relevant pass/fail output together.

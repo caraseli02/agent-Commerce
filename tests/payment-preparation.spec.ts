@@ -479,6 +479,103 @@ describe('durable payment preparation boundary', () => {
     expect(state).toEqual({ status: 'PENDING', workflow_status: 'payment_pending', paid_by_payment_id: null });
   });
 
+  it('replays the original checkout choice without trusting legacy Payment columns', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const savedCardCommand = { ...command, order: { ...command.order, stripeCardId: 'saved-card-1' } };
+    const crash = new Error('stop after durable preparation');
+    const first = checkout.createPlaceOrderUseCase(
+      {
+        ...dependencies,
+        payments: {
+          ...dependencies.payments,
+          continuePayment: vi.fn(async () => {
+            throw crash;
+          }),
+        },
+      },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(first(savedCardCommand)).rejects.toBe(crash);
+
+    const database = await getCheckoutDatabase();
+    const [claim] = await database.query<{ payment_id: string }>('SELECT payment_id FROM checkout_claims WHERE owner_id = $1', [
+      command.cartOwnerId,
+    ]);
+    await database.execute(
+      `UPDATE checkout_payments
+          SET payment_type = 2, use_existing_payment_method = FALSE, provider_reference = 'stale-legacy-reference'
+        WHERE id = $1`,
+      [claim!.payment_id],
+    );
+
+    const replay = checkout.createPlaceOrderUseCase(dependencies, checkout.createPlaceOrderCoordinator());
+    await expect(replay(savedCardCommand)).resolves.toMatchObject({
+      useExistingPaymentMethod: true,
+      result: { status: 'succeeded' },
+    });
+    const [paid] = await database.query<{ status: string; provider_reference: string | null }>(
+      'SELECT status, provider_reference FROM checkout_payments WHERE id = $1',
+      [claim!.payment_id],
+    );
+    expect(paid).toEqual({ status: 'PAID', provider_reference: null });
+    const payment = await dependencies.payments.getPaymentPreparation(claim!.payment_id);
+    expect(payment).not.toHaveProperty('paymentType');
+    expect(payment).not.toHaveProperty('useExistingPaymentMethod');
+    expect(payment).not.toHaveProperty('providerReference');
+
+    await database.execute(
+      `UPDATE checkout_payments
+          SET payment_type = 2, use_existing_payment_method = FALSE, provider_reference = 'another-stale-reference'
+        WHERE id = $1`,
+      [claim!.payment_id],
+    );
+    await database.execute('UPDATE checkout_claims SET result_json = NULL WHERE owner_id = $1', [command.cartOwnerId]);
+    await expect(replay(savedCardCommand)).resolves.toMatchObject({
+      useExistingPaymentMethod: true,
+      result: { status: 'succeeded' },
+    });
+  });
+
+  it('documents why a pre-activation writer must be isolated before Stripe activation', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const crash = new Error('stop after durable preparation');
+    const first = checkout.createPlaceOrderUseCase(
+      {
+        ...dependencies,
+        payments: {
+          ...dependencies.payments,
+          continuePayment: vi.fn(async () => {
+            throw crash;
+          }),
+        },
+      },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(first(command)).rejects.toBe(crash);
+
+    const database = await getCheckoutDatabase();
+    const [claim] = await database.query<{ payment_id: string }>('SELECT payment_id FROM checkout_claims WHERE owner_id = $1', [
+      command.cartOwnerId,
+    ]);
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id = $1 WHERE id = $2', [
+      'pi_cross_version_probe',
+      claim!.payment_id,
+    ]);
+
+    // Exact pre-#561 completePayment predicate: old deployments ignore provider markers.
+    const oldWriterUpdate = await database.execute(
+      `UPDATE checkout_payments SET status = 'PAID', provider_reference = NULL, updated_at = $1
+        WHERE id = $2 AND status = 'PENDING'`,
+      [new Date().toISOString(), claim!.payment_id],
+    );
+    expect(oldWriterUpdate).toBe(1);
+    const [payment] = await database.query<{ status: string; stripe_payment_intent_id: string }>(
+      'SELECT status, stripe_payment_intent_id FROM checkout_payments WHERE id = $1',
+      [claim!.payment_id],
+    );
+    expect(payment).toEqual({ status: 'PAID', stripe_payment_intent_id: 'pi_cross_version_probe' });
+  });
+
   it.each(['succeeded', 'failed'] as const)(
     'does not accept a %s mock outcome when provider creation starts before the conditional Payment update',
     async (outcome) => {
