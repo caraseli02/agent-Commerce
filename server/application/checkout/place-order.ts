@@ -1,10 +1,11 @@
 import { createHash } from 'node:crypto';
 import type { UserInterface } from '~/types/auth/user-interface';
+import { PaymentStatusEnum, PaymentTypeEnum } from '~/types/order-summary/item';
 import { cart as defaultCart } from '~/server/domain/cart';
 import { catalog as defaultCatalog } from '~/server/domain/catalog';
 import { inventory as defaultInventory } from '~/server/domain/inventory';
 import { orders as defaultOrders } from '~/server/domain/orders';
-import { payments as defaultPayments, toLegacyPaymentResult } from '~/server/domain/payments';
+import { payments as defaultPayments, type PaymentPreparation } from '~/server/domain/payments';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
 import { createCheckoutReviewFingerprint } from './review-fingerprint';
 
@@ -84,6 +85,13 @@ const resolvePaymentType = (order: LegacyOrderInput) => {
     order.paymentDetails && typeof order.paymentDetails === 'object' ? (order.paymentDetails as Record<string, unknown>).type : undefined;
   return typeof value === 'number' ? value : undefined;
 };
+const toLegacyPaymentResult = (payment: PaymentPreparation, order: LegacyOrderInput) => ({
+  orderId: payment.orderId,
+  status: PaymentStatusEnum.Paid,
+  useExistingPaymentMethod: Boolean(order.stripeCardId),
+  clientSecret: undefined as string | undefined,
+  result: resolvePaymentType(order) === PaymentTypeEnum.Card ? { status: 'succeeded' as const } : undefined,
+});
 const resolveDeliveryServiceId = (order: LegacyOrderInput) => {
   const value =
     order.shippingDetails && typeof order.shippingDetails === 'object'
@@ -303,8 +311,8 @@ export const createPlaceOrderUseCase =
           orderId: order.orderId,
           amountMinor: order.grandTotalMinor,
           currency: order.currency,
-          paymentType: resolvePaymentType(command.order),
-          useExistingPaymentMethod: Boolean(command.order.stripeCardId),
+          legacyPaymentType: resolvePaymentType(command.order),
+          legacyUseExistingPaymentMethod: Boolean(command.order.stripeCardId),
         });
         await database.execute(
           `UPDATE checkout_claims SET order_id=$1,reservation_id=$2,payment_id=$3,workflow_status='payment_pending',updated_at=$4 WHERE owner_id=$5 AND request_id=$6`,
@@ -336,14 +344,12 @@ export const createPlaceOrderUseCase =
       if (payment.status !== 'PAID')
         throw new PlaceOrderError('payment_recovery_required', 409, 'The finalized checkout Payment requires recovery.');
       await completeCartCheckout();
-      if (!prepared.result_json) return toLegacyPaymentResult(payment);
+      const result = toLegacyPaymentResult(payment, command.order);
+      if (!prepared.result_json) return result;
       const persisted = JSON.parse(prepared.result_json) as Partial<PlaceOrderResult>;
       return {
-        orderId: prepared.order_id,
-        status: toLegacyPaymentResult(payment).status,
-        useExistingPaymentMethod: persisted.useExistingPaymentMethod ?? payment.useExistingPaymentMethod,
+        ...result,
         clientSecret: typeof persisted.clientSecret === 'string' ? persisted.clientSecret : undefined,
-        result: persisted.result?.status === 'succeeded' ? { status: 'succeeded' } : undefined,
       };
     }
     if (payment.status === 'FAILED' || payment.status === 'CANCELED')
@@ -376,7 +382,7 @@ export const createPlaceOrderUseCase =
         const confirmation = await dependencies.orders.confirmPayment({ orderId: prepared.order_id, paymentId: prepared.payment_id });
         if (confirmation.kind === 'not-found')
           throw new PlaceOrderError('order_recovery_required', 500, 'The paid Order could not be finalized.');
-        const result = toLegacyPaymentResult(payment!);
+        const result = toLegacyPaymentResult(payment!, command.order);
         const database = await getCheckoutDatabase();
         await database.execute(
           `UPDATE checkout_claims SET workflow_status='finalized',result_json=$1,updated_at=$2 WHERE owner_id=$3 AND request_id=$4`,
@@ -395,7 +401,7 @@ export const createPlaceOrderUseCase =
       throw error;
     }
     await completeCartCheckout();
-    return toLegacyPaymentResult(payment);
+    return toLegacyPaymentResult(payment, command.order);
   };
 
 const defaultCoordinator = createPlaceOrderCoordinator();

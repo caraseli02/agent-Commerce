@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { PaymentStatusEnum, PaymentTypeEnum } from '~/types/order-summary/item';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 
 export type PaymentNextAction =
@@ -14,9 +13,6 @@ export type PaymentPreparation = Readonly<{
   status: PersistedPaymentStatus;
   amountMinor: number;
   currency: 'RON';
-  paymentType?: number;
-  useExistingPaymentMethod: boolean;
-  providerReference: string | null;
 }>;
 export type PreparePaymentResult = { kind: 'prepared' | 'existing'; payment: PaymentPreparation };
 export type ContinuePaymentResult =
@@ -33,9 +29,6 @@ type PaymentRow = {
   status: PaymentPreparation['status'];
   amount_minor: number;
   currency: 'RON';
-  payment_type: number | null;
-  use_existing_payment_method: boolean;
-  provider_reference: string | null;
   stripe_payment_intent_id: string | null;
   stripe_payment_intent_create_started_at: Date | null;
   cancellation_requested_at: Date | null;
@@ -46,9 +39,6 @@ const toPreparation = (row: PaymentRow): PaymentPreparation => ({
   status: row.status,
   amountMinor: Number(row.amount_minor),
   currency: row.currency,
-  paymentType: row.payment_type === null ? undefined : Number(row.payment_type),
-  useExistingPaymentMethod: row.use_existing_payment_method,
-  providerReference: row.provider_reference,
 });
 
 const getPaymentRow = async (paymentId: string) => {
@@ -65,15 +55,15 @@ const preparePayment = async (input: {
   orderId: string;
   amountMinor: number;
   currency: 'RON';
-  paymentType?: number;
-  useExistingPaymentMethod: boolean;
+  legacyPaymentType?: number;
+  legacyUseExistingPaymentMethod: boolean;
 }): Promise<PreparePaymentResult> => {
   const database = await getCheckoutDatabase();
   const rows = await database.query<PaymentRow>('SELECT * FROM checkout_payments WHERE order_id = $1', [input.orderId]);
   const existing = rows[0];
   if (existing) {
     const payment = toPreparation(existing);
-    if (payment.amountMinor !== input.amountMinor || payment.currency !== input.currency || payment.paymentType !== input.paymentType)
+    if (payment.amountMinor !== input.amountMinor || payment.currency !== input.currency)
       throw new Error('The existing Payment does not match the immutable Order payment preparation.');
     return { kind: 'existing', payment };
   }
@@ -83,13 +73,10 @@ const preparePayment = async (input: {
     status: 'PENDING',
     amountMinor: input.amountMinor,
     currency: input.currency,
-    paymentType: input.paymentType,
-    useExistingPaymentMethod: input.useExistingPaymentMethod,
-    providerReference: null,
   };
   const timestamp = new Date().toISOString();
   await database.execute(
-    `INSERT INTO checkout_payments (id, order_id, payload_json, created_at, status, amount_minor, currency, payment_type, use_existing_payment_method, provider_reference, updated_at) VALUES ($1, $2, $3, $4, 'PENDING', $5, $6, $7, $8, NULL, $9)`,
+    `INSERT INTO checkout_payments (id, order_id, payload_json, created_at, status, amount_minor, currency, payment_type, use_existing_payment_method, updated_at) VALUES ($1, $2, $3, $4, 'PENDING', $5, $6, $7, $8, $9)`,
     [
       payment.paymentId,
       input.orderId,
@@ -97,8 +84,8 @@ const preparePayment = async (input: {
       timestamp,
       input.amountMinor,
       input.currency,
-      input.paymentType ?? null,
-      input.useExistingPaymentMethod,
+      input.legacyPaymentType ?? null,
+      input.legacyUseExistingPaymentMethod,
       timestamp,
     ],
   );
@@ -110,7 +97,7 @@ const continuePayment = async (input: { paymentId: string }): Promise<ContinuePa
   const payment = await getPaymentRow(input.paymentId);
   if (!payment) throw new Error('The prepared Payment was not found.');
   if (payment.status === 'FAILED' || payment.status === 'CANCELED') {
-    return { kind: 'failed', providerReference: payment.provider_reference };
+    return { kind: 'failed', providerReference: null };
   }
   if (
     payment.status !== 'PENDING' ||
@@ -119,7 +106,7 @@ const continuePayment = async (input: { paymentId: string }): Promise<ContinuePa
     payment.cancellation_requested_at !== null
   )
     return { kind: 'recovery-required' };
-  return { kind: 'succeeded', nextAction: { type: 'none' }, providerReference: payment.provider_reference };
+  return { kind: 'succeeded', nextAction: { type: 'none' }, providerReference: null };
 };
 
 const completePayment = async (input: { paymentId: string; providerReference: string | null }): Promise<CompletePaymentResult> => {
@@ -153,11 +140,4 @@ const failPayment = async (input: { paymentId: string; providerReference: string
   return payment?.status === 'FAILED' ? { kind: 'failed' } : { kind: 'recovery-required' };
 };
 
-export const toLegacyPaymentResult = (payment: PaymentPreparation) => ({
-  orderId: payment.orderId,
-  status: PaymentStatusEnum.Paid,
-  useExistingPaymentMethod: payment.useExistingPaymentMethod,
-  clientSecret: undefined,
-  result: payment.paymentType === PaymentTypeEnum.Card ? { status: 'succeeded' as const } : undefined,
-});
 export const payments = { preparePayment, getPaymentPreparation, continuePayment, completePayment, failPayment };

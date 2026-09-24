@@ -5,7 +5,7 @@
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
 - PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
-- Issue #554 is active on `codex/554-payment-state-compatibility`. PR #560 merged the compatible PostgreSQL Payment schema as `1a61a252`; PR #561 makes mock checkout fail closed for transitional Payment states and provider markers and repairs deployed guest checkout runtime-config detection. Stripe provider activation remains off.
+- Issue #554 is active on `codex/554-payment-authority-compatibility`. PR #560 merged the compatible PostgreSQL Payment schema as `1a61a252`; PR #561 makes mock checkout fail closed for transitional Payment states and provider markers and repairs deployed guest checkout runtime-config detection. The current slice removes legacy Payment-column authority and records the unsafe old-writer replay. Stripe provider activation remains off.
 
 ## Completed checkout hardening
 
@@ -21,7 +21,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #554 only. The merged schema PR precedes this focused application Payment-state compatibility slice.
+- WIP is #554 only. PRs #560 and #561 are merged; the remaining compatibility slice is on `codex/554-payment-authority-compatibility`.
 
 ## Reconciliation evidence
 
@@ -38,7 +38,7 @@
 
 ## In progress
 
-- #554 — protect PlaceOrder finalization from `PROCESSING` / `CANCELED` / legacy `FAILED` states and refuse mock completion after Stripe create/identity/cancellation markers appear.
+- #554 — remove `payment_type`, `use_existing_payment_method`, and `provider_reference` from Payment business authority while retaining legacy SQL compatibility and recording the cross-version activation hazard.
 
 ## Blocked / known baseline failures
 
@@ -48,6 +48,7 @@
 - PR #560 PostgreSQL CI passed `pnpm verify`: 81 test files, 378 tests passed, 2 todo. The focused `checkout-postgres-boundary.spec.ts` suite passed all 7 tests. The PR template check and Vercel deployment passed; independent schema evaluation found no code defects and rated the slice 9/10. PR #560 merged as `1a61a252`.
 - PR #561's earlier isolated PostgreSQL 17 CI passed `pnpm verify`: 81 test files, 387 tests passed, 2 todo, including Payment replay/marker guards. The PR template checker and Vercel deployment passed. Preview browser smoke completed a signed-in mock card checkout through `/order-summary` to `/checkout/success?id=ord-1790087040552-4581`, showing Payment Confirmed and RON 2,846.13.
 - The guest Preview 401 was traced to `orders/new` and `orders/[id]` reading the raw process environment instead of Nuxt runtime config. Both routes now use `useRuntimeConfig(event)`, and regression coverage proves guest creation/read when the raw variable is unavailable. Local `pnpm verify` passes against Neon: 81 files, 388 tests passed, 2 todo. The updated Preview completed anonymous card checkout to `/checkout/success?id=ord-1790109683758-7502`, showing Payment Confirmed and RON 198.39; its guest-owned detail page then loaded `#ORD-490430` with Payment Status Paid and the same total. Final-head PostgreSQL CI passed, and the independent evaluator returned PASS, 10/10, with no findings or testing gaps.
+- The final #554 slice's focused Payment preparation suite passes 27/27 against an isolated Neon test schema, including legacy-column replay and the pre-#561 old-writer SQL probe. The two changed tests pass again after preserving legacy-column compatibility writes. `pnpm typecheck`, `pnpm lint`, and changed-file Prettier checks pass. The guest checkout Playwright flow passes on port 3107 against an isolated PostgreSQL schema. A read-only query of the configured development database found migration tracking for 001/002/003 with repository-matching checksums and the expected Payment constraints; the separate Production Neon branch was not queried.
 
 ## Remaining architecture
 
@@ -67,17 +68,16 @@
 
 ## Next work
 
-1. Validate and review #554's Payment-state compatibility PR; then remove legacy Payment-column authority and add the remaining mixed-version activation-safety harness in later #554 work.
-2. Continue implementation issues in dependency order:
+1. Complete verification and independent review of the final #554 compatibility PR; keep Stripe activation off. After merge, close #554 and continue in dependency order:
    - #555 — PaymentIntent creation, bounded idempotency, and create/cancel coordination;
    - #557 — webhook/reconciliation, retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart;
    - #556 — Payment Element/card + 3DS UI after backend recovery is available;
    - #558 — mutually exclusive late-success decision, `ON_HOLD` compensation continuation, full Refund, and refund webhooks;
    - #559 — unsafe-writer retirement + cross-version replay + Stripe activation gate, then Vercel validation and later schema contract gate.
-3. Do not activate Stripe while any shared-database deployment can execute mock `continuePayment()/completePayment()`; #559 owns that proof. #556 must not start before #557's backend recovery contract is available.
-4. Keep provider-attempt persistence, partial refunds, app-owned saved cards, manual capture, and background queues deferred until a demonstrated requirement justifies them.
+2. Do not activate Stripe while any shared-database deployment can execute mock `continuePayment()/completePayment()`; #559 owns that proof. #556 must not start before #557's backend recovery contract is available.
+3. Keep provider-attempt persistence, partial refunds, app-owned saved cards, manual capture, and background queues deferred until a demonstrated requirement justifies them.
 
 ## Next verification
 
-- For #554's Payment-state PR: the runtime-config repair, local PostgreSQL gate, deployed guest flow, final-head CI, clean-state validation, and independent evaluation all pass. Return PR #561 to human review; after merge, continue the remaining #554 compatibility slices without enabling Stripe.
+- For the final #554 compatibility PR: run `pnpm verify`, affected checkout runtime smoke, independent diff review, and final-head CI before handoff.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.
