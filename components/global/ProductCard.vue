@@ -28,9 +28,7 @@
 
     <div class="relative col-start-2 row-start-1 flex w-full min-w-0 max-w-full flex-col gap-1 md:min-h-[64px]">
       <div class="flex w-full min-w-0 max-w-full items-start gap-1 md:items-center md:gap-2">
-        <h3
-          class="min-w-0 flex-1 overflow-hidden text-sm font-semibold leading-snug text-neutral-700 line-clamp-2 md:truncate md:text-base md:leading-normal"
-        >
+        <h3 class="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-neutral-700 md:text-base md:leading-normal">
           <NuxtLink
             :to="productRoute"
             class="cursor-pointer rounded-sm text-inherit transition-colors hover:text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -63,8 +61,8 @@
         </div>
       </div>
       <div class="hidden max-w-[220px] flex-col gap-1 text-xs md:flex md:min-h-[34px]">
-        <h4 class="text-xs font-semibold leading-tight text-slate-500">Category</h4>
-        <p class="truncate text-xs text-slate-500">{{ product.description }}</p>
+        <p v-if="productCategory" class="break-words text-xs font-semibold leading-tight text-slate-500">{{ productCategory }}</p>
+        <p class="line-clamp-2 text-xs text-slate-500" :title="product.description">{{ product.description }}</p>
       </div>
     </div>
 
@@ -113,6 +111,7 @@ import { storeToRefs } from 'pinia';
 import { MoreHorizontal } from '@lucide/vue';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
 import { addToCartHelper, resolveProductBrowsePricing } from '~/helpers/prices.helper';
+import { getProductTaxonomyPath, humanizeCategorySlug, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';
@@ -131,6 +130,10 @@ const props = defineProps({
 });
 
 const productRoute = computed(() => `/product/${props.product.alias || props.product._id}`);
+const productCategory = computed(() => {
+  const segments = toCategorySlugSegments(getProductTaxonomyPath(props.product));
+  return segments.length ? humanizeCategorySlug(segments[segments.length - 1]!) : '';
+});
 
 const isThisProductAdding = computed(() => isProductAddInFlight(props.product._id ?? ''));
 

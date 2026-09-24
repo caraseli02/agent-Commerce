@@ -47,13 +47,14 @@ onBeforeUnmount(() => {
   <div ref="wrapperRef" v-click-outside="closePopover" class="relative hidden font-Poppins lg:block">
     <UiButton
       :variant="isOpen ? 'secondary' : 'ghost'"
-      class="mr-4 flex items-center md:mr-0"
+      class="h-11 w-11 shrink-0 p-0"
       :class="{ 'text-primary-foreground hover:bg-white/10': !isOpen }"
+      :aria-label="isOpen ? 'Close products navigation' : 'Open products navigation'"
+      :aria-expanded="isOpen"
       @click="togglePopover"
     >
       <XIcon v-if="isOpen" class="h-6 w-6" />
       <MenuIcon v-else class="h-6 w-6" />
-      <span class="ml-2 hidden font-medium leading-normal md:inline-block lg:ml-4">Products</span>
     </UiButton>
     <div v-if="isOpen" class="fixed left-0 z-50 w-screen" :style="{ top: `${popoverTop}px` }">
       <PopoverContainer class="container" />

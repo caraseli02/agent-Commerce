@@ -6,7 +6,7 @@
           <div class="flex items-center">
             <div class="flex items-center md:mr-4 lg:mr-6">
               <LayoutHeaderMainMenuItems />
-              <NuxtLink to="/" aria-label="Components Marketplace home" class="ml-0 flex items-center md:ml-4 lg:ml-6">
+              <NuxtLink to="/" aria-label="Components Marketplace home" class="ml-2 flex items-center md:ml-4 lg:ml-6">
                 <Logo class="h-5 w-[85px] grayscale brightness-0 invert md:hidden" />
                 <Logo class="hidden w-[82px] grayscale brightness-0 invert md:flex lg:w-[102px]" />
               </NuxtLink>
@@ -19,7 +19,7 @@
             :class="[showMobileSearch ? 'lg:block' : 'md:hidden']"
             @blur="showMobileSearch = false"
           />
-          <div class="flex items-center gap-3 md:ml-4 md:gap-6 lg:gap-9">
+          <div class="flex items-center gap-2 md:ml-4 md:gap-6 lg:gap-9">
             <button
               class="flex min-h-11 min-w-11 items-center justify-center xl:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex']"
@@ -41,8 +41,8 @@
             </div>
             <button
               type="button"
-              class="hidden min-h-11 min-w-11 flex-col items-center justify-center max-md:hidden"
-              :class="[showMobileSearch ? 'md:hidden lg:flex' : 'md:flex']"
+              class="flex min-h-11 min-w-11 flex-col items-center justify-center"
+              :class="[showMobileSearch ? 'max-md:hidden md:hidden lg:flex' : '']"
               aria-label="Open my account"
               @click="openAccountModal()"
             >

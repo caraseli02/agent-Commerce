@@ -99,13 +99,12 @@ onBeforeUnmount(() => {
     <UiSheetTrigger as-child>
       <button
         type="button"
-        class="inline-flex h-10 items-center justify-center rounded-md p-2 mr-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-primary md:mr-0"
+        class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md p-0 text-sm font-medium text-primary-foreground transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
         aria-controls="mobile-products-navigation"
         :aria-expanded="sheetOpen"
-        aria-label="Open products navigation"
+        :aria-label="sheetOpen ? 'Close products navigation' : 'Open products navigation'"
       >
         <MenuIcon class="w-6 h-6" />
-        <span class="ml-2 hidden font-medium leading-normal md:inline-block lg:ml-4"> Products </span>
       </button>
     </UiSheetTrigger>
     <UiSheetContent
