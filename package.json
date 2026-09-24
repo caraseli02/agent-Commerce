@@ -98,6 +98,7 @@
     "pinia": "^4.0.3",
     "pinia-plugin-persistedstate": "^4.7.1",
     "radix-vue": "^1.9.17",
+    "stripe": "22.6.2",
     "tailwind-merge": "^2.6.1",
     "tailwindcss-animate": "^1.0.7",
     "tiny-emitter": "^2.1.0",

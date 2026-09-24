@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 
+export { createStripeIntentAdapter } from './stripe-intents';
+export type { CancelPaymentResult, InitiatePaymentResult } from './stripe-intents';
+
 export type PaymentNextAction =
   Readonly<{ type: 'none' }> | Readonly<{ type: 'client-secret'; clientSecret: string }> | Readonly<{ type: 'redirect'; url: string }>;
 
