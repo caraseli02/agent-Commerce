@@ -51,7 +51,13 @@ const getPaymentPreparation = async (paymentId: string) => {
   return row ? toPreparation(row) : null;
 };
 
-const preparePayment = async (input: { orderId: string; amountMinor: number; currency: 'RON' }): Promise<PreparePaymentResult> => {
+const preparePayment = async (input: {
+  orderId: string;
+  amountMinor: number;
+  currency: 'RON';
+  legacyPaymentType?: number;
+  legacyUseExistingPaymentMethod: boolean;
+}): Promise<PreparePaymentResult> => {
   const database = await getCheckoutDatabase();
   const rows = await database.query<PaymentRow>('SELECT * FROM checkout_payments WHERE order_id = $1', [input.orderId]);
   const existing = rows[0];
@@ -70,8 +76,18 @@ const preparePayment = async (input: { orderId: string; amountMinor: number; cur
   };
   const timestamp = new Date().toISOString();
   await database.execute(
-    `INSERT INTO checkout_payments (id, order_id, payload_json, created_at, status, amount_minor, currency, updated_at) VALUES ($1, $2, $3, $4, 'PENDING', $5, $6, $7)`,
-    [payment.paymentId, input.orderId, JSON.stringify(payment), timestamp, input.amountMinor, input.currency, timestamp],
+    `INSERT INTO checkout_payments (id, order_id, payload_json, created_at, status, amount_minor, currency, payment_type, use_existing_payment_method, updated_at) VALUES ($1, $2, $3, $4, 'PENDING', $5, $6, $7, $8, $9)`,
+    [
+      payment.paymentId,
+      input.orderId,
+      JSON.stringify(payment),
+      timestamp,
+      input.amountMinor,
+      input.currency,
+      input.legacyPaymentType ?? null,
+      input.legacyUseExistingPaymentMethod,
+      timestamp,
+    ],
   );
   return { kind: 'prepared', payment };
 };

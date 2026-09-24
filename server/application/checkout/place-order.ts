@@ -311,6 +311,8 @@ export const createPlaceOrderUseCase =
           orderId: order.orderId,
           amountMinor: order.grandTotalMinor,
           currency: order.currency,
+          legacyPaymentType: resolvePaymentType(command.order),
+          legacyUseExistingPaymentMethod: Boolean(command.order.stripeCardId),
         });
         await database.execute(
           `UPDATE checkout_claims SET order_id=$1,reservation_id=$2,payment_id=$3,workflow_status='payment_pending',updated_at=$4 WHERE owner_id=$5 AND request_id=$6`,

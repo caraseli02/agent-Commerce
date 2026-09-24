@@ -501,6 +501,11 @@ describe('durable payment preparation boundary', () => {
     const [claim] = await database.query<{ payment_id: string }>('SELECT payment_id FROM checkout_claims WHERE owner_id = $1', [
       command.cartOwnerId,
     ]);
+    const [legacyWrite] = await database.query<{ payment_type: number; use_existing_payment_method: boolean }>(
+      'SELECT payment_type, use_existing_payment_method FROM checkout_payments WHERE id = $1',
+      [claim!.payment_id],
+    );
+    expect(legacyWrite).toEqual({ payment_type: 0, use_existing_payment_method: true });
     await database.execute(
       `UPDATE checkout_payments
           SET payment_type = 2, use_existing_payment_method = FALSE, provider_reference = 'stale-legacy-reference'
