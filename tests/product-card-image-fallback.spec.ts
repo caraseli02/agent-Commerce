@@ -76,7 +76,7 @@ describe('storefront product card image fallback', () => {
     expect(source).toContain("!src.includes('not_valid_image')");
   });
 
-  it('hides nonfunctional product options on desktop and keeps title overflow clipped', () => {
+  it('hides nonfunctional product options on desktop and lets long titles wrap', () => {
     const { descriptor } = parseSfc(readFileSync(productCardPath, 'utf8'));
 
     expect(descriptor.template).toBeTruthy();
@@ -106,8 +106,9 @@ describe('storefront product card image fallback', () => {
       }),
     ).toEqual(['Share', '3D view']);
     expect(getStaticAttrValue(title, 'class')).toContain('min-w-0');
-    expect(getStaticAttrValue(title, 'class')).toContain('overflow-hidden');
-    expect(getStaticAttrValue(title, 'class')).toContain('md:truncate');
+    expect(getStaticAttrValue(title, 'class')).toContain('break-words');
+    expect(getStaticAttrValue(title, 'class')).not.toContain('overflow-hidden');
+    expect(getStaticAttrValue(title, 'class')).not.toContain('truncate');
     // Class must live on a real DOM wrapper — UiDropdownMenu/Root does not forward class attrs.
     expect(getStaticAttrValue(dropdownMenu, 'class')).toBeUndefined();
   });

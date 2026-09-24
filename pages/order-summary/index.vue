@@ -1,13 +1,10 @@
 <template>
-  <div v-if="!isClientReady || isLoadingCheckout">
-    <UiSkeleton class="h-full w-full absolute inset-0 z-50" />
-    <LoaderIcon class="absolute top-[50%] left-[50%] z-50 animate-spin" />
-  </div>
+  <OrderSummaryPageSkeleton v-if="!isClientReady || isLoadingCheckout" :show-guest-banner="isGuestCheckout" />
   <div v-else class="pt-[30px] lg:pt-10">
     <div class="grid grid-cols-1">
       <div class="container px-4">
         <div
-          v-if="isGuestCheckout && !guestCheckoutMode"
+          v-if="!cartReadError && isGuestCheckout && !guestCheckoutMode"
           class="mb-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4 text-blue-800"
         >
           <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
@@ -23,7 +20,7 @@
           </div>
         </div>
         <div
-          v-else-if="isGuestCheckoutMode"
+          v-else-if="!cartReadError && isGuestCheckoutMode"
           class="mb-6 mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-4 text-emerald-900"
         >
           <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600">
@@ -38,13 +35,18 @@
             </p>
           </div>
         </div>
-        <OrderSummaryHeader />
+        <OrderSummaryHeader v-if="!cartReadError" />
         <div v-if="cartReadError" class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800" role="alert">
           <p class="font-semibold">We could not load your cart</p>
           <p class="mt-1 text-sm">Try again before continuing checkout.</p>
-          <UiButton type="button" class="mt-3" @click="refreshCartRead()">Try again</UiButton>
+          <div class="mt-3 flex flex-wrap items-center gap-3">
+            <UiButton type="button" @click="refreshCartRead()">Try again</UiButton>
+            <NuxtLink to="/search" class="min-h-11 inline-flex items-center font-medium text-blue-700 underline underline-offset-4">
+              Continue shopping
+            </NuxtLink>
+          </div>
         </div>
-        <div class="gap-6 xl:grid xl:grid-cols-[1fr_392px]">
+        <div v-else class="gap-6 xl:grid xl:grid-cols-[1fr_392px]">
           <div class="flex flex-col gap-9 max-w-[992px]">
             <OrderSummaryBackOrderWarning v-if="showWarning" />
             <OrderSummaryTable
@@ -87,7 +89,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { cartReadCacheKey, loadCartRead } from '~/composables/loadCartRead';
-import { InfoIcon, LoaderIcon } from '@lucide/vue';
+import { InfoIcon } from '@lucide/vue';
 import { storeToRefs } from 'pinia';
 import Emitter from 'tiny-emitter/instance.js';
 import { useHead, useRouter, useRuntimeConfig } from '#app';

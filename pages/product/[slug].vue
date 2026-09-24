@@ -59,13 +59,13 @@
           <ProductGallery
             v-if="images.length"
             v-model="activeImageIndex"
-            class="col-span-2 min-w-0 lg:col-span-1"
+            class="order-1 col-span-2 min-w-0 lg:col-span-1"
             :images="images"
             :product="product"
             @show-zoom-modal="showZoomGallery = true"
           />
-          <ProductDetails class="col-span-2 min-w-0 lg:col-span-1" :product="product" />
-          <ProductQuantity :product="product" />
+          <ProductDetails class="order-3 col-span-2 min-w-0 md:order-2 lg:col-span-1" :product="product" />
+          <ProductQuantity class="order-2 md:order-3" :product="product" />
         </div>
         <LazyProductTable :features="product?.details?.ParametricData?.Features" />
       </div>

@@ -59,7 +59,7 @@
           </span>
         </div>
         <div class="grid grid-cols-1 gap-1.5 text-xs leading-snug text-slate-600">
-          <div class="line-clamp-2 md:line-clamp-none">{{ item.description }}</div>
+          <div class="line-clamp-3 md:line-clamp-none" :title="item.description">{{ item.description }}</div>
           <div class="flex flex-wrap gap-x-4 gap-y-1">
             <span>Manufacturer: {{ item.manufacturer }}</span>
             <span>Manufacturer part number: {{ item.manufacturerCode }}</span>

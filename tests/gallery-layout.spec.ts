@@ -53,7 +53,7 @@ function hasProp(element: ElementNode, name: string): boolean {
 }
 
 describe('product gallery layout regression', () => {
-  it('fills the card with a hero image and overlays actions (no desktop thumbnail strip)', () => {
+  it('fills the card with the full image and exposes gallery actions and thumbnails', () => {
     const source = readFileSync(galleryPath, 'utf8');
     const { descriptor } = parseSfc(source);
 
@@ -73,11 +73,13 @@ describe('product gallery layout regression', () => {
     expect(getStaticAttrValue(root, 'class')).toContain('lg:h-full');
     expect(getStaticAttrValue(root, 'class')).toContain('flex-col');
     expect(source).toContain('absolute');
-    expect(source).toContain('aria-label="Share"');
-    expect(source).toContain('aria-label="Box"');
+    expect(source).toContain('aria-label="Share product"');
+    expect(source).toContain('aria-label="View 3D preview"');
+    expect(source).toContain('@click="shareProduct"');
+    expect(source).toContain('@click="showPreviewModal = true"');
     expect(source).not.toContain('Swiper');
-    expect(source).toContain('showMobileThumbs');
-    expect(source).toContain('lg:hidden');
+    expect(source).toContain('showThumbnails');
+    expect(source).not.toContain('lg:hidden');
     expect(source).not.toContain('role="listitem"');
     expect(source).toContain('aria-pressed');
     expect(source).toContain('<ul');
@@ -87,6 +89,6 @@ describe('product gallery layout regression', () => {
     expect(getStaticAttrValue(heroImage, 'class-name')).toContain('h-full');
     expect(getStaticAttrValue(heroImage, 'class-name')).toContain('w-full');
     expect(getStaticAttrValue(heroImage, 'class-name')).toContain('object-contain');
-    expect(getStaticAttrValue(heroImage, 'class-name')).toContain('lg:object-cover');
+    expect(getStaticAttrValue(heroImage, 'class-name')).not.toContain('object-cover');
   });
 });

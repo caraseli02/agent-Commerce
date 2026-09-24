@@ -10,7 +10,7 @@
         </div> -->
       <div class="min-h-0 flex-1">
         <ProductCardStock :stock="product.stock" />
-        <UiButton variant="link" class="flex justify-end text-xs my-3 pr-0 lg:hidden px-0" @click="showLargeQuantitiesModal = true">
+        <UiButton variant="link" class="flex justify-end text-xs my-1 pr-0 lg:hidden px-0 md:my-3" @click="showLargeQuantitiesModal = true">
           For larger quantities ask
           <span
             to="/"
@@ -26,15 +26,30 @@
               <div>Price ( Ex VAT )</div>
             </div>
             <div class="font-Inter mt-1.5 mb-6 space-y-1 lg:mb-[25px]">
-              <div
-                v-for="(bulkQuantity, index) in bulkQuantities"
-                :key="index"
-                class="flex items-center justify-between gap-3 px-3.5 py-3 text-xs leading-tight rounded-md cursor-pointer hover:bg-light-300"
-                :class="currentPriceConfiguration?.quantity === bulkQuantity[0] ? 'bg-light-100' : ''"
-                @click="quantity = bulkQuantity[0] + 1"
-              >
-                <div class="text-slate-500">{{ bulkQuantity[0] }}+</div>
-                <div :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</div>
+              <details v-if="bulkQuantities.size" class="mb-2 rounded-lg border border-slate-100 px-3.5 py-1 md:hidden md:py-2">
+                <summary class="cursor-pointer text-xs font-medium leading-5 text-slate-600">Volume prices</summary>
+                <div class="mt-2">
+                  <div
+                    v-for="(bulkQuantity, index) in bulkQuantities"
+                    :key="index"
+                    class="flex items-center justify-between gap-3 border-t border-slate-100 py-2 text-xs leading-tight"
+                  >
+                    <span class="text-slate-500">{{ bulkQuantity[0] }}+</span>
+                    <span :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</span>
+                  </div>
+                </div>
+              </details>
+              <div class="hidden md:block">
+                <div
+                  v-for="(bulkQuantity, index) in bulkQuantities"
+                  :key="index"
+                  class="flex items-center justify-between gap-3 px-3.5 py-3 text-xs leading-tight rounded-md cursor-pointer hover:bg-light-300"
+                  :class="currentPriceConfiguration?.quantity === bulkQuantity[0] ? 'bg-light-100' : ''"
+                  @click="quantity = bulkQuantity[0] + 1"
+                >
+                  <div class="text-slate-500">{{ bulkQuantity[0] }}+</div>
+                  <div :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</div>
+                </div>
               </div>
             </div>
             <UiButton
@@ -52,7 +67,7 @@
           </div>
           <div class="lg:order-1 lg:pt-10 xl:pt-6">
             <div
-              class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg bg-light-300 px-3.5 py-3.5 text-xs leading-snug mb-8 lg:mb-5 lg:flex-col lg:items-start lg:justify-start lg:gap-0 lg:bg-transparent lg:p-0"
+              class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg bg-light-300 px-3.5 py-3.5 text-xs leading-snug mb-4 md:mb-8 lg:mb-5 lg:flex-col lg:items-start lg:justify-start lg:gap-0 lg:bg-transparent lg:p-0"
             >
               <div class="flex items-center gap-1 min-h-6">
                 <span class="text-slate-500">Price for:</span>
