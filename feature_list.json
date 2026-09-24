@@ -31,8 +31,8 @@
       "evidence": [
         "Claimed #555 on codex/555-paymentintent-adapter from c85f8e4c with sprint contract https://github.com/caraseli02/agent-Commerce/issues/555#issuecomment-5816683672.",
         "Focused PostgreSQL adapter suite passed 17/17, including the independent review's overlapping-create and in-flight cancellation-success race cases; pnpm typecheck and pnpm lint pass.",
-        "Pre-review full PostgreSQL coverage passed: 82 test files, 405 passed, 2 todo. Final clean-tree verification after the added race tests remains pending.",
-        "Independent standards review found no hard violations; independent correctness review found no confirmed defect and requested the two added race tests."
+        "Final-head clean-tree pnpm verify:handoff passed: build, lint, typecheck, 82 test files with 407 passed and 2 todo, feature-list validation, architecture checks, route smoke, and clean-state validation.",
+        "Isolated PostgreSQL guest checkout Playwright flow passed 1/1; independent standards review found no hard violations, and independent correctness review found no confirmed defect after the two added race tests."
       ]
     },
     {
