@@ -27,6 +27,7 @@ type PaymentRow = {
   stripe_payment_intent_id: string | null;
   stripe_payment_intent_create_started_at: Date | null;
   cancellation_requested_at: Date | null;
+  row_version: string;
 };
 
 export type InitiatePaymentResult =
@@ -34,13 +35,16 @@ export type InitiatePaymentResult =
   | Readonly<{ kind: 'processing' | 'succeeded' | 'terminal-failure' | 'recovery-required' }>;
 
 export type CancelPaymentResult = Readonly<{ kind: 'canceled' | 'paid' | 'recovery-required' }>;
+export type ReconcilePaymentResult = Readonly<{
+  kind: 'paid' | 'canceled' | 'pending' | 'processing' | 'terminal-failure' | 'recovery-required';
+}>;
 
 const replayWindowMs = 24 * 60 * 60 * 1000;
 const recoveryRequired = { kind: 'recovery-required' } as const;
 
 const readPayment = async (paymentId: string): Promise<PaymentRow | null> => {
   const database = await getCheckoutDatabase();
-  const [payment] = await database.query<PaymentRow>('SELECT * FROM checkout_payments WHERE id=$1', [paymentId]);
+  const [payment] = await database.query<PaymentRow>('SELECT *, xmin::text AS row_version FROM checkout_payments WHERE id=$1', [paymentId]);
   return payment ?? null;
 };
 
@@ -72,6 +76,51 @@ export const createStripeIntentAdapter = (options: {
 }) => {
   const isEnabled = options.enabled ?? (() => false);
   const now = options.now ?? (() => new Date());
+
+  const reconcilePayment = async (input: { paymentId: string }): Promise<ReconcilePaymentResult> => {
+    assertOutsideCheckoutTransaction('Stripe PaymentIntent reconciliation');
+    const payment = await readPayment(input.paymentId);
+    if (!payment) return recoveryRequired;
+    if (payment.status === 'PAID') return { kind: 'paid' };
+    if (payment.status === 'CANCELED') return { kind: 'canceled' };
+    if (payment.status === 'FAILED') return { kind: 'terminal-failure' };
+    if (!isEnabled() || !payment.stripe_payment_intent_id) return recoveryRequired;
+    let intent: StripePaymentIntent;
+    try {
+      intent = await options.provider.retrieve(payment.stripe_payment_intent_id);
+    } catch {
+      return recoveryRequired;
+    }
+    if (intent.id !== payment.stripe_payment_intent_id || !isMatchingIntent(intent, payment)) return recoveryRequired;
+    const nextStatus =
+      intent.status === 'succeeded'
+        ? 'PAID'
+        : intent.status === 'canceled'
+          ? 'CANCELED'
+          : intent.status === 'processing'
+            ? 'PROCESSING'
+            : ['requires_payment_method', 'requires_confirmation', 'requires_action'].includes(intent.status)
+              ? 'PENDING'
+              : null;
+    if (!nextStatus) return recoveryRequired;
+    const database = await getCheckoutDatabase();
+    await database.execute(
+      `UPDATE checkout_payments SET status=$1, updated_at=$2
+        WHERE id=$3 AND stripe_payment_intent_id=$4 AND status IN ('PENDING','PROCESSING')
+          AND xmin::text=$5`,
+      [nextStatus, now().toISOString(), payment.id, intent.id, payment.row_version],
+    );
+    const current = await readPayment(payment.id);
+    return current?.status === 'PAID'
+      ? { kind: 'paid' }
+      : current?.status === 'CANCELED'
+        ? { kind: 'canceled' }
+        : current?.status === 'PROCESSING'
+          ? { kind: 'processing' }
+          : current?.status === 'PENDING'
+            ? { kind: 'pending' }
+            : recoveryRequired;
+  };
 
   const recoverIntent = async (payment: PaymentRow): Promise<StripePaymentIntent | null> => {
     if (payment.stripe_payment_intent_id) {
@@ -220,5 +269,5 @@ export const createStripeIntentAdapter = (options: {
     return recoveryRequired;
   };
 
-  return { initiatePayment, cancelPayment };
+  return { initiatePayment, cancelPayment, reconcilePayment };
 };

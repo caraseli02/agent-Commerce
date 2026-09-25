@@ -35,7 +35,7 @@ export const createStripeIntentProvider = (): StripeIntentProvider => {
       return toIntent(intent);
     },
     async retrieve(intentId) {
-      return toIntent(await stripe().paymentIntents.retrieve(intentId));
+      return toIntent(await stripe().paymentIntents.retrieve(intentId, {}, { timeout: 10_000, maxNetworkRetries: 0 }));
     },
     async cancel(intentId, reason) {
       return toIntent(
