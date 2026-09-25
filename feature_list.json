@@ -44,7 +44,8 @@
       "evidence": [
         "Claimed #557 on codex/557-payment-reconciliation from merged main 3bb7479b; first-PR sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5829142690.",
         "Focused isolated-PostgreSQL Stripe adapter suite passes 25/25 with known-intent success, terminal fast paths, nonterminal status mapping, unknown/mismatched outcome, stale-read races, and transaction guard; typecheck and lint pass.",
-        "Full clean-tree handoff gate, mock guest checkout browser smoke, and independent PR evaluation remain pending."
+        "Repaired-head clean-tree pnpm verify:handoff passed: build, lint, typecheck, 82 test files with 415 passed and 2 todo, architecture checks, route smoke, and clean-state validation.",
+        "Isolated-PostgreSQL guest checkout Chromium flow passed 1/1; independent spec and standards reviews found no remaining issue after extracting the transaction-ready Payment transition helper. Final-head PR CI/evaluator review remains pending."
       ]
     },
     {
