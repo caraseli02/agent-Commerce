@@ -11,7 +11,7 @@
       "id": "I554",
       "description": "Expand Payment persistence compatibly for Stripe PaymentIntent (#554)",
       "validation": "PostgreSQL migration preserves legacy Payment rows and writers, accepts the transition statuses and omitted legacy boolean, persists nullable Stripe identity/timestamps, and enforces one Payment per Order and unique non-null PaymentIntent IDs; Stripe activation remains off",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "PR #552 merged as cd3036a1 before implementation began.",
         "Claimed on codex/554-payment-schema; first PR is limited to schema expansion and PostgreSQL compatibility tests.",
@@ -19,7 +19,20 @@
         "PR #560 PostgreSQL CI passed pnpm verify: 81 files, 378 tests passed, 2 todo; checkout-postgres-boundary.spec.ts passed 7 tests. Independent evaluation found no code defects and rated the schema slice 9/10; PR #560 merged as 1a61a252.",
         "PR #561 on codex/554-payment-state-compatibility makes mock checkout fail closed for transitional states and provider markers. Its earlier isolated PostgreSQL 17 CI passed pnpm verify: 81 files, 387 tests passed, 2 todo; signed-in Preview checkout reached /checkout/success?id=ord-1790087040552-4581; and independent evaluation returned PASS, 10/10.",
         "The guest Preview 401 was traced to orders/new and orders/[id] reading raw process environment instead of Nuxt runtime config. Both routes now use useRuntimeConfig(event); regression coverage proves guest creation/read when the raw variable is unavailable. Local pnpm verify passes against Neon: 81 files, 388 tests passed, 2 todo. The updated Preview completed anonymous card checkout to /checkout/success?id=ord-1790109683758-7502, showing Payment Confirmed and RON 198.39; its guest-owned detail page then loaded #ORD-490430 with Payment Status Paid and the same total. Final-head PostgreSQL CI passed, and the independent evaluator returned PASS, 10/10, with no findings or testing gaps.",
-        "Final #554 compatibility slice on codex/554-payment-authority-compatibility: focused PostgreSQL payment preparation suite passes 27/27; two changed tests pass after preserving legacy-column compatibility writes; legacy columns no longer enter PaymentPreparation or determine mock checkout response; an executable pre-#561 old-writer replay proves Stripe activation remains unsafe until #559 isolates that writer; guest checkout Playwright passes on an alternate port against an isolated PostgreSQL schema."
+        "Final #554 compatibility slice on codex/554-payment-authority-compatibility: focused PostgreSQL payment preparation suite passes 27/27; two changed tests pass after preserving legacy-column compatibility writes; legacy columns no longer enter PaymentPreparation or determine mock checkout response; an executable pre-#561 old-writer replay proves Stripe activation remains unsafe until #559 isolates that writer; guest checkout Playwright passes on an alternate port against an isolated PostgreSQL schema.",
+        "PR #563 independently reviewed and merged as c85f8e4c; GitHub closed #554 on 2026-09-24."
+      ]
+    },
+    {
+      "id": "I555",
+      "description": "Add bounded-idempotent Stripe PaymentIntent adapter with coordinated cancellation (#555)",
+      "validation": "Default-off Stripe sandbox adapter persists create-start and intent identity, uses one bounded idempotency key per Payment, coordinates cancellation without leaking a client secret after cancellation wins, preserves terminal/paid truth, and passes PostgreSQL race tests plus full verification",
+      "status": "active",
+      "evidence": [
+        "Claimed #555 on codex/555-paymentintent-adapter from c85f8e4c with sprint contract https://github.com/caraseli02/agent-Commerce/issues/555#issuecomment-5816683672.",
+        "Focused PostgreSQL adapter suite passed 17/17, including the independent review's overlapping-create and in-flight cancellation-success race cases; pnpm typecheck and pnpm lint pass.",
+        "Final-head clean-tree pnpm verify:handoff passed: build, lint, typecheck, 82 test files with 407 passed and 2 todo, feature-list validation, architecture checks, route smoke, and clean-state validation.",
+        "Isolated PostgreSQL guest checkout Playwright flow passed 1/1; independent standards review found no hard violations, and independent correctness review found no confirmed defect after the two added race tests."
       ]
     },
     {

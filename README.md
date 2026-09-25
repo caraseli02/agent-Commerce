@@ -168,6 +168,14 @@ These are not required for the bundled mock demo, but the runtime config support
 
 - `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 
+The server-side PaymentIntent adapter introduced for #555 also reads
+`STRIPE_SECRET_KEY` (Stripe sandbox key only), `PAYMENTS_PROVIDER`, and
+`STRIPE_GATE_A_APPROVED`. Its production composition requires both
+`PAYMENTS_PROVIDER=stripe` and `STRIPE_GATE_A_APPROVED=true`; the checked-in
+defaults leave it off. Do not enable that gate until #559 proves every older
+mock-completion writer sharing the database is upgraded, retired, or isolated.
+The existing checkout route continues to use the mock flow during this phase.
+
 ## Mock architecture
 
 When `NUXT_PUBLIC_MOCK_MODE=true`:
