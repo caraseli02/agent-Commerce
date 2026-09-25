@@ -5,7 +5,7 @@
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
 - PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
-- Issues #554 and #555 are complete. PR #564 merged the default-off Stripe PaymentIntent adapter into `main` as `3bb7479b` and closed #555. Issue #557 is active on `codex/557-payment-reconciliation` for its first, Payment-only reconciliation slice; Stripe provider activation remains off.
+- Issues #554 and #555 are complete. PR #564 merged the default-off Stripe PaymentIntent adapter into `main` as `3bb7479b` and closed #555. PR #565 completed #557's first Payment-only reconciliation slice and merged into `main` as `34797a9b`; GitHub CI, Vercel, and independent evaluator passed (10/10). #557 remains the sole active issue for the approved second slice: durable verified Stripe event recording with an atomic Payment transition. Stripe provider activation remains off.
 
 ## Completed checkout hardening
 
@@ -21,7 +21,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #557 only. #554 and #555 are closed; #557 was claimed from the refreshed `main` with the first-PR scope recorded in the issue.
+- WIP is #557 only. #554 and #555 are closed. #557's first slice is complete; the second-slice sprint contract is recorded in [the issue comment](https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5834255728).
 
 ## Reconciliation evidence
 
@@ -38,7 +38,7 @@
 
 ## In progress
 
-- #557 first PR — one bounded, Payment-only Stripe reconciliation read with exact intent validation and conditional PostgreSQL status transitions. No checkout route invokes the Stripe adapter yet.
+- #557 second PR — persist each already-verified Stripe event ID and conditionally apply its PaymentIntent transition in one PostgreSQL transaction. Duplicate IDs skip only the provider transition; downstream application processing still needs the Payment context. No public webhook route or order/inventory/cart consequences in this slice.
 
 ## Blocked / known baseline failures
 
@@ -52,6 +52,7 @@
 - #555 focused PostgreSQL adapter tests pass 17/17, including reviewer-requested overlapping-create and in-flight cancellation-success races. The clean-tree `pnpm verify:handoff` gate passed: build, lint, typecheck, 82 test files with 407 passed and 2 todo, feature-list validation, architecture checks, route smoke, and clean-state validation. The isolated PostgreSQL guest checkout browser flow passed 1/1. Independent standards review found no hard violation, and independent correctness review found no confirmed defect. `./init.sh` could not fetch pnpm metadata from npm in the sandbox, but the Stripe SDK was installed with escalated registry access.
 - PR #564 was independently evaluated PASS (10/10), passed GitHub CI and Vercel, and merged into `main` as `3bb7479b` on 2026-09-25.
 - #557 first-slice focused PostgreSQL adapter suite passes 25/25. The repaired-head clean-tree `pnpm verify:handoff` gate passed: build, lint, typecheck, 82 files with 415 passed and 2 todo, architecture checks, route smoke, and clean-state validation. Isolated PostgreSQL guest checkout Playwright passed 1/1. Independent spec and standards reviews found no remaining issue after the transaction-ready Payment transition helper was extracted.
+- #557 second-slice local verification passes: focused Stripe tests 37/37 (including the 12/12 verified-event suite after the final race case), migration boundary 7/7, `pnpm verify:full` with build/lint/typecheck/architecture/smoke and 83 test files (427 passed, 2 todo), and isolated PostgreSQL guest checkout Chromium 1/1. Independent GPT-6 Sol spec/correctness review found no findings; GPT-6 Luna standards review found no hard violations. Handoff, final-head CI, and PR review remain pending.
 
 ## Remaining architecture
 
@@ -71,7 +72,7 @@
 
 ## Next work
 
-1. Complete the first #557 Payment-only reconciliation PR, then continue #557 with webhook/reconciliation, retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart. Keep Stripe activation off. Then continue in dependency order:
+1. Continue #557 with the approved durable verified-event ledger and atomic Payment transition, then signed webhook ingress, retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart. Keep Stripe activation off. Then continue in dependency order:
    - #556 — Payment Element/card + 3DS UI after backend recovery is available;
    - #558 — mutually exclusive late-success decision, `ON_HOLD` compensation continuation, full Refund, and refund webhooks;
    - #559 — unsafe-writer retirement + cross-version replay + Stripe activation gate, then Vercel validation and later schema contract gate.
@@ -80,5 +81,6 @@
 
 ## Next verification
 
-- For #557 first PR: final-head PR CI and evaluator review; the focused PostgreSQL suite, clean handoff gate, mock guest checkout browser smoke, and independent issue/ADR diff review have passed. Confirm the default-off gate and no new checkout route invocation at PR handoff.
+- #557 first PR (#565): merged at `34797a9b`; GitHub CI and Vercel passed, independent evaluator PASS 10/10. Focused PostgreSQL suite, clean handoff gate, mock guest checkout browser smoke, and independent issue/ADR diff review passed.
+- #557 second PR: local verification is complete as recorded above. At handoff, confirm the default-off gate and no checkout route invocation in this slice; final-head CI, evaluator review, and clean handoff gate remain pending.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.

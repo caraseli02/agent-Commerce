@@ -39,13 +39,14 @@
     {
       "id": "I557",
       "description": "Add Stripe webhook, reconciliation, and backend checkout recovery (#557)",
-      "validation": "Payment-only reconciliation reads one known Stripe intent outside transactions, validates provider identity and immutable money, conditionally maps provider truth without terminal regression, and preserves the default-off gate; later PRs complete webhook, finalization, compensation states, canceled-checkout restart, and backend resume",
+      "validation": "Persist each already-verified Stripe event ID and conditionally apply its PaymentIntent transition in one PostgreSQL transaction; duplicate IDs skip only the provider transition while retaining Payment context for later application processing; public ingress and downstream fulfillment remain later slices, and Stripe activation stays off",
       "status": "active",
       "evidence": [
-        "Claimed #557 on codex/557-payment-reconciliation from merged main 3bb7479b; first-PR sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5829142690.",
-        "Focused isolated-PostgreSQL Stripe adapter suite passes 25/25 with known-intent success, terminal fast paths, nonterminal status mapping, unknown/mismatched outcome, stale-read races, and transaction guard; typecheck and lint pass.",
-        "Repaired-head clean-tree pnpm verify:handoff passed: build, lint, typecheck, 82 test files with 415 passed and 2 todo, architecture checks, route smoke, and clean-state validation.",
-        "Isolated-PostgreSQL guest checkout Chromium flow passed 1/1; independent spec and standards reviews found no remaining issue after extracting the transaction-ready Payment transition helper. Final-head PR CI/evaluator review remains pending."
+        "PR #565 completed the first Payment-only reconciliation slice and merged into main as 34797a9b; GitHub CI, Vercel, and independent evaluator passed (10/10).",
+        "First-slice focused PostgreSQL suite, clean handoff gate, isolated guest checkout browser flow, and independent spec/standards reviews passed.",
+        "Second-slice sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5834255728.",
+        "Second-slice local verification passed: focused Stripe tests 37/37 (verified-event suite 12/12 after final race case), migration boundary 7/7, pnpm verify:full with 83 test files (427 passed, 2 todo) plus build/lint/typecheck/architecture/smoke, and isolated PostgreSQL guest checkout Chromium 1/1.",
+        "Independent GPT-6 Sol spec/correctness review found no findings; GPT-6 Luna standards review found no hard violations. Final-head CI, evaluator, and handoff gate remain pending; Stripe activation remains off."
       ]
     },
     {
