@@ -43,6 +43,14 @@ export type CancelPaymentResult = Readonly<{ kind: 'canceled' | 'paid' | 'recove
 export type ReconcilePaymentResult = Readonly<{
   kind: 'paid' | 'canceled' | 'pending' | 'processing' | 'terminal-failure' | 'recovery-required';
 }>;
+export type VerifiedIntentEventResult =
+  | Readonly<{
+      kind: 'paid' | 'canceled' | 'pending' | 'processing' | 'terminal-failure';
+      paymentId: string;
+      orderId: string;
+      duplicate: boolean;
+    }>
+  | Readonly<{ kind: 'recovery-required' }>;
 
 type ReconciledStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'CANCELED';
 
@@ -96,6 +104,38 @@ const reconciliationResultForStatus = (status: PaymentRow['status'] | null): Rec
   }
 };
 
+const verifiedEventResult = (payment: PaymentRow, duplicate: boolean): VerifiedIntentEventResult =>
+  ({
+    ...reconciliationResultForStatus(payment.status),
+    paymentId: payment.id,
+    orderId: payment.order_id,
+    duplicate,
+  }) as VerifiedIntentEventResult;
+
+const staleEventObservation = Symbol('stale Stripe event observation');
+const supportedIntentEvents = new Set([
+  'payment_intent.succeeded',
+  'payment_intent.processing',
+  'payment_intent.payment_failed',
+  'payment_intent.canceled',
+]);
+type EventRow = { event_id: string; event_type: string; stripe_payment_intent_id: string; payment_id: string };
+
+const readEvent = async (eventId: string): Promise<EventRow | null> => {
+  const database = await getCheckoutDatabase();
+  const [event] = await database.query<EventRow>('SELECT * FROM checkout_stripe_webhook_events WHERE event_id=$1', [eventId]);
+  return event ?? null;
+};
+
+const readPaymentByIntent = async (intentId: string): Promise<PaymentRow | null> => {
+  const database = await getCheckoutDatabase();
+  const [payment] = await database.query<PaymentRow>(
+    'SELECT *, xmin::text AS row_version FROM checkout_payments WHERE stripe_payment_intent_id=$1',
+    [intentId],
+  );
+  return payment ?? null;
+};
+
 // The webhook can call this database-only operation in its event-ID transaction.
 export const applyReconciledPaymentTransition = async (
   database: CheckoutDatabase,
@@ -140,6 +180,96 @@ export const createStripeIntentAdapter = (options: {
 }) => {
   const isEnabled = options.enabled ?? (() => false);
   const now = options.now ?? (() => new Date());
+
+  // The caller must verify the Stripe signature before entering this internal operation.
+  const applyVerifiedIntentEvent = async (input: {
+    eventId: string;
+    eventType: string;
+    intentId: string;
+  }): Promise<VerifiedIntentEventResult> => {
+    assertOutsideCheckoutTransaction('Stripe verified event application');
+    if (!isEnabled() || !input.eventId || !input.intentId || !supportedIntentEvents.has(input.eventType)) return recoveryRequired;
+
+    const duplicate = await readEvent(input.eventId);
+    if (duplicate) {
+      if (duplicate.event_type !== input.eventType || duplicate.stripe_payment_intent_id !== input.intentId) return recoveryRequired;
+      const current = await readPayment(duplicate.payment_id);
+      return current?.stripe_payment_intent_id === input.intentId ? verifiedEventResult(current, true) : recoveryRequired;
+    }
+
+    const payment = await readPaymentByIntent(input.intentId);
+    if (!payment) return recoveryRequired;
+    let intent: StripePaymentIntent;
+    try {
+      intent = await options.provider.retrieve(input.intentId);
+    } catch {
+      return recoveryRequired;
+    }
+    if (intent.id !== input.intentId || !isMatchingIntent(intent, payment)) return recoveryRequired;
+    const nextStatus = localStatusFromIntent(intent.status);
+    if (!nextStatus) return recoveryRequired;
+
+    try {
+      return await withCheckoutTransaction(async () => {
+        const database = await getCheckoutDatabase();
+        const [inserted] = await database.query<{ event_id: string }>(
+          `INSERT INTO checkout_stripe_webhook_events
+             (event_id, event_type, stripe_payment_intent_id, payment_id, observed_at)
+           VALUES ($1,$2,$3,$4,$5::timestamptz)
+           ON CONFLICT (event_id) DO NOTHING RETURNING event_id`,
+          [input.eventId, input.eventType, input.intentId, payment.id, now().toISOString()],
+        );
+        if (!inserted) {
+          const existing = await readEvent(input.eventId);
+          const current = await readPayment(payment.id);
+          if (
+            !existing ||
+            existing.event_type !== input.eventType ||
+            existing.stripe_payment_intent_id !== input.intentId ||
+            existing.payment_id !== payment.id ||
+            current?.stripe_payment_intent_id !== input.intentId
+          )
+            throw staleEventObservation;
+          return verifiedEventResult(current, true);
+        }
+
+        if (payment.status === 'PAID' || payment.status === 'CANCELED') {
+          const current = await readPayment(payment.id);
+          if (
+            !current ||
+            current.row_version !== payment.row_version ||
+            current.stripe_payment_intent_id !== input.intentId ||
+            (current.status === 'CANCELED' && nextStatus !== 'CANCELED')
+          )
+            throw staleEventObservation;
+          return verifiedEventResult(current, false);
+        }
+        if (payment.status === 'FAILED') throw staleEventObservation;
+        const transition = await applyReconciledPaymentTransition(database, {
+          paymentId: payment.id,
+          intentId: input.intentId,
+          expectedRowVersion: payment.row_version,
+          status: nextStatus,
+          updatedAt: now().toISOString(),
+        });
+        if (!transition.applied) throw staleEventObservation;
+        return {
+          ...reconciliationResultForStatus(transition.status),
+          paymentId: payment.id,
+          orderId: payment.order_id,
+          duplicate: false,
+        } as VerifiedIntentEventResult;
+      });
+    } catch (error) {
+      if (
+        error === staleEventObservation ||
+        (error as { code?: string })?.code === '40001' ||
+        (error as { code?: string })?.code === '40P01'
+      )
+        return recoveryRequired;
+      throw error;
+    }
+  };
 
   const reconcilePayment = async (input: { paymentId: string }): Promise<ReconcilePaymentResult> => {
     assertOutsideCheckoutTransaction('Stripe PaymentIntent reconciliation');
@@ -316,5 +446,5 @@ export const createStripeIntentAdapter = (options: {
     return recoveryRequired;
   };
 
-  return { initiatePayment, cancelPayment, reconcilePayment };
+  return { initiatePayment, cancelPayment, reconcilePayment, applyVerifiedIntentEvent };
 };
