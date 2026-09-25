@@ -3,6 +3,7 @@ import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/
 
 export { createStripeIntentAdapter } from './stripe-intents';
 export type { CancelPaymentResult, InitiatePaymentResult, ReconcilePaymentResult } from './stripe-intents';
+export { handleStripeWebhook } from './stripe-webhook';
 
 export type PaymentNextAction =
   Readonly<{ type: 'none' }> | Readonly<{ type: 'client-secret'; clientSecret: string }> | Readonly<{ type: 'redirect'; url: string }>;

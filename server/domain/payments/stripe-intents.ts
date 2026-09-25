@@ -119,6 +119,7 @@ const supportedIntentEvents = new Set([
   'payment_intent.payment_failed',
   'payment_intent.canceled',
 ]);
+export const isSupportedStripeIntentEvent = (eventType: string): boolean => supportedIntentEvents.has(eventType);
 type EventRow = { event_id: string; event_type: string; stripe_payment_intent_id: string; payment_id: string };
 
 const readEvent = async (eventId: string): Promise<EventRow | null> => {
@@ -188,7 +189,7 @@ export const createStripeIntentAdapter = (options: {
     intentId: string;
   }): Promise<VerifiedIntentEventResult> => {
     assertOutsideCheckoutTransaction('Stripe verified event application');
-    if (!isEnabled() || !input.eventId || !input.intentId || !supportedIntentEvents.has(input.eventType)) return recoveryRequired;
+    if (!isEnabled() || !input.eventId || !input.intentId || !isSupportedStripeIntentEvent(input.eventType)) return recoveryRequired;
 
     const duplicate = await readEvent(input.eventId);
     if (duplicate) {

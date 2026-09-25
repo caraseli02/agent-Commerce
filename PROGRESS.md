@@ -5,7 +5,7 @@
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
 - PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
-- Issues #554 and #555 are complete. PR #564 merged the default-off Stripe PaymentIntent adapter into `main` as `3bb7479b` and closed #555. PR #565 completed #557's first Payment-only reconciliation slice and merged into `main` as `34797a9b`; GitHub CI, Vercel, and independent evaluator passed (10/10). #557 remains the sole active issue; its second slice is ready for human review in PR #566. Stripe provider activation remains off.
+- Issues #554 and #555 are complete. PR #564 merged the default-off Stripe PaymentIntent adapter as `3bb7479b`. PR #565 merged #557's Payment-only reconciliation slice as `34797a9b`, and PR #566 merged the verified-event ledger slice as `ea2b66ef`. #557 remains the sole active issue; its third slice adds signed webhook ingress. Stripe provider activation remains off.
 
 ## Completed checkout hardening
 
@@ -21,7 +21,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #557 only. #554 and #555 are closed. #557's first slice is complete; the second-slice sprint contract is recorded in [the issue comment](https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5834255728).
+- WIP is #557 only. #554 and #555 are closed. #557's first two slices are merged; the third-slice sprint contract is recorded in [the issue comment](https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5839615533).
 
 ## Reconciliation evidence
 
@@ -38,7 +38,7 @@
 
 ## In progress
 
-- #557 second PR — persist each already-verified Stripe event ID and conditionally apply its PaymentIntent transition in one PostgreSQL transaction. Duplicate IDs skip only the provider transition; downstream application processing still needs the Payment context. No public webhook route or order/inventory/cart consequences in this slice.
+- #557 third PR — verify the raw Stripe webhook signature, enter Payments through its public firewall, and invoke the merged verified-event transition. Acknowledge only completed nonterminal observations; paid and provider-canceled outcomes remain non-`2xx` until application-owned checkout consequences can complete. No Order/Inventory/Cart mutation in this slice.
 
 ## Blocked / known baseline failures
 
@@ -53,6 +53,7 @@
 - PR #564 was independently evaluated PASS (10/10), passed GitHub CI and Vercel, and merged into `main` as `3bb7479b` on 2026-09-25.
 - #557 first-slice focused PostgreSQL adapter suite passes 25/25. The repaired-head clean-tree `pnpm verify:handoff` gate passed: build, lint, typecheck, 82 files with 415 passed and 2 todo, architecture checks, route smoke, and clean-state validation. Isolated PostgreSQL guest checkout Playwright passed 1/1. Independent spec and standards reviews found no remaining issue after the transaction-ready Payment transition helper was extracted.
 - #557 second-slice local verification passes: focused Stripe tests 37/37 (including the 12/12 verified-event suite after the final race case), migration boundary 7/7, `pnpm verify:full` and clean-tree `pnpm verify:handoff` with build/lint/typecheck/architecture/smoke and 83 test files (427 passed, 2 todo), and isolated PostgreSQL guest checkout Chromium 1/1. Independent GPT-6 Sol spec/correctness review found no findings; GPT-6 Luna standards review found no hard violations. PR #566 passed GitHub CI, the latest PR-template check, Vercel, and CodeRabbit at implementation head `180a1eee`; independent evaluator PASS 10/10.
+- PR #566 merged into `main` as `ea2b66ef` on 2026-09-25. The third slice is in progress on `codex/557-signed-webhook-ingress`; focused Stripe ingress/route/event-ledger tests pass 22/22 against isolated PostgreSQL. `pnpm verify:full` passed with 85 files (437 passed, 2 todo), build, lint, typecheck, architecture checks, and route smoke. The isolated PostgreSQL guest checkout Chromium flow passed 1/1, and the built webhook route returned HTTP 503 with the Stripe gate off. Stripe CLI is unavailable locally, so raw-body/signature behavior was checked against current official Stripe webhook documentation; the SDK test signer covers local signature checks.
 
 ## Remaining architecture
 
@@ -72,7 +73,7 @@
 
 ## Next work
 
-1. After human review and merge of PR #566, continue #557 with signed webhook ingress, retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart. Keep Stripe activation off. Then continue in dependency order:
+1. Complete and independently review #557's signed webhook ingress slice. Continue #557 with retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart. Keep Stripe activation off. Then continue in dependency order:
    - #556 — Payment Element/card + 3DS UI after backend recovery is available;
    - #558 — mutually exclusive late-success decision, `ON_HOLD` compensation continuation, full Refund, and refund webhooks;
    - #559 — unsafe-writer retirement + cross-version replay + Stripe activation gate, then Vercel validation and later schema contract gate.
@@ -82,5 +83,6 @@
 ## Next verification
 
 - #557 first PR (#565): merged at `34797a9b`; GitHub CI and Vercel passed, independent evaluator PASS 10/10. Focused PostgreSQL suite, clean handoff gate, mock guest checkout browser smoke, and independent issue/ADR diff review passed.
-- #557 second PR (#566): clean-tree handoff, GitHub CI, latest PR-template check, Vercel, and independent evaluator passed at implementation head `180a1eee`; await human review. Stripe remains default-off, and this slice adds no checkout route invocation.
+- #557 second PR (#566): merged at `ea2b66ef` after clean-tree handoff, GitHub CI, latest PR-template check, Vercel, and independent evaluator passed.
+- #557 third PR: focused signed webhook/route tests, typecheck/lint, `pnpm verify:full`, default-off HTTP 503 route smoke, and isolated mock guest checkout browser flow pass. Require clean-tree `pnpm verify:handoff` on the final head and independent evaluation before human review.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.
