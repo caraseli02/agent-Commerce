@@ -98,6 +98,10 @@ describe('Stripe PaymentIntent adapter', () => {
     expect(await adapter.initiatePayment({ paymentId })).toEqual({ kind: 'recovery-required' });
     expect(fake.create).not.toHaveBeenCalled();
     expect((await paymentState())?.stripe_payment_intent_create_started_at).toBeNull();
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=$1 WHERE id=$2', ['pi_stripe_adapter', paymentId]);
+    expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind: 'recovery-required' });
+    expect(fake.retrieve).not.toHaveBeenCalled();
   });
 
   it('creates one intent from durable money and leaves local Payment pending', async () => {
@@ -153,6 +157,150 @@ describe('Stripe PaymentIntent adapter', () => {
     expect(await adapter.initiatePayment({ paymentId })).toMatchObject({ kind: 'requires-action' });
     expect(fake.create).toHaveBeenCalledTimes(1);
     expect(fake.retrieve).toHaveBeenCalledWith('pi_stripe_adapter');
+  });
+
+  it('reconciles a known successful intent into durable paid truth with one provider read', async () => {
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=$1 WHERE id=$2', ['pi_stripe_adapter', paymentId]);
+    const fake = fakeProvider();
+    fake.intents.set(`payment:${paymentId}:intent`, makeIntent('succeeded'));
+    const adapter = createStripeIntentAdapter({ provider: fake.provider, enabled: () => true, now: () => now });
+
+    expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind: 'paid' });
+    expect((await paymentState())?.status).toBe('PAID');
+    expect(fake.retrieve).toHaveBeenCalledExactlyOnceWith('pi_stripe_adapter');
+    expect(fake.create).not.toHaveBeenCalled();
+    expect(fake.cancel).not.toHaveBeenCalled();
+  });
+
+  it('returns terminal local truth without asking Stripe or reopening legacy failure', async () => {
+    const fake = fakeProvider();
+    const adapter = createStripeIntentAdapter({ provider: fake.provider, enabled: () => true, now: () => now });
+    const database = await getCheckoutDatabase();
+    for (const [status, kind] of [
+      ['PAID', 'paid'],
+      ['CANCELED', 'canceled'],
+      ['FAILED', 'terminal-failure'],
+    ] as const) {
+      await database.execute('UPDATE checkout_payments SET status=$1 WHERE id=$2', [status, paymentId]);
+      expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind });
+      expect((await paymentState())?.status).toBe(status);
+    }
+    expect(fake.retrieve).not.toHaveBeenCalled();
+    expect(fake.create).not.toHaveBeenCalled();
+  });
+
+  it('maps current provider processing and recoverable card states to local nonterminal truth', async () => {
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=$1 WHERE id=$2', ['pi_stripe_adapter', paymentId]);
+    const fake = fakeProvider();
+    const adapter = createStripeIntentAdapter({ provider: fake.provider, enabled: () => true, now: () => now });
+    for (const [providerStatus, localStatus, kind] of [
+      ['processing', 'PROCESSING', 'processing'],
+      ['requires_payment_method', 'PENDING', 'pending'],
+      ['requires_confirmation', 'PENDING', 'pending'],
+      ['requires_action', 'PENDING', 'pending'],
+    ] as const) {
+      fake.retrieve.mockResolvedValueOnce(makeIntent(providerStatus));
+      expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind });
+      expect((await paymentState())?.status).toBe(localStatus);
+    }
+    expect(fake.retrieve).toHaveBeenCalledTimes(4);
+    expect(fake.create).not.toHaveBeenCalled();
+  });
+
+  it('does not invent or trust an unknown, mismatched, unavailable, or unsupported intent', async () => {
+    const database = await getCheckoutDatabase();
+    const fake = fakeProvider();
+    const adapter = createStripeIntentAdapter({ provider: fake.provider, enabled: () => true, now: () => now });
+
+    expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind: 'recovery-required' });
+    expect(fake.retrieve).not.toHaveBeenCalled();
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=$1 WHERE id=$2', ['pi_stripe_adapter', paymentId]);
+
+    fake.retrieve.mockResolvedValueOnce({ ...makeIntent('succeeded'), id: 'pi_other' });
+    expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind: 'recovery-required' });
+    fake.retrieve.mockRejectedValueOnce(new Error('Stripe timeout'));
+    expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind: 'recovery-required' });
+    fake.retrieve.mockResolvedValueOnce(makeIntent('requires_capture'));
+    expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind: 'recovery-required' });
+    expect((await paymentState())?.status).toBe('PENDING');
+    expect(fake.create).not.toHaveBeenCalled();
+    expect(fake.cancel).not.toHaveBeenCalled();
+  });
+
+  it('does not overwrite a newer processing transition with a delayed pending response', async () => {
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=$1 WHERE id=$2', ['pi_stripe_adapter', paymentId]);
+    const fake = fakeProvider();
+    let entered!: () => void;
+    let release!: () => void;
+    const providerEntered = new Promise<void>((resolve) => (entered = resolve));
+    const providerReleased = new Promise<void>((resolve) => (release = resolve));
+    fake.retrieve.mockImplementationOnce(async () => {
+      entered();
+      await providerReleased;
+      return makeIntent('requires_payment_method');
+    });
+    const adapter = createStripeIntentAdapter({ provider: fake.provider, enabled: () => true, now: () => now });
+
+    const reconciliation = adapter.reconcilePayment({ paymentId });
+    await providerEntered;
+    await database.execute("UPDATE checkout_payments SET status='PROCESSING' WHERE id=$1", [paymentId]);
+    release();
+    expect(await reconciliation).toEqual({ kind: 'processing' });
+    expect((await paymentState())?.status).toBe('PROCESSING');
+    expect(fake.retrieve).toHaveBeenCalledTimes(1);
+  });
+
+  it('records provider cancellation without replacing the old intent', async () => {
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=$1 WHERE id=$2', ['pi_stripe_adapter', paymentId]);
+    const fake = fakeProvider();
+    fake.retrieve.mockResolvedValueOnce(makeIntent('canceled'));
+    const adapter = createStripeIntentAdapter({ provider: fake.provider, enabled: () => true, now: () => now });
+
+    expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind: 'canceled' });
+    expect((await paymentState())?.status).toBe('CANCELED');
+    expect((await paymentState())?.stripe_payment_intent_id).toBe('pi_stripe_adapter');
+    expect(fake.create).not.toHaveBeenCalled();
+    expect(await adapter.reconcilePayment({ paymentId })).toEqual({ kind: 'canceled' });
+    expect(fake.retrieve).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns concurrent paid truth instead of a delayed provider failure', async () => {
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=$1 WHERE id=$2', ['pi_stripe_adapter', paymentId]);
+    const fake = fakeProvider();
+    let entered!: () => void;
+    let release!: () => void;
+    const providerEntered = new Promise<void>((resolve) => (entered = resolve));
+    const providerReleased = new Promise<void>((resolve) => (release = resolve));
+    fake.retrieve.mockImplementationOnce(async () => {
+      entered();
+      await providerReleased;
+      return makeIntent('requires_payment_method');
+    });
+    const adapter = createStripeIntentAdapter({ provider: fake.provider, enabled: () => true, now: () => now });
+
+    const reconciliation = adapter.reconcilePayment({ paymentId });
+    await providerEntered;
+    await database.execute("UPDATE checkout_payments SET status='PAID' WHERE id=$1", [paymentId]);
+    release();
+    expect(await reconciliation).toEqual({ kind: 'paid' });
+    expect((await paymentState())?.status).toBe('PAID');
+  });
+
+  it('rejects reconciliation inside a checkout transaction before provider I/O', async () => {
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=$1 WHERE id=$2', ['pi_stripe_adapter', paymentId]);
+    const fake = fakeProvider();
+    const adapter = createStripeIntentAdapter({ provider: fake.provider, enabled: () => true, now: () => now });
+    await expect(withCheckoutTransaction(() => adapter.reconcilePayment({ paymentId }))).rejects.toThrow(
+      'cannot run inside a checkout transaction',
+    );
+    expect(fake.retrieve).not.toHaveBeenCalled();
+    expect((await paymentState())?.status).toBe('PENDING');
   });
 
   it('shares one durable intent across two independent initiators', async () => {

@@ -5,7 +5,7 @@
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
 - PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
-- Issue #554 is complete: PRs #560, #561, and #563 merged the compatible Payment schema, guarded mock transitions, and legacy-authority cleanup. PR #563 merged as `c85f8e4c` and closed #554. Issue #555 is active on `codex/555-paymentintent-adapter`; Stripe provider activation remains off.
+- Issues #554 and #555 are complete. PR #564 merged the default-off Stripe PaymentIntent adapter into `main` as `3bb7479b` and closed #555. Issue #557 is active on `codex/557-payment-reconciliation` for its first, Payment-only reconciliation slice; Stripe provider activation remains off.
 
 ## Completed checkout hardening
 
@@ -21,7 +21,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #555 only. #554 is closed; #555 was claimed from the refreshed `main` with its scope recorded in the issue.
+- WIP is #557 only. #554 and #555 are closed; #557 was claimed from the refreshed `main` with the first-PR scope recorded in the issue.
 
 ## Reconciliation evidence
 
@@ -38,7 +38,7 @@
 
 ## In progress
 
-- #555 — bounded-idempotent Stripe PaymentIntent creation/recovery and durable create/cancel coordination behind a default-off server gate. No checkout route invokes the Stripe adapter yet.
+- #557 first PR — one bounded, Payment-only Stripe reconciliation read with exact intent validation and conditional PostgreSQL status transitions. No checkout route invokes the Stripe adapter yet.
 
 ## Blocked / known baseline failures
 
@@ -50,10 +50,12 @@
 - The guest Preview 401 was traced to `orders/new` and `orders/[id]` reading the raw process environment instead of Nuxt runtime config. Both routes now use `useRuntimeConfig(event)`, and regression coverage proves guest creation/read when the raw variable is unavailable. Local `pnpm verify` passes against Neon: 81 files, 388 tests passed, 2 todo. The updated Preview completed anonymous card checkout to `/checkout/success?id=ord-1790109683758-7502`, showing Payment Confirmed and RON 198.39; its guest-owned detail page then loaded `#ORD-490430` with Payment Status Paid and the same total. Final-head PostgreSQL CI passed, and the independent evaluator returned PASS, 10/10, with no findings or testing gaps.
 - The final #554 slice's focused Payment preparation suite passes 27/27 against an isolated Neon test schema, including legacy-column replay and the pre-#561 old-writer SQL probe. The two changed tests pass again after preserving legacy-column compatibility writes. `pnpm typecheck`, `pnpm lint`, and changed-file Prettier checks pass. The guest checkout Playwright flow passes on port 3107 against an isolated PostgreSQL schema. A read-only query of the configured development database found migration tracking for 001/002/003 with repository-matching checksums and the expected Payment constraints; the separate Production Neon branch was not queried.
 - #555 focused PostgreSQL adapter tests pass 17/17, including reviewer-requested overlapping-create and in-flight cancellation-success races. The clean-tree `pnpm verify:handoff` gate passed: build, lint, typecheck, 82 test files with 407 passed and 2 todo, feature-list validation, architecture checks, route smoke, and clean-state validation. The isolated PostgreSQL guest checkout browser flow passed 1/1. Independent standards review found no hard violation, and independent correctness review found no confirmed defect. `./init.sh` could not fetch pnpm metadata from npm in the sandbox, but the Stripe SDK was installed with escalated registry access.
+- PR #564 was independently evaluated PASS (10/10), passed GitHub CI and Vercel, and merged into `main` as `3bb7479b` on 2026-09-25.
+- #557 first-slice focused PostgreSQL adapter suite passes 25/25. The repaired-head clean-tree `pnpm verify:handoff` gate passed: build, lint, typecheck, 82 files with 415 passed and 2 todo, architecture checks, route smoke, and clean-state validation. Isolated PostgreSQL guest checkout Playwright passed 1/1. Independent spec and standards reviews found no remaining issue after the transaction-ready Payment transition helper was extracted.
 
 ## Remaining architecture
 
-- The Stripe PaymentIntent create/recover/cancel adapter is being built behind a default-off gate. The current PlaceOrder runtime still uses mock payment continuation; no deployed path invokes Stripe provider I/O.
+- The Stripe PaymentIntent create/recover/cancel adapter is merged behind a default-off gate. The current PlaceOrder runtime still uses mock payment continuation; no deployed path invokes Stripe provider I/O.
 - #121 proposes `PENDING / PROCESSING / PAID / CANCELED`, one PaymentIntent per logical Payment, bounded idempotency, create/cancel coordination, webhook-driven finalization, durable ALLOCATE/BACKORDER/REFUND recovery, and explicit `ON_HOLD + compensation_pending` refund continuation.
 - The ADR and compatible schema are merged. Stripe activation remains gated by #559's shared-database unsafe-writer proof.
 - Cancellation/create races, provider-initiated cancellation, idempotency-window expiry, and paid-recovery/refund races are now defined in the ADR; proactive/background recovery remains later payment-lifecycle work.
@@ -69,8 +71,7 @@
 
 ## Next work
 
-1. Complete #555 PR review and merge, keeping Stripe activation off. Then continue in dependency order:
-   - #557 — webhook/reconciliation, retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart;
+1. Complete the first #557 Payment-only reconciliation PR, then continue #557 with webhook/reconciliation, retry-safe fulfillment/compensation finalization, `resumeOrderPayment`, and terminal canceled-checkout restart. Keep Stripe activation off. Then continue in dependency order:
    - #556 — Payment Element/card + 3DS UI after backend recovery is available;
    - #558 — mutually exclusive late-success decision, `ON_HOLD` compensation continuation, full Refund, and refund webhooks;
    - #559 — unsafe-writer retirement + cross-version replay + Stripe activation gate, then Vercel validation and later schema contract gate.
@@ -79,5 +80,5 @@
 
 ## Next verification
 
-- For #555: final-head PR CI and reviewer assessment; local focused PostgreSQL race suite, clean handoff gate, guest checkout browser smoke, and independent issue/ADR diff review have passed.
+- For #557 first PR: final-head PR CI and evaluator review; the focused PostgreSQL suite, clean handoff gate, mock guest checkout browser smoke, and independent issue/ADR diff review have passed. Confirm the default-off gate and no new checkout route invocation at PR handoff.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.
