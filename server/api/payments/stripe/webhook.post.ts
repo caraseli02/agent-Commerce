@@ -1,4 +1,5 @@
 import { stripePayments, stripePaymentsEnabled } from '~/server/application/checkout/stripe-payment';
+import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
 import { handleStripeWebhook } from '~/server/domain/payments';
 
 export default defineEventHandler(async (event) => {
@@ -8,6 +9,7 @@ export default defineEventHandler(async (event) => {
     signingSecret: process.env.STRIPE_WEBHOOK_SECRET,
     enabled: stripePaymentsEnabled(),
     applyVerifiedIntentEvent: stripePayments.applyVerifiedIntentEvent,
+    finalizePaidCheckout,
   });
 
   if (result.kind !== 'accepted')

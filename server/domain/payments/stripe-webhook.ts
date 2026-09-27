@@ -9,6 +9,7 @@ export const handleStripeWebhook = async (input: {
   signingSecret: string | undefined;
   enabled: boolean;
   applyVerifiedIntentEvent: (event: { eventId: string; eventType: string; intentId: string }) => Promise<VerifiedIntentEventResult>;
+  finalizePaidCheckout?: (input: { paymentId: string; orderId: string }) => Promise<{ kind: 'finalized' | 'retry' }>;
 }): Promise<StripeWebhookResult> => {
   if (!input.enabled || !input.signingSecret) return { kind: 'retry' };
   if (!input.rawBody || !input.signature) return { kind: 'invalid-signature' };
@@ -28,7 +29,15 @@ export const handleStripeWebhook = async (input: {
   if (object.object !== 'payment_intent' || !object.id.startsWith('pi_')) return { kind: 'retry' };
 
   const result = await input.applyVerifiedIntentEvent({ eventId: event.id, eventType: event.type, intentId: object.id });
-  // Paid and canceled Payments still need application-owned checkout consequences.
+  if (result.kind === 'paid' && input.finalizePaidCheckout) {
+    try {
+      const finalization = await input.finalizePaidCheckout({ paymentId: result.paymentId, orderId: result.orderId });
+      return finalization.kind === 'finalized' ? { kind: 'accepted' } : { kind: 'retry' };
+    } catch {
+      return { kind: 'retry' };
+    }
+  }
+  // Canceled Payments still need application-owned checkout consequences.
   // A duplicate event ID must re-enter those paths when later slices add them.
   if (
     (event.type === 'payment_intent.processing' || event.type === 'payment_intent.payment_failed') &&
