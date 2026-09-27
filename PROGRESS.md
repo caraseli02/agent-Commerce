@@ -38,7 +38,7 @@
 
 ## In progress
 
-- #557 fourth slice (`codex/557-paid-checkout-finalization`) — a verified paid event resumes application-owned Inventory/Order/claim finalization for a still-valid reservation. Duplicate delivery may acknowledge only after that critical transaction commits; expired reservations remain retryable for later recovery. Provider-canceled checkout consequences remain pending.
+- #557 fourth slice (PR #568, `codex/557-paid-checkout-finalization`) — a verified paid event resumes application-owned Inventory/Order/claim finalization for a still-valid reservation. Duplicate delivery may acknowledge only after that critical transaction commits; expired reservations remain retryable for later recovery. Provider-canceled checkout consequences remain pending.
 
 ## Blocked / known baseline failures
 
@@ -86,5 +86,5 @@
 - #557 first PR (#565): merged at `34797a9b`; GitHub CI and Vercel passed, independent evaluator PASS 10/10. Focused PostgreSQL suite, clean handoff gate, mock guest checkout browser smoke, and independent issue/ADR diff review passed.
 - #557 second PR (#566): merged at `ea2b66ef` after clean-tree handoff, GitHub CI, latest PR-template check, Vercel, and independent evaluator passed.
 - #557 third PR (#567): merged as `a3308698` after focused signed webhook/route tests, `pnpm verify:full`, clean-tree handoff, default-off HTTP 503 route smoke, mock guest checkout browser flow, GitHub CI, Vercel, and independent evaluator passed. Stripe remains off; live signed HTTP sandbox validation belongs before activation.
-- #557 fourth slice: focused PostgreSQL suite, full gate, clean-tree handoff, default-off HTTP 503 smoke, mock guest checkout Chromium, and independent reviews passed. Open the scoped PR and require fresh GitHub CI plus final-head evaluator review before human handoff.
+- #557 fourth slice: focused PostgreSQL suite, full gate, clean-tree handoff, default-off HTTP 503 smoke, mock guest checkout Chromium, and independent reviews passed. PR #568 opened; its implementation head `0aa36fc7` passed GitHub CI, PR template, Vercel, CodeRabbit, and evaluator PASS 10/10 with MERGEABLE/CLEAN status. Check the PR for the latest final-head result before human review.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.
