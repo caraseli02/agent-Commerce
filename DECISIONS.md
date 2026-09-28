@@ -23,6 +23,7 @@ Use this file for durable cross-session decisions that should survive context re
 - Webhook deduplication covers the provider transition, not the entire request.
   - Event ID + Payment transition commit atomically.
   - For normal fulfillment, `payment_intent.succeeded` returns `2xx` only after critical Inventory/Order/claim finalization succeeds or is already complete.
+  - For provider cancellation, `payment_intent.canceled` returns `2xx` only after a canceled Payment, Inventory release/expiry, and terminal `canceled` claim commit together. Duplicate delivery may retry that application consequence.
   - For a durable `REFUND` recovery decision, fulfillment is forbidden; Order becomes `ON_HOLD` and claim becomes `compensation_pending`.
   - The original payment-success webhook may acknowledge the REFUND branch only after a durable Stripe Refund ID exists (or the Refund already succeeded). Before that, duplicate delivery resumes the same compensation path.
   - Refund `FAILED` / unsafe-unknown states keep the Order `ON_HOLD` and claim in compensation recovery; they never fall back to fulfillment.

@@ -176,8 +176,10 @@ defaults leave it off. Do not enable that gate until #559 proves every older
 mock-completion writer sharing the database is upgraded, retired, or isolated.
 The existing checkout route continues to use the mock flow during this phase.
 The #557 Stripe webhook endpoint additionally requires `STRIPE_WEBHOOK_SECRET`
-from its Stripe endpoint or CLI listener. Signed paid/canceled events remain
-retryable until the later application completion slices are implemented.
+from its Stripe endpoint or CLI listener. Signed paid events with a valid
+reservation acknowledge after normal checkout finalization; canceled events
+acknowledge after checkout terminalization. Late-paid compensation remains a
+later application completion slice.
 
 ## Mock architecture
 

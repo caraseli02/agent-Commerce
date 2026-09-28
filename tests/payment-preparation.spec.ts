@@ -410,6 +410,9 @@ describe('durable payment preparation boundary', () => {
       command.cartOwnerId,
     ]);
     await database.execute('UPDATE checkout_payments SET status = $1 WHERE id = $2', [status, prepared!.payment_id]);
+    if (status === 'CANCELED') {
+      await database.execute("UPDATE checkout_claims SET workflow_status='canceled' WHERE payment_id=$1", [prepared!.payment_id]);
+    }
     expect(await dependencies.payments.getPaymentPreparation(prepared!.payment_id)).toMatchObject({ status });
 
     const continuePayment = vi.fn(dependencies.payments.continuePayment);
@@ -436,7 +439,7 @@ describe('durable payment preparation boundary', () => {
     );
     expect(state).toEqual({
       payment_status: status,
-      workflow_status: 'payment_pending',
+      workflow_status: status === 'CANCELED' ? 'canceled' : 'payment_pending',
       paid_by_payment_id: null,
       reservation_status: 'active',
     });

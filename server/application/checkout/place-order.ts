@@ -60,7 +60,7 @@ type ClaimRow = {
   order_id: string | null;
   reservation_id: string | null;
   payment_id: string | null;
-  workflow_status: 'prepared' | 'payment_pending' | 'finalized' | 'recovery_required';
+  workflow_status: 'prepared' | 'payment_pending' | 'finalized' | 'recovery_required' | 'canceled';
   result_json: string | null;
 };
 export type PlaceOrderCoordinator = ReturnType<typeof createPlaceOrderCoordinator>;
@@ -352,7 +352,7 @@ export const createPlaceOrderUseCase =
         clientSecret: typeof persisted.clientSecret === 'string' ? persisted.clientSecret : undefined,
       };
     }
-    if (payment.status === 'FAILED' || payment.status === 'CANCELED')
+    if (prepared.workflow_status === 'canceled' || payment.status === 'FAILED' || payment.status === 'CANCELED')
       throw new PlaceOrderError('payment_failed', 409, 'The prepared Payment is terminal and cannot be resumed.');
     if (payment.status === 'PROCESSING')
       throw new PlaceOrderError('payment_recovery_required', 409, 'The Payment is still processing and requires recovery.');
@@ -394,7 +394,7 @@ export const createPlaceOrderUseCase =
         const database = await getCheckoutDatabase();
         await database.execute(
           `UPDATE checkout_claims SET workflow_status='recovery_required',updated_at=$1
-            WHERE owner_id=$2 AND request_id=$3 AND workflow_status <> 'finalized'`,
+            WHERE owner_id=$2 AND request_id=$3 AND workflow_status NOT IN ('finalized','canceled')`,
           [new Date().toISOString(), prepared.owner_id, prepared.request_id],
         );
       });
