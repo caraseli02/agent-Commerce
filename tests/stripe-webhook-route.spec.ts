@@ -4,6 +4,7 @@ const webhook = vi.hoisted(() => ({
   handle: vi.fn(),
   apply: vi.fn(),
   enabled: vi.fn(() => false),
+  finalize: vi.fn(),
 }));
 
 vi.mock('~/server/domain/payments', () => ({ handleStripeWebhook: webhook.handle }));
@@ -11,6 +12,7 @@ vi.mock('~/server/application/checkout/stripe-payment', () => ({
   stripePayments: { applyVerifiedIntentEvent: webhook.apply },
   stripePaymentsEnabled: webhook.enabled,
 }));
+vi.mock('~/server/application/checkout/finalize-paid-checkout', () => ({ finalizePaidCheckout: webhook.finalize }));
 
 type FakeEvent = { rawBody: Buffer; signature?: string };
 let route: (event: FakeEvent) => Promise<unknown>;
@@ -43,7 +45,13 @@ describe('Stripe webhook route', () => {
     const response = await route({ rawBody, signature: 't=123,v1=abc' });
     expect(response).toEqual({ received: true });
     expect(webhook.handle).toHaveBeenCalledWith(
-      expect.objectContaining({ rawBody, signature: 't=123,v1=abc', enabled: false, applyVerifiedIntentEvent: webhook.apply }),
+      expect.objectContaining({
+        rawBody,
+        signature: 't=123,v1=abc',
+        enabled: false,
+        applyVerifiedIntentEvent: webhook.apply,
+        finalizePaidCheckout: webhook.finalize,
+      }),
     );
   });
 
