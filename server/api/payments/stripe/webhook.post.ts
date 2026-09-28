@@ -1,5 +1,6 @@
 import { stripePayments, stripePaymentsEnabled } from '~/server/application/checkout/stripe-payment';
 import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
+import { terminalizeCanceledCheckout } from '~/server/application/checkout/terminalize-canceled-checkout';
 import { handleStripeWebhook } from '~/server/domain/payments';
 
 export default defineEventHandler(async (event) => {
@@ -10,6 +11,7 @@ export default defineEventHandler(async (event) => {
     enabled: stripePaymentsEnabled(),
     applyVerifiedIntentEvent: stripePayments.applyVerifiedIntentEvent,
     finalizePaidCheckout,
+    terminalizeCanceledCheckout,
   });
 
   if (result.kind !== 'accepted')

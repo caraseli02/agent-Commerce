@@ -48,6 +48,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
     const migration = source('server/infrastructure/migrations/001_checkout.sql');
     const paymentPreparationMigration = source('server/infrastructure/migrations/002_payment_preparation.sql');
     const stripeCompatibilityMigration = source('server/infrastructure/migrations/003_stripe_payment_compatibility.sql');
+    const canceledClaimMigration = source('server/infrastructure/migrations/005_canceled_checkout_claim.sql');
     const migrationRunner = source('scripts/db-migrate.mjs');
 
     expect(migration).toContain('CREATE TABLE checkout_claims');
@@ -67,6 +68,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
     expect(paymentPreparationMigration).toContain(
       "CHECK (workflow_status IN ('prepared', 'payment_pending', 'finalized', 'recovery_required'))",
     );
+    expect(canceledClaimMigration).toContain("'canceled'");
     expect(migrationRunner).toContain('pg_advisory_xact_lock');
     expect(migrationRunner).toContain('sqlForKnownRuntimeSchema');
   });
@@ -125,7 +127,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(4);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(5);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -183,7 +185,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrate(url.toString());
       await migrate(url.toString());
       const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
-      expect(Number(migrations.rows[0]?.total)).toBe(4);
+      expect(Number(migrations.rows[0]?.total)).toBe(5);
 
       const existing = await pool.query<{
         status: string;
