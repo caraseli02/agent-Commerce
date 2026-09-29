@@ -175,6 +175,13 @@ const reestablishReservation = async (reservationId: string, expiresAt: Date): P
   return { kind: 'ready', reservation: next.reservation };
 };
 
+const isReservationActive = async (reservationId: string): Promise<boolean> => {
+  const row = await readReservation('id', reservationId);
+  if (!row) return false;
+  await expireIfNeeded(row);
+  return row.status === 'active';
+};
+
 const commit = async (reservationId: string): Promise<CommitReservationResult> => {
   const row = await readReservation('id', reservationId);
   if (!row) return { kind: 'not-found' };
@@ -212,4 +219,4 @@ const release = async (reservationId: string): Promise<ReleaseReservationResult>
   return { kind: 'released' };
 };
 
-export const inventory = { reserve, reestablishReservation, commit, release };
+export const inventory = { reserve, reestablishReservation, isReservationActive, commit, release };
