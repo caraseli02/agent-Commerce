@@ -180,6 +180,10 @@ from its Stripe endpoint or CLI listener. Signed paid events with a valid
 reservation acknowledge after normal checkout finalization; canceled events
 acknowledge after checkout terminalization. Late-paid compensation remains a
 later application completion slice.
+After provider cancellation, `POST /api/orders/:id/restart` advances an unchanged
+Cart to a new revision for the same owner and returns `reviewRequired`. A buyer
+must request a fresh `/api/orders/price` review and use a new checkout request
+key; the canceled Order, Payment, and PaymentIntent are never resumed.
 
 ## Mock architecture
 

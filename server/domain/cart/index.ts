@@ -19,6 +19,8 @@ export type CheckoutCartSnapshot = Readonly<{
 export type GetCheckoutCartResult = { kind: 'found'; snapshot: CheckoutCartSnapshot } | { kind: 'not-found' } | { kind: 'forbidden' };
 
 export type CompleteCheckoutResult = { kind: 'completed' } | { kind: 'cart-changed' } | { kind: 'not-found' } | { kind: 'forbidden' };
+export type RestartForReviewResult =
+  { kind: 'review-required'; cartRevision: CartRevision } | { kind: 'cart-empty' | 'cart-changed' | 'not-found' | 'forbidden' };
 
 type CartRow = {
   owner_id: string;
@@ -88,7 +90,31 @@ const completeCheckout = async (input: {
   return changed === 1 ? { kind: 'completed' } : { kind: 'cart-changed' };
 };
 
+const restartForReview = async (input: {
+  cartId: string;
+  ownerId: string;
+  canceledRevision: CartRevision;
+}): Promise<RestartForReviewResult> => {
+  const row = await readCart(input.cartId);
+  if (!row) return { kind: 'not-found' };
+  if (row.owner_id !== input.ownerId) return { kind: 'forbidden' };
+
+  const canceledRevision = Number(input.canceledRevision);
+  if (!Number.isSafeInteger(canceledRevision) || row.revision < canceledRevision) return { kind: 'cart-changed' };
+  if (!normalizeItems(JSON.parse(row.payload_json) as CartInterface).length) return { kind: 'cart-empty' };
+  if (row.revision > canceledRevision) return { kind: 'review-required', cartRevision: String(row.revision) };
+
+  const database = await getCheckoutDatabase();
+  const [updated] = await database.query<{ revision: number }>(
+    `UPDATE checkout_carts SET revision = revision + 1, updated_at = $1
+      WHERE cart_id = $2 AND owner_id = $3 AND revision = $4 RETURNING revision`,
+    [new Date().toISOString(), input.cartId, input.ownerId, canceledRevision],
+  );
+  return updated ? { kind: 'review-required', cartRevision: String(updated.revision) } : { kind: 'cart-changed' };
+};
+
 export const cart = {
   getSnapshot,
   completeCheckout,
+  restartForReview,
 };
