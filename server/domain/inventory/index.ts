@@ -28,6 +28,11 @@ export type CommitReservationResult =
 export type ReleaseReservationResult =
   { kind: 'released' } | { kind: 'already-released' } | { kind: 'committed' } | { kind: 'expired' } | { kind: 'not-found' };
 
+export type ReestablishReservationResult =
+  | { kind: 'ready'; reservation: InventoryReservation }
+  | { kind: 'unavailable'; productId: string; requested: number; available: number }
+  | { kind: 'recovery-required' };
+
 type ReservationRow = {
   id: string;
   reservation_key: string;
@@ -153,6 +158,23 @@ const reserve = async (input: {
   return { kind: 'created', reservation };
 };
 
+const reestablishReservation = async (reservationId: string, expiresAt: Date): Promise<ReestablishReservationResult> => {
+  const previous = await readReservation('id', reservationId);
+  if (!previous) return { kind: 'recovery-required' };
+  await expireIfNeeded(previous);
+  if (previous.status === 'active') return { kind: 'ready', reservation: toPublicReservation(previous) };
+  if (previous.status !== 'expired') return { kind: 'recovery-required' };
+
+  const next = await reserve({
+    reservationKey: `${previous.reservation_key}:after:${previous.id}`,
+    items: JSON.parse(previous.items_json) as ReservationItem[],
+    expiresAt,
+  });
+  if (next.kind === 'unavailable') return next;
+  if (next.kind === 'conflict' || next.reservation.status !== 'active') return { kind: 'recovery-required' };
+  return { kind: 'ready', reservation: next.reservation };
+};
+
 const commit = async (reservationId: string): Promise<CommitReservationResult> => {
   const row = await readReservation('id', reservationId);
   if (!row) return { kind: 'not-found' };
@@ -190,4 +212,4 @@ const release = async (reservationId: string): Promise<ReleaseReservationResult>
   return { kind: 'released' };
 };
 
-export const inventory = { reserve, commit, release };
+export const inventory = { reserve, reestablishReservation, commit, release };
