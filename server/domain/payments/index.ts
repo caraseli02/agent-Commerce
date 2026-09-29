@@ -55,6 +55,12 @@ const getPaymentPreparation = async (paymentId: string) => {
   return row ? toPreparation(row) : null;
 };
 
+const getPaymentPreparationForUpdate = async (paymentId: string) => {
+  const database = await getCheckoutDatabase();
+  const [row] = await database.query<PaymentRow>('SELECT * FROM checkout_payments WHERE id = $1 FOR UPDATE', [paymentId]);
+  return row ? toPreparation(row) : null;
+};
+
 const preparePayment = async (input: {
   orderId: string;
   amountMinor: number;
@@ -144,4 +150,11 @@ const failPayment = async (input: { paymentId: string; providerReference: string
   return payment?.status === 'FAILED' ? { kind: 'failed' } : { kind: 'recovery-required' };
 };
 
-export const payments = { preparePayment, getPaymentPreparation, continuePayment, completePayment, failPayment };
+export const payments = {
+  preparePayment,
+  getPaymentPreparation,
+  getPaymentPreparationForUpdate,
+  continuePayment,
+  completePayment,
+  failPayment,
+};
