@@ -33,7 +33,14 @@ export const reestablishCheckoutReservation = async (input: {
 
     const order = await orders.getPaymentPreparation(input.orderId);
     const payment = await payments.getPaymentPreparationForUpdate(claim.payment_id);
-    if (!order || !payment || payment.orderId !== input.orderId) return { kind: 'recovery-required' };
+    if (
+      !order ||
+      !payment ||
+      payment.orderId !== input.orderId ||
+      payment.amountMinor !== order.grandTotalMinor ||
+      payment.currency !== order.currency
+    )
+      return { kind: 'recovery-required' };
     if (order.paidByPaymentId || (payment.status !== 'PENDING' && payment.status !== 'PROCESSING')) return { kind: 'not-payable' };
 
     const result = await inventory.reestablishReservation(claim.reservation_id, new Date(Date.now() + 15 * 60 * 1000));
