@@ -184,6 +184,11 @@ After provider cancellation, `POST /api/orders/:id/restart` advances an unchange
 Cart to a new revision for the same owner and returns `reviewRequired`. A buyer
 must request a fresh `/api/orders/price` review and use a new checkout request
 key; the canceled Order, Payment, and PaymentIntent are never resumed.
+For an existing unpaid checkout, `POST /api/orders/:id/resume-payment` enters the
+owner-scoped backend resume workflow only when the Stripe gate is enabled. It
+returns a safe payment action or processing state after server revalidation;
+otherwise it returns a stable error without a client secret. The gate remains
+off until #559's shared-database writer proof is complete.
 
 ## Mock architecture
 

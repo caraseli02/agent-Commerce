@@ -5,7 +5,7 @@
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
 - PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
-- Issues #554 and #555 are complete. PRs #565-#568 merged #557's Payment reconciliation, verified-event ledger, signed webhook ingress, and normal paid-finalization slices. PR #570 merged provider-canceled checkout terminalization; PR #571 merged explicit canceled-checkout restart; PR #572 merged reservation re-establishment as `cf0eac9f`. #557 remains the sole active issue. Stripe provider activation remains off.
+- Issues #554 and #555 are complete. PRs #565-#568 merged #557's Payment reconciliation, verified-event ledger, signed webhook ingress, and normal paid-finalization slices. PR #570 merged provider-canceled checkout terminalization; PR #571 merged explicit canceled-checkout restart; PR #572 merged reservation re-establishment; PR #573 merged unpaid backend resume as `336d1ddd`. #557 remains the sole active issue. Stripe provider activation remains off.
 
 ## Completed checkout hardening
 
@@ -21,7 +21,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #557 only. #554 and #555 are closed. #557's first seven slices are merged; `codex/557-backend-unpaid-resume` is the approved eighth slice.
+- WIP is #557 only. #554 and #555 are closed. #557's first eight slices are merged; `codex/557-public-unpaid-resume-route` is the approved ninth slice.
 
 ## Reconciliation evidence
 
@@ -38,7 +38,7 @@
 
 ## In progress
 
-- #557 eighth slice (`codex/557-backend-unpaid-resume`) — application-owned unpaid resume checks the existing Order, Payment, claim, and reservation around PaymentIntent initiation and returns a safe provider-neutral action. It adds no route or UI. Sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5898248704.
+- #557 ninth slice (`codex/557-public-unpaid-resume-route`) — owner-scoped `POST /api/orders/:id/resume-payment` exposes the merged application command behind the default-off Stripe gate. It adds no Payment Element or PlaceOrder Stripe switch. Sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5906395850.
 
 ## Blocked / known baseline failures
 
@@ -74,7 +74,7 @@
 
 ## Next work
 
-1. Complete the approved unpaid backend resume PR for #557, then continue #557 with public resume entry and late-paid recovery/compensation application states. Keep Stripe activation off. Then continue in dependency order:
+1. Complete the approved public unpaid-resume route PR for #557, then continue #557 with late-paid recovery/compensation application states. Keep Stripe activation off. Then continue in dependency order:
    - #556 — Payment Element/card + 3DS UI after backend recovery is available;
    - #558 — mutually exclusive late-success decision, `ON_HOLD` compensation continuation, full Refund, and refund webhooks;
    - #559 — unsafe-writer retirement + cross-version replay + Stripe activation gate, then Vercel validation and later schema contract gate.
@@ -90,5 +90,6 @@
 - #557 fifth slice: PR #570 merged as `c338f120` after focused isolated-PostgreSQL tests 36/36, full and clean-tree handoff gates (87 files, 453 passed, 2 todo), default-off webhook HTTP 503, guest checkout Chromium 1/1, GitHub CI/Vercel/CodeRabbit, and final-head GPT-6 Sol evaluator PASS 10/10.
 - #557 sixth slice: PR #571 merged as `91d26ba8` after focused isolated-PostgreSQL restart and existing API tests 11/11, `pnpm verify:full` and clean-tree `pnpm verify:handoff` (88 files, 459 passed, 2 todo), built-server guest HTTP restart → fresh quote → new Order, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.
 - #557 seventh slice: PR #572 merged as `cf0eac9f` after focused isolated-PostgreSQL re-establishment tests 9/9, full and clean-tree handoff gates (89 files, 468 passed, 2 todo), guest checkout Chromium 1/1, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.
-- #557 eighth slice: focused isolated-PostgreSQL resume and reservation suites pass 20/20, including provider-canceled classification, paid/canceled races, expiry, and concurrent resume. `pnpm verify:full` passed build/lint/typecheck, 90 files (478 passed, 2 todo), feature/architecture checks, and preview route smoke before the final provider-canceled test was added; that test and the combined focused suite passed afterward. Guest checkout Chromium passed 1/1. Final-head clean-tree handoff and PR evaluation are tracked in GitHub. No public resume route or UI is included.
+- #557 eighth slice: PR #573 merged as `336d1ddd`. Focused isolated-PostgreSQL resume and reservation suites passed 20/20; final-head clean-tree handoff passed 90 files (479 passed, 2 todo), guest checkout Chromium 1/1, pre-push visual checks 9/9, GitHub CI/Vercel, and independent GPT-6 Astra evaluation PASS 10/10. No public resume route or UI was included.
+- #557 ninth slice: focused public route and isolated-PostgreSQL resume/reservation suites pass 29/29. `pnpm verify:full` passed build/lint/typecheck, 91 files (488 passed, 2 todo), feature/architecture checks, and preview route smoke. Built default-off resume HTTP returned 503 for an existing guest and 401 without an owner; isolated guest checkout Chromium passed 1/1. Final-head handoff and PR evaluation are tracked in GitHub.
 - Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.
