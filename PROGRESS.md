@@ -21,7 +21,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #557 only. #554 and #555 are closed. All nine #557 PR slices through #574 are merged; no #557 implementation PR is currently open.
+- WIP is #557 only. #554 and #555 are closed. All nine #557 PR slices through #574 and tracking PR #575 (`77618d25`) are merged. The next implementation slice on `codex/557-paid-recovery-claim-schema` adds persistence only for late-paid recovery.
 
 ## Reconciliation evidence
 
@@ -38,6 +38,7 @@
 
 ## In progress
 
+- #557 claim-schema slice — migration 006 adds nullable `paid_recovery_decision` (`ALLOCATE/BACKORDER/REFUND`) and permits `compensation_pending` / `compensation_recovery_required`. Existing rows, statuses, tuple constraints, and old writer SQL remain compatible. No decision selection, Order/Inventory transition, Refund operation, webhook acknowledgment change, UI, or activation is included; #557 and #558 remain open.
 - #557 remaining work — resolve paid success after reservation expiry with one durable recovery decision and compensation application states. The REFUND branch must block fulfillment and remain retryable until #558 establishes a durable provider Refund identity. PR #574's owner-scoped unpaid-resume route is merged; no Payment Element or PlaceOrder Stripe switch is active.
 
 ## Blocked / known baseline failures
@@ -83,6 +84,7 @@
 
 ## Next verification
 
+- Claim-schema slice: focused isolated-PostgreSQL migration boundary tests pass 8/8 on Node 24.14.0, including populated 001–005 upgrade, old writer inserts/updates, accepted/rejected values, tuple integrity, and migration replay. The initial Node 25 initialization/test runs produced no suite results and were interrupted; they are not passing test evidence. Node 24 `pnpm verify:full` passed build/lint/typecheck, 91 files (489 passed, 2 todo), coverage thresholds, feature/architecture checks, and preview smoke; isolated guest checkout Chromium passed 1/1. Clean-tree handoff, normal pre-push, GitHub CI, and independent final-head evaluation are next.
 - #557 first PR (#565): merged at `34797a9b`; GitHub CI and Vercel passed, independent evaluator PASS 10/10. Focused PostgreSQL suite, clean handoff gate, mock guest checkout browser smoke, and independent issue/ADR diff review passed.
 - #557 second PR (#566): merged at `ea2b66ef` after clean-tree handoff, GitHub CI, latest PR-template check, Vercel, and independent evaluator passed.
 - #557 third PR (#567): merged as `a3308698` after focused signed webhook/route tests, `pnpm verify:full`, clean-tree handoff, default-off HTTP 503 route smoke, mock guest checkout browser flow, GitHub CI, Vercel, and independent evaluator passed. Stripe remains off; live signed HTTP sandbox validation belongs before activation.
