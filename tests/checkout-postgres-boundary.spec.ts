@@ -127,7 +127,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(5);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(6);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -142,6 +142,134 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrationPool.end();
       await adminPool.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
       await adminPool.end();
+    }
+  });
+
+  it('expands populated 001–005 claims without changing rows or legacy writer compatibility, and replays safely', async () => {
+    const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+    expect(connectionString).toBeTruthy();
+    const schema = `ecas_paid_recovery_${randomUUID().replaceAll('-', '')}`;
+    const schemaIdentifier = `"${schema}"`;
+    const url = new URL(connectionString!);
+    url.searchParams.set('options', `-c search_path=${schema}`);
+    const admin = new Pool({ connectionString, max: 1 });
+    const pool = new Pool({ connectionString: url.toString(), max: 1 });
+    const statuses = ['prepared', 'payment_pending', 'finalized', 'recovery_required', 'canceled'];
+    const timestamp = '2026-09-30T00:00:00.000Z';
+    const snapshot = async () => {
+      const tables = ['checkout_claims', 'checkout_orders', 'checkout_payments', 'checkout_reservations'];
+      return Promise.all(tables.map(async (table) => (await pool.query(`SELECT * FROM ${table} ORDER BY 1`)).rows));
+    };
+
+    try {
+      await admin.query(`CREATE SCHEMA ${schemaIdentifier}`);
+      await installPaymentPreparationSchema(pool);
+      for (const filename of ['003_stripe_payment_compatibility.sql', '004_stripe_webhook_events.sql', '005_canceled_checkout_claim.sql']) {
+        const sql = source(`server/infrastructure/migrations/${filename}`);
+        await pool.query(sql);
+        await pool.query('INSERT INTO checkout_schema_migrations (filename, checksum) VALUES ($1, $2)', [
+          filename,
+          createHash('sha256').update(sql).digest('hex'),
+        ]);
+      }
+      await pool.query(
+        `INSERT INTO checkout_orders (id, customer_id, checkout_request_id, source_cart_id, source_cart_revision,
+           fingerprint, payload_json, created_at, updated_at, grand_total_minor, currency)
+         SELECT value, value, value, value, 1, 'fp', '{}', $2, $2, 100, 'RON' FROM unnest($1::text[]) AS value`,
+        [statuses, timestamp],
+      );
+      await pool.query(
+        `INSERT INTO checkout_payments (id, order_id, payload_json, created_at, updated_at, status, amount_minor, currency)
+         SELECT id, id, '{}', $1, $1, 'PAID', 100, 'RON' FROM checkout_orders`,
+        [timestamp],
+      );
+      await pool.query(
+        `INSERT INTO checkout_reservations (id, reservation_key, fingerprint, items_json, expires_at, status)
+         SELECT id, id, 'fp', '[]', $1, 'expired' FROM checkout_orders`,
+        [timestamp],
+      );
+      // These explicit columns are the pre-006 claim writer; it never supplies a recovery decision.
+      const insertClaim = (status: string) =>
+        pool.query(
+          `INSERT INTO checkout_claims (owner_id, request_id, fingerprint, cart_id, cart_revision, result_json,
+             created_at, updated_at, order_id, reservation_id, payment_id, workflow_status)
+           VALUES ($1, $1, 'fp', $1, 1, '{"orderId":"legacy"}', $2, $2, $1, $1, $1, $1)`,
+          [status, timestamp],
+        );
+      for (const status of statuses) await insertClaim(status);
+      await pool.query(
+        `INSERT INTO checkout_claims (owner_id, request_id, fingerprint, cart_id, cart_revision, created_at, updated_at, workflow_status)
+         VALUES ('incomplete', 'incomplete', 'fp', 'incomplete', 1, $1, $1, 'recovery_required')`,
+        [timestamp],
+      );
+      const before = await snapshot();
+      const { migrate } = await import('../scripts/db-migrate.mjs');
+      await migrate(url.toString());
+      const after = await snapshot();
+      expect(after[0]).toEqual(before[0]!.map((row) => ({ ...row, paid_recovery_decision: null })));
+      expect(after.slice(1)).toEqual(before.slice(1));
+
+      // Replay an old insert and all old status updates after the upgrade.
+      await pool.query("DELETE FROM checkout_claims WHERE owner_id = 'prepared'");
+      await insertClaim('prepared');
+      const updateClaim = (status: string | null, decision: string | null) =>
+        pool.query(
+          `UPDATE checkout_claims SET workflow_status = $1, paid_recovery_decision = $2
+           WHERE owner_id = 'prepared' RETURNING workflow_status, paid_recovery_decision`,
+          [status, decision],
+        );
+      for (const status of statuses) {
+        await pool.query("UPDATE checkout_claims SET workflow_status = $1 WHERE owner_id = 'prepared'", [status]);
+      }
+      for (const status of ['compensation_pending', 'compensation_recovery_required']) {
+        for (const decision of [null, 'ALLOCATE', 'BACKORDER', 'REFUND']) {
+          expect((await updateClaim(status, decision)).rows).toEqual([{ workflow_status: status, paid_recovery_decision: decision }]);
+        }
+      }
+      for (const decision of ['', 'refund', 'UNKNOWN']) {
+        await expect(updateClaim('compensation_pending', decision)).rejects.toMatchObject({
+          code: '23514',
+          constraint: 'checkout_claims_paid_recovery_decision_valid',
+        });
+      }
+      await expect(updateClaim('unknown', null)).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'checkout_claims_workflow_status_valid',
+      });
+      await expect(updateClaim(null, null)).rejects.toMatchObject({ code: '23502' });
+      for (const status of ['compensation_pending', 'compensation_recovery_required']) {
+        await expect(
+          pool.query("UPDATE checkout_claims SET workflow_status = $1 WHERE owner_id = 'incomplete'", [status]),
+        ).rejects.toMatchObject({
+          code: '23514',
+          constraint: 'checkout_claims_complete_tuple',
+        });
+      }
+      await expect(pool.query("UPDATE checkout_claims SET reservation_id = 'missing' WHERE owner_id = 'prepared'")).rejects.toMatchObject({
+        code: '23503',
+        constraint: 'checkout_claims_reservation_fk',
+      });
+      await expect(pool.query("UPDATE checkout_claims SET reservation_id = 'finalized' WHERE owner_id = 'prepared'")).rejects.toMatchObject(
+        {
+          code: '23505',
+          constraint: 'checkout_claims_reservation_unique',
+        },
+      );
+
+      const replayBefore = await snapshot();
+      const historyBefore = (await pool.query('SELECT * FROM checkout_schema_migrations ORDER BY filename')).rows;
+      expect(historyBefore).toHaveLength(6);
+      expect(historyBefore[5]).toMatchObject({
+        filename: '006_paid_recovery_claim.sql',
+        checksum: createHash('sha256').update(source('server/infrastructure/migrations/006_paid_recovery_claim.sql')).digest('hex'),
+      });
+      await migrate(url.toString());
+      expect(await snapshot()).toEqual(replayBefore);
+      expect((await pool.query('SELECT * FROM checkout_schema_migrations ORDER BY filename')).rows).toEqual(historyBefore);
+    } finally {
+      await pool.end();
+      await admin.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
+      await admin.end();
     }
   });
 
@@ -185,7 +313,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrate(url.toString());
       await migrate(url.toString());
       const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
-      expect(Number(migrations.rows[0]?.total)).toBe(5);
+      expect(Number(migrations.rows[0]?.total)).toBe(6);
 
       const existing = await pool.query<{
         status: string;
