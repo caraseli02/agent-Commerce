@@ -60,7 +60,15 @@ type ClaimRow = {
   order_id: string | null;
   reservation_id: string | null;
   payment_id: string | null;
-  workflow_status: 'prepared' | 'payment_pending' | 'finalized' | 'recovery_required' | 'canceled';
+  workflow_status:
+    | 'prepared'
+    | 'payment_pending'
+    | 'finalized'
+    | 'recovery_required'
+    | 'canceled'
+    | 'compensation_pending'
+    | 'compensation_recovery_required';
+  paid_recovery_decision: 'ALLOCATE' | 'BACKORDER' | 'REFUND' | null;
   result_json: string | null;
 };
 export type PlaceOrderCoordinator = ReturnType<typeof createPlaceOrderCoordinator>;
@@ -340,6 +348,11 @@ export const createPlaceOrderUseCase =
         // Cart cleanup is a best-effort retryable step after durable order finalization.
       }
     };
+    if (
+      prepared.paid_recovery_decision === 'REFUND' ||
+      ['compensation_pending', 'compensation_recovery_required'].includes(prepared.workflow_status)
+    )
+      throw new PlaceOrderError('payment_recovery_required', 409, 'The paid checkout is held for compensation.');
     if (prepared.workflow_status === 'finalized') {
       if (payment.status !== 'PAID')
         throw new PlaceOrderError('payment_recovery_required', 409, 'The finalized checkout Payment requires recovery.');
@@ -376,6 +389,17 @@ export const createPlaceOrderUseCase =
     if (payment.status !== 'PAID') throw new PlaceOrderError('payment_recovery_required', 409, 'The Payment state requires recovery.');
     try {
       await withCheckoutTransaction(async () => {
+        const database = await getCheckoutDatabase();
+        const [current] = await database.query<ClaimRow>('SELECT * FROM checkout_claims WHERE owner_id=$1 AND request_id=$2 FOR UPDATE', [
+          prepared.owner_id,
+          prepared.request_id,
+        ]);
+        if (
+          !current ||
+          current.paid_recovery_decision === 'REFUND' ||
+          !['payment_pending', 'recovery_required', 'finalized'].includes(current.workflow_status)
+        )
+          throw new PlaceOrderError('payment_recovery_required', 409, 'The paid checkout cannot enter fulfillment.');
         const commit = await dependencies.inventory.commit(prepared.reservation_id);
         if (commit.kind !== 'committed' && commit.kind !== 'already-committed')
           throw new PlaceOrderError('inventory_recovery_required', 409, 'Paid checkout inventory requires recovery.');
@@ -383,7 +407,6 @@ export const createPlaceOrderUseCase =
         if (confirmation.kind === 'not-found')
           throw new PlaceOrderError('order_recovery_required', 500, 'The paid Order could not be finalized.');
         const result = toLegacyPaymentResult(payment!, command.order);
-        const database = await getCheckoutDatabase();
         await database.execute(
           `UPDATE checkout_claims SET workflow_status='finalized',result_json=$1,updated_at=$2 WHERE owner_id=$3 AND request_id=$4`,
           [JSON.stringify(result), new Date().toISOString(), prepared.owner_id, prepared.request_id],
@@ -394,7 +417,8 @@ export const createPlaceOrderUseCase =
         const database = await getCheckoutDatabase();
         await database.execute(
           `UPDATE checkout_claims SET workflow_status='recovery_required',updated_at=$1
-            WHERE owner_id=$2 AND request_id=$3 AND workflow_status NOT IN ('finalized','canceled')`,
+            WHERE owner_id=$2 AND request_id=$3 AND workflow_status NOT IN ('finalized','canceled','compensation_pending','compensation_recovery_required')
+              AND paid_recovery_decision IS DISTINCT FROM 'REFUND'`,
           [new Date().toISOString(), prepared.owner_id, prepared.request_id],
         );
       });

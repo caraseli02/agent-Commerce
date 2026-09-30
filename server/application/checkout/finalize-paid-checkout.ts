@@ -13,6 +13,7 @@ type ClaimRow = {
   reservation_id: string | null;
   payment_id: string | null;
   workflow_status: string;
+  paid_recovery_decision: 'ALLOCATE' | 'BACKORDER' | 'REFUND' | null;
 };
 
 type Finalization = { kind: 'retry' } | { kind: 'finalized'; cartId: string; ownerId: string; cartRevision: number };
@@ -25,6 +26,9 @@ export const finalizePaidCheckout = async (input: { paymentId: string; orderId: 
     const [claim] = await database.query<ClaimRow>('SELECT * FROM checkout_claims WHERE payment_id=$1 FOR UPDATE', [input.paymentId]);
     if (!claim || claim.payment_id !== input.paymentId || claim.order_id !== input.orderId || !claim.reservation_id)
       return { kind: 'retry' };
+
+    // The durable decision forbids fulfillment even if a workflow status is stale.
+    if (claim.paid_recovery_decision === 'REFUND') return { kind: 'retry' };
 
     const payment = await payments.getPaymentPreparation(input.paymentId);
     if (payment?.status !== 'PAID' || payment.orderId !== input.orderId) return { kind: 'retry' };

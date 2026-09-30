@@ -29,6 +29,7 @@ export const statusColors = {
   [OrderStatus.Delivered]: 'bg-green-800',
   // [OrderStatus.PaymentDeclined]: 'bg-red-700',
   [OrderStatus.Pending]: 'bg-yellow-400',
+  [OrderStatus.OnHold]: 'bg-amber-600',
   [OrderStatus.Dispatched]: 'bg-blue-600',
   // [OrderStatus.AwaitingShipment]: 'bg-yellow-300',
   // [OrderStatus.AwaitingPickup]: 'bg-yellow-200',
