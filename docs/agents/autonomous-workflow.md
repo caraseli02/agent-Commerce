@@ -80,7 +80,7 @@ The planner output must include:
 - Acceptance criteria summary.
 - Files or areas likely to change.
 - Dependency check: what must already be merged or true.
-- Verification plan: narrow check first, then full gate if relevant.
+- Verification plan: inspect affected consumers, select targeted checks with reasons/dependencies and relevant routes/viewports, then delivery gates.
 - Evaluator expectations: what evidence the evaluator should require.
 
 The planner must claim exactly one issue and keep WIP=1.
@@ -92,11 +92,11 @@ The generator must:
 1. Read the planner work brief and the full GitHub issue.
 2. Start from clean latest `main` and work on the claimed branch only.
 3. Make the smallest change that satisfies the issue.
-4. Run local pre-flight verification from the brief.
+4. Inspect the implementation diff and affected consumers, run targeted verification from the brief, and keep the local verification record described in `docs/agents/verification.md` when evidence reuse/continuation is needed. For UI effects, use `.agents/skills/verify-ui-change/SKILL.md`. Repair failures within scope and rerun only invalidated checks; continue without asking the user to continue. Run existing delivery gates before shipping.
 5. Open or update a PR linked with `Closes #<issue>`. Populate `.github/pull_request_template.md` in the initial create command; do not open an empty PR and patch its description later.
 6. End with `PR ready for evaluator`, not `done`.
 
-The generator's checks are useful evidence, but they are not the final done gate.
+The generator's checks are useful evidence, but they are not the final done gate. Saved local verification state does not schedule or wake an agent; the existing controller or an explicitly resumed session must invoke continuation.
 
 ## Evaluator contract
 
@@ -123,7 +123,7 @@ When an `in-progress` issue already has an open PR, controller logic must route 
 
 - No current-head evaluator verdict: wait for evaluator; do not run generator again.
 - `PASS`: wait for human review/merge or state cleanup; do not select new work until WIP is clear.
-- `FAIL`: generate a focused repair brief from the evaluator comment and update the same branch/PR.
+- `FAIL`: generate a focused repair brief from the evaluator comment, rerun the failing and invalidated checks, then delivery gates before updating the same branch/PR. Stop after two focused failed repair attempts and report the concrete blocker.
 - `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
 
 ## Evaluator report format

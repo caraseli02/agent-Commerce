@@ -13,13 +13,13 @@ Read these before coding:
 5. Relevant issue via `gh issue view <number> --comments`
 6. Relevant topic docs under `docs/agents/`
 
-Then run:
+For a fresh checkout/worktree, run:
 
 ```bash
 ./init.sh
 ```
 
-If `./init.sh` fails, fix the baseline or report the failure before feature work.
+If `./init.sh` fails, fix the baseline or report the failure before feature work. In an already initialized continuing session, inspect the saved verification record and baseline evidence before choosing checks; do not reinstall/reinitialize after each repair.
 
 ## 2. Sprint contract before coding
 
@@ -44,12 +44,13 @@ This makes the process observable and prevents scope creep.
 2. Skip issues already assigned, already `in-progress`, or already linked to an active PR.
 3. Add `in-progress`, assign the working account, and comment with branch name.
 4. Create a fresh branch/worktree from `origin/main`.
-5. Do not start a second issue until the first one has a PR, blocker note, or explicit handoff.
+5. Do not start a second issue while an `in-progress` issue has an open PR. Keep the same issue until evaluator PASS or a human blocker/replacement and state cleanup, as defined in `autonomous-workflow.md`.
 
 ## 4. During work
 
 - Prefer TDD when a behavior can be expressed as a test.
-- Make one small decision, one small change, then one verification run.
+- Make one small decision, one small change, then the smallest meaningful verification. Inspect affected consumers and record check-selection reasons; use `verify-ui-change` for direct or indirect UI effects.
+- After a focused repair, rerun only invalidated checks and continue the authorized task. Save stage, revision/diff fingerprint, evidence freshness, and next action in ignored `tmp/verification/<task-id>.md` when continuation is needed; see `verification.md`.
 - If the task grows past roughly three files or crosses unrelated concerns, split it.
 - Do not refactor adjacent code until the core behavior is verified.
 - Record durable decisions in `DECISIONS.md`, not in chat only.
@@ -76,12 +77,14 @@ Blocker note format:
 
 A session is not complete until both task verification and clean-state checks pass.
 
-Run/check:
+For application PR/session delivery, run/check:
 
 ```bash
 pnpm verify
 pnpm verify:handoff
 ```
+
+Documentation/skill-only local handoff may use the targeted validation exception in `verification.md`; normal push/CI gates still apply. Do not claim clean-tree delivery checks passed while changes remain uncommitted.
 
 Also verify:
 

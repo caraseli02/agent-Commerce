@@ -65,7 +65,7 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 ## Initialization / WIP rules
 
 - First session on a fresh branch should initialize the repo before feature work.
-- One loop should do one narrow task, verify it, and stop.
+- One loop should make one narrow change, verify it, and continue the authorized task; stop for completion or the documented blocker protocol.
 - Keep only one task active at a time.
 - If the task grows beyond a few files or turns into a second unrelated fix, split it.
 
@@ -79,9 +79,9 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 ## Verification order
 
-1. `pnpm verify`
-2. Use `pnpm verify:full` when architecture/runtime smoke evidence is needed
-3. Use `pnpm verify:handoff` before final session/PR handoff from a clean working tree
+1. During implementation, inspect the diff/affected consumers and select the smallest relevant checks with reasons. Use `.agents/skills/verify-ui-change/SKILL.md` for direct or indirect UI effects.
+2. After repairs, rerun only invalidated checks; continue until the scoped behavior passes or a blocker applies.
+3. At delivery, run `pnpm verify`, `pnpm verify:full` when architecture/runtime evidence is needed, and `pnpm verify:handoff` from a clean working tree. Existing pre-push/CI gates remain. Documentation/skill-only local work follows the targeted exception in `docs/agents/verification.md`.
 
 Use `docs/agents/verification.md` before declaring done.
 
