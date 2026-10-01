@@ -1,7 +1,1 @@
-pnpm verify
-
-if [ "$(uname -s)" = "Darwin" ]; then
-  pnpm test:visual
-else
-  echo "Skipping pnpm test:visual: committed visual baselines currently support macOS only."
-fi
+node scripts/select-visual-checks.mjs "$1" --verify --run

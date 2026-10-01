@@ -2,6 +2,8 @@
 
 ## Current focus
 
+- Explicit user-directed harness request: align executable pre-push visual selection with targeted verification. This does not claim a second queued issue; #557 remains sole active payment work, and PR #579 at bdb775cc and its separate checkout are untouched.
+
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
 - PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
@@ -66,6 +68,8 @@
 
 ## Verification baseline
 
+- Visual-selection harness: focused Git-fixture/hook tests pass 12/12; changed-file ESLint passes. Known non-runtime changes skip screenshots; runtime skip/targeting requires a committed patch fingerprint and consumer trace, otherwise full. Application runtime and CI nonvisual gates are unchanged. Delivery and independent evaluation pending.
+
 - PR #550 reports `pnpm build`, `pnpm lint`, and `pnpm typecheck` passing.
 - Its earlier full gate records 376 tests passed with 2 todo; the final product-SSR focused Vitest run passed 8 tests.
 - The latest GitHub `verify` and Vercel Preview rebuild for the PR head passed.
@@ -91,7 +95,7 @@
 - #557 third PR (#567): merged as `a3308698` after focused signed webhook/route tests, `pnpm verify:full`, clean-tree handoff, default-off HTTP 503 route smoke, mock guest checkout browser flow, GitHub CI, Vercel, and independent evaluator passed. Stripe remains off; live signed HTTP sandbox validation belongs before activation.
 - #557 fourth slice: PR #568 merged as `b9817835` after focused PostgreSQL suite, full gate, clean-tree handoff, default-off HTTP 503 smoke, mock guest checkout Chromium, GitHub CI, Vercel, and independent evaluator PASS 10/10.
 - #557 fifth slice: PR #570 merged as `c338f120` after focused isolated-PostgreSQL tests 36/36, full and clean-tree handoff gates (87 files, 453 passed, 2 todo), default-off webhook HTTP 503, guest checkout Chromium 1/1, GitHub CI/Vercel/CodeRabbit, and final-head GPT-6 Sol evaluator PASS 10/10.
-- #557 sixth slice: PR #571 merged as `91d26ba8` after focused isolated-PostgreSQL restart and existing API tests 11/11, `pnpm verify:full` and clean-tree `pnpm verify:handoff` (88 files, 459 passed, 2 todo), built-server guest HTTP restart → fresh quote → new Order, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.
+- #557 sixth slice: PR #571 merged as `91d26ba8` after focused isolated-PostgreSQL restart and existing API tests 12/12, `pnpm verify:full` and clean-tree `pnpm verify:handoff` (88 files, 459 passed, 2 todo), built-server guest HTTP restart → fresh quote → new Order, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.
 - #557 seventh slice: PR #572 merged as `cf0eac9f` after focused isolated-PostgreSQL re-establishment tests 9/9, full and clean-tree handoff gates (89 files, 468 passed, 2 todo), guest checkout Chromium 1/1, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.
 - #557 eighth slice: PR #573 merged as `336d1ddd`. Focused isolated-PostgreSQL resume and reservation suites passed 20/20; final-head clean-tree handoff passed 90 files (479 passed, 2 todo), guest checkout Chromium 1/1, pre-push visual checks 9/9, GitHub CI/Vercel, and independent GPT-6 Astra evaluation PASS 10/10. No public resume route or UI was included.
 - #557 ninth slice: PR #574 merged as `d7f0fafa` on 2026-09-30. Focused public route and isolated-PostgreSQL resume/reservation suites passed 29/29. Full and clean-tree handoff gates passed build/lint/typecheck, 91 files (488 passed, 2 todo), feature/architecture checks, and preview route smoke. Built default-off resume HTTP returned 503 for an existing guest and 401 without an owner; isolated guest checkout Chromium passed 1/1. GitHub CI/template/Vercel/CodeRabbit passed, and independent GPT-6 Astra evaluation returned PASS 10/10 with no findings.
