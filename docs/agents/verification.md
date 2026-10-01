@@ -107,7 +107,41 @@ Use this policy to keep PRs reviewable and avoid scattering one-off artifacts ac
 
 ## Local visual-regression pilot
 
-The visual suite is a local review aid for the Tailwind/Nuxt recovery work. On macOS, where reviewed baselines exist, Husky runs it before normal pushes so visual mismatches block the usual local push/PR workflow. Other platforms print an explicit skip message after `pnpm verify`. The suite is not a GitHub required check, does not independently block merges, and has no CI job, artifact upload, Docker/Linux baseline, or visual SaaS integration.
+The visual suite is a local review aid for the Tailwind/Nuxt recovery work. Husky always runs `pnpm verify`, then uses `scripts/select-visual-checks.mjs` to skip, target, or run the full visual suite from the pushed changes. Selected visual mismatches block normal macOS pushes. Other platforms explicitly report the unsupported baselines when visuals are selected. The suite is not a GitHub required check, does not independently block merges, and has no CI job, artifact upload, Docker/Linux baseline, or visual SaaS integration.
+
+### Push impact selection
+
+The hook reads Git's pre-push ref tuples before any child command can consume stdin. Existing refs use the actual remote SHA → pushed SHA range; first pushes use the merge base with `refs/remotes/<remote>/main`. Missing refs/base objects block the push with a diagnostic; fetch the remote main/ref and retry. All commits are included, renames are inspected as deletion + addition, ref deletions need no screenshots, and multiple refs union their checks. A different pushed runtime tree requires its own checkout; the current checkout cannot prove its visuals.
+
+Only known docs, agent/workflow/hook tooling, nonvisual tests, durable harness state, and the selector itself automatically skip screenshots. Application files of every extension, server responses, stores, composables, shared data/types/config, build scripts, dependencies, visual specs and baselines default to **full**. Paths alone cannot prove a backend change has no observable effect.
+
+For runtime changes, trace callers and observable writes, then commit `.visual-impact.json` with a reviewable assessment. Inspect a local plan after committing the runtime changes:
+
+```sh
+node scripts/select-visual-checks.mjs --base origin/main
+# Subsequent push: use the branch's remote tip as --base instead.
+```
+
+Copy the relevant decision's `fingerprint` into this record:
+
+```json
+{
+  "assessments": [
+    {
+      "fingerprint": "<printed SHA-256>",
+      "impact": "none",
+      "reason": "Internal operation has no observable UI effect",
+      "consumers": "Describe traced callers, routes, reads and writes; explain why none reaches visible state"
+    }
+  ]
+}
+```
+
+Use `impact: "targeted"` plus `tests: ["product", "cart"]` for affected visual groups. Available groups: `home`, `search`, `product`, `cart` (both viewports), and `orders` (mobile). Record exact routes/states/viewports and why this set covers the impact in the PR. Effects outside the screenshot matrix still require targeted browser evidence; selecting a group is not a substitute for that evidence. Use `impact: "uncertain"` or omit the assessment for the full suite.
+
+Assessments bind to the complete runtime patch, including binary content, old/new paths and modes. Documentation-only assessment commits preserve that fingerprint. Changed runtime contents or a new push base invalidate it: inspect the newly pushed range and refresh the assessment, or accept the full suite. Staged/unstaged and untracked nonignored runtime changes create separate conservative decisions, so a local reversal cannot hide a committed pushed change. The hook reads assessments from the pushed commit; uncommitted assessments cannot waive it. Keep the checkout clean for delivery so screenshots test the pushed runtime.
+
+The assessment is a reviewed consumer-tracing assertion, not an automated proof of behavior. Evaluators must challenge skips and narrow selections against the actual diff. Missing, malformed, stale, empty or unknown selections fall back to full. No application response or Stripe gate is changed by this mechanism. GitHub CI continues to run `pnpm verify`; macOS baselines remain local.
 
 - Run `pnpm test:visual` to build the app and exercise the visual matrix against a fresh local Nitro preview at `http://127.0.0.1:3100`. It must not be pointed at `pnpm dev`.
 - Run `pnpm test:visual:update` only when intentionally accepting a visual change. It writes the committed PNG baselines under `tests/visual/__screenshots__/`.
@@ -133,7 +167,7 @@ Example evidence block for a future PR:
 ## Local gate ownership
 
 - **Pre-commit:** `lint-staged` runs Prettier on staged files only.
-- **Pre-push:** `pnpm verify` on every platform, followed on macOS by `pnpm test:visual` against a fresh production preview (see `.husky/pre-push`). A failed command stops the normal push before a PR is created or updated; non-macOS platforms report that the visual step is skipped until reviewed baselines exist.
+- **Pre-push:** `pnpm verify` on every platform, followed by impact-selected visuals on macOS (see `.husky/pre-push`). A failed command stops the normal push; non-macOS platforms report unsupported baselines for selected visuals. No hook bypass is needed for a verified no-UI-impact change.
 - **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
 - **CI:** `pnpm verify` (build, lint, typecheck, coverage-enforced tests, and `feature_list.json` validation). Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
 - **Evaluator pass check:** before marking a PR review-ready, confirm `gh pr view --json mergeable,mergeStateStatus` and do not pass any PR that is `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`.

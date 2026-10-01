@@ -54,6 +54,8 @@ During implementation, inspect the diff and affected consumers, select the small
 
 Delivery gates remain `pnpm verify`, the existing pre-push hook, `pnpm verify:full` where architecture/runtime evidence is required, and `pnpm verify:handoff` from a clean working tree before final PR/session handoff. Broad gates belong at delivery, not after every repair. A documentation/skill-only local task may finish with formatting, link/frontmatter validation, and consistency inspection; record why application checks are not applicable. Publishing through the normal push/PR path still uses existing gates.
 
+Pre-push preserves `pnpm verify` and selects macOS screenshots from actual pushed ranges. Runtime skips or targeted groups require a committed, diff-bound consumer assessment; uncertain impact runs the full suite. `pnpm test:visual` still runs the full matrix explicitly.
+
 See `docs/agents/verification.md` for check selection, evidence freshness, and a lightweight ignored per-task verification record. Saved state supports continuation when an agent is running or resumed; it does not schedule or wake an agent.
 
 ## Initialization phase

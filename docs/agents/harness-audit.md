@@ -31,7 +31,7 @@ These are not blockers, but should be revisited when the repo grows:
 4. **Source-of-truth hygiene** — GitHub Issues are the primary work tracker; `PROGRESS.md` must stay current as the short session mirror and should not drift behind merged PRs.
 5. **Issue loop model quality** — local model workers should stay on tiny tasks; cloud model escalation remains appropriate for broad diagnosis/review.
 6. **UI design-system consistency** — static gates do not detect native HTML vs shadcn usage; evaluators must apply the UI checklist in `docs/agents/verification.md`. Legacy modals still mix patterns; new modal work should prefer shadcn.
-7. **CI/pre-push parity** — CI now runs `pnpm verify`; pre-push still runs build/lint/typecheck/test only. Align hooks when hook latency is acceptable.
+7. **CI/pre-push parity** — CI and pre-push run `pnpm verify`; pre-push additionally selects local macOS visuals by pushed runtime impact. See `verification.md` for conservative defaults and reviewed assessments.
 
 ## Rule for future updates
 
