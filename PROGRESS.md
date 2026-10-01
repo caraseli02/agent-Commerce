@@ -23,7 +23,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #557 only. #554/#555 are closed, and PRs through #579 are merged. Approved slice: owner-scoped local payment/checkout state read on codex/557-payment-status; implementation and focused verification are underway. The separately user-requested visual-check harness work is running in the primary checkout and is not merged into this payment branch.
+- WIP is #557 only. #554/#555 are closed, and PRs through #579 are merged. Approved slice: owner-scoped local payment/checkout state read on codex/557-payment-status; implementation is verified and delivery is underway. PR #580 merged visual-impact selection as b46f55c3; this payment branch is rebased onto it and the primary checkout remains untouched.
 
 ## Reconciliation evidence
 
@@ -87,7 +87,7 @@
 
 ## Next verification
 
-- Approved state-read slice: focused32/32 PostgreSQL pass; a distinct evaluator found the ADR finalized REFUND/Canceled/Paid case missing. Its added regression failed as expected then passed after a scoped read-classification repair. Changed-file lint/typecheck pass. Final combined read/finalization/resume and clean-tree delivery gates are next. No UI consumer exists: browser screenshots are not relevant to this helper; existing delivery hooks remain mandatory.
+- Approved state-read slice: focused32/32 PostgreSQL pass; a distinct evaluator found the ADR finalized REFUND/Canceled/Paid case missing. Its added regression failed as expected then passed after a scoped read-classification repair. Changed-file lint/typecheck pass. Clean-tree pnpm verify:handoff passed on ed417be5: 92 files, 554 passed + 2 existing todo, coverage/build/lint/typecheck, feature/UI/architecture checks, preview /,/cart,/checkout HTTP200 and clean state. Final REFUND/Canceled regression is included in this full pass. The earlier overlapping focused run observed that regression before its repair; it is superseded by the final full suite. No UI consumer exists. Rebase onto newly merged #580 changed no application/dependency source; runtime evidence is retained, while selector tests/assessment, current normal pre-push/CI and exact-head evaluation remain next.
 
 - PR #576 migration 006 is merged at 5f428295. Focused schema tests 8/8, clean-tree handoff, normal pre-push, GitHub CI/Vercel and independent evaluator PASS 10/10 were completed before human merge; the ledger and actual constraints were checked read-only on development and Production. Migration presence alone was not treated as application evidence.
 - PR #577 merged as 807a1f55 on 2026-10-01. Local handoff passed build/lint/typecheck, coverage, architecture, route smoke, and clean-state; final-head normal pre-push passed 503 tests (2 existing todo) and 9 visual checks. Focused suites passed 48/48; held paid admin detail/reload browser verification passed 1/1. GitHub CI/Vercel passed and independent evaluator PASS 10/10: https://github.com/caraseli02/agent-Commerce/pull/577#issuecomment-5919534638. The pre-existing guest detail null-user error remains documented.

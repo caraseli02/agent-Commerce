@@ -1,0 +1,10 @@
+{
+  "assessments": [
+    {
+      "fingerprint": "798788f45781c83c60e24350a05092ac5e41974b3871ecb5801a98131614fb7e",
+      "impact": "none",
+      "reason": "The new internal payment-state read has no route or UI consumer and performs no observable writes.",
+      "consumers": "readOrderPaymentState is imported only by tests/order-payment-state.spec.ts; getCheckoutStatePreparation is called only by that helper and the scheduling instrument in its test. Existing Orders facade methods, routes, stores, response serializers and UI consumers are unchanged. Both new reads SELECT local persistence within one snapshot; they do not mutate Orders, Payments, claims, Inventory or Cart, invoke providers, or expose payment actions. No rendered state or route is reachable from the added operation."
+    }
+  ]
+}
