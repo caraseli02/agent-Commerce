@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { requireRefundCompensationRecovery } from '~/server/application/checkout/require-refund-compensation-recovery';
 import { commitRefundCompensation } from '~/server/application/checkout/commit-refund-compensation';
 import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
 import { createStripeIntentAdapter, handleStripeWebhook } from '~/server/domain/payments';
@@ -345,5 +346,130 @@ describe('Stripe paid checkout finalization', () => {
       expect(fulfillment).toEqual({ kind: 'finalized' });
       expect(persisted).toMatchObject({ paid_recovery_decision: null, workflow_status: 'finalized', on_hand: 4, reserved: 0 });
     }
+  });
+
+  it('marks unsafe compensation recoverable without rewriting held paid history, stock or Cart', async () => {
+    await markPaid();
+    await commitRefundCompensation({ paymentId, orderId });
+    const before = await state();
+    expect(await requireRefundCompensationRecovery({ paymentId, orderId })).toEqual({ kind: 'recovery-required' });
+    expect(await state()).toEqual({ ...before, workflow_status: 'compensation_recovery_required' });
+    const persisted = await state();
+    expect(await requireRefundCompensationRecovery({ paymentId, orderId })).toEqual({ kind: 'recovery-required' });
+    expect(await state()).toEqual(persisted);
+    const { input } = webhookInput();
+    expect(await handleStripeWebhook(input)).toEqual({ kind: 'retry' });
+    expect(await finalizePaidCheckout({ paymentId, orderId })).toEqual({ kind: 'retry' });
+    expect(await state()).toEqual(persisted);
+  });
+
+  it('rolls back a recovery-required transition when its enclosing transaction aborts', async () => {
+    await markPaid();
+    await commitRefundCompensation({ paymentId, orderId });
+    const before = await state();
+    await expect(
+      withCheckoutTransaction(async () => {
+        expect(await requireRefundCompensationRecovery({ paymentId, orderId })).toEqual({ kind: 'recovery-required' });
+        throw new Error('compensation recovery aborted');
+      }),
+    ).rejects.toThrow('compensation recovery aborted');
+    expect(await state()).toEqual(before);
+  });
+
+  it.each([null, 'ALLOCATE', 'BACKORDER'])('rejects recovery without a durable REFUND choice (%s)', async (decision) => {
+    await markPaid();
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_claims SET paid_recovery_decision=$1 WHERE payment_id=$2', [decision, paymentId]);
+    const before = await state();
+    expect(await requireRefundCompensationRecovery({ paymentId, orderId })).toEqual({ kind: 'conflict' });
+    expect(await state()).toEqual(before);
+  });
+
+  it('rejects mismatched or missing identities and an unpaid Payment without mutation', async () => {
+    await markPaid();
+    await commitRefundCompensation({ paymentId, orderId });
+    const before = await state();
+    expect(await requireRefundCompensationRecovery({ paymentId, orderId: 'other-order' })).toEqual({ kind: 'conflict' });
+    expect(await requireRefundCompensationRecovery({ paymentId: 'missing-payment', orderId })).toEqual({ kind: 'conflict' });
+    expect(await state()).toEqual(before);
+    const database = await getCheckoutDatabase();
+    await database.execute("UPDATE checkout_payments SET status='PENDING' WHERE id=$1", [paymentId]);
+    const unpaid = await state();
+    expect(await requireRefundCompensationRecovery({ paymentId, orderId })).toEqual({ kind: 'conflict' });
+    expect(await state()).toEqual(unpaid);
+  });
+
+  it.each(['finalized', 'canceled', 'payment_pending', 'recovery_required'])(
+    'never reopens or converts REFUND workflow %s',
+    async (workflow) => {
+      await markPaid();
+      await commitRefundCompensation({ paymentId, orderId });
+      const database = await getCheckoutDatabase();
+      await database.execute('UPDATE checkout_claims SET workflow_status=$1 WHERE payment_id=$2', [workflow, paymentId]);
+      const before = await state();
+      expect(await requireRefundCompensationRecovery({ paymentId, orderId })).toEqual({ kind: 'conflict' });
+      expect(await state()).toEqual(before);
+    },
+  );
+
+  it.each(['lifecycle', 'history', 'marker'])('rejects inconsistent held Order %s', async (field) => {
+    await markPaid();
+    await commitRefundCompensation({ paymentId, orderId });
+    const database = await getCheckoutDatabase();
+    const payload = JSON.parse((await state())!.order_payload);
+    if (field === 'lifecycle') payload.order.status = 'Pending';
+    if (field === 'history') payload.order.paymentDetails.status = 0;
+    await database.execute('UPDATE checkout_orders SET payload_json=$1, paid_by_payment_id=$2 WHERE id=$3', [
+      JSON.stringify(payload),
+      field === 'marker' ? null : paymentId,
+      orderId,
+    ]);
+    const before = await state();
+    expect(await requireRefundCompensationRecovery({ paymentId, orderId })).toEqual({ kind: 'conflict' });
+    expect(await state()).toEqual(before);
+  });
+
+  it('serializes overlapping recovery reports and REFUND replay without allowing fulfillment', async () => {
+    await markPaid();
+    await commitRefundCompensation({ paymentId, orderId });
+    const before = await state();
+    const [first, second, replay, fulfillment] = await Promise.all([
+      requireRefundCompensationRecovery({ paymentId, orderId }),
+      requireRefundCompensationRecovery({ paymentId, orderId }),
+      commitRefundCompensation({ paymentId, orderId }),
+      finalizePaidCheckout({ paymentId, orderId }),
+    ]);
+    expect(first).toEqual({ kind: 'recovery-required' });
+    expect(second).toEqual({ kind: 'recovery-required' });
+    expect(replay).toEqual({ kind: 'established' });
+    expect(fulfillment).toEqual({ kind: 'retry' });
+    expect(await state()).toEqual({ ...before, workflow_status: 'compensation_recovery_required' });
+  });
+
+  it('does not reopen compensation when a concurrent completion owns the claim lock first', async () => {
+    await markPaid();
+    await commitRefundCompensation({ paymentId, orderId });
+    let unlock!: () => void;
+    let locked!: () => void;
+    const claimLocked = new Promise<void>((resolve) => {
+      locked = resolve;
+    });
+    const continueCompletion = new Promise<void>((resolve) => {
+      unlock = resolve;
+    });
+    const completion = withCheckoutTransaction(async () => {
+      const database = await getCheckoutDatabase();
+      await database.query('SELECT * FROM checkout_claims WHERE payment_id=$1 FOR UPDATE', [paymentId]);
+      locked();
+      await continueCompletion;
+      // Simulate the future settlement writer at its coordinated claim boundary.
+      await database.execute("UPDATE checkout_claims SET workflow_status='finalized' WHERE payment_id=$1", [paymentId]);
+    });
+    await claimLocked;
+    const recovery = requireRefundCompensationRecovery({ paymentId, orderId });
+    unlock();
+    await completion;
+    expect(await recovery).toEqual({ kind: 'conflict' });
+    expect(await state()).toMatchObject({ workflow_status: 'finalized', paid_recovery_decision: 'REFUND', payment_status: 'PAID' });
   });
 });
