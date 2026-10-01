@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Explicit user-directed harness request: align executable pre-push visual selection with targeted verification. This does not claim a second queued issue; #557 remains sole active payment work, and PR #579 at bdb775cc and its separate checkout are untouched.
+- Explicit user-directed harness request: align executable pre-push visual selection with targeted verification. Branch `codex/visual-impact-selection` was refreshed onto human-merged #579 (`2e2eb4e2`). This does not claim a second queued issue; #557 remains sole active payment work, and PR #579 at bdb775cc and its separate checkout are untouched.
 
 - Checkout/order hardening through PR #550 is merged on `main`.
 - Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
@@ -68,7 +68,7 @@
 
 ## Verification baseline
 
-- Visual-selection harness: focused Git-fixture/hook tests pass 12/12; changed-file ESLint passes. Known non-runtime changes skip screenshots; runtime skip/targeting requires a committed patch fingerprint and consumer trace, otherwise full. Application runtime and CI nonvisual gates are unchanged. Delivery and independent evaluation pending.
+- Visual-selection harness: focused Git-fixture/hook tests pass 12/12; changed-file ESLint passes. Known non-runtime changes skip screenshots; runtime skip/targeting requires a committed patch fingerprint and consumer trace, otherwise full. Application runtime and CI nonvisual gates are unchanged. Exact delivery, CI and independent evaluator outcomes are recorded in the codex/visual-impact-selection PR handoff.
 
 - PR #550 reports `pnpm build`, `pnpm lint`, and `pnpm typecheck` passing.
 - Its earlier full gate records 376 tests passed with 2 todo; the final product-SSR focused Vitest run passed 8 tests.
