@@ -250,6 +250,16 @@ const holdPaidForCompensation = async (input: { orderId: string; paymentId: stri
   return { kind: 'held' };
 };
 
+// Validate compensation history while holding the same Order lock used by
+// Order mutations; application workflows must not interpret Orders payload SQL.
+const isPaidCompensationHeld = async (input: { orderId: string; paymentId: string }): Promise<boolean> => {
+  const database = await getCheckoutDatabase();
+  const [row] = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE id=$1 FOR UPDATE', [input.orderId]);
+  if (!row || row.paid_by_payment_id !== input.paymentId) return false;
+  const payload = parseOrder(row);
+  return payload.order.status === OrderStatus.OnHold && payload.order.paymentDetails.status === PaymentStatusEnum.Paid;
+};
+
 export type OrderPaymentPreparation = Readonly<{
   orderId: string;
   grandTotalMinor: number;
@@ -303,4 +313,12 @@ const list = async (customerId?: string) => {
   return rows.map((row) => parseOrder(row).order);
 };
 
-export const orders = { createPending, confirmPayment, holdPaidForCompensation, getPaymentPreparation, findById, list };
+export const orders = {
+  createPending,
+  confirmPayment,
+  holdPaidForCompensation,
+  isPaidCompensationHeld,
+  getPaymentPreparation,
+  findById,
+  list,
+};
