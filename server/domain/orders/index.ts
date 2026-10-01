@@ -276,6 +276,43 @@ const getPaymentPreparation = async (orderId: string): Promise<OrderPaymentPrepa
     : null;
 };
 
+// Read-only domain preparation: callers validate checkout identity without
+// reading customer data or interpreting the Orders payload themselves.
+const getCheckoutStatePreparation = async (orderId: string) => {
+  const database = await getCheckoutDatabase();
+  const [row] = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE id=$1', [orderId]);
+  if (!row) return null;
+  let payload: PersistedOrderResponse;
+  try {
+    payload = parseOrder(row);
+  } catch {
+    return null;
+  }
+  const status = payload?.order?.status;
+  const paymentStatus = payload?.order?.paymentDetails?.status;
+  return {
+    ownerId: row.customer_id,
+    requestId: row.checkout_request_id,
+    cartId: row.source_cart_id,
+    cartRevision: Number(row.source_cart_revision),
+    grandTotalMinor: Number(row.grand_total_minor),
+    currency: row.currency,
+    paidByPaymentId: row.paid_by_payment_id,
+    unpaidPending: status === OrderStatus.Pending && paymentStatus === PaymentStatusEnum.Pending,
+    paidHeld: status === OrderStatus.OnHold && paymentStatus === PaymentStatusEnum.Paid,
+    paidCanceled: status === OrderStatus.Canceled && paymentStatus === PaymentStatusEnum.Paid,
+    paidFulfillable:
+      [
+        OrderStatus.Pending,
+        OrderStatus.Processing,
+        OrderStatus.Packaging,
+        OrderStatus.Dispatched,
+        OrderStatus.Delivered,
+        OrderStatus.Completed,
+      ].includes(status) && paymentStatus === PaymentStatusEnum.Paid,
+  };
+};
+
 const findById = async (id?: string | null, customerId?: string) => {
   if (!id) return null;
   const searchId = String(id).toLowerCase();
@@ -319,6 +356,7 @@ export const orders = {
   holdPaidForCompensation,
   isPaidCompensationHeld,
   getPaymentPreparation,
+  getCheckoutStatePreparation,
   findById,
   list,
 };

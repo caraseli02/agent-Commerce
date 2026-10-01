@@ -23,7 +23,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #557 only. #554/#555 are closed, and PRs through #579 are merged. Proposed next slice: owner-scoped local payment/checkout state read on codex/557-payment-status; implementation awaits approval. The separately user-requested visual-check harness work is running in the primary checkout and is not merged into this payment branch.
+- WIP is #557 only. #554/#555 are closed, and PRs through #579 are merged. Approved slice: owner-scoped local payment/checkout state read on codex/557-payment-status; implementation and focused verification are underway. The separately user-requested visual-check harness work is running in the primary checkout and is not merged into this payment branch.
 
 ## Reconciliation evidence
 
@@ -40,7 +40,7 @@
 
 ## In progress
 
-- #557 state-read planning — refresh/return needs Payment truth separate from completed checkout. Proposed contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5940398514. Internal owner-scoped PostgreSQL read distinguishes unpaid/processing, paid-finalizing, normal completion, canceled, compensation and recovery-required without writes or credentials. REFUND can never return ordinary completed checkout. No route/UI/provider operations are planned in the first slice. Provider-backed compensation continuation/settlement/acknowledgment remains dependent on #558.
+- #557 approved state-read implementation — refresh/return needs Payment truth separate from completed checkout. Approved contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5940398514. Internal owner-scoped PostgreSQL read distinguishes unpaid/processing, paid-finalizing, normal completion, canceled, compensation and recovery-required without writes or credentials. REFUND can never return ordinary completed checkout. No route/UI/provider operations are planned in the first slice. Provider-backed compensation continuation/settlement/acknowledgment remains dependent on #558.
 
 ## Blocked / known baseline failures
 
@@ -87,10 +87,12 @@
 
 ## Next verification
 
+- Approved state-read slice: focused32/32 PostgreSQL pass; a distinct evaluator found the ADR finalized REFUND/Canceled/Paid case missing. Its added regression failed as expected then passed after a scoped read-classification repair. Changed-file lint/typecheck pass. Final combined read/finalization/resume and clean-tree delivery gates are next. No UI consumer exists: browser screenshots are not relevant to this helper; existing delivery hooks remain mandatory.
+
 - PR #576 migration 006 is merged at 5f428295. Focused schema tests 8/8, clean-tree handoff, normal pre-push, GitHub CI/Vercel and independent evaluator PASS 10/10 were completed before human merge; the ledger and actual constraints were checked read-only on development and Production. Migration presence alone was not treated as application evidence.
 - PR #577 merged as 807a1f55 on 2026-10-01. Local handoff passed build/lint/typecheck, coverage, architecture, route smoke, and clean-state; final-head normal pre-push passed 503 tests (2 existing todo) and 9 visual checks. Focused suites passed 48/48; held paid admin detail/reload browser verification passed 1/1. GitHub CI/Vercel passed and independent evaluator PASS 10/10: https://github.com/caraseli02/agent-Commerce/pull/577#issuecomment-5919534638. The pre-existing guest detail null-user error remains documented.
 - PR #579 merged as 2e2eb4e2 after final-head CI/template/Vercel, clean-tree handoff and normal pre-push (91 files / 519 passed / 2 existing todo), guest Chromium1/1, visual9/9 and independent evaluator PASS10/10: https://github.com/caraseli02/agent-Commerce/pull/579#issuecomment-5933921140. No migration or Stripe activation change.
-- Next-slice preparation: local main and codex/557-payment-status refreshed to 2e2eb4e2 in the existing initialized worktree; primary checkout left with its active visual-impact-selection chat. Application/test/dependency source exactly matches verified #579 head bdb775cc, so prior baseline evidence is retained. Fresh existing resume-route baseline9/9 passed on Node24.14.0/pnpm10.18.3. Planning docs require only formatting, feature-state and consistency validation; no new build/browser/full initialization or delivery run is claimed. Next: approve the proposed internal state-read slice, then tests/implementation and normal delivery/independent evaluation.
+- Next-slice preparation: local main and codex/557-payment-status refreshed to 2e2eb4e2 in the existing initialized worktree; primary checkout left with its active visual-impact-selection chat. Application/test/dependency source exactly matches verified #579 head bdb775cc, so prior baseline evidence is retained. Fresh existing resume-route baseline9/9 passed on Node24.14.0/pnpm10.18.3. Planning docs require only formatting, feature-state and consistency validation; no new build/browser/full initialization or delivery run is claimed. Vlad approved the internal state-read slice; focused tests/implementation are underway, followed by normal delivery/independent evaluation.
 - #557 first PR (#565): merged at `34797a9b`; GitHub CI and Vercel passed, independent evaluator PASS 10/10. Focused PostgreSQL suite, clean handoff gate, mock guest checkout browser smoke, and independent issue/ADR diff review passed.
 - #557 second PR (#566): merged at `ea2b66ef` after clean-tree handoff, GitHub CI, latest PR-template check, Vercel, and independent evaluator passed.
 - #557 third PR (#567): merged as `a3308698` after focused signed webhook/route tests, `pnpm verify:full`, clean-tree handoff, default-off HTTP 503 route smoke, mock guest checkout browser flow, GitHub CI, Vercel, and independent evaluator passed. Stripe remains off; live signed HTTP sandbox validation belongs before activation.
