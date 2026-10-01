@@ -111,6 +111,15 @@ describe('visual impact selection', () => {
     r.commit();
     expect(plan({ cwd: r.cwd, input: r.push() }).mode).toBe('full');
   });
+  it('fingerprints literal filenames instead of interpreting Git path expressions', () => {
+    const r = repository();
+    r.write(':(exclude)*', 'runtime contents');
+    r.commit();
+    const first = plan({ cwd: r.cwd, input: r.push() }).decisions[0]!.fingerprint;
+    r.write(':(exclude)*', 'different runtime contents');
+    r.commit();
+    expect(plan({ cwd: r.cwd, input: r.push() }).decisions[0]!.fingerprint).not.toBe(first);
+  });
   it('does not let an uncommitted reversal hide pushed runtime changes', () => {
     const r = repository();
     r.write('pages/index.vue', '<div>changed</div>');

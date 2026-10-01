@@ -59,7 +59,13 @@ export function select(files, fingerprint, assessments = []) {
 
 /** @param {{cwd?: string, input?: string, base?: string, head?: string, remote?: string, local?: boolean}} options */
 export function plan({ cwd = process.cwd(), input = '', base, head = 'HEAD', remote = 'origin', local = false } = {}) {
-  const git = (args) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 50_000_000 });
+  const git = (args) =>
+    execFileSync('git', ['--literal-pathspecs', ...args], {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 50_000_000,
+    });
   const zero = /^0+$/;
   const ranges = base
     ? [[base, head]]
