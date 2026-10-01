@@ -971,4 +971,83 @@ describe('durable payment preparation boundary', () => {
     expect(firstResult.orderId).toBe(firstTuple!.order_id);
     expect(secondResult.orderId).toBe(secondTuple!.order_id);
   });
+
+  it('rejects PlaceOrder replay after REFUND without rewriting compensation or fulfilling stock', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const crash = new Error('stop after preparation');
+    const prepare = checkout.createPlaceOrderUseCase(
+      {
+        ...dependencies,
+        payments: {
+          ...dependencies.payments,
+          continuePayment: async () => {
+            throw crash;
+          },
+        },
+      },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(prepare(command)).rejects.toBe(crash);
+    const database = await getCheckoutDatabase();
+    const [claim] = await database.query<{ payment_id: string; order_id: string; reservation_id: string }>(
+      'SELECT * FROM checkout_claims WHERE owner_id=$1',
+      [command.cartOwnerId],
+    );
+    await database.execute("UPDATE checkout_payments SET status='PAID' WHERE id=$1", [claim!.payment_id]);
+    const { commitRefundCompensation } = await import('~/server/application/checkout/commit-refund-compensation');
+    expect(await commitRefundCompensation({ paymentId: claim!.payment_id, orderId: claim!.order_id })).toEqual({ kind: 'established' });
+    const commit = vi.fn(dependencies.inventory.commit);
+    const replay = checkout.createPlaceOrderUseCase(
+      { ...dependencies, inventory: { ...dependencies.inventory, commit } },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(replay(command)).rejects.toMatchObject({ code: 'payment_recovery_required', statusCode: 409 });
+    expect(commit).not.toHaveBeenCalled();
+    const [persisted] = await database.query<{ workflow_status: string; paid_recovery_decision: string }>(
+      'SELECT * FROM checkout_claims WHERE payment_id=$1',
+      [claim!.payment_id],
+    );
+    expect(persisted).toMatchObject({ workflow_status: 'compensation_pending', paid_recovery_decision: 'REFUND' });
+  });
+
+  it('rechecks a stale PlaceOrder claim under lock after a concurrent REFUND commit', async () => {
+    const { checkout, command, dependencies } = await setupCheckout();
+    const crash = new Error('stop after preparation');
+    const prepare = checkout.createPlaceOrderUseCase(
+      {
+        ...dependencies,
+        payments: {
+          ...dependencies.payments,
+          continuePayment: async () => {
+            throw crash;
+          },
+        },
+      },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(prepare(command)).rejects.toBe(crash);
+    const database = await getCheckoutDatabase();
+    const [claim] = await database.query<{ payment_id: string; order_id: string }>('SELECT * FROM checkout_claims WHERE owner_id=$1', [
+      command.cartOwnerId,
+    ]);
+    await database.execute("UPDATE checkout_payments SET status='PAID' WHERE id=$1", [claim!.payment_id]);
+    const { commitRefundCompensation } = await import('~/server/application/checkout/commit-refund-compensation');
+    const getPaymentPreparation = vi.fn(async (id: string) => {
+      const payment = await dependencies.payments.getPaymentPreparation(id);
+      expect(await commitRefundCompensation({ paymentId: claim!.payment_id, orderId: claim!.order_id })).toEqual({ kind: 'established' });
+      return payment;
+    });
+    const commit = vi.fn(dependencies.inventory.commit);
+    const replay = checkout.createPlaceOrderUseCase(
+      { ...dependencies, payments: { ...dependencies.payments, getPaymentPreparation }, inventory: { ...dependencies.inventory, commit } },
+      checkout.createPlaceOrderCoordinator(),
+    );
+    await expect(replay(command)).rejects.toMatchObject({ code: 'payment_recovery_required', statusCode: 409 });
+    expect(commit).not.toHaveBeenCalled();
+    const [persisted] = await database.query<{ workflow_status: string; paid_recovery_decision: string }>(
+      'SELECT * FROM checkout_claims WHERE payment_id=$1',
+      [claim!.payment_id],
+    );
+    expect(persisted).toMatchObject({ workflow_status: 'compensation_pending', paid_recovery_decision: 'REFUND' });
+  });
 });

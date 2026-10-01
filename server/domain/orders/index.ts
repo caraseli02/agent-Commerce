@@ -1,5 +1,5 @@
 import type { UserInterface } from '~/types/auth/user-interface';
-import { PaymentStatusEnum } from '~/types/order-summary/item';
+import { OrderStatus, PaymentStatusEnum } from '~/types/order-summary/item';
 import { buildRuntimeOrder } from '~/server/utils/mockRuntimeOrders';
 import { getDemoOrders } from '~/server/utils/mockDashboardDemo';
 import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
@@ -230,6 +230,26 @@ const confirmPayment = async (input: { orderId: string; paymentId: string }): Pr
   return { kind: 'confirmed' };
 };
 
+// Payment history and commercial fulfillment are separate: a held paid Order
+// keeps its paid marker while the application recovers compensation.
+const holdPaidForCompensation = async (input: { orderId: string; paymentId: string }): Promise<{ kind: 'held' | 'conflict' }> => {
+  const database = await getCheckoutDatabase();
+  const [row] = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE id=$1 FOR UPDATE', [input.orderId]);
+  if (!row || row.paid_by_payment_id) return { kind: 'conflict' };
+  const payload = parseOrder(row);
+  if (payload.order.status !== OrderStatus.Pending) return { kind: 'conflict' };
+  payload.order.status = OrderStatus.OnHold;
+  payload.order.paymentDetails.status = PaymentStatusEnum.Paid;
+  payload.order.updatedAt = new Date().toISOString();
+  await database.execute('UPDATE checkout_orders SET payload_json=$1, paid_by_payment_id=$2, updated_at=$3 WHERE id=$4', [
+    JSON.stringify(payload),
+    input.paymentId,
+    payload.order.updatedAt,
+    input.orderId,
+  ]);
+  return { kind: 'held' };
+};
+
 export type OrderPaymentPreparation = Readonly<{
   orderId: string;
   grandTotalMinor: number;
@@ -283,4 +303,4 @@ const list = async (customerId?: string) => {
   return rows.map((row) => parseOrder(row).order);
 };
 
-export const orders = { createPending, confirmPayment, getPaymentPreparation, findById, list };
+export const orders = { createPending, confirmPayment, holdPaidForCompensation, getPaymentPreparation, findById, list };

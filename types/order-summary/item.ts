@@ -359,6 +359,7 @@ export enum OrderStatus {
   Delivered = 'Delivered',
   AbandonedCheckout = 'Abandoned Checkout',
   Pending = 'Pending',
+  OnHold = 'On Hold',
   Processing = 'Processing',
   Dispatched = 'Dispatched',
   Packaging = 'Packaging',
