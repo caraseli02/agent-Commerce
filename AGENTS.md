@@ -40,7 +40,7 @@ Use **pnpm** for this repo.
 - `pnpm typecheck` — Nuxt/TypeScript typecheck
 - `pnpm test` — Vitest suite
 - `pnpm pretty` — Prettier format-all
-- `pnpm verify` — fast default gate (`build`, `lint`, `typecheck`, `test`, feature-list validation)
+- `pnpm verify` — delivery gate (`build`, `lint`, `typecheck`, `test:coverage`, feature-list validation)
 - `pnpm verify:full` — full local gate with architecture invariants and preview smoke
 - `pnpm verify:handoff` — pre-handoff gate; expects a clean tree and adds clean-state validation
 
@@ -50,15 +50,11 @@ Use **pnpm** for this repo.
 
 ## Verification-first policy
 
-Before calling work done, run the narrowest meaningful verification, then climb the verification ladder in `docs/agents/verification.md`.
+During implementation, inspect the diff and affected consumers, select the smallest relevant checks with reasons, and run those checks. For UI effects (including indirect data/store/style changes), use `.agents/skills/verify-ui-change/SKILL.md` and verify only the impacted routes/interactions and relevant viewports in the browser. After a focused repair, rerun only checks whose evidence was invalidated; continue the authorized task without asking the user to continue.
 
-Default local gate:
+Delivery gates remain `pnpm verify`, the existing pre-push hook, `pnpm verify:full` where architecture/runtime evidence is required, and `pnpm verify:handoff` from a clean working tree before final PR/session handoff. Broad gates belong at delivery, not after every repair. A documentation/skill-only local task may finish with formatting, link/frontmatter validation, and consistency inspection; record why application checks are not applicable. Publishing through the normal push/PR path still uses existing gates.
 
-1. `pnpm verify`
-2. If the issue needs additional runtime evidence, run `pnpm verify:full` or smoke-test the affected flow in the browser or via the relevant page/server route
-3. Before PR/session handoff, run `pnpm verify:handoff` from a clean working tree
-
-If a change touches UI, mock data, auth, cart, checkout, or server routes, verify the related flow end to end, not just the compile step.
+See `docs/agents/verification.md` for check selection, evidence freshness, and a lightweight ignored per-task verification record. Saved state supports continuation when an agent is running or resumed; it does not schedule or wake an agent.
 
 ## Initialization phase
 
@@ -80,7 +76,7 @@ Do not mix initialization with feature implementation unless the task is explici
 - Prefer tasks that touch 1 category only: build fix, lint fix, component polish, API wiring, or doc cleanup.
 - If a task needs more than ~3 files or a second unrelated fix, split it.
 - Enforce **WIP=1**: only one task may be active at a time.
-- If blocked twice, stop and report the blocker instead of widening scope.
+- After two focused failed repair attempts, stop and report the blocker instead of widening scope.
 - Do not continue based on vibe; keep every loop grounded in a checkable outcome.
 
 ## Feature list contract

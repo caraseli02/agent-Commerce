@@ -4,13 +4,13 @@ Use this doc to decide whether an Components Marketplace task is actually done. 
 
 ## Verification ladder
 
-Run the narrowest meaningful check first, then climb until the changed behavior is proven.
+Run the narrowest meaningful check first, then climb until the changed behavior is proven. Use targeted checks during implementation; run broad gates at delivery.
 
-1. **Fast default gate**
+1. **Delivery gate**
    - `pnpm verify`
    - Runs `build`, `lint`, `typecheck`, `test:coverage`, and `feature_list.json` validation.
    - `pnpm test:coverage` measures all files in `composables/api/**` and `store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
-   - This is the normal loop gate for everyday Components Marketplace work.
+   - Run this before delivery/push, rather than after every focused repair.
 2. **Full local gate**
    - `pnpm verify:full`
    - Adds architecture invariants and preview smoke on top of the fast gate.
@@ -43,7 +43,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - It enforces the Components Marketplace API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
    - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
 9. **Targeted baseline check**
-   - If you only need a smaller iteration, run `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` directly.
+   - Select only the relevant command(s): changed-file ESLint, `pnpm typecheck`, a focused `pnpm test <test-file>` (preserves the PostgreSQL wrapper), or `pnpm build` when compilation/build behavior is affected. Explain each selection.
 10. **Targeted test**
 
 - Add or update a focused Vitest test when behavior can be checked without the browser.
@@ -51,12 +51,43 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 
 11. **Browser/runtime smoke**
 
-- Start `pnpm dev` or `pnpm preview` when UI/routes are affected and you need extra evidence beyond `pnpm verify`.
+- Start `pnpm dev` or a fresh `pnpm preview` when observable UI/routes are affected, including indirect store, data, composable, layout, or style effects. Static success does not replace browser evidence.
 - Exercise the affected page or server route.
 - Capture screenshot or exact route/flow evidence in the PR.
 
 12. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
+
+## Targeted implementation and repair
+
+1. Inspect the task diff against its base, including staged, unstaged, and task-owned untracked files. Trace affected consumers and shared dependencies before selecting checks.
+2. Record the smallest check set with reasons and dependencies. Cover the changed behavior and affected integration boundary. Document why browser verification is not applicable when there is no UI effect.
+3. For UI effects, follow `.agents/skills/verify-ui-change/SKILL.md`: exercise impacted routes/interactions, expected states, and relevant viewports. Shared styles or stores may require representative consumers beyond the directly edited component; do not default to the whole storefront.
+4. On failure, make a focused repair and rerun the failed check plus any checks invalidated by the repair. Keep evidence only when its relevant source, dependencies, and environment remain unchanged; rerun the relevant check when uncertain.
+5. Continue until the scoped behavior passes or the blocker protocol applies (two focused failed repair attempts, missing required decision, or unavailable required environment). Run the delivery gates when ready to ship; the independent evaluator remains responsible for PR readiness.
+
+Documentation/skill-only local work can use changed-file formatting, link/frontmatter validation, and consistency inspection. Application build, tests, and browser checks are not required when no executable behavior or runtime configuration changed; state that reason in the evidence. Existing push/CI/PR gates remain in force.
+
+## Saved verification state
+
+Use one small Markdown record per task at ignored `tmp/verification/<task-id>.md` when work needs continuation or evidence reuse. Copy this template and omit inapplicable details with a reason:
+
+```md
+- Task/base/current revision: <task or issue; base SHA; HEAD SHA>
+- Working diff fingerprint: <SHA-256 of base-to-HEAD diff + staged/unstaged binary diffs + sorted task-owned untracked paths/content>
+- Stage: <inspect/select/check/browser/repair/delivery/blocked/complete>
+- Selected checks: <command or flow; reason; relevant source/dependencies; routes/viewports or N/A>
+- Results: <per-check pass/fail/pending; checked revision/fingerprint; environment/runtime identity; command output or screenshot/log path>
+- Environment: <Node/pnpm; dev or preview URL; mock/auth/data setup; browser/version; relevant config identity without secrets>
+- Runtime freshness: <preview build revision/fingerprint or dev server refresh/restart confirmation>
+- Next action: <exact remaining check/repair/delivery action or blocker>
+```
+
+Compute the fingerprint from the actual diff bytes and untracked file contents, not file names/status alone. Include deletions, renames and binary changes; exclude the record and generated evidence. A HEAD SHA alone cannot identify uncommitted edits. Use stable ordering for untracked paths and identify task-owned paths explicitly rather than hashing unrelated work or secrets.
+
+Associate each result with its checked environment/runtime identity (a short identifier referencing the setup is enough); do not overwrite older results with a newer global setup. Update the record after edits/checks and before interruption. On resume, compare revision, fingerprint, relevant dependencies, and environment against each result. A changed overall fingerprint prompts inspection of the change; it does not invalidate unrelated checks automatically. Reuse only evidence with demonstrably unchanged inputs. A preview must be rebuilt after a relevant edit; a dev server must have consumed the current changes (restart for config/server changes when needed). Never label a stale runtime check as evidence for the current diff.
+
+This record is a local continuation aid, not a scheduler or an independent evaluator verdict. Keep durable issue/PR state in `PROGRESS.md` and `feature_list.json`; copy useful evidence into the handoff and remove temporary records/artifacts before clean handoff.
 
 ## Evidence policy
 
@@ -184,4 +215,4 @@ A useful failure message says:
 
 - Run `pnpm smoke` against `pnpm dev` to verify the core routes load without crashing.
 - v1 smoke matrix: homepage (`/`) plus one representative product or gallery route selected from `pages/`.
-- Treat this as the minimal runtime check before broader auth/cart/checkout/dashboard verification.
+- Use this broad smoke at delivery when required by the full gate. During repairs, exercise only the affected route/flow and its relevant consumers.
