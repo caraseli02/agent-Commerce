@@ -23,7 +23,7 @@
 
 - #536 and #535 are closed/completed and tracked as `passing`.
 - The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #557 only. #554/#555 are closed, and PRs through #579 are merged. Approved slice: owner-scoped local payment/checkout state read on codex/557-payment-status; implementation is verified and delivery is underway. PR #580 merged visual-impact selection as b46f55c3; this payment branch is rebased onto it and the primary checkout remains untouched.
+- WIP is #557 only. #554/#555 are closed, and PRs through #579 are merged. Approved slice: owner-scoped local payment/checkout state read on codex/557-payment-status; implementation is verified and delivery is underway. PR #580 merged visual-impact selection as b46f55c3; this payment branch is rebased onto it and application source is unchanged. Publication uses the idle primary checkout temporarily at the exact payment head; its original codex/visual-impact-selection branch is restored after delivery.
 
 ## Reconciliation evidence
 
@@ -43,6 +43,8 @@
 - #557 approved state-read implementation — refresh/return needs Payment truth separate from completed checkout. Approved contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5940398514. Internal owner-scoped PostgreSQL read distinguishes unpaid/processing, paid-finalizing, normal completion, canceled, compensation and recovery-required without writes or credentials. REFUND can never return ordinary completed checkout. No route/UI/provider operations are planned in the first slice. Provider-backed compensation continuation/settlement/acknowledgment remains dependent on #558.
 
 ## Blocked / known baseline failures
+
+- Merged #580 selector Git-fixture tests inherit the managed-worktree pre-push Git context: 9 fixture tests fail with “must be run in a work tree,” while all payment/application tests pass. Their local Git-setting side effects were restored (non-bare checkout, normal Husky hooks, original author identity); no source fix is bundled here. Normal delivery uses the same exact payment commit in the idle primary checkout, with every gate enabled. The interrupted primary push did not publish; resumed delivery evidence and the final PR/evaluator report are recorded in #557.
 
 - No #535 acceptance-criteria defect remains.
 - Sandbox-only `./init.sh` encountered npm DNS denial; the escalated rerun passed installation, build, lint, typecheck, and the PostgreSQL suite (89 files, 468 passed, 2 todo) before this slice's tests were added.
