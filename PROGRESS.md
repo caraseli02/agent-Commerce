@@ -2,31 +2,31 @@
 
 ## Current focus
 
-- User-directed workflow repair #582 on `codex/payment-workflow-reconciliation`, from clean merged #581/main (`5cd361e8`). Payment behavior and Stripe activation are unchanged.
-- #557/#558 are fixed tracking epics, excluded from executable WIP. Their remaining native children are #584–#588. Separate contract cleanup is #583.
+- User-directed preparation for #583: existing payment state and public error contracts. Dedicated branch `codex/583-payment-state-error-contracts` starts at latest `origin/main` `19fcf7b4`, containing merged PR #589.
+- Contract ownership, consumer inventory, fixed acceptance map, and verification selection live in `docs/agents/payment-contracts.md`; AGENTS.md routes future payment changes through it.
 
 ## In progress
 
-- #582 / draft PR #589 only: delivery evidence reuse, conservative documentation classification, and bounded child-issue guidance. Native ownership/dependencies are acyclic with WIP=1. The cold-cache timestamp CI regression is repaired: focused tooling tests pass 29/29 and fresh clean-tree handoff passes 94 files / 583 tests / 2 existing todo, build/lint/typecheck, architecture, preview /,/cart,/checkout and clean state. Final-head CI and independent evaluation/merge remain pending.
+- #583 only, assigned to caraseli02 with `in-progress`; #582 is closed and no other issue is claimed. Repository preparation is separate from application implementation. No #583 PR exists yet.
+- Existing payment values/behavior are unchanged. Implement owner contracts, parsers, typed public errors, explicit UI mappings, and executable guard regressions in one coherent PR closing #583.
 
 ## Blocked / known baseline failures
 
-- Stripe activation stays off until #559 proves unsafe shared-database writer retirement and complete sandbox integration.
-- #585 is blocked for the missing deterministic commercial ALLOCATE/BACKORDER/REFUND selection policy; the ADR defines safety, not that policy. #587 depends on #586; #588 depends on #585/#586/#587. #556 depends on #584/#588 and merged backend resume. Epics are not executable prerequisites.
-- Historical #580 managed-worktree hook failures came from Git context leaking into fixture repositories. Verification child processes now strip hook-local Git redirection; no payment source is changed.
-- The previously recorded guest order-detail null-user `adminSettings` error remains outside this workflow repair.
+- No unresolved #583 capability dependency: #582 merged through #589. Initial sandbox PostgreSQL DNS failure required the authorized network escalation; it is not an application test failure.
+- Stripe activation stays off until #559. #585 still requires the deterministic commercial recovery policy; #587 depends on #586 and #588 on #585/#586/#587. These are outside #583.
+- Previously recorded guest order-detail null-user `adminSettings` error remains outside this task.
 
 ## Verification baseline
 
-- Merged #581 reports fresh CI: 93 files, 567 passing tests, 2 existing pending tests; owner-scoped local state snapshot verified by 35 PostgreSQL tests and independent PASS 10/10.
-- Existing initialization is reused; no new checkout or dependency installation is required for this continuing session. Current Node 24.21.0 / pnpm 10.18.3.
-- Historical payment implementation and verification evidence remains linked from #557 and its merged PRs; current planning no longer repeats each old slice here.
+- #589 exact-head fresh CI passed 94 files / 583 tests / 2 existing todo: https://github.com/caraseli02/agent-Commerce/actions/runs/37052355600. Merge is recorded as delivery evidence; no independent evaluator verdict is invented.
+- Existing initialized checkout and locked dependencies reused; Node 24.21.0 / pnpm 10.18.3. `pnpm typecheck` passes on current main application sources. Focused preparation baseline passes 4 files / 71 tests (delivery evidence, visual selection, order payment state, and useOrder) through the isolated PostgreSQL wrapper.
 
 ## Next verification
 
-- Fresh CI and independent evaluation of the #582 PR. Challenge receipt invalidation, conservative documentation selection, exact-head mergeability, and the native dependency graph. No self-awarded PASS; keep WIP=1 until review/merge state is resolved.
+- Validate preparation documentation formatting/state/clean checks. Application source has no changes, so browser/build/full coverage are not required for this preparation commit.
+- During #583 implementation, run affected tests with the PostgreSQL wrapper and changed-file lint/typecheck; targeted failure-page desktop/mobile browser evidence follows actual UI changes. At final application delivery run one clean-tree `pnpm verify:handoff`; normal pre-push may reuse matching evidence, while CI stays fresh.
 
 ## Next work
 
-- After workflow repair review, choose one unblocked payment child (#584 or #586; #585 needs the recorded policy decision first); normally one coherent PR closes the entire child. #587/#588 follow their named capabilities. #583 is separate cleanup.
-- Tracking epics close only after their fixed child checklist and integration evidence pass. New unrelated findings become separate backlog issues.
+- Implement all #583 acceptance rows on this branch, starting with compatibility fixtures and failing unknown-input/contract regressions. Proposed automated guards are not yet installed; current enforcement is documented review guidance plus existing typecheck/verification tooling.
+- Keep WIP=1, close #583 with the complete contract cleanup PR, and obtain independent evaluation before review readiness. Do not grow #557/#558 or start unrelated payment behavior.

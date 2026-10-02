@@ -11,12 +11,13 @@
       "id": "I582",
       "description": "Reconcile payment issue structure and remove redundant delivery verification (#582)",
       "validation": "Native payment sub-issues/dependencies are acyclic, epics excluded from WIP, complete child criteria govern PASS; focused receipt/classifier/hook tests and fresh delivery checks pass; CI retains fresh executable verification.",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "User authorized workflow repair on 2026-10-02; branch codex/payment-workflow-reconciliation. #583 created for separate state/error contract cleanup; no payment behavior or activation changes.",
         "Focused receipt/classifier/pre-push suites pass 28/28; lint/formatting/typecheck and feature-state validation pass. GitHub native child ownership/dependencies are acyclic; only #582 is in-progress. #585 is explicitly blocked for its missing commercial selection rule.",
         "Final fresh clean-tree handoff passes 94 files / 582 tests / 2 existing todo, build/lint/typecheck/coverage, architecture, preview /,/cart,/checkout and clean state. The normal subsequent push reuses matching application evidence without rerunning build/lint/typecheck/coverage; committed consumer assessments skip unrelated visuals. CI and independent evaluation remain pending; no generator PASS.",
-        "PR #589 CI ran 94 files / 582 passing tests before a false final input-change failure. Cold-cache creation reproduced the fingerprint change; repaired dependency evidence ignores directory cache timestamps while preserving installation-anchor timestamps/bytes and directory replacement identity. Focused regression/receipt/hook suites pass 29/29; Fresh repaired handoff passes 94 files / 583 tests / 2 existing todo plus build/lint/typecheck/coverage, validators, architecture, preview smoke and clean state. Final-head CI and independent evaluation remain pending."
+        "PR #589 CI ran 94 files / 582 passing tests before a false final input-change failure. Cold-cache creation reproduced the fingerprint change; repaired dependency evidence ignores directory cache timestamps while preserving installation-anchor timestamps/bytes and directory replacement identity. Focused regression/receipt/hook suites pass 29/29; Fresh repaired handoff passes 94 files / 583 tests / 2 existing todo plus build/lint/typecheck/coverage, validators, architecture, preview smoke and clean state. Final-head CI and independent evaluation remain pending.",
+        "PR #589 merged on 2026-10-02 as 19fcf7b49d9efa1eef029bf5b36b4a4d0a2df5b3 and closed #582. Repaired exact-head fresh GitHub verify passed: https://github.com/caraseli02/agent-Commerce/actions/runs/37052355600 (94 files / 583 passed / 2 todo). No independent evaluator verdict is inferred from merge."
       ]
     },
     {
@@ -38,10 +39,13 @@
     {
       "id": "I583",
       "description": "Unify existing payment state and public error contracts (#583)",
-      "validation": "Canonical module-owned types, validated unknown input, shared public error codes and presentation mappings without persisted/wire changes.",
-      "status": "not_started",
+      "validation": "Complete the fixed acceptance map in docs/agents/payment-contracts.md: module-owned states, conservative boundary parsing, shared public error producers/consumers, exhaustive presentation, executable ownership/compatibility regressions, affected browser evidence, one delivery gate and independent evaluation.",
+      "status": "active",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/583. Not claimed or implemented in this workflow repair."
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/583. Not claimed or implemented in this workflow repair.",
+        "Preparation on 2026-10-02: dedicated branch codex/583-payment-state-error-contracts from latest origin/main 19fcf7b4, containing merged #589. #582 is closed; #583 alone is claimed in-progress and assigned to caraseli02.",
+        "Preparation baseline: pnpm test tests/delivery-verification.spec.ts tests/visual-selection.spec.ts tests/order-payment-state.spec.ts tests/use-order.spec.ts passes 4 files / 71 tests through the isolated PostgreSQL wrapper; pnpm typecheck passes.",
+        "Consumer inventory and prevention/check plan: docs/agents/payment-contracts.md. Application implementation and executable contract guards remain outstanding; no #583 completion or evaluator PASS claimed."
       ]
     },
     {

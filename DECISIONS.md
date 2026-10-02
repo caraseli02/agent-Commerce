@@ -2,6 +2,13 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Payment contract ownership and regression policy — 2026-10-02
+
+- #583 owns one existing-surface contract cleanup PR, including all required consumers and its prevention tests. Preserve persisted/wire values and legacy FAILED; Refund remains separate from historical PAID.
+- Payment states belong to Payments; workflow/recovery decisions belong to checkout application; public errors use a pure shared contract; presentation uses exhaustive mappings. Parse persisted/transport inputs and preserve conservative unknown handling.
+- Require executable ownership, producer/consumer compatibility, and unknown-input regressions as #583 acceptance evidence. Documentation alone is not an automated guard. Legitimate typed discriminants, SQL predicates, diagnostics, and compatibility fixtures may retain literals.
+- Full implementation/check selection: `docs/agents/payment-contracts.md`. Existing #589 receipt reuse and one-strongest-gate guidance remain in force.
+
 ## Bounded payment tasks and verification reuse — 2026-10-02
 
 - #557/#558 are fixed tracking epics; native children #584–#588 own the remaining acceptance criteria. WIP=1 applies to an executable child, normally closed by one coherent PR. Evaluator PASS refers to the complete child, not an anonymous partial slice. New unrelated findings become separate backlog issues.
