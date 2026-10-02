@@ -8,6 +8,18 @@
   },
   "features": [
     {
+      "id": "I582",
+      "description": "Reconcile payment issue structure and remove redundant delivery verification (#582)",
+      "validation": "Native payment sub-issues/dependencies are acyclic, epics excluded from WIP, complete child criteria govern PASS; focused receipt/classifier/hook tests and fresh delivery checks pass; CI retains fresh executable verification.",
+      "status": "active",
+      "evidence": [
+        "User authorized workflow repair on 2026-10-02; branch codex/payment-workflow-reconciliation. #583 created for separate state/error contract cleanup; no payment behavior or activation changes.",
+        "Focused receipt/classifier/pre-push suites pass 28/28; lint/formatting/typecheck and feature-state validation pass. GitHub native child ownership/dependencies are acyclic; only #582 is in-progress. #585 is explicitly blocked for its missing commercial selection rule.",
+        "Final fresh clean-tree handoff passes 94 files / 582 tests / 2 existing todo, build/lint/typecheck/coverage, architecture, preview /,/cart,/checkout and clean state. The normal subsequent push reuses matching application evidence without rerunning build/lint/typecheck/coverage; committed consumer assessments skip unrelated visuals. CI and independent evaluation remain pending; no generator PASS.",
+        "PR #589 CI ran 94 files / 582 passing tests before a false final input-change failure. Cold-cache creation reproduced the fingerprint change; repaired dependency evidence ignores directory cache timestamps while preserving installation-anchor timestamps/bytes and directory replacement identity. Focused regression/receipt/hook suites pass 29/29; Fresh repaired handoff passes 94 files / 583 tests / 2 existing todo plus build/lint/typecheck/coverage, validators, architecture, preview smoke and clean state. Final-head CI and independent evaluation remain pending."
+      ]
+    },
+    {
       "id": "I554",
       "description": "Expand Payment persistence compatibly for Stripe PaymentIntent (#554)",
       "validation": "PostgreSQL migration preserves legacy Payment rows and writers, accepts the transition statuses and omitted legacy boolean, persists nullable Stripe identity/timestamps, and enforces one Payment per Order and unique non-null PaymentIntent IDs; Stripe activation remains off",
@@ -21,6 +33,61 @@
         "The guest Preview 401 was traced to orders/new and orders/[id] reading raw process environment instead of Nuxt runtime config. Both routes now use useRuntimeConfig(event); regression coverage proves guest creation/read when the raw variable is unavailable. Local pnpm verify passes against Neon: 81 files, 388 tests passed, 2 todo. The updated Preview completed anonymous card checkout to /checkout/success?id=ord-1790109683758-7502, showing Payment Confirmed and RON 198.39; its guest-owned detail page then loaded #ORD-490430 with Payment Status Paid and the same total. Final-head PostgreSQL CI passed, and the independent evaluator returned PASS, 10/10, with no findings or testing gaps.",
         "Final #554 compatibility slice on codex/554-payment-authority-compatibility: focused PostgreSQL payment preparation suite passes 27/27; two changed tests pass after preserving legacy-column compatibility writes; legacy columns no longer enter PaymentPreparation or determine mock checkout response; an executable pre-#561 old-writer replay proves Stripe activation remains unsafe until #559 isolates that writer; guest checkout Playwright passes on an alternate port against an isolated PostgreSQL schema.",
         "PR #563 independently reviewed and merged as c85f8e4c; GitHub closed #554 on 2026-09-24."
+      ]
+    },
+    {
+      "id": "I583",
+      "description": "Unify existing payment state and public error contracts (#583)",
+      "validation": "Canonical module-owned types, validated unknown input, shared public error codes and presentation mappings without persisted/wire changes.",
+      "status": "not_started",
+      "evidence": [
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/583. Not claimed or implemented in this workflow repair."
+      ]
+    },
+    {
+      "id": "I588",
+      "description": "Complete late-paid webhook compensation continuation (#588)",
+      "validation": "Depends on #585/#586/#587; crash after REFUND commit recovers without browser return and acknowledges only durable provider identity/completion.",
+      "status": "not_started",
+      "evidence": [
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/588. Not claimed or implemented in this workflow repair."
+      ]
+    },
+    {
+      "id": "I587",
+      "description": "Apply Refund events and settle compensation safely (#587)",
+      "validation": "Depends on #586; signed provider transitions and retry-safe successful/failed compensation consequences preserve historical PAID.",
+      "status": "not_started",
+      "evidence": [
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/587. Not claimed or implemented in this workflow repair."
+      ]
+    },
+    {
+      "id": "I586",
+      "description": "Persist and recover one full provider Refund (#586)",
+      "validation": "One full Refund, create-start before provider I/O, bounded same-key replay, exact identity reconciliation and unsafe-expiry recovery.",
+      "status": "not_started",
+      "evidence": [
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/586. Not claimed or implemented in this workflow repair."
+      ]
+    },
+    {
+      "id": "I585",
+      "description": "Choose one durable late-paid recovery outcome (#585)",
+      "validation": "Coordinated ALLOCATE/BACKORDER/REFUND selection and local consequences; concurrency/replay never both fulfill and refund.",
+      "status": "blocked",
+      "evidence": [
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/585. Not claimed or implemented in this workflow repair.",
+        "ADR fixes transactional safety but does not define automatic commercial selection priority/eligibility. GitHub task is blocked/ready-for-human until the deterministic rule is recorded; no agent may invent it."
+      ]
+    },
+    {
+      "id": "I584",
+      "description": "Expose owner-scoped refresh/return recovery (#584)",
+      "validation": "Bounded provider reconciliation, retry-safe application consequences and fresh owner-safe state through HTTP; credentials withheld.",
+      "status": "not_started",
+      "evidence": [
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/584. Not claimed or implemented in this workflow repair."
       ]
     },
     {
@@ -38,31 +105,14 @@
     },
     {
       "id": "I557",
-      "description": "Add Stripe webhook, reconciliation, and backend checkout recovery (#557)",
-      "validation": "Verified Stripe PaymentIntent events atomically record provider truth; normal paid and canceled events retry their application consequences before acknowledgment. An explicit owner-scoped restart mints a new Cart revision after provider cancellation and requires a fresh quote and checkout request. Unpaid backend resume and its public route are merged. Explicit local REFUND compensation state, permanent fulfillment guards, and failure/unsafe compensation-recovery application state are implemented; automatic expired-paid recovery selection, compensation continuation, and provider-backed REFUND acknowledgment remain outstanding; Stripe activation stays off",
-      "status": "active",
+      "description": "Complete fixed backend payment recovery tracking epic (#557)",
+      "validation": "Children #584 (refresh/return), #585 (late-paid selection), and #588 (compensation webhook integration) close with independent evidence; #588 requires Refund capabilities #586/#587 tracked by #558. Merged foundations stay complete; Stripe activation requires #559.",
+      "status": "not_started",
       "evidence": [
-        "PR #565 completed the first Payment-only reconciliation slice and merged into main as 34797a9b; GitHub CI, Vercel, and independent evaluator passed (10/10).",
-        "First-slice focused PostgreSQL suite, clean handoff gate, isolated guest checkout browser flow, and independent spec/standards reviews passed.",
-        "Second-slice sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5834255728.",
-        "Second-slice local verification passed: focused Stripe tests 37/37 (verified-event suite 13/13 after final race case), migration boundary 7/7, pnpm verify:full with 83 test files (427 passed, 2 todo) plus build/lint/typecheck/architecture/smoke, and isolated PostgreSQL guest checkout Chromium 1/1.",
-        "Clean-tree pnpm verify:handoff passed with 83 test files (427 passed, 2 todo). PR #566 passed GitHub CI, the latest PR-template check, Vercel, and CodeRabbit at implementation head 180a1eee; independent GPT-6 Sol evaluator returned PASS (10/10), and GPT-6 Luna standards review found no hard violations. PR #566 merged as ea2b66ef on 2026-09-25.",
-        "Third-slice sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5839615533. PR #567 implementation head 889472a9 passed focused Stripe ingress/route/event-ledger tests 22/22 against isolated PostgreSQL; pnpm verify:full and clean-tree pnpm verify:handoff passed with 85 files (437 passed, 2 todo), build/lint/typecheck/architecture/route smoke. Built default-off webhook route returned HTTP 503, isolated PostgreSQL guest checkout Chromium passed 1/1, normal pre-push hook passed 437 tests and 9 visual checks, GitHub CI/template/Vercel/CodeRabbit passed, and independent GPT-6 Sol evaluator returned PASS 10/10. PR #567 merged to main as a3308698 on 2026-09-26; Stripe activation stays off.",
-        "Fourth slice on codex/557-paid-checkout-finalization: focused isolated-PostgreSQL paid-finalization, signed-ingress, and route tests passed 17/17. pnpm verify:full and committed-head clean-tree pnpm verify:handoff passed with 86 files (444 passed, 2 todo), build/lint/typecheck/architecture/route smoke. Isolated PostgreSQL guest checkout Chromium passed 1/1; built default-off webhook returned HTTP 503. Independent GPT-6 Astra spec/correctness and Luna standards reviews found no blocking issue. PR #568 implementation head 0aa36fc7 passed GitHub CI/template/Vercel/CodeRabbit, MERGEABLE/CLEAN, and independent GPT-6 Sol evaluator PASS 10/10; merged into main as b9817835 on 2026-09-28.",
-        "Fifth-slice sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5876736557. PR #570 provider-canceled checkout terminalization merged as c338f120 after full and clean-tree handoff gates (87 files, 453 passed, 2 todo), focused tests 36/36, guest checkout Chromium 1/1, GitHub CI/Vercel/CodeRabbit, and final-head GPT-6 Sol evaluator PASS 10/10. Stripe activation stays off.",
-        "Sixth-slice sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5885792920. PR #571 merged as 91d26ba8 after restart/API tests 13/13, pnpm verify:full and clean-tree pnpm verify:handoff (88 files, 459 passed, 2 todo), built-server guest HTTP restart, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.",
-        "Seventh-slice sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5891075029. PR #572 merged as cf0eac9f after focused isolated-PostgreSQL reservation re-establishment tests 9/9, full and clean-tree handoff gates (89 files, 468 passed, 2 todo), guest checkout Chromium 1/1, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.",
-        "Eighth-slice sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5898248704. PR #573 merged into main as 336d1ddd after focused isolated-PostgreSQL resume and reservation tests 20/20, clean-tree pnpm verify:handoff with 90 files (479 passed, 2 todo), guest checkout Chromium 1/1, GitHub CI/Vercel, and independent GPT-6 Astra evaluation PASS 10/10. No public route or UI was included; Stripe activation remains off.",
-        "Ninth-slice sprint contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5906395850. PR #574 merged into main as d7f0fafa on 2026-09-30. The owner-scoped unpaid-resume route passed focused route and isolated-PostgreSQL resume/reservation suites 29/29; pnpm verify:full and clean-tree pnpm verify:handoff passed build/lint/typecheck, 91 files (488 passed, 2 todo), feature/architecture checks, and preview smoke. Built default-off HTTP returned 503 for an existing guest and 401 without an owner; isolated guest checkout Chromium passed 1/1. GitHub CI/template/Vercel/CodeRabbit passed, and independent GPT-6 Astra evaluation returned PASS 10/10 with no findings. #557 remains active for late-paid compensation.",
-        "PR #576 merged migration 006 as 5f428295 after focused schema tests 8/8, clean-tree handoff, normal pre-push, GitHub CI/Vercel and independent evaluator PASS 10/10. Read-only development and Production checks matched migrations 001–006 checksums and actual constraints; no migration was applied during the audit.",
-        "Approved local-compensation slice on codex/557-local-compensation; sprint contract https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5918554278. Explicit REFUND commit establishes Order On Hold + Paid history + compensation_pending; both fulfillment entry points serialize on claim and reject REFUND, including stale PlaceOrder replay. No automatic selection, provider Refund I/O, settlement/failure transition or Stripe activation. Fresh Node 24.14.0 init passes 489 tests + 2 todo, build/lint/typecheck; targeted ESLint/typecheck pass. Full #557 remains active; PR handoff records focused/runtime/delivery and independent exact-head evidence. Focused isolated-PostgreSQL suites pass 48/48. Chromium preview on port 3019 passes guest checkout and seeded admin Order On Hold + Paid display/reload (1/1). The guest order-detail null-user adminSettings failure is pre-existing and excluded from this slice; delivery and independent final-head results belong in the linked PR handoff. Clean-tree pnpm verify:handoff passed on implementation head 8e3303cb (build/lint/typecheck, coverage, feature/UI and architecture checks, preview /,/cart,/checkout HTTP200 and clean state); exact suite totals and final push/CI/evaluator evidence are recorded in the PR handoff.",
-        "PR #577 merged as 807a1f55 on 2026-10-01 after final-head CI/Vercel, 503 tests plus 2 existing todo, 9 visual checks, held paid admin browser verification, and independent evaluator PASS 10/10. Proposed next slice codex/557-compensation-recovery awaits approval; #557 remains the sole active issue.",
-        "Preparation refreshed on 2026-10-01 to origin/main 193dee88 after merged #578; primary main clean, initialized worktree reused on codex/557-compensation-recovery. Proposed scope remains application failure/unsafe compensation state only; provider truth and settlement stay deferred. No implementation started. Focused baseline refresh passed 48/48 (2 files, 239.83s) against isolated PostgreSQL on Node 24.14.0/pnpm 10.18.3; preparation docs passed formatting/feature-list/diff checks. Contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5928302609.",
-        "Vlad approved compensation recovery slice on codex/557-compensation-recovery. Application command preserves REFUND/held paid history and atomically marks recovery required under claim/Order locks; finalized state cannot reopen. Lint/typecheck, fresh isolated Chromium guest checkout (1/1), corrected missing-marker fixture (1/1), and completion-first race (1/1) pass. Independent preliminary source review found no defect; full delivery and final exact-head verdict remain pending. No production provider caller or financial Refund state is added. Clean-tree verify:handoff passed on implementation head 5a4565bb: 91 files / 519 passed / 2 existing todo, coverage/build/lint/typecheck, feature/UI/architecture checks, /,/cart,/checkout HTTP200 and clean state. This state-doc-only update preserves application/runtime evidence; final push/CI/evaluator outcomes belong in the linked issue/PR.",
-        "PR #579 merged as 2e2eb4e2 on 2026-10-01 after519tests+2existingtodo, guest Chromium1/1, visual9/9, CI/template/Vercel and independent PASS10/10. Preparation now on codex/557-payment-status from latest main2e2eb4e2; application/dependency source unchanged from verified bdb775cc, initialized environment reused and fresh resume-route baseline9/9 passes. Proposed next slice is an internal owner-scoped local Payment/checkout-state read, pending approval; no second issue, route/UI/provider work or activation. Primary checkout is owned by the separate visual-impact-selection chat.",
-        "Vlad approved the owner-scoped local payment/checkout state read slice on codex/557-payment-status. Implementation is internal and read-only; no route/UI/provider integration, migrations or activation. Focused PostgreSQL verification is underway; #557 remains active.",
-        "Approved owner-scoped payment-state read implemented. Clean-tree verify:handoff on ed417be5 passed 92 files / 554 tests / 2 existing todo, build/lint/typecheck/coverage, architecture, preview /,/cart,/checkout HTTP200 and clean state. Independent review identified finalized REFUND/Canceled/Paid history; scoped RED-to-GREEN repair independently confirmed and included in the full pass. Rebased onto merged #580 (b46f55c3) without application/dependency changes; runtime evidence retained. Fingerprinted no-UI-impact consumer trace is committed for the updated pre-push selector; current push/CI/final evaluator remain pending. #557 stays active; Stripe off.",
-        "Delivery resumed on 2026-10-02 after interruption. Exact application source remains unchanged. First managed-worktree push passed all application/payment tests but failed9 newly merged selector Git-fixture tests due hook Git-context inheritance; local Git-setting side effects were restored. Primary-checkout publication keeps all normal checks enabled and restores its original branch afterward. Final delivery/PR/evaluator outcomes are recorded in issue #557; no harness source fix, second issue, migration or Stripe activation is bundled."
+        "Tracking epic reconciled on 2026-10-02; excluded from executable WIP. Remaining work is owned by native child issues #584/#585/#588, not anonymous PR slices.",
+        "Merged reconciliation/events/signed ingress/normal finalization: PRs #565\u2013#568; cancellation/restart/reservation/resume: #570\u2013#574.",
+        "Merged paid-recovery schema/local compensation/recovery guards: #576/#577/#579; internal owner-safe state snapshot #581 merged at 5cd361e8 with independent PASS 10/10 and fresh 567-test CI.",
+        "Detailed historical slice verification remains in https://github.com/caraseli02/agent-Commerce/issues/557 and its linked PRs. No provider Refund or public refresh completion is claimed."
       ]
     },
     {

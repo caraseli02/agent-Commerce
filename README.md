@@ -227,5 +227,5 @@ Planning docs:
 
 - Package manager for this repo is **pnpm**
 - `.env` is ignored; use `.env.example` as the template
-- Local gates are documented in `docs/agents/verification.md`; pre-commit formats staged files, pre-push runs `pnpm verify` plus impact-selected macOS visuals (known non-runtime changes skip; runtime skips/targeting require a diff-bound consumer assessment; uncertain impact runs the full suite), and CI runs `pnpm verify`
+- Local gates are documented in `docs/agents/verification.md`; pre-commit formats staged files. Run one strongest delivery gate (`pnpm verify:handoff` for final handoff); pre-push reuses matching successful local base-gate evidence for up to four hours and selects macOS visuals from pushed impact. CI runs fresh full checks for executable/unknown changes. Verified documentation-only ranges use formatting/state checks. Use `--fresh` when earlier evidence is insufficient.
 - For portfolio demos, validate the key review flows above before capturing screenshots or video

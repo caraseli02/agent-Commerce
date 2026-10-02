@@ -9,7 +9,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - Keep changes small and shippable; this repo is a good fit for autonomous micro-tasks.
 - GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues and claim one issue at a time.
 - Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready.
-- The controller behaves like a standing `/goal`: keep one issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Do not start a second issue while an `in-progress` issue has an open PR.
+- The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue while an `in-progress` issue has an open PR.
 - Durable session state lives in `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md`.
 
 ## The 5 questions every fresh session must answer
@@ -52,9 +52,9 @@ Use **pnpm** for this repo.
 
 During implementation, inspect the diff and affected consumers, select the smallest relevant checks with reasons, and run those checks. For UI effects (including indirect data/store/style changes), use `.agents/skills/verify-ui-change/SKILL.md` and verify only the impacted routes/interactions and relevant viewports in the browser. After a focused repair, rerun only checks whose evidence was invalidated; continue the authorized task without asking the user to continue.
 
-Delivery gates remain `pnpm verify`, the existing pre-push hook, `pnpm verify:full` where architecture/runtime evidence is required, and `pnpm verify:handoff` from a clean working tree before final PR/session handoff. Broad gates belong at delivery, not after every repair. A documentation/skill-only local task may finish with formatting, link/frontmatter validation, and consistency inspection; record why application checks are not applicable. Publishing through the normal push/PR path still uses existing gates.
+Choose one strongest delivery gate: `pnpm verify`, `pnpm verify:full` where architecture/runtime evidence is required, or `pnpm verify:handoff` from a clean working tree for final PR/session handoff. Do not invoke every superset in sequence. Handoff/full and pre-push can reuse matching successful local build/lint/typecheck/coverage evidence for four hours; source, locked installation metadata, config/environment, runtime, or generated build changes invalidate reuse. Use `--fresh` after an unresolved failure or when fresh evidence is required. Lightweight validators, handoff runtime checks, and selected visuals still run. CI never reuses receipts; executable/unknown changes run full CI. Verified documentation-only ranges use formatting/state checks without application tests. See `docs/agents/verification.md` for the conservative classifier.
 
-Pre-push preserves `pnpm verify` and selects macOS screenshots from actual pushed ranges. Runtime skips or targeted groups require a committed, diff-bound consumer assessment; uncertain impact runs the full suite. `pnpm test:visual` still runs the full matrix explicitly.
+Pre-push invokes `pnpm verify --reuse` with the actual pushed base/head and selects macOS screenshots from actual pushed ranges. Runtime skips or targeted groups require a committed, diff-bound consumer assessment; uncertain impact runs the full suite. `pnpm test:visual` still runs the full matrix explicitly.
 
 See `docs/agents/verification.md` for check selection, evidence freshness, and a lightweight ignored per-task verification record. Saved state supports continuation when an agent is running or resumed; it does not schedule or wake an agent.
 
@@ -76,7 +76,7 @@ Do not mix initialization with feature implementation unless the task is explici
 
 - Make **one small decision + one small change + one verification** per loop.
 - Prefer tasks that touch 1 category only: build fix, lint fix, component polish, API wiring, or doc cleanup.
-- If a task needs more than ~3 files or a second unrelated fix, split it.
+- Prefer one coherent behavior per issue/PR, including its necessary endpoint, tests, migration, and tracking updates. More than ~3 implementation files prompts a scope review, not an automatic helper/route split. A second unrelated behavior requires a separate issue.
 - Enforce **WIP=1**: only one task may be active at a time.
 - After two focused failed repair attempts, stop and report the blocker instead of widening scope.
 - Do not continue based on vibe; keep every loop grounded in a checkable outcome.

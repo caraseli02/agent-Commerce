@@ -173,9 +173,7 @@ Keep the application-facing contract small and provider-neutral.
 type PaymentStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'CANCELED';
 
 type PaymentNextAction =
-  | Readonly<{ type: 'none' }>
-  | Readonly<{ type: 'client-secret'; clientSecret: string }>
-  | Readonly<{ type: 'redirect'; url: string }>;
+  Readonly<{ type: 'none' }> | Readonly<{ type: 'client-secret'; clientSecret: string }> | Readonly<{ type: 'redirect'; url: string }>;
 
 type PaymentContinuationResult =
   | Readonly<{ kind: 'requires-action'; nextAction: PaymentNextAction }>
@@ -197,17 +195,11 @@ interface PaymentsService {
 
   initiatePayment(input: { paymentId: PaymentId }): Promise<PaymentContinuationResult>;
 
-  cancelPayment(input: {
-    paymentId: PaymentId;
-    reason: PaymentCancellationReason;
-  }): Promise<CancelPaymentResult>;
+  cancelPayment(input: { paymentId: PaymentId; reason: PaymentCancellationReason }): Promise<CancelPaymentResult>;
 
   reconcilePayment(input: { paymentId: PaymentId }): Promise<PaymentReconciliationResult>;
 
-  requestFullRefund(input: {
-    paymentId: PaymentId;
-    reason: RefundReason;
-  }): Promise<RefundResult>;
+  requestFullRefund(input: { paymentId: PaymentId; reason: RefundReason }): Promise<RefundResult>;
 }
 ```
 
@@ -258,12 +250,12 @@ Orders, Inventory, Catalog, Cart, or Accounts.
 
 Use four target local states:
 
-| State | Meaning |
-| --- | --- |
-| `PENDING` | The logical Payment is still payable/retryable. It may already have a reusable Stripe PaymentIntent. |
+| State        | Meaning                                                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `PENDING`    | The logical Payment is still payable/retryable. It may already have a reusable Stripe PaymentIntent.                    |
 | `PROCESSING` | Stripe is actively processing the payment or the provider outcome is temporarily uncertain after customer confirmation. |
-| `PAID` | Provider success has been confirmed locally. |
-| `CANCELED` | The logical Payment is terminal because it can no longer collect money and the existing checkout must not be resumed. |
+| `PAID`       | Provider success has been confirmed locally.                                                                            |
+| `CANCELED`   | The logical Payment is terminal because it can no longer collect money and the existing checkout must not be resumed.   |
 
 Creating/recovering a Stripe PaymentIntent does **not** by itself move the local
 Payment to `PROCESSING`. A PaymentIntent can exist while the customer has not
@@ -280,17 +272,17 @@ instead of becoming additional ECAS database states.
 
 ### Valid transition table
 
-| Current | Provider/local fact | Next | Notes |
-| --- | --- | --- | --- |
-| `PENDING` | PaymentIntent created/recovered; customer can still act | `PENDING` | return client secret only after the final cancellation guard succeeds |
-| `PENDING` | Stripe reports active processing or provider outcome is unknown after confirmation | `PROCESSING` | provider work is genuinely in flight/uncertain |
-| `PROCESSING` | recoverable payment-method failure | `PENDING` | customer may retry the same logical Payment/PaymentIntent |
-| `PENDING` / `PROCESSING` | definitive success | `PAID` | monotonic success |
-| `PENDING` | Order becomes permanently non-payable and no provider create ever started | `CANCELED` | safe local-only cancellation |
-| `PENDING` / `PROCESSING` | cancellation requested after provider create started | reconcile/cancel first | do not commit `CANCELED` until provider collection is impossible |
-| `PENDING` / `PROCESSING` | Stripe reports provider-initiated `canceled` | `CANCELED` | existing checkout becomes terminal; do not create a replacement intent on that claim |
-| `PAID` | duplicate/stale failure/processing/cancellation signal | `PAID` | success must not regress |
-| `CANCELED` | stale non-success event | `CANCELED` | terminal cancellation remains terminal |
+| Current                  | Provider/local fact                                                                | Next                   | Notes                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------ |
+| `PENDING`                | PaymentIntent created/recovered; customer can still act                            | `PENDING`              | return client secret only after the final cancellation guard succeeds                |
+| `PENDING`                | Stripe reports active processing or provider outcome is unknown after confirmation | `PROCESSING`           | provider work is genuinely in flight/uncertain                                       |
+| `PROCESSING`             | recoverable payment-method failure                                                 | `PENDING`              | customer may retry the same logical Payment/PaymentIntent                            |
+| `PENDING` / `PROCESSING` | definitive success                                                                 | `PAID`                 | monotonic success                                                                    |
+| `PENDING`                | Order becomes permanently non-payable and no provider create ever started          | `CANCELED`             | safe local-only cancellation                                                         |
+| `PENDING` / `PROCESSING` | cancellation requested after provider create started                               | reconcile/cancel first | do not commit `CANCELED` until provider collection is impossible                     |
+| `PENDING` / `PROCESSING` | Stripe reports provider-initiated `canceled`                                       | `CANCELED`             | existing checkout becomes terminal; do not create a replacement intent on that claim |
+| `PAID`                   | duplicate/stale failure/processing/cancellation signal                             | `PAID`                 | success must not regress                                                             |
+| `CANCELED`               | stale non-success event                                                            | `CANCELED`             | terminal cancellation remains terminal                                               |
 
 The implementation must enforce transitions conditionally in PostgreSQL rather
 than reading a state and later assuming it is unchanged.
@@ -811,15 +803,15 @@ durable background/outbox mechanism; no queue is added preemptively.
 
 ### Initial event scope
 
-| Stripe event | Initial ECAS behavior | Implementation owner |
-| --- | --- | --- |
-| `payment_intent.succeeded` | Transition/reconcile `PAID`, then retry critical application finalization before `2xx`. | #557 |
-| `payment_intent.processing` | Reconcile and keep/move local Payment to `PROCESSING` when provider work is genuinely in flight. | #557 |
-| `payment_intent.payment_failed` | Reconcile; return/remain retryable `PENDING` when appropriate. | #557 |
-| `payment_intent.canceled` | Reconcile terminal provider cancellation; release active reservation and terminalize the old checkout. | #557 |
-| `refund.created` | Correlate/reconcile durable Refund. | #558 |
-| `refund.updated` | Reconcile Refund to current provider truth. | #558 |
-| `refund.failed` | Reconcile definitive Refund failure. | #558 |
+| Stripe event                    | Initial ECAS behavior                                                                                  | Implementation owner |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------- |
+| `payment_intent.succeeded`      | Transition/reconcile `PAID`, then retry critical application finalization before `2xx`.                | #557                 |
+| `payment_intent.processing`     | Reconcile and keep/move local Payment to `PROCESSING` when provider work is genuinely in flight.       | #557                 |
+| `payment_intent.payment_failed` | Reconcile; return/remain retryable `PENDING` when appropriate.                                         | #557                 |
+| `payment_intent.canceled`       | Reconcile terminal provider cancellation; release active reservation and terminalize the old checkout. | #557                 |
+| `refund.created`                | Correlate/reconcile durable Refund.                                                                    | #558                 |
+| `refund.updated`                | Reconcile Refund to current provider truth.                                                            | #558                 |
+| `refund.failed`                 | Reconcile definitive Refund failure.                                                                   | #558                 |
 
 Webhook arrival order is never the source of truth.
 
@@ -1060,30 +1052,30 @@ allocation remain out of scope.
 
 ## 15. Failure-oriented validation matrix
 
-| Failure | Required behavior |
-| --- | --- |
-| Browser retries PlaceOrder | Existing checkout claim / Payment is recovered; no duplicate Order/Payment. |
-| Old mock deployment shares DB before Stripe activation | Stripe activation remains disabled until that writer is upgraded/retired/isolated. |
-| Cross-version replay targets a Stripe-candidate checkout | Old deployment cannot mutate the shared Stripe Payment/Order to `PAID`. |
-| PaymentIntent create request times out (<24h) | Retry the same create operation with the same key; recover the same intent. |
-| PaymentIntent ID remains unknown beyond safe idempotency window | Do not create automatically; mark checkout recovery-required and require operational reconciliation. |
-| Cancellation races PaymentIntent creation | `cancellation_requested_at` prevents a client secret from being returned after cancellation wins; recover/cancel provider object if creation had started. |
-| Stripe succeeds after cancellation races | `PAID` wins; application follows durable paid-recovery decision and may refund. |
-| Stripe provider-cancels PaymentIntent | Existing claim becomes terminal; explicit re-review creates a new Cart revision and new checkout. |
-| Browser refreshes during 3DS | Browser asks ECAS; ECAS reads PostgreSQL then reconciles Stripe if required. |
-| Duplicate non-success webhook | Provider transition is deduplicated safely. |
-| Success webhook crashes after Payment=PAID but before finalization | Return non-2xx; Stripe retry sees duplicate event ID but retries unfinished application finalization. |
-| REFUND decision commits, then process crashes before Refund create | Return non-2xx; duplicate success webhook resumes `requestFullRefund()`; fulfillment is forbidden. |
-| Refund ID known but Refund still PENDING | Original success webhook may acknowledge; refund webhook/reconciliation continues independently. |
-| Refund FAILED | Order stays ON_HOLD, claim becomes compensation_recovery_required, fulfillment remains blocked. |
-| Refund provider outcome unknown with no safe ID | No blind second refund and no fulfillment; payment-success webhook remains unacknowledged until safe identity/manual recovery. |
-| Success webhook response is lost after finalization | Duplicate retry observes finalized checkout and returns 2xx without repeating side effects. |
-| Out-of-order failure after success | Local `PAID` does not regress. |
-| Webhook provider-transition DB transaction crashes | Event ID and Payment transition both roll back; retry remains safe. |
-| Concurrent late-paid recovery sees stock/refund possibilities | One durable `paid_recovery_decision` wins; fulfillment and refund are mutually exclusive. |
-| Refund create outcome unknown (<24h) | Retry same logical Refund/create key. |
-| Refund ID unknown beyond safe idempotency window | No blind second refund; claim stays compensation_recovery_required and Order stays ON_HOLD. |
-| Newer Cart revision exists after payment | Finalized purchase remains true; cleanup must not destroy the newer Cart. |
+| Failure                                                            | Required behavior                                                                                                                                         |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser retries PlaceOrder                                         | Existing checkout claim / Payment is recovered; no duplicate Order/Payment.                                                                               |
+| Old mock deployment shares DB before Stripe activation             | Stripe activation remains disabled until that writer is upgraded/retired/isolated.                                                                        |
+| Cross-version replay targets a Stripe-candidate checkout           | Old deployment cannot mutate the shared Stripe Payment/Order to `PAID`.                                                                                   |
+| PaymentIntent create request times out (<24h)                      | Retry the same create operation with the same key; recover the same intent.                                                                               |
+| PaymentIntent ID remains unknown beyond safe idempotency window    | Do not create automatically; mark checkout recovery-required and require operational reconciliation.                                                      |
+| Cancellation races PaymentIntent creation                          | `cancellation_requested_at` prevents a client secret from being returned after cancellation wins; recover/cancel provider object if creation had started. |
+| Stripe succeeds after cancellation races                           | `PAID` wins; application follows durable paid-recovery decision and may refund.                                                                           |
+| Stripe provider-cancels PaymentIntent                              | Existing claim becomes terminal; explicit re-review creates a new Cart revision and new checkout.                                                         |
+| Browser refreshes during 3DS                                       | Browser asks ECAS; ECAS reads PostgreSQL then reconciles Stripe if required.                                                                              |
+| Duplicate non-success webhook                                      | Provider transition is deduplicated safely.                                                                                                               |
+| Success webhook crashes after Payment=PAID but before finalization | Return non-2xx; Stripe retry sees duplicate event ID but retries unfinished application finalization.                                                     |
+| REFUND decision commits, then process crashes before Refund create | Return non-2xx; duplicate success webhook resumes `requestFullRefund()`; fulfillment is forbidden.                                                        |
+| Refund ID known but Refund still PENDING                           | Original success webhook may acknowledge; refund webhook/reconciliation continues independently.                                                          |
+| Refund FAILED                                                      | Order stays ON_HOLD, claim becomes compensation_recovery_required, fulfillment remains blocked.                                                           |
+| Refund provider outcome unknown with no safe ID                    | No blind second refund and no fulfillment; payment-success webhook remains unacknowledged until safe identity/manual recovery.                            |
+| Success webhook response is lost after finalization                | Duplicate retry observes finalized checkout and returns 2xx without repeating side effects.                                                               |
+| Out-of-order failure after success                                 | Local `PAID` does not regress.                                                                                                                            |
+| Webhook provider-transition DB transaction crashes                 | Event ID and Payment transition both roll back; retry remains safe.                                                                                       |
+| Concurrent late-paid recovery sees stock/refund possibilities      | One durable `paid_recovery_decision` wins; fulfillment and refund are mutually exclusive.                                                                 |
+| Refund create outcome unknown (<24h)                               | Retry same logical Refund/create key.                                                                                                                     |
+| Refund ID unknown beyond safe idempotency window                   | No blind second refund; claim stays compensation_recovery_required and Order stays ON_HOLD.                                                               |
+| Newer Cart revision exists after payment                           | Finalized purchase remains true; cleanup must not destroy the newer Cart.                                                                                 |
 
 ---
 
@@ -1174,9 +1166,13 @@ the application own card credentials.
 
 ---
 
-## 18. Implementation slices after ADR acceptance
+## 18. Implementation ownership after ADR acceptance
 
-Implementation order follows backend dependencies rather than UI order.
+Implementation order follows backend dependencies rather than UI order. The
+original slices below describe capability scope. Since 2026-10-02, #557 and
+#558 are tracking epics with fixed executable children, not agent work items.
+The capability graph at the end of this section supersedes their original issue
+ordering; merged foundations are complete and are not reimplemented.
 
 ### Slice A / #554 — compatible Payment persistence expansion
 
@@ -1225,8 +1221,9 @@ Implementation order follows backend dependencies rather than UI order.
 
 ### Slice E / #558 — late success + full refund recovery
 
-- transactional `paid_recovery_decision` preventing fulfillment/refund conflict;
-- expired-reservation allocation/backorder/refund branches;
+- transactional `paid_recovery_decision` and expired-reservation branch
+  selection are owned by #585 under #557; the commercial selection rule must
+  be recorded before pickup;
 - durable compensation continuation after `REFUND` commits;
 - durable full Refund entity;
 - refund create-start timing and bounded idempotency;
@@ -1247,19 +1244,26 @@ Implementation order follows backend dependencies rather than UI order.
   contraction;
 - document remaining production-only risks.
 
-Issue dependency order:
+Remaining executable capabilities:
 
 ```text
-#554
-  -> #555
-      -> #557
-          -> #556
-          -> #558
-              \-> #559
+merged #554/#555 and #557 foundations
+  -> #584 owner-scoped provider refresh/return recovery
+  -> #585 one durable paid-recovery outcome (policy decision required)
+  -> #586 durable full provider Refund
+       -> #587 Refund event reconciliation/settlement
+#585 + #586 + #587 -> #588 late-paid webhook continuation
+#584 + #588 -> #556 Payment Element/3DS UI
+#556 + #588 + #586 + #587 -> #559 activation Gate A
+
+#557 tracks #584/#585/#588
+#558 tracks #586/#587
 ```
 
-#559 requires both the UI and refund/backend recovery slices and contains the
-**Stripe activation gate** as well as the later schema-contract gate.
+#583 separately tracks existing payment state/public error contract cleanup.
+#559 requires the UI and named refund/backend recovery capabilities and contains
+the **Stripe activation gate** as well as the later schema-contract gate. The
+tracking epics close after their fixed children and integration evidence pass.
 
 ---
 
