@@ -5,6 +5,12 @@
       "impact": "none",
       "reason": "Verification and issue-tracking tooling only; no storefront runtime changes.",
       "consumers": "scripts/verification-evidence.mjs is imported only by scripts/verify.mjs and its tests. verify.mjs is invoked by package scripts, CI and pre-push; select-visual-checks.mjs orchestrates developer verification. No Nuxt route/component/store/domain reads these modules, and they perform no application or provider state writes. Workflow/docs/tests do not change rendered application state. Browser screenshots are not evidence for this tooling change; receipt/classifier/real-hook tests verify its consumers."
+    },
+    {
+      "fingerprint": "81c65c0374c296e020902964c26d4ef54450932a40e53ae84e9f7dda60bc36a9",
+      "impact": "none",
+      "reason": "Verification and issue-tracking tooling only; no storefront runtime changes.",
+      "consumers": "scripts/verification-evidence.mjs is imported only by scripts/verify.mjs and its tests. verify.mjs is invoked by package scripts, CI and pre-push; select-visual-checks.mjs orchestrates developer verification. No Nuxt route/component/store/domain reads these modules, and they perform no application or provider state writes. Workflow/docs/tests do not change rendered application state. Browser screenshots are not evidence for this tooling change; receipt/classifier/real-hook tests verify its consumers."
     }
   ]
 }
