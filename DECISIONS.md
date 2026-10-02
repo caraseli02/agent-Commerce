@@ -2,6 +2,12 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Bounded payment tasks and verification reuse — 2026-10-02
+
+- #557/#558 are fixed tracking epics; native children #584–#588 own the remaining acceptance criteria. WIP=1 applies to an executable child, normally closed by one coherent PR. Evaluator PASS refers to the complete child, not an anonymous partial slice. New unrelated findings become separate backlog issues.
+- #582 repairs the delivery workflow. Run one strongest local gate; pre-push may reuse a matching successful four-hour application receipt. Validators, affected runtime evidence, and visuals retain independent checks. CI cannot reuse receipts. Known documentation-only ranges run focused formatting/state checks; unknown or executable ranges run the full gate.
+- #583 tracks existing state/error contract cleanup separately; no persisted payment values, provider activation, or payment behavior changes are part of this workflow repair.
+
 ## Stripe provider ADR — 2026-09-22
 
 - Use Stripe Payment Intents + Payment Element behind the Payments module boundary; first scope is card-only including 3D Secure.
@@ -40,7 +46,7 @@ Use this file for durable cross-session decisions that should survive context re
   - Before activation, enumerate and upgrade/retire/isolate every unsafe writer and pass a cross-version replay proving an old deployment cannot mutate a Stripe-backed Payment/Order to `PAID`.
   - Only later, after all old writers are gone/isolated, backfill `FAILED -> CANCELED`, tighten the status constraint, and drop legacy columns.
 - Backend recovery precedes UI acceptance.
-  - Implementation order is #554 -> #555 -> #557 -> #556/#558 -> #559.
+  - #554/#555 and #557 foundations are merged. Remaining capability order is #584 refresh/return; #585 application selection and #586 full Refund continuation; #586 -> #587 Refund settlement; #585/#586/#587 -> #588 webhook integration; #584/#588 -> #556 UI; then #559 activation. #557/#558 are tracking epics, not cyclic executable prerequisites.
   - `resumeOrderPayment` is an application workflow; Orders owns payability, Inventory owns reservation renewal, Payments owns provider truth.
 - Keep provider-attempt tables, partial refunds, manual capture, app-owned saved cards, queues/brokers, and production real-money rollout out of the first slice.
 

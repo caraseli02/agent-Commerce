@@ -40,7 +40,7 @@ This makes the process observable and prevents scope creep.
 
 ## 3. WIP=1 claim protocol
 
-1. Pick exactly one `ready-for-agent` issue.
+1. Pick exactly one bounded `ready-for-agent` executable issue; skip `epic` tracking parents and children with unresolved capability dependencies.
 2. Skip issues already assigned, already `in-progress`, or already linked to an active PR.
 3. Add `in-progress`, assign the working account, and comment with branch name.
 4. Create a fresh branch/worktree from `origin/main`.
@@ -51,7 +51,7 @@ This makes the process observable and prevents scope creep.
 - Prefer TDD when a behavior can be expressed as a test.
 - Make one small decision, one small change, then the smallest meaningful verification. Inspect affected consumers and record check-selection reasons; use `verify-ui-change` for direct or indirect UI effects.
 - After a focused repair, rerun only invalidated checks and continue the authorized task. Save stage, revision/diff fingerprint, evidence freshness, and next action in ignored `tmp/verification/<task-id>.md` when continuation is needed; see `verification.md`.
-- If the task grows past roughly three files or crosses unrelated concerns, split it.
+- Scope by one observable behavior, including its necessary implementation/endpoint/tests. Review scope when it exceeds roughly three implementation files; split unrelated outcomes into named issues before coding.
 - Do not refactor adjacent code until the core behavior is verified.
 - Record durable decisions in `DECISIONS.md`, not in chat only.
 - Update `feature_list.json` when feature/task state changes.
@@ -80,11 +80,10 @@ A session is not complete until both task verification and clean-state checks pa
 For application PR/session delivery, run/check:
 
 ```bash
-pnpm verify
 pnpm verify:handoff
 ```
 
-Documentation/skill-only local handoff may use the targeted validation exception in `verification.md`; normal push/CI gates still apply. Do not claim clean-tree delivery checks passed while changes remain uncommitted.
+`verify:handoff` includes the lower gates; do not run `verify` or `verify:full` first. Matching local base-gate evidence may be reused, while architecture/runtime and clean-state checks run. Pre-push independently validates receipt freshness and the actual pushed range. CI runs fresh checks; verified documentation-only changes use the focused gate described in `verification.md`. Do not claim clean-tree delivery checks passed while changes remain uncommitted.
 
 Also verify:
 
@@ -93,7 +92,7 @@ Also verify:
 - No new `console.log`, commented-out code, or TODO/FIXME markers were introduced unless explicitly intended; `node scripts/check-clean-state.mjs` checks the changed source files for those regressions and only performs the `PROGRESS.md` shape checks it can verify mechanically, while skipping itself so it does not self-flag.
 - GitHub Issues remain the primary task queue. `PROGRESS.md` states the active issue/PR, current focus, blockers, and next verification as the short cross-session mirror.
 - `feature_list.json` evidence is updated if task state changed.
-- Any temporary evidence captured during the session is either committed as durable documentation or removed from `tmp/` and the working tree before handoff.
+- Remove temporary screenshots/logs/task records before handoff. The ignored four-hour delivery receipt may remain for pre-push reuse; it is never committed or treated as an evaluator verdict.
 - PR body includes verification evidence and any known risks.
 - If a PR was created or updated, evaluator handoff was triggered for the new PR head before starting any new issue.
 

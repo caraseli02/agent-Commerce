@@ -126,13 +126,13 @@ export function plan({ cwd = process.cwd(), input = '', base, head = 'HEAD', rem
     }
     return decisions;
   });
-  if (!decisions.length) return { mode: 'skip', reason: 'Only remote ref deletions.', tests: [], decisions };
+  if (!decisions.length) return { mode: 'skip', reason: 'Only remote ref deletions.', tests: [], decisions, ranges };
   const mode = decisions.some((decision) => decision.mode === 'full')
     ? 'full'
     : decisions.some((decision) => decision.mode === 'targeted')
       ? 'targeted'
       : 'skip';
-  return { mode, tests: [...new Set(decisions.flatMap((decision) => decision.tests))], decisions };
+  return { mode, tests: [...new Set(decisions.flatMap((decision) => decision.tests))], decisions, ranges };
 }
 
 /**
@@ -168,8 +168,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       local: baseIndex >= 0,
     });
     process.stdout.write(`${JSON.stringify(selection, null, 2)}\n`);
-    if (args.includes('--verify')) {
-      const result = spawnSync('pnpm', ['verify'], { stdio: ['ignore', 'inherit', 'inherit'] });
+    if (args.includes('--verify') && selection.ranges.length) {
+      const pushedHead = selection.ranges[0][1];
+      if (selection.ranges.some(([, after]) => after !== pushedHead))
+        throw new Error('Verify and push distinct heads from their own checkouts.');
+      const rangeArgs = selection.ranges.length === 1 ? ['--base', selection.ranges[0][0], '--head', pushedHead] : ['--head', pushedHead];
+      const result = spawnSync('pnpm', ['verify', '--reuse', ...rangeArgs], { stdio: ['ignore', 'inherit', 'inherit'] });
       if (result.error) throw result.error;
       if (result.status !== 0) process.exit(result.status ?? 1);
     }

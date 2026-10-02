@@ -6,7 +6,7 @@ Components Marketplace autonomous work follows the Learn Harness Engineering rec
 
 The autonomous loop should behave like a standing `/goal` even when cron wakes individual stages:
 
-- Keep exactly one issue active at a time.
+- Keep exactly one executable issue active at a time. Tracking epics are never claimed; choose an unblocked bounded child.
 - A planner claim moves `ready-for-agent` → `in-progress`.
 - A generator opens or updates the PR for that same issue/branch.
 - The ship path triggers evaluator review immediately after the PR head changes; do not wait for the next scheduled evaluator tick when a PR is ready.
@@ -77,7 +77,7 @@ Use this minimal flow unless the project explicitly adds a `ready-for-evaluator`
 The planner output must include:
 
 - Issue number, title, URL, and branch name.
-- Acceptance criteria summary.
+- Fixed executable acceptance criteria summary and parent epic (if any); dependencies refer to named capabilities, with no cycle.
 - Files or areas likely to change.
 - Dependency check: what must already be merged or true.
 - Verification plan: inspect affected consumers, select targeted checks with reasons/dependencies and relevant routes/viewports, then delivery gates.
@@ -91,9 +91,9 @@ The generator must:
 
 1. Read the planner work brief and the full GitHub issue.
 2. Start from clean latest `main` and work on the claimed branch only.
-3. Make the smallest change that satisfies the issue.
+3. Make the smallest coherent change that satisfies the complete executable issue, including necessary endpoint/tests. If the issue needs multiple independently completed behaviors, rescope into named children before coding; do not deliver anonymous partial slices.
 4. Inspect the implementation diff and affected consumers, run targeted verification from the brief, and keep the local verification record described in `docs/agents/verification.md` when evidence reuse/continuation is needed. For UI effects, use `.agents/skills/verify-ui-change/SKILL.md`. Repair failures within scope and rerun only invalidated checks; continue without asking the user to continue. Run existing delivery gates before shipping.
-5. Open or update a PR linked with `Closes #<issue>`. Populate `.github/pull_request_template.md` in the initial create command; do not open an empty PR and patch its description later.
+5. Open or update a PR linked with `Closes #<executable issue>` and `Related #<tracking epic>` if applicable. Populate `.github/pull_request_template.md` in the initial create command; do not open an empty PR and patch its description later.
 6. End with `PR ready for evaluator`, not `done`.
 
 The generator's checks are useful evidence, but they are not the final done gate. Saved local verification state does not schedule or wake an agent; the existing controller or an explicitly resumed session must invoke continuation.
@@ -104,7 +104,7 @@ The evaluator must inspect the PR independently and produce a structured verdict
 
 Required checks:
 
-- Compare PR diff against the issue acceptance criteria.
+- Compare PR diff against all acceptance criteria of the linked executable issue. PASS cannot mean only an undocumented subset is complete; report child completion separately from epic completion.
 - Confirm no unrelated broad refactor or second issue was included.
 - Check GitHub mergeability before PASS: run `gh pr view --json mergeable,mergeStateStatus` and require the PR to be mergeable. If `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`, verdict must be `FAIL — needs generator fix` until the branch is rebased or conflicts are resolved.
 - Run or inspect evidence for the relevant verification ladder in `docs/agents/verification.md`.

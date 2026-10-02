@@ -4,13 +4,13 @@ Use this doc to decide whether an Components Marketplace task is actually done. 
 
 ## Verification ladder
 
-Run the narrowest meaningful check first, then climb until the changed behavior is proven. Use targeted checks during implementation; run broad gates at delivery.
+Run the narrowest meaningful check first, then climb until the changed behavior is proven. Use targeted checks during implementation; choose one strongest broad gate at delivery. `verify:handoff` includes `verify:full`, which includes `verify`; do not run all three in sequence.
 
 1. **Delivery gate**
    - `pnpm verify`
    - Runs `build`, `lint`, `typecheck`, `test:coverage`, and `feature_list.json` validation.
    - `pnpm test:coverage` measures all files in `composables/api/**` and `store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
-   - Run this before delivery/push, rather than after every focused repair.
+   - Run this before delivery/push, rather than after every focused repair. Default `verify` runs fresh; `--reuse` allows the matching successful local base-gate receipt described below. CI always runs fresh executable checks.
 2. **Full local gate**
    - `pnpm verify:full`
    - Adds architecture invariants and preview smoke on top of the fast gate.
@@ -18,7 +18,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 3. **Pre-handoff gate**
    - `pnpm verify:handoff`
    - Adds clean-state validation to the full gate and expects a clean working tree.
-   - Use this before final PR/session handoff, after intentional files are committed or otherwise clean.
+   - Use this once before final PR/session handoff, after intentional files are committed or otherwise clean. Full/handoff reuse matching local base checks when available, then run their additional checks.
 4. **Harness-state validator**
    - `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
    - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
@@ -66,7 +66,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 4. On failure, make a focused repair and rerun the failed check plus any checks invalidated by the repair. Keep evidence only when its relevant source, dependencies, and environment remain unchanged; rerun the relevant check when uncertain.
 5. Continue until the scoped behavior passes or the blocker protocol applies (two focused failed repair attempts, missing required decision, or unavailable required environment). Run the delivery gates when ready to ship; the independent evaluator remains responsible for PR readiness.
 
-Documentation/skill-only local work can use changed-file formatting, link/frontmatter validation, and consistency inspection. Application build, tests, and browser checks are not required when no executable behavior or runtime configuration changed; state that reason in the evidence. Existing push/CI/PR gates remain in force.
+Documentation/skill-only local work can use changed-file formatting, link/frontmatter validation, and consistency inspection. Application build, tests, and browser checks are not required when no executable behavior or runtime configuration changed; state that reason in the evidence. Push/CI classify the actual committed range conservatively: verified documentation-only changes receive formatting/state validation; executable or unknown changes retain the application gate. PR-template validation remains separate.
 
 ## Saved verification state
 
@@ -87,7 +87,17 @@ Compute the fingerprint from the actual diff bytes and untracked file contents, 
 
 Associate each result with its checked environment/runtime identity (a short identifier referencing the setup is enough); do not overwrite older results with a newer global setup. Update the record after edits/checks and before interruption. On resume, compare revision, fingerprint, relevant dependencies, and environment against each result. A changed overall fingerprint prompts inspection of the change; it does not invalidate unrelated checks automatically. Reuse only evidence with demonstrably unchanged inputs. A preview must be rebuilt after a relevant edit; a dev server must have consumed the current changes (restart for config/server changes when needed). Never label a stale runtime check as evidence for the current diff.
 
-This record is a local continuation aid, not a scheduler or an independent evaluator verdict. Keep durable issue/PR state in `PROGRESS.md` and `feature_list.json`; copy useful evidence into the handoff and remove temporary records/artifacts before clean handoff.
+This record is a local continuation aid, not a scheduler or an independent evaluator verdict. Keep durable issue/PR state in `PROGRESS.md` and `feature_list.json`; copy useful evidence into the handoff and remove temporary task records/artifacts before clean handoff. The ignored delivery receipt described below may remain until expiration for pre-push reuse.
+
+## Local delivery receipt and focused documentation gate
+
+Successful local application gates may write `tmp/verification/delivery.json` (ignored, never committed). Full/handoff and pre-push reuse only build/bundle/lint/typecheck/coverage evidence matching the current executable inputs and generated artifacts, less than four hours old. The fingerprint includes tracked and nonignored untracked input bytes/modes, Node/pnpm/platform, locked installation metadata and installation timestamps, `.env`/`.env.local`, relevant application/test environment values, and the checkout path. Only digests are stored; credentials are not written to the receipt. Generated `.output` and `.nuxt` contents must also match.
+
+Documentation/state text is excluded from application evidence, so a tracking update does not rerun unchanged application checks. Feature/UI validators still run on reuse, full/handoff still run architecture and fresh preview smoke, and handoff still requires a clean tree. Visual selection is independently bound to the pushed runtime patch. Missing/malformed/expired receipts, missing dependencies/artifacts, changed inputs, or failed gates run fresh or block. A failed verification attempt removes any old receipt; a successful run writes one only if executable inputs stayed unchanged throughout. Use `--fresh` after installing/modifying dependencies manually, after an unresolved focused-test failure, or whenever an external environment change makes earlier evidence insufficient. Receipts do not prove arbitrary manual changes inside installed packages and never replace independent review.
+
+CI never reads/reuses local receipts. `--base <ref> --head <ref>` enables conservative documentation-only classification over the complete committed range plus current dirty/untracked inputs. Only named root Markdown/state files, Markdown under `docs/`, and skill Markdown qualify. Tests, workflows, hooks, scripts, dependencies, public Markdown, arbitrary JSON, symlinks, executables, unknown paths, renames/deletions of executable files, and unavailable bases cannot waive application checks. Pre-push requires the exact pushed HEAD and a clean checkout, including tracking files, so validators cannot accidentally prove a different committed state. A pushed executable tree different from the checkout blocks verification. Multiple pushed ranges conservatively use the full gate.
+
+Documentation-only runs use changed-file Prettier and feature-state validation; handoff also checks clean state. Explicitly inspect links and document consistency. CI obtains its base from the event and fetches full Git history. The classifier is stricter than the visual selector: a nonvisual test or workflow still requires the application gate.
 
 ## Evidence policy
 
@@ -107,7 +117,7 @@ Use this policy to keep PRs reviewable and avoid scattering one-off artifacts ac
 
 ## Local visual-regression pilot
 
-The visual suite is a local review aid for the Tailwind/Nuxt recovery work. Husky always runs `pnpm verify`, then uses `scripts/select-visual-checks.mjs` to skip, target, or run the full visual suite from the pushed changes. Selected visual mismatches block normal macOS pushes. Other platforms explicitly report the unsupported baselines when visuals are selected. The suite is not a GitHub required check, does not independently block merges, and has no CI job, artifact upload, Docker/Linux baseline, or visual SaaS integration.
+The visual suite is a local review aid for the Tailwind/Nuxt recovery work. Husky invokes `pnpm verify --reuse` with the actual pushed base/head, then uses `scripts/select-visual-checks.mjs` to skip, target, or run the full visual suite from the pushed changes. Selected visual mismatches block normal macOS pushes. Other platforms explicitly report the unsupported baselines when visuals are selected. The suite is not a GitHub required check, does not independently block merges, and has no CI job, artifact upload, Docker/Linux baseline, or visual SaaS integration.
 
 ### Push impact selection
 
@@ -141,7 +151,7 @@ Use `impact: "targeted"` plus `tests: ["product", "cart"]` for affected visual g
 
 Assessments bind to the complete runtime patch, including binary content, old/new paths and modes. Documentation-only assessment commits preserve that fingerprint. Changed runtime contents or a new push base invalidate it: inspect the newly pushed range and refresh the assessment, or accept the full suite. Staged/unstaged and untracked nonignored runtime changes create separate conservative decisions, so a local reversal cannot hide a committed pushed change. The hook reads assessments from the pushed commit; uncommitted assessments cannot waive it. Keep the checkout clean for delivery so screenshots test the pushed runtime.
 
-The assessment is a reviewed consumer-tracing assertion, not an automated proof of behavior. Evaluators must challenge skips and narrow selections against the actual diff. Missing, malformed, stale, empty or unknown selections fall back to full. No application response or Stripe gate is changed by this mechanism. GitHub CI continues to run `pnpm verify`; macOS baselines remain local.
+The assessment is a reviewed consumer-tracing assertion, not an automated proof of behavior. Evaluators must challenge skips and narrow selections against the actual diff. Missing, malformed, stale, empty or unknown selections fall back to full. No application response or Stripe gate is changed by this mechanism. GitHub CI runs `pnpm verify --base <event base>` with reuse disabled; executable/unknown ranges receive the full gate and documentation-only ranges receive the focused gate. macOS baselines remain local.
 
 - Run `pnpm test:visual` to build the app and exercise the visual matrix against a fresh local Nitro preview at `http://127.0.0.1:3100`. It must not be pointed at `pnpm dev`.
 - Run `pnpm test:visual:update` only when intentionally accepting a visual change. It writes the committed PNG baselines under `tests/visual/__screenshots__/`.
@@ -167,9 +177,9 @@ Example evidence block for a future PR:
 ## Local gate ownership
 
 - **Pre-commit:** `lint-staged` runs Prettier on staged files only.
-- **Pre-push:** `pnpm verify` on every platform, followed by impact-selected visuals on macOS (see `.husky/pre-push`). A failed command stops the normal push; non-macOS platforms report unsupported baselines for selected visuals. No hook bypass is needed for a verified no-UI-impact change.
+- **Pre-push:** `pnpm verify --reuse` on every platform against the pushed range, followed by impact-selected visuals on macOS (see `.husky/pre-push`). A failed command stops the normal push; non-macOS platforms report unsupported baselines for selected visuals. No hook bypass is needed for a verified no-UI-impact change.
 - **Pre-handoff:** `pnpm verify:handoff` from a clean working tree.
-- **CI:** `pnpm verify` (build, lint, typecheck, coverage-enforced tests, and `feature_list.json` validation). Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
+- **CI:** fresh `pnpm verify --base <event base>` (build, lint, typecheck, coverage-enforced tests, and `feature_list.json` validation for executable/unknown changes; focused formatting/state checks for verified documentation-only changes). Use `pnpm verify:full` in the PR body when runtime/API-boundary evidence is required.
 - **Evaluator pass check:** before marking a PR review-ready, confirm `gh pr view --json mergeable,mergeStateStatus` and do not pass any PR that is `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`.
 
 ## If a local gate fails

@@ -2,106 +2,31 @@
 
 ## Current focus
 
-- Explicit user-directed harness request: align executable pre-push visual selection with targeted verification. Branch `codex/visual-impact-selection` was refreshed onto human-merged #579 (`2e2eb4e2`). This does not claim a second queued issue; #557 remains sole active payment work, and PR #579 at bdb775cc and its separate checkout are untouched.
-
-- Checkout/order hardening through PR #550 is merged on `main`.
-- Epic #535 child issues (#537-#547) are reconciled and closed where current-main implementation, focused coverage, and preview-browser evidence met their acceptance criteria.
-- PR #552 merged the accepted Stripe provider/recovery ADR as `cd3036a1`.
-- Issues #554 and #555 are complete. PRs #565-#568 merged #557's Payment reconciliation, verified-event ledger, signed webhook ingress, and normal paid-finalization slices. PRs #570-#571 merged provider-canceled checkout terminalization and explicit restart; PRs #572-#574 merged reservation re-establishment, unpaid backend resume, and its public route. PR #576 merged migration 006 (paid-recovery decision and compensation claim statuses) as 5f428295; its development and Production migration application was verified read-only. #557 remains the sole active issue for late-paid recovery and compensation. Stripe provider activation remains off. PR #577 merged the explicit local REFUND commit and permanent fulfillment guards as 807a1f55 on 2026-10-01. PR #579 merged failed/unsafe compensation recovery as 2e2eb4e2 on 2026-10-01.
-
-## Completed checkout hardening
-
-- PR #523 made PostgreSQL the authoritative checkout persistence engine across independent requests/instances and established durable checkout claims, Orders, reservations, and payment state.
-- PR #526 made persisted Orders the canonical read model and carried one server-authoritative quote through checkout, persistence, confirmation, and history.
-- PR #529 established the commit-before-provider boundary: one local `PENDING` Payment and its Order/reservation identities are persisted before payment continuation; provider continuation runs outside the retryable checkout transaction.
-- PR #533 finalizes paid Inventory/Order/checkout state before best-effort, revision-aware Cart cleanup so a newer cart revision is never destroyed by an older checkout.
-- PR #543 closed #536 by requiring the server-issued cart revision and quote fingerprint and rejecting stale reviews before Order, Payment, or reservation creation.
-- PRs #548 and #549 repaired the remaining browser QA regressions around cart-change recovery, checkout drafts, saved-card reselection, tracking privacy/return behavior, transaction scope, and order-history behavior.
-- PR #550 hardened shared pricing/credit behavior, saved addresses, sign-out draft isolation, stock boundaries and concurrent last-stock checkout, payment reselection/result states, order-history no-match handling, and protected-preview product SSR.
-
-## Active tracking
-
-- #536 and #535 are closed/completed and tracked as `passing`.
-- The #535 reconciliation closed #537-#542 and #544-#547 after matching their acceptance criteria to PRs #543, #548, #549, and #550 plus current preview-browser checks; #543 was already merged/closed. No new defect was reproduced.
-- WIP is #557 only. #554/#555 are closed, and PRs through #579 are merged. Approved slice: owner-scoped local payment/checkout state read on codex/557-payment-status; implementation is verified and delivery is underway. PR #580 merged visual-impact selection as b46f55c3; this payment branch is rebased onto it and application source is unchanged. Publication uses the idle primary checkout temporarily at the exact payment head; its original codex/visual-impact-selection branch is restored after delivery.
-
-## Reconciliation evidence
-
-- #537: shared-price coverage and a product → order-summary → refresh browser check kept the 999.99 Lei line subtotal and 1,209.89 Lei named total stable.
-- #538: stock boundary/race coverage plus preview rejection of 151 against 150 available.
-- #539/#543: 409 cart/quote validation is distinct from payment failure; cart-empty recovery coverage returns the buyer to cart review.
-- #540: refresh restored a valid prepared checkout and left Secure Checkout enabled.
-- #541: the preview exposed the 3,800.00 Lei available / 162,810.12 Lei required credit explanation and alternative methods.
-- #542: unsigned tracking renders only the account sign-in gate; tracking-privacy coverage exercises the owner return path.
-- #544: Transaction History displayed linked Paid rows for completed orders with matching identifier, type, date, and amount.
-- #545: exact `ORD-525044` browser search reduced four rows to the single match after its debounce; the no-match test also covers recovery.
-- #546: signed-in checkout displayed complete billing and default shipping addresses.
-- #547: draft-clear-on-sign-out coverage and the independent guest/customer carts in the preview confirmed identity isolation.
+- User-directed workflow repair #582 on `codex/payment-workflow-reconciliation`, from clean merged #581/main (`5cd361e8`). Payment behavior and Stripe activation are unchanged.
+- #557/#558 are fixed tracking epics, excluded from executable WIP. Their remaining native children are #584–#588. Separate contract cleanup is #583.
 
 ## In progress
 
-- #557 approved state-read implementation — refresh/return needs Payment truth separate from completed checkout. Approved contract: https://github.com/caraseli02/agent-Commerce/issues/557#issuecomment-5940398514. Internal owner-scoped PostgreSQL read distinguishes unpaid/processing, paid-finalizing, normal completion, canceled, compensation and recovery-required without writes or credentials. REFUND can never return ordinary completed checkout. No route/UI/provider operations are planned in the first slice. Provider-backed compensation continuation/settlement/acknowledgment remains dependent on #558.
+- #582 only: local delivery evidence reuse, conservative documentation-only classification, and planner/evaluator guidance for complete bounded child issues. Focused tooling tests pass 26/26; native GitHub ownership/dependencies are verified acyclic with WIP=1. Fresh delivery validation and PR review remain next.
 
 ## Blocked / known baseline failures
 
-- Merged #580 selector Git-fixture tests inherit the managed-worktree pre-push Git context: 9 fixture tests fail with “must be run in a work tree,” while all payment/application tests pass. Their local Git-setting side effects were restored (non-bare checkout, normal Husky hooks, original author identity); no source fix is bundled here. Normal delivery uses the same exact payment commit in the idle primary checkout, with every gate enabled. The interrupted primary push did not publish; resumed delivery evidence and the final PR/evaluator report are recorded in #557.
-
-- No #535 acceptance-criteria defect remains.
-- Sandbox-only `./init.sh` encountered npm DNS denial; the escalated rerun passed installation, build, lint, typecheck, and the PostgreSQL suite (89 files, 468 passed, 2 todo) before this slice's tests were added.
-- The ignored local `.env.local` now uses a valid stable `vercel-dev` Neon connection, with pooled application and direct migration/test URLs. No credential is stored in tracked files.
-- PR #560 PostgreSQL CI passed `pnpm verify`: 81 test files, 378 tests passed, 2 todo. The focused `checkout-postgres-boundary.spec.ts` suite passed all 7 tests. The PR template check and Vercel deployment passed; independent schema evaluation found no code defects and rated the slice 9/10. PR #560 merged as `1a61a252`.
-- PR #561's earlier isolated PostgreSQL 17 CI passed `pnpm verify`: 81 test files, 387 tests passed, 2 todo, including Payment replay/marker guards. The PR template checker and Vercel deployment passed. Preview browser smoke completed a signed-in mock card checkout through `/order-summary` to `/checkout/success?id=ord-1790087040552-4581`, showing Payment Confirmed and RON 2,846.13.
-- The guest Preview 401 was traced to `orders/new` and `orders/[id]` reading the raw process environment instead of Nuxt runtime config. Both routes now use `useRuntimeConfig(event)`, and regression coverage proves guest creation/read when the raw variable is unavailable. Local `pnpm verify` passes against Neon: 81 files, 388 tests passed, 2 todo. The updated Preview completed anonymous card checkout to `/checkout/success?id=ord-1790109683758-7502`, showing Payment Confirmed and RON 198.39; its guest-owned detail page then loaded `#ORD-490430` with Payment Status Paid and the same total. Final-head PostgreSQL CI passed, and the independent evaluator returned PASS, 10/10, with no findings or testing gaps.
-- The final #554 slice's focused Payment preparation suite passes 27/27 against an isolated Neon test schema, including legacy-column replay and the pre-#561 old-writer SQL probe. The two changed tests pass again after preserving legacy-column compatibility writes. `pnpm typecheck`, `pnpm lint`, and changed-file Prettier checks pass. The guest checkout Playwright flow passes on port 3107 against an isolated PostgreSQL schema. A read-only query of the configured development database found migration tracking for 001/002/003 with repository-matching checksums and the expected Payment constraints; the separate Production Neon branch was not queried.
-- #555 focused PostgreSQL adapter tests pass 17/17, including reviewer-requested overlapping-create and in-flight cancellation-success races. The clean-tree `pnpm verify:handoff` gate passed: build, lint, typecheck, 82 test files with 407 passed and 2 todo, feature-list validation, architecture checks, route smoke, and clean-state validation. The isolated PostgreSQL guest checkout browser flow passed 1/1. Independent standards review found no hard violation, and independent correctness review found no confirmed defect. `./init.sh` could not fetch pnpm metadata from npm in the sandbox, but the Stripe SDK was installed with escalated registry access.
-- PR #564 was independently evaluated PASS (10/10), passed GitHub CI and Vercel, and merged into `main` as `3bb7479b` on 2026-09-25.
-- #557 first-slice focused PostgreSQL adapter suite passes 25/25. The repaired-head clean-tree `pnpm verify:handoff` gate passed: build, lint, typecheck, 82 files with 415 passed and 2 todo, architecture checks, route smoke, and clean-state validation. Isolated PostgreSQL guest checkout Playwright passed 1/1. Independent spec and standards reviews found no remaining issue after the transaction-ready Payment transition helper was extracted.
-- #557 second-slice local verification passes: focused Stripe tests 37/37 (including the 13/13 verified-event suite after the final race case), migration boundary 7/7, `pnpm verify:full` and clean-tree `pnpm verify:handoff` with build/lint/typecheck/architecture/smoke and 83 test files (427 passed, 2 todo), and isolated PostgreSQL guest checkout Chromium 1/1. Independent GPT-6 Sol spec/correctness review found no findings; GPT-6 Luna standards review found no hard violations. PR #566 passed GitHub CI, the latest PR-template check, Vercel, and CodeRabbit at implementation head `180a1eee`; independent evaluator PASS 10/10.
-- PR #566 merged into `main` as `ea2b66ef` on 2026-09-25. PR #567 implementation head `889472a9` passed focused Stripe ingress/route/event-ledger tests 22/22 against isolated PostgreSQL; `pnpm verify:full` and clean-tree `pnpm verify:handoff` passed with 85 files (437 passed, 2 todo), build, lint, typecheck, architecture checks, and route smoke. Isolated guest checkout Chromium passed 1/1, the built default-off webhook route returned HTTP 503, and the normal pre-push hook passed 437 tests plus 9 visual checks. GitHub CI, latest PR-template check, Vercel, Vercel Preview Comments, and CodeRabbit passed; GitHub reported MERGEABLE/CLEAN. Independent GPT-6 Sol evaluator returned PASS 10/10. Stripe CLI is unavailable locally, so SDK-signed tests and official Stripe webhook documentation cover signature behavior; live signed HTTP delivery remains for later sandbox validation.
-- #557 fourth-slice local verification: focused signed-ingress/route/paid-finalization tests passed 17/17 against isolated PostgreSQL. `pnpm verify:full` and committed-head clean-tree `pnpm verify:handoff` passed with 86 files (444 passed, 2 todo), build, lint, typecheck, architecture checks, and route smoke. Isolated guest checkout Chromium passed 1/1. The built default-off webhook returned HTTP 503. Independent GPT-6 Astra spec/correctness and Luna standards reviews found no blocking issue.
-
-## Remaining architecture
-
-- The Stripe PaymentIntent create/recover/cancel adapter is merged behind a default-off gate. The current PlaceOrder runtime still uses mock payment continuation; no deployed path invokes Stripe provider I/O.
-- #121 proposes `PENDING / PROCESSING / PAID / CANCELED`, one PaymentIntent per logical Payment, bounded idempotency, create/cancel coordination, webhook-driven finalization, durable ALLOCATE/BACKORDER/REFUND recovery, and explicit `ON_HOLD + compensation_pending` refund continuation.
-- The ADR and compatible schema are merged. Stripe activation remains gated by #559's shared-database unsafe-writer proof.
-- Cancellation/create races, provider-initiated cancellation, idempotency-window expiry, and paid-recovery/refund races are now defined in the ADR; proactive/background recovery remains later payment-lifecycle work.
-- Do not add queues, brokers, microservices, or saga infrastructure unless a demonstrated recovery requirement justifies them.
+- Stripe activation stays off until #559 proves unsafe shared-database writer retirement and complete sandbox integration.
+- #587 depends on #586; #588 depends on #585/#586/#587. #556 depends on #584/#588 and merged backend resume. Epics are not executable prerequisites.
+- Historical #580 managed-worktree hook failures came from Git context leaking into fixture repositories. Verification child processes now strip hook-local Git redirection; no payment source is changed.
+- The previously recorded guest order-detail null-user `adminSettings` error remains outside this workflow repair.
 
 ## Verification baseline
 
-- Visual-selection harness: focused Git-fixture/hook tests pass 13/13; changed-file ESLint passes. Known non-runtime changes skip screenshots; runtime skip/targeting requires a committed patch fingerprint and consumer trace, otherwise full. Application runtime and CI nonvisual gates are unchanged. Exact delivery, CI and independent evaluator outcomes are recorded in the codex/visual-impact-selection PR handoff.
-
-- PR #550 reports `pnpm build`, `pnpm lint`, and `pnpm typecheck` passing.
-- Its earlier full gate records 376 tests passed with 2 todo; the final product-SSR focused Vitest run passed 8 tests.
-- The latest GitHub `verify` and Vercel Preview rebuild for the PR head passed.
-- PostgreSQL persistence coverage now includes a deterministic last-stock race in which two independent customers compete for the same stock and exactly one checkout succeeds, producing one Order, one Payment, and one paid result.
-- Earlier checkout hardening already includes PostgreSQL concurrency/replay/crash coverage, independent-instance behavior, production-preview route smoke, and authenticated buyer-flow evidence.
-
-## Next work
-
-1. Continue #557 with late-paid recovery/compensation application states and the payment-success webhook acknowledgment contract. Keep Stripe activation off. Then continue in dependency order:
-   - #556 — Payment Element/card + 3DS UI after backend recovery is available;
-   - #558 — mutually exclusive late-success decision, `ON_HOLD` compensation continuation, full Refund, and refund webhooks;
-   - #559 — unsafe-writer retirement + cross-version replay + Stripe activation gate, then Vercel validation and later schema contract gate.
-2. Do not activate Stripe while any shared-database deployment can execute mock `continuePayment()/completePayment()`; #559 owns that proof. #556 must not start before #557's backend recovery contract is available.
-3. Keep provider-attempt persistence, partial refunds, app-owned saved cards, manual capture, and background queues deferred until a demonstrated requirement justifies them.
+- Merged #581 reports fresh CI: 93 files, 567 passing tests, 2 existing pending tests; owner-scoped local state snapshot verified by 35 PostgreSQL tests and independent PASS 10/10.
+- Existing initialization is reused; no new checkout or dependency installation is required for this continuing session. Current Node 24.21.0 / pnpm 10.18.3.
+- Historical payment implementation and verification evidence remains linked from #557 and its merged PRs; current planning no longer repeats each old slice here.
 
 ## Next verification
 
-- Approved state-read slice: focused32/32 PostgreSQL pass; a distinct evaluator found the ADR finalized REFUND/Canceled/Paid case missing. Its added regression failed as expected then passed after a scoped read-classification repair. Changed-file lint/typecheck pass. Clean-tree pnpm verify:handoff passed on ed417be5: 92 files, 554 passed + 2 existing todo, coverage/build/lint/typecheck, feature/UI/architecture checks, preview /,/cart,/checkout HTTP200 and clean state. Final REFUND/Canceled regression is included in this full pass. The earlier overlapping focused run observed that regression before its repair; it is superseded by the final full suite. No UI consumer exists. Rebase onto newly merged #580 changed no application/dependency source; runtime evidence is retained, while selector tests/assessment, current normal pre-push/CI and exact-head evaluation remain next.
+- Focused receipt/classifier/pre-push tests, lint/formatting, feature-state validation, then one fresh strongest delivery gate. Challenge receipt invalidation, CI freshness, conservative fallback, and actual native GitHub dependency graph.
 
-- PR #576 migration 006 is merged at 5f428295. Focused schema tests 8/8, clean-tree handoff, normal pre-push, GitHub CI/Vercel and independent evaluator PASS 10/10 were completed before human merge; the ledger and actual constraints were checked read-only on development and Production. Migration presence alone was not treated as application evidence.
-- PR #577 merged as 807a1f55 on 2026-10-01. Local handoff passed build/lint/typecheck, coverage, architecture, route smoke, and clean-state; final-head normal pre-push passed 503 tests (2 existing todo) and 9 visual checks. Focused suites passed 48/48; held paid admin detail/reload browser verification passed 1/1. GitHub CI/Vercel passed and independent evaluator PASS 10/10: https://github.com/caraseli02/agent-Commerce/pull/577#issuecomment-5919534638. The pre-existing guest detail null-user error remains documented.
-- PR #579 merged as 2e2eb4e2 after final-head CI/template/Vercel, clean-tree handoff and normal pre-push (91 files / 519 passed / 2 existing todo), guest Chromium1/1, visual9/9 and independent evaluator PASS10/10: https://github.com/caraseli02/agent-Commerce/pull/579#issuecomment-5933921140. No migration or Stripe activation change.
-- Next-slice preparation: local main and codex/557-payment-status refreshed to 2e2eb4e2 in the existing initialized worktree; primary checkout left with its active visual-impact-selection chat. Application/test/dependency source exactly matches verified #579 head bdb775cc, so prior baseline evidence is retained. Fresh existing resume-route baseline9/9 passed on Node24.14.0/pnpm10.18.3. Planning docs require only formatting, feature-state and consistency validation; no new build/browser/full initialization or delivery run is claimed. Vlad approved the internal state-read slice; focused tests/implementation are underway, followed by normal delivery/independent evaluation.
-- #557 first PR (#565): merged at `34797a9b`; GitHub CI and Vercel passed, independent evaluator PASS 10/10. Focused PostgreSQL suite, clean handoff gate, mock guest checkout browser smoke, and independent issue/ADR diff review passed.
-- #557 second PR (#566): merged at `ea2b66ef` after clean-tree handoff, GitHub CI, latest PR-template check, Vercel, and independent evaluator passed.
-- #557 third PR (#567): merged as `a3308698` after focused signed webhook/route tests, `pnpm verify:full`, clean-tree handoff, default-off HTTP 503 route smoke, mock guest checkout browser flow, GitHub CI, Vercel, and independent evaluator passed. Stripe remains off; live signed HTTP sandbox validation belongs before activation.
-- #557 fourth slice: PR #568 merged as `b9817835` after focused PostgreSQL suite, full gate, clean-tree handoff, default-off HTTP 503 smoke, mock guest checkout Chromium, GitHub CI, Vercel, and independent evaluator PASS 10/10.
-- #557 fifth slice: PR #570 merged as `c338f120` after focused isolated-PostgreSQL tests 36/36, full and clean-tree handoff gates (87 files, 453 passed, 2 todo), default-off webhook HTTP 503, guest checkout Chromium 1/1, GitHub CI/Vercel/CodeRabbit, and final-head GPT-6 Sol evaluator PASS 10/10.
-- #557 sixth slice: PR #571 merged as `91d26ba8` after focused isolated-PostgreSQL restart and existing API tests 13/13, `pnpm verify:full` and clean-tree `pnpm verify:handoff` (88 files, 459 passed, 2 todo), built-server guest HTTP restart → fresh quote → new Order, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.
-- #557 seventh slice: PR #572 merged as `cf0eac9f` after focused isolated-PostgreSQL re-establishment tests 9/9, full and clean-tree handoff gates (89 files, 468 passed, 2 todo), guest checkout Chromium 1/1, GitHub CI/Vercel, and independent GPT-6 Astra evaluator PASS 10/10.
-- #557 eighth slice: PR #573 merged as `336d1ddd`. Focused isolated-PostgreSQL resume and reservation suites passed 20/20; final-head clean-tree handoff passed 90 files (479 passed, 2 todo), guest checkout Chromium 1/1, pre-push visual checks 9/9, GitHub CI/Vercel, and independent GPT-6 Astra evaluation PASS 10/10. No public resume route or UI was included.
-- #557 ninth slice: PR #574 merged as `d7f0fafa` on 2026-09-30. Focused public route and isolated-PostgreSQL resume/reservation suites passed 29/29. Full and clean-tree handoff gates passed build/lint/typecheck, 91 files (488 passed, 2 todo), feature/architecture checks, and preview route smoke. Built default-off resume HTTP returned 503 for an existing guest and 401 without an owner; isolated guest checkout Chromium passed 1/1. GitHub CI/template/Vercel/CodeRabbit passed, and independent GPT-6 Astra evaluation returned PASS 10/10 with no findings.
-- Later provider PRs must validate local Stripe sandbox/CLI behavior and Vercel Preview + Stripe sandbox behavior before activation.
+## Next work
+
+- After workflow repair review, choose one unblocked payment child (#584, #585, or #586); normally one coherent PR closes the entire child. #587/#588 follow their named capabilities. #583 is separate cleanup.
+- Tracking epics close only after their fixed child checklist and integration evidence pass. New unrelated findings become separate backlog issues.

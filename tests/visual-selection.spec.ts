@@ -198,11 +198,13 @@ it('runs the real hook with captured push stdin and stops before visuals when ve
       env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, VISUAL_HOOK_LOG: log, VISUAL_HOOK_EXIT: code },
     });
   expect(execute('0').status).toBe(0);
-  expect(readFileSync(log, 'utf8')).toBe('verify\n');
+  const verifyArgs = `verify --reuse --base ${r.base} --head ${r.git('rev-parse', 'HEAD')}\n`;
+  expect(readFileSync(log, 'utf8')).toBe(verifyArgs);
   r.write('pages/index.vue', '<div>visible change</div>');
   r.commit();
   expect(execute('9').status).toBe(9);
-  expect(readFileSync(log, 'utf8')).toBe('verify\nverify\n');
+  const failedArgs = `verify --reuse --base ${r.base} --head ${r.git('rev-parse', 'HEAD')}\n`;
+  expect(readFileSync(log, 'utf8')).toBe(verifyArgs + failedArgs);
   const fingerprint = plan({ cwd: r.cwd, input: r.push() }).decisions[0]!.fingerprint;
   r.write(
     assessmentPath,
@@ -213,9 +215,10 @@ it('runs the real hook with captured push stdin and stops before visuals when ve
   r.commit();
   expect(execute('0').status).toBe(0);
   const calls = readFileSync(log, 'utf8');
+  const finalArgs = `verify --reuse --base ${r.base} --head ${r.git('rev-parse', 'HEAD')}\n`;
   expect(calls).toBe(
     process.platform === 'darwin'
-      ? 'verify\nverify\nverify\ntest:visual --grep homepage preserves header and merchandising\n'
-      : 'verify\nverify\nverify\n',
+      ? verifyArgs + failedArgs + finalArgs + 'test:visual --grep homepage preserves header and merchandising\n'
+      : verifyArgs + failedArgs + finalArgs,
   );
 });
