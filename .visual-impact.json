@@ -1,10 +1,10 @@
 {
   "assessments": [
     {
-      "fingerprint": "798788f45781c83c60e24350a05092ac5e41974b3871ecb5801a98131614fb7e",
+      "fingerprint": "6a9f082e25550eb930544259bc36d6443ae4e3e3f511afe7fc197d03b01d5cc9",
       "impact": "none",
-      "reason": "The new internal payment-state read has no route or UI consumer and performs no observable writes.",
-      "consumers": "readOrderPaymentState is imported only by tests/order-payment-state.spec.ts; getCheckoutStatePreparation is called only by that helper and the scheduling instrument in its test. Existing Orders facade methods, routes, stores, response serializers and UI consumers are unchanged. Both new reads SELECT local persistence within one snapshot; they do not mutate Orders, Payments, claims, Inventory or Cart, invoke providers, or expose payment actions. No rendered state or route is reachable from the added operation."
+      "reason": "Verification and issue-tracking tooling only; no storefront runtime changes.",
+      "consumers": "scripts/verification-evidence.mjs is imported only by scripts/verify.mjs and its tests. verify.mjs is invoked by package scripts, CI and pre-push; select-visual-checks.mjs orchestrates developer verification. No Nuxt route/component/store/domain reads these modules, and they perform no application or provider state writes. Workflow/docs/tests do not change rendered application state. Browser screenshots are not evidence for this tooling change; receipt/classifier/real-hook tests verify its consumers."
     }
   ]
 }
