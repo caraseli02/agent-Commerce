@@ -163,6 +163,65 @@ test.describe('Checkout result states', () => {
     await expect(page.getByRole('heading', { name: /payment failed/i })).toHaveCount(0);
   });
 
+  for (const viewport of [
+    { name: 'desktop', width: 1280, height: 800 },
+    { name: 'mobile', width: 390, height: 844 },
+  ]) {
+    for (const scenario of [
+      { code: 'cart_changed', title: 'Your cart changed', action: 'Review updated cart' },
+      { code: 'quote_changed', title: 'Your checkout price changed', action: 'Review updated cart' },
+      { code: 'unrecognized_provider_code', title: 'Payment failed', action: 'Try again' },
+    ]) {
+      test(`${viewport.name}: public contract ${scenario.code} has safe failure recovery`, async ({ page }) => {
+        await page.setViewportSize({ width: viewport.width, height: viewport.height });
+        await navigateTo(page, '/product/prod-2');
+        await addProductToCart(page);
+        await signInThroughOrderSummary(page);
+        await page.route('**/api/orders/new', async (route) => {
+          if (route.request().method() !== 'POST') return route.continue();
+          await route.fulfill({
+            status: 409,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              data: { code: scenario.code, message: 'Internal provider diagnostic must not choose buyer actions' },
+            }),
+          });
+        });
+        await page.getByRole('button', { name: /secure checkout/i }).click();
+        await expect(page).toHaveURL(/\/checkout\/fail/);
+        await expect(page.getByRole('heading', { name: scenario.title, exact: true })).toBeVisible();
+        await expect(page.getByText('Internal provider diagnostic must not choose buyer actions', { exact: false })).toHaveCount(0);
+        const action = page.getByRole('button', { name: scenario.action, exact: true });
+        await expect(action).toBeEnabled();
+        await page.screenshot({ path: `/tmp/ecas-583-browser/${viewport.name}-${scenario.code}.png`, fullPage: true });
+        await action.click();
+        await expect(page).toHaveURL(/\/order-summary$/);
+      });
+    }
+  }
+
+  test('public contract unknown persisted failure with an order ID does not cancel on ordinary navigation', async ({ page }) => {
+    await signInThroughOrderSummary(page);
+    await page.evaluate(() => {
+      localStorage.setItem(
+        'cart-store',
+        JSON.stringify({
+          previousCheckoutError: { code: 'future_provider_code', message: 'Private diagnostic' },
+        }),
+      );
+    });
+    const cancellations: string[] = [];
+    await page.route('**/api/orders/**', async (route) => {
+      if (route.request().url().includes('/cancel')) cancellations.push(route.request().url());
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'success' }) });
+    });
+    await navigateTo(page, '/checkout/fail?id=unknown-order');
+    await expect(page.getByRole('heading', { name: 'Payment failed', exact: true })).toBeVisible();
+    await page.getByRole('link', { name: 'Components Marketplace home', exact: true }).first().click();
+    await expect(page).toHaveURL(/\/$/);
+    expect(cancellations).toEqual([]);
+  });
+
   test('a refresh with a removed saved card requires the buyer to choose payment again', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');
     await addProductToCart(page);

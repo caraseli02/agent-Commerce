@@ -1,3 +1,4 @@
+import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
 import { orders } from '~/server/domain/orders';
 import { payments } from '~/server/domain/payments';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
@@ -6,14 +7,12 @@ export type OrderPaymentState =
   | { kind: 'pending' | 'processing' | 'paid-finalizing' | 'completed' | 'canceled' | 'recovery-required' | 'not-found' }
   | { kind: 'compensation'; recoveryRequired: boolean };
 
-type ClaimRow = {
+type ClaimRow = PersistedCheckoutState & {
   request_id: string;
   cart_id: string;
   cart_revision: number;
   payment_id: string | null;
   reservation_id: string | null;
-  workflow_status: string;
-  paid_recovery_decision: string | null;
 };
 
 // A local snapshot is informational; it never authorizes payment confirmation.
@@ -22,12 +21,14 @@ export const readOrderPaymentState = async (input: { ownerId: string; orderId: s
   assertOutsideCheckoutTransaction('Order payment state read');
   return withCheckoutTransaction(async () => {
     const database = await getCheckoutDatabase();
-    const [claim] = await database.query<ClaimRow>(
+    const [persistedClaim] = await database.query<ClaimRow>(
       `SELECT request_id,cart_id,cart_revision,payment_id,reservation_id,workflow_status,paid_recovery_decision
          FROM checkout_claims WHERE owner_id=$1 AND order_id=$2`,
       [input.ownerId, input.orderId],
     );
-    if (!claim) return { kind: 'not-found' };
+    const claim = parseCheckoutClaim(persistedClaim);
+    if (!persistedClaim) return { kind: 'not-found' };
+    if (!claim) return { kind: 'recovery-required' };
     const order = await orders.getCheckoutStatePreparation(input.orderId);
     if (order && order.ownerId !== input.ownerId) return { kind: 'not-found' };
     if (!order || !claim.payment_id || !claim.reservation_id) return { kind: 'recovery-required' };

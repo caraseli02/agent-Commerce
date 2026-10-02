@@ -1,3 +1,4 @@
+import { checkoutErrorData } from '~/types/order/checkout-error';
 import { placeOrder, PlaceOrderError } from '~/server/application/checkout/place-order';
 import { createMockGuestCheckoutUser, getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
 import { requireMockCartUserId } from '~/server/utils/mockCart';
@@ -32,9 +33,7 @@ export default defineEventHandler(async (event) => {
       statusCode: 409,
       statusMessage:
         'Your cart review is no longer current. Return to the order summary to review the latest items and total before placing your order.',
-      data: {
-        code: 'cart_changed',
-      },
+      data: checkoutErrorData('cart_changed'),
     });
   }
 
@@ -58,9 +57,7 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: error.statusCode,
         statusMessage: error.message,
-        data: {
-          code: error.code,
-        },
+        data: checkoutErrorData(error.code),
       });
     }
 

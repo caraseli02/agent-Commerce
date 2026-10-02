@@ -2,6 +2,12 @@
 
 Use this checklist when changing payment state, checkout workflow, paid recovery, public checkout errors, or their UI consumers. Issue [#583](https://github.com/caraseli02/agent-Commerce/issues/583) implements the existing-surface cleanup and its executable regression checks in one PR.
 
+## Model roles and delivery sequence
+
+The user approved the recovered payment workflow for #583: GPT-6.1 Sol is the orchestrator and sole implementation owner; GPT-6 Luna performs mechanical inventory, standards and evidence review; GPT-6 Astra reviews difficult contract/recovery reasoning and independently evaluates correctness. Use GPT-6 models only; do not use Terra. Reviewers are read-only and must not revert the implementation owner's changes. Model delegation requires the user's authorization; the #583 working agreement supplies it. Do not infer permission to message or create other Codex chats.
+
+After a merge, refresh main and reconcile current issues/ADR/tracking before proposing the next bounded task. Record scope, dependencies, exclusions, invariants, checks and model responsibilities before coding. User approval of the complete #583 contract authorizes implementation and focused repairs; do not repeatedly ask to continue. Keep implementation, deterministic verification and independent evaluation distinct. The evaluator checks the exact final PR head, fresh CI and affected runtime evidence; the generator must not award itself PASS. Leave merge to the user.
+
 ## Ownership and compatibility
 
 - Payments owns `PaymentStatus` and `PersistedPaymentStatus` in a pure contract file under `server/domain/payments/`; its public module re-exports them. Application code imports the owner contract instead of redeclaring a union. Browser code must not import a database/provider module.
@@ -9,7 +15,7 @@ Use this checklist when changing payment state, checkout workflow, paid recovery
 - A pure shared checkout error contract under `types/order/` owns public codes used by both server responses and browser recovery. Provider errors and PostgreSQL diagnostic codes remain separate.
 - Presentation owns explicit labels/messages and recovery actions keyed by the public contract. Use exhaustive typed mappings; business decisions must not inspect English messages or derive labels from enum member names.
 - Preserve wire and stored values, including legacy `FAILED` and numeric `PaymentStatusEnum` values. Refund is a separate financial fact; refund completion must preserve historical `PAID`.
-- Unknown state must retain the caller's conservative recovery/rejection result. Unknown error codes use safe presentation and must never grant payment, completion, fulfillment, or an automatic retry with financial side effects. Preserve distinctions between absent, known, and invalid persisted recovery decisions.
+- Unknown state must retain the caller's conservative recovery/rejection result. Keep an existing Payment's identity when its parsed status is null; do not confuse corruption with a missing row. Recovery writes must admit only known eligible states. Unknown error codes use safe presentation and must never grant payment, completion, fulfillment, or an automatic retry with financial side effects. Preserve distinctions between absent, known, and invalid persisted recovery decisions.
 - Typed discriminants, SQL state predicates, diagnostic messages, and static compatibility fixtures may contain literals. Do not add a global constants bucket or a blanket string ban.
 
 ## Fixed #583 acceptance map
@@ -29,7 +35,7 @@ The contract cleanup may touch several consumers because the outcome is shared c
 
 1. Inventory current state/error values and consumers. Capture compatibility fixtures before changing contracts. Extend contract tests with unknown/corrupt inputs first.
 2. Introduce owner contracts and boundary parsing; migrate the complete existing consumer set. Keep invalid input handling explicit, including persisted recovery decisions.
-3. Align typed public producers, UI normalization, and exhaustive presentation policies. Add an ownership regression using TypeScript syntax analysis scoped to payment/checkout production sources; do not use a broad text search that rejects legitimate SQL or fixtures. Prove the guard fails against an injected duplicate declaration. Until #583 implements this, these are review requirements, not an existing automated gate.
+3. Align typed public producers, UI normalization, and exhaustive presentation policies. Add an ownership regression using TypeScript syntax analysis scoped to payment/checkout production sources; do not use a broad text search that rejects legitimate SQL or fixtures. Prove the guard fails against an injected duplicate declaration. The executable ownership guard lives in `tests/payment-contract-ownership.spec.ts` and runs with the normal Vitest coverage gate; compile-negative public-code fixtures run under typecheck. Parser/presentation and corrupt-state suites cover compatibility and side-effect rejection. This is scoped syntax analysis, not a proof against deliberate assertions or every possible indirect producer.
 4. Run only affected suites after each change using `pnpm test <files>`. Relevant starting suites: `payment-preparation`, `stripe-payment-intents`, `stripe-webhook`, `paid-checkout-finalization`, `order-payment-state`, `use-order`, and `checkout-outcome`; resolve exact filenames with `rg --files tests`. Include cancellation/resume/compensation tests when their consumers change. Do not run every payment suite merely because it exists.
 5. Run changed-file lint and typecheck when type evidence is invalidated. Use `verify-ui-change` for affected browser flows; extend `tests/e2e/checkout-result-states.spec.ts` with targeted assertions rather than the full E2E matrix. Commit a diff-bound visual assessment after tracing actual observable consumers.
 6. Commit the coherent implementation, then run one `pnpm verify:handoff` delivery gate from a clean tree. Normal pre-push reuses matching successful evidence; fresh CI remains independent. Do not invoke `verify`, `verify:full`, and `verify:handoff` in sequence.

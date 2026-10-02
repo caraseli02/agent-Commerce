@@ -6,7 +6,7 @@ Use this file for durable cross-session decisions that should survive context re
 
 - #583 owns one existing-surface contract cleanup PR, including all required consumers and its prevention tests. Preserve persisted/wire values and legacy FAILED; Refund remains separate from historical PAID.
 - Payment states belong to Payments; workflow/recovery decisions belong to checkout application; public errors use a pure shared contract; presentation uses exhaustive mappings. Parse persisted/transport inputs and preserve conservative unknown handling.
-- Require executable ownership, producer/consumer compatibility, and unknown-input regressions as #583 acceptance evidence. Documentation alone is not an automated guard. Legitimate typed discriminants, SQL predicates, diagnostics, and compatibility fixtures may retain literals.
+- Require executable ownership, producer/consumer compatibility, and unknown-input regressions as #583 acceptance evidence. Documentation alone is not an automated guard. #583 implements the scoped AST ownership gate in normal Vitest coverage and compile-negative producer fixtures under typecheck; exhaustive presentation mappings force a policy for each known code. Legitimate typed discriminants, SQL predicates, diagnostics, and compatibility fixtures may retain literals.
 - Full implementation/check selection: `docs/agents/payment-contracts.md`. Existing #589 receipt reuse and one-strongest-gate guidance remain in force.
 
 ## Bounded payment tasks and verification reuse — 2026-10-02

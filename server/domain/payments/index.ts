@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
 
+import { parsePersistedPaymentStatus, type PersistedPaymentStatus } from './contracts';
+export type { PaymentStatus, PersistedPaymentStatus } from './contracts';
+
 export { createStripeIntentAdapter } from './stripe-intents';
 export type { CancelPaymentResult, InitiatePaymentResult, ReconcilePaymentResult } from './stripe-intents';
 export { handleStripeWebhook } from './stripe-webhook';
@@ -8,13 +11,11 @@ export { handleStripeWebhook } from './stripe-webhook';
 export type PaymentNextAction =
   Readonly<{ type: 'none' }> | Readonly<{ type: 'client-secret'; clientSecret: string }> | Readonly<{ type: 'redirect'; url: string }>;
 
-export type PaymentStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'CANCELED';
-export type PersistedPaymentStatus = PaymentStatus | 'FAILED';
-
 export type PaymentPreparation = Readonly<{
   paymentId: string;
   orderId: string;
-  status: PersistedPaymentStatus;
+  // null retains an existing row's identity while refusing unknown stored state.
+  status: PersistedPaymentStatus | null;
   amountMinor: number;
   currency: 'RON';
 }>;
@@ -24,26 +25,29 @@ export type ContinuePaymentResult =
   | { kind: 'failed'; providerReference: string | null }
   | { kind: 'recovery-required' };
 export type CompletePaymentResult =
-  { kind: 'paid'; payment: PaymentPreparation } | { kind: 'failed' | 'not-found'; payment?: PaymentPreparation };
+  { kind: 'paid'; payment: PaymentPreparation } | { kind: 'failed' | 'not-found' | 'recovery-required'; payment?: PaymentPreparation };
 export type FailPaymentResult = { kind: 'failed' } | { kind: 'recovery-required' };
 
 type PaymentRow = {
   id: string;
   order_id: string;
-  status: PaymentPreparation['status'];
+  status: unknown;
   amount_minor: number;
   currency: 'RON';
   stripe_payment_intent_id: string | null;
   stripe_payment_intent_create_started_at: Date | null;
   cancellation_requested_at: Date | null;
 };
-const toPreparation = (row: PaymentRow): PaymentPreparation => ({
-  paymentId: row.id,
-  orderId: row.order_id,
-  status: row.status,
-  amountMinor: Number(row.amount_minor),
-  currency: row.currency,
-});
+const toPreparation = (row: PaymentRow): PaymentPreparation => {
+  const status = parsePersistedPaymentStatus(row.status);
+  return {
+    paymentId: row.id,
+    orderId: row.order_id,
+    status,
+    amountMinor: Number(row.amount_minor),
+    currency: row.currency,
+  };
+};
 
 const getPaymentRow = async (paymentId: string) => {
   const database = await getCheckoutDatabase();
@@ -73,6 +77,7 @@ const preparePayment = async (input: {
   const existing = rows[0];
   if (existing) {
     const payment = toPreparation(existing);
+    if (!payment.status) throw new Error('The persisted Payment status requires recovery.');
     if (payment.amountMinor !== input.amountMinor || payment.currency !== input.currency)
       throw new Error('The existing Payment does not match the immutable Order payment preparation.');
     return { kind: 'existing', payment };
@@ -131,6 +136,7 @@ const completePayment = async (input: { paymentId: string; providerReference: st
   );
   const payment = await getPaymentPreparation(input.paymentId);
   if (!payment) return { kind: 'not-found' };
+  if (!payment.status) return { kind: 'recovery-required', payment };
   if (!updated && payment.status !== 'PAID') return { kind: 'failed', payment };
   return { kind: 'paid', payment };
 };

@@ -140,7 +140,7 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 
 ## State management
 
-For payment/checkout state or public error changes, follow [payment contract guardrails](docs/agents/payment-contracts.md): import module-owned contracts, parse untrusted boundaries, keep presentation mappings exhaustive, and preserve conservative unknown handling. #583 must include executable contract regressions; documented review rules alone are not automated enforcement.
+For payment/checkout state or public error changes, follow [payment contract guardrails](docs/agents/payment-contracts.md): import module-owned contracts, parse untrusted boundaries, keep presentation mappings exhaustive, and preserve conservative unknown handling. `tests/payment-contract-ownership.spec.ts` enforces scoped declaration/producer ownership in Vitest; parser/presentation and corrupt-state regressions check runtime rejection. Typecheck rejects undeclared public codes and incomplete presentation maps. Documentation alone is not automated enforcement.
 
 Use `PROGRESS.md` for work that spans sessions. Keep it short and factual:
 

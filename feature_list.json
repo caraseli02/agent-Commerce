@@ -45,7 +45,9 @@
         "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/583. Not claimed or implemented in this workflow repair.",
         "Preparation on 2026-10-02: dedicated branch codex/583-payment-state-error-contracts from latest origin/main 19fcf7b4, containing merged #589. #582 is closed; #583 alone is claimed in-progress and assigned to caraseli02.",
         "Preparation baseline: pnpm test tests/delivery-verification.spec.ts tests/visual-selection.spec.ts tests/order-payment-state.spec.ts tests/use-order.spec.ts passes 4 files / 71 tests through the isolated PostgreSQL wrapper; pnpm typecheck passes.",
-        "Consumer inventory and prevention/check plan: docs/agents/payment-contracts.md. Application implementation and executable contract guards remain outstanding; no #583 completion or evaluator PASS claimed."
+        "User approved implementation with GPT-6.1 Sol as sole implementation owner, GPT-6 Luna for standards and GPT-6 Astra for correctness. Shared contracts/consumers, safe public error presentation, scoped AST ownership gate, compile-negative producers and corrupt-state regressions are implemented. Both read-only reviews have no remaining blockers after repairs; no generator PASS.",
+        "Focused affected PostgreSQL suites pass 9 files / 168 tests. Parser/presentation/ownership/corrupt suites passed 49 tests before review repairs; repaired ownership/corrupt suites pass 18 tests, including PostgreSQL proof that the emitted recovery predicate leaves corrupt locked values unchanged. Repaired useOrder transport tests pass 9/9. Typecheck and changed-file lint pass.",
+        "Built mock browser evidence: six desktop/mobile cart_changed, quote_changed and unknown-code failure cases pass; screenshots inspected. Persisted unknown failure with an order ID navigates via the ordinary home link without a cancellation request (seventh test). Final clean-tree delivery gate, fresh CI and fixed-head independent evaluator evidence are pending and will be recorded in the PR."
       ]
     },
     {

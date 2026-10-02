@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { ref } from 'vue';
 import { PaymentTypeEnum } from '../types';
+import { checkoutFailurePresentation } from '../helpers/checkout-error-presentation';
 import { __setMockApiClient, __setMockOrdersApi, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const routerPush = vi.fn();
@@ -304,9 +305,41 @@ describe('checkout order composable flow boundary', () => {
     expect(cartStore.previousCheckoutError).toMatchObject({
       message: 'Gateway unreachable',
       type: 'Error',
-      code: 'Error',
+      code: 'checkout_exception',
+      diagnosticCode: 'Error',
     });
     expect(consoleError).toHaveBeenCalledWith('Checkout failed', expect.any(Error));
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
+    consoleError.mockRestore();
+  });
+
+  it.each([
+    { code: { malformed: 'cart_changed' }, expectedDiagnostic: undefined },
+    { code: 'future_provider_code', expectedDiagnostic: 'future_provider_code' },
+  ])('normalizes nested untrusted transport code $code without trusting diagnostic copy', async ({ code, expectedDiagnostic }) => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string }): Promise<T> => {
+      if (resource === '/orders/new') throw { data: { data: { code, message: 'Your cart changed: private diagnostic' } } };
+      if (resource === '/orders/validate-address') return { data: { valid: true } } as T;
+      if (resource === '/cart') return { status: 'success', data: { products: [] } } as T;
+      throw new Error(`Unexpected request: ${options?.method} ${resource}`);
+    });
+    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../composables/useOrder');
+    await useOrder().makeCheckout(
+      1,
+      'cart',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      { type: PaymentTypeEnum.Cash },
+      '',
+      { products: [] },
+    );
+    const failure = useCartStore().previousCheckoutError;
+    expect(failure).toMatchObject({ code: 'checkout_exception', message: 'Your cart changed: private diagnostic' });
+    expect(failure?.diagnosticCode).toBe(expectedDiagnostic);
+    expect(checkoutFailurePresentation(failure)).toMatchObject({ title: 'Payment failed', reviewRequired: false, cancelOnLeave: false });
     expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
     consoleError.mockRestore();
   });

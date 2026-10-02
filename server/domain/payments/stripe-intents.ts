@@ -1,3 +1,4 @@
+import { parsePersistedPaymentStatus, type PersistedPaymentStatus, type PaymentStatus } from './contracts';
 import {
   assertOutsideCheckoutTransaction,
   getCheckoutDatabase,
@@ -26,7 +27,7 @@ export type StripeIntentProvider = Readonly<{
 type PaymentRow = {
   id: string;
   order_id: string;
-  status: 'PENDING' | 'PROCESSING' | 'PAID' | 'CANCELED' | 'FAILED';
+  status: PersistedPaymentStatus | null;
   amount_minor: number;
   currency: 'RON';
   stripe_payment_intent_id: string | null;
@@ -52,15 +53,21 @@ export type VerifiedIntentEventResult =
     }>
   | Readonly<{ kind: 'recovery-required' }>;
 
-type ReconciledStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'CANCELED';
+type ReconciledStatus = PaymentStatus;
+
+type PersistedPaymentRow = Omit<PaymentRow, 'status'> & { status: unknown };
+const parsePaymentRow = (row: PersistedPaymentRow | undefined): PaymentRow | null =>
+  row ? { ...row, status: parsePersistedPaymentStatus(row.status) } : null;
 
 const replayWindowMs = 24 * 60 * 60 * 1000;
 const recoveryRequired = { kind: 'recovery-required' } as const;
 
 const readPayment = async (paymentId: string): Promise<PaymentRow | null> => {
   const database = await getCheckoutDatabase();
-  const [payment] = await database.query<PaymentRow>('SELECT *, xmin::text AS row_version FROM checkout_payments WHERE id=$1', [paymentId]);
-  return payment ?? null;
+  const [payment] = await database.query<PersistedPaymentRow>('SELECT *, xmin::text AS row_version FROM checkout_payments WHERE id=$1', [
+    paymentId,
+  ]);
+  return parsePaymentRow(payment);
 };
 
 const isMatchingIntent = (intent: StripePaymentIntent, payment: PaymentRow) =>
@@ -130,11 +137,11 @@ const readEvent = async (eventId: string): Promise<EventRow | null> => {
 
 const readPaymentByIntent = async (intentId: string): Promise<PaymentRow | null> => {
   const database = await getCheckoutDatabase();
-  const [payment] = await database.query<PaymentRow>(
+  const [payment] = await database.query<PersistedPaymentRow>(
     'SELECT *, xmin::text AS row_version FROM checkout_payments WHERE stripe_payment_intent_id=$1',
     [intentId],
   );
-  return payment ?? null;
+  return parsePaymentRow(payment);
 };
 
 // The webhook can call this database-only operation in its event-ID transaction.
@@ -154,10 +161,8 @@ export const applyReconciledPaymentTransition = async (
         AND xmin::text=$5`,
     [input.status, input.updatedAt, input.paymentId, input.intentId, input.expectedRowVersion],
   );
-  const [current] = await database.query<{ status: PaymentRow['status'] }>('SELECT status FROM checkout_payments WHERE id=$1', [
-    input.paymentId,
-  ]);
-  return { applied: applied === 1, status: current?.status ?? null };
+  const [current] = await database.query<{ status: unknown }>('SELECT status FROM checkout_payments WHERE id=$1', [input.paymentId]);
+  return { applied: applied === 1, status: parsePersistedPaymentStatus(current?.status) };
 };
 
 const persistIntentId = async (payment: PaymentRow, intent: StripePaymentIntent) => {
@@ -199,7 +204,7 @@ export const createStripeIntentAdapter = (options: {
     }
 
     const payment = await readPaymentByIntent(input.intentId);
-    if (!payment) return recoveryRequired;
+    if (!payment || !payment.status) return recoveryRequired;
     let intent: StripePaymentIntent;
     try {
       intent = await options.provider.retrieve(input.intentId);
@@ -245,7 +250,7 @@ export const createStripeIntentAdapter = (options: {
             throw staleEventObservation;
           return verifiedEventResult(current, false);
         }
-        if (payment.status === 'FAILED') throw staleEventObservation;
+        if (!payment.status || payment.status === 'FAILED') throw staleEventObservation;
         const transition = await applyReconciledPaymentTransition(database, {
           paymentId: payment.id,
           intentId: input.intentId,
@@ -275,7 +280,7 @@ export const createStripeIntentAdapter = (options: {
   const reconcilePayment = async (input: { paymentId: string }): Promise<ReconcilePaymentResult> => {
     assertOutsideCheckoutTransaction('Stripe PaymentIntent reconciliation');
     const payment = await readPayment(input.paymentId);
-    if (!payment) return recoveryRequired;
+    if (!payment || !payment.status) return recoveryRequired;
     if (payment.status === 'PAID' || payment.status === 'CANCELED' || payment.status === 'FAILED')
       return reconciliationResultForStatus(payment.status);
     if (!isEnabled() || !payment.stripe_payment_intent_id) return recoveryRequired;
@@ -334,19 +339,20 @@ export const createStripeIntentAdapter = (options: {
     assertOutsideCheckoutTransaction('Stripe PaymentIntent initiation');
     if (!isEnabled()) return recoveryRequired;
     let payment = await readPayment(input.paymentId);
+    if (payment && !payment.status) return recoveryRequired;
     if (!payment || payment.status === 'FAILED' || payment.status === 'CANCELED') return { kind: 'terminal-failure' };
     if (payment.status === 'PAID') return { kind: 'succeeded' };
     if (payment.cancellation_requested_at) return recoveryRequired;
     if (!payment.stripe_payment_intent_id && !payment.stripe_payment_intent_create_started_at) {
       const database = await getCheckoutDatabase();
-      const [started] = await database.query<PaymentRow>(
+      const [started] = await database.query<PersistedPaymentRow>(
         `UPDATE checkout_payments SET stripe_payment_intent_create_started_at=$1::timestamptz, updated_at=$1::text
           WHERE id=$2 AND status='PENDING' AND stripe_payment_intent_id IS NULL
             AND stripe_payment_intent_create_started_at IS NULL AND cancellation_requested_at IS NULL
           RETURNING *`,
         [now().toISOString(), payment.id],
       );
-      payment = started ?? (await readPayment(payment.id));
+      payment = parsePaymentRow(started) ?? (await readPayment(payment.id));
       if (!payment || payment.cancellation_requested_at || payment.status !== 'PENDING') return recoveryRequired;
     }
     const intent = await recoverIntent(payment);
@@ -381,7 +387,7 @@ export const createStripeIntentAdapter = (options: {
     assertOutsideCheckoutTransaction('Stripe PaymentIntent cancellation');
     if (!isEnabled()) return recoveryRequired;
     let payment = await readPayment(input.paymentId);
-    if (!payment) return recoveryRequired;
+    if (!payment || !payment.status) return recoveryRequired;
     if (payment.status === 'PAID') {
       await options.onRecoveryRequired?.(payment.id);
       return { kind: 'paid' };
@@ -405,7 +411,7 @@ export const createStripeIntentAdapter = (options: {
       [now().toISOString(), payment.id],
     );
     payment = await readPayment(payment.id);
-    if (!payment) return recoveryRequired;
+    if (!payment || !payment.status) return recoveryRequired;
     if (payment.status === 'PAID') {
       await options.onRecoveryRequired?.(payment.id);
       return { kind: 'paid' };

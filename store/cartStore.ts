@@ -4,11 +4,7 @@ import { fetchCartList } from '~/composables/api/cart';
 import type { CartInterface } from '~/types/cart';
 import { calculateCartSubtotal, mapCartItems } from '~/utils/cart';
 
-type CheckoutError = {
-  message?: string;
-  type?: string;
-  code?: string;
-};
+import type { CheckoutFailure } from '~/types/order/checkout-error';
 
 type PersistStorage = {
   getItem: (key: string) => string | null;
@@ -37,7 +33,7 @@ export const useCartStore = defineStore(
     const cart = ref<CartInterface | null>(null);
     const hasFetchedCart = ref(false);
     const orderClientSecret = ref<string | null>(null);
-    const previousCheckoutError = ref<CheckoutError | null>(null);
+    const previousCheckoutError = ref<CheckoutFailure | null>(null);
     /** Product ids with an in-flight add — not persisted (SSR-safe store field). */
     const addToCartInFlightIds = ref<string[]>([]);
 
@@ -61,7 +57,7 @@ export const useCartStore = defineStore(
       orderClientSecret.value = secret;
     };
 
-    const setPreviousCheckoutError = (error: CheckoutError) => {
+    const setPreviousCheckoutError = (error: CheckoutFailure) => {
       previousCheckoutError.value = error;
     };
 
@@ -119,7 +115,7 @@ export const useCartStore = defineStore(
     const getCart = computed(() => cart.value as CartInterface | null);
     const getCartSubtotal = computed(() => calculateCartSubtotal(cart.value?.products));
     const getOrderClientSecret = computed(() => orderClientSecret.value as string);
-    const getPreviousCheckoutError = computed(() => previousCheckoutError.value as CheckoutError);
+    const getPreviousCheckoutError = computed(() => previousCheckoutError.value);
     const itemsDiscount = computed(() => cart.value?.products?.[0]?.discount.value);
 
     return {

@@ -1,14 +1,14 @@
+import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
 import { cart } from '~/server/domain/cart';
 import { orders } from '~/server/domain/orders';
 import { payments } from '~/server/domain/payments';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
 
-type CanceledClaim = {
+type CanceledClaim = PersistedCheckoutState & {
   cart_id: string;
   cart_revision: number;
   order_id: string;
   payment_id: string | null;
-  workflow_status: string;
 };
 
 export type RestartCanceledCheckoutResult =
@@ -23,11 +23,13 @@ export const restartCanceledCheckout = async (input: { ownerId: string; orderId:
 
   return withCheckoutTransaction(async () => {
     const database = await getCheckoutDatabase();
-    const [claim] = await database.query<CanceledClaim>(
-      'SELECT cart_id, cart_revision, order_id, payment_id, workflow_status FROM checkout_claims WHERE owner_id=$1 AND order_id=$2 FOR UPDATE',
+    const [persistedClaim] = await database.query<CanceledClaim>(
+      'SELECT cart_id, cart_revision, order_id, payment_id, workflow_status,paid_recovery_decision FROM checkout_claims WHERE owner_id=$1 AND order_id=$2 FOR UPDATE',
       [input.ownerId, input.orderId],
     );
-    if (!claim) return { kind: 'not-found' };
+    const claim = parseCheckoutClaim(persistedClaim);
+    if (!persistedClaim) return { kind: 'not-found' };
+    if (!claim) return { kind: 'not-canceled' };
     if (claim.workflow_status !== 'canceled' || !claim.payment_id) return { kind: 'not-canceled' };
 
     const payment = await payments.getPaymentPreparation(claim.payment_id);
