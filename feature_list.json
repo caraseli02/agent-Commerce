@@ -14,7 +14,7 @@
       "status": "active",
       "evidence": [
         "User authorized workflow repair on 2026-10-02; branch codex/payment-workflow-reconciliation. #583 created for separate state/error contract cleanup; no payment behavior or activation changes.",
-        "Focused receipt/classifier/pre-push suites pass 26/26; changed-file ESLint, formatting, typecheck and feature-state validation pass. Native GitHub child ownership and dependency graph checked: acyclic; only #582 in-progress. Fresh full delivery and independent review remain pending.",
+        "Focused receipt/classifier/pre-push suites pass 28/28; changed-file ESLint, formatting, typecheck and feature-state validation pass. Native GitHub child ownership and dependency graph checked: acyclic; only #582 in-progress. Final fresh delivery is running after Git/Husky PATH and skill-alias boundary repairs; independent review remains pending.",
         "Initial clean-tree fresh handoff on 62e67399 passed build/lint/typecheck/coverage, 94 files / 580 tests / 2 existing pending tests, architecture, preview /,/cart,/checkout and clean state. Real Husky integration exposed duplicate PATH false invalidation; equivalent directory normalization repair passes focused 27/27 plus lint/typecheck. Final source delivery remains next."
       ]
     },

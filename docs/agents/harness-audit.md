@@ -25,7 +25,7 @@ This file maps Components Marketplace repo artifacts to the course recommendatio
 
 These are not blockers, but should be revisited when the repo grows:
 
-1. **Gate weight** — keep `pnpm verify` fast enough for normal loops; reserve `pnpm verify:full` and `pnpm verify:handoff` for runtime-sensitive work and final handoff.
+1. **Gate weight** — use targeted checks for normal repair loops and one strongest delivery gate. Reuse unchanged local delivery evidence at pre-push; CI retains fresh executable checks.
 2. **Runtime smoke depth** — `pnpm smoke` checks representative static routes, but auth/cart/checkout/dashboard changes still need targeted runtime evidence.
 3. **Telemetry depth** — runtime logs and PR evidence are required, but no app-level tracing stack exists.
 4. **Source-of-truth hygiene** — GitHub Issues are the primary work tracker; `PROGRESS.md` must stay current as the short session mirror and should not drift behind merged PRs.

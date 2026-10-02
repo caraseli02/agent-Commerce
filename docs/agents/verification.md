@@ -26,7 +26,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - `node scripts/check-pr-template.mjs`
    - The focused `PR template / check` workflow runs separately from application CI and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
    - The workflow reads the current PR description from GitHub instead of trusting the immutable event snapshot. Description and label edits automatically rerun only this focused check; they do not rerun `pnpm verify`.
-   - The gate expects filled verification outcomes, known-risks evidence, and rubric scores; it skips when the PR carries the documented `skip-pr-template-check` or `human-hotfix` label so a human hotfix can intentionally bypass the agent template.
+   - The gate expects filled verification outcomes, known-risks evidence, and rubric fields (scores are supplied by the independent evaluator); it skips when the PR carries the documented `skip-pr-template-check` or `human-hotfix` label so a human hotfix can intentionally bypass the agent template.
 6. **Clean-state handoff validator**
    - `node scripts/check-clean-state.mjs`
    - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions. It intentionally skips scanning `scripts/check-clean-state.mjs` itself so the validator does not self-flag its own pattern definitions.
@@ -167,8 +167,7 @@ Example evidence block for a future PR:
 ```md
 ## Evidence
 
-- `pnpm verify`: pass
-- `pnpm verify:full`: pass when runtime/API-boundary evidence was needed
+- `pnpm verify:handoff`: pass (the one chosen delivery gate, including lower checks)
 - Runtime smoke: `/products/19` loaded successfully in `pnpm dev`
 - Screenshot: `tmp/screenshots/products-19-after.png` (removed before merge)
 - Notes: product media fallback renders correctly on mobile and desktop
