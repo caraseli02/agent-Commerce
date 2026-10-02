@@ -145,6 +145,14 @@ describe('delivery evidence and documentation selection', () => {
     r.write('node_modules/.pnpm/lock.yaml', 'version: 2');
     expect(inputFingerprint(r.cwd, r.env)).not.toBe(original);
   });
+  it('preserves evidence for Husky duplicate PATH entries while detecting a new executable search directory', () => {
+    const r = repository();
+    mkdirSync(join(r.cwd, 'node_modules/.bin'), { recursive: true });
+    const env = { ...r.env, PATH: `${join(r.cwd, 'node_modules/.bin')}:${r.env.PATH}` };
+    const fingerprint = inputFingerprint(r.cwd, env);
+    expect(inputFingerprint(r.cwd, { ...env, PATH: `node_modules/.bin:${env.PATH}` })).toBe(fingerprint);
+    expect(inputFingerprint(r.cwd, { ...env, PATH: `/new/search/directory:${env.PATH}` })).not.toBe(fingerprint);
+  });
   it('requires fresh CI and refuses expired, future, malformed, and missing receipts', () => {
     const r = repository();
     const fingerprint = inputFingerprint(r.cwd, r.env);

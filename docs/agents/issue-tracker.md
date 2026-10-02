@@ -70,4 +70,4 @@ A tracking epic has a fixed child checklist and a closure condition. Native GitH
 
 Evaluator PASS means the executable child criteria are complete. An epic closes only when its fixed child checklist and declared integration evidence are complete. New unrelated findings become separate backlog issues; do not silently grow either checklist. Update both dependency bodies and native edges when rescoping.
 
-Payment map: #557 tracks #584/#585/#588; #558 tracks #586/#587. #587 depends on #586; #588 depends on #585/#586/#587. #556 requires #584/#588 and merged backend resume; #559 requires the completed UI and named compensation capabilities. #583 tracks existing state/error contract cleanup. Stripe activation stays off until #559 Gate A passes.
+Payment map: #557 tracks #584/#585/#588; #558 tracks #586/#587. #585 needs the recorded commercial selection policy before pickup; #587 depends on #586; #588 depends on #585/#586/#587. #556 requires #584/#588 and merged backend resume; #559 requires the completed UI and named compensation capabilities. #583 tracks existing state/error contract cleanup. Stripe activation stays off until #559 Gate A passes.

@@ -7,12 +7,12 @@
 
 ## In progress
 
-- #582 only: local delivery evidence reuse, conservative documentation-only classification, and planner/evaluator guidance for complete bounded child issues. Focused tooling tests pass 26/26; native GitHub ownership/dependencies are verified acyclic with WIP=1. Fresh delivery validation and PR review remain next.
+- #582 only: local delivery evidence reuse, conservative documentation-only classification, and planner/evaluator guidance for complete bounded child issues. Focused tooling tests pass 27/27, including Husky PATH equivalence; native GitHub ownership/dependencies are verified acyclic with WIP=1. Initial fresh handoff passed 580 tests, architecture/preview/clean state. Final normal push and receipt reuse are next after the scoped PATH repair.
 
 ## Blocked / known baseline failures
 
 - Stripe activation stays off until #559 proves unsafe shared-database writer retirement and complete sandbox integration.
-- #587 depends on #586; #588 depends on #585/#586/#587. #556 depends on #584/#588 and merged backend resume. Epics are not executable prerequisites.
+- #585 is blocked for the missing deterministic commercial ALLOCATE/BACKORDER/REFUND selection policy; the ADR defines safety, not that policy. #587 depends on #586; #588 depends on #585/#586/#587. #556 depends on #584/#588 and merged backend resume. Epics are not executable prerequisites.
 - Historical #580 managed-worktree hook failures came from Git context leaking into fixture repositories. Verification child processes now strip hook-local Git redirection; no payment source is changed.
 - The previously recorded guest order-detail null-user `adminSettings` error remains outside this workflow repair.
 
@@ -28,5 +28,5 @@
 
 ## Next work
 
-- After workflow repair review, choose one unblocked payment child (#584, #585, or #586); normally one coherent PR closes the entire child. #587/#588 follow their named capabilities. #583 is separate cleanup.
+- After workflow repair review, choose one unblocked payment child (#584 or #586; #585 needs the recorded policy decision first); normally one coherent PR closes the entire child. #587/#588 follow their named capabilities. #583 is separate cleanup.
 - Tracking epics close only after their fixed child checklist and integration evidence pass. New unrelated findings become separate backlog issues.

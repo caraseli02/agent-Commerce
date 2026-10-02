@@ -1,7 +1,7 @@
 {
   "assessments": [
     {
-      "fingerprint": "6a9f082e25550eb930544259bc36d6443ae4e3e3f511afe7fc197d03b01d5cc9",
+      "fingerprint": "a1d1859ee7fbb4f8019b95ab94a96556ff0b2d81220601ad409740d6f1b1d6d7",
       "impact": "none",
       "reason": "Verification and issue-tracking tooling only; no storefront runtime changes.",
       "consumers": "scripts/verification-evidence.mjs is imported only by scripts/verify.mjs and its tests. verify.mjs is invoked by package scripts, CI and pre-push; select-visual-checks.mjs orchestrates developer verification. No Nuxt route/component/store/domain reads these modules, and they perform no application or provider state writes. Workflow/docs/tests do not change rendered application state. Browser screenshots are not evidence for this tooling change; receipt/classifier/real-hook tests verify its consumers."

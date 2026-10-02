@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { delimiter, dirname, join, resolve } from 'node:path';
 
 export const receiptPath = 'tmp/verification/delivery.json';
 const receiptLifetimeMs = 4 * 60 * 60 * 1000;
@@ -125,6 +125,19 @@ export function inputFingerprint(cwd, env = process.env) {
           key,
         ),
       )
+      .map(([key, value]) => [
+        key,
+        key === 'PATH' && typeof value === 'string'
+          ? [
+              ...new Set(
+                value.split(delimiter).map((directory) => {
+                  const absolute = resolve(cwd, directory);
+                  return existsSync(absolute) ? realpathSync(absolute) : absolute;
+                }),
+              ),
+            ].join(delimiter)
+          : value,
+      ])
       .sort(([a], [b]) => a.localeCompare(b));
     hash.update(JSON.stringify(environment)); // Only the digest is stored; credentials never leave the process.
     const files = [

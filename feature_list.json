@@ -14,7 +14,8 @@
       "status": "active",
       "evidence": [
         "User authorized workflow repair on 2026-10-02; branch codex/payment-workflow-reconciliation. #583 created for separate state/error contract cleanup; no payment behavior or activation changes.",
-        "Focused receipt/classifier/pre-push suites pass 26/26; changed-file ESLint, formatting, typecheck and feature-state validation pass. Native GitHub child ownership and dependency graph checked: acyclic; only #582 in-progress. Fresh full delivery and independent review remain pending."
+        "Focused receipt/classifier/pre-push suites pass 26/26; changed-file ESLint, formatting, typecheck and feature-state validation pass. Native GitHub child ownership and dependency graph checked: acyclic; only #582 in-progress. Fresh full delivery and independent review remain pending.",
+        "Initial clean-tree fresh handoff on 62e67399 passed build/lint/typecheck/coverage, 94 files / 580 tests / 2 existing pending tests, architecture, preview /,/cart,/checkout and clean state. Real Husky integration exposed duplicate PATH false invalidation; equivalent directory normalization repair passes focused 27/27 plus lint/typecheck. Final source delivery remains next."
       ]
     },
     {
@@ -73,9 +74,10 @@
       "id": "I585",
       "description": "Choose one durable late-paid recovery outcome (#585)",
       "validation": "Coordinated ALLOCATE/BACKORDER/REFUND selection and local consequences; concurrency/replay never both fulfill and refund.",
-      "status": "not_started",
+      "status": "blocked",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/585. Not claimed or implemented in this workflow repair."
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/585. Not claimed or implemented in this workflow repair.",
+        "ADR fixes transactional safety but does not define automatic commercial selection priority/eligibility. GitHub task is blocked/ready-for-human until the deterministic rule is recorded; no agent may invent it."
       ]
     },
     {
