@@ -151,7 +151,31 @@ describe('delivery evidence and documentation selection', () => {
     const env = { ...r.env, PATH: `${join(r.cwd, 'node_modules/.bin')}:${r.env.PATH}` };
     const fingerprint = inputFingerprint(r.cwd, env);
     expect(inputFingerprint(r.cwd, { ...env, PATH: `node_modules/.bin:${env.PATH}` })).toBe(fingerprint);
+    const gitExecPath = r.git('--exec-path');
+    expect(inputFingerprint(r.cwd, { ...env, PATH: `${gitExecPath}:${env.PATH}` })).toBe(fingerprint);
     expect(inputFingerprint(r.cwd, { ...env, PATH: `/new/search/directory:${env.PATH}` })).not.toBe(fingerprint);
+  });
+  it('excludes only internal skill alias content and includes unexpected source and external targets', () => {
+    const r = repository();
+    r.write('.agents/skills/qa/SKILL.md', '# Skill');
+    mkdirSync(join(r.cwd, 'skills'));
+    symlinkSync('../.agents/skills/qa', join(r.cwd, 'skills/qa'));
+    r.commit();
+    const original = inputFingerprint(r.cwd, r.env);
+    r.write('.agents/skills/qa/SKILL.md', '# Updated skill');
+    expect(inputFingerprint(r.cwd, r.env)).toBe(original);
+    for (const file of ['skills/unexpected.js', '.claude/skills/unexpected.js', '.agents/skills/qa/run.js']) {
+      r.write(file, 'first');
+      const before = inputFingerprint(r.cwd, r.env);
+      expect(before).not.toBe(original);
+      r.write(file, 'changed');
+      expect(inputFingerprint(r.cwd, r.env)).not.toBe(before);
+      rmSync(join(r.cwd, file));
+    }
+    symlinkSync('../server', join(r.cwd, 'skills/external'));
+    const before = inputFingerprint(r.cwd, r.env);
+    r.write('server/payment.ts', 'external target changed');
+    expect(inputFingerprint(r.cwd, r.env)).not.toBe(before);
   });
   it('requires fresh CI and refuses expired, future, malformed, and missing receipts', () => {
     const r = repository();

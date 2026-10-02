@@ -7,7 +7,7 @@
 
 ## In progress
 
-- #582 only: local delivery evidence reuse, conservative documentation-only classification, and planner/evaluator guidance for complete bounded child issues. Focused tooling tests pass 27/27, including Husky PATH equivalence; native GitHub ownership/dependencies are verified acyclic with WIP=1. Initial fresh handoff passed 580 tests, architecture/preview/clean state. Final normal push and receipt reuse are next after the scoped PATH repair.
+- #582 only: local delivery evidence reuse, conservative documentation-only classification, and planner/evaluator guidance for complete bounded child issues. Focused tooling coverage includes Git/Husky PATH equivalence, skill alias boundaries, receipt invalidation, and the real gate/hook. Native GitHub ownership/dependencies are verified acyclic with WIP=1. Earlier fresh handoff passed 580 tests plus architecture/preview/clean state; normal push passed 581 tests. Final fresh handoff and unchanged pre-push reuse are next after the boundary repairs.
 
 ## Blocked / known baseline failures
 
@@ -24,7 +24,7 @@
 
 ## Next verification
 
-- Focused receipt/classifier/pre-push tests, lint/formatting, feature-state validation, then one fresh strongest delivery gate. Challenge receipt invalidation, CI freshness, conservative fallback, and actual native GitHub dependency graph.
+- Focused receipt/classifier/pre-push tests, lint/formatting, feature-state validation, then one fresh strongest delivery gate followed by unchanged hook reuse. Challenge receipt invalidation, CI freshness, conservative fallback, and actual native GitHub dependency graph.
 
 ## Next work
 

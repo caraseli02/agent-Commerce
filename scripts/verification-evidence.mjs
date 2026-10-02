@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { delimiter, dirname, join, resolve } from 'node:path';
+import { delimiter, dirname, join, relative, resolve } from 'node:path';
 
 export const receiptPath = 'tmp/verification/delivery.json';
 const receiptLifetimeMs = 4 * 60 * 60 * 1000;
@@ -110,6 +110,7 @@ function hashPath(hash, path, label, ancestors = new Set()) {
 export function inputFingerprint(cwd, env = process.env) {
   try {
     const hash = createHash('sha256');
+    const gitExecPath = realpathSync(git(cwd, ['--exec-path']).trim());
     hash.update(
       JSON.stringify([
         realpathSync(cwd),
@@ -117,6 +118,8 @@ export function inputFingerprint(cwd, env = process.env) {
         process.platform,
         process.arch,
         execFileSync('pnpm', ['--version'], { cwd, env: verificationEnvironment(env), encoding: 'utf8' }).trim(),
+        git(cwd, ['--version']).trim(),
+        gitExecPath,
       ]),
     );
     const environment = Object.entries(env)
@@ -130,10 +133,13 @@ export function inputFingerprint(cwd, env = process.env) {
         key === 'PATH' && typeof value === 'string'
           ? [
               ...new Set(
-                value.split(delimiter).map((directory) => {
-                  const absolute = resolve(cwd, directory);
-                  return existsSync(absolute) ? realpathSync(absolute) : absolute;
-                }),
+                value
+                  .split(delimiter)
+                  .map((directory) => {
+                    const absolute = resolve(cwd, directory);
+                    return existsSync(absolute) ? realpathSync(absolute) : absolute;
+                  })
+                  .filter((directory) => directory !== gitExecPath),
               ),
             ].join(delimiter)
           : value,
@@ -144,8 +150,19 @@ export function inputFingerprint(cwd, env = process.env) {
       ...new Set(git(cwd, ['ls-files', '--cached', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean)),
     ].sort();
     for (const file of files) {
-      if (documentationPath(file) || file === '.visual-impact.json' || /^(skills\/|\.claude\/skills\/)/.test(file)) continue;
-      hashPath(hash, join(cwd, file), file);
+      if (documentationPath(file) || file === '.visual-impact.json') continue;
+      const path = join(cwd, file);
+      // Known skill aliases point back into the separately fingerprinted tree.
+      // Include link identity; arbitrary files and external targets still hash fully.
+      if (/^(skills\/|\.claude\/skills\/)[^/]+$/.test(file) && existsSync(path) && lstatSync(path).isSymbolicLink()) {
+        const target = realpathSync(path);
+        const inside = relative(join(realpathSync(cwd), '.agents/skills'), target);
+        if (inside && !inside.startsWith('..') && !inside.startsWith('/')) {
+          hash.update(`\0${file}\0link:${target}`);
+          continue;
+        }
+      }
+      hashPath(hash, path, file);
     }
     for (const file of ['.env', '.env.local', 'node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml'])
       hashPath(hash, join(cwd, file), file);
