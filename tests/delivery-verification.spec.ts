@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, chmodSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, chmodSync, symlinkSync, utimesSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -155,6 +155,22 @@ describe('delivery evidence and documentation selection', () => {
     expect(inputFingerprint(r.cwd, { ...env, PATH: `${gitExecPath}:${env.PATH}` })).toBe(fingerprint);
     expect(inputFingerprint(r.cwd, { ...env, PATH: `/new/search/directory:${env.PATH}` })).not.toBe(fingerprint);
   });
+  it('ignores first-run dependency caches while detecting changed installation anchors', () => {
+    const r = repository();
+    r.write('node_modules/.modules.yaml', 'installed: true');
+    const original = inputFingerprint(r.cwd, r.env);
+    recordReceipt(r.cwd, original, r.env);
+    for (const file of ['node_modules/.cache/build/result', 'node_modules/.vite/results.json', 'node_modules/.pnpm/.cache/result'])
+      r.write(file, 'generated cache');
+    expect(inputFingerprint(r.cwd, r.env)).toBe(original);
+    expect(reusableReceipt(r.cwd, inputFingerprint(r.cwd, r.env), r.env)).toBe(true);
+    const anchor = join(r.cwd, 'node_modules/.modules.yaml');
+    const stat = statSync(anchor);
+    utimesSync(anchor, stat.atime, new Date(stat.mtimeMs + 1000));
+    expect(inputFingerprint(r.cwd, r.env)).not.toBe(original);
+    r.write('node_modules/.modules.yaml', 'installed: changed');
+    expect(inputFingerprint(r.cwd, r.env)).not.toBe(original);
+  });
   it('excludes only internal skill alias content and includes unexpected source and external targets', () => {
     const r = repository();
     r.write('.agents/skills/qa/SKILL.md', '# Skill');
@@ -221,7 +237,7 @@ it('runs the real gate, reuses only base checks, and discards evidence after fai
   r.write('scripts/validate-feature-list.sh', '#!/bin/sh\nexit "${VALIDATOR_EXIT:-0}"\n');
   r.write(
     'bin/pnpm',
-    '#!/bin/sh\nif [ "$1" = "--version" ]; then echo 10.18.3; exit 0; fi\nprintf "%s\\n" "$*" >> "$GATE_LOG"\nif [ "$1" = "test:coverage" ]; then if [ "$CHANGE_INPUT" = "1" ]; then printf "changed" >> server/payment.ts; fi; exit "${TEST_EXIT:-0}"; fi\n',
+    '#!/bin/sh\nif [ "$1" = "--version" ]; then echo 10.18.3; exit 0; fi\nif [ "$1" = "build" ]; then mkdir -p node_modules/.cache/build node_modules/.pnpm/.cache; fi\nprintf "%s\\n" "$*" >> "$GATE_LOG"\nif [ "$1" = "test:coverage" ]; then if [ "$CHANGE_INPUT" = "1" ]; then printf "changed" >> server/payment.ts; fi; exit "${TEST_EXIT:-0}"; fi\n',
   );
   chmodSync(join(r.cwd, 'bin/pnpm'), 0o755);
   r.commit();

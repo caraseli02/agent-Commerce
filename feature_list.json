@@ -15,7 +15,8 @@
       "evidence": [
         "User authorized workflow repair on 2026-10-02; branch codex/payment-workflow-reconciliation. #583 created for separate state/error contract cleanup; no payment behavior or activation changes.",
         "Focused receipt/classifier/pre-push suites pass 28/28; lint/formatting/typecheck and feature-state validation pass. GitHub native child ownership/dependencies are acyclic; only #582 is in-progress. #585 is explicitly blocked for its missing commercial selection rule.",
-        "Final fresh clean-tree handoff passes 94 files / 582 tests / 2 existing todo, build/lint/typecheck/coverage, architecture, preview /,/cart,/checkout and clean state. The normal subsequent push reuses matching application evidence without rerunning build/lint/typecheck/coverage; committed consumer assessments skip unrelated visuals. CI and independent evaluation remain pending; no generator PASS."
+        "Final fresh clean-tree handoff passes 94 files / 582 tests / 2 existing todo, build/lint/typecheck/coverage, architecture, preview /,/cart,/checkout and clean state. The normal subsequent push reuses matching application evidence without rerunning build/lint/typecheck/coverage; committed consumer assessments skip unrelated visuals. CI and independent evaluation remain pending; no generator PASS.",
+        "PR #589 CI ran 94 files / 582 passing tests before a false final input-change failure. Cold-cache creation reproduced the fingerprint change; repaired dependency evidence ignores directory cache timestamps while preserving installation-anchor timestamps/bytes and directory replacement identity. Focused regression/receipt/hook suites pass 29/29; repaired delivery/CI pending."
       ]
     },
     {

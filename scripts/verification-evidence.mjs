@@ -167,7 +167,14 @@ export function inputFingerprint(cwd, env = process.env) {
     for (const file of ['.env', '.env.local', 'node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml'])
       hashPath(hash, join(cwd, file), file);
     if (!existsSync(join(cwd, 'node_modules/.pnpm/lock.yaml'))) return null;
-    for (const path of ['node_modules', 'node_modules/.pnpm', 'node_modules/.pnpm/lock.yaml']) {
+    // Builds/tests create caches inside these directories on a fresh install.
+    // Directory identity detects replacement; timestamps belong to install anchors.
+    for (const path of ['node_modules', 'node_modules/.pnpm']) {
+      const stat = lstatSync(join(cwd, path));
+      hash.update(JSON.stringify([path, stat.ino]));
+    }
+    for (const path of ['node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml']) {
+      if (!existsSync(join(cwd, path))) continue;
       const stat = lstatSync(join(cwd, path));
       hash.update(JSON.stringify([path, stat.ino, stat.mtimeMs, stat.ctimeMs]));
     }

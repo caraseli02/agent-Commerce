@@ -7,7 +7,7 @@
 
 ## In progress
 
-- #582 only: local delivery evidence reuse, conservative documentation-only classification, and planner/evaluator guidance for complete bounded child issues. Focused tooling tests pass 28/28. Final fresh handoff passes 94 files / 582 tests / 2 existing todo, build/lint/typecheck, architecture, preview /,/cart,/checkout and clean state. The normal push reused matching build/lint/typecheck/coverage evidence and skipped unrelated visuals. Native ownership/dependencies are acyclic with WIP=1. Independent PR evaluation and merge remain pending.
+- #582 only: local delivery evidence reuse, conservative documentation-only classification, and planner/evaluator guidance for complete bounded child issues. Focused tooling tests pass 28/28. Final fresh handoff passes 94 files / 582 tests / 2 existing todo, build/lint/typecheck, architecture, preview /,/cart,/checkout and clean state. The normal push reused matching build/lint/typecheck/coverage evidence and skipped unrelated visuals. Native ownership/dependencies are acyclic with WIP=1. PR #589 CI passed all 582 tests but failed its final input guard because cold-cache creation changed installation-directory timestamps. The scoped repair tracks directory identity and installation-anchor timestamps; its regression and existing focused suites pass 29/29. Fresh repaired delivery/CI, independent PR evaluation and merge remain pending.
 
 ## Blocked / known baseline failures
 

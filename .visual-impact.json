@@ -1,13 +1,13 @@
 {
   "assessments": [
     {
-      "fingerprint": "7aa2f9f38c36d1c30cf98cbe617a13e12f3cbee5db79108478a5f90e73afcfa5",
+      "fingerprint": "a08aa1331134bd2f2057cc0f4fed73bb3b5bfbc197ea5d53c3ffb0095bf1f87d",
       "impact": "none",
       "reason": "Verification and issue-tracking tooling only; no storefront runtime changes.",
       "consumers": "scripts/verification-evidence.mjs is imported only by scripts/verify.mjs and its tests. verify.mjs is invoked by package scripts, CI and pre-push; select-visual-checks.mjs orchestrates developer verification. No Nuxt route/component/store/domain reads these modules, and they perform no application or provider state writes. Workflow/docs/tests do not change rendered application state. Browser screenshots are not evidence for this tooling change; receipt/classifier/real-hook tests verify its consumers."
     },
     {
-      "fingerprint": "81c65c0374c296e020902964c26d4ef54450932a40e53ae84e9f7dda60bc36a9",
+      "fingerprint": "735a88c3eabacd4bd56c616e3c0831c7ffcd6b533beb9e873c091337de5f073e",
       "impact": "none",
       "reason": "Verification and issue-tracking tooling only; no storefront runtime changes.",
       "consumers": "scripts/verification-evidence.mjs is imported only by scripts/verify.mjs and its tests. verify.mjs is invoked by package scripts, CI and pre-push; select-visual-checks.mjs orchestrates developer verification. No Nuxt route/component/store/domain reads these modules, and they perform no application or provider state writes. Workflow/docs/tests do not change rendered application state. Browser screenshots are not evidence for this tooling change; receipt/classifier/real-hook tests verify its consumers."
