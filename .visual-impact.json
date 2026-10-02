@@ -1,6 +1,13 @@
 {
   "assessments": [
     {
+      "fingerprint": "14bd19bf3394901e5af36291f487cb05e2563d9b026ea429c3f9fe0cfc9eccea",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "Payment labels and checkout failure policy change; known payment values and commercial transitions remain compatible. The existing orders visual group covers the representative payment-label consumer; targeted failure-page E2E evidence covers the affected route outside the visual matrix.",
+      "consumers": "types/order-summary/item.ts getPaymentStatusById feeds components/client-table/transaction/options.ts and customer order history. The explicit map preserves labels for numeric values 0-6 and rejects unknown values. Shared error types flow from orders new/restart/resume responses through useOrder and cartStore.previousCheckoutError into /checkout/fail; its fixed copy/actions and conservative unknown navigation pass desktop/mobile browser cases plus persisted unknown failure with an order ID. cartStore cart/product/optimistic/total behavior is unchanged, so storefront home/search/product/cart screenshots add no evidence for this error-only store change. Payments/checkout parsers feed finalization, compensation, cancellation, resume/restart and order payment-state reads; known state wire/persistence values stay unchanged, invalid states refuse side effects, and affected PostgreSQL replay/recovery tests cover these consumers. No shared layout/styles, catalog, product pricing or cart line rendering changes."
+    },
+    {
       "fingerprint": "a08aa1331134bd2f2057cc0f4fed73bb3b5bfbc197ea5d53c3ffb0095bf1f87d",
       "impact": "none",
       "reason": "Verification and issue-tracking tooling only; no storefront runtime changes.",
