@@ -247,6 +247,7 @@ test.describe('Checkout result states', () => {
     { exit: 'cancel', status: 200 },
     { exit: 'home', status: 503 },
     { exit: 'cancel', status: 503 },
+    { exit: 'home', status: 401 },
   ]) {
     test(`public contract known failure ${exit} exit attempts cancellation once and clears local context (${status})`, async ({ page }) => {
       await signInThroughOrderSummary(page);
@@ -263,7 +264,8 @@ test.describe('Checkout result states', () => {
       await page.route('**/api/orders/known-order/cancel', async (route) => {
         cancellations.push(route.request().url());
         await route.fulfill({
-          status,
+          // Bound the old redirect/re-entry bug: a second request fails normally rather than recursing forever.
+          status: status === 401 && cancellations.length > 1 ? 503 : status,
           contentType: 'application/json',
           body: JSON.stringify(status === 200 ? { status: 'success' } : { statusMessage: 'Simulated cancellation outage' }),
         });
@@ -272,7 +274,7 @@ test.describe('Checkout result states', () => {
       await expect(page.getByRole('heading', { name: 'Payment failed', exact: true })).toBeVisible();
       if (exit === 'cancel') await page.getByRole('button', { name: 'Cancel order', exact: true }).click();
       else await page.getByRole('link', { name: 'Components Marketplace home', exact: true }).first().click();
-      await expect(page).toHaveURL(exit === 'cancel' ? /\/dashboard\/client$/ : /\/$/);
+      await expect(page).toHaveURL(status === 401 ? /\/\?signin=true$/ : exit === 'cancel' ? /\/dashboard\/client$/ : /\/$/);
       expect(cancellations).toHaveLength(1);
       await assertClearedFailureContext(page);
     });

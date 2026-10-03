@@ -68,13 +68,14 @@ const clearFailureContext = () => {
 };
 
 const cancelOrder = async () => {
+  // A cancellation 401 redirects through the API client before rejecting. Clear first so that
+  // redirect cannot re-enter this page's leave guard and repeat the cancellation request.
+  clearFailureContext();
   try {
     if (orderId.value) await cancelOrderApi(orderId.value);
   } catch (error) {
     // Leaving the error page must not depend on a remote cancellation being confirmed.
     console.warn('Checkout cancellation could not be confirmed.', error);
-  } finally {
-    clearFailureContext();
   }
 };
 
