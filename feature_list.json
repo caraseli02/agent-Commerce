@@ -44,7 +44,7 @@
       "evidence": [
         "Issue https://github.com/caraseli02/agent-Commerce/issues/583; PR https://github.com/caraseli02/agent-Commerce/pull/590; branch codex/583-payment-state-error-contracts. Sole active task; human merge required.",
         "2026-10-03: user approved repairs to the adversarial review. Previous exact-head PASS is superseded; review readiness withdrawn while completing missed UI consumers, local failure cleanup, structured corruption outcomes, recovery presentation and tracking.",
-        "Focused affected suites pass 7 files / 131 tests; numeric label boundary rejects coercible corruption. Actual browser evidence passes 14 failure/navigation cases and 4 desktop/mobile RecentTransactions/tracking cases, including rejected cancellation, authentication redirect without repeat cancellation, and string/array/null/missing statuses. Lint/typecheck pass; final repair review, fresh delivery gate, CI and final-head independent evaluation remain pending."
+        "Repairs and read-only repair reviews are complete. Focused affected suites pass 7 files / 131 tests; numeric label boundary rejects coercible corruption. Actual browser evidence passes 14 failure/navigation cases and 4 desktop/mobile RecentTransactions/tracking cases, including rejected cancellation, authentication redirect without repeat cancellation, and string/array/null/missing statuses. Lint/typecheck pass; fresh delivery gate is running with application source frozen, then CI and final-head independent evaluation."
       ]
     },
     {
