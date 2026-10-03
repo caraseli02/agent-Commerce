@@ -14,4 +14,4 @@ No unresolved capability dependency for #583; #589/#582 are merged. CI still run
 
 ## Verification / next step
 
-New regressions reproduced the adversarial findings. Focused affected suites, actual failure/navigation and label-component browser checks, changed-file lint and typecheck are underway. Record current results in ignored `tmp/verification/583.md`. Then freeze changes, run one clean-tree delivery gate, push with evidence reuse, and require fresh CI plus independent exact-head evaluation before restoring review readiness. Do not claim another issue.
+Focused affected suites pass (7 files / 130 tests); repaired numeric-boundary fixtures pass. Actual browser evidence passes 13 failure/navigation cases and 4 desktop/mobile label-consumer cases, including cancellation rejection and malformed numeric statuses. Changed-file lint and implementation typecheck pass. Repairs have no remaining review blockers. Next: one fresh clean-tree delivery gate, pre-push evidence reuse, fresh CI and independent exact-head evaluation. Review readiness remains withdrawn until these pass. Do not claim another issue.
