@@ -88,6 +88,8 @@ for (const viewport of viewports) {
       { status: 99, label: 'Unknown' },
       { status: '1', label: 'Unknown' },
       { status: [1], label: 'Unknown' },
+      { status: null, label: 'Unknown' },
+      { status: undefined, label: 'Unknown' },
     ]) {
       status = scenario.status;
       await page.goto('/order-summary/ord-1', { waitUntil: 'networkidle' });

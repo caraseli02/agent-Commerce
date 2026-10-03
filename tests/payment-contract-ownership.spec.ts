@@ -150,6 +150,14 @@ const labelViolations = (file: string, text: string): string[] => {
   const visit = (node: ts.Node) => {
     if (ts.isElementAccessExpression(node) && ts.isIdentifier(node.expression) && bindings.has(node.expression.text))
       problems.push('Use getPaymentStatusById for payment labels; enum reverse lookup can display unknown values as known states.');
+    if (
+      ts.isBinaryExpression(node) &&
+      [ts.SyntaxKind.QuestionQuestionToken, ts.SyntaxKind.BarBarToken].includes(node.operatorToken.kind) &&
+      ts.isPropertyAccessExpression(node.right) &&
+      ts.isIdentifier(node.right.expression) &&
+      bindings.has(node.right.expression.text)
+    )
+      problems.push('Do not replace absent or unknown payment state with a known enum state in UI consumers.');
     ts.forEachChild(node, visit);
   };
   visit(source);
@@ -219,6 +227,23 @@ describe('Payment contract ownership regression gate', () => {
         'consumer.vue',
         `<script setup lang="ts">import { PaymentStatusEnum } from '~/types';
       const colors = { [PaymentStatusEnum.Paid]: 'green' }; const label = getPaymentStatusById(status) ?? 'Unknown';</script>`,
+      ),
+    ).toEqual([]);
+  });
+  it('rejects known-state defaults that hide missing payment status', () => {
+    for (const operator of ['??', '||'])
+      expect(
+        labelViolations(
+          'consumer.vue',
+          `<script setup lang="ts">import { PaymentStatusEnum as Status } from '~/types';
+        const billingStatus = order.paymentDetails?.status ${operator} Status.Pending;</script>`,
+        ),
+      ).not.toEqual([]);
+    expect(
+      labelViolations(
+        'consumer.vue',
+        `<script setup lang="ts">import { PaymentStatusEnum } from '~/types';
+      const newPayment = { status: PaymentStatusEnum.Pending };</script>`,
       ),
     ).toEqual([]);
   });
