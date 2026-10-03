@@ -1,6 +1,8 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
+import { NodeTypes, parse } from '@vue/compiler-dom';
+import { parse as parseSfc } from 'vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 import { paymentStatuses } from '~/server/domain/payments/contracts';
 import { checkoutWorkflowStatuses, paidRecoveryDecisions } from '~/server/application/checkout/contracts';
@@ -105,6 +107,55 @@ const sourceFiles = (directory: string): string[] =>
     return entry.isDirectory() ? sourceFiles(file) : file.endsWith('.ts') ? [file] : [];
   });
 
+const uiSourceFiles = (directory: string): string[] =>
+  readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(directory, entry.name);
+    return entry.isDirectory() ? uiSourceFiles(file) : /\.(ts|vue)$/.test(file) ? [file] : [];
+  });
+const labelViolations = (file: string, text: string): string[] => {
+  // Both script blocks and template expressions are scanned; enum members remain valid color/style keys.
+  const templateExpressions: string[] = [];
+  const descriptor = file.endsWith('.vue') ? parseSfc(text, { filename: file }).descriptor : undefined;
+  if (file.endsWith('.vue')) {
+    if (descriptor?.template) {
+      const collect = (value: unknown): void => {
+        if (!value || typeof value !== 'object') return;
+        const node = value as { type?: number; isStatic?: boolean; content?: string };
+        if (node.type === NodeTypes.SIMPLE_EXPRESSION && !node.isStatic && typeof node.content === 'string')
+          templateExpressions.push(node.content);
+        for (const [key, child] of Object.entries(value)) {
+          if (key === 'loc') continue;
+          if (Array.isArray(child)) child.forEach(collect);
+          else collect(child);
+        }
+      };
+      collect(parse(descriptor.template.content));
+    }
+  }
+  const source = ts.createSourceFile(
+    file,
+    file.endsWith('.vue')
+      ? [descriptor?.script?.content, descriptor?.scriptSetup?.content].filter(Boolean).join('\n') + '\n;' + templateExpressions.join('\n;')
+      : text,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  const bindings = new Set(['PaymentStatusEnum']);
+  const problems: string[] = [];
+  const imports = (node: ts.Node) => {
+    if (ts.isImportSpecifier(node) && (node.propertyName ?? node.name).text === 'PaymentStatusEnum') bindings.add(node.name.text);
+    ts.forEachChild(node, imports);
+  };
+  imports(source);
+  const visit = (node: ts.Node) => {
+    if (ts.isElementAccessExpression(node) && ts.isIdentifier(node.expression) && bindings.has(node.expression.text))
+      problems.push('Use getPaymentStatusById for payment labels; enum reverse lookup can display unknown values as known states.');
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return problems;
+};
+
 describe('Payment contract ownership regression gate', () => {
   it('rejects an injected duplicate Payment, workflow or recovery definition', () => {
     for (const union of ["'PENDING' | 'PAID' | 'FAILED'", "'payment_pending' | 'finalized'", "'ALLOCATE' | 'BACKORDER' | 'REFUND'"])
@@ -151,6 +202,29 @@ describe('Payment contract ownership regression gate', () => {
   it('production consumers use owner declarations and typed public producers', () => {
     const files = ['server/domain/payments', 'server/application/checkout', 'server/api/orders'].flatMap(sourceFiles);
     expect(files.flatMap((file) => violations(file, readFileSync(file, 'utf8')).map((problem) => `${file}: ${problem}`))).toEqual([]);
+  });
+  it('rejects enum-derived payment labels in Vue consumers, including import aliases', () => {
+    expect(labelViolations('consumer.vue', '<template><span>{{ PaymentStatusEnum[status] }}</span></template>')).not.toEqual([]);
+    for (const binding of ['PaymentStatusEnum', 'Status']) {
+      expect(
+        labelViolations(
+          'consumer.vue',
+          `<script setup lang="ts">import { PaymentStatusEnum as ${binding} } from '~/types';
+        const label = ${binding}[status] || 'Pending';</script>`,
+        ),
+      ).not.toEqual([]);
+    }
+    expect(
+      labelViolations(
+        'consumer.vue',
+        `<script setup lang="ts">import { PaymentStatusEnum } from '~/types';
+      const colors = { [PaymentStatusEnum.Paid]: 'green' }; const label = getPaymentStatusById(status) ?? 'Unknown';</script>`,
+      ),
+    ).toEqual([]);
+  });
+  it('all UI consumers use the owned payment label mapping', () => {
+    const files = ['components', 'pages', 'helpers', 'composables'].flatMap(uiSourceFiles);
+    expect(files.flatMap((file) => labelViolations(file, readFileSync(file, 'utf8')).map((problem) => `${file}: ${problem}`))).toEqual([]);
   });
   it('typecheck rejects undeclared public codes', () => {
     // @ts-expect-error An undeclared public code must remain a compile-time error.

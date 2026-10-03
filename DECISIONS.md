@@ -2,12 +2,12 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
-## Payment contract ownership and regression policy — 2026-10-02
+## Payment contract ownership and regression policy — 2026-10-03
 
-- #583 owns one existing-surface contract cleanup PR, including all required consumers and its prevention tests. Preserve persisted/wire values and legacy FAILED; Refund remains separate from historical PAID.
-- Payment states belong to Payments; workflow/recovery decisions belong to checkout application; public errors use a pure shared contract; presentation uses exhaustive mappings. Parse persisted/transport inputs and preserve conservative unknown handling.
-- Require executable ownership, producer/consumer compatibility, and unknown-input regressions as #583 acceptance evidence. Documentation alone is not an automated guard. #583 implements the scoped AST ownership gate in normal Vitest coverage and compile-negative producer fixtures under typecheck; exhaustive presentation mappings force a policy for each known code. Legitimate typed discriminants, SQL predicates, diagnostics, and compatibility fixtures may retain literals.
-- Full implementation/check selection: `docs/agents/payment-contracts.md`. Existing #589 receipt reuse and one-strongest-gate guidance remain in force.
+- Payment states belong to Payments; workflow/recovery decisions belong to checkout; public errors use a pure shared contract; presentation uses exhaustive mappings. Preserve persisted/wire values and legacy FAILED; Refund remains separate from historical PAID.
+- Parse untrusted state fields, distinguish corruption from missing rows, and preserve conservative recovery. Return structured recovery outcomes across module boundaries.
+- Require executable ownership, actual producer/consumer compatibility, and unknown-input regressions. Cover Vue label callers and real failure-page navigation; helper tests alone cannot certify consumer migration. Clear local failure context independently of remote cancellation.
+- Durable rules live in `docs/agents/payment-contracts.md`; issue/session plans and model assignments belong in GitHub or the ignored verification record. Use one strongest delivery gate and matching pre-push evidence reuse.
 
 ## Bounded payment tasks and verification reuse — 2026-10-02
 

@@ -76,7 +76,7 @@ describe('Corrupt persisted state never authorizes side effects', () => {
     expect(await finalizePaidCheckout(financialInput)).toEqual({ kind: 'retry' });
     expect(await commitRefundCompensation(financialInput)).toEqual({ kind: 'conflict' });
     expect(await requireRefundCompensationRecovery(financialInput)).toEqual({ kind: 'conflict' });
-    expect(await restartCanceledCheckout(input)).toEqual({ kind: 'not-canceled' });
+    expect(await restartCanceledCheckout(input)).toEqual({ kind: 'recovery-required' });
     const initiatePayment = vi.fn();
     expect(await createResumeOrderPayment({ initiatePayment })(input)).toEqual({ kind: 'recovery-required' });
     expect(initiatePayment).not.toHaveBeenCalled();
@@ -137,6 +137,20 @@ describe('Corrupt persisted state never authorizes side effects', () => {
     boundary.query.mockResolvedValue([{ ...payment, status: 'corrupt' }]);
     expect(await payments.getPaymentPreparation('payment')).toMatchObject({ paymentId: 'payment', status: null });
     expect(await payments.completePayment({ paymentId: 'payment', providerReference: null })).toMatchObject({ kind: 'recovery-required' });
+  });
+  it('payment preparation returns an existing corrupt identity for recovery without writing', async () => {
+    boundary.query.mockResolvedValue([{ ...payment, status: 'corrupt' }]);
+    expect(
+      await payments.preparePayment({ orderId: 'order', amountMinor: 1234, currency: 'RON', legacyUseExistingPaymentMethod: false }),
+    ).toMatchObject({ kind: 'recovery-required', payment: { paymentId: 'payment', orderId: 'order', status: null } });
+    expect(boundary.execute).not.toHaveBeenCalled();
+  });
+  it('restart distinguishes a corrupt canceled Payment from a known non-canceled Payment', async () => {
+    boundary.query.mockImplementation(async (sql: string) =>
+      sql.includes('checkout_claims') ? [{ ...claim, workflow_status: 'canceled' }] : [{ ...payment, status: 'corrupt' }],
+    );
+    expect(await restartCanceledCheckout({ ownerId: 'owner', orderId: 'order' })).toEqual({ kind: 'recovery-required' });
+    for (const effect of [boundary.orderRead, boundary.execute, boundary.complete]) expect(effect).not.toHaveBeenCalled();
   });
   it.each([{ workflow_status: 'invented' }, { paid_recovery_decision: 'invented' }])(
     'PlaceOrder refuses corruption introduced at the locked reread: %j',

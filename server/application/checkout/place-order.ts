@@ -324,6 +324,8 @@ export const createPlaceOrderUseCase =
           legacyPaymentType: resolvePaymentType(command.order),
           legacyUseExistingPaymentMethod: Boolean(command.order.stripeCardId),
         });
+        if (paymentResult.kind === 'recovery-required')
+          throw new PlaceOrderError('payment_recovery_required', 409, 'The persisted Payment status requires recovery.');
         await database.execute(
           `UPDATE checkout_claims SET order_id=$1,reservation_id=$2,payment_id=$3,workflow_status='payment_pending',updated_at=$4 WHERE owner_id=$5 AND request_id=$6`,
           [order.orderId, reservationResult.reservation.id, paymentResult.payment.paymentId, new Date().toISOString(), ownerId, requestKey],

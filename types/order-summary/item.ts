@@ -291,6 +291,7 @@ export enum PaymentStatusEnum {
   Refunded = 6,
 }
 
+export const unknownPaymentStatusLabel = 'Unknown';
 export const paymentStatusLabels = {
   [PaymentStatusEnum.Pending]: 'Pending',
   [PaymentStatusEnum.Paid]: 'Paid',
@@ -301,8 +302,10 @@ export const paymentStatusLabels = {
   [PaymentStatusEnum.Refunded]: 'Refunded',
 } satisfies Record<PaymentStatusEnum, string>;
 
-export const getPaymentStatusById = (enumValue: number): string | null =>
-  Object.hasOwn(paymentStatusLabels, enumValue) ? paymentStatusLabels[enumValue as PaymentStatusEnum] : null;
+export const getPaymentStatusById = (enumValue: unknown): string | null =>
+  typeof enumValue === 'number' && Object.hasOwn(paymentStatusLabels, enumValue)
+    ? paymentStatusLabels[enumValue as PaymentStatusEnum]
+    : null;
 
 export interface PaymentStatusOption {
   label: string | null;

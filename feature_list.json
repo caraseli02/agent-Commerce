@@ -39,16 +39,12 @@
     {
       "id": "I583",
       "description": "Unify existing payment state and public error contracts (#583)",
-      "validation": "Complete the fixed acceptance map in docs/agents/payment-contracts.md: module-owned states, conservative boundary parsing, shared public error producers/consumers, exhaustive presentation, executable ownership/compatibility regressions, affected browser evidence, one delivery gate and independent evaluation.",
+      "validation": "Satisfy all acceptance criteria in GitHub #583: owned states, conservative boundary parsing, shared public errors, explicit presentation, executable regressions, affected browser evidence, one delivery gate and independent exact-head evaluation.",
       "status": "active",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/583. Not claimed or implemented in this workflow repair.",
-        "Preparation on 2026-10-02: dedicated branch codex/583-payment-state-error-contracts from latest origin/main 19fcf7b4, containing merged #589. #582 is closed; #583 alone is claimed in-progress and assigned to caraseli02.",
-        "Preparation baseline: pnpm test tests/delivery-verification.spec.ts tests/visual-selection.spec.ts tests/order-payment-state.spec.ts tests/use-order.spec.ts passes 4 files / 71 tests through the isolated PostgreSQL wrapper; pnpm typecheck passes.",
-        "User approved implementation with GPT-6.1 Sol as sole implementation owner, GPT-6 Luna for standards and GPT-6 Astra for correctness. Shared contracts/consumers, safe public error presentation, scoped AST ownership gate, compile-negative producers and corrupt-state regressions are implemented. Both read-only reviews have no remaining blockers after repairs; no generator PASS.",
-        "Focused affected PostgreSQL suites pass 9 files / 168 tests. Parser/presentation/ownership/corrupt suites passed 49 tests before review repairs; repaired ownership/corrupt suites pass 18 tests, including PostgreSQL proof that the emitted recovery predicate leaves corrupt locked values unchanged. Repaired useOrder transport tests pass 9/9. Typecheck and changed-file lint pass.",
-        "Built mock browser evidence: six desktop/mobile cart_changed, quote_changed and unknown-code failure cases pass; screenshots inspected. Persisted unknown failure with an order ID navigates via the ordinary home link without cancellation (seventh test). Supplemental transaction-label browser checks could not render the table; known label outputs are unchanged and covered by compatibility fixtures. This limitation is reported, not counted as passing evidence.",
-        "Fresh clean-tree pnpm verify:handoff --fresh passes on runtime ace748f3 / assessment head19fe744e: build/bundle/lint/typecheck,97coverage files/637passed/2existingtodo, state/UI/architecture validators, preview smoke and clean state. Later assessment/tracking edits change documentation only. Normal pre-push reuses matching application evidence and passes selected customer order-history visuals (1/1) with clean runtime assertions. PR https://github.com/caraseli02/agent-Commerce/pull/590 closes the complete issue; fresh CI/final-head independent verdict are recorded there and on issue583. Human merge remains required; no generator PASS."
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/583; PR https://github.com/caraseli02/agent-Commerce/pull/590; branch codex/583-payment-state-error-contracts. Sole active task; human merge required.",
+        "2026-10-03: user approved repairs to the adversarial review. Previous exact-head PASS is superseded; review readiness withdrawn while completing missed UI consumers, local failure cleanup, structured corruption outcomes, recovery presentation and tracking.",
+        "New negative regressions reproduced the missed enum-label consumers, corrupt restart/preparation outcomes and misleading recovery action. Focused checks and actual consumer browser tests are in progress; final delivery/CI/evaluation evidence remains pending."
       ]
     },
     {

@@ -63,6 +63,22 @@ describe('Public error and presentation contracts', () => {
     expect(checkoutFailurePresentation({ code: 'quote_changed' }).title).toBe('Your checkout price changed');
     expect(checkoutFailurePresentation({ code: 'cart_empty' }).action).toBe('Review cart');
   });
+  it.each([
+    'checkout_repair_required',
+    'order_recovery_required',
+    'inventory_recovery_required',
+    'payment_recovery_required',
+    'checkout_not_payable',
+    'checkout_not_canceled',
+    'cart_recovery_required',
+  ])('presents %s as review rather than retry', (code) => {
+    expect(checkoutFailurePresentation({ code })).toMatchObject({
+      title: 'Checkout needs review',
+      action: 'Review checkout',
+      reviewRequired: true,
+      cancelOnLeave: true,
+    });
+  });
   it.each(['invented_error', '__proto__', 'toString', '', null, 1, {}])('handles unknown error %j with safe copy', (code) => {
     expect(parseCheckoutErrorCode(code)).toBeNull();
     expect(checkoutFailurePresentation({ code, message: 'Internal provider secret or corrupt payload' })).toMatchObject({
@@ -92,5 +108,6 @@ describe('Public error and presentation contracts', () => {
       'Refunded',
     ]);
     expect(getPaymentStatusById(99)).toBeNull();
+    for (const value of ['1', [1], { toString: () => '1' }, null, undefined, NaN]) expect(getPaymentStatusById(value)).toBeNull();
   });
 });

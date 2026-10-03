@@ -2,6 +2,7 @@
 import { DotIcon, FilePlus2, FileSpreadsheet, MapPin, MoreVertical, Package, Truck } from '@lucide/vue';
 import { cn } from '~/lib/utils';
 import { OrderStatus, PaymentStatusEnum, type OrderInterface } from '~/types';
+import { getPaymentStatusById, unknownPaymentStatusLabel } from '~/types/order-summary/item';
 import type { ShippingAddressInterface } from '~/types/auth/user-interface';
 
 // interface OrderStatus {
@@ -86,7 +87,7 @@ const processedOrder = computed<Order>(() => {
       initial: companyName.charAt(0) || 'N',
     },
     address: props.order?.shippingDetails?.address || DEFAULT_ADDRESS,
-    billingStatus: props.order?.paymentDetails?.status || PaymentStatusEnum.Pending,
+    billingStatus: props.order?.paymentDetails?.status ?? PaymentStatusEnum.Pending,
     orderDate: props.order?.createdAt ? new Date(props.order.createdAt) : new Date(),
     trackingStatus: getTrackingStatus(props.order),
   };
@@ -119,6 +120,7 @@ const statusIcons = {
 };
 
 const billingStatusColor = computed(() => {
+  if (getPaymentStatusById(processedOrder.value.billingStatus) === null) return 'bg-gray-500';
   const statusColors: Partial<Record<PaymentStatusEnum, string>> = {
     [PaymentStatusEnum.Paid]: 'bg-green-500',
     [PaymentStatusEnum.Pending]: 'bg-orange-500',
@@ -133,7 +135,7 @@ const billingStatusColor = computed(() => {
 });
 
 const billingStatusLabel = computed(() => {
-  return PaymentStatusEnum[processedOrder.value.billingStatus] || 'Pending';
+  return getPaymentStatusById(processedOrder.value.billingStatus) ?? unknownPaymentStatusLabel;
 });
 
 const isTrackingStepActive = (status: TrackingStatus) => {

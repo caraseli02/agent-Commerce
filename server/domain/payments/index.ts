@@ -19,7 +19,7 @@ export type PaymentPreparation = Readonly<{
   amountMinor: number;
   currency: 'RON';
 }>;
-export type PreparePaymentResult = { kind: 'prepared' | 'existing'; payment: PaymentPreparation };
+export type PreparePaymentResult = { kind: 'prepared' | 'existing' | 'recovery-required'; payment: PaymentPreparation };
 export type ContinuePaymentResult =
   | { kind: 'succeeded'; nextAction: PaymentNextAction; providerReference: string | null }
   | { kind: 'failed'; providerReference: string | null }
@@ -77,7 +77,7 @@ const preparePayment = async (input: {
   const existing = rows[0];
   if (existing) {
     const payment = toPreparation(existing);
-    if (!payment.status) throw new Error('The persisted Payment status requires recovery.');
+    if (!payment.status) return { kind: 'recovery-required', payment };
     if (payment.amountMinor !== input.amountMinor || payment.currency !== input.currency)
       throw new Error('The existing Payment does not match the immutable Order payment preparation.');
     return { kind: 'existing', payment };

@@ -46,6 +46,17 @@ const assertDirectSuccessRecovery = async (page: Page) => {
   await expect(page.getByRole('link', { name: /return to cart/i })).toBeVisible();
 };
 
+const assertClearedFailureContext = async (page: Page) => {
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const state = JSON.parse(localStorage.getItem('cart-store') ?? '{}');
+        return { previousCheckoutError: state.previousCheckoutError, orderClientSecret: state.orderClientSecret };
+      }),
+    )
+    .toEqual({ previousCheckoutError: null, orderClientSecret: null });
+};
+
 const assertDisabledPaymentBoundary = async (page: Page) => {
   await expect(page.getByRole('heading', { name: /stripe checkout disabled in demo/i })).toBeVisible();
   await expect(page.getByRole('button', { name: /pay now/i })).toHaveCount(0);
@@ -170,6 +181,7 @@ test.describe('Checkout result states', () => {
     for (const scenario of [
       { code: 'cart_changed', title: 'Your cart changed', action: 'Review updated cart' },
       { code: 'quote_changed', title: 'Your checkout price changed', action: 'Review updated cart' },
+      { code: 'payment_recovery_required', title: 'Checkout needs review', action: 'Review checkout' },
       { code: 'unrecognized_provider_code', title: 'Payment failed', action: 'Try again' },
     ]) {
       test(`${viewport.name}: public contract ${scenario.code} has safe failure recovery`, async ({ page }) => {
@@ -177,6 +189,11 @@ test.describe('Checkout result states', () => {
         await navigateTo(page, '/product/prod-2');
         await addProductToCart(page);
         await signInThroughOrderSummary(page);
+        await page.evaluate(() => {
+          const state = JSON.parse(localStorage.getItem('cart-store') ?? '{}');
+          localStorage.setItem('cart-store', JSON.stringify({ ...state, orderClientSecret: 'stale-demo-secret' }));
+        });
+        await page.reload({ waitUntil: 'networkidle' });
         await page.route('**/api/orders/new', async (route) => {
           if (route.request().method() !== 'POST') return route.continue();
           await route.fulfill({
@@ -196,6 +213,7 @@ test.describe('Checkout result states', () => {
         await page.screenshot({ path: `/tmp/ecas-583-browser/${viewport.name}-${scenario.code}.png`, fullPage: true });
         await action.click();
         await expect(page).toHaveURL(/\/order-summary$/);
+        await assertClearedFailureContext(page);
       });
     }
   }
@@ -207,6 +225,7 @@ test.describe('Checkout result states', () => {
         'cart-store',
         JSON.stringify({
           previousCheckoutError: { code: 'future_provider_code', message: 'Private diagnostic' },
+          orderClientSecret: 'stale-demo-secret',
         }),
       );
     });
@@ -220,7 +239,44 @@ test.describe('Checkout result states', () => {
     await page.getByRole('link', { name: 'Components Marketplace home', exact: true }).first().click();
     await expect(page).toHaveURL(/\/$/);
     expect(cancellations).toEqual([]);
+    await assertClearedFailureContext(page);
   });
+
+  for (const { exit, status } of [
+    { exit: 'home', status: 200 },
+    { exit: 'cancel', status: 200 },
+    { exit: 'home', status: 503 },
+    { exit: 'cancel', status: 503 },
+  ]) {
+    test(`public contract known failure ${exit} exit attempts cancellation once and clears local context (${status})`, async ({ page }) => {
+      await signInThroughOrderSummary(page);
+      await page.evaluate(() =>
+        localStorage.setItem(
+          'cart-store',
+          JSON.stringify({
+            previousCheckoutError: { code: 'card_declined' },
+            orderClientSecret: 'stale-demo-secret',
+          }),
+        ),
+      );
+      const cancellations: string[] = [];
+      await page.route('**/api/orders/known-order/cancel', async (route) => {
+        cancellations.push(route.request().url());
+        await route.fulfill({
+          status,
+          contentType: 'application/json',
+          body: JSON.stringify(status === 200 ? { status: 'success' } : { statusMessage: 'Simulated cancellation outage' }),
+        });
+      });
+      await navigateTo(page, '/checkout/fail?id=known-order');
+      await expect(page.getByRole('heading', { name: 'Payment failed', exact: true })).toBeVisible();
+      if (exit === 'cancel') await page.getByRole('button', { name: 'Cancel order', exact: true }).click();
+      else await page.getByRole('link', { name: 'Components Marketplace home', exact: true }).first().click();
+      await expect(page).toHaveURL(exit === 'cancel' ? /\/dashboard\/client$/ : /\/$/);
+      expect(cancellations).toHaveLength(1);
+      await assertClearedFailureContext(page);
+    });
+  }
 
   test('a refresh with a removed saved card requires the buyer to choose payment again', async ({ page }) => {
     await navigateTo(page, '/product/prod-2');

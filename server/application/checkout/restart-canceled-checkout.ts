@@ -29,10 +29,11 @@ export const restartCanceledCheckout = async (input: { ownerId: string; orderId:
     );
     const claim = parseCheckoutClaim(persistedClaim);
     if (!persistedClaim) return { kind: 'not-found' };
-    if (!claim) return { kind: 'not-canceled' };
+    if (!claim) return { kind: 'recovery-required' };
     if (claim.workflow_status !== 'canceled' || !claim.payment_id) return { kind: 'not-canceled' };
 
     const payment = await payments.getPaymentPreparation(claim.payment_id);
+    if (payment && !payment.status) return { kind: 'recovery-required' };
     const order = await orders.getPaymentPreparation(claim.order_id);
     if (payment?.status !== 'CANCELED' || payment.orderId !== claim.order_id || !order || order.paidByPaymentId)
       return { kind: 'not-canceled' };

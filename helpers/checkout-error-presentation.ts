@@ -33,8 +33,9 @@ const quoteChanged: CheckoutFailurePresentation = {
   message: 'Pricing changed after you reviewed this order. Review the updated items and total before placing your order.',
 };
 const recoveryRequired: CheckoutFailurePresentation = {
-  ...paymentFailure,
+  ...reviewRequired,
   message: 'This checkout requires review before payment can continue.',
+  action: 'Review checkout',
 };
 
 export const checkoutErrorPresentation = {
