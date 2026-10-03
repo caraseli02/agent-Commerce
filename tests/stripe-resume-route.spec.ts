@@ -44,6 +44,7 @@ describe('unpaid payment resume route', () => {
   it('rejects a request while the Stripe gate is off without running checkout recovery', async () => {
     await expect(route({ cookies: { 'guest-session-id': 'resume-route' }, params: { id: 'ord-1' } })).rejects.toMatchObject({
       statusCode: 503,
+      statusMessage: 'Stripe payments are unavailable.',
       data: { code: 'stripe_payments_disabled' },
     });
     expect(checkout.resume).not.toHaveBeenCalled();
@@ -109,15 +110,20 @@ describe('unpaid payment resume route', () => {
   });
 
   it.each([
-    [{ kind: 'not-payable' }, 'checkout_not_payable'],
-    [{ kind: 'unavailable', productId: 'prod-1', requested: 2, available: 0 }, 'inventory_unavailable'],
-    [{ kind: 'recovery-required' }, 'payment_recovery_required'],
-  ])('keeps %s non-actionable with a stable conflict code', async (result, code) => {
+    [{ kind: 'not-payable' }, 'checkout_not_payable', 'This order cannot accept another payment.'],
+    [
+      { kind: 'unavailable', productId: 'prod-1', requested: 2, available: 0 },
+      'inventory_unavailable',
+      'The order is no longer available for payment.',
+    ],
+    [{ kind: 'recovery-required' }, 'payment_recovery_required', 'Payment recovery requires review.'],
+  ])('keeps %s non-actionable with a stable conflict response', async (result, code, statusMessage) => {
     checkout.enabled.mockReturnValue(true);
     checkout.resume.mockResolvedValue(result);
 
     await expect(route({ cookies: { 'guest-session-id': 'resume-route' }, params: { id: 'ord-1' } })).rejects.toMatchObject({
       statusCode: 409,
+      statusMessage,
       data: { code },
     });
   });

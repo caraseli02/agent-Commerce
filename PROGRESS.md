@@ -4,10 +4,11 @@
 
 - User-approved implementation of #583: existing payment state and public error contracts. Dedicated branch `codex/583-payment-state-error-contracts` starts at latest `origin/main` `19fcf7b4`, containing merged PR #589.
 - Contract ownership, consumer inventory, fixed acceptance map, and verification selection live in `docs/agents/payment-contracts.md`; AGENTS.md routes future payment changes through it.
+- Review correction: static coded HTTP response text now has a shared catalog and response factory; new/restart/resume routes select by code and the Stripe UI message reuses its owner. Existing response wording/statuses are preserved. The ownership guard now rejects inline static coded response messages.
 
 ## In progress
 
-- #583 only, assigned to caraseli02 with `in-progress`; #582 is closed and no other issue is claimed. [PR #590](https://github.com/caraseli02/agent-Commerce/pull/590) delivers the complete contract cleanup and executable prevention checks from `codex/583-payment-state-error-contracts`. Astra correctness and Luna standards reviews have no remaining implementation blockers after repairs. Current CI/evaluator evidence is recorded on the PR and [active issue](https://github.com/caraseli02/agent-Commerce/issues/583); human merge remains required.
+- #583 only, assigned to caraseli02 with `in-progress`; #582 is closed and no other issue is claimed. [PR #590](https://github.com/caraseli02/agent-Commerce/pull/590) delivers the contract cleanup and executable prevention checks from `codex/583-payment-state-error-contracts`. The public response copy correction requires updated verification and independent evaluation; the earlier exact-head PASS applies to `a3c5c8e6`, not this repair. Human merge remains required.
 - Known persisted/wire values and financial behavior are preserved. Existing corrupt payment rows retain identity with a null parsed status; missing rows remain distinct. Unknown/corrupt state cannot authorize provider/fulfillment work or be rewritten to an executable workflow; UI unknown diagnostics use safe copy and no implicit cancellation. No schema or Stripe activation change. One coherent PR will close #583 after full criteria and independent review.
 
 ## Blocked / known baseline failures

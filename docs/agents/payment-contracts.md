@@ -12,11 +12,11 @@ After a merge, refresh main and reconcile current issues/ADR/tracking before pro
 
 - Payments owns `PaymentStatus` and `PersistedPaymentStatus` in a pure contract file under `server/domain/payments/`; its public module re-exports them. Application code imports the owner contract instead of redeclaring a union. Browser code must not import a database/provider module.
 - Checkout application owns checkout workflow states and `PaidRecoveryDecision` in a pure file under `server/application/checkout/`. Database fields are untrusted until parsed; a query generic or type assertion is not validation.
-- A pure shared checkout error contract under `types/order/` owns public codes used by both server responses and browser recovery. Provider errors and PostgreSQL diagnostic codes remain separate.
+- A pure shared checkout error contract under `types/order/` owns public codes used by both server responses and browser recovery. Its `checkoutHttpErrors` catalog owns static public HTTP messages and statuses; routes use `checkoutErrorResponse(code)`. Reuse the catalog when UI wording is identical. Provider errors and PostgreSQL diagnostic codes remain separate.
 - Presentation owns explicit labels/messages and recovery actions keyed by the public contract. Use exhaustive typed mappings; business decisions must not inspect English messages or derive labels from enum member names.
 - Preserve wire and stored values, including legacy `FAILED` and numeric `PaymentStatusEnum` values. Refund is a separate financial fact; refund completion must preserve historical `PAID`.
 - Unknown state must retain the caller's conservative recovery/rejection result. Keep an existing Payment's identity when its parsed status is null; do not confuse corruption with a missing row. Recovery writes must admit only known eligible states. Unknown error codes use safe presentation and must never grant payment, completion, fulfillment, or an automatic retry with financial side effects. Preserve distinctions between absent, known, and invalid persisted recovery decisions.
-- Typed discriminants, SQL state predicates, diagnostic messages, and static compatibility fixtures may contain literals. Do not add a global constants bucket or a blanket string ban.
+- Typed discriminants, SQL state predicates, internal diagnostic messages, standard HTTP authentication/not-found messages, and static compatibility fixtures may contain literals. Static coded checkout response copy is public contract text, not an internal diagnostic; do not define it inline in a route. Application diagnostics such as `PlaceOrderError.message` remain distinct from buyer presentation. Do not add a global constants bucket or a blanket string ban.
 
 ## Fixed #583 acceptance map
 

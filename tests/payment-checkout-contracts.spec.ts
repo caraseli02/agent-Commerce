@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parsePaymentStatus, parsePersistedPaymentStatus } from '~/server/domain/payments/contracts';
 import { parseCheckoutWorkflowStatus, parsePaidRecoveryDecision } from '~/server/application/checkout/contracts';
-import { parseCheckoutErrorCode } from '~/types/order/checkout-error';
+import { checkoutErrorResponse, parseCheckoutErrorCode } from '~/types/order/checkout-error';
 import { checkoutFailurePresentation } from '~/helpers/checkout-error-presentation';
 import { getPaymentStatusById, PaymentStatusEnum } from '~/types/order-summary/item';
 
@@ -37,6 +37,22 @@ describe('Payment and checkout boundary contracts', () => {
 });
 
 describe('Public error and presentation contracts', () => {
+  it.each([
+    ['checkout_not_canceled', 'This checkout has not been canceled.'],
+    ['cart_empty', 'The cart is empty. Add items before reviewing a new order.'],
+    ['cart_recovery_required', 'The cart could not be prepared for review.'],
+    [
+      'cart_changed',
+      'Your cart review is no longer current. Return to the order summary to review the latest items and total before placing your order.',
+    ],
+  ] as const)('preserves the existing %s HTTP response when moving copy into its owner', (code, statusMessage) => {
+    expect(checkoutErrorResponse(code)).toEqual({ statusCode: 409, statusMessage, data: { code } });
+  });
+  it('shares the unavailable-payment wording with its UI consumer', () => {
+    expect(checkoutFailurePresentation({ code: 'stripe_payments_disabled' }).message).toBe(
+      checkoutErrorResponse('stripe_payments_disabled').statusMessage,
+    );
+  });
   it('uses stable codes for recovery independently of diagnostic copy', () => {
     expect(parseCheckoutErrorCode('cart_changed')).toBe('cart_changed');
     expect(checkoutFailurePresentation({ code: 'cart_changed', message: 'Different diagnostic text' })).toMatchObject({

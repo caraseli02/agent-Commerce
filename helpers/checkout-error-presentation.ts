@@ -1,4 +1,4 @@
-import { parseCheckoutErrorCode, type CheckoutErrorCode } from '~/types/order/checkout-error';
+import { checkoutHttpErrors, parseCheckoutErrorCode, type CheckoutErrorCode } from '~/types/order/checkout-error';
 
 export type CheckoutFailurePresentation = Readonly<{
   title: string;
@@ -67,7 +67,7 @@ export const checkoutErrorPresentation = {
   checkout_not_payable: recoveryRequired,
   checkout_not_canceled: recoveryRequired,
   cart_recovery_required: recoveryRequired,
-  stripe_payments_disabled: { ...paymentFailure, message: 'Stripe payments are unavailable.' },
+  stripe_payments_disabled: { ...paymentFailure, message: checkoutHttpErrors.stripe_payments_disabled.statusMessage },
   missing_order_id: { ...paymentFailure, message: 'Checkout completed without a valid order ID. Please try again.' },
   canceled: { ...paymentFailure, message: 'Payment was canceled. Please try again.' },
   unsupported_payment_type: { ...paymentFailure, message: 'Unsupported payment method. Please try again.' },
