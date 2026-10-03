@@ -1,10 +1,16 @@
 {
   "assessments": [
     {
-      "fingerprint": "14bd19bf3394901e5af36291f487cb05e2563d9b026ea429c3f9fe0cfc9eccea",
+      "fingerprint": "f93ceadd929e0c6d2a25f02c29f96e764dcde862383cbb2029e4a0633320456d",
+      "impact": "none",
+      "reason": "Extract existing static checkout HTTP responses into a typed owner; preserve every observable status, code and message.",
+      "consumers": "Orders new/restart/resume branches now call checkoutErrorResponse with the same code/status/message previously emitted inline. Compatibility fixtures cover all eight migrated responses, and the resume route verifies actual transport output and the disabled gate's lack of recovery calls. useOrder still normalizes the same codes; cartStore and /checkout/fail recovery policy are unchanged. The Stripe presentation now reads the exact same sentence from checkoutHttpErrors; presentation compatibility checks its equality to the transport owner. Authentication, not-found handling, PlaceOrder diagnostics, provider calls, persisted state, branch order, layouts and styles are unchanged. This incremental patch has no observable browser effect; existing affected-flow browser evidence remains applicable. Contract/route/ownership suites and typecheck verify the extraction."
+    },
+    {
+      "fingerprint": "1ac1250a61df8da52a19c3f87b11383d29c282465e87bc1d7a002e2bf9d3326b",
       "impact": "targeted",
       "tests": ["orders"],
-      "reason": "Checkout failure policy and payment presentation change. The orders visual group verifies the representative persisted Order consumer of checkout finalization; direct failure-page and transaction-label consumers are covered by targeted browser evidence outside that matrix.",
+      "reason": "Checkout failure policy and payment presentation change. The orders visual group verifies the representative persisted Order consumer of checkout finalization; direct failure-page cases have targeted browser evidence. Supplemental transaction-label browser evidence is unavailable and explicitly disclosed. The later public response extraction preserves existing copy/statuses/codes.",
       "consumers": "getPaymentStatusById feeds components/client-table/transaction/options.ts, then Transaction columns and Status filters at /dashboard/client through the Transaction History tab. Explicit numeric labels 0-6 stay compatible and unknown values are rejected; contract fixtures prove all known labels stay identical. An extra desktop/mobile transaction-label browser check could not render the table and is explicitly recorded as a verification limitation, not passing evidence. Payments/checkout parsing feeds finalization, compensation, cancellation, resume/restart and local Order payment-state reads. These operations persist Order truth displayed by customer order history, so its existing orders visual group checks the representative dashboard consumer. Known wire/persistence values and normal transitions stay unchanged; affected PostgreSQL replay/recovery tests prove invalid states refuse side effects. Shared public errors flow from orders new/restart/resume through useOrder and cartStore.previousCheckoutError into /checkout/fail; desktop/mobile cart/quote/unknown cases and persisted unknown failure with an order ID verify its copy, actions and safe navigation. cartStore cart/product/optimistic/total behavior is unchanged; no shared layout/styles, catalog, product pricing or cart line rendering changes. Home/search/product/cart screenshots do not exercise these error/state-only changes."
     },
     {
