@@ -13,7 +13,7 @@ Apply these rules to payment state, checkout workflow, paid recovery, public che
 
 ## Executable prevention and verification
 
-`tests/payment-contract-ownership.spec.ts` scans scoped server declarations/producers and UI payment enum lookups in TypeScript and Vue scripts/templates, including named import aliases for payment labels. Negative fixtures prove the guard rejects duplicates and enum-derived labels. This is syntax analysis, not complete type/data-flow analysis: indirect aliases, assertions, and arbitrary producer indirection still require review.
+`tests/payment-contract-ownership.spec.ts` scans scoped server declarations/producers and UI payment enum lookups/known-state defaults in TypeScript and Vue scripts/templates, including named import aliases for payment labels. Negative fixtures prove the guard rejects duplicates, enum-derived labels, and direct known-state defaults that hide absent status. This is syntax analysis, not complete type/data-flow analysis: indirect aliases, assertions, and arbitrary producer indirection still require review.
 
 Typecheck rejects undeclared public codes and incomplete presentation maps. Parser, corrupt-state, application rollback, and serialized HTTP-to-composable tests prove boundary rejection, side-effect refusal, and producer/consumer agreement. Browser tests exercise actual failure navigation and actual label components; helper tests alone do not prove their callers were migrated.
 
