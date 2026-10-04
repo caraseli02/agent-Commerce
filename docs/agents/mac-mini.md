@@ -18,7 +18,7 @@ Prepared 2026-10-04. The controller continues the existing payments and modular-
 
 ## Recovered work and next task
 
-The reviewed chats were “Decompose Review Plan”, “Stripe Adapter Update” and “Review merged pull request”, supplemented by current GitHub issues, PR comments and Git history. Current repository/GitHub state supersedes older chat plans.
+The reviewed chats were “Discuss Codex Models”, “Decompose Review Plan”, “Stripe Adapter Update”, “Review PR progress” and “Review merged pull request”, supplemented by current GitHub issues, PR comments, Git history and the legacy Hermes scheduler/scripts. Current repository/GitHub state supersedes older chat plans.
 
 - #554/#555 and payment-recovery foundations are merged.
 - #582/#589 repaired task decomposition and verification reuse.
@@ -29,6 +29,33 @@ The reviewed chats were “Decompose Review Plan”, “Stripe Adapter Update”
 
 ## Recurring controller
 
-The Codex heartbeat resumes this chat hourly. It checks existing work and external evaluator feedback first, keeps WIP=1, repairs the same PR after FAIL, waits on missing/stale verdicts, and waits for human merge after PASS. It may then claim one eligible payments/system-design child and produce a small verified PR. It stays quiet while waiting and reports meaningful progress or blockers.
+The existing Codex heartbeat resumes this chat hourly, every day, including overnight. Keep one scheduler and one implementation owner. A turn continues its bounded task through verification and PR delivery; the hourly interval is for waking/resuming, not a limit of one edit per hour. Keep Codex open in the logged-in user session. Do not install a second daemon or a second planner/generator schedule.
+
+At the first wake each local day, refresh GitHub/main, inspect previous-day merges and open PRs, and append a concise daily priority/health checkpoint to `tmp/autonomy/events.jsonl` in the primary checkout. Check Node/pnpm, PostgreSQL, auth and space before heavy work. Do not repeat installation or full application checks merely because a new day started.
+
+On every wake, route the active issue first:
+
+1. Inspect the open PR's CI, current-head evaluator reports and inline findings. Pending checks or absent/stale evaluation mean quiet waiting, not implementation failure.
+2. CI failure or evaluator FAIL means a bounded repair on the same issue/branch/PR, followed by the invalidated checks and one strongest delivery gate. Two focused unsuccessful attempts mean a concrete blocker report; avoid rapid repeated retries for persistent auth/quota/provider failures.
+3. Independent exact-head PASS means wait for human merge. After merge, reconcile GitHub labels/feature state/PROGRESS before claiming new work. Resolve ordinary conflicts in the owned branch without resetting unrelated work.
+4. When WIP is clear, choose exactly one unassigned `ready-for-agent` executable issue with satisfied dependencies. Prefer payment critical path #584, then #586; next choose eligible architecture, correctness or demo-flow issues by documented priority. Do not select blocked epics, invent commercial policy or compete for `lane:nightly` work managed elsewhere. Do not idle forever on a blocked payment dependency when another eligible issue can be claimed with WIP clear.
+5. Write the sprint contract, use a clean issue worktree and its own ignored local environment, implement the complete bounded outcome, inspect consumers, verify and publish a PR with acceptance-to-evidence mapping. Keep provider I/O outside retryable transactions and preserve public module boundaries.
+6. Append activity/evidence and waiting state at delivery, repair, evaluation and merge checkpoints. Record unavailable usage as null; desktop activity does not claim API cost accounting. Keep logs out of commits and update durable repo state only when it materially changes.
+
+Sol owns planning, payment/concurrency decisions, integration and delivery. The earlier model-routing discussions support Luna for isolated discovery/mechanical checks and well-defined low-risk work when delegation is authorized; they do not require every model on every issue. The separately operated evaluator is the final checker. Do not launch Astra evaluation or create user-owned chats for ordinary subtasks.
+
+Stay quiet while waiting. Report meaningful delivery, evaluator findings, a completed repair or a required decision. A daily internal checkpoint is not a daily notification.
 
 Before implementation, re-read `AGENTS.md`, `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, the live issue and relevant topic docs. Use the narrowest meaningful checks and one strongest delivery gate with the existing evidence-reuse rules. Do not broaden work to unrelated queue items when payment dependencies are blocked.
+
+## Legacy scheduler cleanup
+
+The migration review found live Hermes jobs still targeting `/Users/work/conductor/repos/Ecas` / `caraseli02/Ecas`. The old setup script can reset/clean that checkout; the planner/generator models fail with 404. Paused through `hermes cron pause`:
+
+- `77c73e447150` — ECAS Dev — Generator.
+- `512230646ed2` — ECAS PM — Issue Dispatcher.
+- `490522a27665` — ECAS Dev Retry Watchdog.
+
+These jobs remain recoverable and are not deleted. Unrelated jobs are preserved. Legacy evaluator `6bf3bc311d58` is unchanged pending clarification of the user's separate evaluator; its last error says its configured model is unavailable. Do not silently treat that failed job as working external evaluation. PR #593 currently has green CI but no independent verdict.
+
+The separate Node chat “Make Node 24 reliable on the Mac mini” verified fresh zsh/bash login and non-login shells in both checkouts, `pnpm exec node`, and repo clean-state commands under Node 24.11.0 / pnpm 10.18.3. No further host edit or Codex restart was required. Old processes can retain their previous PATH.

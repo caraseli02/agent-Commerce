@@ -16,7 +16,8 @@
         "User authorized Mac mini migration on 2026-10-04; evaluator operates separately and posts GitHub comments. Branch codex/mac-mini-autonomy; issue #592.",
         "Both clean checkouts synced to origin/main 60310218. Local PostgreSQL 17 starts at login; ignored .env.local uses a local demo database with mock provider and Stripe Gate A off. Repo-scoped login-shell configuration selects installed Node 24.11.0 and pnpm 10.18.3.",
         "Node 24 fresh init/full gate passes: build/bundle/lint/typecheck/coverage, 97 files / 664 tests / 2 existing todo, state/UI/architecture and preview route smoke. Isolated cart-order-summary Playwright suite passes 3/3. Primary checkout install/migrate passes; GitHub and Codex CLI authentication verified; hourly Codex heartbeat is active. Independent exact-head evaluator verdict remains pending.",
-        "PR #593: https://github.com/caraseli02/agent-Commerce/pull/593. Documentation-only pnpm verify:handoff and normal pre-push pass; setup remains active until separate exact-head evaluation and human merge."
+        "PR #593: https://github.com/caraseli02/agent-Commerce/pull/593. Documentation-only pnpm verify:handoff and normal pre-push pass; setup remains active until separate exact-head evaluation and human merge.",
+        "2026-10-04 daily-loop review: historical model-routing chats and recent merged payment/workflow PRs inspected. Legacy Hermes generator/planner/watchdog paused via CLI; evaluator preserved pending clarification. Existing hourly heartbeat expanded to daily internal planning and eligible issue continuation with WIP=1; ignored desktop journal records unavailable telemetry as null. Node 24 fresh-shell check confirmed by separate Luna chat; PostgreSQL ready and 37 GiB free."
       ]
     },
     {

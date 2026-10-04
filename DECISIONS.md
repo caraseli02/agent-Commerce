@@ -2,6 +2,12 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Daily local developer loop — 2026-10-04
+
+- Keep one hourly Codex controller active around the clock, with an internal daily priority/health checkpoint and WIP=1. Prefer payment children, then other eligible GitHub issues when WIP/dependencies permit; retain separate nightly ownership and human merges.
+- Pause obsolete Hermes planner/generator/watchdog writers rather than running two claim/repair systems against the same repository. Preserve the separately operated evaluator while its identity is clarified.
+- Subscription desktop activity records asynchronous evaluation and unavailable usage explicitly in an ignored append-only journal. Do not fabricate provider cost or force pending evaluation into the strict metered-API ledger schema. Strict ledger validation remains required for metered API controllers.
+
 ## Mac mini controller and external evaluator — 2026-10-04
 
 - Continue payments/system-design work with one bounded executable issue and small verified PRs; the evaluator is separately operated and communicates through GitHub comments/reviews. The controller does not launch Astra or self-certify PASS.

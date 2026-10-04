@@ -28,7 +28,11 @@ If any condition is false, use a bounded agent task with a human in the loop. Do
 
 ## Accountable actor boundary
 
-Once an agent can change state, its controller must keep an append-only JSONL run ledger. Each line is one completed run and must identify:
+Every controller must keep an append-only activity record. A metered API controller uses the strict completed-run ledger below. The Mac mini desktop subscription controller uses `tmp/autonomy/events.jsonl` in the primary checkout because external evaluation is asynchronous and per-run billed-dollar telemetry is not exposed by the app.
+
+Desktop activity events record UTC time, session/actor, issue, branch/head, actions and verification, stop/wait reason, evaluator attribution/verdict/head when available, and telemetry with its source. Use `null` for unavailable token/dollar usage and pending evaluation; never invent a PASS, zero cost or provider usage. Keep failed attempts and later evaluator events in the same append-only history. GitHub links and actual tool/session evidence remain the reviewable record. This event journal is not schema-v1 output for `loop-accountability.mjs`; do not claim its cost summary is verified. If a metered API runner is introduced, it must use the strict validator with actual telemetry.
+
+For that strict ledger, each line is one completed run and must identify:
 
 - the run, acting agent, role, issue, branch, and exact head SHA;
 - allowed read paths, write paths, and commands, plus explicit denials;
