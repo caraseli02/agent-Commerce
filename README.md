@@ -189,6 +189,13 @@ owner-scoped backend resume workflow only when the Stripe gate is enabled. It
 returns a safe payment action or processing state after server revalidation;
 otherwise it returns a stable error without a client secret. The gate remains
 off until #559's shared-database writer proof is complete.
+`POST /api/orders/:id/refresh-payment` is the owner-scoped refresh/return path
+for an existing checkout. When the Stripe gate is enabled, it reconciles the
+known PaymentIntent, applies retry-safe paid or canceled checkout consequences,
+and returns the latest safe checkout state. The response contains no provider
+credentials or client secret. Local payment reads alone are informational and
+never confirm payment; the endpoint is unavailable while the default-off gate
+is disabled.
 
 ## Mock architecture
 
