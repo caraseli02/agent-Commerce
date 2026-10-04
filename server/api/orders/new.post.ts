@@ -1,3 +1,4 @@
+import { checkoutErrorData, checkoutErrorResponse } from '~/types/order/checkout-error';
 import { placeOrder, PlaceOrderError } from '~/server/application/checkout/place-order';
 import { createMockGuestCheckoutUser, getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
 import { requireMockCartUserId } from '~/server/utils/mockCart';
@@ -28,14 +29,7 @@ export default defineEventHandler(async (event) => {
   const reviewedQuoteFingerprint = typeof body.reviewedQuoteFingerprint === 'string' ? body.reviewedQuoteFingerprint.trim() : '';
 
   if (!reviewedCartRevision || !reviewedQuoteFingerprint) {
-    throw createError({
-      statusCode: 409,
-      statusMessage:
-        'Your cart review is no longer current. Return to the order summary to review the latest items and total before placing your order.',
-      data: {
-        code: 'cart_changed',
-      },
-    });
+    throw createError(checkoutErrorResponse('cart_changed'));
   }
 
   try {
@@ -58,9 +52,7 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: error.statusCode,
         statusMessage: error.message,
-        data: {
-          code: error.code,
-        },
+        data: checkoutErrorData(error.code),
       });
     }
 

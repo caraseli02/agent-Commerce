@@ -159,6 +159,30 @@ describe('PlaceOrder application workflow', () => {
     );
   });
 
+  it('exposes typed payment recovery and rolls back preparation before any continuation', async () => {
+    const { dependencies } = makeDependencies();
+    dependencies.payments.preparePayment.mockResolvedValue({
+      kind: 'recovery-required',
+      payment: { paymentId: 'corrupt-payment', orderId: 'existing-order', status: null, amountMinor: 13890, currency: 'RON' },
+    });
+    await expect(createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator())(makeCommand())).rejects.toMatchObject({
+      name: 'PlaceOrderError',
+      code: 'payment_recovery_required',
+      statusCode: 409,
+    });
+    for (const effect of [
+      dependencies.payments.continuePayment,
+      dependencies.payments.completePayment,
+      dependencies.orders.confirmPayment,
+      dependencies.cart.completeCheckout,
+    ])
+      expect(effect).not.toHaveBeenCalled();
+    const database = await getCheckoutDatabase();
+    expect(await database.query('SELECT * FROM checkout_claims')).toEqual([]);
+    expect(await database.query('SELECT * FROM checkout_orders')).toEqual([]);
+    expect(await database.query('SELECT * FROM checkout_reservations')).toEqual([]);
+  });
+
   it('returns the same logical order for the same request, preserving durable side effects while retrying cart cleanup', async () => {
     const { dependencies, createPending } = makeDependencies();
     const placeOrder = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator());

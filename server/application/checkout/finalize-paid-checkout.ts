@@ -1,10 +1,11 @@
+import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
 import { cart } from '~/server/domain/cart';
 import { inventory } from '~/server/domain/inventory';
 import { orders } from '~/server/domain/orders';
 import { payments } from '~/server/domain/payments';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
 
-type ClaimRow = {
+type ClaimRow = PersistedCheckoutState & {
   owner_id: string;
   request_id: string;
   cart_id: string;
@@ -12,8 +13,6 @@ type ClaimRow = {
   order_id: string | null;
   reservation_id: string | null;
   payment_id: string | null;
-  workflow_status: string;
-  paid_recovery_decision: 'ALLOCATE' | 'BACKORDER' | 'REFUND' | null;
 };
 
 type Finalization = { kind: 'retry' } | { kind: 'finalized'; cartId: string; ownerId: string; cartRevision: number };
@@ -23,7 +22,10 @@ export const finalizePaidCheckout = async (input: { paymentId: string; orderId: 
 
   const result = await withCheckoutTransaction(async (): Promise<Finalization> => {
     const database = await getCheckoutDatabase();
-    const [claim] = await database.query<ClaimRow>('SELECT * FROM checkout_claims WHERE payment_id=$1 FOR UPDATE', [input.paymentId]);
+    const [persistedClaim] = await database.query<ClaimRow>('SELECT * FROM checkout_claims WHERE payment_id=$1 FOR UPDATE', [
+      input.paymentId,
+    ]);
+    const claim = parseCheckoutClaim(persistedClaim);
     if (!claim || claim.payment_id !== input.paymentId || claim.order_id !== input.orderId || !claim.reservation_id)
       return { kind: 'retry' };
 

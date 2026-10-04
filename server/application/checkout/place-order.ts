@@ -1,3 +1,5 @@
+import { parseCheckoutClaim, type CheckoutState, type PersistedCheckoutState } from './contracts';
+import type { CheckoutErrorCode } from '~/types/order/checkout-error';
 import { createHash } from 'node:crypto';
 import type { UserInterface } from '~/types/auth/user-interface';
 import { PaymentStatusEnum, PaymentTypeEnum } from '~/types/order-summary/item';
@@ -32,7 +34,7 @@ export type PlaceOrderCommand = {
 export type PlaceOrderResult = ReturnType<typeof toLegacyPaymentResult>;
 export class PlaceOrderError extends Error {
   constructor(
-    public readonly code: string,
+    public readonly code: CheckoutErrorCode,
     public readonly statusCode: number,
     message: string,
   ) {
@@ -51,7 +53,7 @@ type PlaceOrderDependencies = {
     'preparePayment' | 'getPaymentPreparation' | 'continuePayment' | 'completePayment' | 'failPayment'
   >;
 };
-type ClaimRow = {
+type ClaimRow = CheckoutState & {
   owner_id: string;
   request_id: string;
   fingerprint: string;
@@ -60,16 +62,14 @@ type ClaimRow = {
   order_id: string | null;
   reservation_id: string | null;
   payment_id: string | null;
-  workflow_status:
-    | 'prepared'
-    | 'payment_pending'
-    | 'finalized'
-    | 'recovery_required'
-    | 'canceled'
-    | 'compensation_pending'
-    | 'compensation_recovery_required';
-  paid_recovery_decision: 'ALLOCATE' | 'BACKORDER' | 'REFUND' | null;
   result_json: string | null;
+};
+type PersistedClaimRow = Omit<ClaimRow, keyof CheckoutState> & PersistedCheckoutState;
+const requireKnownClaim = (row: PersistedClaimRow | undefined): ClaimRow | null => {
+  if (!row) return null;
+  const claim = parseCheckoutClaim(row);
+  if (!claim) throw new PlaceOrderError('payment_recovery_required', 409, 'The persisted checkout state requires recovery.');
+  return claim;
 };
 export type PlaceOrderCoordinator = ReturnType<typeof createPlaceOrderCoordinator>;
 
@@ -133,11 +133,11 @@ const requestFingerprint = (command: PlaceOrderCommand) =>
 export const createPlaceOrderCoordinator = () => ({
   async lookup(ownerId: string, requestKey: string, fingerprint: string): Promise<ClaimRow | null> {
     const database = await getCheckoutDatabase();
-    const rows = await database.query<ClaimRow>(
+    const rows = await database.query<PersistedClaimRow>(
       `SELECT claim.* FROM checkout_claim_aliases alias JOIN checkout_claims claim ON claim.owner_id = alias.owner_id AND claim.request_id = alias.claim_request_id WHERE alias.owner_id = $1 AND alias.request_id = $2`,
       [ownerId, requestKey],
     );
-    const claim = rows[0];
+    const claim = requireKnownClaim(rows[0]);
     if (!claim) return null;
     const aliases = await database.query<{ fingerprint: string }>(
       'SELECT fingerprint FROM checkout_claim_aliases WHERE owner_id = $1 AND request_id = $2',
@@ -153,15 +153,17 @@ export const createPlaceOrderCoordinator = () => ({
   },
   async lookupSemantic(ownerId: string, cartId: string, cartRevision: number): Promise<ClaimRow | null> {
     const database = await getCheckoutDatabase();
-    const rows = await database.query<ClaimRow>(
+    const rows = await database.query<PersistedClaimRow>(
       'SELECT * FROM checkout_claims WHERE owner_id = $1 AND cart_id = $2 AND cart_revision = $3',
       [ownerId, cartId, cartRevision],
     );
-    return rows[0] ?? null;
+    return requireKnownClaim(rows[0]);
   },
 });
 
-const requirePreparedClaim = (claim: ClaimRow) => {
+const requirePreparedClaim = (row: ClaimRow) => {
+  const claim = parseCheckoutClaim(row);
+  if (!claim) throw new PlaceOrderError('payment_recovery_required', 409, 'The persisted checkout state requires recovery.');
   if (!claim.order_id || !claim.reservation_id || !claim.payment_id)
     throw new PlaceOrderError('checkout_repair_required', 500, 'The persisted checkout claim is incomplete and requires repair.');
   return { ...claim, order_id: claim.order_id, reservation_id: claim.reservation_id, payment_id: claim.payment_id };
@@ -322,19 +324,27 @@ export const createPlaceOrderUseCase =
           legacyPaymentType: resolvePaymentType(command.order),
           legacyUseExistingPaymentMethod: Boolean(command.order.stripeCardId),
         });
+        if (paymentResult.kind === 'recovery-required')
+          throw new PlaceOrderError('payment_recovery_required', 409, 'The persisted Payment status requires recovery.');
         await database.execute(
           `UPDATE checkout_claims SET order_id=$1,reservation_id=$2,payment_id=$3,workflow_status='payment_pending',updated_at=$4 WHERE owner_id=$5 AND request_id=$6`,
           [order.orderId, reservationResult.reservation.id, paymentResult.payment.paymentId, new Date().toISOString(), ownerId, requestKey],
         );
-        return (
-          await database.query<ClaimRow>('SELECT * FROM checkout_claims WHERE owner_id=$1 AND request_id=$2', [ownerId, requestKey])
-        )[0]!;
+        return requireKnownClaim(
+          (
+            await database.query<PersistedClaimRow>('SELECT * FROM checkout_claims WHERE owner_id=$1 AND request_id=$2', [
+              ownerId,
+              requestKey,
+            ])
+          )[0],
+        )!;
       });
     }
 
     const prepared = requirePreparedClaim(claim);
     let payment = await dependencies.payments.getPaymentPreparation(prepared.payment_id);
     if (!payment) throw new PlaceOrderError('checkout_repair_required', 500, 'The persisted checkout Payment is missing.');
+    if (!payment.status) throw new PlaceOrderError('payment_recovery_required', 409, 'The persisted Payment status requires recovery.');
     const completeCartCheckout = async () => {
       try {
         await withCheckoutTransaction(async () => {
@@ -390,10 +400,11 @@ export const createPlaceOrderUseCase =
     try {
       await withCheckoutTransaction(async () => {
         const database = await getCheckoutDatabase();
-        const [current] = await database.query<ClaimRow>('SELECT * FROM checkout_claims WHERE owner_id=$1 AND request_id=$2 FOR UPDATE', [
-          prepared.owner_id,
-          prepared.request_id,
-        ]);
+        const [persistedCurrent] = await database.query<PersistedClaimRow>(
+          'SELECT * FROM checkout_claims WHERE owner_id=$1 AND request_id=$2 FOR UPDATE',
+          [prepared.owner_id, prepared.request_id],
+        );
+        const current = parseCheckoutClaim(persistedCurrent);
         if (
           !current ||
           current.paid_recovery_decision === 'REFUND' ||
@@ -417,8 +428,8 @@ export const createPlaceOrderUseCase =
         const database = await getCheckoutDatabase();
         await database.execute(
           `UPDATE checkout_claims SET workflow_status='recovery_required',updated_at=$1
-            WHERE owner_id=$2 AND request_id=$3 AND workflow_status NOT IN ('finalized','canceled','compensation_pending','compensation_recovery_required')
-              AND paid_recovery_decision IS DISTINCT FROM 'REFUND'`,
+            WHERE owner_id=$2 AND request_id=$3 AND workflow_status IN ('prepared','payment_pending','recovery_required')
+              AND (paid_recovery_decision IS NULL OR paid_recovery_decision IN ('ALLOCATE','BACKORDER'))`,
           [new Date().toISOString(), prepared.owner_id, prepared.request_id],
         );
       });

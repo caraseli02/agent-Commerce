@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { ref } from 'vue';
 import { PaymentTypeEnum } from '../types';
+import { checkoutFailurePresentation } from '../helpers/checkout-error-presentation';
+import { createError } from 'h3';
+import { checkoutErrorResponse } from '../types/order/checkout-error';
 import { __setMockApiClient, __setMockOrdersApi, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const routerPush = vi.fn();
@@ -106,6 +109,41 @@ describe('checkout order composable flow boundary', () => {
         };
       },
     });
+  });
+
+  it.each([
+    ['stripe_payments_disabled', 'Payment failed', 'Try again'],
+    ['checkout_not_payable', 'Checkout needs review', 'Review checkout'],
+    ['inventory_unavailable', 'Checkout needs review', 'Review updated cart'],
+    ['payment_recovery_required', 'Checkout needs review', 'Review checkout'],
+    ['checkout_not_canceled', 'Checkout needs review', 'Review checkout'],
+    ['cart_empty', 'Your cart is empty', 'Review cart'],
+    ['cart_recovery_required', 'Checkout needs review', 'Review checkout'],
+    ['cart_changed', 'Your cart changed', 'Review updated cart'],
+  ] as const)('normalizes server HTTP %s through checkout into its buyer policy', async (code, title, action) => {
+    const payload = createError(checkoutErrorResponse(code)).toJSON();
+    __setMockOrdersApi({});
+    __setMockApiClient(async <T>(resource: string): Promise<T> => {
+      if (resource === '/orders/new') throw { data: JSON.parse(JSON.stringify(payload)) };
+      if (resource === '/orders/validate-address') return { data: { valid: true } } as T;
+      if (resource === '/cart') return { status: 'success', data: { _id: 'cart', products: [] } } as T;
+      throw new Error(`Unexpected request: ${resource}`);
+    });
+    const { useOrder } = await import('../composables/useOrder');
+    const { useCartStore } = await import('../store/cartStore');
+    await useOrder().makeCheckout(
+      1,
+      'cart',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      { type: PaymentTypeEnum.Cash },
+      '',
+      { subtotal: 10, total: 19.99, products: [] },
+    );
+    expect(useCartStore().previousCheckoutError?.code).toBe(code);
+    expect(checkoutFailurePresentation(useCartStore().previousCheckoutError)).toMatchObject({ title, action });
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
   });
 
   it('submits checkout through the orders API adapter', async () => {
@@ -304,9 +342,41 @@ describe('checkout order composable flow boundary', () => {
     expect(cartStore.previousCheckoutError).toMatchObject({
       message: 'Gateway unreachable',
       type: 'Error',
-      code: 'Error',
+      code: 'checkout_exception',
+      diagnosticCode: 'Error',
     });
     expect(consoleError).toHaveBeenCalledWith('Checkout failed', expect.any(Error));
+    expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
+    consoleError.mockRestore();
+  });
+
+  it.each([
+    { code: { malformed: 'cart_changed' }, expectedDiagnostic: undefined },
+    { code: 'future_provider_code', expectedDiagnostic: 'future_provider_code' },
+  ])('normalizes nested untrusted transport code $code without trusting diagnostic copy', async ({ code, expectedDiagnostic }) => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    __setMockApiClient(async <T>(resource: string, options?: { method?: string }): Promise<T> => {
+      if (resource === '/orders/new') throw { data: { data: { code, message: 'Your cart changed: private diagnostic' } } };
+      if (resource === '/orders/validate-address') return { data: { valid: true } } as T;
+      if (resource === '/cart') return { status: 'success', data: { products: [] } } as T;
+      throw new Error(`Unexpected request: ${options?.method} ${resource}`);
+    });
+    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../composables/useOrder');
+    await useOrder().makeCheckout(
+      1,
+      'cart',
+      { service: { id: 1 }, price: { total: 9.99, noVat: 9.99 } },
+      null,
+      null,
+      { type: PaymentTypeEnum.Cash },
+      '',
+      { products: [] },
+    );
+    const failure = useCartStore().previousCheckoutError;
+    expect(failure).toMatchObject({ code: 'checkout_exception', message: 'Your cart changed: private diagnostic' });
+    expect(failure?.diagnosticCode).toBe(expectedDiagnostic);
+    expect(checkoutFailurePresentation(failure)).toMatchObject({ title: 'Payment failed', reviewRequired: false, cancelOnLeave: false });
     expect(routerPush).toHaveBeenCalledWith({ path: '/checkout/fail' });
     consoleError.mockRestore();
   });

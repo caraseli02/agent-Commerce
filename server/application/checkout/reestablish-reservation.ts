@@ -1,13 +1,13 @@
+import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
 import { inventory } from '~/server/domain/inventory';
 import { orders } from '~/server/domain/orders';
 import { payments } from '~/server/domain/payments';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
 
-type ClaimRow = {
+type ClaimRow = PersistedCheckoutState & {
   request_id: string;
   reservation_id: string | null;
   payment_id: string | null;
-  workflow_status: string;
 };
 
 export type ReestablishCheckoutReservationResult =
@@ -23,11 +23,13 @@ export const reestablishCheckoutReservation = async (input: {
 
   return withCheckoutTransaction(async () => {
     const database = await getCheckoutDatabase();
-    const [claim] = await database.query<ClaimRow>(
-      'SELECT request_id, reservation_id, payment_id, workflow_status FROM checkout_claims WHERE owner_id=$1 AND order_id=$2 FOR UPDATE',
+    const [persistedClaim] = await database.query<ClaimRow>(
+      'SELECT request_id, reservation_id, payment_id, workflow_status,paid_recovery_decision FROM checkout_claims WHERE owner_id=$1 AND order_id=$2 FOR UPDATE',
       [input.ownerId, input.orderId],
     );
-    if (!claim) return { kind: 'not-found' };
+    const claim = parseCheckoutClaim(persistedClaim);
+    if (!persistedClaim) return { kind: 'not-found' };
+    if (!claim) return { kind: 'recovery-required' };
     if (!claim.reservation_id || !claim.payment_id) return { kind: 'recovery-required' };
     if (claim.workflow_status !== 'payment_pending' && claim.workflow_status !== 'recovery_required') return { kind: 'not-payable' };
 
@@ -36,6 +38,7 @@ export const reestablishCheckoutReservation = async (input: {
     if (
       !order ||
       !payment ||
+      !payment.status ||
       payment.orderId !== input.orderId ||
       payment.amountMinor !== order.grandTotalMinor ||
       payment.currency !== order.currency

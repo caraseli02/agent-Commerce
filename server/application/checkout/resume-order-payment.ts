@@ -1,6 +1,7 @@
+import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
 import { inventory } from '~/server/domain/inventory';
 import { orders } from '~/server/domain/orders';
-import { payments, type InitiatePaymentResult } from '~/server/domain/payments';
+import { payments, type InitiatePaymentResult, type PaymentStatus } from '~/server/domain/payments';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
 import { reestablishCheckoutReservation } from './reestablish-reservation';
 import { stripePayments } from './stripe-payment';
@@ -15,7 +16,7 @@ export type ResumeOrderPaymentResult =
   | { kind: 'not-found' | 'not-payable' | 'recovery-required' }
   | { kind: 'unavailable'; productId: string; requested: number; available: number };
 
-type ClaimRow = { reservation_id: string | null; payment_id: string | null; workflow_status: string };
+type ClaimRow = PersistedCheckoutState & { reservation_id: string | null; payment_id: string | null };
 
 const checkPayableCheckout = async (input: {
   ownerId: string;
@@ -23,14 +24,16 @@ const checkPayableCheckout = async (input: {
   reservationId: string;
   paymentId?: string;
 }): Promise<
-  { kind: 'ready'; paymentId: string; paymentStatus: 'PENDING' | 'PROCESSING' } | { kind: 'not-payable' | 'recovery-required' }
+  | { kind: 'ready'; paymentId: string; paymentStatus: Extract<PaymentStatus, 'PENDING' | 'PROCESSING'> }
+  | { kind: 'not-payable' | 'recovery-required' }
 > =>
   withCheckoutTransaction(async () => {
     const database = await getCheckoutDatabase();
-    const [claim] = await database.query<ClaimRow>(
-      'SELECT reservation_id,payment_id,workflow_status FROM checkout_claims WHERE owner_id=$1 AND order_id=$2 FOR UPDATE',
+    const [persistedClaim] = await database.query<ClaimRow>(
+      'SELECT reservation_id,payment_id,workflow_status,paid_recovery_decision FROM checkout_claims WHERE owner_id=$1 AND order_id=$2 FOR UPDATE',
       [input.ownerId, input.orderId],
     );
+    const claim = parseCheckoutClaim(persistedClaim);
     if (
       !claim ||
       claim.reservation_id !== input.reservationId ||

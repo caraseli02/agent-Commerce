@@ -8,6 +8,13 @@ Use this file for durable cross-session decisions that should survive context re
 - The nightly lane never implements `area:payments` issues or touches payment, checkout or migration paths. Its evaluator independently reviews payment PRs in draft or ready state; draft verdicts are comment-only.
 - The nightly generator and evaluator are defined in `.factory/` and read from `origin/main` on every run. Claude Desktop local routines on the Mac mini only schedule them; behavior changes go through reviewed PRs, and the agents may not edit the factory themselves.
 
+## Payment contract ownership and regression policy — 2026-10-03
+
+- Payment states belong to Payments; workflow/recovery decisions belong to checkout; public errors use a pure shared contract; presentation uses exhaustive mappings. Preserve persisted/wire values and legacy FAILED; Refund remains separate from historical PAID.
+- Parse untrusted state fields, distinguish corruption from missing rows, and preserve conservative recovery. Return structured recovery outcomes across module boundaries.
+- Require executable ownership, actual producer/consumer compatibility, and unknown-input regressions. Cover Vue label callers and real failure-page navigation; helper tests alone cannot certify consumer migration. Clear local failure context independently of remote cancellation.
+- Durable rules live in `docs/agents/payment-contracts.md`; issue/session plans and model assignments belong in GitHub or the ignored verification record. Use one strongest delivery gate and matching pre-push evidence reuse.
+
 ## Bounded payment tasks and verification reuse — 2026-10-02
 
 - #557/#558 are fixed tracking epics; native children #584–#588 own the remaining acceptance criteria. WIP=1 applies to an executable child, normally closed by one coherent PR. Evaluator PASS refers to the complete child, not an anonymous partial slice. New unrelated findings become separate backlog issues.
