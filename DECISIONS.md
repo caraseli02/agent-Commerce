@@ -2,18 +2,11 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
-## Daily local developer loop — 2026-10-04
+## External PR evaluation — 2026-10-04
 
-- Keep one hourly Codex controller active around the clock, with an internal daily priority/health checkpoint and WIP=1. Prefer payment children, then other eligible GitHub issues when WIP/dependencies permit; retain separate nightly ownership and human merges.
-- Pause obsolete Hermes planner/generator/watchdog writers rather than running two claim/repair systems against the same repository. Preserve the separately operated evaluator while its identity is clarified.
-- Subscription desktop activity records asynchronous evaluation and unavailable usage explicitly in an ignored append-only journal. Do not fabricate provider cost or force pending evaluation into the strict metered-API ledger schema. Strict ledger validation remains required for metered API controllers.
-
-## Mac mini controller and external evaluator — 2026-10-04
-
-- Continue payments/system-design work with one bounded executable issue and small verified PRs; the evaluator is separately operated and communicates through GitHub comments/reviews. The controller does not launch Astra or self-certify PASS.
-- Verdicts must explicitly cover the current PR SHA, identify independent evaluation and supply the existing evidence/rubric. New commits invalidate old verdicts. FAIL repairs the same PR; PASS waits for human merge; ambiguous/BLOCKED reports require clarification.
-- Use local PostgreSQL 17 and repo-scoped Node 24 for unattended Mac mini work. Keep mock mode and Stripe activation off. The hourly Codex heartbeat depends on the running desktop app/user session; it does not install or replace PR #591's proposed nightly routines.
-- Setup and recovered queue context live in `docs/agents/mac-mini.md`.
+- The controller plans/generates; an evaluator operated separately communicates through GitHub comments/reviews. The controller does not launch Astra evaluation or self-certify PASS.
+- Verdicts must cover the current PR SHA, identify independent evaluation and supply the existing evidence/rubric. New commits invalidate old verdicts. FAIL repairs the same PR; PASS waits for human merge; ambiguous/BLOCKED reports require clarification.
+- Machine setup is a local operational concern, not an executable product issue or a prerequisite documentation PR. Shared workflow proposals do not occupy implementation WIP unless explicitly claimed as a GitHub task.
 
 ## Payment contract ownership and regression policy — 2026-10-03
 

@@ -108,7 +108,6 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 - `docs/agents/issue-tracker.md` — GitHub issue pickup/claim/PR workflow
 - `docs/agents/triage-labels.md` — canonical queue labels
 - `docs/agents/autonomous-workflow.md` — planner/generator/evaluator split and evaluator verdict contract
-- `docs/agents/mac-mini.md` — local toolchain/database setup, resumed payment queue, and external evaluator handoff
 - `docs/agents/domain.md` — where domain context lives
 - `docs/agents/session-lifecycle.md` — initialization, WIP=1, blocker protocol, clean handoff
 - `docs/agents/verification.md` — done gates, E2E/runtime verification, evaluator rubric
