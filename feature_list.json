@@ -90,10 +90,11 @@
       "validation": "Bounded provider reconciliation, retry-safe application consequences and fresh owner-safe state through HTTP; credentials withheld.",
       "status": "active",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/584; claimed on codex/584-payment-refresh-return.",
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/584; PR https://github.com/caraseli02/agent-Commerce/pull/594; branch codex/584-payment-refresh-return. Sole active feature; fresh CI, external exact-head evaluation and human merge pending.",
         "Claimed implementation complete; delivery verification is in progress. The feature remains active until independent exact-head evaluation and human merge.",
         "Node 24.11.0 / pnpm 10.18.3 fresh initialization passed (97 files / 664 tests / 2 pre-existing deferred tests). Current refresh/state suites pass 61/61, including 26 real HTTP/PostgreSQL refresh cases; existing focused reconciliation/finalization/terminalization suites passed. Typecheck passed after test typing repair. Delivery/runtime verification and external exact-head verdict pending.",
-        "Repaired fresh pnpm verify:handoff --fresh passed at a8f56190: 98 files / 690 tests / 2 existing deferred tests, build/bundle/lint/typecheck, feature/UI/architecture validators, preview smoke and clean state. Isolated current-built Nitro401/503/GET404 and selected mock checkout Playwright1/1 passed. Provider gate stayed off; real H3/PostgreSQL tests cover enabled composition. Selected cart/order pre-push visuals and publication next; independent verdict pending."
+        "Repaired fresh pnpm verify:handoff --fresh passed at a8f56190: 98 files / 690 tests / 2 existing deferred tests, build/bundle/lint/typecheck, feature/UI/architecture validators, preview smoke and clean state. Isolated current-built Nitro401/503/GET404 and selected mock checkout Playwright1/1 passed. Provider gate stayed off; real H3/PostgreSQL tests cover enabled composition. Selected cart/order pre-push visuals and publication next; independent verdict pending.",
+        "Normal pre-push at 30264428 reused matching less-than-four-hour application evidence and reran state/UI validators; cart desktop/mobile and mobile customer-orders macOS visuals passed 3/3 with unchanged baselines. PR #594 is ready for the separate evaluator; no independent score or PASS is inferred from generator checks."
       ]
     },
     {
