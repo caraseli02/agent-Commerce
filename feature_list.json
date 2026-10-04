@@ -91,8 +91,8 @@
       "status": "active",
       "evidence": [
         "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/584; claimed on codex/584-payment-refresh-return.",
-        "Initialization is pending. In progress: owner-scoped refresh/return application workflow, HTTP route, and focused tests. No implementation checks or delivery results are recorded yet.",
-        "Node 24.11.0 / pnpm 10.18.3 fresh initialization passed (97 files / 664 tests / 2 TODO). Current refresh/state suites pass 61/61, including 26 real HTTP/PostgreSQL refresh cases; existing focused reconciliation/finalization/terminalization suites passed. Typecheck passed after test typing repair. Delivery/runtime verification and external exact-head verdict pending."
+        "Claimed implementation complete; delivery verification is in progress. The feature remains active until independent exact-head evaluation and human merge.",
+        "Node 24.11.0 / pnpm 10.18.3 fresh initialization passed (97 files / 664 tests / 2 pre-existing deferred tests). Current refresh/state suites pass 61/61, including 26 real HTTP/PostgreSQL refresh cases; existing focused reconciliation/finalization/terminalization suites passed. Typecheck passed after test typing repair. Delivery/runtime verification and external exact-head verdict pending."
       ]
     },
     {
