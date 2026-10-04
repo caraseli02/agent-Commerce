@@ -291,10 +291,21 @@ export enum PaymentStatusEnum {
   Refunded = 6,
 }
 
-export const getPaymentStatusById = (enumValue: number): string | null => {
-  const entry = Object.entries(PaymentStatusEnum).find(([, value]) => value === enumValue);
-  return entry?.[0] ?? null;
-};
+export const unknownPaymentStatusLabel = 'Unknown';
+export const paymentStatusLabels = {
+  [PaymentStatusEnum.Pending]: 'Pending',
+  [PaymentStatusEnum.Paid]: 'Paid',
+  [PaymentStatusEnum.Canceled]: 'Canceled',
+  [PaymentStatusEnum.Declined]: 'Declined',
+  [PaymentStatusEnum.Failed]: 'Failed',
+  [PaymentStatusEnum.Refunding]: 'Refunding',
+  [PaymentStatusEnum.Refunded]: 'Refunded',
+} satisfies Record<PaymentStatusEnum, string>;
+
+export const getPaymentStatusById = (enumValue: unknown): string | null =>
+  typeof enumValue === 'number' && Object.hasOwn(paymentStatusLabels, enumValue)
+    ? paymentStatusLabels[enumValue as PaymentStatusEnum]
+    : null;
 
 export interface PaymentStatusOption {
   label: string | null;

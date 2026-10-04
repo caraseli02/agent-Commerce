@@ -1,13 +1,12 @@
+import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
 import { orders } from '~/server/domain/orders';
 import { payments } from '~/server/domain/payments';
 import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
 
-type CompensationClaim = {
+type CompensationClaim = PersistedCheckoutState & {
   order_id: string | null;
   reservation_id: string | null;
   payment_id: string | null;
-  workflow_status: string;
-  paid_recovery_decision: 'ALLOCATE' | 'BACKORDER' | 'REFUND' | null;
 };
 
 // Explicitly commit the REFUND branch selected by an application caller. The
@@ -18,9 +17,10 @@ export const commitRefundCompensation = async (input: {
 }): Promise<{ kind: 'established' | 'conflict' }> =>
   withCheckoutTransaction(async () => {
     const database = await getCheckoutDatabase();
-    const [claim] = await database.query<CompensationClaim>('SELECT * FROM checkout_claims WHERE payment_id=$1 FOR UPDATE', [
+    const [persistedClaim] = await database.query<CompensationClaim>('SELECT * FROM checkout_claims WHERE payment_id=$1 FOR UPDATE', [
       input.paymentId,
     ]);
+    const claim = parseCheckoutClaim(persistedClaim);
     if (!claim || claim.order_id !== input.orderId || claim.payment_id !== input.paymentId || !claim.reservation_id)
       return { kind: 'conflict' };
     const payment = await payments.getPaymentPreparation(input.paymentId);

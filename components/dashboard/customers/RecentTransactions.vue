@@ -70,7 +70,7 @@ import ArrowSquareRightIcon from '@/assets/icons/dashboard/arrow-square-right.sv
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { fetchCustomerRecentTransactions } from '~/composables/api/customer-profile';
-import { PaymentStatusEnum } from '~/types';
+import { getPaymentStatusById, unknownPaymentStatusLabel } from '~/types/order-summary/item';
 import type { TransactionInterface } from '~/types/dashboard/transaction';
 
 const error = ref(false);
@@ -114,7 +114,7 @@ const fetchRecentTransactions = async () => {
     const transactionInfo = {} as OrderInfo;
 
     transactionInfo.amount = `${transaction.amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} Lei`;
-    transactionInfo.status = `${PaymentStatusEnum[transaction.status]}`;
+    transactionInfo.status = getPaymentStatusById(transaction.status) ?? unknownPaymentStatusLabel;
     recentTransactionArray.push(transactionInfo);
   });
 };

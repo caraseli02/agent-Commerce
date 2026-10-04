@@ -1,0 +1,263 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
+import ts from 'typescript';
+import { NodeTypes, parse } from '@vue/compiler-dom';
+import { parse as parseSfc } from 'vue/compiler-sfc';
+import { describe, expect, it } from 'vitest';
+import { paymentStatuses } from '~/server/domain/payments/contracts';
+import { checkoutWorkflowStatuses, paidRecoveryDecisions } from '~/server/application/checkout/contracts';
+import { PlaceOrderError } from '~/server/application/checkout/place-order';
+import { checkoutErrorData, checkoutErrorResponse } from '~/types/order/checkout-error';
+
+// Syntax analysis guards production declarations, not SQL predicates, diagnostics, or fixtures.
+const groups: readonly (readonly string[])[] = [paymentStatuses, checkoutWorkflowStatuses, paidRecoveryDecisions];
+const containsBroadString = (type: ts.TypeNode | undefined): boolean =>
+  Boolean(type && (type.kind === ts.SyntaxKind.StringKeyword || (ts.isUnionTypeNode(type) && type.types.some(containsBroadString))));
+const violations = (file: string, text: string): string[] => {
+  if (['server/domain/payments/contracts.ts', 'server/application/checkout/contracts.ts'].includes(file)) return [];
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+  const problems: string[] = [];
+  const initializers = new Map<string, ts.Expression>();
+  const collect = (node: ts.Node) => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer)
+      initializers.set(node.name.text, node.initializer);
+    ts.forEachChild(node, collect);
+  };
+  collect(source);
+  const containsPublicCode = (value: ts.Expression, seen = new Set<string>(), includeTypedProducer = false): boolean => {
+    if (includeTypedProducer && ts.isCallExpression(value) && value.expression.getText(source) === 'checkoutErrorData') return true;
+    if (ts.isIdentifier(value)) {
+      if (seen.has(value.text)) return false;
+      seen.add(value.text);
+      const initializer = initializers.get(value.text);
+      return initializer ? containsPublicCode(initializer, seen, includeTypedProducer) : false;
+    }
+    return (
+      ts.isObjectLiteralExpression(value) &&
+      value.properties.some(
+        (property) =>
+          (ts.isPropertyAssignment(property) && property.name.getText(source).replaceAll("'", '').replaceAll('"', '') === 'code') ||
+          (ts.isSpreadAssignment(property) && containsPublicCode(property.expression, seen, includeTypedProducer)),
+      )
+    );
+  };
+  const visit = (node: ts.Node) => {
+    if (ts.isTypeAliasDeclaration(node) || ts.isPropertySignature(node) || ts.isVariableDeclaration(node)) {
+      const type = node.type;
+      if (type && ts.isUnionTypeNode(type)) {
+        const values = type.types.flatMap((entry) =>
+          ts.isLiteralTypeNode(entry) && ts.isStringLiteral(entry.literal) ? [entry.literal.text] : [],
+        );
+        if (groups.some((group) => values.filter((value) => group.includes(value)).length >= 2))
+          problems.push('Import the module-owned state contract instead of redeclaring a state union.');
+      }
+      if (
+        ts.isPropertySignature(node) &&
+        node.name &&
+        ['workflow_status', 'paid_recovery_decision'].includes(node.name.getText(source)) &&
+        containsBroadString(type)
+      )
+        problems.push('Use the checkout owner type after parsing; raw storage must be unknown, never string.');
+      if (ts.isTypeAliasDeclaration(node) && /PaymentRow$/.test(node.name.text) && type && ts.isTypeLiteralNode(type)) {
+        if (
+          type.members.some(
+            (member) => ts.isPropertySignature(member) && member.name.getText(source) === 'status' && containsBroadString(member.type),
+          )
+        )
+          problems.push('Payment rows must parse unknown storage into the Payments owner contract.');
+      }
+    }
+    if (
+      ts.isCallExpression(node) &&
+      node.expression.getText(source) === 'createError' &&
+      node.arguments[0] &&
+      ts.isObjectLiteralExpression(node.arguments[0])
+    ) {
+      const data = node.arguments[0].properties.find(
+        (property) =>
+          (ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)) && property.name.getText(source) === 'data',
+      );
+      if (
+        data &&
+        ((ts.isPropertyAssignment(data) && containsPublicCode(data.initializer)) ||
+          (ts.isShorthandPropertyAssignment(data) && containsPublicCode(data.name)))
+      )
+        problems.push('Public checkout error data must use the typed checkoutErrorData producer.');
+      const message = node.arguments[0].properties.find(
+        (property) => ts.isPropertyAssignment(property) && property.name.getText(source) === 'statusMessage',
+      );
+      if (
+        data &&
+        ((ts.isPropertyAssignment(data) && containsPublicCode(data.initializer, new Set(), true)) ||
+          (ts.isShorthandPropertyAssignment(data) && containsPublicCode(data.name, new Set(), true))) &&
+        message &&
+        ts.isPropertyAssignment(message) &&
+        (ts.isStringLiteral(message.initializer) || ts.isNoSubstitutionTemplateLiteral(message.initializer))
+      )
+        problems.push('Static public checkout responses must use the shared checkoutErrorResponse catalog.');
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return problems;
+};
+const sourceFiles = (directory: string): string[] =>
+  readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(directory, entry.name);
+    return entry.isDirectory() ? sourceFiles(file) : file.endsWith('.ts') ? [file] : [];
+  });
+
+const uiSourceFiles = (directory: string): string[] =>
+  readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(directory, entry.name);
+    return entry.isDirectory() ? uiSourceFiles(file) : /\.(ts|vue)$/.test(file) ? [file] : [];
+  });
+const labelViolations = (file: string, text: string): string[] => {
+  // Both script blocks and template expressions are scanned; enum members remain valid color/style keys.
+  const templateExpressions: string[] = [];
+  const descriptor = file.endsWith('.vue') ? parseSfc(text, { filename: file }).descriptor : undefined;
+  if (file.endsWith('.vue')) {
+    if (descriptor?.template) {
+      const collect = (value: unknown): void => {
+        if (!value || typeof value !== 'object') return;
+        const node = value as { type?: number; isStatic?: boolean; content?: string };
+        if (node.type === NodeTypes.SIMPLE_EXPRESSION && !node.isStatic && typeof node.content === 'string')
+          templateExpressions.push(node.content);
+        for (const [key, child] of Object.entries(value)) {
+          if (key === 'loc') continue;
+          if (Array.isArray(child)) child.forEach(collect);
+          else collect(child);
+        }
+      };
+      collect(parse(descriptor.template.content));
+    }
+  }
+  const source = ts.createSourceFile(
+    file,
+    file.endsWith('.vue')
+      ? [descriptor?.script?.content, descriptor?.scriptSetup?.content].filter(Boolean).join('\n') + '\n;' + templateExpressions.join('\n;')
+      : text,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  const bindings = new Set(['PaymentStatusEnum']);
+  const problems: string[] = [];
+  const imports = (node: ts.Node) => {
+    if (ts.isImportSpecifier(node) && (node.propertyName ?? node.name).text === 'PaymentStatusEnum') bindings.add(node.name.text);
+    ts.forEachChild(node, imports);
+  };
+  imports(source);
+  const visit = (node: ts.Node) => {
+    if (ts.isElementAccessExpression(node) && ts.isIdentifier(node.expression) && bindings.has(node.expression.text))
+      problems.push('Use getPaymentStatusById for payment labels; enum reverse lookup can display unknown values as known states.');
+    if (
+      ts.isBinaryExpression(node) &&
+      [ts.SyntaxKind.QuestionQuestionToken, ts.SyntaxKind.BarBarToken].includes(node.operatorToken.kind) &&
+      ts.isPropertyAccessExpression(node.right) &&
+      ts.isIdentifier(node.right.expression) &&
+      bindings.has(node.right.expression.text)
+    )
+      problems.push('Do not replace absent or unknown payment state with a known enum state in UI consumers.');
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return problems;
+};
+
+describe('Payment contract ownership regression gate', () => {
+  it('rejects an injected duplicate Payment, workflow or recovery definition', () => {
+    for (const union of ["'PENDING' | 'PAID' | 'FAILED'", "'payment_pending' | 'finalized'", "'ALLOCATE' | 'BACKORDER' | 'REFUND'"])
+      expect(violations('server/application/checkout/duplicate.ts', `type Duplicate = ${union};`)).not.toEqual([]);
+    expect(violations('server/application/checkout/duplicate.ts', 'type Claim = { workflow_status: string };')).not.toEqual([]);
+    expect(violations('server/application/checkout/duplicate.ts', 'type Claim = { paid_recovery_decision: string | null };')).not.toEqual(
+      [],
+    );
+    expect(violations('server/application/checkout/duplicate.ts', 'type Claim = { workflow_status: string | undefined };')).not.toEqual([]);
+    expect(violations('server/domain/payments/duplicate.ts', 'type PaymentRow = { status: string };')).not.toEqual([]);
+    expect(violations('server/application/checkout/nested/contracts.ts', "type Duplicate = 'ALLOCATE' | 'REFUND';")).not.toEqual([]);
+    expect(violations('server/domain/payments/duplicate.ts', "let status: 'PENDING' | 'PAID';")).not.toEqual([]);
+  });
+  it('allows SQL/discriminants, owner imports, and provider-owned status', () => {
+    expect(
+      violations(
+        'server/domain/payments/consumer.ts',
+        `import type { PaymentStatus } from './contracts'; type PaymentRow = { status: PaymentStatus }; type StripePaymentIntent = { status: string }; const sql = "status IN ('PENDING','PAID')"; type Result = {kind:'prepared'|'existing'};`,
+      ),
+    ).toEqual([]);
+  });
+  it('rejects an untyped public error producer', () => {
+    expect(violations('server/api/orders/duplicate.ts', "createError({data:{code:'invented_error'}})")).not.toEqual([]);
+    expect(violations('server/api/orders/duplicate.ts', "const data={code:'invented_error'}; createError({data});")).not.toEqual([]);
+    expect(
+      violations('server/api/orders/duplicate.ts', "const details={code:'invented_error'}; createError({data:{...details}});"),
+    ).not.toEqual([]);
+    expect(violations('server/api/orders/valid.ts', "createError({data:checkoutErrorData('cart_empty')})")).toEqual([]);
+  });
+  it('rejects inline public response copy while permitting internal diagnostics', () => {
+    for (const message of ["'Stripe payments are unavailable.'", '`Stripe payments are unavailable.`'])
+      expect(
+        violations(
+          'server/api/orders/duplicate.ts',
+          `createError({statusMessage:${message},data:checkoutErrorData('stripe_payments_disabled')})`,
+        ),
+      ).not.toEqual([]);
+    expect(violations('server/api/orders/valid.ts', "createError(checkoutErrorResponse('stripe_payments_disabled'))")).toEqual([]);
+    expect(violations('server/api/orders/valid.ts', "createError({statusMessage:'Unauthorized',statusCode:401})")).toEqual([]);
+    expect(
+      violations('server/api/orders/valid.ts', 'createError({statusMessage:error.message,data:checkoutErrorData(error.code)})'),
+    ).toEqual([]);
+  });
+  it('production consumers use owner declarations and typed public producers', () => {
+    const files = ['server/domain/payments', 'server/application/checkout', 'server/api/orders'].flatMap(sourceFiles);
+    expect(files.flatMap((file) => violations(file, readFileSync(file, 'utf8')).map((problem) => `${file}: ${problem}`))).toEqual([]);
+  });
+  it('rejects enum-derived payment labels in Vue consumers, including import aliases', () => {
+    expect(labelViolations('consumer.vue', '<template><span>{{ PaymentStatusEnum[status] }}</span></template>')).not.toEqual([]);
+    for (const binding of ['PaymentStatusEnum', 'Status']) {
+      expect(
+        labelViolations(
+          'consumer.vue',
+          `<script setup lang="ts">import { PaymentStatusEnum as ${binding} } from '~/types';
+        const label = ${binding}[status] || 'Pending';</script>`,
+        ),
+      ).not.toEqual([]);
+    }
+    expect(
+      labelViolations(
+        'consumer.vue',
+        `<script setup lang="ts">import { PaymentStatusEnum } from '~/types';
+      const colors = { [PaymentStatusEnum.Paid]: 'green' }; const label = getPaymentStatusById(status) ?? 'Unknown';</script>`,
+      ),
+    ).toEqual([]);
+  });
+  it('rejects known-state defaults that hide missing payment status', () => {
+    for (const operator of ['??', '||'])
+      expect(
+        labelViolations(
+          'consumer.vue',
+          `<script setup lang="ts">import { PaymentStatusEnum as Status } from '~/types';
+        const billingStatus = order.paymentDetails?.status ${operator} Status.Pending;</script>`,
+        ),
+      ).not.toEqual([]);
+    expect(
+      labelViolations(
+        'consumer.vue',
+        `<script setup lang="ts">import { PaymentStatusEnum } from '~/types';
+      const newPayment = { status: PaymentStatusEnum.Pending };</script>`,
+      ),
+    ).toEqual([]);
+  });
+  it('all UI consumers use the owned payment label mapping', () => {
+    const files = ['components', 'pages', 'helpers', 'composables'].flatMap(uiSourceFiles);
+    expect(files.flatMap((file) => labelViolations(file, readFileSync(file, 'utf8')).map((problem) => `${file}: ${problem}`))).toEqual([]);
+  });
+  it('typecheck rejects undeclared public codes', () => {
+    // @ts-expect-error An undeclared public code must remain a compile-time error.
+    checkoutErrorData('invented_error');
+    // @ts-expect-error An undeclared response must not bypass the public catalog.
+    checkoutErrorResponse('invented_error');
+    // @ts-expect-error PlaceOrder must expose only the shared public error contract.
+    new PlaceOrderError('invented_error', 409, 'diagnostic');
+    expect(checkoutErrorData('cart_empty')).toEqual({ code: 'cart_empty' });
+  });
+});

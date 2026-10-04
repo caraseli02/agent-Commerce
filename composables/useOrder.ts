@@ -1,3 +1,4 @@
+import { parseCheckoutErrorCode } from '~/types/order/checkout-error';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
@@ -112,14 +113,16 @@ export function useOrder() {
     const messageCandidate = data.message ?? data.error ?? response?.message;
     const message = typeof messageCandidate === 'string' && messageCandidate.trim() ? messageCandidate : fallbackMessage;
 
+    const diagnosticCode =
+      (typeof data.code === 'string' && data.code ? data.code : undefined) ??
+      (typeof data.errorCode === 'string' && data.errorCode ? data.errorCode : undefined) ??
+      (typeof data.status === 'string' && data.status ? data.status : undefined) ??
+      (typeof data.result?.status === 'string' && data.result.status ? data.result.status : undefined);
     return {
       message,
       type: typeof data.type === 'string' && data.type ? data.type : (response?.status ?? fallbackType),
-      code:
-        (typeof data.code === 'string' && data.code ? data.code : undefined) ??
-        (typeof data.errorCode === 'string' && data.errorCode ? data.errorCode : undefined) ??
-        (typeof data.status === 'string' && data.status ? data.status : undefined) ??
-        (typeof data.result?.status === 'string' && data.result.status ? data.result.status : undefined),
+      code: parseCheckoutErrorCode(diagnosticCode) ?? 'unknown_error',
+      diagnosticCode: diagnosticCode && !parseCheckoutErrorCode(diagnosticCode) ? diagnosticCode : undefined,
     };
   };
 
@@ -135,27 +138,20 @@ export function useOrder() {
       const details = payload.data && typeof payload.data === 'object' ? (payload.data as Record<string, unknown>) : payload;
       const message = details.message ?? payload.message ?? response.statusMessage ?? response.message;
       const code = details.code ?? payload.code;
+      const diagnosticCode = typeof code === 'string' && code ? code : typeof response.name === 'string' ? response.name : undefined;
       return {
         message: typeof message === 'string' && message.trim() ? message : 'Unable to complete checkout. Please try again.',
-        type:
-          typeof code === 'string' && code
-            ? code
-            : typeof response.name === 'string' && response.name
-              ? response.name
-              : 'checkout_exception',
-        code:
-          typeof code === 'string' && code
-            ? code
-            : typeof response.name === 'string' && response.name
-              ? response.name
-              : 'checkout_exception',
+        type: diagnosticCode || 'checkout_exception',
+        code: parseCheckoutErrorCode(code) ?? 'checkout_exception',
+        diagnosticCode: diagnosticCode && !parseCheckoutErrorCode(code) ? diagnosticCode : undefined,
       };
     }
 
     return {
       message: 'Unable to complete checkout. Please try again.',
       type: 'checkout_exception',
-      code: typeof error === 'string' && error ? error : 'unknown_error',
+      code: parseCheckoutErrorCode(error) ?? 'unknown_error',
+      diagnosticCode: typeof error === 'string' && !parseCheckoutErrorCode(error) ? error : undefined,
     };
   };
 
