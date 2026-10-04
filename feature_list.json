@@ -8,6 +8,17 @@
   },
   "features": [
     {
+      "id": "H-MAC-MINI-592",
+      "description": "Prepare Mac mini for payments/system-design work and external PR evaluation (#592)",
+      "validation": "Node 24/pinned pnpm initialization, local PostgreSQL migrations, full local gate and representative mock checkout browser flow pass; exact-head external GitHub evaluator routing is documented.",
+      "status": "active",
+      "evidence": [
+        "User authorized Mac mini migration on 2026-10-04; evaluator operates separately and posts GitHub comments. Branch codex/mac-mini-autonomy; issue #592.",
+        "Both clean checkouts synced to origin/main 60310218. Local PostgreSQL 17 starts at login; ignored .env.local uses a local demo database with mock provider and Stripe Gate A off. Repo-scoped login-shell configuration selects installed Node 24.11.0 and pnpm 10.18.3.",
+        "Node 24 fresh init/full gate passes: build/bundle/lint/typecheck/coverage, 97 files / 664 tests / 2 existing todo, state/UI/architecture and preview route smoke. Isolated cart-order-summary Playwright suite passes 3/3. Primary checkout install/migrate passes; GitHub and Codex CLI authentication verified; hourly Codex heartbeat is active. Independent exact-head evaluator verdict remains pending."
+      ]
+    },
+    {
       "id": "I582",
       "description": "Reconcile payment issue structure and remove redundant delivery verification (#582)",
       "validation": "Native payment sub-issues/dependencies are acyclic, epics excluded from WIP, complete child criteria govern PASS; focused receipt/classifier/hook tests and fresh delivery checks pass; CI retains fresh executable verification.",
@@ -40,11 +51,12 @@
       "id": "I583",
       "description": "Unify existing payment state and public error contracts (#583)",
       "validation": "Satisfy all acceptance criteria in GitHub #583: owned states, conservative boundary parsing, shared public errors, explicit presentation, executable regressions, affected browser evidence, one delivery gate and independent exact-head evaluation.",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "Issue https://github.com/caraseli02/agent-Commerce/issues/583; PR https://github.com/caraseli02/agent-Commerce/pull/590; branch codex/583-payment-state-error-contracts. Sole active task; human merge required.",
         "2026-10-03: user approved repairs to the adversarial review. Previous exact-head PASS is superseded; review readiness withdrawn while completing missed UI consumers, local failure cleanup, structured corruption outcomes, recovery presentation and tracking.",
-        "Repairs and read-only repair reviews are complete. Focused suites pass 7 files / 131 tests; 18 actual browser cases pass, including rejected cancellation, authentication redirect without repeat cancellation, and string/array/null/missing labels. Fresh pnpm verify:handoff --fresh passes 97 files / 664 tests / 2 existing TODO tests, plus build/lint/typecheck, validators, preview smoke and clean state. See PR #590 for published-head CI and the independent final verdict; review readiness requires both, and human merge remains required."
+        "Repairs and read-only repair reviews are complete. Focused suites pass 7 files / 131 tests; 18 actual browser cases pass, including rejected cancellation, authentication redirect without repeat cancellation, and string/array/null/missing labels. Fresh pnpm verify:handoff --fresh passes 97 files / 664 tests / 2 existing TODO tests, plus build/lint/typecheck, validators, preview smoke and clean state. See PR #590 for published-head CI and the independent final verdict; review readiness requires both, and human merge remains required.",
+        "2026-10-04: PR #590 merged as 60310218f900b9ba73f3d1b35fd22189c2ae7986 and closed #583. Independent exact-head evaluator PASS (9/10) on c5cd2084237ff96ca179f70c9acc5343e5ac3567 supersedes failed evaluator-process reports. GitHub CI run 37159386839 passed 97 files / 664 tests / 2 existing todo."
       ]
     },
     {

@@ -2,6 +2,13 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Mac mini controller and external evaluator — 2026-10-04
+
+- Continue payments/system-design work with one bounded executable issue and small verified PRs; the evaluator is separately operated and communicates through GitHub comments/reviews. The controller does not launch Astra or self-certify PASS.
+- Verdicts must explicitly cover the current PR SHA, identify independent evaluation and supply the existing evidence/rubric. New commits invalidate old verdicts. FAIL repairs the same PR; PASS waits for human merge; ambiguous/BLOCKED reports require clarification.
+- Use local PostgreSQL 17 and repo-scoped Node 24 for unattended Mac mini work. Keep mock mode and Stripe activation off. The hourly Codex heartbeat depends on the running desktop app/user session; it does not install or replace PR #591's proposed nightly routines.
+- Setup and recovered queue context live in `docs/agents/mac-mini.md`.
+
 ## Payment contract ownership and regression policy — 2026-10-03
 
 - Payment states belong to Payments; workflow/recovery decisions belong to checkout; public errors use a pure shared contract; presentation uses exhaustive mappings. Preserve persisted/wire values and legacy FAILED; Refund remains separate from historical PAID.
