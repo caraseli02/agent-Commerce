@@ -2,6 +2,12 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Nightly lane and factory-as-code — 2026-10-04
+
+- Unattended work runs as a separate `nightly` lane with its own WIP=1, next to the `interactive` lane. `feature_list.json` `policy.lanes` enforces one active feature per lane; features without a lane are interactive.
+- The nightly lane never implements `area:payments` issues or touches payment, checkout or migration paths. Its evaluator independently reviews payment PRs in draft or ready state; draft verdicts are comment-only.
+- The nightly generator and evaluator are defined in `.factory/` and read from `origin/main` on every run. Claude Desktop local routines on the Mac mini only schedule them; behavior changes go through reviewed PRs, and the agents may not edit the factory themselves.
+
 ## Bounded payment tasks and verification reuse — 2026-10-02
 
 - #557/#558 are fixed tracking epics; native children #584–#588 own the remaining acceptance criteria. WIP=1 applies to an executable child, normally closed by one coherent PR. Evaluator PASS refers to the complete child, not an anonymous partial slice. New unrelated findings become separate backlog issues.

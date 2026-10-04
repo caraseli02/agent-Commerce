@@ -23,7 +23,8 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/agent-Commerc
   - assign the issue to the working account
   - leave a short comment with the branch name
 - If an issue is already assigned or already has an active PR, skip it.
-- WIP is 1: never work two issues in parallel.
+- WIP is 1 per lane: never work two issues in parallel within the `interactive` or `nightly` lane. Nightly claims also add `lane:nightly`; see `autonomous-workflow.md` § Lanes and `.factory/`.
+- The nightly lane never claims `area:payments` issues or anything in the payment map below.
 - The generator may only implement the issue already claimed by the planner.
 - The generator opens or updates one PR intended to complete the executable issue. It uses `Closes #<child>` and `Related #<epic>`, but does not declare final completion. Anonymous partial slices cannot keep extending one executable issue; rescope into named children before implementation.
 - If an `in-progress` issue has an open PR, do not select new work. Wait for evaluator, or repair that same PR when the evaluator fails it.

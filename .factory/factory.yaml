@@ -1,0 +1,78 @@
+# agent-Commerce software factory definition.
+#
+# This file and .factory/automations/*.md are the source of truth for the
+# unattended agents that run on the Mac mini. The scheduler (Claude Desktop
+# local routines) only points at these files, so every behavior change goes
+# through a reviewed PR to main. See .factory/README.md for machine setup.
+#
+# The scheduler cannot read this file: schedule, folder, model and permission
+# mode are configured once in Claude Desktop to match the values below.
+
+name: agent-commerce-factory
+repository: caraseli02/agent-Commerce
+timezone: Europe/Madrid
+
+# Work streams. Each lane keeps its own WIP=1 (feature_list.json policy.lanes).
+lanes:
+  interactive:
+    owner: Vlad (daytime sessions with Claude Code / Codex)
+    scope: everything, including all payment and checkout work
+  nightly:
+    owner: nightly-generator automation
+    scope: ready-for-agent issues outside the payments area
+    claim_label: lane:nightly
+    branch_prefix: nightly/
+
+labels:
+  eligible: ready-for-agent
+  claimed: in-progress
+  nightly_lane: lane:nightly # also used by Vlad to queue an issue for tonight
+  payments_area: area:payments # never implemented by the nightly lane
+  blocked: blocked
+  passed: ready-for-human
+  never_claim: [epic, blocked, area:payments, needs-triage, needs-info, ready-for-human]
+
+# Paths the nightly generator must not modify. A diff touching any of these is
+# a scope violation and the evaluator must FAIL it.
+protected_paths:
+  payments:
+    - server/domain/payments/**
+    - server/application/checkout/**
+    - server/api/checkout/**
+    - server/api/payments/**
+    - server/infrastructure/migrations/**
+    - components/payment/**
+    - pages/checkout/**
+  factory:
+    - .factory/**
+    - .claude/**
+    - .agents/**
+    - .github/**
+    - .husky/**
+    - docs/agents/**
+    - AGENTS.md
+    - CLAUDE.md
+    - scripts/**
+    - PROGRESS.md
+
+automations:
+  nightly-generator:
+    file: .factory/automations/nightly-generator.md
+    role: planner + generator (nightly lane)
+    schedule: daily 00:47
+    run_window: '00:00-07:00' # catch-up runs outside this window exit immediately
+    worktree: true
+    budgets:
+      max_issues_per_run: 1
+      max_focused_repair_attempts: 2
+  nightly-evaluator:
+    file: .factory/automations/nightly-evaluator.md
+    role: independent evaluator (nightly lane + payments PRs)
+    schedule: daily 05:13
+    run_window: '03:00-08:30'
+    worktree: true
+    budgets:
+      max_prs_per_run: 3
+
+# The generator and evaluator always run as separate scheduled sessions so the
+# evaluator never grades work produced in its own context.

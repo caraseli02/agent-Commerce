@@ -10,6 +10,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues and claim one issue at a time.
 - Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready.
 - The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue while an `in-progress` issue has an open PR.
+- Two lanes keep their own WIP=1: `interactive` (Vlad, including all payment work) and `nightly` (unattended agents defined in `.factory/`, never payment work). See `docs/agents/autonomous-workflow.md` § Lanes.
 - Durable session state lives in `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md`.
 
 ## The 5 questions every fresh session must answer

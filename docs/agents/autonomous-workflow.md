@@ -15,6 +15,20 @@ The autonomous loop should behave like a standing `/goal` even when cron wakes i
 
 This is the runtime equivalent of: “work the currently claimed Components Marketplace issue until it is evaluator-approved or blocked.”
 
+## Lanes
+
+Two work streams run side by side, each with its own WIP=1 (`feature_list.json` `policy.lanes`, checked by `./scripts/validate-feature-list.sh`):
+
+| Lane          | Who works it                                       | Scope                                                                |
+| ------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
+| `interactive` | Vlad's daytime sessions                            | Everything, including all `area:payments` issues                     |
+| `nightly`     | Unattended generator on the Mac mini (`.factory/`) | `ready-for-agent` issues outside `area:payments` and protected paths |
+
+- A nightly claim adds `lane:nightly` alongside `in-progress`; features it tracks carry `"lane": "nightly"`. Features without a lane belong to `interactive`.
+- The WIP and repair-loop rules in this document apply within each lane: an `in-progress` issue in one lane never blocks selection in the other.
+- The nightly lane never implements payment work. The nightly evaluator still reviews payment PRs, draft or ready, as an independent evaluator; draft reviews are comment-only snapshots.
+- Unattended automations are defined in `.factory/` and change only through reviewed PRs.
+
 ## When a heavy loop is justified
 
 Use a recurring or unattended loop only when all four conditions are true:

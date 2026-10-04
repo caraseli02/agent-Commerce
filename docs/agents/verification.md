@@ -21,7 +21,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - Use this once before final PR/session handoff, after intentional files are committed or otherwise clean. Full/handoff reuse matching local base checks when available, then run their additional checks.
 4. **Harness-state validator**
    - `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
-   - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
+   - Use it to prove allowed statuses, WIP=1 per lane (`policy.lanes`), and passing-item evidence stay mechanically correct.
 5. **PR template completeness gate**
    - `node scripts/check-pr-template.mjs`
    - The focused `PR template / check` workflow runs separately from application CI and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-FEATURE_LIST_PATH="$ROOT_DIR/feature_list.json"
+FEATURE_LIST_PATH="${FEATURE_LIST_PATH:-$ROOT_DIR/feature_list.json}"
 
 FEATURE_LIST_PATH="$FEATURE_LIST_PATH" node <<'NODE'
 const fs = require('fs');
@@ -46,6 +46,24 @@ if (!policy) {
   errors.push('policy must be a JSON object. The harness uses policy.wip_limit and policy.active_feature_count to detect stale or conflicting task state. Check the top-level "policy" field.');
 }
 
+const DEFAULT_LANE = 'interactive';
+const laneLimits = policy && policy.lanes !== undefined ? policy.lanes : null;
+if (laneLimits !== null) {
+  if (!laneLimits || typeof laneLimits !== 'object' || Array.isArray(laneLimits)) {
+    errors.push('policy.lanes must be an object mapping lane names to integer WIP limits, for example {"interactive": 1, "nightly": 1}. Lanes keep WIP=1 per work stream; see docs/agents/autonomous-workflow.md.');
+  } else {
+    for (const [lane, limit] of Object.entries(laneLimits)) {
+      if (!Number.isInteger(limit) || limit < 0) {
+        errors.push(`policy.lanes.${lane} must be a non-negative integer WIP limit.`);
+      }
+    }
+    if (!Object.prototype.hasOwnProperty.call(laneLimits, DEFAULT_LANE)) {
+      errors.push(`policy.lanes must include "${DEFAULT_LANE}", the lane used by features without an explicit lane.`);
+    }
+  }
+}
+const laneActiveCounts = new Map();
+
 if (features) {
   let activeCount = 0;
   for (const [index, feature] of features.entries()) {
@@ -63,8 +81,18 @@ if (features) {
       errors.push(`${label} has invalid status ${JSON.stringify(status)}. Allowed statuses are not_started, active, blocked, passing. This keeps the harness task-state machine coherent; update the feature entry in ${path}.`);
     }
 
+    const lane = feature.lane === undefined ? DEFAULT_LANE : feature.lane;
+    if (feature.lane !== undefined && (typeof feature.lane !== 'string' || !feature.lane.trim())) {
+      errors.push(`${label} has an invalid lane ${JSON.stringify(feature.lane)}. Omit lane for interactive work or use a lane declared in policy.lanes.`);
+    } else if (laneLimits && typeof laneLimits === 'object' && !Array.isArray(laneLimits) && !Object.prototype.hasOwnProperty.call(laneLimits, lane)) {
+      errors.push(`${label} uses lane ${JSON.stringify(lane)}, which is not declared in policy.lanes.`);
+    } else if (!laneLimits && feature.lane !== undefined && lane !== DEFAULT_LANE) {
+      errors.push(`${label} uses lane ${JSON.stringify(lane)}, but policy.lanes is not declared.`);
+    }
+
     if (status === 'active') {
       activeCount += 1;
+      laneActiveCounts.set(lane, (laneActiveCounts.get(lane) ?? 0) + 1);
     }
 
     if (status === 'passing') {
@@ -79,6 +107,15 @@ if (features) {
     errors.push('policy.wip_limit must be an integer. The harness needs an explicit WIP cap to enforce one active task at a time; check the top-level policy object.');
   } else if (activeCount > wipLimit) {
     errors.push(`${activeCount} feature(s) are active, but policy.wip_limit is ${wipLimit}. WIP=1 prevents parallel tasks from overlapping; reduce the number of active features in ${path}.`);
+  }
+
+  if (laneLimits && typeof laneLimits === 'object' && !Array.isArray(laneLimits)) {
+    for (const [lane, count] of laneActiveCounts) {
+      const limit = laneLimits[lane];
+      if (Number.isInteger(limit) && count > limit) {
+        errors.push(`${count} feature(s) are active in lane "${lane}", but policy.lanes.${lane} is ${limit}. Each lane keeps its own WIP limit; reduce active features in that lane in ${path}.`);
+      }
+    }
   }
 
   if (policy && Object.prototype.hasOwnProperty.call(policy, 'active_feature_count')) {
