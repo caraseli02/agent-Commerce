@@ -35,6 +35,15 @@ if [ "$(pnpm --version 2>/dev/null || true)" != "$PNPM_VERSION" ] || [ "$(comman
   npm install -g --silent "pnpm@$PNPM_VERSION" --prefix "$NODE_DIR" >/dev/null
 fi
 
+# Make Node 24 the machine default too, so shells and git hooks that do not
+# read CLAUDE_ENV_FILE never fall back to the image's Node 20/22.
+for bin in node npm npx corepack pnpm pnpx; do
+  [ -e "$NODE_DIR/bin/$bin" ] && ln -sf "$NODE_DIR/bin/$bin" "/usr/local/bin/$bin"
+done
+for old in /opt/node*/bin; do
+  [ -x "$old/node" ] && [ "$old" != "$NODE_DIR/bin" ] && ln -sf "$NODE_DIR/bin/node" "$old/node"
+done
+
 # 3. PostgreSQL for checkout persistence and the isolated test-schema wrapper
 #    (mirrors the CI postgres service).
 if command -v pg_isready >/dev/null && ! pg_isready -q -h 127.0.0.1 -p 5432; then
