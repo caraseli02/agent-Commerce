@@ -1,39 +1,45 @@
 # agent-Commerce software factory definition.
 #
 # This file and .factory/automations/*.md are the source of truth for the
-# unattended agents that run on the Mac mini. The scheduler (Claude Desktop
-# local routines) only points at these files, so every behavior change goes
-# through a reviewed PR to main. See .factory/README.md for machine setup.
+# Claude agents that run on the Mac mini. The scheduler (Claude Desktop local
+# routines) only points at these files, so every behavior change goes through a
+# reviewed PR to main. See .factory/README.md for machine setup and for the
+# rules the Codex heartbeat must follow (Codex is configured outside this repo).
 #
-# The scheduler cannot read this file: schedule, folder, model and permission
-# mode are configured once in Claude Desktop to match the values below.
+# The scheduler cannot read this file: schedule, folder and permission mode are
+# configured once in Claude Desktop to match the values below.
 
 name: agent-commerce-factory
 repository: caraseli02/agent-Commerce
 timezone: Europe/Madrid
+host: Mac mini only (local routines, no cloud runners)
 
-# Work streams. Each lane keeps its own WIP=1 (feature_list.json policy.lanes).
-lanes:
-  interactive:
-    owner: Vlad (daytime sessions with Claude Code / Codex)
-    scope: everything, including all payment and checkout work
-  nightly:
-    owner: nightly-generator automation
-    scope: ready-for-agent issues outside the payments area
-    claim_label: lane:nightly
-    branch_prefix: nightly/
+# Two builder agents share the backlog. Ownership is a GitHub label on the
+# issue; it is the only claim record (no feature_list.json or PROGRESS.md edits
+# by unattended agents). Each agent keeps WIP=1 inside its own label.
+agents:
+  claude:
+    builds: open issues labeled agent:claude (legacy lane:nightly is accepted until renamed)
+    never_builds: [area:payments]
+    branch: claude/issue-<number>-<short-slug>
+    reviews: ready PRs WITHOUT the agent:claude label (Codex and human PRs, including payments)
+  codex:
+    builds: ready-for-agent issues without agent:claude, payments first (configured outside this repo)
+    reviews: ready PRs WITH the agent:claude label
 
 labels:
   eligible: ready-for-agent
   claimed: in-progress
-  nightly_lane: lane:nightly # also used by Vlad to queue an issue for tonight
-  payments_area: area:payments # never implemented by the nightly lane
+  owner_claude: agent:claude
+  owner_claude_legacy: lane:nightly # rename to agent:claude only after Codex skips agent:claude
+  owner_codex: agent:codex # optional; issues without agent:claude are Codex's pool
+  payments_area: area:payments # never built by Claude
   blocked: blocked
   passed: ready-for-human
   never_claim: [epic, blocked, area:payments, needs-triage, needs-info, ready-for-human]
 
-# Paths the nightly generator must not modify. A diff touching any of these is
-# a scope violation and the evaluator must FAIL it.
+# Paths the Claude generator must not modify. A Claude PR touching any of these
+# is a scope violation and its reviewer must FAIL it.
 protected_paths:
   payments:
     - server/domain/payments/**
@@ -54,25 +60,30 @@ protected_paths:
     - CLAUDE.md
     - scripts/**
     - PROGRESS.md
+    - DECISIONS.md
+    - feature_list.json
 
 automations:
-  nightly-generator:
-    file: .factory/automations/nightly-generator.md
-    role: planner + generator (nightly lane)
-    schedule: daily 00:47
-    run_window: '00:00-07:00' # catch-up runs outside this window exit immediately
+  claude-generator:
+    file: .factory/automations/claude-generator.md
+    role: planner + generator for agent:claude issues
+    folder: ~/GIT/agent-Commerce
+    schedule: daily 09:30, 13:30, 17:30 # ~2-3 PRs/day when reviews and merges keep up
+    run_window: '09:00-19:00' # catch-up runs outside this window exit immediately
     worktree: true
     budgets:
       max_issues_per_run: 1
+      wip: 1 # one open agent:claude issue in-progress at a time
       max_focused_repair_attempts: 2
-  nightly-evaluator:
-    file: .factory/automations/nightly-evaluator.md
-    role: independent evaluator (nightly lane + payments PRs)
-    schedule: daily 05:13
-    run_window: '03:00-08:30'
+  claude-evaluator:
+    file: .factory/automations/claude-evaluator.md
+    role: independent evaluator for non-Claude PRs
+    folder: ~/GIT/agent-Commerce-eval
+    schedule: every 30 minutes, 09:00-19:59
+    run_window: '09:00-20:00'
     worktree: true
     budgets:
-      max_prs_per_run: 3
+      max_prs_per_run: 1
 
-# The generator and evaluator always run as separate scheduled sessions so the
-# evaluator never grades work produced in its own context.
+# Builder and reviewer of a PR are always different agents (cross-model review),
+# and a reviewer never grades work produced in its own session.

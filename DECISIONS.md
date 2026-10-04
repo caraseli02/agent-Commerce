@@ -2,11 +2,11 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
-## Nightly lane and factory-as-code — 2026-10-04
+## Two-agent ownership and cross-review — 2026-10-04
 
-- Unattended work runs as a separate `nightly` lane with its own WIP=1, next to the `interactive` lane. `feature_list.json` `policy.lanes` enforces one active feature per lane; features without a lane are interactive.
-- The nightly lane never implements `area:payments` issues or touches payment, checkout or migration paths. Its evaluator independently reviews payment PRs in draft or ready state; draft verdicts are comment-only.
-- The nightly generator and evaluator are defined in `.factory/` and read from `origin/main` on every run. Claude Desktop local routines on the Mac mini only schedule them; behavior changes go through reviewed PRs, and the agents may not edit the factory themselves.
+- Claude and Codex work the backlog on the Mac mini only, during working windows, each with WIP=1. The issue label is the only claim record: `agent:claude` (legacy `lane:nightly`) is Claude's, everything else `ready-for-agent` is Codex's. Unattended agents do not edit `feature_list.json` or `PROGRESS.md`.
+- Builder and reviewer always differ: Claude reviews non-Claude PRs, Codex reviews `agent:claude` PRs. Verdicts are one comment per head with an `evaluator-head` marker. Vlad merges.
+- Claude never builds payment, checkout or migration work. Claude routines live in `.factory/` and read it from `origin/main`; Codex follows `.factory/README.md` § Codex side, configured outside the repo.
 
 ## Payment contract ownership and regression policy — 2026-10-03
 

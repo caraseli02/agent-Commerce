@@ -2,8 +2,7 @@
   "schema_version": 1,
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
-    "wip_limit": 2,
-    "lanes": { "interactive": 1, "nightly": 1 },
+    "wip_limit": 1,
     "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"]
   },

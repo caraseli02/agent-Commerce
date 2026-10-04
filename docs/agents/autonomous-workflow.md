@@ -15,19 +15,20 @@ The autonomous loop should behave like a standing `/goal` even when cron wakes i
 
 This is the runtime equivalent of: “work the currently claimed Components Marketplace issue until it is evaluator-approved or blocked.”
 
-## Lanes
+## Agents
 
-Two work streams run side by side, each with its own WIP=1 (`feature_list.json` `policy.lanes`, checked by `./scripts/validate-feature-list.sh`):
+Two builder agents work the backlog from the Mac mini, each with its own WIP=1. The issue label is the ownership and claim record:
 
-| Lane          | Who works it                                       | Scope                                                                |
-| ------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
-| `interactive` | Vlad's daytime sessions                            | Everything, including all `area:payments` issues                     |
-| `nightly`     | Unattended generator on the Mac mini (`.factory/`) | `ready-for-agent` issues outside `area:payments` and protected paths |
+| Agent  | Builds                                                                     | Reviews                              |
+| ------ | -------------------------------------------------------------------------- | ------------------------------------ |
+| Claude | `ready-for-agent` issues labeled `agent:claude` (legacy `lane:nightly`)    | ready PRs **without** `agent:claude` |
+| Codex  | `ready-for-agent` issues without `agent:claude`, including `area:payments` | ready PRs **with** `agent:claude`    |
 
-- A nightly claim adds `lane:nightly` alongside `in-progress`; features it tracks carry `"lane": "nightly"`. Features without a lane belong to `interactive`.
-- The WIP and repair-loop rules in this document apply within each lane: an `in-progress` issue in one lane never blocks selection in the other.
-- The nightly lane never implements payment work. The nightly evaluator still reviews payment PRs, draft or ready, as an independent evaluator; draft reviews are comment-only snapshots.
-- Unattended automations are defined in `.factory/` and change only through reviewed PRs.
+- An agent never claims, implements or repairs an issue owned by the other agent, and never reviews a PR it built.
+- Claude never builds `area:payments` work or touches the protected paths in `.factory/factory.yaml`.
+- Claude claims by pushing a new `claude/issue-<n>-<slug>` branch first; a rejected push means the issue is already claimed.
+- Unattended agents keep their state on GitHub (labels, issue and PR comments), not in `feature_list.json` or `PROGRESS.md`.
+- Claude's routines are defined in `.factory/` and change only through reviewed PRs; Codex's heartbeat is configured outside the repo and must follow `.factory/README.md` § Codex side.
 
 ## When a heavy loop is justified
 

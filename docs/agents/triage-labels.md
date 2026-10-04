@@ -16,8 +16,9 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 
 - `epic` — fixed tracking parent; never claimed, labeled ready-for-agent/in-progress, or counted in executable WIP. Native sub-issues own implementation criteria.
 - `in-progress` — claimed by the planner/generator loop; used by pickup rules in `issue-tracker.md`. If an open PR exists, WIP remains occupied until evaluator pass, blocker, or repair on that same PR.
-- `lane:nightly` — claimed by, or queued by Vlad for, the unattended nightly lane (`.factory/`). Also set on nightly PRs.
-- `area:payments` — payment, checkout, Stripe, refund or compensation work. Interactive lane only; the nightly evaluator reviews these PRs but the nightly generator never claims them.
+- `agent:claude` — issue owned by the Claude builder (`.factory/`); also set on Claude-built PRs so Codex reviews them. Codex never claims these issues. Legacy name: `lane:nightly`, renamed only once Codex skips `agent:claude`.
+- `agent:codex` — optional explicit marker for Codex-owned work; issues without `agent:claude` are Codex's pool anyway.
+- `area:payments` — payment, checkout, Stripe, refund or compensation work. Built by Codex only; Claude reviews these PRs but never builds them.
 - `blocked` — concrete blocker found by generator or evaluator; include a comment with the repair instruction or human decision needed
 
 ## Sequencing priorities (not severity)
