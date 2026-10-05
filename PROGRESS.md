@@ -2,16 +2,16 @@
 
 ## Current focus
 
-- Issue [#583](https://github.com/caraseli02/agent-Commerce/issues/583), PR [#590](https://github.com/caraseli02/agent-Commerce/pull/590), branch `codex/583-payment-state-error-contracts`. This is the sole active task. Human merge remains required.
+- Issue [#584](https://github.com/caraseli02/agent-Commerce/issues/584), PR [#594](https://github.com/caraseli02/agent-Commerce/pull/594), branch `codex/584-payment-refresh-return`. Sole active task; Claude advisory repairs verified; preparing updated head for independent evaluation.
 
 ## In progress
 
-- Repairs and read-only repair reviews are complete: both missed payment-label consumers, local failure-context cleanup before cancellation redirects, structured corruption outcomes, accurate review presentation and executable regressions. Earlier evaluator PASS is superseded. Durable ownership rules live in `docs/agents/payment-contracts.md`; the issue holds acceptance criteria.
+- The prior advisory covers head `ee752664`; new commits require fresh independent evaluation. Focused repairs pass 6 suites / 123 tests. Fresh handoff at 9e2dced3 passes 98 files / 694 tests / 2 pre-existing deferred tests; built-runtime auth/gate checks and mock checkout browser flow pass. No independent verdict is claimed. Keep #584 active through current-head verification and independent evaluation; #583 is complete.
 
 ## Blocked / known baseline failures
 
-No unresolved capability dependency for #583; #589/#582 are merged. CI still runs the full executable suite; selective CI is outside this issue. No schema, provider activation, commercial recovery selection or alerting changes. Unknown provider-result fallback and the previously recorded guest order-detail `adminSettings` error remain outside this cleanup.
+- Historical guest order-detail `adminSettings` issue remains known and outside #584. Stripe activation remains default-off pending #559. No #584 blocker is currently recorded.
 
 ## Verification baseline
 
-Fresh `pnpm verify:handoff --fresh` passes: 97 files / 664 tests / 2 existing TODO tests, plus build, bundle budgets, lint, typecheck, state/UI/architecture validators, preview smoke and clean state. Focused suites pass 7 files / 131 tests; 18 scoped browser cases pass, including malformed labels, cancellation rejection and authentication redirect without repeated cancellation. Normal pre-push reuses matching application evidence and selects the orders visual group. See PR #590 for the published-head CI result and independent final verdict; review readiness requires both. Human merge remains required. Do not claim another issue.
+- Current repair evidence: clean `pnpm verify:handoff --fresh`, isolated PostgreSQL HTTP tests, built Nitro401/503/404 boundaries, and checkout success with PAID payment and empty cart. Normal pre-push will independently exercise selected cart/orders visuals. Next: inspect fresh CI and attributed independent exact-head verdict on PR #594; human merge remains required. Do not start another issue.

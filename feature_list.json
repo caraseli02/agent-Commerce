@@ -40,11 +40,11 @@
       "id": "I583",
       "description": "Unify existing payment state and public error contracts (#583)",
       "validation": "Satisfy all acceptance criteria in GitHub #583: owned states, conservative boundary parsing, shared public errors, explicit presentation, executable regressions, affected browser evidence, one delivery gate and independent exact-head evaluation.",
-      "status": "active",
+      "status": "passing",
       "evidence": [
-        "Issue https://github.com/caraseli02/agent-Commerce/issues/583; PR https://github.com/caraseli02/agent-Commerce/pull/590; branch codex/583-payment-state-error-contracts. Sole active task; human merge required.",
-        "2026-10-03: user approved repairs to the adversarial review. Previous exact-head PASS is superseded; review readiness withdrawn while completing missed UI consumers, local failure cleanup, structured corruption outcomes, recovery presentation and tracking.",
-        "Repairs and read-only repair reviews are complete. Focused suites pass 7 files / 131 tests; 18 actual browser cases pass, including rejected cancellation, authentication redirect without repeat cancellation, and string/array/null/missing labels. Fresh pnpm verify:handoff --fresh passes 97 files / 664 tests / 2 existing TODO tests, plus build/lint/typecheck, validators, preview smoke and clean state. See PR #590 for published-head CI and the independent final verdict; review readiness requires both, and human merge remains required."
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/583; PR https://github.com/caraseli02/agent-Commerce/pull/590; branch codex/583-payment-state-error-contracts.",
+        "Merged to main as 60310218. Independent exact-head evaluation: PASS, 9/10, for c5cd2084237ff96ca179f70c9acc5343e5ac3567. GitHub Actions verify run 37159386839 passed.",
+        "Acceptance work and repair evidence are recorded in PR #590. This feature is complete; no evaluator score is inferred from the merge itself."
       ]
     },
     {
@@ -88,9 +88,12 @@
       "id": "I584",
       "description": "Expose owner-scoped refresh/return recovery (#584)",
       "validation": "Bounded provider reconciliation, retry-safe application consequences and fresh owner-safe state through HTTP; credentials withheld.",
-      "status": "not_started",
+      "status": "active",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/584. Not claimed or implemented in this workflow repair."
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/584; PR https://github.com/caraseli02/agent-Commerce/pull/594; branch codex/584-payment-refresh-return. Sole active feature; Claude advisory repairs implemented and verified.",
+        "Runtime repair 8e49a29e; clean fresh handoff at 9e2dced3: 98 files / 694 tests / 2 pre-existing deferred tests; build/lint/typecheck/coverage/state/UI/architecture/preview/clean gates pass. Focused isolated PostgreSQL verification: 6 suites / 123 tests, including 30 refresh cases.",
+        "Current built Nitro: unauthorized refresh/resume/restart401; authenticated default-off refresh/resume503 stripe_payments_disabled; missing restart404. Existing mock checkout browser success1/1; isolated database confirms PAID payment and empty cart. No Stripe activation or visual baseline changes.",
+        "Claude advisory covers prior head ee752664, not the new commits. Fresh executable CI, selected pre-push visuals and attributed independent structured exact-head evaluation remain required; no independent verdict is claimed. Human merge required."
       ]
     },
     {
