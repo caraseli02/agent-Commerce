@@ -67,7 +67,7 @@ Default minimal flow:
 2. `in-progress` — planner claimed the issue and generator may work only on that issue.
 3. Open PR exists — generator output is ready for independent evaluation.
 4. Evaluator `FAIL` — same issue/branch/PR receives a repair brief; WIP remains 1.
-5. `ready-for-human` — evaluator passed the PR and it is ready for Vlad's review.
+5. `ready-for-human` — evaluator passed the PR. A low-risk PR (docs/skills only) then auto-merges on green CI plus `evaluator/verdict` success; every other PR is ready for Vlad's review and human merge. See `docs/agents/auto-merge.md`.
 6. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence.
 
 Use this minimal flow unless the project explicitly adds a `ready-for-evaluator` label. An evaluator can discover work by scanning open PRs linked to `in-progress` issues.
@@ -122,7 +122,7 @@ Verdicts:
 When an `in-progress` issue already has an open PR, controller logic must route by evaluator state:
 
 - No current-head evaluator verdict: wait for evaluator; do not run generator again.
-- `PASS`: wait for human review/merge or state cleanup; do not select new work until WIP is clear.
+- `PASS`: a low-risk PR auto-merges (see `docs/agents/auto-merge.md`); any other PR waits for human review/merge. Do not select new work until the PR is merged and WIP is clear.
 - `FAIL`: generate a focused repair brief from the evaluator comment, rerun the failing and invalidated checks, then delivery gates before updating the same branch/PR. Stop after two focused failed repair attempts and report the concrete blocker.
 - `BLOCKED`: leave the blocker visible and stop autonomous work on that issue.
 

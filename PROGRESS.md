@@ -2,16 +2,16 @@
 
 ## Current focus
 
-- Issue [#583](https://github.com/caraseli02/agent-Commerce/issues/583), PR [#590](https://github.com/caraseli02/agent-Commerce/pull/590), branch `codex/583-payment-state-error-contracts`. This is the sole active task. Human merge remains required.
+- Issue [#603](https://github.com/caraseli02/agent-Commerce/issues/603) (epic #595), branch `claude/603-auto-merge-low-risk`. This is the sole active task: auto-merge low-risk PRs on green CI plus evaluator PASS. This PR touches `.github/**` and `scripts/**`, so it needs a human merge.
 
 ## In progress
 
-- Repairs and read-only repair reviews are complete: both missed payment-label consumers, local failure-context cleanup before cancellation redirects, structured corruption outcomes, accurate review presentation and executable regressions. Earlier evaluator PASS is superseded. Durable ownership rules live in `docs/agents/payment-contracts.md`; the issue holds acceptance criteria.
+- The policy module, runner, workflow, tests and docs are in place. The workflow does nothing until the owner completes the setup steps in `docs/agents/auto-merge.md`: the Evaluator and Merger Apps, the `auto-merge` environment, the ruleset and the variables. #583 / PR #590 is merged.
 
 ## Blocked / known baseline failures
 
-No unresolved capability dependency for #583; #589/#582 are merged. CI still runs the full executable suite; selective CI is outside this issue. No schema, provider activation, commercial recovery selection or alerting changes. Unknown provider-result fallback and the previously recorded guest order-detail `adminSettings` error remain outside this cleanup.
+#597 (the evaluator "did not run" outcome) is not done yet. The workflow treats any non-success `evaluator/verdict`, or a missing one, as no merge, so #597 can land afterwards without changes here. No application, payment or schema changes.
 
 ## Verification baseline
 
-Fresh `pnpm verify:handoff --fresh` passes: 97 files / 664 tests / 2 existing TODO tests, plus build, bundle budgets, lint, typecheck, state/UI/architecture validators, preview smoke and clean state. Focused suites pass 7 files / 131 tests; 18 scoped browser cases pass, including malformed labels, cancellation rejection and authentication redirect without repeated cancellation. Normal pre-push reuses matching application evidence and selects the orders visual group. See PR #590 for the published-head CI result and independent final verdict; review readiness requires both. Human merge remains required. Do not claim another issue.
+`pnpm exec vitest run tests/auto-merge-policy.spec.ts` covers the policy, routing, runner and workflow boundary. actionlint passes on `.github/workflows/*.yml`. See the PR for `pnpm verify` and CI on the published head.

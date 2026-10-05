@@ -8,7 +8,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - Prefer mock mode for local work and reviews.
 - Keep changes small and shippable; this repo is a good fit for autonomous micro-tasks.
 - GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues and claim one issue at a time.
-- Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready.
+- Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready. Low-risk PRs (docs/skills paths only) auto-merge on green CI plus evaluator PASS; everything else stays a human merge (`docs/agents/auto-merge.md`).
 - The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue while an `in-progress` issue has an open PR.
 - Durable session state lives in `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md`.
 
@@ -108,6 +108,7 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 - `docs/agents/issue-tracker.md` — GitHub issue pickup/claim/PR workflow
 - `docs/agents/triage-labels.md` — canonical queue labels
 - `docs/agents/autonomous-workflow.md` — planner/generator/evaluator split and evaluator verdict contract
+- `docs/agents/auto-merge.md` — low-risk auto-merge policy, safety net and owner setup
 - `docs/agents/domain.md` — where domain context lives
 - `docs/agents/session-lifecycle.md` — initialization, WIP=1, blocker protocol, clean handoff
 - `docs/agents/verification.md` — done gates, E2E/runtime verification, evaluator rubric

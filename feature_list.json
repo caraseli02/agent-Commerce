@@ -8,6 +8,15 @@
   },
   "features": [
     {
+      "id": "I603",
+      "description": "Auto-merge low-risk PRs on green CI plus evaluator PASS (#603)",
+      "validation": "Satisfy GitHub #603 with the owner-agreed design: path-only low-risk class, head-pinned merge conditions (CI verify, evaluator/verdict from the Evaluator App, AUTO_MERGE_ENABLED), Merger App workflow from main, auto-pause on failed main CI, unit tests for the policy, DECISIONS.md and agent docs, owner setup steps.",
+      "status": "active",
+      "evidence": [
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/603; branch claude/603-auto-merge-low-risk. Sole active task. This PR touches .github/** and scripts/**, so it needs a human merge."
+      ]
+    },
+    {
       "id": "I582",
       "description": "Reconcile payment issue structure and remove redundant delivery verification (#582)",
       "validation": "Native payment sub-issues/dependencies are acyclic, epics excluded from WIP, complete child criteria govern PASS; focused receipt/classifier/hook tests and fresh delivery checks pass; CI retains fresh executable verification.",
@@ -40,11 +49,12 @@
       "id": "I583",
       "description": "Unify existing payment state and public error contracts (#583)",
       "validation": "Satisfy all acceptance criteria in GitHub #583: owned states, conservative boundary parsing, shared public errors, explicit presentation, executable regressions, affected browser evidence, one delivery gate and independent exact-head evaluation.",
-      "status": "active",
+      "status": "passing",
       "evidence": [
         "Issue https://github.com/caraseli02/agent-Commerce/issues/583; PR https://github.com/caraseli02/agent-Commerce/pull/590; branch codex/583-payment-state-error-contracts. Sole active task; human merge required.",
         "2026-10-03: user approved repairs to the adversarial review. Previous exact-head PASS is superseded; review readiness withdrawn while completing missed UI consumers, local failure cleanup, structured corruption outcomes, recovery presentation and tracking.",
-        "Repairs and read-only repair reviews are complete. Focused suites pass 7 files / 131 tests; 18 actual browser cases pass, including rejected cancellation, authentication redirect without repeat cancellation, and string/array/null/missing labels. Fresh pnpm verify:handoff --fresh passes 97 files / 664 tests / 2 existing TODO tests, plus build/lint/typecheck, validators, preview smoke and clean state. See PR #590 for published-head CI and the independent final verdict; review readiness requires both, and human merge remains required."
+        "Repairs and read-only repair reviews are complete. Focused suites pass 7 files / 131 tests; 18 actual browser cases pass, including rejected cancellation, authentication redirect without repeat cancellation, and string/array/null/missing labels. Fresh pnpm verify:handoff --fresh passes 97 files / 664 tests / 2 existing TODO tests, plus build/lint/typecheck, validators, preview smoke and clean state. See PR #590 for published-head CI and the independent final verdict; review readiness requires both, and human merge remains required.",
+        "2026-10-05: PR #590 merged to main as 6031021 after independent exact-head evaluation; no longer active."
       ]
     },
     {
@@ -113,7 +123,7 @@
       "status": "not_started",
       "evidence": [
         "Tracking epic reconciled on 2026-10-02; excluded from executable WIP. Remaining work is owned by native child issues #584/#585/#588, not anonymous PR slices.",
-        "Merged reconciliation/events/signed ingress/normal finalization: PRs #565\u2013#568; cancellation/restart/reservation/resume: #570\u2013#574.",
+        "Merged reconciliation/events/signed ingress/normal finalization: PRs #565–#568; cancellation/restart/reservation/resume: #570–#574.",
         "Merged paid-recovery schema/local compensation/recovery guards: #576/#577/#579; internal owner-safe state snapshot #581 merged at 5cd361e8 with independent PASS 10/10 and fresh 567-test CI.",
         "Detailed historical slice verification remains in https://github.com/caraseli02/agent-Commerce/issues/557 and its linked PRs. No provider Refund or public refresh completion is claimed."
       ]

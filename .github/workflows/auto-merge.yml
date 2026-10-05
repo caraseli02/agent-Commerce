@@ -1,0 +1,94 @@
+name: Auto-merge
+
+# Merges low-risk PRs (docs/skills only) once CI and the Evaluator App's
+# evaluator/verdict are green on the exact head. Policy: docs/agents/auto-merge.md.
+#
+# Safety rules for this file:
+# - Runs only from main (workflow_run/status/check_run always use the default
+#   branch; workflow_dispatch is gated below). Never use pull_request_target.
+# - Never checks out or executes PR head code; only the trusted scripts/ from main.
+# - Without the Merger App secrets in the `auto-merge` environment it is a no-op.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  status:
+  check_run:
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to re-evaluate
+        required: true
+        type: number
+
+permissions:
+  contents: read
+
+jobs:
+  auto-merge:
+    name: auto-merge
+    # Pause path: a failed CI push run on main always runs (the script checks
+    # whether that commit was an auto-merge). Merge paths run only while
+    # AUTO_MERGE_ENABLED is 'true'; the script re-reads the variable before merging.
+    if: >-
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (
+        (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' &&
+          contains(fromJSON('["failure","timed_out","startup_failure"]'), github.event.workflow_run.conclusion)) ||
+        (vars.AUTO_MERGE_ENABLED == 'true' && (
+          (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request' &&
+            github.event.workflow_run.conclusion == 'success') ||
+          github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'status' && github.event.context == 'evaluator/verdict' && github.event.state == 'success') ||
+          (github.event_name == 'check_run' && github.event.check_run.name == 'evaluator/verdict' &&
+            github.event.check_run.conclusion == 'success')
+        ))
+      )
+    runs-on: ubuntu-latest
+    environment: auto-merge
+    timeout-minutes: 10
+
+    steps:
+      - name: Check Merger App configuration
+        id: config
+        env:
+          MERGER_APP_ID: ${{ secrets.MERGER_APP_ID }}
+          MERGER_APP_PRIVATE_KEY: ${{ secrets.MERGER_APP_PRIVATE_KEY }}
+        run: |
+          if [ -z "$MERGER_APP_ID" ] || [ -z "$MERGER_APP_PRIVATE_KEY" ]; then
+            echo "Auto-merge: MERGER_APP_ID / MERGER_APP_PRIVATE_KEY are not set in the auto-merge environment; doing nothing."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Merger App token
+        id: token
+        if: steps.config.outputs.configured == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.MERGER_APP_ID }}
+          private-key: ${{ secrets.MERGER_APP_PRIVATE_KEY }}
+
+      - name: Checkout trusted auto-merge scripts from main
+        if: steps.config.outputs.configured == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          sparse-checkout: scripts
+
+      - name: Setup Node.js 24
+        if: steps.config.outputs.configured == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Evaluate and merge
+        if: steps.config.outputs.configured == 'true'
+        env:
+          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
+          EVALUATOR_APP_SLUG: ${{ vars.EVALUATOR_APP_SLUG }}
+          INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+        run: node scripts/auto-merge.mjs

@@ -2,6 +2,13 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Low-risk PR auto-merge — 2026-10-05
+
+- #603 (epic #595): a PR auto-merges only when every changed path, counting renames and deletions by both old and new path, is in the allowlist `README.md`, `docs/**`, `.agents/skills/**`, `.claude/skills/**`, `skills-lock.json`, and no path matches the denylist. The denylist is `AGENTS.md`, `CLAUDE.md`, `DECISIONS.md`, `docs/agents/**`, `.github/**`, `.husky/**`, `scripts/**`, `package.json`, `pnpm-lock.yaml`, plus anything not on the allowlist. The class is computed from the diff only, never from labels or agent declarations. Every other PR stays a human merge.
+- Merge conditions are checked on the current head SHA. The PR must be open, non-draft, targeting `main` and mergeable. CI `verify` must be success. `evaluator/verdict` must be success from the configured Evaluator App, so a missing, pending, failed or "did not run" outcome never merges. The repo variable `AUTO_MERGE_ENABLED` must be exactly `true`. The merge is a merge commit through the REST API, with `sha` pinned to that head.
+- `.github/workflows/auto-merge.yml` runs from `main` as a separate Merger GitHub App, whose secrets live in the `main`-only `auto-merge` environment. It never runs PR code or uses `pull_request_target`, and it is a no-op until the owner completes setup. If CI fails on `main` for an auto-merged commit, it sets `AUTO_MERGE_ENABLED=false` and opens an issue. There is no dry-run mode and no opt-out label; a draft PR never merges.
+- Details and owner setup: `docs/agents/auto-merge.md`.
+
 ## Payment contract ownership and regression policy — 2026-10-03
 
 - Payment states belong to Payments; workflow/recovery decisions belong to checkout; public errors use a pure shared contract; presentation uses exhaustive mappings. Preserve persisted/wire values and legacy FAILED; Refund remains separate from historical PAID.
