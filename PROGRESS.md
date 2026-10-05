@@ -2,16 +2,20 @@
 
 ## Current focus
 
-- Issue [#584](https://github.com/caraseli02/agent-Commerce/issues/584), PR [#594](https://github.com/caraseli02/agent-Commerce/pull/594), branch `codex/584-payment-refresh-return`. Sole active task; Claude advisory repairs verified; preparing updated head for independent evaluation.
+- User-requested repair of documentation PR [#593](https://github.com/caraseli02/agent-Commerce/pull/593), reconciled with Claude factory proposal [#591](https://github.com/caraseli02/agent-Commerce/pull/591). This proposal is separate from executable product WIP.
 
 ## In progress
 
-- The prior advisory covers head `ee752664`; new commits require fresh independent evaluation. Focused repairs pass 6 suites / 123 tests. Fresh handoff at 9e2dced3 passes 98 files / 694 tests / 2 pre-existing deferred tests; built-runtime auth/gate checks and mock checkout browser flow pass. No independent verdict is claimed. Keep #584 active through current-head verification and independent evaluation; #583 is complete.
+- Documentation repair published on #593: main conflicts resolved; per-builder WIP, GitHub claim authority, internal Codex model roles and separately operated cross-review agree across harness docs. No product issue is claimed by this repair.
+- #583/#590 and #584/#594 are merged and closed. Preserve main's implementation evidence; do not infer an independent final-head verdict for #594 from its merge.
+- Live GitHub scan found open in-progress [#603](https://github.com/caraseli02/agent-Commerce/issues/603), marked ready-for-human. This repair does not claim, reassign, or change that issue. All builders must inspect live labels, assignments and linked PRs before pickup.
 
 ## Blocked / known baseline failures
 
-- Historical guest order-detail `adminSettings` issue remains known and outside #584. Stripe activation remains default-off pending #559. No #584 blocker is currently recorded.
+- #591 still needs claim serialization, structured verdict detection, conflict recovery and INCONCLUSIVE handling. Codex's model delegation is internal to its builder and does not replace independent evaluation.
+- Stripe activation remains default-off pending #559. Historical guest order-detail adminSettings behavior is outside this documentation repair.
 
 ## Verification baseline
 
-- Current repair evidence: clean `pnpm verify:handoff --fresh`, isolated PostgreSQL HTTP tests, built Nitro401/503/404 boundaries, and checkout success with PAID payment and empty cart. Normal pre-push will independently exercise selected cart/orders visuals. Next: inspect fresh CI and attributed independent exact-head verdict on PR #594; human merge remains required. Do not start another issue.
+- Preserved #584 evidence: fresh handoff at 9e2dced3 passed 98 files / 694 tests / 2 deferred tests; focused repairs passed 6 suites / 123 tests, built HTTP boundaries and mock checkout success.
+- This proposal changes documentation and tracking only. Fresh pnpm verify:handoff passed build, lint, typecheck, 98 coverage suites / 694 tests / 2 deferred tests, validators, architecture, preview smoke and clean state. The conservative classifier ran the full gate. An initial concurrent-resume serialization failure passed focused retry (11/11) and fresh full rerun; no application repair was needed. Normal pre-push passed matching-evidence reuse, validators and all 9 Chromium visual cases. GitHub reports the PR mergeable; CI and separate exact-head evaluation remain pending. Draft status is preserved. Host setup and scheduler changes remain outside this PR.

@@ -21,7 +21,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - Use this once before final PR/session handoff, after intentional files are committed or otherwise clean. Full/handoff reuse matching local base checks when available, then run their additional checks.
 4. **Harness-state validator**
    - `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
-   - Use it to prove allowed statuses, WIP=1, and passing-item evidence stay mechanically correct.
+   - Use it to prove allowed statuses, the snapshot's single-active-item limit, and passing-item evidence stay mechanically correct. It does not enforce live per-builder GitHub WIP; inspect labels, assignments and linked PRs separately.
 5. **PR template completeness gate**
    - `node scripts/check-pr-template.mjs`
    - The focused `PR template / check` workflow runs separately from application CI and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
@@ -87,7 +87,7 @@ Compute the fingerprint from the actual diff bytes and untracked file contents, 
 
 Associate each result with its checked environment/runtime identity (a short identifier referencing the setup is enough); do not overwrite older results with a newer global setup. Update the record after edits/checks and before interruption. On resume, compare revision, fingerprint, relevant dependencies, and environment against each result. A changed overall fingerprint prompts inspection of the change; it does not invalidate unrelated checks automatically. Reuse only evidence with demonstrably unchanged inputs. A preview must be rebuilt after a relevant edit; a dev server must have consumed the current changes (restart for config/server changes when needed). Never label a stale runtime check as evidence for the current diff.
 
-This record is a local continuation aid, not a scheduler or an independent evaluator verdict. Keep durable issue/PR state in `PROGRESS.md` and `feature_list.json`; copy useful evidence into the handoff and remove temporary task records/artifacts before clean handoff. The ignored delivery receipt described below may remain until expiration for pre-push reuse.
+This record is a local continuation aid, not a scheduler or an independent evaluator verdict. Keep live issue/PR state and unattended evidence on GitHub; preserve shared `PROGRESS.md` and `feature_list.json` snapshots during explicit reviewed reconciliation. Copy useful evidence into the handoff and remove temporary task records/artifacts before clean handoff. The ignored delivery receipt described below may remain until expiration for pre-push reuse.
 
 ## Local delivery receipt and focused documentation gate
 
@@ -185,7 +185,7 @@ Example evidence block for a future PR:
 
 1. Stop and fix the failing command before pushing.
 2. If `lint-staged` rewrites files, restage those changes and rerun the hook.
-3. If the failure is outside the current scope, record the exact command and output in `PROGRESS.md` and do not widen the task.
+3. If the failure is outside the current scope, record the exact command and output in the issue/PR (or `PROGRESS.md` during explicit reconciliation) and do not widen the task.
 
 ## Done gate
 
@@ -196,7 +196,7 @@ A task is not done until all are true:
 - Browser/runtime evidence exists for UI or route changes.
 - The evaluator confirmed the PR is mergeable and not in a conflict state before granting PASS.
 - No unrelated refactor was bundled into the task.
-- `feature_list.json` / `PROGRESS.md` are updated when durable state changed. GitHub Issues are the primary work tracker; `PROGRESS.md` is the current-state mirror for active issue/PR, blockers, and verification baseline.
+- GitHub labels, assignments and linked PRs carry live state and unattended transitions. Explicit reviewed reconciliations update `feature_list.json` / `PROGRESS.md` snapshots with evidence; these snapshots do not replace live claim checks.
 - The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.
 - For harness-state validator work, make the PR body itself repeat the validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
 - An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.

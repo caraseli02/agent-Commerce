@@ -3,8 +3,9 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
-    "status_values": ["not_started", "active", "blocked", "passing"]
+    "active_feature_count": 0,
+    "status_values": ["not_started", "active", "blocked", "passing"],
+    "live_claim_authority": "GitHub issue labels and linked PRs; WIP=1 per builder. This file is a reviewed evidence snapshot, not unattended claim state."
   },
   "features": [
     {
@@ -88,12 +89,13 @@
       "id": "I584",
       "description": "Expose owner-scoped refresh/return recovery (#584)",
       "validation": "Bounded provider reconciliation, retry-safe application consequences and fresh owner-safe state through HTTP; credentials withheld.",
-      "status": "active",
+      "status": "passing",
       "evidence": [
-        "Issue https://github.com/caraseli02/agent-Commerce/issues/584; PR https://github.com/caraseli02/agent-Commerce/pull/594; branch codex/584-payment-refresh-return. Sole active feature; Claude advisory repairs implemented and verified.",
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/584; PR https://github.com/caraseli02/agent-Commerce/pull/594; branch codex/584-payment-refresh-return. Implementation and Claude advisory repairs are merged.",
         "Runtime repair 8e49a29e; clean fresh handoff at 9e2dced3: 98 files / 694 tests / 2 pre-existing deferred tests; build/lint/typecheck/coverage/state/UI/architecture/preview/clean gates pass. Focused isolated PostgreSQL verification: 6 suites / 123 tests, including 30 refresh cases.",
         "Current built Nitro: unauthorized refresh/resume/restart401; authenticated default-off refresh/resume503 stripe_payments_disabled; missing restart404. Existing mock checkout browser success1/1; isolated database confirms PAID payment and empty cart. No Stripe activation or visual baseline changes.",
-        "Claude advisory covers prior head ee752664, not the new commits. Fresh executable CI, selected pre-push visuals and attributed independent structured exact-head evaluation remain required; no independent verdict is claimed. Human merge required."
+        "Pre-merge record: Claude advisory covered ee752664; no independent current-head verdict was claimed in that record.",
+        "2026-10-05: PR #594 merged as c38cae936e96d6a38f65c4f92ac2f4d139953bce and closed #584. Earlier recorded runtime and delivery evidence is preserved above. No independent evaluator PASS is inferred from merge; no structured final-head verdict was found in GitHub issue comments or PR reviews during reconciliation."
       ]
     },
     {
@@ -410,8 +412,8 @@
     },
     {
       "id": "H05",
-      "description": "Keep only one task active at a time",
-      "validation": "WIP=1 is enforced in issue pickup, feature list policy, and lifecycle rules",
+      "description": "Keep one executable issue active per builder",
+      "validation": "Issue pickup and lifecycle rules require each builder to inspect its own live GitHub claims and PRs; delegated subtasks share that claim. The feature-list validator checks only snapshot consistency and does not enforce live GitHub WIP.",
       "status": "passing",
       "evidence": ["feature_list.json", "docs/agents/issue-tracker.md", "docs/agents/session-lifecycle.md"]
     },

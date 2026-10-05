@@ -9,8 +9,9 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - Keep changes small and shippable; this repo is a good fit for autonomous micro-tasks.
 - GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues and claim one issue at a time.
 - Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready.
-- The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue while an `in-progress` issue has an open PR.
-- Durable session state lives in `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md`.
+- The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue for that builder while its `in-progress` issue has an open PR.
+- WIP=1 applies per builder. Claude owns `agent:claude` or legacy `lane:nightly` issues; Codex owns other eligible issues. Internal model delegation shares its builder's claim. See `docs/agents/autonomous-workflow.md` for ownership and independent cross-review.
+- GitHub labels, assignments and linked PRs are live claim state. `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md` preserve reviewed session/evidence snapshots; unattended agents keep task transitions on GitHub.
 
 ## The 5 questions every fresh session must answer
 
@@ -77,17 +78,17 @@ Do not mix initialization with feature implementation unless the task is explici
 - Make **one small decision + one small change + one verification** per loop.
 - Prefer tasks that touch 1 category only: build fix, lint fix, component polish, API wiring, or doc cleanup.
 - Prefer one coherent behavior per issue/PR, including its necessary endpoint, tests, migration, and tracking updates. More than ~3 implementation files prompts a scope review, not an automatic helper/route split. A second unrelated behavior requires a separate issue.
-- Enforce **WIP=1**: only one task may be active at a time.
+- Enforce **WIP=1 per builder**: only one executable issue may be active for that builder. Internal delegated subtasks do not claim another issue.
 - After two focused failed repair attempts, stop and report the blocker instead of widening scope.
 - Do not continue based on vibe; keep every loop grounded in a checkable outcome.
 
 ## Feature list contract
 
-`feature_list.json` is the source of truth for task state.
+`feature_list.json` is a reviewed validation/evidence snapshot. GitHub is the authority for live task claims; unattended agents do not edit this shared snapshot or `PROGRESS.md`. Explicit user-requested reconciliation may update them.
 
 - each item needs: `id`, `description`, `validation`, `status`, `evidence`
 - allowed statuses: `not_started`, `active`, `blocked`, `passing`
-- only one item should be `active`
+- the snapshot validator allows at most one item marked `active`; this is snapshot consistency, not enforcement of live per-builder GitHub WIP
 - a task may move to `passing` only after its validation evidence is recorded
 
 ## Session lifecycle
@@ -149,7 +150,7 @@ Use `PROGRESS.md` for work that spans sessions. Keep it short and factual:
 - blocked
 - next verification
 
-GitHub Issues remain the primary task queue. `PROGRESS.md` is the up-to-date session mirror: it should summarize the active issue/PR, blockers, and baseline state so a fresh agent does not need to reconstruct recent work from chat.
+GitHub Issues remain the primary task queue and live claim authority. `PROGRESS.md` is a reviewed session snapshot: summarize its issue/PR, blockers, and baseline, then recheck GitHub on resume. Unattended transitions belong in issue/PR comments and labels rather than concurrent edits to shared snapshots.
 
 ## Autonomous task shape
 
