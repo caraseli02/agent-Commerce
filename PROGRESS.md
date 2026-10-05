@@ -6,7 +6,7 @@
 
 ## In progress
 
-- Documentation repair prepared: main conflicts resolved; per-builder WIP, GitHub claim authority, internal Codex model roles and separately operated cross-review agree across harness docs. No product issue is claimed by this repair.
+- Documentation repair published on #593: main conflicts resolved; per-builder WIP, GitHub claim authority, internal Codex model roles and separately operated cross-review agree across harness docs. No product issue is claimed by this repair.
 - #583/#590 and #584/#594 are merged and closed. Preserve main's implementation evidence; do not infer an independent final-head verdict for #594 from its merge.
 - Live GitHub scan found open in-progress [#603](https://github.com/caraseli02/agent-Commerce/issues/603), marked ready-for-human. This repair does not claim, reassign, or change that issue. All builders must inspect live labels, assignments and linked PRs before pickup.
 
@@ -18,4 +18,4 @@
 ## Verification baseline
 
 - Preserved #584 evidence: fresh handoff at 9e2dced3 passed 98 files / 694 tests / 2 deferred tests; focused repairs passed 6 suites / 123 tests, built HTTP boundaries and mock checkout success.
-- This proposal changes documentation and tracking only. Fresh pnpm verify:handoff passed build, lint, typecheck, 98 coverage suites / 694 tests / 2 deferred tests, validators, architecture, preview smoke and clean state. The conservative classifier ran the full gate. An initial concurrent-resume serialization failure passed focused retry (11/11) and fresh full rerun; no application repair was needed. Next: normal pre-push, live mergeability and separate exact-head evaluation. Host setup and scheduler changes remain outside this PR.
+- This proposal changes documentation and tracking only. Fresh pnpm verify:handoff passed build, lint, typecheck, 98 coverage suites / 694 tests / 2 deferred tests, validators, architecture, preview smoke and clean state. The conservative classifier ran the full gate. An initial concurrent-resume serialization failure passed focused retry (11/11) and fresh full rerun; no application repair was needed. Normal pre-push passed matching-evidence reuse, validators and all 9 Chromium visual cases. GitHub reports the PR mergeable; CI and separate exact-head evaluation remain pending. Draft status is preserved. Host setup and scheduler changes remain outside this PR.
