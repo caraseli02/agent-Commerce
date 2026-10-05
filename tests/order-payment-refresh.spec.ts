@@ -5,6 +5,8 @@ import { createRefreshOrderPayment } from '~/server/application/checkout/refresh
 import { readOrderPaymentState } from '~/server/application/checkout/read-order-payment-state';
 import { commitRefundCompensation } from '~/server/application/checkout/commit-refund-compensation';
 import { orders } from '~/server/domain/orders';
+import { cart } from '~/server/domain/cart';
+import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
 import { inventory } from '~/server/domain/inventory';
 import { createStripeIntentAdapter } from '~/server/domain/payments';
 import type { StripeIntentProvider, StripePaymentIntent } from '~/server/domain/payments/stripe-intents';
@@ -17,10 +19,10 @@ vi.mock('~/server/application/checkout/stripe-payment', () => ({
   stripePayments: { reconcilePayment: stripe.reconcilePayment },
 }));
 
-const paymentId = 'pay-paid-finalization';
-const orderId = 'ord-paid-finalization';
-const reservationId = 'res-paid-finalization';
-const intentId = 'pi_paid_finalization';
+const paymentId = 'pay-refresh-return';
+const orderId = 'ord-refresh-return';
+const reservationId = 'res-refresh-return';
+const intentId = 'pi_refresh_return';
 const createdAt = '2026-09-27T12:00:00.000Z';
 const input = { ownerId: 'mock-customer-1', orderId };
 let server: Server;
@@ -72,6 +74,7 @@ describe('owner-scoped refresh/return over real HTTP and PostgreSQL', () => {
   });
   afterAll(async () => {
     await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
   beforeEach(async () => {
@@ -117,6 +120,7 @@ describe('owner-scoped refresh/return over real HTTP and PostgreSQL', () => {
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     stripe.enabled.mockReturnValue(true);
     mockModeEnabled = true;
     providerStatus = 'succeeded';
@@ -168,6 +172,8 @@ describe('owner-scoped refresh/return over real HTTP and PostgreSQL', () => {
   });
 
   it('concurrent returns reuse the same payment and apply fulfillment once', async () => {
+    const confirm = vi.spyOn(orders, 'confirmPayment');
+    const commit = vi.spyOn(inventory, 'commit');
     const results = await Promise.all([response(), response(), response()]);
     for (const result of results) expect(result).toMatchObject({ status: 200, body: { data: { kind: 'completed' } } });
     expect(await state()).toMatchObject({
@@ -178,7 +184,67 @@ describe('owner-scoped refresh/return over real HTTP and PostgreSQL', () => {
       cart_revision: 2,
     });
     expect(create).not.toHaveBeenCalled();
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(commit).toHaveBeenCalledOnce();
     expect(retrieve.mock.calls.length).toBeLessThanOrEqual(results.length);
+  });
+
+  it('completed replay repairs interrupted cleanup without repeating critical fulfillment', async () => {
+    const confirm = vi.spyOn(orders, 'confirmPayment');
+    const commit = vi.spyOn(inventory, 'commit');
+    const cleanup = vi.spyOn(cart, 'completeCheckout').mockRejectedValueOnce(new Error('cleanup interruption'));
+    expect(await response()).toMatchObject({ body: { data: { kind: 'completed' } } });
+    expect(await state()).toMatchObject({ workflow_status: 'finalized', on_hand: 4, cart_revision: 1 });
+    expect(await response()).toMatchObject({ body: { data: { kind: 'completed' } } });
+    expect(await state()).toMatchObject({ on_hand: 4, cart_revision: 2 });
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(commit).toHaveBeenCalledOnce();
+    expect(cleanup).toHaveBeenCalledTimes(2);
+    expect(retrieve).toHaveBeenCalledOnce();
+  });
+
+  it('handles reconciliation database failure conservatively with a secret-free diagnostic', async () => {
+    stripe.reconcilePayment.mockRejectedValueOnce(new Error('sensitive-provider-secret'));
+    expect(await response()).toEqual({ status: 200, body: { status: 'success', data: { kind: 'recovery-required' } } });
+    expect(console.error).toHaveBeenCalledExactlyOnceWith('[checkout.refresh] reconciliation failed');
+    expect(await state()).toMatchObject({ payment_status: 'PENDING', workflow_status: 'payment_pending', on_hand: 5 });
+  });
+
+  it('returns concurrent webhook completion despite an unknown provider observation', async () => {
+    retrieve.mockImplementationOnce(async () => {
+      const database = await getCheckoutDatabase();
+      await database.execute("UPDATE checkout_payments SET status='PAID' WHERE id=$1", [paymentId]);
+      await finalizePaidCheckout({ paymentId, orderId });
+      return {
+        id: intentId,
+        amountMinor: 1234,
+        currency: 'RON',
+        status: 'unknown_provider_result',
+        clientSecret: null,
+        metadata: { paymentId, orderId },
+      };
+    });
+    expect(await response()).toEqual({ status: 200, body: { status: 'success', data: { kind: 'completed' } } });
+    expect(await state()).toMatchObject({ on_hand: 4, cart_revision: 2 });
+    expect(retrieve).toHaveBeenCalledOnce();
+  });
+
+  it('terminalizes fresh canceled truth despite an unknown provider observation', async () => {
+    retrieve.mockImplementationOnce(async () => {
+      const database = await getCheckoutDatabase();
+      await database.execute("UPDATE checkout_payments SET status='CANCELED' WHERE id=$1", [paymentId]);
+      return {
+        id: intentId,
+        amountMinor: 1234,
+        currency: 'RON',
+        status: 'unknown_provider_result',
+        clientSecret: null,
+        metadata: { paymentId, orderId },
+      };
+    });
+    expect(await response()).toMatchObject({ body: { data: { kind: 'canceled' } } });
+    expect(await state()).toMatchObject({ workflow_status: 'canceled', reservation_status: 'released', reserved: 0 });
+    expect(retrieve).toHaveBeenCalledOnce();
   });
 
   it('retries a crash gap after PAID without another provider call', async () => {
@@ -189,9 +255,10 @@ describe('owner-scoped refresh/return over real HTTP and PostgreSQL', () => {
     expect(await state()).toMatchObject({ workflow_status: 'finalized', on_hand: 4 });
   });
 
-  it('keeps PAID distinct from completion after a rolled-back consequence and retries it', async () => {
+  it('reports recovery after a rolled-back consequence, logs safely and retries it', async () => {
     vi.spyOn(orders, 'confirmPayment').mockRejectedValueOnce(new Error('interrupted application finalization'));
-    expect(await response()).toMatchObject({ status: 200, body: { data: { kind: 'paid-finalizing' } } });
+    expect(await response()).toMatchObject({ status: 200, body: { data: { kind: 'recovery-required' } } });
+    expect(console.error).toHaveBeenCalledWith('[checkout.refresh] application consequence failed');
     expect(await state()).toMatchObject({
       payment_status: 'PAID',
       workflow_status: 'payment_pending',
@@ -207,7 +274,8 @@ describe('owner-scoped refresh/return over real HTTP and PostgreSQL', () => {
   it('leaves an expired paid reservation non-completed without selecting a late-paid commercial policy', async () => {
     const database = await getCheckoutDatabase();
     await database.execute("UPDATE checkout_reservations SET status='expired',expires_at='2020-01-01' WHERE id=$1", [reservationId]);
-    expect(await response()).toMatchObject({ body: { data: { kind: 'paid-finalizing' } } });
+    expect(await response()).toMatchObject({ body: { data: { kind: 'recovery-required' } } });
+    expect(await response()).toMatchObject({ body: { data: { kind: 'recovery-required' } } });
     expect(await state()).toMatchObject({ paid_by_payment_id: null, workflow_status: 'payment_pending', on_hand: 5 });
   });
 

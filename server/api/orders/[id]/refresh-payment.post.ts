@@ -1,15 +1,10 @@
 import { checkoutErrorResponse } from '~/types/order/checkout-error';
 import { refreshOrderPayment } from '~/server/application/checkout/refresh-order-payment';
 import { stripePaymentsEnabled } from '~/server/application/checkout/stripe-payment';
-import { getExistingMockCartUserId } from '~/server/utils/mockCart';
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { requireCheckoutOwner } from '~/server/utils/requireCheckoutOwner';
 
 export default defineEventHandler(async (event) => {
-  const authorization = getHeaders(event).authorization;
-  const authenticatedUser = getMockUserFromAuthHeader(authorization);
-  const mockModeEnabled = String(useRuntimeConfig(event).public.MOCK_MODE) === 'true';
-  const ownerId = authenticatedUser?._id || (mockModeEnabled ? getExistingMockCartUserId(event, authorization) : '');
-  if (!ownerId) throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
+  const ownerId = requireCheckoutOwner(event);
   if (!stripePaymentsEnabled()) throw createError(checkoutErrorResponse('stripe_payments_disabled'));
 
   const orderId = getRouterParam(event, 'id') || '';

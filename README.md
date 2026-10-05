@@ -190,12 +190,16 @@ returns a safe payment action or processing state after server revalidation;
 otherwise it returns a stable error without a client secret. The gate remains
 off until #559's shared-database writer proof is complete.
 `POST /api/orders/:id/refresh-payment` is the owner-scoped refresh/return path
-for an existing checkout. When the Stripe gate is enabled, it reconciles the
-known PaymentIntent, applies retry-safe paid or canceled checkout consequences,
-and returns the latest safe checkout state. The response contains no provider
-credentials or client secret. Local payment reads alone are informational and
-never confirm payment; the endpoint is unavailable while the default-off gate
-is disabled.
+for an existing checkout. It reconciles the known PaymentIntent with at most
+one provider read and no client-supplied payment authority. A fully validated,
+unpaid `recovery_required` claim may reconcile using its known provider
+identity. The endpoint returns HTTP 200 with `recovery-required` when recovery
+is still needed; the separate resume action uses a conflict response. If a
+retry observes provider success but local finalization remains unavailable, it
+also returns `recovery-required`. Completed replays preserve revision-aware cart
+cleanup. Responses contain no provider credentials or client secret. Local
+payment reads alone are informational and never confirm payment; the endpoint
+is unavailable while the default-off gate is disabled.
 
 ## Mock architecture
 

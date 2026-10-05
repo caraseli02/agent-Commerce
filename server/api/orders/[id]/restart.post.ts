@@ -1,14 +1,9 @@
 import { checkoutErrorResponse } from '~/types/order/checkout-error';
 import { restartCanceledCheckout } from '~/server/application/checkout/restart-canceled-checkout';
-import { getExistingMockCartUserId } from '~/server/utils/mockCart';
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { requireCheckoutOwner } from '~/server/utils/requireCheckoutOwner';
 
 export default defineEventHandler(async (event) => {
-  const authorization = getHeaders(event).authorization;
-  const authenticatedUser = getMockUserFromAuthHeader(authorization);
-  const mockModeEnabled = String(useRuntimeConfig(event).public.MOCK_MODE) === 'true';
-  const ownerId = authenticatedUser?._id || (mockModeEnabled ? getExistingMockCartUserId(event, authorization) : '');
-  if (!ownerId) throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
+  const ownerId = requireCheckoutOwner(event);
 
   const orderId = getRouterParam(event, 'id') || '';
   const result = await restartCanceledCheckout({ ownerId, orderId });
