@@ -18,4 +18,4 @@
 ## Verification baseline
 
 - Preserved #584 evidence: fresh handoff at 9e2dced3 passed 98 files / 694 tests / 2 deferred tests; focused repairs passed 6 suites / 123 tests, built HTTP boundaries and mock checkout success.
-- This proposal changes documentation and tracking only. Next: documentation-only pnpm verify:handoff, normal pre-push, live mergeability and separate exact-head evaluation. Host setup and scheduler changes remain outside this PR.
+- This proposal changes documentation and tracking only. Fresh pnpm verify:handoff passed build, lint, typecheck, 98 coverage suites / 694 tests / 2 deferred tests, validators, architecture, preview smoke and clean state. The conservative classifier ran the full gate. An initial concurrent-resume serialization failure passed focused retry (11/11) and fresh full rerun; no application repair was needed. Next: normal pre-push, live mergeability and separate exact-head evaluation. Host setup and scheduler changes remain outside this PR.
