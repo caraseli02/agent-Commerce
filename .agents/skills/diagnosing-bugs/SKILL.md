@@ -1,6 +1,6 @@
 ---
 name: diagnosing-bugs
-description: Diagnosis loop for hard bugs and performance regressions. Use when the user says "diagnose"/"debug this", or reports something broken/throwing/failing/slow.
+description: Disciplined diagnosis loop for hard bugs and performance regressions. Build a tight feedback loop → reproduce + minimise → hypothesise → instrument → fix → regression-test. Use when the user says "diagnose this"/"debug this", reports a bug, says something is broken/throwing/failing/slow, or describes a performance regression.
 ---
 
 # Diagnosing Bugs
