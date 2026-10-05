@@ -23,11 +23,11 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/agent-Commerc
   - assign the issue to the working account
   - leave a short comment with the branch name
 - If an issue is already assigned or already has an active PR, skip it.
-- WIP is 1 per agent: Claude and Codex each work at most one issue at a time. Issues labeled `agent:claude` (or legacy `lane:nightly`) belong to Claude; all other `ready-for-agent` issues belong to Codex. Never pick up the other agent's issue; see `autonomous-workflow.md` § Agents and `.factory/`.
+- WIP is 1 per builder: never claim two executable issues for the same builder. Claude owns `agent:claude` and legacy `lane:nightly`; Codex skips both and owns other eligible issues. Delegated models share the builder's existing claim. GitHub labels, assignments and linked PRs are the live authority; unattended agents do not update shared tracking snapshots.
 - Claude never claims `area:payments` issues or anything in the payment map below.
 - The generator may only implement the issue already claimed by the planner.
 - The generator opens or updates one PR intended to complete the executable issue. It uses `Closes #<child>` and `Related #<epic>`, but does not declare final completion. Anonymous partial slices cannot keep extending one executable issue; rescope into named children before implementation.
-- If an `in-progress` issue has an open PR, do not select new work. Wait for evaluator, or repair that same PR when the evaluator fails it.
+- If the builder's `in-progress` issue has an open PR, do not select new work. Wait for evaluator, or repair that same PR when the evaluator fails it.
 - The evaluator independently checks the PR and moves the issue toward `ready-for-human` only after evidence passes.
 
 ## When a skill says "publish to the issue tracker"

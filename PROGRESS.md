@@ -2,16 +2,20 @@
 
 ## Current focus
 
-- Issue [#583](https://github.com/caraseli02/agent-Commerce/issues/583), PR [#590](https://github.com/caraseli02/agent-Commerce/pull/590), branch `codex/583-payment-state-error-contracts`. This is the sole active task. Human merge remains required.
+- User-requested repair of documentation PR [#593](https://github.com/caraseli02/agent-Commerce/pull/593), reconciled with Claude factory proposal [#591](https://github.com/caraseli02/agent-Commerce/pull/591). This proposal is separate from executable product WIP.
 
 ## In progress
 
-- Repairs and read-only repair reviews are complete: both missed payment-label consumers, local failure-context cleanup before cancellation redirects, structured corruption outcomes, accurate review presentation and executable regressions. Earlier evaluator PASS is superseded. Durable ownership rules live in `docs/agents/payment-contracts.md`; the issue holds acceptance criteria.
+- Documentation repair published on #593: main conflicts resolved; per-builder WIP, GitHub claim authority, internal Codex model roles and separately operated cross-review agree across harness docs. No product issue is claimed by this repair.
+- #583/#590 and #584/#594 are merged and closed. Preserve main's implementation evidence; do not infer an independent final-head verdict for #594 from its merge.
+- Live GitHub scan found open in-progress [#603](https://github.com/caraseli02/agent-Commerce/issues/603), marked ready-for-human. This repair does not claim, reassign, or change that issue. All builders must inspect live labels, assignments and linked PRs before pickup.
 
 ## Blocked / known baseline failures
 
-No unresolved capability dependency for #583; #589/#582 are merged. CI still runs the full executable suite; selective CI is outside this issue. No schema, provider activation, commercial recovery selection or alerting changes. Unknown provider-result fallback and the previously recorded guest order-detail `adminSettings` error remain outside this cleanup.
+- #591 still needs claim serialization, structured verdict detection, conflict recovery and INCONCLUSIVE handling. Codex's model delegation is internal to its builder and does not replace independent evaluation.
+- Stripe activation remains default-off pending #559. Historical guest order-detail adminSettings behavior is outside this documentation repair.
 
 ## Verification baseline
 
-Fresh `pnpm verify:handoff --fresh` passes: 97 files / 664 tests / 2 existing TODO tests, plus build, bundle budgets, lint, typecheck, state/UI/architecture validators, preview smoke and clean state. Focused suites pass 7 files / 131 tests; 18 scoped browser cases pass, including malformed labels, cancellation rejection and authentication redirect without repeated cancellation. Normal pre-push reuses matching application evidence and selects the orders visual group. See PR #590 for the published-head CI result and independent final verdict; review readiness requires both. Human merge remains required. Do not claim another issue.
+- Preserved #584 evidence: fresh handoff at 9e2dced3 passed 98 files / 694 tests / 2 deferred tests; focused repairs passed 6 suites / 123 tests, built HTTP boundaries and mock checkout success.
+- This proposal changes documentation and tracking only. Fresh pnpm verify:handoff passed build, lint, typecheck, 98 coverage suites / 694 tests / 2 deferred tests, validators, architecture, preview smoke and clean state. The conservative classifier ran the full gate. An initial concurrent-resume serialization failure passed focused retry (11/11) and fresh full rerun; no application repair was needed. Normal pre-push passed matching-evidence reuse, validators and all 9 Chromium visual cases. GitHub reports the PR mergeable; CI and separate exact-head evaluation remain pending. Draft status is preserved. Host setup and scheduler changes remain outside this PR.
