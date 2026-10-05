@@ -58,7 +58,7 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 - Only issues labeled `ready-for-agent` are eligible for pickup.
 - Claim work by assigning the issue and marking it `in-progress`.
 - Use TDD for task implementation: failing test or regression check first, then the smallest fix, then verification.
-- Keep WIP=1 so the loop works on one issue at a time.
+- Keep WIP=1 per builder; internal subtasks share its issue. GitHub labels, assignments and linked PRs are live claims; shared tracking files are reviewed evidence snapshots.
 
 ## Source files
 

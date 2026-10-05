@@ -38,13 +38,13 @@ Before editing files, write a short contract in the issue or PR notes:
 
 This makes the process observable and prevents scope creep.
 
-## 3. WIP=1 claim protocol
+## 3. WIP=1 per-builder claim protocol
 
-1. Pick exactly one bounded `ready-for-agent` executable issue; skip `epic` tracking parents and children with unresolved capability dependencies.
+1. Read live GitHub claims and PRs for this builder. Pick exactly one bounded `ready-for-agent` executable issue in its ownership pool; skip `epic` tracking parents and children with unresolved capability dependencies.
 2. Skip issues already assigned, already `in-progress`, or already linked to an active PR.
 3. Add `in-progress`, assign the working account, and comment with branch name.
 4. Create a fresh branch/worktree from `origin/main`.
-5. Do not start a second issue while an `in-progress` issue has an open PR. Keep the same issue until evaluator PASS or a human blocker/replacement and state cleanup, as defined in `autonomous-workflow.md`.
+5. Do not start a second issue while this builder's `in-progress` issue has an open PR. Keep the same issue until evaluator PASS or a human blocker/replacement and state cleanup, as defined in `autonomous-workflow.md`.
 
 ## 4. During work
 
@@ -54,7 +54,7 @@ This makes the process observable and prevents scope creep.
 - Scope by one observable behavior, including its necessary implementation/endpoint/tests. Review scope when it exceeds roughly three implementation files; split unrelated outcomes into named issues before coding.
 - Do not refactor adjacent code until the core behavior is verified.
 - Record durable decisions in `DECISIONS.md`, not in chat only.
-- Update `feature_list.json` when feature/task state changes.
+- Record unattended task transitions in GitHub labels and issue/PR comments. Update shared `feature_list.json` / `PROGRESS.md` snapshots only during explicit reviewed reconciliation; they do not replace a live GitHub claim check.
 
 ## 5. Blocker protocol
 
@@ -90,11 +90,11 @@ Also verify:
 - `git status --short` contains only intentional files.
 - No temporary debug files are left under `tmp/`, project root, or source folders.
 - No new `console.log`, commented-out code, or TODO/FIXME markers were introduced unless explicitly intended; `node scripts/check-clean-state.mjs` checks the changed source files for those regressions and only performs the `PROGRESS.md` shape checks it can verify mechanically, while skipping itself so it does not self-flag.
-- GitHub Issues remain the primary task queue. `PROGRESS.md` states the active issue/PR, current focus, blockers, and next verification as the short cross-session mirror.
-- `feature_list.json` evidence is updated if task state changed.
+- GitHub labels, assignments and linked PRs are live task state. `PROGRESS.md` preserves a reviewed snapshot of issue/PR, focus, blockers and verification; unattended runs publish current state on GitHub.
+- Explicit tracking reconciliations update `feature_list.json` evidence; unattended runs leave the shared snapshot unchanged and record evidence in their issue/PR.
 - Remove temporary screenshots/logs/task records before handoff. The ignored four-hour delivery receipt may remain for pre-push reuse; it is never committed or treated as an evaluator verdict.
 - PR body includes verification evidence and any known risks.
-- If a PR was created or updated, evaluator handoff was triggered for the new PR head before starting any new issue.
+- If a PR was created or updated, publish evaluator-ready evidence for its exact head. The separate evaluator owns scheduling; wait for its report and human merge before another issue for this builder.
 
 ## 7. Handoff template
 

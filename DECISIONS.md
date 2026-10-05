@@ -2,6 +2,12 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Builder ownership and reviewed tracking — 2026-10-05
+
+- WIP=1 applies per builder; Codex skips `agent:claude` and legacy `lane:nightly`. Its internal Sol/Luna/Astra tasks share the same executable issue. Independent cross-review uses a separate evaluator session on the other builder's PR.
+- Live claims belong to GitHub labels, assignments and linked PRs. Unattended agents leave shared tracking snapshots unchanged; explicit reviewed reconciliation preserves evidence in `PROGRESS.md` and `feature_list.json`. The snapshot validator does not enforce live GitHub WIP.
+- The factory proposal #591 must adopt structured evaluator detection, retryable INCONCLUSIVE reports, serialized claiming and push-compatible conflict recovery before unattended rollout. This PR does not enable routines or change host schedules.
+
 ## External PR evaluation — 2026-10-04
 
 - The controller plans/generates; an evaluator operated separately communicates through GitHub comments/reviews. The controller does not launch Astra evaluation or self-certify PASS.
