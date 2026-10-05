@@ -90,9 +90,10 @@
       "validation": "Bounded provider reconciliation, retry-safe application consequences and fresh owner-safe state through HTTP; credentials withheld.",
       "status": "active",
       "evidence": [
-        "Issue https://github.com/caraseli02/agent-Commerce/issues/584; PR https://github.com/caraseli02/agent-Commerce/pull/594; branch codex/584-payment-refresh-return. Sole active feature; Claude advisory repairs are in progress.",
-        "Historical delivery evidence: initialization, focused HTTP/PostgreSQL suites, fresh handoff, preview smoke, selected browser journey, and pre-push visuals are documented in PR #594 and earlier session records. These results predate current advisory repairs.",
-        "Evaluation of head ee752664 is superseded by subsequent commits. No new checks or evaluator verdict are claimed for the repaired head; verify it and request a fresh exact-head evaluation."
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/584; PR https://github.com/caraseli02/agent-Commerce/pull/594; branch codex/584-payment-refresh-return. Sole active feature; Claude advisory repairs implemented and verified.",
+        "Runtime repair 8e49a29e; clean fresh handoff at 9e2dced3: 98 files / 694 tests / 2 pre-existing deferred tests; build/lint/typecheck/coverage/state/UI/architecture/preview/clean gates pass. Focused isolated PostgreSQL verification: 6 suites / 123 tests, including 30 refresh cases.",
+        "Current built Nitro: unauthorized refresh/resume/restart401; authenticated default-off refresh/resume503 stripe_payments_disabled; missing restart404. Existing mock checkout browser success1/1; isolated database confirms PAID payment and empty cart. No Stripe activation or visual baseline changes.",
+        "Claude advisory covers prior head ee752664, not the new commits. Fresh executable CI, selected pre-push visuals and attributed independent structured exact-head evaluation remain required; no independent verdict is claimed. Human merge required."
       ]
     },
     {
