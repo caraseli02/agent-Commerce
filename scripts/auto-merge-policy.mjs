@@ -209,6 +209,10 @@ export function decideMerge({ enabled, eventSha, pr, files, ciRuns, statuses, ch
 /**
  * Maps a workflow trigger to the work it implies. Never reads PR head code;
  * only SHAs and PR numbers leave this function.
+ *
+ * @param {string} eventName
+ * @param {any} payload
+ * @param {{ prNumber?: string | number, ciWorkflowPath?: string }} [options]
  */
 export function planFromEvent(eventName, payload, { prNumber, ciWorkflowPath = '.github/workflows/ci.yml' } = {}) {
   if (eventName === 'workflow_dispatch') {
