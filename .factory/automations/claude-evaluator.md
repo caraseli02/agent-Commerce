@@ -19,9 +19,18 @@ Keep PRs that:
 - are not draft;
 - do **not** carry `agent:claude` or `lane:nightly` (Claude-built PRs are reviewed by Codex; never grade Claude's work);
 - do not carry `skip-eval`;
-- have no comment containing their current `headRefOid`, checked with `gh api repos/caraseli02/agent-Commerce/issues/<n>/comments --paginate --jq '.[].body' | grep -c <headRefOid>`. This covers `<!-- evaluator-head: … -->` and the older `<!-- local-evaluator sha=… -->` markers. Never review the same head twice.
+- have no **final structured evaluator report** for their current `headRefOid`.
 
-None → print `No PRs awaiting evaluation.` and stop. Else take the oldest `updatedAt`.
+A final report is a PR comment that contains `<!-- evaluator-head: <headRefOid> -->` (or the legacy `<!-- local-evaluator sha=<headRefOid> -->`) **and** `## Evaluator verdict`. Only these markers count: bot summaries (CodeRabbit, Qodo, Vercel) and review comments that merely mention the SHA are not evaluations. Check with:
+
+```bash
+gh api repos/caraseli02/agent-Commerce/issues/<n>/comments --paginate \
+  --jq '[.[].body | select(contains("## Evaluator verdict")) | select(contains("evaluator-head: <headRefOid>") or contains("local-evaluator sha=<headRefOid>"))] | length'
+```
+
+`0` means not evaluated. `INCONCLUSIVE` reports use the separate marker `<!-- evaluator-inconclusive: <headRefOid> -->`, so they never count as final. A head whose newest `INCONCLUSIVE` comment is less than 2 hours old waits; otherwise it is eligible for a retry. Never post a second final report for the same head.
+
+None → print `No PRs awaiting evaluation.` and stop. Else take PRs with no report of any kind first, then `INCONCLUSIVE` retries; oldest `updatedAt` within each group.
 
 ## 2. Evaluate
 
@@ -34,7 +43,8 @@ In a clean checkout of the evaluator folder:
 5. For UI, route, auth, cart, checkout or state-flow changes, follow `.agents/skills/verify-ui-change/SKILL.md` and collect your own Playwright evidence on the routes and viewports the issue names. Record console errors and failed requests.
 6. For payment PRs, check against `DECISIONS.md` (Stripe provider ADR and payment decisions): monotonic state transitions, idempotency and unknown-provider-outcome rules, no Stripe activation before #559 Gate A, no persisted payment values changed outside the issue's scope. Name the exact decision any violation breaks.
 7. `gh pr checks <n>` and mergeability. `CONFLICTING` or `DIRTY` can never PASS.
-8. Review providers (Qodo, CodeRabbit): report each as `substantive review available`, `summary-only` or `unavailable`. Billing-paused or review-limit means unavailable, never passed (#569); unavailable alone does not block PASS. A check failing twice for environment reasons makes the verdict `INCONCLUSIVE` with the reason.
+8. Review providers (Qodo, CodeRabbit): report each as `substantive review available`, `summary-only` or `unavailable`. Billing-paused or review-limit means unavailable, never passed (#569); unavailable alone does not block PASS.
+9. A check failing twice for environment reasons (database, network, toolchain, not the PR's code) makes the verdict `INCONCLUSIVE`. Name the failed prerequisite and how to retry. If this head already has 2 earlier `INCONCLUSIVE` reports, post `BLOCKED — needs human decision` instead, naming the persistent prerequisite (blocker protocol, `session-lifecycle.md` §5).
 
 ## 3. Record the verdict
 
@@ -45,14 +55,16 @@ Post exactly one comment with `gh pr comment <n> --body-file <file>` (write the 
 
 ## Evaluator verdict
 
-PASS — ready-for-human | FAIL — needs generator fix | BLOCKED — needs human decision | INCONCLUSIVE
+PASS — ready-for-human | FAIL — needs generator fix | BLOCKED — needs human decision
 
 Independent evaluator: Claude (claude-evaluator, Mac mini). Evaluated exact PR head `<headRefOid>`.
 ```
 
+For `INCONCLUSIVE`, replace the first line with `<!-- evaluator-inconclusive: <headRefOid> -->` so the head stays eligible for a retry, and put the failed prerequisite and the retry condition under Required follow-up.
+
 Then Issue / PR, Evidence reviewed (commands with outcomes, browser evidence location), Rubric (total X/10), Required follow-up (file:line, blocking first), Review providers. A PASS needs at least 8/10 and a non-zero verification score.
 
-Labels: on PASS add `ready-for-human` to the linked issue; on BLOCKED add `blocked` with the human decision needed; on FAIL or INCONCLUSIVE change nothing (the builder repairs the same PR).
+Labels: on PASS add `ready-for-human` to the linked issue; on BLOCKED add `blocked` with the human decision needed; on FAIL change nothing (the builder repairs the same PR); on INCONCLUSIVE change nothing (you retry the unchanged head later).
 
 ## 4. Never
 
@@ -63,4 +75,8 @@ Labels: on PASS add `ready-for-human` to the linked issue; on BLOCKED add `block
 
 ## 5. Finish
 
-`git checkout --detach origin/main` and confirm `git status --short` is empty. Print one line: `Evaluated PR #<n> at <short sha>: <verdict>.`
+`git checkout --detach origin/main` and confirm `git status --short` is empty.
+
+Append one JSON line to Claude's activity journal `/Users/work/GIT/agent-Commerce/tmp/autonomy/events.jsonl` (gitignored, outside the evaluator folder; this is the only file you may write): `time` (UTC ISO), `actor` (`claude-evaluator`), `session`, `pr`, `head`, `verdict`, `rubric_total`, `verification`, `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
+
+Print one line: `Evaluated PR #<n> at <short sha>: <verdict>.`

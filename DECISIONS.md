@@ -5,7 +5,7 @@ Use this file for durable cross-session decisions that should survive context re
 ## Two-agent ownership and cross-review — 2026-10-04
 
 - Claude and Codex work the backlog on the Mac mini only, during working windows, each with WIP=1. The issue label is the only claim record: `agent:claude` (legacy `lane:nightly`) is Claude's, everything else `ready-for-agent` is Codex's. Unattended agents do not edit `feature_list.json` or `PROGRESS.md`.
-- Builder and reviewer always differ: Claude reviews non-Claude PRs, Codex reviews `agent:claude` PRs. Verdicts are one comment per head with an `evaluator-head` marker. Vlad merges.
+- Builder and reviewer always differ: Claude reviews non-Claude PRs, Codex reviews `agent:claude` PRs. Verdicts are one structured comment per head with an `evaluator-head` marker; `INCONCLUSIVE` uses a separate retryable marker, and bot summaries never count. Vlad merges.
 - Claude never builds payment, checkout or migration work. Claude routines live in `.factory/` and read it from `origin/main`; Codex follows `.factory/README.md` § Codex side, configured outside the repo.
 
 ## Payment contract ownership and regression policy — 2026-10-03

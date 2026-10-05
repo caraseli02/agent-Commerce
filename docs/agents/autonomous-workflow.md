@@ -26,7 +26,9 @@ Two builder agents work the backlog from the Mac mini, each with its own WIP=1. 
 
 - An agent never claims, implements or repairs an issue owned by the other agent, and never reviews a PR it built.
 - Claude never builds `area:payments` work or touches the protected paths in `.factory/factory.yaml`.
-- Claude claims by pushing a new `claude/issue-<n>-<slug>` branch first; a rejected push means the issue is already claimed.
+- Claude claims by pushing the deterministic branch `claude/issue-<n>` first; a rejected push means the issue is already claimed. If two runs lock different issues, the lowest issue number keeps its claim and the other releases.
+- Only structured reports count as evaluations: a comment with `<!-- evaluator-head: <sha> -->` (or legacy `<!-- local-evaluator sha=<sha> -->`) and `## Evaluator verdict` for the exact current head. Bot summaries that mention the SHA do not. `INCONCLUSIVE` uses `<!-- evaluator-inconclusive: <sha> -->`, is never final, and is retried on the unchanged head.
+- Conflicting PRs are repaired by merging `main` into the same branch and pushing normally; published branches are never rebased or force-pushed.
 - Unattended agents keep their state on GitHub (labels, issue and PR comments), not in `feature_list.json` or `PROGRESS.md`.
 - Claude's routines are defined in `.factory/` and change only through reviewed PRs; Codex's heartbeat is configured outside the repo and must follow `.factory/README.md` § Codex side.
 
