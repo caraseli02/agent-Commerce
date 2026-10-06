@@ -17,9 +17,9 @@ This is the runtime equivalent of: “work the currently claimed Components Mark
 
 ## Builder ownership and shared state
 
-Claude and Codex each have WIP=1. Claude owns issues labeled `agent:claude` or legacy `lane:nightly`; Codex skips both labels and owns other eligible issues. Claude never builds payments, checkout, refund or migration work. Claude's schedules, protected paths and prompts are defined in `.factory/`; routines are enabled on the Mac mini, not by this document.
+Claude and Codex each have WIP=1. Claude owns issues labeled `agent:claude`; Codex skips `agent:claude` and owns other eligible issues. Claude never builds payments, checkout, refund or migration work. Claude's schedules, protected paths and prompts are defined in `.factory/`; routines are enabled on the Mac mini, not by this document.
 
-GitHub issue labels, assignments and linked PRs are the live claim authority. Check the builder's complete active pool before selection, and skip assigned issues or issues with active PRs. Delegated implementation models share one parent issue and do not create new WIP. Concurrent runs of the same builder must serialize selection and claiming; an issue-specific branch alone does not enforce the builder-wide WIP limit.
+GitHub issue labels, assignments and linked PRs are the live claim authority. Check the builder's complete active pool before selection, and skip assigned issues or issues with active PRs. Delegated implementation models share one parent issue and do not create new WIP. Concurrent runs of the same builder must serialize selection and claiming; an issue-specific branch alone does not enforce the builder-wide WIP limit. On the Mac mini every scheduled or manual run of a Claude routine takes a local run lock first (see below).
 
 Unattended agents record transitions and evidence on GitHub, without editing `feature_list.json` or `PROGRESS.md`. These files remain reviewed evidence snapshots, updated by explicit reconciliation. The existing feature-list validator checks snapshot fields and its single-active-item limit; it does not count GitHub claims or enforce WIP across builders.
 
@@ -27,11 +27,11 @@ Claude-built PRs carry `agent:claude` and are independently evaluated by Codex; 
 
 | Agent  | Builds                                                                     | Reviews                              |
 | ------ | -------------------------------------------------------------------------- | ------------------------------------ |
-| Claude | `ready-for-agent` issues labeled `agent:claude` (legacy `lane:nightly`)    | ready PRs **without** `agent:claude` |
+| Claude | `ready-for-agent` issues labeled `agent:claude`                            | ready PRs **without** `agent:claude` |
 | Codex  | `ready-for-agent` issues without `agent:claude`, including `area:payments` | ready PRs **with** `agent:claude`    |
 
 - An agent never claims, implements or repairs an issue owned by the other agent, and never reviews a PR it built.
-- Claude's WIP=1 is one lane-wide lock, the branch `claude/wip-lock`: its newest commit is `claim #n` or `release #n`, and it moves only by plain fast-forward pushes, so a run that read a stale tip is rejected. A held lock means continue `#n` only; released or stale (issue closed or blocked) means a run may claim. The work branch `claude/issue-<n>` holds code, not the claim.
+- Claude's WIP=1 is protected by a local run lock on the Mac mini: before reading any state, every generator run (scheduled or manual) creates the directory `/Users/work/GIT/.locks/claude-generator` with a non-recursive `mkdir` (atomic; it fails if held) and removes it as the last step of every route, including stops. A later contender prints that another run is active and yields; a lock older than 3 hours (crashed or app-quit run) is taken over once. The evaluator uses its own lock `/Users/work/GIT/.locks/claude-evaluator` with the same rules, so two evaluator runs never review at once. Under the lock, the run continues Claude's single `in-progress` + `agent:claude` issue, or claims one; the claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. More than one Claude `in-progress` issue is a blocker report: never release one by lowest number and never delete another worker's branch. The remote branch `claude/wip-lock` from an earlier design is not used (it was never created).
 - Only structured reports count as evaluations: a comment with `<!-- evaluator-head: <sha> -->` (or legacy `<!-- local-evaluator sha=<sha> -->`) and `## Evaluator verdict` for the exact current head. Bot summaries that mention the SHA do not. `INCONCLUSIVE` uses `<!-- evaluator-inconclusive: <sha> -->`, is never final, and is retried on the unchanged head.
 - Conflicting PRs are repaired by merging `main` into the same branch and pushing normally; published branches are never rebased or force-pushed.
 - Claude's routines change only through reviewed PRs to `.factory/`; Codex's heartbeat is configured outside the repo and follows `.factory/README.md` § Codex side.

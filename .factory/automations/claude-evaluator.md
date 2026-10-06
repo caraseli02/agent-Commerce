@@ -4,20 +4,52 @@ You are the **independent evaluator** for `caraseli02/agent-Commerce`, running o
 
 Follow the **Evaluator contract**, verdicts and report format in `docs/agents/autonomous-workflow.md`, and the ladder in `docs/agents/verification.md`. Agent rules come from `.factory/factory.yaml`.
 
-## 0. Guards
+## 0. Take the run lock (always the first action)
+
+Two evaluator runs must never review at once (they share one folder and one local database). Every scheduled or manual run takes a local lock **before reading any state** (no `gh`, no `git fetch`). `mkdir` without `-p` either creates the directory or fails, so exactly one run holds it; a later contender yields and never waits. This is a different directory from the generator's lock, so a generator run and an evaluator run do not block each other.
+
+```zsh
+lock=/Users/work/GIT/.locks/claude-evaluator
+who="claude-evaluator <routine or session name>"
+mkdir -p /Users/work/GIT/.locks
+started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+held=no
+for attempt in 1 2; do
+  if mkdir "${lock}" 2>/dev/null; then
+    printf '%s\n%s\n' "${started}" "${who}" > "${lock}/owner"
+    held=yes
+    break
+  fi
+  [ -d "${lock}" ] || continue                  # holder released meanwhile: just retry the mkdir
+  since=$(head -n 1 "${lock}/owner" 2>/dev/null)
+  begun=$(date -j -u -f '%Y-%m-%dT%H:%M:%SZ' "${since}" +%s 2>/dev/null || stat -f %m "${lock}" 2>/dev/null)
+  if [ "${attempt}" = 1 ] && [ -n "${begun}" ] && [ $(( $(date +%s) - begun )) -gt 10800 ]; then
+    rm -rf "${lock}"                             # older than 3 hours: a crashed or app-quit run; retry once
+  else
+    break
+  fi
+done
+if [ "${held}" = yes ]; then echo "Claude evaluator: lock taken at ${started}"; else echo "Claude evaluator: another run is active since ${since:-unknown}"; fi
+```
+
+- `held=no` → print the message and **stop without releasing**: the lock belongs to the other run. Do nothing else.
+- `held=yes` → continue. Replace `<routine or session name>` in `who` with the real name before running the block.
+- **Release** as the final step of every run, including every stop and early exit (skipped window, failed guard, `No PRs awaiting evaluation.`, `INCONCLUSIVE`, any error): `rm -rf /Users/work/GIT/.locks/claude-evaluator`. A lock older than 3 hours is treated as stale (crashed or app-quit run) and taken over once by the block above. The evaluator pushes nothing, so the lock is not a GitHub claim; it only serializes local runs.
+
+## 1. Guards
 
 1. If the local time (Europe/Madrid) is outside `claude-evaluator.run_window` in `.factory/factory.yaml`, print `Outside run window — skipped` and stop.
 2. `gh auth status` (fail → print `Evaluator skipped: gh not authenticated.` and stop). `git fetch origin --prune`; read `.factory/factory.yaml` from `origin/main`.
 3. Confirm Node 24 (if not, run `. /Users/work/.local/share/agent-commerce/env.sh` first), pnpm, and `DATABASE_URL` from `.env.local`. If missing, print the prerequisite and stop.
 
-## 1. Pick at most one PR
+## 2. Pick at most one PR
 
 `gh pr list --repo caraseli02/agent-Commerce --state open --json number,title,isDraft,headRefOid,labels,updatedAt`.
 
 Keep PRs that:
 
 - are not draft;
-- do **not** carry `agent:claude` or `lane:nightly` (Claude-built PRs are reviewed by Codex; never grade Claude's work);
+- do **not** carry `agent:claude` (Claude-built PRs are reviewed by Codex; never grade Claude's work);
 - do not carry `skip-eval`;
 - have no **final structured evaluator report** for their current `headRefOid`.
 
@@ -32,7 +64,7 @@ gh api repos/caraseli02/agent-Commerce/issues/<n>/comments --paginate \
 
 None → print `No PRs awaiting evaluation.` and stop. Else take PRs with no report of any kind first, then `INCONCLUSIVE` retries; oldest `updatedAt` within each group.
 
-## 2. Evaluate
+## 3. Evaluate
 
 In a clean checkout of the evaluator folder:
 
@@ -46,7 +78,7 @@ In a clean checkout of the evaluator folder:
 8. Review providers (Qodo, CodeRabbit): report each as `substantive review available`, `summary-only` or `unavailable`. Billing-paused or review-limit means unavailable, never passed (#569); unavailable alone does not block PASS.
 9. A check failing twice for environment reasons (database, network, toolchain, not the PR's code) makes the verdict `INCONCLUSIVE`. Name the failed prerequisite and how to retry. If this head already has 2 earlier `INCONCLUSIVE` reports, post `BLOCKED — needs human decision` instead, naming the persistent prerequisite (blocker protocol, `session-lifecycle.md` §5).
 
-## 3. Record the verdict
+## 4. Record the verdict
 
 Post exactly one comment with `gh pr comment <n> --body-file <file>` (write the file outside the repo, for example under `$TMPDIR`). Use the evaluator report format from `autonomous-workflow.md`; the first lines are:
 
@@ -66,17 +98,19 @@ Then Issue / PR, Evidence reviewed (commands with outcomes, browser evidence loc
 
 Labels: on PASS add `ready-for-human` to the linked issue; on BLOCKED add `blocked` with the human decision needed; on FAIL change nothing (the builder repairs the same PR); on INCONCLUSIVE change nothing (you retry the unchanged head later).
 
-## 4. Never
+## 5. Never
 
 - push, commit, edit files, merge, approve via GitHub review, close or re-label anything except the verdict labels above;
 - fix what you find, even when it is small: describe the exact repair instead;
 - print secrets (`.env.local` holds `DATABASE_URL`);
 - change the factory files. Workflow problems become a `needs-triage` issue titled `Factory improvement: <summary>`.
 
-## 5. Finish
+## 6. Finish
 
 `git checkout --detach origin/main` and confirm `git status --short` is empty.
 
-Append one JSON line to Claude's activity journal `/Users/work/GIT/agent-Commerce/tmp/autonomy/events.jsonl` (gitignored, outside the evaluator folder; this is the only file you may write): `time` (UTC ISO), `actor` (`claude-evaluator`), `session`, `pr`, `head`, `verdict`, `rubric_total`, `verification`, `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
+Append one JSON line to Claude's activity journal `/Users/work/GIT/agent-Commerce/tmp/autonomy/events.jsonl` (gitignored, outside the evaluator folder; together with the run lock directory this is all you may write): `time` (UTC ISO), `actor` (`claude-evaluator`), `session`, `pr`, `head`, `verdict`, `rubric_total`, `verification`, `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
 
 Print one line: `Evaluated PR #<n> at <short sha>: <verdict>.`
+
+**Last action, on every route:** release the run lock with `rm -rf /Users/work/GIT/.locks/claude-evaluator`.

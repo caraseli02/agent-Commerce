@@ -19,10 +19,10 @@ host: Mac mini only (local routines, no cloud runners)
 # by unattended agents). Each agent keeps WIP=1 inside its own label.
 agents:
   claude:
-    builds: open issues labeled agent:claude (legacy lane:nightly is accepted until renamed)
+    builds: open issues labeled agent:claude (the only owner label; set only by Vlad)
     never_builds: [area:payments]
     branch: claude/issue-<number> # holds the code only
-    wip_lock: claude/wip-lock # lane-wide lock; newest commit "claim #n" or "release #n", moved only by plain fast-forward pushes
+    claim_record: issue labels (in-progress, assignee) + comment + branch claude/issue-<number>, pushed normally; nothing else is pushed
     reviews: ready PRs WITHOUT the agent:claude label (Codex and human PRs, including payments)
   codex:
     builds: ready-for-agent issues without agent:claude, payments first (configured outside this repo)
@@ -32,7 +32,6 @@ labels:
   eligible: ready-for-agent
   claimed: in-progress
   owner_claude: agent:claude
-  owner_claude_legacy: lane:nightly # rename to agent:claude only after Codex skips agent:claude
   owner_codex: agent:codex # optional; issues without agent:claude are Codex's pool
   payments_area: area:payments # never built by Claude
   blocked: blocked
@@ -71,6 +70,8 @@ automations:
     folder: ~/GIT/agent-Commerce
     schedule: daily 09:30, 13:30, 17:30 # ~2-3 PRs/day when reviews and merges keep up
     run_window: '09:00-19:00' # catch-up runs outside this window exit immediately
+    run_lock: /Users/work/GIT/.locks/claude-generator # local mkdir lock taken before any state read, released on every exit; stale after 3h
+    lock_stale_after: 3h
     worktree: true
     budgets:
       max_issues_per_run: 1
@@ -82,6 +83,8 @@ automations:
     folder: ~/GIT/agent-Commerce-eval
     schedule: every 30 minutes, 09:00-19:59
     run_window: '09:00-20:00'
+    run_lock: /Users/work/GIT/.locks/claude-evaluator # same rules; two evaluator runs never review at once
+    lock_stale_after: 3h
     worktree: true
     budgets:
       max_prs_per_run: 1
