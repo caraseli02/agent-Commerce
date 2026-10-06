@@ -102,6 +102,9 @@ const signInAsCustomer = async (page: Page) => {
     signInButton.click(),
   ]);
   await expect(page).toHaveURL(/\/dashboard\/client\?tab=home/);
+  // Let the post-login dashboard finish loading; navigating away mid-load aborts its
+  // chunk and API requests, which the signal listeners would report as failures.
+  await waitForVisualReady(page, '/dashboard/client?tab=home');
   return signals;
 };
 
