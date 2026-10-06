@@ -49,6 +49,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
     const paymentPreparationMigration = source('server/infrastructure/migrations/002_payment_preparation.sql');
     const stripeCompatibilityMigration = source('server/infrastructure/migrations/003_stripe_payment_compatibility.sql');
     const canceledClaimMigration = source('server/infrastructure/migrations/005_canceled_checkout_claim.sql');
+    const fullRefundMigration = source('server/infrastructure/migrations/007_full_refunds.sql');
     const migrationRunner = source('scripts/db-migrate.mjs');
 
     expect(migration).toContain('CREATE TABLE checkout_claims');
@@ -69,6 +70,11 @@ describe('checkout PostgreSQL persistence boundary', () => {
       "CHECK (workflow_status IN ('prepared', 'payment_pending', 'finalized', 'recovery_required'))",
     );
     expect(canceledClaimMigration).toContain("'canceled'");
+    expect(fullRefundMigration).toContain('CREATE TABLE checkout_refunds');
+    expect(fullRefundMigration).toContain('payment_id TEXT NOT NULL UNIQUE REFERENCES checkout_payments(id)');
+    expect(fullRefundMigration).toContain('amount_minor INTEGER NOT NULL CHECK (amount_minor > 0)');
+    expect(fullRefundMigration).toContain("status TEXT NOT NULL CHECK (status IN ('PENDING', 'SUCCEEDED', 'FAILED'))");
+    expect(fullRefundMigration).toContain('stripe_refund_id TEXT UNIQUE');
     expect(migrationRunner).toContain('pg_advisory_xact_lock');
     expect(migrationRunner).toContain('sqlForKnownRuntimeSchema');
   });
@@ -127,7 +133,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(6);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(7);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -142,6 +148,141 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrationPool.end();
       await adminPool.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
       await adminPool.end();
+    }
+  });
+
+  it('applies full Refund uniqueness, identity, amount, reason, and status constraints in PostgreSQL', async () => {
+    const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+    expect(connectionString).toBeTruthy();
+    const schema = `ecas_refund_constraints_${randomUUID().replaceAll('-', '')}`;
+    const schemaIdentifier = `"${schema}"`;
+    const url = new URL(connectionString!);
+    url.searchParams.set('options', `-c search_path=${schema}`);
+    const admin = new Pool({ connectionString, max: 1 });
+    const pool = new Pool({ connectionString: url.toString(), max: 1 });
+    const timestamp = '2026-10-05T00:00:00.000Z';
+    const addPayment = async (id: string) => {
+      const orderId = `order-${id}`;
+      await pool.query(
+        `INSERT INTO checkout_orders
+           (id, customer_id, checkout_request_id, source_cart_id, source_cart_revision,
+            fingerprint, payload_json, created_at, updated_at, grand_total_minor, currency)
+         VALUES ($1, $1, $1, $1, 1, 'fp', '{}', $2, $2, 1234, 'RON')`,
+        [orderId, timestamp],
+      );
+      await pool.query(
+        `INSERT INTO checkout_payments
+           (id, order_id, payload_json, created_at, status, amount_minor, currency,
+            stripe_payment_intent_id, updated_at)
+         VALUES ($1, $2, '{}', $3, 'PAID', 1234, 'RON', $4, $3)`,
+        [id, orderId, timestamp, `pi-${id}`],
+      );
+    };
+    const insertRefund = (input: {
+      id: string;
+      paymentId: string;
+      amountMinor?: number;
+      currency?: string;
+      reason?: string;
+      status?: string;
+      stripeRefundId?: string | null;
+    }) =>
+      pool.query(
+        `INSERT INTO checkout_refunds
+           (id, payment_id, stripe_payment_intent_id, amount_minor, currency, reason, status,
+            stripe_refund_id, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)`,
+        [
+          input.id,
+          input.paymentId,
+          `pi-${input.paymentId}`,
+          input.amountMinor ?? 1234,
+          input.currency ?? 'RON',
+          input.reason ?? 'requested_by_customer',
+          input.status ?? 'PENDING',
+          input.stripeRefundId ?? null,
+          timestamp,
+        ],
+      );
+
+    try {
+      await admin.query(`CREATE SCHEMA ${schemaIdentifier}`);
+      const { migrate } = await import('../scripts/db-migrate.mjs');
+      await migrate(url.toString());
+      await addPayment('pay-refund-a');
+      await addPayment('pay-refund-b');
+
+      // A nullable provider ID is expected until Stripe confirms creation.
+      await insertRefund({ id: 'refund-a', paymentId: 'pay-refund-a' });
+      await insertRefund({ id: 'refund-b', paymentId: 'pay-refund-b' });
+      await expect(insertRefund({ id: 'refund-a-duplicate', paymentId: 'pay-refund-a' })).rejects.toMatchObject({
+        code: '23505',
+        constraint: 'checkout_refunds_payment_id_key',
+      });
+
+      await pool.query("UPDATE checkout_refunds SET stripe_refund_id='re-shared' WHERE id='refund-a'");
+      await expect(pool.query("UPDATE checkout_refunds SET stripe_refund_id='re-shared' WHERE id='refund-b'")).rejects.toMatchObject({
+        code: '23505',
+        constraint: 'checkout_refunds_stripe_refund_id_key',
+      });
+
+      await expect(insertRefund({ id: 'refund-zero', paymentId: 'pay-refund-b', amountMinor: 0 })).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'checkout_refunds_amount_minor_check',
+      });
+      await expect(insertRefund({ id: 'refund-negative', paymentId: 'pay-refund-b', amountMinor: -1 })).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'checkout_refunds_amount_minor_check',
+      });
+      await expect(insertRefund({ id: 'refund-wrong-currency', paymentId: 'pay-refund-b', currency: 'USD' })).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'checkout_refunds_currency_check',
+      });
+      await expect(
+        insertRefund({ id: 'refund-unknown-reason', paymentId: 'pay-refund-b', reason: 'operator_guess' }),
+      ).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'checkout_refunds_reason_check',
+      });
+      await expect(insertRefund({ id: 'refund-unknown-status', paymentId: 'pay-refund-b', status: 'REFUNDED' })).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'checkout_refunds_status_check',
+      });
+      await expect(insertRefund({ id: 'refund-missing-payment', paymentId: 'missing-payment' })).rejects.toMatchObject({
+        code: '23503',
+        constraint: 'checkout_refunds_payment_id_fkey',
+      });
+
+      const rows = await pool.query<{
+        id: string;
+        payment_id: string;
+        amount_minor: number;
+        currency: string;
+        reason: string;
+        status: string;
+      }>('SELECT id, payment_id, amount_minor, currency, reason, status FROM checkout_refunds ORDER BY id');
+      expect(rows.rows).toEqual([
+        {
+          id: 'refund-a',
+          payment_id: 'pay-refund-a',
+          amount_minor: 1234,
+          currency: 'RON',
+          reason: 'requested_by_customer',
+          status: 'PENDING',
+        },
+        {
+          id: 'refund-b',
+          payment_id: 'pay-refund-b',
+          amount_minor: 1234,
+          currency: 'RON',
+          reason: 'requested_by_customer',
+          status: 'PENDING',
+        },
+      ]);
+    } finally {
+      await pool.end();
+      await admin.query(`DROP SCHEMA IF EXISTS ${schemaIdentifier} CASCADE`);
+      await admin.end();
     }
   });
 
@@ -257,14 +398,28 @@ describe('checkout PostgreSQL persistence boundary', () => {
       );
 
       const replayBefore = await snapshot();
+      await pool.query(
+        `INSERT INTO checkout_refunds
+           (id, payment_id, stripe_payment_intent_id, amount_minor, currency, reason, status,
+            stripe_refund_id, create_started_at, created_at, updated_at)
+         VALUES ('refund-replay-proof', 'prepared', 'pi-prepared', 100, 'RON', 'requested_by_customer',
+                 'PENDING', NULL, $1, $1, $1)`,
+        [timestamp],
+      );
+      const refundsBeforeReplay = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
       const historyBefore = (await pool.query('SELECT * FROM checkout_schema_migrations ORDER BY filename')).rows;
-      expect(historyBefore).toHaveLength(6);
+      expect(historyBefore).toHaveLength(7);
       expect(historyBefore[5]).toMatchObject({
         filename: '006_paid_recovery_claim.sql',
         checksum: createHash('sha256').update(source('server/infrastructure/migrations/006_paid_recovery_claim.sql')).digest('hex'),
       });
+      expect(historyBefore[6]).toMatchObject({
+        filename: '007_full_refunds.sql',
+        checksum: createHash('sha256').update(source('server/infrastructure/migrations/007_full_refunds.sql')).digest('hex'),
+      });
       await migrate(url.toString());
       expect(await snapshot()).toEqual(replayBefore);
+      expect((await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows).toEqual(refundsBeforeReplay);
       expect((await pool.query('SELECT * FROM checkout_schema_migrations ORDER BY filename')).rows).toEqual(historyBefore);
     } finally {
       await pool.end();
@@ -313,7 +468,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrate(url.toString());
       await migrate(url.toString());
       const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
-      expect(Number(migrations.rows[0]?.total)).toBe(6);
+      expect(Number(migrations.rows[0]?.total)).toBe(7);
 
       const existing = await pool.query<{
         status: string;
