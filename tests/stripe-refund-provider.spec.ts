@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createStripeRefundProvider } from '~/server/domain/payments/stripe-provider';
 const sdk = vi.hoisted(() => ({ create: vi.fn(), retrieve: vi.fn() }));
 vi.mock('stripe', () => ({
   default: class {
     refunds = sdk;
   },
 }));
-import { createStripeRefundProvider } from '~/server/domain/payments/stripe-provider';
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.clearAllMocks();

@@ -34,6 +34,13 @@
       "tests": ["cart", "orders"],
       "reason": "Refresh review repairs affect persisted order recovery and cart cleanup; shared owner extraction preserves resume/restart authentication. Select cart and order-history consumers.",
       "consumers": "The refresh endpoint has no existing client caller and remains default-off. Fresh persisted state determines finalization or cancellation; completed replays recover revision-aware cart cleanup without repeating inventory/order fulfillment. Cart desktop/mobile and order-history visuals exercise the affected persisted-state consumers. The shared trusted-owner helper is used by refresh, resume and restart; PostgreSQL HTTP suites cover their authentication and owner isolation, and current built runtime checks unauthorized/default-off boundaries plus existing mock checkout success. Public state shape and UI templates/styles/catalog rendering remain unchanged. Provider failures and unavailable application consequences become recovery-required; unknown provider state cannot override fresh completed/canceled local truth. No visual baseline changes are needed."
+    },
+    {
+      "fingerprint": "2f27d8d5593dbe3c27d985ba5555ba0269c34c0c67226d4d9f757c99e52791e0",
+      "impact": "targeted",
+      "tests": ["cart", "orders"],
+      "reason": "Full Refund is an internal default-off capability; verify representative existing paid checkout read consumers after additive schema/provider composition changes.",
+      "consumers": "The new stripeRefunds.requestFullRefund export has no route, UI, webhook or application caller in this slice. It writes only its Payments-owned checkout_refunds financial fact and calls the existing Checkout-owned compensation recovery transition, requiring a previously established REFUND and held Order. Payment stays PAID; no Order settlement, inventory/cart mutation, public response or template/style change is introduced. Existing refresh compensation classification can read the claim recovery flag, but no existing browser caller reads that new gated capability. The SDK factory extraction preserves PaymentIntent behavior and remains default-off in mock runtime. Focused isolated PostgreSQL tests exercise enabled refund behavior, durable authorization, full immutable amount/identity, concurrent/lost response/expiry races and migration preservation. Current built mock checkout and cart/order screenshots verify representative existing consumers after the additive migration. Catalog/product/home templates, styles and money are unchanged; broader screenshots would not exercise this internal operation. No baseline updates."
     }
   ]
 }
