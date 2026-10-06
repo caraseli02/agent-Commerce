@@ -35,7 +35,7 @@ The repo workflow itself (roles, verdicts, verification ladder) stays in `AGENTS
 
 1. **Tooling:** Node 24 (`package.json` `engines`), `corepack enable` for pnpm 10.18.3, `gh auth login` (scopes `repo`, `read:org`).
 2. **Folders:** `~/GIT/agent-Commerce` (generator; may push its own branches) and `~/GIT/agent-Commerce-eval` (evaluator; a worktree whose `.claude/settings.local.json` denies `git push`, `git commit`, `gh pr review/close/edit`, `gh issue edit`). Codex keeps its own folders.
-3. **Database:** each folder has its own `.env.local` (gitignored) with `DATABASE_URL`. Tests create and drop a temporary schema per run, so agents never share test data.
+3. **Database:** each folder's `.env.local` (gitignored) points `DATABASE_URL` and `DATABASE_URL_UNPOOLED` at the local PostgreSQL 17 on `127.0.0.1:5432` — `agent_commerce_claude_gen` for the generator (and other generator worktrees), `agent_commerce_claude_eval` for the evaluator — using the macOS login role, no password, no `sslmode`. Codex uses `agent_commerce_demo`. Keep Neon for CI/previews only: against Neon `pnpm test` takes ~14 min locally vs ~1.5 min. Tests create and drop a temporary schema per run, so agents never share test data.
 4. **Baseline:** run `./init.sh` in the generator folder and confirm it passes before enabling the routines.
 5. **Keep awake:** Claude Desktop → Settings → Desktop app → General → **Keep computer awake**, and macOS energy settings that prevent sleep on power during the work windows.
 
