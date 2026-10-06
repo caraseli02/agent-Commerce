@@ -17,7 +17,7 @@ This is the runtime equivalent of: “work the currently claimed Components Mark
 
 ## Builder ownership and shared state
 
-Claude and Codex each have WIP=1. Claude owns issues labeled `agent:claude` or legacy `lane:nightly`; Codex skips both labels and owns other eligible issues. Claude never builds payments, checkout, refund or migration work. Builder-specific factory schedules and protected paths are supplied by the separately reviewed `.factory/` proposal when deployed; this document does not enable routines or change host setup.
+Claude and Codex each have WIP=1. Claude owns issues labeled `agent:claude`; Codex skips `agent:claude` and owns other eligible issues. Claude never builds payments, checkout, refund or migration work. Builder-specific factory schedules and protected paths are supplied by the separately reviewed `.factory/` proposal when deployed; this document does not enable routines or change host setup.
 
 GitHub issue labels, assignments and linked PRs are the live claim authority. Check the builder's complete active pool before selection, and skip assigned issues or issues with active PRs. Delegated implementation models share one parent issue and do not create new WIP. Concurrent runs of the same builder must serialize selection and claiming; an issue-specific branch alone does not enforce the builder-wide WIP limit.
 

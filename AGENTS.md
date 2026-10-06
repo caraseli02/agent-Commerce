@@ -10,7 +10,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues and claim one issue at a time.
 - Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready.
 - The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue for that builder while its `in-progress` issue has an open PR.
-- WIP=1 applies per builder. Claude owns `agent:claude` or legacy `lane:nightly` issues; Codex owns other eligible issues. Internal model delegation shares its builder's claim. See `docs/agents/autonomous-workflow.md` for ownership and independent cross-review.
+- WIP=1 applies per builder. Claude owns issues labeled `agent:claude`; Codex owns other eligible issues. Internal model delegation shares its builder's claim. See `docs/agents/autonomous-workflow.md` for ownership and independent cross-review.
 - GitHub labels, assignments and linked PRs are live claim state. `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md` preserve reviewed session/evidence snapshots; unattended agents keep task transitions on GitHub.
 
 ## The 5 questions every fresh session must answer

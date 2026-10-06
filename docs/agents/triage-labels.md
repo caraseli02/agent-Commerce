@@ -16,6 +16,7 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 
 - `epic` — fixed tracking parent; never claimed, labeled ready-for-agent/in-progress, or counted in executable WIP. Native sub-issues own implementation criteria.
 - `in-progress` — claimed by the planner/generator loop; used by pickup rules in `issue-tracker.md`. If an open PR exists, WIP remains occupied until evaluator pass, blocker, or repair on that same PR.
+- `agent:claude` — Claude's lane: only Claude builds it; Codex skips. Also set on Claude-built PRs so Codex reviews them. Set or removed only by Vlad; agents never label an issue to take it.
 - `blocked` — concrete blocker found by generator or evaluator; include a comment with the repair instruction or human decision needed
 
 ## Sequencing priorities (not severity)
