@@ -14,13 +14,13 @@ The direction is right: GitHub issues as the queue, one task per agent, issue ow
 
 | #   | Proposal                                                                                 | Decider     | Needs Codex input |
 | --- | ---------------------------------------------------------------------------------------- | ----------- | ----------------- |
-| P1  | Enforce `main` on GitHub (GitHub Pro ruleset) and use repo-scoped agent tokens           | Vlad        | yes               |
+| P1  | Repo-scoped agent credentials now; GitHub-side `main` protection deferred (no Pro)       | Vlad        | yes               |
 | P2  | Sandbox Claude's unattended runs; add a hook that blocks merge/force-push                | Vlad        | informational     |
 | P3  | One Claude routine (repair → review → build) instead of two                              | Vlad        | yes               |
 | P4  | Replace the `claude/wip-lock` branch with a local run lock on the Mac                    | Vlad, Codex | yes               |
 | P5  | Turn on Claude as reviewer first; Claude builds only after P1 and a Codex reviewer exist | Vlad        | yes               |
 | P6  | Make the harness lighter before adding automation (#597, #602, startup reading, skills)  | Vlad        | yes               |
-| P7  | Only Vlad sets ownership labels; agents never self-label at claim time                   | Vlad        | yes               |
+| P7  | Retire `lane:nightly`: one `agent:claude` label, set only by Vlad                        | Vlad        | yes               |
 | P8  | Housekeeping: other agent runtimes, single source for routine prompts                    | Vlad        | no                |
 
 Already done: Claude's folders use separate local PostgreSQL 17 databases instead of Neon (#591 commit `a755f38b`).
@@ -34,25 +34,27 @@ Already done: Claude's folders use separate local PostgreSQL 17 databases instea
 - **Identity:** both agents act through Vlad's own `caraseli02` login (gh keyring token with `repo`, `read:org`, `gist`, `admin:public_key`; git over SSH). GitHub cannot tell the agents apart, and that token reaches every private repo of the account.
 - **Also running on the Mac:** Hermes gateway and OpenClaw node launch agents, besides Codex and Claude Desktop.
 
-## P1. Enforce `main` on GitHub and scope agent credentials
+## P1. Scope agent credentials; defer GitHub-side protection
 
-**Problem.** "Agents never merge, never push to `main`, never force-push" is enforced only by prompts and by Claude Code permission rules in `~/.claude/settings.json`. Those rules match command prefixes; equivalent commands with a different argument order, refspec form or REST API call are not covered, and `Bash(git:*)` / `Bash(gh:*)` are allowed. With no server-side protection, one bad command from any agent can change `main`. Anthropic's auto-mode write-up reports its safety classifier still misses about 17% of risky actions in their test set, so a model-side check is not a substitute.
+**Decision so far (Vlad, 2026-10-06): no GitHub Pro for now.** Branch protection, rulesets and environments therefore stay unavailable on this private repo, and nothing on GitHub's side stops a push to `main`.
 
-**Proposal.**
+**Problem.** "Agents never merge, never push to `main`, never force-push" is enforced only by prompts and by Claude Code permission rules in `~/.claude/settings.json`. Those rules match command prefixes; equivalent commands with a different argument order, refspec form or REST API call are not covered, and `Bash(git:*)` / `Bash(gh:*)` are allowed. Anthropic's auto-mode write-up reports its safety classifier still misses about 17% of risky actions in their test set, so a model-side check is not a substitute.
 
-1. Upgrade to GitHub Pro (about $4/month) and add a ruleset on `main`: require a pull request, require the `verify` check, block force pushes and deletion. (Alternative at $0: make the repo public, only after security issue #105 is resolved.)
-2. Give unattended agents a credential limited to this repository with no admin rights (fine-grained token or deploy key), instead of Vlad's account-wide login.
-3. Optional, later: a separate bot account (or GitHub App) per agent, so GitHub can attribute PRs and require Vlad's approval on agent PRs.
+**Proposal (works without Pro).**
 
-**Dependency.** #605 (auto-merge) needs this: its environment and ruleset setup steps are unavailable on a free private repo.
+1. Give unattended agents a credential limited to this repository with no admin rights (fine-grained token or deploy key), instead of Vlad's account-wide login. This limits the blast radius to this repo even without branch protection.
+2. Make the client-side guards the main line of defence while Pro is off: the P2 hook that rejects merge, force-push and push-to-`main` commands, plus the sandbox.
+3. Revisit Pro (or a public repo, only after security issue #105) when unattended building is enabled at scale or #605 is wanted.
 
-**Question for Codex.** Can your runtime use a separate, repo-scoped GitHub credential? Any objection to `verify` as a required check on `main`?
+**Dependency.** #605 (auto-merge) stays blocked: its environment and ruleset setup steps are unavailable on a free private repo.
+
+**Question for Codex.** Can your runtime use a separate, repo-scoped GitHub credential? What client-side guard does Codex have against pushes to `main`?
 
 ## P2. Sandbox Claude's unattended runs
 
 **Problem.** Unattended Claude sessions run as Vlad's macOS user with broad Bash allow rules, so they can read and write anywhere that user can (other projects, credentials, configuration).
 
-**Proposal.** Enable Claude Code's built-in sandbox (`sandbox.enabled`) for the routine folders: shell commands can write only inside the working folder and temp, and reach only allowed hosts (GitHub, the npm registry, local PostgreSQL). Expect one tuning pass for `gh` keychain access, PostgreSQL and Playwright. Add a small `PreToolUse` hook that rejects merge, force-push and push-to-`main` commands as a mistake-catcher; P1 remains the real lock.
+**Proposal.** Enable Claude Code's built-in sandbox (`sandbox.enabled`) for the routine folders: shell commands can write only inside the working folder and temp, and reach only allowed hosts (GitHub, the npm registry, local PostgreSQL). Expect one tuning pass for `gh` keychain access, PostgreSQL and Playwright. Add a small `PreToolUse` hook that rejects merge, force-push and push-to-`main` commands. With GitHub Pro deferred (P1), this hook plus the sandbox is the main guard, not just a mistake-catcher.
 
 **Question for Codex.** Informational: Codex already runs in its own filesystem sandbox (see `AGENTS.md`). Please describe what it allows, so both sides document the same boundary.
 
@@ -66,7 +68,7 @@ Already done: Claude's folders use separate local PostgreSQL 17 databases instea
 2. a ready PR it did not build has no verdict for its current head → review one;
 3. otherwise, if Claude holds no issue → claim and build one Claude-owned issue.
 
-This mirrors Codex's single heartbeat and means two Claude runs never overlap. Trade-off: the reviewer loses the evaluator folder's local push deny; P1 replaces it with a server-side rule.
+This mirrors Codex's single heartbeat and means two Claude runs never overlap. Trade-off: the reviewer loses the evaluator folder's local push deny; the P2 hook covers the same commands for every run.
 
 **Question for Codex.** Is up to about one hour of review latency on your PRs acceptable within the work window?
 
@@ -92,7 +94,7 @@ This mirrors Codex's single heartbeat and means two Claude runs never overlap. T
 
 1. Land #591 (with P3/P4) and enable the Claude routine in review-only mode for Codex's PRs (#607 is waiting now). The folder must be changed in Claude Desktop → Routines → Edit; the scheduling tool cannot set it.
 2. Watch about a week of verdicts: are FAILs real, are findings concrete?
-3. Enable Claude building only after P1 is in place and someone reviews Claude-built PRs.
+3. Enable Claude building only after the P1 credential and P2 guards are in place and someone reviews Claude-built PRs.
 
 **Question for Codex.** How will Claude-built PRs be reviewed on your side? Your heartbeat currently never produces final verdicts and there is no Codex evaluator automation. (Anthropic's own harness uses a separate, skeptical Claude evaluator for Claude's work, so a fresh Claude review session is an acceptable fallback if you prefer not to review.)
 
@@ -108,13 +110,23 @@ This mirrors Codex's single heartbeat and means two Claude runs never overlap. T
 
 **Question for Codex.** Which parts of the startup reading and state files are load-bearing for your loop, and which could go?
 
-## P7. Only Vlad sets ownership labels
+## P7. Retire `lane:nightly`: one `agent:claude` label, set only by Vlad
 
-**Problem.** The labels discussion proposed letting Claude add its own ownership label to an unlabelled issue at claim time. An unlabelled issue is in Codex's pool, so that reintroduces a Claude/Codex race.
+**Problem.** The setup still depends on the legacy label `lane:nightly`, although the agreed owner label is `agent:claude`:
 
-**Proposal.** Ownership labels (`lane:nightly` today, `agent:claude` after the rename) are set or removed only by Vlad during triage. Agents only claim issues already in their pool.
+- On GitHub only `lane:nightly` exists; `agent:claude` was never created.
+- `main` (#593) says Claude owns issues labeled `agent:claude` **or legacy `lane:nightly`**, and Codex skips both. #591's prompts and README keep the same "legacy" wording and postpone the rename until after merge.
+- The reason it was kept: Codex's heartbeat prompt names only `lane:nightly`, and Claude may not edit Codex's configuration.
+- The labels discussion also proposed letting Claude add its own label to an unlabelled issue at claim time. An unlabelled issue is in Codex's pool, so that reintroduces a Claude/Codex race.
 
-**Question for Codex.** Agree that you never claim an issue carrying Claude's label, and Claude never labels an issue to take it?
+**Proposal.**
+
+1. Rename `lane:nightly` to `agent:claude` on GitHub now. A rename keeps the label on every issue (#516 and #606 today), so ownership does not change.
+2. Codex confirms it follows `main`'s rule (skip `agent:claude`) and updates its own heartbeat wording; this is the only Codex-side change needed.
+3. Remove every "or legacy `lane:nightly`" alternative from `AGENTS.md`, `docs/agents/`, and #591's `.factory/` files and rollout steps, so there is exactly one owner label.
+4. Only Vlad sets or removes `agent:claude`, during triage. Agents only claim issues already in their pool and never label an issue to take it.
+
+**Question for Codex.** Will you skip `agent:claude` after the rename (your current prompt names only `lane:nightly`)? Any reason to keep the old label name?
 
 ## P8. Housekeeping
 
