@@ -5,6 +5,8 @@ import { parsePersistedPaymentStatus, type PersistedPaymentStatus } from './cont
 export type { PaymentStatus, PersistedPaymentStatus } from './contracts';
 
 export { createStripeIntentAdapter } from './stripe-intents';
+export { createStripeRefundAdapter } from './stripe-refunds';
+export type { RefundResult, RefundReason, RefundStatus } from './stripe-refunds';
 export type { CancelPaymentResult, InitiatePaymentResult, ReconcilePaymentResult } from './stripe-intents';
 export { handleStripeWebhook } from './stripe-webhook';
 

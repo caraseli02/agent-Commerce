@@ -201,6 +201,26 @@ cleanup. Responses contain no provider credentials or client secret. Local
 payment reads alone are informational and never confirm payment; the endpoint
 is unavailable while the default-off gate is disabled.
 
+The internal `stripeRefunds.requestFullRefund` adapter is a recovery capability,
+not a customer-facing refund flow. Additive migration `007_full_refunds` stores
+one full-refund record per Payment. It runs only behind the same default-off
+Stripe Gate A (`PAYMENTS_PROVIDER=stripe` and `STRIPE_GATE_A_APPROVED=true`),
+and new creation requires a durable `REFUND` compensation decision with its Order held and
+all claim, Payment, and Order identities and amounts matching. The first valid
+request persists the full Payment amount and its reason; persisted parameters
+remain authoritative on retries. The Stripe create-start timestamp is committed
+before provider I/O. A create retry without a known Stripe Refund ID is allowed
+only strictly within 24 hours of create-start; otherwise recovery is unsafe and
+must not create again. When the exact provider ID is known, recovery retrieves
+that Refund and validates its identity and amount, even if Checkout has since advanced. Confirmed provider financial truth is saved independently of Checkout authorization. A Stripe in-flight same-key conflict returns pending without marking compensation recovery.
+
+Refund state (`PENDING`, `SUCCEEDED`, or `FAILED`) is a separate financial fact
+and never rewrites the Payment's `PAID` status. Reasons are Stripe API enum
+values (`requested_by_customer`, `duplicate`, `fraudulent`); choosing a reason
+or deciding when a commercial refund is appropriate remains an explicit policy
+outside this adapter. This slice adds no endpoint, UI, webhook, or Order
+settlement behavior. `SUCCEEDED`/`FAILED` are cached local observations here; Stripe can later report a failed refund after success, and refund-event continuation (#587) must update that truth. Migration `008_refund_constraints` adds provider-identity/terminal-state and non-null create-start constraints without rewriting migration007; missing legacy starts become epoch anchors, refusing automatic replay.
+
 ## Mock architecture
 
 When `NUXT_PUBLIC_MOCK_MODE=true`:
