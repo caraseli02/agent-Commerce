@@ -2,10 +2,10 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
-## Owner label and Claude run lock — 2026-10-06
+## Owner label and Claude run lease — 2026-10-06
 
 - The GitHub label `lane:nightly` was renamed to `agent:claude`; it is the single Claude owner label and is set or removed only by Vlad. Agents never label an issue to take it. Codex's heartbeat was updated by Codex to skip `agent:claude`.
-- Claude's WIP=1 is protected by a local run lock on the Mac mini, not by a GitHub branch: every generator run takes `/Users/work/GIT/.locks/claude-generator` (atomic `mkdir`, stale after 3 hours) before reading any state and removes it as its last step; the evaluator uses `/Users/work/GIT/.locks/claude-evaluator`. The earlier `claude/wip-lock` compare-and-swap branch was rejected by the repo's pre-push hook (orphan-commit merge-base failure; "Pushed runtime differs from checkout" for empty-tree commits), is not used and was never created. The claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. More than one Claude `in-progress` issue is reported through the blocker protocol; nothing is released by lowest number or by deleting a branch.
+- Claude's WIP=1 is protected by a local run lease on the Mac mini, not by a GitHub branch: every generator run acquires `/Users/work/GIT/.locks/claude-generator` through `.factory/bin/lease.sh` (atomic `mkdir`, owner token, heartbeat renewed before long or outward steps, stale after 45 minutes without a heartbeat, takeover serialized so one contender wins, release only by the owner) before reading any state, and releases it as its last step; the evaluator uses `claude-evaluator`. An inline `rm -rf` stale rule was rejected because two contenders could both remove and recreate the lock, and a run whose lock was taken over could delete the new holder's lock. The earlier `claude/wip-lock` compare-and-swap branch was rejected by the repo's pre-push hook (orphan-commit merge-base failure; "Pushed runtime differs from checkout" for empty-tree commits), is not used and was never created. The claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. More than one Claude `in-progress` issue is reported through the blocker protocol; nothing is released by lowest number or by deleting a branch.
 
 ## Two-agent ownership and cross-review — 2026-10-04
 

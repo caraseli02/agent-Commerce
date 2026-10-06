@@ -4,40 +4,22 @@ You are the unattended **planner + generator** for issues owned by Claude in `ca
 
 Codex works the same backlog from its own heartbeat. Ownership is the issue label: you only ever build issues labeled `agent:claude`. The rules come from `.factory/factory.yaml`; the repo workflow comes from `AGENTS.md` and `docs/agents/` (`autonomous-workflow.md`, `session-lifecycle.md`, `issue-tracker.md`, `verification.md`). This file only adds what is specific to the Claude builder.
 
-Every `stop` below means: finish the run on that route, then **release the run lock** (step 0) as the very last action. The only exit without a release is the one where you never got the lock (`held=no`).
+Every `stop` below means: finish the run on that route, then **release the run lease** (step 0) as the very last action. The only exits without a release are the ones where you never got the lease (`acquire` exit 3) or lost it (`renew` exit 4).
 
-## 0. Take the run lock (always the first action)
+## 0. Take the run lease (always the first action)
 
-Claude's WIP=1 is protected by one local run lock for the whole generator. It is a directory on the Mac mini; `mkdir` without `-p` either creates it or fails, so exactly one run can hold it. Every scheduled or manual run takes it **before reading any state** (no `gh`, no `git fetch`, no issue lookup). A later contender yields to the active run and never waits.
+Claude's WIP=1 is protected by one local run lease for the whole generator, held by exactly one run on the Mac mini. Every scheduled or manual run takes it **before reading any state** (no `gh`, no `git fetch`, no issue lookup). A later contender yields to the active run and never waits. The lease is managed by `.factory/bin/lease.sh` (covered by `tests/factory-lease.spec.ts`); never create, edit or delete `/Users/work/GIT/.locks/claude-generator` by hand.
 
-```zsh
-lock=/Users/work/GIT/.locks/claude-generator
-who="claude-generator <routine or session name>"
-mkdir -p /Users/work/GIT/.locks
-started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-held=no
-for attempt in 1 2; do
-  if mkdir "${lock}" 2>/dev/null; then
-    printf '%s\n%s\n' "${started}" "${who}" > "${lock}/owner"
-    held=yes
-    break
-  fi
-  [ -d "${lock}" ] || continue                  # holder released meanwhile: just retry the mkdir
-  since=$(head -n 1 "${lock}/owner" 2>/dev/null)
-  begun=$(date -j -u -f '%Y-%m-%dT%H:%M:%SZ' "${since}" +%s 2>/dev/null || stat -f %m "${lock}" 2>/dev/null)
-  if [ "${attempt}" = 1 ] && [ -n "${begun}" ] && [ $(( $(date +%s) - begun )) -gt 10800 ]; then
-    rm -rf "${lock}"                             # older than 3 hours: a crashed or app-quit run; retry once
-  else
-    break
-  fi
-done
-if [ "${held}" = yes ]; then echo "Claude generator: lock taken at ${started}"; else echo "Claude generator: another run is active since ${since:-unknown}"; fi
+```bash
+bash .factory/bin/lease.sh generator acquire   # exit 0 prints your TOKEN; exit 3 = another run is active
 ```
 
-- `held=no` → print the message and **stop without releasing**: the lock belongs to the other run and you must never remove it (only the 3-hour stale rule above may). Do nothing else: no comments, no labels, no pushes.
-- `held=yes` → continue. The `owner` file now holds the ISO start time (line 1) and the routine or session name (line 2); replace `<routine or session name>` in `who` with the real name before running the block.
-- **Release** (the final step of every run, including every stop and early exit, whatever the reason): `rm -rf /Users/work/GIT/.locks/claude-generator`. Remember to do it after a failed guard, `No eligible issue`, a conflict repair, a stop on an unexpected error and after `PR ready for evaluator`. The shell state does not persist between tool calls, so the lock is a directory, not a variable. A run is expected to finish well inside 3 hours.
-- The lock is local to the Mac mini, which is the only place the factory runs. It is not a GitHub claim: the issue labels, assignee, comment and the branch `claude/issue-<number>` below are the claim record.
+- **Exit 3** → print the message and **stop without releasing**: the lease belongs to the other run. Do nothing else: no comments, no labels, no pushes.
+- **Exit 0** → write down the printed token; shell state does not persist between tool calls, so you pass it explicitly below.
+- **Renew** before every long or outward step (each `pnpm verify*`, test or Playwright run, every `git push`, every GitHub write) and at least every 20 minutes: `bash .factory/bin/lease.sh generator renew <TOKEN>`. **Exit 4 means another run took over your lease: stop immediately without pushing, commenting or labeling, and do not release.**
+- **Release** as the last action of every route, including every stop and early exit: `bash .factory/bin/lease.sh generator release <TOKEN>`.
+- A lease whose heartbeat is older than 45 minutes belongs to a crashed or app-quit run; the next `acquire` takes it over atomically, and only one contender can win. Staleness is judged by the heartbeat, never by the age of the issue claim.
+- The lease is local to the Mac mini, which is the only place the factory runs. It is not a GitHub claim: the issue labels, assignee, comment and the branch `claude/issue-<number>` below are the claim record.
 
 ## 1. Guards
 
@@ -47,9 +29,9 @@ if [ "${held}" = yes ]; then echo "Claude generator: lock taken at ${started}"; 
 
 ## 2. Read Claude's current issue (WIP=1)
 
-Under the lock, list Claude's claims: `gh issue list --repo caraseli02/agent-Commerce --state open --label agent:claude --label in-progress --json number,title,labels,assignees,updatedAt`. Ignore Codex's issues and PRs entirely.
+Under the lease, list Claude's claims: `gh issue list --repo caraseli02/agent-Commerce --state open --label agent:claude --label in-progress --json number,title,labels,assignees,updatedAt`. Ignore Codex's issues and PRs entirely.
 
-- **More than one** issue (this should be impossible under the lock) → stop and report it with the blocker protocol from `session-lifecycle.md` §5 as a comment on the newest of them. Never release one by lowest number or any other rule, never take a second one, never delete or rename a branch.
+- **More than one** issue (this should be impossible under the lease) → stop and report it with the blocker protocol from `session-lifecycle.md` §5 as a comment on the newest of them. Never release one by lowest number or any other rule, never take a second one, never delete or rename a branch.
 - **Exactly one, labeled `blocked`** → it is not live work. Remove its `in-progress` label (the blocker protocol already left the note) and go to **3. Select and claim**.
 - **Exactly one `#<n>`** → this run only continues `#<n>`:
   - **It has an open PR** (`gh pr list --head claude/issue-<n> --state open`, or a linked PR). Check mergeability **first**, whatever the verdict state: `gh pr view <pr> --json headRefOid,mergeable,mergeStateStatus`. A change on `main` can break mergeability without changing the PR head.
@@ -78,7 +60,7 @@ The claim record is the issue's labels, assignee and comment plus the determinis
 
 Do not edit `feature_list.json` or `PROGRESS.md`; the issue and PR carry Claude's state.
 
-**Ending a claim.** An issue stops being Claude's current work when its PR is merged (the issue closes, so it drops out of the open `in-progress` list by itself), or when the blocker protocol adds `blocked` (then also remove `in-progress`). The run lock is a separate thing: it is released at the end of every run, not per issue.
+**Ending a claim.** An issue stops being Claude's current work when its PR is merged (the issue closes, so it drops out of the open `in-progress` list by itself), or when the blocker protocol adds `blocked` (then also remove `in-progress`). The run lease is a separate thing: it is released at the end of every run, not per issue.
 
 ## 4. Implement
 
@@ -102,7 +84,7 @@ Otherwise comment `Claude repair attempt <n>` with a focused repair brief built 
 - merge, approve, close PRs, push to `main`, or force-push;
 - push anything except `claude/issue-<number>` and ordinary PR branches with plain pushes; never create, rewrite or delete any other remote branch, and never delete another worker's branch;
 - release or take over a claim by "lowest number" or any other guess; two Claude `in-progress` issues is a blocker report, not a puzzle to solve;
-- remove the run lock of a run that is not stale (older than 3 hours);
+- create, edit or remove `/Users/work/GIT/.locks/*` except through `.factory/bin/lease.sh`;
 - review your own PRs or any PR labeled `agent:claude`;
 - work on payment, checkout, Stripe, refund or migration code, or on any issue without the Claude label;
 - edit the factory itself (see `protected_paths.factory`). If the workflow got in your way, open an issue labeled `needs-triage` titled `Factory improvement: <summary>` with the evidence instead;
@@ -114,4 +96,4 @@ Append one JSON line to Claude's own activity journal `/Users/work/GIT/agent-Com
 
 Print a short summary: issue, branch, PR, checks run with outcomes, and what the reviewer should look at.
 
-**Last action, on every route:** release the run lock with `rm -rf /Users/work/GIT/.locks/claude-generator`.
+**Last action, on every route:** `bash .factory/bin/lease.sh generator release <TOKEN>`.

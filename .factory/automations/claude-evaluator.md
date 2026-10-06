@@ -4,37 +4,17 @@ You are the **independent evaluator** for `caraseli02/agent-Commerce`, running o
 
 Follow the **Evaluator contract**, verdicts and report format in `docs/agents/autonomous-workflow.md`, and the ladder in `docs/agents/verification.md`. Agent rules come from `.factory/factory.yaml`.
 
-## 0. Take the run lock (always the first action)
+## 0. Take the run lease (always the first action)
 
-Two evaluator runs must never review at once (they share one folder and one local database). Every scheduled or manual run takes a local lock **before reading any state** (no `gh`, no `git fetch`). `mkdir` without `-p` either creates the directory or fails, so exactly one run holds it; a later contender yields and never waits. This is a different directory from the generator's lock, so a generator run and an evaluator run do not block each other.
+Two evaluator runs must never review at once (they share one folder and one local database, and could post two verdicts for one head). Every scheduled or manual run takes a local lease **before reading any state** (no `gh`, no `git fetch`). It is separate from the generator's lease, so a generator run and an evaluator run do not block each other. Use only `.factory/bin/lease.sh`; never touch `/Users/work/GIT/.locks/claude-evaluator` by hand.
 
-```zsh
-lock=/Users/work/GIT/.locks/claude-evaluator
-who="claude-evaluator <routine or session name>"
-mkdir -p /Users/work/GIT/.locks
-started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-held=no
-for attempt in 1 2; do
-  if mkdir "${lock}" 2>/dev/null; then
-    printf '%s\n%s\n' "${started}" "${who}" > "${lock}/owner"
-    held=yes
-    break
-  fi
-  [ -d "${lock}" ] || continue                  # holder released meanwhile: just retry the mkdir
-  since=$(head -n 1 "${lock}/owner" 2>/dev/null)
-  begun=$(date -j -u -f '%Y-%m-%dT%H:%M:%SZ' "${since}" +%s 2>/dev/null || stat -f %m "${lock}" 2>/dev/null)
-  if [ "${attempt}" = 1 ] && [ -n "${begun}" ] && [ $(( $(date +%s) - begun )) -gt 10800 ]; then
-    rm -rf "${lock}"                             # older than 3 hours: a crashed or app-quit run; retry once
-  else
-    break
-  fi
-done
-if [ "${held}" = yes ]; then echo "Claude evaluator: lock taken at ${started}"; else echo "Claude evaluator: another run is active since ${since:-unknown}"; fi
+```bash
+bash .factory/bin/lease.sh evaluator acquire   # exit 0 prints your TOKEN; exit 3 = another run is active
 ```
 
-- `held=no` → print the message and **stop without releasing**: the lock belongs to the other run. Do nothing else.
-- `held=yes` → continue. Replace `<routine or session name>` in `who` with the real name before running the block.
-- **Release** as the final step of every run, including every stop and early exit (skipped window, failed guard, `No PRs awaiting evaluation.`, `INCONCLUSIVE`, any error): `rm -rf /Users/work/GIT/.locks/claude-evaluator`. A lock older than 3 hours is treated as stale (crashed or app-quit run) and taken over once by the block above. The evaluator pushes nothing, so the lock is not a GitHub claim; it only serializes local runs.
+- **Exit 3** → print the message and **stop without releasing**. Do nothing else.
+- **Exit 0** → keep the printed token. Renew before each `pnpm verify*` or Playwright run and before posting the verdict: `bash .factory/bin/lease.sh evaluator renew <TOKEN>`. **Exit 4 means another run took over: stop immediately without posting anything.**
+- **Release** as the last action of every route, including every stop and early exit (skipped window, failed guard, `No PRs awaiting evaluation.`, `INCONCLUSIVE`, any error): `bash .factory/bin/lease.sh evaluator release <TOKEN>`. A heartbeat older than 45 minutes is stale and is taken over atomically by the next run.
 
 ## 1. Guards
 
@@ -109,8 +89,8 @@ Labels: on PASS add `ready-for-human` to the linked issue; on BLOCKED add `block
 
 `git checkout --detach origin/main` and confirm `git status --short` is empty.
 
-Append one JSON line to Claude's activity journal `/Users/work/GIT/agent-Commerce/tmp/autonomy/events.jsonl` (gitignored, outside the evaluator folder; together with the run lock directory this is all you may write): `time` (UTC ISO), `actor` (`claude-evaluator`), `session`, `pr`, `head`, `verdict`, `rubric_total`, `verification`, `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
+Append one JSON line to Claude's activity journal `/Users/work/GIT/agent-Commerce/tmp/autonomy/events.jsonl` (gitignored, outside the evaluator folder; besides the run lease managed by `.factory/bin/lease.sh`, this is the only file you may write): `time` (UTC ISO), `actor` (`claude-evaluator`), `session`, `pr`, `head`, `verdict`, `rubric_total`, `verification`, `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
 
 Print one line: `Evaluated PR #<n> at <short sha>: <verdict>.`
 
-**Last action, on every route:** release the run lock with `rm -rf /Users/work/GIT/.locks/claude-evaluator`.
+**Last action, on every route:** `bash .factory/bin/lease.sh evaluator release <TOKEN>`.
