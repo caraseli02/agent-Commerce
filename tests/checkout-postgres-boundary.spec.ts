@@ -133,7 +133,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(7);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(8);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -186,12 +186,13 @@ describe('checkout PostgreSQL persistence boundary', () => {
       reason?: string;
       status?: string;
       stripeRefundId?: string | null;
+      createStartedAt?: string | null;
     }) =>
       pool.query(
         `INSERT INTO checkout_refunds
            (id, payment_id, stripe_payment_intent_id, amount_minor, currency, reason, status,
-            stripe_refund_id, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)`,
+            stripe_refund_id, create_started_at, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $10, $9, $9)`,
         [
           input.id,
           input.paymentId,
@@ -202,26 +203,59 @@ describe('checkout PostgreSQL persistence boundary', () => {
           input.status ?? 'PENDING',
           input.stripeRefundId ?? null,
           timestamp,
+          input.createStartedAt === undefined ? timestamp : input.createStartedAt,
         ],
       );
 
     try {
       await admin.query(`CREATE SCHEMA ${schemaIdentifier}`);
       const { migrate } = await import('../scripts/db-migrate.mjs');
-      await migrate(url.toString());
+      await installLegacySchema(pool);
+      for (const filename of [
+        '002_payment_preparation.sql',
+        '003_stripe_payment_compatibility.sql',
+        '004_stripe_webhook_events.sql',
+        '005_canceled_checkout_claim.sql',
+        '006_paid_recovery_claim.sql',
+        '007_full_refunds.sql',
+      ]) {
+        const sql = source(`server/infrastructure/migrations/${filename}`);
+        await pool.query(sql);
+        await pool.query('INSERT INTO checkout_schema_migrations(filename,checksum) VALUES ($1,$2)', [
+          filename,
+          createHash('sha256').update(sql).digest('hex'),
+        ]);
+      }
       await addPayment('pay-refund-a');
       await addPayment('pay-refund-b');
-
-      // A nullable provider ID is expected until Stripe confirms creation.
-      await insertRefund({ id: 'refund-a', paymentId: 'pay-refund-a' });
-      await insertRefund({ id: 'refund-b', paymentId: 'pay-refund-b' });
+      await insertRefund({ id: 'refund-a', paymentId: 'pay-refund-a', createStartedAt: null });
+      await insertRefund({ id: 'refund-b', paymentId: 'pay-refund-b', stripeRefundId: 're_existing' });
+      const before = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
+      await migrate(url.toString());
+      const after = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
+      expect(after[0]).toEqual({ ...before[0], create_started_at: new Date(0) });
+      expect(after[1]).toEqual(before[1]);
+      // Pending rows may retain unknown provider identities; no new replay window is minted.
+      await pool.query("UPDATE checkout_refunds SET stripe_refund_id=NULL WHERE id='refund-b'");
+      expect((await pool.query('SELECT id FROM checkout_refunds WHERE stripe_refund_id IS NULL')).rows).toHaveLength(2);
+      await expect(pool.query("UPDATE checkout_refunds SET status='SUCCEEDED' WHERE id='refund-a'")).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'checkout_refunds_terminal_requires_stripe_refund_id',
+      });
+      await expect(pool.query("UPDATE checkout_refunds SET stripe_refund_id='re-invalid' WHERE id='refund-a'")).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'checkout_refunds_stripe_refund_id_valid',
+      });
+      await expect(pool.query("UPDATE checkout_refunds SET create_started_at=NULL WHERE id='refund-a'")).rejects.toMatchObject({
+        code: '23502',
+      });
       await expect(insertRefund({ id: 'refund-a-duplicate', paymentId: 'pay-refund-a' })).rejects.toMatchObject({
         code: '23505',
         constraint: 'checkout_refunds_payment_id_key',
       });
 
-      await pool.query("UPDATE checkout_refunds SET stripe_refund_id='re-shared' WHERE id='refund-a'");
-      await expect(pool.query("UPDATE checkout_refunds SET stripe_refund_id='re-shared' WHERE id='refund-b'")).rejects.toMatchObject({
+      await pool.query("UPDATE checkout_refunds SET stripe_refund_id='re_shared' WHERE id='refund-a'");
+      await expect(pool.query("UPDATE checkout_refunds SET stripe_refund_id='re_shared' WHERE id='refund-b'")).rejects.toMatchObject({
         code: '23505',
         constraint: 'checkout_refunds_stripe_refund_id_key',
       });
@@ -408,7 +442,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       );
       const refundsBeforeReplay = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
       const historyBefore = (await pool.query('SELECT * FROM checkout_schema_migrations ORDER BY filename')).rows;
-      expect(historyBefore).toHaveLength(7);
+      expect(historyBefore).toHaveLength(8);
       expect(historyBefore[5]).toMatchObject({
         filename: '006_paid_recovery_claim.sql',
         checksum: createHash('sha256').update(source('server/infrastructure/migrations/006_paid_recovery_claim.sql')).digest('hex'),
@@ -416,6 +450,10 @@ describe('checkout PostgreSQL persistence boundary', () => {
       expect(historyBefore[6]).toMatchObject({
         filename: '007_full_refunds.sql',
         checksum: createHash('sha256').update(source('server/infrastructure/migrations/007_full_refunds.sql')).digest('hex'),
+      });
+      expect(historyBefore[7]).toMatchObject({
+        filename: '008_refund_constraints.sql',
+        checksum: createHash('sha256').update(source('server/infrastructure/migrations/008_refund_constraints.sql')).digest('hex'),
       });
       await migrate(url.toString());
       expect(await snapshot()).toEqual(replayBefore);
@@ -468,7 +506,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrate(url.toString());
       await migrate(url.toString());
       const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
-      expect(Number(migrations.rows[0]?.total)).toBe(7);
+      expect(Number(migrations.rows[0]?.total)).toBe(8);
 
       const existing = await pool.query<{
         status: string;

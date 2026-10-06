@@ -132,6 +132,66 @@ describe('one full provider Refund', () => {
     expect(new Set(create.mock.calls.map((c) => c[1])).size).toBe(1);
     expect(new Set(create.mock.calls.map((c) => JSON.stringify(c[0]))).size).toBe(1);
   });
+  it('overlapping Stripe creates return pending on 409 without marking compensation recovery', async () => {
+    let release!: () => void;
+    let entered!: () => void;
+    const waiting = new Promise<void>((r) => {
+      release = r;
+    });
+    const started = new Promise<void>((r) => {
+      entered = r;
+    });
+    const normal = create.getMockImplementation()!;
+    let inFlight = false;
+    create.mockImplementation(async (request, key) => {
+      if (inFlight) throw { statusCode: 409, code: 'idempotency_key_in_use' };
+      inFlight = true;
+      entered();
+      await waiting;
+      return normal(request, key);
+    });
+    const first = adapter().requestFullRefund(input);
+    await started;
+    expect(await adapter().requestFullRefund(input)).toMatchObject({ kind: 'pending' });
+    expect(await state()).toMatchObject({ workflow_status: 'compensation_pending' });
+    expect((await row())!.stripe_refund_id).toBeNull();
+    release();
+    expect(await first).toMatchObject({ kind: 'pending' });
+    expect((await row())!.stripe_refund_id).toBe('re_full_refund');
+    expect(await state()).toMatchObject({ workflow_status: 'compensation_pending' });
+    expect(create).toHaveBeenCalledTimes(2);
+    create.mockImplementation(normal);
+  });
+  it.each([
+    { statusCode: 409, code: 'unrelated_conflict' },
+    { statusCode: 500, code: 'idempotency_key_in_use' },
+  ])('does not hide an unrelated provider failure %j', async (error) => {
+    create.mockRejectedValueOnce(error);
+    expect(await adapter().requestFullRefund(input)).toMatchObject({ kind: 'recovery-required' });
+    expect(await state()).toMatchObject({ workflow_status: 'compensation_recovery_required' });
+  });
+  it.each(['claim', 'order'])('persists confirmed provider truth when Checkout %s advances during create', async (changed) => {
+    const normal = create.getMockImplementation()!;
+    create.mockImplementationOnce(async (request, key) => {
+      const result = await normal(request, key);
+      const db = await getCheckoutDatabase();
+      if (changed === 'claim') await db.execute("UPDATE checkout_claims SET workflow_status='finalized' WHERE payment_id=$1", [paymentId]);
+      else
+        await db.execute(
+          "UPDATE checkout_orders SET payload_json=jsonb_set(payload_json::jsonb,'{order,status}','\"Canceled\"')::text WHERE id=$1",
+          [orderId],
+        );
+      return result;
+    });
+    expect(await adapter().requestFullRefund(input)).toMatchObject({ kind: 'pending' });
+    expect(await row()).toMatchObject({ stripe_refund_id: 're_full_refund', status: 'PENDING' });
+    clock = new Date(clock.getTime() + 48 * 60 * 60 * 1000);
+    providerStatus = 'succeeded';
+    expect(await adapter().requestFullRefund(input)).toMatchObject({ kind: 'succeeded' });
+    expect(create).toHaveBeenCalledOnce();
+    expect(retrieve).toHaveBeenCalledExactlyOnceWith('re_full_refund');
+    expect(await row()).toMatchObject({ stripe_refund_id: 're_full_refund', status: 'SUCCEEDED' });
+  });
   it('lost create response recovers through the same deterministic request', async () => {
     create.mockImplementationOnce(async (request, key) => {
       remote = {
@@ -270,8 +330,8 @@ describe('one full provider Refund', () => {
     expect(await first).toMatchObject({ kind: 'succeeded' });
     expect((await row())!.status).toBe('SUCCEEDED');
   });
-  it('unknown status keeps validated identity but never accepts success', async () => {
-    providerStatus = 'unrecognized';
+  it.each(['unrecognized', 'requires_action'])('provider %s keeps validated identity but requires recovery', async (status) => {
+    providerStatus = status;
     expect(await adapter().requestFullRefund(input)).toMatchObject({ kind: 'recovery-required' });
     expect(await row())!.toMatchObject({ stripe_refund_id: 're_full_refund', status: 'PENDING' });
   });
