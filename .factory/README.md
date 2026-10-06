@@ -15,8 +15,8 @@ The repo workflow itself (roles, verdicts, verification ladder) stays in `AGENTS
 ## How the two agents avoid each other
 
 1. **Ownership is a label.** Issues labeled `agent:claude` belong to Claude; every other `ready-for-agent` issue is Codex's pool. Neither agent ever takes the other's issue. Labels are the only claim record; unattended agents do not edit `feature_list.json` or `PROGRESS.md`.
-2. **Claim lock.** Claude claims by pushing the deterministic branch `claude/issue-<n>` that starts with a unique empty commit. Git rejects a second push to the same name, so two runs can never both claim one issue; if two runs lock different issues, the lowest number keeps its claim and the other releases.
-3. **WIP=1 per agent.** Claude holds at most one `in-progress` issue; it starts new work only after its PR is merged, or blocks.
+2. **One lock for Claude's whole lane.** The branch `claude/wip-lock` holds Claude's single claim: its newest commit is `claim #n` or `release #n`. A run claims by pushing a new commit on top of the tip it read; if another run moved the lock first, the plain push is rejected (no fast-forward), so two runs can never hold work at the same time, even on different issues. The lock is never force-pushed or deleted.
+3. **WIP=1 per agent.** While the lock says `claim #n` and the issue is open and not blocked, Claude only continues `#n`. It releases after the issue closes (PR merged) or is blocked.
 4. **Cross-review.** The builder never reviews its own work: Claude reviews ready PRs without `agent:claude`; Codex reviews ready PRs with `agent:claude`.
 5. **Payments stay with Codex.** Claude never builds `area:payments` work or touches protected payment paths, but reviews Codex's payment PRs.
 6. **Vlad merges.** No agent merges, approves via GitHub review, or force-pushes.

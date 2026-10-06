@@ -31,7 +31,7 @@ Claude-built PRs carry `agent:claude` and are independently evaluated by Codex; 
 | Codex  | `ready-for-agent` issues without `agent:claude`, including `area:payments` | ready PRs **with** `agent:claude`    |
 
 - An agent never claims, implements or repairs an issue owned by the other agent, and never reviews a PR it built.
-- Claude claims by pushing the deterministic branch `claude/issue-<n>` first; a rejected push means the issue is already claimed. If two Claude runs lock different issues, the lowest issue number keeps its claim and the other releases, which serializes the builder-wide WIP.
+- Claude's WIP=1 is one lane-wide lock, the branch `claude/wip-lock`: its newest commit is `claim #n` or `release #n`, and it moves only by plain fast-forward pushes, so a run that read a stale tip is rejected. A held lock means continue `#n` only; released or stale (issue closed or blocked) means a run may claim. The work branch `claude/issue-<n>` holds code, not the claim.
 - Only structured reports count as evaluations: a comment with `<!-- evaluator-head: <sha> -->` (or legacy `<!-- local-evaluator sha=<sha> -->`) and `## Evaluator verdict` for the exact current head. Bot summaries that mention the SHA do not. `INCONCLUSIVE` uses `<!-- evaluator-inconclusive: <sha> -->`, is never final, and is retried on the unchanged head.
 - Conflicting PRs are repaired by merging `main` into the same branch and pushing normally; published branches are never rebased or force-pushed.
 - Claude's routines change only through reviewed PRs to `.factory/`; Codex's heartbeat is configured outside the repo and follows `.factory/README.md` § Codex side.
