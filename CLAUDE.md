@@ -66,7 +66,7 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 - First session on a fresh branch should initialize the repo before feature work.
 - One loop should make one narrow change, verify it, and continue the authorized task; stop for completion or the documented blocker protocol.
-- Keep one executable issue active per builder. Claude owns `agent:claude` or legacy `lane:nightly`, excludes payment work, and shares its claim across internal subtasks. Follow `docs/agents/autonomous-workflow.md` for separately operated cross-review.
+- Keep one executable issue active per builder. Claude owns issues labeled `agent:claude`, excludes payment work, and shares its claim across internal subtasks. Follow `docs/agents/autonomous-workflow.md` for separately operated cross-review.
 - If the task grows beyond a few files or turns into a second unrelated fix, split it.
 
 ## Architecture shortcuts

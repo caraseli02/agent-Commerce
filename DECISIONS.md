@@ -2,9 +2,20 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Owner label and Claude run lock — 2026-10-06
+
+- The GitHub label `lane:nightly` was renamed to `agent:claude`; it is the single Claude owner label and is set or removed only by Vlad. Agents never label an issue to take it. Codex's heartbeat was updated by Codex to skip `agent:claude`.
+- Claude's WIP=1 is protected by a local run lock on the Mac mini, not by a GitHub branch: every generator run takes `/Users/work/GIT/.locks/claude-generator` (atomic `mkdir`, stale after 3 hours) before reading any state and removes it as its last step; the evaluator uses `/Users/work/GIT/.locks/claude-evaluator`. The earlier `claude/wip-lock` compare-and-swap branch was rejected by the repo's pre-push hook (orphan-commit merge-base failure; "Pushed runtime differs from checkout" for empty-tree commits), is not used and was never created. The claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. More than one Claude `in-progress` issue is reported through the blocker protocol; nothing is released by lowest number or by deleting a branch.
+
+## Two-agent ownership and cross-review — 2026-10-04
+
+- Claude and Codex work the backlog on the Mac mini only, during working windows, each with WIP=1. The issue label is the only claim record: `agent:claude` is Claude's, everything else `ready-for-agent` is Codex's. Unattended agents do not edit `feature_list.json` or `PROGRESS.md`.
+- Builder and reviewer always differ: Claude reviews non-Claude PRs, Codex reviews `agent:claude` PRs. Verdicts are one structured comment per head with an `evaluator-head` marker; `INCONCLUSIVE` uses a separate retryable marker, and bot summaries never count. Vlad merges.
+- Claude never builds payment, checkout or migration work. Claude routines live in `.factory/` and read it from `origin/main`; Codex follows `.factory/README.md` § Codex side, configured outside the repo.
+
 ## Builder ownership and reviewed tracking — 2026-10-05
 
-- WIP=1 applies per builder; Codex skips `agent:claude` and legacy `lane:nightly`. Its internal Sol/Luna/Astra tasks share the same executable issue. Independent cross-review uses a separate evaluator session on the other builder's PR.
+- WIP=1 applies per builder; Codex skips `agent:claude`. Its internal Sol/Luna/Astra tasks share the same executable issue. Independent cross-review uses a separate evaluator session on the other builder's PR.
 - Live claims belong to GitHub labels, assignments and linked PRs. Unattended agents leave shared tracking snapshots unchanged; explicit reviewed reconciliation preserves evidence in `PROGRESS.md` and `feature_list.json`. The snapshot validator does not enforce live GitHub WIP.
 - The factory proposal #591 must adopt structured evaluator detection, retryable INCONCLUSIVE reports, serialized claiming and push-compatible conflict recovery before unattended rollout. This PR does not enable routines or change host schedules.
 
