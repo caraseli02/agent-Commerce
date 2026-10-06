@@ -25,7 +25,46 @@ The direction is right: GitHub issues as the queue, one task per agent, issue ow
 
 Already done: Claude's folders use separate local PostgreSQL 17 databases instead of Neon (#591 commit `a755f38b`).
 
-## Current state (checked 2026-10-06)
+## Status checklist (updated 2026-10-06 evening)
+
+Codex answered P1–P8 on this PR (P5/P7 first, then the rest in its PASS 8/10 verdict on `457caeac` as a discussion record). This checklist tracks what is done and what is still missing, per owner. Codex: please review it against the live state and correct anything wrong.
+
+### Done
+
+- [x] **Label (P7).** `lane:nightly` renamed to `agent:claude` on GitHub (issues #516, #606). Codex updated its heartbeat to skip `agent:claude`. Live docs on `main` name only `agent:claude` (via #591); #609 closed as superseded.
+- [x] **Local PostgreSQL (done before this PR).** Claude's builder and reviewer folders use separate local PostgreSQL 17 databases (`a755f38b`, merged with #591).
+- [x] **Lock branch dropped (P4, part 1).** `claude/wip-lock` replaced by a local run lock taken before any state read and held for the whole run; normal claim/resume/repair overlap is fixed (Codex re-tested it on `17f2d631`).
+- [x] **#591 merged** (2026-10-06 21:08) — but see the open P4 item below: Codex's last verdict on it was FAIL.
+- [x] **Flaky visual test** (`mobile customer orders recovery surface`) fixed in #611 (merged).
+- [x] **Codex answers to P1–P8** recorded on this PR; all agree, with refinements listed below.
+
+### Still missing — Claude side
+
+- [ ] **P4: safe stale-lock recovery.** Codex FAIL on `17f2d631`: age-based takeover and unconditional release can still let two builder runs proceed (two contenders on one stale lock; a >3 h run deleting its successor's lock). Smallest fix per Codex: no automatic age-based takeover — yield whenever the lock exists, recover an abandoned lock only after confirming the old run stopped (process-held lock or owner/liveness check), and release only your own lock. Alternative: Vlad explicitly accepts the limitation in writing (waives the blocker, does not make it safe).
+- [ ] **P3: one routine.** `.factory/` still defines two Claude routines (generator 3×/day, evaluator every 30 min). Codex agrees with one hourly routine, provided it preserves interrupted work, CI/conflict repair and fair review order, and evaluates in fresh sessions.
+- [ ] **P5: create and enable the Claude routine in review-only mode** for Codex's PRs; retire the old `pr-evaluator` task (disabled, saved folder is Codex's checkout, outdated prompt). Watch about a week of verdicts before enabling building.
+- [ ] **P1: repo-scoped credential** for Claude's unattended runs, covering both Git and the GitHub API (a deploy key alone cannot handle issues/PRs).
+- [ ] **P2: sandbox + `PreToolUse` hook** for Claude's routines, and verify the effective permissions of each role (the Bash sandbox does not cover file tools or MCP).
+- [ ] **P6: lighter harness.** Land #597 (findings-based verdicts; "did not run" is not a verdict) and #602 (GitHub as the only active task state); shorter role-specific startup reading; lean skill set for unattended runs. Codex: does not need to delay reviewer-first rollout.
+
+### Still missing — Codex side
+
+- [ ] **Review-only Codex automation** that discovers `agent:claude` PRs and reviews each new head in a fresh session. Prerequisite before Claude builds unattended; today only Codex's builder heartbeat exists.
+- [ ] **P1: repo-scoped credential** for Codex runs (Git + API).
+- [ ] **P2: verify Codex's effective permissions** (Codex reports its session runs with full access and approval policy `never`, despite narrower config defaults).
+
+### Still missing — Vlad
+
+- [ ] **Decide P4:** request the stale-recovery fix (recommended) or record explicit acceptance of the limitation.
+- [ ] **Set the routine folder** in Claude Desktop → Routines → Edit (the scheduling tool cannot set it), once the routine is created.
+- [ ] **P8: competing writers.** Decide whether the Hermes gateway and OpenClaw node launch agents keep running; retire any duplicate writer only after its replacement is tested.
+- [ ] **#605 (auto-merge):** park or close; it needs GitHub Pro, which is deferred (P1).
+
+### Rollout acceptance (Codex's condition)
+
+- [ ] Prove from current `main`: reviewer works in both directions, same-PR repair after FAIL works, and locking is safe — before declaring the rollout complete. Agents read and act on PR findings directly on GitHub: one concise verdict per head, no unchanged-status comments.
+
+## Current state (as first checked, 2026-10-06 morning)
 
 - **Claude runs nothing autonomously.** The only Claude routine, `pr-evaluator`, is disabled and its saved working folder is `~/Documents/agent-Commerce` (Codex's checkout). Its local prompt still treats any comment containing the head SHA as a review (the bug Codex reported on #591).
 - **No PR is reviewed in either direction.** Claude's reviewer is off. Codex has one automation, its builder heartbeat (every 4 hours), which by its own prompt never produces final verdicts; no Codex evaluator automation exists. Codex's payments PR #607 currently has no evaluator verdict.
