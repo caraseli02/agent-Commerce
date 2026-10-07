@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, type Request } from '@playwright/test';
 
 const VIEWPORTS = [
   { name: 'mobile', size: { width: 390, height: 844 } },
@@ -53,6 +53,41 @@ const waitForVisualReady = async (page: Page, route: string) => {
   await expect(page.locator('[aria-busy="true"]'), `loading state remained visible on ${route}`).toHaveCount(0);
 };
 
+// Playwright's `networkidle` load state only follows document loads, so it is already
+// satisfied after a client-side route change. Track requests directly for those.
+const trackNetworkActivity = (page: Page) => {
+  const inFlight = new Set<Request>();
+  let lastActivityAt = Date.now();
+  const start = (request: Request) => {
+    inFlight.add(request);
+    lastActivityAt = Date.now();
+  };
+  const settle = (request: Request) => {
+    inFlight.delete(request);
+    lastActivityAt = Date.now();
+  };
+  page.on('request', start);
+  page.on('requestfinished', settle);
+  page.on('requestfailed', settle);
+
+  const waitForQuiet = async (route: string, quietMs = 500) => {
+    try {
+      await expect
+        .poll(() => inFlight.size === 0 && Date.now() - lastActivityAt >= quietMs, {
+          message: `network never settled on ${route}`,
+          intervals: [100],
+        })
+        .toBe(true);
+    } finally {
+      page.off('request', start);
+      page.off('requestfinished', settle);
+      page.off('requestfailed', settle);
+    }
+  };
+
+  return { waitForQuiet };
+};
+
 const visit = async (page: Page, route: string) => {
   const signals = installVisualSignals(page);
   await page.goto(route, { waitUntil: 'domcontentloaded' });
@@ -97,6 +132,7 @@ const signInAsCustomer = async (page: Page) => {
   await page.getByRole('radio', { name: 'Customer Demo' }).click();
   await expect(page.getByLabel('E-mail or client code')).toHaveValue('customer@demo.com');
   const signInButton = page.locator('button').filter({ hasText: /^\s*Sign In\s*$/ });
+  const network = trackNetworkActivity(page);
   await Promise.all([
     page.waitForResponse((response) => response.url().includes('/api/auth/login') && response.request().method() === 'POST'),
     signInButton.click(),
@@ -104,7 +140,11 @@ const signInAsCustomer = async (page: Page) => {
   await expect(page).toHaveURL(/\/dashboard\/client\?tab=home/);
   // Let the post-login dashboard finish loading; navigating away mid-load aborts its
   // chunk and API requests, which the signal listeners would report as failures.
+  // Sign-in reaches the dashboard through a client-side navigation, and once its data
+  // renders, NuxtLink prefetches the linked order pages' chunks, so wait for the
+  // network to go quiet as well.
   await waitForVisualReady(page, '/dashboard/client?tab=home');
+  await network.waitForQuiet('/dashboard/client?tab=home');
   return signals;
 };
 
