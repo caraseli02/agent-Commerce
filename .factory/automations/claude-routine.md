@@ -128,7 +128,7 @@ Work only on the claimed issue. A run that did not just create the branch first 
 - commit as you go and push normally, so an interrupted run leaves its work on the branch for the next run;
 - run `pnpm verify:handoff` from a clean tree before opening the PR.
 
-Open the PR **ready for review** (not draft) with `gh pr create --body-file <file>`, filling `.github/pull_request_template.md` (`Closes #<issue>`, exact command outcomes, browser evidence, known risks). Leave the evaluator rubric scores blank. Add the label `agent:claude` to the PR: that routes it to Codex for review. End with `PR ready for evaluator` and stop.
+Open the PR **ready for review** (not draft) from the canonical remote branch, never the run-local one: `gh pr create --head claude/issue-<number> --base main --title "<title>" --body-file <file> --label agent:claude`, filling `.github/pull_request_template.md` (`Closes #<issue>`, exact command outcomes, browser evidence, known risks). Leave the evaluator rubric scores blank. The `agent:claude` label routes it to Codex for review. Confirm with `gh pr view claude/issue-<number> --json headRefName,url` that the PR's head is `claude/issue-<number>`. End with `PR ready for evaluator` and stop.
 
 ### Resume the branch (used by the conflict route, Repair and Implement)
 

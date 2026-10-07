@@ -14,9 +14,10 @@
 set -eu
 
 repo=$(git rev-parse --show-toplevel)
-folder=/Users/work/GIT/agent-Commerce
-share=/Users/work/.local/share/agent-commerce
-gh_dir=/Users/work/.config/gh-agent-commerce-claude
+# The overrides exist for .factory/bin/install-local.test.sh only.
+folder=${CLAUDE_INSTALL_FOLDER:-/Users/work/GIT/agent-Commerce}
+share=${CLAUDE_INSTALL_SHARE:-/Users/work/.local/share/agent-commerce}
+gh_dir=${CLAUDE_INSTALL_GH_DIR:-/Users/work/.config/gh-agent-commerce-claude}
 settings="${folder}/.claude/settings.local.json"
 
 mkdir -p "${share}/hooks" "${share}/bin" "${folder}/.claude"
@@ -31,17 +32,23 @@ echo "installed guard hook and run lock in ${share}"
 new=$(cat "${repo}/.factory/settings/routine.settings.local.json")
 if [ -f "${gh_dir}/hosts.yml" ]; then
   new=$(printf '%s' "${new}" | jq --arg dir "${gh_dir}" '.env.GH_CONFIG_DIR = $dir')
+  use_token=yes
   echo "repo-only token found: gh and git in ${folder} use ${gh_dir}"
 else
+  use_token=no
   echo "no repo-only token (${gh_dir}/hosts.yml): gh and git in ${folder} use your existing gh login"
 fi
 
 if [ -f "${settings}" ]; then
   cp "${settings}" "${settings}.bak"
-  printf '%s' "${new}" | jq -s '
+  # Keep saved approvals and other env values. Without the token, drop only the
+  # GH_CONFIG_DIR this installer manages (left by an earlier token install).
+  printf '%s' "${new}" | jq -s --arg dir "${gh_dir}" --arg token "${use_token}" '
     (.[0].permissions.allow // []) as $saved
     | .[0] * .[1]
     | .permissions.allow = (($saved + (.permissions.allow // [])) | unique)
+    | if $token == "no" and .env.GH_CONFIG_DIR == $dir then del(.env.GH_CONFIG_DIR) else . end
+    | if .env == {} then del(.env) else . end
   ' "${settings}.bak" - >"${settings}"
   echo "merged routine settings into ${settings} (previous copy: settings.local.json.bak)"
 else

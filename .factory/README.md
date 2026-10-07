@@ -94,6 +94,6 @@ The label `lane:nightly` was renamed to `agent:claude` on GitHub on 2026-10-06; 
 ## Changing the factory
 
 - Edit these files (or `docs/agents/`) in a PR. Once merged, the next run reads the new version from `origin/main`. After a change to the hook, the lock script or the settings, Vlad re-runs `sh .factory/bin/install-local.sh` (setup step 4).
-- Tests: `sh .factory/bin/run-lock.test.sh`, `sh .factory/bin/resume.test.sh` and `node --test .factory/hooks/bash-guard.test.mjs`.
+- Tests: `sh .factory/bin/run-lock.test.sh`, `sh .factory/bin/resume.test.sh`, `sh .factory/bin/install-local.test.sh` and `node --test .factory/hooks/bash-guard.test.mjs`.
 - The Claude agent may not edit the factory. When it hits a workflow problem, it opens a `needs-triage` issue titled `Factory improvement: …`.
 - To pause Claude, pause the routine in Claude Desktop.
