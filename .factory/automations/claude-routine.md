@@ -27,7 +27,7 @@ The lock script is the installed copy of the reviewed `.factory/bin/run-lock.sh`
 
 1. If the local time (Europe/Madrid) is outside `claude-routine.run_window` in `.factory/factory.yaml`, print `Outside run window — skipped` and stop. Catch-up runs after sleep land here.
 2. Read `claude-routine.mode` from `.factory/factory.yaml`: `review-only` (skip steps 2 and 4) or `build`.
-3. **Scoped credential (fail closed).** `echo "$GH_CONFIG_DIR"` must print `/Users/work/.config/gh-agent-commerce-claude`, and `gh auth status` must pass with its output naming that folder's `hosts.yml` (not `keyring`); read the output, do not pipe it into other commands. Otherwise print `Claude routine: scoped GitHub token missing (see .factory/README.md setup step 5)` and stop. Never fall back to another login, and never print a token.
+3. **GitHub access.** `gh auth status` must pass; read its output, do not pipe it into other commands, and never print a token. Until Vlad adds the optional repo-only token (README setup step 5), this is his existing gh login, as he decided on 2026-10-07. If it fails, print `Claude routine: gh not authenticated` and stop.
 4. Environment: `node -v` must be 24.x (if not, run `. /Users/work/.local/share/agent-commerce/env.sh` first), `pnpm -v`, and `.env.local` must exist in the worktree (it provides `DATABASE_URL`; never print it). Run `pnpm install --frozen-lockfile`. If anything is missing, print the missing prerequisite and stop.
 
 ## 2. Repair Claude's own PR (mode `build` only)
@@ -37,21 +37,33 @@ List Claude's claims: `gh issue list --repo caraseli02/agent-Commerce --state op
 - **More than one** → report it with the blocker protocol from `session-lifecycle.md` §5 as a comment on the newest one and stop. Never release one by lowest number or any other rule, never take a second one, never delete or rename a branch.
 - **Exactly one, labeled `blocked`** → it is not live work. Remove its `in-progress` label (the blocker protocol already left the note) and continue at step 3.
 - **Exactly one `#<n>` with an open PR** (`gh pr list --head claude/issue-<n> --state open`, or a linked PR): check mergeability **first**, whatever the verdict state: `gh pr view <pr> --json headRefOid,mergeable,mergeStateStatus,statusCheckRollup`. A change on `main` can break mergeability without changing the PR head.
-  - `CONFLICTING` or `DIRTY` → merge `origin/main` into the same branch (`git merge origin/main`; never rebase a published branch), resolve, rerun the invalidated checks plus `pnpm verify:handoff`, push normally, and stop. The new head invalidates any earlier verdict, including PASS.
+  - `CONFLICTING` or `DIRTY` → put the issue branch in place first (**Resume the branch** below; the run starts detached at `main`, where a merge would do nothing), then `git merge origin/main` (never rebase a published branch), resolve, rerun the invalidated checks plus `pnpm verify:handoff`, push with `git push origin HEAD:claude/issue-<n>`, and stop. The new head invalidates any earlier verdict, including PASS.
   - `UNKNOWN` → GitHub has not computed it yet; continue at step 3.
   - A required CI check **failed** on the current head → repair it as in **Repair** below (the CI log is the brief).
   - The newest structured evaluator report for the current head is `FAIL` → **Repair** below. A report counts only when it contains `<!-- evaluator-head: <headRefOid> -->` (or legacy `<!-- local-evaluator sha=<headRefOid> -->`) and `## Evaluator verdict`.
   - Otherwise (no report yet, `PASS`, `BLOCKED`, or `INCONCLUSIVE`, which the reviewer retries itself) → nothing to repair; continue at step 3.
-- **Exactly one `#<n>` without a PR** → an earlier run did not finish it. Continue at step 4.2 on its branch `claude/issue-<n>`.
+- **Exactly one `#<n>` without a PR** → an earlier run did not finish it. Continue at step 4.2 (it starts with **Resume the branch**).
 - **None** → continue at step 3.
 
-**Repair.** Repairs are limited to 2 **consecutive unsuccessful** attempts on the same problem. Find the newest repair comment on the PR, marked `<!-- claude-repair: attempt=<k> head=<sha> -->`. If its `head` is the current failing head, this failure follows that repair, so this attempt is `k+1`; otherwise (no repair yet, or a later head passed review or CI) it is attempt `1`. If this would be attempt 3, apply the blocker protocol on the issue, add `blocked`, remove `in-progress`, and stop. Otherwise put the branch in place (**Resume the branch** below), fix only what the evaluator's required follow-up (or the failed check) names, rerun the failed and invalidated checks plus `pnpm verify:handoff`, push normally, then comment `<!-- claude-repair: attempt=<n> head=<new head sha> -->` followed by `Claude repair attempt <n>` and a short summary of the fix, and stop.
+**Repair.** Repairs are limited to 2 **consecutive unsuccessful** attempts on the same problem. Find the newest repair comment on the PR, marked `<!-- claude-repair: attempt=<k> head=<sha> -->`. If its `head` is the current failing head, this failure follows that repair, so this attempt is `k+1`; otherwise (no repair yet, or a later head passed review or CI) it is attempt `1`. If this would be attempt 3, apply the blocker protocol on the issue, add `blocked`, remove `in-progress`, and stop. Otherwise put the branch in place (**Resume the branch** below), fix only what the evaluator's required follow-up (or the failed check) names, rerun the failed and invalidated checks plus `pnpm verify:handoff`, push with `git push origin HEAD:claude/issue-<n>`, then comment `<!-- claude-repair: attempt=<n> head=<new head sha> -->` followed by `Claude repair attempt <n>` and a short summary of the fix, and stop.
 
 ## 3. Review one PR built by someone else
 
 `gh pr list --repo caraseli02/agent-Commerce --state open --json number,title,isDraft,headRefOid,labels,updatedAt,author`.
 
-Keep PRs that are not draft, do **not** carry `agent:claude` (Claude-built PRs are reviewed by Codex; never grade Claude's work), do not carry `skip-eval`, and have no final structured evaluator report for their current `headRefOid`:
+Keep PRs that are not draft, were **not built by Claude**, do not carry `skip-eval`, and have no final structured evaluator report for their current `headRefOid`.
+
+A PR counts as **Claude-built** when any of these holds; the label alone is not proof either way, so check them all:
+
+- it carries `agent:claude`;
+- its head branch starts with `claude/`;
+- a linked issue (`closingIssuesReferences`) carries `agent:claude`;
+- its body contains `Generated with [Claude Code]`;
+- any commit message has a `Co-Authored-By: Claude` trailer (`gh pr view <n> --json commits --jq '[.commits[] | .messageHeadline + "\n" + .messageBody] | map(test("Co-Authored-By: Claude")) | any'`).
+
+Never review a Claude-built PR (Codex reviews those). If one lacks `agent:claude`, add that label to the PR so Codex's reviewer finds it, with a one-line comment naming the signal, and move on. When provenance is unclear (signals conflict), skip the PR and say so in the run summary rather than reviewing it.
+
+Check for an existing final report:
 
 ```bash
 gh api repos/caraseli02/agent-Commerce/issues/<n>/comments --paginate \
@@ -102,13 +114,13 @@ If nothing is eligible, print `Claude routine: no eligible issue` and stop.
 
 1. **Mark the claim.** Remove `ready-for-agent`; add `in-progress`; assign the working account; comment `Claimed by claude-routine on branch claude/issue-<number>` followed by the sprint contract from `session-lifecycle.md` §2.
 2. **Recheck eligibility after claiming.** Re-read the issue (`gh issue view <n> --json state,labels,assignees`) and its linked PRs. If it is no longer eligible (closed, owner label removed, another assignee, or a linked open PR appeared), undo your claim (remove `in-progress`, unassign yourself, restore `ready-for-agent` only if the issue still has the Claude label), add a one-line comment with the reason and stop.
-3. **Create the work branch.** `claude/issue-<number>` from `origin/main`, pushed with a plain `git push -u origin claude/issue-<number>`. A rejected push means the branch already exists: if its issue is Claude's current `in-progress` issue, fetch and reuse it; otherwise stop and report. Never force-push or delete it.
+3. **Create the work branch.** `git checkout -b claude/issue-<number>-run-<UTC timestamp> origin/main`, then create the remote branch with a plain `git push origin HEAD:refs/heads/claude/issue-<number>`. A rejected push means the branch already exists: if its issue is Claude's current `in-progress` issue, continue with **Resume the branch**; otherwise stop and report. Never force-push or delete it.
 
 Do not edit `feature_list.json` or `PROGRESS.md`; the issue and PR carry Claude's state.
 
 ### 4.2 Implement
 
-Work only on the claimed issue, on `claude/issue-<number>`; put it in place with **Resume the branch** below. Follow the **Generator contract** in `autonomous-workflow.md` and the verification ladder in `verification.md`:
+Work only on the claimed issue. A run that did not just create the branch first puts it in place with **Resume the branch** below. Follow the **Generator contract** in `autonomous-workflow.md` and the verification ladder in `verification.md`:
 
 - smallest coherent change that meets every acceptance criterion; TDD where the behavior can be a test;
 - never modify files under `protected_paths`. If the issue truly needs one, stop and use the blocker protocol;
@@ -118,25 +130,25 @@ Work only on the claimed issue, on `claude/issue-<number>`; put it in place with
 
 Open the PR **ready for review** (not draft) with `gh pr create --body-file <file>`, filling `.github/pull_request_template.md` (`Closes #<issue>`, exact command outcomes, browser evidence, known risks). Leave the evaluator rubric scores blank. Add the label `agent:claude` to the PR: that routes it to Codex for review. End with `PR ready for evaluator` and stop.
 
-### Resume the branch (used by Repair and Implement)
+### Resume the branch (used by the conflict route, Repair and Implement)
 
-Each run has a fresh worktree, but an interrupted earlier run may have left work in its own worktree (unpushed commits, uncommitted or untracked files). You hold the lock, so that run has stopped. Never delete, reset or clean its worktree.
+Every run works on its own run-local branch `claude/issue-<n>-run-<UTC timestamp>` and publishes with a plain `git push origin HEAD:claude/issue-<n>`. Never check out `claude/issue-<n>` itself, so no worktree ever holds that name and successive runs never collide.
 
-1. `git worktree list --porcelain`: look for a worktree whose `branch` is `refs/heads/claude/issue-<number>`.
-2. **None** → `git fetch origin claude/issue-<number> && git checkout -B claude/issue-<number> origin/claude/issue-<number>`.
-3. **Found at `<path>` with head `<sha>`** (the branch cannot be checked out twice, so continue on a run-local branch):
-   - `git fetch origin claude/issue-<number>` and confirm `origin/claude/issue-<number>` is an ancestor of `<sha>` (`git merge-base --is-ancestor`); otherwise stop with the blocker protocol.
-   - `git checkout -b claude/issue-<number>-resume-<UTC timestamp> <sha>` (the commits are shared, so unpushed commits come along).
-   - Carry over uncommitted work read-only: `git -C <path> diff --binary HEAD > "$TMPDIR/resume.patch"` and `git apply --index "$TMPDIR/resume.patch"`; copy each file from `git -C <path> ls-files --others --exclude-standard` to the same relative path. Commit it as `chore: recover interrupted work from <path>` when anything changed.
-   - From now on push with `git push origin HEAD:claude/issue-<number>` (a plain, fast-forward push).
-   - If any of these steps is refused or fails, stop with the blocker protocol and name `<path>`, so a human recovers it. Never continue without the earlier work.
+1. `git fetch origin claude/issue-<n>` and `git checkout -b claude/issue-<n>-run-<UTC timestamp> origin/claude/issue-<n>`.
+2. **Recover interrupted work.** Earlier runs have stopped (you hold the lock), but one may have left work in its worktree. In `git worktree list --porcelain`, check every other worktree whose branch is `claude/issue-<n>` (older layout) or `claude/issue-<n>-run-*`. For each `<path>` with head `<sha>`:
+   - **Nothing to recover** (skip it): `<sha>` is an ancestor of `origin/claude/issue-<n>` (`git merge-base --is-ancestor`), and either `git -C <path> status --porcelain` is empty or `git log origin/claude/issue-<n> --grep "recover interrupted work from <path>"` already finds a recovery commit.
+   - **Unpublished commits** (`<sha>` is not an ancestor of the remote branch): `git merge --ff-only <sha>`, or `git merge --no-edit <sha>` when histories diverged (never rebase).
+   - **Uncommitted tracked changes:** `git -C <path> diff --binary HEAD > "$TMPDIR/resume.patch"`; apply it only when the file is non-empty, with `git apply --3way --index "$TMPDIR/resume.patch"`.
+   - **Untracked files:** copy each path from `git -C <path> ls-files --others --exclude-standard`; if the same path already exists here with different content, stop.
+   - When anything changed, commit `chore: recover interrupted work from <path> at <sha>` and push with `git push origin HEAD:claude/issue-<n>`.
+   - Any refused or failed step (conflict, refused command, unreadable worktree) → blocker protocol naming `<path>`. Never continue without the earlier work, and never delete, reset or clean another worktree.
 
 **Ending a claim.** An issue stops being Claude's current work when its PR is merged (the issue closes) or when the blocker protocol adds `blocked` (then also remove `in-progress`).
 
 ## 5. Never
 
 - merge, approve, close PRs, push to `main`, force-push, delete remote branches, or bypass git hooks (the guard hook blocks these; a block is a reason to stop and report, not to find another route);
-- push anything except `claude/issue-<number>` with plain pushes;
+- push anything except `HEAD:claude/issue-<number>` (or creating that branch) with plain pushes;
 - release or take over a claim or a lock by guessing; two Claude `in-progress` issues is a blocker report, not a puzzle to solve;
 - review your own PRs or any PR labeled `agent:claude`;
 - work on payment, checkout, Stripe, refund or migration code, or on any issue without the Claude label;

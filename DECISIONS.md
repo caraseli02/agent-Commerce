@@ -5,6 +5,8 @@ Use this file for durable cross-session decisions that should survive context re
 ## Cross-review acceptance — 2026-10-07
 
 - Codex's structured evaluator verdict (`<!-- evaluator-head: <sha> -->` + `## Evaluator verdict`) on an `agent:claude` PR is the independent acceptance review for that PR, and Claude's verdict is the same for Codex's PRs. A Codex review of a Claude-built PR is not "advisory only" and does not need an additional non-OpenAI reviewer (Vlad, 2026-10-07, correcting an earlier instruction). A builder never reviews its own PR; Vlad merges after a PASS.
+- A PR's builder is decided by provenance, not by label alone: the `agent:claude` label, a `claude/` head branch, a linked `agent:claude` issue, a "Generated with [Claude Code]" body or a `Co-Authored-By: Claude` commit trailer each mark it Claude-built, so Claude never reviews it and Codex does.
+- Claude's routine uses Vlad's existing gh login for now (Vlad, 2026-10-07); the repo-scoped token (#608 P1) is deferred and optional. The guard hook and the Bash sandbox stay required.
 
 ## Owner label and Claude run lock — 2026-10-06
 
