@@ -36,13 +36,13 @@ Codex answered P1–P8 on this PR (P5/P7 first, then the rest in its PASS 8/10 v
 - [x] **Lock branch dropped (P4, part 1).** `claude/wip-lock` replaced by a local run lock taken before any state read and held for the whole run; normal claim/resume/repair overlap is fixed (Codex re-tested it on `17f2d631`).
 - [x] **#591 merged** (2026-10-06 21:08) — but see the open P4 item below: Codex's last verdict on it was FAIL.
 - [x] **Flaky visual test** (`mobile customer orders recovery surface`) fixed in #611 (merged).
-- [x] **Codex answers to P1–P8** recorded on this PR; all agree, with refinements listed below.
+- [x] **Codex answers to P1–P8** recorded on this PR; all agree, with refinements listed below. Codex PASS on the checklist as a tracking record (`fd1565fe`, 8/10).
 
 ### Still missing — Claude side
 
-- [ ] **P4: safe stale-lock recovery.** Codex FAIL on `17f2d631`: age-based takeover and unconditional release can still let two builder runs proceed (two contenders on one stale lock; a >3 h run deleting its successor's lock). Smallest fix per Codex: no automatic age-based takeover — yield whenever the lock exists, recover an abandoned lock only after confirming the old run stopped (process-held lock or owner/liveness check), and release only your own lock. Alternative: Vlad explicitly accepts the limitation in writing (waives the blocker, does not make it safe).
+- [ ] **P4: safe stale-lock recovery.** Codex FAIL on `17f2d631`: age-based takeover and unconditional release can still let two builder runs proceed (two contenders on one stale lock; a >3 h run deleting its successor's lock). Smallest fix per Codex: no automatic age-based takeover — yield whenever the lock exists, recover an abandoned lock only after confirming the old run stopped (process-held lock or owner/liveness check), and release only your own lock. Codex (2026-10-06): this is Claude agent work; Vlad only decides if he wants to waive it instead.
 - [ ] **P3: one routine.** `.factory/` still defines two Claude routines (generator 3×/day, evaluator every 30 min). Codex agrees with one hourly routine, provided it preserves interrupted work, CI/conflict repair and fair review order, and evaluates in fresh sessions.
-- [ ] **P5: create and enable the Claude routine in review-only mode** for Codex's PRs; retire the old `pr-evaluator` task (disabled, saved folder is Codex's checkout, outdated prompt). Watch about a week of verdicts before enabling building.
+- [ ] **P5: create and enable the Claude routine in review-only mode** for Codex's PRs; retire the old `pr-evaluator` task (disabled, saved folder is Codex's checkout, outdated prompt). Building is enabled only after the rollout acceptance below is demonstrated.
 - [ ] **P1: repo-scoped credential** for Claude's unattended runs, covering both Git and the GitHub API (a deploy key alone cannot handle issues/PRs).
 - [ ] **P2: sandbox + `PreToolUse` hook** for Claude's routines, and verify the effective permissions of each role (the Bash sandbox does not cover file tools or MCP).
 - [ ] **P6: lighter harness.** Land #597 (findings-based verdicts; "did not run" is not a verdict) and #602 (GitHub as the only active task state); shorter role-specific startup reading; lean skill set for unattended runs. Codex: does not need to delay reviewer-first rollout.
@@ -51,18 +51,20 @@ Codex answered P1–P8 on this PR (P5/P7 first, then the rest in its PASS 8/10 v
 
 - [ ] **Review-only Codex automation** that discovers `agent:claude` PRs and reviews each new head in a fresh session. Prerequisite before Claude builds unattended; today only Codex's builder heartbeat exists.
 - [ ] **P1: repo-scoped credential** for Codex runs (Git + API).
+- [ ] **Reconcile the heartbeat and local setup guide with live GitHub:** drop the stale #498 visual blocker and the unmerged-#591 warning (#591/#611 are merged); move historical issue/branch details out of the standing prompt.
+- [ ] **Executable startup:** resume existing WIP, otherwise prepare the issue branch/worktree from latest `origin/main`, load the ignored local environment, initialize a fresh checkout automatically.
+- [ ] **Full-run exclusion for Codex** scheduled and manual builder runs, with safe recovery and separate reviewer checkouts (Claude's lock does not cover Codex).
 - [ ] **P2: verify Codex's effective permissions** (Codex reports its session runs with full access and approval policy `never`, despite narrower config defaults).
 
 ### Still missing — Vlad
 
-- [ ] **Decide P4:** request the stale-recovery fix (recommended) or record explicit acceptance of the limitation.
 - [ ] **Set the routine folder** in Claude Desktop → Routines → Edit (the scheduling tool cannot set it), once the routine is created.
 - [ ] **P8: competing writers.** Decide whether the Hermes gateway and OpenClaw node launch agents keep running; retire any duplicate writer only after its replacement is tested.
 - [ ] **#605 (auto-merge):** park or close; it needs GitHub Pro, which is deferred (P1).
 
 ### Rollout acceptance (Codex's condition)
 
-- [ ] Prove from current `main`: reviewer works in both directions, same-PR repair after FAIL works, and locking is safe — before declaring the rollout complete. Agents read and act on PR findings directly on GitHub: one concise verdict per head, no unchanged-status comments.
+- [ ] Demonstrate from current `main` before enabling unattended building: review in both directions, FAIL repaired on the same PR, re-review after a new head, and duplicate-run exclusion for both agents. Issue discussion happens before `ready-for-agent`; PR summaries stay short with evidence links. Agents read and act on PR findings directly on GitHub: one concise verdict per head, no unchanged-status comments.
 
 ## Current state (as first checked, 2026-10-06 morning)
 
