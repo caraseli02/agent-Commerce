@@ -25,46 +25,55 @@ The direction is right: GitHub issues as the queue, one task per agent, issue ow
 
 Already done: Claude's folders use separate local PostgreSQL 17 databases instead of Neon (#591 commit `a755f38b`).
 
-## Status checklist (updated 2026-10-06 evening)
+## Status checklist (updated 2026-10-07)
 
-Codex answered P1–P8 on this PR (P5/P7 first, then the rest in its PASS 8/10 verdict on `457caeac` as a discussion record). This checklist tracks what is done and what is still missing, per owner. Codex: please review it against the live state and correct anything wrong.
+Codex answered P1–P8 on this PR (P5/P7 first, then the rest in its PASS 8/10 verdict on `457caeac` as a discussion record). This checklist tracks what is done and what is still missing, per owner. **This PR stays open as the tracker and is merged last, when every box is checked.** Codex: please review it against the live state and correct anything wrong.
 
 ### Done
 
 - [x] **Label (P7).** `lane:nightly` renamed to `agent:claude` on GitHub (issues #516, #606). Codex updated its heartbeat to skip `agent:claude`. Live docs on `main` name only `agent:claude` (via #591); #609 closed as superseded.
 - [x] **Local PostgreSQL (done before this PR).** Claude's builder and reviewer folders use separate local PostgreSQL 17 databases (`a755f38b`, merged with #591).
 - [x] **Lock branch dropped (P4, part 1).** `claude/wip-lock` replaced by a local run lock taken before any state read and held for the whole run; normal claim/resume/repair overlap is fixed (Codex re-tested it on `17f2d631`).
-- [x] **#591 merged** (2026-10-06 21:08) — but see the open P4 item below: Codex's last verdict on it was FAIL.
-- [x] **Flaky visual test** (`mobile customer orders recovery surface`) fixed in #611 (merged).
+- [x] **#591 merged** (2026-10-06 21:08).
+- [x] **Flaky visual test** fix #611 merged. It still fails intermittently (4 of 5 pre-push visual runs on 2026-10-07, aborted `_nuxt` chunks on `/?signin=true`); follow-up suggested.
 - [x] **Codex answers to P1–P8** recorded on this PR; all agree, with refinements listed below. Codex PASS on the checklist as a tracking record (`fd1565fe`, 8/10).
 
-### Still missing — Claude side
+### Claude side
 
-- [ ] **P4: safe stale-lock recovery.** Codex FAIL on `17f2d631`: age-based takeover and unconditional release can still let two builder runs proceed (two contenders on one stale lock; a >3 h run deleting its successor's lock). Smallest fix per Codex: no automatic age-based takeover — yield whenever the lock exists, recover an abandoned lock only after confirming the old run stopped (process-held lock or owner/liveness check), and release only your own lock. Codex (2026-10-06): this is Claude agent work; Vlad only decides if he wants to waive it instead.
-- [ ] **P3: one routine.** `.factory/` still defines two Claude routines (generator 3×/day, evaluator every 30 min). Codex agrees with one hourly routine, provided it preserves interrupted work, CI/conflict repair and fair review order, and evaluates in fresh sessions.
-- [ ] **P5: create and enable the Claude routine in review-only mode** for Codex's PRs; retire the old `pr-evaluator` task (disabled, saved folder is Codex's checkout, outdated prompt). Building is enabled only after the rollout acceptance below is demonstrated.
-- [ ] **P1: repo-scoped credential** for Claude's unattended runs, covering both Git and the GitHub API (a deploy key alone cannot handle issues/PRs).
-- [ ] **P2: sandbox + `PreToolUse` hook** for Claude's routines, and verify the effective permissions of each role (the Bash sandbox does not cover file tools or MCP).
-- [ ] **P6: lighter harness.** Land #597 (findings-based verdicts; "did not run" is not a verdict) and #602 (GitHub as the only active task state); shorter role-specific startup reading; lean skill set for unattended runs. Codex: does not need to delay reviewer-first rollout.
+Built in **#612** (awaiting Codex review, then Vlad's merge):
 
-### Still missing — Codex side
+- [ ] **P4: safe stale-lock recovery.** `.factory/bin/run-lock.sh`: no age-based takeover; a lock is recovered only after its Claude Code process has stopped, under a second atomic guard; release only with the owner token; anything uncheckable yields to a human. Tested: 29 checks including 5 rounds of 8 concurrent contenders on one stale lock (exactly one winner each). Done when Codex PASSes #612 and it is merged.
+- [ ] **P3: one routine.** `claude-generator` + `claude-evaluator` replaced by one hourly `claude-routine` (repair → review → build, one action per run; preserves interrupted work, repairs FAIL/CI/conflicts on the same PR, reviews oldest unreviewed head first, fresh session per run). Done when #612 is merged.
+- [ ] **P2: sandbox + `PreToolUse` hook.** Guard hook (66 tests; blocks merge, approve, force-push, remote deletes, push to `main`, hook bypass, `gh api` writes, token/keychain access; fails closed) and sandbox settings for `~/GIT/agent-Commerce` only, verified with a headless sandboxed probe: `gh`, git, npm, PostgreSQL and Playwright work; writes outside the folder, unknown hosts and keychain reads are blocked. Claude may not write its own settings (blocked by the auto-mode classifier as self-modification), so **Vlad installs them** with `sh .factory/bin/install-local.sh`. Done when installed and confirmed with `/sandbox` in a routine run.
+- [ ] **P1: repo-scoped credential wiring.** The install script points the folder's `gh` and git at a separate gh configuration once Vlad has stored the token; the guard blocks overriding it. Done when the token exists and a routine run shows `gh auth status` using it.
+- [x] **P5 (Claude part): routine created, old task retired.** `claude-routine` created **disabled** in Claude Desktop (hourly `0 9-19 * * *`, prompt reads `.factory/automations/claude-routine.md` from `origin/main`); `pr-evaluator` deleted (its prompt file kept on disk). `~/GIT/agent-Commerce` switched to a clean `main`. `factory.yaml` starts it in `mode: review-only`.
+- [ ] **P6: lighter harness.** #597 is `ready-for-human` (needs Vlad to route it, for example to `agent:claude`). #602 is blocked by #596, whose PRs (#591, #593) are both merged, so #596 can be closed. Both edit protected harness paths, so they are interactive sessions with Vlad, not routine work. Not blocking reviewer-first rollout.
+
+### Codex side
 
 - [ ] **Review-only Codex automation** that discovers `agent:claude` PRs and reviews each new head in a fresh session. Prerequisite before Claude builds unattended; today only Codex's builder heartbeat exists.
+- [ ] **Review #612** (P3/P4/P2), including the two #591 FAIL scenarios and attempts to bypass the guard hook.
 - [ ] **P1: repo-scoped credential** for Codex runs (Git + API).
 - [ ] **Reconcile the heartbeat and local setup guide with live GitHub:** drop the stale #498 visual blocker and the unmerged-#591 warning (#591/#611 are merged); move historical issue/branch details out of the standing prompt.
 - [ ] **Executable startup:** resume existing WIP, otherwise prepare the issue branch/worktree from latest `origin/main`, load the ignored local environment, initialize a fresh checkout automatically.
 - [ ] **Full-run exclusion for Codex** scheduled and manual builder runs, with safe recovery and separate reviewer checkouts (Claude's lock does not cover Codex).
 - [ ] **P2: verify Codex's effective permissions** (Codex reports its session runs with full access and approval policy `never`, despite narrower config defaults).
 
-### Still missing — Vlad
+### Vlad (manual)
 
-- [ ] **Set the routine folder** in Claude Desktop → Routines → Edit (the scheduling tool cannot set it), once the routine is created.
+- [ ] **Merge #612** after a Codex PASS.
+- [ ] **Install the guards:** in `~/GIT/agent-Commerce` on `main` (after the merge), run `sh .factory/bin/install-local.sh`.
+- [ ] **Finish the routine in Claude Desktop** → Routines → `claude-routine` → Edit: folder `~/GIT/agent-Commerce`, worktree **on**, permission mode **Accept edits**. Click **Run now** while watching, choose "always allow" for the prompts, then set it to Active.
+- [ ] **Create the routine's GitHub token:** fine-grained, only `caraseli02/agent-Commerce`, Contents / Issues / Pull requests read and write. Store it with `GH_CONFIG_DIR=~/.config/gh-agent-commerce-claude gh auth login --hostname github.com --git-protocol https --insecure-storage` ("Paste an authentication token"), then re-run the install script.
+- [ ] **Triage P6:** route #597, close #596 if you agree it is done.
 - [ ] **P8: competing writers.** Decide whether the Hermes gateway and OpenClaw node launch agents keep running; retire any duplicate writer only after its replacement is tested.
 - [ ] **#605 (auto-merge):** park or close; it needs GitHub Pro, which is deferred (P1).
+- [ ] **Merge this PR (#608) last.**
 
 ### Rollout acceptance (Codex's condition)
 
-- [ ] Demonstrate from current `main` before enabling unattended building: review in both directions, FAIL repaired on the same PR, re-review after a new head, and duplicate-run exclusion for both agents. Issue discussion happens before `ready-for-agent`; PR summaries stay short with evidence links. Agents read and act on PR findings directly on GitHub: one concise verdict per head, no unchanged-status comments.
+- [ ] Demonstrate from current `main` before switching `claude-routine` to `mode: build`: review in both directions, FAIL repaired on the same PR, re-review after a new head, and duplicate-run exclusion for both agents (for Claude: a manual Run now during a scheduled run yields). Evidence links go here. Issue discussion happens before `ready-for-agent`; PR summaries stay short with evidence links. Agents read and act on PR findings directly on GitHub: one concise verdict per head, no unchanged-status comments.
+- [ ] Switch `factory.yaml` to `mode: build` in a reviewed PR.
 
 ## Current state (as first checked, 2026-10-06 morning)
 
