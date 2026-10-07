@@ -2,6 +2,10 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Cross-review acceptance — 2026-10-07
+
+- Codex's structured evaluator verdict (`<!-- evaluator-head: <sha> -->` + `## Evaluator verdict`) on an `agent:claude` PR is the independent acceptance review for that PR, and Claude's verdict is the same for Codex's PRs. A Codex review of a Claude-built PR is not "advisory only" and does not need an additional non-OpenAI reviewer (Vlad, 2026-10-07, correcting an earlier instruction). A builder never reviews its own PR; Vlad merges after a PASS.
+
 ## Owner label and Claude run lock — 2026-10-06
 
 - The GitHub label `lane:nightly` was renamed to `agent:claude`; it is the single Claude owner label and is set or removed only by Vlad. Agents never label an issue to take it. Codex's heartbeat was updated by Codex to skip `agent:claude`.
