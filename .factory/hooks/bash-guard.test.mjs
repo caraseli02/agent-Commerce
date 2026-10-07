@@ -65,6 +65,30 @@ describe('blocked commands', () => {
     'GH_CONFIG_DIR=~/.config/gh gh pr list',
     'unset GH_CONFIG_DIR; gh pr list',
     'security find-generic-password -s agent-commerce-claude -w',
+    // Codex review of #612 (ba33534b): wrapper, opaque payload, token and hook-bypass gaps.
+    'env -- git push origin main',
+    'env -i PATH=/usr/bin git push origin main',
+    'env -S "git push origin main"',
+    'timeout 60 git push --force origin x',
+    'nice -n 5 git push origin main',
+    'sudo git push origin main',
+    'eval "git push origin main"',
+    'echo origin main | xargs git push',
+    'gh api graphql --input /tmp/payload.json',
+    'gh api graphql -F query=@/tmp/mutation.graphql',
+    'gh auth status --show-token',
+    'gh auth status -t',
+    'gh config get -h github.com oauth_token',
+    'git -c core.hooksPath=/dev/null push origin claude/issue-123',
+    'git -c core.hookspath=/dev/null commit -m x',
+    'git config core.hooksPath /dev/null',
+    "HUSKY='0' git push origin claude/issue-123",
+    'HUSKY="0" git push origin claude/issue-123',
+    'export HUSKY=0; git push origin claude/issue-123',
+    'GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/dev/null git push',
+    "git push origin 'main'",
+    'git push origin m"ai"n',
+    'cat ~/.config/gh-agent-commerce-claude/hosts.yml',
   ];
   for (const command of blocked) {
     it(command, () => {
@@ -103,7 +127,12 @@ describe('allowed commands', () => {
     'gh api repos/caraseli02/agent-Commerce/issues/5/comments --paginate --jq ".[].body"',
     'gh api graphql -f query="{ viewer { login } }"',
     'pnpm verify --base origin/main',
-    'echo "do not run gh pr merge here" > /tmp/note.txt',
+    'echo "review notes" > /tmp/note.txt',
+    'env FOO=1 gh pr list',
+    'timeout 600 pnpm test',
+    'gh auth status',
+    'git -c user.name=x commit -m msg',
+    'gh api graphql -f query="{ repository(owner: \\"o\\", name: \\"r\\") { id } }"',
   ];
   for (const command of allowed) {
     it(command, () => {

@@ -78,7 +78,7 @@ automations:
     budgets:
       actions_per_run: 1
       wip: 1 # one open agent:claude issue in-progress at a time
-      max_focused_repair_attempts: 2
+      max_focused_repair_attempts: 2 # consecutive unsuccessful repairs of the same problem; resets after a head passes
       max_reviews_per_run: 1
 
 # Builder and reviewer of a PR are always different agents (cross-model review),

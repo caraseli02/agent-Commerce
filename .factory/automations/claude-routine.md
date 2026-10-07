@@ -27,7 +27,8 @@ The lock script is the installed copy of the reviewed `.factory/bin/run-lock.sh`
 
 1. If the local time (Europe/Madrid) is outside `claude-routine.run_window` in `.factory/factory.yaml`, print `Outside run window — skipped` and stop. Catch-up runs after sleep land here.
 2. Read `claude-routine.mode` from `.factory/factory.yaml`: `review-only` (skip steps 2 and 4) or `build`.
-3. Environment: `gh auth status` must pass, `node -v` must be 24.x (if not, run `. /Users/work/.local/share/agent-commerce/env.sh` first), `pnpm -v`, and `.env.local` must exist in the worktree (it provides `DATABASE_URL`; never print it). Run `pnpm install --frozen-lockfile`. If anything is missing, print the missing prerequisite and stop.
+3. **Scoped credential (fail closed).** `echo "$GH_CONFIG_DIR"` must print `/Users/work/.config/gh-agent-commerce-claude`, and `gh auth status` must pass with its output naming that folder's `hosts.yml` (not `keyring`); read the output, do not pipe it into other commands. Otherwise print `Claude routine: scoped GitHub token missing (see .factory/README.md setup step 5)` and stop. Never fall back to another login, and never print a token.
+4. Environment: `node -v` must be 24.x (if not, run `. /Users/work/.local/share/agent-commerce/env.sh` first), `pnpm -v`, and `.env.local` must exist in the worktree (it provides `DATABASE_URL`; never print it). Run `pnpm install --frozen-lockfile`. If anything is missing, print the missing prerequisite and stop.
 
 ## 2. Repair Claude's own PR (mode `build` only)
 
@@ -44,7 +45,7 @@ List Claude's claims: `gh issue list --repo caraseli02/agent-Commerce --state op
 - **Exactly one `#<n>` without a PR** → an earlier run did not finish it. Continue at step 4.2 on its branch `claude/issue-<n>`.
 - **None** → continue at step 3.
 
-**Repair.** Count earlier `Claude repair attempt` comments on the PR. If there are already 2, apply the blocker protocol on the issue, add `blocked`, remove `in-progress`, and stop. Otherwise comment `Claude repair attempt <k>` with a short repair brief built from the evaluator's required follow-up (or the failed check), fix only that on the same branch, rerun the failed and invalidated checks plus `pnpm verify:handoff`, push normally, and stop.
+**Repair.** Repairs are limited to 2 **consecutive unsuccessful** attempts on the same problem. Find the newest repair comment on the PR, marked `<!-- claude-repair: attempt=<k> head=<sha> -->`. If its `head` is the current failing head, this failure follows that repair, so this attempt is `k+1`; otherwise (no repair yet, or a later head passed review or CI) it is attempt `1`. If this would be attempt 3, apply the blocker protocol on the issue, add `blocked`, remove `in-progress`, and stop. Otherwise put the branch in place (**Resume the branch** below), fix only what the evaluator's required follow-up (or the failed check) names, rerun the failed and invalidated checks plus `pnpm verify:handoff`, push normally, then comment `<!-- claude-repair: attempt=<n> head=<new head sha> -->` followed by `Claude repair attempt <n>` and a short summary of the fix, and stop.
 
 ## 3. Review one PR built by someone else
 
@@ -64,7 +65,7 @@ None → continue at step 4 (mode `build`) or print `No PRs awaiting evaluation.
 1. `gh pr view <n> --json number,title,headRefOid,mergeable,mergeStateStatus,body,labels,closingIssuesReferences` and `gh issue view <linked issue> --comments`. For payment children, read the parent epic and dependency notes in `docs/agents/issue-tracker.md`.
 2. `git fetch origin pull/<n>/head && git checkout --detach <headRefOid>`, then `pnpm install --frozen-lockfile`.
 3. Compare the diff (`git diff origin/main...HEAD`) with **every** acceptance criterion of the linked executable issue. Check scope: no second issue, no unrelated refactor.
-4. Verify yourself rather than trusting the PR body: `pnpm verify --base origin/main`, plus `pnpm verify:full` when runtime, architecture, checkout or payments are touched, plus any focused test the issue names.
+4. Verify yourself rather than trusting the PR body with **one** delivery gate, the strongest that applies: `pnpm verify:full` when runtime, architecture, checkout or payments are touched, otherwise `pnpm verify --base origin/main`. Add any focused test the issue names.
 5. For UI, route, auth, cart, checkout or state-flow changes, follow `.agents/skills/verify-ui-change/SKILL.md` and collect your own Playwright evidence on the routes and viewports the issue names. Record console errors and failed requests.
 6. For payment PRs, check against `DECISIONS.md` (Stripe provider ADR and payment decisions): monotonic state transitions, idempotency and unknown-provider-outcome rules, no Stripe activation before #559 Gate A, no persisted payment values changed outside the issue's scope. Name the exact decision any violation breaks.
 7. `gh pr checks <n>` and mergeability. `CONFLICTING` or `DIRTY` can never PASS.
@@ -107,7 +108,7 @@ Do not edit `feature_list.json` or `PROGRESS.md`; the issue and PR carry Claude'
 
 ### 4.2 Implement
 
-Work only on the claimed issue, on `claude/issue-<number>` (`git fetch origin claude/issue-<number> && git checkout -B claude/issue-<number> origin/claude/issue-<number>` when resuming). Follow the **Generator contract** in `autonomous-workflow.md` and the verification ladder in `verification.md`:
+Work only on the claimed issue, on `claude/issue-<number>`; put it in place with **Resume the branch** below. Follow the **Generator contract** in `autonomous-workflow.md` and the verification ladder in `verification.md`:
 
 - smallest coherent change that meets every acceptance criterion; TDD where the behavior can be a test;
 - never modify files under `protected_paths`. If the issue truly needs one, stop and use the blocker protocol;
@@ -116,6 +117,19 @@ Work only on the claimed issue, on `claude/issue-<number>` (`git fetch origin cl
 - run `pnpm verify:handoff` from a clean tree before opening the PR.
 
 Open the PR **ready for review** (not draft) with `gh pr create --body-file <file>`, filling `.github/pull_request_template.md` (`Closes #<issue>`, exact command outcomes, browser evidence, known risks). Leave the evaluator rubric scores blank. Add the label `agent:claude` to the PR: that routes it to Codex for review. End with `PR ready for evaluator` and stop.
+
+### Resume the branch (used by Repair and Implement)
+
+Each run has a fresh worktree, but an interrupted earlier run may have left work in its own worktree (unpushed commits, uncommitted or untracked files). You hold the lock, so that run has stopped. Never delete, reset or clean its worktree.
+
+1. `git worktree list --porcelain`: look for a worktree whose `branch` is `refs/heads/claude/issue-<number>`.
+2. **None** → `git fetch origin claude/issue-<number> && git checkout -B claude/issue-<number> origin/claude/issue-<number>`.
+3. **Found at `<path>` with head `<sha>`** (the branch cannot be checked out twice, so continue on a run-local branch):
+   - `git fetch origin claude/issue-<number>` and confirm `origin/claude/issue-<number>` is an ancestor of `<sha>` (`git merge-base --is-ancestor`); otherwise stop with the blocker protocol.
+   - `git checkout -b claude/issue-<number>-resume-<UTC timestamp> <sha>` (the commits are shared, so unpushed commits come along).
+   - Carry over uncommitted work read-only: `git -C <path> diff --binary HEAD > "$TMPDIR/resume.patch"` and `git apply --index "$TMPDIR/resume.patch"`; copy each file from `git -C <path> ls-files --others --exclude-standard` to the same relative path. Commit it as `chore: recover interrupted work from <path>` when anything changed.
+   - From now on push with `git push origin HEAD:claude/issue-<number>` (a plain, fast-forward push).
+   - If any of these steps is refused or fails, stop with the blocker protocol and name `<path>`, so a human recovers it. Never continue without the earlier work.
 
 **Ending a claim.** An issue stops being Claude's current work when its PR is merged (the issue closes) or when the blocker protocol adds `blocked` (then also remove `in-progress`).
 

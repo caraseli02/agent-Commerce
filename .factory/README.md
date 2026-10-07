@@ -21,7 +21,7 @@ The repo workflow itself (roles, verdicts, verification ladder) stays in `AGENTS
 3. **WIP=1 per agent.** Under the lock, Claude continues its one open `in-progress` issue labeled `agent:claude`, or (mode `build`) claims exactly one new one. The claim record is the issue's labels, assignee and comment plus the deterministic branch `claude/issue-<number>`, pushed normally. Two Claude `in-progress` issues is a blocker report, never resolved by guessing.
 4. **Cross-review.** The builder never reviews its own work: Claude reviews ready PRs without `agent:claude`; Codex reviews ready PRs with `agent:claude`.
 5. **Payments stay with Codex.** Claude never builds `area:payments` work or touches protected payment paths, but reviews Codex's payment PRs.
-6. **Vlad merges.** No agent merges, approves via GitHub review, or force-pushes. Without GitHub Pro there is no branch protection, so the guard hook and the sandbox below enforce this on Claude's side.
+6. **Vlad merges.** No agent merges, approves via GitHub review, or force-pushes. Without GitHub Pro there is no branch protection. On Claude's side the sandbox below and the guard hook (a best-effort screen of each Bash command that blocks what it cannot inspect) catch these; the cross-review and Vlad's merge remain the final line.
 
 ## Daily loop
 
@@ -40,13 +40,13 @@ The routine starts in `mode: review-only` (it only reviews Codex's PRs). Switchi
 2. **Folder:** `~/GIT/agent-Commerce`, kept on a clean `main`. Each run gets its own worktree under `.claude/worktrees/`, created from `origin/main`. `.worktreeinclude` copies the gitignored `.env.local` into it.
 3. **Database:** the folder's `.env.local` points `DATABASE_URL` and `DATABASE_URL_UNPOOLED` at the local PostgreSQL 17 on `127.0.0.1:5432`, database `agent_commerce_claude_gen`, macOS login role, no password, no `sslmode`. Codex uses `agent_commerce_demo`. Keep Neon for CI/previews only. Tests create and drop a temporary schema per run.
 4. **Guards (P2):** from `~/GIT/agent-Commerce` on `main`, Vlad runs `sh .factory/bin/install-local.sh` (agents may not change their own settings). It copies the guard hook and the run lock to `~/.local/share/agent-commerce/`, and merges `.factory/settings/routine.settings.local.json` into the folder's `.claude/settings.local.json` (gitignored; Claude Code reads it from the main checkout for every worktree, so it applies only to this folder's sessions). That file turns on the Bash sandbox (writes limited to the worktree, temp, the lock and journal folders and the pnpm/Playwright caches; network limited to GitHub, the npm registry and local PostgreSQL; no unsandboxed retries), registers the guard hook (fails closed if the hook is missing), and runs only the lock command outside the sandbox. Re-run the script after a merged change to `.factory/hooks`, `.factory/bin/run-lock.sh` or `.factory/settings`.
-5. **Credential (P1):** Vlad creates a fine-grained token for `caraseli02/agent-Commerce` only (Contents, Issues, Pull requests: read and write; Metadata: read), stores it in a separate gh configuration, and re-runs the install script:
+5. **Credential (P1, required before the routine is enabled):** Vlad creates a fine-grained token for `caraseli02/agent-Commerce` only (Contents, Issues, Pull requests: read and write; Metadata: read) and stores it in the routine's own gh configuration:
 
    ```bash
    GH_CONFIG_DIR=~/.config/gh-agent-commerce-claude gh auth login --hostname github.com --git-protocol https --insecure-storage
    ```
 
-   Choose "Paste an authentication token". The install script then sets `GH_CONFIG_DIR` for the folder's sessions and makes the folder's git use only `gh auth git-credential`, so `gh` and `git push` both use this token instead of Vlad's account-wide login. The guard hook blocks commands that override `GH_CONFIG_DIR`/`GH_TOKEN`, print tokens or read the keychain.
+   Choose "Paste an authentication token". The install script always sets `GH_CONFIG_DIR` to this folder for the routine folder's sessions and makes the folder's git use only `gh auth git-credential`, so `gh` and `git push` use this token and never Vlad's account-wide login. Until the token exists, `gh` there is logged out and every run stops at its credential guard (fail closed). The guard hook blocks commands that override `GH_CONFIG_DIR`/`GH_TOKEN`, print tokens, read the token file or read the keychain.
 
 6. **Lock:** the routine creates `/Users/work/GIT/.locks` itself. `~/.local/share/agent-commerce/bin/claude-run-lock status` shows the owner and whether its Claude session is alive. A lock whose session has stopped is recovered by the next run. If a run reports a lock it cannot check, make sure no Claude routine session is running, then delete `/Users/work/GIT/.locks/claude-routine` by hand.
 7. **Baseline:** run `./init.sh` in the folder and confirm it passes before enabling the routine.

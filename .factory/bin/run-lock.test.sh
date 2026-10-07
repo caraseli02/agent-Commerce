@@ -108,6 +108,55 @@ mkdir "${lock}.recover"
 sh "${LOCKSH}" acquire run >/dev/null
 check "leftover recovery guard: yield" "$?" 3
 
+# 9. A live holder whose process cannot be inspected (ps fails) is not recovered.
+reset
+alive=$(live_holder)
+out=$(CLAUDE_LOCK_HOLDER_PID=${alive} sh "${LOCKSH}" acquire live-run)
+t_live=$(printf '%s\n' "${out}" | token_of)
+fakebin="${root}/fakebin"
+mkdir -p "${fakebin}"
+printf '#!/bin/sh\necho "ps: operation not permitted" >&2\nexit 1\n' >"${fakebin}/ps"
+chmod +x "${fakebin}/ps"
+PATH="${fakebin}:${PATH}" sh "${LOCKSH}" acquire contender >/dev/null
+check "ps failure on a live holder: yield" "$?" 3
+check "ps failure on a live holder: lock kept" "$(sed -n 's/^token=//p' "${lock}/owner")" "${t_live}"
+kill "${alive}" 2>/dev/null
+wait "${alive}" 2>/dev/null
+
+# 10. Release is serialized with recovery: it waits for the guard and never
+#     removes the lock while a recovery holds it.
+reset
+alive=$(live_holder)
+out=$(CLAUDE_LOCK_HOLDER_PID=${alive} sh "${LOCKSH}" acquire run)
+t_run=$(printf '%s\n' "${out}" | token_of)
+mkdir "${lock}.recover"
+CLAUDE_LOCK_GUARD_TRIES=2 sh "${LOCKSH}" release "${t_run}" >/dev/null
+check "release while the guard is held: refused" "$?" 1
+check "release while the guard is held: lock kept" "$([ -d "${lock}" ] && echo kept)" kept
+(sleep 1 && rmdir "${lock}.recover") &
+sh "${LOCKSH}" release "${t_run}" >/dev/null
+check "release after the guard frees: removed" "$([ -d "${lock}" ] && echo kept || echo gone)" gone
+check "release leaves no guard behind" "$([ -d "${lock}.recover" ] && echo left || echo none)" none
+kill "${alive}" 2>/dev/null
+
+# 11. Late release racing a recovery: run many interleavings; the successor's
+#     lock must survive every time.
+for round in 1 2 3 4 5; do
+  reset
+  t_old=$(crashed_run crashed-run)
+  alive=$(live_holder)
+  (sh "${LOCKSH}" release "${t_old}" >/dev/null 2>&1) &
+  out=$(CLAUDE_LOCK_HOLDER_PID=${alive} CLAUDE_LOCK_GUARD_TRIES=1 sh "${LOCKSH}" acquire successor)
+  wait
+  t_new=$(printf '%s\n' "${out}" | token_of)
+  if [ -n "${t_new}" ]; then
+    check "race round ${round}: successor keeps its lock" "$(sed -n 's/^token=//p' "${lock}/owner" 2>/dev/null)" "${t_new}"
+  else
+    check "race round ${round}: successor yielded, stale lock intact or released" "ok" ok
+  fi
+  kill "${alive}" 2>/dev/null
+done
+
 # 8. Without an override, the holder is the nearest "claude" ancestor or none.
 reset
 sh "${LOCKSH}" acquire plain-shell >/dev/null

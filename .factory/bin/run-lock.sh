@@ -13,7 +13,10 @@
 #   only under a second atomic guard, so two contenders cannot both recover it.
 # - A run releases only the lock whose owner token it holds.
 # - Anything unexpected (missing owner file, holder that cannot be checked,
-#   leftover recovery guard) yields and leaves the decision to a human.
+#   leftover recovery guard, process inspection that fails) yields and leaves
+#   the decision to a human.
+# - Release takes the same guard as recovery, so a late release can never
+#   remove a successor's lock between its token check and its removal.
 
 set -u
 
@@ -42,21 +45,57 @@ holder_pid() {
   echo none
 }
 
-proc_start() { ps -o lstart= -p "$1" 2>/dev/null | sed 's/^ *//;s/ *$//'; }
+# Prints the start time of process $1, or nothing when ps cannot report it.
+proc_start() {
+  out=$(ps -o lstart= -p "$1" 2>/dev/null) || return 1
+  printf '%s' "${out}" | sed 's/^ *//;s/ *$//'
+}
 
 field() { sed -n "s/^$1=//p" "$2" 2>/dev/null | head -n 1; }
 
-# Prints alive, dead or unknown for the owner file $1. The start time guards
-# against a reused PID.
+# Prints alive, dead or unknown for the owner file $1. Only a confirmed
+# absence ("No such process") or a confirmed different start time (reused PID)
+# counts as dead; any inspection failure is unknown, and unknown always yields.
 holder_state() {
   pid=$(field pid "$1")
   start=$(field pid_start "$1")
-  if [ -z "${pid}" ] || [ "${pid}" = none ] || [ -z "${start}" ] || [ "${start}" = none ]; then
+  case "${pid}" in '' | none | *[!0-9]*)
+    echo unknown
+    return
+    ;;
+  esac
+  if [ -z "${start}" ] || [ "${start}" = none ]; then
     echo unknown
     return
   fi
-  now=$(proc_start "${pid}")
-  if [ -n "${now}" ] && [ "${now}" = "${start}" ]; then echo alive; else echo dead; fi
+  if kill -0 "${pid}" 2>/dev/null; then
+    now=$(proc_start "${pid}") || now=
+    if [ -z "${now}" ]; then
+      echo unknown
+    elif [ "${now}" = "${start}" ]; then
+      echo alive
+    else
+      echo dead
+    fi
+    return
+  fi
+  err=$(LC_ALL=C kill -0 "${pid}" 2>&1)
+  case $(printf '%s' "${err}" | tr '[:upper:]' '[:lower:]') in
+    *"no such process"*) echo dead ;;
+    *) echo unknown ;;
+  esac
+}
+
+# Recovery and release both run under this second atomic guard, so a release's
+# token check and removal cannot interleave with a recovery.
+take_guard() {
+  tries=${CLAUDE_LOCK_GUARD_TRIES:-20}
+  while [ "${tries}" -gt 0 ]; do
+    if mkdir "${GUARD}" 2>/dev/null; then return 0; fi
+    tries=$((tries - 1))
+    [ "${tries}" -gt 0 ] && sleep 0.5
+  done
+  return 1
 }
 
 write_owner() {
@@ -132,10 +171,16 @@ release() {
     echo "Claude routine: release needs the LOCK_TOKEN printed by acquire"
     exit 1
   fi
+  if ! take_guard; then
+    echo "Claude routine: lock left in place (a recovery is in progress or ${GUARD} was left behind; a human checks it)"
+    exit 1
+  fi
   if [ "$(field token "${LOCK}/owner")" = "${token}" ]; then
     rm -rf "${LOCK}"
+    rmdir "${GUARD}"
     echo "Claude routine: lock released"
   else
+    rmdir "${GUARD}"
     echo "Claude routine: lock left in place (not held by this run)"
   fi
 }

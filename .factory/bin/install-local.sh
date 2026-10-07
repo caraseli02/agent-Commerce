@@ -5,7 +5,7 @@
 #   sh .factory/bin/install-local.sh
 #
 # Re-run it after a merged change to .factory/hooks, .factory/bin/run-lock.sh or
-# .factory/settings, and once more after storing the routine's GitHub token.
+# .factory/settings.
 # It copies the reviewed files to stable places outside the repo, merges the
 # routine settings into ~/GIT/agent-Commerce/.claude/settings.local.json
 # (keeping approvals already saved there), and points the folder's git at the
@@ -25,12 +25,14 @@ cp "${repo}/.factory/bin/run-lock.sh" "${share}/bin/claude-run-lock"
 chmod 755 "${share}/bin/claude-run-lock"
 echo "installed guard hook and run lock in ${share}"
 
-new=$(cat "${repo}/.factory/settings/routine.settings.local.json")
+# Always point the folder at the routine's own gh configuration (fail closed):
+# without the scoped token, gh there is simply not logged in and the routine
+# stops at its credential guard instead of using Vlad's account-wide login.
+new=$(jq --arg dir "${gh_dir}" '.env.GH_CONFIG_DIR = $dir' "${repo}/.factory/settings/routine.settings.local.json")
 if [ -f "${gh_dir}/hosts.yml" ]; then
-  new=$(printf '%s' "${new}" | jq --arg dir "${gh_dir}" '.env.GH_CONFIG_DIR = $dir')
-  echo "routine token found: gh and git in ${folder} will use ${gh_dir}"
+  echo "routine token found: gh and git in ${folder} use ${gh_dir}"
 else
-  echo "no routine token yet (${gh_dir}/hosts.yml): gh keeps using your own login until you add it and re-run"
+  echo "no routine token yet (${gh_dir}/hosts.yml): gh in ${folder} is logged out and the routine will stop until you add it (README setup step 5)"
 fi
 
 if [ -f "${settings}" ]; then
