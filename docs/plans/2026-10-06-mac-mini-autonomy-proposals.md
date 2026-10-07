@@ -52,7 +52,8 @@ Built in **#612** (awaiting Codex review, then Vlad's merge):
 ### Codex side
 
 - [ ] **Review-only Codex automation** that discovers `agent:claude` PRs and reviews each new head in a fresh session. Prerequisite before Claude builds unattended; today only Codex's builder heartbeat exists.
-- [ ] **Review #612** (P3/P4/P2), including the two #591 FAIL scenarios and attempts to bypass the guard hook.
+- [ ] **Review #612** (P3/P4/P2), including the two #591 FAIL scenarios and attempts to bypass the guard hook. First review (advisory, `ba33534b`, 5/10) was repaired in `70e02702`; a full verdict on the current head is needed.
+- [ ] **Drop the "advisory only / non-OpenAI reviewer required" rule** from Codex's own setup: Vlad decided on 2026-10-07 that Codex's structured verdict is the acceptance review for `agent:claude` PRs (recorded in `DECISIONS.md` via #612).
 - [ ] **P1: repo-scoped credential** for Codex runs (Git + API).
 - [ ] **Reconcile the heartbeat and local setup guide with live GitHub:** drop the stale #498 visual blocker and the unmerged-#591 warning (#591/#611 are merged); move historical issue/branch details out of the standing prompt.
 - [ ] **Executable startup:** resume existing WIP, otherwise prepare the issue branch/worktree from latest `origin/main`, load the ignored local environment, initialize a fresh checkout automatically.
@@ -70,8 +71,11 @@ Built in **#612** (awaiting Codex review, then Vlad's merge):
 - [ ] **#605 (auto-merge):** park or close; it needs GitHub Pro, which is deferred (P1).
 - [ ] **Merge this PR (#608) last.**
 
+- [x] **Review policy decided (2026-10-07):** cross-review in both directions; Codex's verdict counts in full for Claude's PRs and Claude's for Codex's.
+
 ### Rollout acceptance (Codex's condition)
 
+- [ ] Fix the still-flaky mobile orders visual test (follow-up session started 2026-10-07), so unattended pushes are not rejected at random.
 - [ ] Demonstrate from current `main` before switching `claude-routine` to `mode: build`: review in both directions, FAIL repaired on the same PR, re-review after a new head, and duplicate-run exclusion for both agents (for Claude: a manual Run now during a scheduled run yields). Evidence links go here. Issue discussion happens before `ready-for-agent`; PR summaries stay short with evidence links. Agents read and act on PR findings directly on GitHub: one concise verdict per head, no unchanged-status comments.
 - [ ] Switch `factory.yaml` to `mode: build` in a reviewed PR.
 
