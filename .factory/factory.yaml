@@ -38,9 +38,13 @@ labels:
   blocked: blocked
   passed: ready-for-human
   never_claim: [epic, blocked, area:payments, needs-triage, needs-info, ready-for-human]
+  owner_approved_harness: owner-approved-harness # set or removed only by Vlad, never by an agent (the guard hook blocks it)
 
 # Paths the Claude generator must not modify. A Claude PR touching any of these
-# is a scope violation and its reviewer must FAIL it.
+# is a scope violation and its reviewer must FAIL it, unless the PR carries
+# owner-approved-harness: Vlad requested that change in an interactive session
+# (Vlad, 2026-10-08), so the reviewer judges it on its merits. Payment paths
+# are never exempt for Claude. The unattended routine never edits these paths.
 protected_paths:
   payments:
     - server/domain/payments/**

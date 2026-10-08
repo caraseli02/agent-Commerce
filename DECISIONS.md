@@ -2,6 +2,11 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Owner-approved harness changes — 2026-10-08
+
+- Claude PRs that touch `protected_paths` are FAILed by the reviewer, except when they carry `owner-approved-harness`. Only Vlad sets that label, on harness changes he requested in an interactive session; the reviewer then judges them on their merits. Payment paths are never exempt for Claude, and the unattended routine never edits protected paths. The guard hook blocks every Claude session from adding or removing the label.
+- #605 (auto-merge) was closed: it needs GitHub Pro, which is deferred; #603 stays open with Codex's findings.
+
 ## Cross-review acceptance — 2026-10-07
 
 - Codex's structured evaluator verdict (`<!-- evaluator-head: <sha> -->` + `## Evaluator verdict`) on an `agent:claude` PR is the independent acceptance review for that PR, and Claude's verdict is the same for Codex's PRs. A Codex review of a Claude-built PR is not "advisory only" and does not need an additional non-OpenAI reviewer (Vlad, 2026-10-07, correcting an earlier instruction). A builder never reviews its own PR; Vlad merges after a PASS.
