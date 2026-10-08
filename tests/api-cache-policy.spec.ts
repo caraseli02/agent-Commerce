@@ -5,6 +5,7 @@ import cachePolicy from '~/server/middleware/api-cache-policy';
 
 let server: Server;
 let baseUrl: string;
+const identityHeaders: Record<string, string>[] = [{ authorization: 'Bearer demo-token' }, { cookie: 'guest-session-id=guest-1' }];
 
 const expectPrivate = (response: Response) => {
   expect(response.headers.get('cache-control')).toBe('private, no-store, max-age=0, must-revalidate');
@@ -50,7 +51,7 @@ describe('API response cache policy over real HTTP', () => {
     '/api/products/prod-1/private-details',
     '/api/categories/private-details',
   ])('prevents anonymous and authenticated shared caching for %s', async (path) => {
-    for (const headers of [{}, { authorization: 'Bearer demo-token' }, { cookie: 'guest-session-id=guest-1' }]) {
+    for (const headers of [{}, ...identityHeaders]) {
       const response = await fetch(`${baseUrl}${path}?view=summary`, { headers });
       expect(response.status).toBe(200);
       expectPrivate(response);
@@ -78,7 +79,7 @@ describe('API response cache policy over real HTTP', () => {
   });
 
   it('keeps identity-bearing catalog requests and private HEAD responses uncacheable', async () => {
-    for (const headers of [{ authorization: 'Bearer demo-token' }, { cookie: 'guest-session-id=guest-1' }]) {
+    for (const headers of identityHeaders) {
       const response = await fetch(`${baseUrl}/api/products/prod-1`, { headers });
       expectPrivate(response);
       await response.text();
