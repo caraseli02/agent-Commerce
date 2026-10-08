@@ -40,7 +40,13 @@ else
 fi
 
 if [ -f "${settings}" ]; then
-  cp "${settings}" "${settings}.bak"
+  # Keep the backup outside the checkout, so it never shows up in git status
+  # (the folder is Codex's working copy too) or gets committed by accident.
+  # mktemp creates a new, unique file, so two installs in the same second
+  # never overwrite each other's backup.
+  mkdir -p "${share}/backups"
+  backup=$(mktemp "${share}/backups/settings.local.json.$(date -u +%Y%m%dT%H%M%SZ).XXXXXX")
+  cp "${settings}" "${backup}"
   # Keep saved approvals and other env values. Without the token, drop only the
   # GH_CONFIG_DIR this installer manages (left by an earlier token install).
   printf '%s' "${new}" | jq -s --arg dir "${gh_dir}" --arg token "${use_token}" '
@@ -49,8 +55,8 @@ if [ -f "${settings}" ]; then
     | .permissions.allow = (($saved + (.permissions.allow // [])) | unique)
     | if $token == "no" and .env.GH_CONFIG_DIR == $dir then del(.env.GH_CONFIG_DIR) else . end
     | if .env == {} then del(.env) else . end
-  ' "${settings}.bak" - >"${settings}"
-  echo "merged routine settings into ${settings} (previous copy: settings.local.json.bak)"
+  ' "${backup}" - >"${settings}"
+  echo "merged routine settings into ${settings} (previous copy: ${backup})"
 else
   printf '%s\n' "${new}" | jq . >"${settings}"
   echo "wrote ${settings}"

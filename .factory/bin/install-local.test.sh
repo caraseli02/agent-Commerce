@@ -29,6 +29,8 @@ mkdir -p "${CLAUDE_INSTALL_GH_DIR}" && : >"${CLAUDE_INSTALL_GH_DIR}/hosts.yml"
 jq '.permissions.allow += ["Bash(saved:*)"] | .env.FOO = "bar"' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 install
 check "token: GH_CONFIG_DIR set" "$(jq -r '.env.GH_CONFIG_DIR' "${settings}")" "${CLAUDE_INSTALL_GH_DIR}"
+check "backup kept outside the folder" "$(ls "${CLAUDE_INSTALL_SHARE}/backups" | wc -l | tr -d ' ')" 1
+check "no backup inside the folder" "$(ls "${CLAUDE_INSTALL_FOLDER}/.claude" | grep -c bak)" 0
 check "token: saved approval kept" "$(jq -r '.permissions.allow | index("Bash(saved:*)") != null' "${settings}")" true
 
 # 3. Token removed and reinstalled: the managed override goes, the rest stays.
@@ -47,6 +49,17 @@ check "foreign GH_CONFIG_DIR kept" "$(jq -r '.env.GH_CONFIG_DIR' "${settings}")"
 jq 'del(.env.FOO) | .env.GH_CONFIG_DIR = $d' --arg d "${CLAUDE_INSTALL_GH_DIR}" "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 install
 check "empty env removed" "$(jq -r 'has("env")' "${settings}")" false
+
+# 6. Installs in the same second keep every earlier snapshot (Codex, #615).
+before=$(ls "${CLAUDE_INSTALL_SHARE}/backups" | wc -l | tr -d ' ')
+jq '.env.FOO = "original"' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
+install
+jq '.env.FOO = "second"' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
+install
+after=$(ls "${CLAUDE_INSTALL_SHARE}/backups" | wc -l | tr -d ' ')
+check "back-to-back installs: one new backup each" "$((after - before))" 2
+check "back-to-back installs: first snapshot kept" "$(cat "${CLAUDE_INSTALL_SHARE}"/backups/* | grep -c '"original"')" 1
+check "back-to-back installs: second snapshot kept" "$(cat "${CLAUDE_INSTALL_SHARE}"/backups/* | grep -c '"second"')" 1
 
 rm -rf "${root}"
 if [ "${fails}" -eq 0 ]; then echo "install-local: all tests passed"; else
