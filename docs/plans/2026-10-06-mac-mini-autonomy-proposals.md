@@ -40,11 +40,11 @@ Codex answered P1–P8 on this PR (P5/P7 first, then the rest in its PASS 8/10 v
 
 ### Claude side
 
-Built in **#612** (awaiting Codex review, then Vlad's merge):
+Built in **#612**, merged 2026-10-08 as `3943bccd` after four Codex review rounds:
 
-- [ ] **P4: safe stale-lock recovery.** `.factory/bin/run-lock.sh`: no age-based takeover; a lock is recovered only after its Claude Code process has stopped, under a second atomic guard; release only with the owner token; anything uncheckable yields to a human. Tested: 29 checks including 5 rounds of 8 concurrent contenders on one stale lock (exactly one winner each). Done when Codex PASSes #612 and it is merged.
-- [ ] **P3: one routine.** `claude-generator` + `claude-evaluator` replaced by one hourly `claude-routine` (repair → review → build, one action per run; preserves interrupted work, repairs FAIL/CI/conflicts on the same PR, reviews oldest unreviewed head first, fresh session per run). Done when #612 is merged.
-- [ ] **P2: sandbox + `PreToolUse` hook.** Guard hook (66 tests; blocks merge, approve, force-push, remote deletes, push to `main`, hook bypass, `gh api` writes, token/keychain access; fails closed) and sandbox settings for `~/GIT/agent-Commerce` only, verified with a headless sandboxed probe: `gh`, git, npm, PostgreSQL and Playwright work; writes outside the folder, unknown hosts and keychain reads are blocked. Claude may not write its own settings (blocked by the auto-mode classifier as self-modification), so **Vlad installs them** with `sh .factory/bin/install-local.sh`. Done when installed and confirmed with `/sandbox` in a routine run.
+- [x] **P4: safe stale-lock recovery.** `.factory/bin/run-lock.sh`: no age-based takeover; a lock is recovered only after its Claude Code process has stopped, under a second atomic guard; release only with the owner token; anything uncheckable yields to a human. Tested: 29 checks including 5 rounds of 8 concurrent contenders on one stale lock (exactly one winner each). Done when Codex PASSes #612 and it is merged.
+- [x] **P3: one routine.** `claude-generator` + `claude-evaluator` replaced by one hourly `claude-routine` (repair → review → build, one action per run; preserves interrupted work, repairs FAIL/CI/conflicts on the same PR, reviews oldest unreviewed head first, fresh session per run). Done when #612 is merged.
+- [ ] **P2: sandbox + `PreToolUse` hook.** Guard hook (94 tests after the review rounds; blocks merge, approve, force-push, remote deletes, push to `main`, hook bypass, `gh api` writes, token/keychain access; fails closed) and sandbox settings for `~/GIT/agent-Commerce` only, verified with a headless sandboxed probe: `gh`, git, npm, PostgreSQL and Playwright work; writes outside the folder, unknown hosts and keychain reads are blocked. Claude may not write its own settings (blocked by the auto-mode classifier as self-modification), so **Vlad installs them** with `sh .factory/bin/install-local.sh`. Done when installed and confirmed with `/sandbox` in a routine run. **Code merged; still open until Vlad runs the installer.**
 - [x] **P1: deferred (Vlad, 2026-10-07).** The routine uses Vlad's existing gh login for now; the repo-scoped token stays optional (the install script switches to it once it exists). Guard hook and sandbox remain required.
 - [x] **P5 (Claude part): routine created, old task retired.** `claude-routine` created **disabled** in Claude Desktop (hourly `0 9-19 * * *`, prompt reads `.factory/automations/claude-routine.md` from `origin/main`); `pr-evaluator` deleted (its prompt file kept on disk). `~/GIT/agent-Commerce` switched to a clean `main`. `factory.yaml` starts it in `mode: review-only`.
 - [ ] **P6: lighter harness.** #597 is `ready-for-human` (needs Vlad to route it, for example to `agent:claude`). #602 is blocked by #596, whose PRs (#591, #593) are both merged, so #596 can be closed. Both edit protected harness paths, so they are interactive sessions with Vlad, not routine work. Not blocking reviewer-first rollout.
@@ -52,7 +52,7 @@ Built in **#612** (awaiting Codex review, then Vlad's merge):
 ### Codex side
 
 - [ ] **Review-only Codex automation** that discovers `agent:claude` PRs and reviews each new head in a fresh session. Prerequisite before Claude builds unattended; today only Codex's builder heartbeat exists.
-- [ ] **Review #612** (P3/P4/P2). Rounds so far: advisory 5/10 on `ba33534b` → repaired in `70e02702`; FAIL 6/10 on `ed39e693` (provenance routing, resume lifecycle, conflict route, auth) → repaired in `e0d97fe7`. Needs a verdict on the current head.
+- [x] **Review #612** (P3/P4/P2). Rounds so far: advisory 5/10 on `ba33534b` → repaired in `70e02702`; FAIL 6/10 on `ed39e693` (provenance routing, resume lifecycle, conflict route, auth) → repaired in `e0d97fe7`. Needs a verdict on the current head. Final head `64f59eb1` PASSed and merged.
 - [x] **Advisory-only rule dropped:** Codex's verdict on `ed39e693` states that Vlad's cross-review correction supersedes it.
 - [ ] **P1: repo-scoped credential** for Codex runs (deferred with Claude's; optional).
 - [ ] **Reconcile the heartbeat and local setup guide with live GitHub:** drop the stale #498 visual blocker and the unmerged-#591 warning (#591/#611 are merged); move historical issue/branch details out of the standing prompt.
@@ -62,7 +62,7 @@ Built in **#612** (awaiting Codex review, then Vlad's merge):
 
 ### Vlad (manual)
 
-- [ ] **Merge #612** after a Codex PASS.
+- [x] **Merge #612** after a Codex PASS.
 - [ ] **Install the guards:** in `~/GIT/agent-Commerce` on `main` (after the merge), run `sh .factory/bin/install-local.sh`.
 - [ ] **Finish the routine in Claude Desktop** → Routines → `claude-routine` → Edit: folder `~/GIT/agent-Commerce`, worktree **on**, permission mode **Accept edits**. Click **Run now** while watching, choose "always allow" for the prompts, then set it to Active.
 - [ ] _(Optional, later)_ **Create the routine's repo-only GitHub token:** fine-grained, only `caraseli02/agent-Commerce`, Contents / Issues / Pull requests read and write. Store it with `GH_CONFIG_DIR=~/.config/gh-agent-commerce-claude gh auth login --hostname github.com --git-protocol https --insecure-storage`, then re-run the install script.
