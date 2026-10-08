@@ -40,7 +40,7 @@ List Claude's claims: `gh issue list --repo caraseli02/agent-Commerce --state op
   - `CONFLICTING` or `DIRTY` → put the issue branch in place first (**Resume the branch** below; the run starts detached at `main`, where a merge would do nothing), then `git merge origin/main` (never rebase a published branch), resolve, rerun the invalidated checks plus `pnpm verify:handoff`, push with `git push origin HEAD:claude/issue-<n>`, and stop. The new head invalidates any earlier verdict, including PASS.
   - `UNKNOWN` → GitHub has not computed it yet; continue at step 3.
   - A required CI check **failed** on the current head → repair it as in **Repair** below (the CI log is the brief).
-  - The newest structured evaluator report for the current head is `FAIL` → **Repair** below. A report counts only when it contains `<!-- evaluator-head: <headRefOid> -->` (or legacy `<!-- local-evaluator sha=<headRefOid> -->`) and `## Evaluator verdict`.
+  - The newest structured evaluator report for the current head is `FAIL` → **Repair** below. A report counts only when the comment **starts with** `<!-- evaluator-head: <headRefOid> -->` (or legacy `<!-- local-evaluator sha=<headRefOid> -->`) and contains `## Evaluator verdict`; a comment that merely quotes the markers (for example a review request) is not a report.
   - Otherwise (no report yet, `PASS`, `BLOCKED`, or `INCONCLUSIVE`, which the reviewer retries itself) → nothing to repair; continue at step 3.
 - **Exactly one `#<n>` without a PR** → an earlier run did not finish it. Continue at step 4.2 (it starts with **Resume the branch**).
 - **None** → continue at step 3.
@@ -67,10 +67,10 @@ Check for an existing final report:
 
 ```bash
 gh api repos/caraseli02/agent-Commerce/issues/<n>/comments --paginate \
-  --jq '[.[].body | select(contains("## Evaluator verdict")) | select(contains("evaluator-head: <headRefOid>") or contains("local-evaluator sha=<headRefOid>"))] | length'
+  --jq '[.[].body | select(test("\\A\\s*<!-- (evaluator-head: <headRefOid>|local-evaluator sha=<headRefOid>) -->")) | select(contains("## Evaluator verdict"))] | length'
 ```
 
-`0` means not evaluated. Bot summaries (CodeRabbit, Qodo, Vercel) and comments that merely mention the SHA are not evaluations. `INCONCLUSIVE` reports use the separate marker `<!-- evaluator-inconclusive: <headRefOid> -->` and never count as final: a head whose newest `INCONCLUSIVE` comment is less than 2 hours old waits; otherwise it may be retried. Never post a second final report for the same head.
+`0` means not evaluated. Only a comment that **starts with** the marker counts: bot summaries (CodeRabbit, Qodo, Vercel), comments that merely mention the SHA, and review requests that quote the markers (Codex's `<!-- external-review-request: … -->` comments do) are not evaluations. `INCONCLUSIVE` reports start with the separate marker `<!-- evaluator-inconclusive: <headRefOid> -->` and never count as final: a head whose newest `INCONCLUSIVE` comment is less than 2 hours old waits; otherwise it may be retried. Never post a second final report for the same head.
 
 None → continue at step 4 (mode `build`) or print `No PRs awaiting evaluation.` and stop (mode `review-only`). Otherwise take one PR: those with no report of any kind first, then `INCONCLUSIVE` retries; oldest `updatedAt` within each group. Then follow the **Evaluator contract**, verdicts and report format in `docs/agents/autonomous-workflow.md` and the ladder in `docs/agents/verification.md`:
 
