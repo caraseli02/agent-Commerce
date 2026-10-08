@@ -73,13 +73,11 @@ describe('API response cache policy over real HTTP', () => {
   });
 
   it.each(['/api/categories', '/api/products/prod-1', '/api/products/new-products', '/api/products/resistors'])(
-    'leaves anonymous catalog GET/HEAD outside the private policy: %s',
+    'keeps browser/CDN catalog GET/HEAD storage disabled: %s',
     async (path) => {
       for (const method of ['GET', 'HEAD']) {
         const response = await fetch(`${baseUrl}${path}?limit=10`, { method });
-        expect(response.headers.get('cache-control')).toBeNull();
-        expect(response.headers.get('cdn-cache-control')).toBeNull();
-        expect(response.headers.get('vercel-cdn-cache-control')).toBeNull();
+        expectPrivate(response);
         await response.text();
       }
     },
@@ -108,8 +106,12 @@ describe('API response cache policy over real HTTP', () => {
     expect(await response.json()).toEqual({ statusCode: 404, message: 'Not found' });
   });
 
-  it('leaves anonymous catalog and public-page errors to the normal fallback', async () => {
-    for (const path of ['/product/missing', '/api/products/missing']) {
+  it('keeps anonymous catalog errors uncacheable and public-page errors unchanged', async () => {
+    const catalogResponse = await fetch(`${baseUrl}/api/products/missing`);
+    expect(catalogResponse.status).toBe(404);
+    expectPrivate(catalogResponse);
+    await catalogResponse.text();
+    for (const path of ['/product/missing']) {
       const response = await fetch(`${baseUrl}${path}`);
       expect(response.status).toBe(404);
       expect(response.headers.get('cache-control')).toBeNull();

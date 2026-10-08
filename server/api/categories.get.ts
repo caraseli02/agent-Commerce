@@ -1,5 +1,6 @@
 import { buildDemoTaxonomyTree } from '~/data/demoTaxonomyTree';
 import type { TaxonomyInterface } from '~/types/dashboard/categories';
+import { defineAnonymousCatalogHandler } from '~/server/utils/anonymousCatalogCache';
 
 interface CategoryResponseNode {
   _id: string;
@@ -22,7 +23,7 @@ const toResponseNode = (category: TaxonomyInterface): CategoryResponseNode => ({
   children: (category.subcategory ?? []).map(toResponseNode),
 });
 
-export default defineEventHandler(async () => {
+export default defineAnonymousCatalogHandler('categories', async () => {
   return {
     status: 'success',
     data: buildDemoTaxonomyTree().map(toResponseNode),
