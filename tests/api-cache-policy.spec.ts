@@ -2,6 +2,7 @@ import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp, createError, defineEventHandler, toNodeListener } from 'h3';
 import cachePolicy from '~/server/middleware/api-cache-policy';
+import cacheErrorHandler from '~/server/api-cache-error';
 
 let server: Server;
 let baseUrl: string;
@@ -15,11 +16,23 @@ const expectPrivate = (response: Response) => {
 
 describe('API response cache policy over real HTTP', () => {
   beforeAll(async () => {
-    const app = createApp()
+    const app = createApp({
+      onError: async (error, event) => {
+        // Reproduce Nitro's404 override; ordinary H3 errors omit this step.
+        await cacheErrorHandler(error, event, {
+          defaultHandler: () => ({
+            status: error.statusCode,
+            statusText: error.statusMessage || 'Error',
+            headers: { 'cache-control': 'no-cache', 'content-type': 'application/json' },
+            body: { statusCode: error.statusCode, message: error.message },
+          }),
+        });
+      },
+    })
       .use(cachePolicy)
       .use(
         defineEventHandler((event) => {
-          if (event.path === '/api/orders/missing') throw createError({ statusCode: 404, statusMessage: 'Order not found' });
+          if (event.path.endsWith('/missing')) throw createError({ statusCode: 404, statusMessage: 'Not found' });
           return { status: 'success' };
         }),
       );
@@ -92,7 +105,17 @@ describe('API response cache policy over real HTTP', () => {
     const response = await fetch(`${baseUrl}/api/orders/missing`);
     expect(response.status).toBe(404);
     expectPrivate(response);
-    await response.text();
+    expect(await response.json()).toEqual({ statusCode: 404, message: 'Not found' });
+  });
+
+  it('leaves anonymous catalog and public-page errors to the normal fallback', async () => {
+    for (const path of ['/product/missing', '/api/products/missing']) {
+      const response = await fetch(`${baseUrl}${path}`);
+      expect(response.status).toBe(404);
+      expect(response.headers.get('cache-control')).toBeNull();
+      expect(response.headers.get('cdn-cache-control')).toBeNull();
+      await response.text();
+    }
   });
 
   it.each(['/product/prod-1', '/dashboard/client', '/apiary', '/api-products/prod-1'])(

@@ -1,8 +1,18 @@
 import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath } from 'node:url';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
+
+  hooks: {
+    'nitro:config'(config) {
+      // Prepend after Nuxt installs its handler; nonprivate/page errors fall
+      // through to the original Nuxt handler and Nitro's normal fallback.
+      const existing = config.errorHandler ? [config.errorHandler].flat() : [];
+      config.errorHandler = [fileURLToPath(new URL('./server/api-cache-error.ts', import.meta.url)), ...existing];
+    },
+  },
 
   // #461 intentionally preserves the root-level source layout.
   srcDir: '.',

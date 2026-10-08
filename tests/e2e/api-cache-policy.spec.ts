@@ -30,14 +30,7 @@ test('built Nitro applies private headers to guest/authenticated reads, mutation
   expect(token).toBeTruthy();
   const headers = { Authorization: `Bearer ${token}` };
 
-  for (const path of [
-    '/api/cart',
-    '/api/user',
-    '/api/orders',
-    '/api/dashboard/client/metadata',
-    '/api/prices/price-settings',
-    '/api/notification',
-  ]) {
+  for (const path of ['/api/cart', '/api/user', '/api/orders', '/api/dashboard/client/metadata', '/api/notification']) {
     const response = await request.get(path, { headers });
     expect(response.ok(), path).toBe(true);
     expectPrivate(response);
@@ -45,6 +38,28 @@ test('built Nitro applies private headers to guest/authenticated reads, mutation
   const missingOrder = await request.get('/api/orders/cache-policy-missing', { headers });
   expect(missingOrder.status()).toBe(404);
   expectPrivate(missingOrder);
+  expect((await missingOrder.json()).statusCode).toBe(404);
+  const htmlRequestedApiError = await request.get('/api/orders/cache-policy-missing', {
+    headers: { ...headers, Accept: 'text/html' },
+  });
+  expect(htmlRequestedApiError.status()).toBe(404);
+  expectPrivate(htmlRequestedApiError);
+  expect(htmlRequestedApiError.headers()['content-type']).toContain('application/json');
+  const publicMissing = await request.get('/cache-policy-missing-page', { headers: { Accept: 'text/html' } });
+  expect(publicMissing.status()).toBe(404);
+  expect(publicMissing.headers()['content-type']).toContain('text/html');
+  expect(publicMissing.headers()['cdn-cache-control']).toBeUndefined();
+
+  const deniedPricing = await request.get('/api/prices/price-settings', { headers });
+  expect(deniedPricing.status()).toBe(403);
+  expectPrivate(deniedPricing);
+  const adminLogin = await request.post('/api/auth/login', { data: { email: 'admin@demo.com', password: 'admin123' } });
+  expect(adminLogin.ok()).toBe(true);
+  expectPrivate(adminLogin);
+  const { token: adminToken } = await adminLogin.json();
+  const adminPricing = await request.get('/api/prices/price-settings', { headers: { Authorization: `Bearer ${adminToken}` } });
+  expect(adminPricing.ok()).toBe(true);
+  expectPrivate(adminPricing);
 
   const pricing = await request.post('/api/orders/price', { headers, data: { products: [] } });
   expectPrivate(pricing);

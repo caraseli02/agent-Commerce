@@ -12,6 +12,7 @@ export default defineEventHandler((event) => {
   const carriesIdentity = !!getRequestHeader(event, 'authorization') || !!getRequestHeader(event, 'cookie');
   if (readOnly && !carriesIdentity && anonymousCatalogRead.test(path)) return;
 
+  event.context.privateApiCachePolicy = true;
   setResponseHeader(event, 'Cache-Control', 'private, no-store, max-age=0, must-revalidate');
   // CDN-specific directives take precedence over Cache-Control at the edge.
   setResponseHeader(event, 'CDN-Cache-Control', 'no-store');
