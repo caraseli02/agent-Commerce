@@ -1,0 +1,49 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/work/.local/share/agent-commerce/bin/claude-run-lock:*)",
+      "Bash(/Users/work/.local/share/agent-commerce/bin/claude-run-lock *)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "api.github.com",
+        "codeload.github.com",
+        "*.githubusercontent.com",
+        "registry.npmjs.org",
+        "localhost",
+        "127.0.0.1:5432"
+      ],
+      "allowLocalBinding": true,
+      "allowMachLookup": true
+    },
+    "filesystem": {
+      "allowWrite": [
+        "/Users/work/.local/share/agent-commerce/claude",
+        "/Users/work/Library/pnpm",
+        "/Users/work/Library/Caches/ms-playwright"
+      ]
+    },
+    "enableWeakerNetworkIsolation": true,
+    "excludedCommands": ["claude-run-lock"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=/Users/work/.local/share/agent-commerce/hooks/bash-guard.mjs; n=/Users/work/.local/bin/node; if [ -f \"$f\" ] && [ -x \"$n\" ]; then exec \"$n\" \"$f\"; else echo 'agent-Commerce guard missing; blocked' >&2; exit 2; fi",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -7,3 +7,8 @@ export const parsePaymentStatus = (value: unknown): PaymentStatus | null =>
   typeof value === 'string' && paymentStatuses.some((status) => status === value) ? (value as PaymentStatus) : null;
 export const parsePersistedPaymentStatus = (value: unknown): PersistedPaymentStatus | null =>
   value === 'FAILED' ? value : parsePaymentStatus(value);
+
+export const refundStatuses = ['PENDING', 'SUCCEEDED', 'FAILED'] as const;
+export type RefundStatus = (typeof refundStatuses)[number];
+export const refundReasons = ['requested_by_customer', 'duplicate', 'fraudulent'] as const;
+export type RefundReason = (typeof refundReasons)[number];

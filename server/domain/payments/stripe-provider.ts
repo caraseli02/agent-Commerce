@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import type { StripeIntentProvider, StripePaymentIntent } from './stripe-intents';
+import type { StripeRefundProvider, StripeRefund } from './stripe-refunds';
 
 const toIntent = (intent: Stripe.PaymentIntent): StripePaymentIntent => ({
   id: intent.id,
@@ -10,7 +11,7 @@ const toIntent = (intent: Stripe.PaymentIntent): StripePaymentIntent => ({
   metadata: { paymentId: intent.metadata.paymentId, orderId: intent.metadata.orderId },
 });
 
-export const createStripeIntentProvider = (): StripeIntentProvider => {
+const sandboxClient = () => {
   let client: Stripe | null = null;
   const stripe = () => {
     if (client) return client;
@@ -20,6 +21,12 @@ export const createStripeIntentProvider = (): StripeIntentProvider => {
     client = new Stripe(key);
     return client;
   };
+
+  return stripe;
+};
+
+export const createStripeIntentProvider = (): StripeIntentProvider => {
+  const stripe = sandboxClient();
 
   return {
     async create(input, idempotencyKey) {
@@ -45,6 +52,37 @@ export const createStripeIntentProvider = (): StripeIntentProvider => {
           { idempotencyKey: `payment:${intentId}:cancel:${reason}` },
         ),
       );
+    },
+  };
+};
+
+const toRefund = (refund: Stripe.Refund): StripeRefund => ({
+  id: refund.id,
+  paymentIntentId: typeof refund.payment_intent === 'string' ? refund.payment_intent : (refund.payment_intent?.id ?? null),
+  amountMinor: refund.amount,
+  currency: refund.currency,
+  status: refund.status ?? null,
+  metadata: { refundId: refund.metadata?.refundId, paymentId: refund.metadata?.paymentId, orderId: refund.metadata?.orderId },
+});
+
+export const createStripeRefundProvider = (): StripeRefundProvider => {
+  const stripe = sandboxClient();
+  return {
+    async create(input, idempotencyKey) {
+      return toRefund(
+        await stripe().refunds.create(
+          {
+            payment_intent: input.paymentIntentId,
+            amount: input.amountMinor,
+            reason: input.reason,
+            metadata: { refundId: input.refundId, paymentId: input.paymentId, orderId: input.orderId },
+          },
+          { idempotencyKey, timeout: 10_000, maxNetworkRetries: 0 },
+        ),
+      );
+    },
+    async retrieve(refundId) {
+      return toRefund(await stripe().refunds.retrieve(refundId, {}, { timeout: 10_000, maxNetworkRetries: 0 }));
     },
   };
 };

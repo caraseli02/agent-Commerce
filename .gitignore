@@ -27,3 +27,6 @@ blob-report/
 .idea
 firebase
 .env.local
+
+# Claude Code worktrees (Desktop routines and parallel sessions)
+.claude/worktrees/

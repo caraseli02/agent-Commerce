@@ -32,9 +32,9 @@ A Nuxt 4 + TypeScript e-commerce demo, branded as Components Marketplace, with V
 
 ## Harness state files
 
-- `PROGRESS.md` — current focus, in progress, blocked, next verification
+- `PROGRESS.md` — reviewed focus, blockers and verification snapshot; recheck live GitHub claims
 - `DECISIONS.md` — durable cross-session decisions
-- `feature_list.json` — machine-readable task state and WIP=1 control
+- `feature_list.json` — reviewed validation/evidence snapshot; its validator does not enforce live GitHub WIP
 
 ## Agent skills
 
@@ -66,7 +66,7 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 - First session on a fresh branch should initialize the repo before feature work.
 - One loop should make one narrow change, verify it, and continue the authorized task; stop for completion or the documented blocker protocol.
-- Keep only one task active at a time.
+- Keep one executable issue active per builder. Claude owns issues labeled `agent:claude`, excludes payment work, and shares its claim across internal subtasks. Follow `docs/agents/autonomous-workflow.md` for separately operated cross-review.
 - If the task grows beyond a few files or turns into a second unrelated fix, split it.
 
 ## Architecture shortcuts
@@ -87,4 +87,4 @@ Use `docs/agents/verification.md` before declaring done.
 
 ## State
 
-GitHub Issues are the primary task queue. Keep `PROGRESS.md` current as the short session mirror for active issue/PR, blockers, and baseline status.
+GitHub labels, assignments and linked PRs are live claim state. Unattended agents record transitions and evidence there; shared `PROGRESS.md` and `feature_list.json` snapshots change only through explicit reviewed reconciliation.

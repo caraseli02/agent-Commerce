@@ -9,6 +9,36 @@ Use this file for durable cross-session decisions that should survive context re
 - `.github/workflows/auto-merge.yml` runs from `main` as a separate Merger GitHub App, whose secrets live in the `main`-only `auto-merge` environment. It never runs PR code or uses `pull_request_target`, and it is a no-op until the owner completes setup. If CI fails on `main` for an auto-merged commit, it sets `AUTO_MERGE_ENABLED=false` and opens an issue. There is no dry-run mode and no opt-out label; a draft PR never merges.
 - Details and owner setup: `docs/agents/auto-merge.md`.
 
+## Cross-review acceptance — 2026-10-07
+
+- Codex's structured evaluator verdict (`<!-- evaluator-head: <sha> -->` + `## Evaluator verdict`) on an `agent:claude` PR is the independent acceptance review for that PR, and Claude's verdict is the same for Codex's PRs. A Codex review of a Claude-built PR is not "advisory only" and does not need an additional non-OpenAI reviewer (Vlad, 2026-10-07, correcting an earlier instruction). A builder never reviews its own PR; Vlad merges after a PASS.
+- A PR's builder is decided by provenance, not by label alone: the `agent:claude` label, a `claude/` head branch, a linked `agent:claude` issue, a "Generated with [Claude Code]" body or a `Co-Authored-By: Claude` commit trailer each mark it Claude-built, so Claude never reviews it and Codex does.
+- Claude's routine runs from `~/Documents/agent-Commerce`, the checkout Codex also uses (Vlad, 2026-10-08): Codex works in the main checkout, Claude only in per-run worktrees; the routine's sandbox and guard hook therefore apply to every Claude session started there. Lock and journal live in `~/.local/share/agent-commerce/claude/`. The separate `~/GIT/agent-Commerce*` checkouts were removed.
+- Claude's routine uses Vlad's existing gh login for now (Vlad, 2026-10-07); the repo-scoped token (#608 P1) is deferred and optional. The guard hook and the Bash sandbox stay required.
+
+## Owner label and Claude run lock — 2026-10-06
+
+- The GitHub label `lane:nightly` was renamed to `agent:claude`; it is the single Claude owner label and is set or removed only by Vlad. Agents never label an issue to take it. Codex's heartbeat was updated by Codex to skip `agent:claude`.
+- Claude's WIP=1 is protected by a local run lock on the Mac mini, not by a GitHub branch: Claude's single hourly routine takes `/Users/work/.local/share/agent-commerce/claude/locks/claude-routine` through `.factory/bin/run-lock.sh` (atomic `mkdir`) before reading any state and holds it for the whole run. The lock is never taken over by age (Codex FAIL on #591 `17f2d631`): it is recovered only after its holder Claude Code process has stopped, under a second atomic guard, and a run releases only the lock whose owner token it holds. The two-routine design (`claude-generator` 3×/day plus `claude-evaluator` every 30 minutes) was replaced by one routine (repair → review → build), because Desktop skips runs while another scheduled task is running. The earlier `claude/wip-lock` compare-and-swap branch was rejected by the repo's pre-push hook, is not used and was never created. The claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. More than one Claude `in-progress` issue is reported through the blocker protocol; nothing is released by lowest number or by deleting a branch.
+
+## Two-agent ownership and cross-review — 2026-10-04
+
+- Claude and Codex work the backlog on the Mac mini only, during working windows, each with WIP=1. The issue label is the only claim record: `agent:claude` is Claude's, everything else `ready-for-agent` is Codex's. Unattended agents do not edit `feature_list.json` or `PROGRESS.md`.
+- Builder and reviewer always differ: Claude reviews non-Claude PRs, Codex reviews `agent:claude` PRs. Verdicts are one structured comment per head with an `evaluator-head` marker; `INCONCLUSIVE` uses a separate retryable marker, and bot summaries never count. Vlad merges.
+- Claude never builds payment, checkout or migration work. Claude routines live in `.factory/` and read it from `origin/main`; Codex follows `.factory/README.md` § Codex side, configured outside the repo.
+
+## Builder ownership and reviewed tracking — 2026-10-05
+
+- WIP=1 applies per builder; Codex skips `agent:claude`. Its internal Sol/Luna/Astra tasks share the same executable issue. Independent cross-review uses a separate evaluator session on the other builder's PR.
+- Live claims belong to GitHub labels, assignments and linked PRs. Unattended agents leave shared tracking snapshots unchanged; explicit reviewed reconciliation preserves evidence in `PROGRESS.md` and `feature_list.json`. The snapshot validator does not enforce live GitHub WIP.
+- The factory proposal #591 must adopt structured evaluator detection, retryable INCONCLUSIVE reports, serialized claiming and push-compatible conflict recovery before unattended rollout. This PR does not enable routines or change host schedules.
+
+## External PR evaluation — 2026-10-04
+
+- The controller plans/generates; an evaluator operated separately communicates through GitHub comments/reviews. The controller does not launch Astra evaluation or self-certify PASS.
+- Verdicts must cover the current PR SHA, identify independent evaluation and supply the existing evidence/rubric. New commits invalidate old verdicts. FAIL repairs the same PR; PASS waits for human merge; ambiguous/BLOCKED reports require clarification.
+- Machine setup is a local operational concern, not an executable product issue or a prerequisite documentation PR. Shared workflow proposals do not occupy implementation WIP unless explicitly claimed as a GitHub task.
+
 ## Payment contract ownership and regression policy — 2026-10-03
 
 - Payment states belong to Payments; workflow/recovery decisions belong to checkout; public errors use a pure shared contract; presentation uses exhaustive mappings. Preserve persisted/wire values and legacy FAILED; Refund remains separate from historical PAID.

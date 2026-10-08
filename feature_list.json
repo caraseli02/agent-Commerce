@@ -3,19 +3,11 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 1,
-    "status_values": ["not_started", "active", "blocked", "passing"]
+    "active_feature_count": 0,
+    "status_values": ["not_started", "active", "blocked", "passing"],
+    "live_claim_authority": "GitHub issue labels and linked PRs; WIP=1 per builder. This file is a reviewed evidence snapshot, not unattended claim state."
   },
   "features": [
-    {
-      "id": "I603",
-      "description": "Auto-merge low-risk PRs on green CI plus evaluator PASS (#603)",
-      "validation": "Satisfy GitHub #603 with the owner-agreed design: path-only low-risk class, head-pinned merge conditions (CI verify, evaluator/verdict from the Evaluator App, AUTO_MERGE_ENABLED), Merger App workflow from main, auto-pause on failed main CI, unit tests for the policy, DECISIONS.md and agent docs, owner setup steps.",
-      "status": "active",
-      "evidence": [
-        "Issue https://github.com/caraseli02/agent-Commerce/issues/603; branch claude/603-auto-merge-low-risk. Sole active task. This PR touches .github/** and scripts/**, so it needs a human merge."
-      ]
-    },
     {
       "id": "I582",
       "description": "Reconcile payment issue structure and remove redundant delivery verification (#582)",
@@ -51,10 +43,9 @@
       "validation": "Satisfy all acceptance criteria in GitHub #583: owned states, conservative boundary parsing, shared public errors, explicit presentation, executable regressions, affected browser evidence, one delivery gate and independent exact-head evaluation.",
       "status": "passing",
       "evidence": [
-        "Issue https://github.com/caraseli02/agent-Commerce/issues/583; PR https://github.com/caraseli02/agent-Commerce/pull/590; branch codex/583-payment-state-error-contracts. Sole active task; human merge required.",
-        "2026-10-03: user approved repairs to the adversarial review. Previous exact-head PASS is superseded; review readiness withdrawn while completing missed UI consumers, local failure cleanup, structured corruption outcomes, recovery presentation and tracking.",
-        "Repairs and read-only repair reviews are complete. Focused suites pass 7 files / 131 tests; 18 actual browser cases pass, including rejected cancellation, authentication redirect without repeat cancellation, and string/array/null/missing labels. Fresh pnpm verify:handoff --fresh passes 97 files / 664 tests / 2 existing TODO tests, plus build/lint/typecheck, validators, preview smoke and clean state. See PR #590 for published-head CI and the independent final verdict; review readiness requires both, and human merge remains required.",
-        "2026-10-05: PR #590 merged to main as 6031021 after independent exact-head evaluation; no longer active."
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/583; PR https://github.com/caraseli02/agent-Commerce/pull/590; branch codex/583-payment-state-error-contracts.",
+        "Merged to main as 60310218. Independent exact-head evaluation: PASS, 9/10, for c5cd2084237ff96ca179f70c9acc5343e5ac3567. GitHub Actions verify run 37159386839 passed.",
+        "Acceptance work and repair evidence are recorded in PR #590. This feature is complete; no evaluator score is inferred from the merge itself."
       ]
     },
     {
@@ -98,9 +89,13 @@
       "id": "I584",
       "description": "Expose owner-scoped refresh/return recovery (#584)",
       "validation": "Bounded provider reconciliation, retry-safe application consequences and fresh owner-safe state through HTTP; credentials withheld.",
-      "status": "not_started",
+      "status": "passing",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/584. Not claimed or implemented in this workflow repair."
+        "Issue https://github.com/caraseli02/agent-Commerce/issues/584; PR https://github.com/caraseli02/agent-Commerce/pull/594; branch codex/584-payment-refresh-return. Implementation and Claude advisory repairs are merged.",
+        "Runtime repair 8e49a29e; clean fresh handoff at 9e2dced3: 98 files / 694 tests / 2 pre-existing deferred tests; build/lint/typecheck/coverage/state/UI/architecture/preview/clean gates pass. Focused isolated PostgreSQL verification: 6 suites / 123 tests, including 30 refresh cases.",
+        "Current built Nitro: unauthorized refresh/resume/restart401; authenticated default-off refresh/resume503 stripe_payments_disabled; missing restart404. Existing mock checkout browser success1/1; isolated database confirms PAID payment and empty cart. No Stripe activation or visual baseline changes.",
+        "Pre-merge record: Claude advisory covered ee752664; no independent current-head verdict was claimed in that record.",
+        "2026-10-05: PR #594 merged as c38cae936e96d6a38f65c4f92ac2f4d139953bce and closed #584. Earlier recorded runtime and delivery evidence is preserved above. No independent evaluator PASS is inferred from merge; no structured final-head verdict was found in GitHub issue comments or PR reviews during reconciliation."
       ]
     },
     {
@@ -123,7 +118,7 @@
       "status": "not_started",
       "evidence": [
         "Tracking epic reconciled on 2026-10-02; excluded from executable WIP. Remaining work is owned by native child issues #584/#585/#588, not anonymous PR slices.",
-        "Merged reconciliation/events/signed ingress/normal finalization: PRs #565–#568; cancellation/restart/reservation/resume: #570–#574.",
+        "Merged reconciliation/events/signed ingress/normal finalization: PRs #565\u2013#568; cancellation/restart/reservation/resume: #570\u2013#574.",
         "Merged paid-recovery schema/local compensation/recovery guards: #576/#577/#579; internal owner-safe state snapshot #581 merged at 5cd361e8 with independent PASS 10/10 and fresh 567-test CI.",
         "Detailed historical slice verification remains in https://github.com/caraseli02/agent-Commerce/issues/557 and its linked PRs. No provider Refund or public refresh completion is claimed."
       ]
@@ -417,8 +412,8 @@
     },
     {
       "id": "H05",
-      "description": "Keep only one task active at a time",
-      "validation": "WIP=1 is enforced in issue pickup, feature list policy, and lifecycle rules",
+      "description": "Keep one executable issue active per builder",
+      "validation": "Issue pickup and lifecycle rules require each builder to inspect its own live GitHub claims and PRs; delegated subtasks share that claim. The feature-list validator checks only snapshot consistency and does not enforce live GitHub WIP.",
       "status": "passing",
       "evidence": ["feature_list.json", "docs/agents/issue-tracker.md", "docs/agents/session-lifecycle.md"]
     },
