@@ -153,7 +153,7 @@ Every run works on its own run-local branch `claude/issue-<n>-run-<UTC timestamp
 - review your own PRs or any PR labeled `agent:claude`;
 - work on payment, checkout, Stripe, refund or migration code, or on any issue without the Claude label;
 - read, print or change credentials (`.env.local`, tokens, the gh configuration, the keychain);
-- edit the factory itself (`protected_paths.factory`). If the workflow got in your way, open an issue labeled `needs-triage` titled `Factory improvement: <summary>` with the evidence instead;
+- add or remove the `owner-approved-harness` label (only Vlad sets it), or edit the factory itself (`protected_paths.factory`). If the workflow got in your way, open an issue labeled `needs-triage` titled `Factory improvement: <summary>` with the evidence instead;
 - commit `.env*` files, run ledgers or screenshots outside the PR evidence flow.
 
 ## 6. Finish (every route that held the lock)

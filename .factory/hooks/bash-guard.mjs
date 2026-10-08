@@ -203,6 +203,8 @@ function checkGh(words) {
   const [, group, action] = words;
   const rest = words.slice(2);
   if (group === 'pr' && action === 'merge') return 'merging a PR (only Vlad merges)';
+  if (words.some((arg) => /owner-approved-harness/.test(arg))) return 'changing the owner-approved-harness label (only Vlad sets it)';
+  if (group === 'label' && action !== 'list') return `gh label ${action}`;
   if (group === 'pr' && action === 'review' && rest.some((arg) => arg === '--approve' || arg === '-a')) {
     return 'approving a PR via GitHub review';
   }

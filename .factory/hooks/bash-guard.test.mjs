@@ -89,6 +89,13 @@ describe('blocked commands', () => {
     "git push origin 'main'",
     'git push origin m"ai"n',
     'cat ~/.config/gh-agent-commerce-claude/hosts.yml',
+    // Only Vlad sets owner-approved-harness (2026-10-08).
+    'gh pr edit 615 --add-label owner-approved-harness',
+    'gh pr edit 615 --remove-label owner-approved-harness',
+    'gh pr create --title t --body-file b.md --label agent:claude --label owner-approved-harness',
+    'gh issue edit 5 --add-label "owner-approved-harness"',
+    'gh label delete owner-approved-harness --yes',
+    'gh label create something',
   ];
   for (const command of blocked) {
     it(command, () => {
@@ -122,6 +129,8 @@ describe('allowed commands', () => {
     'gh pr comment 12 --body-file /tmp/verdict.md',
     'gh pr review 12 --comment -b "see verdict"',
     'gh issue edit 5 --add-label in-progress --remove-label ready-for-agent',
+    'gh label list',
+    'gh pr view 615 --json labels',
     'gh issue comment 5 --body-file /tmp/c.md',
     'gh auth status',
     'gh api repos/caraseli02/agent-Commerce/issues/5/comments --paginate --jq ".[].body"',
