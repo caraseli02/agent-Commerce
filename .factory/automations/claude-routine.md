@@ -159,6 +159,6 @@ Every run works on its own run-local branch `claude/issue-<n>-run-<UTC timestamp
 ## 6. Finish (every route that held the lock)
 
 1. `git checkout --detach origin/main` when the tree is clean (leave a dirty tree as it is and say so in the summary).
-2. Append one JSON line to Claude's activity journal `/Users/work/GIT/agent-Commerce/tmp/autonomy/events.jsonl` (gitignored; create the folder if needed; never write into Codex's checkout): `time` (UTC ISO), `actor` (`claude-routine`), `mode`, `action` (`repair` | `review` | `build` | `idle` | `skipped`), `issue`, `pr`, `head`, `verdict` (reviews), `verification` (commands with outcomes), `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
+2. Append one JSON line to Claude's activity journal `/Users/work/.local/share/agent-commerce/claude/events.jsonl` (outside every checkout; create the folder if needed): `time` (UTC ISO), `actor` (`claude-routine`), `mode`, `action` (`repair` | `review` | `build` | `idle` | `skipped`), `issue`, `pr`, `head`, `verdict` (reviews), `verification` (commands with outcomes), `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
 3. Print a short summary: action, issue/PR, head, checks run with outcomes, and what a human should look at.
 4. **Last action:** `/Users/work/.local/share/agent-commerce/bin/claude-run-lock release <LOCK_TOKEN>`.
