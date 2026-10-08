@@ -24,7 +24,7 @@ All of these are checked against the PR's **current head SHA**. If any fails, th
 
 1. The PR is open, not a draft, targets `main`, and GitHub reports it `mergeable` (no conflicts).
 2. The newest `CI` workflow run (`.github/workflows/ci.yml`) for that head completed with `success`, including a successful `verify` job.
-3. `evaluator/verdict` is `success` on that head. Signals count only if they come from the Evaluator App named by the repo variable `EVALUATOR_APP_SLUG`. A commit status must be created by `<slug>[bot]`; a check run must belong to app `<slug>`. The newest trusted signal of each kind must be success. Missing, pending, failure, error and any "did not run" outcome (#597) block the merge, as does an unset slug.
+3. The newest `evaluator/verdict` **commit status** on that head, created by `<slug>[bot]` (the Evaluator App named by the repo variable `EVALUATOR_APP_SLUG`), is `success`. "Newest" means most recently created, never most recently completed. Missing, pending, failure, error and any "did not run" outcome (#597) block the merge, as does an unset slug. A check run cannot pass a PR, because GitHub suppresses `check_run` workflows for commits that also carry Actions check suites, so it could never reliably wake the workflow. A check run named `evaluator/verdict` from the Evaluator App can still block: if its newest attempt is queued, in progress or anything but success, nothing merges.
 4. The repo variable `AUTO_MERGE_ENABLED` is exactly `true`. The runner re-reads it through the API just before it decides.
 5. The triggering event refers to that same head SHA. A stale event is ignored; the event for the new head re-evaluates it.
 
@@ -36,7 +36,6 @@ The workflow runs from `main` only, on:
 
 - `workflow_run`: CI completed
 - `status`: `evaluator/verdict` success
-- `check_run`: `evaluator/verdict` completed with success
 - `workflow_dispatch`: takes `pr_number` to re-evaluate one PR
 
 It never uses `pull_request_target` and never checks out or runs PR head code. It sparse-checks-out `scripts/` from `main` and talks to the REST API only. It authenticates as a separate **Merger** GitHub App, using `actions/create-github-app-token`. Its secrets live in the `auto-merge` environment, which is restricted to `main`. An App token is required, because a merge made with `GITHUB_TOKEN` would not trigger the push-to-`main` CI run.
@@ -63,7 +62,7 @@ Human-merged commits never trigger a pause. To resume, fix `main` and set the va
 
 Until these steps are done, the workflow does nothing.
 
-1. **Evaluator App.** Create a GitHub App named for example "Evaluator", with **Commit statuses: write** (or **Checks: write**) only, and install it on the repo. The evaluator runner posts `evaluator/verdict` with it. Keep its private key on the owner's Mac mini; never put it in repo secrets.
+1. **Evaluator App.** Create a GitHub App named for example "Evaluator", with **Commit statuses: write** only, and install it on the repo. The evaluator runner posts `evaluator/verdict` as a commit status with it. Keep its private key on the owner's Mac mini; never put it in repo secrets.
 2. **Merger App.** Create a second GitHub App, "Merger", and install it on the repo. Repository permissions:
    - Contents: write
    - Pull requests: write

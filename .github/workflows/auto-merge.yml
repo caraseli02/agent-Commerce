@@ -4,7 +4,7 @@ name: Auto-merge
 # evaluator/verdict are green on the exact head. Policy: docs/agents/auto-merge.md.
 #
 # Safety rules for this file:
-# - Runs only from main (workflow_run/status/check_run always use the default
+# - Runs only from main (workflow_run/status always use the default
 #   branch; workflow_dispatch is gated below). Never use pull_request_target.
 # - Never checks out or executes PR head code; only the trusted scripts/ from main.
 # - Without the Merger App secrets in the `auto-merge` environment it is a no-op.
@@ -13,9 +13,10 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
+  # evaluator/verdict must be a commit status: GitHub suppresses check_run
+  # workflows for SHAs that also carry Actions check suites, so a check-run
+  # verdict could never wake this workflow reliably.
   status:
-  check_run:
-    types: [completed]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -40,9 +41,7 @@ jobs:
           (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request' &&
             github.event.workflow_run.conclusion == 'success') ||
           github.event_name == 'workflow_dispatch' ||
-          (github.event_name == 'status' && github.event.context == 'evaluator/verdict' && github.event.state == 'success') ||
-          (github.event_name == 'check_run' && github.event.check_run.name == 'evaluator/verdict' &&
-            github.event.check_run.conclusion == 'success')
+          (github.event_name == 'status' && github.event.context == 'evaluator/verdict' && github.event.state == 'success')
         ))
       )
     runs-on: ubuntu-latest

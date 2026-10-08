@@ -155,19 +155,53 @@ describe('auto-merge decision', () => {
     expect(decideMerge(input())).toEqual({ merge: true, sha: HEAD, reasons: [] });
   });
 
-  it('accepts an evaluator check run from the Evaluator App instead of a status', () => {
-    const checkRuns = [
-      {
-        id: 3,
-        name: 'evaluator/verdict',
-        head_sha: HEAD,
-        status: 'completed',
-        conclusion: 'success',
-        app: { slug: EVALUATOR },
-      },
+  function evaluatorCheck(id: number, status: string, conclusion: string | null, overrides: Record<string, unknown> = {}) {
+    return {
+      id,
+      name: 'evaluator/verdict',
+      head_sha: HEAD,
+      status,
+      conclusion,
+      started_at: `2026-10-05T1${id % 10}:00:00Z`,
+      completed_at: status === 'completed' ? `2026-10-05T1${id % 10}:30:00Z` : null,
+      app: { slug: EVALUATOR },
+      ...overrides,
+    };
+  }
+
+  it('does not accept a check run alone as the evaluator PASS (status is the contract)', () => {
+    const checkRuns = [evaluatorCheck(3, 'completed', 'success')];
+
+    expect(decideMerge(input({ statuses: [], checkRuns })).reasons).toContain(
+      `no evaluator/verdict commit status from ${EVALUATOR}[bot] on head ${HEAD}`,
+    );
+  });
+
+  it('merges when the trusted check run, if any, also succeeded on its newest attempt', () => {
+    const checkRuns = [evaluatorCheck(3, 'completed', 'failure'), evaluatorCheck(4, 'completed', 'success')];
+
+    expect(decideMerge(input({ checkRuns })).merge).toBe(true);
+  });
+
+  it.each([
+    ['queued', evaluatorCheck(4, 'queued', null)],
+    ['in progress', evaluatorCheck(4, 'in_progress', null)],
+  ])('denies when a newer evaluator check is %s after an older PASS', (_label, newer) => {
+    // The older PASS completed later than the newer attempt started: completion order must not win.
+    const older = evaluatorCheck(3, 'completed', 'success', { completed_at: '2026-10-05T23:00:00Z' });
+    const decision = decideMerge(input({ checkRuns: [older, newer] }));
+
+    expect(decision.merge).toBe(false);
+    expect(decision.reasons.join('\n')).toMatch(/evaluator\/verdict check run is (queued|in_progress)\/none/);
+  });
+
+  it('denies when a newer evaluator status is pending after an older PASS, regardless of timestamps', () => {
+    const statuses = [
+      evaluatorStatus('success', { id: 10, created_at: '2026-10-05T12:00:00Z', updated_at: '2026-10-05T12:00:00Z' }),
+      evaluatorStatus('pending', { id: 11, created_at: '2026-10-05T11:59:59Z', updated_at: '2026-10-05T11:59:59Z' }),
     ];
 
-    expect(decideMerge(input({ statuses: [], checkRuns })).merge).toBe(true);
+    expect(decideMerge(input({ statuses })).merge).toBe(false);
   });
 
   it.each([
@@ -184,9 +218,9 @@ describe('auto-merge decision', () => {
 
   it('denies an evaluator check run that did not run (neutral/skipped)', () => {
     for (const conclusion of ['neutral', 'skipped', 'cancelled', 'action_required']) {
-      const checkRuns = [{ id: 3, name: 'evaluator/verdict', head_sha: HEAD, status: 'completed', conclusion, app: { slug: EVALUATOR } }];
+      const checkRuns = [evaluatorCheck(3, 'completed', conclusion)];
 
-      expect(decideMerge(input({ statuses: [], checkRuns })).merge, conclusion).toBe(false);
+      expect(decideMerge(input({ checkRuns })).merge, conclusion).toBe(false);
     }
   });
 
@@ -202,7 +236,7 @@ describe('auto-merge decision', () => {
   it('ignores evaluator/verdict from any source other than the Evaluator App', () => {
     const statuses = [evaluatorStatus('success', { creator: { login: 'github-actions[bot]' } })];
 
-    expect(decideMerge(input({ statuses })).reasons).toContain(`no evaluator/verdict from ${EVALUATOR}[bot] on head ${HEAD}`);
+    expect(decideMerge(input({ statuses })).reasons).toContain(`no evaluator/verdict commit status from ${EVALUATOR}[bot] on head ${HEAD}`);
   });
 
   it('denies when the Evaluator App slug is not configured', () => {
@@ -313,6 +347,9 @@ describe('auto-merge event routing', () => {
 
   it('skips unrelated events', () => {
     expect(planFromEvent('pull_request_target', {}).kind).toBe('skip');
+    expect(planFromEvent('check_run', { check_run: { name: 'evaluator/verdict', conclusion: 'success', head_sha: HEAD } }).kind).toBe(
+      'skip',
+    );
   });
 });
 
@@ -337,7 +374,13 @@ function fakeGitHub(routes: Record<string, unknown>) {
     const key = `${method} ${path.split('?')[0]}`;
 
     if (key in routes) {
-      return { ok: true, status: 200, data: routes[key] };
+      const value = routes[key] as { failWith?: number } | null;
+
+      if (value && typeof value === 'object' && 'failWith' in value) {
+        return { ok: false, status: value.failWith as number, data: { message: 'Resource not accessible by integration' } };
+      }
+
+      return { ok: true, status: 200, data: value };
     }
 
     return { ok: false, status: 404, data: { message: 'Not Found' } };
@@ -352,10 +395,10 @@ function fakeGitHub(routes: Record<string, unknown>) {
       if (!response.ok) throw new Error(`unexpected GET ${path}`);
       return response.data;
     },
-    async paginate(path: string) {
+    async paginate(path: string, pick = (data: unknown) => data) {
       const response = await request('GET', path);
 
-      return response.ok ? response.data : [];
+      return response.ok ? (pick(response.data) ?? []) : [];
     },
   };
 }
@@ -410,6 +453,23 @@ describe('auto-merge runner', () => {
     expect(github.calls.some((call) => call.method === 'PUT')).toBe(false);
   });
 
+  it('reads every evaluator check-run attempt, not only the latest completed one', async () => {
+    const github = fakeGitHub(
+      mergeableRoutes({
+        [`GET /commits/${HEAD}/check-runs`]: {
+          check_runs: [
+            { id: 3, name: 'evaluator/verdict', head_sha: HEAD, status: 'completed', conclusion: 'success', app: { slug: EVALUATOR } },
+            { id: 4, name: 'evaluator/verdict', head_sha: HEAD, status: 'in_progress', conclusion: null, app: { slug: EVALUATOR } },
+          ],
+        },
+      }),
+    );
+    const result = await evaluatePullRequest(github, { prNumber: 42, eventSha: HEAD, evaluatorAppSlug: EVALUATOR, log: quiet });
+
+    expect(result.merged).toBe(false);
+    expect(github.calls.find((call) => call.path.includes('/check-runs'))?.path).toContain('filter=all');
+  });
+
   it('pauses auto-merge and opens an issue when CI fails on an auto-merged main commit', async () => {
     const { commit_title, commit_message } = buildMergeCommit(pr());
     const github = fakeGitHub({
@@ -442,6 +502,53 @@ describe('auto-merge runner', () => {
     expect(issue.body).toContain('/actions/runs/5');
   });
 
+  function autoMergedCommitRoutes(overrides: Record<string, unknown> = {}) {
+    const { commit_title, commit_message } = buildMergeCommit(pr());
+
+    return {
+      [`GET /commits/${HEAD}`]: { commit: { message: `${commit_title}\n\n${commit_message}` } },
+      'PATCH /actions/variables/AUTO_MERGE_ENABLED': null,
+      'GET /issues': [],
+      'POST /issues': { number: 99 },
+      ...overrides,
+    };
+  }
+
+  const pauseInput = {
+    sha: HEAD,
+    runUrl: 'https://github.com/caraseli02/agent-Commerce/actions/runs/5',
+    conclusion: 'failure',
+    serverUrl: 'https://github.com',
+    repository: 'caraseli02/agent-Commerce',
+    log: () => {},
+  };
+
+  it('fails visibly when the incident issue cannot be opened', async () => {
+    const github = fakeGitHub(autoMergedCommitRoutes({ 'POST /issues': { failWith: 403 } }));
+
+    await expect(pauseAfterFailedMain(github, pauseInput)).rejects.toThrow(/opening the incident issue .* failed \(403\).*Issues: write/);
+  });
+
+  it('fails visibly when AUTO_MERGE_ENABLED cannot be set to false', async () => {
+    const github = fakeGitHub(autoMergedCommitRoutes({ 'PATCH /actions/variables/AUTO_MERGE_ENABLED': { failWith: 403 } }));
+
+    await expect(pauseAfterFailedMain(github, pauseInput)).rejects.toThrow(/Auto-merge is NOT paused/);
+    expect(github.calls.some((call) => call.path === '/issues')).toBe(false);
+  });
+
+  it('creates AUTO_MERGE_ENABLED=false when the variable does not exist yet', async () => {
+    const routes: Record<string, unknown> = autoMergedCommitRoutes({ 'POST /actions/variables': null });
+
+    delete routes['PATCH /actions/variables/AUTO_MERGE_ENABLED'];
+    const github = fakeGitHub(routes);
+
+    expect((await pauseAfterFailedMain(github, pauseInput)).paused).toBe(true);
+    expect(github.calls.find((call) => call.path === '/actions/variables')?.body).toEqual({
+      name: 'AUTO_MERGE_ENABLED',
+      value: 'false',
+    });
+  });
+
   it('leaves auto-merge enabled when the failing main commit was a human merge', async () => {
     const github = fakeGitHub({
       [`GET /commits/${HEAD}`]: { commit: { message: 'Merge pull request #590 from caraseli02/codex/583' } },
@@ -471,5 +578,7 @@ describe('auto-merge workflow boundary', () => {
     expect(workflow).toContain('ref: ${{ github.event.repository.default_branch }}');
     expect(workflow).toContain('persist-credentials: false');
     expect(workflow).toMatch(/permissions:\n {2}contents: read\n/);
+    // check_run events are suppressed for SHAs with Actions check suites, so they can't be a wakeup.
+    expect(workflow).not.toMatch(/^\s*check_run:/m);
   });
 });

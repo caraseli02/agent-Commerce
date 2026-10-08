@@ -75,20 +75,18 @@ export function classifyChangedFiles(files, { expectedCount } = {}) {
   return { lowRisk: reasons.length === 0, reasons };
 }
 
-function newestFirst(items, dateKeys) {
-  const time = (item) => {
-    for (const key of dateKeys) {
-      const value = Date.parse(item?.[key] ?? '');
+// Newest *created* first. GitHub IDs grow with creation order, so a queued or
+// in-progress attempt created after an older success sorts ahead of it. Never
+// order by completion time: an unfinished attempt has none and would lose to
+// an older PASS.
+function newestCreatedFirst(items, dateKey) {
+  const created = (item) => {
+    const value = Date.parse(item?.[dateKey] ?? '');
 
-      if (!Number.isNaN(value)) {
-        return value;
-      }
-    }
-
-    return 0;
+    return Number.isNaN(value) ? 0 : value;
   };
 
-  return [...items].sort((a, b) => time(b) - time(a) || (b?.id ?? 0) - (a?.id ?? 0));
+  return [...items].sort((a, b) => (b?.id ?? 0) - (a?.id ?? 0) || created(b) - created(a));
 }
 
 /** The latest CI workflow run for the head must be a completed success with a successful `verify` job. */
@@ -99,7 +97,7 @@ export function evaluateCi(runs, headSha) {
     return `no CI run found for head ${headSha}`;
   }
 
-  const [latest] = newestFirst(candidates, ['run_started_at', 'created_at']);
+  const [latest] = newestCreatedFirst(candidates, 'created_at');
 
   if (latest.status !== 'completed' || latest.conclusion !== 'success') {
     return `CI run ${latest.id} is ${latest.status}/${latest.conclusion ?? 'none'}, not completed/success`;
@@ -119,10 +117,13 @@ export function evaluateCi(runs, headSha) {
 }
 
 /**
- * `evaluator/verdict` may arrive as a commit status or a check run. Only
- * signals from the configured Evaluator App count. The newest trusted signal of
- * each kind must be success, and at least one must exist. Any other outcome,
- * including a future "did not run", blocks the merge.
+ * The PASS signal is the `evaluator/verdict` **commit status** from the
+ * configured Evaluator App: status events reliably wake the workflow, while
+ * GitHub suppresses `check_run` workflows for SHAs that also carry Actions
+ * check suites. The newest trusted status must be `success`. A trusted check
+ * run with that name can only block: its newest attempt must be a completed
+ * success, so a queued, in-progress, failed or "did not run" check never lets
+ * an older PASS through.
  */
 export function evaluateEvaluator({ statuses = [], checkRuns = [], headSha, evaluatorAppSlug }) {
   if (typeof evaluatorAppSlug !== 'string' || evaluatorAppSlug.trim() === '') {
@@ -130,39 +131,30 @@ export function evaluateEvaluator({ statuses = [], checkRuns = [], headSha, eval
   }
 
   const slug = evaluatorAppSlug.trim().toLowerCase();
-  const signals = [];
-
-  const trustedStatuses = statuses.filter(
-    (status) => status?.context === EVALUATOR_CONTEXT && status?.creator?.login?.toLowerCase() === `${slug}[bot]`,
-  );
-
-  if (trustedStatuses.length > 0) {
-    const [latest] = newestFirst(trustedStatuses, ['updated_at', 'created_at']);
-
-    signals.push({ kind: 'status', ok: latest.state === 'success', outcome: latest.state });
-  }
 
   const trustedChecks = checkRuns.filter(
     (check) => check?.name === EVALUATOR_CONTEXT && check?.app?.slug?.toLowerCase() === slug && check?.head_sha === headSha,
   );
 
   if (trustedChecks.length > 0) {
-    const [latest] = newestFirst(trustedChecks, ['completed_at', 'started_at']);
+    const [latest] = newestCreatedFirst(trustedChecks, 'started_at');
 
-    signals.push({
-      kind: 'check run',
-      ok: latest.status === 'completed' && latest.conclusion === 'success',
-      outcome: `${latest.status}/${latest.conclusion ?? 'none'}`,
-    });
+    if (latest.status !== 'completed' || latest.conclusion !== 'success') {
+      return `${EVALUATOR_CONTEXT} check run is ${latest.status}/${latest.conclusion ?? 'none'}, not completed/success`;
+    }
   }
 
-  if (signals.length === 0) {
-    return `no ${EVALUATOR_CONTEXT} from ${slug}[bot] on head ${headSha}`;
+  const trustedStatuses = statuses.filter(
+    (status) => status?.context === EVALUATOR_CONTEXT && status?.creator?.login?.toLowerCase() === `${slug}[bot]`,
+  );
+
+  if (trustedStatuses.length === 0) {
+    return `no ${EVALUATOR_CONTEXT} commit status from ${slug}[bot] on head ${headSha}`;
   }
 
-  const failed = signals.find((signal) => !signal.ok);
+  const [latest] = newestCreatedFirst(trustedStatuses, 'created_at');
 
-  return failed ? `${EVALUATOR_CONTEXT} ${failed.kind} is ${failed.outcome}, not success` : null;
+  return latest.state === 'success' ? null : `${EVALUATOR_CONTEXT} status is ${latest.state}, not success`;
 }
 
 /**
@@ -229,20 +221,6 @@ export function planFromEvent(eventName, payload, { prNumber, ciWorkflowPath = '
     }
 
     return { kind: 'evaluate', prNumbers: [], sha: payload.sha };
-  }
-
-  if (eventName === 'check_run') {
-    const check = payload?.check_run;
-
-    if (check?.name !== EVALUATOR_CONTEXT || check?.conclusion !== 'success') {
-      return { kind: 'skip', reason: `check run ${check?.name}/${check?.conclusion} cannot trigger a merge` };
-    }
-
-    return {
-      kind: 'evaluate',
-      prNumbers: (check.pull_requests ?? []).map((pull) => pull.number),
-      sha: check.head_sha,
-    };
   }
 
   if (eventName === 'workflow_run') {

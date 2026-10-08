@@ -109,11 +109,16 @@ export async function evaluatePullRequest(
 ) {
   const pr = await loadPullRequest(github, prNumber, sleep);
   const headSha = pr.head?.sha;
-  const [files, ciRuns, statuses, checkRunsPage, enabled] = await Promise.all([
+  const [files, ciRuns, statuses, checkRuns, enabled] = await Promise.all([
     github.paginate(`/pulls/${prNumber}/files`),
     loadCiRuns(github, headSha),
     github.paginate(`/commits/${headSha}/statuses`, undefined, 3),
-    github.get(`/commits/${headSha}/check-runs?check_name=${encodeURIComponent(EVALUATOR_CONTEXT)}&per_page=100`),
+    // filter=all keeps queued/in-progress attempts that filter=latest can hide.
+    github.paginate(
+      `/commits/${headSha}/check-runs?check_name=${encodeURIComponent(EVALUATOR_CONTEXT)}&filter=all`,
+      (data) => data?.check_runs,
+      10,
+    ),
     readEnabledVariable(github),
   ]);
 
@@ -124,7 +129,7 @@ export async function evaluatePullRequest(
     files,
     ciRuns,
     statuses,
-    checkRuns: checkRunsPage?.check_runs ?? [],
+    checkRuns,
     evaluatorAppSlug,
   });
 
@@ -163,10 +168,15 @@ export async function pauseAfterFailedMain(github, { sha, runUrl, conclusion, se
     value: 'false',
   });
 
-  if (update.status === 404) {
-    await github.request('POST', '/actions/variables', { name: ENABLED_VARIABLE, value: 'false' });
-  } else if (!update.ok) {
-    throw new Error(`Could not set ${ENABLED_VARIABLE}=false (${update.status}): ${JSON.stringify(update.data)}`);
+  const pause =
+    update.status === 404 ? await github.request('POST', '/actions/variables', { name: ENABLED_VARIABLE, value: 'false' }) : update;
+
+  if (!pause.ok) {
+    throw new Error(
+      `Could not set ${ENABLED_VARIABLE}=false after CI ${conclusion} on auto-merged ${sha} (${pause.status}): ` +
+        `${JSON.stringify(pause.data)}. Auto-merge is NOT paused: set the repo variable by hand and check the ` +
+        'Merger App has Variables: write.',
+    );
   }
 
   const shortSha = sha.slice(0, 7);
@@ -175,7 +185,7 @@ export async function pauseAfterFailedMain(github, { sha, runUrl, conclusion, se
   const openIssues = await github.get('/issues?state=open&per_page=100');
 
   if (!openIssues.some((issue) => issue.title === title)) {
-    await github.request('POST', '/issues', {
+    const issue = await github.request('POST', '/issues', {
       title,
       body: [
         `CI concluded \`${conclusion}\` on \`${BASE_BRANCH}\` for an auto-merged commit, so \`${ENABLED_VARIABLE}\` was set to \`false\`.`,
@@ -187,6 +197,14 @@ export async function pauseAfterFailedMain(github, { sha, runUrl, conclusion, se
         `Fix \`${BASE_BRANCH}\`, then set the repo variable \`${ENABLED_VARIABLE}\` back to \`true\` to resume auto-merge. See \`docs/agents/auto-merge.md\`.`,
       ].join('\n'),
     });
+
+    if (!issue.ok) {
+      throw new Error(
+        `${ENABLED_VARIABLE} is now false, but opening the incident issue for ${sha} failed (${issue.status}): ` +
+          `${JSON.stringify(issue.data)}. Open it by hand (commit, ${prRef}, ${runUrl}) and check the Merger App ` +
+          'has Issues: write.',
+      );
+    }
   }
 
   log(`Paused auto-merge: ${ENABLED_VARIABLE}=false after CI ${conclusion} on ${sha} (${prRef}).`);
