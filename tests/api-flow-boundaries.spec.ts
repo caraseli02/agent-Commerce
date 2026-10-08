@@ -1,5 +1,15 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { createServer } from 'node:http';
+import { createApp, createRouter, toNodeListener } from 'h3';
 import { PaymentStatusEnum, PaymentTypeEnum } from '../types/order-summary/item';
+
+vi.mock('nitropack/runtime/internal/cache', async () => {
+  const { loadNitroCacheRuntime } = await import('./mocks/nitro-cache-runtime');
+  return loadNitroCacheRuntime(new Map(), (error) => {
+    throw error;
+  });
+});
+vi.mock('nitropack/runtime/internal/config', () => ({ useRuntimeConfig: () => ({ public: { MOCK_MODE: true } }) }));
 
 vi.mock('h3', async (importOriginal) => {
   const actual = await importOriginal<typeof import('h3')>();
@@ -38,15 +48,23 @@ describe('mock API flow boundaries', () => {
   });
 
   it('resolves the product detail endpoint used by the product page flow', async () => {
-    const productHandler = (await import('../server/api/products/[id].get')).default as (event: unknown) => Promise<unknown>;
-
-    const productResponse = (await productHandler({
-      params: { id: 'prod-2' },
-    })) as { status: string; data: { _id: string; name: string } };
-
-    expect(productResponse.status).toBe('success');
-    expect(productResponse.data._id).toBe('prod-2');
-    expect(productResponse.data.name).toBe('ADM2587E RS-485 Transceiver');
+    const productHandler = (await import('../server/api/products/[id].get')).default;
+    const router = createRouter().get('/api/products/:id', productHandler);
+    const server = createServer(toNodeListener(createApp().use(router)));
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    try {
+      const address = server.address();
+      if (!address || typeof address === 'string') throw new Error('Product HTTP address unavailable');
+      const response = await fetch(`http://127.0.0.1:${address.port}/api/products/prod-2`);
+      expect(response.status).toBe(200);
+      expect(response.headers.get('x-catalog-generated-at')).not.toBeNull();
+      const productResponse = (await response.json()) as { status: string; data: { _id: string; name: string } };
+      expect(productResponse.status).toBe('success');
+      expect(productResponse.data._id).toBe('prod-2');
+      expect(productResponse.data.name).toBe('ADM2587E RS-485 Transceiver');
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
   });
 
   it('adds products through the cart endpoint and converts the cart into a paid mock order', async () => {

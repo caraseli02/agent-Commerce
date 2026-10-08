@@ -6,29 +6,8 @@ import { defineAnonymousCatalogHandler } from '~/server/utils/anonymousCatalogCa
 
 const state = vi.hoisted(() => ({ entries: new Map<string, unknown>(), mockMode: true, errors: [] as unknown[] }));
 vi.mock('nitropack/runtime/internal/cache', async () => {
-  // Execute installed Nitro's cache code unchanged, adapting only its virtual
-  // app/storage imports which are unavailable outside a built Nitro runtime.
-  const { readFile } = await import('node:fs/promises');
-  const cacheUrl = import.meta.resolve('nitropack/runtime/internal/cache');
-  let source = await readFile(new URL(cacheUrl), 'utf8');
-  Object.assign(globalThis, {
-    __catalogCacheTest: {
-      storage: {
-        getItem: async (key: string) => structuredClone(state.entries.get(key)),
-        setItem: async (key: string, value: unknown) => {
-          state.entries.set(key, structuredClone(value));
-        },
-      },
-      app: { captureError: (error: unknown) => state.errors.push(error) },
-    },
-  });
-  source = source
-    .replace('import { useNitroApp } from "./app.mjs";', 'const useNitroApp = () => globalThis.__catalogCacheTest.app;')
-    .replace('import { useStorage } from "./storage.mjs";', 'const useStorage = () => globalThis.__catalogCacheTest.storage;')
-    .replace('"./hash.mjs"', JSON.stringify(new URL('./hash.mjs', cacheUrl).href))
-    .replace('"h3"', JSON.stringify(import.meta.resolve('h3')))
-    .replace('"ufo"', JSON.stringify(import.meta.resolve('ufo')));
-  return await import(/* @vite-ignore */ `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+  const { loadNitroCacheRuntime } = await import('./mocks/nitro-cache-runtime');
+  return loadNitroCacheRuntime(state.entries, (error) => state.errors.push(error));
 });
 vi.mock('nitropack/runtime/internal/config', () => ({ useRuntimeConfig: () => ({ public: { MOCK_MODE: state.mockMode } }) }));
 
