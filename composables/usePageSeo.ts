@@ -21,6 +21,25 @@ export interface PageSeoOptions {
 }
 
 /**
+ * Canonical site origin and absolute-URL resolver shared by every SEO surface (meta tags and
+ * JSON-LD). `runtimeConfig.public.siteUrl` wins; the request origin is the fallback.
+ */
+export function useSiteUrl() {
+  const configuredSiteUrl = String(useRuntimeConfig().public.siteUrl ?? '');
+  const siteUrl = (configuredSiteUrl || useRequestURL().origin).replace(/\/+$/, '');
+
+  const toAbsoluteUrl = (url: string) => {
+    if (url.startsWith('//')) {
+      return `https:${url}`;
+    }
+
+    return new URL(url, `${siteUrl}/`).href;
+  };
+
+  return { siteUrl, toAbsoluteUrl };
+}
+
+/**
  * Page-level SEO for storefront routes. Owns the site defaults (name,
  * description), absolute canonical/Open Graph URLs, Twitter card selection,
  * and JSON-LD output so pages only describe what they show.
@@ -39,16 +58,7 @@ export function usePageSeo(options: PageSeoOptions) {
   }
 
   const route = useRoute();
-  const configuredSiteUrl = String(useRuntimeConfig().public.siteUrl ?? '');
-  const siteUrl = (configuredSiteUrl || useRequestURL().origin).replace(/\/+$/, '');
-
-  const toAbsoluteUrl = (url: string) => {
-    if (url.startsWith('//')) {
-      return `https:${url}`;
-    }
-
-    return new URL(url, `${siteUrl}/`).href;
-  };
+  const { siteUrl, toAbsoluteUrl } = useSiteUrl();
 
   const shareTitle = computed(() => `${title.value} | ${SITE_NAME}`);
   const description = computed(() => toValue(options.description) || DEFAULT_DESCRIPTION);
