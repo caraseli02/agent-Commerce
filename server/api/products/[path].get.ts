@@ -1,8 +1,9 @@
 import type { ProductInterface } from '~/types/product';
 import { mockProducts } from '~/server/utils/mockProducts';
+import { defineAnonymousCatalogHandler } from '~/server/utils/anonymousCatalogCache';
 
-export default defineEventHandler(async (event) => {
-  const path = getRouterParam(event, 'path');
+export default defineAnonymousCatalogHandler('product-path', async ({ params }) => {
+  const path = params.path;
   const normalizedPath = String(path || '').toLowerCase();
 
   const tabHandlers: Record<string, () => unknown[]> = {
