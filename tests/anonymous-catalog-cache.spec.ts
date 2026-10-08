@@ -43,6 +43,7 @@ const read = async (path = '/api/products/featured', headers: Record<string, str
 
 describe('anonymous catalog using the installed Nitro SWR implementation', () => {
   beforeAll(async () => {
+    vi.stubGlobal('createError', createError);
     vi.spyOn(Date, 'now').mockImplementation(() => now);
     const handler = defineAnonymousCatalogHandler('test-catalog', async (input) => {
       calls++;
@@ -99,6 +100,7 @@ describe('anonymous catalog using the installed Nitro SWR implementation', () =>
 
   afterAll(async () => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     await Promise.all([server, proxy].map((instance) => new Promise<void>((resolve) => instance.close(() => resolve()))));
   });
 
@@ -155,26 +157,69 @@ describe('anonymous catalog using the installed Nitro SWR implementation', () =>
     expect(state.entries.size).toBe(1);
   });
 
-  it('keys every resolver input including full query, params, route, method and mode', async () => {
-    for (const path of [
-      '/api/products/a?locale=en',
-      '/api/products/a?locale=ro',
-      '/api/products/b?locale=en',
-      '/api/categories',
-      '/api/products/a?locale=en&limit=2',
-    ]) {
+  it('keys every resolver input: params, method and mode, within the handler namespace', async () => {
+    for (const path of ['/api/products/a', '/api/products/b', '/api/categories']) {
       const first = await read(path);
       expect((await read(path)).body).toEqual(first.body);
     }
-    expect(calls).toBe(5);
-    expect(state.entries.size).toBe(5);
-    const head = await fetch(`${baseUrl}/api/products/a?locale=en`, { method: 'HEAD' });
+    expect(calls).toBe(3);
+    expect(state.entries.size).toBe(3);
+    const head = await fetch(`${baseUrl}/api/products/a`, { method: 'HEAD' });
     expect(head.status).toBe(200);
-    expect(calls).toBe(6);
+    expect(calls).toBe(4);
     state.mockMode = false;
-    expect((await read('/api/products/a?locale=en')).body.representation.mockMode).toBe(false);
-    expect(calls).toBe(7);
-    expect(state.entries.size).toBe(6);
+    expect((await read('/api/products/a')).body.representation.mockMode).toBe(false);
+    expect(calls).toBe(5);
+    expect(state.entries.size).toBe(4);
+  });
+
+  it('cannot grow storage through arbitrary query strings or Host values', async () => {
+    const first = await read();
+    expect(first.body.representation).not.toHaveProperty('url');
+    for (let variant = 0; variant < 80; variant++) {
+      const query = await read(`/api/products/featured?anything=${variant}`, { host: `query-${variant}.invalid` });
+      expect(query.response.headers.get('x-catalog-generated-at')).toBeNull();
+      expect(query.body.generation).toBe(variant + 2);
+      const host = await read(undefined, { host: `host-${variant}.invalid` });
+      expect(host.body).toEqual(first.body);
+      expect(host.response.headers.get('x-catalog-generated-at')).toBe(first.response.headers.get('x-catalog-generated-at'));
+      expect(state.entries.size).toBe(1);
+    }
+    expect(calls).toBe(81);
+  });
+
+  it('bounds successful case aliases and never saves unknown fixture IDs through the real product handlers', async () => {
+    const productId = (await import('~/server/api/products/[id].get')).default;
+    const productPath = (await import('~/server/api/products/[path].get')).default;
+    const servers = [
+      createServer(toNodeListener(createApp().use(cachePolicy).use(createRouter().get('/api/products/:id', productId)))),
+      createServer(toNodeListener(createApp().use(cachePolicy).use(createRouter().get('/api/products/:path', productPath)))),
+    ];
+    const [idOrigin, pathOrigin] = await Promise.all(servers.map(listen));
+    try {
+      const firstId = await read('/api/products/stm32f407vgt6', {}, idOrigin);
+      const firstTab = await read('/api/products/featured', {}, pathOrigin);
+      expect(firstId.body.data._id).toBe('prod-1');
+      expect(firstTab.body.data.length).toBeGreaterThan(0);
+      for (let variant = 0; variant < 64; variant++) {
+        const mixedCase = (value: string) => {
+          let bit = 0;
+          return value.replace(/[a-z]/g, (letter) => (variant & (1 << bit++) ? letter.toUpperCase() : letter));
+        };
+        const id = await read(`/api/products/${mixedCase('stm32f407vgt6')}`, {}, idOrigin);
+        const tab = await read(`/api/products/${mixedCase('featured')}`, {}, pathOrigin);
+        expect(id.body).toEqual(firstId.body);
+        expect(tab.body).toEqual(firstTab.body);
+        expect(id.response.headers.get('x-catalog-generated-at')).toBe(firstId.response.headers.get('x-catalog-generated-at'));
+        expect(tab.response.headers.get('x-catalog-generated-at')).toBe(firstTab.response.headers.get('x-catalog-generated-at'));
+        expect((await read(`/api/products/unknown-${variant}`, {}, idOrigin)).response.status).toBe(404);
+        expect(state.entries.size).toBe(2);
+      }
+      expect((await read('/api/products/Semiconductors%2Fmicrocontrollers', {}, pathOrigin)).response.status).toBe(404);
+      expect(state.entries.size).toBe(2);
+    } finally {
+      await Promise.all(servers.map((instance) => new Promise<void>((resolve) => instance.close(() => resolve()))));
+    }
   });
 
   it('excludes private routes, search and mutations even if accidentally wrapped', async () => {

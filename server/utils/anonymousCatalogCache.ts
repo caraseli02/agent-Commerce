@@ -10,22 +10,27 @@ export const CATALOG_STALE_SECONDS = 60;
 // context. Adding an input requires adding it here, so it also enters the key.
 interface CatalogInput {
   params: Record<string, string>;
-  url: string;
   method: string;
   mockMode: boolean;
 }
 
 export function isAnonymousCatalogRead(event: H3Event, mockMode: boolean): boolean {
+  const url = getRequestURL(event);
   return (
     mockMode &&
     (event.method === 'GET' || event.method === 'HEAD') &&
     getRequestHeader(event, 'authorization') === undefined &&
     getRequestHeader(event, 'cookie') === undefined &&
-    /^\/api\/(?:categories|products\/(?!search\/?$)[^/]+)\/?$/.test(getRequestURL(event).pathname)
+    url.search === '' &&
+    /^\/api\/(?:categories|products\/(?!search\/?$)[^/]+)\/?$/.test(url.pathname)
   );
 }
 
-export function defineAnonymousCatalogHandler<T>(name: string, resolve: (input: CatalogInput) => T | Promise<T>) {
+export function defineAnonymousCatalogHandler<T>(
+  name: string,
+  resolve: (input: CatalogInput) => T | Promise<T>,
+  normalizeParams: (params: Record<string, string>) => Record<string, string> = (params) => params,
+) {
   const cached = defineCachedFunction(
     async (_event: H3Event, input: CatalogInput) => ({ body: await resolve(input), generatedAt: Date.now() }),
     {
@@ -47,9 +52,10 @@ export function defineAnonymousCatalogHandler<T>(name: string, resolve: (input: 
 
   return defineEventHandler(async (event) => {
     const mockMode = useRuntimeConfig(event).public.MOCK_MODE === true;
+    // Normalize only equivalent representation inputs (e.g. existing
+    // case-insensitive IDs/tabs), keeping the fixture key space finite.
     const input: CatalogInput = {
-      params: getRouterParams(event),
-      url: getRequestURL(event).href,
+      params: normalizeParams(getRouterParams(event)),
       method: event.method,
       mockMode,
     };
