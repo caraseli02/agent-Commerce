@@ -1,7 +1,7 @@
 import { $fetch, type $Fetch, type FetchOptions } from 'ofetch';
 import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
-import { withSessionAuthorization } from '~/utils/apiAuthorization';
+import { withSessionAuthorization } from '~/composables/api/authorization';
 
 declare module '#app' {
   interface NuxtApp {
