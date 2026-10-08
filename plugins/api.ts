@@ -1,6 +1,7 @@
 import { $fetch, type $Fetch, type FetchOptions } from 'ofetch';
 import { defineNuxtPlugin } from '#app';
 import { useAuthStore } from '~/store/authStore';
+import { withSessionAuthorization } from '~/utils/apiAuthorization';
 
 declare module '#app' {
   interface NuxtApp {
@@ -34,10 +35,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       const token = useCookie('token').value;
       if (!token) return;
 
-      const headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers as HeadersInit | undefined);
-
-      headers.set('Authorization', `Bearer ${token}`);
-      options.headers = headers;
+      options.headers = withSessionAuthorization(options.headers as HeadersInit | undefined, token);
     },
     async onResponseError({ response }) {
       if (response.status !== 401) return;
