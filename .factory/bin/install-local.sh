@@ -42,8 +42,10 @@ fi
 if [ -f "${settings}" ]; then
   # Keep the backup outside the checkout, so it never shows up in git status
   # (the folder is Codex's working copy too) or gets committed by accident.
-  backup="${share}/backups/settings.local.json.$(date -u +%Y%m%dT%H%M%SZ)"
+  # mktemp creates a new, unique file, so two installs in the same second
+  # never overwrite each other's backup.
   mkdir -p "${share}/backups"
+  backup=$(mktemp "${share}/backups/settings.local.json.$(date -u +%Y%m%dT%H%M%SZ).XXXXXX")
   cp "${settings}" "${backup}"
   # Keep saved approvals and other env values. Without the token, drop only the
   # GH_CONFIG_DIR this installer manages (left by an earlier token install).

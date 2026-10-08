@@ -50,6 +50,17 @@ jq 'del(.env.FOO) | .env.GH_CONFIG_DIR = $d' --arg d "${CLAUDE_INSTALL_GH_DIR}" 
 install
 check "empty env removed" "$(jq -r 'has("env")' "${settings}")" false
 
+# 6. Installs in the same second keep every earlier snapshot (Codex, #615).
+before=$(ls "${CLAUDE_INSTALL_SHARE}/backups" | wc -l | tr -d ' ')
+jq '.env.FOO = "original"' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
+install
+jq '.env.FOO = "second"' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
+install
+after=$(ls "${CLAUDE_INSTALL_SHARE}/backups" | wc -l | tr -d ' ')
+check "back-to-back installs: one new backup each" "$((after - before))" 2
+check "back-to-back installs: first snapshot kept" "$(cat "${CLAUDE_INSTALL_SHARE}"/backups/* | grep -c '"original"')" 1
+check "back-to-back installs: second snapshot kept" "$(cat "${CLAUDE_INSTALL_SHARE}"/backups/* | grep -c '"second"')" 1
+
 rm -rf "${root}"
 if [ "${fails}" -eq 0 ]; then echo "install-local: all tests passed"; else
   echo "install-local: ${fails} failed"
