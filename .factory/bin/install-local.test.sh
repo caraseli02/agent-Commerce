@@ -29,6 +29,8 @@ mkdir -p "${CLAUDE_INSTALL_GH_DIR}" && : >"${CLAUDE_INSTALL_GH_DIR}/hosts.yml"
 jq '.permissions.allow += ["Bash(saved:*)"] | .env.FOO = "bar"' "${settings}" >"${settings}.tmp" && mv "${settings}.tmp" "${settings}"
 install
 check "token: GH_CONFIG_DIR set" "$(jq -r '.env.GH_CONFIG_DIR' "${settings}")" "${CLAUDE_INSTALL_GH_DIR}"
+check "backup kept outside the folder" "$(ls "${CLAUDE_INSTALL_SHARE}/backups" | wc -l | tr -d ' ')" 1
+check "no backup inside the folder" "$(ls "${CLAUDE_INSTALL_FOLDER}/.claude" | grep -c bak)" 0
 check "token: saved approval kept" "$(jq -r '.permissions.allow | index("Bash(saved:*)") != null' "${settings}")" true
 
 # 3. Token removed and reinstalled: the managed override goes, the rest stays.
