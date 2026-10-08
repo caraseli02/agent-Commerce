@@ -2,6 +2,10 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Claude routine build mode — 2026-10-08
+
+- `claude-routine` switches from `review-only` to `build` (Vlad, 2026-10-08) after the rollout acceptance on PR #608: Claude reviewed Codex's #616 (PASS) and Codex reviewed Claude's PRs; #615 was repaired on the same PR after a FAIL and re-reviewed at its new head; a second concurrent run yields on the run lock (checked live 2026-10-08, exit 3). Claude's queue is the `agent:claude` + `ready-for-agent` issues Vlad labels; WIP stays 1, and payments and protected paths stay out of unattended runs.
+
 ## Owner-approved harness changes — 2026-10-08
 
 - Claude PRs that touch `protected_paths` are FAILed by the reviewer, except when they carry `owner-approved-harness`. Only Vlad sets that label, on harness changes he requested in an interactive session; the reviewer then judges them on their merits. Payment paths are never exempt for Claude, and the unattended routine never edits protected paths. The guard hook blocks every Claude session from adding or removing the label.
