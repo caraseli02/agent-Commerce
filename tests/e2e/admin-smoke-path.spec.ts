@@ -19,6 +19,27 @@ const signInAsAdmin = async (page: Page) => {
 };
 
 test.describe('Admin Smoke Path', () => {
+  test('admin preview sign-in hydrates its own profile without errors', async ({ page }) => {
+    const consoleErrors: string[] = [];
+    const failedApiRequests: string[] = [];
+    page.on('pageerror', (error) => consoleErrors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error') consoleErrors.push(message.text());
+    });
+    page.on('response', (response) => {
+      if (response.url().includes('/api/') && response.status() >= 400) failedApiRequests.push(`${response.status()} ${response.url()}`);
+    });
+
+    const detailsResponse = page.waitForResponse((response) => response.url().includes('/api/user/mock-admin-1/details'));
+    await signInAsAdmin(page);
+    expect((await detailsResponse).status()).toBe(200);
+
+    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    await expect(page.getByText('Demo Admin').first()).toBeVisible();
+    expect(failedApiRequests).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+  });
+
   test('admin preview can load orders, customers, and a customer control panel', async ({ page }) => {
     const runtimeErrors: string[] = [];
     page.on('pageerror', (error) => runtimeErrors.push(error.message));
