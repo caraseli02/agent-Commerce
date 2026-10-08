@@ -126,13 +126,11 @@ const seoDescription = computed(
 );
 const seoImage = computed(() => product.value?.details?.ProductImage?.ProductImageLarge || '');
 
-useSeoMeta({
+usePageSeo({
   title: seoTitle,
   description: seoDescription,
-  ogTitle: seoTitle,
-  ogDescription: seoDescription,
-  ogImage: seoImage,
-  ogType: 'website',
+  image: seoImage,
+  type: 'product',
 });
 
 const images = computed((): ProductImageInterface[] => {
