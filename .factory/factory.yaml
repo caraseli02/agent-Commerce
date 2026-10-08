@@ -72,7 +72,7 @@ automations:
   claude-routine:
     file: .factory/automations/claude-routine.md
     role: one run does one thing - repair Claude's PR, else review one non-Claude PR, else build one agent:claude issue
-    mode: review-only # review-only | build. Switch to build (by PR) only after the rollout acceptance tracked on PR #608
+    mode: build # review-only | build. Build since 2026-10-08, after the rollout acceptance tracked on PR #608
     folder: ~/Documents/agent-Commerce # shared with Codex, which works in the main checkout; Claude runs only in .claude/worktrees/*
     worktree: true # fresh worktree from origin/main per run; .worktreeinclude copies .env.local
     journal: /Users/work/.local/share/agent-commerce/claude/events.jsonl

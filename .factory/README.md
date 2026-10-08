@@ -32,7 +32,7 @@ The repo workflow itself (roles, verdicts, verification ladder) stays in `AGENTS
 | Codex's own schedule | Codex builds its issues and reviews `agent:claude` PRs                                           |
 | whenever             | Vlad reads `ready-for-human` verdicts and merges                                                 |
 
-The routine starts in `mode: review-only` (it only reviews Codex's PRs). Switching `factory.yaml` to `mode: build` is a reviewed PR, made after the rollout acceptance tracked on PR #608 (review in both directions, same-PR repair, re-review after a new head, duplicate-run exclusion).
+The routine runs in `mode: build` since 2026-10-08, after the rollout acceptance tracked on PR #608 (review in both directions, same-PR repair, re-review after a new head, duplicate-run exclusion). `mode: review-only` (review Codex's PRs, never build) remains the fallback: switching back is a one-line reviewed PR.
 
 ## Mac mini setup (once)
 
