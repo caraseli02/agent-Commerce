@@ -1,6 +1,7 @@
 <template>
   <div>
     <SearchBreadcrumbs />
+    <SearchHeading :keyword="keyword" />
     <SearchFilters
       v-if="filters"
       :filters="filters"
