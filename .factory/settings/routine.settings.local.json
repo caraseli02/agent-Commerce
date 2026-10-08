@@ -24,8 +24,7 @@
     },
     "filesystem": {
       "allowWrite": [
-        "/Users/work/GIT/.locks",
-        "/Users/work/GIT/agent-Commerce/tmp/autonomy",
+        "/Users/work/.local/share/agent-commerce/claude",
         "/Users/work/Library/pnpm",
         "/Users/work/Library/Caches/ms-playwright"
       ]

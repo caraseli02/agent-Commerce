@@ -69,11 +69,12 @@ automations:
     file: .factory/automations/claude-routine.md
     role: one run does one thing - repair Claude's PR, else review one non-Claude PR, else build one agent:claude issue
     mode: review-only # review-only | build. Switch to build (by PR) only after the rollout acceptance tracked on PR #608
-    folder: ~/GIT/agent-Commerce
+    folder: ~/Documents/agent-Commerce # shared with Codex, which works in the main checkout; Claude runs only in .claude/worktrees/*
     worktree: true # fresh worktree from origin/main per run; .worktreeinclude copies .env.local
+    journal: /Users/work/.local/share/agent-commerce/claude/events.jsonl
     schedule: hourly at :00, 09:00-19:00 # cron "0 9-19 * * *"
     run_window: '09:00-20:00' # catch-up runs outside this window exit immediately
-    run_lock: /Users/work/GIT/.locks/claude-routine # .factory/bin/run-lock.sh, installed as ~/.local/share/agent-commerce/bin/claude-run-lock; held for the whole run; recovered only when its Claude session has stopped; no age takeover
+    run_lock: /Users/work/.local/share/agent-commerce/claude/locks/claude-routine # .factory/bin/run-lock.sh, installed as ~/.local/share/agent-commerce/bin/claude-run-lock; held for the whole run; recovered only when its Claude session has stopped; no age takeover
     guard_hook: .factory/hooks/bash-guard.mjs # installed with the sandbox settings (.factory/settings/routine.settings.local.json) by .factory/bin/install-local.sh, run by Vlad
     budgets:
       actions_per_run: 1

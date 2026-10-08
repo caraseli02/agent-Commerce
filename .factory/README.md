@@ -17,7 +17,7 @@ The repo workflow itself (roles, verdicts, verification ladder) stays in `AGENTS
 ## How the two agents avoid each other
 
 1. **Ownership is a label.** Issues labeled `agent:claude` belong to Claude; every other `ready-for-agent` issue is Codex's pool. Neither agent ever takes the other's issue. Labels are the only claim record; unattended agents do not edit `feature_list.json` or `PROGRESS.md`.
-2. **One Claude routine, one local run lock.** Claude runs a single hourly routine that does one thing per run (repair, review or build), so its runs never compete for Desktop's schedule. Every run, scheduled or started by hand, takes `/Users/work/GIT/.locks/claude-routine` with `.factory/bin/run-lock.sh` before reading any GitHub state and holds it for the whole run. The claim is an atomic `mkdir`; a contender yields and never waits. The owner file records a token and the Claude Code process that holds the lock. There is no age-based takeover: a lock is recovered only when that process has stopped (crash, app quit), under a second atomic guard so two contenders cannot both recover it, and a run releases only the lock whose token it holds. Anything the script cannot check (no owner file, unknown process) yields and waits for a human.
+2. **One Claude routine, one local run lock.** Claude runs a single hourly routine that does one thing per run (repair, review or build), so its runs never compete for Desktop's schedule. Every run, scheduled or started by hand, takes `/Users/work/.local/share/agent-commerce/claude/locks/claude-routine` with `.factory/bin/run-lock.sh` before reading any GitHub state and holds it for the whole run. The claim is an atomic `mkdir`; a contender yields and never waits. The owner file records a token and the Claude Code process that holds the lock. There is no age-based takeover: a lock is recovered only when that process has stopped (crash, app quit), under a second atomic guard so two contenders cannot both recover it, and a run releases only the lock whose token it holds. Anything the script cannot check (no owner file, unknown process) yields and waits for a human.
 3. **WIP=1 per agent.** Under the lock, Claude continues its one open `in-progress` issue labeled `agent:claude`, or (mode `build`) claims exactly one new one. The claim record is the issue's labels, assignee and comment plus the deterministic branch `claude/issue-<number>`, pushed normally. Two Claude `in-progress` issues is a blocker report, never resolved by guessing.
 4. **Cross-review.** The builder never reviews its own work: Claude reviews ready PRs without `agent:claude`; Codex reviews ready PRs with `agent:claude`. Each reviewer's structured verdict is the independent acceptance review for the other's PRs; Vlad then merges.
 5. **Payments stay with Codex.** Claude never builds `area:payments` work or touches protected payment paths, but reviews Codex's payment PRs.
@@ -37,9 +37,9 @@ The routine starts in `mode: review-only` (it only reviews Codex's PRs). Switchi
 ## Mac mini setup (once)
 
 1. **Tooling:** Node 24 (`package.json` `engines`), `corepack enable` for pnpm 10.18.3, `gh`, `jq`.
-2. **Folder:** `~/GIT/agent-Commerce`, kept on a clean `main`. Each run gets its own worktree under `.claude/worktrees/`, created from `origin/main`. `.worktreeinclude` copies the gitignored `.env.local` into it.
-3. **Database:** the folder's `.env.local` points `DATABASE_URL` and `DATABASE_URL_UNPOOLED` at the local PostgreSQL 17 on `127.0.0.1:5432`, database `agent_commerce_claude_gen`, macOS login role, no password, no `sslmode`. Codex uses `agent_commerce_demo`. Keep Neon for CI/previews only. Tests create and drop a temporary schema per run.
-4. **Guards (P2):** from `~/GIT/agent-Commerce` on `main`, Vlad runs `sh .factory/bin/install-local.sh` (agents may not change their own settings). It copies the guard hook and the run lock to `~/.local/share/agent-commerce/`, and merges `.factory/settings/routine.settings.local.json` into the folder's `.claude/settings.local.json` (gitignored; Claude Code reads it from the main checkout for every worktree, so it applies only to this folder's sessions). That file turns on the Bash sandbox (writes limited to the worktree, temp, the lock and journal folders and the pnpm/Playwright caches; network limited to GitHub, the npm registry and local PostgreSQL; no unsandboxed retries), registers the guard hook (fails closed if the hook is missing), and runs only the lock command outside the sandbox. Re-run the script after a merged change to `.factory/hooks`, `.factory/bin/run-lock.sh` or `.factory/settings`.
+2. **Folder:** `~/Documents/agent-Commerce`, the same checkout Codex uses (Vlad, 2026-10-08). Codex works in the main checkout; Claude runs only in its own worktrees under `.claude/worktrees/`, created from `origin/main` per run, and Claude Code blocks edits and commands that target the main checkout from a worktree session. `.worktreeinclude` copies the gitignored `.env.local` into each worktree.
+3. **Database:** the checkout's `.env.local` (Codex's) points `DATABASE_URL` at the local PostgreSQL 17 database `agent_commerce_demo`, which Claude's worktrees therefore share. Tests create and drop a temporary schema per run, so test data never collides; a dev server's seeded data is shared. Keep Neon for CI/previews only.
+4. **Guards (P2):** from `~/Documents/agent-Commerce` on `main`, Vlad runs `sh .factory/bin/install-local.sh` (agents may not change their own settings). It copies the guard hook and the run lock to `~/.local/share/agent-commerce/`, and merges `.factory/settings/routine.settings.local.json` into the folder's `.claude/settings.local.json` (gitignored; Claude Code reads it from the main checkout for every worktree). It therefore applies to **every Claude session started in `~/Documents/agent-Commerce`, including Vlad's interactive ones** (Vlad accepted this on 2026-10-08); Codex does not read it. That file turns on the Bash sandbox (writes limited to the worktree, temp, the lock and journal folders and the pnpm/Playwright caches; network limited to GitHub, the npm registry and local PostgreSQL; no unsandboxed retries), registers the guard hook (fails closed if the hook is missing), and runs only the lock command outside the sandbox. Re-run the script after a merged change to `.factory/hooks`, `.factory/bin/run-lock.sh` or `.factory/settings`.
 5. **Credential (P1, optional for now):** Vlad decided on 2026-10-07 that the routine uses his existing gh login for now; the guard hook and sandbox stay in force. To move to a repo-only token later, Vlad creates a fine-grained token for `caraseli02/agent-Commerce` only (Contents, Issues, Pull requests: read and write; Metadata: read), stores it in a separate gh configuration, and re-runs the install script, which then points the folder's `gh` and git at it:
 
    ```bash
@@ -48,7 +48,7 @@ The routine starts in `mode: review-only` (it only reviews Codex's PRs). Switchi
 
    Choose "Paste an authentication token". Either way, the folder's git asks only `gh auth git-credential` for credentials, and the guard hook blocks commands that override `GH_CONFIG_DIR`/`GH_TOKEN`, print tokens, read the token file or read the keychain.
 
-6. **Lock:** the routine creates `/Users/work/GIT/.locks` itself. `~/.local/share/agent-commerce/bin/claude-run-lock status` shows the owner and whether its Claude session is alive. A lock whose session has stopped is recovered by the next run. If a run reports a lock it cannot check, make sure no Claude routine session is running, then delete `/Users/work/GIT/.locks/claude-routine` by hand.
+6. **Lock and journal:** they live outside every checkout, in `~/.local/share/agent-commerce/claude/` (`locks/`, `events.jsonl`); the installer creates the folder. `~/.local/share/agent-commerce/bin/claude-run-lock status` shows the owner and whether its Claude session is alive. A lock whose session has stopped is recovered by the next run. If a run reports a lock it cannot check, make sure no Claude routine session is running, then delete `~/.local/share/agent-commerce/claude/locks/claude-routine` by hand.
 7. **Baseline:** run `./init.sh` in the folder and confirm it passes before enabling the routine.
 8. **Keep awake:** Claude Desktop → Settings → **Keep computer awake**, and macOS energy settings that prevent sleep during the work window.
 
@@ -58,7 +58,7 @@ Create one **Local** routine in Claude Desktop (Code tab → Routines → New ro
 
 | Field    | claude-routine                              |
 | -------- | ------------------------------------------- |
-| Folder   | `~/GIT/agent-Commerce`                      |
+| Folder   | `~/Documents/agent-Commerce`                |
 | Worktree | on                                          |
 | Schedule | `0 9-19 * * *` (hourly at :00, 09:00–19:00) |
 | Mode     | Accept edits (never Bypass permissions)     |
@@ -72,7 +72,7 @@ Run `git fetch origin`, then read the instructions with
 
 Reading from `origin/main` means a merged change applies on the next run, whatever state the folder is in. Click **Run now** once while watching and choose "always allow" for the prompts. Sandboxed Bash commands run without prompts; the guard hook still blocks the forbidden ones. Keep the schedule here and in `factory.yaml` in sync: the routine form, not the file, is what fires.
 
-The earlier `pr-evaluator` task and the `claude-generator` / `claude-evaluator` pair are retired; `~/GIT/agent-Commerce-eval` is no longer used.
+The earlier `pr-evaluator` task and the `claude-generator` / `claude-evaluator` pair are retired. The separate `~/GIT/agent-Commerce*` checkouts were removed on 2026-10-08.
 
 ## Codex side (configured by Vlad, outside this repo)
 
@@ -85,7 +85,7 @@ Review method: follow docs/agents/autonomous-workflow.md (Evaluator contract, re
 Verdict comment: one comment per head that starts with `<!-- evaluator-head: <headRefOid> -->`, then `## Evaluator verdict`, the verdict, and `Independent evaluator: Codex. Evaluated exact PR head <sha>.` On PASS add ready-for-human to the linked issue; on BLOCKED add blocked. Never push to, edit, approve or merge a Claude PR.
 INCONCLUSIVE: when verification cannot finish for environment reasons, start the comment with `<!-- evaluator-inconclusive: <headRefOid> -->` instead, name the failed prerequisite, and retry the unchanged head later (not sooner than 2 hours); after 2 INCONCLUSIVE reports on one head, post BLOCKED naming the prerequisite.
 Conflicts on your own PRs: merge main into the same branch and push normally; never rebase a published branch or force-push. Check mergeability before treating an earlier PASS as still valid.
-Shared state: GitHub labels, assignments and linked PRs are the live claim record; leave feature_list.json and PROGRESS.md unchanged in unattended runs. Keep your own activity journal; Claude writes only to ~/GIT/agent-Commerce/tmp/autonomy/events.jsonl.
+Shared state: GitHub labels, assignments and linked PRs are the live claim record; leave feature_list.json and PROGRESS.md unchanged in unattended runs. Keep your own activity journal; Claude writes its journal only to ~/.local/share/agent-commerce/claude/events.jsonl and works only in worktrees under ~/Documents/agent-Commerce/.claude/worktrees/; Claude never changes your main checkout.
 Your own PRs: open them ready for review (not draft) when your gates pass; Claude reviews them. Do not label them agent:claude.
 ```
 

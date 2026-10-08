@@ -7,7 +7,7 @@
 # Re-run it after a merged change to .factory/hooks, .factory/bin/run-lock.sh or
 # .factory/settings, and after adding the optional repo-only token.
 # It copies the reviewed files to stable places outside the repo, merges the
-# routine settings into ~/GIT/agent-Commerce/.claude/settings.local.json
+# routine settings into ~/Documents/agent-Commerce/.claude/settings.local.json
 # (keeping approvals already saved there), and points the folder's git at the
 # gh credential helper only.
 
@@ -15,12 +15,12 @@ set -eu
 
 repo=$(git rev-parse --show-toplevel)
 # The overrides exist for .factory/bin/install-local.test.sh only.
-folder=${CLAUDE_INSTALL_FOLDER:-/Users/work/GIT/agent-Commerce}
+folder=${CLAUDE_INSTALL_FOLDER:-/Users/work/Documents/agent-Commerce}
 share=${CLAUDE_INSTALL_SHARE:-/Users/work/.local/share/agent-commerce}
 gh_dir=${CLAUDE_INSTALL_GH_DIR:-/Users/work/.config/gh-agent-commerce-claude}
 settings="${folder}/.claude/settings.local.json"
 
-mkdir -p "${share}/hooks" "${share}/bin" "${folder}/.claude"
+mkdir -p "${share}/hooks" "${share}/bin" "${share}/claude/locks" "${folder}/.claude"
 cp "${repo}/.factory/hooks/bash-guard.mjs" "${share}/hooks/bash-guard.mjs"
 cp "${repo}/.factory/bin/run-lock.sh" "${share}/bin/claude-run-lock"
 chmod 755 "${share}/bin/claude-run-lock"

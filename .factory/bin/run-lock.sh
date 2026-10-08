@@ -20,7 +20,7 @@
 
 set -u
 
-LOCK_ROOT=${CLAUDE_LOCK_ROOT:-/Users/work/GIT/.locks}
+LOCK_ROOT=${CLAUDE_LOCK_ROOT:-/Users/work/.local/share/agent-commerce/claude/locks}
 LOCK="${LOCK_ROOT}/claude-routine"
 GUARD="${LOCK}.recover"
 
