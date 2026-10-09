@@ -48,7 +48,7 @@
 import { storeToRefs } from 'pinia';
 import { AlertTriangleIcon } from '@lucide/vue';
 import { useCartStore } from '~/store/cartStore';
-import { checkoutFailurePresentation } from '~/helpers/checkout-error-presentation';
+import { checkoutFailurePresentation } from '~~/helpers/checkout-error-presentation';
 import { cancelOrder as cancelOrderApi } from '~/composables/api/orders';
 
 const route = useRoute();

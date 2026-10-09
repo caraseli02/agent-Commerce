@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ArrowRight, CheckCircle2, LayoutDashboard, ShoppingBag, TruckIcon } from '@lucide/vue';
-import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
+import { formatReviewerDate, formatReviewerDateTime } from '~~/helpers/reviewer-dates';
 import { useCartStore } from '~/store/cartStore';
 import { useOrderConfirmation } from '~/composables/useOrderConfirmation';
-import { PaymentTypeEnum } from '~/types';
-import type { OrderInterface } from '~/types';
+import { PaymentTypeEnum } from '~~/types';
+import type { OrderInterface } from '~~/types';
 
 const route = useRoute();
 const cartStore = useCartStore();
