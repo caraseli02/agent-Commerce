@@ -1,6 +1,6 @@
 import { useNuxtApp } from '#app';
-import type { LoginRequest } from '~/model/auth/request/LoginRequest';
-import type { ProductResponse } from '~/types/product';
+import type { LoginRequest } from '~~/model/auth/request/LoginRequest';
+import type { ProductResponse } from '~~/types/product';
 import type {
   FirebaseBusinessAccount as SignupBusinessPayload,
   FirebasePersonalAccount as SignupPersonalPayload,

@@ -1,5 +1,5 @@
 import type { InputObject } from '~~/types';
-import { resolveFormValue } from '~/types/global/form';
+import { resolveFormValue } from '~~/types/global/form';
 
 export const useFormValidation = () => {
   const checkForInputErrors = (obj: Array<InputObject>) => {

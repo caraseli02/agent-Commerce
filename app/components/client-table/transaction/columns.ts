@@ -7,7 +7,7 @@ import CellDate from '~/components/dataTable/CellDate.vue';
 import { renderColumnHeader } from '~/components/dataTable/renderColumnHeader';
 import { paymentStatusOptions, paymentTypeOptions } from '~/components/client-table/transaction/options';
 import { TransactionTableColumnsEnum } from '~/components/client-table/transaction/columns.enum';
-import type { TransactionInterface } from '~/types/dashboard/transaction';
+import type { TransactionInterface } from '~~/types/dashboard/transaction';
 import { downloadDocument } from '~/composables/api/documents';
 import { formatNumberWithCommas } from '~/utils/numbers';
 // import { useAuthStore } from '~/store/authStore';

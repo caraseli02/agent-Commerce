@@ -93,7 +93,7 @@ import FiltersIcon from '@/assets/icons/filters.svg';
 import EyeIcon from '@/assets/icons/eye.svg';
 import EyeClosedIcon from '@/assets/icons/eye-closed.svg';
 import ResetIcon from '@/assets/icons/reset.svg';
-import type { FilterOptions, ProductFilters, ProductFiltersWrapper, SearchData, SearchFiltersCategories } from '~/types/product';
+import type { FilterOptions, ProductFilters, ProductFiltersWrapper, SearchData, SearchFiltersCategories } from '~~/types/product';
 
 const props = defineProps<{
   filters: ProductFilters | null;

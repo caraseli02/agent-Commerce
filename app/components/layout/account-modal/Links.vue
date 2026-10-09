@@ -61,7 +61,7 @@ import SvgoMenuPackagingLocation from '@/assets/icons/menu/packaging-location.sv
 import SvgoMenuClock from '@/assets/icons/menu/Clock.svg';
 import SvgoMenuSetting from '@/assets/icons/menu/Setting.svg';
 import { useAuthStore } from '~/store/authStore';
-import { AccountRole } from '~/types/signup/form';
+import { AccountRole } from '~~/types/signup/form';
 import { useNotificationStore } from '~/store/notificationStore';
 
 const notificationStore = useNotificationStore();

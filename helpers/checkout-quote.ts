@@ -1,5 +1,5 @@
-import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
-import type { CartProductsInterface } from '~/types/cart';
+import type { ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
+import type { CartProductsInterface } from '~~/types/cart';
 
 export type CheckoutQuote = NonNullable<ShippingOrderPricingResponse['quote']>;
 

@@ -5,11 +5,11 @@ import type { ActionOptionsConfiguration } from '~/components/dataTable/RowActio
 import UserInfo from '~/components/dataTable/UserInfo.vue';
 import CellDate from '~/components/dataTable/CellDate.vue';
 import { renderColumnHeader } from '~/components/dataTable/renderColumnHeader';
-import { AccountStatusEnum, type CustomerTableColumns } from '~/types/auth/user-interface';
+import { AccountStatusEnum, type CustomerTableColumns } from '~~/types/auth/user-interface';
 import { AgentsTableColumnsEnum } from '~/components/client-table/agents/columns.enum';
 import StatusWithColor from '~/components/dataTable/StatusWithColor.vue';
 import { useAuthStore } from '~/store/authStore';
-import { AccountRole } from '~/types';
+import { AccountRole } from '~~/types';
 import { activateUser, deactivateUser, deleteUser } from '~/composables/api/dashboard-admin';
 
 const statusName: Record<AccountStatusEnum, string> = {

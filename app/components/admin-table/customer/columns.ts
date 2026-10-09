@@ -5,10 +5,10 @@ import IdCell from '~/components/dataTable/IdCell.vue';
 import UserInfo from '~/components/dataTable/UserInfo.vue';
 import CellDate from '~/components/dataTable/CellDate.vue';
 import { renderColumnHeader } from '~/components/dataTable/renderColumnHeader';
-import { AccountStatusEnum, type CustomerTableColumns } from '~/types/auth/user-interface';
+import { AccountStatusEnum, type CustomerTableColumns } from '~~/types/auth/user-interface';
 import { CustomerTableColumnsEnum } from '~/components/admin-table/customer/columns.enum';
 import AccountType from '~/components/dataTable/AccountType.vue';
-import { AccountType as AccountTypeEnum } from '~/types';
+import { AccountType as AccountTypeEnum } from '~~/types';
 import { activateUser, deactivateUser, deleteUser } from '~/composables/api/dashboard-admin';
 import { formatNumberWithCommas } from '~/utils/numbers';
 

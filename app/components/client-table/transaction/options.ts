@@ -1,5 +1,5 @@
-import { getPaymentStatusById, getPaymentTypeById, PaymentStatusEnum, PaymentTypeEnum } from '~/types/order-summary/item';
-import type { PaymentStatusOption, PaymentTypeOption } from '~/types/order-summary/item';
+import { getPaymentStatusById, getPaymentTypeById, PaymentStatusEnum, PaymentTypeEnum } from '~~/types/order-summary/item';
+import type { PaymentStatusOption, PaymentTypeOption } from '~~/types/order-summary/item';
 
 export const paymentTypeOptions: PaymentTypeOption[] = [
   { label: getPaymentTypeById(PaymentTypeEnum.Card), value: PaymentTypeEnum.Card, color: 'bg-green-600' },

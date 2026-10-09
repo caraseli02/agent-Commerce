@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { getOrderTypeInfo } from '../client-table/order/options';
-import type { OrderType } from '~/types/order-summary/item';
+import type { OrderType } from '~~/types/order-summary/item';
 
 const props = defineProps<{
   type: OrderType;

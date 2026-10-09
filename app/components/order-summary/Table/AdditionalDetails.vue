@@ -56,7 +56,7 @@ import PackageBoxSmall from '@/assets/icons/package-box-small.svg';
 import DeliveryTruck from '@/assets/icons/delivery-truck.svg';
 import DeliveryTruckSmall from '@/assets/icons/delivery-truck-small.svg';
 import TrashOutlineBig from '@/assets/icons/trash-outline-big.svg';
-import type { CartProductsInterface } from '~/types/cart';
+import type { CartProductsInterface } from '~~/types/cart';
 
 // Define props to receive state from the parent
 const props = defineProps<{

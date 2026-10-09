@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 import { PencilLine } from '@lucide/vue';
 import { useCategories } from '@/composables/useCategories';
-import type { ICreatePayload, TaxonomyInterface } from '~/types/dashboard/categories';
-import type { IconName } from '@/types/Icons';
+import type { ICreatePayload, TaxonomyInterface } from '~~/types/dashboard/categories';
+import type { IconName } from '~~/types/Icons';
 import { toast } from '~/components/ui/toast';
 
 const props = defineProps<{ category: TaxonomyInterface }>();

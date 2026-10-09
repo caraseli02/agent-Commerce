@@ -27,9 +27,9 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import CaretRightIcon from '@/assets/icons/caret-right.svg';
 import { useCategories } from '~/composables/useCategories';
-import { findCategory, findCategoryByPath } from '~/helpers/categories.helper';
-import type { CategoryCrumb } from '~/helpers/categoryPath.helper';
-import { buildSlugPathCrumbs, normalizeCategoryPath } from '~/helpers/categoryPath.helper';
+import { findCategory, findCategoryByPath } from '~~/helpers/categories.helper';
+import type { CategoryCrumb } from '~~/helpers/categoryPath.helper';
+import { buildSlugPathCrumbs, normalizeCategoryPath } from '~~/helpers/categoryPath.helper';
 
 const { categories, getCategories } = useCategories();
 

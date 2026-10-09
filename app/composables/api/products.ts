@@ -7,7 +7,7 @@ import type {
   ProductSearchResponse,
   SearchSimilarProductRequest,
   SearchSimilarProductResponse,
-} from '~/types/product';
+} from '~~/types/product';
 
 const RESOURCE = '/products';
 

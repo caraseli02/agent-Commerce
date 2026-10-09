@@ -1,6 +1,6 @@
-import { useAuthStore } from '~~/store/authStore';
+import { useAuthStore } from '~/store/authStore';
 import { parseMockToken } from '~/utils/mockAuth';
-import { requiresDemoToken } from '~/helpers/mock-integration';
+import { requiresDemoToken } from '~~/helpers/mock-integration';
 
 export default defineNuxtRouteMiddleware((to) => {
   const token = useCookie('token');

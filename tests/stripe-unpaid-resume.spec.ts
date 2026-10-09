@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createResumeOrderPayment } from '~/server/application/checkout/resume-order-payment';
-import { createStripeIntentAdapter } from '~/server/domain/payments';
-import type { StripeIntentProvider, StripePaymentIntent } from '~/server/domain/payments/stripe-intents';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { createResumeOrderPayment } from '~~/server/application/checkout/resume-order-payment';
+import { createStripeIntentAdapter } from '~~/server/domain/payments';
+import type { StripeIntentProvider, StripePaymentIntent } from '~~/server/domain/payments/stripe-intents';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 const ownerId = 'owner-unpaid-resume';
 const orderId = 'ord-unpaid-resume';

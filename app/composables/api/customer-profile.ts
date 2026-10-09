@@ -1,5 +1,5 @@
 import { useNuxtApp } from '#app';
-import type { CustomerInformationResponse, CustomerRecentTransactionsResponse } from '~/types/dashboard/customer-profile';
+import type { CustomerInformationResponse, CustomerRecentTransactionsResponse } from '~~/types/dashboard/customer-profile';
 
 const MAIN_RESOURCE = '/dashboard/profile';
 

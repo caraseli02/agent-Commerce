@@ -85,7 +85,7 @@ import ArrowRightIcon from '@/assets/icons/dashboard/arrow-right.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { fetchTotalCustomersWidget } from '~/composables/api/dashboard-admin';
-import type { TotalCustomersInterface } from '~/types/dashboard/admin-users';
+import type { TotalCustomersInterface } from '~~/types/dashboard/admin-users';
 
 const ApexChart = defineAsyncComponent(() => import('vue3-apexcharts'));
 

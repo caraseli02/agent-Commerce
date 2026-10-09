@@ -42,9 +42,9 @@
 </template>
 
 <script lang="ts">
-import { formatReviewerDate } from '~/helpers/reviewer-dates';
+import { formatReviewerDate } from '~~/helpers/reviewer-dates';
 import SettingCog from '@/assets/icons/setting-cog.svg';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 
 export default defineComponent({
   name: 'CreditInfoModal',

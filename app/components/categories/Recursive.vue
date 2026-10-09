@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DomainsRecursive from './Recursive.vue';
-import type { TaxonomyInterface } from '~/types/dashboard/categories';
+import type { TaxonomyInterface } from '~~/types/dashboard/categories';
 import CardPlaceholderSmall from '@/assets/icons/card-placeholder-small.svg';
 
 const props = defineProps<{

@@ -69,13 +69,13 @@ import type { PropType } from 'vue';
 import WarningErrorHuge from '@/assets/icons/warning-error-huge.svg';
 import RadioButton from '@/assets/icons/radio-button.svg';
 import RadioButtonChecked from '@/assets/icons/radio-button-checked.svg';
-import { DeliveryMethodEnum, OrderType, type CheckoutOrderDraft } from '~/types';
+import { DeliveryMethodEnum, OrderType, type CheckoutOrderDraft } from '~~/types';
 import type {
   BackorderShippingTypesInterface,
   GeneralSettingsInterface,
   StockorderShippingTypesInterface,
-} from '~/types/general-settings/general-settings';
-import type { ShippingOrderPricingOption, ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
+} from '~~/types/general-settings/general-settings';
+import type { ShippingOrderPricingOption, ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
 
 export default defineComponent({
   name: 'ShippingPreferencesSection',

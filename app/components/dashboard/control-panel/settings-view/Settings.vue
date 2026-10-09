@@ -118,7 +118,7 @@
 <script setup lang="ts">
 import CheckIcon from '@/assets/icons/check.svg';
 import SecurityUserIcon from '@/assets/icons/dashboard/security-user.svg';
-import { AlertAndNotificationLabelsEnum, MarketingPreferencesEnum } from '~/types/auth/account-settings';
+import { AlertAndNotificationLabelsEnum, MarketingPreferencesEnum } from '~~/types/auth/account-settings';
 import { toast } from '~/components/ui/toast';
 import { useControlPanel } from '~/composables/useControlPanel';
 

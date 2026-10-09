@@ -6,14 +6,14 @@ import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
 const storefrontSurfaces = [
-  'components/home/FeaturedProducts.vue',
-  'components/global/News.vue',
-  'components/global/Manufacturers.vue',
-  'components/global/EcxlusiveOffer.vue',
-  'components/global/Banner.vue',
-  'components/product/Banners.vue',
-  'components/global/ProductCard.vue',
-  'components/search/SearchItem.vue',
+  'app/components/home/FeaturedProducts.vue',
+  'app/components/global/News.vue',
+  'app/components/global/Manufacturers.vue',
+  'app/components/global/EcxlusiveOffer.vue',
+  'app/components/global/Banner.vue',
+  'app/components/product/Banners.vue',
+  'app/components/global/ProductCard.vue',
+  'app/components/search/SearchItem.vue',
 ];
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
@@ -57,9 +57,9 @@ describe('storefront ImageWithFallback adoption', () => {
   });
 
   it('keeps stable merchandising media sizing on home promo and news surfaces', () => {
-    const featuredProducts = readFileSync(resolve('components/home/FeaturedProducts.vue'), 'utf8');
-    const news = readFileSync(resolve('components/global/News.vue'), 'utf8');
-    const manufacturers = readFileSync(resolve('components/global/Manufacturers.vue'), 'utf8');
+    const featuredProducts = readFileSync(resolve('app/components/home/FeaturedProducts.vue'), 'utf8');
+    const news = readFileSync(resolve('app/components/global/News.vue'), 'utf8');
+    const manufacturers = readFileSync(resolve('app/components/global/Manufacturers.vue'), 'utf8');
 
     expect(featuredProducts).toContain('ImageWithFallback');
     expect(featuredProducts).toContain('md:max-h-[240px]');

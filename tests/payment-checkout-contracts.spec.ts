@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { parsePaymentStatus, parsePersistedPaymentStatus } from '~/server/domain/payments/contracts';
-import { parseCheckoutWorkflowStatus, parsePaidRecoveryDecision } from '~/server/application/checkout/contracts';
-import { checkoutErrorResponse, parseCheckoutErrorCode } from '~/types/order/checkout-error';
-import { checkoutFailurePresentation } from '~/helpers/checkout-error-presentation';
-import { getPaymentStatusById, PaymentStatusEnum } from '~/types/order-summary/item';
+import { parsePaymentStatus, parsePersistedPaymentStatus } from '~~/server/domain/payments/contracts';
+import { parseCheckoutWorkflowStatus, parsePaidRecoveryDecision } from '~~/server/application/checkout/contracts';
+import { checkoutErrorResponse, parseCheckoutErrorCode } from '~~/types/order/checkout-error';
+import { checkoutFailurePresentation } from '~~/helpers/checkout-error-presentation';
+import { getPaymentStatusById, PaymentStatusEnum } from '~~/types/order-summary/item';
 
 describe('Payment and checkout boundary contracts', () => {
   it.each(['PENDING', 'PROCESSING', 'PAID', 'CANCELED'])('retains persisted Payment %s', (status) => {

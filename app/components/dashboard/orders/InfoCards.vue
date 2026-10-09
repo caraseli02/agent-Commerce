@@ -161,8 +161,8 @@ import ArrowRightIcon from '@/assets/icons/dashboard/arrow-right.svg';
 import ChevronIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
-import { WidgetTypeEnum } from '~/types/dashboard/orders';
-import type { WidgetApiType } from '~/types/dashboard/admin-orders';
+import { WidgetTypeEnum } from '~~/types/dashboard/orders';
+import type { WidgetApiType } from '~~/types/dashboard/admin-orders';
 import { fetchWidget } from '~/composables/api/orders';
 
 type WidgetLabel = keyof typeof WidgetTypeEnum;

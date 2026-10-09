@@ -43,9 +43,9 @@
 import type { PropType } from 'vue';
 import PlusIcon from '@/assets/icons/plus.svg';
 import MinusIcon from '@/assets/icons/minus.svg';
-import { ProductAction, type CartProductsInterface, type ProductActionObject, type UpdateProductCartRequestInterface } from '~/types/cart';
+import { ProductAction, type CartProductsInterface, type ProductActionObject, type UpdateProductCartRequestInterface } from '~~/types/cart';
 import { useCart } from '~/composables/useCart';
-import { OrderType } from '~/types';
+import { OrderType } from '~~/types';
 const { updateCartItem } = useCart();
 
 const props = defineProps({
@@ -184,10 +184,10 @@ watch(
 import type { PropType } from 'vue';
 import PlusIcon from '@/assets/icons/plus.svg';
 import MinusIcon from '@/assets/icons/minus.svg';
-import { CartProductsInterface, ProductAction, ProductActionObject } from '~/types/cart';
-import { UpdateProductCartRequestInterface } from '~/types/cart';
+import { CartProductsInterface, ProductAction, ProductActionObject } from '~~/types/cart';
+import { UpdateProductCartRequestInterface } from '~~/types/cart';
 import { useCart } from '~/composables/useCart';
-import { OrderType } from '~/types';
+import { OrderType } from '~~/types';
 const { updateCartItem } = useCart();
 
 const props = defineProps({

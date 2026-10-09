@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance';
-import type { ProductInterface } from '~/types/product';
+import type { ProductInterface } from '~~/types/product';
 
 type RecentlyBoughtProduct = ProductInterface & { photo?: string };
 

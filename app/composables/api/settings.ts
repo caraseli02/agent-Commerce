@@ -1,5 +1,5 @@
 import { useNuxtApp } from '#app';
-import type { GeneralSettingsInterface } from '~/types/general-settings/general-settings';
+import type { GeneralSettingsInterface } from '~~/types/general-settings/general-settings';
 
 export interface GeneralSettingsResponse {
   data: GeneralSettingsInterface;

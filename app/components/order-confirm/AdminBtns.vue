@@ -10,7 +10,7 @@ import {
   Undo2Icon,
 } from '@lucide/vue';
 import type { PropType } from 'vue';
-import { OrderStatus, PaymentStatusEnum, type OrderInterface } from '~/types';
+import { OrderStatus, PaymentStatusEnum, type OrderInterface } from '~~/types';
 import { toast } from '~/components/ui/toast';
 import { cancelOrder as cancelOrderApi } from '~/composables/api/orders';
 

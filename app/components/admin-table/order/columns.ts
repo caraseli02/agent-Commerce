@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { statusColors } from './options';
-import type { OrderTableColumns } from '~/types';
+import type { OrderTableColumns } from '~~/types';
 import RowActions from '~/components/dataTable/RowActions.vue';
 import IdCell from '~/components/dataTable/IdCell.vue';
 import OrderType from '~/components/dataTable/OrderType.vue';

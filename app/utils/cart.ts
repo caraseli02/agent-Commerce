@@ -1,4 +1,4 @@
-import type { CartInterface, CartProductsInterface } from '~/types/cart';
+import type { CartInterface, CartProductsInterface } from '~~/types/cart';
 
 const defaultDiscount = {
   value: 0,

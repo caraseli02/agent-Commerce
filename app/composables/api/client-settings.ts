@@ -1,9 +1,9 @@
 import { useNuxtApp } from '#app';
-import type { DetailsResponse } from '~/types/dashboard/client-dashboard';
+import type { DetailsResponse } from '~~/types/dashboard/client-dashboard';
 import { useAuthStore } from '~/store/authStore';
-import { AccountType } from '~/types';
-import type { AccountAdminSettings } from '~/types/auth/account-settings';
-import type { BillingAddressInterface, ShippingAddressInterface } from '~/types/auth/user-interface';
+import { AccountType } from '~~/types';
+import type { AccountAdminSettings } from '~~/types/auth/account-settings';
+import type { BillingAddressInterface, ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 const USER_PATH = '/user';
 const DASHBOARD_PATH = '/dashboard';

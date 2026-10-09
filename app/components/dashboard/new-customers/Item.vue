@@ -86,7 +86,7 @@ import { LockKeyholeIcon } from '@lucide/vue';
 import MoreVerticalIcon from '@/assets/icons/dashboard/more-vertical.svg';
 import UserIcon from '@/assets/icons/dashboard/user.svg';
 import DemoTooltip from '~/components/global/DemoTooltip.vue';
-import type { DashboardCustomerTableItem } from '~/types';
+import type { DashboardCustomerTableItem } from '~~/types';
 import ThreeDotMenu from '~/components/shared/tables/micro/row-items/ThreeDotMenu.vue';
 
 defineProps({

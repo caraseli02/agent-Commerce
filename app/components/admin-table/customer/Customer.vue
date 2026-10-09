@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { columns } from './columns';
 import { fetchCustomersList } from '~/composables/api/dashboard-admin';
-import type { CustomerTableColumns } from '~/types/auth/user-interface';
+import type { CustomerTableColumns } from '~~/types/auth/user-interface';
 
 const totalItems = ref(0);
 const pageCount = ref(0);

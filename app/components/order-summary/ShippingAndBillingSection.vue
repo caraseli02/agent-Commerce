@@ -132,8 +132,8 @@ import GreenCheckCircle from '@/assets/icons/green-check-circle.svg';
 import EditSmall from '@/assets/icons/edit-small.svg';
 import CheckCircleSmall from '@/assets/icons/check-circle-small.svg';
 import WarningErrorYellow from '@/assets/icons/warning-error-yellow.svg';
-import { isCompleteSavedAddress } from '~/helpers/address.helper';
-import type { CheckoutOrderDraft } from '~/types';
+import { isCompleteSavedAddress } from '~~/helpers/address.helper';
+import type { CheckoutOrderDraft } from '~~/types';
 
 const props = defineProps<{
   order: CheckoutOrderDraft;

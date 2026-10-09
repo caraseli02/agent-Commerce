@@ -4,13 +4,13 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const smokePathFiles = [
-  'components/admin-table/order/Order.vue',
-  'components/admin-table/customer/Customer.vue',
-  'components/dashboard/orders/InfoCards.vue',
-  'pages/dashboard/customers/[slug]/control-panel.vue',
-  'pages/dashboard/customers/[slug]/control-panel/[view].vue',
-  'components/dashboard/customers/CustomerInformation.vue',
-  'components/dashboard/customers/RecentTransactions.vue',
+  'app/components/admin-table/order/Order.vue',
+  'app/components/admin-table/customer/Customer.vue',
+  'app/components/dashboard/orders/InfoCards.vue',
+  'app/pages/dashboard/customers/[slug]/control-panel.vue',
+  'app/pages/dashboard/customers/[slug]/control-panel/[view].vue',
+  'app/components/dashboard/customers/CustomerInformation.vue',
+  'app/components/dashboard/customers/RecentTransactions.vue',
 ];
 
 describe('order and dashboard type namespace consolidation (#403)', () => {
@@ -20,13 +20,13 @@ describe('order and dashboard type namespace consolidation (#403)', () => {
     const clientDashboardShim = readFileSync(resolve('model/dashboard/customer-information/customer-information.ts'), 'utf8');
 
     expect(placeOrderShim).toContain('@deprecated');
-    expect(placeOrderShim).toContain("export * from '~/types/order/place-order'");
-    expect(adminUsersShim).toContain("export * from '~/types/dashboard/admin-users'");
-    expect(clientDashboardShim).toContain("export * from '~/types/dashboard/client-dashboard'");
+    expect(placeOrderShim).toContain("export * from '~~/types/order/place-order'");
+    expect(adminUsersShim).toContain("export * from '~~/types/dashboard/admin-users'");
+    expect(clientDashboardShim).toContain("export * from '~~/types/dashboard/client-dashboard'");
   });
 
   it('types admin orders API composables with canonical response shapes', () => {
-    const ordersApi = readFileSync(resolve('composables/api/orders.ts'), 'utf8');
+    const ordersApi = readFileSync(resolve('app/composables/api/orders.ts'), 'utf8');
 
     expect(ordersApi).toContain('PaginatedOrdersResponse');
     expect(ordersApi).toContain('WidgetResponse');

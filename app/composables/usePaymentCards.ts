@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { _cloneDeep } from '#imports';
 import { useUser } from './useUser';
 import { userCards as fetchUserCards } from '~/composables/api/user';
-import type { StripeCardInterface } from '~/types';
+import type { StripeCardInterface } from '~~/types';
 
 const card = ref<StripeCardInterface | null>(null);
 const cards = ref<StripeCardInterface[]>([]);

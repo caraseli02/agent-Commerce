@@ -74,7 +74,7 @@ import { storeToRefs } from 'pinia';
 import XIcon from '@/assets/icons/x.svg';
 import SignOutIcon from '@/assets/icons/menu/sign-out.svg';
 import SvgoMenuHelp from '@/assets/icons/menu/help.svg';
-import { useAuthStore } from '~~/store/authStore';
+import { useAuthStore } from '~/store/authStore';
 
 const emit = defineEmits<{
   (e: 'close'): void;

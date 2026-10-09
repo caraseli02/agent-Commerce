@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toCheckoutMoneyView, toPersistedOrderLineMoneyView } from '~/helpers/checkout-quote';
+import { toCheckoutMoneyView, toPersistedOrderLineMoneyView } from '~~/helpers/checkout-quote';
 
 describe('checkout quote view model', () => {
   it('copies final payable money from the server quote without recalculating it', () => {

@@ -1,8 +1,8 @@
 // ~/composables/useUser.ts
 import { computed } from 'vue';
 import { useAuthStore } from '~/store/authStore';
-import { AccountType } from '~/types';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import { AccountType } from '~~/types';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 export function useUser() {
   const store = useAuthStore();

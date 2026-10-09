@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildBreadcrumbJsonLd, buildProductJsonLd, buildProductPageJsonLd } from '~/helpers/product-json-ld';
-import type { ProductDetail } from '~/types/product';
+import { buildBreadcrumbJsonLd, buildProductJsonLd, buildProductPageJsonLd } from '~~/helpers/product-json-ld';
+import type { ProductDetail } from '~~/types/product';
 
 const SITE = 'https://shop.example';
 const toAbsoluteUrl = (url: string) => (url.startsWith('//') ? `https:${url}` : new URL(url, `${SITE}/`).href);

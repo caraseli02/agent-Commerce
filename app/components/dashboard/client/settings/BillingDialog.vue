@@ -5,8 +5,8 @@ import { ref, toRef } from 'vue';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useClientAccount } from '~/composables/useClientAccount';
 import { useClientAddressManager } from '~/composables/useClientAddressManager';
-import type { AccountType } from '~/types';
-import type { BillingAddressInterface } from '~/types/auth/user-interface';
+import type { AccountType } from '~~/types';
+import type { BillingAddressInterface } from '~~/types/auth/user-interface';
 
 const { addBillingAsCustomer, updateBillingAsCustomer } = useClientAccount();
 

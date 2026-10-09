@@ -58,7 +58,7 @@ import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { fetchCustomerShippingInformation } from '~/composables/api/customer-profile';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 const showOptions = ref(false);
 

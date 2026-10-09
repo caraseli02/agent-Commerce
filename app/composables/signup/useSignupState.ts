@@ -9,7 +9,7 @@ import type {
   SignupPersonalDetails,
   SignupProfileDetails,
   StringInputObject,
-} from '@/types';
+} from '~~/types';
 
 const emptyCountryType = (): CountryType => ({
   value: {

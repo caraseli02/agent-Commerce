@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AccountType } from '~/types';
+import type { AccountType } from '~~/types';
 import { getCustomerTypeInfo } from '~/components/admin-table/customer/options';
 
 const props = defineProps<{

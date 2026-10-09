@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ProductInterface } from '~/types/product';
+import type { ProductInterface } from '~~/types/product';
 import { fetchProductTab } from '~/composables/api/products';
 
 const props = defineProps({

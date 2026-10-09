@@ -1,6 +1,6 @@
 import { getCookie } from 'h3';
-import { createMockToken, getMockUserByCredentials } from '~/server/utils/mockUsers';
-import { mergeGuestCartIntoMockCart } from '~/server/utils/mockCart';
+import { createMockToken, getMockUserByCredentials } from '~~/server/utils/mockUsers';
+import { mergeGuestCartIntoMockCart } from '~~/server/utils/mockCart';
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as { email?: string; clientCode?: string; password?: string };

@@ -120,9 +120,9 @@
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import type { ProductBannerInterface } from '~/types/dashboard/client-dashboard';
-import type { ProductInterface } from '~/types/product';
-import { addToCartHelper } from '~/helpers/prices.helper';
+import type { ProductBannerInterface } from '~~/types/dashboard/client-dashboard';
+import type { ProductInterface } from '~~/types/product';
+import { addToCartHelper } from '~~/helpers/prices.helper';
 import { toast } from '~/components/ui/toast';
 import { useCart } from '~/composables/useCart';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';

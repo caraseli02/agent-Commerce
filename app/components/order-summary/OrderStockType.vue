@@ -144,21 +144,21 @@ import Emitter from 'tiny-emitter/instance.js';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRuntimeConfig } from '#app';
-import { OrderType, type CheckoutOrderDraft } from '~/types';
-import type { CartProductsInterface } from '~/types/cart';
+import { OrderType, type CheckoutOrderDraft } from '~~/types';
+import type { CartProductsInterface } from '~~/types/cart';
 import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import WarningErrorYellow from '@/assets/icons/warning-error-yellow.svg';
 import WarningErrorHuge from '@/assets/icons/warning-error-huge.svg';
 import DemoTooltip from '~/components/global/DemoTooltip.vue';
-import { isCompleteSavedAddress } from '~/helpers/address.helper';
-import { isPaymentManagementVisible } from '~/helpers/mock-integration';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
-import type { BackorderShippingTypesInterface } from '~/types/general-settings/general-settings';
+import { isCompleteSavedAddress } from '~~/helpers/address.helper';
+import { isPaymentManagementVisible } from '~~/helpers/mock-integration';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
+import type { BackorderShippingTypesInterface } from '~~/types/general-settings/general-settings';
 import { useUser } from '~/composables/useUser';
 import { useGuestCheckout } from '~/composables/useGuestCheckout';
 import { useAuthStore } from '~/store/authStore';
 import { usePaymentStore } from '~/store/paymentStore';
-import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
+import type { ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
 
 const props = defineProps<{
   items: CartProductsInterface[];

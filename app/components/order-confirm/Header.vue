@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FileText } from '@lucide/vue';
 import { DotsVerticalIcon } from '@radix-icons/vue';
-import { PaymentStatusEnum, PaymentTypeEnum } from '~/types';
+import { PaymentStatusEnum, PaymentTypeEnum } from '~~/types';
 
 interface OrderTypeValue {
   badge: { text: string };

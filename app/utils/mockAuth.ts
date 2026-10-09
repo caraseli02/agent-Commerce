@@ -1,4 +1,4 @@
-import { UserPermissionsEnum } from '~/types/auth/permissions';
+import { UserPermissionsEnum } from '~~/types/auth/permissions';
 
 export const MOCK_CUSTOMER_USER_ID = 'mock-customer-1';
 export const MOCK_ADMIN_USER_ID = 'mock-admin-1';

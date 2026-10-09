@@ -182,8 +182,8 @@ import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import CopyIcon from '@/assets/icons/dashboard/copy.svg';
 import { useCountries } from '~/composables/useCountries';
 import type { FormSelectOption } from '~~/types';
-import type { AddressInterface, CompanyDetails, ContactDetails, UserInterface } from '~/types/auth/user-interface';
-import { getRegionByCountry } from '~/helpers/form.helper';
+import type { AddressInterface, CompanyDetails, ContactDetails, UserInterface } from '~~/types/auth/user-interface';
+import { getRegionByCountry } from '~~/helpers/form.helper';
 import { toast } from '~/components/ui/toast';
 import { useControlPanel } from '~/composables/useControlPanel';
 

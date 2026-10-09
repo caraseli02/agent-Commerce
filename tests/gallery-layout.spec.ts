@@ -5,7 +5,7 @@ import { baseParse, NodeTypes, type ElementNode, type RootNode } from '@vue/comp
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
-const galleryPath = resolve('components/product/Gallery.vue');
+const galleryPath = resolve('app/components/product/Gallery.vue');
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
   const found: ElementNode[] = [];

@@ -1,5 +1,5 @@
 import { getCurrentInstance, onBeforeUnmount, ref } from 'vue';
-import type { CartInterface, CartProductsInterface } from '~/types/cart';
+import type { CartInterface, CartProductsInterface } from '~~/types/cart';
 
 const cartUnits = (products: CartProductsInterface[] = []) =>
   products.reduce(

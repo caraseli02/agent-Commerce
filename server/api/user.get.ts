@@ -1,4 +1,4 @@
-import { getPaginatedAdminMockCustomers } from '~/server/utils/mockAdminCustomers';
+import { getPaginatedAdminMockCustomers } from '~~/server/utils/mockAdminCustomers';
 
 export default defineEventHandler((event) => {
   return {

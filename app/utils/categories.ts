@@ -1,4 +1,4 @@
-import type { TaxonomyInterface } from '~/types/dashboard/categories';
+import type { TaxonomyInterface } from '~~/types/dashboard/categories';
 import { useToast } from '@/components/ui/toast/use-toast';
 
 type IMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';

@@ -1,5 +1,5 @@
 import { useNuxtApp } from '#app';
-import type { CategoryMutationResponse, ICreatePayload, TaxonomyGetResponse } from '~/types/dashboard/categories';
+import type { CategoryMutationResponse, ICreatePayload, TaxonomyGetResponse } from '~~/types/dashboard/categories';
 
 const RESOURCE = '/taxonomy';
 

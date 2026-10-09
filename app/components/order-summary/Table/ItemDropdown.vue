@@ -88,10 +88,10 @@ import ProductDetails from './ProductDetails.vue';
 import AdditionalDetails from './AdditionalDetails.vue';
 import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import { resolveOrderSummaryLineMoney, type OrderSummaryQuoteLine } from '~/helpers/order-summary-line-money';
-import { ProductAction, type CartProductsInterface } from '~/types/cart';
+import { resolveOrderSummaryLineMoney, type OrderSummaryQuoteLine } from '~~/helpers/order-summary-line-money';
+import { ProductAction, type CartProductsInterface } from '~~/types/cart';
 
-import { OrderType } from '~/types';
+import { OrderType } from '~~/types';
 
 const emits = defineEmits(['updateQuantity']);
 

@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ProductInterface } from '~/types/product';
+import type { ProductInterface } from '~~/types/product';
 import { useProducts } from '~/composables/useProducts';
 import { getProductSectionHeading } from '~/utils/productSectionHeadings';
 

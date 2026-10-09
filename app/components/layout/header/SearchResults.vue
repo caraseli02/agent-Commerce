@@ -49,10 +49,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import CaretIcon from '@/assets/icons/caret-right.svg';
-import type { ProductInterface } from '~/types/product';
-import { mapLabelsToIds, mapPathArrayOfNames } from '~/helpers/categories.helper';
-import type { CategoriesMap } from '~/types/dashboard/categories';
-import { humanizeCategorySlug, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
+import type { ProductInterface } from '~~/types/product';
+import { mapLabelsToIds, mapPathArrayOfNames } from '~~/helpers/categories.helper';
+import type { CategoriesMap } from '~~/types/dashboard/categories';
+import { humanizeCategorySlug, toCategorySlugSegments } from '~~/helpers/categoryPath.helper';
 
 const { categories } = useCategories();
 

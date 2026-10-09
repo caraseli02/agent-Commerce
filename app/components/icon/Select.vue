@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { SearchIcon } from '@lucide/vue';
-import type { IconName } from '@/types/Icons'; // Correctly using the imported type
+import type { IconName } from '~~/types/Icons'; // Correctly using the imported type
 import IconAsync from '@/components/icon/Async.vue';
-import { iconList } from '@/data/iconNames';
+import { iconList } from '~~/data/iconNames';
 
 defineProps<{
   title: string;

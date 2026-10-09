@@ -58,10 +58,10 @@
 import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import TrashIcon from '@/assets/icons/trash-can.svg';
-import { ProductAction } from '~/types/cart';
-import type { ProductActionObject } from '~/types/cart';
-import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
-import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { ProductAction } from '~~/types/cart';
+import type { ProductActionObject } from '~~/types/cart';
+import type { PriceConfigurationSettingsInterface, ProductInterface } from '~~/types/product';
+import { parseProductPriceConfiguration } from '~~/helpers/prices.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';

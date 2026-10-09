@@ -287,7 +287,7 @@ import { subHours } from 'date-fns';
 import CheckIcon from '@/assets/icons/check.svg';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
-import type { SearchData } from '~/types/product';
+import type { SearchData } from '~~/types/product';
 import EmptyState from '~/components/global/EmptyState.vue';
 import { searchEmptyPreset } from '~/components/global/empty-state-presets';
 

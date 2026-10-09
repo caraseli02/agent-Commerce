@@ -1,5 +1,5 @@
-import { deleteMockPricing, requireMockPricingPermission } from '~/server/utils/mockPricing';
-import { UserPermissionsEnum } from '~/types/auth/permissions';
+import { deleteMockPricing, requireMockPricingPermission } from '~~/server/utils/mockPricing';
+import { UserPermissionsEnum } from '~~/types/auth/permissions';
 
 export default defineEventHandler((event) => {
   requireMockPricingPermission(event, UserPermissionsEnum.PriceSettingsDelete);

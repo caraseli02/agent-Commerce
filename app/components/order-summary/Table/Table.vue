@@ -29,8 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import type { CartProductsInterface } from '~/types/cart';
-import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
+import type { CartProductsInterface } from '~~/types/cart';
+import type { ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
 import { useCartStore } from '~/store/cartStore';
 import { useClientReady } from '~/composables/useClientReady';
 

@@ -3,7 +3,7 @@ import { fetchFeaturedProducts, fetchProductTab, fetchSearchProduct } from '~/co
 import { loadFeaturedProducts } from '~/composables/loadFeaturedProducts';
 import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
 import { loadSearchResults, searchResultsCacheKey, type SearchResultsQuery } from '~/composables/loadSearchResults';
-import type { ProductDetail, ProductInterface, ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
+import type { ProductDetail, ProductInterface, ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
 
 export function useProducts() {
   const config = useRuntimeConfig();

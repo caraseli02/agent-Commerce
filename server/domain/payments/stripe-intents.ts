@@ -4,7 +4,7 @@ import {
   getCheckoutDatabase,
   withCheckoutTransaction,
   type CheckoutDatabase,
-} from '~/server/infrastructure/checkout-database';
+} from '~~/server/infrastructure/checkout-database';
 
 export type StripePaymentIntent = Readonly<{
   id: string;

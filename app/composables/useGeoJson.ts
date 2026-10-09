@@ -1,4 +1,4 @@
-import type { LeafletMapDataType } from '~/types/geo';
+import type { LeafletMapDataType } from '~~/types/geo';
 
 let geoJsonCache: LeafletMapDataType | null = null;
 let geoJsonPromise: Promise<LeafletMapDataType> | null = null;

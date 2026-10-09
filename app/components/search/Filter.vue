@@ -68,7 +68,7 @@ import FiltersIcon from '@/assets/icons/filters.svg';
 import CheckIcon from '@/assets/icons/check.svg';
 import XIcon from '@/assets/icons/x.svg';
 import { useTrimText } from '@/composables/text';
-import type { FilterOptions, ProductFilters, SearchFiltersCategories } from '~/types/product';
+import type { FilterOptions, ProductFilters, SearchFiltersCategories } from '~~/types/product';
 
 defineEmits(['close', 'add-filter-option']);
 

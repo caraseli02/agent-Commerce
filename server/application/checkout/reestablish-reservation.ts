@@ -1,8 +1,8 @@
 import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
-import { inventory } from '~/server/domain/inventory';
-import { orders } from '~/server/domain/orders';
-import { payments } from '~/server/domain/payments';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { inventory } from '~~/server/domain/inventory';
+import { orders } from '~~/server/domain/orders';
+import { payments } from '~~/server/domain/payments';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 type ClaimRow = PersistedCheckoutState & {
   request_id: string;

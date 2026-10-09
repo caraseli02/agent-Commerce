@@ -9,10 +9,10 @@ const preferredOrder = ['/', '/products', '/shop', '/cart', '/checkout', '/about
 
 function toRoute(filePath) {
   const rel = path.relative(process.cwd(), filePath).replace(/\\/g, '/');
-  if (!rel.startsWith('pages/') || !rel.endsWith('.vue')) return null;
+  if (!rel.startsWith('app/pages/') || !rel.endsWith('.vue')) return null;
   if (rel.includes('[') || rel.includes(']')) return null;
 
-  const noExt = rel.slice('pages/'.length, -4);
+  const noExt = rel.slice('app/pages/'.length, -4);
   if (noExt === 'index') return '/';
   if (noExt.endsWith('/index')) return `/${noExt.slice(0, -6)}`;
   return `/${noExt}`;
@@ -31,7 +31,7 @@ async function walk(dir, acc = []) {
   return acc;
 }
 
-const files = await walk(path.join(process.cwd(), 'pages'));
+const files = await walk(path.join(process.cwd(), 'app', 'pages'));
 const staticRoutes = [...new Set(files.map(toRoute).filter(Boolean))];
 const ranked = preferredOrder.filter((route) => staticRoutes.includes(route));
 for (const route of staticRoutes) {

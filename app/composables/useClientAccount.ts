@@ -15,8 +15,8 @@ import {
   updateShippingAsCustomer as updateShippingAsCustomerApi,
   userCards as userCardsApi,
 } from '~/composables/api/user';
-import type { StripeCardInterface } from '~/types';
-import type { CardsResponse } from '~/types/auth/account-settings';
+import type { StripeCardInterface } from '~~/types';
+import type { CardsResponse } from '~~/types/auth/account-settings';
 
 function isStatusPayload(value: unknown): value is { status: string } {
   return Boolean(value && typeof value === 'object' && typeof (value as { status?: unknown }).status === 'string');

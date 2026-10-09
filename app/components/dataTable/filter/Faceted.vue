@@ -2,7 +2,7 @@
 import type { Column } from '@tanstack/vue-table';
 import type { Component } from 'vue';
 import { CheckIcon, PlusCircleIcon } from '@lucide/vue';
-import type { OrderStatus } from '~/types/order-summary/item';
+import type { OrderStatus } from '~~/types/order-summary/item';
 
 import { cn } from '@/lib/utils';
 

@@ -37,7 +37,7 @@
 import { storeToRefs } from 'pinia';
 import type { OrderInterface } from '~~/types';
 import DashboardIcon from '@/assets/icons/dashboard/dashboard-grid.svg';
-import { UserPermissionsEnum } from '~/types/auth/permissions';
+import { UserPermissionsEnum } from '~~/types/auth/permissions';
 import { useAuthStore } from '@/store/authStore';
 import { getMetadata } from '~/composables/api/customer-dashboard';
 

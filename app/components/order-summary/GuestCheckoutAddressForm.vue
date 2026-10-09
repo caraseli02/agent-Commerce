@@ -44,10 +44,10 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { CheckoutOrderDraft } from '~/types';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import type { CheckoutOrderDraft } from '~~/types';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 import GuestAddressFields from '~/components/order-summary/GuestAddressFields.vue';
-import { createEmptyGuestAddress } from '~/helpers/address.helper';
+import { createEmptyGuestAddress } from '~~/helpers/address.helper';
 
 const props = defineProps<{
   order: CheckoutOrderDraft;

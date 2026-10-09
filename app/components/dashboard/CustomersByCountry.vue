@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
 import { fetchCustomersByCountryWidget } from '~/composables/api/dashboard-admin';
-import type { CustomersByCountryInterface } from '~/types/dashboard/admin-users';
+import type { CustomersByCountryInterface } from '~~/types/dashboard/admin-users';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 

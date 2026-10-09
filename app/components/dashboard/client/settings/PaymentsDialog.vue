@@ -4,7 +4,7 @@ import { PlusCircleIcon } from '@lucide/vue';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
-import type { StripeCardInterface } from '~/types';
+import type { StripeCardInterface } from '~~/types';
 
 const formSchema = toTypedSchema(
   z.object({

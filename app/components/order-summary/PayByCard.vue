@@ -2,7 +2,7 @@
 import { AlertTriangle, CheckCircle2, Trash2Icon } from '@lucide/vue';
 import { useRouter } from '#app';
 import { usePaymentStore } from '~/store/paymentStore';
-import type { StripeCardInterface } from '~/types';
+import type { StripeCardInterface } from '~~/types';
 
 const paymentStore = usePaymentStore();
 

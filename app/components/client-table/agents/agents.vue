@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { columns } from './columns';
 import { fetchCustomersList } from '~/composables/api/dashboard-admin';
-import type { CustomerTableColumns, UserInterface } from '~/types/auth/user-interface';
+import type { CustomerTableColumns, UserInterface } from '~~/types/auth/user-interface';
 
 const emit = defineEmits<{
   showTotalItems: [val: number];

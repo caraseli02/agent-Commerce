@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CardsList from './CardsList.vue';
 import PaymentsDialog from './PaymentsDialog.vue';
-import type { StripeCardInterface } from '~/types';
+import type { StripeCardInterface } from '~~/types';
 
 const isDialogOpen = ref(false);
 const selectedCardInfo = ref({} as StripeCardInterface);

@@ -1,9 +1,9 @@
 import { useNuxtApp } from '#app';
 import type { $Fetch } from 'ofetch';
-import type { OrderStatus, MarkAsPaidRequestInterface, OrderRequestInterface, OrderRequestInterfaceResponse } from '~/types';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
-import type { PaginatedOrdersResponse, WidgetApiType, WidgetResponse } from '~/types/dashboard/admin-orders';
-import type { PlaceOrderInterface } from '~/types/order';
+import type { OrderStatus, MarkAsPaidRequestInterface, OrderRequestInterface, OrderRequestInterfaceResponse } from '~~/types';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
+import type { PaginatedOrdersResponse, WidgetApiType, WidgetResponse } from '~~/types/dashboard/admin-orders';
+import type { PlaceOrderInterface } from '~~/types/order';
 
 const RESOURCE = '/orders';
 const ORDERS_DASHBOARD_RESOURCE = '/dashboard/orders/admin';

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { InfoIcon, SettingsIcon } from '@lucide/vue';
 import { computed } from 'vue';
-import { formatReviewerDate } from '~/helpers/reviewer-dates';
-import { PaymentTypeEnum } from '~/types';
-import type { BankInfo, CardInfo } from '~/types';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import { formatReviewerDate } from '~~/helpers/reviewer-dates';
+import { PaymentTypeEnum } from '~~/types';
+import type { BankInfo, CardInfo } from '~~/types';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 
 const props = defineProps<{
   customerDetails: {

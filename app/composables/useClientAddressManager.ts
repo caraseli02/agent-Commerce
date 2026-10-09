@@ -5,8 +5,8 @@ import { z } from 'zod';
 
 import { useCountries } from '~/composables/useCountries';
 import { useToast } from '~/components/ui/toast';
-import { updateStoreDetails } from '~/helpers/auth-store.helper';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import { updateStoreDetails } from '~~/helpers/auth-store.helper';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 interface Country {
   label: string;

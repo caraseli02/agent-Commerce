@@ -2,8 +2,8 @@
 import { subHours } from 'date-fns';
 import type { Table } from '@tanstack/vue-table';
 import { columns } from './columns';
-import { OrderStatus } from '~/types';
-import type { OrderInterface, OrderTableColumns } from '~/types';
+import { OrderStatus } from '~~/types';
+import type { OrderInterface, OrderTableColumns } from '~~/types';
 import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.enum';
 import { fetchOrders } from '~/composables/api/orders';
 

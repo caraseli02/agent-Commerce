@@ -25,10 +25,10 @@
 </template>
 
 <script setup lang="ts">
-import { ControlPanelTabsEnum } from '~/types/dashboard/control-panel';
-import type { ControlPanelTabs } from '~/types/dashboard/control-panel';
-import type { UserInterface } from '~/types/auth/user-interface';
-import { AccountType } from '~/types';
+import { ControlPanelTabsEnum } from '~~/types/dashboard/control-panel';
+import type { ControlPanelTabs } from '~~/types/dashboard/control-panel';
+import type { UserInterface } from '~~/types/auth/user-interface';
+import { AccountType } from '~~/types';
 import { useControlPanel } from '~/composables/useControlPanel';
 
 const { fetchCustomerInformation } = useControlPanel();

@@ -4,7 +4,7 @@ import { CaretSortIcon, CheckIcon } from '@radix-icons/vue';
 import { storeToRefs } from 'pinia';
 import { cn } from '@/lib/utils';
 import { usePricingStore } from '~/store/pricingStore';
-import type { SmartPricingOption } from '~/model/prices/price-settings.interface';
+import type { SmartPricingOption } from '~~/model/prices/price-settings.interface';
 
 const pricingStore = usePricingStore();
 const { range } = storeToRefs(pricingStore);

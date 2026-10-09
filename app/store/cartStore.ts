@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { fetchCartList } from '~/composables/api/cart';
-import type { CartInterface } from '~/types/cart';
+import type { CartInterface } from '~~/types/cart';
 import { calculateCartSubtotal, mapCartItems } from '~/utils/cart';
 
-import type { CheckoutFailure } from '~/types/order/checkout-error';
+import type { CheckoutFailure } from '~~/types/order/checkout-error';
 
 type PersistStorage = {
   getItem: (key: string) => string | null;

@@ -1,5 +1,5 @@
-import { AccountType } from '~/types';
-import type { AccountTypeInfo } from '~/types';
+import { AccountType } from '~~/types';
+import type { AccountTypeInfo } from '~~/types';
 
 export const accountType = [
   { value: AccountType.Personal, label: 'Personal', badge: { bg: 'bg-green-600', text: 'P' } },

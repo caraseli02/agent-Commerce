@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 import { useCustomerDashboard } from '@/composables/useCustomerDashboard';
 

@@ -121,7 +121,7 @@
 
 <script setup lang="ts">
 import SearchIcon from '@/assets/icons/search.svg';
-import { categoryBrowseUrl } from '~/helpers/categoryPath.helper';
+import { categoryBrowseUrl } from '~~/helpers/categoryPath.helper';
 
 const router = useRouter();
 const { categories, getCategories } = useCategories();

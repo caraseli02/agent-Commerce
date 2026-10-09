@@ -1,5 +1,5 @@
 import { fetchSingleProduct } from '~/composables/api/products';
-import type { ProductDetail, ProductDetailResponse } from '~/types/product';
+import type { ProductDetail, ProductDetailResponse } from '~~/types/product';
 
 export type ProductDetailLoader = (slug: string) => Promise<ProductDetailResponse>;
 

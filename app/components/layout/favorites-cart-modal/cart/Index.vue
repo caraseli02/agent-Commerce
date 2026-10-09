@@ -49,7 +49,7 @@
 import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
 import { useCart } from '~/composables/useCart';
-import type { CartProductsInterface } from '~/types/cart';
+import type { CartProductsInterface } from '~~/types/cart';
 import CartProductItem, { type CartLineItem } from '~/components/layout/favorites-cart-modal/cart/CartProductItem.vue';
 import { useCartStore } from '~/store/cartStore';
 import { cartReadCacheKey, loadCartRead } from '~/composables/loadCartRead';

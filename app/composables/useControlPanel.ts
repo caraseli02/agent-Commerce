@@ -22,7 +22,7 @@ import {
 import { fetchCustomerInformation as fetchCustomerInformationApi } from '~/composables/api/customer-profile';
 import { validateAddress as validateAddressApi } from '~/composables/api/orders';
 import { resetPasswordLink as resetPasswordLinkApi } from '~/composables/api/user';
-import type { AccountAdminSettings, CustomerCreditInterface, DiscountInterface } from '~/types/auth/account-settings';
+import type { AccountAdminSettings, CustomerCreditInterface, DiscountInterface } from '~~/types/auth/account-settings';
 import type {
   AddressInterface,
   BillingAddressInterface,
@@ -30,8 +30,8 @@ import type {
   ContactDetails,
   ShippingAddressInterface,
   UserInterface,
-} from '~/types/auth/user-interface';
-import type { BillingAddressesData, ShippingAddressesData } from '~/types/dashboard/control-panel';
+} from '~~/types/auth/user-interface';
+import type { BillingAddressesData, ShippingAddressesData } from '~~/types/dashboard/control-panel';
 
 type StatusPayload<T> = { status: string; data: T };
 

@@ -1,4 +1,4 @@
-import type { CountryReference } from '~/types/geo';
+import type { CountryReference } from '~~/types/geo';
 
 let countriesCache: CountryReference[] | null = null;
 let countriesPromise: Promise<CountryReference[]> | null = null;

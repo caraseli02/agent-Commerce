@@ -3,9 +3,9 @@ import { PlusIcon } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import QuickBuyIcon from '@/assets/icons/quick-buy-2.svg';
 import CartIcon from '@/assets/icons/cart.svg';
-import type { AddToCartRequestInterface, CartProductsInterface } from '~/types/cart';
+import type { AddToCartRequestInterface, CartProductsInterface } from '~~/types/cart';
 import { useCart } from '~/composables/useCart';
-import type { QuickBuyItem } from '~/types/product';
+import type { QuickBuyItem } from '~~/types/product';
 const { addToCart: addCartItem } = useCart();
 const products = ref<Omit<QuickBuyItem, 'index'>[]>([
   { code: '', quantity: 1 },

@@ -4,19 +4,19 @@ import { useRouter, useRuntimeConfig } from '#app';
 import { useUiStore } from '~/store/uiStore';
 import { addEntityToCart, removeEntityFromCart, updateEntityFromCart } from '~/composables/api/cart';
 import { getShippingPricesForOrder } from '~/composables/api/orders';
-import { clampCartQuantity } from '~/helpers/cart-pricing';
+import { clampCartQuantity } from '~~/helpers/cart-pricing';
 import type {
   AddToCartRequestInterface,
   CartInterface,
   CartProductsInterface,
   DeleteProductCartRequestInterface,
   UpdateProductCartRequestInterface,
-} from '~/types/cart';
+} from '~~/types/cart';
 import { useCartStore } from '~/store/cartStore';
-import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
+import type { ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
 import { loadCartRead } from '~/composables/loadCartRead';
 import { applyOptimisticCartAdd, calculateCartDiscount, calculateCartSubtotal, mapCartItems } from '~/utils/cart';
-import { canSkipAuthenticatedUser } from '~/helpers/mock-integration';
+import { canSkipAuthenticatedUser } from '~~/helpers/mock-integration';
 
 export type AddToCartResult = {
   status: 'success';

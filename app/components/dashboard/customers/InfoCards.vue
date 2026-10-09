@@ -106,7 +106,7 @@ import {
   fetchCustomerLastOrder,
   fetchCustomerTotalSpent,
 } from '~/composables/api/customer-profile';
-import type { OrderInterface } from '~/types';
+import type { OrderInterface } from '~~/types';
 
 const error = ref({
   lastOrder: false,

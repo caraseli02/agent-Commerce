@@ -1,8 +1,8 @@
 import { computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCategories } from '@/composables/useCategories';
-import { categoryBrowseUrl } from '~/helpers/categoryPath.helper';
-import type { TaxonomyInterface } from '~/types/dashboard/categories';
+import { categoryBrowseUrl } from '~~/helpers/categoryPath.helper';
+import type { TaxonomyInterface } from '~~/types/dashboard/categories';
 
 export function useCategoriesNavigation() {
   const { categories } = useCategories();

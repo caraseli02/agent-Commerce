@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { A11y, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import type { ProductInterface } from '~/types/product';
+import type { ProductInterface } from '~~/types/product';
 
 const props = defineProps<{
   productsList: ProductInterface[];

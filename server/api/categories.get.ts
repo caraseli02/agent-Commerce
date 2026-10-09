@@ -1,6 +1,6 @@
-import { buildDemoTaxonomyTree } from '~/data/demoTaxonomyTree';
-import type { TaxonomyInterface } from '~/types/dashboard/categories';
-import { defineAnonymousCatalogHandler } from '~/server/utils/anonymousCatalogCache';
+import { buildDemoTaxonomyTree } from '~~/data/demoTaxonomyTree';
+import type { TaxonomyInterface } from '~~/types/dashboard/categories';
+import { defineAnonymousCatalogHandler } from '~~/server/utils/anonymousCatalogCache';
 
 interface CategoryResponseNode {
   _id: string;

@@ -1,4 +1,4 @@
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
+import { getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
 
 export default defineEventHandler((event) => {
   const headers = getHeaders(event);

@@ -112,7 +112,7 @@ import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import CheckIcon from '@/assets/icons/check-circle.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
-import type { BillingAddressInterface } from '~/types/auth/user-interface';
+import type { BillingAddressInterface } from '~~/types/auth/user-interface';
 import { useControlPanel } from '~/composables/useControlPanel';
 
 const { deleteBilling, loadBillingAddresses, updateBilling } = useControlPanel();

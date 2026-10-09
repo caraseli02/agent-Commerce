@@ -79,12 +79,12 @@ import ArrowUpIcon from '@/assets/icons/dashboard/arrow-up.svg';
 import ChevronIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import ArrowRightIcon from '@/assets/icons/dashboard/arrow-right.svg';
 import { fetchNewCustomersWidget } from '~/composables/api/dashboard-admin';
-import { AccountStatusEnum, type UserInterface } from '~/types/auth/user-interface';
+import { AccountStatusEnum, type UserInterface } from '~~/types/auth/user-interface';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import { AccountType, getAccountTypeById } from '~/types';
-import type { DashboardCustomerTableItem } from '~/types';
-import { formatReviewerDate } from '~/helpers/reviewer-dates';
+import { AccountType, getAccountTypeById } from '~~/types';
+import type { DashboardCustomerTableItem } from '~~/types';
+import { formatReviewerDate } from '~~/helpers/reviewer-dates';
 
 const showOptions = ref(false);
 const selectedOption = ref('This Week');

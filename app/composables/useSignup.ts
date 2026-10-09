@@ -1,6 +1,6 @@
 import { registerClassic } from '~/composables/api/auth';
 import { validateAddress as validateAddressApi } from '~/composables/api/orders';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 import type { FirebaseBusinessAccount as SignupBusinessPayload, FirebasePersonalAccount as SignupPersonalPayload } from '~~/types';
 
 type SignupPayload = SignupPersonalPayload | SignupBusinessPayload;

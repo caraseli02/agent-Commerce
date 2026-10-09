@@ -1,5 +1,5 @@
-import { useAuthStore } from '~~/store/authStore';
-import { UserPermissionsEnum } from '~/types/auth/permissions';
+import { useAuthStore } from '~/store/authStore';
+import { UserPermissionsEnum } from '~~/types/auth/permissions';
 import { getMockPermissionsByUserId, parseMockToken } from '~/utils/mockAuth';
 
 const getRequiredPermission = (path: string) => {

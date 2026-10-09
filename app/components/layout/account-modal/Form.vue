@@ -80,9 +80,9 @@
 <script setup lang="ts">
 import SignINIcon from '@/assets/icons/menu/in.svg';
 import { AccountRole, type SigninResponse, type UserInfoJWT } from '~~/types';
-import type { UserPermissionsEnum } from '~/types/auth/permissions';
-import { useAuthStore } from '~~/store/authStore';
-import type { UserInterface } from '~/types/auth/user-interface';
+import type { UserPermissionsEnum } from '~~/types/auth/permissions';
+import { useAuthStore } from '~/store/authStore';
+import type { UserInterface } from '~~/types/auth/user-interface';
 import { useCartStore } from '~/store/cartStore';
 import { useNotificationStore } from '~/store/notificationStore';
 import { usePricingStore } from '~/store/pricingStore';

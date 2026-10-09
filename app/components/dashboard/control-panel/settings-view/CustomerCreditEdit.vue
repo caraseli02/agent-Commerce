@@ -161,12 +161,12 @@
 
 <script setup lang="ts">
 import { addDays } from 'date-fns';
-import { formatReviewerDate } from '~/helpers/reviewer-dates';
+import { formatReviewerDate } from '~~/helpers/reviewer-dates';
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import TrashIcon from '@/assets/icons/dashboard/trash.svg';
 import FreezeIcon from '@/assets/icons/dashboard/freeze.svg';
 import CalendarIcon from '@/assets/icons/dashboard/calendar.svg';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 import { useMockMode } from '~/composables/useMockMode';
 import { useControlPanel } from '~/composables/useControlPanel';
 

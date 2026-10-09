@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { InfoIcon } from '@lucide/vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
-import { OrderType } from '~/types';
-import type { OrderInterface, OrderRequestInterface } from '~/types';
+import { OrderType } from '~~/types';
+import type { OrderInterface, OrderRequestInterface } from '~~/types';
 import { useAuthStore } from '~/store/authStore';
-import { toPersistedOrderLineMoneyView } from '~/helpers/checkout-quote';
-import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
-import { resolveOrderLineIdentity } from '~/helpers/order-line-identity';
+import { toPersistedOrderLineMoneyView } from '~~/helpers/checkout-quote';
+import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~~/helpers/order-money';
+import { resolveOrderLineIdentity } from '~~/helpers/order-line-identity';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const lgAndLarger = breakpoints.greaterOrEqual('lg'); // sm and larger

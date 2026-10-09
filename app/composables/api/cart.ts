@@ -6,7 +6,7 @@ import type {
   CartResponse,
   DeleteProductCartRequestInterface,
   UpdateProductCartRequestInterface,
-} from '~/types/cart';
+} from '~~/types/cart';
 
 const RESOURCE = '/cart';
 

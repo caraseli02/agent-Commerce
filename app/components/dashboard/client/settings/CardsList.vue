@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import type { StripeCardInterface } from '~/types';
+import type { StripeCardInterface } from '~~/types';
 import { useClientAccount } from '~/composables/useClientAccount';
 
 const { loadUserCards, removeCard, setDefaultCard } = useClientAccount();

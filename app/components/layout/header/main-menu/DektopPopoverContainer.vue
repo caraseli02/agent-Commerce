@@ -10,7 +10,7 @@ import PowerSupplyIcon from '@/assets/icons/header/power-supply.svg';
 import CasesIcon from '@/assets/icons/header/cases.svg';
 import ToolsIcon from '@/assets/icons/header/tools.svg';
 import IndustrialFurnitureIcon from '@/assets/icons/header/industrial-furniture.svg';
-import type { TaxonomyInterface } from '~/types/dashboard/categories';
+import type { TaxonomyInterface } from '~~/types/dashboard/categories';
 
 const { selectedCategories, onCategoryClick, browseCategory } = useCategoriesNavigation();
 const { categories, getCategories, isLoading } = useCategories();

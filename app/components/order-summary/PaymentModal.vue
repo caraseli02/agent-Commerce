@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { usePaymentStore } from '~/store/paymentStore';
-import { PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails, type StripeCardInterface } from '~/types';
+import { PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails, type StripeCardInterface } from '~~/types';
 import { usePaymentCards } from '~/composables/usePaymentCards';
 import { updateCardAsDefault } from '~/composables/api/client-settings';
 

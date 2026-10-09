@@ -15,12 +15,12 @@ import type {
   CustomerDashboardActivityData,
   ProductBannerInterface,
   ViewHistoryProductInterface,
-} from '~/types/dashboard/client-dashboard';
-import type { BillingAddressInterface, ShippingAddressInterface, UserInterface } from '~/types/auth/user-interface';
-import type { ProductInterface } from '~/types/product';
-import { AccountType } from '~/types';
-import type { StripeCardInterface } from '~/types';
-import { resolveProductBrowsePricing } from '~/helpers/prices.helper';
+} from '~~/types/dashboard/client-dashboard';
+import type { BillingAddressInterface, ShippingAddressInterface, UserInterface } from '~~/types/auth/user-interface';
+import type { ProductInterface } from '~~/types/product';
+import { AccountType } from '~~/types';
+import type { StripeCardInterface } from '~~/types';
+import { resolveProductBrowsePricing } from '~~/helpers/prices.helper';
 import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 interface OrderIdItem {

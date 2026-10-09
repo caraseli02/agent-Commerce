@@ -5,7 +5,7 @@ import type {
   PaginatedCustomersInterface,
   ReturningCustomersInterface,
   TotalCustomersInterface,
-} from '~/types/dashboard/admin-users';
+} from '~~/types/dashboard/admin-users';
 
 const USER_RESOURCE = '/user';
 const DASHBOARD_USERS_RESOURCE = '/dashboard/users';

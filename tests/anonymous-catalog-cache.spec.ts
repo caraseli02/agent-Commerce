@@ -1,8 +1,8 @@
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, createError, createRouter, defineEventHandler, toNodeListener } from 'h3';
-import cachePolicy from '~/server/middleware/api-cache-policy';
-import { defineAnonymousCatalogHandler } from '~/server/utils/anonymousCatalogCache';
+import cachePolicy from '~~/server/middleware/api-cache-policy';
+import { defineAnonymousCatalogHandler } from '~~/server/utils/anonymousCatalogCache';
 
 const state = vi.hoisted(() => ({ entries: new Map<string, unknown>(), mockMode: true, errors: [] as unknown[] }));
 vi.mock('nitropack/runtime/internal/cache', async () => {
@@ -189,8 +189,8 @@ describe('anonymous catalog using the installed Nitro SWR implementation', () =>
   });
 
   it('bounds successful case aliases and never saves unknown fixture IDs through the real product handlers', async () => {
-    const productId = (await import('~/server/api/products/[id].get')).default;
-    const productPath = (await import('~/server/api/products/[path].get')).default;
+    const productId = (await import('~~/server/api/products/[id].get')).default;
+    const productPath = (await import('~~/server/api/products/[path].get')).default;
     const servers = [
       createServer(toNodeListener(createApp().use(cachePolicy).use(createRouter().get('/api/products/:id', productId)))),
       createServer(toNodeListener(createApp().use(cachePolicy).use(createRouter().get('/api/products/:path', productPath)))),

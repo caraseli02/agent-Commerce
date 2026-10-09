@@ -1,7 +1,7 @@
 import { useNuxtApp } from '#app';
 import { useAuthStore } from '~/store/authStore';
-import { AccountRole } from '~/types';
-import type { PriceSettingsResponseInterface } from '~/model/prices/price-settings.interface';
+import { AccountRole } from '~~/types';
+import type { PriceSettingsResponseInterface } from '~~/model/prices/price-settings.interface';
 
 const MAIN = '/prices';
 

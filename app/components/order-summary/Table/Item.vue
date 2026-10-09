@@ -29,8 +29,8 @@
 
 <script setup lang="ts">
 import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
-import type { CartProductsInterface } from '~/types/cart';
-import type { OrderSummaryQuoteLine } from '~/helpers/order-summary-line-money';
+import type { CartProductsInterface } from '~~/types/cart';
+import type { OrderSummaryQuoteLine } from '~~/helpers/order-summary-line-money';
 
 const props = defineProps<{
   item: CartProductsInterface;

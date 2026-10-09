@@ -177,17 +177,17 @@
 </template>
 
 <script setup lang="ts">
-import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
+import { formatReviewerDate, formatReviewerDateTime } from '~~/helpers/reviewer-dates';
 import Emitter from 'tiny-emitter/instance.js';
 import { LockKeyholeIcon } from '@lucide/vue';
 import Avatar from '@/assets/icons/dashboard/avatar.png';
-import { AccountStatusEnum, type AddressInterface, type UserInterface } from '~/types/auth/user-interface';
-import { AccountRole, AccountType, getAccountTypeById } from '~/types';
-import type { DashboardCustomerTableItem } from '~/types';
+import { AccountStatusEnum, type AddressInterface, type UserInterface } from '~~/types/auth/user-interface';
+import { AccountRole, AccountType, getAccountTypeById } from '~~/types';
+import type { DashboardCustomerTableItem } from '~~/types';
 import ThreeDotMenu from '~/components/shared/tables/micro/row-items/ThreeDotMenu.vue';
 import DemoTooltip from '~/components/global/DemoTooltip.vue';
 import { useCountries } from '~/composables/useCountries';
-import type { CountryInterface } from '~/types/dashboard/control-panel';
+import type { CountryInterface } from '~~/types/dashboard/control-panel';
 
 const { countries, load: loadCountries } = useCountries();
 

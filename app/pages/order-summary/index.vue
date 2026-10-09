@@ -96,10 +96,10 @@ import { useHead, useRouter, useRuntimeConfig } from '#app';
 import OrderStockType from '~/components/order-summary/OrderStockType.vue';
 
 // Types and Interfaces
-import type { CartProductsInterface } from '~/types/cart';
-import { OrderType, PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails } from '~/types';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
-import type { UserInterface } from '~/types/auth/user-interface';
+import type { CartProductsInterface } from '~~/types/cart';
+import { OrderType, PaymentTypeEnum, type CheckoutOrderDraft, type PaymentDetails } from '~~/types';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
+import type { UserInterface } from '~~/types/auth/user-interface';
 
 // Composables
 import { useUser } from '~/composables/useUser';
@@ -114,10 +114,10 @@ import { useAuthStore } from '~/store/authStore';
 import { useCheckoutStore } from '~/store/checkoutStore';
 
 // Utilities
-import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import { createEmptyGuestAddress, isCompleteGuestContact, isCompleteSavedAddress } from '~/helpers/address.helper';
-import { canSkipAuthenticatedUser, isDemoCheckoutAssistEnabled } from '~/helpers/mock-integration';
-import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
+import { parseProductPriceConfiguration } from '~~/helpers/prices.helper';
+import { createEmptyGuestAddress, isCompleteGuestContact, isCompleteSavedAddress } from '~~/helpers/address.helper';
+import { canSkipAuthenticatedUser, isDemoCheckoutAssistEnabled } from '~~/helpers/mock-integration';
+import type { ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
 
 // Setup and Initialization
 const router = useRouter();

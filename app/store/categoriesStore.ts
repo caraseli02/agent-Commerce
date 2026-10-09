@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { CategoriesMap } from '~/types/dashboard/categories';
+import type { CategoriesMap } from '~~/types/dashboard/categories';
 
 export const useCategoriesStore = defineStore(
   'categories-store',

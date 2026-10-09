@@ -50,7 +50,7 @@ import PersonalCardIcon from '@/assets/icons/menu/personalcard.svg';
 import briefcaseIcon from '@/assets/icons/menu/briefcase.svg';
 import DemoTooltip from '~/components/global/DemoTooltip.vue';
 import { useAuthStore } from '~/store/authStore';
-import { AccountRole, AccountType } from '~/types';
+import { AccountRole, AccountType } from '~~/types';
 
 const authStore = useAuthStore();
 

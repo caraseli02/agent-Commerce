@@ -34,7 +34,7 @@ import { computed, ref, watch } from 'vue';
 import TrashOutline from '@/assets/icons/trash-outline.svg';
 import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import { useCartStore } from '~/store/cartStore';
-import type { CartProductsInterface } from '~/types/cart';
+import type { CartProductsInterface } from '~~/types/cart';
 
 const checkAllBox = ref(false);
 const isOpen = ref(false);

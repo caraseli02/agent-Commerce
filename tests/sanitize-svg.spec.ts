@@ -3,12 +3,12 @@
  *
  * Unit tests for the dedicated `sanitizeSvg` utility.
  *
- * These exercise the upload/emit boundary seam in `utils/sanitizeSvg.ts` —
+ * These exercise the upload/emit boundary seam in `app/utils/sanitizeSvg.ts` —
  * NOT scattered `v-html` call sites — so they can run headless without a
  * full Nuxt harness.
  */
 import { describe, expect, it } from 'vitest';
-import { sanitizeSvg } from '../utils/sanitizeSvg';
+import { sanitizeSvg } from '../app/utils/sanitizeSvg';
 
 describe('sanitizeSvg', () => {
   it('returns empty string for null/undefined/empty input', () => {

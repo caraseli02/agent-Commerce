@@ -1,4 +1,4 @@
-import type { ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
+import type { ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
 
 export const consumeSimilarSearchTransfer = (
   isSimilarSearch: boolean,

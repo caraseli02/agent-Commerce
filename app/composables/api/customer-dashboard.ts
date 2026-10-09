@@ -7,8 +7,8 @@ import type {
   TotalOrdersResponse,
   TotalReturnsResponse,
   ViewHistoryResponse,
-} from '~/types/dashboard/client-dashboard';
-import type { UserDetailsResponse } from '~/types';
+} from '~~/types/dashboard/client-dashboard';
+import type { UserDetailsResponse } from '~~/types';
 
 const MAIN_RESOURCE = '/dashboard/client';
 const ORDERS_RESOURCE = '/dashboard/client/orders';

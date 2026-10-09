@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { DotIcon, FilePlus2, FileSpreadsheet, MapPin, MoreVertical, Package, Truck } from '@lucide/vue';
 import { cn } from '~/lib/utils';
-import { OrderStatus, PaymentStatusEnum, type OrderInterface } from '~/types';
-import { getPaymentStatusById, unknownPaymentStatusLabel } from '~/types/order-summary/item';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import { OrderStatus, PaymentStatusEnum, type OrderInterface } from '~~/types';
+import { getPaymentStatusById, unknownPaymentStatusLabel } from '~~/types/order-summary/item';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 // interface OrderStatus {
 //     processing: boolean;

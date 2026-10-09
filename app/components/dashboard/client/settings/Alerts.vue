@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import AlertsItem from './AlertsItem.vue';
-import { AlertAndNotificationType } from '~/types/dashboard/control-panel';
+import { AlertAndNotificationType } from '~~/types/dashboard/control-panel';
 import { useAuthStore } from '~/store/authStore';
-import { AccountType } from '~/types';
+import { AccountType } from '~~/types';
 import { useClientAccount } from '~/composables/useClientAccount';
 
 const { fetchGeneralSettings } = useClientAccount();

@@ -10,8 +10,8 @@ import {
   toggleCategoryStatus as toggleCategoryStatusRequest,
   updateCategory as updateCategoryRequest,
 } from '~/composables/api/categories';
-import type { ICreatePayload, TaxonomyInterface } from '~/types/dashboard/categories';
-import { buildDemoTaxonomyTree } from '~/data/demoTaxonomyTree';
+import type { ICreatePayload, TaxonomyInterface } from '~~/types/dashboard/categories';
+import { buildDemoTaxonomyTree } from '~~/data/demoTaxonomyTree';
 
 const selectedCategories = ref<string[]>([]);
 const showDeleteAlert = ref(false);

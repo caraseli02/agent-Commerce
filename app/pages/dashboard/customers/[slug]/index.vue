@@ -74,8 +74,8 @@
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance.js';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
-import { customerCreditHelper } from '~/helpers/customer-credit.helper';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
+import { customerCreditHelper } from '~~/helpers/customer-credit.helper';
 import { useControlPanel } from '~/composables/useControlPanel';
 
 const { fetchCustomerCredit } = useControlPanel();

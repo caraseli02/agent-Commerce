@@ -252,7 +252,7 @@
 <script setup lang="ts">
 import { differenceInDays, differenceInHours } from 'date-fns';
 import { storeToRefs } from 'pinia';
-import { AccountRole, AccountType } from '../../types';
+import { AccountRole, AccountType } from '~~/types';
 import DashboardAvatar from '@/assets/icons/dashboard/avatar.png';
 import BurgerIcon from '@/assets/icons/dashboard/burger.svg';
 import SearchIcon from '@/assets/icons/dashboard/search.svg';
@@ -262,10 +262,10 @@ import SettingsIcon from '@/assets/icons/dashboard/setting.svg';
 import SignOutIcon from '@/assets/icons/dashboard/sign-out.svg';
 import NotificationIcon from '@/assets/icons/dashboard/notification-ringing.svg';
 import XIcon from '@/assets/icons/dashboard/x.svg';
-import type { Notification } from '~/types/dashboard/notification';
+import type { Notification } from '~~/types/dashboard/notification';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
-import type { UserInterface } from '~/types/auth/user-interface';
+import type { UserInterface } from '~~/types/auth/user-interface';
 import {
   deleteNotificationById,
   fetchGetNotifications,

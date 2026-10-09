@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { readOrderPaymentState } from '~/server/application/checkout/read-order-payment-state';
-import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
-import { commitRefundCompensation } from '~/server/application/checkout/commit-refund-compensation';
-import { requireRefundCompensationRecovery } from '~/server/application/checkout/require-refund-compensation-recovery';
-import { orders } from '~/server/domain/orders';
-import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { readOrderPaymentState } from '~~/server/application/checkout/read-order-payment-state';
+import { finalizePaidCheckout } from '~~/server/application/checkout/finalize-paid-checkout';
+import { commitRefundCompensation } from '~~/server/application/checkout/commit-refund-compensation';
+import { requireRefundCompensationRecovery } from '~~/server/application/checkout/require-refund-compensation-recovery';
+import { orders } from '~~/server/domain/orders';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 const paymentId = 'pay-paid-finalization';
 const orderId = 'ord-paid-finalization';

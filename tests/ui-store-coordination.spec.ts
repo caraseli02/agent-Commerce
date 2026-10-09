@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { mapCartItems } from '../utils/cart';
-import type { CartInterface, CartProductsInterface } from '~/types/cart';
+import { mapCartItems } from '../app/utils/cart';
+import type { CartInterface, CartProductsInterface } from '~~/types/cart';
 import { __setMockApiClient, __setMockCookie, __setMockRouterPush, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const product = {
@@ -45,8 +45,8 @@ describe('buyer-path store coordination (no emitter bus)', () => {
   });
 
   it('requests the account modal through uiStore when guests need to sign in', async () => {
-    const { useCart } = await import('../composables/useCart');
-    const { useUiStore } = await import('../store/uiStore');
+    const { useCart } = await import('../app/composables/useCart');
+    const { useUiStore } = await import('../app/store/uiStore');
     const uiStore = useUiStore();
     const { addToCart } = useCart();
 
@@ -57,9 +57,9 @@ describe('buyer-path store coordination (no emitter bus)', () => {
   });
 
   it('clears cart state and notification unread count on sign out', async () => {
-    const { useAuthStore } = await import('../store/authStore');
-    const { useCartStore } = await import('../store/cartStore');
-    const { useNotificationStore } = await import('../store/notificationStore');
+    const { useAuthStore } = await import('../app/store/authStore');
+    const { useCartStore } = await import('../app/store/cartStore');
+    const { useNotificationStore } = await import('../app/store/notificationStore');
 
     const authStore = useAuthStore();
     const cartStore = useCartStore();
@@ -82,8 +82,8 @@ describe('buyer-path store coordination (no emitter bus)', () => {
       throw new Error(`Unexpected API request: ${resource}`);
     });
 
-    const { useAuthStore } = await import('../store/authStore');
-    const { useNotificationStore } = await import('../store/notificationStore');
+    const { useAuthStore } = await import('../app/store/authStore');
+    const { useNotificationStore } = await import('../app/store/notificationStore');
     const authStore = useAuthStore();
     const notificationStore = useNotificationStore();
 

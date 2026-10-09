@@ -1,20 +1,20 @@
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { createApp, createError, createRouter, defineEventHandler, getHeaders, getRouterParam, toNodeListener } from 'h3';
-import { createRefreshOrderPayment } from '~/server/application/checkout/refresh-order-payment';
-import { readOrderPaymentState } from '~/server/application/checkout/read-order-payment-state';
-import { commitRefundCompensation } from '~/server/application/checkout/commit-refund-compensation';
-import { orders } from '~/server/domain/orders';
-import { cart } from '~/server/domain/cart';
-import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
-import { inventory } from '~/server/domain/inventory';
-import { createStripeIntentAdapter } from '~/server/domain/payments';
-import type { StripeIntentProvider, StripePaymentIntent } from '~/server/domain/payments/stripe-intents';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
-import { createMockToken } from '~/server/utils/mockUsers';
+import { createRefreshOrderPayment } from '~~/server/application/checkout/refresh-order-payment';
+import { readOrderPaymentState } from '~~/server/application/checkout/read-order-payment-state';
+import { commitRefundCompensation } from '~~/server/application/checkout/commit-refund-compensation';
+import { orders } from '~~/server/domain/orders';
+import { cart } from '~~/server/domain/cart';
+import { finalizePaidCheckout } from '~~/server/application/checkout/finalize-paid-checkout';
+import { inventory } from '~~/server/domain/inventory';
+import { createStripeIntentAdapter } from '~~/server/domain/payments';
+import type { StripeIntentProvider, StripePaymentIntent } from '~~/server/domain/payments/stripe-intents';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
+import { createMockToken } from '~~/server/utils/mockUsers';
 
 const stripe = vi.hoisted(() => ({ enabled: vi.fn(() => true), reconcilePayment: vi.fn() }));
-vi.mock('~/server/application/checkout/stripe-payment', () => ({
+vi.mock('~~/server/application/checkout/stripe-payment', () => ({
   stripePaymentsEnabled: stripe.enabled,
   stripePayments: { reconcilePayment: stripe.reconcilePayment },
 }));
@@ -63,7 +63,7 @@ describe('owner-scoped refresh/return over real HTTP and PostgreSQL', () => {
     vi.stubGlobal('getRouterParam', getRouterParam);
     vi.stubGlobal('createError', createError);
     vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: mockModeEnabled } }));
-    const route = (await import('~/server/api/orders/[id]/refresh-payment.post')).default;
+    const route = (await import('~~/server/api/orders/[id]/refresh-payment.post')).default;
     const router = createRouter().post('/api/orders/:id/refresh-payment', route);
     const app = createApp().use(router);
     server = createServer(toNodeListener(app));

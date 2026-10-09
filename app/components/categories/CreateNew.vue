@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useCategories } from '@/composables/useCategories';
 import UiSelectContent from '~/components/ui/select/SelectContent.vue';
-import type { ICreatePayload } from '~/types/dashboard/categories';
+import type { ICreatePayload } from '~~/types/dashboard/categories';
 
 const title = ref('');
 const icon = ref('');

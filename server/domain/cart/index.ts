@@ -1,5 +1,5 @@
-import type { CartInterface } from '~/types/cart';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import type { CartInterface } from '~~/types/cart';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 export type CartRevision = string;
 

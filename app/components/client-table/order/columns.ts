@@ -1,8 +1,8 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import { storeToRefs } from 'pinia';
 import { statusColors } from './options';
-import { AccountRole } from '~/types';
-import type { OrderTableColumns } from '~/types';
+import { AccountRole } from '~~/types';
+import type { OrderTableColumns } from '~~/types';
 import RowActions from '~/components/dataTable/RowActions.vue';
 import type { ActionOptionsConfiguration } from '~/components/dataTable/RowActions.vue';
 import IdCell from '~/components/dataTable/IdCell.vue';

@@ -90,10 +90,10 @@
 
 <script setup lang="ts">
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import { ControlPanelLabels, ControlPanelTabsEnum } from '~/types/dashboard/control-panel';
-import { AccountType } from '~/types';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
-import { customerCreditHelper } from '~/helpers/customer-credit.helper';
+import { ControlPanelLabels, ControlPanelTabsEnum } from '~~/types/dashboard/control-panel';
+import { AccountType } from '~~/types';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
+import { customerCreditHelper } from '~~/helpers/customer-credit.helper';
 import { useControlPanel } from '~/composables/useControlPanel';
 
 const { fetchCustomerInformation, fetchCustomerCredit } = useControlPanel();

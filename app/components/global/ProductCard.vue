@@ -109,9 +109,9 @@
 import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import { MoreHorizontal } from '@lucide/vue';
-import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
-import { addToCartHelper, resolveProductBrowsePricing } from '~/helpers/prices.helper';
-import { getProductTaxonomyPath, humanizeCategorySlug, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
+import type { PriceConfigurationSettingsInterface, ProductInterface } from '~~/types/product';
+import { addToCartHelper, resolveProductBrowsePricing } from '~~/helpers/prices.helper';
+import { getProductTaxonomyPath, humanizeCategorySlug, toCategorySlugSegments } from '~~/helpers/categoryPath.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';

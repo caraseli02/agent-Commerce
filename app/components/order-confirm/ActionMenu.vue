@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import UiSelectContent from '~/components/ui/select/SelectContent.vue';
 import { toast } from '~/components/ui/toast';
-import { OrderStatus, PaymentStatusEnum, PaymentTypeEnum, type MarkAsPaidRequestInterface, type OrderInterface } from '~/types';
+import { OrderStatus, PaymentStatusEnum, PaymentTypeEnum, type MarkAsPaidRequestInterface, type OrderInterface } from '~~/types';
 import { cancelOrder as cancelOrderApi, changeStatus as changeStatusApi, markAsPaid as markAsPaidApi } from '~/composables/api/orders';
 
 // Define props to initialize the form values

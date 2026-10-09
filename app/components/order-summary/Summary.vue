@@ -76,8 +76,8 @@
 import { storeToRefs } from 'pinia';
 import OrderSummarySmallOrderModal from './SmallOrderModal.vue';
 import InformationIcon from '~/assets/icons/information.svg';
-import { toCheckoutMoneyView, type CheckoutQuote } from '~/helpers/checkout-quote';
-import type { CheckoutOrderDraft } from '~/types';
+import { toCheckoutMoneyView, type CheckoutQuote } from '~~/helpers/checkout-quote';
+import type { CheckoutOrderDraft } from '~~/types';
 import { useCartStore } from '~/store/cartStore';
 
 const cartStore = useCartStore();

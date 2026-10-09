@@ -65,7 +65,7 @@ import { BoxIcon, Share2Icon } from '@lucide/vue';
 import { toast } from '@/components/ui/toast';
 
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import type { ProductDetail, ProductImageInterface } from '~/types/product';
+import type { ProductDetail, ProductImageInterface } from '~~/types/product';
 
 const props = defineProps<{
   images: ProductImageInterface[];

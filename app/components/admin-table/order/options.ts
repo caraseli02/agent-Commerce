@@ -1,4 +1,4 @@
-import { OrderStatus, OrderType, type OrderTypeInfo } from '~/types/order-summary/item';
+import { OrderStatus, OrderType, type OrderTypeInfo } from '~~/types/order-summary/item';
 
 export const orderType = [
   { value: OrderType.Stock, label: 'Stock Order', badge: { bg: 'bg-green-600', text: 'S' } },

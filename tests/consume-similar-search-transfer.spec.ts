@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearchTransfer';
-import type { ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
+import type { ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
 
 const transferredProducts = {
   filtersCount: 0,

@@ -98,11 +98,11 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
 import type { ApexOptions } from 'apexcharts';
-import { formatReviewerDate } from '~/helpers/reviewer-dates';
+import { formatReviewerDate } from '~~/helpers/reviewer-dates';
 import ProgressBar from './ProgressBar.vue';
 import EditIcon from '@/assets/icons/dashboard/edit.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 import { useControlPanel } from '~/composables/useControlPanel';
 
 const { loadCustomerCredit } = useControlPanel();

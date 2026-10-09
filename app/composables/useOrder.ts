@@ -1,23 +1,23 @@
-import { parseCheckoutErrorCode } from '~/types/order/checkout-error';
+import { parseCheckoutErrorCode } from '~~/types/order/checkout-error';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useUser } from './useUser';
 import { useRuntimeConfig } from '#app';
 import { useCartStore } from '~/store/cartStore';
-import { AccountRole, AccountType, PaymentTypeEnum } from '~/types';
-import type { OrderRequestInterface, PaymentDetails, OrderType } from '~/types';
-import type { PlaceOrderInterface } from '~/types/order';
-import type { CartProductsInterface } from '~/types/cart';
-import type { BackorderShippingTypesInterface, SmallOrderChargeInterface } from '~/types/general-settings/general-settings';
-import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
+import { AccountRole, AccountType, PaymentTypeEnum } from '~~/types';
+import type { OrderRequestInterface, PaymentDetails, OrderType } from '~~/types';
+import type { PlaceOrderInterface } from '~~/types/order';
+import type { CartProductsInterface } from '~~/types/cart';
+import type { BackorderShippingTypesInterface, SmallOrderChargeInterface } from '~~/types/general-settings/general-settings';
+import type { ShippingOrderPricingOption } from '~~/types/order-summary/shipping-services';
 import { useCheckoutStore } from '~/store/checkoutStore';
 import { toast } from '~/components/ui/toast';
 import { sendOrder, validateAddress } from '~/composables/api/orders';
-import { resolveCheckoutOutcome, type CheckoutFailure, type CheckoutOutcome } from '~/helpers/checkout-outcome';
-import { isCompleteGuestContact, isCompleteSavedAddress } from '~/helpers/address.helper';
-import type { GuestCheckoutContact } from '~/types/order-summary/item';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import { resolveCheckoutOutcome, type CheckoutFailure, type CheckoutOutcome } from '~~/helpers/checkout-outcome';
+import { isCompleteGuestContact, isCompleteSavedAddress } from '~~/helpers/address.helper';
+import type { GuestCheckoutContact } from '~~/types/order-summary/item';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 interface AddressValidationResponse {
   data: {

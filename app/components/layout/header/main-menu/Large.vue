@@ -274,9 +274,9 @@ import ToolsIcon2 from '@/assets/icons/header/banner/tools.svg';
 import IndustrialFurnitureIcon2 from '@/assets/icons/header/banner/industrial-furniture.svg';
 import PowerSupplyIcon2 from '@/assets/icons/header/banner/power-supply.svg';
 import DiodesIcon2 from '@/assets/icons/header/banner/diodes.svg';
-import { showNavModal } from '~~/config/modal/nav';
-import type { NavCategoryView, TaxonomyInterface } from '~/types/dashboard/categories';
-import { mapLabelsToIds } from '~/helpers/categories.helper';
+import { showNavModal } from '~/config/modal/nav';
+import type { NavCategoryView, TaxonomyInterface } from '~~/types/dashboard/categories';
+import { mapLabelsToIds } from '~~/helpers/categories.helper';
 
 const router = useRouter();
 

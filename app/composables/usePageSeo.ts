@@ -1,7 +1,7 @@
 import { computed, toValue } from 'vue';
 import type { MaybeRefOrGetter } from 'vue';
 
-import { PRIVATE_ROBOTS, isPrivateRoute } from '~/helpers/seo-routes';
+import { PRIVATE_ROBOTS, isPrivateRoute } from '~~/helpers/seo-routes';
 
 const SITE_NAME = 'Components Marketplace';
 const DEFAULT_DESCRIPTION =

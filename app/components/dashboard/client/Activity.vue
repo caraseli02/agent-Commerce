@@ -197,7 +197,7 @@
 
 <script setup lang="ts">
 import GlobalEmptyState from '~/components/global/EmptyState.vue';
-import type { CustomerDashboardActivityData } from '~/types/dashboard/client-dashboard';
+import type { CustomerDashboardActivityData } from '~~/types/dashboard/client-dashboard';
 import { favoritesEmptyPreset } from '~/components/global/empty-state-presets';
 
 const props = defineProps<{

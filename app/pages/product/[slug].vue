@@ -94,9 +94,9 @@
 <script setup lang="ts">
 import { MoreVertical, PrinterIcon } from '@lucide/vue';
 
-import type { ProductDetail, ProductImageInterface } from '~/types/product';
+import type { ProductDetail, ProductImageInterface } from '~~/types/product';
 import { useProducts } from '~/composables/useProducts';
-import { buildProductPageJsonLd } from '~/helpers/product-json-ld';
+import { buildProductPageJsonLd } from '~~/helpers/product-json-ld';
 
 const { loadProductBySlug, productDetailCacheKey } = useProducts();
 

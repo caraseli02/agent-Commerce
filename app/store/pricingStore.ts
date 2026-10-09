@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { type PriceSettingsInterface, type SmartPricingOption, PriceSettingsTypeEnum } from '~/model/prices/price-settings.interface';
-import { smartPricingMargin, smartPricingQuantity, smartPricingRange } from '~/helpers/smart-pricing.helper';
+import { type PriceSettingsInterface, type SmartPricingOption, PriceSettingsTypeEnum } from '~~/model/prices/price-settings.interface';
+import { smartPricingMargin, smartPricingQuantity, smartPricingRange } from '~~/helpers/smart-pricing.helper';
 import { fetchPriceSettings } from '~/composables/api/smart-pricing';
 
 export type SmartPricingListItem = SmartPricingOption;

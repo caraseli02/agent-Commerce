@@ -1,5 +1,5 @@
 import { useNuxtApp } from '#app';
-import type { Notification } from '~/types/dashboard/notification';
+import type { Notification } from '~~/types/dashboard/notification';
 
 const RESOURCE = '/notification';
 

@@ -8,9 +8,9 @@ import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import WarningError from '@/assets/icons/warning-error.svg';
 import WarningErrorHuge from '@/assets/icons/warning-error-huge.svg';
 
-import type { CartProductsInterface } from '~/types/cart';
+import type { CartProductsInterface } from '~~/types/cart';
 import { useAuthStore } from '~/store/authStore';
-import { parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import { parseProductPriceConfiguration } from '~~/helpers/prices.helper';
 import { useCartStore } from '~/store/cartStore';
 
 const props = defineProps<{

@@ -120,7 +120,7 @@ import BusinessIcon from '@/assets/icons/dashboard/business.svg';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useControlPanel } from '~/composables/useControlPanel';
 import { useClientAddressManager } from '~/composables/useClientAddressManager';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 const { addBilling, addShipping } = useControlPanel();
 

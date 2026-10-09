@@ -181,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
+import { formatReviewerDate, formatReviewerDateTime } from '~~/helpers/reviewer-dates';
 import Emitter from 'tiny-emitter/instance.js';
 import { LockKeyholeIcon } from '@lucide/vue';
 import Avatar from '@/assets/icons/dashboard/avatar.png';
@@ -189,14 +189,14 @@ import DotsVerticalIcon from '@/assets/icons/dots-vertical.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { fetchCustomerInformation } from '~/composables/api/customer-profile';
-import { AccountStatusEnum, type AddressInterface } from '~/types/auth/user-interface';
-import { AccountType, getAccountTypeById } from '~/types';
-import type { DashboardCustomerTableItem } from '~/types';
-import type { CountryInterface } from '~/types/dashboard/control-panel';
+import { AccountStatusEnum, type AddressInterface } from '~~/types/auth/user-interface';
+import { AccountType, getAccountTypeById } from '~~/types';
+import type { DashboardCustomerTableItem } from '~~/types';
+import type { CountryInterface } from '~~/types/dashboard/control-panel';
 import ThreeDotMenu from '~/components/shared/tables/micro/row-items/ThreeDotMenu.vue';
 import { deleteUser } from '~/composables/api/dashboard-admin';
 import { useCountries } from '~/composables/useCountries';
-import type { CustomerProfileUser } from '~/types/dashboard/customer-profile';
+import type { CustomerProfileUser } from '~~/types/dashboard/customer-profile';
 
 const { countries, load: loadCountries } = useCountries();
 

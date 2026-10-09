@@ -119,7 +119,7 @@ import { XIcon, ArrowRight, Settings, ChevronRight } from '@lucide/vue';
 import { storeToRefs } from 'pinia';
 import BellIcon from '@/assets/icons/header/bell.svg';
 import NotificationIcon from '@/assets/icons/dashboard/notification-ringing.svg';
-import { AccountRole, type Notification, getAccountTypeById } from '~/types';
+import { AccountRole, type Notification, getAccountTypeById } from '~~/types';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
 

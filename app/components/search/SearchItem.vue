@@ -169,11 +169,11 @@ import CheckIcon from '@/assets/icons/check-circle.svg';
 import CartIcon from '@/assets/icons/cart.svg';
 import HeartIcon from '@/assets/icons/heart.svg';
 import ShareIcon from '@/assets/icons/share.svg';
-import type { ProductActionObject } from '~/types/cart';
+import type { ProductActionObject } from '~~/types/cart';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
-import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
-import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
+import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~~/helpers/prices.helper';
+import type { PriceConfigurationSettingsInterface, ProductInterface } from '~~/types/product';
 import { useCart } from '~/composables/useCart';
 
 const quantity = ref(1);

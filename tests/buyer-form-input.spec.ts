@@ -5,13 +5,13 @@ import { describe, expect, it } from 'vitest';
 const repoRoot = process.cwd();
 
 const buyerPathFiles = [
-  'components/signup/BusinessDetails.vue',
-  'components/signup/ContactDetails.vue',
-  'components/signup/PersonalDetails.vue',
-  'components/signup/ProfileDetails.vue',
-  'components/layout/account-modal/Form.vue',
-  'pages/forgot-password.vue',
-  'pages/password-reset.vue',
+  'app/components/signup/BusinessDetails.vue',
+  'app/components/signup/ContactDetails.vue',
+  'app/components/signup/PersonalDetails.vue',
+  'app/components/signup/ProfileDetails.vue',
+  'app/components/layout/account-modal/Form.vue',
+  'app/pages/forgot-password.vue',
+  'app/pages/password-reset.vue',
 ];
 
 const formInputPattern = /<\s*FormInput\b|from\s+['"][^'"]*FormInput/;
@@ -32,18 +32,18 @@ describe('buyer path FormInput retirement (#402)', () => {
   });
 
   it('uses BuyerFormInput on account modal sign-in', async () => {
-    const contents = await readFile(join(repoRoot, 'components/layout/account-modal/Form.vue'), 'utf8');
+    const contents = await readFile(join(repoRoot, 'app/components/layout/account-modal/Form.vue'), 'utf8');
 
     expect(contents).toContain('<BuyerFormInput');
     expect(contents).not.toMatch(formInputPattern);
   });
 
   it('registers BuyerFormInput at the Nuxt auto-import path (not buyer/BuyerFormInput)', async () => {
-    const movedAway = await readFile(join(repoRoot, 'components/buyer/BuyerFormInput.vue'), 'utf8').then(
+    const movedAway = await readFile(join(repoRoot, 'app/components/buyer/BuyerFormInput.vue'), 'utf8').then(
       () => false,
       () => true,
     );
-    const contents = await readFile(join(repoRoot, 'components/BuyerFormInput.vue'), 'utf8');
+    const contents = await readFile(join(repoRoot, 'app/components/BuyerFormInput.vue'), 'utf8');
 
     expect(movedAway).toBe(true);
     expect(contents).toContain('label: {');

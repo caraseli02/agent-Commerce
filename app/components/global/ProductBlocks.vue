@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ProductInterface } from '~/types/product';
+import type { ProductInterface } from '~~/types/product';
 
 const props = defineProps<{
   filters?: string[];

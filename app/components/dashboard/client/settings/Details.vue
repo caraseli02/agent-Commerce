@@ -11,8 +11,8 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { useClientAccount } from '~/composables/useClientAccount';
 import { useAuthStore } from '~/store/authStore';
-import { AccountType } from '~/types';
-import { updateStoreDetails } from '~/helpers/auth-store.helper';
+import { AccountType } from '~~/types';
+import { updateStoreDetails } from '~~/helpers/auth-store.helper';
 
 const { countries, load: loadCountries } = useCountries();
 const { saveAccountDetails } = useClientAccount();

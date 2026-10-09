@@ -1,4 +1,4 @@
-import type { CartInterface } from '~/types/cart';
+import type { CartInterface } from '~~/types/cart';
 
 export type CartReadLoader = () => Promise<CartInterface | null>;
 

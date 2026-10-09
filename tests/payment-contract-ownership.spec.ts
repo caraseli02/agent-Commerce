@@ -4,10 +4,10 @@ import ts from 'typescript';
 import { NodeTypes, parse } from '@vue/compiler-dom';
 import { parse as parseSfc } from 'vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
-import { paymentStatuses } from '~/server/domain/payments/contracts';
-import { checkoutWorkflowStatuses, paidRecoveryDecisions } from '~/server/application/checkout/contracts';
-import { PlaceOrderError } from '~/server/application/checkout/place-order';
-import { checkoutErrorData, checkoutErrorResponse } from '~/types/order/checkout-error';
+import { paymentStatuses } from '~~/server/domain/payments/contracts';
+import { checkoutWorkflowStatuses, paidRecoveryDecisions } from '~~/server/application/checkout/contracts';
+import { PlaceOrderError } from '~~/server/application/checkout/place-order';
+import { checkoutErrorData, checkoutErrorResponse } from '~~/types/order/checkout-error';
 
 // Syntax analysis guards production declarations, not SQL predicates, diagnostics, or fixtures.
 const groups: readonly (readonly string[])[] = [paymentStatuses, checkoutWorkflowStatuses, paidRecoveryDecisions];
@@ -217,7 +217,7 @@ describe('Payment contract ownership regression gate', () => {
       expect(
         labelViolations(
           'consumer.vue',
-          `<script setup lang="ts">import { PaymentStatusEnum as ${binding} } from '~/types';
+          `<script setup lang="ts">import { PaymentStatusEnum as ${binding} } from '~~/types';
         const label = ${binding}[status] || 'Pending';</script>`,
         ),
       ).not.toEqual([]);
@@ -225,7 +225,7 @@ describe('Payment contract ownership regression gate', () => {
     expect(
       labelViolations(
         'consumer.vue',
-        `<script setup lang="ts">import { PaymentStatusEnum } from '~/types';
+        `<script setup lang="ts">import { PaymentStatusEnum } from '~~/types';
       const colors = { [PaymentStatusEnum.Paid]: 'green' }; const label = getPaymentStatusById(status) ?? 'Unknown';</script>`,
       ),
     ).toEqual([]);
@@ -235,20 +235,20 @@ describe('Payment contract ownership regression gate', () => {
       expect(
         labelViolations(
           'consumer.vue',
-          `<script setup lang="ts">import { PaymentStatusEnum as Status } from '~/types';
+          `<script setup lang="ts">import { PaymentStatusEnum as Status } from '~~/types';
         const billingStatus = order.paymentDetails?.status ${operator} Status.Pending;</script>`,
         ),
       ).not.toEqual([]);
     expect(
       labelViolations(
         'consumer.vue',
-        `<script setup lang="ts">import { PaymentStatusEnum } from '~/types';
+        `<script setup lang="ts">import { PaymentStatusEnum } from '~~/types';
       const newPayment = { status: PaymentStatusEnum.Pending };</script>`,
       ),
     ).toEqual([]);
   });
   it('all UI consumers use the owned payment label mapping', () => {
-    const files = ['components', 'pages', 'helpers', 'composables'].flatMap(uiSourceFiles);
+    const files = ['app/components', 'app/pages', 'helpers', 'app/composables'].flatMap(uiSourceFiles);
     expect(files.flatMap((file) => labelViolations(file, readFileSync(file, 'utf8')).map((problem) => `${file}: ${problem}`))).toEqual([]);
   });
   it('typecheck rejects undeclared public codes', () => {

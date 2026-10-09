@@ -1,5 +1,5 @@
 import { fetchSearchProduct } from '~/composables/api/products';
-import type { ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
+import type { ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
 
 export type SearchResultsQuery = {
   keyword: string;

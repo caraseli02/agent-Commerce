@@ -86,7 +86,7 @@ import ArrowRightIcon from '@/assets/icons/dashboard/arrow-right.svg';
 import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import { fetchReturningCustomersWidget } from '~/composables/api/dashboard-admin';
-import type { ReturningCustomersInterface } from '~/types/dashboard/admin-users';
+import type { ReturningCustomersInterface } from '~~/types/dashboard/admin-users';
 
 const chartOptions: ApexOptions = {
   chart: {

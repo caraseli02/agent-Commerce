@@ -1,11 +1,11 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { restartCanceledCheckout } from '~/server/application/checkout/restart-canceled-checkout';
-import { createCheckoutReviewFingerprint } from '~/server/application/checkout/review-fingerprint';
-import { placeOrder } from '~/server/application/checkout/place-order';
-import { cart } from '~/server/domain/cart';
-import { catalog } from '~/server/domain/catalog';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
-import { createMockGuestCheckoutUser } from '~/server/utils/mockUsers';
+import { restartCanceledCheckout } from '~~/server/application/checkout/restart-canceled-checkout';
+import { createCheckoutReviewFingerprint } from '~~/server/application/checkout/review-fingerprint';
+import { placeOrder } from '~~/server/application/checkout/place-order';
+import { cart } from '~~/server/domain/cart';
+import { catalog } from '~~/server/domain/catalog';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
+import { createMockGuestCheckoutUser } from '~~/server/utils/mockUsers';
 
 vi.mock('h3', async (importOriginal) => {
   const actual = await importOriginal<typeof import('h3')>();
@@ -142,8 +142,8 @@ describe('explicit restart of a provider-canceled checkout', () => {
   });
 
   it('exposes an owner-scoped route without fabricating a guest session', async () => {
-    const { createMockToken } = await import('~/server/utils/mockUsers');
-    const route = (await import('~/server/api/orders/[id]/restart.post')).default as (event: unknown) => Promise<unknown>;
+    const { createMockToken } = await import('~~/server/utils/mockUsers');
+    const route = (await import('~~/server/api/orders/[id]/restart.post')).default as (event: unknown) => Promise<unknown>;
     const own = { headers: {}, cookies: { 'guest-session-id': 'explicit-restart' }, params: { id: orderId } };
 
     await expect(route({ headers: {}, params: { id: orderId } })).rejects.toMatchObject({ statusCode: 401 });

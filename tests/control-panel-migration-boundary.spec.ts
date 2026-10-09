@@ -3,7 +3,7 @@ import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const repoRoot = process.cwd();
-const sourceRoots = ['components', 'composables', 'pages', 'plugins', 'services'];
+const sourceRoots = ['app/components', 'app/composables', 'app/pages', 'app/plugins', 'services'];
 const legacyPatterns = [new RegExp(['\\$api', 'controlPanel'].join('\\.')), new RegExp(`\\b${['ControlPanel', 'Service'].join('')}\\b`)];
 
 async function collectSourceFiles(dir: string): Promise<string[]> {

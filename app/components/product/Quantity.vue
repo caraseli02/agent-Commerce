@@ -152,9 +152,9 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
-import type { ProductActionObject } from '~/types/cart';
-import type { PriceConfigurationSettingsInterface, ProductInterface } from '~/types/product';
-import { addToCartHelper, clampCartQuantity, initializeQuantities, parseProductPriceConfiguration } from '~/helpers/prices.helper';
+import type { ProductActionObject } from '~~/types/cart';
+import type { PriceConfigurationSettingsInterface, ProductInterface } from '~~/types/product';
+import { addToCartHelper, clampCartQuantity, initializeQuantities, parseProductPriceConfiguration } from '~~/helpers/prices.helper';
 import { toast } from '~/components/ui/toast';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';

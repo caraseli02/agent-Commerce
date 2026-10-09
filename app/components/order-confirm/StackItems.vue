@@ -2,12 +2,12 @@
 import { InfoIcon } from '@lucide/vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
-import { OrderType } from '~/types';
-import type { OrderInterface, OrderRequestInterface } from '~/types';
+import { calculateOrderMoney, DEFAULT_ORDER_VAT_RATE } from '~~/helpers/order-money';
+import { OrderType } from '~~/types';
+import type { OrderInterface, OrderRequestInterface } from '~~/types';
 import { useAuthStore } from '~/store/authStore';
-import { toPersistedOrderLineMoneyView } from '~/helpers/checkout-quote';
-import { resolveOrderLineIdentity } from '~/helpers/order-line-identity';
+import { toPersistedOrderLineMoneyView } from '~~/helpers/checkout-quote';
+import { resolveOrderLineIdentity } from '~~/helpers/order-line-identity';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const lgAndLarger = breakpoints.greaterOrEqual('lg'); // sm and larger

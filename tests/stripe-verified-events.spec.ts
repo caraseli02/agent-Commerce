@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createStripeIntentAdapter } from '~/server/domain/payments/stripe-intents';
-import type { StripePaymentIntent } from '~/server/domain/payments/stripe-intents';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { createStripeIntentAdapter } from '~~/server/domain/payments/stripe-intents';
+import type { StripePaymentIntent } from '~~/server/domain/payments/stripe-intents';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 const paymentId = 'pay-verified-event';
 const orderId = 'ord-verified-event';

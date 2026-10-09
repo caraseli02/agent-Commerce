@@ -59,7 +59,7 @@
 import Emitter from 'tiny-emitter/instance.js';
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData } from '~/types/product';
+import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
 import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearchTransfer';
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
 import { useProductStore } from '~/store/productStore';
