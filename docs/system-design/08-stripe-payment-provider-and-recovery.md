@@ -857,6 +857,28 @@ paid_recovery_decision =
 The application workflow selects this decision once under PostgreSQL
 coordination.
 
+The portfolio-demo policy for #585 was explicitly approved by the user on
+2026-10-09: allocate all frozen Order quantities if Inventory can provide them;
+otherwise backorder the shortage only when the frozen buyer shipping choice
+permits it; otherwise select a full refund. Inventory currently permits the
+existing active demo choice `back-001` for active sample products. Missing or
+unknown choices and unsupported products deny backorder permission. Availability
+is `on_hand - reserved`, after expiring the old reservation; another checkout's
+reservations are never available to this recovery. This is the approved demo
+policy, not a configurable production policy.
+
+`recoverLatePaidCheckout({ paymentId, orderId })` returns either `retry` or the
+existing/new `decided` outcome. It reads validated frozen quantities and choice
+through Orders, and delegates stock locks, eligibility and the replacement
+reservation to Inventory. It never revives an expired reservation. For
+ALLOCATE/BACKORDER it commits a new reservation, the paid Order marker, separate
+`fulfillment` buckets and the finalized claim in one PostgreSQL transaction.
+Accepted Order products, buyer choice and money stay unchanged; each fulfillment
+item preserves the accepted total quantity. Refund uses the existing coordinated
+held-Order command. Concurrent callers lock the same claim and cannot switch a
+committed decision. Provider continuation belongs to #588 and happens after
+commit; revision-aware Cart cleanup can use the existing finalization replay.
+
 For `ALLOCATE`, the Inventory allocation and durable decision are committed as
 one coordinated database unit so a later recovery cannot switch to refund.
 
