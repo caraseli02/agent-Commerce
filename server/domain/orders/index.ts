@@ -260,6 +260,27 @@ const isPaidCompensationHeld = async (input: { orderId: string; paymentId: strin
   return payload.order.status === OrderStatus.OnHold && payload.order.paymentDetails.status === PaymentStatusEnum.Paid;
 };
 
+// Compensation only moves between paid held/canceled states; it never reopens fulfillment.
+const settlePaidCompensation = async (input: { orderId: string; paymentId: string; failed?: boolean }): Promise<boolean> => {
+  const database = await getCheckoutDatabase();
+  const [row] = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE id=$1 FOR UPDATE', [input.orderId]);
+  if (!row || row.paid_by_payment_id !== input.paymentId) return false;
+  const payload = parseOrder(row);
+  if (
+    payload.order.paymentDetails.status !== PaymentStatusEnum.Paid ||
+    ![OrderStatus.OnHold, OrderStatus.Canceled].includes(payload.order.status)
+  )
+    return false;
+  payload.order.status = input.failed ? OrderStatus.OnHold : OrderStatus.Canceled;
+  payload.order.updatedAt = new Date().toISOString();
+  await database.execute('UPDATE checkout_orders SET payload_json=$1, updated_at=$2 WHERE id=$3', [
+    JSON.stringify(payload),
+    payload.order.updatedAt,
+    input.orderId,
+  ]);
+  return true;
+};
+
 export type OrderPaymentPreparation = Readonly<{
   orderId: string;
   grandTotalMinor: number;
@@ -355,6 +376,7 @@ export const orders = {
   confirmPayment,
   holdPaidForCompensation,
   isPaidCompensationHeld,
+  settlePaidCompensation,
   getPaymentPreparation,
   getCheckoutStatePreparation,
   findById,

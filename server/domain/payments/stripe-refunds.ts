@@ -29,6 +29,14 @@ type PaymentRow = {
   currency: string;
   stripe_payment_intent_id: string | null;
 };
+export type RefundPreparation = Readonly<{
+  refundId: string;
+  paymentId: string;
+  orderId: string;
+  status: RefundStatus;
+  amountMinor: number;
+  currency: string;
+}>;
 type RefundRow = {
   id: string;
   payment_id: string;
@@ -81,14 +89,70 @@ const readRefund = async (paymentId: string, lock = false) => {
   return row;
 };
 
+// Internal application preparation must be read under the caller's transaction.
+export const getRefundPreparationForUpdate = async (paymentId: string): Promise<RefundPreparation | null> => {
+  const payment = await readPayment(paymentId, true);
+  const refund = await readRefund(paymentId, true);
+  if (!payment || !refund || parsePersistedPaymentStatus(payment.status) !== 'PAID' || !matches(refund, payment)) return null;
+  return {
+    refundId: refund.id,
+    paymentId,
+    orderId: payment.order_id,
+    status: refund.status,
+    amountMinor: Number(refund.amount_minor),
+    currency: refund.currency,
+  };
+};
+
+export const readRefundContinuation = async (input: {
+  paymentId: string;
+  orderId: string;
+  refundId: string;
+}): Promise<{ kind: 'known'; status: RefundStatus } | { kind: 'unknown' }> => {
+  const payment = await readPayment(input.paymentId);
+  const refund = await readRefund(input.paymentId);
+  return payment &&
+    refund &&
+    payment.order_id === input.orderId &&
+    parsePersistedPaymentStatus(payment.status) === 'PAID' &&
+    refund.id === input.refundId &&
+    matches(refund, payment) &&
+    refund.stripe_refund_id?.startsWith('re_')
+    ? { kind: 'known', status: refund.status }
+    : { kind: 'unknown' };
+};
+
+export const isSupportedStripeRefundEvent = (type: string) => ['refund.created', 'refund.updated', 'refund.failed'].includes(type);
+export type VerifiedRefundEventResult = RefundResult;
+
 export const createStripeRefundAdapter = (options: {
   provider: StripeRefundProvider;
   withRefundCompensation: RefundCompensationGate;
   enabled?: () => boolean;
   now?: () => Date;
+  onSucceeded?: (input: { paymentId: string; orderId: string; refundId: string }) => Promise<{ kind: 'settled' | 'retry' }>;
   onRecoveryRequired?: (input: { paymentId: string; orderId: string }) => Promise<unknown>;
 }) => {
   const now = options.now ?? (() => new Date());
+  const applyConsequences = async (refund: RefundRow, orderId: string): Promise<RefundResult> => {
+    const identity = { paymentId: refund.payment_id, orderId };
+    if (refund.status === 'SUCCEEDED' && options.onSucceeded) {
+      try {
+        if ((await options.onSucceeded({ ...identity, refundId: refund.id })).kind !== 'settled') return recovery;
+      } catch {
+        return recovery;
+      }
+    }
+    if (refund.status === 'FAILED') {
+      try {
+        const result = await options.onRecoveryRequired?.(identity);
+        if (result && (result as { kind?: string }).kind === 'conflict') return recovery;
+      } catch {
+        return recovery;
+      }
+    }
+    return outcome(refund);
+  };
   const requestFullRefund = async (input: { paymentId: string; reason: RefundReason }): Promise<RefundResult> => {
     assertOutsideCheckoutTransaction('Full Refund request');
     if (!(options.enabled?.() ?? false) || !refundReasons.includes(input.reason)) return recovery;
@@ -153,8 +217,7 @@ export const createStripeRefundAdapter = (options: {
       return fail();
     prepared.refund = current;
     if (current.status !== 'PENDING') {
-      if (current.status === 'FAILED') await options.onRecoveryRequired?.(identity);
-      return outcome(current);
+      return applyConsequences(current, prepared.orderId);
     }
     let observed: StripeRefund;
     try {
@@ -220,8 +283,111 @@ export const createStripeRefundAdapter = (options: {
     });
     if (!persisted) return fail();
     if (persisted.status === 'PENDING' && !status) return fail();
-    if (persisted.status === 'FAILED') await options.onRecoveryRequired?.(identity);
-    return outcome(persisted);
+    return applyConsequences(persisted, prepared.orderId);
   };
-  return { requestFullRefund };
+  // Only known identities may reconcile. This operation never prepares or creates a Refund.
+  const reconcileRefund = async (input: { paymentId: string }): Promise<RefundResult> => {
+    assertOutsideCheckoutTransaction('Stripe Refund reconciliation');
+    if (!(options.enabled?.() ?? false)) return recovery;
+    const payment = await readPayment(input.paymentId);
+    const refund = await readRefund(input.paymentId);
+    if (!payment || !refund || !matches(refund, payment) || !refund.stripe_refund_id) return recovery;
+    return observeRefund({ refund, orderId: payment.order_id });
+  };
+  const observeRefund = async (prepared: Prepared, event?: { eventId: string; eventType: string }): Promise<RefundResult> => {
+    let observed: StripeRefund;
+    const identity = { paymentId: prepared.refund.payment_id, orderId: prepared.orderId };
+    const fail = async () => {
+      await options.onRecoveryRequired?.(identity);
+      return recovery;
+    };
+    try {
+      observed = await options.provider.retrieve(prepared.refund.stripe_refund_id!);
+    } catch {
+      return fail();
+    }
+    if (!providerMatches(observed, prepared) || observed.id !== prepared.refund.stripe_refund_id) return fail();
+    const status: RefundStatus | null =
+      observed.status === 'succeeded'
+        ? 'SUCCEEDED'
+        : ['failed', 'canceled'].includes(observed.status ?? '')
+          ? 'FAILED'
+          : observed.status === 'pending'
+            ? 'PENDING'
+            : null;
+    if (!status) return fail();
+    const persisted = await withCheckoutTransaction(async () => {
+      const payment = await readPayment(identity.paymentId, true);
+      const refund = await readRefund(identity.paymentId, true);
+      if (
+        !payment ||
+        !refund ||
+        !matches(refund, payment) ||
+        parsePersistedPaymentStatus(payment.status) !== 'PAID' ||
+        payment.order_id !== identity.orderId ||
+        refund.id !== prepared.refund.id ||
+        (refund.stripe_refund_id && refund.stripe_refund_id !== observed.id)
+      )
+        return null;
+      const db = await getCheckoutDatabase();
+      if (event) {
+        const [inserted] = await db.query(
+          `INSERT INTO checkout_stripe_refund_events (event_id,event_type,stripe_refund_id,refund_id,observed_at)
+          VALUES ($1,$2,$3,$4,$5::timestamptz) ON CONFLICT (event_id) DO NOTHING RETURNING event_id`,
+          [event.eventId, event.eventType, observed.id, refund.id, now().toISOString()],
+        );
+        if (!inserted) {
+          const [stored] = await db.query('SELECT * FROM checkout_stripe_refund_events WHERE event_id=$1', [event.eventId]);
+          if (stored?.event_type !== event.eventType || stored?.stripe_refund_id !== observed.id || stored?.refund_id !== refund.id)
+            return null;
+          return refund;
+        }
+      }
+      // A bank-return failure is authoritative even after success. Failure is
+      // absorbing; stale pending/success reads cannot erase terminal failure.
+      const next =
+        refund.status === 'FAILED' ? 'FAILED' : status === 'FAILED' ? 'FAILED' : refund.status === 'SUCCEEDED' ? 'SUCCEEDED' : status;
+      await db.execute('UPDATE checkout_refunds SET stripe_refund_id=$1,status=$2,updated_at=$3::timestamptz WHERE id=$4', [
+        observed.id,
+        next,
+        now().toISOString(),
+        refund.id,
+      ]);
+      return readRefund(identity.paymentId, true);
+    });
+    return persisted ? applyConsequences(persisted, identity.orderId) : fail();
+  };
+  // Internal boundary: signature verification must precede this call. Event
+  // snapshots route identity only; one bounded provider read supplies truth.
+  const applyVerifiedRefundEvent = async (input: {
+    eventId: string;
+    eventType: string;
+    refund: StripeRefund;
+  }): Promise<VerifiedRefundEventResult> => {
+    assertOutsideCheckoutTransaction('Stripe verified Refund event');
+    if (!(options.enabled?.() ?? false) || !input.eventId || !isSupportedStripeRefundEvent(input.eventType)) return recovery;
+    const db = await getCheckoutDatabase();
+    const [known] = await db.query<{ payment_id: string }>('SELECT payment_id FROM checkout_refunds WHERE stripe_refund_id=$1', [
+      input.refund.id,
+    ]);
+    const paymentId = known?.payment_id ?? input.refund.metadata?.paymentId;
+    if (!paymentId) return recovery;
+    const payment = await readPayment(paymentId);
+    const refund = await readRefund(paymentId);
+    if (!payment || !refund || !matches(refund, payment) || parsePersistedPaymentStatus(payment.status) !== 'PAID') return recovery;
+    const prepared = { refund, orderId: payment.order_id };
+    if (!providerMatches(input.refund, prepared) || (refund.stripe_refund_id && refund.stripe_refund_id !== input.refund.id)) {
+      await options.onRecoveryRequired?.({ paymentId, orderId: payment.order_id });
+      return recovery;
+    }
+    const [duplicate] = await db.query('SELECT * FROM checkout_stripe_refund_events WHERE event_id=$1', [input.eventId]);
+    if (duplicate) {
+      if (duplicate.event_type !== input.eventType || duplicate.stripe_refund_id !== input.refund.id || duplicate.refund_id !== refund.id)
+        return recovery;
+      return applyConsequences(refund, payment.order_id);
+    }
+    // A signed event can recover the exact identity after a lost create response.
+    return observeRefund({ ...prepared, refund: { ...refund, stripe_refund_id: input.refund.id } }, input);
+  };
+  return { requestFullRefund, reconcileRefund, applyVerifiedRefundEvent };
 };

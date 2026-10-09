@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 const webhook = vi.hoisted(() => ({
   handle: vi.fn(),
   apply: vi.fn(),
+  refund: vi.fn(),
   enabled: vi.fn(() => false),
   finalize: vi.fn(),
   terminalize: vi.fn(),
@@ -10,6 +11,7 @@ const webhook = vi.hoisted(() => ({
 
 vi.mock('~/server/domain/payments', () => ({ handleStripeWebhook: webhook.handle }));
 vi.mock('~/server/application/checkout/stripe-payment', () => ({
+  stripeRefunds: { applyVerifiedRefundEvent: webhook.refund },
   stripePayments: { applyVerifiedIntentEvent: webhook.apply },
   stripePaymentsEnabled: webhook.enabled,
 }));
@@ -51,6 +53,7 @@ describe('Stripe webhook route', () => {
         rawBody,
         signature: 't=123,v1=abc',
         enabled: false,
+        applyVerifiedRefundEvent: webhook.refund,
         applyVerifiedIntentEvent: webhook.apply,
         finalizePaidCheckout: webhook.finalize,
         terminalizeCanceledCheckout: webhook.terminalize,

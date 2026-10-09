@@ -1,4 +1,4 @@
-import { stripePayments, stripePaymentsEnabled } from '~/server/application/checkout/stripe-payment';
+import { stripePayments, stripeRefunds, stripePaymentsEnabled } from '~/server/application/checkout/stripe-payment';
 import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
 import { terminalizeCanceledCheckout } from '~/server/application/checkout/terminalize-canceled-checkout';
 import { handleStripeWebhook } from '~/server/domain/payments';
@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     signature: getHeader(event, 'stripe-signature'),
     signingSecret: process.env.STRIPE_WEBHOOK_SECRET,
     enabled: stripePaymentsEnabled(),
+    applyVerifiedRefundEvent: stripeRefunds.applyVerifiedRefundEvent,
     applyVerifiedIntentEvent: stripePayments.applyVerifiedIntentEvent,
     finalizePaidCheckout,
     terminalizeCanceledCheckout,
