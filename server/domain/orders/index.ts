@@ -3,6 +3,7 @@ import { OrderStatus, PaymentStatusEnum } from '~/types/order-summary/item';
 import { buildRuntimeOrder } from '~/server/utils/mockRuntimeOrders';
 import { getDemoOrders } from '~/server/utils/mockDashboardDemo';
 import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import type { ReservationItem } from '~/server/domain/inventory';
 
 export type PendingOrderItem = Readonly<{
   productId: string;
@@ -47,7 +48,11 @@ export type CreatePendingOrderResult = { kind: 'created'; orderId: string } | { 
 export type ConfirmOrderPaymentResult = { kind: 'confirmed' } | { kind: 'already-confirmed' } | { kind: 'not-found' };
 
 type OrderRecord = ReturnType<typeof buildRuntimeOrder> extends { order: infer T } ? T : never;
-export type PersistedOrderResponse = { order: OrderRecord; children: unknown[] };
+export type PersistedOrderResponse = {
+  order: OrderRecord;
+  children: unknown[];
+  fulfillment?: { reservationId: string; items: readonly ReservationItem[] };
+};
 
 type OrderRow = {
   id: string;
@@ -297,6 +302,68 @@ const getPaymentPreparation = async (orderId: string): Promise<OrderPaymentPrepa
     : null;
 };
 
+const getPaidRecoveryPreparation = async (orderId: string) => {
+  const database = await getCheckoutDatabase();
+  const [row] = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE id=$1 FOR UPDATE', [orderId]);
+  if (!row || row.paid_by_payment_id) return null;
+  try {
+    const payload = parseOrder(row);
+    if (payload.order.status !== OrderStatus.Pending || payload.order.paymentDetails.status !== PaymentStatusEnum.Pending) return null;
+    const products: unknown = payload.order.products;
+    if (!Array.isArray(products) || products.length === 0) return null;
+    const items: ReservationItem[] = [];
+    for (const value of products as unknown[]) {
+      if (!value || typeof value !== 'object') return null;
+      const product = value as Record<string, unknown>;
+      if (
+        !product ||
+        typeof product.id !== 'string' ||
+        !product.id ||
+        typeof product.stock !== 'number' ||
+        !Number.isSafeInteger(product.stock) ||
+        product.stock < 0 ||
+        typeof product.backorder_stock !== 'number' ||
+        !Number.isSafeInteger(product.backorder_stock) ||
+        product.backorder_stock < 0 ||
+        product.stock + product.backorder_stock <= 0 ||
+        !Number.isSafeInteger(product.stock + product.backorder_stock) ||
+        items.some((item) => item.productId === product.id)
+      )
+        return null;
+      items.push({ productId: product.id, immediateQuantity: product.stock, backorderQuantity: product.backorder_stock });
+    }
+    return { items, backorderShippingTypeId: payload.order.shippingDetails?.backorderShippingTypeId };
+  } catch {
+    return null;
+  }
+};
+
+const confirmPaidRecovery = async (input: {
+  orderId: string;
+  paymentId: string;
+  reservationId: string;
+  items: readonly ReservationItem[];
+}) => {
+  const database = await getCheckoutDatabase();
+  const [row] = await database.query<OrderRow>('SELECT * FROM checkout_orders WHERE id=$1 FOR UPDATE', [input.orderId]);
+  if (!row || row.paid_by_payment_id) throw new Error('The recovery Order changed before paid confirmation.');
+  const payload = parseOrder(row);
+  if (payload.order.status !== OrderStatus.Pending || payload.order.paymentDetails.status !== PaymentStatusEnum.Pending)
+    throw new Error('The recovery Order is no longer pending.');
+  payload.order.paymentDetails.status = PaymentStatusEnum.Paid;
+  payload.order.updatedAt = new Date().toISOString();
+  // Keep accepted products, buyer choice and money immutable; record the new
+  // fulfillment buckets separately from the frozen commercial snapshot.
+  payload.fulfillment = { reservationId: input.reservationId, items: input.items };
+  const updated = await database.execute('UPDATE checkout_orders SET payload_json=$1, paid_by_payment_id=$2, updated_at=$3 WHERE id=$4', [
+    JSON.stringify(payload),
+    input.paymentId,
+    payload.order.updatedAt,
+    input.orderId,
+  ]);
+  if (updated !== 1) throw new Error('The recovery Order disappeared during paid confirmation.');
+};
+
 // Read-only domain preparation: callers validate checkout identity without
 // reading customer data or interpreting the Orders payload themselves.
 const getCheckoutStatePreparation = async (orderId: string) => {
@@ -378,6 +445,8 @@ export const orders = {
   isPaidCompensationHeld,
   settlePaidCompensation,
   getPaymentPreparation,
+  getPaidRecoveryPreparation,
+  confirmPaidRecovery,
   getCheckoutStatePreparation,
   findById,
   list,
