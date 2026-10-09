@@ -63,8 +63,8 @@ test('refund settlement and bank-return recovery render paid history with cancel
       ]) {
         await page.setViewportSize(viewport);
         await page.goto(`/order-summary/${orderId}`, { waitUntil: 'networkidle' });
-        await expect(page.getByText(status, { exact: true }).first()).toBeVisible();
-        await expect(page.getByText('Paid', { exact: true }).first()).toBeVisible();
+        await expect(page.getByText(status, { exact: true }).filter({ visible: true }).first()).toBeVisible();
+        await expect(page.getByText('Paid', { exact: true }).filter({ visible: true }).first()).toBeVisible();
         const response = await page.request.get(`/api/orders/${orderId}`, { headers });
         expect(response.ok()).toBe(true);
         const persisted = (await response.json()).data.order;
