@@ -1,5 +1,5 @@
 import { stripePayments, stripeRefunds, stripePaymentsEnabled } from '~/server/application/checkout/stripe-payment';
-import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
+import { continuePaidCheckout } from '~/server/application/checkout/continue-paid-checkout';
 import { terminalizeCanceledCheckout } from '~/server/application/checkout/terminalize-canceled-checkout';
 import { handleStripeWebhook } from '~/server/domain/payments';
 
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     enabled: stripePaymentsEnabled(),
     applyVerifiedRefundEvent: stripeRefunds.applyVerifiedRefundEvent,
     applyVerifiedIntentEvent: stripePayments.applyVerifiedIntentEvent,
-    finalizePaidCheckout,
+    finalizePaidCheckout: continuePaidCheckout,
     terminalizeCanceledCheckout,
   });
 
