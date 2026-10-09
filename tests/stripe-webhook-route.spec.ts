@@ -15,7 +15,7 @@ vi.mock('~/server/application/checkout/stripe-payment', () => ({
   stripePayments: { applyVerifiedIntentEvent: webhook.apply },
   stripePaymentsEnabled: webhook.enabled,
 }));
-vi.mock('~/server/application/checkout/finalize-paid-checkout', () => ({ finalizePaidCheckout: webhook.finalize }));
+vi.mock('~/server/application/checkout/continue-paid-checkout', () => ({ continuePaidCheckout: webhook.finalize }));
 vi.mock('~/server/application/checkout/terminalize-canceled-checkout', () => ({ terminalizeCanceledCheckout: webhook.terminalize }));
 
 type FakeEvent = { rawBody: Buffer; signature?: string };

@@ -178,8 +178,11 @@ The existing checkout route continues to use the mock flow during this phase.
 The #557 Stripe webhook endpoint additionally requires `STRIPE_WEBHOOK_SECRET`
 from its Stripe endpoint or CLI listener. Signed paid events with a valid
 reservation acknowledge after normal checkout finalization; canceled events
-acknowledge after checkout terminalization. Late-paid compensation remains a
-later application completion slice.
+acknowledge after checkout terminalization. Late-paid success delivery retries the application recovery decision and the
+same full Refund operation. It returns a retry response until the exact Stripe
+Refund identity or successful settlement is durable; known pending refunds
+continue independently through signed Refund events/reconciliation. A local
+Refund row without a provider identity never authorizes acknowledgment.
 After provider cancellation, `POST /api/orders/:id/restart` advances an unchanged
 Cart to a new revision for the same owner and returns `reviewRequired`. A buyer
 must request a fresh `/api/orders/price` review and use a new checkout request
