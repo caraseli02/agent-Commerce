@@ -1,6 +1,12 @@
 {
   "assessments": [
     {
+      "fingerprint": "26d183b6de210e538ba1a3e6e770064c8450e0b1b81b73c3d97f69e3b0beb40e",
+      "impact": "none",
+      "reason": "Adds server-only text routes for /robots.txt and /sitemap.xml; no rendered page, store, or style output changes",
+      "consumers": "server/routes/robots.txt.ts serves GET /robots.txt (text/plain) and server/routes/sitemap.xml.ts serves GET /sitemap.xml (application/xml); both are consumed only by crawlers. A repo-wide search for robots, sitemap and crawlPolicy finds only these two routes, the pure helper server/utils/crawlPolicy.ts, and tests/crawl-policy.spec.ts; no page, component, composable, store, layout, or stylesheet reads or links these URLs, public/ has no robots.txt, and no page route matches these paths. The sitemap route reads the static read-only mockProducts array (alias or _id) and writes nothing; the cache-policy middleware is scoped to /api and does not run for these paths. No HTML, cart, checkout, order, or shared style output changes, so the home, search, product, cart and orders screenshot groups cannot observe a difference. Runtime evidence from a fresh built server: /robots.txt 200 text/plain; charset=utf-8, /sitemap.xml 200 application/xml; charset=utf-8 with 26 URLs (/, /search and 24 product aliases), each URL returning 200, and no dashboard, checkout, cart or auth paths listed."
+    },
+    {
       "fingerprint": "93769467c786e8a380f9eede5f50230afedc52e313dd66d934f37bdc7fa8026d",
       "impact": "targeted",
       "tests": ["orders"],
@@ -55,6 +61,12 @@
       "tests": ["cart", "orders"],
       "reason": "Refund review repairs preserve provider identity through Checkout transitions and distinguish in-flight conflicts; exercise existing cart/order read consumers after additive schema/recovery guard changes.",
       "consumers": "The Refund capability still has no public route, UI or webhook caller. Known Refund identity/status reconciliation now belongs wholly to Payments and cannot be lost when Checkout advances. Creation still requires the Checkout-owned durable REFUND/held-order gate. The existing compensation recovery helper reuses that same gate, with stronger identity/money checks, and can affect the recovery flag read by the internal order payment-state classifier; its public shape and current default-off runtime boundaries are unchanged. Refund preparation/persistence does not settle Orders or mutate cart/inventory/Payment PAID. New migration008 preserves007 history and constrains only checkout_refunds; unknown legacy timestamps become epoch, never renewed replay permission. Focused isolated PostgreSQL tests cover overlap409, state-advance/known-ID recovery, requires_action, generic failure, financial/migration invariants and existing paid-compensation consumers. Fresh built mock checkout and cart desktop/mobile plus order-history mobile visuals cover existing rendered consumers after the schema/helper changes. Catalog/products/styles/layouts are untouched and would not exercise this internal capability; no baseline updates."
+    },
+    {
+      "fingerprint": "b65a07758e3d717c0106a21faca23840999f88bb77e8de7c9e641355c4b47422",
+      "impact": "none",
+      "reason": "Head-only SEO change: document title, meta, canonical link and X-Robots-Tag response headers; no rendered body markup, styles, data or client requests change.",
+      "consumers": "usePageSeo is called from pages/index.vue, pages/search.vue and pages/product/[slug].vue; usePrivateRouteSeo from app.vue. Both only register useSeoMeta/useHead entries (title, description, robots, og:*, twitter:*, canonical, optional ld+json script), all inside <head>. Templates of these pages, the layout and app.vue template are untouched; product data loading (useAsyncData) is unchanged and only read by computed SEO values. nuxt.config routeRules keep the existing /dashboard/** (appMiddleware auth, ssr:false) and /product/categories (appMiddleware auth) rules and only add an X-Robots-Tag header per private prefix (unit-tested merge; built-runtime curl shows the same 302 auth redirects and dashboard SPA shell). runtimeConfig.public.siteUrl is read only by usePageSeo. Screenshots capture body pixels, not head tags or response headers, so the home/search/product/cart/orders groups cannot observe this change; built-runtime curl and Playwright client-navigation checks cover the head output instead. No baseline updates."
     },
     {
       "fingerprint": "5c93b48504812584a48041bfbfeb7121caa860b1fcec9462af0dd797808e3a1a",

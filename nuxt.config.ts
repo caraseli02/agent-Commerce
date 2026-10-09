@@ -1,5 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
+import { withPrivateRobotsHeaders } from './helpers/seo-routes';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -98,6 +99,8 @@ export default defineNuxtConfig({
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',
       MOCK_MODE: process.env.NUXT_PUBLIC_MOCK_MODE === 'true',
+      // Canonical origin for SEO URLs; empty falls back to the request origin.
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL ?? '',
       HOST: '0.0.0.0',
     },
   },
@@ -116,10 +119,11 @@ export default defineNuxtConfig({
 
   ignore: ['**/node_modules/**', '**/.git/**', '**/.nuxt/**', '**/dist/**', '**/coverage/**', '**/.output/**'],
 
-  routeRules: {
+  // Private routes also send `X-Robots-Tag`; client-only dashboard HTML has no server-rendered robots meta.
+  routeRules: withPrivateRobotsHeaders({
     '/dashboard/**': { appMiddleware: ['auth'], ssr: false },
     '/product/categories': { appMiddleware: ['auth'] },
-  },
+  }),
   devServer: {
     host: '0.0.0.0',
     port: 3000,
