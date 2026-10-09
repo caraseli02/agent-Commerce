@@ -74,6 +74,13 @@
       "tests": ["search"],
       "reason": "Search gains a compact visible page h1 above the filters, shifting the search layout; the header mega-menu banner heading changes tag only. Select the search visual group (both viewports).",
       "consumers": "components/search/Heading.vue is rendered only by pages/search.vue, between SearchBreadcrumbs and SearchFilters, so only /search routes shift; the search visual group covers that route at desktop and mobile. BannerNew.vue is rendered only by DektopPopoverContainer.vue inside the desktop products mega-menu (closed by default, not opened in any screenshot); its h1 became an h2 with identical classes (Tailwind sets sizes explicitly, preflight resets heading styles) so there is no visual change, and aria-labelledby=hero-title still resolves to the same id. Home, product, cart and orders pages are unchanged; runtime browser checks cover h1 counts on home, search and product at 1280px and 390px, with the mega-menu open."
+    },
+    {
+      "fingerprint": "e90bd869632837a603808385dac89e593a81412d26dbbc094bf300988c544b66",
+      "impact": "targeted",
+      "tests": ["search"],
+      "reason": "Search gains a compact visible page h1 above the filters, shifting the search layout; the header mega-menu banner heading changes tag only. Select the search visual group (both viewports). Re-recorded after merging main (#625, #623): the PR diff is unchanged, only the pages/search.vue base blob moved.",
+      "consumers": "components/search/Heading.vue is rendered only by pages/search.vue, between SearchBreadcrumbs and SearchFilters, so only /search routes shift; the search visual group covers that route at desktop and mobile. BannerNew.vue is rendered only by DektopPopoverContainer.vue inside the desktop products mega-menu (closed by default, not opened in any screenshot); its h1 became an h2 with identical classes (Tailwind sets sizes explicitly, preflight resets heading styles) so there is no visual change, and aria-labelledby=hero-title still resolves to the same id. Home, product, cart and orders pages are unchanged; runtime browser checks cover h1 counts on home, search and product at 1280px and 390px, with the mega-menu open. With #625 merged, pages/search.vue also calls usePageSeo, which writes head tags only (title, meta, canonical) and renders no body markup, so it does not interact with the new SearchHeading; #623 adds server-only robots/sitemap routes."
     }
   ]
 }
