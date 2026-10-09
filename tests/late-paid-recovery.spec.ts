@@ -272,16 +272,20 @@ describe('atomic approved late-paid recovery policy', () => {
     expect((await state()).inventory[0]!.on_hand).toBe(3);
   });
 
-  it.each(['payment', 'quantity', 'reservation', 'choice', 'workflow'])('corrupt %s cannot authorize recovery', async (corrupt) => {
-    const db = await getCheckoutDatabase();
-    if (corrupt === 'payment') await db.execute('UPDATE checkout_payments SET amount_minor=1');
-    if (corrupt === 'quantity')
-      await db.execute("UPDATE checkout_orders SET payload_json=jsonb_set(payload_json::jsonb,'{order,products,0,stock}','-1')::text");
-    if (corrupt === 'reservation') await db.execute("UPDATE checkout_reservations SET items_json='[]'");
-    if (corrupt === 'choice') await db.execute("UPDATE checkout_claims SET paid_recovery_decision='REFUND'");
-    if (corrupt === 'workflow') await db.execute("UPDATE checkout_claims SET workflow_status='canceled'");
-    const before = await state();
-    expect(await recoverLatePaidCheckout(input)).toEqual({ kind: 'retry' });
-    expect(await state()).toEqual(before);
-  });
+  it.each(['payment', 'quantity', 'reservation', 'reservation-owner', 'choice', 'workflow'])(
+    'corrupt %s cannot authorize recovery',
+    async (corrupt) => {
+      const db = await getCheckoutDatabase();
+      if (corrupt === 'payment') await db.execute('UPDATE checkout_payments SET amount_minor=1');
+      if (corrupt === 'quantity')
+        await db.execute("UPDATE checkout_orders SET payload_json=jsonb_set(payload_json::jsonb,'{order,products,0,stock}','-1')::text");
+      if (corrupt === 'reservation') await db.execute("UPDATE checkout_reservations SET items_json='[]'");
+      if (corrupt === 'reservation-owner') await db.execute("UPDATE checkout_reservations SET reservation_key='foreign:request'");
+      if (corrupt === 'choice') await db.execute("UPDATE checkout_claims SET paid_recovery_decision='REFUND'");
+      if (corrupt === 'workflow') await db.execute("UPDATE checkout_claims SET workflow_status='canceled'");
+      const before = await state();
+      expect(await recoverLatePaidCheckout(input)).toEqual({ kind: 'retry' });
+      expect(await state()).toEqual(before);
+    },
+  );
 });
