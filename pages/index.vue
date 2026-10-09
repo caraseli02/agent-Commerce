@@ -12,12 +12,9 @@
 </template>
 
 <script setup lang="ts">
-useSeoMeta({
-  title: 'Home',
+usePageSeo({
+  title: 'Electronic Components Sourced Reliably',
   description:
-    'Source electronic components with confidence. Compare specifications, check real-time stock across trusted manufacturers, and order the parts your build needs.',
-  ogTitle: 'Components Marketplace — Electronic Components Sourced Reliably',
-  ogDescription:
     'Source electronic components with confidence. Compare specifications, check real-time stock across trusted manufacturers, and order the parts your build needs.',
 });
 </script>

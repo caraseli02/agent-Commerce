@@ -63,8 +63,9 @@ import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearch
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
 import { useProductStore } from '~/store/productStore';
 
-useHead({
-  title: 'Search',
+usePageSeo({
+  title: 'Search Electronic Components',
+  description: 'Search electronic components by part number, manufacturer, or keyword, then filter by specifications and stock.',
 });
 
 const productStore = useProductStore();
