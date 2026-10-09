@@ -144,6 +144,32 @@ describe('usePageSeo', () => {
   });
 });
 
+describe('useSiteUrl', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    publicConfig = {};
+    vi.stubGlobal('useRuntimeConfig', () => ({ public: publicConfig }));
+    vi.stubGlobal('useRequestURL', () => new URL('http://request.test:3201/some/path?x=1'));
+  });
+
+  it('prefers the configured site URL, trims trailing slashes, and resolves URLs against it', async () => {
+    publicConfig = { siteUrl: 'https://shop.example///' };
+    const { useSiteUrl } = await loadComposable();
+    const { siteUrl, toAbsoluteUrl } = useSiteUrl();
+
+    expect(siteUrl).toBe('https://shop.example');
+    expect(toAbsoluteUrl('/images/a.png')).toBe('https://shop.example/images/a.png');
+    expect(toAbsoluteUrl('//cdn.example/a.png')).toBe('https://cdn.example/a.png');
+    expect(toAbsoluteUrl('https://other.example/a.png')).toBe('https://other.example/a.png');
+  });
+
+  it('falls back to the request origin when no site URL is configured', async () => {
+    const { useSiteUrl } = await loadComposable();
+
+    expect(useSiteUrl().siteUrl).toBe('http://request.test:3201');
+  });
+});
+
 describe('private route robots policy', () => {
   beforeEach(() => {
     vi.resetModules();
