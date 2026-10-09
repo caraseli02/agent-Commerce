@@ -14,3 +14,5 @@ tmp
 .agents
 .claude
 skills
+# Generated map data: kept minified to save deployment storage
+public/data/geojson.json
