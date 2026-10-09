@@ -48,9 +48,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   };
 
   /** create a new instance of $fetcher with custom option */
+  const requestFetch = config.MOCK_MODE ? nuxtApp.ssrContext?.event.fetch : undefined;
   const apiFetcher = $fetch.create(
     fetchOptions,
-    config.MOCK_MODE && nuxtApp.ssrContext?.event ? { fetch: nuxtApp.ssrContext.event.fetch } : undefined,
+    requestFetch ? { fetch: (input, init) => requestFetch(input instanceof URL ? input.href : input, init) } : undefined,
   );
 
   return {
