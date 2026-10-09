@@ -46,14 +46,14 @@ const retrieve = vi.fn<StripeRefundProvider['retrieve']>(async (id) => {
   expect(id).toBe(remote?.id);
   return { ...remote!, status: remoteStatus };
 });
-const refunds = () =>
+const refunds = (onSucceeded = settleRefundCompensation) =>
   createStripeRefundAdapter({
     provider: { create, retrieve },
     enabled: () => true,
     now: () => clock,
     withRefundCompensation,
     onRecoveryRequired: requireRefundCompensationRecovery,
-    onSucceeded: settleRefundCompensation,
+    onSucceeded,
   });
 const signed = (type = 'payment_intent.succeeded', id = 'evt_compensation_paid') => {
   const object = type.startsWith('refund.')
@@ -240,6 +240,30 @@ describe('late paid success delivery continues compensation without a browser', 
       on_hand: 0,
       reserved: 0,
     });
+  });
+
+  it('retries paid delivery after Refund success commits but application settlement crashes', async () => {
+    remoteStatus = 'succeeded';
+    const crashed = refunds(async () => {
+      throw new Error('settlement process crashed');
+    });
+    const { input } = webhook(crashed);
+    expect(await handleStripeWebhook(input)).toEqual({ kind: 'retry' });
+    expect(await state()).toMatchObject({
+      refund_status: 'SUCCEEDED',
+      stripe_refund_id: 're_compensation_integration',
+      orderStatus: 'On Hold',
+    });
+    expect(
+      await handleStripeWebhook({ ...input, finalizePaidCheckout: createContinuePaidCheckout({ ...refunds(), readRefundContinuation }) }),
+    ).toEqual({ kind: 'accepted' });
+    expect(await state()).toMatchObject({
+      refund_status: 'SUCCEEDED',
+      orderStatus: 'Canceled',
+      workflow_status: 'finalized',
+      payment_status: 'PAID',
+    });
+    expect(create).toHaveBeenCalledOnce();
   });
 
   it('keeps failed Refund paid, held and non-fulfillable while acknowledging durable financial identity', async () => {
