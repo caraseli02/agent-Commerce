@@ -73,6 +73,20 @@
       "impact": "none",
       "reason": "Head-only SEO change: one application/ld+json script (Product + BreadcrumbList) in <head> on product detail pages; no rendered body markup, styles, data loading or client requests change.",
       "consumers": "buildProductPageJsonLd (helpers/product-json-ld.ts) is a pure function called only from the jsonLd getter of the usePageSeo call in pages/product/[slug].vue; it reads the already-loaded ProductDetail (name, description, image, code/alias, manufacturer, stock, price tiers via resolveCustomerUnitPrice, taxonomy path) and writes nothing. usePageSeo's output is unchanged apart from extracting its site-URL logic into the exported useSiteUrl(), which returns the same siteUrl/toAbsoluteUrl to usePageSeo and the product page; pages/index.vue, pages/search.vue and the private-route policy are untouched. The head script is rendered inside <head> via unhead, so the product page template, ProductBreadcrumbs, price/stock components, layouts and styles are untouched; screenshots capture body pixels and cannot observe a ld+json script. Built-runtime curl of /product/stm32f407vgt6 and /product/headphones-nc-wireless confirms exactly one parseable ld+json script and the page still renders its h1. No baseline updates."
+    },
+    {
+      "fingerprint": "5c93b48504812584a48041bfbfeb7121caa860b1fcec9462af0dd797808e3a1a",
+      "impact": "targeted",
+      "tests": ["search"],
+      "reason": "Search gains a compact visible page h1 above the filters, shifting the search layout; the header mega-menu banner heading changes tag only. Select the search visual group (both viewports).",
+      "consumers": "components/search/Heading.vue is rendered only by pages/search.vue, between SearchBreadcrumbs and SearchFilters, so only /search routes shift; the search visual group covers that route at desktop and mobile. BannerNew.vue is rendered only by DektopPopoverContainer.vue inside the desktop products mega-menu (closed by default, not opened in any screenshot); its h1 became an h2 with identical classes (Tailwind sets sizes explicitly, preflight resets heading styles) so there is no visual change, and aria-labelledby=hero-title still resolves to the same id. Home, product, cart and orders pages are unchanged; runtime browser checks cover h1 counts on home, search and product at 1280px and 390px, with the mega-menu open."
+    },
+    {
+      "fingerprint": "e90bd869632837a603808385dac89e593a81412d26dbbc094bf300988c544b66",
+      "impact": "targeted",
+      "tests": ["search"],
+      "reason": "Search gains a compact visible page h1 above the filters, shifting the search layout; the header mega-menu banner heading changes tag only. Select the search visual group (both viewports). Re-recorded after merging main (#625, #623): the PR diff is unchanged, only the pages/search.vue base blob moved.",
+      "consumers": "components/search/Heading.vue is rendered only by pages/search.vue, between SearchBreadcrumbs and SearchFilters, so only /search routes shift; the search visual group covers that route at desktop and mobile. BannerNew.vue is rendered only by DektopPopoverContainer.vue inside the desktop products mega-menu (closed by default, not opened in any screenshot); its h1 became an h2 with identical classes (Tailwind sets sizes explicitly, preflight resets heading styles) so there is no visual change, and aria-labelledby=hero-title still resolves to the same id. Home, product, cart and orders pages are unchanged; runtime browser checks cover h1 counts on home, search and product at 1280px and 390px, with the mega-menu open. With #625 merged, pages/search.vue also calls usePageSeo, which writes head tags only (title, meta, canonical) and renders no body markup, so it does not interact with the new SearchHeading; #623 adds server-only robots/sitemap routes."
     }
   ]
 }
