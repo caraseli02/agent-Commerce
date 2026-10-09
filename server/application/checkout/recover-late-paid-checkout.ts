@@ -56,7 +56,11 @@ export const recoverLatePaidCheckout = async (input: { paymentId: string; orderI
       return { kind: 'retry' };
     const frozen = await orders.getPaidRecoveryPreparation(input.orderId);
     if (!frozen) return { kind: 'retry' };
-    const recovered = await inventory.recoverPaidReservation({ reservationId: claim.reservation_id, ...frozen });
+    const recovered = await inventory.recoverPaidReservation({
+      reservationId: claim.reservation_id,
+      reservationKey: `${claim.owner_id}:${claim.request_id}`,
+      ...frozen,
+    });
     if (recovered.kind === 'retry') return { kind: 'retry' };
     if (recovered.kind === 'unavailable') {
       const refund = await commitRefundCompensation(input);
