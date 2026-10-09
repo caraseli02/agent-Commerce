@@ -18,6 +18,8 @@ export interface OrderCreateResponse {
   clientSecret?: string;
   status: PaymentStatusEnum;
   orderId: string;
+  /** Server-prepared card checkout; resume must authorize any confirmation. */
+  paymentSession?: boolean;
 }
 
 export interface PlaceOrderInterface {

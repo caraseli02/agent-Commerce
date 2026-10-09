@@ -9,6 +9,7 @@ import { inventory as defaultInventory } from '~/server/domain/inventory';
 import { orders as defaultOrders } from '~/server/domain/orders';
 import { payments as defaultPayments, type PaymentPreparation } from '~/server/domain/payments';
 import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { stripePaymentsEnabled } from './stripe-payment';
 import { createCheckoutReviewFingerprint } from './review-fingerprint';
 
 type LegacyOrderInput = Record<string, unknown> & {
@@ -98,6 +99,7 @@ const toLegacyPaymentResult = (payment: PaymentPreparation, order: LegacyOrderIn
   status: PaymentStatusEnum.Paid,
   useExistingPaymentMethod: Boolean(order.stripeCardId),
   clientSecret: undefined as string | undefined,
+  paymentSession: false,
   result: resolvePaymentType(order) === PaymentTypeEnum.Card ? { status: 'succeeded' as const } : undefined,
 });
 const resolveDeliveryServiceId = (order: LegacyOrderInput) => {
@@ -170,7 +172,11 @@ const requirePreparedClaim = (row: ClaimRow) => {
 };
 
 export const createPlaceOrderUseCase =
-  (dependencies: PlaceOrderDependencies, coordinator: PlaceOrderCoordinator = createPlaceOrderCoordinator()) =>
+  (
+    dependencies: PlaceOrderDependencies,
+    coordinator: PlaceOrderCoordinator = createPlaceOrderCoordinator(),
+    options: { requiresClientPayment?: () => boolean } = {},
+  ) =>
   async (command: PlaceOrderCommand): Promise<PlaceOrderResult> => {
     assertOutsideCheckoutTransaction('PlaceOrder');
     const cartId = command.cartId.trim();
@@ -377,6 +383,18 @@ export const createPlaceOrderUseCase =
     }
     if (prepared.workflow_status === 'canceled' || payment.status === 'FAILED' || payment.status === 'CANCELED')
       throw new PlaceOrderError('payment_failed', 409, 'The prepared Payment is terminal and cannot be resumed.');
+    // Prepare only: Stripe.js confirmation and server reconciliation own the next steps.
+    // Never enter the demo completion writer for gated card checkout.
+    if (options.requiresClientPayment?.() && resolvePaymentType(command.order) === PaymentTypeEnum.Card) {
+      return {
+        orderId: payment.orderId,
+        status: PaymentStatusEnum.Pending,
+        useExistingPaymentMethod: false,
+        clientSecret: undefined,
+        result: undefined,
+        paymentSession: true,
+      };
+    }
     if (payment.status === 'PROCESSING')
       throw new PlaceOrderError('payment_recovery_required', 409, 'The Payment is still processing and requires recovery.');
     if (payment.status === 'PENDING') {
@@ -443,4 +461,5 @@ const defaultCoordinator = createPlaceOrderCoordinator();
 export const placeOrder = createPlaceOrderUseCase(
   { cart: defaultCart, catalog: defaultCatalog, inventory: defaultInventory, orders: defaultOrders, payments: defaultPayments },
   defaultCoordinator,
+  { requiresClientPayment: stripePaymentsEnabled },
 );
