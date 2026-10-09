@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockToken } from '~/server/utils/mockUsers';
+import { createMockToken } from '~~/server/utils/mockUsers';
 
 const checkout = vi.hoisted(() => ({
   enabled: vi.fn(() => false),
@@ -10,8 +10,8 @@ vi.mock('h3', async (importOriginal) => {
   const actual = await importOriginal<typeof import('h3')>();
   return { ...actual, getCookie: (event: FakeEvent, name: string) => event.cookies?.[name] };
 });
-vi.mock('~/server/application/checkout/stripe-payment', () => ({ stripePaymentsEnabled: checkout.enabled }));
-vi.mock('~/server/application/checkout/resume-order-payment', () => ({ resumeOrderPayment: checkout.resume }));
+vi.mock('~~/server/application/checkout/stripe-payment', () => ({ stripePaymentsEnabled: checkout.enabled }));
+vi.mock('~~/server/application/checkout/resume-order-payment', () => ({ resumeOrderPayment: checkout.resume }));
 
 type FakeEvent = {
   headers?: Record<string, string>;
@@ -31,7 +31,7 @@ describe('unpaid payment resume route', () => {
     vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string; data?: unknown }) =>
       Object.assign(new Error(payload.statusMessage), payload),
     );
-    route = (await import('~/server/api/orders/[id]/resume-payment.post')).default as unknown as (event: FakeEvent) => Promise<unknown>;
+    route = (await import('~~/server/api/orders/[id]/resume-payment.post')).default as unknown as (event: FakeEvent) => Promise<unknown>;
   });
 
   beforeEach(() => {

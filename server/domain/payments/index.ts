@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 import { parsePersistedPaymentStatus, type PersistedPaymentStatus } from './contracts';
 export type { PaymentStatus, PersistedPaymentStatus } from './contracts';

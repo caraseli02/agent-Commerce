@@ -127,7 +127,7 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 
 ## Architecture notes
 
-- API access goes through `plugins/api.ts` for the shared `$apiClient` and plain domain functions in `composables/api/*` for mutations/orchestration.
+- API access goes through `app/plugins/api.ts` for the shared `$apiClient` and plain domain functions in `app/composables/api/*` for mutations/orchestration.
 - Auth uses local mock token/session state.
 - `server/api/` is the mock backend for portfolio/demo work.
 - UI uses shadcn-vue / Radix-style primitives with Tailwind.

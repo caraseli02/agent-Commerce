@@ -26,7 +26,7 @@ function repository() {
     return git('rev-parse', 'HEAD');
   };
   write('server/internal.ts', 'original');
-  write('pages/index.vue', '<div>original</div>');
+  write('app/pages/index.vue', '<div>original</div>');
   const base = commit();
   git('update-ref', 'refs/remotes/origin/main', base);
   const push = (before = base, after = git('rev-parse', 'HEAD')) => `refs/heads/main ${after} refs/heads/main ${before}\n`;
@@ -39,8 +39,8 @@ describe('visual impact selection', () => {
     expect(nonObservable('tests/payment.spec.ts')).toBe(true);
     for (const path of [
       'server/api/products.ts',
-      'store/cart.ts',
-      'composables/useProduct.ts',
+      'app/store/cart.ts',
+      'app/composables/useProduct.ts',
       'types/product.ts',
       'data/catalog.json',
       'nuxt.config.ts',
@@ -71,13 +71,13 @@ describe('visual impact selection', () => {
       consumers: '/product, purchase panel',
       tests: ['product'],
     };
-    expect(select(['pages/product.vue'], 'hash', [assessment]).tests).toEqual(['product']);
-    for (const tests of [[], ['typo']]) expect(select(['pages/product.vue'], 'hash', [{ ...assessment, tests }]).mode).toBe('full');
-    expect(select(['pages/product.vue'], 'hash', [{ ...assessment, impact: 'uncertain' }]).mode).toBe('full');
+    expect(select(['app/pages/product.vue'], 'hash', [assessment]).tests).toEqual(['product']);
+    for (const tests of [[], ['typo']]) expect(select(['app/pages/product.vue'], 'hash', [{ ...assessment, tests }]).mode).toBe('full');
+    expect(select(['app/pages/product.vue'], 'hash', [{ ...assessment, impact: 'uncertain' }]).mode).toBe('full');
   });
   it('uses all commits for first pushes and the remote tip for subsequent pushes', () => {
     const r = repository();
-    r.write('pages/index.vue', '<div>changed</div>');
+    r.write('app/pages/index.vue', '<div>changed</div>');
     const first = r.commit();
     r.write('README.md', 'docs');
     r.commit();
@@ -86,12 +86,12 @@ describe('visual impact selection', () => {
   });
   it('includes both sides of renames and deleted runtime paths', () => {
     const r = repository();
-    r.git('mv', 'pages/index.vue', 'README.md');
+    r.git('mv', 'app/pages/index.vue', 'README.md');
     r.git('rm', 'server/internal.ts');
     r.commit();
     const result = plan({ cwd: r.cwd, input: r.push() });
     expect(result.mode).toBe('full');
-    expect(result.decisions[0]!.files).toEqual(['pages/index.vue', 'server/internal.ts']);
+    expect(result.decisions[0]!.files).toEqual(['app/pages/index.vue', 'server/internal.ts']);
   });
   it('binds a committed assessment to runtime diff, independent of documentation edits', () => {
     const r = repository();
@@ -122,9 +122,9 @@ describe('visual impact selection', () => {
   });
   it('does not let an uncommitted reversal hide pushed runtime changes', () => {
     const r = repository();
-    r.write('pages/index.vue', '<div>changed</div>');
+    r.write('app/pages/index.vue', '<div>changed</div>');
     r.commit();
-    r.write('pages/index.vue', '<div>original</div>');
+    r.write('app/pages/index.vue', '<div>original</div>');
     const result = plan({ cwd: r.cwd, input: r.push() });
     expect(result.mode).toBe('full');
     expect(result.decisions).toHaveLength(2);
@@ -133,18 +133,18 @@ describe('visual impact selection', () => {
     const r = repository();
     r.write('README.md', 'docs');
     const docs = r.commit();
-    r.write('store/new.ts', 'export const value = 1;');
+    r.write('app/store/new.ts', 'export const value = 1;');
     expect(plan({ cwd: r.cwd, base: r.base, local: true }).mode).toBe('full');
     const runtime = r.commit();
     expect(plan({ cwd: r.cwd, input: r.push(r.base, runtime) + r.push(docs, runtime) }).mode).toBe('full');
     expect(plan({ cwd: r.cwd, input: r.push(runtime, '0'.repeat(40)) }).mode).toBe('skip');
-    r.write('store/new.ts', 'staged');
-    r.git('add', 'store/new.ts');
+    r.write('app/store/new.ts', 'staged');
+    r.git('add', 'app/store/new.ts');
     expect(plan({ cwd: r.cwd, input: r.push(runtime) }).mode).toBe('full');
   });
   it('rejects a non-HEAD runtime hidden by a rename to a documentation path', () => {
     const r = repository();
-    r.git('mv', 'pages/index.vue', 'README.md');
+    r.git('mv', 'app/pages/index.vue', 'README.md');
     r.commit();
     expect(() => plan({ cwd: r.cwd, input: r.push(r.base, r.base) })).toThrow('Pushed runtime differs');
   });
@@ -200,7 +200,7 @@ it('runs the real hook with captured push stdin and stops before visuals when ve
   expect(execute('0').status).toBe(0);
   const verifyArgs = `verify --reuse --base ${r.base} --head ${r.git('rev-parse', 'HEAD')}\n`;
   expect(readFileSync(log, 'utf8')).toBe(verifyArgs);
-  r.write('pages/index.vue', '<div>visible change</div>');
+  r.write('app/pages/index.vue', '<div>visible change</div>');
   r.commit();
   expect(execute('9').status).toBe(9);
   const failedArgs = `verify --reuse --base ${r.base} --head ${r.git('rev-parse', 'HEAD')}\n`;

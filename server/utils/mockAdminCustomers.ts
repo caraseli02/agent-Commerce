@@ -1,7 +1,7 @@
 import { getQuery } from 'h3';
-import { mockCustomers } from '~/server/utils/mockDashboardData';
-import { getDemoUserProfile } from '~/server/utils/mockDashboardDemo';
-import { AccountStatusEnum, type UserInterface } from '~/types/auth/user-interface';
+import { mockCustomers } from '~~/server/utils/mockDashboardData';
+import { getDemoUserProfile } from '~~/server/utils/mockDashboardDemo';
+import { AccountStatusEnum, type UserInterface } from '~~/types/auth/user-interface';
 
 export const getAdminMockCustomers = (): UserInterface[] => {
   return mockCustomers.map((customer) => {

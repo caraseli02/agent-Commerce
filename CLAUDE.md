@@ -71,8 +71,9 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 ## Architecture shortcuts
 
-- API flow: `plugins/api.ts` (`$apiClient`) → `composables/api/*` domain functions → domain composables (`useCart`, `useOrder`, etc.) → Pinia/UI. See `CONTEXT.md` § API access for the full contract.
+- API flow: `app/plugins/api.ts` (`$apiClient`) → `app/composables/api/*` domain functions → domain composables (`useCart`, `useOrder`, etc.) → Pinia/UI. See `CONTEXT.md` § API access for the full contract.
 - Do not add a class-based service registry, `HttpFactory`, `useFetchAPI`, or component-level `$api.<domain>` calls.
+- App sources live in `app/` (Nuxt 4 default): `~`/`@` resolve to `app/`, `~~`/`@@` to the repo root. Server-shared code (`server/`, `types/`, `helpers/`, `model/`, `data/`) stays at the root and is imported as `~~/...`.
 - Mock backend: `server/api/`
 - Auth/session state: local mock token + Pinia + token cookie
 - UI: shadcn-vue / Radix-style primitives + Tailwind

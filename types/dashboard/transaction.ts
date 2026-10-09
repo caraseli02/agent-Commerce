@@ -1,4 +1,4 @@
-import type { PaymentStatusEnum, PaymentTypeEnum } from '~/types';
+import type { PaymentStatusEnum, PaymentTypeEnum } from '~~/types';
 
 export interface TransactionInterface {
   _id: string;

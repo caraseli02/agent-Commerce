@@ -1,7 +1,7 @@
 import { format, parseISO } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
-import { REVIEWER_DATE_FALLBACK, formatReviewerDate, formatReviewerDateTime } from '~/helpers/reviewer-dates';
+import { REVIEWER_DATE_FALLBACK, formatReviewerDate, formatReviewerDateTime } from '~~/helpers/reviewer-dates';
 
 describe('reviewer date formatting', () => {
   it('formats valid ISO timestamps for reviewer-facing date-time fields', () => {

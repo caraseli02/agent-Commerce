@@ -1,6 +1,6 @@
-import type { ProductInterface } from '~/types/product';
-import { mockProducts } from '~/server/utils/mockProducts';
-import { getProductTaxonomyPath, matchesCategoryPath } from '~/helpers/categoryPath.helper';
+import type { ProductInterface } from '~~/types/product';
+import { mockProducts } from '~~/server/utils/mockProducts';
+import { getProductTaxonomyPath, matchesCategoryPath } from '~~/helpers/categoryPath.helper';
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);

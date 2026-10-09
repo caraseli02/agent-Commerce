@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import type { H3Event } from 'h3';
-import { PriceSettingsTypeEnum, type PriceSettingsInterface } from '~/model/prices/price-settings.interface';
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
-import type { UserPermissionsEnum } from '~/types/auth/permissions';
+import { PriceSettingsTypeEnum, type PriceSettingsInterface } from '~~/model/prices/price-settings.interface';
+import { getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
+import type { UserPermissionsEnum } from '~~/types/auth/permissions';
 
 const PRICING_SESSION_COOKIE = 'components_marketplace_pricing_session';
 const MAX_PRICING_SESSIONS = 200;

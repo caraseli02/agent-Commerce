@@ -2,6 +2,11 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## App source directory and the #530 payment-path exception — 2026-10-09
+
+- Nuxt uses its default `app/` source directory (#530). `~`/`@` resolve to `app/`, `~~`/`@@` to the repository root. Code shared with the server (`server/`, `types/`, `helpers/`, `model/`, `data/`, `modules/`) stays at the root and is imported as `~~/...`. `app/utils/mockAuth.ts` stays in `app/utils` so its auto-imports are unchanged; the server reaches it through `~/utils/mockAuth`.
+- One-time exception (Vlad, 2026-10-09, interactive session): Claude moved `pages/checkout/**` and `components/payment/**` to `app/` with `git mv`. The only content change is four import-specifier lines in `app/pages/checkout/fail/index.vue` and `app/pages/checkout/success/index.vue` (`~/helpers`, `~/types` → `~~/...`), in their own commit. `protected_paths.payments` in `.factory/factory.yaml` was updated to the new `app/...` locations (`owner-approved-harness`). The exception covers #530 only; the payment-path rule is otherwise unchanged.
+
 ## Claude routine build mode — 2026-10-08
 
 - `claude-routine` switches from `review-only` to `build` (Vlad, 2026-10-08) after the rollout acceptance on PR #608: Claude reviewed Codex's #616 (PASS) and Codex reviewed Claude's PRs; #615 was repaired on the same PR after a FAIL and re-reviewed at its new head; a second concurrent run yields on the run lock (checked live 2026-10-08, exit 3). Claude's queue is the `agent:claude` + `ready-for-agent` issues Vlad labels; WIP stays 1, and payments and protected paths stay out of unattended runs.

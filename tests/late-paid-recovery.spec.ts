@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { recoverLatePaidCheckout } from '~/server/application/checkout/recover-late-paid-checkout';
-import { commitRefundCompensation } from '~/server/application/checkout/commit-refund-compensation';
-import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
-import { orders } from '~/server/domain/orders';
-import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { recoverLatePaidCheckout } from '~~/server/application/checkout/recover-late-paid-checkout';
+import { commitRefundCompensation } from '~~/server/application/checkout/commit-refund-compensation';
+import { finalizePaidCheckout } from '~~/server/application/checkout/finalize-paid-checkout';
+import { orders } from '~~/server/domain/orders';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 const input = { paymentId: 'pay-late', orderId: 'ord-late' };
 const timestamp = '2026-10-01T00:00:00.000Z';
@@ -191,7 +191,7 @@ describe('atomic approved late-paid recovery policy', () => {
     await recoverLatePaidCheckout(input);
     const committed = await state();
     vi.resetModules();
-    const restarted = await import('~/server/application/checkout/recover-late-paid-checkout');
+    const restarted = await import('~~/server/application/checkout/recover-late-paid-checkout');
     expect(await restarted.recoverLatePaidCheckout(input)).toEqual({ kind: 'decided', decision: 'ALLOCATE' });
     expect(await state()).toEqual(committed);
   });

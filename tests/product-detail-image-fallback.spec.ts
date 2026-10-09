@@ -5,9 +5,9 @@ import { baseParse, NodeTypes, type ElementNode, type RootNode } from '@vue/comp
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
-const imageWithFallbackPath = resolve('components/global/ImageWithFallback.vue');
-const zoomGalleryPath = resolve('components/product/ZoomGallery.vue');
-const zoomImgPath = resolve('components/product/ZoomImg.vue');
+const imageWithFallbackPath = resolve('app/components/global/ImageWithFallback.vue');
+const zoomGalleryPath = resolve('app/components/product/ZoomGallery.vue');
+const zoomImgPath = resolve('app/components/product/ZoomImg.vue');
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
   const found: ElementNode[] = [];

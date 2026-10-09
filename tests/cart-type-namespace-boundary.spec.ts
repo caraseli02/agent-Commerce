@@ -4,22 +4,22 @@ import { describe, expect, it } from 'vitest';
 
 const repoRoot = process.cwd();
 const sourceRoots = [
-  'components',
-  'composables',
-  'config',
+  'app/components',
+  'app/composables',
+  'app/config',
   'data',
   'helpers',
-  'layouts',
-  'lib',
-  'middleware',
+  'app/layouts',
+  'app/lib',
+  'app/middleware',
   'modules',
-  'pages',
-  'plugins',
+  'app/pages',
+  'app/plugins',
   'server',
   'services',
-  'store',
+  'app/store',
   'types',
-  'utils',
+  'app/utils',
 ];
 const legacyCartImport = /['"][^'"]*model\/cart(?:\/|['"])/;
 
@@ -66,7 +66,7 @@ describe('cart type namespace boundary', () => {
     const requestModule = await readFile(join(repoRoot, 'model/cart/request/cart.interface.ts'), 'utf8');
     const responseModule = await readFile(join(repoRoot, 'model/cart/response/cart.interface.ts'), 'utf8');
 
-    expect(requestModule).toContain("export * from '~/types/cart/request'");
-    expect(responseModule).toContain("export * from '~/types/cart/response'");
+    expect(requestModule).toContain("export * from '~~/types/cart/request'");
+    expect(responseModule).toContain("export * from '~~/types/cart/response'");
   });
 });

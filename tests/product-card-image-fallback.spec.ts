@@ -5,7 +5,7 @@ import { baseParse, NodeTypes, type ElementNode, type RootNode } from '@vue/comp
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
-const productCardPath = resolve('components/global/ProductCard.vue');
+const productCardPath = resolve('app/components/global/ProductCard.vue');
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
   const found: ElementNode[] = [];

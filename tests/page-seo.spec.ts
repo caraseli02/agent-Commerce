@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref, toValue } from 'vue';
 
-import { PRIVATE_ROBOTS, PRIVATE_ROUTE_PREFIXES, isPrivateRoute, withPrivateRobotsHeaders } from '~/helpers/seo-routes';
+import { PRIVATE_ROBOTS, PRIVATE_ROUTE_PREFIXES, isPrivateRoute, withPrivateRobotsHeaders } from '~~/helpers/seo-routes';
 
 type HeadInput = Record<string, unknown>;
 
@@ -30,7 +30,7 @@ const emittedHead = () => {
   };
 };
 
-const loadComposable = async () => import('../composables/usePageSeo');
+const loadComposable = async () => import('../app/composables/usePageSeo');
 
 describe('usePageSeo', () => {
   beforeEach(() => {

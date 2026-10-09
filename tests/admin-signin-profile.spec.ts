@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { withSessionAuthorization } from '../composables/api/authorization';
+import { withSessionAuthorization } from '../app/composables/api/authorization';
 
 const installH3Mocks = () => {
   vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);

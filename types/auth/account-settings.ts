@@ -1,4 +1,4 @@
-import type { StripeCardInterface } from '~/types';
+import type { StripeCardInterface } from '~~/types';
 
 export interface AccountAdminSettings {
   discount?: DiscountInterface;

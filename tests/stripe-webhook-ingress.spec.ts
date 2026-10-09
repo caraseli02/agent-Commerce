@@ -1,8 +1,8 @@
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createStripeIntentAdapter, handleStripeWebhook } from '~/server/domain/payments';
-import type { StripePaymentIntent } from '~/server/domain/payments/stripe-intents';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { createStripeIntentAdapter, handleStripeWebhook } from '~~/server/domain/payments';
+import type { StripePaymentIntent } from '~~/server/domain/payments/stripe-intents';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 const paymentId = 'pay-webhook-ingress';
 const orderId = 'ord-webhook-ingress';

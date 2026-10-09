@@ -4,10 +4,10 @@ import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 import { loadProductDetail, productDetailCacheKey } from '~/composables/loadProductDetail';
-import type { ProductDetail } from '~/types/product';
+import type { ProductDetail } from '~~/types/product';
 
-const productPagePath = resolve('pages/product/[slug].vue');
-const productsApiPath = resolve('composables/api/products.ts');
+const productPagePath = resolve('app/pages/product/[slug].vue');
+const productsApiPath = resolve('app/composables/api/products.ts');
 
 describe('product detail useAsyncData contract', () => {
   it('uses the request-context fetch for mock SSR product loads', () => {

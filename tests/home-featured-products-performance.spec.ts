@@ -5,10 +5,10 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { loadFeaturedProducts } from '~/composables/loadFeaturedProducts';
 
-const featuredProductsPath = resolve('components/home/FeaturedProducts.vue');
-const productBlocksPath = resolve('components/global/ProductBlocks.vue');
-const productTabsPath = resolve('components/global/ProductTabs.vue');
-const customerCreditPath = resolve('components/dashboard/control-panel/settings-view/CustomerCredit.vue');
+const featuredProductsPath = resolve('app/components/home/FeaturedProducts.vue');
+const productBlocksPath = resolve('app/components/global/ProductBlocks.vue');
+const productTabsPath = resolve('app/components/global/ProductTabs.vue');
+const customerCreditPath = resolve('app/components/dashboard/control-panel/settings-view/CustomerCredit.vue');
 
 describe('home featured-products performance', () => {
   it('loads the initial catalog during SSR and preserves tabs for client-side filtering', () => {

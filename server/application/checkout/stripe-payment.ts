@@ -1,5 +1,5 @@
-import { createStripeIntentAdapter, createStripeRefundAdapter } from '~/server/domain/payments';
-import { createStripeIntentProvider, createStripeRefundProvider } from '~/server/domain/payments/stripe-provider';
+import { createStripeIntentAdapter, createStripeRefundAdapter } from '~~/server/domain/payments';
+import { createStripeIntentProvider, createStripeRefundProvider } from '~~/server/domain/payments/stripe-provider';
 import { markPaymentClaimRecoveryRequired } from './payment-recovery';
 import { withRefundCompensation } from './with-refund-compensation';
 import { requireRefundCompensationRecovery } from './require-refund-compensation-recovery';

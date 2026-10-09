@@ -1,4 +1,4 @@
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 
 export const resolveCreditUnavailableReason = (accountCredit: CustomerCreditInterface, orderTotal: number) => {
   if (!accountCredit.active) return 'Credit checkout is unavailable because this account has no active credit facility.';

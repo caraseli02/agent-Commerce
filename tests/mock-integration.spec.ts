@@ -4,7 +4,7 @@ import {
   isDemoCheckoutAssistEnabled,
   isPaymentManagementVisible,
   requiresDemoToken,
-} from '~/helpers/mock-integration';
+} from '~~/helpers/mock-integration';
 
 describe('Mock Integration Boundary seam', () => {
   describe('isPaymentManagementVisible (payment UI)', () => {

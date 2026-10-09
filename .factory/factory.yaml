@@ -52,8 +52,8 @@ protected_paths:
     - server/api/checkout/**
     - server/api/payments/**
     - server/infrastructure/migrations/**
-    - components/payment/**
-    - pages/checkout/**
+    - app/components/payment/**
+    - app/pages/checkout/**
   factory:
     - .factory/**
     - .claude/**

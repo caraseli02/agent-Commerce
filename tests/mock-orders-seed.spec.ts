@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEFAULT_MOCK_ORDERS_COUNT, expandMockOrders, getDemoOrders, resolveMockOrdersCount } from '~/server/utils/mockDashboardDemo';
+import { DEFAULT_MOCK_ORDERS_COUNT, expandMockOrders, getDemoOrders, resolveMockOrdersCount } from '~~/server/utils/mockDashboardDemo';
 
 describe('mock admin orders seed', () => {
   it('pads curated fixtures to the default virtualization QA count', () => {

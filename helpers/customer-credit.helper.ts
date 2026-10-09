@@ -1,5 +1,5 @@
-import { formatReviewerDate } from '~/helpers/reviewer-dates';
-import type { CustomerCreditInterface } from '~/types/auth/account-settings';
+import { formatReviewerDate } from '~~/helpers/reviewer-dates';
+import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 
 export const customerCreditHelper = (credit: CustomerCreditInterface) => {
   let spent = '';
