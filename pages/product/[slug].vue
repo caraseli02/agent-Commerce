@@ -96,6 +96,7 @@ import { MoreVertical, PrinterIcon } from '@lucide/vue';
 
 import type { ProductDetail, ProductImageInterface } from '~/types/product';
 import { useProducts } from '~/composables/useProducts';
+import { buildProductPageJsonLd } from '~/helpers/product-json-ld';
 
 const { loadProductBySlug, productDetailCacheKey } = useProducts();
 
@@ -126,11 +127,15 @@ const seoDescription = computed(
 );
 const seoImage = computed(() => product.value?.details?.ProductImage?.ProductImageLarge || '');
 
+const { siteUrl, toAbsoluteUrl } = useSiteUrl();
+
 usePageSeo({
   title: seoTitle,
   description: seoDescription,
   image: seoImage,
   type: 'product',
+  // Same URL the canonical link uses, so the structured data describes the page crawlers index.
+  jsonLd: () => (product.value ? buildProductPageJsonLd(product.value, { toAbsoluteUrl, pageUrl: `${siteUrl}${route.path}` }) : null),
 });
 
 const images = computed((): ProductImageInterface[] => {
