@@ -226,11 +226,14 @@ export type RecoverPaidInventoryResult =
 // choice never grants permission to turn immediate quantities into backorders.
 const recoverPaidReservation = async (input: {
   reservationId: string;
+  reservationKey: string;
   items: readonly ReservationItem[];
   backorderShippingTypeId?: string;
 }): Promise<RecoverPaidInventoryResult> => {
   const previous = await readReservation('id', input.reservationId);
   if (!previous) return { kind: 'retry' };
+  if (previous.reservation_key !== input.reservationKey && !previous.reservation_key.startsWith(`${input.reservationKey}:after:`))
+    return { kind: 'retry' };
   let previousItems: ReservationItem[];
   try {
     previousItems = JSON.parse(previous.items_json);
