@@ -388,7 +388,7 @@ export const createPlaceOrderUseCase =
     if (options.requiresClientPayment?.() && resolvePaymentType(command.order) === PaymentTypeEnum.Card) {
       return {
         orderId: payment.orderId,
-        status: PaymentStatusEnum.Pending,
+        status: payment.status === 'PAID' ? PaymentStatusEnum.Paid : PaymentStatusEnum.Pending,
         useExistingPaymentMethod: false,
         clientSecret: undefined,
         result: undefined,

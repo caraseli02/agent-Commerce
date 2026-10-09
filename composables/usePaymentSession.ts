@@ -26,11 +26,15 @@ export function usePaymentSession(orderId: string, api = defaults) {
   const clearAction = () => {
     clientSecret.value = undefined;
   };
+  const errorCode = (error: unknown) => {
+    const data = (error as { data?: { data?: { code?: unknown }; code?: unknown } })?.data;
+    return parseCheckoutErrorCode(data?.data?.code ?? data?.code);
+  };
+  const needsReconciliation = (error: unknown) => ['checkout_not_payable', 'payment_recovery_required'].includes(errorCode(error) || '');
   const fail = (error: unknown) => {
     if (disposed) return;
     clearAction();
-    const data = (error as { data?: { data?: { code?: unknown }; code?: unknown } })?.data;
-    const code = parseCheckoutErrorCode(data?.data?.code ?? data?.code);
+    const code = errorCode(error);
     state.value = code === 'stripe_payments_disabled' ? 'disabled' : 'recovery-required';
     message.value = checkoutFailurePresentation({ code }).message;
   };
@@ -63,8 +67,9 @@ export function usePaymentSession(orderId: string, api = defaults) {
         try {
           await resume();
         } catch (error) {
-          const data = (error as { data?: { data?: { code?: unknown } } })?.data;
-          if (data?.data?.code === 'checkout_not_payable') await refresh();
+          // Resume cannot expose terminal provider observations as payment actions.
+          // Read-only refresh distinguishes cancellation/paid recovery from unsafe retry.
+          if (needsReconciliation(error)) await refresh();
           else throw error;
         }
       }
@@ -83,7 +88,15 @@ export function usePaymentSession(orderId: string, api = defaults) {
     message.value = '';
     try {
       // Revalidate just before Stripe confirmation, not only when the form mounts.
-      await resume();
+      try {
+        await resume();
+      } catch (error) {
+        if (needsReconciliation(error)) {
+          await refresh();
+          return;
+        }
+        throw error;
+      }
       if (disposed || !isReady()) return;
       if (clientSecret.value !== mountedSecret) {
         message.value = 'Payment details changed. Check your card details and try again.';

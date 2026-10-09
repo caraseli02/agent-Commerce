@@ -154,13 +154,23 @@ const reviewAgain = async () => {
     const cart = useCartStore();
     cart.emptyPreviousCheckoutError();
     cart.emptyOrderClientSecret();
-    await cart.updateAndReturnCart();
+    cart.hasFetchedCart = false; // The summary reloads the new revision before issuing a fresh quote.
     await router.push('/order-summary');
   }
   restarting.value = false;
 };
 watch(state, (value) => {
   clearTimeout(pollTimer);
+  if (value === 'completed') {
+    sessionStorage.removeItem('checkout-draft-v1');
+    const cart = useCartStore();
+    cart.emptyOrderClientSecret();
+    cart.emptyPreviousCheckoutError();
+    // Read the server cart so revision-aware cleanup never erases newer buyer edits locally.
+    void cart.updateAndReturnCart().catch(() => {
+      cart.hasFetchedCart = false;
+    });
+  }
   if (['processing', 'paid-finalizing'].includes(value) && polls < 5)
     pollTimer = setTimeout(() => {
       polls++;

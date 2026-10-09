@@ -58,6 +58,16 @@ describe('Payment Element session authority', () => {
     expect(api.resume).toHaveBeenCalledTimes(3);
     expect(session.message.value.includes('another card')).toBe(scenario === 'decline');
   });
+  it.each(['canceled', 'paid-finalizing'])('reconciles terminal provider observations after resume denies an action (%s)', async (kind) => {
+    const { api, session } = setup();
+    api.resume.mockRejectedValue({ data: { data: { code: 'payment_recovery_required' } } });
+    api.refresh.mockResolvedValue({ kind });
+    await session.check();
+    expect(session.state.value).toBe(kind);
+    expect(api.resume).toHaveBeenCalledOnce();
+    expect(session.clientSecret.value).toBeUndefined();
+  });
+
   it('does not confirm when renewed safety is denied or a secret changes', async () => {
     const { api, session } = setup();
     await session.check();

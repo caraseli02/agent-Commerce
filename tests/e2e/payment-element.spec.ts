@@ -247,3 +247,15 @@ test('malformed payment action never loads Stripe or enables confirmation', asyn
   await expect(page.getByRole('button', { name: 'Pay by card', exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('provider cancellation observed by resume reconciles into explicit restart on normal reload', async ({ page }) => {
+  const { errors } = await setup(page);
+  await page.route('**/api/orders/ord-ui/resume-payment', (route) =>
+    route.fulfill({ ...json({ data: { code: 'payment_recovery_required' } }), status: 409 }),
+  );
+  await page.route('**/api/orders/ord-ui/refresh-payment', (route) => route.fulfill(json(response('canceled'))));
+  await page.goto('/checkout/session?id=ord-ui');
+  await expect(page.getByRole('button', { name: 'Review order and try again' })).toBeVisible();
+  expect(await confirms(page)).toBe(0);
+  expect(errors).toEqual([]);
+});
