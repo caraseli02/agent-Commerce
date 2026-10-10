@@ -68,6 +68,7 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 - One loop should make one narrow change, verify it, and continue the authorized task; stop for completion or the documented blocker protocol.
 - Keep one executable issue active per builder. Claude owns issues labeled `agent:claude`, excludes payment work, and shares its claim across internal subtasks. Follow `docs/agents/autonomous-workflow.md` for separately operated cross-review.
 - If the task grows beyond a few files or turns into a second unrelated fix, split it.
+- When a PR changes a path in `.factory/factory.yaml` `protected_paths`, end the session with a separate action line for Vlad: `Add owner-approved-harness to PR #N`. Only he can set it, and without it the evaluator must FAIL the PR.
 
 ## Architecture shortcuts
 

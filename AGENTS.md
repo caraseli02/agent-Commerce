@@ -7,7 +7,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - The repo is a self-contained portfolio/demo app.
 - Prefer mock mode for local work and reviews.
 - Keep changes small and shippable; this repo is a good fit for autonomous micro-tasks.
-- GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues and claim one issue at a time.
+- GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues (Claude: `agent:claude` issues) and claim one issue at a time.
 - Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready.
 - The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue for that builder while its `in-progress` issue has an open PR.
 - WIP=1 applies per builder. Claude owns issues labeled `agent:claude`; Codex owns other eligible issues. Internal model delegation shares its builder's claim. Claude never builds payment work; its routines are defined in `.factory/`. See `docs/agents/autonomous-workflow.md` for ownership and independent cross-review.

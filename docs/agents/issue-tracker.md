@@ -16,9 +16,9 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/agent-Commerc
 ## Pickup rules
 
 - The controller loop should behave like a standing `/goal`: keep one issue alive until evaluator pass, blocker, or human intervention.
-- Only bounded executable issues with `ready-for-agent` and no unresolved capability dependencies are eligible. Issues labeled `epic` are tracking parents: never claim them, label them ready-for-agent/in-progress, or count them in WIP.
+- Only bounded executable issues with `ready-for-agent` (Claude: `agent:claude` alone) and no unresolved capability dependencies are eligible. Name dependencies on a `Depends on #N` line so agents and the owner-attention workflow can read them. Issues labeled `epic` are tracking parents: never claim them, label them ready-for-agent/in-progress, or count them in WIP.
 - Before editing code, the planner claims exactly one issue:
-  - remove `ready-for-agent`
+  - remove `ready-for-agent` (if present)
   - add the `in-progress` label
   - assign the issue to the working account
   - leave a short comment with the branch name

@@ -40,7 +40,7 @@ This makes the process observable and prevents scope creep.
 
 ## 3. WIP=1 per-builder claim protocol
 
-1. Read live GitHub claims and PRs for this builder. Pick exactly one bounded `ready-for-agent` executable issue in its ownership pool; skip `epic` tracking parents and children with unresolved capability dependencies.
+1. Read live GitHub claims and PRs for this builder. Pick exactly one bounded eligible executable issue in its ownership pool (`ready-for-agent`; for Claude, `agent:claude` alone); skip `epic` tracking parents and children with unresolved capability dependencies.
 2. Skip issues already assigned, already `in-progress`, or already linked to an active PR.
 3. Add `in-progress`, assign the working account, and comment with branch name.
 4. Create a fresh branch/worktree from `origin/main`.
@@ -58,7 +58,7 @@ This makes the process observable and prevents scope creep.
 
 ## 5. Blocker protocol
 
-Stop and report a blocker after two focused failed attempts or when the task needs a product/design decision.
+Stop and report a blocker after two focused failed attempts or when the task needs a product/design decision. Do every part of the task that does not depend on the blocker first. Add `blocked` and keep `in-progress`: the claim is parked, Vlad is notified automatically, and removing `blocked` resumes it. **Best next move** names the single action Vlad must take.
 
 Blocker note format:
 
