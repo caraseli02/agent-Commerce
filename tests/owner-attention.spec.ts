@@ -104,6 +104,19 @@ describe('readiness', () => {
     expect(checks.state).toBe('success');
   });
 
+  it('judges only the newest run per check name, so a superseded cancelled run does not block', () => {
+    const runs = [
+      { id: 3, name: 'check', status: 'completed', conclusion: 'success' },
+      { id: 1, name: 'check', status: 'completed', conclusion: 'cancelled' },
+      { id: 2, name: 'verify', status: 'completed', conclusion: 'success' },
+    ];
+
+    expect(assessChecks(runs, { statuses: [] }).state).toBe('success');
+    expect(assessChecks([...runs, { id: 4, name: 'check', status: 'completed', conclusion: 'failure' }], { statuses: [] }).failing).toEqual(
+      ['check'],
+    );
+  });
+
   it('is not ready without a reported verify run, or with failing or pending checks', () => {
     expect(assessChecks([{ name: 'check', status: 'completed', conclusion: 'success' }], { statuses: [] }).state).toBe('pending');
     expect(assessChecks([{ name: 'verify', status: 'completed', conclusion: 'failure' }], { statuses: [] }).state).toBe('failure');

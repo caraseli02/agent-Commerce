@@ -130,7 +130,15 @@ export function assessChecks(checkRuns, combinedStatus) {
   const pending = [];
   let requiredPassed = false;
 
+  // A rerun (for example the PR template check after a label change) leaves the
+  // superseded run behind as cancelled; only the newest run per name counts.
+  const latest = new Map();
   for (const run of checkRuns ?? []) {
+    const previous = latest.get(run.name);
+    if (!previous || Number(run.id) > Number(previous.id)) latest.set(run.name, run);
+  }
+
+  for (const run of latest.values()) {
     if (OWN_CHECK_NAMES.has(run.name)) continue;
     if (run.status !== 'completed') pending.push(run.name);
     else if (FAILED_CONCLUSIONS.has(run.conclusion)) failing.push(run.name);
