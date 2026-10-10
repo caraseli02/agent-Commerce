@@ -14,7 +14,8 @@ import { slug, VIEWPORT_SIZES, type ParityScenario, type ParityViewport } from '
 /**
  * Before/after parity for the shadcn migration (#631, #632).
  *
- * Strict: ARIA snapshot of the region, its keyboard tab order, each step's
+ * Strict: ARIA snapshot of the region (full child tree and order, via
+ * `children: 'deep-equal'` in playwright.parity.config.ts), its keyboard tab order, each step's
  * asserted outcome and a clean runtime. Informational: region screenshots in
  * the test output folder. Workflow: record snapshots on unchanged code and
  * commit them alone; migration commits must pass without touching them.

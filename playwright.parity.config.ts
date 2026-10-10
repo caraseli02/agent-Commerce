@@ -27,6 +27,11 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/__snapshots__/{arg}{ext}',
   expect: {
     timeout: 15_000,
+    // Strict structure: every ARIA snapshot must match the region's full child
+    // tree in order, so an added or removed node (even one outside the tab
+    // order, such as a disabled button) fails. Dynamic text stays normalised by
+    // the regexes Playwright writes into the snapshot files.
+    toMatchAriaSnapshot: { children: 'deep-equal' },
   },
   use: {
     ...devices['Desktop Chrome'],
