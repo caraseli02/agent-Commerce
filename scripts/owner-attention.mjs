@@ -19,6 +19,7 @@ import process from 'node:process';
 
 export const BOT_LOGIN = 'github-actions[bot]';
 export const QUEUE_ISSUE_TITLE = "Owner attention: Claude's build queue is empty";
+const log = (message) => process.stdout.write(`${message}\n`);
 const OWN_CHECK_NAMES = new Set(['owner-attention']);
 const REQUIRED_CHECK = 'verify';
 const FAILED_CONCLUSIONS = new Set(['failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure', 'stale']);
@@ -282,7 +283,7 @@ export function createClient({ repository, token, dryRun = false, fetchImpl = fe
 
   const write = (method) => (path, body) => {
     if (!dryRun) return request(method, path, body).then((result) => result.data);
-    console.log(`[dry run] ${method} ${path}\n${body?.body ?? JSON.stringify(body)}\n`);
+    log(`[dry run] ${method} ${path}\n${body?.body ?? JSON.stringify(body)}\n`);
     return Promise.resolve({ number: 0 });
   };
 
@@ -308,11 +309,11 @@ async function loadPullRequest(gh, number) {
 async function postOnce(gh, number, key, body) {
   const comments = await gh.paginate(`/issues/${number}/comments`);
   if (alreadyNotified(comments, key)) {
-    console.log(`#${number}: ${key} already notified`);
+    log(`#${number}: ${key} already notified`);
     return false;
   }
   await gh.post(`/issues/${number}/comments`, { body });
-  console.log(`#${number}: posted ${key}`);
+  log(`#${number}: posted ${key}`);
   return true;
 }
 
@@ -330,16 +331,16 @@ async function checkReady(gh, owner, number) {
   const checks = assessChecks(checkRuns, combinedStatus);
   const { ready, reasons } = assessReadiness({ pr, checks, verdict, reviews });
   if (!ready) {
-    console.log(`PR #${number} not ready: ${reasons.join('; ')}`);
+    log(`PR #${number} not ready: ${reasons.join('; ')}`);
     return;
   }
   const key = `ready:${sha}`;
   if (alreadyNotified(comments, key)) {
-    console.log(`PR #${number}: ${key} already notified`);
+    log(`PR #${number}: ${key} already notified`);
     return;
   }
   await gh.post(`/issues/${number}/comments`, { body: readyMessage({ owner, pr, verdict }) });
-  console.log(`PR #${number}: posted ${key}`);
+  log(`PR #${number}: posted ${key}`);
 }
 
 async function checkHarness(gh, owner, number, config) {
@@ -363,7 +364,7 @@ async function checkBlocked(gh, owner, issue) {
   const key = `blocked:${blockerUrl ?? issue.number}`;
   if (alreadyNotified(comments, key)) return;
   await gh.post(`/issues/${issue.number}/comments`, { body: blockedMessage({ owner, issue, blockerUrl }) });
-  console.log(`#${issue.number}: posted ${key}`);
+  log(`#${issue.number}: posted ${key}`);
 }
 
 async function checkQueue(gh, owner, config) {
@@ -375,13 +376,13 @@ async function checkQueue(gh, owner, config) {
 
   if (state.idle && !tracking) {
     const created = await gh.post('/issues', { title: QUEUE_ISSUE_TITLE, body: queueMessage({ owner, mode: config.mode }) });
-    console.log(`Opened #${created.number}: Claude queue is empty`);
+    log(`Opened #${created.number}: Claude queue is empty`);
   } else if (!state.idle && tracking) {
     await gh.post(`/issues/${tracking.number}/comments`, { body: 'Claude has work again; closing.' });
     await gh.patch(`/issues/${tracking.number}`, { state: 'closed', state_reason: 'completed' });
-    console.log(`Closed #${tracking.number}: Claude has work again`);
+    log(`Closed #${tracking.number}: Claude has work again`);
   } else {
-    console.log(
+    log(
       `Claude queue: ${state.idle ? 'idle (already reported)' : `${state.live?.length ?? 0} live, ${state.eligible?.length ?? 0} eligible`}`,
     );
   }
@@ -434,7 +435,7 @@ export async function handleEvent({ eventName, event, gh, owner, config }) {
       await checkQueue(gh, owner, config);
       break;
     default:
-      console.log(`Nothing to do for ${eventName}.`);
+      log(`Nothing to do for ${eventName}.`);
   }
 }
 
