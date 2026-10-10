@@ -1,6 +1,6 @@
-import type { ProductInterface } from '~/types/product';
-import { mockProducts } from '~/server/utils/mockProducts';
-import { defineAnonymousCatalogHandler } from '~/server/utils/anonymousCatalogCache';
+import type { ProductInterface } from '~~/types/product';
+import { mockProducts } from '~~/server/utils/mockProducts';
+import { defineAnonymousCatalogHandler } from '~~/server/utils/anonymousCatalogCache';
 
 export default defineAnonymousCatalogHandler(
   'product-id',

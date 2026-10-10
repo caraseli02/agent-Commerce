@@ -7,10 +7,10 @@ import { describe, expect, it } from 'vitest';
 
 import { resolveCartDeleteDescription, resolveCartDeleteProductIds, resolveCartDeleteTitle } from '~/utils/cartDeleteDialog';
 
-const dialogPath = resolve('components/cart/CartDeleteDialog.vue');
-const headPath = resolve('components/order-summary/Table/Head.vue');
-const itemPath = resolve('components/order-summary/Table/Item.vue');
-const itemDropdownPath = resolve('components/order-summary/Table/ItemDropdown.vue');
+const dialogPath = resolve('app/components/cart/CartDeleteDialog.vue');
+const headPath = resolve('app/components/order-summary/Table/Head.vue');
+const itemPath = resolve('app/components/order-summary/Table/Item.vue');
+const itemDropdownPath = resolve('app/components/order-summary/Table/ItemDropdown.vue');
 
 function parseTemplate(filePath: string): RootNode {
   const source = readFileSync(filePath, 'utf8');

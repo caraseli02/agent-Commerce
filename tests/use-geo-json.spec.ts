@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { LeafletMapDataType } from '~/types/geo';
+import type { LeafletMapDataType } from '~~/types/geo';
 
 const geoJson: LeafletMapDataType = {
   type: 'FeatureCollection',
@@ -29,7 +29,7 @@ describe('GeoJSON reference loader', () => {
     const fetchMock = vi.fn(() => request);
     vi.stubGlobal('$fetch', fetchMock);
 
-    const { useGeoJson } = await import('../composables/useGeoJson');
+    const { useGeoJson } = await import('../app/composables/useGeoJson');
     const firstConsumer = useGeoJson();
     const secondConsumer = useGeoJson();
 
@@ -46,7 +46,7 @@ describe('GeoJSON reference loader', () => {
     const fetchMock = vi.fn().mockRejectedValueOnce(new Error('temporary failure')).mockResolvedValueOnce(geoJson);
     vi.stubGlobal('$fetch', fetchMock);
 
-    const { useGeoJson } = await import('../composables/useGeoJson');
+    const { useGeoJson } = await import('../app/composables/useGeoJson');
     const { load } = useGeoJson();
 
     await expect(load()).rejects.toThrow('temporary failure');
@@ -58,7 +58,7 @@ describe('GeoJSON reference loader', () => {
     const fetchMock = vi.fn().mockResolvedValue(geoJson);
     vi.stubGlobal('$fetch', fetchMock);
 
-    const { fetchGeoJson } = await import('../composables/useGeoJson');
+    const { fetchGeoJson } = await import('../app/composables/useGeoJson');
 
     await expect(fetchGeoJson()).resolves.toEqual(geoJson);
     await expect(fetchGeoJson()).resolves.toEqual(geoJson);

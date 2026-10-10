@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizePostgresConnectionString } from '~/server/infrastructure/checkout-database';
+import { normalizePostgresConnectionString } from '~~/server/infrastructure/checkout-database';
 import { createMigrationPool, normalizePostgresConnectionString as normalizeMigrationConnectionString } from '../scripts/db-migrate.mjs';
 
 describe('checkout PostgreSQL SSL configuration', () => {

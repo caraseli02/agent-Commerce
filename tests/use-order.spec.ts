@@ -15,7 +15,7 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({ push: routerPush }),
 }));
 
-vi.mock('../composables/useUser', () => ({
+vi.mock('../app/composables/useUser', () => ({
   useUser: () => ({
     user: ref({
       firebaseId: 'mock-customer-1',
@@ -59,7 +59,7 @@ vi.mock('../composables/useUser', () => ({
   }),
 }));
 
-vi.mock('../components/ui/toast', () => ({
+vi.mock('../app/components/ui/toast', () => ({
   toast: vi.fn(),
 }));
 
@@ -129,8 +129,8 @@ describe('checkout order composable flow boundary', () => {
       if (resource === '/cart') return { status: 'success', data: { _id: 'cart', products: [] } } as T;
       throw new Error(`Unexpected request: ${resource}`);
     });
-    const { useOrder } = await import('../composables/useOrder');
-    const { useCartStore } = await import('../store/cartStore');
+    const { useOrder } = await import('../app/composables/useOrder');
+    const { useCartStore } = await import('../app/store/cartStore');
     await useOrder().makeCheckout(
       1,
       'cart',
@@ -148,7 +148,7 @@ describe('checkout order composable flow boundary', () => {
 
   it('submits checkout through the orders API adapter', async () => {
     __setMockOrdersApi({});
-    const { useOrder } = await import('../composables/useOrder');
+    const { useOrder } = await import('../app/composables/useOrder');
     const { makeCheckout } = useOrder();
 
     await makeCheckout(
@@ -179,7 +179,7 @@ describe('checkout order composable flow boundary', () => {
   });
 
   it('builds a checkout order from summary data and routes mock payment to confirmation', async () => {
-    const { useOrder } = await import('../composables/useOrder');
+    const { useOrder } = await import('../app/composables/useOrder');
     const { makeCheckout } = useOrder();
 
     await makeCheckout(
@@ -272,8 +272,8 @@ describe('checkout order composable flow boundary', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCartStore } = await import('../store/cartStore');
-    const { useOrder } = await import('../composables/useOrder');
+    const { useCartStore } = await import('../app/store/cartStore');
+    const { useOrder } = await import('../app/composables/useOrder');
     const { makeCheckout } = useOrder();
 
     await makeCheckout(
@@ -319,8 +319,8 @@ describe('checkout order composable flow boundary', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCartStore } = await import('../store/cartStore');
-    const { useOrder } = await import('../composables/useOrder');
+    const { useCartStore } = await import('../app/store/cartStore');
+    const { useOrder } = await import('../app/composables/useOrder');
     const { makeCheckout } = useOrder();
 
     await makeCheckout(
@@ -361,8 +361,8 @@ describe('checkout order composable flow boundary', () => {
       if (resource === '/cart') return { status: 'success', data: { products: [] } } as T;
       throw new Error(`Unexpected request: ${options?.method} ${resource}`);
     });
-    const { useCartStore } = await import('../store/cartStore');
-    const { useOrder } = await import('../composables/useOrder');
+    const { useCartStore } = await import('../app/store/cartStore');
+    const { useOrder } = await import('../app/composables/useOrder');
     await useOrder().makeCheckout(
       1,
       'cart',
@@ -405,8 +405,8 @@ describe('checkout order composable flow boundary', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCartStore } = await import('../store/cartStore');
-    const { useOrder } = await import('../composables/useOrder');
+    const { useCartStore } = await import('../app/store/cartStore');
+    const { useOrder } = await import('../app/composables/useOrder');
     const { makeCheckout } = useOrder();
 
     await makeCheckout(
@@ -476,8 +476,8 @@ describe('checkout order composable flow boundary', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCartStore } = await import('../store/cartStore');
-    const { useOrder } = await import('../composables/useOrder');
+    const { useCartStore } = await import('../app/store/cartStore');
+    const { useOrder } = await import('../app/composables/useOrder');
     const { makeCheckout } = useOrder();
 
     await makeCheckout(
@@ -551,8 +551,8 @@ describe('checkout order composable flow boundary', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCartStore } = await import('../store/cartStore');
-    const { useOrder } = await import('../composables/useOrder');
+    const { useCartStore } = await import('../app/store/cartStore');
+    const { useOrder } = await import('../app/composables/useOrder');
     const { makeCheckout } = useOrder();
 
     await makeCheckout(

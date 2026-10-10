@@ -5,9 +5,9 @@ import { baseParse, NodeTypes, type ElementNode, type RootNode } from '@vue/comp
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
-const returningCustomersPath = resolve('components/dashboard/ReturningCustomers.vue');
-const boundaryPath = resolve('components/dashboard/WidgetBoundary.vue');
-const faultComposablePath = resolve('composables/useDashboardWidgetFault.ts');
+const returningCustomersPath = resolve('app/components/dashboard/ReturningCustomers.vue');
+const boundaryPath = resolve('app/components/dashboard/WidgetBoundary.vue');
+const faultComposablePath = resolve('app/composables/useDashboardWidgetFault.ts');
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
   const found: ElementNode[] = [];
@@ -66,6 +66,6 @@ describe('dashboard widget error boundaries', () => {
 
     expect(source).toContain('dashboardFault');
     expect(source).toContain('MOCK_MODE');
-    expect(readFileSync(resolve('components/dashboard/ReturningCustomersChart.vue'), 'utf8')).toContain('useDashboardWidgetFault');
+    expect(readFileSync(resolve('app/components/dashboard/ReturningCustomersChart.vue'), 'utf8')).toContain('useDashboardWidgetFault');
   });
 });

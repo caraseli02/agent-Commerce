@@ -1,7 +1,7 @@
-import { orders } from '~/server/domain/orders';
-import { getExistingMockCartUserId } from '~/server/utils/mockCart';
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
-import { AccountRole } from '~/types/signup/form';
+import { orders } from '~~/server/domain/orders';
+import { getExistingMockCartUserId } from '~~/server/utils/mockCart';
+import { getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
+import { AccountRole } from '~~/types/signup/form';
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id');

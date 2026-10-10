@@ -1,8 +1,8 @@
-import { PaymentTypeEnum } from '~/types';
-import type { PlaceOrderInterface } from '~/types/order';
+import { PaymentTypeEnum } from '~~/types';
+import type { PlaceOrderInterface } from '~~/types/order';
 
-import type { CheckoutFailure } from '~/types/order/checkout-error';
-export type { CheckoutFailure } from '~/types/order/checkout-error';
+import type { CheckoutFailure } from '~~/types/order/checkout-error';
+export type { CheckoutFailure } from '~~/types/order/checkout-error';
 
 export type CheckoutOutcome =
   | { kind: 'success'; destination: 'checkout-success' | 'order-summary'; orderId: string }

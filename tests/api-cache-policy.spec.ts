@@ -1,8 +1,8 @@
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp, createError, defineEventHandler, toNodeListener } from 'h3';
-import cachePolicy from '~/server/middleware/api-cache-policy';
-import cacheErrorHandler from '~/server/api-cache-error';
+import cachePolicy from '~~/server/middleware/api-cache-policy';
+import cacheErrorHandler from '~~/server/api-cache-error';
 
 let server: Server;
 let baseUrl: string;

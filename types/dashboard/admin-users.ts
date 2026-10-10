@@ -1,5 +1,5 @@
-import type { UserInterface } from '~/types/auth/user-interface';
-import type { TransactionInterface } from '~/types/dashboard/transaction';
+import type { UserInterface } from '~~/types/auth/user-interface';
+import type { TransactionInterface } from '~~/types/dashboard/transaction';
 
 export interface PaginatedCustomersInterface {
   status: string;

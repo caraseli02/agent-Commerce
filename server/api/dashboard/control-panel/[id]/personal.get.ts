@@ -1,5 +1,5 @@
-import { getDemoUserProfile } from '~/server/utils/mockDashboardDemo';
-import { getRuntimeAddresses } from '~/server/utils/mockRuntimeAddresses';
+import { getDemoUserProfile } from '~~/server/utils/mockDashboardDemo';
+import { getRuntimeAddresses } from '~~/server/utils/mockRuntimeAddresses';
 
 export default defineEventHandler((event) => {
   const id = getRouterParam(event, 'id');

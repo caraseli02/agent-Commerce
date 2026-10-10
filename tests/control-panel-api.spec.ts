@@ -41,7 +41,7 @@ describe('control-panel API adapter', () => {
       phone: '+1-202-555-0100',
       default: true,
     };
-    const controlPanelApi = await import('../composables/api/control-panel');
+    const controlPanelApi = await import('../app/composables/api/control-panel');
 
     await controlPanelApi.fetchShipping('customer-1', 0, fetchClient);
     await controlPanelApi.fetchBilling('customer-1', 1, fetchClient);
@@ -124,7 +124,7 @@ describe('control-panel API adapter', () => {
     };
     const fetchClient = apiClient as unknown as $Fetch;
     const account = { firebaseId: 'customer-1', email: 'buyer@example.com' } as unknown as UserInterface;
-    const controlPanelApi = await import('../composables/api/control-panel');
+    const controlPanelApi = await import('../app/composables/api/control-panel');
 
     await controlPanelApi.fetchCustomerSettings('customer-1', fetchClient);
     await controlPanelApi.markSettingsAsRead({ key: 'marketing', email: true }, 'email', 'customer-1', fetchClient);

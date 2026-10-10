@@ -1,6 +1,12 @@
 {
   "assessments": [
     {
+      "fingerprint": "ee5c957eff08dfee37dbb4bbcb8bcdd491ddc3570a4aa85dbbfa496cc4b2a291",
+      "impact": "none",
+      "reason": "Adds a Vercel Ignored Build Step; it decides whether Vercel builds a push and never changes what a build emits",
+      "consumers": "vercel.json gains only ignoreCommand; buildCommand is unchanged. scripts/vercel-ignore-build.sh is executed solely by Vercel before cloning into a build (and by tests/vercel-ignore-build.spec.ts in temporary git repositories); nuxt.config.ts, package.json scripts, the Nitro server, pages, components, stores and public assets neither import nor read it. When it exits 1 Vercel runs the identical buildCommand on the identical tree; when it exits 0 Vercel cancels that deployment and the branch keeps its previous successful deployment, whose tree differs only in excluded docs/tests/harness paths that never reach .output. No rendered page, route, store, style or asset changes, so no home, search, product, cart or orders screenshot can observe a difference."
+    },
+    {
       "fingerprint": "26d183b6de210e538ba1a3e6e770064c8450e0b1b81b73c3d97f69e3b0beb40e",
       "impact": "none",
       "reason": "Adds server-only text routes for /robots.txt and /sitemap.xml; no rendered page, store, or style output changes",

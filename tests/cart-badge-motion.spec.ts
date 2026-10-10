@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useCartBadgeMotion } from '../composables/useCartBadgeMotion';
-import type { CartInterface } from '~/types/cart';
+import { useCartBadgeMotion } from '../app/composables/useCartBadgeMotion';
+import type { CartInterface } from '~~/types/cart';
 
 describe('useCartBadgeMotion', () => {
   beforeEach(() => {

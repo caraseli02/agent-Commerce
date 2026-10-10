@@ -160,7 +160,7 @@ describe('admin order confirmation adapter', () => {
   });
 
   it('normalizes route order ids for the admin adapter', async () => {
-    const { normalizeOrderConfirmationOrderId } = await import('../composables/useOrderConfirmation');
+    const { normalizeOrderConfirmationOrderId } = await import('../app/composables/useOrderConfirmation');
 
     expect(normalizeOrderConfirmationOrderId('order-123')).toBe('order-123');
     expect(normalizeOrderConfirmationOrderId(['order-456', 'ignored'])).toBe('order-456');
@@ -168,7 +168,7 @@ describe('admin order confirmation adapter', () => {
   });
 
   it('keeps the admin page as a thin adapter around AdminConfirmation', async () => {
-    const source = await readFile(resolve('pages/dashboard/orders/[id].vue'), 'utf-8');
+    const source = await readFile(resolve('app/pages/dashboard/orders/[id].vue'), 'utf-8');
 
     expect(source).toContain('<OrderConfirmAdminConfirmation');
     expect(source).toContain(':order-id="route.params.id"');
@@ -179,7 +179,7 @@ describe('admin order confirmation adapter', () => {
   });
 
   it('wires admin-only payment status through the shared module adapter', async () => {
-    const source = await readFile(resolve('components/order-confirm/AdminConfirmation.vue'), 'utf-8');
+    const source = await readFile(resolve('app/components/order-confirm/AdminConfirmation.vue'), 'utf-8');
 
     expect(source).toContain('useOrderConfirmation');
     expect(source).toContain('useOrderConfirmation(normalizedOrderId)');
@@ -194,7 +194,7 @@ describe('admin order confirmation adapter', () => {
     const response = buildMixedOrderResponse();
     getOrderById.mockResolvedValue(response);
 
-    const { useOrderConfirmation } = await import('../composables/useOrderConfirmation');
+    const { useOrderConfirmation } = await import('../app/composables/useOrderConfirmation');
     const confirmation = useOrderConfirmation('order-mixed-1');
     await confirmation.loadOrderConfirmation();
 

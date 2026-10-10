@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { mockProducts } from '~/server/utils/mockProducts';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { mockProducts } from '~~/server/utils/mockProducts';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 export type ReservationItem = Readonly<{
   productId: string;

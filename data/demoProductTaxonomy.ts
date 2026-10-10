@@ -1,4 +1,4 @@
-import { slugifyCategoryName, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
+import { slugifyCategoryName, toCategorySlugSegments } from '~~/helpers/categoryPath.helper';
 
 /**
  * Lightweight path/category index for demo taxonomy product counts (mirrors mockProducts).

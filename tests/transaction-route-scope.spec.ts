@@ -4,7 +4,7 @@ const { listOrders } = vi.hoisted(() => ({
   listOrders: vi.fn(async (..._args: unknown[]) => [] as unknown[]),
 }));
 
-vi.mock('~/server/domain/orders', () => ({ orders: { list: listOrders } }));
+vi.mock('~~/server/domain/orders', () => ({ orders: { list: listOrders } }));
 vi.mock('h3', () => ({ getQuery: (event: { query?: Record<string, string> }) => event.query || {} }));
 
 describe('transaction history route scope', () => {

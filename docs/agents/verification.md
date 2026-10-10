@@ -9,7 +9,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 1. **Delivery gate**
    - `pnpm verify`
    - Runs `build`, `lint`, `typecheck`, `test:coverage`, and `feature_list.json` validation.
-   - `pnpm test:coverage` measures all files in `composables/api/**` and `store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
+   - `pnpm test:coverage` measures all files in `app/composables/api/**` and `app/store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
    - Run this before delivery/push, rather than after every focused repair. Default `verify` runs fresh; `--reuse` allows the matching successful local base-gate receipt described below. CI always runs fresh executable checks.
 2. **Full local gate**
    - `pnpm verify:full`
@@ -34,14 +34,16 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 7. **UI-conventions gate**
    - `node scripts/verify-ui-conventions.mjs`
    - This runs inside `pnpm verify`, `pnpm verify:full`, and `pnpm verify:handoff`.
-   - It scans `*Modal*.vue` files and `components/layout/**` paths that contain `modal` for native `<button>` / `<input>` usage.
+   - It scans `*Modal*.vue` files and `app/components/layout/**` paths that contain `modal` for native `<button>` / `<input>` usage.
    - Known legacy modal files are grandfathered in `scripts/verify-ui-conventions.mjs` until migrated (for example `SearchFiltersModal.vue`).
    - New or migrated modal surfaces must use shadcn primitives (`UiButton`, `UiInput`, `UiDialog`) instead of native HTML controls.
+   - **Migration parity (shadcn epic #631):** a slice that swaps native elements for `components/ui` primitives proves behavior parity with `pnpm test:parity --grep <slice>` (`playwright.parity.config.ts`, specs in `tests/parity/`). Each scenario in `tests/parity/scenarios.ts` records the region's ARIA snapshot (roles, accessible names, states), its keyboard tab order, the asserted outcome of each step and a clean runtime. Screenshots are attached to the report for review only; styling drift is allowed.
+   - Workflow: (1) on unchanged code, add the slice's scenarios and record with `pnpm test:parity --grep <slice> --update-snapshots`, then commit them alone; (2) parity-preserving migration commits must pass with `tests/parity/__snapshots__/**` unchanged; (3) an intentional accessibility or behaviour change (for example a new `aria-label`) goes in its own separate, explicitly described commit that contains both the source change and the corresponding snapshot update, also listed in the PR body. ARIA snapshots match the region's full child tree and order (`children: 'deep-equal'`), so any added or removed node fails. The suite builds its own preview; set `PARITY_BASE_URL` only to iterate against a preview you started with the test database.
 8. **Architecture-invariant gate**
    - `node scripts/check-arch-invariants.mjs`
    - This runs inside `pnpm verify:full` and `pnpm verify:handoff`.
-   - It enforces the Components Marketplace API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
-   - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
+   - It enforces the Components Marketplace API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `app/plugins/api.ts` or `app/composables/api/`, where token attachment and retry guidance stay centralized.
+   - Current known legacy debt: `app/utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
 9. **Targeted baseline check**
    - Select only the relevant command(s): changed-file ESLint, `pnpm typecheck`, a focused `pnpm test <test-file>` (preserves the PostgreSQL wrapper), or `pnpm build` when compilation/build behavior is affected. Explain each selection.
 10. **Targeted test**

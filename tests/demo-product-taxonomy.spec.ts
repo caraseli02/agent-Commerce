@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { countDemoProductsForCategory, demoProductTaxonomy, slugifyCategoryName } from '~/data/demoProductTaxonomy';
-import { normalizeCategoryPath } from '~/helpers/categoryPath.helper';
+import { countDemoProductsForCategory, demoProductTaxonomy, slugifyCategoryName } from '~~/data/demoProductTaxonomy';
+import { normalizeCategoryPath } from '~~/helpers/categoryPath.helper';
 
 describe('demoProductTaxonomy', () => {
   it('slugifies category names for path matching', () => {

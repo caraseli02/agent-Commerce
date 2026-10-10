@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import type { CartInterface, CartProductsInterface } from '~/types/cart';
+import type { CartInterface, CartProductsInterface } from '~~/types/cart';
 import { __setMockApiClient, __setMockCookie, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -51,11 +51,11 @@ const source = (relativePath: string) => readFileSync(resolve(repoRoot, relative
 describe('cart chrome coordination (store-driven, no event bus)', () => {
   it('keeps buyer-path cart chrome off the global emitter bus', () => {
     const chromePaths = [
-      'components/layout/header/MainRow.vue',
-      'components/layout/favorites-cart-modal/Index.vue',
-      'components/layout/favorites-cart-modal/cart/Index.vue',
-      'store/cartStore.ts',
-      'composables/useCart.ts',
+      'app/components/layout/header/MainRow.vue',
+      'app/components/layout/favorites-cart-modal/Index.vue',
+      'app/components/layout/favorites-cart-modal/cart/Index.vue',
+      'app/store/cartStore.ts',
+      'app/composables/useCart.ts',
     ];
 
     for (const path of chromePaths) {
@@ -66,9 +66,9 @@ describe('cart chrome coordination (store-driven, no event bus)', () => {
   });
 
   it('does not require a cart data prop on the cart side panel shell', () => {
-    const modalShell = source('components/layout/favorites-cart-modal/Index.vue');
-    const cartPanel = source('components/layout/favorites-cart-modal/cart/Index.vue');
-    const headerRow = source('components/layout/header/MainRow.vue');
+    const modalShell = source('app/components/layout/favorites-cart-modal/Index.vue');
+    const cartPanel = source('app/components/layout/favorites-cart-modal/cart/Index.vue');
+    const headerRow = source('app/components/layout/header/MainRow.vue');
 
     expect(modalShell).not.toContain('defineProps');
     expect(cartPanel).not.toContain('defineProps');
@@ -85,7 +85,7 @@ describe('cart chrome store consumers', () => {
   });
 
   it('updates derived subtotal and mapped items when cartStore changes', async () => {
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
 
     cartStore.setCart(sampleCart);
@@ -113,9 +113,9 @@ describe('cart chrome store consumers', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCart, __resetAddToCartStateForTests } = await import('../composables/useCart');
+    const { useCart, __resetAddToCartStateForTests } = await import('../app/composables/useCart');
     __resetAddToCartStateForTests();
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     cartStore.setCart(sampleCart);
     const { removeFromCart } = useCart();

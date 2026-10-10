@@ -4,9 +4,9 @@ import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
-import type { SearchData } from '~/types/product';
+import type { SearchData } from '~~/types/product';
 
-const searchPagePath = resolve('pages/search.vue');
+const searchPagePath = resolve('app/pages/search.vue');
 
 const baseQuery = {
   keyword: 'capacitor',
@@ -22,7 +22,7 @@ const baseQuery = {
 describe('search useAsyncData contract', () => {
   it('loads search results through useAsyncData with stable cache keys and error UI', () => {
     const searchPage = readFileSync(searchPagePath, 'utf8');
-    const searchProducts = readFileSync(resolve('components/search/Products.vue'), 'utf8');
+    const searchProducts = readFileSync(resolve('app/components/search/Products.vue'), 'utf8');
 
     expect(searchPage).toContain('searchResultsCacheKey(searchQuery.value)');
     expect(searchPage).toContain('loadSearchResults(searchQuery.value)');

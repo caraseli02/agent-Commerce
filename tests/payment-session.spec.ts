@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { usePaymentSession } from '~/composables/usePaymentSession';
 import { refreshPaymentSession, resumePaymentSession } from '~/composables/api/payment-session';
-import { resolveCheckoutOutcome } from '~/helpers/checkout-outcome';
-import { PaymentStatusEnum, PaymentTypeEnum } from '~/types';
+import { resolveCheckoutOutcome } from '~~/helpers/checkout-outcome';
+import { PaymentStatusEnum, PaymentTypeEnum } from '~~/types';
 import type { $Fetch } from 'ofetch';
 
 const action = { kind: 'requires-action', nextAction: { type: 'client-secret', clientSecret: 'pi_1_secret_test' } } as const;

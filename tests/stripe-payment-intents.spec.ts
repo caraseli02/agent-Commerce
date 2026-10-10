@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createStripeIntentAdapter } from '~/server/domain/payments';
-import type { StripeIntentProvider, StripePaymentIntent } from '~/server/domain/payments/stripe-intents';
-import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { createStripeIntentAdapter } from '~~/server/domain/payments';
+import type { StripeIntentProvider, StripePaymentIntent } from '~~/server/domain/payments/stripe-intents';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 const paymentId = 'pay-stripe-adapter';
 const orderId = 'ord-stripe-adapter';
@@ -135,7 +135,7 @@ describe('Stripe PaymentIntent adapter', () => {
 
     const database = await getCheckoutDatabase();
     await database.execute('UPDATE checkout_payments SET stripe_payment_intent_id=NULL WHERE id=$1', [paymentId]);
-    const { markPaymentClaimRecoveryRequired } = await import('~/server/application/checkout/payment-recovery');
+    const { markPaymentClaimRecoveryRequired } = await import('~~/server/application/checkout/payment-recovery');
     const expired = createStripeIntentAdapter({
       provider: fake.provider,
       enabled: () => true,
@@ -384,7 +384,7 @@ describe('Stripe PaymentIntent adapter', () => {
 
   it('preserves provider success when cancellation races after client-secret release', async () => {
     const fake = fakeProvider();
-    const { markPaymentClaimRecoveryRequired } = await import('~/server/application/checkout/payment-recovery');
+    const { markPaymentClaimRecoveryRequired } = await import('~~/server/application/checkout/payment-recovery');
     const adapter = createStripeIntentAdapter({
       provider: fake.provider,
       enabled: () => true,
@@ -405,7 +405,7 @@ describe('Stripe PaymentIntent adapter', () => {
 
   it('preserves success that arrives while the provider cancellation request is in flight', async () => {
     const fake = fakeProvider();
-    const { markPaymentClaimRecoveryRequired } = await import('~/server/application/checkout/payment-recovery');
+    const { markPaymentClaimRecoveryRequired } = await import('~~/server/application/checkout/payment-recovery');
     const adapter = createStripeIntentAdapter({
       provider: fake.provider,
       enabled: () => true,
@@ -433,7 +433,7 @@ describe('Stripe PaymentIntent adapter', () => {
       paymentId,
     ]);
     const fake = fakeProvider();
-    const { markPaymentClaimRecoveryRequired } = await import('~/server/application/checkout/payment-recovery');
+    const { markPaymentClaimRecoveryRequired } = await import('~~/server/application/checkout/payment-recovery');
     const adapter = createStripeIntentAdapter({
       provider: fake.provider,
       enabled: () => true,
@@ -466,7 +466,7 @@ describe('Stripe PaymentIntent adapter', () => {
   it('does not return a client secret for an already succeeded provider intent before local reconciliation', async () => {
     const fake = fakeProvider();
     fake.create.mockResolvedValueOnce(makeIntent('succeeded'));
-    const { markPaymentClaimRecoveryRequired } = await import('~/server/application/checkout/payment-recovery');
+    const { markPaymentClaimRecoveryRequired } = await import('~~/server/application/checkout/payment-recovery');
     const adapter = createStripeIntentAdapter({
       provider: fake.provider,
       enabled: () => true,
@@ -521,7 +521,7 @@ describe('Stripe PaymentIntent adapter', () => {
     try {
       delete process.env.PAYMENTS_PROVIDER;
       delete process.env.STRIPE_GATE_A_APPROVED;
-      const { stripePayments } = await import('~/server/application/checkout/stripe-payment');
+      const { stripePayments } = await import('~~/server/application/checkout/stripe-payment');
       expect(await stripePayments.initiatePayment({ paymentId })).toEqual({ kind: 'recovery-required' });
       expect((await paymentState())?.stripe_payment_intent_create_started_at).toBeNull();
     } finally {

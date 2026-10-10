@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { mapCartItems } from '../utils/cart';
-import type { CartInterface, CartProductsInterface } from '~/types/cart';
+import { mapCartItems } from '../app/utils/cart';
+import type { CartInterface, CartProductsInterface } from '~~/types/cart';
 import { __setMockApiClient, __setMockCookie, __setMockRouterPush, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const product = {
@@ -74,8 +74,8 @@ describe('useCart public cart interface', () => {
   });
 
   it('adds to cart through the cart API and refreshes the stored cart', async () => {
-    const { useCart } = await import('../composables/useCart');
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCart } = await import('../app/composables/useCart');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     const { addToCart, cartItems, cartId } = useCart();
 
@@ -94,8 +94,8 @@ describe('useCart public cart interface', () => {
   it('refreshes the stored cart after a mock guest adds an item', async () => {
     __setMockCookie('token', undefined);
     __setMockRuntimeConfig({ public: { MOCK_MODE: true } });
-    const { useCart } = await import('../composables/useCart');
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCart } = await import('../app/composables/useCart');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     const { addToCart, cartItems, cartId } = useCart();
 
@@ -112,8 +112,8 @@ describe('useCart public cart interface', () => {
   });
 
   it('updates a cart item through the cart API and refreshes the stored cart', async () => {
-    const { useCart } = await import('../composables/useCart');
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCart } = await import('../app/composables/useCart');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     const { updateCartItem, cartItems, cartId } = useCart();
 
@@ -130,8 +130,8 @@ describe('useCart public cart interface', () => {
   });
 
   it('removes cart items through the cart API and refreshes the stored cart', async () => {
-    const { useCart } = await import('../composables/useCart');
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCart } = await import('../app/composables/useCart');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     const { removeFromCart, cartItems, cartId } = useCart();
 
@@ -150,8 +150,8 @@ describe('useCart public cart interface', () => {
   it('opens sign-in instead of mutating cart when non-mock users have no token', async () => {
     __setMockCookie('token', undefined);
     __setMockRuntimeConfig({ public: { MOCK_MODE: false } });
-    const { useCart } = await import('../composables/useCart');
-    const { useUiStore } = await import('../store/uiStore');
+    const { useCart } = await import('../app/composables/useCart');
+    const { useUiStore } = await import('../app/store/uiStore');
     const { addToCart } = useCart();
 
     const result = await addToCart({ products: [product], userId: '' });
@@ -163,7 +163,7 @@ describe('useCart public cart interface', () => {
   });
 
   it('fetches order shipping prices through the orders API adapter', async () => {
-    const { useCart } = await import('../composables/useCart');
+    const { useCart } = await import('../app/composables/useCart');
     const { fetchShippingPrices } = useCart();
 
     const result = await fetchShippingPrices({ products: [{ id: 'prod-2' }] });

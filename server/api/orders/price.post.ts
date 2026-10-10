@@ -1,8 +1,8 @@
-import { cart } from '~/server/domain/cart';
-import { catalog } from '~/server/domain/catalog';
-import { createCheckoutReviewFingerprint } from '~/server/application/checkout/review-fingerprint';
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
-import { requireMockCartUserId } from '~/server/utils/mockCart';
+import { cart } from '~~/server/domain/cart';
+import { catalog } from '~~/server/domain/catalog';
+import { createCheckoutReviewFingerprint } from '~~/server/application/checkout/review-fingerprint';
+import { getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
+import { requireMockCartUserId } from '~~/server/utils/mockCart';
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as {

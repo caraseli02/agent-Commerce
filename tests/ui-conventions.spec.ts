@@ -10,10 +10,10 @@ import {
 
 describe('verify-ui-conventions', () => {
   it('scopes modal filenames and layout modal directories', () => {
-    expect(isScopedModalUiFile('components/layout/RegionalPreferencesModal.vue')).toBe(true);
-    expect(isScopedModalUiFile('components/layout/account-modal/Form.vue')).toBe(true);
-    expect(isScopedModalUiFile('components/layout/header/MainRow.vue')).toBe(false);
-    expect(isScopedModalUiFile('components/product/Details.vue')).toBe(false);
+    expect(isScopedModalUiFile('app/components/layout/RegionalPreferencesModal.vue')).toBe(true);
+    expect(isScopedModalUiFile('app/components/layout/account-modal/Form.vue')).toBe(true);
+    expect(isScopedModalUiFile('app/components/layout/header/MainRow.vue')).toBe(false);
+    expect(isScopedModalUiFile('app/components/product/Details.vue')).toBe(false);
   });
 
   it('flags native button and input tags but ignores UiButton and UiInput', () => {
@@ -44,7 +44,7 @@ describe('verify-ui-conventions', () => {
   });
 
   it('suppresses violations for grandfathered modal paths', () => {
-    const relativePath = 'components/layout/TemporaryGrandfatheredModal.vue';
+    const relativePath = 'app/components/layout/TemporaryGrandfatheredModal.vue';
     const contents = `<template><button>Close</button></template>`;
 
     grandfatheredLegacyModalFiles.add(relativePath);
@@ -62,7 +62,7 @@ describe('verify-ui-conventions', () => {
 
   it('fails non-grandfathered modal files that still use native controls', () => {
     const contents = `<template><button>Close</button></template>`;
-    const result = inspectModalUiFile('components/layout/NewExampleModal.vue', contents);
+    const result = inspectModalUiFile('app/components/layout/NewExampleModal.vue', contents);
 
     expect(result.grandfathered).toBe(false);
     expect(result.violations).toHaveLength(1);

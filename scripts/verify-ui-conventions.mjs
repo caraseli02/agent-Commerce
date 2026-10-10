@@ -33,7 +33,7 @@ export function isScopedModalUiFile(relativePath) {
     return true;
   }
 
-  return normalized.startsWith('components/layout/') && /modal/i.test(normalized);
+  return normalized.startsWith('app/components/layout/') && /modal/i.test(normalized);
 }
 
 /**

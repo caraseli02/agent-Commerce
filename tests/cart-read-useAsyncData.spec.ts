@@ -4,9 +4,9 @@ import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 import { cartReadCacheKey, loadCartRead } from '~/composables/loadCartRead';
-import type { CartInterface } from '~/types/cart';
+import type { CartInterface } from '~~/types/cart';
 
-const orderSummaryPath = resolve('pages/order-summary/index.vue');
+const orderSummaryPath = resolve('app/pages/order-summary/index.vue');
 
 describe('cart read useAsyncData contract', () => {
   it('loads order-summary cart through useAsyncData with a stable cache key', () => {

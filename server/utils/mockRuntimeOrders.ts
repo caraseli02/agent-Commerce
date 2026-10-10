@@ -1,8 +1,8 @@
-import { PaymentStatusEnum, PaymentTypeEnum, OrderStatus } from '~/types/order-summary/item';
-import type { OrderType } from '~/types/order-summary/item';
-import type { UserInterface } from '~/types/auth/user-interface';
-import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
-import { calculateOrderMoney } from '~/helpers/order-money';
+import { PaymentStatusEnum, PaymentTypeEnum, OrderStatus } from '~~/types/order-summary/item';
+import type { OrderType } from '~~/types/order-summary/item';
+import type { UserInterface } from '~~/types/auth/user-interface';
+import type { ShippingOrderPricingOption } from '~~/types/order-summary/shipping-services';
+import { calculateOrderMoney } from '~~/helpers/order-money';
 
 type OrderProductLike = {
   subtotal?: number;

@@ -1,7 +1,7 @@
-import { checkoutErrorData, checkoutErrorResponse } from '~/types/order/checkout-error';
-import { placeOrder, PlaceOrderError } from '~/server/application/checkout/place-order';
-import { createMockGuestCheckoutUser, getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
-import { requireMockCartUserId } from '~/server/utils/mockCart';
+import { checkoutErrorData, checkoutErrorResponse } from '~~/types/order/checkout-error';
+import { placeOrder, PlaceOrderError } from '~~/server/application/checkout/place-order';
+import { createMockGuestCheckoutUser, getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
+import { requireMockCartUserId } from '~~/server/utils/mockCart';
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Record<string, unknown>;

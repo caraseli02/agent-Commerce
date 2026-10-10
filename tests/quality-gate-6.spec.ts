@@ -3,14 +3,14 @@ import { describe, expect, it, vi } from 'vitest';
 import type { UserInterface } from '../types/auth/user-interface';
 import type { FormSelectOption, SelectInputObject } from '../types/global/form';
 
-import { useFormValidation } from '../composables/formValidation';
-import { textUtil } from '../utils/text';
-import { useTrimText } from '../composables/text';
+import { useFormValidation } from '../app/composables/formValidation';
+import { textUtil } from '../app/utils/text';
+import { useTrimText } from '../app/composables/text';
 import { mapNamesToPath, mapPathArrayOfNames, findCategory, findCategoryByPath } from '../helpers/categories.helper';
 import { initializeQuantities, parseProductPriceConfiguration } from '../helpers/prices.helper';
 import { getCountryTypeValue, getInputStringValue, isFormSelectOption, resolveFormValue, toInputObject } from '../types/global/form';
-import type { CartInterface } from '~/types/cart';
-import type { ProductInterface } from '~/types/product';
+import type { CartInterface } from '~~/types/cart';
+import type { ProductInterface } from '~~/types/product';
 import type { TaxonomyInterface } from '../types/dashboard/categories';
 
 vi.mock('~/store/categoriesStore', () => ({

@@ -1,14 +1,14 @@
 import Stripe from 'stripe';
 import { createApp, toWebHandler, defineEventHandler, readRawBody, getHeader, createError } from 'h3';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createStripeRefundAdapter, handleStripeWebhook, readRefundContinuation } from '~/server/domain/payments';
-import type { StripeRefund, StripeRefundProvider } from '~/server/domain/payments/stripe-refunds';
-import { withRefundCompensation } from '~/server/application/checkout/with-refund-compensation';
-import { requireRefundCompensationRecovery } from '~/server/application/checkout/require-refund-compensation-recovery';
-import { settleRefundCompensation } from '~/server/application/checkout/settle-refund-compensation';
-import { commitRefundCompensation } from '~/server/application/checkout/commit-refund-compensation';
-import { orders } from '~/server/domain/orders';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { createStripeRefundAdapter, handleStripeWebhook, readRefundContinuation } from '~~/server/domain/payments';
+import type { StripeRefund, StripeRefundProvider } from '~~/server/domain/payments/stripe-refunds';
+import { withRefundCompensation } from '~~/server/application/checkout/with-refund-compensation';
+import { requireRefundCompensationRecovery } from '~~/server/application/checkout/require-refund-compensation-recovery';
+import { settleRefundCompensation } from '~~/server/application/checkout/settle-refund-compensation';
+import { commitRefundCompensation } from '~~/server/application/checkout/commit-refund-compensation';
+import { orders } from '~~/server/domain/orders';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 const paymentId = 'pay-full-refund';
 const orderId = 'ord-full-refund';
 const reservationId = 'res-full-refund';
@@ -330,13 +330,13 @@ describe('signed Refund financial truth and compensation settlement', () => {
     vi.stubGlobal('getHeader', getHeader);
     vi.stubGlobal('createError', createError);
     let enabled = true;
-    vi.doMock('~/server/application/checkout/stripe-payment', () => ({
+    vi.doMock('~~/server/application/checkout/stripe-payment', () => ({
       stripePayments: { applyVerifiedIntentEvent: vi.fn() },
       stripeRefunds: service(),
       stripePaymentsEnabled: () => enabled,
     }));
     try {
-      const route = (await import('~/server/api/payments/stripe/webhook.post')).default;
+      const route = (await import('~~/server/api/payments/stripe/webhook.post')).default;
       const app = createApp();
       app.use('/api/payments/stripe/webhook', route);
       const request = toWebHandler(app);
@@ -360,7 +360,7 @@ describe('signed Refund financial truth and compensation settlement', () => {
       expect((await send(value.rawBody, value.signature)).status).toBe(503);
       expect(retrieve).toHaveBeenCalledOnce();
     } finally {
-      vi.doUnmock('~/server/application/checkout/stripe-payment');
+      vi.doUnmock('~~/server/application/checkout/stripe-payment');
       vi.unstubAllGlobals();
       vi.unstubAllEnvs();
     }

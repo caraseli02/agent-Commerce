@@ -1,4 +1,4 @@
-import { getMockUserById } from '~/server/utils/mockUsers';
+import { getMockUserById } from '~~/server/utils/mockUsers';
 
 export default defineEventHandler(async (event) => {
   const userId = getRouterParam(event, 'id');

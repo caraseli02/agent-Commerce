@@ -15,9 +15,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // #461 intentionally preserves the root-level source layout.
-  srcDir: '.',
-
   modules: [
     '@nuxt/fonts',
     'nuxt-svgo',
@@ -29,7 +26,7 @@ export default defineNuxtConfig({
     'shadcn-nuxt',
     '@nuxt/image',
     '@nuxt/eslint',
-    '~/modules/shadcn-components-dir-fix',
+    '~~/modules/shadcn-components-dir-fix',
   ],
 
   components: {
@@ -197,7 +194,7 @@ export default defineNuxtConfig({
      * Directory that the component lives in.
      * @default "./components/ui"
      */
-    componentDir: './components/ui',
+    componentDir: './app/components/ui',
   },
 
   svgo: {

@@ -1,8 +1,8 @@
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { terminalizeCanceledCheckout } from '~/server/application/checkout/terminalize-canceled-checkout';
-import { createStripeIntentAdapter, handleStripeWebhook } from '~/server/domain/payments';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { terminalizeCanceledCheckout } from '~~/server/application/checkout/terminalize-canceled-checkout';
+import { createStripeIntentAdapter, handleStripeWebhook } from '~~/server/domain/payments';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 const paymentId = 'pay-cancel-terminalization';
 const orderId = 'ord-cancel-terminalization';

@@ -1,7 +1,7 @@
 import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
-import { orders } from '~/server/domain/orders';
-import { payments } from '~/server/domain/payments';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { orders } from '~~/server/domain/orders';
+import { payments } from '~~/server/domain/payments';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 export type OrderPaymentState =
   | { kind: 'pending' | 'processing' | 'paid-finalizing' | 'completed' | 'canceled' | 'recovery-required' | 'not-found' }

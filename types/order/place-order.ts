@@ -1,4 +1,4 @@
-import type { PaymentStatusEnum } from '~/types';
+import type { PaymentStatusEnum } from '~~/types';
 
 interface PaymentIntentLike {
   id?: string;

@@ -1,6 +1,6 @@
-import type { AddToCartRequestInterface } from '~/types/cart';
-import { addProductsToMockCart, getMockCartForUser, requireMockCartUserId } from '~/server/utils/mockCart';
-import { withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import type { AddToCartRequestInterface } from '~~/types/cart';
+import { addProductsToMockCart, getMockCartForUser, requireMockCartUserId } from '~~/server/utils/mockCart';
+import { withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Partial<AddToCartRequestInterface>;

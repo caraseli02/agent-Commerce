@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import type { ProductInterface } from '~/types/product';
+import type { ProductInterface } from '~~/types/product';
 import {
   calculateCartLinePricing,
   clampCartQuantity,
@@ -10,7 +10,7 @@ import {
 import { catalog } from '../server/domain/catalog';
 import { getClientDashboardData } from '../server/utils/mockDashboardDemo';
 import { getMockUserById } from '../server/utils/mockUsers';
-import { MOCK_CUSTOMER_USER_ID } from '../utils/mockAuth';
+import { MOCK_CUSTOMER_USER_ID } from '../app/utils/mockAuth';
 
 const volumeProduct = {
   _id: 'prod-1',
@@ -106,7 +106,7 @@ describe('cart pricing and stock helpers', () => {
 
   it('sends a negative delta when reducing an existing cart quantity', async () => {
     const addToCart = vi.fn(async () => ({ status: 'success' }));
-    vi.doMock('../composables/useCart', () => ({
+    vi.doMock('../app/composables/useCart', () => ({
       useCart: () => ({ addToCart }),
     }));
 

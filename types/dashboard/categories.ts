@@ -1,5 +1,5 @@
 import type { Component } from 'vue';
-import type { PriceSmartLinkingInterface } from '~/model/prices/price-settings.interface';
+import type { PriceSmartLinkingInterface } from '~~/model/prices/price-settings.interface';
 
 export interface TaxonomyInterface {
   id: string;

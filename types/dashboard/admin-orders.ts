@@ -1,5 +1,5 @@
-import type { OrderInterface } from '~/types/order-summary/item';
-import type { WidgetTypeEnum } from '~/types/dashboard/orders';
+import type { OrderInterface } from '~~/types/order-summary/item';
+import type { WidgetTypeEnum } from '~~/types/dashboard/orders';
 
 export type WidgetApiType = `${WidgetTypeEnum}`;
 

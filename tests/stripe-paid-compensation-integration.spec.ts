@@ -1,19 +1,19 @@
 import Stripe from 'stripe';
 import { createApp, toWebHandler, defineEventHandler, readRawBody, getHeader, createError } from 'h3';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createContinuePaidCheckout } from '~/server/application/checkout/continue-paid-checkout';
-import { settleRefundCompensation } from '~/server/application/checkout/settle-refund-compensation';
-import { requireRefundCompensationRecovery } from '~/server/application/checkout/require-refund-compensation-recovery';
-import { withRefundCompensation } from '~/server/application/checkout/with-refund-compensation';
-import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
+import { createContinuePaidCheckout } from '~~/server/application/checkout/continue-paid-checkout';
+import { settleRefundCompensation } from '~~/server/application/checkout/settle-refund-compensation';
+import { requireRefundCompensationRecovery } from '~~/server/application/checkout/require-refund-compensation-recovery';
+import { withRefundCompensation } from '~~/server/application/checkout/with-refund-compensation';
+import { finalizePaidCheckout } from '~~/server/application/checkout/finalize-paid-checkout';
 import {
   createStripeIntentAdapter,
   createStripeRefundAdapter,
   handleStripeWebhook,
   readRefundContinuation,
-} from '~/server/domain/payments';
-import type { StripeRefund, StripeRefundProvider } from '~/server/domain/payments/stripe-refunds';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+} from '~~/server/domain/payments';
+import type { StripeRefund, StripeRefundProvider } from '~~/server/domain/payments/stripe-refunds';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 const paymentId = 'pay-compensation-integration';
 const orderId = 'ord-compensation-integration';
@@ -310,14 +310,14 @@ describe('late paid success delivery continues compensation without a browser', 
     vi.stubGlobal('readRawBody', readRawBody);
     vi.stubGlobal('getHeader', getHeader);
     vi.stubGlobal('createError', createError);
-    vi.doMock('~/server/application/checkout/stripe-payment', () => ({
+    vi.doMock('~~/server/application/checkout/stripe-payment', () => ({
       stripePayments: { applyVerifiedIntentEvent: input.applyVerifiedIntentEvent },
       stripeRefunds: adapter,
       stripePaymentsEnabled: () => enabled,
     }));
-    vi.doMock('~/server/application/checkout/continue-paid-checkout', () => ({ continuePaidCheckout: input.finalizePaidCheckout }));
+    vi.doMock('~~/server/application/checkout/continue-paid-checkout', () => ({ continuePaidCheckout: input.finalizePaidCheckout }));
     try {
-      const route = (await import('~/server/api/payments/stripe/webhook.post')).default;
+      const route = (await import('~~/server/api/payments/stripe/webhook.post')).default;
       const app = createApp();
       app.use('/api/payments/stripe/webhook', route);
       const request = toWebHandler(app);
@@ -341,8 +341,8 @@ describe('late paid success delivery continues compensation without a browser', 
       expect((await send()).status).toBe(503);
       expect(create).toHaveBeenCalledTimes(2);
     } finally {
-      vi.doUnmock('~/server/application/checkout/continue-paid-checkout');
-      vi.doUnmock('~/server/application/checkout/stripe-payment');
+      vi.doUnmock('~~/server/application/checkout/continue-paid-checkout');
+      vi.doUnmock('~~/server/application/checkout/stripe-payment');
       vi.unstubAllGlobals();
       vi.unstubAllEnvs();
     }

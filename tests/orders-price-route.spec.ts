@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-vi.mock('~/server/domain/cart', () => ({
+vi.mock('~~/server/domain/cart', () => ({
   cart: {
     getSnapshot: vi.fn(async () => ({
       kind: 'found',

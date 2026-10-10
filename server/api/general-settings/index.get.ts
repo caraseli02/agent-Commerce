@@ -1,5 +1,5 @@
-import { PaymentTypeEnum } from '~/types/order-summary/item';
-import { catalog } from '~/server/domain/catalog';
+import { PaymentTypeEnum } from '~~/types/order-summary/item';
+import { catalog } from '~~/server/domain/catalog';
 
 export default defineEventHandler(async (_event) => {
   return {

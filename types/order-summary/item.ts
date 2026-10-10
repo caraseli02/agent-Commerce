@@ -1,12 +1,12 @@
-import type { CustomerCreditInterface, DiscountInterface } from '~/types/auth/account-settings';
-import type { ShippingAddressInterface, UserInterface } from '~/types/auth/user-interface';
+import type { CustomerCreditInterface, DiscountInterface } from '~~/types/auth/account-settings';
+import type { ShippingAddressInterface, UserInterface } from '~~/types/auth/user-interface';
 import type {
   BackorderShippingTypesInterface,
   SmallOrderChargeInterface,
   StockorderShippingTypesInterface,
-} from '~/types/general-settings/general-settings';
-import type { CartProductsInterface } from '~/types/cart';
-import type { ShippingOrderPricingOption } from '~/types/order-summary/shipping-services';
+} from '~~/types/general-settings/general-settings';
+import type { CartProductsInterface } from '~~/types/cart';
+import type { ShippingOrderPricingOption } from '~~/types/order-summary/shipping-services';
 
 export interface OrderSummaryItem {
   title: string;
