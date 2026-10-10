@@ -1,5 +1,5 @@
-import { getDemoAddresses, resolveCustomerId } from '~/server/utils/mockDashboardDemo';
-import type { BillingAddressInterface, ShippingAddressInterface } from '~/types/auth/user-interface';
+import { getDemoAddresses, resolveCustomerId } from '~~/server/utils/mockDashboardDemo';
+import type { BillingAddressInterface, ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 type AddressKind = 'shipping' | 'billing';
 

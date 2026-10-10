@@ -30,7 +30,7 @@ describe('API client SSR setup', () => {
           headers: { 'Content-Type': 'application/json' },
         }),
     );
-    const { default: apiPlugin } = await import('../plugins/api');
+    const { default: apiPlugin } = await import('../app/plugins/api');
     const pluginSetup = apiPlugin as unknown as (nuxtApp: unknown) => { provide: { apiClient: $Fetch } };
     const result = pluginSetup({
       $config: { public: { MOCK_MODE: true, BASE_URL_API: 'https://unused.example' } },

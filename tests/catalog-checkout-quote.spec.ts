@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { catalog } from '~/server/domain/catalog';
-import { getMockUserById } from '~/server/utils/mockUsers';
+import { catalog } from '~~/server/domain/catalog';
+import { getMockUserById } from '~~/server/utils/mockUsers';
 
 describe('Catalog checkout quote', () => {
   it('returns every payable component from one server-authoritative quote', async () => {

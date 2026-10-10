@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-const accountFormPath = resolve('components/layout/account-modal/Form.vue');
+const accountFormPath = resolve('app/components/layout/account-modal/Form.vue');
 
 describe('account demo credentials', () => {
   it('keeps demo passwords hidden while preserving role-based sign-in', () => {

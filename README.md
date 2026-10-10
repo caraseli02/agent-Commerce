@@ -239,14 +239,15 @@ substitute for a secured production API or connect it to real customer data.
 ## Project structure
 
 ```text
-components/      UI and feature components
-pages/           Nuxt routes
-layouts/         app shells
-composables/api/ Plain domain API adapters around the Nuxt $fetch client
-server/api/      Nitro mock endpoints
-store/           Pinia stores
-types/           shared TypeScript types
-docs/            supporting audit/media materials
+app/                 Nuxt source directory (~ / @ resolve here)
+  components/        UI and feature components
+  pages/             Nuxt routes
+  layouts/           app shells
+  composables/api/   Plain domain API adapters around the Nuxt $fetch client
+  store/             Pinia stores
+server/api/          Nitro mock endpoints
+types/ helpers/      shared TypeScript types and helpers (~~ / @@ = repo root)
+docs/                supporting audit/media materials
 ```
 
 Planning docs:

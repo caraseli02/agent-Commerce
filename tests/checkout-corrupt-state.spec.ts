@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { readOrderPaymentState } from '~/server/application/checkout/read-order-payment-state';
-import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
-import { commitRefundCompensation } from '~/server/application/checkout/commit-refund-compensation';
-import { requireRefundCompensationRecovery } from '~/server/application/checkout/require-refund-compensation-recovery';
-import { restartCanceledCheckout } from '~/server/application/checkout/restart-canceled-checkout';
-import { createResumeOrderPayment } from '~/server/application/checkout/resume-order-payment';
-import { createPlaceOrderUseCase } from '~/server/application/checkout/place-order';
-import { createStripeIntentAdapter, payments } from '~/server/domain/payments';
+import { readOrderPaymentState } from '~~/server/application/checkout/read-order-payment-state';
+import { finalizePaidCheckout } from '~~/server/application/checkout/finalize-paid-checkout';
+import { commitRefundCompensation } from '~~/server/application/checkout/commit-refund-compensation';
+import { requireRefundCompensationRecovery } from '~~/server/application/checkout/require-refund-compensation-recovery';
+import { restartCanceledCheckout } from '~~/server/application/checkout/restart-canceled-checkout';
+import { createResumeOrderPayment } from '~~/server/application/checkout/resume-order-payment';
+import { createPlaceOrderUseCase } from '~~/server/application/checkout/place-order';
+import { createStripeIntentAdapter, payments } from '~~/server/domain/payments';
 
 const boundary = vi.hoisted(() => ({
   query: vi.fn(),
@@ -17,12 +17,12 @@ const boundary = vi.hoisted(() => ({
   commit: vi.fn(),
   complete: vi.fn(),
 }));
-vi.mock('~/server/infrastructure/checkout-database', () => ({
+vi.mock('~~/server/infrastructure/checkout-database', () => ({
   assertOutsideCheckoutTransaction: () => undefined,
   getCheckoutDatabase: async () => ({ query: boundary.query, execute: boundary.execute }),
   withCheckoutTransaction: async (operation: () => Promise<unknown>) => operation(),
 }));
-vi.mock('~/server/domain/orders', () => ({
+vi.mock('~~/server/domain/orders', () => ({
   orders: {
     getCheckoutStatePreparation: boundary.orderRead,
     getPaymentPreparation: boundary.orderRead,
@@ -30,11 +30,11 @@ vi.mock('~/server/domain/orders', () => ({
     holdPaidForCompensation: boundary.hold,
   },
 }));
-vi.mock('~/server/domain/inventory', () => ({
+vi.mock('~~/server/domain/inventory', () => ({
   inventory: { commit: boundary.commit, release: boundary.commit, reestablishReservation: boundary.commit },
 }));
-vi.mock('~/server/domain/cart', () => ({ cart: { completeCheckout: boundary.complete, restartForReview: boundary.complete } }));
-vi.mock('~/server/application/checkout/stripe-payment', () => ({ stripePayments: { initiatePayment: vi.fn() } }));
+vi.mock('~~/server/domain/cart', () => ({ cart: { completeCheckout: boundary.complete, restartForReview: boundary.complete } }));
+vi.mock('~~/server/application/checkout/stripe-payment', () => ({ stripePayments: { initiatePayment: vi.fn() } }));
 
 const claim = {
   owner_id: 'owner',
@@ -181,8 +181,8 @@ describe('Corrupt persisted state never authorizes side effects', () => {
       expect(sql).toContain("workflow_status IN ('prepared','payment_pending','recovery_required')");
       expect(sql).toContain("paid_recovery_decision IS NULL OR paid_recovery_decision IN ('ALLOCATE','BACKORDER')");
       // Exercise the emitted predicate in PostgreSQL without weakening application constraints.
-      const realDatabase = await vi.importActual<typeof import('~/server/infrastructure/checkout-database')>(
-        '~/server/infrastructure/checkout-database',
+      const realDatabase = await vi.importActual<typeof import('~~/server/infrastructure/checkout-database')>(
+        '~~/server/infrastructure/checkout-database',
       );
       await realDatabase.withCheckoutTransaction(async () => {
         const database = await realDatabase.getCheckoutDatabase();

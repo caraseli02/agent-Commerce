@@ -1,5 +1,5 @@
-import type { AccountAdminSettings } from '~/types/auth/account-settings';
-import type { CompanyDetails, ContactDetails, PersonalDetails, ProfileDetails } from '~/types/auth/user-interface';
+import type { AccountAdminSettings } from '~~/types/auth/account-settings';
+import type { CompanyDetails, ContactDetails, PersonalDetails, ProfileDetails } from '~~/types/auth/user-interface';
 
 export interface FirebasePersonalAccount {
   account: PersonalAccount;

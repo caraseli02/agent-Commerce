@@ -1,4 +1,4 @@
-import { getDemoOrders, getDemoOrdersForUser } from '~/server/utils/mockDashboardDemo';
+import { getDemoOrders, getDemoOrdersForUser } from '~~/server/utils/mockDashboardDemo';
 
 export default defineEventHandler((event) => {
   const userId = getRouterParam(event, 'userId');

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { mockProducts } from '~/server/utils/mockProducts';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { mockProducts } from '~~/server/utils/mockProducts';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 export type ReservationItem = Readonly<{
   productId: string;
@@ -219,4 +219,60 @@ const release = async (reservationId: string): Promise<ReleaseReservationResult>
   return { kind: 'released' };
 };
 
-export const inventory = { reserve, reestablishReservation, isReservationActive, commit, release };
+export type RecoverPaidInventoryResult =
+  { kind: 'allocated' | 'backordered'; reservation: InventoryReservation } | { kind: 'unavailable' } | { kind: 'retry' };
+
+// Inventory owns the demo backorder policy. An absent/unknown frozen buyer
+// choice never grants permission to turn immediate quantities into backorders.
+const recoverPaidReservation = async (input: {
+  reservationId: string;
+  reservationKey: string;
+  items: readonly ReservationItem[];
+  backorderShippingTypeId?: string;
+}): Promise<RecoverPaidInventoryResult> => {
+  const previous = await readReservation('id', input.reservationId);
+  if (!previous) return { kind: 'retry' };
+  if (previous.reservation_key !== input.reservationKey && !previous.reservation_key.startsWith(`${input.reservationKey}:after:`))
+    return { kind: 'retry' };
+  let previousItems: ReservationItem[];
+  try {
+    previousItems = JSON.parse(previous.items_json);
+    if (!Array.isArray(previousItems) || fingerprintItems(previousItems) !== fingerprintItems(input.items)) return { kind: 'retry' };
+  } catch {
+    return { kind: 'retry' };
+  }
+  await expireIfNeeded(previous);
+  if (previous.status !== 'expired' && previous.status !== 'released') return { kind: 'retry' };
+
+  const plan: ReservationItem[] = [];
+  for (const item of [...input.items].sort((a, b) => a.productId.localeCompare(b.productId))) {
+    const row = await ensureInventoryRow(item.productId);
+    const quantity = item.immediateQuantity + item.backorderQuantity;
+    const immediateQuantity = Math.min(quantity, Math.max(0, Number(row?.on_hand || 0) - Number(row?.reserved || 0)));
+    plan.push({ productId: item.productId, immediateQuantity, backorderQuantity: quantity - immediateQuantity });
+  }
+  const backordered = plan.some((item) => item.backorderQuantity > 0);
+  if (
+    backordered &&
+    (input.backorderShippingTypeId !== 'back-001' ||
+      plan.some(
+        (item) =>
+          item.backorderQuantity > 0 &&
+          !mockProducts.some((product) => product.active && (product._id === item.productId || product.code === item.productId)),
+      ))
+  )
+    return { kind: 'unavailable' };
+
+  const reserved = await reserve({
+    reservationKey: `${previous.reservation_key}:late-paid:${previous.id}`,
+    items: plan,
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+  });
+  if (reserved.kind !== 'created' && reserved.kind !== 'existing') throw new Error('The locked paid Inventory plan could not be reserved.');
+  const committed = await commit(reserved.reservation.id);
+  if (committed.kind !== 'committed' && committed.kind !== 'already-committed')
+    throw new Error('The paid Inventory plan could not be committed.');
+  return { kind: backordered ? 'backordered' : 'allocated', reservation: { ...reserved.reservation, status: 'committed' } };
+};
+
+export const inventory = { reserve, reestablishReservation, isReservationActive, commit, release, recoverPaidReservation };

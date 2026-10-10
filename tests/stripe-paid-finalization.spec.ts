@@ -1,10 +1,10 @@
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { requireRefundCompensationRecovery } from '~/server/application/checkout/require-refund-compensation-recovery';
-import { commitRefundCompensation } from '~/server/application/checkout/commit-refund-compensation';
-import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
-import { createStripeIntentAdapter, handleStripeWebhook } from '~/server/domain/payments';
-import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { requireRefundCompensationRecovery } from '~~/server/application/checkout/require-refund-compensation-recovery';
+import { commitRefundCompensation } from '~~/server/application/checkout/commit-refund-compensation';
+import { finalizePaidCheckout } from '~~/server/application/checkout/finalize-paid-checkout';
+import { createStripeIntentAdapter, handleStripeWebhook } from '~~/server/domain/payments';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 const paymentId = 'pay-paid-finalization';
 const orderId = 'ord-paid-finalization';

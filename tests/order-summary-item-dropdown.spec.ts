@@ -5,8 +5,8 @@ import { baseParse, NodeTypes, type ElementNode, type RootNode } from '@vue/comp
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
-const itemPath = resolve('components/order-summary/Table/Item.vue');
-const itemDropdownPath = resolve('components/order-summary/Table/ItemDropdown.vue');
+const itemPath = resolve('app/components/order-summary/Table/Item.vue');
+const itemDropdownPath = resolve('app/components/order-summary/Table/ItemDropdown.vue');
 
 function parseTemplate(filePath: string): RootNode {
   const { descriptor } = parseSfc(readFileSync(filePath, 'utf8'));

@@ -1,2 +1,2 @@
-/** @deprecated Import from `~/types/cart` instead. */
-export * from '~/types/cart/request';
+/** @deprecated Import from `~~/types/cart` instead. */
+export * from '~~/types/cart/request';

@@ -8,13 +8,13 @@ const webhook = vi.hoisted(() => ({
   terminalize: vi.fn(),
 }));
 
-vi.mock('~/server/domain/payments', () => ({ handleStripeWebhook: webhook.handle }));
-vi.mock('~/server/application/checkout/stripe-payment', () => ({
+vi.mock('~~/server/domain/payments', () => ({ handleStripeWebhook: webhook.handle }));
+vi.mock('~~/server/application/checkout/stripe-payment', () => ({
   stripePayments: { applyVerifiedIntentEvent: webhook.apply },
   stripePaymentsEnabled: webhook.enabled,
 }));
-vi.mock('~/server/application/checkout/finalize-paid-checkout', () => ({ finalizePaidCheckout: webhook.finalize }));
-vi.mock('~/server/application/checkout/terminalize-canceled-checkout', () => ({ terminalizeCanceledCheckout: webhook.terminalize }));
+vi.mock('~~/server/application/checkout/finalize-paid-checkout', () => ({ finalizePaidCheckout: webhook.finalize }));
+vi.mock('~~/server/application/checkout/terminalize-canceled-checkout', () => ({ terminalizeCanceledCheckout: webhook.terminalize }));
 
 type FakeEvent = { rawBody: Buffer; signature?: string };
 let route: (event: FakeEvent) => Promise<unknown>;
@@ -33,7 +33,7 @@ describe('Stripe webhook route', () => {
     vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string }) =>
       Object.assign(new Error(payload.statusMessage), payload),
     );
-    route = (await import('~/server/api/payments/stripe/webhook.post')).default as unknown as (event: FakeEvent) => Promise<unknown>;
+    route = (await import('~~/server/api/payments/stripe/webhook.post')).default as unknown as (event: FakeEvent) => Promise<unknown>;
   });
 
   beforeEach(() => {

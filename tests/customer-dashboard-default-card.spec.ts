@@ -10,7 +10,7 @@ describe('useCustomerDashboard default card', () => {
   });
 
   it('starts activity widgets with render-safe empty values', async () => {
-    const { useCustomerDashboard } = await import('../composables/useCustomerDashboard');
+    const { useCustomerDashboard } = await import('../app/composables/useCustomerDashboard');
     const { myActivityData } = useCustomerDashboard();
 
     expect(myActivityData.value).toEqual({
@@ -36,11 +36,11 @@ describe('useCustomerDashboard default card', () => {
       throw new Error(`Unexpected API request: ${resource}`);
     });
 
-    const { useAuthStore } = await import('../store/authStore');
+    const { useAuthStore } = await import('../app/store/authStore');
     const authStore = useAuthStore();
     authStore.userCards = null;
 
-    const { useCustomerDashboard } = await import('../composables/useCustomerDashboard');
+    const { useCustomerDashboard } = await import('../app/composables/useCustomerDashboard');
     const { myCard, getDefaultCard } = useCustomerDashboard();
 
     await getDefaultCard();

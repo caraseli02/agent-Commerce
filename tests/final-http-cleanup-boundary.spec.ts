@@ -3,17 +3,17 @@ import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const repoRoot = process.cwd();
-const sourceRoots = ['components', 'composables', 'pages', 'plugins', 'store'];
+const sourceRoots = ['app/components', 'app/composables', 'app/pages', 'app/plugins', 'app/store'];
 const deletedPaths = [
-  `composables/${['Http', 'Factory'].join('')}.ts`,
-  `composables/${['use', 'Fetch', 'API'].join('')}.ts`,
+  `app/composables/${['Http', 'Factory'].join('')}.ts`,
+  `app/composables/${['use', 'Fetch', 'API'].join('')}.ts`,
   ['serv', 'ices'].join(''),
 ];
 const dashboardOrderSurfacePaths = [
-  'pages/dashboard/orders/[id].vue',
-  'components/admin-table/order/Order.vue',
-  'components/client-table/order/Index.vue',
-  'components/dashboard/orders/InfoCards.vue',
+  'app/pages/dashboard/orders/[id].vue',
+  'app/components/admin-table/order/Order.vue',
+  'app/components/client-table/order/Index.vue',
+  'app/components/dashboard/orders/InfoCards.vue',
 ];
 const legacyDomainApiPattern =
   /\$api\.(cart|auth|product|orders|categories|user|favouriteFolder|notifications|generalSettings|userDashboard|controlPanel|customerDashboard|settingsClient|customerProfile|smartPricing|documents)\b/;

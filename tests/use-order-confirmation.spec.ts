@@ -1,4 +1,4 @@
-import { formatReviewerDateTime } from '~/helpers/reviewer-dates';
+import { formatReviewerDateTime } from '~~/helpers/reviewer-dates';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ref } from 'vue';
@@ -339,8 +339,8 @@ describe('order confirmation module', () => {
   });
 
   it('keeps the buyer component as an adapter over the shared module interface', async () => {
-    const source = await readFile(resolve('components/order-confirm/BuyerConfirmation.vue'), 'utf8');
-    const routeSource = await readFile(resolve('pages/order-summary/[id].vue'), 'utf8');
+    const source = await readFile(resolve('app/components/order-confirm/BuyerConfirmation.vue'), 'utf8');
+    const routeSource = await readFile(resolve('app/pages/order-summary/[id].vue'), 'utf8');
 
     expect(source).toContain('useOrderConfirmation(normalizedOrderId)');
     expect(source).toContain('onMounted(() =>');
@@ -355,7 +355,7 @@ describe('order confirmation module', () => {
     getOrderById.mockResolvedValue(buildStockOrderResponse());
     const orderId = ref('order-stock-1');
 
-    const { useOrderConfirmation } = await import('../composables/useOrderConfirmation');
+    const { useOrderConfirmation } = await import('../app/composables/useOrderConfirmation');
     const confirmation = useOrderConfirmation(orderId);
 
     await confirmation.loadOrderConfirmation();
@@ -370,7 +370,7 @@ describe('order confirmation module', () => {
     getOrderById.mockResolvedValue(buildStockOrderResponse());
     downloadDocument.mockResolvedValue(true);
 
-    const { useOrderConfirmation } = await import('../composables/useOrderConfirmation');
+    const { useOrderConfirmation } = await import('../app/composables/useOrderConfirmation');
     const confirmation = useOrderConfirmation('order-stock-1');
 
     await confirmation.loadOrderConfirmation();
@@ -440,7 +440,7 @@ describe('order confirmation module', () => {
       },
     });
 
-    const { useOrderConfirmation } = await import('../composables/useOrderConfirmation');
+    const { useOrderConfirmation } = await import('../app/composables/useOrderConfirmation');
     const confirmation = useOrderConfirmation('order-authoritative-money');
     await confirmation.loadOrderConfirmation();
 
@@ -461,7 +461,7 @@ describe('order confirmation module', () => {
     getOrderById.mockResolvedValue(buildMixedOrderResponse());
     downloadDocument.mockResolvedValue(true);
 
-    const { useOrderConfirmation } = await import('../composables/useOrderConfirmation');
+    const { useOrderConfirmation } = await import('../app/composables/useOrderConfirmation');
     const confirmation = useOrderConfirmation('order-mixed-1');
 
     await confirmation.loadOrderConfirmation();
@@ -495,7 +495,7 @@ describe('order confirmation module', () => {
     getOrderById.mockResolvedValue(buildStockOrderResponse());
     downloadDocument.mockResolvedValue(true);
 
-    const { useOrderConfirmation } = await import('../composables/useOrderConfirmation');
+    const { useOrderConfirmation } = await import('../app/composables/useOrderConfirmation');
     const confirmation = useOrderConfirmation('order-stock-1');
 
     await confirmation.loadOrderConfirmation();

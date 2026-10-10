@@ -1,6 +1,6 @@
-import { AccountRole, AccountType } from '~/types/signup/form';
-import type { UserPermissionsEnum } from '~/types/auth/permissions';
-import type { UserInterface } from '~/types/auth/user-interface';
+import { AccountRole, AccountType } from '~~/types/signup/form';
+import type { UserPermissionsEnum } from '~~/types/auth/permissions';
+import type { UserInterface } from '~~/types/auth/user-interface';
 import {
   MOCK_ADMIN_PERMISSIONS,
   MOCK_ADMIN_USER_ID,

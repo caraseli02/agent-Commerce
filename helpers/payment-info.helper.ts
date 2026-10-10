@@ -1,5 +1,5 @@
-import { PaymentTypeEnum, type OrderInterface, type PaymentInfo, type StripeCardInterface } from '~/types';
-import type { UserInterface } from '~/types/auth/user-interface';
+import { PaymentTypeEnum, type OrderInterface, type PaymentInfo, type StripeCardInterface } from '~~/types';
+import type { UserInterface } from '~~/types/auth/user-interface';
 
 export const paymentInfoHelper = (
   order: OrderInterface,

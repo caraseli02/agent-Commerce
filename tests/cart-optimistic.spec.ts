@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { mapCartItems } from '../utils/cart';
-import type { CartInterface, CartProductsInterface } from '~/types/cart';
+import { mapCartItems } from '../app/utils/cart';
+import type { CartInterface, CartProductsInterface } from '~~/types/cart';
 import { __setMockApiClient, __setMockCookie, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const product = {
@@ -86,9 +86,9 @@ describe('optimistic add-to-cart', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCart, __resetAddToCartStateForTests } = await import('../composables/useCart');
+    const { useCart, __resetAddToCartStateForTests } = await import('../app/composables/useCart');
     __resetAddToCartStateForTests();
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     const { addToCart } = useCart();
 
@@ -122,9 +122,9 @@ describe('optimistic add-to-cart', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCart, __resetAddToCartStateForTests } = await import('../composables/useCart');
+    const { useCart, __resetAddToCartStateForTests } = await import('../app/composables/useCart');
     __resetAddToCartStateForTests();
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     cartStore.setCart(priorCart);
     cartStore.setOrderClientSecret('secret-keep-me');
@@ -159,9 +159,9 @@ describe('optimistic add-to-cart', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCart, __resetAddToCartStateForTests } = await import('../composables/useCart');
+    const { useCart, __resetAddToCartStateForTests } = await import('../app/composables/useCart');
     __resetAddToCartStateForTests();
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     const { addToCart } = useCart();
 
@@ -192,7 +192,7 @@ describe('optimistic add-to-cart', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCart, __resetAddToCartStateForTests } = await import('../composables/useCart');
+    const { useCart, __resetAddToCartStateForTests } = await import('../app/composables/useCart');
     __resetAddToCartStateForTests();
     const { addToCart } = useCart();
 
@@ -216,9 +216,9 @@ describe('optimistic add-to-cart', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCart, __resetAddToCartStateForTests } = await import('../composables/useCart');
+    const { useCart, __resetAddToCartStateForTests } = await import('../app/composables/useCart');
     __resetAddToCartStateForTests();
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     cartStore.setOrderClientSecret('secret-keep-me');
     const { addToCart } = useCart();
@@ -230,7 +230,7 @@ describe('optimistic add-to-cart', () => {
   });
 
   it('applies optimistic unit prices from the payload', async () => {
-    const { applyOptimisticCartAdd } = await import('../utils/cart');
+    const { applyOptimisticCartAdd } = await import('../app/utils/cart');
     const next = applyOptimisticCartAdd(null, [
       {
         id: 'priced',

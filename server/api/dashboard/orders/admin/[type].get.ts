@@ -1,4 +1,4 @@
-import { getOrderWidgetTotal } from '~/server/utils/mockDashboardDemo';
+import { getOrderWidgetTotal } from '~~/server/utils/mockDashboardDemo';
 
 export default defineEventHandler((event) => {
   const type = getRouterParam(event, 'type');

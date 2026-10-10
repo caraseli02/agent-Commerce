@@ -9,7 +9,7 @@ const source = (relativePath: string) => readFileSync(resolve(repoRoot, relative
 
 describe('empty state UX contract (#194)', () => {
   it('defines shared presets for search, cart, orders, and favorites', () => {
-    const presets = source('components/global/empty-state-presets.ts');
+    const presets = source('app/components/global/empty-state-presets.ts');
 
     expect(presets).toContain("primaryTo: '/search'");
     expect(presets).toContain("primaryLabel: 'Start shopping'");
@@ -21,7 +21,7 @@ describe('empty state UX contract (#194)', () => {
   });
 
   it('uses the shared empty state for no search results', () => {
-    const products = source('components/search/Products.vue');
+    const products = source('app/components/search/Products.vue');
 
     expect(products).toContain('<EmptyState');
     expect(products).toContain('searchEmptyPreset');
@@ -29,7 +29,7 @@ describe('empty state UX contract (#194)', () => {
   });
 
   it('keeps search fetch failures distinct from empty results', () => {
-    const searchPage = source('pages/search.vue');
+    const searchPage = source('app/pages/search.vue');
 
     expect(searchPage).toContain('v-else-if="error"');
     expect(searchPage).toContain('role="alert"');
@@ -37,7 +37,7 @@ describe('empty state UX contract (#194)', () => {
   });
 
   it('uses cart read error and empty treatments in the cart panel', () => {
-    const cartPanel = source('components/layout/favorites-cart-modal/cart/Index.vue');
+    const cartPanel = source('app/components/layout/favorites-cart-modal/cart/Index.vue');
 
     expect(cartPanel).toContain("cartReadCacheKey('cart-panel')");
     expect(cartPanel).toContain('cartReadError');
@@ -47,7 +47,7 @@ describe('empty state UX contract (#194)', () => {
   });
 
   it('uses shared empty and error states for client orders', () => {
-    const ordersTable = source('components/client-table/order/Index.vue');
+    const ordersTable = source('app/components/client-table/order/Index.vue');
 
     expect(ordersTable).toContain('ordersEmptyPreset');
     expect(ordersTable).toContain("variant: 'error'");
@@ -58,7 +58,7 @@ describe('empty state UX contract (#194)', () => {
   });
 
   it('generates unique empty-state heading ids by default', () => {
-    const emptyState = source('components/global/EmptyState.vue');
+    const emptyState = source('app/components/global/EmptyState.vue');
 
     expect(emptyState).toContain('useId()');
     expect(emptyState).toContain('resolvedHeadingId');
@@ -66,19 +66,19 @@ describe('empty state UX contract (#194)', () => {
   });
 
   it('shows dashboard favorites empty state without restoring removed storefront favorites UI', () => {
-    const activity = source('components/dashboard/client/Activity.vue');
+    const activity = source('app/components/dashboard/client/Activity.vue');
 
     expect(activity).toContain('favoritesEmptyPreset');
     expect(activity).toContain('hasFavorites');
     expect(activity).toContain("import GlobalEmptyState from '~/components/global/EmptyState.vue'");
-    expect(existsSync(resolve(repoRoot, 'components/layout/favorites-cart-modal/favorites/Index.vue'))).toBe(false);
+    expect(existsSync(resolve(repoRoot, 'app/components/layout/favorites-cart-modal/favorites/Index.vue'))).toBe(false);
   });
 
   it('shows guest-friendly empty states for checkout addresses instead of N/A placeholders', () => {
-    const shippingBilling = source('components/order-summary/ShippingAndBillingSection.vue');
-    const orderStockType = source('components/order-summary/OrderStockType.vue');
-    const checkoutButtons = source('components/order-summary/CheckoutButtons.vue');
-    const useUser = source('composables/useUser.ts');
+    const shippingBilling = source('app/components/order-summary/ShippingAndBillingSection.vue');
+    const orderStockType = source('app/components/order-summary/OrderStockType.vue');
+    const checkoutButtons = source('app/components/order-summary/CheckoutButtons.vue');
+    const useUser = source('app/composables/useUser.ts');
 
     expect(orderStockType).toContain('guest-address-prompt');
     expect(orderStockType).toContain('Checkout as Guest');

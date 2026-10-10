@@ -1,5 +1,5 @@
-import type { GuestCheckoutContact } from '~/types/order-summary/item';
-import type { ShippingAddressInterface } from '~/types/auth/user-interface';
+import type { GuestCheckoutContact } from '~~/types/order-summary/item';
+import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
 
 const PLACEHOLDER_VALUE = 'N/A';
 

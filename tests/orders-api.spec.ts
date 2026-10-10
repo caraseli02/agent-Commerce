@@ -2,7 +2,7 @@ import type { $Fetch } from 'ofetch';
 import { describe, expect, it, vi } from 'vitest';
 
 import { fetchOrders, fetchWidget, getOrderById, sendOrder } from '~/composables/api/orders';
-import type { OrderRequestInterface } from '~/types';
+import type { OrderRequestInterface } from '~~/types';
 
 describe('dashboard orders API adapters', () => {
   it('fetchWidget requests the selected dashboard metric with its time range', async () => {

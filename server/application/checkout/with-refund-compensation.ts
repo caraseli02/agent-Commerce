@@ -1,7 +1,7 @@
 import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
-import { orders } from '~/server/domain/orders';
-import { payments } from '~/server/domain/payments';
-import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { orders } from '~~/server/domain/orders';
+import { payments } from '~~/server/domain/payments';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 type CompensationClaim = PersistedCheckoutState & {
   owner_id: string;

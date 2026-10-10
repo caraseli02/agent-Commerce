@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveOrderLineIdentity } from '~/helpers/order-line-identity';
+import { resolveOrderLineIdentity } from '~~/helpers/order-line-identity';
 
 const baseItem = {
   id: 'prod-1',

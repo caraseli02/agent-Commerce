@@ -1,7 +1,7 @@
-import { stripePayments, stripePaymentsEnabled } from '~/server/application/checkout/stripe-payment';
-import { finalizePaidCheckout } from '~/server/application/checkout/finalize-paid-checkout';
-import { terminalizeCanceledCheckout } from '~/server/application/checkout/terminalize-canceled-checkout';
-import { handleStripeWebhook } from '~/server/domain/payments';
+import { stripePayments, stripePaymentsEnabled } from '~~/server/application/checkout/stripe-payment';
+import { finalizePaidCheckout } from '~~/server/application/checkout/finalize-paid-checkout';
+import { terminalizeCanceledCheckout } from '~~/server/application/checkout/terminalize-canceled-checkout';
+import { handleStripeWebhook } from '~~/server/domain/payments';
 
 export default defineEventHandler(async (event) => {
   const result = await handleStripeWebhook({

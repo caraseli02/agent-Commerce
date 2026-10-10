@@ -1,7 +1,7 @@
 import type { Ref } from 'vue';
-import type { UserInterface } from '~/types/auth/user-interface';
-import type { PriceConfigurationSettingsInterface, ProductDiscountsHelperInterface, ProductInterface } from '~/types/product';
-import type { AddToCartRequestInterface, CartInterface, CartProductsInterface } from '~/types/cart';
+import type { UserInterface } from '~~/types/auth/user-interface';
+import type { PriceConfigurationSettingsInterface, ProductDiscountsHelperInterface, ProductInterface } from '~~/types/product';
+import type { AddToCartRequestInterface, CartInterface, CartProductsInterface } from '~~/types/cart';
 import {
   calculateCartLinePricing,
   clampCartQuantity,
@@ -9,7 +9,7 @@ import {
   resolveTierUnitPrice,
   type ClampCartQuantityOptions,
   type ClampCartQuantityResult,
-} from '~/helpers/cart-pricing';
+} from '~~/helpers/cart-pricing';
 
 export {
   calculateCartLinePricing,

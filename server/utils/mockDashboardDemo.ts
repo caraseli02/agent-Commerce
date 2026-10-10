@@ -1,5 +1,5 @@
-import { mockCustomers, mockOrders, mockTransactions } from '~/server/utils/mockDashboardData';
-import { mockProducts } from '~/server/utils/mockProducts';
+import { mockCustomers, mockOrders, mockTransactions } from '~~/server/utils/mockDashboardData';
+import { mockProducts } from '~~/server/utils/mockProducts';
 import { MOCK_CUSTOMER_USER_ID } from '~/utils/mockAuth';
 
 type MockDashboardOrder = (typeof mockOrders)[number];

@@ -13,7 +13,7 @@ const { findOrder, listOrders } = vi.hoisted(() => ({
   listOrders: vi.fn(async (..._args: unknown[]) => [] as unknown[]),
 }));
 
-vi.mock('~/server/domain/orders', () => ({
+vi.mock('~~/server/domain/orders', () => ({
   orders: { findById: findOrder, list: listOrders },
 }));
 

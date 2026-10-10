@@ -1,7 +1,7 @@
-import { checkoutErrorResponse } from '~/types/order/checkout-error';
-import { resumeOrderPayment } from '~/server/application/checkout/resume-order-payment';
-import { stripePaymentsEnabled } from '~/server/application/checkout/stripe-payment';
-import { requireCheckoutOwner } from '~/server/utils/requireCheckoutOwner';
+import { checkoutErrorResponse } from '~~/types/order/checkout-error';
+import { resumeOrderPayment } from '~~/server/application/checkout/resume-order-payment';
+import { stripePaymentsEnabled } from '~~/server/application/checkout/stripe-payment';
+import { requireCheckoutOwner } from '~~/server/utils/requireCheckoutOwner';
 
 export default defineEventHandler(async (event) => {
   const ownerId = requireCheckoutOwner(event);

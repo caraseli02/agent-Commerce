@@ -5,14 +5,14 @@ import { describe, expect, it } from 'vitest';
 const source = (path: string) => readFileSync(resolve(path), 'utf8');
 
 const buyerPathBrowseSearchSurfaces = [
-  'components/layout/header/Search.vue',
-  'components/layout/header/MainRow.vue',
-  'pages/search.vue',
-  'pages/product/[slug].vue',
-  'components/home/FeaturedProducts.vue',
-  'components/global/ProductTabs.vue',
-  'components/global/NewProducts.vue',
-  'components/product/Table.vue',
+  'app/components/layout/header/Search.vue',
+  'app/components/layout/header/MainRow.vue',
+  'app/pages/search.vue',
+  'app/pages/product/[slug].vue',
+  'app/components/home/FeaturedProducts.vue',
+  'app/components/global/ProductTabs.vue',
+  'app/components/global/NewProducts.vue',
+  'app/components/product/Table.vue',
 ];
 
 describe('browse and search application seam', () => {
@@ -23,8 +23,8 @@ describe('browse and search application seam', () => {
   });
 
   it('routes browse/search orchestration through useProducts', () => {
-    const useProductsSource = source('composables/useProducts.ts');
-    const productsApiSource = source('composables/api/products.ts');
+    const useProductsSource = source('app/composables/useProducts.ts');
+    const productsApiSource = source('app/composables/api/products.ts');
 
     expect(useProductsSource).toContain("from '~/composables/api/products'");
     expect(useProductsSource).toContain('loadSearchResults');
@@ -37,7 +37,7 @@ describe('browse and search application seam', () => {
   });
 
   it('treats empty search result arrays as successful header search responses', () => {
-    const useProductsSource = source('composables/useProducts.ts');
+    const useProductsSource = source('app/composables/useProducts.ts');
 
     expect(useProductsSource).toContain('!Array.isArray(data.items.items)');
     expect(useProductsSource).not.toContain('data?.items?.items?.length');

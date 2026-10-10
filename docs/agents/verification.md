@@ -9,7 +9,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 1. **Delivery gate**
    - `pnpm verify`
    - Runs `build`, `lint`, `typecheck`, `test:coverage`, and `feature_list.json` validation.
-   - `pnpm test:coverage` measures all files in `composables/api/**` and `store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
+   - `pnpm test:coverage` measures all files in `app/composables/api/**` and `app/store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
    - Run this before delivery/push, rather than after every focused repair. Default `verify` runs fresh; `--reuse` allows the matching successful local base-gate receipt described below. CI always runs fresh executable checks.
 2. **Full local gate**
    - `pnpm verify:full`
@@ -34,14 +34,14 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 7. **UI-conventions gate**
    - `node scripts/verify-ui-conventions.mjs`
    - This runs inside `pnpm verify`, `pnpm verify:full`, and `pnpm verify:handoff`.
-   - It scans `*Modal*.vue` files and `components/layout/**` paths that contain `modal` for native `<button>` / `<input>` usage.
+   - It scans `*Modal*.vue` files and `app/components/layout/**` paths that contain `modal` for native `<button>` / `<input>` usage.
    - Known legacy modal files are grandfathered in `scripts/verify-ui-conventions.mjs` until migrated (for example `SearchFiltersModal.vue`).
    - New or migrated modal surfaces must use shadcn primitives (`UiButton`, `UiInput`, `UiDialog`) instead of native HTML controls.
 8. **Architecture-invariant gate**
    - `node scripts/check-arch-invariants.mjs`
    - This runs inside `pnpm verify:full` and `pnpm verify:handoff`.
-   - It enforces the Components Marketplace API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `plugins/api.ts` or `composables/api/`, where token attachment and retry guidance stay centralized.
-   - Current known legacy debt: `utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
+   - It enforces the Components Marketplace API boundary for authenticated requests: raw `Authorization: Bearer ***` header construction belongs in `app/plugins/api.ts` or `app/composables/api/`, where token attachment and retry guidance stay centralized.
+   - Current known legacy debt: `app/utils/categories.ts` has one allowed warning until that helper is migrated to the API plugin/service layer. Any new manual Bearer header outside the approved API boundary fails with file:line guidance.
 9. **Targeted baseline check**
    - Select only the relevant command(s): changed-file ESLint, `pnpm typecheck`, a focused `pnpm test <test-file>` (preserves the PostgreSQL wrapper), or `pnpm build` when compilation/build behavior is affected. Explain each selection.
 10. **Targeted test**

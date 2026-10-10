@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveOrderSummaryLineMoney } from '~/helpers/order-summary-line-money';
+import { resolveOrderSummaryLineMoney } from '~~/helpers/order-summary-line-money';
 
 const item = {
   id: 'prod-1',

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import type { CartInterface } from '~/types/cart';
+import type { CartInterface } from '~~/types/cart';
 import { __setMockApiClient, __setMockCookie } from './mocks/nuxt-app';
 
 const sampleCart = {
@@ -42,7 +42,7 @@ describe('cart store flow boundary', () => {
   });
 
   it('fetches the mock cart through the cart API client and stores the returned cart', async () => {
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
 
     expect(cartStore.hasFetchedCart).toBe(false);
@@ -56,7 +56,7 @@ describe('cart store flow boundary', () => {
   });
 
   it('does not treat cached setCart payloads as an authoritative fetch', async () => {
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
 
     expect(cartStore.getCart).toBeNull();
@@ -81,7 +81,7 @@ describe('cart store flow boundary', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
     cartStore.setCart(sampleCart);
 
@@ -93,7 +93,7 @@ describe('cart store flow boundary', () => {
   });
 
   it('derives subtotal synchronously without mutating subtotal state', async () => {
-    const { useCartStore } = await import('../store/cartStore');
+    const { useCartStore } = await import('../app/store/cartStore');
     const cartStore = useCartStore();
 
     const product = sampleCart.products?.[0];
