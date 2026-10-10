@@ -448,7 +448,7 @@ async function main() {
   const owner = process.env.OWNER_LOGIN || process.env.GITHUB_REPOSITORY_OWNER;
   const event = process.env.GITHUB_EVENT_PATH ? JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH, 'utf8')) : {};
   const config = parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8'));
-  // OWNER_ATTENTION_DRY_RUN=1 reads live state and prints what it would post.
+  // With OWNER_ATTENTION_DRY_RUN set to 1 it reads live state and prints what it would post.
   const gh = createClient({ repository, token, dryRun: process.env.OWNER_ATTENTION_DRY_RUN === '1' });
 
   await handleEvent({ eventName, event, gh, owner, config });
