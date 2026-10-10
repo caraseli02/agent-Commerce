@@ -19,7 +19,7 @@ export default defineConfig({
     fileParallelism: false,
     testTimeout: 30_000,
     include: ['tests/**/*.spec.ts'],
-    exclude: ['tests/e2e/**', 'tests/performance/**', 'tests/visual/**', 'node_modules/**', '.nuxt/**', '.output/**'],
+    exclude: ['tests/e2e/**', 'tests/performance/**', 'tests/visual/**', 'tests/parity/**', 'node_modules/**', '.nuxt/**', '.output/**'],
     coverage: {
       provider: 'v8',
       include: ['app/composables/api/**/*.ts', 'app/store/**/*.ts'],

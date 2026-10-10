@@ -1,0 +1,6 @@
+1. button "Regional preferences"
+2. button "Open products navigation"
+3. link "Components Marketplace home"
+4. button "Search products"
+5. button "Open my account"
+6. button "Open shopping cart"

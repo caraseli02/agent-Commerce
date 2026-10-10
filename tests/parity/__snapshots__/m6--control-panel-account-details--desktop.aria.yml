@@ -1,0 +1,42 @@
+- heading "Account Details" [level=2]
+- button "Edit":
+    - img
+    - text: ''
+- button "Copy Details":
+    - img
+    - text: ''
+- text: Name
+- textbox "Name" [disabled]: John
+- text: Name
+- textbox "Name" [disabled]: Smith
+- text: Country
+- button "United States United States" [disabled]:
+    - img "United States"
+    - text: ''
+    - img
+- text: County/Region
+- button [disabled]:
+    - img
+- text: City
+- textbox "City" [disabled]:
+    - /placeholder: Georgia
+    - text: New York
+- text: Address Line 1
+- textbox "Address Line 1" [disabled]:
+    - /placeholder: 5073 Mark Brown Rd
+    - text: /\d+ Main St/
+- text: Address Line 2
+- textbox "Address Line 2" [disabled]:
+    - /placeholder: NE Dalton
+- text: Postcode
+- textbox "Postcode" [disabled]:
+    - /placeholder: ''
+    - text: /\d+/
+- text: Phone Number
+- textbox "Phone Number" [disabled]:
+    - /placeholder: +1 (706) 275-0767
+    - text: /\+1-\d+-\d+/
+- text: Email
+- textbox "Email" [disabled]:
+    - /placeholder: madalina.dobrovolski@company.com
+    - text: john.smith@example.com

@@ -1,0 +1,19 @@
+- banner:
+    - searchbox
+    - img
+    - button:
+        - img
+    - button "Open notifications":
+        - img
+    - button "Avatar Demo Admin Admin":
+        - img "Avatar"
+        - text: ''
+    - button "Profile":
+        - img
+        - text: ''
+    - button "Settings":
+        - img
+        - text: ''
+    - button "Sign out":
+        - img
+        - text: ''
