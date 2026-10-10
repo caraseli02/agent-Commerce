@@ -1,4 +1,4 @@
-import type { UserInterface } from '~/types/auth/user-interface';
+import type { UserInterface } from '~~/types/auth/user-interface';
 
 export interface SigninResponseData {
   token: string;

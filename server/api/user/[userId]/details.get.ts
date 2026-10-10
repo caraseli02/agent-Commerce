@@ -1,6 +1,6 @@
-import { UserPermissionsEnum } from '~/types/auth/permissions';
-import { getMockUserById, getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
-import { getRuntimeAddresses } from '~/server/utils/mockRuntimeAddresses';
+import { UserPermissionsEnum } from '~~/types/auth/permissions';
+import { getMockUserById, getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
+import { getRuntimeAddresses } from '~~/server/utils/mockRuntimeAddresses';
 
 export default defineEventHandler((event) => {
   const headers = getHeaders(event);

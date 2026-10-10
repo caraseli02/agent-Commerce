@@ -1,4 +1,4 @@
-import type { CartProductsInterface } from '~/types/cart';
+import type { CartProductsInterface } from '~~/types/cart';
 
 const nonEmpty = (value: unknown) => (typeof value === 'string' && value.trim() ? value.trim() : undefined);
 

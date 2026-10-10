@@ -37,17 +37,28 @@ async function runGit(args) {
   }
 }
 
+// Renames keep their previous path so a moved file is diffed against its old
+// contents instead of being scanned as entirely new.
 async function getChangedFiles(base) {
-  const output = await runGit(['diff', '--name-only', '--diff-filter=ACMR', `${base}..HEAD`]);
-  return output ? output.split('\n').filter(Boolean) : [];
+  const output = await runGit(['diff', '--name-status', '-M', '--diff-filter=ACMR', `${base}..HEAD`]);
+  if (!output) return [];
+
+  return output
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => {
+      const [status, firstPath, secondPath] = line.split('\t');
+      return status.startsWith('R') ? { path: secondPath, previousPath: firstPath } : { path: firstPath, previousPath: null };
+    });
 }
 
 function isSourceFile(filePath) {
   return sourceExtensions.has(path.extname(filePath)) || filePath === 'package.json';
 }
 
-async function scanFile(base, filePath) {
-  const diff = await runGit(['diff', '--unified=0', '--no-color', `${base}..HEAD`, '--', filePath]);
+async function scanFile(base, { path: filePath, previousPath }) {
+  const pathspec = previousPath ? [previousPath, filePath] : [filePath];
+  const diff = await runGit(['diff', '--unified=0', '--no-color', '-M', `${base}..HEAD`, '--', ...pathspec]);
   const hits = [];
   let newLineNumber = null;
 
@@ -103,18 +114,18 @@ async function main() {
 
   const base = await runGit(['merge-base', 'origin/main', 'HEAD']);
   const changedFiles = await getChangedFiles(base);
-  const trackedTempArtifacts = changedFiles.filter((filePath) => tempPathPattern.test(filePath));
+  const trackedTempArtifacts = changedFiles.map((file) => file.path).filter((filePath) => tempPathPattern.test(filePath));
   if (trackedTempArtifacts.length > 0) {
     fail(`tracked temporary/debug artifacts are present in the branch diff: ${trackedTempArtifacts.join(', ')}.`);
   }
 
   await checkProgressStateShape();
 
-  const scanTargets = changedFiles.filter((filePath) => isSourceFile(filePath) && filePath !== validatorSelfPath);
+  const scanTargets = changedFiles.filter((file) => isSourceFile(file.path) && file.path !== validatorSelfPath);
   const violations = [];
 
-  for (const filePath of scanTargets) {
-    violations.push(...(await scanFile(base, filePath)));
+  for (const file of scanTargets) {
+    violations.push(...(await scanFile(base, file)));
   }
 
   if (violations.length > 0) {

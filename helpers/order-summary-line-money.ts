@@ -1,6 +1,6 @@
-import type { CartProductsInterface } from '~/types/cart';
-import type { ShippingOrderPricingResponse } from '~/types/order-summary/shipping-services';
-import { DEFAULT_ORDER_VAT_RATE } from '~/helpers/order-money';
+import type { CartProductsInterface } from '~~/types/cart';
+import type { ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
+import { DEFAULT_ORDER_VAT_RATE } from '~~/helpers/order-money';
 
 export type OrderSummaryQuoteLine = NonNullable<ShippingOrderPricingResponse['quote']>['lines'][number];
 

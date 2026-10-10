@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { CountryReference } from '~/types/geo';
+import type { CountryReference } from '~~/types/geo';
 
 const countries: CountryReference[] = [
   {
@@ -33,7 +33,7 @@ describe('country reference loader', () => {
     const fetchMock = vi.fn(() => request);
     vi.stubGlobal('$fetch', fetchMock);
 
-    const { useCountries } = await import('../composables/useCountries');
+    const { useCountries } = await import('../app/composables/useCountries');
     const firstConsumer = useCountries();
     const secondConsumer = useCountries();
 
@@ -50,7 +50,7 @@ describe('country reference loader', () => {
     const fetchMock = vi.fn().mockRejectedValueOnce(new Error('temporary failure')).mockResolvedValueOnce(countries);
     vi.stubGlobal('$fetch', fetchMock);
 
-    const { useCountries } = await import('../composables/useCountries');
+    const { useCountries } = await import('../app/composables/useCountries');
     const { load } = useCountries();
 
     await expect(load()).rejects.toThrow('temporary failure');
@@ -62,7 +62,7 @@ describe('country reference loader', () => {
     const fetchMock = vi.fn().mockResolvedValue(countries);
     vi.stubGlobal('$fetch', fetchMock);
 
-    const { fetchCountries } = await import('../composables/useCountries');
+    const { fetchCountries } = await import('../app/composables/useCountries');
 
     await expect(fetchCountries()).resolves.toEqual(countries);
     await expect(fetchCountries()).resolves.toEqual(countries);

@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { reestablishCheckoutReservation } from '~/server/application/checkout/reestablish-reservation';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { reestablishCheckoutReservation } from '~~/server/application/checkout/reestablish-reservation';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 const ownerId = 'owner-reservation-reestablishment';
 const orderId = 'ord-reservation-reestablishment';

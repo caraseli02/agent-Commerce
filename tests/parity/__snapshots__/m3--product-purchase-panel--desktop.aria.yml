@@ -1,0 +1,13 @@
+- img
+- text: /\d+ in stock Quantity Price \( Ex VAT \) 1\+ \d+\.\d+ Lei 5\+ \d+\.\d+ Lei \d+\+ \d+\.\d+ Lei/
+- button "For larger quantities ask here."
+- text: "/Price for: Each Multiple: 1 Minimum Order: 1 \\d+\\.\\d+ Lei \\(1\\+\\)/"
+- button "Decrease quantity" [disabled]:
+    - img
+- spinbutton "Quantity": '1'
+- alert
+- button "Increase quantity":
+    - img
+- button "Add to cart — selected quantity":
+    - img
+    - text: ''

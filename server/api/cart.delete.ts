@@ -1,6 +1,6 @@
-import type { DeleteProductCartRequestInterface } from '~/types/cart';
-import { getMockCartForUser, removeProductsFromMockCart, requireMockCartUserId } from '~/server/utils/mockCart';
-import { withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import type { DeleteProductCartRequestInterface } from '~~/types/cart';
+import { getMockCartForUser, removeProductsFromMockCart, requireMockCartUserId } from '~~/server/utils/mockCart';
+import { withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 export default defineEventHandler(async (event) => {
   const body = (await readBody(event)) as Partial<DeleteProductCartRequestInterface>;

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 const order = {
   type: 0,
@@ -996,10 +996,10 @@ describe('durable payment preparation boundary', () => {
         [command.cartOwnerId],
       );
       await database.execute("UPDATE checkout_payments SET status='PAID' WHERE id=$1", [claim!.payment_id]);
-      const { commitRefundCompensation } = await import('~/server/application/checkout/commit-refund-compensation');
+      const { commitRefundCompensation } = await import('~~/server/application/checkout/commit-refund-compensation');
       expect(await commitRefundCompensation({ paymentId: claim!.payment_id, orderId: claim!.order_id })).toEqual({ kind: 'established' });
       if (workflow === 'compensation_recovery_required') {
-        const { requireRefundCompensationRecovery } = await import('~/server/application/checkout/require-refund-compensation-recovery');
+        const { requireRefundCompensationRecovery } = await import('~~/server/application/checkout/require-refund-compensation-recovery');
         expect(await requireRefundCompensationRecovery({ paymentId: claim!.payment_id, orderId: claim!.order_id })).toEqual({
           kind: 'recovery-required',
         });
@@ -1040,7 +1040,7 @@ describe('durable payment preparation boundary', () => {
       command.cartOwnerId,
     ]);
     await database.execute("UPDATE checkout_payments SET status='PAID' WHERE id=$1", [claim!.payment_id]);
-    const { commitRefundCompensation } = await import('~/server/application/checkout/commit-refund-compensation');
+    const { commitRefundCompensation } = await import('~~/server/application/checkout/commit-refund-compensation');
     const getPaymentPreparation = vi.fn(async (id: string) => {
       const payment = await dependencies.payments.getPaymentPreparation(id);
       expect(await commitRefundCompensation({ paymentId: claim!.payment_id, orderId: claim!.order_id })).toEqual({ kind: 'established' });

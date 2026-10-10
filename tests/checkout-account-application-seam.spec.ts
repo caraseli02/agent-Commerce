@@ -9,33 +9,33 @@ const source = (relativePath: string) => readFileSync(resolve(repoRoot, relative
 const apiImportPattern = /from ['"]~{1,2}\/composables\/api\//;
 
 const checkoutAccountSurfaces = [
-  'pages/signup.vue',
-  'pages/checkout/success/index.vue',
-  'components/dashboard/control-panel/AccountView.vue',
-  'components/dashboard/control-panel/OrganizationView.vue',
-  'components/dashboard/control-panel/BillingView.vue',
-  'components/dashboard/control-panel/ShippingView.vue',
-  'components/dashboard/control-panel/AddAddress.vue',
-  'components/dashboard/control-panel/EditAddress.vue',
-  'components/dashboard/control-panel/settings-view/Settings.vue',
-  'components/dashboard/control-panel/settings-view/CustomerDiscount.vue',
-  'components/dashboard/control-panel/settings-view/CustomerCredit.vue',
-  'components/dashboard/control-panel/settings-view/CustomerCreditEdit.vue',
-  'components/dashboard/client/settings/Details.vue',
-  'components/dashboard/client/settings/Billing.vue',
-  'components/dashboard/client/settings/BillingDialog.vue',
-  'components/dashboard/client/settings/Shipping.vue',
-  'components/dashboard/client/settings/ShippingDialog.vue',
-  'components/dashboard/client/settings/Security.vue',
-  'components/dashboard/client/settings/Marketing.vue',
-  'components/dashboard/client/settings/AlertsItem.vue',
-  'components/dashboard/client/settings/Alerts.vue',
-  'components/dashboard/client/settings/CardsList.vue',
-  'pages/dashboard/customers/[slug]/control-panel.vue',
-  'pages/dashboard/customers/[slug]/control-panel/[view].vue',
-  'pages/dashboard/customers/[slug]/index.vue',
-  'components/client-table/transaction/Index.vue',
-  'components/client-table/logs/logs.vue',
+  'app/pages/signup.vue',
+  'app/pages/checkout/success/index.vue',
+  'app/components/dashboard/control-panel/AccountView.vue',
+  'app/components/dashboard/control-panel/OrganizationView.vue',
+  'app/components/dashboard/control-panel/BillingView.vue',
+  'app/components/dashboard/control-panel/ShippingView.vue',
+  'app/components/dashboard/control-panel/AddAddress.vue',
+  'app/components/dashboard/control-panel/EditAddress.vue',
+  'app/components/dashboard/control-panel/settings-view/Settings.vue',
+  'app/components/dashboard/control-panel/settings-view/CustomerDiscount.vue',
+  'app/components/dashboard/control-panel/settings-view/CustomerCredit.vue',
+  'app/components/dashboard/control-panel/settings-view/CustomerCreditEdit.vue',
+  'app/components/dashboard/client/settings/Details.vue',
+  'app/components/dashboard/client/settings/Billing.vue',
+  'app/components/dashboard/client/settings/BillingDialog.vue',
+  'app/components/dashboard/client/settings/Shipping.vue',
+  'app/components/dashboard/client/settings/ShippingDialog.vue',
+  'app/components/dashboard/client/settings/Security.vue',
+  'app/components/dashboard/client/settings/Marketing.vue',
+  'app/components/dashboard/client/settings/AlertsItem.vue',
+  'app/components/dashboard/client/settings/Alerts.vue',
+  'app/components/dashboard/client/settings/CardsList.vue',
+  'app/pages/dashboard/customers/[slug]/control-panel.vue',
+  'app/pages/dashboard/customers/[slug]/control-panel/[view].vue',
+  'app/pages/dashboard/customers/[slug]/index.vue',
+  'app/components/client-table/transaction/Index.vue',
+  'app/components/client-table/logs/logs.vue',
 ];
 
 describe('checkout and account application seam', () => {
@@ -46,7 +46,7 @@ describe('checkout and account application seam', () => {
   });
 
   it('routes signup orchestration through useSignup', () => {
-    const useSignupSource = source('composables/useSignup.ts');
+    const useSignupSource = source('app/composables/useSignup.ts');
 
     expect(useSignupSource).toContain("from '~/composables/api/auth'");
     expect(useSignupSource).toContain("from '~/composables/api/orders'");
@@ -55,7 +55,7 @@ describe('checkout and account application seam', () => {
   });
 
   it('routes control-panel orchestration through useControlPanel', () => {
-    const useControlPanelSource = source('composables/useControlPanel.ts');
+    const useControlPanelSource = source('app/composables/useControlPanel.ts');
 
     expect(useControlPanelSource).toContain("from '~/composables/api/control-panel'");
     expect(useControlPanelSource).toContain('saveOrganizationDetails');
@@ -64,7 +64,7 @@ describe('checkout and account application seam', () => {
   });
 
   it('routes client account mutations through useClientAccount', () => {
-    const useClientAccountSource = source('composables/useClientAccount.ts');
+    const useClientAccountSource = source('app/composables/useClientAccount.ts');
 
     expect(useClientAccountSource).toContain("from '~/composables/api/client-settings'");
     expect(useClientAccountSource).toContain("from '~/composables/api/user'");
@@ -75,7 +75,7 @@ describe('checkout and account application seam', () => {
   });
 
   it('routes checkout success order fetch through useOrderConfirmation', () => {
-    const useOrderConfirmationSource = source('composables/useOrderConfirmation.ts');
+    const useOrderConfirmationSource = source('app/composables/useOrderConfirmation.ts');
 
     expect(useOrderConfirmationSource).toContain("from '~/composables/api/orders'");
     expect(useOrderConfirmationSource).toContain('loadCheckoutSuccessOrder');

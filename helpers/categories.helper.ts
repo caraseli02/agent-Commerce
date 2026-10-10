@@ -1,6 +1,6 @@
-import type { CategoriesMap, TaxonomyInterface } from '~/types/dashboard/categories';
+import type { CategoriesMap, TaxonomyInterface } from '~~/types/dashboard/categories';
 import { useCategoriesStore } from '~/store/categoriesStore';
-import { buildCategorySlugPath, normalizeCategoryPath, slugifyCategoryName, toCategorySlugSegments } from '~/helpers/categoryPath.helper';
+import { buildCategorySlugPath, normalizeCategoryPath, slugifyCategoryName, toCategorySlugSegments } from '~~/helpers/categoryPath.helper';
 
 export const mapLabelsToIds = (array: TaxonomyInterface[], result: CategoriesMap = {}): CategoriesMap => {
   const categoriesStore = useCategoriesStore();

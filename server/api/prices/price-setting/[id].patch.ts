@@ -1,5 +1,5 @@
-import { parseMockPricingInput, requireMockPricingPermission, updateMockPricing } from '~/server/utils/mockPricing';
-import { UserPermissionsEnum } from '~/types/auth/permissions';
+import { parseMockPricingInput, requireMockPricingPermission, updateMockPricing } from '~~/server/utils/mockPricing';
+import { UserPermissionsEnum } from '~~/types/auth/permissions';
 
 export default defineEventHandler(async (event) => {
   requireMockPricingPermission(event, UserPermissionsEnum.PriceSettingsWrite);

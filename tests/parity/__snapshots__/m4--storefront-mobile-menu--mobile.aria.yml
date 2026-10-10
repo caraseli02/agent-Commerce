@@ -1,0 +1,17 @@
+- banner:
+    - img
+    - text: /Free shipping on orders over \d+ Lei/
+    - button "Regional preferences":
+        - img
+        - text: Lei
+    - button "Open products navigation":
+        - img
+    - link "Components Marketplace home":
+        - /url: /
+        - img: DEMO
+    - button "Search products":
+        - img
+    - button "Open my account":
+        - img
+    - button "Open shopping cart":
+        - img

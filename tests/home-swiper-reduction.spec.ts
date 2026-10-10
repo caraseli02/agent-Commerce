@@ -5,12 +5,12 @@ import { describe, expect, it } from 'vitest';
 
 const homeMerchSurfaces = [
   {
-    path: 'components/global/Manufacturers.vue',
+    path: 'app/components/global/Manufacturers.vue',
     layoutMarker: 'md:justify-between',
     reason: 'seven static logos fit a responsive flex row without carousel JS',
   },
   {
-    path: 'components/global/News.vue',
+    path: 'app/components/global/News.vue',
     layoutMarker: 'xl:grid-cols-4',
     reason: 'four news cards fit a responsive CSS grid without pagination',
   },
@@ -28,7 +28,7 @@ describe('home merchandising swiper reduction (#399)', () => {
   });
 
   it('home page keeps the procurement surfaces and omits removed merchandising sections', () => {
-    const source = readFileSync(resolve('pages/index.vue'), 'utf8');
+    const source = readFileSync(resolve('app/pages/index.vue'), 'utf8');
 
     expect(source).toContain('LazyEcxlusiveOffer');
     expect(source).toContain('LazyQuickBuy');

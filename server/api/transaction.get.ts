@@ -1,8 +1,8 @@
 import { getQuery } from 'h3';
-import { orders } from '~/server/domain/orders';
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
-import { PaymentStatusEnum } from '~/types/order-summary/item';
-import { AccountRole } from '~/types/signup/form';
+import { orders } from '~~/server/domain/orders';
+import { getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
+import { PaymentStatusEnum } from '~~/types/order-summary/item';
+import { AccountRole } from '~~/types/signup/form';
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);

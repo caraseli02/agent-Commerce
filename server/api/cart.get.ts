@@ -1,4 +1,4 @@
-import { getMockCartForUser, requireMockCartUserId } from '~/server/utils/mockCart';
+import { getMockCartForUser, requireMockCartUserId } from '~~/server/utils/mockCart';
 
 export default defineEventHandler(async (event) => {
   const headers = getHeaders(event);

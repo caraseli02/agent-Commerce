@@ -1,6 +1,6 @@
-import { AccountType } from '~/types';
-import type { BillingAddressInterface, ShippingAddressInterface } from '~/types/auth/user-interface';
-import type { InputObject, SelectInputObject, StringInputObject } from '~/types/global/form';
+import { AccountType } from '~~/types';
+import type { BillingAddressInterface, ShippingAddressInterface } from '~~/types/auth/user-interface';
+import type { InputObject, SelectInputObject, StringInputObject } from '~~/types/global/form';
 
 export interface ValidateAddressResult {
   data: {

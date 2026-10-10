@@ -1,4 +1,4 @@
-import { checkoutHttpErrors, parseCheckoutErrorCode, type CheckoutErrorCode } from '~/types/order/checkout-error';
+import { checkoutHttpErrors, parseCheckoutErrorCode, type CheckoutErrorCode } from '~~/types/order/checkout-error';
 
 export type CheckoutFailurePresentation = Readonly<{
   title: string;

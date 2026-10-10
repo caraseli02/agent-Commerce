@@ -1,7 +1,7 @@
-import { categories as demoCategories } from '~/data/categories';
-import { countDemoProductsForCategory } from '~/data/demoProductTaxonomy';
-import { slugifyCategoryName } from '~/helpers/categoryPath.helper';
-import type { TaxonomyInterface } from '~/types/dashboard/categories';
+import { categories as demoCategories } from '~~/data/categories';
+import { countDemoProductsForCategory } from '~~/data/demoProductTaxonomy';
+import { slugifyCategoryName } from '~~/helpers/categoryPath.helper';
+import type { TaxonomyInterface } from '~~/types/dashboard/categories';
 
 export type DemoCategoryNode = {
   _id: string;

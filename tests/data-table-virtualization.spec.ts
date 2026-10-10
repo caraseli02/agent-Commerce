@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 describe('dashboard data table virtualization', () => {
   it('wires TanStack Virtual into the shared DataTable body', () => {
-    const source = readFileSync(resolve('components/dataTable/index.vue'), 'utf8');
+    const source = readFileSync(resolve('app/components/dataTable/index.vue'), 'utf8');
 
     expect(source).toContain('useVirtualTableRows');
     expect(source).toContain('virtualized-table-scroll');
@@ -12,7 +12,7 @@ describe('dashboard data table virtualization', () => {
   });
 
   it('documents the virtual row composable contract', () => {
-    const source = readFileSync(resolve('composables/useVirtualTableRows.ts'), 'utf8');
+    const source = readFileSync(resolve('app/composables/useVirtualTableRows.ts'), 'utf8');
 
     expect(source).toContain('@tanstack/vue-virtual');
     expect(source).toContain('paddingTop');

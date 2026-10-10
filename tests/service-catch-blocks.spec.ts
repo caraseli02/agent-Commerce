@@ -8,8 +8,8 @@ describe('service catch blocks', () => {
       throw error;
     });
 
-    const { login } = await import('../composables/api/auth');
-    const { resetPasswordLink, resetPassword } = await import('../composables/api/user');
+    const { login } = await import('../app/composables/api/auth');
+    const { resetPasswordLink, resetPassword } = await import('../app/composables/api/user');
 
     await expect(login({} as never)).rejects.toThrow('mock failure');
     await expect(resetPasswordLink('user@example.com')).rejects.toThrow('mock failure');

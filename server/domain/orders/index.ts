@@ -1,9 +1,9 @@
-import type { UserInterface } from '~/types/auth/user-interface';
-import { OrderStatus, PaymentStatusEnum } from '~/types/order-summary/item';
-import { buildRuntimeOrder } from '~/server/utils/mockRuntimeOrders';
-import { getDemoOrders } from '~/server/utils/mockDashboardDemo';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
-import type { ReservationItem } from '~/server/domain/inventory';
+import type { UserInterface } from '~~/types/auth/user-interface';
+import { OrderStatus, PaymentStatusEnum } from '~~/types/order-summary/item';
+import { buildRuntimeOrder } from '~~/server/utils/mockRuntimeOrders';
+import { getDemoOrders } from '~~/server/utils/mockDashboardDemo';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
+import type { ReservationItem } from '~~/server/domain/inventory';
 
 export type PendingOrderItem = Readonly<{
   productId: string;

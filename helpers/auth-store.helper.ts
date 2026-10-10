@@ -1,5 +1,5 @@
 import { storeToRefs } from 'pinia';
-import type { UserInterface } from '~/types/auth/user-interface';
+import type { UserInterface } from '~~/types/auth/user-interface';
 import { useAuthStore } from '~/store/authStore';
 import { fetchUserDetails } from '~/composables/api/auth';
 

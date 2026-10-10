@@ -1,4 +1,4 @@
-import type { UserPermissionsEnum } from '~/types/auth/permissions';
+import type { UserPermissionsEnum } from '~~/types/auth/permissions';
 
 export interface UserInfoJWT {
   aud: string;

@@ -1,4 +1,4 @@
-import { getCustomersTotalWidgetMock } from '~/server/utils/mockAdminCustomers';
+import { getCustomersTotalWidgetMock } from '~~/server/utils/mockAdminCustomers';
 
 export default defineEventHandler(() => {
   return {

@@ -2,8 +2,8 @@ import { finalizePaidCheckout } from './finalize-paid-checkout';
 import { readOrderPaymentSnapshot, readOrderPaymentState, type OrderPaymentState } from './read-order-payment-state';
 import { stripePayments } from './stripe-payment';
 import { terminalizeCanceledCheckout } from './terminalize-canceled-checkout';
-import type { ReconcilePaymentResult } from '~/server/domain/payments';
-import { assertOutsideCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import type { ReconcilePaymentResult } from '~~/server/domain/payments';
+import { assertOutsideCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 type PaymentReconciler = { reconcilePayment(input: { paymentId: string }): Promise<ReconcilePaymentResult> };
 

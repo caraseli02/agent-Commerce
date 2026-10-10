@@ -3,8 +3,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { mapCartItems } from '../utils/cart';
-import type { CartProductsInterface } from '~/types/cart';
+import { mapCartItems } from '../app/utils/cart';
+import type { CartProductsInterface } from '~~/types/cart';
 import { __setMockApiClient, __setMockCookie, __setMockRouterPush, __setMockRuntimeConfig } from './mocks/nuxt-app';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -28,10 +28,10 @@ const product = {
 const source = (relativePath: string) => readFileSync(resolve(repoRoot, relativePath), 'utf8');
 
 const accountModalOpenPaths = [
-  'components/layout/header/MainRow.vue',
-  'components/layout/header/main-menu/MobileSheet.vue',
-  'composables/useCart.ts',
-  'store/uiStore.ts',
+  'app/components/layout/header/MainRow.vue',
+  'app/components/layout/header/main-menu/MobileSheet.vue',
+  'app/composables/useCart.ts',
+  'app/store/uiStore.ts',
 ];
 
 const accountModalEmitterPatterns = [
@@ -55,8 +55,8 @@ describe('account modal coordination (store-driven, no event bus)', () => {
   });
 
   it('wires MainRow to uiStore account modal requests instead of emitter listeners', () => {
-    const headerRow = source('components/layout/header/MainRow.vue');
-    const mobileSheet = source('components/layout/header/main-menu/MobileSheet.vue');
+    const headerRow = source('app/components/layout/header/MainRow.vue');
+    const mobileSheet = source('app/components/layout/header/main-menu/MobileSheet.vue');
 
     expect(headerRow).toContain('uiStore.accountModalRequestId');
     expect(headerRow).toContain('openAccountModal');
@@ -91,8 +91,8 @@ describe('account modal coordination runtime', () => {
   });
 
   it('bumps uiStore when live guests hit the cart auth gate', async () => {
-    const { useCart } = await import('../composables/useCart');
-    const { useUiStore } = await import('../store/uiStore');
+    const { useCart } = await import('../app/composables/useCart');
+    const { useUiStore } = await import('../app/store/uiStore');
     const uiStore = useUiStore();
     const { addToCart } = useCart();
 
@@ -117,8 +117,8 @@ describe('account modal coordination runtime', () => {
       throw new Error(`Unexpected cart API request: ${options?.method} ${resource}`);
     });
 
-    const { useCart } = await import('../composables/useCart');
-    const { useUiStore } = await import('../store/uiStore');
+    const { useCart } = await import('../app/composables/useCart');
+    const { useUiStore } = await import('../app/store/uiStore');
     const uiStore = useUiStore();
     const { addToCart } = useCart();
 

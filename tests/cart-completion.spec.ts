@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { cart } from '~/server/domain/cart';
-import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
-import { addProductsToMockCart, getMockCartForUser } from '~/server/utils/mockCart';
+import { cart } from '~~/server/domain/cart';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
+import { addProductsToMockCart, getMockCartForUser } from '~~/server/utils/mockCart';
 
 const cleanCheckout = async () => {
   const database = await getCheckoutDatabase();

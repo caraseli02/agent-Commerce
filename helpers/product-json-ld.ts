@@ -1,6 +1,6 @@
-import { resolveCustomerUnitPrice } from '~/helpers/cart-pricing';
-import { buildCategoryCrumbs, categoryBrowseUrl, getProductTaxonomyPath } from '~/helpers/categoryPath.helper';
-import type { ProductDetail } from '~/types/product';
+import { resolveCustomerUnitPrice } from '~~/helpers/cart-pricing';
+import { buildCategoryCrumbs, categoryBrowseUrl, getProductTaxonomyPath } from '~~/helpers/categoryPath.helper';
+import type { ProductDetail } from '~~/types/product';
 
 type JsonLdNode = Record<string, unknown>;
 

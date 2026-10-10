@@ -70,8 +70,8 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 
 ## API access
 
-- `plugins/api.ts` creates the authenticated `$fetch` client with `$fetch.create()` and provides it as `$apiClient`.
-- `composables/api/*` contains plain domain API functions for mutations and orchestration helpers that need the shared `$apiClient`.
+- `app/plugins/api.ts` creates the authenticated `$fetch` client with `$fetch.create()` and provides it as `$apiClient`.
+- `app/composables/api/*` contains plain domain API functions for mutations and orchestration helpers that need the shared `$apiClient`.
 - Domain composables such as `useCart`, `useOrder`, and `useCustomerDashboard` are the public interface for UI flows that need business rules or state coordination.
 - Do not add a class-based service registry, `HttpFactory`, `useFetchAPI`, or component-level `$api.<domain>` calls.
 
@@ -84,6 +84,6 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 ## Mock Integration Boundary seam
 
 - `helpers/mock-integration.ts` centralizes the demo auth-skip and payment-visibility decisions behind pure functions (`isPaymentManagementVisible`, `canSkipAuthenticatedUser`, `requiresDemoToken`, `isDemoCheckoutAssistEnabled`). Mock mode is an adapter input, not a branch in UI surfaces.
-- Buyer-flow UI (`components/order-summary/PaymentMethodSection.vue`) and pages (`pages/order-summary/index.vue`) call these helpers instead of reading `MOCK_MODE` directly for those behaviors.
-- `middleware/auth.ts` uses `requiresDemoToken` rather than branching on `MOCK_MODE` for demo-token enforcement.
+- Buyer-flow UI (`app/components/order-summary/PaymentMethodSection.vue`) and pages (`app/pages/order-summary/index.vue`) call these helpers instead of reading `MOCK_MODE` directly for those behaviors.
+- `app/middleware/auth.ts` uses `requiresDemoToken` rather than branching on `MOCK_MODE` for demo-token enforcement.
 - Tests cover mock vs live outcomes in `tests/mock-integration.spec.ts`; `pnpm verify` and a mock checkout/auth smoke protect the seam.

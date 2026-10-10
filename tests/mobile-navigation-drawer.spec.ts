@@ -5,7 +5,7 @@ import { baseParse, NodeTypes, type ElementNode, type RootNode } from '@vue/comp
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
-const mobileSheetPath = resolve('components/layout/header/main-menu/MobileSheet.vue');
+const mobileSheetPath = resolve('app/components/layout/header/main-menu/MobileSheet.vue');
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
   const found: ElementNode[] = [];

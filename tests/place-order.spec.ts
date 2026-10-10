@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { UserInterface } from '~/types/auth/user-interface';
-import { createPlaceOrderCoordinator, createPlaceOrderUseCase, type PlaceOrderCommand } from '~/server/application/checkout/place-order';
-import { inventory as realInventory } from '~/server/domain/inventory';
-import { orders as realOrders } from '~/server/domain/orders';
-import { payments as realPayments } from '~/server/domain/payments';
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
-import { createCheckoutReviewFingerprint } from '~/server/application/checkout/review-fingerprint';
-import type { SmallOrderChargeTier } from '~/helpers/order-money';
+import type { UserInterface } from '~~/types/auth/user-interface';
+import { createPlaceOrderCoordinator, createPlaceOrderUseCase, type PlaceOrderCommand } from '~~/server/application/checkout/place-order';
+import { inventory as realInventory } from '~~/server/domain/inventory';
+import { orders as realOrders } from '~~/server/domain/orders';
+import { payments as realPayments } from '~~/server/domain/payments';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
+import { createCheckoutReviewFingerprint } from '~~/server/application/checkout/review-fingerprint';
+import type { SmallOrderChargeTier } from '~~/helpers/order-money';
 
 const user = {
   _id: 'customer-1',

@@ -5,22 +5,22 @@ import { describe, expect, it } from 'vitest';
 
 const repoRoot = process.cwd();
 const sourceRoots = [
-  'components',
-  'composables',
-  'config',
+  'app/components',
+  'app/composables',
+  'app/config',
   'data',
   'helpers',
-  'layouts',
-  'lib',
-  'middleware',
+  'app/layouts',
+  'app/lib',
+  'app/middleware',
   'modules',
-  'pages',
-  'plugins',
+  'app/pages',
+  'app/plugins',
   'server',
   'services',
-  'store',
+  'app/store',
   'types',
-  'utils',
+  'app/utils',
 ];
 const legacyProductImport = /['"][^'"]*model\/products(?:\/|['"])/;
 
@@ -72,11 +72,11 @@ describe('product type namespace boundary (#404)', () => {
     const newProductsShim = readFileSync(resolve(repoRoot, 'model/products/NewProducts.ts'), 'utf8');
 
     expect(productResponseShim).toContain('@deprecated');
-    expect(productResponseShim).toContain("export * from '~/types/product/response'");
-    expect(productSearchShim).toContain("export * from '~/types/product/search'");
-    expect(newProductShim).toContain("export * from '~/types/product/new-products'");
-    expect(similarResponseShim).toContain("export * from '~/types/product/similar'");
-    expect(similarRequestShim).toContain("export * from '~/types/product/similar'");
-    expect(newProductsShim).toContain("export * from '~/types/product/new-products'");
+    expect(productResponseShim).toContain("export * from '~~/types/product/response'");
+    expect(productSearchShim).toContain("export * from '~~/types/product/search'");
+    expect(newProductShim).toContain("export * from '~~/types/product/new-products'");
+    expect(similarResponseShim).toContain("export * from '~~/types/product/similar'");
+    expect(similarRequestShim).toContain("export * from '~~/types/product/similar'");
+    expect(newProductsShim).toContain("export * from '~~/types/product/new-products'");
   });
 });

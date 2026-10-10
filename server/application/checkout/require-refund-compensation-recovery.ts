@@ -1,8 +1,8 @@
 import { withRefundCompensation } from './with-refund-compensation';
-import { orders } from '~/server/domain/orders';
-import { getRefundPreparationForUpdate, payments } from '~/server/domain/payments';
+import { orders } from '~~/server/domain/orders';
+import { getRefundPreparationForUpdate, payments } from '~~/server/domain/payments';
 import { parseCheckoutClaim, type PersistedCheckoutState } from './contracts';
-import { getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 // Application consequence of a failed/unsafe continuation report. Provider
 // interpretation and the future caller belong to #558; this never creates a Refund.

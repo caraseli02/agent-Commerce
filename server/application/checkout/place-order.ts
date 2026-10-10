@@ -1,14 +1,14 @@
 import { parseCheckoutClaim, type CheckoutState, type PersistedCheckoutState } from './contracts';
-import type { CheckoutErrorCode } from '~/types/order/checkout-error';
+import type { CheckoutErrorCode } from '~~/types/order/checkout-error';
 import { createHash } from 'node:crypto';
-import type { UserInterface } from '~/types/auth/user-interface';
-import { PaymentStatusEnum, PaymentTypeEnum } from '~/types/order-summary/item';
-import { cart as defaultCart } from '~/server/domain/cart';
-import { catalog as defaultCatalog } from '~/server/domain/catalog';
-import { inventory as defaultInventory } from '~/server/domain/inventory';
-import { orders as defaultOrders } from '~/server/domain/orders';
-import { payments as defaultPayments, type PaymentPreparation } from '~/server/domain/payments';
-import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~/server/infrastructure/checkout-database';
+import type { UserInterface } from '~~/types/auth/user-interface';
+import { PaymentStatusEnum, PaymentTypeEnum } from '~~/types/order-summary/item';
+import { cart as defaultCart } from '~~/server/domain/cart';
+import { catalog as defaultCatalog } from '~~/server/domain/catalog';
+import { inventory as defaultInventory } from '~~/server/domain/inventory';
+import { orders as defaultOrders } from '~~/server/domain/orders';
+import { payments as defaultPayments, type PaymentPreparation } from '~~/server/domain/payments';
+import { assertOutsideCheckoutTransaction, getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 import { createCheckoutReviewFingerprint } from './review-fingerprint';
 
 type LegacyOrderInput = Record<string, unknown> & {

@@ -1,6 +1,6 @@
-import { orders } from '~/server/domain/orders';
-import { getMockUserFromAuthHeader } from '~/server/utils/mockUsers';
-import { AccountRole } from '~/types/signup/form';
+import { orders } from '~~/server/domain/orders';
+import { getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
+import { AccountRole } from '~~/types/signup/form';
 
 const parseStartDate = (value?: string) => {
   if (!value) {
@@ -46,7 +46,9 @@ export default defineEventHandler(async (event) => {
   if (query.shortId?.trim()) {
     const expected = query.shortId.trim().toLowerCase().replace(/^#/, '');
     items = items.filter((order) => {
-      const shortId = String(order.shortId || '').toLowerCase().replace(/^#/, '');
+      const shortId = String(order.shortId || '')
+        .toLowerCase()
+        .replace(/^#/, '');
       return shortId === expected || String(order._id || '').toLowerCase() === expected;
     });
   }

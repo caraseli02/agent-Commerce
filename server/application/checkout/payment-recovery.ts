@@ -1,4 +1,4 @@
-import { getCheckoutDatabase } from '~/server/infrastructure/checkout-database';
+import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 
 // Checkout owns the claim workflow state; Payments only reports unsafe provider outcomes.
 export const markPaymentClaimRecoveryRequired = async (paymentId: string) => {

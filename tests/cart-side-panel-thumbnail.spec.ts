@@ -7,8 +7,8 @@ import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const cartPanelPath = resolve(repoRoot, 'components/layout/favorites-cart-modal/cart/Index.vue');
-const productItemPath = resolve(repoRoot, 'components/layout/favorites-cart-modal/cart/CartProductItem.vue');
+const cartPanelPath = resolve(repoRoot, 'app/components/layout/favorites-cart-modal/cart/Index.vue');
+const productItemPath = resolve(repoRoot, 'app/components/layout/favorites-cart-modal/cart/CartProductItem.vue');
 
 function collectElements(root: RootNode, tag: string): ElementNode[] {
   const found: ElementNode[] = [];
@@ -55,7 +55,7 @@ describe('cart side-panel thumbnails', () => {
 
   it('shows empty-state shopping CTA instead of checkout when the cart is empty', () => {
     const panelSource = readFileSync(cartPanelPath, 'utf8');
-    const presetSource = readFileSync(resolve(repoRoot, 'components/global/empty-state-presets.ts'), 'utf8');
+    const presetSource = readFileSync(resolve(repoRoot, 'app/components/global/empty-state-presets.ts'), 'utf8');
 
     expect(panelSource).toContain('hasItems');
     expect(panelSource).toContain('v-if="hasItems"');
