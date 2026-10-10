@@ -2,20 +2,23 @@
 
 ## Current focus
 
-- User-requested repair of documentation PR [#593](https://github.com/caraseli02/agent-Commerce/pull/593), reconciled with Claude factory proposal [#591](https://github.com/caraseli02/agent-Commerce/pull/591). This proposal is separate from executable product WIP.
+- Manual reviewed reconciliation on 2026-10-10 because the scheduled routines ran out of time. This snapshot reflects live GitHub at origin/main ff8bf9cc. It claims no issue; recheck labels, assignees and linked PRs before pickup.
 
 ## In progress
 
-- Documentation repair published on #593: main conflicts resolved; per-builder WIP, GitHub claim authority, internal Codex model roles and separately operated cross-review agree across harness docs. No product issue is claimed by this repair.
-- #583/#590 and #584/#594 are merged and closed. Preserve main's implementation evidence; do not infer an independent final-head verdict for #594 from its merge.
-- Live GitHub scan found open in-progress [#603](https://github.com/caraseli02/agent-Commerce/issues/603), marked ready-for-human. This repair does not claim, reassign, or change that issue. All builders must inspect live labels, assignments and linked PRs before pickup.
+- Open PRs needing generator fixes after exact-head FAIL: [#630](https://github.com/caraseli02/agent-Commerce/pull/630) (#587 Refund events, Codex; also CONFLICTING), [#627](https://github.com/caraseli02/agent-Commerce/pull/627) (#456 catalog ISR, Codex; also CONFLICTING), [#658](https://github.com/caraseli02/agent-Commerce/pull/658) (#632 shadcn parity harness, Claude; verify FAILURE) and [#652](https://github.com/caraseli02/agent-Commerce/pull/652) (shadcn migration plan docs, Claude).
+- #588 late-paid compensation: PR #653 merged into the #630 branch, not main. #588 closes only when #630 lands.
+- [#654](https://github.com/caraseli02/agent-Commerce/pull/654) (#556 Payment Element, Codex): verify green; the exact-head Claude verdict is BLOCKED.
+- [#608](https://github.com/caraseli02/agent-Commerce/pull/608) (Mac mini autonomy proposal, draft): PASS on fd1565fe as an inactive discussion record only. Its head has since moved to a914cfb6.
+- Open in-progress issues: #456, #556, #587, #588 and #606 (pre-push gate runs the full app gate on docs-only branches after merging main). No open `agent:claude` issue is in-progress; #632 is labeled blocked.
 
 ## Blocked / known baseline failures
 
-- #591 still needs claim serialization, structured verdict detection, conflict recovery and INCONCLUSIVE handling. Codex's model delegation is internal to its builder and does not replace independent evaluation.
-- Stripe activation remains default-off pending #559. Historical guest order-detail adminSettings behavior is outside this documentation repair.
+- Stripe activation stays default-off pending #559 (blocked). #556 is labeled blocked.
+- Stale labels: closed issues #514, #515, #516, #530 and #585 still carry `in-progress`. This reconciliation did not change any labels.
+- Evaluator gaps on merged PRs (none inferred from merge): #620 has FAIL on an earlier head only; #624 has PASS on an earlier head only; #607, #622, #628, #655, #656 and #657 have no structured exact-head verdict.
 
 ## Verification baseline
 
-- Preserved #584 evidence: fresh handoff at 9e2dced3 passed 98 files / 694 tests / 2 deferred tests; focused repairs passed 6 suites / 123 tests, built HTTP boundaries and mock checkout success.
-- This proposal changes documentation and tracking only. Fresh pnpm verify:handoff passed build, lint, typecheck, 98 coverage suites / 694 tests / 2 deferred tests, validators, architecture, preview smoke and clean state. The conservative classifier ran the full gate. An initial concurrent-resume serialization failure passed focused retry (11/11) and fresh full rerun; no application repair was needed. Normal pre-push passed matching-evidence reuse, validators and all 9 Chromium visual cases. GitHub reports the PR mergeable; CI and separate exact-head evaluation remain pending. Draft status is preserved. Host setup and scheduler changes remain outside this PR.
+- Merged since the last snapshot, all with passing exact-head GitHub verify: payments #607 (#586) and #629 (#585); caching #616 (#454) and #620 (#455); hydration #621, #622 and #628 (#514/#516/#515); SEO #623–#626 (#186–#189); app/ directory #655 (#530); deployment #656/#657; factory/harness #611–#615, #617–#619.
+- This reconciliation changes only tracking files (`PROGRESS.md`, `feature_list.json`). The feature-list validator passes: 47 features, 0 active, 42 passing.

@@ -54,7 +54,8 @@
       "validation": "Depends on #585/#586/#587; crash after REFUND commit recovers without browser return and acknowledges only durable provider identity/completion.",
       "status": "not_started",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/588. Not claimed or implemented in this workflow repair."
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/588. Not claimed or implemented in this workflow repair.",
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Live claim: #588 is open and in-progress. PR #653 (late-paid refund compensation through webhook retries, Closes #588) was merged into the #630 branch codex/587-refund-events, not main, so #588 lands only when #630 does. Not passing."
       ]
     },
     {
@@ -63,26 +64,29 @@
       "validation": "Depends on #586; signed provider transitions and retry-safe successful/failed compensation consequences preserve historical PAID.",
       "status": "not_started",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/587. Not claimed or implemented in this workflow repair."
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/587. Not claimed or implemented in this workflow repair.",
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Live claim: #587 is open and in-progress via Codex PR #630 (head ca71051f). Exact-head Claude evaluation is FAIL — needs generator fix, and GitHub reports the PR CONFLICTING with main. Not passing."
       ]
     },
     {
       "id": "I586",
       "description": "Persist and recover one full provider Refund (#586)",
       "validation": "One full Refund, create-start before provider I/O, bounded same-key replay, exact identity reconciliation and unsafe-expiry recovery.",
-      "status": "not_started",
+      "status": "passing",
       "evidence": [
-        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/586. Not claimed or implemented in this workflow repair."
+        "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/586. Not claimed or implemented in this workflow repair.",
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. PR #607 merged on 2026-10-06 as 200b4b1b and closed #586; exact-head GitHub verify passed. No structured exact-head evaluator verdict comment found; none inferred from merge."
       ]
     },
     {
       "id": "I585",
       "description": "Choose one durable late-paid recovery outcome (#585)",
       "validation": "Coordinated ALLOCATE/BACKORDER/REFUND selection and local consequences; concurrency/replay never both fulfill and refund.",
-      "status": "blocked",
+      "status": "passing",
       "evidence": [
         "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/585. Not claimed or implemented in this workflow repair.",
-        "ADR fixes transactional safety but does not define automatic commercial selection priority/eligibility. GitHub task is blocked/ready-for-human until the deterministic rule is recorded; no agent may invent it."
+        "ADR fixes transactional safety but does not define automatic commercial selection priority/eligibility. GitHub task is blocked/ready-for-human until the deterministic rule is recorded; no agent may invent it.",
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. The earlier blocked state no longer applies: PR #629 merged on 2026-10-09 as ac42b672 and closed #585 with an independent exact-head PASS (b716d2e8) and passing verify. The closed issue still carries a stale in-progress label."
       ]
     },
     {
@@ -118,9 +122,10 @@
       "status": "not_started",
       "evidence": [
         "Tracking epic reconciled on 2026-10-02; excluded from executable WIP. Remaining work is owned by native child issues #584/#585/#588, not anonymous PR slices.",
-        "Merged reconciliation/events/signed ingress/normal finalization: PRs #565\u2013#568; cancellation/restart/reservation/resume: #570\u2013#574.",
+        "Merged reconciliation/events/signed ingress/normal finalization: PRs #565–#568; cancellation/restart/reservation/resume: #570–#574.",
         "Merged paid-recovery schema/local compensation/recovery guards: #576/#577/#579; internal owner-safe state snapshot #581 merged at 5cd361e8 with independent PASS 10/10 and fresh 567-test CI.",
-        "Detailed historical slice verification remains in https://github.com/caraseli02/agent-Commerce/issues/557 and its linked PRs. No provider Refund or public refresh completion is claimed."
+        "Detailed historical slice verification remains in https://github.com/caraseli02/agent-Commerce/issues/557 and its linked PRs. No provider Refund or public refresh completion is claimed.",
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Children #584, #585 and #586 are closed (PRs #594, #629, #607); #587/#588 remain open behind #630. #556 (Payment Element, PR #654: exact-head Claude verdict BLOCKED) and #559 activation stay blocked/default-off."
       ]
     },
     {
@@ -510,6 +515,66 @@
       "evidence": [
         "pnpm exec vitest run tests/visual-selection.spec.ts: 13/13 pass; pnpm exec eslint scripts/select-visual-checks.mjs tests/visual-selection.spec.ts: pass.",
         "No queued issue claimed; I557 remains the sole active feature. Payment application, Stripe gates, migrations and PR #579 are unchanged."
+      ]
+    },
+    {
+      "id": "I454",
+      "description": "Protect personalized API responses from shared caches (#454)",
+      "validation": "Personalized responses carry private/no-store cache headers so shared caches never serve them across users.",
+      "status": "passing",
+      "evidence": [
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc.",
+        "PR #616 merged on 2026-10-08 as e1731de4 and closed #454; independent exact-head PASS (d46c1859); verify passed."
+      ]
+    },
+    {
+      "id": "I455",
+      "description": "Cache anonymous catalog reads with bounded Nitro SWR (#455)",
+      "validation": "Anonymous catalog reads are SWR-cached with bounded lifetimes; personalized reads stay uncached.",
+      "status": "passing",
+      "evidence": [
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc.",
+        "PR #620 merged on 2026-10-08 as 3367b8fc and closed #455; verify passed. The only structured verdict is FAIL on an earlier head (0f9168b2); no exact-head verdict for the merged head 1e865331, and none is inferred from merge. Follow-up ISR #456 / PR #627 is open with exact-head FAIL and conflicts."
+      ]
+    },
+    {
+      "id": "I514-516",
+      "description": "Hydration and transition fixes: explicit sign-in token (#514), restored-cart header hydration (#515), order-summary dropdown root (#516)",
+      "validation": "Sign-in keeps the explicit token over a stale cookie, restored carts hydrate without header mismatch, and the order-summary dropdown has a single element root.",
+      "status": "passing",
+      "evidence": [
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc.",
+        "PR #621 merged on 2026-10-08 as ec0efbd9 (closes #514), exact-head PASS (b37665a6). PR #622 merged on 2026-10-08 as fa9f98d8 (closes #516). PR #628 merged on 2026-10-09 as b64aad70 (closes #515, e2e coverage). Verify passed on all three; no structured exact-head verdict comment found for #622/#628. Closed issues #514/#515/#516 still carry stale in-progress labels."
+      ]
+    },
+    {
+      "id": "SEO-186-189",
+      "description": "SEO foundation: robots/sitemap (#188), heading hierarchy (#189), usePageSeo (#186), Product + BreadcrumbList JSON-LD (#187)",
+      "validation": "Public routes are indexable through robots.txt and a sitemap, private routes are excluded, pages emit usePageSeo metadata, product pages emit JSON-LD, and home/search have one h1 each.",
+      "status": "passing",
+      "evidence": [
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc.",
+        "PRs #623 (1dea4af4, closes #188), #624 (73a8b3be, closes #189), #625 (28ee367b, closes #186) and #626 (68cc1a4d, closes #187) merged on 2026-10-08/09 with passing verify. Exact-head PASS on #623, #625 and #626; the #624 PASS is on an earlier head (93040c8), not the merged head 30e115df."
+      ]
+    },
+    {
+      "id": "I530",
+      "description": "Adopt the native Nuxt 4 app/ source directory (#530)",
+      "validation": "App sources live under app/ with ~/@ resolving to app/ and server-shared code at the root imported via ~~/.",
+      "status": "passing",
+      "evidence": [
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc.",
+        "PR #655 merged on 2026-10-09 as ff8bf9cc and closed #530; verify passed. No structured exact-head verdict comment found; none inferred from merge. The closed issue still carries a stale in-progress label."
+      ]
+    },
+    {
+      "id": "DEPLOY-ASSETS",
+      "description": "Slim deployment assets and skip non-app Vercel builds (PRs #656/#657)",
+      "validation": "Static output shrinks via WebP product images and minified GeoJSON, and Vercel skips deployments when only docs, tests or harness files change.",
+      "status": "passing",
+      "evidence": [
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc.",
+        "PR #656 merged on 2026-10-09 as c6da55ab (static output 46 MB to 7 MB). PR #657 merged on 2026-10-09 as c95ac893 (ignored build step). Verify passed on both; no linked issues or structured verdicts."
       ]
     }
   ]
