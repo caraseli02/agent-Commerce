@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -74,6 +75,39 @@ describe('visual impact selection', () => {
     expect(select(['app/pages/product.vue'], 'hash', [assessment]).tests).toEqual(['product']);
     for (const tests of [[], ['typo']]) expect(select(['app/pages/product.vue'], 'hash', [{ ...assessment, tests }]).mode).toBe('full');
     expect(select(['app/pages/product.vue'], 'hash', [{ ...assessment, impact: 'uncertain' }]).mode).toBe('full');
+  });
+  it('hashes patches larger than the former 50 MB buffer without weakening classification', () => {
+    const r = repository();
+    r.write('public/large.txt', '0123456789abcdef'.repeat(3_250_000));
+    r.commit();
+    const patch = execFileSync(
+      'git',
+      [
+        '--literal-pathspecs',
+        'diff',
+        '--no-ext-diff',
+        '--no-textconv',
+        '--no-renames',
+        '--full-index',
+        '--no-color',
+        '--no-relative',
+        '--binary',
+        r.base,
+        'HEAD',
+        '--',
+        'public/large.txt',
+      ],
+      { cwd: r.cwd, maxBuffer: 60_000_000 },
+    );
+    expect(patch.length).toBeGreaterThan(50_000_000);
+    const result = plan({ cwd: r.cwd, input: r.push() });
+    expect(result.mode).toBe('full');
+    expect(result.decisions[0]!.fingerprint).toBe(createHash('sha256').update(patch).digest('hex'));
+    r.write('public/large.txt', 'changed'.repeat(7_500_000));
+    const dirty = plan({ cwd: r.cwd, input: r.push() });
+    expect(dirty.mode).toBe('full');
+    expect(dirty.decisions).toHaveLength(2);
+    expect(dirty.decisions[1]!.fingerprint).not.toBe(result.decisions[0]!.fingerprint);
   });
   it('uses all commits for first pushes and the remote tip for subsequent pushes', () => {
     const r = repository();

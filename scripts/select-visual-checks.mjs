@@ -1,6 +1,8 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, openSync, closeSync, readSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export const assessmentPath = '.visual-impact.json';
@@ -66,6 +68,28 @@ export function plan({ cwd = process.cwd(), input = '', base, head = 'HEAD', rem
       stdio: ['ignore', 'pipe', 'pipe'],
       maxBuffer: 50_000_000,
     });
+  // Binary asset migrations can exceed a subprocess's stdout buffer. Spool
+  // only the diff to disk and hash it in bounded chunks; Git failures still
+  // throw before any classification can skip verification.
+  const hashDiff = (hash, args) => {
+    const directory = mkdtempSync(join(tmpdir(), 'visual-diff-'));
+    let fd;
+    try {
+      fd = openSync(join(directory, 'patch'), 'w+');
+      execFileSync('git', ['--literal-pathspecs', ...args], { cwd, stdio: ['ignore', fd, 'pipe'] });
+      const chunk = Buffer.alloc(64 * 1024);
+      let position = 0;
+      let bytes;
+      while ((bytes = readSync(fd, chunk, 0, chunk.length, position)) > 0) {
+        hash.update(chunk.subarray(0, bytes));
+        position += bytes;
+      }
+      return hash;
+    } finally {
+      if (fd !== undefined) closeSync(fd);
+      rmSync(directory, { recursive: true, force: true });
+    }
+  };
   const zero = /^0+$/;
   const ranges = base
     ? [[base, head]]
@@ -100,7 +124,7 @@ export function plan({ cwd = process.cwd(), input = '', base, head = 'HEAD', rem
     const untracked = isHead ? git(['ls-files', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean) : [];
     const files = [...new Set(changed.filter((file) => !nonObservable(file)))].sort();
     const hash = createHash('sha256');
-    if (files.length) hash.update(git([...diffArgs, '--binary', ...revisions, '--', ...files]));
+    if (files.length) hashDiff(hash, [...diffArgs, '--binary', ...revisions, '--', ...files]);
     const fingerprint = hash.digest('hex');
     let assessments = [];
     try {
@@ -117,7 +141,7 @@ export function plan({ cwd = process.cwd(), input = '', base, head = 'HEAD', rem
         .filter(Boolean);
       const dirtyFiles = [...new Set([...dirty, ...untracked].filter((file) => !nonObservable(file)))].sort();
       if (dirtyFiles.length) {
-        const dirtyHash = createHash('sha256').update(git([...diffArgs, '--binary', 'HEAD', '--', ...dirtyFiles]));
+        const dirtyHash = hashDiff(createHash('sha256'), [...diffArgs, '--binary', 'HEAD', '--', ...dirtyFiles]);
         for (const file of untracked.filter((file) => !nonObservable(file)).sort()) {
           dirtyHash.update(`\0${file}\0`).update(readFileSync(`${cwd}/${file}`));
         }
