@@ -94,14 +94,14 @@ Styling is allowed to change, so pixel diffs can't be the pass/fail signal. What
 - **Per-slice workflow:**
   1. **Before commit:** on the slice branch, before touching components, add or extend the slice's scenarios and record the snapshots against unchanged code (`pnpm test:parity --grep <slice> --update-snapshots`). Commit the snapshots alone.
   2. **Migration commits:** change the components. `pnpm test:parity --grep <slice>` must pass with the snapshot files **unchanged**.
-  3. **Intended a11y improvements** (for example, a newly added `aria-label` on an icon button) change the snapshot. They go in a separate, final commit that touches only the snapshot, listed line by line in the PR body.
-- The reviewer checks that commit 1 only adds scenarios and snapshots, and that the migration commits don't touch snapshot files.
+  3. **Intentional accessibility or behavior changes** (for example, a new `aria-label` on an unnamed icon button) come after the unchanged-snapshot migration proof, in their own separate, explicitly described commit (or a separate accessibility PR). That commit contains both the source change and the matching snapshot update, and the PR body lists each snapshot change line by line.
+- The reviewer checks that commit 1 only adds scenarios and snapshots, that the parity-preserving migration commits don't touch snapshot files, and that every snapshot change after them sits in an explicitly described accessibility/behavior commit together with the source change that causes it.
 
 ## Phases and slices
 
 Order is strict. Each slice is one issue, one branch, one PR. The next slice starts only after the previous one is merged.
 
-Every slice also adds an `aria-label` to the icon-only buttons in its files that lack one, as part of the final snapshot commit. Dead controls are migrated as they are. Deleting or wiring them is product work, except where an issue says otherwise. The dead promo buttons in `layout/header/main-menu/Banners.vue` (div/img inside a button) wait for a product decision and stay as a `ui-native:` exception.
+Every slice also adds an `aria-label` to the icon-only buttons in its files that lack one. This is an intentional accessibility change, not part of the parity-preserving migration: it goes in its own explicitly described commit (or a separate accessibility PR) after the unchanged-snapshot migration proof, with the source change and the snapshot update together. Dead controls are migrated as they are. Deleting or wiring them is product work, except where an issue says otherwise. The dead promo buttons in `layout/header/main-menu/Banners.vue` (div/img inside a button) wait for a product decision and stay as a `ui-native:` exception.
 
 | Order | #         | Slice                                                                                                                                                                                                                                     | Owner    | Model  |
 | ----: | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ |
