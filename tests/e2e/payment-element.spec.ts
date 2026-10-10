@@ -3,14 +3,18 @@ import { expect, test, type Page } from '@playwright/test';
 // Deterministic SDK boundary double. This proves ECAS browser sequencing and
 // presentation, not real Stripe sandbox confirmation or a bank's 3DS challenge.
 const fakeStripe = `
-window.__paymentTest = { confirms: 0, mode: 'success', options: null };
+window.__paymentTest = { confirms: 0, submits: 0, mode: 'success', options: null };
 window.Stripe = function () {
   return {
     _registerWrapper() {},
     elements(options) {
       window.__paymentTest.options = options;
       return {
-        submit: async () => ({}),
+        submit: async () => {
+          window.__paymentTest.submits++;
+          if (window.__paymentTest.mode === 'slow-submit') await new Promise(resolve => window.__paymentTest.releaseSubmit = resolve);
+          return window.__paymentTest.mode === 'validation-error' ? { error: { type: 'validation_error' } } : {};
+        },
         create(type, options) {
           window.__paymentTest.elementOptions = options;
           const listeners = {};
@@ -116,8 +120,9 @@ test('revalidates before SDK confirmation, keeps browser success non-authoritati
   await page.goto('/checkout/session?id=ord-ui');
   await fillCard(page);
   let resumeCalls = 0;
-  await page.route('**/api/orders/ord-ui/resume-payment', (route) => {
+  await page.route('**/api/orders/ord-ui/resume-payment', async (route) => {
     resumeCalls++;
+    expect(await page.evaluate(() => (window as unknown as { __paymentTest: { submits: number } }).__paymentTest.submits)).toBe(1);
     return route.fulfill(json(action));
   });
   await page.getByRole('button', { name: 'Pay by card', exact: true }).click();
@@ -141,6 +146,74 @@ test('revalidates before SDK confirmation, keeps browser success non-authoritati
   await expect(page.getByRole('button', { name: 'View order' })).toBeEnabled();
   expect(errors).toEqual([]);
 });
+
+test('field validation remains retryable and duplicate gestures cannot bypass pre-confirm safety', async ({ page }) => {
+  const { errors } = await setup(page);
+  await page.goto('/checkout/session?id=ord-ui');
+  await fillCard(page);
+  let resumes = 0;
+  await page.route('**/api/orders/ord-ui/resume-payment', (route) => {
+    resumes++;
+    return route.fulfill(json(action));
+  });
+  await page.evaluate(() => {
+    (window as unknown as { __paymentTest: { mode: string } }).__paymentTest.mode = 'validation-error';
+  });
+  await page.getByRole('button', { name: 'Pay by card', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Check your card details');
+  expect(resumes).toBe(0);
+  expect(await confirms(page)).toBe(0);
+  await expect(page.getByRole('button', { name: 'Pay by card', exact: true })).toBeEnabled();
+  await page.evaluate(() => {
+    (window as unknown as { __paymentTest: { mode: string } }).__paymentTest.mode = 'slow-submit';
+  });
+  await page.getByRole('button', { name: 'Pay by card', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('button', { name: 'Pay by card', exact: true })).toBeDisabled();
+  await page
+    .locator('section[aria-labelledby="payment-title"] form')
+    .evaluate((form) => form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+  expect(await page.evaluate(() => (window as unknown as { __paymentTest: { submits: number } }).__paymentTest.submits)).toBe(2);
+  expect(resumes).toBe(0);
+  await page.evaluate(() => {
+    (window as unknown as { __paymentTest: { releaseSubmit: () => void } }).__paymentTest.releaseSubmit();
+  });
+  await expect.poll(() => confirms(page)).toBe(1);
+  expect(errors).toEqual([]);
+});
+
+for (const dark of [false, true]) {
+  for (const width of [1280, 390]) {
+    test(`${width}px ${dark ? 'dark' : 'light'}: card surface follows theme and keyboard navigation`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      const { errors } = await setup(page);
+      await page.route('**/api/orders/ord-ui/resume-payment', async (route) => {
+        await page.evaluate((enabled) => document.documentElement.classList.toggle('dark', enabled), dark);
+        await route.fulfill(json(action));
+      });
+      await page.goto('/checkout/session?id=ord-ui');
+      await fillCard(page);
+      const colors = await page.locator('section[aria-labelledby="payment-title"]').evaluate((section) => ({
+        background: getComputedStyle(section).backgroundColor,
+        foreground: getComputedStyle(section).color,
+      }));
+      expect(colors.background).not.toBe(colors.foreground);
+      const appearance = await page.evaluate(
+        () =>
+          (window as unknown as { __paymentTest: { options: { appearance: { theme: string; variables: { colorBackground: string } } } } })
+            .__paymentTest.options.appearance,
+      );
+      expect(appearance.theme).toBe(dark ? 'night' : 'stripe');
+      expect(appearance.variables.colorBackground).toMatch(/^hsl\(\S/);
+      await page.getByTestId('mock-stripe-card').focus();
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('button', { name: 'Pay by card', exact: true })).toBeFocused();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await page.screenshot({ path: test.info().outputPath('payment-theme.png'), fullPage: true });
+      expect(errors).toEqual([]);
+    });
+  }
+}
 
 test('declined card is retryable after fresh backend safety authorization', async ({ page }) => {
   const { errors } = await setup(page);

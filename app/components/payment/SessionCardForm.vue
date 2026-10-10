@@ -1,25 +1,36 @@
 <template>
   <div class="container py-8">
-    <section class="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8" aria-labelledby="payment-title">
-      <p class="text-sm font-medium text-blue-600">Secure card checkout</p>
-      <h1 id="payment-title" class="mt-2 text-2xl font-semibold text-slate-900">{{ title }}</h1>
-      <p v-if="orderId" class="mt-2 break-all text-sm text-slate-500">Order {{ orderId }}</p>
-      <p class="mt-4 text-sm leading-6 text-slate-600" role="status" aria-live="polite">{{ description }}</p>
+    <section
+      class="mx-auto max-w-xl rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm md:p-8"
+      aria-labelledby="payment-title"
+    >
+      <p class="text-sm font-medium text-primary">Secure card checkout</p>
+      <h1 id="payment-title" class="mt-2 text-2xl font-semibold text-foreground">{{ title }}</h1>
+      <p v-if="orderId" class="mt-2 break-all text-sm text-muted-foreground">Order {{ orderId }}</p>
+      <p class="mt-4 text-sm leading-6 text-muted-foreground" role="status" aria-live="polite">{{ description }}</p>
       <form v-show="showForm" class="mt-6 space-y-4" @submit.prevent="pay">
-        <div class="relative rounded-lg border border-slate-200 p-4" :aria-busy="state !== 'ready'" data-testid="payment-form">
-          <div ref="elementHost" :inert="state !== 'ready' || !elementReady" />
-          <div v-if="state !== 'ready' || !elementReady" class="absolute inset-0 rounded-lg bg-white/70" data-testid="payment-disabled" />
-          <p v-if="!elementReady" class="text-sm text-slate-500">Loading secure card fields…</p>
+        <div class="relative rounded-lg border border-border p-4" :aria-busy="state !== 'ready' || submitting" data-testid="payment-form">
+          <div ref="elementHost" :inert="state !== 'ready' || !elementReady || submitting" />
+          <div
+            v-if="state !== 'ready' || !elementReady || submitting"
+            class="absolute inset-0 rounded-lg bg-card/70"
+            data-testid="payment-disabled"
+          />
+          <p v-if="!elementReady" class="text-sm text-muted-foreground">Loading secure card fields…</p>
         </div>
-        <p v-if="message || sdkError" role="alert" class="text-sm text-red-600">{{ message || sdkError }}</p>
-        <UiButton type="submit" class="w-full" :disabled="state !== 'ready' || !elementReady || !complete || Boolean(sdkError)">
+        <p v-if="message || sdkError" role="alert" class="text-sm text-destructive">{{ message || sdkError }}</p>
+        <UiButton
+          type="submit"
+          class="w-full"
+          :disabled="state !== 'ready' || !elementReady || !complete || Boolean(sdkError) || submitting"
+        >
           {{ state === 'confirming' ? 'Processing payment…' : state === 'checking' ? 'Checking your order…' : 'Pay by card' }}
         </UiButton>
-        <p class="text-xs leading-5 text-slate-500">
+        <p class="text-xs leading-5 text-muted-foreground">
           Card details go directly to Stripe. Your bank may ask you to authenticate this payment.
         </p>
       </form>
-      <p v-if="!showForm && message" role="alert" class="mt-4 text-sm text-slate-600">{{ message }}</p>
+      <p v-if="!showForm && message" role="alert" class="mt-4 text-sm text-muted-foreground">{{ message }}</p>
       <div class="mt-6 flex flex-col gap-3 sm:flex-row">
         <UiButton v-if="state === 'canceled'" :disabled="restarting" @click="reviewAgain">Review order and try again</UiButton>
         <UiButton v-else-if="state === 'completed'" @click="router.push(`/order-summary/${encodeURIComponent(orderId)}`)"
@@ -51,6 +62,7 @@ const elementReady = ref(false);
 const complete = ref(false);
 const sdkError = ref('');
 const restarting = ref(false);
+const submitting = ref(false);
 let stripe: Stripe | null = null;
 let elements: StripeElements | undefined;
 let paymentElement: StripePaymentElement | undefined;
@@ -111,7 +123,20 @@ watch(clientSecret, async (secret) => {
     if (!stripe) throw new Error('Card payment could not load. Refresh this page to try again.');
     await nextTick();
     if (disposed || generation !== mountGeneration || !elementHost.value) return;
-    elements = stripe.elements({ clientSecret: secret, appearance: { theme: 'stripe' } });
+    const theme = getComputedStyle(document.documentElement);
+    const color = (token: string) => `hsl(${theme.getPropertyValue(token).trim()})`;
+    elements = stripe.elements({
+      clientSecret: secret,
+      appearance: {
+        theme: document.documentElement.classList.contains('dark') ? 'night' : 'stripe',
+        variables: {
+          colorPrimary: color('--primary'),
+          colorBackground: color('--card'),
+          colorText: color('--card-foreground'),
+          colorDanger: color('--destructive'),
+        },
+      },
+    });
     paymentElement = elements.create('payment', { paymentMethodOrder: ['card'], wallets: { applePay: 'never', googlePay: 'never' } });
     paymentElement.on('ready', () => {
       if (!disposed && generation === mountGeneration) elementReady.value = true;
@@ -130,22 +155,37 @@ watch(clientSecret, async (secret) => {
 });
 
 const pay = async () => {
-  if (!stripe || !elements || !elementReady.value || !complete.value || sdkError.value) return;
+  if (state.value !== 'ready' || submitting.value || !stripe || !elements || !elementReady.value || !complete.value || sdkError.value)
+    return;
   const activeStripe = stripe;
   const activeElements = elements;
-  await confirm(async (secret) => {
+  submitting.value = true;
+  message.value = '';
+  try {
+    // Validate fields in the submit gesture, then retain ECAS's fresh safety
+    // authorization immediately before provider confirmation.
     const submitted = await activeElements.submit();
-    if (submitted.error) return { error: submitted.error };
-    const returnUrl = new URL('/checkout/session', window.location.origin);
-    returnUrl.searchParams.set('id', orderId);
-    returnUrl.searchParams.set('returned', '1');
-    return activeStripe.confirmPayment({
-      elements: activeElements,
-      clientSecret: secret,
-      confirmParams: { return_url: returnUrl.toString() },
-      redirect: 'if_required',
+    if (disposed) return;
+    if (submitted.error) {
+      message.value = 'Check your card details and try again.';
+      return;
+    }
+    await confirm(async (secret) => {
+      const returnUrl = new URL('/checkout/session', window.location.origin);
+      returnUrl.searchParams.set('id', orderId);
+      returnUrl.searchParams.set('returned', '1');
+      return activeStripe.confirmPayment({
+        elements: activeElements,
+        clientSecret: secret,
+        confirmParams: { return_url: returnUrl.toString() },
+        redirect: 'if_required',
+      });
     });
-  });
+  } catch {
+    if (!disposed) message.value = 'Card payment could not continue. Check your details and try again.';
+  } finally {
+    submitting.value = false;
+  }
 };
 const reviewAgain = async () => {
   restarting.value = true;
