@@ -16,18 +16,18 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/agent-Commerc
 ## Pickup rules
 
 - The controller loop should behave like a standing `/goal`: keep one issue alive until evaluator pass, blocker, or human intervention.
-- Only bounded executable issues with `ready-for-agent` and no unresolved capability dependencies are eligible. Issues labeled `epic` are tracking parents: never claim them, label them ready-for-agent/in-progress, or count them in WIP.
+- Only bounded executable issues with `ready-for-agent` (Claude: `agent:claude` alone) and no unresolved capability dependencies are eligible. Name dependencies on a `Depends on #N` line so agents and the owner-attention workflow can read them. Issues labeled `epic` are tracking parents: never claim them, label them ready-for-agent/in-progress, or count them in WIP.
 - Before editing code, the planner claims exactly one issue:
-  - remove `ready-for-agent`
+  - remove `ready-for-agent` (if present)
   - add the `in-progress` label
   - assign the issue to the working account
   - leave a short comment with the branch name
 - If an issue is already assigned or already has an active PR, skip it.
-- WIP is 1 per builder: never claim two executable issues for the same builder. Claude owns issues labeled `agent:claude`; Codex skips `agent:claude` and owns other eligible issues. Delegated models share the builder's existing claim. GitHub labels, assignments and linked PRs are the live authority; unattended agents do not update shared tracking snapshots.
+- WIP is 1 per builder: never claim two executable issues for the same builder. Claude only: a `blocked` claim is parked and does not count toward Claude's WIP=1, and Claude never has two live claims (`autonomous-workflow.md` § Claude parking). Claude owns issues labeled `agent:claude`; Codex skips `agent:claude` and owns other eligible issues. Delegated models share the builder's existing claim. GitHub labels, assignments and linked PRs are the live authority; unattended agents do not update shared tracking snapshots.
 - Claude never claims `area:payments` issues or anything in the payment map below.
 - The generator may only implement the issue already claimed by the planner.
 - The generator opens or updates one PR intended to complete the executable issue. It uses `Closes #<child>` and `Related #<epic>`, but does not declare final completion. Anonymous partial slices cannot keep extending one executable issue; rescope into named children before implementation.
-- If the builder's `in-progress` issue has an open PR, do not select new work. Wait for evaluator, or repair that same PR when the evaluator fails it.
+- If the builder's `in-progress` issue has an open PR, do not select new work. Wait for evaluator, or repair that same PR when the evaluator fails it. The only exception is a parked (`blocked`) Claude claim, as above.
 - The evaluator independently checks the PR and moves the issue toward `ready-for-human` only after evidence passes.
 
 ## When a skill says "publish to the issue tracker"

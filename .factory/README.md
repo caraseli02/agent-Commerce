@@ -16,21 +16,21 @@ The repo workflow itself (roles, verdicts, verification ladder) stays in `AGENTS
 
 ## How the two agents avoid each other
 
-1. **Ownership is a label.** Issues labeled `agent:claude` belong to Claude; every other `ready-for-agent` issue is Codex's pool. Neither agent ever takes the other's issue. Labels are the only claim record; unattended agents do not edit `feature_list.json` or `PROGRESS.md`.
+1. **Ownership is a label.** Issues labeled `agent:claude` belong to Claude, and that label alone queues them (no `ready-for-agent` needed); every other `ready-for-agent` issue is Codex's pool. Neither agent ever takes the other's issue. Labels are the only claim record; unattended agents do not edit `feature_list.json` or `PROGRESS.md`.
 2. **One Claude routine, one local run lock.** Claude runs a single hourly routine that does one thing per run (repair, review or build), so its runs never compete for Desktop's schedule. Every run, scheduled or started by hand, takes `/Users/work/.local/share/agent-commerce/claude/locks/claude-routine` with `.factory/bin/run-lock.sh` before reading any GitHub state and holds it for the whole run. The claim is an atomic `mkdir`; a contender yields and never waits. The owner file records a token and the Claude Code process that holds the lock. There is no age-based takeover: a lock is recovered only when that process has stopped (crash, app quit), under a second atomic guard so two contenders cannot both recover it, and a run releases only the lock whose token it holds. Anything the script cannot check (no owner file, unknown process) yields and waits for a human.
-3. **WIP=1 per agent.** Under the lock, Claude continues its one open `in-progress` issue labeled `agent:claude`, or (mode `build`) claims exactly one new one. The claim record is the issue's labels, assignee and comment plus the deterministic branch `claude/issue-<number>`, pushed normally. Two Claude `in-progress` issues is a blocker report, never resolved by guessing.
+3. **WIP=1 per agent.** Under the lock, Claude continues its one live `in-progress` issue labeled `agent:claude`, or (mode `build`) claims exactly one new one. A `blocked` claim keeps `in-progress` but is parked: it does not count toward WIP, and removing `blocked` resumes it. A claim unblocked while another is live waits until that claim ends; then the claim unblocked first resumes before any new claim (`docs/agents/autonomous-workflow.md` § Claude parking). Two live Claude claims is a blocker report, never resolved by guessing. The claim record is the issue's labels, assignee and comment plus the deterministic branch `claude/issue-<number>`, pushed normally.
 4. **Cross-review.** The builder never reviews its own work: Claude reviews ready PRs without `agent:claude`; Codex reviews ready PRs with `agent:claude`. Each reviewer's structured verdict is the independent acceptance review for the other's PRs; Vlad then merges.
 5. **Payments stay with Codex.** Claude never builds `area:payments` work or touches protected payment paths, but reviews Codex's payment PRs.
 6. **Vlad merges.** No agent merges, approves via GitHub review, or force-pushes. Without GitHub Pro there is no branch protection. On Claude's side the sandbox below and the guard hook (a best-effort screen of each Bash command that blocks what it cannot inspect) catch these; the cross-review and Vlad's merge remain the final line.
 
 ## Daily loop
 
-| Time (Europe/Madrid) | What happens                                                                                     |
-| -------------------- | ------------------------------------------------------------------------------------------------ |
-| any time             | Vlad labels issues `ready-for-agent` and `agent:claude` for Claude's queue                       |
-| hourly, 09:00–19:00  | `claude-routine`: repair its own failed PR, else review one PR without a verdict, else build one |
-| Codex's own schedule | Codex builds its issues and reviews `agent:claude` PRs                                           |
-| whenever             | Vlad reads `ready-for-human` verdicts and merges                                                 |
+| Time (Europe/Madrid) | What happens                                                                                                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| any time             | Vlad labels issues `agent:claude` for Claude's queue                                                                                                                        |
+| hourly, 09:00–19:00  | `claude-routine`: repair its own failed PR, else review one PR without a verdict, else build one                                                                            |
+| Codex's own schedule | Codex builds its issues and reviews `agent:claude` PRs                                                                                                                      |
+| whenever             | Vlad gets a bot @mention (owner-attention workflow) when a PR awaits his merge, an issue is blocked, a Claude PR needs `owner-approved-harness`, or Claude's queue is empty |
 
 The routine runs in `mode: build` since 2026-10-08, after the rollout acceptance tracked on PR #608 (review in both directions, same-PR repair, re-review after a new head, duplicate-run exclusion). `mode: review-only` (review Codex's PRs, never build) remains the fallback: switching back is a one-line reviewed PR.
 
@@ -96,5 +96,5 @@ The label `lane:nightly` was renamed to `agent:claude` on GitHub on 2026-10-06; 
 - Edit these files (or `docs/agents/`) in a PR. Once merged, the next run reads the new version from `origin/main`. After a change to the hook, the lock script or the settings, Vlad re-runs `sh .factory/bin/install-local.sh` (setup step 4).
 - Tests: `sh .factory/bin/run-lock.test.sh`, `sh .factory/bin/resume.test.sh`, `sh .factory/bin/install-local.test.sh` and `node --test .factory/hooks/bash-guard.test.mjs`.
 - The unattended Claude routine may not edit the factory. When it hits a workflow problem, it opens a `needs-triage` issue titled `Factory improvement: …`.
-- Harness changes Vlad asks for in an interactive Claude session are normal PRs: Vlad adds `owner-approved-harness`, and the reviewer judges them on their merits instead of failing them for touching protected paths. Only Vlad sets or removes that label; the guard hook blocks Claude from doing it.
+- Harness changes Vlad asks for in an interactive Claude session are normal PRs: Vlad adds `owner-approved-harness`, and the reviewer judges them on their merits instead of failing them for touching protected paths. Only Vlad sets or removes that label; the guard hook blocks Claude from doing it. The session ends with an explicit action line for Vlad (`Add owner-approved-harness to PR #N`), and the owner-attention workflow also pings him, so the label is in place before the first review.
 - To pause Claude, pause the routine in Claude Desktop.

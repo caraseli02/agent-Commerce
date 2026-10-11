@@ -9,6 +9,14 @@ Use this file for durable cross-session decisions that should survive context re
 - Refund `FAILED` before any success keeps the earlier rule: the Order stays `ON_HOLD` in compensation recovery.
 - A verified Refund event that matches no known local Refund (for example one issued in the Stripe Dashboard) is a separate edge case for a human: record it, change no Payment, Refund or Order state, and surface it for manual handling instead of leaving Stripe to retry it. Tracked in #660.
 
+## Owner attention and no idle waiting — 2026-10-10
+
+- On 2026-10-09/10, #632 / PR #658 waited about 13.5 hours on one owner-only label while Claude had nothing else to do. Three causes: agents post as Vlad, so GitHub sent him no notification; no issue had both `agent:claude` and `ready-for-agent`; and the routine stopped the whole repair on the one owner-only item. Vlad asked that it never happen again.
+- `.github/workflows/owner-attention.yml` (`scripts/owner-attention.mjs`) @mentions Vlad as `github-actions[bot]` when a PR waits only on his merge, an issue gets `blocked`, a Claude PR changes protected paths without `owner-approved-harness`, or Claude's build queue is empty.
+- `agent:claude` alone queues an issue for Claude (Vlad, 2026-10-10); `ready-for-agent` is no longer required for Claude. `needs-triage`, `needs-info` and the other `never_claim` labels still hold an issue back, and dependencies go on `Depends on #N` lines.
+- Claude only: a blocked Claude claim keeps `in-progress` and is parked: it does not count toward Claude's WIP=1, and Claude may build other work. Claude never has two live claims: a claim unblocked while another is live waits until that claim ends, then the claim unblocked first (earliest timeline removal of `blocked`) resumes before any new claim. Codex's WIP and blocker rules are unchanged. Repairs fix and push everything that does not need Vlad before blocking on the remainder. On a PR carrying `owner-approved-harness`, a routine repair may edit the protected files that PR already changes (never payment paths or `.factory/**`).
+- Interactive sessions that change protected paths end with an explicit `Add owner-approved-harness to PR #N` line for Vlad.
+
 ## App source directory and the #530 payment-path exception — 2026-10-09
 
 - Nuxt uses its default `app/` source directory (#530). `~`/`@` resolve to `app/`, `~~`/`@@` to the repository root. Code shared with the server (`server/`, `types/`, `helpers/`, `model/`, `data/`, `modules/`) stays at the root and is imported as `~~/...`. `app/utils/mockAuth.ts` stays in `app/utils` so its auto-imports are unchanged; the server reaches it through `~/utils/mockAuth`.

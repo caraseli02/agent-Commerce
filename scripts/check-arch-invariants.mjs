@@ -8,7 +8,13 @@ const rootDir = path.resolve(new URL('..', import.meta.url).pathname);
 const sourceExtensions = new Set(['.js', '.mjs', '.ts', '.vue']);
 const ignoredDirectories = new Set(['.agents', '.git', '.husky', '.nuxt', '.output', 'coverage', 'dist', 'node_modules']);
 
-const approvedAuthHeaderPaths = ['app/plugins/api.ts', 'app/composables/api/', 'scripts/check-pr-template.mjs', 'tests/'];
+const approvedAuthHeaderPaths = [
+  'app/plugins/api.ts',
+  'app/composables/api/',
+  'scripts/check-pr-template.mjs',
+  'scripts/owner-attention.mjs',
+  'tests/',
+];
 
 const legacyAuthHeaderExceptions = new Map([
   [
