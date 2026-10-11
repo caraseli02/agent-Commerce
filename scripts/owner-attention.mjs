@@ -8,14 +8,11 @@
 // Signals:
 // - ready:   an open PR has a green CI, an exact-head evaluator PASS, no merge
 //            conflict and no outstanding change request. Only the owner's merge is left.
-// - blocked: an open issue carries the `blocked` label (checked against current state).
+// - blocked: an open issue currently carries the `blocked` label.
 // - harness: a Claude-built PR touches protected paths without `owner-approved-harness`.
 // - queue:   Claude has no live issue and nothing eligible to build.
 //
-// Each notice carries a hidden marker so a rerun never posts it twice. The
-// workflow runs every event in one repository-wide concurrency group, so this
-// read-before-write dedupe never races another run; the scheduled sweep
-// re-derives every notice from current state in case GitHub drops a pending run.
+// Each notice carries a hidden marker so a rerun never posts it twice.
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
@@ -110,27 +107,26 @@ export function isClaudeBuilt(pr) {
   return labels.includes('agent:claude') || String(pr?.head?.ref ?? '').startsWith('claude/');
 }
 
-// Comment authors whose evaluator reports count: people with write access to the repo.
-export const TRUSTED_ASSOCIATIONS = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
 const VERDICT_HEADING = '## Evaluator verdict';
-const ATTRIBUTION_LINE = /^[\s>]*(?:[*_]{1,2})?Independent evaluator(?:[*_]{1,2})?\s*:(?:[*_]{1,2})?[ \t]*\S/im;
+// `Independent evaluator:` at line start (optionally bold) followed by a non-empty attribution.
+const ATTRIBUTION_LINE = /^[ \t>]*(?:[*_]{1,2})?Independent evaluator(?:[*_]{1,2})?[ \t]*:(?:[*_]{1,2})?[ \t]*[^\s*_]/im;
 
 // Structured evaluator verdict for the exact head, as autonomous-workflow.md defines it:
-// the comment starts with the head marker, comes from a trusted author, carries the
-// verdict heading and an explicit `Independent evaluator:` attribution. Contradictory
-// reports for the same head need clarification, so they resolve to CONFLICTING.
-export function latestEvaluatorVerdict(comments, headSha, { trustedLogins = [] } = {}) {
+// it must come from an account the evaluators post through and carry explicit
+// independent-evaluator attribution, so an outsider's look-alike comment never counts.
+// Contradictory reports for the same head need clarification, so they resolve to
+// CONFLICTING rather than letting the newest one win.
+export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
   const head = String(headSha ?? '').toLowerCase();
   if (!head) return null;
+  const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
+  trusted.delete(BOT_LOGIN);
   const markers = [`<!-- evaluator-head: ${head} -->`, `<!-- local-evaluator sha=${head} -->`];
-  const trusted = new Set(trustedLogins.map((login) => String(login).toLowerCase()));
   const reports = [];
   for (const comment of comments ?? []) {
-    const login = String(comment?.user?.login ?? '').toLowerCase();
-    if (!login || login === BOT_LOGIN) continue;
-    if (!TRUSTED_ASSOCIATIONS.has(comment?.author_association) && !trusted.has(login)) continue;
     const body = String(comment?.body ?? '');
     const start = body.trimStart().toLowerCase();
+    if (!trusted.has(String(comment?.user?.login ?? '').toLowerCase())) continue;
     if (!markers.some((tag) => start.startsWith(tag)) || !body.includes(VERDICT_HEADING)) continue;
     if (!ATTRIBUTION_LINE.test(body)) continue;
     const after = body.slice(body.indexOf(VERDICT_HEADING) + VERDICT_HEADING.length);
@@ -140,9 +136,8 @@ export function latestEvaluatorVerdict(comments, headSha, { trustedLogins = [] }
   }
   if (!reports.length) return null;
   const latest = reports.at(-1);
-  const distinct = new Set(reports.map((report) => report.verdict));
-  if (distinct.size > 1) return { verdict: 'CONFLICTING', url: latest.url, verdicts: [...distinct] };
-  return latest;
+  const verdicts = [...new Set(reports.map((report) => report.verdict))];
+  return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : latest;
 }
 
 export function assessChecks(checkRuns, combinedStatus) {
@@ -347,7 +342,7 @@ async function postOnce(gh, number, key, body) {
   return true;
 }
 
-async function checkReady(gh, owner, number) {
+async function checkReady(gh, owner, number, trustedLogins) {
   const pr = await loadPullRequest(gh, number);
   if (pr.state !== 'open' || pr.draft) return;
   const sha = pr.head.sha;
@@ -357,7 +352,7 @@ async function checkReady(gh, owner, number) {
     gh.get(`/commits/${sha}/status`),
     gh.paginate(`/pulls/${number}/reviews`),
   ]);
-  const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins: [owner] });
+  const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins });
   const checks = assessChecks(checkRuns, combinedStatus);
   const { ready, reasons } = assessReadiness({ pr, checks, verdict, reviews });
   if (!ready) {
@@ -386,14 +381,9 @@ async function checkHarness(gh, owner, number, config) {
   await postOnce(gh, number, key, harnessMessage({ owner, pr, touched }));
 }
 
-const isBlockedOpenIssue = (issue) =>
-  issue?.state === 'open' && !issue.pull_request && (issue.labels ?? []).some((label) => label?.name === 'blocked');
-
+// Reads the current label state, so a removed or stale `blocked` never produces a notice.
 async function checkBlocked(gh, owner, issue) {
-  if (!isBlockedOpenIssue(issue)) {
-    log(`#${issue?.number}: not an open blocked issue; no notice`);
-    return;
-  }
+  if (issue.state !== 'open' || !(issue.labels ?? []).some((label) => label.name === 'blocked')) return;
   const comments = await gh.paginate(`/issues/${issue.number}/comments`);
   const human = comments.filter((comment) => comment.user?.login !== BOT_LOGIN);
   const blocker = [...human].reverse().find((comment) => /^\s*##\s*Blocked\b/m.test(comment.body ?? '')) ?? human.at(-1);
@@ -402,23 +392,6 @@ async function checkBlocked(gh, owner, issue) {
   if (alreadyNotified(comments, key)) return;
   await gh.post(`/issues/${issue.number}/comments`, { body: blockedMessage({ owner, issue, blockerUrl }) });
   log(`#${issue.number}: posted ${key}`);
-}
-
-// Event payloads can be stale by the time a serialized run starts; trust only current state.
-async function checkBlockedEvent(gh, owner, event) {
-  if (event.action !== 'labeled' || event.label?.name !== 'blocked' || !event.issue?.number) return;
-  await checkBlocked(gh, owner, await gh.get(`/issues/${event.issue.number}`));
-}
-
-async function sweepBlockedIssues(gh, owner, openIssues) {
-  for (const issue of openIssues.filter((entry) => isBlockedOpenIssue({ state: 'open', ...entry }))) {
-    try {
-      await checkBlocked(gh, owner, { state: 'open', ...issue });
-    } catch (error) {
-      console.error(`#${issue.number}: ${error instanceof Error ? error.message : String(error)}`);
-      process.exitCode = 1;
-    }
-  }
 }
 
 async function checkQueue(gh, owner, config, openIssues) {
@@ -441,60 +414,37 @@ async function checkQueue(gh, owner, config, openIssues) {
   }
 }
 
-async function sweepOpenPullRequests(gh, owner, config) {
-  const prs = await gh.paginate('/pulls?state=open');
-  for (const pr of prs) {
-    if (pr.draft) continue;
-    // One broken PR must not hide the others; the job still fails at the end.
-    try {
-      await checkHarness(gh, owner, pr.number, config);
-      await checkReady(gh, owner, pr.number);
-    } catch (error) {
-      console.error(`PR #${pr.number}: ${error instanceof Error ? error.message : String(error)}`);
-      process.exitCode = 1;
-    }
+// One broken item must not hide the others; the job still fails at the end.
+async function guarded(label, task) {
+  try {
+    await task();
+  } catch (error) {
+    console.error(`${label}: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
   }
 }
 
-export async function handleEvent({ eventName, event, gh, owner, config }) {
-  switch (eventName) {
-    case 'pull_request_target':
-      await checkHarness(gh, owner, event.pull_request.number, config);
-      await checkReady(gh, owner, event.pull_request.number);
-      break;
-    case 'issue_comment':
-      if (event.issue?.pull_request) await checkReady(gh, owner, event.issue.number);
-      break;
-    case 'pull_request_review':
-      await checkReady(gh, owner, event.pull_request.number);
-      break;
-    case 'workflow_run': {
-      const numbers = (event.workflow_run?.pull_requests ?? []).map((pr) => pr.number);
-      if (!numbers.length) {
-        const sha = event.workflow_run?.head_sha;
-        const open = await gh.paginate('/pulls?state=open');
-        numbers.push(...open.filter((pr) => pr.head.sha === sha).map((pr) => pr.number));
-      }
-      for (const number of numbers) await checkReady(gh, owner, number);
-      break;
-    }
-    case 'issues':
-      await checkBlockedEvent(gh, owner, event);
-      if (['labeled', 'unlabeled', 'closed', 'reopened'].includes(event.action))
-        await checkQueue(gh, owner, config, await gh.paginate('/issues?state=open'));
-      break;
-    case 'schedule':
-    case 'workflow_dispatch': {
-      // Full reconciliation: recovers any notice whose event run GitHub dropped.
-      await sweepOpenPullRequests(gh, owner, config);
-      const openIssues = await gh.paginate('/issues?state=open');
-      await sweepBlockedIssues(gh, owner, openIssues);
-      await checkQueue(gh, owner, config, openIssues);
-      break;
-    }
-    default:
-      log(`Nothing to do for ${eventName}.`);
+// Every event reconciles the whole repository from current GitHub state instead of
+// trusting the event payload. The workflow runs one reconcile at a time, so a dedupe
+// read and its write never race, and a superseded queued run loses nothing.
+export async function reconcile({ gh, owner, config, trustedLogins }) {
+  const prs = await gh.paginate('/pulls?state=open');
+  for (const pr of prs) {
+    if (pr.draft) continue;
+    await guarded(`PR #${pr.number}`, async () => {
+      await checkHarness(gh, owner, pr.number, config);
+      await checkReady(gh, owner, pr.number, trustedLogins);
+    });
   }
+
+  const openIssues = await gh.paginate('/issues?state=open');
+  for (const issue of openIssues) await guarded(`#${issue.number}`, () => checkBlocked(gh, owner, issue));
+  await guarded('Claude queue', () => checkQueue(gh, owner, config, openIssues));
+}
+
+export async function handleEvent({ eventName, gh, owner, config, trustedLogins = [owner] }) {
+  log(`Reconciling after ${eventName}.`);
+  await reconcile({ gh, owner, config, trustedLogins });
 }
 
 async function main() {
@@ -504,12 +454,17 @@ async function main() {
   if (!repository || !token || !eventName) throw new Error('GITHUB_REPOSITORY, GITHUB_TOKEN and GITHUB_EVENT_NAME are required.');
 
   const owner = process.env.OWNER_LOGIN || process.env.GITHUB_REPOSITORY_OWNER;
-  const event = process.env.GITHUB_EVENT_PATH ? JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH, 'utf8')) : {};
   const config = parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8'));
   // With OWNER_ATTENTION_DRY_RUN set to 1 it reads live state and prints what it would post.
   const gh = createClient({ repository, token, dryRun: process.env.OWNER_ATTENTION_DRY_RUN === '1' });
 
-  await handleEvent({ eventName, event, gh, owner, config });
+  // Agents post evaluator reports through the owner's account unless EVALUATOR_LOGINS says otherwise.
+  const trustedLogins = (process.env.EVALUATOR_LOGINS || owner)
+    .split(',')
+    .map((login) => login.trim())
+    .filter(Boolean);
+
+  await handleEvent({ eventName, gh, owner, config, trustedLogins });
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

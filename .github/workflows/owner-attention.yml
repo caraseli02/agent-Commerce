@@ -30,12 +30,9 @@ permissions:
   issues: write
   pull-requests: write
 
-# One repository-wide group: every run's read-before-write dedupe sees the
-# previous run's writes, so overlapping events cannot post duplicates. GitHub
-# keeps only the newest pending run per group and cancels an older pending one;
-# the hourly sweep re-derives ready, harness, blocked and queue notices from
-# current state, so a dropped event delays its notice to the next sweep instead
-# of losing it.
+# One repository-wide group: runs never overlap, so a notice's dedupe read and its
+# write cannot race. GitHub keeps only the newest queued run; that loses nothing,
+# because every run reconciles the whole repository from current state.
 concurrency:
   group: owner-attention
   cancel-in-progress: false
