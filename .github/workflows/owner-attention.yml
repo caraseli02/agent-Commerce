@@ -30,8 +30,14 @@ permissions:
   issues: write
   pull-requests: write
 
+# One repository-wide group: every run's read-before-write dedupe sees the
+# previous run's writes, so overlapping events cannot post duplicates. GitHub
+# keeps only the newest pending run per group and cancels an older pending one;
+# the hourly sweep re-derives ready, harness, blocked and queue notices from
+# current state, so a dropped event delays its notice to the next sweep instead
+# of losing it.
 concurrency:
-  group: owner-attention-${{ github.event.pull_request.number || github.event.issue.number || github.event.workflow_run.head_sha || 'sweep' }}
+  group: owner-attention
   cancel-in-progress: false
 
 jobs:
