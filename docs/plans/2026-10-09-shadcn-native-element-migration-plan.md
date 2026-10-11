@@ -51,6 +51,8 @@ Reproduce: parse each tracked `.vue` (minus `components/ui/`) with `@vue/compile
 
 ### Convention check gaps (`scripts/verify-ui-conventions.mjs`)
 
+Resolved by #633: the script now SFC-parses every `.vue` outside `components/ui/` and ratchets against `scripts/ui-conventions-baseline.json` (see `docs/agents/verification.md` §7). The gaps below describe the script before that change.
+
 - It only scans `*Modal*.vue` files and `components/layout/**/*modal*`, and only `<button>`/`<input>`.
 - Template extraction uses a non-greedy regex that stops at the first nested `</template>`, so elements after a `v-if` template are missed. For example, it reports 0 hits for `dataTable/filter/Range.vue`, which has 2 native inputs.
 
