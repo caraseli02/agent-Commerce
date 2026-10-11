@@ -178,8 +178,11 @@ The existing checkout route continues to use the mock flow during this phase.
 The #557 Stripe webhook endpoint additionally requires `STRIPE_WEBHOOK_SECRET`
 from its Stripe endpoint or CLI listener. Signed paid events with a valid
 reservation acknowledge after normal checkout finalization; canceled events
-acknowledge after checkout terminalization. Late-paid compensation remains a
-later application completion slice.
+acknowledge after checkout terminalization. Late-paid success delivery retries the application recovery decision and the
+same full Refund operation. It returns a retry response until the exact Stripe
+Refund identity or successful settlement is durable; known pending refunds
+continue independently through signed Refund events/reconciliation. A local
+Refund row without a provider identity never authorizes acknowledgment.
 After provider cancellation, `POST /api/orders/:id/restart` advances an unchanged
 Cart to a new revision for the same owner and returns `reviewRequired`. A buyer
 must request a fresh `/api/orders/price` review and use a new checkout request
@@ -218,8 +221,26 @@ Refund state (`PENDING`, `SUCCEEDED`, or `FAILED`) is a separate financial fact
 and never rewrites the Payment's `PAID` status. Reasons are Stripe API enum
 values (`requested_by_customer`, `duplicate`, `fraudulent`); choosing a reason
 or deciding when a commercial refund is appropriate remains an explicit policy
-outside this adapter. This slice adds no endpoint, UI, webhook, or Order
-settlement behavior. `SUCCEEDED`/`FAILED` are cached local observations here; Stripe can later report a failed refund after success, and refund-event continuation (#587) must update that truth. Migration `008_refund_constraints` adds provider-identity/terminal-state and non-null create-start constraints without rewriting migration007; missing legacy starts become epoch anchors, refusing automatic replay.
+outside this adapter. Signed `refund.created`, `refund.updated`, and `refund.failed`
+events now enter through the shared raw-body signature firewall. Migration
+`009_stripe_refund_events` stores event deduplication atomically with financial
+transitions. Each unseen event reads its exact Refund once from Stripe; snapshots
+route identity but never select financial truth. Duplicate delivery retries
+unfinished application settlement without another provider read. The internal
+`stripeRefunds.reconcileRefund({ paymentId })` similarly reads only a known
+Refund identity and never creates a replacement.
+
+Refund success atomically cancels the paid held Order and finalizes its REFUND
+claim. Payment remains PAID. Stale pending snapshots cannot regress successful
+truth. A current authoritative bank-return failure can change SUCCEEDED to FAILED;
+FAILED then remains absorbing against stale success reads. Its application
+consequence sets compensation_recovery_required for manual handling: an Order still
+held stays ON_HOLD, and an Order already CANCELED stays CANCELED with its Payment
+PAID. Neither reopens fulfillment. Unsafe identity/status reads
+remain retryable and held. See [Stripe's failed refund contract](https://docs.stripe.com/refunds#failed-refunds).
+Migration `008_refund_constraints` preserves migration007 and constrains provider
+identity, terminal state, and non-null create-start. Missing legacy starts become
+epoch anchors, refusing automatic replay. Stripe activation remains default-off.
 
 ## Mock architecture
 

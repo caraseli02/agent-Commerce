@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { isSupportedStripeRefundEvent, type StripeRefund, type VerifiedRefundEventResult } from './stripe-refunds';
 import { isSupportedStripeIntentEvent, type VerifiedIntentEventResult } from './stripe-intents';
 
 export type StripeWebhookResult = Readonly<{ kind: 'accepted' | 'retry' | 'invalid-signature' }>;
@@ -9,6 +10,7 @@ export const handleStripeWebhook = async (input: {
   signingSecret: string | undefined;
   enabled: boolean;
   applyVerifiedIntentEvent: (event: { eventId: string; eventType: string; intentId: string }) => Promise<VerifiedIntentEventResult>;
+  applyVerifiedRefundEvent?: (event: { eventId: string; eventType: string; refund: StripeRefund }) => Promise<VerifiedRefundEventResult>;
   finalizePaidCheckout?: (input: { paymentId: string; orderId: string }) => Promise<{ kind: 'finalized' | 'retry' }>;
   terminalizeCanceledCheckout?: (input: { paymentId: string; orderId: string }) => Promise<{ kind: 'terminalized' | 'retry' }>;
 }): Promise<StripeWebhookResult> => {
@@ -22,8 +24,28 @@ export const handleStripeWebhook = async (input: {
     return { kind: 'invalid-signature' };
   }
 
-  // Refund delivery belongs to #558; never silently acknowledge it in this slice.
-  if (event.type.startsWith('refund.')) return { kind: 'retry' };
+  if (event.type.startsWith('refund.')) {
+    if (!isSupportedStripeRefundEvent(event.type) || !input.applyVerifiedRefundEvent) return { kind: 'retry' };
+    const object = event.data.object;
+    if (object.object !== 'refund') return { kind: 'retry' };
+    try {
+      const result = await input.applyVerifiedRefundEvent({
+        eventId: event.id,
+        eventType: event.type,
+        refund: {
+          id: object.id,
+          paymentIntentId: typeof object.payment_intent === 'string' ? object.payment_intent : (object.payment_intent?.id ?? null),
+          amountMinor: object.amount,
+          currency: object.currency,
+          status: object.status ?? null,
+          metadata: { refundId: object.metadata?.refundId, paymentId: object.metadata?.paymentId, orderId: object.metadata?.orderId },
+        },
+      });
+      return result.kind === 'recovery-required' ? { kind: 'retry' } : { kind: 'accepted' };
+    } catch {
+      return { kind: 'retry' };
+    }
+  }
   if (!isSupportedStripeIntentEvent(event.type)) return { kind: 'accepted' };
 
   const object = event.data.object;

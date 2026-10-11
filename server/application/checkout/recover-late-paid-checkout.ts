@@ -48,7 +48,7 @@ export const recoverLatePaidCheckout = async (input: { paymentId: string; orderI
         order.paidByPaymentId === input.paymentId &&
         (refund
           ? (['compensation_pending', 'compensation_recovery_required'].includes(claim.workflow_status) && order.paidHeld) ||
-            (claim.workflow_status === 'finalized' && order.paidCanceled)
+            (['finalized', 'compensation_recovery_required'].includes(claim.workflow_status) && order.paidCanceled)
           : claim.workflow_status === 'finalized' && order.paidFulfillable);
       return valid ? { kind: 'decided', decision: claim.paid_recovery_decision } : { kind: 'retry' };
     }
