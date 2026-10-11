@@ -31,7 +31,7 @@ Claude-built PRs carry `agent:claude` and are independently evaluated by Codex; 
 | Codex  | `ready-for-agent` issues without `agent:claude`, including `area:payments` | ready PRs **with** `agent:claude`    |
 
 - An agent never claims, implements or repairs an issue owned by the other agent, and never reviews a PR it built.
-- Claude runs one hourly routine (`.factory/automations/claude-routine.md`) that does one thing per run: repair its own PR, else review one PR it did not build, else build one `agent:claude` issue. Every run, scheduled or manual, takes the local lock `/Users/work/.local/share/agent-commerce/claude/locks/claude-routine` with `.factory/bin/run-lock.sh` before reading any state and holds it for the whole run; a contender yields. There is no age-based takeover: a lock is recovered only after its Claude Code process has stopped, under a second atomic guard, and a run releases only the lock whose token it holds. Under the lock, the run continues Claude's single `in-progress` + `agent:claude` issue, or claims one; the claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. More than one Claude `in-progress` issue is a blocker report: never release one by lowest number and never delete another worker's branch.
+- Claude runs one hourly routine (`.factory/automations/claude-routine.md`) that does one thing per run: repair its own PR, else review one PR it did not build, else build one `agent:claude` issue. Every run, scheduled or manual, takes the local lock `/Users/work/.local/share/agent-commerce/claude/locks/claude-routine` with `.factory/bin/run-lock.sh` before reading any state and holds it for the whole run; a contender yields. There is no age-based takeover: a lock is recovered only after its Claude Code process has stopped, under a second atomic guard, and a run releases only the lock whose token it holds. Under the lock, the run continues Claude's live `in-progress` + `agent:claude` claims, or claims one when none is live; the claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. Parked claims and more than one live claim follow § Claude parking; never release a claim by lowest number and never delete another worker's branch.
 - Only structured reports count as evaluations: a comment that starts with `<!-- evaluator-head: <sha> -->` (or legacy `<!-- local-evaluator sha=<sha> -->`) and contains `## Evaluator verdict` for the exact current head. Bot summaries that mention the SHA, and review requests that quote the markers, do not. `INCONCLUSIVE` uses `<!-- evaluator-inconclusive: <sha> -->`, is never final, and is retried on the unchanged head.
 - Conflicting PRs are repaired by merging `main` into the same branch and pushing normally; published branches are never rebased or force-pushed.
 - Claude's routines change only through reviewed PRs to `.factory/`; Codex's heartbeat is configured outside the repo and follows `.factory/README.md` § Codex side.
@@ -93,7 +93,7 @@ Default minimal flow:
 3. Open PR exists — generator output is ready for independent evaluation.
 4. Evaluator `FAIL` — same issue/branch/PR receives a repair brief; WIP remains 1.
 5. `ready-for-human` — evaluator passed the PR and it is ready for Vlad's review.
-6. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence. A blocked claim keeps `in-progress` and is parked: it does not count toward WIP, and removing `blocked` resumes it on the same branch/PR.
+6. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence. For Claude, a blocked claim keeps `in-progress` and is parked (§ Claude parking). Codex's handling of its own blocked claims is unchanged.
 
 Use this minimal flow unless the project explicitly adds a `ready-for-evaluator` label. An evaluator can discover work by scanning open PRs linked to `in-progress` issues.
 
@@ -173,7 +173,17 @@ Agents post to GitHub through Vlad's account, and GitHub never notifies a user a
 - a Claude-built PR changes `protected_paths` without `owner-approved-harness`, or touches payment paths;
 - Claude has no live claim and nothing eligible to build (one self-closing issue).
 
-It runs on PR, comment, review, label and CI events, plus an hourly sweep during the run window. A blocker note's **Best next move** must name the single action Vlad has to take, because that is what the notice points him to. Never stop a whole repair for an owner-only item: fix and push the rest first, then block on the remainder.
+Every trigger (PR, comment, review, label and CI events, plus an hourly sweep during the run window) runs the same full reconcile from current GitHub state, and runs never overlap. An evaluator report counts only when it comes from the account the evaluators post through (`EVALUATOR_LOGINS`, default the repository owner) and carries an `Independent evaluator:` line. A blocker note's **Best next move** must name the single action Vlad has to take, because that is what the notice points him to.
+
+## Claude parking
+
+This applies to Claude's routine only; Codex keeps its own blocker handling.
+
+- **Live and parked.** A Claude claim is `agent:claude` + `in-progress`. It is **parked** while it also carries `blocked`, and **live** otherwise.
+- **WIP=1 means one new claim at a time.** Claude claims a new issue only when it has no live claim. A parked claim does not count, so Claude can build other work while it waits for Vlad.
+- **Unparking.** Vlad removes `blocked`; nothing else is relabeled. The claim is live again on its own branch and PR.
+- **More than one live claim** can only come from unparking. The routine orders them oldest claim first (the `Claimed by` comment; issue number breaks ties) and gives one action per run to the first that needs one: PR routes (conflict, red CI, FAIL) first, then resuming the oldest claim that has no PR yet. It claims nothing new until no claim is live, and never releases or abandons a claim to get back to one.
+- **Fix what you can, then block.** A repair never stops on an owner-only item: it pushes every other fix first, then parks the claim on the remainder.
 
 ## Repair loop rule
 
@@ -182,7 +192,7 @@ When this builder's `in-progress` issue already has an open PR, check current me
 - No current-head evaluator verdict: wait for evaluator; do not run generator again.
 - `PASS`: wait for human review/merge or state cleanup; do not select new work until WIP is clear.
 - `FAIL`: generate a focused repair brief from the evaluator comment, rerun the failing and invalidated checks, then delivery gates before updating the same branch/PR. Stop after two focused failed repair attempts and report the concrete blocker.
-- `BLOCKED`: leave the blocker visible and park the issue (`blocked` + `in-progress`) until Vlad removes `blocked`; the builder may take other work meanwhile.
+- `BLOCKED`: leave the blocker visible. Claude parks the issue (§ Claude parking) and may take other work meanwhile; Codex stops autonomous work on that issue.
 - `INCONCLUSIVE`: keep the same issue/PR and record the failed prerequisite. Once the prerequisite is restored, request/retry independent evaluation of the unchanged head; a non-final report must not permanently suppress retries. Do not fabricate a source commit to obtain reevaluation. Persistent failures use the blocker protocol.
 
 ## Evaluator report format
