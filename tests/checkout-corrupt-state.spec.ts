@@ -34,7 +34,10 @@ vi.mock('~~/server/domain/inventory', () => ({
   inventory: { commit: boundary.commit, release: boundary.commit, reestablishReservation: boundary.commit },
 }));
 vi.mock('~~/server/domain/cart', () => ({ cart: { completeCheckout: boundary.complete, restartForReview: boundary.complete } }));
-vi.mock('~~/server/application/checkout/stripe-payment', () => ({ stripePayments: { initiatePayment: vi.fn() } }));
+vi.mock('~~/server/application/checkout/stripe-payment', () => ({
+  stripePaymentsEnabled: () => false,
+  stripePayments: { initiatePayment: vi.fn() },
+}));
 
 const claim = {
   owner_id: 'owner',

@@ -35,6 +35,10 @@ export function resolveCheckoutOutcome(
     };
   }
 
+  if (response.data.paymentSession === true) {
+    return { kind: 'session', orderId };
+  }
+
   if (options.mockMode) {
     return { kind: 'success', destination: 'checkout-success', orderId };
   }

@@ -49,6 +49,8 @@ export default defineConfig({
           PORT: String(previewPort),
           NUXT_PUBLIC_MOCK_MODE: 'true',
           NUXT_PUBLIC_BASE_URL_API: '/api',
+          // Synthetic public key: Payment Element specs intercept Stripe.js; provider gates remain off.
+          NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_browser_contract_only',
         },
       },
 });

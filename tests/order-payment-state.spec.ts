@@ -242,6 +242,9 @@ describe('Owner-scoped local payment and checkout state', () => {
     ]);
     await database.execute("UPDATE checkout_claims SET workflow_status='finalized'");
     expect(await readOrderPaymentState(input)).toEqual({ kind: 'compensation', recoveryRequired: false });
+    // A Refund failure after cancellation keeps the Order Canceled in manual recovery.
+    await database.execute("UPDATE checkout_claims SET workflow_status='compensation_recovery_required'");
+    expect(await readOrderPaymentState(input)).toEqual({ kind: 'compensation', recoveryRequired: true });
     await database.execute("UPDATE checkout_claims SET workflow_status='compensation_pending'");
     expect(await readOrderPaymentState(input)).toEqual({ kind: 'recovery-required' });
   });

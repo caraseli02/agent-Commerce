@@ -159,6 +159,27 @@ describe('PlaceOrder application workflow', () => {
     );
   });
 
+  it('prepares gated card checkout without entering demo completion, preserves the cart and replays safely', async () => {
+    const { dependencies } = makeDependencies();
+    const place = createPlaceOrderUseCase(dependencies, createPlaceOrderCoordinator(), { requiresClientPayment: () => true });
+    const result = await place(makeCommand());
+    expect(result).toMatchObject({ status: 0, paymentSession: true, useExistingPaymentMethod: false });
+    expect(result.result).toBeUndefined();
+    expect(result.clientSecret).toBeUndefined();
+    expect(await place(makeCommand())).toEqual(result);
+    for (const effect of [
+      dependencies.payments.continuePayment,
+      dependencies.payments.completePayment,
+      dependencies.orders.confirmPayment,
+      dependencies.inventory.commit,
+      dependencies.cart.completeCheckout,
+    ])
+      expect(effect).not.toHaveBeenCalled();
+    const database = await getCheckoutDatabase();
+    expect(await database.query('SELECT status FROM checkout_payments')).toEqual([{ status: 'PENDING' }]);
+    expect(await database.query('SELECT workflow_status FROM checkout_claims')).toEqual([{ workflow_status: 'payment_pending' }]);
+  });
+
   it('exposes typed payment recovery and rolls back preparation before any continuation', async () => {
     const { dependencies } = makeDependencies();
     dependencies.payments.preparePayment.mockResolvedValue({
