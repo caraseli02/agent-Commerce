@@ -44,7 +44,7 @@ This makes the process observable and prevents scope creep.
 2. Skip issues already assigned, already `in-progress`, or already linked to an active PR.
 3. Add `in-progress`, assign the working account, and comment with branch name.
 4. Create a fresh branch/worktree from `origin/main`.
-5. Do not start a second issue while this builder's `in-progress` issue has an open PR. Keep the same issue until evaluator PASS or a human blocker/replacement and state cleanup, as defined in `autonomous-workflow.md`.
+5. Do not start a second issue while this builder's `in-progress` issue has an open PR. Keep the same issue until evaluator PASS or a human blocker/replacement and state cleanup, as defined in `autonomous-workflow.md`. Claude parking (Claude only): a Claude claim labeled `blocked` keeps `in-progress` and is parked, so it does not count toward Claude's WIP=1; Claude has exactly one live claim at a time, and a claim unblocked while another is live waits until that claim ends, then the claim unblocked first resumes before any new claim (`.factory/automations/claude-routine.md` §2). Codex's WIP and blocker rules are unchanged.
 
 ## 4. During work
 
@@ -58,7 +58,7 @@ This makes the process observable and prevents scope creep.
 
 ## 5. Blocker protocol
 
-Stop and report a blocker after two focused failed attempts or when the task needs a product/design decision. Do every part of the task that does not depend on the blocker first. Add `blocked` and keep `in-progress`: the claim is parked, Vlad is notified automatically, and removing `blocked` resumes it. **Best next move** names the single action Vlad must take.
+Stop and report a blocker after two focused failed attempts or when the task needs a product/design decision. Do every part of the task that does not depend on the blocker first, then add `blocked`; Vlad is notified automatically. **Best next move** names the single action Vlad must take. A Claude claim keeps `in-progress` and is parked (Claude parking rule, §3).
 
 Blocker note format:
 

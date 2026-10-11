@@ -11,7 +11,7 @@ The autonomous loop should behave like a standing `/goal` even when cron wakes i
 - A generator opens or updates the PR for that same issue/branch.
 - The ship path publishes an evaluator-ready PR after each verified head change. The evaluator is operated separately; the controller reads its GitHub comments/reviews rather than launching a review model.
 - If the evaluator returns `FAIL`, keep the issue `in-progress`, keep the same branch/PR, and produce a focused repair brief from the evaluator comment.
-- Do not promote or select a new issue for that builder while its `in-progress` issue has an open PR unless that issue is passed/blocked and state cleanup is complete.
+- Do not promote or select a new issue for that builder while its `in-progress` issue has an open PR unless that issue is passed/blocked and state cleanup is complete. Claude parking (Claude only): a Claude claim labeled `blocked` keeps `in-progress` and is parked, so it does not count toward Claude's WIP=1; Claude has exactly one live claim at a time, and a claim unblocked while another is live waits until that claim ends, then the claim unblocked first resumes before any new claim (`.factory/automations/claude-routine.md` §2). Codex's WIP and blocker rules are unchanged.
 
 This is the runtime equivalent of: “work the currently claimed Components Marketplace issue until it is evaluator-approved or blocked.”
 
@@ -31,7 +31,7 @@ Claude-built PRs carry `agent:claude` and are independently evaluated by Codex; 
 | Codex  | `ready-for-agent` issues without `agent:claude`, including `area:payments` | ready PRs **with** `agent:claude`    |
 
 - An agent never claims, implements or repairs an issue owned by the other agent, and never reviews a PR it built.
-- Claude runs one hourly routine (`.factory/automations/claude-routine.md`) that does one thing per run: repair its own PR, else review one PR it did not build, else build one `agent:claude` issue. Every run, scheduled or manual, takes the local lock `/Users/work/.local/share/agent-commerce/claude/locks/claude-routine` with `.factory/bin/run-lock.sh` before reading any state and holds it for the whole run; a contender yields. There is no age-based takeover: a lock is recovered only after its Claude Code process has stopped, under a second atomic guard, and a run releases only the lock whose token it holds. Under the lock, the run continues Claude's single `in-progress` + `agent:claude` issue, or claims one; the claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. More than one Claude `in-progress` issue is a blocker report: never release one by lowest number and never delete another worker's branch.
+- Claude runs one hourly routine (`.factory/automations/claude-routine.md`) that does one thing per run: repair its own PR, else review one PR it did not build, else build one `agent:claude` issue. Every run, scheduled or manual, takes the local lock `/Users/work/.local/share/agent-commerce/claude/locks/claude-routine` with `.factory/bin/run-lock.sh` before reading any state and holds it for the whole run; a contender yields. There is no age-based takeover: a lock is recovered only after its Claude Code process has stopped, under a second atomic guard, and a run releases only the lock whose token it holds. Under the lock, the run continues Claude's single live `in-progress` + `agent:claude` issue (parked `blocked` claims and waiting claims are not worked), or claims one when every claim is parked; the claim record is the issue labels, assignee and comment plus the deterministic branch `claude/issue-<n>`, pushed normally. More than one live Claude claim is a blocker report: never release one by lowest number and never delete another worker's branch.
 - Only structured reports count as evaluations: a comment that starts with `<!-- evaluator-head: <sha> -->` (or legacy `<!-- local-evaluator sha=<sha> -->`) and contains `## Evaluator verdict` for the exact current head. Bot summaries that mention the SHA, and review requests that quote the markers, do not. `INCONCLUSIVE` uses `<!-- evaluator-inconclusive: <sha> -->`, is never final, and is retried on the unchanged head.
 - Conflicting PRs are repaired by merging `main` into the same branch and pushing normally; published branches are never rebased or force-pushed.
 - Claude's routines change only through reviewed PRs to `.factory/`; Codex's heartbeat is configured outside the repo and follows `.factory/README.md` § Codex side.
@@ -93,7 +93,7 @@ Default minimal flow:
 3. Open PR exists — generator output is ready for independent evaluation.
 4. Evaluator `FAIL` — same issue/branch/PR receives a repair brief; WIP remains 1.
 5. `ready-for-human` — evaluator passed the PR and it is ready for Vlad's review.
-6. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence. A blocked claim keeps `in-progress` and is parked: it does not count toward WIP, and removing `blocked` resumes it on the same branch/PR.
+6. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence. A blocked Claude claim keeps `in-progress` and is parked (Claude parking rule above).
 
 Use this minimal flow unless the project explicitly adds a `ready-for-evaluator` label. An evaluator can discover work by scanning open PRs linked to `in-progress` issues.
 
@@ -182,7 +182,7 @@ When this builder's `in-progress` issue already has an open PR, check current me
 - No current-head evaluator verdict: wait for evaluator; do not run generator again.
 - `PASS`: wait for human review/merge or state cleanup; do not select new work until WIP is clear.
 - `FAIL`: generate a focused repair brief from the evaluator comment, rerun the failing and invalidated checks, then delivery gates before updating the same branch/PR. Stop after two focused failed repair attempts and report the concrete blocker.
-- `BLOCKED`: leave the blocker visible and park the issue (`blocked` + `in-progress`) until Vlad removes `blocked`; the builder may take other work meanwhile.
+- `BLOCKED`: leave the blocker visible and stop autonomous work on that issue. Claude parks it (`blocked` + `in-progress`) and may take other work under the Claude parking rule above.
 - `INCONCLUSIVE`: keep the same issue/PR and record the failed prerequisite. Once the prerequisite is restored, request/retry independent evaluation of the unchanged head; a non-final report must not permanently suppress retries. Do not fabricate a source commit to obtain reevaluation. Persistent failures use the blocker protocol.
 
 ## Evaluator report format
