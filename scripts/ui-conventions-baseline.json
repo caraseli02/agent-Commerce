@@ -231,9 +231,6 @@
   "app/components/order-summary/PaymentMethodSection.vue": {
     "button": 5
   },
-  "app/components/order-summary/ProductCard.vue": {
-    "button": 5
-  },
   "app/components/order-summary/ShippingAndBillingSection.vue": {
     "button": 2
   },
