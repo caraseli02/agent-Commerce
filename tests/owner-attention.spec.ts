@@ -235,21 +235,52 @@ describe('Claude provenance', () => {
 });
 
 describe('recorded skips', () => {
-  const issue = { number: 651, updated_at: '2026-10-11T10:00:30Z' };
-  const skip = (login: string, at: string) => ({
+  const trusted = ['caraseli02'];
+  const SKIP_AT = '2026-10-11T10:00:00Z';
+  const skip = (login: string, at = SKIP_AT) => ({
+    id: 1,
     user: { login },
     created_at: at,
     body: '<!-- claude-skip -->\nWaits on every other child of #631.',
   });
+  // The skip comment itself bumps updated_at by about a second.
+  const issue = (updatedAt = '2026-10-11T10:00:01Z') => ({ number: 651, updated_at: updatedAt });
+  const ownSideEffects = [
+    { event: 'commented', id: 1, created_at: SKIP_AT },
+    { event: 'mentioned', created_at: SKIP_AT },
+    { event: 'subscribed', created_at: SKIP_AT },
+  ];
+  const current = (i: ReturnType<typeof issue>, comments: unknown[], timeline: unknown[] | null = ownSideEffects) =>
+    hasCurrentSkipRecord(i, comments, { trustedLogins: trusted, timeline });
 
   it('holds while the skip comment is the latest activity', () => {
-    expect(hasCurrentSkipRecord(issue, [skip('caraseli02', '2026-10-11T10:00:29Z')], { trustedLogins: ['caraseli02'] })).toBe(true);
+    expect(current(issue(), [skip('caraseli02')])).toBe(true);
   });
 
-  it('lapses once the issue changes again, and ignores untrusted or bot skip comments', () => {
-    expect(hasCurrentSkipRecord(issue, [skip('caraseli02', '2026-10-11T09:00:00Z')], { trustedLogins: ['caraseli02'] })).toBe(false);
-    expect(hasCurrentSkipRecord(issue, [skip('drive-by', '2026-10-11T10:00:29Z')], { trustedLogins: ['caraseli02'] })).toBe(false);
-    expect(hasCurrentSkipRecord(issue, [skip(BOT_LOGIN, '2026-10-11T10:00:29Z')], { trustedLogins: ['caraseli02', BOT_LOGIN] })).toBe(
+  it('lapses when anyone comments after the skip, even a minute later (evaluator reproduction)', () => {
+    const ready = { id: 2, user: { login: 'caraseli02' }, created_at: '2026-10-11T10:01:00Z', body: 'Ready now.' };
+    const timeline = [...ownSideEffects, { event: 'commented', id: 2, created_at: '2026-10-11T10:01:00Z' }];
+
+    expect(current(issue('2026-10-11T10:01:00Z'), [skip('caraseli02'), ready], timeline)).toBe(false);
+  });
+
+  it('lapses on a label change right after the skip', () => {
+    const timeline = [...ownSideEffects, { event: 'unlabeled', label: { name: 'needs-info' }, created_at: '2026-10-11T10:00:02Z' }];
+
+    expect(current(issue('2026-10-11T10:00:02Z'), [skip('caraseli02')], timeline)).toBe(false);
+  });
+
+  it('lapses on a body edit, which only moves updated_at', () => {
+    expect(current(issue('2026-10-11T10:00:20Z'), [skip('caraseli02')])).toBe(false);
+  });
+
+  it('treats the issue as buildable when the timeline cannot be read', () => {
+    expect(current(issue(), [skip('caraseli02')], null)).toBe(false);
+  });
+
+  it('ignores untrusted or bot skip comments', () => {
+    expect(current(issue(), [skip('drive-by')])).toBe(false);
+    expect(hasCurrentSkipRecord(issue(), [skip(BOT_LOGIN)], { trustedLogins: [...trusted, BOT_LOGIN], timeline: ownSideEffects })).toBe(
       false,
     );
   });
@@ -548,8 +579,10 @@ describe('reconcile against a fake GitHub API', () => {
     const { gh, calls } = fakeGitHub({
       '/pulls?state=open': [],
       '/issues?state=open': [skipped],
+      '/issues/651/timeline': [{ event: 'commented', id: 9, created_at: '2026-10-11T10:00:29Z' }],
       '/issues/651/comments': [
         {
+          id: 9,
           user: { login: 'caraseli02' },
           created_at: '2026-10-11T10:00:29Z',
           body: '<!-- claude-skip -->\nWaits on #631 children; edits docs/agents/**.',
@@ -559,6 +592,37 @@ describe('reconcile against a fake GitHub API', () => {
     await handleEvent({ eventName: 'schedule', gh, owner, config });
 
     expect(posts(calls).filter((call) => call.path === '/issues')).toHaveLength(1);
+  });
+
+  it('closes the empty-queue alert once the owner comments after a skip', async () => {
+    const issue = {
+      number: 651,
+      state: 'open',
+      title: 'close-out',
+      labels: [label('agent:claude')],
+      assignees: [],
+      body: '',
+      updated_at: '2026-10-11T10:01:00Z',
+    };
+    const { gh, calls } = fakeGitHub({
+      '/pulls?state=open': [],
+      '/issues?state=open': [
+        issue,
+        { number: 50, state: 'open', title: QUEUE_ISSUE_TITLE, user: { login: BOT_LOGIN }, labels: [], assignees: [] },
+      ],
+      '/issues/651/comments': [
+        { id: 9, user: { login: 'caraseli02' }, created_at: '2026-10-11T10:00:00Z', body: '<!-- claude-skip -->\nWaits on #631.' },
+        { id: 10, user: { login: 'caraseli02' }, created_at: '2026-10-11T10:01:00Z', body: 'Dependency dropped. Ready now.' },
+      ],
+      '/issues/651/timeline': [
+        { event: 'commented', id: 9, created_at: '2026-10-11T10:00:00Z' },
+        { event: 'commented', id: 10, created_at: '2026-10-11T10:01:00Z' },
+      ],
+    });
+    await handleEvent({ eventName: 'schedule', gh, owner, config });
+
+    expect(calls.find((call) => call.method === 'PATCH')).toMatchObject({ path: '/issues/50', body: { state: 'closed' } });
+    expect(posts(calls).filter((call) => call.path === '/issues')).toEqual([]);
   });
 
   it('reports an idle queue when the only candidates already have an open PR or a claude/issue-<n> branch', async () => {

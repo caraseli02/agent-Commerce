@@ -235,23 +235,38 @@ export function parseDependencies(body) {
 
 export const SKIP_MARKER = '<!-- claude-skip';
 
+// Clock slack between a comment's created_at and the issue updated_at it causes.
+const SKIP_SLACK_MS = 5_000;
+// Timeline entries a comment produces as a side effect; they are not new activity.
+const PASSIVE_TIMELINE_EVENTS = new Set(['mentioned', 'subscribed', 'unsubscribed']);
+
 // The routine records each label-eligible issue it skips (protected scope, a prose or
 // native dependency, a linked PR or branch) with a `<!-- claude-skip -->` comment. The
-// record holds until the issue changes again; the routine then re-evaluates it.
-export function hasCurrentSkipRecord(issue, comments, { trustedLogins }) {
+// record holds only while it is the issue's latest activity: any later comment, label,
+// edit or other timeline event lapses it, and the routine then re-evaluates the issue.
+export function hasCurrentSkipRecord(issue, comments, { trustedLogins, timeline }) {
   const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
   trusted.delete(BOT_LOGIN);
-  const skip = (comments ?? [])
-    .filter((comment) => trusted.has(String(comment?.user?.login ?? '').toLowerCase()))
-    .filter((comment) =>
-      String(comment.body ?? '')
-        .trimStart()
-        .startsWith(SKIP_MARKER),
-    )
-    .at(-1);
-  if (!skip) return false;
-  // Posting the skip comment itself bumps updated_at, so allow a small gap.
-  return Date.parse(skip.created_at) >= Date.parse(issue.updated_at) - 120_000;
+  const latestComment = (comments ?? []).at(-1);
+  if (!latestComment || !trusted.has(String(latestComment.user?.login ?? '').toLowerCase())) return false;
+  if (
+    !String(latestComment.body ?? '')
+      .trimStart()
+      .startsWith(SKIP_MARKER)
+  )
+    return false;
+
+  const skippedAt = Date.parse(latestComment.created_at);
+  // Body or title edits only show up in updated_at.
+  if (Date.parse(issue.updated_at) > skippedAt + SKIP_SLACK_MS) return false;
+  // Without the timeline a later label change cannot be ruled out, so treat the issue as buildable.
+  if (!Array.isArray(timeline)) return false;
+  return timeline.every((entry) => {
+    if (entry?.event === 'commented' && entry.id === latestComment.id) return true;
+    if (PASSIVE_TIMELINE_EVENTS.has(entry?.event)) return true;
+    const at = Date.parse(entry?.created_at ?? entry?.submitted_at ?? '');
+    return Number.isNaN(at) || at <= skippedAt;
+  });
 }
 
 // Mirrors the build-eligibility rule in .factory/automations/claude-routine.md §4.1.
@@ -467,7 +482,8 @@ async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
     const skippedNumbers = new Set();
     for (const issue of claudeQueueState(openIssues, options).eligible) {
       const comments = await gh.paginate(`/issues/${issue.number}/comments`);
-      if (hasCurrentSkipRecord(issue, comments, { trustedLogins })) skippedNumbers.add(issue.number);
+      const timeline = await gh.paginate(`/issues/${issue.number}/timeline`).catch(() => null);
+      if (hasCurrentSkipRecord(issue, comments, { trustedLogins, timeline })) skippedNumbers.add(issue.number);
     }
     state = claudeQueueState(openIssues, { ...options, skippedNumbers });
   }
