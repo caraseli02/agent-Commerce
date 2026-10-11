@@ -62,10 +62,16 @@ const isRetryablePostgresTransactionError = (error: unknown) => {
   return code === '40001' || code === '40P01';
 };
 
+const MAX_TRANSACTION_ATTEMPTS = 5;
+
+// Jittered backoff keeps concurrent writers of the same rows from colliding again on every immediate retry.
+const waitBeforeTransactionRetry = (attempt: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, Math.random() * 10 * 2 ** attempt));
+
 export const withCheckoutTransaction = async <T>(operation: () => Promise<T>): Promise<T> => {
   if (transactionContext.getStore()) return operation();
 
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= MAX_TRANSACTION_ATTEMPTS; attempt += 1) {
     const client = await getPostgresPool().connect();
     try {
       await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
@@ -74,10 +80,11 @@ export const withCheckoutTransaction = async <T>(operation: () => Promise<T>): P
       return result;
     } catch (error) {
       await client.query('ROLLBACK');
-      if (attempt === 3 || !isRetryablePostgresTransactionError(error)) throw error;
+      if (attempt === MAX_TRANSACTION_ATTEMPTS || !isRetryablePostgresTransactionError(error)) throw error;
     } finally {
       client.release();
     }
+    await waitBeforeTransactionRetry(attempt);
   }
 
   throw new Error('Checkout transaction retry limit exceeded.');
