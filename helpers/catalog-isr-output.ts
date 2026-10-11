@@ -1,5 +1,6 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { catalogProductSlugs } from '../server/catalog-isr-products.mjs';
 
 export const CATALOG_PAGE_REVALIDATE_SECONDS = 30;
 
@@ -116,6 +117,10 @@ export async function protectCatalogIsrOutput(outputDir: string, policySource: s
   const source = await readFile(policySource, 'utf8');
   await mkdir(middlewareDir, { recursive: true });
   await writeFile(join(middlewareDir, 'index.mjs'), source);
+  await writeFile(
+    join(middlewareDir, 'catalog-isr-products.mjs'),
+    'export const catalogProductSlugs = ' + JSON.stringify(catalogProductSlugs) + ';\n',
+  );
   await writeFile(join(middlewareDir, '.vc-config.json'), JSON.stringify({ runtime: 'edge', entrypoint: 'index.mjs' }));
   await writeFile(configPath, JSON.stringify(config, null, 2));
 }

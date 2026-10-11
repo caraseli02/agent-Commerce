@@ -10,7 +10,7 @@ describe('catalog ISR edge policy', () => {
     expect(isAnonymousCatalogPage(url, 'GET', anonymousHeaders())).toBe(true);
     expect(isAnonymousCatalogPage(url, 'HEAD', anonymousHeaders())).toBe(true);
     expect(isCatalogPage(new URL('https://shop.example/search/'))).toBe(true);
-    expect(isCatalogPage(new URL('https://shop.example/product/red-shoes/'))).toBe(true);
+    expect(isCatalogPage(new URL('https://shop.example/product/stm32f407vgt6/'))).toBe(true);
     expect(isCatalogPage(new URL('https://shop.example/search/_payload.json/?_b=1'))).toBe(false);
   });
 
@@ -65,6 +65,17 @@ describe('catalog ISR edge policy', () => {
       expect(response.status).toBe(400);
       expect(response.headers.get('cdn-cache-control')).toBe('no-store');
     }
+  });
+
+  it('keeps products outside the build demo snapshot dynamic before generation', () => {
+    for (const slug of ['missing-catalog-product', 'missing-catalog-product/_payload.json']) {
+      const url = new URL(`https://shop.example/product/${slug}`);
+      expect(isCatalogPage(url)).toBe(false);
+      const response = middleware(new Request(url));
+      expect(response.headers.get('cache-control')).toBe('private, no-store');
+      expect(new URL(response.headers.get('x-middleware-rewrite')!).pathname).toBe('/__fallback');
+    }
+    expect(isCatalogPage(new URL('https://shop.example/product/prod-2'))).toBe(true);
   });
 
   it('rejects attempts to supply reserved routing metadata', () => {

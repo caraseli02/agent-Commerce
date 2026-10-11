@@ -1,6 +1,9 @@
+import { catalogProductSlugs } from './catalog-isr-products.mjs';
+
 /** @typedef {Headers | Record<string, string | string[] | undefined>} HeaderBag */
 
 const SAFE_PRODUCT_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const CATALOG_PRODUCTS = new Set(catalogProductSlugs);
 const ISR_ROUTE_PARAM = '__isr_route';
 export const IDENTITY_HEADERS = ['cookie', 'authorization', 'x-user-id', 'x-customer-id', 'x-session-id'];
 const ROUTE_MATCHES_HEADER = 'x-now-route-matches';
@@ -25,7 +28,9 @@ export function isCatalogPage(url) {
 
   const isSearch = pathname === '/search';
   const productParts = pathname.match(/^\/product\/([^/]+)$/);
-  const isProduct = Boolean(productParts && productParts[1] !== 'categories' && SAFE_PRODUCT_SLUG.test(productParts[1]));
+  const isProduct = Boolean(
+    productParts && productParts[1] !== 'categories' && SAFE_PRODUCT_SLUG.test(productParts[1]) && CATALOG_PRODUCTS.has(productParts[1]),
+  );
   if (!isSearch && !isProduct) return false;
 
   const query = Array.from(url.searchParams.entries());

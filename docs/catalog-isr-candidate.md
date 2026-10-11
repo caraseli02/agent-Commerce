@@ -7,6 +7,11 @@ the same private activation setting for origin middleware. The supported
 `pnpm build` wrapper protects the completed Vercel output after Nitro exits;
 unknown artifacts fail the build before deployment.
 
+Only product IDs/aliases from the build’s public mock snapshot are eligible.
+The edge function receives a generated list from the same sample-data source;
+unknown products use dynamic fallback so provider-owned ISR generation errors
+cannot replace origin private headers.
+
 The candidate has four prerender assets: search HTML and JSON payload, and
 product HTML and JSON payload. The expiration is 30 seconds. Only an anonymous
 GET/HEAD with no Cookie, Authorization or identity headers can reach them.
