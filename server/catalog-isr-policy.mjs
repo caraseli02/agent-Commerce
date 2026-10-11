@@ -1,4 +1,4 @@
-/** @typedef {Headers | Record<string, string | undefined>} HeaderBag */
+/** @typedef {Headers | Record<string, string | string[] | undefined>} HeaderBag */
 
 const SAFE_PRODUCT_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ISR_ROUTE_PARAM = '__isr_route';
@@ -14,6 +14,7 @@ const NO_STORE_HEADERS = {
 export function isCatalogPage(url) {
   let pathname = url.pathname;
   if (pathname.includes('%')) return false;
+  if (pathname.endsWith('/_payload.json/')) return false;
   if (pathname.endsWith('/')) pathname = pathname.slice(0, -1);
 
   let isPayload = false;
@@ -70,6 +71,9 @@ export default function middleware(request) {
   }
   if (/(?:^|\/)[^/]*-isr(?:\/|$)/.test(decodedPath)) {
     return new Response('Not Found', { status: 404, headers: NO_STORE_HEADERS });
+  }
+  if (originalUrl.pathname.includes('%') && (/^\/search(?:\/|$)/.test(decodedPath) || /^\/product(?:\/|$)/.test(decodedPath))) {
+    return badRequest('Encoded catalog path');
   }
   // Global guard protects metadata and aliases. Only ISR-matching catalog
   // paths are rewritten: private categories and all other routes stay direct.

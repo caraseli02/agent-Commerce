@@ -40,6 +40,9 @@ describe('catalog ISR candidate Build Output', () => {
     await protectCatalogIsrOutput(output, policy);
     const config = JSON.parse(await readFile(join(output, 'config.json'), 'utf8'));
     expect(config.routes[0]).toEqual({ src: '^/.*$', middlewarePath: 'catalog-gate', continue: true });
+    const privateCategory = config.routes.find((route: { src?: string }) => route.src === '^/product/categories/?$');
+    expect(privateCategory.dest).toBe('/__fallback');
+    expect(new RegExp(privateCategory.src).test('/product/categories/')).toBe(true);
     expect(config.routes.findIndex((route: { handle?: string }) => route.handle === 'filesystem')).toBeGreaterThan(0);
     const payload = config.routes.find((route: { dest?: string }) => route.dest?.startsWith('/search/_payload.json-isr?'));
     expect(payload.caseSensitive).toBe(true);
@@ -52,6 +55,15 @@ describe('catalog ISR candidate Build Output', () => {
       runtime: 'edge',
       entrypoint: 'index.mjs',
     });
+  });
+
+  it('canonicalizes Nuxt merged copies of the same approved query key', async () => {
+    const output = await candidate();
+    const path = join(output, 'functions/search/_payload.json-isr.prerender-config.json');
+    const metadata = JSON.parse(await readFile(path, 'utf8'));
+    await writeFile(path, JSON.stringify({ ...metadata, allowQuery: ['__isr_route', '__isr_route'] }));
+    await protectCatalogIsrOutput(output, policy);
+    expect(JSON.parse(await readFile(path, 'utf8')).allowQuery).toEqual(['__isr_route']);
   });
 
   it.each([
@@ -92,9 +104,14 @@ describe('catalog ISR candidate Build Output', () => {
     await expect(protectCatalogIsrOutput(output, policy)).rejects.toThrow('existing middleware');
   });
 
-  it('does not activate candidate caching in production Nuxt configuration', async () => {
-    const source = await readFile(fileURLToPath(new URL('../nuxt.config.ts', import.meta.url)), 'utf8');
-    expect(source).not.toContain('catalogIsrCandidateRules');
-    expect(source).not.toContain('protectCatalogIsrOutput');
+  it('selects only mock Vercel Preview builds, never production or ordinary local builds', async () => {
+    const { isCatalogIsrPreview } = await import('../helpers/catalog-isr-preview.mjs');
+    expect(isCatalogIsrPreview({ VERCEL_ENV: 'preview', NITRO_PRESET: 'vercel', NUXT_PUBLIC_MOCK_MODE: 'true' })).toBe(true);
+    for (const env of [
+      { VERCEL_ENV: 'production', VERCEL: '1', NUXT_PUBLIC_MOCK_MODE: 'true' },
+      { VERCEL_ENV: 'preview', VERCEL: '1', NUXT_PUBLIC_MOCK_MODE: 'false' },
+      { NITRO_PRESET: 'vercel', NUXT_PUBLIC_MOCK_MODE: 'true' },
+    ])
+      expect(isCatalogIsrPreview(env)).toBe(false);
   });
 });

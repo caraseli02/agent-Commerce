@@ -3,8 +3,7 @@ import { join } from 'node:path';
 
 export const CATALOG_PAGE_REVALIDATE_SECONDS = 30;
 
-// Candidate-only: nuxt.config.ts deliberately does not install these rules
-// until protected-preview isolation/revalidation evidence is available.
+// Installed only by controlled mock Preview builds; production remains dynamic.
 export const catalogIsrCandidateRules = {
   '/search': { isr: { expiration: CATALOG_PAGE_REVALIDATE_SECONDS, allowQuery: ['__isr_route'], passQuery: true } },
   '/search/_payload.json': { isr: { expiration: CATALOG_PAGE_REVALIDATE_SECONDS, allowQuery: ['__isr_route'], passQuery: true } },
@@ -17,9 +16,9 @@ export const catalogIsrCandidateRules = {
 const EXPECTED_ALIASES = ['search-isr', 'search/_payload.json-isr', 'product/[-]-isr', 'product/[-]/_payload.json-isr'];
 const PUBLIC_SOURCES: Record<string, string> = {
   'search-isr': '^/search/?$',
-  'search/_payload.json-isr': '^/search/_payload\\.json/?$',
+  'search/_payload.json-isr': '^/search/_payload\\.json$',
   'product/[-]-isr': '^/product/[^/]+/?$',
-  'product/[-]/_payload.json-isr': '^/product/[^/]+/_payload\\.json/?$',
+  'product/[-]/_payload.json-isr': '^/product/[^/]+/_payload\\.json$',
 };
 interface VercelRoute {
   src?: string;
@@ -58,7 +57,9 @@ export async function protectCatalogIsrOutput(outputDir: string, policySource: s
     if (
       metadata.expiration !== CATALOG_PAGE_REVALIDATE_SECONDS ||
       metadata.passQuery !== true ||
-      JSON.stringify(metadata.allowQuery) !== JSON.stringify(['__isr_route']) ||
+      !Array.isArray(metadata.allowQuery) ||
+      !metadata.allowQuery.length ||
+      metadata.allowQuery.some((key: string) => key !== '__isr_route') ||
       Object.keys(metadata).some((key) => !['expiration', 'passQuery', 'allowQuery'].includes(key))
     ) {
       throw new Error('Unexpected catalog ISR expiration/query/error metadata: ' + alias);
@@ -84,9 +85,29 @@ export async function protectCatalogIsrOutput(outputDir: string, policySource: s
     const route = config.routes.find((route) => route.dest === '/' + alias + '?__isr_route=$__isr_route')!;
     // Nitro's static source does not escape the dot in _payload.json. Tighten
     // it so a lookalike URL cannot skip classification and enter the cache.
-    route.src = '^(?<__isr_route>' + PUBLIC_SOURCES[alias].slice(1, -1) + ')$';
+    route.src = '^(?<__isr_route>' + PUBLIC_SOURCES[alias]!.slice(1, -1) + ')$';
     route.caseSensitive = true;
     route.methods = ['GET', 'HEAD'];
+  }
+  for (const route of config.routes) {
+    if (route.src === '(?<__isr_route>/product/categories)' && route.dest === '/__fallback') {
+      route.src = '^/product/categories/?$';
+      route.caseSensitive = true;
+    }
+    if (route.src === '(?<__isr_route>/product/categories/_payload.json)' && route.dest === '/__fallback') {
+      route.src = '^/product/categories/_payload\\.json/?$';
+      route.caseSensitive = true;
+    }
+  }
+  for (const alias of aliases) {
+    await writeFile(
+      join(functionsDir, alias + '.prerender-config.json'),
+      JSON.stringify({
+        expiration: CATALOG_PAGE_REVALIDATE_SECONDS,
+        allowQuery: ['__isr_route'],
+        passQuery: true,
+      }),
+    );
   }
   // Global placement also rejects direct aliases and externally supplied Nitro
   // routing metadata before the filesystem can reach any prerender asset.

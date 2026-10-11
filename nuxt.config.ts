@@ -1,5 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
+import { catalogIsrCandidateRules } from './helpers/catalog-isr-output';
+import { isCatalogIsrPreview } from './helpers/catalog-isr-preview.mjs';
 import { withPrivateRobotsHeaders } from './helpers/seo-routes';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -92,6 +94,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
+    catalogIsrPreview: isCatalogIsrPreview(),
     public: {
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',
@@ -118,8 +121,9 @@ export default defineNuxtConfig({
 
   // Private routes also send `X-Robots-Tag`; client-only dashboard HTML has no server-rendered robots meta.
   routeRules: withPrivateRobotsHeaders({
+    ...(isCatalogIsrPreview() ? catalogIsrCandidateRules : {}),
     '/dashboard/**': { appMiddleware: ['auth'], ssr: false },
-    '/product/categories': { appMiddleware: ['auth'] },
+    '/product/categories': { appMiddleware: ['auth'], ...(isCatalogIsrPreview() ? { isr: false } : {}) },
   }),
   devServer: {
     host: '0.0.0.0',

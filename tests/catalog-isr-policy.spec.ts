@@ -11,7 +11,7 @@ describe('catalog ISR edge policy', () => {
     expect(isAnonymousCatalogPage(url, 'HEAD', anonymousHeaders())).toBe(true);
     expect(isCatalogPage(new URL('https://shop.example/search/'))).toBe(true);
     expect(isCatalogPage(new URL('https://shop.example/product/red-shoes/'))).toBe(true);
-    expect(isCatalogPage(new URL('https://shop.example/search/_payload.json/?_b=1'))).toBe(true);
+    expect(isCatalogPage(new URL('https://shop.example/search/_payload.json/?_b=1'))).toBe(false);
   });
 
   it.each([
@@ -57,6 +57,14 @@ describe('catalog ISR edge policy', () => {
       expect(isCatalogPage(new URL(`https://shop.example${path}`))).toBe(false);
     }
     expect(isAnonymousCatalogPage(new URL('https://shop.example/search'), 'POST', anonymousHeaders())).toBe(false);
+  });
+
+  it('rejects encoded catalog prefixes and separators before routing', () => {
+    for (const path of ['/%73earch', '/%70roduct/red-shoes', '/product%2Fred-shoes', '/product/a%2Db', '/search%2F_payload.json']) {
+      const response = middleware(new Request(`https://shop.example${path}`));
+      expect(response.status).toBe(400);
+      expect(response.headers.get('cdn-cache-control')).toBe('no-store');
+    }
   });
 
   it('rejects attempts to supply reserved routing metadata', () => {
