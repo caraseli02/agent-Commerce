@@ -82,7 +82,7 @@ automations:
     guard_hook: .factory/hooks/bash-guard.mjs # installed with the sandbox settings (.factory/settings/routine.settings.local.json) by .factory/bin/install-local.sh, run by Vlad
     budgets:
       actions_per_run: 1
-      wip: 1 # exactly one live agent:claude claim; blocked claims stay in-progress but are parked and do not count; an unblocked claim waits while another is live (claude-routine.md step 2)
+      wip: 1 # exactly one live agent:claude claim; blocked claims stay in-progress but are parked and do not count; an unblocked claim waits while another is live (autonomous-workflow.md § Claude parking)
       max_focused_repair_attempts: 2 # consecutive unsuccessful repairs of the same problem; resets after a head passes
       max_reviews_per_run: 1
 

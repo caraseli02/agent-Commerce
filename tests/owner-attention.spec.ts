@@ -62,30 +62,57 @@ describe('factory config', () => {
 });
 
 describe('evaluator verdict', () => {
-  it('takes the newest structured report for the exact head only', () => {
+  const trusted = { trustedLogins: ['caraseli02'] };
+  const report = (sha: string, verdict: string, extra: Record<string, unknown> = {}) => ({
+    user: { login: 'caraseli02' },
+    body: `<!-- evaluator-head: ${sha} -->\n## Evaluator verdict\n\n${verdict}\n\nIndependent evaluator: Codex. Evaluated exact PR head \`${sha}\`.`,
+    ...extra,
+  });
+
+  it('takes the newest attributed report for the exact head only', () => {
     const comments = [
-      { body: `<!-- evaluator-head: ${HEAD} -->\n## Evaluator verdict\n\n**FAIL — needs generator fix.** details`, html_url: 'u1' },
-      { body: `<!-- evaluator-head: deadbeef -->\n## Evaluator verdict\n\nPASS — ready-for-human.`, html_url: 'u2' },
-      { body: `<!-- evaluator-head: ${HEAD} -->\n## Evaluator verdict\n\nPASS — ready-for-human.`, html_url: 'u3' },
+      report(HEAD, '**FAIL — needs generator fix.** details', { html_url: 'u1' }),
+      report('deadbeef', 'PASS — ready-for-human.', { html_url: 'u2' }),
+      report(HEAD, 'PASS — ready-for-human.', { html_url: 'u3' }),
     ];
 
-    expect(latestEvaluatorVerdict(comments, HEAD)).toEqual({ verdict: 'PASS', url: 'u3' });
+    expect(latestEvaluatorVerdict(comments, HEAD, trusted)).toEqual({ verdict: 'PASS', url: 'u3' });
   });
 
   it('ignores comments that only quote the marker or lack the verdict heading', () => {
     const comments = [
-      { body: `Please review. <!-- evaluator-head: ${HEAD} -->\n## Evaluator verdict\n\nPASS` },
-      { body: `<!-- evaluator-head: ${HEAD} -->\nPASS without heading` },
-      { body: `<!-- evaluator-inconclusive: ${HEAD} -->\n## Evaluator verdict\n\nINCONCLUSIVE` },
+      { ...report(HEAD, 'PASS'), body: `Please review. ${report(HEAD, 'PASS').body}` },
+      { user: { login: 'caraseli02' }, body: `<!-- evaluator-head: ${HEAD} -->\nPASS without heading\nIndependent evaluator: Codex.` },
+      {
+        user: { login: 'caraseli02' },
+        body: `<!-- evaluator-inconclusive: ${HEAD} -->\n## Evaluator verdict\n\nINCONCLUSIVE\nIndependent evaluator: Codex.`,
+      },
     ];
 
-    expect(latestEvaluatorVerdict(comments, HEAD)).toBeNull();
+    expect(latestEvaluatorVerdict(comments, HEAD, trusted)).toBeNull();
   });
 
-  it('accepts the legacy local-evaluator marker', () => {
-    const comments = [{ body: `<!-- local-evaluator sha=${HEAD} -->\n## Evaluator verdict\n\nBLOCKED — needs human decision` }];
+  it('rejects spoofed and unattributed reports', () => {
+    const outsider = report(HEAD, 'PASS — ready-for-human.', { user: { login: 'drive-by' } });
+    const unattributed = {
+      user: { login: 'caraseli02' },
+      body: `<!-- evaluator-head: ${HEAD} -->\n## Evaluator verdict\n\nPASS — ready-for-human.`,
+    };
 
-    expect(latestEvaluatorVerdict(comments, HEAD)?.verdict).toBe('BLOCKED');
+    expect(latestEvaluatorVerdict([outsider], HEAD, trusted)).toBeNull();
+    expect(latestEvaluatorVerdict([unattributed], HEAD, trusted)).toBeNull();
+    expect(latestEvaluatorVerdict([report(HEAD, 'FAIL'), outsider], HEAD, trusted)?.verdict).toBe('FAIL');
+  });
+
+  it('accepts the legacy local-evaluator marker and bold attribution', () => {
+    const comments = [
+      {
+        user: { login: 'caraseli02' },
+        body: `<!-- local-evaluator sha=${HEAD} -->\n## Evaluator verdict\n\nBLOCKED — needs human decision\n\n**Independent evaluator:** Claude.`,
+      },
+    ];
+
+    expect(latestEvaluatorVerdict(comments, HEAD, trusted)?.verdict).toBe('BLOCKED');
   });
 });
 
@@ -227,17 +254,30 @@ describe('owner attention workflow', () => {
     expect(workflow).toContain('node scripts/owner-attention.mjs');
     expect(workflow).not.toContain('github.event.pull_request.head');
     expect(workflow).not.toMatch(/contents:\s*write/);
+    // Runs never overlap, so dedupe reads and writes cannot race.
+    expect(workflow).toMatch(/concurrency:\s*\n\s*group: owner-attention\s*\n\s*cancel-in-progress: false/);
   });
 });
 
-describe('event handling against a fake GitHub API', () => {
+describe('reconcile against a fake GitHub API', () => {
   type Call = { method: string; path: string; body?: { body?: string; title?: string; state?: string } };
+  type Routes = Record<string, unknown>;
 
-  function fakeGitHub(routes: Record<string, unknown>) {
+  // Stateful fake: posted comments and issues become visible to later reads,
+  // so repeated or back-to-back runs exercise the real dedupe path.
+  function fakeGitHub(routes: Routes) {
     const calls: Call[] = [];
     const fetchImpl = async (url: string, init: { method: string; body?: string }) => {
       const path = url.replace('https://api.github.com/repos/o/r', '').replace(/[?&]per_page=100$/, '');
-      calls.push({ method: init.method, path, body: init.body ? JSON.parse(init.body) : undefined });
+      const body = init.body ? JSON.parse(init.body) : undefined;
+      calls.push({ method: init.method, path, body });
+      if (init.method === 'POST' && path.endsWith('/comments')) {
+        const list = (routes[path] as unknown[] | undefined) ?? [];
+        routes[path] = [...list, { user: { login: BOT_LOGIN }, body: body.body }];
+      } else if (init.method === 'POST' && path === '/issues') {
+        const list = (routes['/issues?state=open'] as unknown[] | undefined) ?? [];
+        routes['/issues?state=open'] = [...list, { number: 99, title: body.title, user: { login: BOT_LOGIN }, labels: [], assignees: [] }];
+      }
       const data = init.method === 'GET' ? routes[path] : { number: 99 };
       if (data === undefined) return new Response('not found', { status: 404 });
       return new Response(JSON.stringify(data), { status: 200 });
@@ -245,87 +285,120 @@ describe('event handling against a fake GitHub API', () => {
     return { gh: createClient({ repository: 'o/r', token: 't', fetchImpl }), calls };
   }
 
+  const owner = 'caraseli02';
   const config = {
     protectedPaths: [{ group: 'factory', pattern: 'docs/agents/**' }],
     neverClaim: ['blocked', 'needs-triage'],
     mode: 'build',
   };
+  const busyIssue = { number: 3, title: 'live', state: 'open', labels: [label('agent:claude'), label('in-progress')], assignees: [] };
   const pr = { number: 658, ...openPr, labels: [label('agent:claude')], head: { sha: HEAD, ref: 'claude/issue-632' } };
   const passComment = {
     user: { login: 'caraseli02' },
-    body: `<!-- evaluator-head: ${HEAD} -->\n## Evaluator verdict\n\nPASS — ready-for-human.`,
+    body: `<!-- evaluator-head: ${HEAD} -->\n## Evaluator verdict\n\nPASS — ready-for-human.\n\nIndependent evaluator: Codex.`,
     html_url: 'pass',
   };
-  const readyRoutes = (comments: unknown[]) => ({
+  const readyRoutes = (comments: unknown[]): Routes => ({
+    '/pulls?state=open': [pr],
     '/pulls/658': pr,
+    '/pulls/658/files': [],
     '/issues/658/comments': comments,
     [`/commits/${HEAD}/check-runs`]: { check_runs: greenRuns },
     [`/commits/${HEAD}/status`]: { statuses: [] },
     '/pulls/658/reviews': [],
+    '/issues?state=open': [busyIssue],
   });
+  const posts = (calls: Call[]) => calls.filter((call) => call.method === 'POST');
 
   it('mentions the owner once when the evaluator PASS lands on a green, mergeable head', async () => {
     const { gh, calls } = fakeGitHub(readyRoutes([passComment]));
-    await handleEvent({ eventName: 'issue_comment', event: { issue: { number: 658, pull_request: {} } }, gh, owner: 'caraseli02', config });
+    await handleEvent({ eventName: 'issue_comment', gh, owner, config });
 
-    const posts = calls.filter((call) => call.method === 'POST');
-    expect(posts).toHaveLength(1);
-    expect(posts[0].path).toBe('/issues/658/comments');
-    expect(posts[0].body?.body).toContain('@caraseli02');
-    expect(posts[0].body?.body).toContain(marker(`ready:${HEAD}`));
+    expect(posts(calls)).toHaveLength(1);
+    expect(posts(calls)[0].path).toBe('/issues/658/comments');
+    expect(posts(calls)[0].body?.body).toContain('@caraseli02');
+    expect(posts(calls)[0].body?.body).toContain(marker(`ready:${HEAD}`));
   });
 
-  it('does not post twice for the same head', async () => {
-    const { gh, calls } = fakeGitHub(readyRoutes([passComment, { user: { login: BOT_LOGIN }, body: marker(`ready:${HEAD}`) }]));
-    await handleEvent({ eventName: 'issue_comment', event: { issue: { number: 658, pull_request: {} } }, gh, owner: 'caraseli02', config });
+  it('posts each notice once across back-to-back runs triggered by different events', async () => {
+    const routes = readyRoutes([passComment]);
+    routes['/issues?state=open'] = [];
+    const { gh, calls } = fakeGitHub(routes);
+    for (const eventName of ['issue_comment', 'workflow_run', 'schedule', 'issues']) await handleEvent({ eventName, gh, owner, config });
 
-    expect(calls.filter((call) => call.method === 'POST')).toEqual([]);
+    expect(posts(calls).filter((call) => call.path === '/issues/658/comments')).toHaveLength(1);
+    expect(posts(calls).filter((call) => call.path === '/issues')).toHaveLength(1);
+  });
+
+  it('does not treat an outsider look-alike PASS as merge-ready', async () => {
+    const { gh, calls } = fakeGitHub(readyRoutes([{ ...passComment, user: { login: 'drive-by' } }]));
+    await handleEvent({ eventName: 'issue_comment', gh, owner, config });
+
+    expect(posts(calls)).toEqual([]);
   });
 
   it('flags a Claude PR that touches protected paths without owner-approved-harness', async () => {
     const { gh, calls } = fakeGitHub({ ...readyRoutes([]), '/pulls/658/files': [{ filename: 'docs/agents/verification.md' }] });
-    await handleEvent({ eventName: 'pull_request_target', event: { pull_request: { number: 658 } }, gh, owner: 'caraseli02', config });
+    await handleEvent({ eventName: 'pull_request_target', gh, owner, config });
 
-    const posts = calls.filter((call) => call.method === 'POST');
-    expect(posts).toHaveLength(1);
-    expect(posts[0].body?.body).toContain('owner-approved-harness');
-    expect(posts[0].body?.body).toContain('docs/agents/verification.md');
+    expect(posts(calls)).toHaveLength(1);
+    expect(posts(calls)[0].body?.body).toContain('owner-approved-harness');
+    expect(posts(calls)[0].body?.body).toContain('docs/agents/verification.md');
   });
 
-  it('points the owner at the blocker note when blocked is added', async () => {
+  it('points the owner at the blocker note while an issue is blocked', async () => {
+    const blocked = {
+      number: 632,
+      state: 'open',
+      title: 'x',
+      labels: [label('agent:claude'), label('in-progress'), label('blocked')],
+      assignees: [],
+    };
     const { gh, calls } = fakeGitHub({
+      '/pulls?state=open': [],
+      '/issues?state=open': [blocked, busyIssue],
       '/issues/632/comments': [{ user: { login: 'caraseli02' }, body: '## Blocked\n\n- Issue: #632', html_url: 'blocker-url' }],
-      '/issues?state=open': [],
+      '/issues/3/comments': [],
     });
-    await handleEvent({
-      eventName: 'issues',
-      event: { action: 'labeled', label: { name: 'blocked' }, issue: { number: 632 } },
-      gh,
-      owner: 'caraseli02',
-      config,
-    });
+    await handleEvent({ eventName: 'issues', gh, owner, config });
 
     const post = calls.find((call) => call.method === 'POST' && call.path === '/issues/632/comments');
     expect(post?.body?.body).toContain('blocker-url');
     expect(post?.body?.body).toContain('remove `blocked`');
   });
 
+  it('sends nothing when blocked is removed, even though the event names the blocked label', async () => {
+    const unblocked = { number: 632, state: 'open', title: 'x', labels: [label('agent:claude'), label('in-progress')], assignees: [] };
+    const { gh, calls } = fakeGitHub({
+      '/pulls?state=open': [],
+      '/issues?state=open': [unblocked],
+      '/issues/632/comments': [{ user: { login: 'caraseli02' }, body: '## Blocked\n\n- Issue: #632', html_url: 'blocker-url' }],
+    });
+    await handleEvent({ eventName: 'issues', gh, owner, config });
+
+    expect(posts(calls)).toEqual([]);
+  });
+
   it('opens one queue issue when Claude is idle and closes it when work appears', async () => {
     const idle = fakeGitHub({
       '/pulls?state=open': [],
-      '/issues?state=open': [{ number: 2, title: 't', labels: [label('agent:claude'), label('needs-triage')], assignees: [] }],
+      '/issues?state=open': [
+        { number: 2, state: 'open', title: 't', labels: [label('agent:claude'), label('needs-triage')], assignees: [] },
+      ],
     });
-    await handleEvent({ eventName: 'schedule', event: {}, gh: idle.gh, owner: 'caraseli02', config: { ...config } });
+    await handleEvent({ eventName: 'schedule', gh: idle.gh, owner, config });
+    await handleEvent({ eventName: 'issues', gh: idle.gh, owner, config });
+    expect(idle.calls.filter((call) => call.method === 'POST' && call.path === '/issues')).toHaveLength(1);
     expect(idle.calls.find((call) => call.method === 'POST' && call.path === '/issues')?.body?.title).toBe(QUEUE_ISSUE_TITLE);
 
     const busy = fakeGitHub({
       '/pulls?state=open': [],
       '/issues?state=open': [
-        { number: 3, title: 'next', labels: [label('agent:claude')], assignees: [] },
-        { number: 50, title: QUEUE_ISSUE_TITLE, user: { login: BOT_LOGIN }, labels: [], assignees: [] },
+        { number: 3, state: 'open', title: 'next', labels: [label('agent:claude')], assignees: [] },
+        { number: 50, state: 'open', title: QUEUE_ISSUE_TITLE, user: { login: BOT_LOGIN }, labels: [], assignees: [] },
       ],
     });
-    await handleEvent({ eventName: 'schedule', event: {}, gh: busy.gh, owner: 'caraseli02', config });
+    await handleEvent({ eventName: 'schedule', gh: busy.gh, owner, config });
     expect(busy.calls.find((call) => call.method === 'PATCH')).toMatchObject({ path: '/issues/50', body: { state: 'closed' } });
   });
 });

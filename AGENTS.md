@@ -9,7 +9,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - Keep changes small and shippable; this repo is a good fit for autonomous micro-tasks.
 - GitHub Issues are the task queue for autonomous work; agents only pick up `ready-for-agent` issues (Claude: `agent:claude` issues) and claim one issue at a time.
 - Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready.
-- The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue for that builder while its `in-progress` issue has an open PR. Claude parking (Claude only): a Claude claim labeled `blocked` keeps `in-progress` and is parked, so it does not count toward Claude's WIP=1; Claude has exactly one live claim at a time, and a claim unblocked while another is live waits until that claim ends, then the claim unblocked first resumes before any new claim (`.factory/automations/claude-routine.md` §2). Codex's WIP and blocker rules are unchanged.
+- The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue for that builder while its `in-progress` issue has an open PR. Exception, Claude only: a `blocked` claim is parked and does not count toward Claude's WIP=1, and Claude never has two live claims (`docs/agents/autonomous-workflow.md` § Claude parking).
 - WIP=1 applies per builder. Claude owns issues labeled `agent:claude`; Codex owns other eligible issues. Internal model delegation shares its builder's claim. Claude never builds payment work; its routines are defined in `.factory/`. See `docs/agents/autonomous-workflow.md` for ownership and independent cross-review.
 - GitHub labels, assignments and linked PRs are live claim state. `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md` preserve reviewed session/evidence snapshots; unattended agents keep task transitions on GitHub.
 
@@ -78,7 +78,7 @@ Do not mix initialization with feature implementation unless the task is explici
 - Make **one small decision + one small change + one verification** per loop.
 - Prefer tasks that touch 1 category only: build fix, lint fix, component polish, API wiring, or doc cleanup.
 - Prefer one coherent behavior per issue/PR, including its necessary endpoint, tests, migration, and tracking updates. More than ~3 implementation files prompts a scope review, not an automatic helper/route split. A second unrelated behavior requires a separate issue.
-- Enforce **WIP=1 per builder**: only one executable issue may be active for that builder. Internal delegated subtasks do not claim another issue. A parked (`blocked`) Claude claim does not count; see the Claude parking rule above.
+- Enforce **WIP=1 per builder**: only one executable issue may be active for that builder. Internal delegated subtasks do not claim another issue. Claude only: parked (`blocked`) claims do not count (`docs/agents/autonomous-workflow.md` § Claude parking).
 - After two focused failed repair attempts, stop and report the blocker instead of widening scope.
 - Do not continue based on vibe; keep every loop grounded in a checkable outcome.
 
