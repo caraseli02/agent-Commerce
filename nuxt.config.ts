@@ -13,7 +13,11 @@ export default defineNuxtConfig({
       // Prepend after Nuxt installs its handler; nonprivate/page errors fall
       // through to the original Nuxt handler and Nitro's normal fallback.
       const existing = config.errorHandler ? [config.errorHandler].flat() : [];
-      config.errorHandler = [fileURLToPath(new URL('./server/api-cache-error.ts', import.meta.url)), ...existing];
+      config.errorHandler = [
+        fileURLToPath(new URL('./server/catalog-page-error.ts', import.meta.url)),
+        fileURLToPath(new URL('./server/api-cache-error.ts', import.meta.url)),
+        ...existing,
+      ];
     },
   },
 
