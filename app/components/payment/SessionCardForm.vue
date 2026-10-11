@@ -36,11 +36,27 @@
         <UiButton v-else-if="state === 'completed'" @click="router.push(`/order-summary/${encodeURIComponent(orderId)}`)"
           >View order</UiButton
         >
-        <UiButton v-else-if="canCheck" variant="outline" @click="check(true)">Check payment status</UiButton>
-        <UiButton v-if="state !== 'confirming' && state !== 'completed'" variant="outline" @click="router.push('/order-summary')"
+        <UiButton
+          v-else-if="canCheck"
+          variant="outline"
+          class="bg-card text-card-foreground dark:bg-card dark:text-card-foreground"
+          @click="check(true)"
+          >Check payment status</UiButton
+        >
+        <UiButton
+          v-if="state !== 'confirming' && state !== 'completed'"
+          variant="outline"
+          class="bg-card text-card-foreground dark:bg-card dark:text-card-foreground"
+          @click="router.push('/order-summary')"
           >Back to order summary</UiButton
         >
-        <UiButton v-if="state === 'disabled'" variant="outline" @click="router.push('/')">Back home</UiButton>
+        <UiButton
+          v-if="state === 'disabled'"
+          variant="outline"
+          class="bg-card text-card-foreground dark:bg-card dark:text-card-foreground"
+          @click="router.push('/')"
+          >Back home</UiButton
+        >
       </div>
     </section>
   </div>

@@ -198,6 +198,11 @@ for (const dark of [false, true]) {
         foreground: getComputedStyle(section).color,
       }));
       expect(colors.background).not.toBe(colors.foreground);
+      const navigationColors = await page.getByRole('button', { name: 'Back to order summary', exact: true }).evaluate((button) => ({
+        background: getComputedStyle(button).backgroundColor,
+        foreground: getComputedStyle(button).color,
+      }));
+      expect(navigationColors).toEqual(colors);
       const appearance = await page.evaluate(
         () =>
           (window as unknown as { __paymentTest: { options: { appearance: { theme: string; variables: { colorBackground: string } } } } })
