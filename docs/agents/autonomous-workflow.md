@@ -170,8 +170,8 @@ Agents post to GitHub through Vlad's account, and GitHub never notifies a user a
 
 - an open PR is waiting only on him: CI green, an exact-head evaluator PASS, mergeable, no outstanding change request;
 - an issue gets `blocked` (the notice links the `## Blocked` note);
-- a Claude-built PR changes `protected_paths` without `owner-approved-harness`, or touches payment paths;
-- Claude has no live claim and nothing eligible to build (one self-closing issue).
+- a Claude-built PR (any provenance signal from `claude-routine.md` §3: label, `claude/` branch, linked Claude issue, Claude Code body signature or co-author trailer) changes `protected_paths` without `owner-approved-harness`, or touches payment paths;
+- Claude has no live claim and nothing eligible to build (one self-closing issue). Skips that need judgment (prose dependency, protected scope) count once the routine records them with a `<!-- claude-routine-skip -->` comment.
 
 Every trigger (PR, comment, review, label and CI events, plus an hourly sweep during the run window) runs the same full reconcile from current GitHub state, and runs never overlap. An evaluator report counts only when it comes from the account the evaluators post through (`EVALUATOR_LOGINS`, default the repository owner) and carries an `Independent evaluator:` line. A blocker note's **Best next move** must name the single action Vlad has to take, because that is what the notice points him to.
 

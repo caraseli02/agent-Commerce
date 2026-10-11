@@ -3,13 +3,17 @@ import { describe, expect, it } from 'vitest';
 import {
   BOT_LOGIN,
   QUEUE_ISSUE_TITLE,
+  SKIP_MARKER,
   alreadyNotified,
   assessChecks,
   assessReadiness,
+  claudeProvenance,
   claudeQueueState,
+  closingIssueNumbers,
   createClient,
   handleEvent,
   hasChangesRequested,
+  hasCurrentSkip,
   latestEvaluatorVerdict,
   marker,
   parseDependencies,
@@ -259,8 +263,70 @@ describe('Claude build queue', () => {
     expect(unblocked.eligible.map((entry) => entry.number)).toEqual([5]);
   });
 
+  it('excludes native blocked-by, linked open PRs, existing branches and recorded skips', () => {
+    const issues = [
+      issue(1, ['agent:claude'], { issue_dependencies_summary: { blocked_by: 1, total_blocked_by: 1 } }),
+      issue(2, ['agent:claude']),
+      issue(3, ['agent:claude']),
+      issue(4, ['agent:claude'], { issue_dependencies_summary: { blocked_by: 0, total_blocked_by: 2 } }),
+    ];
+    const state = claudeQueueState(issues, {
+      neverClaim,
+      openIssueNumbers: new Set([1, 2, 3, 4]),
+      claimedNumbers: new Set([2]),
+      skipped: new Set([3]),
+    });
+
+    expect(state.candidates.map((entry) => entry.number)).toEqual([3, 4]);
+    expect(state.eligible.map((entry) => entry.number)).toEqual([4]);
+  });
+
+  it('counts a routine skip only while it is the latest change and from a trusted account', () => {
+    const skip = {
+      user: { login: 'caraseli02' },
+      body: `${SKIP_MARKER}\nSkipped: waits on #651 in prose.`,
+      created_at: '2026-10-11T10:00:00Z',
+    };
+    const trustedLogins = ['caraseli02'];
+
+    expect(hasCurrentSkip({ updated_at: '2026-10-11T10:00:01Z' }, [skip], { trustedLogins })).toBe(true);
+    expect(hasCurrentSkip({ updated_at: '2026-10-11T12:00:00Z' }, [skip], { trustedLogins })).toBe(false);
+    expect(hasCurrentSkip({ updated_at: '2026-10-11T10:00:01Z' }, [{ ...skip, user: { login: 'drive-by' } }], { trustedLogins })).toBe(
+      false,
+    );
+    expect(hasCurrentSkip({ updated_at: '2026-10-11T10:00:01Z' }, [{ ...skip, body: `Quoting ${SKIP_MARKER}` }], { trustedLogins })).toBe(
+      false,
+    );
+  });
+
   it('parses Depends on / Blocked by lines only', () => {
     expect(parseDependencies('Related #631\nDepends on #632 and #633\n> Blocked by: #7\nSee #8')).toEqual([632, 633, 7]);
+  });
+});
+
+describe('Claude provenance', () => {
+  const base = { labels: [], head: { ref: 'feature/x' }, body: '' };
+
+  it('recognizes every routine signal and nothing for an ordinary PR', () => {
+    expect(claudeProvenance({ pr: base })).toEqual([]);
+    expect(claudeProvenance({ pr: { ...base, labels: [label('agent:claude')] } })).toEqual(['agent:claude label']);
+    expect(claudeProvenance({ pr: { ...base, head: { ref: 'claude/foo' } } })).toEqual(['claude/ branch']);
+    expect(claudeProvenance({ pr: { ...base, body: '🤖 Generated with [Claude Code](https://claude.com/claude-code)' } })).toEqual([
+      'Claude Code body signature',
+    ]);
+    expect(claudeProvenance({ pr: base, linkedIssues: [{ number: 7, labels: [label('agent:claude')] }] })).toEqual([
+      'linked agent:claude issue #7',
+    ]);
+    expect(
+      claudeProvenance({
+        pr: base,
+        commits: [{ commit: { message: 'fix: x\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>' } }],
+      }),
+    ).toEqual(['Claude co-author trailer']);
+  });
+
+  it('reads GitHub closing keywords', () => {
+    expect(closingIssueNumbers('Closes #12, fixes #13\nResolved: #14\nRelated #15')).toEqual([12, 13, 14]);
   });
 });
 
@@ -299,7 +365,8 @@ describe('reconcile against a fake GitHub API', () => {
         const list = (routes['/issues?state=open'] as unknown[] | undefined) ?? [];
         routes['/issues?state=open'] = [...list, { number: 99, title: body.title, user: { login: BOT_LOGIN }, labels: [], assignees: [] }];
       }
-      const data = init.method === 'GET' ? routes[path] : { number: 99 };
+      const data =
+        init.method === 'GET' ? (routes[path] ?? (path === '/git/matching-refs/heads/claude/issue-' ? [] : undefined)) : { number: 99 };
       if (data === undefined) return new Response('not found', { status: 404 });
       return new Response(JSON.stringify(data), { status: 200 });
     };
@@ -312,6 +379,7 @@ describe('reconcile against a fake GitHub API', () => {
     neverClaim: ['blocked', 'needs-triage'],
     mode: 'build',
   };
+  const paymentPaths = [{ group: 'payments', pattern: 'server/api/payments/**' }];
   const busyIssue = { number: 3, title: 'live', state: 'open', labels: [label('agent:claude'), label('in-progress')], assignees: [] };
   const pr = { number: 658, ...openPr, labels: [label('agent:claude')], head: { sha: HEAD, ref: 'claude/issue-632' } };
   const passComment = {
@@ -375,6 +443,57 @@ describe('reconcile against a fake GitHub API', () => {
     expect(posts(calls)[0].body?.body).toContain('docs/agents/verification.md');
   });
 
+  it('flags protected and payment paths on an unlabeled Claude PR found only by its body signature', async () => {
+    const interactive = {
+      number: 700,
+      ...openPr,
+      labels: [],
+      body: 'Change.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)',
+      head: { sha: HEAD, ref: 'feature/payments-tweak' },
+    };
+    const { gh, calls } = fakeGitHub({
+      ...readyRoutes([]),
+      '/pulls?state=open': [interactive],
+      '/pulls/700': interactive,
+      '/pulls/700/files': [{ filename: 'server/api/payments/intent.post.ts' }],
+      '/issues/700/comments': [],
+      '/pulls/700/reviews': [],
+    });
+    await handleEvent({ eventName: 'pull_request_target', gh, owner, config: { ...config, protectedPaths: paymentPaths } });
+
+    expect(posts(calls)).toHaveLength(1);
+    expect(posts(calls)[0].body?.body).toContain('payment paths');
+  });
+
+  it('flags a Claude PR found only by a co-author trailer or a linked Claude issue', async () => {
+    const plain = { number: 701, ...openPr, labels: [], body: 'Closes #40', head: { sha: HEAD, ref: 'feature/x' } };
+    const routes = (extra: Routes): Routes => ({
+      ...readyRoutes([]),
+      '/pulls?state=open': [plain],
+      '/pulls/701': plain,
+      '/pulls/701/files': [{ filename: 'docs/agents/verification.md' }],
+      '/issues/701/comments': [],
+      '/pulls/701/reviews': [],
+      '/pulls/701/commits': [{ commit: { message: 'docs: x' } }],
+      '/issues/40': { number: 40, labels: [] },
+      ...extra,
+    });
+
+    const trailer = fakeGitHub(
+      routes({ '/pulls/701/commits': [{ commit: { message: 'docs: x\n\nCo-Authored-By: Claude <noreply@anthropic.com>' } }] }),
+    );
+    await handleEvent({ eventName: 'pull_request_target', gh: trailer.gh, owner, config });
+    expect(posts(trailer.calls)).toHaveLength(1);
+
+    const linked = fakeGitHub(routes({ '/issues/40': { number: 40, labels: [label('agent:claude')] } }));
+    await handleEvent({ eventName: 'pull_request_target', gh: linked.gh, owner, config });
+    expect(posts(linked.calls)).toHaveLength(1);
+
+    const none = fakeGitHub(routes({}));
+    await handleEvent({ eventName: 'pull_request_target', gh: none.gh, owner, config });
+    expect(posts(none.calls)).toEqual([]);
+  });
+
   it('points the owner at the blocker note while an issue is blocked', async () => {
     const blocked = {
       number: 632,
@@ -426,8 +545,50 @@ describe('reconcile against a fake GitHub API', () => {
         { number: 3, state: 'open', title: 'next', labels: [label('agent:claude')], assignees: [] },
         { number: 50, state: 'open', title: QUEUE_ISSUE_TITLE, user: { login: BOT_LOGIN }, labels: [], assignees: [] },
       ],
+      '/issues/3/comments': [],
     });
     await handleEvent({ eventName: 'schedule', gh: busy.gh, owner, config });
     expect(busy.calls.find((call) => call.method === 'PATCH')).toMatchObject({ path: '/issues/50', body: { state: 'closed' } });
+  });
+
+  it('reports an empty queue when every candidate is unbuildable, and not while one is still unjudged', async () => {
+    const prose = {
+      number: 61,
+      state: 'open',
+      title: 'Update docs/agents after #651',
+      body: 'Work on docs/agents/** once every other child of #651 is closed.',
+      labels: [label('agent:claude')],
+      assignees: [],
+      updated_at: '2026-10-11T10:00:00Z',
+    };
+    const native = { ...prose, number: 62, issue_dependencies_summary: { blocked_by: 1 } };
+    const branched = { ...prose, number: 63 };
+    const withPr = { ...prose, number: 64 };
+    const openPrForIssue = { number: 800, state: 'open', draft: true, body: 'Closes #64' };
+    const skip = {
+      user: { login: 'caraseli02' },
+      body: `${SKIP_MARKER}\nSkipped: prose dependency on #651 and protected scope docs/agents/**.`,
+      created_at: '2026-10-11T10:00:00Z',
+    };
+    const routes = (comments: unknown[]): Routes => ({
+      '/pulls?state=open': [openPrForIssue],
+      '/issues?state=open': [
+        prose,
+        native,
+        branched,
+        withPr,
+        { number: 651, state: 'open', title: 'epic', labels: [label('epic')], assignees: [] },
+      ],
+      '/git/matching-refs/heads/claude/issue-': [{ ref: 'refs/heads/claude/issue-63' }, { ref: 'refs/heads/claude/issue-63-run-1' }],
+      '/issues/61/comments': comments,
+    });
+
+    const unjudged = fakeGitHub(routes([]));
+    await handleEvent({ eventName: 'schedule', gh: unjudged.gh, owner, config });
+    expect(unjudged.calls.filter((call) => call.method === 'POST' && call.path === '/issues')).toEqual([]);
+
+    const judged = fakeGitHub(routes([skip]));
+    await handleEvent({ eventName: 'schedule', gh: judged.gh, owner, config });
+    expect(judged.calls.filter((call) => call.method === 'POST' && call.path === '/issues')).toHaveLength(1);
   });
 });
