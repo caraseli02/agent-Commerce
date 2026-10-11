@@ -102,9 +102,37 @@ export function protectedFilesTouched(files, protectedPaths) {
   return touched;
 }
 
+// Provenance signals that need no extra API call (claude-routine.md §3 lists all of them).
 export function isClaudeBuilt(pr) {
   const labels = (pr?.labels ?? []).map((label) => label?.name);
-  return labels.includes('agent:claude') || String(pr?.head?.ref ?? '').startsWith('claude/');
+  return (
+    labels.includes('agent:claude') ||
+    String(pr?.head?.ref ?? '').startsWith('claude/') ||
+    String(pr?.body ?? '').includes('Generated with [Claude Code]')
+  );
+}
+
+// Issues a PR body closes with a GitHub closing keyword.
+export function closingIssueNumbers(body) {
+  const numbers = new Set();
+  for (const match of String(body ?? '').matchAll(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+#(\d+)/gi))
+    numbers.add(Number(match[1]));
+  return [...numbers];
+}
+
+export function hasClaudeCoauthor(commits) {
+  return (commits ?? []).some((commit) => /^Co-Authored-By: Claude\b/im.test(commit?.commit?.message ?? ''));
+}
+
+// Every provenance signal the routine uses: label, branch, body signature, a linked
+// `agent:claude` issue, or a `Co-Authored-By: Claude` commit trailer.
+async function isClaudeBuiltPr(gh, pr) {
+  if (isClaudeBuilt(pr)) return true;
+  for (const number of closingIssueNumbers(pr.body)) {
+    const issue = await gh.get(`/issues/${number}`).catch(() => null);
+    if ((issue?.labels ?? []).some((label) => label.name === 'agent:claude')) return true;
+  }
+  return hasClaudeCoauthor(await gh.paginate(`/pulls/${pr.number}/commits`));
 }
 
 const VERDICT_HEADING = '## Evaluator verdict';
@@ -207,7 +235,28 @@ export function parseDependencies(body) {
 
 // Mirrors the build-eligibility rule in .factory/automations/claude-routine.md §4.1,
 // without the checks that need git (remote branch) or a linked-PR lookup.
-export function claudeQueueState(issues, { neverClaim, openIssueNumbers }) {
+export const SKIP_MARKER = '<!-- claude-skip';
+
+// The routine records each label-eligible issue it skips (protected scope, a prose or
+// native dependency, a linked PR or branch) with a `<!-- claude-skip -->` comment. The
+// record holds until the issue changes again; the routine then re-evaluates it.
+export function hasCurrentSkipRecord(issue, comments, { trustedLogins }) {
+  const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
+  trusted.delete(BOT_LOGIN);
+  const skip = (comments ?? [])
+    .filter((comment) => trusted.has(String(comment?.user?.login ?? '').toLowerCase()))
+    .filter((comment) =>
+      String(comment.body ?? '')
+        .trimStart()
+        .startsWith(SKIP_MARKER),
+    )
+    .at(-1);
+  if (!skip) return false;
+  // Posting the skip comment itself bumps updated_at, so allow a small gap.
+  return Date.parse(skip.created_at) >= Date.parse(issue.updated_at) - 120_000;
+}
+
+export function claudeQueueState(issues, { neverClaim, openIssueNumbers, skippedNumbers = new Set() }) {
   const claude = (issues ?? []).filter(
     (issue) => !issue.pull_request && (issue.labels ?? []).some((label) => label.name === 'agent:claude'),
   );
@@ -218,6 +267,8 @@ export function claudeQueueState(issues, { neverClaim, openIssueNumbers }) {
     if (labels.has('in-progress') || (issue.assignees ?? []).length) return false;
     if (neverClaim.some((label) => labels.has(label))) return false;
     if (/^(Payments|Checkout):/i.test(issue.title ?? '')) return false;
+    if ((issue.issue_dependencies_summary?.blocked_by ?? 0) > 0) return false;
+    if (skippedNumbers.has(issue.number)) return false;
     return parseDependencies(issue.body).every((number) => !openIssueNumbers.has(number));
   });
   return { live, eligible, idle: live.length === 0 && eligible.length === 0 };
@@ -370,13 +421,13 @@ async function checkReady(gh, owner, number, trustedLogins) {
 
 async function checkHarness(gh, owner, number, config) {
   const pr = await gh.get(`/pulls/${number}`);
-  if (pr.state !== 'open' || !isClaudeBuilt(pr)) return;
+  if (pr.state !== 'open') return;
   const labels = (pr.labels ?? []).map((label) => label.name);
   const files = await gh.paginate(`/pulls/${number}/files`);
   const touched = protectedFilesTouched(files, config.protectedPaths).filter(
     (entry) => entry.group === 'payments' || !labels.includes('owner-approved-harness'),
   );
-  if (!touched.length) return;
+  if (!touched.length || !(await isClaudeBuiltPr(gh, pr))) return;
   const key = `harness:${touched.some((entry) => entry.group === 'payments') ? 'payments' : 'factory'}`;
   await postOnce(gh, number, key, harnessMessage({ owner, pr, touched }));
 }
@@ -394,11 +445,20 @@ async function checkBlocked(gh, owner, issue) {
   log(`#${issue.number}: posted ${key}`);
 }
 
-async function checkQueue(gh, owner, config, openIssues) {
+async function checkQueue(gh, owner, config, openIssues, trustedLogins) {
   const tracking = openIssues.find((issue) => issue.title === QUEUE_ISSUE_TITLE && issue.user?.login === BOT_LOGIN);
   const openIssueNumbers = new Set(openIssues.map((issue) => issue.number));
-  const state =
-    config.mode === 'build' ? claudeQueueState(openIssues, { neverClaim: config.neverClaim, openIssueNumbers }) : { idle: false };
+  let state = { idle: false };
+  if (config.mode === 'build') {
+    const options = { neverClaim: config.neverClaim, openIssueNumbers };
+    // Only issues that pass the label checks can carry a skip record worth reading.
+    const skippedNumbers = new Set();
+    for (const issue of claudeQueueState(openIssues, options).eligible) {
+      const comments = await gh.paginate(`/issues/${issue.number}/comments`);
+      if (hasCurrentSkipRecord(issue, comments, { trustedLogins })) skippedNumbers.add(issue.number);
+    }
+    state = claudeQueueState(openIssues, { ...options, skippedNumbers });
+  }
 
   if (state.idle && !tracking) {
     const created = await gh.post('/issues', { title: QUEUE_ISSUE_TITLE, body: queueMessage({ owner, mode: config.mode }) });
@@ -439,7 +499,7 @@ export async function reconcile({ gh, owner, config, trustedLogins }) {
 
   const openIssues = await gh.paginate('/issues?state=open');
   for (const issue of openIssues) await guarded(`#${issue.number}`, () => checkBlocked(gh, owner, issue));
-  await guarded('Claude queue', () => checkQueue(gh, owner, config, openIssues));
+  await guarded('Claude queue', () => checkQueue(gh, owner, config, openIssues, trustedLogins));
 }
 
 export async function handleEvent({ eventName, gh, owner, config, trustedLogins = [owner] }) {
