@@ -293,6 +293,10 @@ Planning docs:
 - [Refactor stabilization PRD](docs/prds/2026-07-09-refactor-stabilization-prd.md) — verification seams, refactor timeline, and out-of-scope boundaries
 - [Feature prioritization audit](docs/plans/2026-07-09-feature-prioritization-audit.md) — demo feature scoring and removal backlog
 
+Component review:
+
+- [Demo component contract](docs/demo-component-contract.md) — retained SVG preview routes, retired review components, and focused browser evidence
+
 ## Notes for contributors
 
 - Package manager for this repo is **pnpm**
