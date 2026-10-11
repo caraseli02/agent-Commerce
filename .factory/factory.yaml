@@ -44,10 +44,9 @@ labels:
 # is a scope violation and its reviewer must FAIL it, unless the PR carries
 # owner-approved-harness: Vlad requested that change in an interactive session
 # (Vlad, 2026-10-08), so the reviewer judges it on its merits. Payment paths
-# are never exempt for Claude. The unattended routine never edits these paths,
-# except when repairing an owner-approved-harness PR (claude-routine.md step 2):
-# then it may edit the protected files that PR already changes, never .factory/**
-# and never payment paths.
+# are never exempt for Claude. The unattended routine never edits these paths, except that a
+# repair on a PR carrying owner-approved-harness may edit the protected files that PR already
+# changes; .factory/** and payment paths stay off-limits (claude-routine.md §2 Repair).
 protected_paths:
   payments:
     - server/domain/payments/**
