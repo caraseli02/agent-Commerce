@@ -174,7 +174,24 @@ The server-side PaymentIntent adapter introduced for #555 also reads
 `PAYMENTS_PROVIDER=stripe` and `STRIPE_GATE_A_APPROVED=true`; the checked-in
 defaults leave it off. Do not enable that gate until #559 proves every older
 mock-completion writer sharing the database is upgraded, retired, or isolated.
-The existing checkout route continues to use the mock flow during this phase.
+The default checkout route continues to use the mock flow. When the existing
+Stripe gate is explicitly approved and enabled, card checkout prepares an unpaid
+Order/Payment and opens `/checkout/session?id=<order-id>` without running the mock
+completion writer. That page uses Stripe's card-only Payment Element, including
+bank authentication, and asks the owner-scoped resume endpoint to revalidate
+Order/Inventory before mounting or confirming payment. Stripe.js results never
+mark an Order paid: refresh/return reconciliation supplies the displayed state.
+Client secrets stay in the page's memory and are removed from return URLs. A
+canceled intent requires the explicit restart endpoint and a fresh order review.
+The app does not require saved cards for this path. Other payment methods keep
+the existing demo behavior. No activation setting is changed by the UI.
+
+`tests/e2e/payment-element.spec.ts` substitutes Stripe.js at the browser boundary
+with a deterministic SDK double and a synthetic publishable key from the E2E
+server configuration. Those checks prove revalidation, retry/authentication
+sequencing, return handling, and conservative UI states; they do not prove a real
+Stripe sandbox card charge or bank 3DS challenge. Real sandbox evidence and
+shared-database writer isolation remain prerequisites for activation in #559.
 The #557 Stripe webhook endpoint additionally requires `STRIPE_WEBHOOK_SECRET`
 from its Stripe endpoint or CLI listener. Signed paid events with a valid
 reservation acknowledge after normal checkout finalization; canceled events
