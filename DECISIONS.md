@@ -2,6 +2,13 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Late Refund failure and unrecognised Refunds — 2026-10-11
+
+- Owner decision (Vlad, 2026-10-11, interactive session), raised by the #630 / #587 evaluation.
+- A `CANCELED` order never changes state automatically. When Stripe reports a Refund `FAILED` after it was `SUCCEEDED` (for example a bank return), the Refund record becomes `FAILED`, the Order stays `CANCELED`, the Payment stays `PAID`, and the case goes to manual compensation recovery for a human. The order is not moved back to `ON_HOLD`.
+- Refund `FAILED` before any success keeps the earlier rule: the Order stays `ON_HOLD` in compensation recovery.
+- A verified Refund event that matches no known local Refund (for example one issued in the Stripe Dashboard) is a separate edge case for a human: record it, change no Payment, Refund or Order state, and surface it for manual handling instead of leaving Stripe to retry it. Tracked in #660.
+
 ## Owner attention and no idle waiting — 2026-10-10
 
 - On 2026-10-09/10, #632 / PR #658 waited about 13.5 hours on one owner-only label while Claude had nothing else to do. Three causes: agents post as Vlad, so GitHub sent him no notification; no issue had both `agent:claude` and `ready-for-agent`; and the routine stopped the whole repair on the one owner-only item. Vlad asked that it never happen again.
@@ -91,7 +98,7 @@ Use this file for durable cross-session decisions that should survive context re
   - For provider cancellation, `payment_intent.canceled` returns `2xx` only after a canceled Payment, Inventory release/expiry, and terminal `canceled` claim commit together. Duplicate delivery may retry that application consequence.
   - For a durable `REFUND` recovery decision, fulfillment is forbidden; Order becomes `ON_HOLD` and claim becomes `compensation_pending`.
   - The original payment-success webhook may acknowledge the REFUND branch only after a durable Stripe Refund ID exists (or the Refund already succeeded). Before that, duplicate delivery resumes the same compensation path.
-  - Refund `FAILED` / unsafe-unknown states keep the Order `ON_HOLD` and claim in compensation recovery; they never fall back to fulfillment.
+  - Refund `FAILED` / unsafe-unknown states keep the Order `ON_HOLD` and claim in compensation recovery; they never fall back to fulfillment. A late `FAILED` after `SUCCEEDED` is the exception; see the 2026-10-11 decision.
   - Best-effort revision-aware Cart cleanup is not part of the webhook acknowledgment gate.
 - Late paid-order recovery uses one durable application-owned decision: `ALLOCATE / BACKORDER / REFUND`.
   - The decision is selected once under PostgreSQL coordination.
