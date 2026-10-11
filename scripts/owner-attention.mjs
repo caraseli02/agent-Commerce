@@ -13,6 +13,7 @@
 // - queue:   Claude has no live issue and nothing eligible to build.
 //
 // Each notice carries a hidden marker so a rerun never posts it twice.
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
@@ -233,40 +234,38 @@ export function parseDependencies(body) {
   return [...numbers];
 }
 
-export const SKIP_MARKER = '<!-- claude-skip';
+const SKIP_RECORD = /^<!-- claude-skip v=([0-9a-f]{16}) -->/;
 
-// Clock slack between a comment's created_at and the issue updated_at it causes.
-const SKIP_SLACK_MS = 5_000;
-// Timeline entries a comment produces as a side effect; they are not new activity.
-const PASSIVE_TIMELINE_EVENTS = new Set(['mentioned', 'subscribed', 'unsubscribed']);
+// Fingerprint of the parts of an issue a skip decision depends on: title, body and
+// labels. The routine writes it into the skip comment (`skip-fingerprint` command
+// below), so any later edit or label change is detected exactly, with no time window.
+export function issueFingerprint(issue) {
+  const normalize = (text) =>
+    String(text ?? '')
+      .replace(/\r\n/g, '\n')
+      .trim();
+  const labels = (issue?.labels ?? [])
+    .map((label) => (typeof label === 'string' ? label : label?.name))
+    .filter(Boolean)
+    .sort();
+  const snapshot = JSON.stringify({ title: normalize(issue?.title), body: normalize(issue?.body), labels });
+  return createHash('sha256').update(snapshot).digest('hex').slice(0, 16);
+}
 
 // The routine records each label-eligible issue it skips (protected scope, a prose or
-// native dependency, a linked PR or branch) with a `<!-- claude-skip -->` comment. The
-// record holds only while it is the issue's latest activity: any later comment, label,
-// edit or other timeline event lapses it, and the routine then re-evaluates the issue.
-export function hasCurrentSkipRecord(issue, comments, { trustedLogins, timeline }) {
+// native dependency, a linked PR or branch) with a `<!-- claude-skip v=<fingerprint> -->`
+// comment. The record holds only while it is the issue's newest comment and the issue's
+// title, body and labels still match the fingerprint; any later comment or change lapses
+// it, and the routine then re-evaluates the issue.
+export function hasCurrentSkipRecord(issue, comments, { trustedLogins }) {
   const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
   trusted.delete(BOT_LOGIN);
-  const latestComment = (comments ?? []).at(-1);
+  const latestComment = [...(comments ?? [])].sort((a, b) => Number(a?.id ?? 0) - Number(b?.id ?? 0)).at(-1);
   if (!latestComment || !trusted.has(String(latestComment.user?.login ?? '').toLowerCase())) return false;
-  if (
-    !String(latestComment.body ?? '')
-      .trimStart()
-      .startsWith(SKIP_MARKER)
-  )
-    return false;
-
-  const skippedAt = Date.parse(latestComment.created_at);
-  // Body or title edits only show up in updated_at.
-  if (Date.parse(issue.updated_at) > skippedAt + SKIP_SLACK_MS) return false;
-  // Without the timeline a later label change cannot be ruled out, so treat the issue as buildable.
-  if (!Array.isArray(timeline)) return false;
-  return timeline.every((entry) => {
-    if (entry?.event === 'commented' && entry.id === latestComment.id) return true;
-    if (PASSIVE_TIMELINE_EVENTS.has(entry?.event)) return true;
-    const at = Date.parse(entry?.created_at ?? entry?.submitted_at ?? '');
-    return Number.isNaN(at) || at <= skippedAt;
-  });
+  const record = String(latestComment.body ?? '')
+    .trimStart()
+    .match(SKIP_RECORD);
+  return Boolean(record) && record[1] === issueFingerprint(issue);
 }
 
 // Mirrors the build-eligibility rule in .factory/automations/claude-routine.md §4.1.
@@ -482,8 +481,7 @@ async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
     const skippedNumbers = new Set();
     for (const issue of claudeQueueState(openIssues, options).eligible) {
       const comments = await gh.paginate(`/issues/${issue.number}/comments`);
-      const timeline = await gh.paginate(`/issues/${issue.number}/timeline`).catch(() => null);
-      if (hasCurrentSkipRecord(issue, comments, { trustedLogins, timeline })) skippedNumbers.add(issue.number);
+      if (hasCurrentSkipRecord(issue, comments, { trustedLogins })) skippedNumbers.add(issue.number);
     }
     state = claudeQueueState(openIssues, { ...options, skippedNumbers });
   }
@@ -555,8 +553,16 @@ async function main() {
   await handleEvent({ eventName, gh, owner, config, trustedLogins });
 }
 
+// `gh issue view <n> --json title,body,labels | node scripts/owner-attention.mjs skip-fingerprint`
+// prints the fingerprint the routine puts in a `<!-- claude-skip v=... -->` record.
+async function printSkipFingerprint() {
+  let input = '';
+  for await (const chunk of process.stdin) input += chunk;
+  log(issueFingerprint(JSON.parse(input)));
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((error) => {
+  (process.argv[2] === 'skip-fingerprint' ? printSkipFingerprint() : main()).catch((error) => {
     console.error(error instanceof Error ? error.stack || error.message : String(error));
     process.exit(1);
   });

@@ -14,6 +14,7 @@ import {
   hasClaudeCoauthor,
   hasCurrentSkipRecord,
   isClaudeBuilt,
+  issueFingerprint,
   latestEvaluatorVerdict,
   marker,
   parseDependencies,
@@ -235,52 +236,44 @@ describe('Claude provenance', () => {
 });
 
 describe('recorded skips', () => {
-  const trusted = ['caraseli02'];
-  const SKIP_AT = '2026-10-11T10:00:00Z';
-  const skip = (login: string, at = SKIP_AT) => ({
-    id: 1,
+  const trusted = { trustedLogins: ['caraseli02'] };
+  const issue = { number: 651, title: 'close-out', body: 'After every other child of #631 is closed.', labels: [label('agent:claude')] };
+  const skip = (forIssue: object, login = 'caraseli02', id = 1) => ({
+    id,
     user: { login },
-    created_at: at,
-    body: '<!-- claude-skip -->\nWaits on every other child of #631.',
-  });
-  // The skip comment itself bumps updated_at by about a second.
-  const issue = (updatedAt = '2026-10-11T10:00:01Z') => ({ number: 651, updated_at: updatedAt });
-  const ownSideEffects = [
-    { event: 'commented', id: 1, created_at: SKIP_AT },
-    { event: 'mentioned', created_at: SKIP_AT },
-    { event: 'subscribed', created_at: SKIP_AT },
-  ];
-  const current = (i: ReturnType<typeof issue>, comments: unknown[], timeline: unknown[] | null = ownSideEffects) =>
-    hasCurrentSkipRecord(i, comments, { trustedLogins: trusted, timeline });
-
-  it('holds while the skip comment is the latest activity', () => {
-    expect(current(issue(), [skip('caraseli02')])).toBe(true);
+    body: `<!-- claude-skip v=${issueFingerprint(forIssue)} -->\nWaits on every other child of #631.`,
   });
 
-  it('lapses when anyone comments after the skip, even a minute later (evaluator reproduction)', () => {
-    const ready = { id: 2, user: { login: 'caraseli02' }, created_at: '2026-10-11T10:01:00Z', body: 'Ready now.' };
-    const timeline = [...ownSideEffects, { event: 'commented', id: 2, created_at: '2026-10-11T10:01:00Z' }];
-
-    expect(current(issue('2026-10-11T10:01:00Z'), [skip('caraseli02'), ready], timeline)).toBe(false);
+  it('fingerprints title, body and label set, ignoring label order and line endings', () => {
+    const reordered = { ...issue, body: issue.body.replace(/\n/g, '\r\n'), labels: [label('b'), label('a')] };
+    expect(issueFingerprint(reordered)).toBe(issueFingerprint({ ...reordered, labels: [label('a'), label('b')] }));
+    expect(issueFingerprint(issue)).toMatch(/^[0-9a-f]{16}$/);
   });
 
-  it('lapses on a label change right after the skip', () => {
-    const timeline = [...ownSideEffects, { event: 'unlabeled', label: { name: 'needs-info' }, created_at: '2026-10-11T10:00:02Z' }];
-
-    expect(current(issue('2026-10-11T10:00:02Z'), [skip('caraseli02')], timeline)).toBe(false);
+  it('holds while the skip is the newest comment and the issue is unchanged', () => {
+    expect(hasCurrentSkipRecord(issue, [skip(issue)], trusted)).toBe(true);
   });
 
-  it('lapses on a body edit, which only moves updated_at', () => {
-    expect(current(issue('2026-10-11T10:00:20Z'), [skip('caraseli02')])).toBe(false);
+  it('lapses when anyone comments after the skip, however soon', () => {
+    const ready = { id: 2, user: { login: 'caraseli02' }, body: 'Ready now.' };
+    expect(hasCurrentSkipRecord(issue, [skip(issue), ready], trusted)).toBe(false);
+    // Order comes from comment ids, not timestamps or response order.
+    expect(hasCurrentSkipRecord(issue, [ready, skip(issue)], trusted)).toBe(false);
   });
 
-  it('treats the issue as buildable when the timeline cannot be read', () => {
-    expect(current(issue(), [skip('caraseli02')], null)).toBe(false);
+  it('lapses on a body or title edit, even within the same second (evaluator reproduction)', () => {
+    expect(hasCurrentSkipRecord({ ...issue, body: 'Dependency dropped.' }, [skip(issue)], trusted)).toBe(false);
+    expect(hasCurrentSkipRecord({ ...issue, title: 'close-out (ready)' }, [skip(issue)], trusted)).toBe(false);
   });
 
-  it('ignores untrusted or bot skip comments', () => {
-    expect(current(issue(), [skip('drive-by')])).toBe(false);
-    expect(hasCurrentSkipRecord(issue(), [skip(BOT_LOGIN)], { trustedLogins: [...trusted, BOT_LOGIN], timeline: ownSideEffects })).toBe(
+  it('lapses on a label change, even in the same second as the skip (evaluator reproduction)', () => {
+    expect(hasCurrentSkipRecord({ ...issue, labels: [...issue.labels, label('priority:p1')] }, [skip(issue)], trusted)).toBe(false);
+  });
+
+  it('rejects untrusted, bot and fingerprint-less skip comments', () => {
+    expect(hasCurrentSkipRecord(issue, [skip(issue, 'drive-by')], trusted)).toBe(false);
+    expect(hasCurrentSkipRecord(issue, [skip(issue, BOT_LOGIN)], { trustedLogins: ['caraseli02', BOT_LOGIN] })).toBe(false);
+    expect(hasCurrentSkipRecord(issue, [{ id: 1, user: { login: 'caraseli02' }, body: '<!-- claude-skip -->\nold format' }], trusted)).toBe(
       false,
     );
   });
@@ -579,13 +572,11 @@ describe('reconcile against a fake GitHub API', () => {
     const { gh, calls } = fakeGitHub({
       '/pulls?state=open': [],
       '/issues?state=open': [skipped],
-      '/issues/651/timeline': [{ event: 'commented', id: 9, created_at: '2026-10-11T10:00:29Z' }],
       '/issues/651/comments': [
         {
           id: 9,
           user: { login: 'caraseli02' },
-          created_at: '2026-10-11T10:00:29Z',
-          body: '<!-- claude-skip -->\nWaits on #631 children; edits docs/agents/**.',
+          body: `<!-- claude-skip v=${issueFingerprint(skipped)} -->\nWaits on #631 children; edits docs/agents/**.`,
         },
       ],
     });
@@ -594,35 +585,34 @@ describe('reconcile against a fake GitHub API', () => {
     expect(posts(calls).filter((call) => call.path === '/issues')).toHaveLength(1);
   });
 
-  it('closes the empty-queue alert once the owner comments after a skip', async () => {
-    const issue = {
+  it('closes the empty-queue alert once the owner comments on or edits a skipped issue', async () => {
+    const skippedAs = {
       number: 651,
       state: 'open',
       title: 'close-out',
       labels: [label('agent:claude')],
       assignees: [],
-      body: '',
-      updated_at: '2026-10-11T10:01:00Z',
+      body: 'After #631.',
     };
-    const { gh, calls } = fakeGitHub({
-      '/pulls?state=open': [],
-      '/issues?state=open': [
-        issue,
-        { number: 50, state: 'open', title: QUEUE_ISSUE_TITLE, user: { login: BOT_LOGIN }, labels: [], assignees: [] },
-      ],
-      '/issues/651/comments': [
-        { id: 9, user: { login: 'caraseli02' }, created_at: '2026-10-11T10:00:00Z', body: '<!-- claude-skip -->\nWaits on #631.' },
-        { id: 10, user: { login: 'caraseli02' }, created_at: '2026-10-11T10:01:00Z', body: 'Dependency dropped. Ready now.' },
-      ],
-      '/issues/651/timeline': [
-        { event: 'commented', id: 9, created_at: '2026-10-11T10:00:00Z' },
-        { event: 'commented', id: 10, created_at: '2026-10-11T10:01:00Z' },
-      ],
-    });
-    await handleEvent({ eventName: 'schedule', gh, owner, config });
+    const tracking = { number: 50, state: 'open', title: QUEUE_ISSUE_TITLE, user: { login: BOT_LOGIN }, labels: [], assignees: [] };
+    const record = { id: 9, user: { login: 'caraseli02' }, body: `<!-- claude-skip v=${issueFingerprint(skippedAs)} -->\nWaits on #631.` };
 
-    expect(calls.find((call) => call.method === 'PATCH')).toMatchObject({ path: '/issues/50', body: { state: 'closed' } });
-    expect(posts(calls).filter((call) => call.path === '/issues')).toEqual([]);
+    const commented = fakeGitHub({
+      '/pulls?state=open': [],
+      '/issues?state=open': [skippedAs, tracking],
+      '/issues/651/comments': [record, { id: 10, user: { login: 'caraseli02' }, body: 'Dependency dropped. Ready now.' }],
+    });
+    await handleEvent({ eventName: 'schedule', gh: commented.gh, owner, config });
+    expect(commented.calls.find((call) => call.method === 'PATCH')).toMatchObject({ path: '/issues/50', body: { state: 'closed' } });
+
+    // A body correction two seconds after the skip leaves no new comment, only a changed issue.
+    const edited = fakeGitHub({
+      '/pulls?state=open': [],
+      '/issues?state=open': [{ ...skippedAs, body: 'No dependency any more.' }, tracking],
+      '/issues/651/comments': [record],
+    });
+    await handleEvent({ eventName: 'schedule', gh: edited.gh, owner, config });
+    expect(edited.calls.find((call) => call.method === 'PATCH')).toMatchObject({ path: '/issues/50', body: { state: 'closed' } });
   });
 
   it('reports an idle queue when the only candidates already have an open PR or a claude/issue-<n> branch', async () => {
