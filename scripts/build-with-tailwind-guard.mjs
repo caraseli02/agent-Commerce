@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import process from 'node:process';
+import process, { loadEnvFile } from 'node:process';
+import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { isCatalogIsrPreview } from '../helpers/catalog-isr-preview.mjs';
+
+// Match Nuxt's .env defaults before selecting the completed-build protector.
+try {
+  loadEnvFile('.env');
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
+}
 
 const tailwindDiagnostics = /Unknown at rule: @(apply|reference)|Cannot apply unknown utility class/i;
 const build = spawn('nuxt', ['build'], { stdio: ['inherit', 'pipe', 'pipe'] });
@@ -25,3 +35,15 @@ if (tailwindDiagnostics.test(output)) {
 }
 
 await import('./verify-tailwind-output.mjs');
+
+// Nitro's preset writes its final routes after nitro:compiled. Protect only
+// after the child has exited successfully so that final output cannot overwrite
+// the pre-cache gate. A malformed/unprotected candidate makes the build fail.
+if (isCatalogIsrPreview()) {
+  const { protectCatalogIsrOutput } = await import('../helpers/catalog-isr-output.ts');
+  await protectCatalogIsrOutput(
+    join(process.cwd(), '.vercel/output'),
+    fileURLToPath(new URL('../server/catalog-isr-policy.mjs', import.meta.url)),
+  );
+  console.log('Catalog ISR Preview output protected: four anonymous assets, TTL30, pre-filesystem gate.');
+}

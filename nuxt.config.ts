@@ -1,5 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
+import { catalogIsrCandidateRules } from './helpers/catalog-isr-output';
+import { isCatalogIsrPreview } from './helpers/catalog-isr-preview.mjs';
 import { withPrivateRobotsHeaders } from './helpers/seo-routes';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -11,7 +13,11 @@ export default defineNuxtConfig({
       // Prepend after Nuxt installs its handler; nonprivate/page errors fall
       // through to the original Nuxt handler and Nitro's normal fallback.
       const existing = config.errorHandler ? [config.errorHandler].flat() : [];
-      config.errorHandler = [fileURLToPath(new URL('./server/api-cache-error.ts', import.meta.url)), ...existing];
+      config.errorHandler = [
+        fileURLToPath(new URL('./server/catalog-page-error.ts', import.meta.url)),
+        fileURLToPath(new URL('./server/api-cache-error.ts', import.meta.url)),
+        ...existing,
+      ];
     },
   },
 
@@ -92,6 +98,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
+    catalogIsrPreview: isCatalogIsrPreview(),
     public: {
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       BASE_URL_API: process.env.NUXT_PUBLIC_BASE_URL_API ?? '/api',
@@ -118,8 +125,9 @@ export default defineNuxtConfig({
 
   // Private routes also send `X-Robots-Tag`; client-only dashboard HTML has no server-rendered robots meta.
   routeRules: withPrivateRobotsHeaders({
+    ...(isCatalogIsrPreview() ? catalogIsrCandidateRules : {}),
     '/dashboard/**': { appMiddleware: ['auth'], ssr: false },
-    '/product/categories': { appMiddleware: ['auth'] },
+    '/product/categories': { appMiddleware: ['auth'], ...(isCatalogIsrPreview() ? { isr: false } : {}) },
   }),
   devServer: {
     host: '0.0.0.0',

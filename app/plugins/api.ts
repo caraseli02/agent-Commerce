@@ -11,6 +11,9 @@ declare module '#app' {
 
 export default defineNuxtPlugin((nuxtApp) => {
   const config = nuxtApp.$config.public;
+  // Fetch hooks can run after Nuxt's setup context has ended. Capture the
+  // request's reactive cookie here instead of calling a composable in a hook.
+  const tokenCookie = useCookie<string | null>('token');
 
   const baseURL = (() => {
     if (!config.MOCK_MODE) {
@@ -21,18 +24,15 @@ export default defineNuxtPlugin((nuxtApp) => {
       return '/api';
     }
 
-    const event = nuxtApp.ssrContext?.event;
-    const protoHeader = event?.node.req.headers['x-forwarded-proto'];
-    const protocol = Array.isArray(protoHeader) ? protoHeader[0] : protoHeader || 'http';
-    const host = event?.node.req.headers.host || 'localhost:3000';
-
-    return `${protocol}://${host}/api`;
+    // Internal Nitro fetch also works on protected Vercel previews: no
+    // self-HTTP request crosses deployment authentication.
+    return '/api';
   })();
 
   const fetchOptions: FetchOptions = {
     baseURL,
     onRequest({ options }) {
-      const token = useCookie('token').value;
+      const token = tokenCookie.value;
       if (!token) return;
 
       options.headers = withSessionAuthorization(options.headers as HeadersInit | undefined, token);
@@ -48,7 +48,11 @@ export default defineNuxtPlugin((nuxtApp) => {
   };
 
   /** create a new instance of $fetcher with custom option */
-  const apiFetcher = $fetch.create(fetchOptions);
+  const requestFetch = config.MOCK_MODE ? nuxtApp.ssrContext?.event.fetch : undefined;
+  const apiFetcher = $fetch.create(
+    fetchOptions,
+    requestFetch ? { fetch: (input, init) => requestFetch(input instanceof URL ? input.href : input, init) } : undefined,
+  );
 
   return {
     provide: {
