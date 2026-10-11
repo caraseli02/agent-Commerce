@@ -399,7 +399,7 @@ async function main() {
       process.exit(1);
     }
     await writeFile(baselinePath, serializeBaseline(result.counts));
-    console.log(`UI conventions: created ${baselineRelativePath} with ${formatTotals(result.counts)}.`);
+    console.info(`UI conventions: created ${baselineRelativePath} with ${formatTotals(result.counts)}.`);
     return;
   }
 
@@ -423,7 +423,7 @@ async function main() {
     }
     const before = formatTotals(baseline);
     await writeFile(baselinePath, serializeBaseline(updated.baseline));
-    console.log(`UI conventions: baseline updated (${before} -> ${formatTotals(updated.baseline)}).`);
+    console.info(`UI conventions: baseline updated (${before} -> ${formatTotals(updated.baseline)}).`);
     return;
   }
 
@@ -453,7 +453,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(
+  console.info(
     `UI conventions OK: scanned ${Object.keys(scans).length} .vue file(s) outside ${primitivesPrefix}; native elements match the baseline (${formatTotals(result.counts)}); ${result.exceptions.length} accepted ui-native exception(s).`,
   );
 }
