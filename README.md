@@ -234,8 +234,9 @@ Refund success atomically cancels the paid held Order and finalizes its REFUND
 claim. Payment remains PAID. Stale pending snapshots cannot regress successful
 truth. A current authoritative bank-return failure can change SUCCEEDED to FAILED;
 FAILED then remains absorbing against stale success reads. Its application
-consequence restores ON_HOLD and compensation_recovery_required, including after
-prior cancellation, without reopening fulfillment. Unsafe identity/status reads
+consequence sets compensation_recovery_required for manual handling: an Order still
+held stays ON_HOLD, and an Order already CANCELED stays CANCELED with its Payment
+PAID. Neither reopens fulfillment. Unsafe identity/status reads
 remain retryable and held. See [Stripe's failed refund contract](https://docs.stripe.com/refunds#failed-refunds).
 Migration `008_refund_constraints` preserves migration007 and constrains provider
 identity, terminal state, and non-null create-start. Missing legacy starts become

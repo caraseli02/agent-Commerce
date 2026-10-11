@@ -242,6 +242,28 @@ describe('late paid success delivery continues compensation without a browser', 
     });
   });
 
+  it('keeps a canceled Order canceled when the Refund fails after success and still acknowledges paid replays', async () => {
+    remoteStatus = 'succeeded';
+    const { input } = webhook();
+    expect(await handleStripeWebhook(input)).toEqual({ kind: 'accepted' });
+    expect(await state()).toMatchObject({ orderStatus: 'Canceled', workflow_status: 'finalized', refund_status: 'SUCCEEDED' });
+    remoteStatus = 'failed';
+    expect(await handleStripeWebhook({ ...input, ...signed('refund.failed', 'evt_compensation_late_failure') })).toEqual({
+      kind: 'accepted',
+    });
+    const recovered = {
+      orderStatus: 'Canceled',
+      workflow_status: 'compensation_recovery_required',
+      refund_status: 'FAILED',
+      payment_status: 'PAID',
+      paid_recovery_decision: 'REFUND',
+    };
+    expect(await state()).toMatchObject(recovered);
+    expect(await handleStripeWebhook(input)).toEqual({ kind: 'accepted' });
+    expect(await state()).toMatchObject(recovered);
+    expect(create).toHaveBeenCalledOnce();
+  });
+
   it('retries paid delivery after Refund success commits but application settlement crashes', async () => {
     remoteStatus = 'succeeded';
     const crashed = refunds(async () => {

@@ -23,8 +23,15 @@ export const requireRefundCompensationRecovery = async (input: {
       }
     >('SELECT * FROM checkout_claims WHERE payment_id=$1 FOR UPDATE', [input.paymentId]);
     const claim = parseCheckoutClaim(stored);
-    if (claim?.workflow_status === 'finalized' && claim.paid_recovery_decision === 'REFUND' && claim.order_id === input.orderId) {
-      const order = await orders.getCheckoutStatePreparation(input.orderId);
+    const order =
+      claim?.paid_recovery_decision === 'REFUND' &&
+      claim.order_id === input.orderId &&
+      ['finalized', 'compensation_recovery_required'].includes(claim.workflow_status)
+        ? await orders.getCheckoutStatePreparation(input.orderId)
+        : null;
+    // A Refund failure after cancellation keeps the Order Canceled and sends the
+    // claim to manual recovery (DECISIONS.md 2026-10-11); it never reopens the hold.
+    if (claim && order && (claim.workflow_status === 'finalized' || order.paidCanceled)) {
       const payment = await payments.getPaymentPreparationForUpdate(input.paymentId);
       const refund = await getRefundPreparationForUpdate(input.paymentId);
       if (
@@ -41,13 +48,15 @@ export const requireRefundCompensationRecovery = async (input: {
         payment.currency !== order.currency ||
         refund?.status !== 'FAILED' ||
         refund.orderId !== input.orderId ||
-        !(await orders.settlePaidCompensation({ ...input, failed: true }))
+        order.paidByPaymentId !== input.paymentId ||
+        !order.paidCanceled
       )
         return { kind: 'conflict' };
-      await database.execute(
-        "UPDATE checkout_claims SET workflow_status='compensation_recovery_required',updated_at=$1 WHERE payment_id=$2",
-        [new Date().toISOString(), input.paymentId],
-      );
+      if (claim.workflow_status === 'finalized')
+        await database.execute(
+          "UPDATE checkout_claims SET workflow_status='compensation_recovery_required',updated_at=$1 WHERE payment_id=$2",
+          [new Date().toISOString(), input.paymentId],
+        );
       return { kind: 'recovery-required' };
     }
     return (

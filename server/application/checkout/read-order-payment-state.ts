@@ -57,7 +57,7 @@ export const readOrderPaymentSnapshot = async (input: { ownerId: string; orderId
     if (claim.paid_recovery_decision === 'REFUND') {
       if (
         payment.status !== 'PAID' ||
-        !(order.paidHeld || (claim.workflow_status === 'finalized' && order.paidCanceled)) ||
+        !(order.paidHeld || (['finalized', 'compensation_recovery_required'].includes(claim.workflow_status) && order.paidCanceled)) ||
         order.paidByPaymentId !== claim.payment_id ||
         !['compensation_pending', 'compensation_recovery_required', 'finalized'].includes(claim.workflow_status)
       )

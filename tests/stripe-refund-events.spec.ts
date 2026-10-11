@@ -204,25 +204,28 @@ describe('signed Refund financial truth and compensation settlement', () => {
     expect(await ingress(service(), 'refund.failed', 'evt_stale_failure', { status: 'failed' })).toEqual({ kind: 'accepted' });
     expect(await state()).toMatchObject({ refund_status: 'SUCCEEDED', workflow_status: 'finalized', order_status: 'Canceled' });
   });
-  it('authoritative bank-return failure after settlement restores hold and survives older success delivery', async () => {
+  it('late bank-return failure after settlement keeps the Order Canceled in manual recovery', async () => {
     await ingress();
+    expect(await state()).toMatchObject({ refund_status: 'SUCCEEDED', workflow_status: 'finalized', order_status: 'Canceled' });
     remote.status = 'failed';
     expect(await ingress(service(), 'refund.failed', 'evt_failed')).toEqual({ kind: 'accepted' });
-    expect(await state()).toMatchObject({
+    const recovered = {
       refund_status: 'FAILED',
       workflow_status: 'compensation_recovery_required',
-      order_status: 'On Hold',
+      order_status: 'Canceled',
       payment_status: 'PAID',
       on_hand: 5,
       reserved: 1,
-    });
+    };
+    expect(await state()).toMatchObject(recovered);
+    // Duplicate failure and older success deliveries are acknowledged without moving the Order.
+    expect(await ingress(service(), 'refund.failed', 'evt_failed')).toEqual({ kind: 'accepted' });
     remote.status = 'succeeded';
     expect(await ingress(service(), 'refund.updated', 'evt_old_success')).toEqual({ kind: 'accepted' });
-    expect(await state()).toMatchObject({
-      refund_status: 'FAILED',
-      workflow_status: 'compensation_recovery_required',
-      order_status: 'On Hold',
-    });
+    expect(await state()).toMatchObject(recovered);
+    expect(await requireRefundCompensationRecovery({ paymentId, orderId })).toEqual({ kind: 'recovery-required' });
+    expect(await settleRefundCompensation({ paymentId, orderId, refundId: 'refund-event' })).toEqual({ kind: 'retry' });
+    expect(await state()).toMatchObject(recovered);
   });
   it('completion versus failure reporting races never reopen fulfillment or erase failure', async () => {
     let release!: () => void;
