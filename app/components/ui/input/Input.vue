@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue';
+import { type HTMLAttributes, ref } from 'vue';
 import { useVModel } from '@vueuse/core';
 import { cn } from '@/lib/utils';
 
@@ -17,10 +17,16 @@ const modelValue = useVModel(props, 'modelValue', emits, {
   passive: true,
   defaultValue: props.defaultValue,
 });
+
+// A template ref on <UiInput> points at the component, not the <input>; reach the element via `ref.value?.el`.
+const el = ref<HTMLInputElement | null>(null);
+
+defineExpose({ el });
 </script>
 
 <template>
   <input
+    ref="el"
     v-model="modelValue"
     :class="
       cn(

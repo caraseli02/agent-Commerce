@@ -87,3 +87,8 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 - Buyer-flow UI (`app/components/order-summary/PaymentMethodSection.vue`) and pages (`app/pages/order-summary/index.vue`) call these helpers instead of reading `MOCK_MODE` directly for those behaviors.
 - `app/middleware/auth.ts` uses `requiresDemoToken` rather than branching on `MOCK_MODE` for demo-token enforcement.
 - Tests cover mock vs live outcomes in `tests/mock-integration.spec.ts`; `pnpm verify` and a mock checkout/auth smoke protect the seam.
+
+## UI
+
+- Primitives live in `app/components/ui/<name>/` (shadcn-vue style on `radix-vue`), auto-imported with the `Ui` prefix (`UiButton`, `UiRadioGroup`, `UiRadioGroupItem`). They merge a `class` prop with `cn` and forward the rest with `useForwardProps`/`useForwardPropsEmits`.
+- A template `ref` on a primitive points at the component instance, not the DOM node. `UiInput` exposes its `<input>` as `el`: `inputRef.value?.el?.focus()`. For other single-root primitives use `ref.value?.$el`.
