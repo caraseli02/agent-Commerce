@@ -25,7 +25,10 @@ export default defineNuxtPlugin({
         preventCaching();
       } else {
         event.context.catalogPageCacheHealthy = true;
-        setResponseHeader(event, 'X-Catalog-Page-Generated-At', String(Date.now()));
+        const generatedAt = Date.now();
+        // A body marker distinguishes a fresh render from retained CDN headers.
+        nuxtApp.payload.state.catalogPageGeneratedAt = generatedAt;
+        setResponseHeader(event, 'X-Catalog-Page-Generated-At', String(generatedAt));
       }
     });
   },
