@@ -31,8 +31,7 @@ backend or production dependency is required.
    this retained preview contract: mock taxonomy is rebuilt from bundled data,
    and Create/Update server mutations are not asserted by this review.
 
-Run `pnpm test:e2e tests/e2e/demo-component-contract.spec.ts
- tests/e2e/control-panel-settings-redirect.spec.ts` (on one shell line). The
+Run `pnpm test:e2e tests/e2e/demo-component-contract.spec.ts tests/e2e/control-panel-settings-redirect.spec.ts`. The
 browser suite starts its own built mock preview with an isolated database.
 Each upload case attaches `create-empty.png`, `create-uploaded.png`,
 `edit-empty.png`, `edit-uploaded.png`, and `runtime.json` to its Playwright
