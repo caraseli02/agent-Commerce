@@ -74,8 +74,9 @@
             class="max-md:mb-4"
           />
           <button
+            type="button"
             class="flex items-center justify-center w-full bg-blue-500 rounded-lg px-6 py-2.5 text-white"
-            @:click="resetPassword(securityEmail)"
+            @click="resetPassword(securityEmail)"
           >
             <SecurityUserIcon class="w-6 h-6 mr-2" />
             <span class="text-sm leading-[1.71] font-medium"> Send Password Reset </span>
