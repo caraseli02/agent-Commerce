@@ -31,12 +31,12 @@
           >
             Cancel
           </NuxtLink>
-          <button
+          <UiButton
             type="submit"
             class="flex items-center justify-center p-2 rounded-lg bg-blue-500 leading-[1.67] h-12 text-white font-medium"
           >
             Save Password
-          </button>
+          </UiButton>
         </div>
       </form>
     </div>
