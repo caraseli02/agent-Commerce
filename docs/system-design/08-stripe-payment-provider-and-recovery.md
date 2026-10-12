@@ -421,6 +421,12 @@ the invariant is not.
 
 #### Phase B — Stripe activation gate
 
+Use the [Gate A activation runbook](../agents/payments/activation-gate-a-runbook.md)
+to capture the deployment/database inventory, establish an isolated Preview
+candidate, and record the cross-version replay evidence. The runbook is an
+execution procedure; it does not approve activation or the later schema
+contraction.
+
 Before the first Stripe-backed PaymentIntent is created against a database:
 
 1. enumerate every deployment/runtime that can write that checkout database;
