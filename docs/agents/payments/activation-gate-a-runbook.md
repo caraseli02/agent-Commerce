@@ -1,7 +1,7 @@
 # Stripe activation Gate A runbook
 
 This procedure turns the Phase B requirements in the [Stripe payment and
-recovery ADR](../../../system-design/08-stripe-payment-provider-and-recovery.md#phase-b--stripe-activation-gate)
+recovery ADR](../../system-design/08-stripe-payment-provider-and-recovery.md)
 into reviewable deployment evidence. It is not an activation approval. Keep
 Stripe disabled until every prerequisite and replay result is reviewed for the
 exact candidate deployment and database.
@@ -16,8 +16,10 @@ The #556 owner decision accepts deterministic Stripe.js-double coverage for
 that issue's UI criteria. It assigns one real sandbox card success and one real
 3DS challenge to #559 Gate A. Both remain required before Gate A approval.
 
-Keep `PAYMENTS_PROVIDER` and `STRIPE_GATE_A_APPROVED` unset or false while the
-inventory is incomplete. The server activation predicate requires both
+The exact checked-in off defaults are `PAYMENTS_PROVIDER=mock` and
+`STRIPE_GATE_A_APPROVED=false`. While the inventory is incomplete, verify the
+shared Preview/Production predicate remains off and do not enable either flag
+there. The server activation predicate requires both
 `PAYMENTS_PROVIDER=stripe` and `STRIPE_GATE_A_APPROVED=true`. Do not set either
 on the shared Preview or Production environment. The isolated sandbox check
 below requires an explicit owner decision before those existing flags can be
@@ -139,9 +141,23 @@ unmapped deployment or to the production branch.
    connection strings omitted. Turn the candidate flags off after the run and
    before final Gate A review; never enable them on the shared Preview or
    Production environment as part of this sandbox check.
-7. Confirm duplicate event delivery and refresh/resume preserve the same
+7. Finish the remaining #559 deployed acceptance flows against the safe
+   Preview candidate: decline followed by retry; browser refresh and resume;
+   provider cancellation followed by explicit checkout restart; full refund,
+   refund webhooks, and reconciliation; and signed HTTPS webhook delivery with
+   recovery across independent serverless invocations.
+8. Force a normal-finalization crash after `PAID` and a REFUND-decision crash
+   before Refund creation, with no browser return. Prove duplicate payment
+   success delivery resumes each path safely. Confirm pending, failed, or
+   unknown Refund states never resume fulfillment and the original success
+   webhook is not acknowledged before durable Refund identity/completion.
+9. Confirm duplicate event delivery and refresh/resume preserve the same
    payment authority. Attach exact command/request evidence and safe state
    snapshots to the #559 review; do not commit transient logs or payment data.
+
+The card success and 3DS checks transferred from #556 are only two parts of
+#559's acceptance. They do not replace any of the deployed recovery, webhook,
+refund, cancellation, or non-fulfillment cases above.
 
 This replay proves isolation only for the mapped deployments and candidate
 branch in the recorded inventory window. It does not prove that an unlisted,
