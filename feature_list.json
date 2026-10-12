@@ -56,7 +56,7 @@
       "evidence": [
         "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/588. Not claimed or implemented in this workflow repair.",
         "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Live claim: #588 is open and in-progress. PR #653 (late-paid refund compensation through webhook retries, Closes #588) was merged into the #630 branch codex/587-refund-events, not main, so #588 lands only when #630 does. Not passing.",
-        "2026-10-12 reconciliation: implementation is in main through PR #653 carried by #630 (main merge commit 13211c7fe4efd2f9e85d3556e2934740078d9358; #630 final head ff7bb72cb59358fc964753351494d4342204c372). Preserve the valid independent Claude PASS for #653 exact head 91245afb1446501d6f6b54a88edab55b6837895f: https://github.com/caraseli02/agent-Commerce/pull/653#issuecomment-6085596280. Issue #588 remains OPEN; integration-stack final review/tracking reconciliation is pending, so this feature is blocked rather than complete."
+        "2026-10-12 reconciliation: implementation is in main through PR #653 carried by #630 (main merge commit 13211c7fe4efd2f9e85d3556e2934740078d9358; #630 final head ff7bb72cb59358fc964753351494d4342204c372). Preserve the valid independent Claude PASS for #653 exact head 91245afb1446501d6f6b54a88edab55b6837895f: https://github.com/caraseli02/agent-Commerce/pull/653#issuecomment-6085596280. Issue #588 remains OPEN; integration-stack final review/tracking reconciliation is pending, so this feature is blocked rather than complete. GitHub #557 retains the #588 checklist unchecked and the epic remains OPEN."
       ]
     },
     {
@@ -87,7 +87,7 @@
       "validation": "Children #586 and #587 meet their independent completion criteria; tracking epic remains excluded from executable WIP.",
       "status": "blocked",
       "evidence": [
-        "2026-10-12 reconciliation from origin/main 517627ff: #558 remains OPEN. #586 is closed; #587 is closed by #630, but its final merged head has no formal exact-head evaluator PASS. Keep this tracking epic blocked pending #587 final review; no epic PASS or closure is inferred."
+        "2026-10-12 reconciliation from origin/main 517627ff: #558 remains OPEN. #586 is closed, but merged #607 final head a3a870c91c3b789f508047efc592e171a70e76be has no structured exact-head final verdict. #587 is closed by #630, but its final merged head has no formal exact-head evaluator PASS. Keep this tracking epic blocked pending final reviews; no epic PASS or closure is inferred. GitHub metadata keeps #587 unchecked; the epic remains OPEN."
       ]
     },
     {
@@ -105,7 +105,7 @@
       "validation": "A verified provider Refund with no known local Refund is durably recorded and surfaced for manual handling without changing Payment, Refund or Order state; delivery behavior and replay safety are independently verified.",
       "status": "active",
       "evidence": [
-        "2026-10-12 live GitHub reconciliation: https://github.com/caraseli02/agent-Commerce/issues/660 is OPEN and labeled in-progress; this is the current payment claim. Implementation remains with the active builder. PR link and its final verification evidence will be added after publication; no implementation or PASS is claimed by this snapshot edit."
+        "2026-10-12 live GitHub reconciliation: https://github.com/caraseli02/agent-Commerce/issues/660 is OPEN and labeled in-progress, with separate PR https://github.com/caraseli02/agent-Commerce/pull/674 at exact head 79aef05e79e56aedbe25ab8dbf0b2b0f3d2d8b92 (base 517627fffae58959cf9fde2ae67c3f5fe80de00a). Generator handoff passed: focused suites 89/89 and 35/35, plus clean pnpm verify:handoff at 120 files / 1,005 tests + 2 todo with build, lint, typecheck, coverage, architecture and preview checks. PR CI and independent exact-head evaluation are pending; issue remains active and no PASS is claimed."
       ]
     },
     {
@@ -126,7 +126,8 @@
       "evidence": [
         "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/585. Not claimed or implemented in this workflow repair.",
         "ADR fixes transactional safety but does not define automatic commercial selection priority/eligibility. GitHub task is blocked/ready-for-human until the deterministic rule is recorded; no agent may invent it.",
-        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. The earlier blocked state no longer applies: PR #629 merged on 2026-10-09 as ac42b672 and closed #585 with an independent exact-head PASS (b716d2e8) and passing verify. The closed issue still carries a stale in-progress label."
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. The earlier blocked state no longer applies: PR #629 merged on 2026-10-09 as ac42b672 and closed #585 with an independent exact-head PASS (b716d2e8) and passing verify. The closed issue still carries a stale in-progress label.",
+        "2026-10-12 metadata refresh: #585 remains CLOSED; it has no in-progress label, and its #557 epic checklist is now checked based on the merged #629 exact-head PASS."
       ]
     },
     {
@@ -166,7 +167,7 @@
         "Merged paid-recovery schema/local compensation/recovery guards: #576/#577/#579; internal owner-safe state snapshot #581 merged at 5cd361e8 with independent PASS 10/10 and fresh 567-test CI.",
         "Detailed historical slice verification remains in https://github.com/caraseli02/agent-Commerce/issues/557 and its linked PRs. No provider Refund or public refresh completion is claimed.",
         "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Children #584, #585 and #586 are closed (PRs #594, #629, #607); #587/#588 remain open behind #630. #556 (Payment Element, PR #654: exact-head Claude verdict BLOCKED) and #559 activation stay blocked/default-off.",
-        "2026-10-12 reconciliation from origin/main 517627ff: #557 remains OPEN. #587 is closed by merged #630 but lacks a formal exact-head evaluator PASS; #588 remains OPEN despite implementation landing through #653/#630. Child completion evidence and epic closure criteria are therefore unmet; Stripe activation also remains gated by blocked #559. No epic PASS or closure is inferred."
+        "2026-10-12 reconciliation from origin/main 517627ff: #557 remains OPEN. #587 is closed by merged #630 but lacks a formal exact-head evaluator PASS; #588 remains OPEN despite implementation landing through #653/#630. Additional final-head evaluator gaps: merged #584/#594 at fae7d7f47ef847736a10157da316368b7161d10b has advisory review only; merged #586/#607 at a3a870c91c3b789f508047efc592e171a70e76be has no structured exact-head final verdict. Child completion evidence and epic closure criteria are therefore unmet; Stripe activation also remains gated by blocked #559. No epic PASS or closure is inferred. GitHub metadata now checks #585 complete (closed via #629 exact-head PASS); #588 remains unchecked and OPEN."
       ]
     },
     {
