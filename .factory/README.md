@@ -28,7 +28,7 @@ The repo workflow itself (roles, verdicts, verification ladder) stays in `AGENTS
 | Time (Europe/Madrid) | What happens                                                                                                                                                                |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | any time             | Vlad labels issues `agent:claude` for Claude's queue                                                                                                                        |
-| hourly, 09:00–19:00  | `claude-routine`: repair its own failed PR, else review one PR without a verdict, else build one                                                                            |
+| hourly, 24h          | `claude-routine`: repair its own failed PR, else review one PR without a verdict, else build one                                                                            |
 | Codex's own schedule | Codex builds its issues and reviews `agent:claude` PRs                                                                                                                      |
 | whenever             | Vlad gets a bot @mention (owner-attention workflow) when a PR awaits his merge, an issue is blocked, a Claude PR needs `owner-approved-harness`, or Claude's queue is empty |
 
@@ -56,12 +56,12 @@ The routine runs in `mode: build` since 2026-10-08, after the rollout acceptance
 
 Create one **Local** routine in Claude Desktop (Code tab → Routines → New routine):
 
-| Field    | claude-routine                              |
-| -------- | ------------------------------------------- |
-| Folder   | `~/Documents/agent-Commerce`                |
-| Worktree | on                                          |
-| Schedule | `0 9-19 * * *` (hourly at :00, 09:00–19:00) |
-| Mode     | Accept edits (never Bypass permissions)     |
+| Field    | claude-routine                                |
+| -------- | --------------------------------------------- |
+| Folder   | `~/Documents/agent-Commerce`                  |
+| Worktree | on                                            |
+| Schedule | `0 * * * *` (hourly at :00, around the clock) |
+| Mode     | Accept edits (never Bypass permissions)       |
 
 Instructions:
 
