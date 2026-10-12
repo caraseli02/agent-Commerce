@@ -15,6 +15,16 @@ const selectedIndex = defineModel<number>('selectedIndex');
 
 const isOpen = defineModel<boolean>('open', { default: false });
 
+// The lazy dialog has no DialogTrigger; retain the button that requested it.
+const opener = import.meta.client ? document.activeElement : null;
+
+function restoreFocus(event: Event) {
+  if (opener instanceof HTMLElement && opener.isConnected) {
+    event.preventDefault();
+    opener.focus();
+  }
+}
+
 function onSelect() {
   if (!emblaMainApi.value || !emblaThumbnailApi.value) return;
   selectedIndex.value = emblaMainApi.value.selectedScrollSnap();
@@ -43,12 +53,13 @@ onMounted(() => {
 
 <template>
   <UiDialog :open="isOpen" @update:open="isOpen = $event">
-    <UiDialogContent class="w-full max-w-sm md:max-w-3xl">
+    <UiDialogContent class="w-full max-w-sm md:max-w-3xl" @close-auto-focus="restoreFocus">
       <UiDialogHeader>
         <UiDialogTitle>{{ alias }}</UiDialogTitle>
+        <UiDialogDescription class="sr-only">Browse product images and use the mouse wheel to zoom.</UiDialogDescription>
       </UiDialogHeader>
       <div class="w-full mx-auto sm:w-auto">
-        <UiCarousel class="relative w-full max-w-xl" @init-api="(val) => (emblaMainApi = val)">
+        <UiCarousel :opts="{ startIndex: selectedIndex ?? 0 }" class="relative w-full max-w-xl" @init-api="(val) => (emblaMainApi = val)">
           <UiCarouselContent>
             <UiCarouselItem
               v-for="(image, index) in images.length ? images : [{ ProductImageLarge: '', ProductImageSmall: '' }]"
