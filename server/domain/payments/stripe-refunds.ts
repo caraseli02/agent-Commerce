@@ -123,7 +123,7 @@ export const readRefundContinuation = async (input: {
 };
 
 export const isSupportedStripeRefundEvent = (type: string) => ['refund.created', 'refund.updated', 'refund.failed'].includes(type);
-export type VerifiedRefundEventResult = RefundResult;
+export type VerifiedRefundEventResult = RefundResult | { kind: 'manual-handling-required'; eventId: string };
 
 export const createStripeRefundAdapter = (options: {
   provider: StripeRefundProvider;
@@ -365,15 +365,58 @@ export const createStripeRefundAdapter = (options: {
     refund: StripeRefund;
   }): Promise<VerifiedRefundEventResult> => {
     assertOutsideCheckoutTransaction('Stripe verified Refund event');
-    if (!(options.enabled?.() ?? false) || !input.eventId || !isSupportedStripeRefundEvent(input.eventType)) return recovery;
+    if (
+      !(options.enabled?.() ?? false) ||
+      typeof input.eventId !== 'string' ||
+      !/^evt_.+$/.test(input.eventId) ||
+      !isSupportedStripeRefundEvent(input.eventType) ||
+      typeof input.refund.id !== 'string' ||
+      !/^re_.+$/.test(input.refund.id) ||
+      (input.refund.paymentIntentId !== null &&
+        (typeof input.refund.paymentIntentId !== 'string' || !/^pi_.+$/.test(input.refund.paymentIntentId)))
+    )
+      return recovery;
     const db = await getCheckoutDatabase();
+    const manualOutcome = (receipt: Record<string, unknown>): VerifiedRefundEventResult =>
+      receipt.refund_id === null &&
+      receipt.event_type === input.eventType &&
+      receipt.stripe_refund_id === input.refund.id &&
+      receipt.stripe_payment_intent_id === input.refund.paymentIntentId
+        ? { kind: 'manual-handling-required', eventId: input.eventId }
+        : recovery;
+    const [receipt] = await db.query('SELECT * FROM checkout_stripe_refund_events WHERE event_id=$1', [input.eventId]);
+    // Manual receipts are immutable routing decisions, even if later metadata
+    // or local rows could correlate the event. They never authorize application.
+    if (receipt?.refund_id === null) return manualOutcome(receipt);
     const [known] = await db.query<{ payment_id: string }>('SELECT payment_id FROM checkout_refunds WHERE stripe_refund_id=$1', [
       input.refund.id,
     ]);
-    const paymentId = known?.payment_id ?? input.refund.metadata?.paymentId;
+    const [metadataRefund] = known
+      ? []
+      : await db.query<{ payment_id: string }>('SELECT payment_id FROM checkout_refunds WHERE id=$1', [
+          input.refund.metadata?.refundId ?? null,
+        ]);
+    const paymentId = known?.payment_id ?? metadataRefund?.payment_id ?? input.refund.metadata?.paymentId;
+    const refund = paymentId ? await readRefund(paymentId) : undefined;
+    if (!known && !metadataRefund && !refund) {
+      // This signed snapshot is evidence for a human, not financial truth.
+      // A single committed insert is the acknowledgment gate; concurrent or
+      // conflicting event IDs must match the durable manual receipt exactly.
+      return withCheckoutTransaction(async () => {
+        const database = await getCheckoutDatabase();
+        const [inserted] = await database.query(
+          `INSERT INTO checkout_stripe_refund_events
+            (event_id,event_type,stripe_refund_id,refund_id,stripe_payment_intent_id,observed_at)
+           VALUES ($1,$2,$3,NULL,$4,$5::timestamptz) ON CONFLICT (event_id) DO NOTHING RETURNING *`,
+          [input.eventId, input.eventType, input.refund.id, input.refund.paymentIntentId, now().toISOString()],
+        );
+        const stored =
+          inserted ?? (await database.query('SELECT * FROM checkout_stripe_refund_events WHERE event_id=$1', [input.eventId]))[0];
+        return stored ? manualOutcome(stored) : recovery;
+      });
+    }
     if (!paymentId) return recovery;
     const payment = await readPayment(paymentId);
-    const refund = await readRefund(paymentId);
     if (!payment || !refund || !matches(refund, payment) || parsePersistedPaymentStatus(payment.status) !== 'PAID') return recovery;
     const prepared = { refund, orderId: payment.order_id };
     if (!providerMatches(input.refund, prepared) || (refund.stripe_refund_id && refund.stripe_refund_id !== input.refund.id)) {

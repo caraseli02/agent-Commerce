@@ -70,11 +70,17 @@ const state = async () => {
   if (!row) throw new Error('Refund test state missing');
   return { ...row, order_status: JSON.parse(String(row.payload_json)).order.status };
 };
+const financialSnapshot = async () => {
+  const db = await getCheckoutDatabase();
+  return Promise.all(
+    ['checkout_payments', 'checkout_refunds', 'checkout_orders', 'checkout_claims'].map((table) => db.query(`SELECT * FROM ${table}`)),
+  );
+};
 describe('signed Refund financial truth and compensation settlement', () => {
   beforeEach(async () => {
     const database = await getCheckoutDatabase();
     await database.execute(
-      'TRUNCATE checkout_stripe_webhook_events, checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
+      'TRUNCATE checkout_stripe_refund_events, checkout_stripe_webhook_events, checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
     );
     await database.execute("INSERT INTO checkout_inventory (product_id, on_hand, reserved) VALUES ('prod-1', 5, 1)");
     await database.execute(
@@ -143,6 +149,144 @@ describe('signed Refund financial truth and compensation settlement', () => {
     ).toEqual({ kind: 'invalid-signature' });
     expect(retrieve).not.toHaveBeenCalled();
     expect(await state()).toMatchObject({ refund_status: 'PENDING', workflow_status: 'compensation_pending', order_status: 'On Hold' });
+  });
+  it.each([
+    ['Dashboard-created refund', { id: 're_dashboard', metadata: {} }],
+    ['missing metadata and PaymentIntent', { id: 're_missing', metadata: {}, paymentIntentId: null }],
+    ['unknown Payment metadata', { id: 're_foreign', metadata: { paymentId: 'pay-unknown', refundId: 'refund-unknown' } }],
+  ] satisfies [string, Partial<StripeRefund>][])(
+    'durably queues %s for manual handling without financial or application effects',
+    async (_description, patch) => {
+      const before = await financialSnapshot();
+      const db = await getCheckoutDatabase();
+      const timestamp = new Date('2026-10-12T12:00:00Z');
+      const svc = createStripeRefundAdapter({
+        enabled: () => true,
+        now: () => timestamp,
+        provider: { retrieve, create },
+        withRefundCompensation,
+        onSucceeded: vi.fn(),
+        onRecoveryRequired: vi.fn(),
+      });
+      expect(await ingress(svc, 'refund.created', 'evt_manual', patch)).toEqual({ kind: 'accepted' });
+      expect(await db.query('SELECT * FROM checkout_stripe_refund_manual_handling')).toEqual([
+        {
+          event_id: 'evt_manual',
+          event_type: 'refund.created',
+          stripe_refund_id: patch.id,
+          stripe_payment_intent_id: patch.paymentIntentId === null ? null : intentId,
+          observed_at: timestamp,
+        },
+      ]);
+      expect(await financialSnapshot()).toEqual(before);
+      expect(await db.query('SELECT id FROM checkout_refunds')).toEqual([{ id: 'refund-event' }]);
+      expect(retrieve).not.toHaveBeenCalled();
+      expect(create).not.toHaveBeenCalled();
+    },
+  );
+  it('concurrent manual deliveries commit one receipt and preserve its first observation', async () => {
+    const patch = { id: 're_dashboard', metadata: {} };
+    const before = await financialSnapshot();
+    expect(
+      await Promise.all([
+        ingress(service(), 'refund.updated', 'evt_manual', patch),
+        ingress(service(), 'refund.updated', 'evt_manual', patch),
+      ]),
+    ).toEqual([{ kind: 'accepted' }, { kind: 'accepted' }]);
+    const db = await getCheckoutDatabase();
+    const receipts = await db.query('SELECT * FROM checkout_stripe_refund_events');
+    expect(receipts).toHaveLength(1);
+    expect(await ingress(service(), 'refund.updated', 'evt_manual', patch)).toEqual({ kind: 'accepted' });
+    expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toEqual(receipts);
+    expect(await financialSnapshot()).toEqual(before);
+    expect(retrieve).not.toHaveBeenCalled();
+  });
+  it('manual receipts never auto-apply when metadata and local correlation later become known', async () => {
+    const patch = { id: 're_dashboard', metadata: {} };
+    expect(await ingress(service(), 'refund.updated', 'evt_manual', patch)).toEqual({ kind: 'accepted' });
+    const db = await getCheckoutDatabase();
+    await db.execute("UPDATE checkout_refunds SET stripe_refund_id='re_dashboard'");
+    const before = await financialSnapshot();
+    expect(await ingress(service(), 'refund.updated', 'evt_manual', { id: 're_dashboard' })).toEqual({ kind: 'accepted' });
+    expect(await financialSnapshot()).toEqual(before);
+    expect(await db.query('SELECT * FROM checkout_stripe_refund_manual_handling')).toHaveLength(1);
+    expect(retrieve).not.toHaveBeenCalled();
+  });
+  it.each([
+    ['refund.failed', { id: 're_dashboard', metadata: {} }],
+    ['refund.updated', { id: 're_other', metadata: {} }],
+    ['refund.updated', { id: 're_dashboard', metadata: {}, paymentIntentId: 'pi_other' }],
+  ] satisfies [string, Partial<StripeRefund>][])('refuses reused manual event identity %s %j without mutation', async (type, patch) => {
+    expect(await ingress(service(), 'refund.updated', 'evt_manual', { id: 're_dashboard', metadata: {} })).toEqual({ kind: 'accepted' });
+    const before = await financialSnapshot();
+    const db = await getCheckoutDatabase();
+    const receipts = await db.query('SELECT * FROM checkout_stripe_refund_events');
+    expect(await ingress(service(), type, 'evt_manual', patch)).toEqual({ kind: 'retry' });
+    expect(await financialSnapshot()).toEqual(before);
+    expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toEqual(receipts);
+    expect(retrieve).not.toHaveBeenCalled();
+  });
+  it('retries a manual event until its receipt commits durably', async () => {
+    const db = await getCheckoutDatabase();
+    const before = await financialSnapshot();
+    await db.execute(
+      `CREATE FUNCTION fail_manual_receipt() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'receipt unavailable'; END $$`,
+    );
+    await db.execute(
+      'CREATE TRIGGER manual_receipt_crash BEFORE INSERT ON checkout_stripe_refund_events FOR EACH ROW EXECUTE FUNCTION fail_manual_receipt()',
+    );
+    const patch = { id: 're_dashboard', metadata: {} };
+    try {
+      expect(await ingress(service(), 'refund.created', 'evt_manual', patch)).toEqual({ kind: 'retry' });
+      expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toHaveLength(0);
+      expect(await financialSnapshot()).toEqual(before);
+    } finally {
+      await db.execute('DROP TRIGGER manual_receipt_crash ON checkout_stripe_refund_events');
+      await db.execute('DROP FUNCTION fail_manual_receipt()');
+    }
+    expect(await ingress(service(), 'refund.created', 'evt_manual', patch)).toEqual({ kind: 'accepted' });
+    expect(await financialSnapshot()).toEqual(before);
+    expect(retrieve).not.toHaveBeenCalled();
+  });
+  it('known local metadata with an unrecognised provider ID remains fail-closed', async () => {
+    const db = await getCheckoutDatabase();
+    expect(await ingress(service(), 'refund.updated', 'evt_unsafe', { id: 're_foreign' })).toEqual({ kind: 'retry' });
+    expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toHaveLength(0);
+    expect(await state()).toMatchObject({ refund_status: 'PENDING', payment_status: 'PAID', order_status: 'On Hold' });
+    expect(retrieve).not.toHaveBeenCalled();
+  });
+  it('known local Refund metadata cannot be disguised by an unknown payment', async () => {
+    const db = await getCheckoutDatabase();
+    expect(
+      await ingress(service(), 'refund.updated', 'evt_unsafe', {
+        id: 're_foreign',
+        metadata: { refundId: 'refund-event', paymentId: 'pay-unknown', orderId },
+      }),
+    ).toEqual({ kind: 'retry' });
+    expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toHaveLength(0);
+    expect(await state()).toMatchObject({ refund_status: 'PENDING', payment_status: 'PAID', order_status: 'On Hold' });
+    expect(retrieve).not.toHaveBeenCalled();
+  });
+  it('an unmatched event cannot reuse a committed financial event ID', async () => {
+    expect(await ingress()).toEqual({ kind: 'accepted' });
+    const before = await financialSnapshot();
+    const db = await getCheckoutDatabase();
+    const receipts = await db.query('SELECT * FROM checkout_stripe_refund_events');
+    expect(await ingress(service(), 'refund.updated', 'evt_refund', { id: 're_unmatched', metadata: {} })).toEqual({ kind: 'retry' });
+    expect(await financialSnapshot()).toEqual(before);
+    expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toEqual(receipts);
+    expect(await db.query('SELECT * FROM checkout_stripe_refund_manual_handling')).toHaveLength(0);
+    expect(retrieve).toHaveBeenCalledOnce();
+  });
+  it.each([
+    { id: 'invalid', metadata: {} },
+    { id: 're_unknown', metadata: {}, paymentIntentId: 'invalid' },
+  ])('does not acknowledge malformed signed routing references %j', async (patch) => {
+    const before = await financialSnapshot();
+    expect(await ingress(service(), 'refund.updated', 'evt_invalid', patch)).toEqual({ kind: 'retry' });
+    const db = await getCheckoutDatabase();
+    expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toHaveLength(0);
+    expect(await financialSnapshot()).toEqual(before);
   });
   it.each(['refund.created', 'refund.updated', 'refund.failed'])(
     'dispatches signed %s using current authority and preserves paid history',
@@ -355,11 +499,43 @@ describe('signed Refund financial truth and compensation settlement', () => {
       expect((await send(value.rawBody, 'bad')).status).toBe(400);
       expect((await send(Buffer.from(value.rawBody.toString() + ' '), value.signature)).status).toBe(400);
       expect(retrieve).not.toHaveBeenCalled();
+      const manual = signed('refund.created', 'evt_http_manual', { id: 're_dashboard', metadata: {} });
+      const before = await financialSnapshot();
+      const db = await getCheckoutDatabase();
+      const invalidId = signed('refund.created', '', { id: 're_dashboard', metadata: {} });
+      expect((await send(invalidId.rawBody, invalidId.signature)).status).toBe(503);
+      const invalidRefundId = signed('refund.created', 'evt_invalid_id', { id: 'invalid', metadata: {} });
+      expect((await send(invalidRefundId.rawBody, invalidRefundId.signature)).status).toBe(503);
+      const wrongObject = JSON.parse(manual.rawBody.toString());
+      wrongObject.data.object.object = 'payment_intent';
+      const wrongBody = Buffer.from(JSON.stringify(wrongObject));
+      expect((await send(wrongBody, Stripe.webhooks.generateTestHeaderString({ payload: wrongBody.toString(), secret }))).status).toBe(503);
+      expect((await send(manual.rawBody, 'bad')).status).toBe(400);
+      expect(await db.query('SELECT * FROM checkout_stripe_refund_manual_handling')).toHaveLength(0);
+      await db.execute(
+        `CREATE FUNCTION fail_http_manual_receipt() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'receipt unavailable'; END $$`,
+      );
+      await db.execute(
+        'CREATE TRIGGER http_manual_receipt_crash BEFORE INSERT ON checkout_stripe_refund_events FOR EACH ROW EXECUTE FUNCTION fail_http_manual_receipt()',
+      );
+      try {
+        expect((await send(manual.rawBody, manual.signature)).status).toBe(503);
+        expect(await db.query('SELECT * FROM checkout_stripe_refund_manual_handling')).toHaveLength(0);
+      } finally {
+        await db.execute('DROP TRIGGER http_manual_receipt_crash ON checkout_stripe_refund_events');
+        await db.execute('DROP FUNCTION fail_http_manual_receipt()');
+      }
+      expect((await send(manual.rawBody, manual.signature)).status).toBe(200);
+      expect((await send(manual.rawBody, manual.signature)).status).toBe(200);
+      expect(await db.query('SELECT * FROM checkout_stripe_refund_manual_handling')).toHaveLength(1);
+      expect(await financialSnapshot()).toEqual(before);
+      expect(retrieve).not.toHaveBeenCalled();
       const accepted = await send(value.rawBody, value.signature);
       expect(accepted.status).toBe(200);
       expect(await accepted.json()).toEqual({ received: true });
       expect(await state()).toMatchObject({ payment_status: 'PAID', workflow_status: 'finalized', order_status: 'Canceled' });
       enabled = false;
+      expect((await send(manual.rawBody, manual.signature)).status).toBe(503);
       expect((await send(value.rawBody, value.signature)).status).toBe(503);
       expect(retrieve).toHaveBeenCalledOnce();
     } finally {

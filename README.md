@@ -247,6 +247,26 @@ unfinished application settlement without another provider read. The internal
 `stripeRefunds.reconcileRefund({ paymentId })` similarly reads only a known
 Refund identity and never creates a replacement.
 
+Signature-verified Refund events with no local Refund candidate (including
+Dashboard-created refunds or missing/foreign metadata) are acknowledged only
+after a durable receipt. They never update Payment, Refund, Order, or checkout
+claims and never retrieve/create a Refund automatically. Migration
+`010_unrecognized_refund_events` preserves existing receipts and exposes these
+cases to database operators through this manual-handling view:
+
+```sql
+SELECT event_id, event_type, stripe_refund_id, stripe_payment_intent_id, observed_at
+FROM checkout_stripe_refund_manual_handling
+ORDER BY observed_at, event_id;
+```
+
+Review each case against Stripe/Dashboard truth and the local records before
+choosing a manual action. A receipt records the signed event's references and
+first server observation time, not authorization to change financial state.
+Duplicate deliveries keep the same receipt; subsequent metadata or local
+correlation never auto-applies that event. Known local candidates with unsafe
+identity, amount, currency, or metadata still require recovery and retry.
+
 Refund success atomically cancels the paid held Order and finalizes its REFUND
 claim. Payment remains PAID. Stale pending snapshots cannot regress successful
 truth. A current authoritative bank-return failure can change SUCCEEDED to FAILED;
