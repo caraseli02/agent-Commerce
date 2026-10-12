@@ -9,6 +9,7 @@ import {
   computeUpdatedBaseline,
   countNativeElements,
   findNativeElements,
+  findRaisedCounts,
   isScannedVueFile,
   serializeBaseline,
   validateBaseline,
@@ -161,6 +162,29 @@ const markup = '<button>not counted</button><input />';
   });
 });
 
+describe('verify-ui-conventions: baseline cannot be raised by hand (#666)', () => {
+  const reference = { 'app/components/A.vue': { button: 2, label: 1 } };
+
+  it('accepts a baseline equal to or lower than the origin/main copy', () => {
+    expect(findRaisedCounts(reference, reference)).toEqual([]);
+    expect(findRaisedCounts({ 'app/components/A.vue': { button: 1 } }, reference)).toEqual([]);
+    expect(findRaisedCounts({}, reference)).toEqual([]);
+  });
+
+  it('refuses a raised count', () => {
+    expect(findRaisedCounts({ 'app/components/A.vue': { button: 3, label: 1 } }, reference)).toEqual([
+      { path: 'app/components/A.vue', tag: 'button', allowed: 2, actual: 3 },
+    ]);
+  });
+
+  it('refuses a tag or file the origin/main copy does not allow', () => {
+    expect(findRaisedCounts({ 'app/components/A.vue': { button: 2, input: 1 }, 'app/components/B.vue': { table: 1 } }, reference)).toEqual([
+      { path: 'app/components/A.vue', tag: 'input', allowed: 0, actual: 1 },
+      { path: 'app/components/B.vue', tag: 'table', allowed: 0, actual: 1 },
+    ]);
+  });
+});
+
 describe('verify-ui-conventions: baseline ratchet', () => {
   const button = (line: number) => ({ tag: 'button', line });
   const scan = (...elements: { tag: string; line: number }[]) => ({ elements, exceptions: [], errors: [] });
@@ -257,7 +281,7 @@ describe('verify-ui-conventions: baseline ratchet', () => {
   });
 
   it('keeps the committed baseline valid and includes the Range.vue inputs after its nested template', () => {
-    const baseline = validateBaseline(JSON.parse(readFileSync('scripts/ui-conventions-baseline.json', 'utf8')));
+    const baseline = validateBaseline(JSON.parse(readFileSync('ui-conventions-baseline.json', 'utf8')));
 
     expect(baseline['app/components/dataTable/filter/Range.vue']).toEqual({ input: 2, label: 2 });
     expect(Object.keys(baseline).some((file) => file.startsWith('app/components/ui/'))).toBe(false);

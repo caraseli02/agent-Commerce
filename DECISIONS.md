@@ -2,6 +2,10 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## UI-conventions baseline is builder-editable, guarded by origin/main — 2026-10-12
+
+- `ui-conventions-baseline.json` moved from `scripts/` (protected) to the repo root (Vlad, 2026-10-12, #666), so Claude may lower it in the same commit as a migration (`node scripts/verify-ui-conventions.mjs --update`). The script stays protected. The ratchet refuses any per-file/per-tag count above the baseline on the merge base with `origin/main` and fails closed when that commit cannot be resolved, so a hand edit can lower counts but never raise them.
+
 ## Late Refund failure and unrecognised Refunds — 2026-10-11
 
 - Owner decision (Vlad, 2026-10-11, interactive session), raised by the #630 / #587 evaluation.

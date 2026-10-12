@@ -4,9 +4,13 @@
  *
  * Parses the template of every `.vue` file outside `app/components/ui/` with the Vue SFC compiler and
  * counts native `<button>`, `<input>`, `<label>`, `<textarea>`, `<table>` and `<select>` elements.
- * The per-file, per-tag counts must never exceed `scripts/ui-conventions-baseline.json`, and the
+ * The per-file, per-tag counts must never exceed `ui-conventions-baseline.json` (repo root), and the
  * baseline must not be stale: when a migration removes native elements, the same commit lowers the
  * baseline with `node scripts/verify-ui-conventions.mjs --update`.
+ *
+ * The baseline lives outside the protected `scripts/` folder so builders may lower it (#666). It is
+ * still a ratchet: no count may exceed the baseline committed on the merge base with `origin/main`,
+ * so a hand edit can only lower counts, never raise them.
  *
  * An element whose nearest preceding sibling (ignoring whitespace) is `<!-- ui-native: <reason> -->`
  * is an accepted exception and is not counted. The reason must not be empty.
@@ -27,7 +31,10 @@ import { parse } from 'vue/compiler-sfc';
 
 const rootDir = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 
-export const baselineRelativePath = 'scripts/ui-conventions-baseline.json';
+export const baselineRelativePath = 'ui-conventions-baseline.json';
+/** Earlier locations, read only to find the reference baseline on a merge base that predates the move. */
+export const legacyBaselineRelativePaths = Object.freeze(['scripts/ui-conventions-baseline.json']);
+export const referenceRef = 'origin/main';
 export const updateCommand = 'node scripts/verify-ui-conventions.mjs --update';
 
 /** Native elements that have a `components/ui` primitive. Matched exactly (lowercase), so `<Button>` / `<UiButton>` are components. */
@@ -232,6 +239,29 @@ export function compareToBaseline(counts, baseline) {
 }
 
 /**
+ * Counts in `baseline` that are higher than in `reference` (the baseline on the merge base with
+ * `origin/main`). A path or tag missing from `reference` allows 0.
+ *
+ * @param {Counts} baseline
+ * @param {Counts} reference
+ * @returns {CountDelta[]} `allowed` is the reference count, `actual` the raised one
+ */
+export function findRaisedCounts(baseline, reference) {
+  /** @type {CountDelta[]} */
+  const raised = [];
+  for (const relativePath of Object.keys(baseline).sort()) {
+    for (const tag of nativeTags) {
+      const actual = baseline[relativePath][tag] ?? 0;
+      const allowed = reference[relativePath]?.[tag] ?? 0;
+      if (actual > allowed) {
+        raised.push({ path: relativePath, tag, allowed, actual });
+      }
+    }
+  }
+  return raised;
+}
+
+/**
  * Returns the baseline `--update` would write. Counts may only go down (including files that were
  * deleted or no longer use native elements); any increase or new file is refused.
  *
@@ -360,6 +390,32 @@ async function scanRepository() {
   return scans;
 }
 
+/**
+ * Reads the baseline committed on the merge base of HEAD and `origin/main`. Throws when that commit
+ * cannot be resolved, so the ratchet fails closed instead of trusting an editable file.
+ *
+ * @returns {Counts}
+ */
+function readReferenceBaseline() {
+  const git = (args) => execFileSync('git', args, { cwd: rootDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  let base;
+  try {
+    base = git(['merge-base', 'HEAD', referenceRef]);
+  } catch {
+    throw new Error(
+      `UI conventions failed: cannot resolve the merge base with ${referenceRef}, so the baseline cannot be checked against it. Run \`git fetch origin main\` and retry.`,
+    );
+  }
+  for (const candidate of [baselineRelativePath, ...legacyBaselineRelativePaths]) {
+    try {
+      return validateBaseline(JSON.parse(git(['show', `${base}:${candidate}`])));
+    } catch (error) {
+      if (error instanceof SyntaxError || (error instanceof Error && !('status' in error))) throw error;
+    }
+  }
+  throw new Error(`UI conventions failed: no baseline found on ${referenceRef} merge base ${base.slice(0, 12)}.`);
+}
+
 async function readBaseline() {
   const baselinePath = path.join(rootDir, baselineRelativePath);
   if (!existsSync(baselinePath)) {
@@ -406,6 +462,16 @@ async function main() {
   if (!baseline) {
     console.error(
       `UI conventions failed: ${baselineRelativePath} is missing. Restore it from git; \`--init\` only bootstraps a new repository.`,
+    );
+    process.exit(1);
+  }
+
+  const raised = findRaisedCounts(baseline, readReferenceBaseline());
+  if (raised.length > 0) {
+    console.error(`UI conventions failed: ${baselineRelativePath} raises counts above the copy on the ${referenceRef} merge base.`);
+    console.error('Why it matters: the baseline is a ratchet; builders may lower it, never raise it. Revert the raised entries.');
+    printList(
+      raised.map((delta) => `${delta.path}: ${referenceRef} allows ${delta.allowed} <${delta.tag}>, baseline now says ${delta.actual}`),
     );
     process.exit(1);
   }
