@@ -81,7 +81,8 @@
       <ProductBlocks :rows-number="2" class="mb-7 lg:mb-[38px] xl:mb-[58px]" :filters="filters" />
       <News />
       <Manufacturers />
-      <ProductZoomGallery
+      <LazyProductZoomGallery
+        v-if="showZoomGallery"
         v-model:selected-index="activeImageIndex"
         v-model:open="showZoomGallery"
         :alias="product.alias ?? ''"
@@ -152,6 +153,11 @@ const filters = ['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched'];
 
 const activeImageIndex = ref(0);
 const showZoomGallery = ref(false);
+
+watch(productSlug, () => {
+  showZoomGallery.value = false;
+  activeImageIndex.value = 0;
+});
 
 const askDialog = ref<{ open: () => void } | null>(null);
 const reportErrorDialog = ref<{ open: () => void } | null>(null);

@@ -9,6 +9,14 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
 
   hooks: {
+    'build:manifest'(manifest) {
+      // Nuxt otherwise prefetches dynamic route dependencies before activation.
+      for (const [id, chunk] of Object.entries(manifest)) {
+        if (/(?:^|\/)components\/product\/Zoom(?:Gallery|Img)\.vue(?:\?|$)/.test(id)) {
+          chunk.prefetch = false;
+        }
+      }
+    },
     'nitro:config'(config) {
       // Prepend after Nuxt installs its handler; nonprivate/page errors fall
       // through to the original Nuxt handler and Nitro's normal fallback.
