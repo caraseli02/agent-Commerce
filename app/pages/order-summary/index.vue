@@ -108,6 +108,7 @@ import { usePaymentCards } from '~/composables/usePaymentCards';
 import { useOrder } from '~/composables/useOrder';
 import { useGuestCheckout } from '~/composables/useGuestCheckout';
 import { fetchCustomerCredit } from '~/composables/api/user';
+import { fetchSettings } from '~/composables/api/settings';
 
 // Stores
 import { useAuthStore } from '~/store/authStore';
@@ -580,6 +581,12 @@ watch(order, persistCheckoutDraft, { deep: true });
 
 // Initialization
 onMounted(async () => {
+  const config = useRuntimeConfig();
+  // Guest demo checkout needs the same public shipping options as signed-in buyers.
+  if (Boolean(config.public.MOCK_MODE) && !generalSettings.value) {
+    const settings = await fetchSettings();
+    if (settings.status === 'success') authStore.addGeneralSettings(settings.data);
+  }
   restoreCheckoutDraft();
   if (!isGuestCheckout.value) {
     syncAuthenticatedCheckoutProfile();

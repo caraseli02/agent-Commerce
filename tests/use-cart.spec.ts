@@ -73,6 +73,15 @@ describe('useCart public cart interface', () => {
     });
   });
 
+  it('shows the backorder warning for explicit backorder quantity after stock clamping', async () => {
+    const { useCart } = await import('../app/composables/useCart');
+    const { cartItems, showWarning } = useCart();
+    cartItems.value = [{ ...product, stock: 0, backorder_stock: 1, productEntity: { stock: 150 } } as CartProductsInterface];
+    expect(showWarning.value).toBe(true);
+    cartItems.value = [{ ...product, stock: 1, backorder_stock: 0, productEntity: { stock: 150 } } as CartProductsInterface];
+    expect(showWarning.value).toBe(false);
+  });
+
   it('adds to cart through the cart API and refreshes the stored cart', async () => {
     const { useCart } = await import('../app/composables/useCart');
     const { useCartStore } = await import('../app/store/cartStore');

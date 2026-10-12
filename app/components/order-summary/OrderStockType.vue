@@ -177,10 +177,9 @@ const shippingPreferencesExpanded = ref(false);
 const paymentMethodExpanded = ref(false);
 
 const authStore = useAuthStore();
-const { token } = storeToRefs(authStore);
+const { token, generalSettings } = storeToRefs(authStore);
 const { user } = useUser();
 const { guestCheckoutMode } = useGuestCheckout();
-const generalSettings = authStore.generalSettings;
 
 const isGuestCheckout = computed(() => !(token.value || user.value?.firebaseId));
 const isGuestCheckoutMode = computed(() => isGuestCheckout.value && guestCheckoutMode.value);

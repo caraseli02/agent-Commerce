@@ -20,22 +20,26 @@
         <div class="flex flex-col gap-1">
           <div class="flex flex-row gap-2 items-center">
             <span class="text-slate-500 text-sm font-normal leading-6">Handling Charge</span>
-            <button class="group" @click="showSmallOrderModal = true">
+            <button type="button" aria-label="Explain small order handling charge" class="group" @click="showSmallOrderModal = true">
               <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
             </button>
           </div>
           <span class="text-neutral-700 italic text-sm font-normal leading-6">Small order charge</span>
         </div>
         <div class="flex flex-col justify-end">
-          <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ smallOrder }} Lei</span>
+          <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ smallOrder.toFixed(2) }} Lei</span>
           <UiSkeleton v-else class="h-4 w-20" />
         </div>
       </div>
-      <Transition name="fade-bottom">
-        <div v-if="showSmallOrderModal" v-click-outside="() => (showSmallOrderModal = false)" class="absolute bottom-[200px] left-0">
-          <OrderSummarySmallOrderModal />
-        </div>
-      </Transition>
+      <UiDialog v-model:open="showSmallOrderModal">
+        <UiDialogContent class="max-w-[calc(100vw-32px)] sm:max-w-md">
+          <UiDialogHeader>
+            <UiDialogTitle>Small Order Handling Charge</UiDialogTitle>
+            <UiDialogDescription>The handling charge is based on your reviewed merchandise subtotal, excluding VAT.</UiDialogDescription>
+          </UiDialogHeader>
+          <OrderSummarySmallOrderModal v-if="quote?.smallOrderTier" :tier="quote.smallOrderTier" />
+        </UiDialogContent>
+      </UiDialog>
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-col gap-1">
           <div v-if="shipping" class="flex flex-row gap-2 items-center">
