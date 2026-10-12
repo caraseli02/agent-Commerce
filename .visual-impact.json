@@ -154,6 +154,12 @@
       "impact": "none",
       "reason": "Deletes two components with no live callers; lowers the deleted ProductCard native-button baseline. No rendered component, route, state, API response or styling changes.",
       "consumers": "Reference scans across app/ find no Circles or order-summary/ProductCard caller, import, auto-component tag or dynamic lookup. Header main-menu and order-summary table keep existing implementations; global/ProductCard is explicitly imported by ProductGrid and unaffected. ProgressBar and Upload source/parents/routes are unchanged. Baseline JSON is consumed only by the UI-conventions validator. SVG Upload retained Create/Edit surfaces are independently exercised at 1440x900 and 390x844 in tests/e2e/demo-component-contract.spec.ts; settings redirect is covered by the existing e2e spec."
+    },
+    {
+      "fingerprint": "b2e6c836bd5d172dda1d76783cd82b3d4b07150959cfada2cd6ee049475687a0",
+      "impact": "none",
+      "reason": "Unmatched signed Refund events now acknowledge only after durable manual receipts; they cannot change any buyer-visible financial or checkout state.",
+      "consumers": "POST /api/payments/stripe/webhook calls handleStripeWebhook after raw-body signature verification, which invokes stripeRefunds.applyVerifiedRefundEvent. The new branch writes only checkout_stripe_refund_events with refund_id NULL, then returns manual-handling-required; ingress returns accepted and the webhook route returns HTTP 200. The new checkout_stripe_refund_manual_handling SQL view is queried by database operators, as documented in README. A repository reference scan finds no app/, order API, store, composable, label, or rendered-page reader of that ledger/view. Full-row Payment/Refund/Order/claim snapshots prove unchanged state for unknown events, durable-write failure, collision, and manual replay after later local correlation. No provider read/create or application callback is run for manual events. Known candidate validation, authoritative provider reads, and existing application consequences remain fail-closed and are covered by the existing signed Refund and full-refund suites. Migration010 preserves prior receipt rows and adds no application response fields, public route, financial table changes, or UI behavior. Actual H3 HTTP tests prove 400 invalid signature, 503 malformed refs/write failure/default-off, and 200 durable manual receipt/duplicate. No home/search/product/cart/orders screenshot can observe these receipts."
     }
   ]
 }
