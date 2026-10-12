@@ -133,7 +133,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(9);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(10);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -231,7 +231,26 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await insertRefund({ id: 'refund-a', paymentId: 'pay-refund-a', createStartedAt: null });
       await insertRefund({ id: 'refund-b', paymentId: 'pay-refund-b', stripeRefundId: 're_existing' });
       const before = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
+      // Upgrade a populated 009 ledger; historical receipts must stay financial.
+      for (const filename of ['008_refund_constraints.sql', '009_stripe_refund_events.sql']) {
+        const sql = source(`server/infrastructure/migrations/${filename}`);
+        await pool.query(sql);
+        await pool.query('INSERT INTO checkout_schema_migrations(filename,checksum) VALUES ($1,$2)', [
+          filename,
+          createHash('sha256').update(sql).digest('hex'),
+        ]);
+      }
+      await pool.query(
+        `INSERT INTO checkout_stripe_refund_events(event_id,event_type,stripe_refund_id,refund_id,observed_at)
+         VALUES ('evt_existing','refund.updated','re_existing','refund-b',$1)`,
+        [timestamp],
+      );
+      const receiptBefore = (await pool.query("SELECT * FROM checkout_stripe_refund_events WHERE event_id='evt_existing'")).rows;
       await migrate(url.toString());
+      expect((await pool.query("SELECT * FROM checkout_stripe_refund_events WHERE event_id='evt_existing'")).rows).toEqual([
+        { ...receiptBefore[0], stripe_payment_intent_id: null },
+      ]);
+      expect((await pool.query('SELECT * FROM checkout_stripe_refund_manual_handling')).rows).toEqual([]);
       const after = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
       expect(after[0]).toEqual({ ...before[0], create_started_at: new Date(0) });
       expect(after[1]).toEqual(before[1]);
@@ -299,7 +318,9 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await expect(insertEvent('evt_invalid_type', 'refund-a', 'payment_intent.succeeded')).rejects.toMatchObject({ code: '23514' });
       await expect(insertEvent('evt_invalid_id', 'refund-a', 'refund.updated', 'invalid')).rejects.toMatchObject({ code: '23514' });
       await migrate(url.toString());
-      expect((await pool.query('SELECT event_id FROM checkout_stripe_refund_events')).rows).toEqual([{ event_id: 'evt_migration' }]);
+      expect((await pool.query("SELECT event_id FROM checkout_stripe_refund_events WHERE event_id='evt_migration'")).rows).toEqual([
+        { event_id: 'evt_migration' },
+      ]);
 
       const rows = await pool.query<{
         id: string;
@@ -456,7 +477,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       );
       const refundsBeforeReplay = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
       const historyBefore = (await pool.query('SELECT * FROM checkout_schema_migrations ORDER BY filename')).rows;
-      expect(historyBefore).toHaveLength(9);
+      expect(historyBefore).toHaveLength(10);
       expect(historyBefore[5]).toMatchObject({
         filename: '006_paid_recovery_claim.sql',
         checksum: createHash('sha256').update(source('server/infrastructure/migrations/006_paid_recovery_claim.sql')).digest('hex'),
@@ -472,6 +493,10 @@ describe('checkout PostgreSQL persistence boundary', () => {
       expect(historyBefore[8]).toMatchObject({
         filename: '009_stripe_refund_events.sql',
         checksum: createHash('sha256').update(source('server/infrastructure/migrations/009_stripe_refund_events.sql')).digest('hex'),
+      });
+      expect(historyBefore[9]).toMatchObject({
+        filename: '010_unrecognized_refund_events.sql',
+        checksum: createHash('sha256').update(source('server/infrastructure/migrations/010_unrecognized_refund_events.sql')).digest('hex'),
       });
       await migrate(url.toString());
       expect(await snapshot()).toEqual(replayBefore);
@@ -524,7 +549,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrate(url.toString());
       await migrate(url.toString());
       const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
-      expect(Number(migrations.rows[0]?.total)).toBe(9);
+      expect(Number(migrations.rows[0]?.total)).toBe(10);
 
       const existing = await pool.query<{
         status: string;
