@@ -5,12 +5,20 @@
       <span class="text-rose-500 text-sm font-medium leading-6">Select backorder shipping preferences</span>
     </div>
     <template v-if="isMixedOrBackOrder">
-      <!-- eslint-disable-next-line vue/require-v-for-key -->
-      <div v-for="backOrderOption in generalSettings?.orderSettings?.backorderShippingTypes" class="flex flex-col gap-4">
+      <div
+        v-for="backOrderOption in generalSettings?.orderSettings?.backorderShippingTypes"
+        :key="backOrderOption._id"
+        class="flex flex-col gap-4"
+      >
         <div v-if="backOrderOption.active">
-          <button class="flex flex-row gap-3 items-start group" @click="selectBackorderPreference(backOrderOption)">
+          <button
+            type="button"
+            :aria-pressed="order.backorderOption?._id === backOrderOption._id"
+            class="flex flex-row gap-3 items-start group"
+            @click="selectBackorderPreference(backOrderOption)"
+          >
             <RadioButtonChecked
-              v-if="order.backorderOption === backOrderOption"
+              v-if="order.backorderOption?._id === backOrderOption._id"
               class="w-10 sm:w-5 lg:w-10 h-5 my-[3px] text-[#007FFF] group-hover:text-[#007FFF] transition duration-300"
             />
             <RadioButton
