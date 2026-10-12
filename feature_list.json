@@ -3,7 +3,7 @@
   "purpose": "Machine-readable feature list for the agent-Commerce harness",
   "policy": {
     "wip_limit": 1,
-    "active_feature_count": 0,
+    "active_feature_count": 1,
     "status_values": ["not_started", "active", "blocked", "passing"],
     "live_claim_authority": "GitHub issue labels and linked PRs; WIP=1 per builder. This file is a reviewed evidence snapshot, not unattended claim state."
   },
@@ -52,20 +52,60 @@
       "id": "I588",
       "description": "Complete late-paid webhook compensation continuation (#588)",
       "validation": "Depends on #585/#586/#587; crash after REFUND commit recovers without browser return and acknowledges only durable provider identity/completion.",
-      "status": "not_started",
+      "status": "blocked",
       "evidence": [
         "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/588. Not claimed or implemented in this workflow repair.",
-        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Live claim: #588 is open and in-progress. PR #653 (late-paid refund compensation through webhook retries, Closes #588) was merged into the #630 branch codex/587-refund-events, not main, so #588 lands only when #630 does. Not passing."
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Live claim: #588 is open and in-progress. PR #653 (late-paid refund compensation through webhook retries, Closes #588) was merged into the #630 branch codex/587-refund-events, not main, so #588 lands only when #630 does. Not passing.",
+        "2026-10-12 reconciliation: implementation is in main through PR #653 carried by #630 (main merge commit 13211c7fe4efd2f9e85d3556e2934740078d9358; #630 final head ff7bb72cb59358fc964753351494d4342204c372). Preserve the valid independent Claude PASS for #653 exact head 91245afb1446501d6f6b54a88edab55b6837895f: https://github.com/caraseli02/agent-Commerce/pull/653#issuecomment-6085596280. Issue #588 remains OPEN; integration-stack final review/tracking reconciliation is pending, so this feature is blocked rather than complete."
       ]
     },
     {
       "id": "I587",
       "description": "Apply Refund events and settle compensation safely (#587)",
       "validation": "Depends on #586; signed provider transitions and retry-safe successful/failed compensation consequences preserve historical PAID.",
-      "status": "not_started",
+      "status": "blocked",
       "evidence": [
         "Bounded GitHub task: https://github.com/caraseli02/agent-Commerce/issues/587. Not claimed or implemented in this workflow repair.",
-        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Live claim: #587 is open and in-progress via Codex PR #630 (head ca71051f). Exact-head Claude evaluation is FAIL — needs generator fix, and GitHub reports the PR CONFLICTING with main. Not passing."
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Live claim: #587 is open and in-progress via Codex PR #630 (head ca71051f). Exact-head Claude evaluation is FAIL — needs generator fix, and GitHub reports the PR CONFLICTING with main. Not passing.",
+        "2026-10-12 reconciliation from origin/main 517627ff: PR #630 merged to main as merge commit 13211c7fe4efd2f9e85d3556e2934740078d9358 (final PR head ff7bb72cb59358fc964753351494d4342204c372) and closed #587. Final-head verify is green; PR evidence records 112 files / 888 tests + 2 todo, 20/20 resume repetitions and runtime projections (https://github.com/caraseli02/agent-Commerce/pull/630#issuecomment-6106992463). Independent source review found no actionable defect, but no formal exact-head evaluator PASS exists for ff7bb72c and this reconciliation ran no application tests; keep blocked pending final independent review."
+      ]
+    },
+    {
+      "id": "I556",
+      "description": "Integrate server-revalidated card Payment Element (#556)",
+      "validation": "Card and 3DS flow stays server-authoritative, retryable and default-off; meet the owner-approved SDK-double acceptance for this slice and record independent exact-head review. Real sandbox card and bank 3DS evidence are tracked under #559 Gate A.",
+      "status": "passing",
+      "evidence": [
+        "PR #654 merged on 2026-10-11 at exact head 8befa186e9ee75c80e95dd79e1fd5ef4e3ebac73; it closes #556 after #630 merged.",
+        "Independent Claude exact-head PASS — ready-for-human: https://github.com/caraseli02/agent-Commerce/pull/654#issuecomment-6106973664. The owner decision accepts deterministic SDK doubles for this slice; the verdict records 113 files / 903 tests / 2 todo, 19/19 browser cases and mergeability/CI evidence.",
+        "Real sandbox card success and real bank 3DS challenge remain unverified here and are explicitly moved to #559 Gate A. Stripe remains default-off; this passing status does not imply activation approval."
+      ]
+    },
+    {
+      "id": "I558",
+      "description": "Full Refund provider continuation and settlement tracking epic (#558)",
+      "validation": "Children #586 and #587 meet their independent completion criteria; tracking epic remains excluded from executable WIP.",
+      "status": "blocked",
+      "evidence": [
+        "2026-10-12 reconciliation from origin/main 517627ff: #558 remains OPEN. #586 is closed; #587 is closed by #630, but its final merged head has no formal exact-head evaluator PASS. Keep this tracking epic blocked pending #587 final review; no epic PASS or closure is inferred."
+      ]
+    },
+    {
+      "id": "I559",
+      "description": "Validate safe Stripe activation and sandbox integration (#559)",
+      "validation": "Complete Gate A with isolated writer safety, replay/recovery checks, and real sandbox card and bank 3DS evidence before any activation decision; preserve default-off behavior until human review.",
+      "status": "blocked",
+      "evidence": [
+        "2026-10-12 live GitHub reconciliation: #559 is OPEN with the blocked label. Credentials and required real-provider evidence are unavailable; no real Stripe activation is approved. #556 exact-head evaluation explicitly moves real card and 3DS proof to this Gate A."
+      ]
+    },
+    {
+      "id": "I660",
+      "description": "Record unrecognised Stripe Refund events for manual handling (#660)",
+      "validation": "A verified provider Refund with no known local Refund is durably recorded and surfaced for manual handling without changing Payment, Refund or Order state; delivery behavior and replay safety are independently verified.",
+      "status": "active",
+      "evidence": [
+        "2026-10-12 live GitHub reconciliation: https://github.com/caraseli02/agent-Commerce/issues/660 is OPEN and labeled in-progress; this is the current payment claim. Implementation remains with the active builder. PR link and its final verification evidence will be added after publication; no implementation or PASS is claimed by this snapshot edit."
       ]
     },
     {
@@ -119,13 +159,14 @@
       "id": "I557",
       "description": "Complete fixed backend payment recovery tracking epic (#557)",
       "validation": "Children #584 (refresh/return), #585 (late-paid selection), and #588 (compensation webhook integration) close with independent evidence; #588 requires Refund capabilities #586/#587 tracked by #558. Merged foundations stay complete; Stripe activation requires #559.",
-      "status": "not_started",
+      "status": "blocked",
       "evidence": [
         "Tracking epic reconciled on 2026-10-02; excluded from executable WIP. Remaining work is owned by native child issues #584/#585/#588, not anonymous PR slices.",
         "Merged reconciliation/events/signed ingress/normal finalization: PRs #565–#568; cancellation/restart/reservation/resume: #570–#574.",
         "Merged paid-recovery schema/local compensation/recovery guards: #576/#577/#579; internal owner-safe state snapshot #581 merged at 5cd361e8 with independent PASS 10/10 and fresh 567-test CI.",
         "Detailed historical slice verification remains in https://github.com/caraseli02/agent-Commerce/issues/557 and its linked PRs. No provider Refund or public refresh completion is claimed.",
-        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Children #584, #585 and #586 are closed (PRs #594, #629, #607); #587/#588 remain open behind #630. #556 (Payment Element, PR #654: exact-head Claude verdict BLOCKED) and #559 activation stay blocked/default-off."
+        "Manual reconciliation on 2026-10-10 (routines out of time) from live GitHub state at origin/main ff8bf9cc. Children #584, #585 and #586 are closed (PRs #594, #629, #607); #587/#588 remain open behind #630. #556 (Payment Element, PR #654: exact-head Claude verdict BLOCKED) and #559 activation stay blocked/default-off.",
+        "2026-10-12 reconciliation from origin/main 517627ff: #557 remains OPEN. #587 is closed by merged #630 but lacks a formal exact-head evaluator PASS; #588 remains OPEN despite implementation landing through #653/#630. Child completion evidence and epic closure criteria are therefore unmet; Stripe activation also remains gated by blocked #559. No epic PASS or closure is inferred."
       ]
     },
     {
