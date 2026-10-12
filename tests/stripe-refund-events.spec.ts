@@ -186,7 +186,7 @@ describe('signed Refund financial truth and compensation settlement', () => {
   );
   it('concurrent manual deliveries commit one receipt and preserve its first observation', async () => {
     const patch = { id: 're_dashboard', metadata: {} };
-    const before = await state();
+    const before = await financialSnapshot();
     expect(
       await Promise.all([
         ingress(service(), 'refund.updated', 'evt_manual', patch),
@@ -198,7 +198,7 @@ describe('signed Refund financial truth and compensation settlement', () => {
     expect(receipts).toHaveLength(1);
     expect(await ingress(service(), 'refund.updated', 'evt_manual', patch)).toEqual({ kind: 'accepted' });
     expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toEqual(receipts);
-    expect(await state()).toEqual(before);
+    expect(await financialSnapshot()).toEqual(before);
     expect(retrieve).not.toHaveBeenCalled();
   });
   it('manual receipts never auto-apply when metadata and local correlation later become known', async () => {
@@ -206,9 +206,9 @@ describe('signed Refund financial truth and compensation settlement', () => {
     expect(await ingress(service(), 'refund.updated', 'evt_manual', patch)).toEqual({ kind: 'accepted' });
     const db = await getCheckoutDatabase();
     await db.execute("UPDATE checkout_refunds SET stripe_refund_id='re_dashboard'");
-    const before = await state();
+    const before = await financialSnapshot();
     expect(await ingress(service(), 'refund.updated', 'evt_manual', { id: 're_dashboard' })).toEqual({ kind: 'accepted' });
-    expect(await state()).toEqual(before);
+    expect(await financialSnapshot()).toEqual(before);
     expect(await db.query('SELECT * FROM checkout_stripe_refund_manual_handling')).toHaveLength(1);
     expect(retrieve).not.toHaveBeenCalled();
   });
@@ -218,17 +218,17 @@ describe('signed Refund financial truth and compensation settlement', () => {
     ['refund.updated', { id: 're_dashboard', metadata: {}, paymentIntentId: 'pi_other' }],
   ] satisfies [string, Partial<StripeRefund>][])('refuses reused manual event identity %s %j without mutation', async (type, patch) => {
     expect(await ingress(service(), 'refund.updated', 'evt_manual', { id: 're_dashboard', metadata: {} })).toEqual({ kind: 'accepted' });
-    const before = await state();
+    const before = await financialSnapshot();
     const db = await getCheckoutDatabase();
     const receipts = await db.query('SELECT * FROM checkout_stripe_refund_events');
     expect(await ingress(service(), type, 'evt_manual', patch)).toEqual({ kind: 'retry' });
-    expect(await state()).toEqual(before);
+    expect(await financialSnapshot()).toEqual(before);
     expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toEqual(receipts);
     expect(retrieve).not.toHaveBeenCalled();
   });
   it('retries a manual event until its receipt commits durably', async () => {
     const db = await getCheckoutDatabase();
-    const before = await state();
+    const before = await financialSnapshot();
     await db.execute(
       `CREATE FUNCTION fail_manual_receipt() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'receipt unavailable'; END $$`,
     );
@@ -239,13 +239,13 @@ describe('signed Refund financial truth and compensation settlement', () => {
     try {
       expect(await ingress(service(), 'refund.created', 'evt_manual', patch)).toEqual({ kind: 'retry' });
       expect(await db.query('SELECT * FROM checkout_stripe_refund_events')).toHaveLength(0);
-      expect(await state()).toEqual(before);
+      expect(await financialSnapshot()).toEqual(before);
     } finally {
       await db.execute('DROP TRIGGER manual_receipt_crash ON checkout_stripe_refund_events');
       await db.execute('DROP FUNCTION fail_manual_receipt()');
     }
     expect(await ingress(service(), 'refund.created', 'evt_manual', patch)).toEqual({ kind: 'accepted' });
-    expect(await state()).toEqual(before);
+    expect(await financialSnapshot()).toEqual(before);
     expect(retrieve).not.toHaveBeenCalled();
   });
   it('known local metadata with an unrecognised provider ID remains fail-closed', async () => {
