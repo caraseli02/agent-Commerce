@@ -32,8 +32,8 @@
             Cancel
           </NuxtLink>
           <button
+            type="submit"
             class="flex items-center justify-center p-2 rounded-lg bg-blue-500 leading-[1.67] h-12 text-white font-medium"
-            @click="handleSubmit"
           >
             Save Password
           </button>
@@ -66,12 +66,19 @@ const form = ref({
 });
 
 const handleSubmit = () => {
+  form.value.repeatPassword.error = '';
+
+  if (form.value.newPassword.value !== form.value.repeatPassword.value) {
+    form.value.repeatPassword.error = 'Passwords do not match';
+    return;
+  }
+
   const code = route.query.oobCode;
   const resetCode = Array.isArray(code) ? (code[0] ?? '') : (code ?? '');
-  void resetPassword(form.value.email.value, form.value.newPassword.value, form.value.repeatPassword.value, resetCode);
+  void resetPassword(form.value.email.value, form.value.newPassword.value, resetCode);
 };
 
-const resetPassword = async (email: string, newPassword: string, repeatPassowrd: string, code: string) => {
+const resetPassword = async (email: string, newPassword: string, code: string) => {
   try {
     const response = (await submitPasswordReset(email, newPassword, code)) as { status: string };
 
