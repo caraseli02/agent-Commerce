@@ -154,8 +154,6 @@
     "input": 1
   },
   "app/components/layout/AddRemoveSearchFilter.vue": {
-    "button": 5,
-    "input": 1,
     "label": 1
   },
   "app/components/layout/account-modal/Form.vue": {
@@ -270,25 +268,19 @@
     "table": 1
   },
   "app/components/search/Filter.vue": {
-    "button": 2,
-    "input": 2,
-    "label": 2
+    "label": 1
   },
   "app/components/search/Filter2.vue": {
-    "button": 2,
-    "input": 2,
+    "input": 1,
     "label": 2
   },
   "app/components/search/Filters.vue": {
-    "button": 4
+    "button": 1
   },
   "app/components/search/Products.vue": {
-    "button": 11,
+    "button": 7,
     "input": 1,
     "label": 5
-  },
-  "app/components/search/SearchItem.vue": {
-    "button": 7
   },
   "app/components/shared/tables/micro/CheckBoxAll.vue": {
     "input": 1,

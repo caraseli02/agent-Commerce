@@ -7,48 +7,32 @@
         </div>
         <div class="text-xs leading-tight">({{ totalProducts }})</div>
       </div>
-      <button
-        class="rounded w-[22px] h-[22px] bg-[#F2F2F2] flex items-center justify-center text-gray-500 transition-colors duration-300 hover:text-slate-500"
-        @click="$emit('close')"
-      >
+      <UiButton variant="secondary" size="icon" class="w-[22px] h-[22px]" @click="$emit('close')">
         <XIcon class="w-[14px] h-[14px]" />
-      </button>
+      </UiButton>
     </div>
     <div class="px-2.5 mb-2.5">
       <label class="flex relative">
-        <input
-          v-model="searchValue"
-          type="search"
-          placeholder="Type here"
-          class="w-full border border-border bg-white rounded px-2.5 pt-[5px] pb-1.5 pr-10 text-xs placeholder:text-gray-500 transition-colors duration-300 focus:outline-none focus:border-blue-500"
-          @input="onInput"
-        />
+        <UiInput v-model="searchValue" type="search" placeholder="Type here" class="h-8 pr-10" @update:model-value="onInput" />
         <FiltersIcon class="absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
       </label>
     </div>
     <div class="flex-1 pr-[5px]">
       <div class="grid grid-cols-1 gap-2 flex-1 max-h-[115px] overflow-y-auto scrollbar-thin pb-[13px]">
-        <label
-          v-for="option in options"
-          :key="option.rawFilter.FeatureValue"
-          class="group flex items-start justify-between cursor-pointer px-2.5"
-        >
-          <input type="checkbox" class="sr-only" @click="toggleOption(option)" />
-          <span class="text-xs font-Inter transition-colors duration-300 group-hover:text-blue-500">
+        <div v-for="(option, index) in options" :key="option.rawFilter.FeatureValue" class="flex items-start justify-between px-2.5">
+          <UiCheckbox
+            :id="`${optionIdPrefix}-${index}`"
+            :checked="option.checked"
+            class="order-last mt-px"
+            @update:checked="toggleOption(option)"
+          />
+          <UiLabel :for="`${optionIdPrefix}-${index}`" class="cursor-pointer">
             {{ `${useTrimText(option.value + option.unit)} (${option.rawFilter.count})` }}
-          </span>
-          <div
-            class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
-            :class="[
-              option.checked ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
-            ]"
-          >
-            <CheckIcon v-if="option.checked" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
-          </div>
-        </label>
+          </UiLabel>
+        </div>
       </div>
     </div>
-    <button class="group flex items-center justify-between bg-gray-100 pr-[15px] py-2 pl-2.5" @click="handleAll">
+    <UiButton variant="secondary" class="group justify-between" @click="handleAll">
       <span class="text-xs transition-colors duration-300 group-hover:text-blue-500">
         {{ selectedAll ? 'Unselect All' : 'Select All' }}
       </span>
@@ -58,7 +42,7 @@
       >
         <CheckIcon v-if="selectedAll" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
       </div>
-    </button>
+    </UiButton>
   </div>
 </template>
 
@@ -88,6 +72,7 @@ watch(
 );
 
 const searchValue = ref('');
+const optionIdPrefix = useId();
 
 const filter = ref(props.filter);
 const options = ref([] as FilterOptions[]);

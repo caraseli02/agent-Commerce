@@ -152,9 +152,9 @@
         <div class="hidden font-Inter font-semibold md:block">Products Found ({{ totalItems }})</div>
         <div class="flex items-center">
           <Transition name="fade">
-            <button v-if="atPage !== 1" class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500" @click="atPage--">
-              <ChevronRightIcon class="w-1.5 h-3 rotate-180 mr-4" />
-            </button>
+            <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" @click="atPage--">
+              <ChevronRightIcon class="w-1.5 h-3 rotate-180" />
+            </UiButton>
           </Transition>
           <Pagination
             v-model="atPage"
@@ -177,13 +177,9 @@
             </template>
           </Pagination>
           <Transition name="fade">
-            <button
-              v-if="totalPages !== atPage"
-              class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500"
-              @click="atPage++"
-            >
-              <ChevronRightIcon class="w-1.5 h-3 ml-4" />
-            </button>
+            <UiButton v-if="totalPages !== atPage" variant="ghost" size="icon" class="ml-4" @click="atPage++">
+              <ChevronRightIcon class="w-1.5 h-3" />
+            </UiButton>
           </Transition>
         </div>
       </div>
@@ -232,9 +228,9 @@
         </label>
         <div class="flex items-center">
           <Transition name="fade">
-            <button v-if="atPage !== 1" class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500" @click="atPage--">
-              <ChevronRightIcon class="w-1.5 h-3 rotate-180 mr-4" />
-            </button>
+            <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" @click="atPage--">
+              <ChevronRightIcon class="w-1.5 h-3 rotate-180" />
+            </UiButton>
           </Transition>
           <Pagination
             v-model="atPage"
@@ -257,13 +253,9 @@
             </template>
           </Pagination>
           <Transition name="fade">
-            <button
-              v-if="totalPages !== atPage"
-              class="flex transition-colors duration-300 text-slate-500 hover:text-blue-500"
-              @click="atPage++"
-            >
-              <ChevronRightIcon class="w-1.5 h-3 ml-4" />
-            </button>
+            <UiButton v-if="totalPages !== atPage" variant="ghost" size="icon" class="ml-4" @click="atPage++">
+              <ChevronRightIcon class="w-1.5 h-3" />
+            </UiButton>
           </Transition>
         </div>
       </div>

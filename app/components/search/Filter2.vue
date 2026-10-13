@@ -7,8 +7,9 @@
         :class="[isSwiped ? 'w-[calc(100%-74px)]' : 'w-full']"
         @touchstart="onTouchStart"
       >
-        <button
-          class="flex items-center justify-between w-full px-2.5 py-[9px] text-left transition-colors duration-300"
+        <UiButton
+          variant="ghost"
+          class="w-full justify-between px-2.5 text-left"
           :class="[isSwiped ? 'text-gray-500' : '']"
           @click="isSwiped ? null : (showOptions = !showOptions)"
         >
@@ -17,18 +18,11 @@
             <span class="text-xs font-normal ml-[5px]">(18945)</span>
           </div>
           <ChevronDownIcon class="w-6 h-6 transition-all duration-300" :class="[showOptions ? 'rotate-180' : '']" />
-        </button>
+        </UiButton>
         <div v-if="showOptions" class="flex-1 flex flex-col">
           <div class="pl-2.5 pr-[15px] mb-2.5">
-            <label
-              class="flex relative border border-border rounded overflow-hidden transition-colors duration-300 focus-within:border-blue-500"
-            >
-              <input
-                v-model="searchValue"
-                type="search"
-                placeholder="Type here"
-                class="w-full px-2.5 pt-[5px] pb-1.5 pr-10 h-8 text-xs placeholder:text-gray-500 focus:outline-none"
-              />
+            <label class="flex relative">
+              <UiInput v-model="searchValue" type="search" placeholder="Type here" class="h-8 pr-10" />
               <FiltersIcon class="absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
             </label>
           </div>
@@ -59,9 +53,9 @@
         </div>
       </div>
       <div class="max-w-max flex-shrink-0">
-        <button class="flex items-center justify-center w-[42px] h-[42px] bg-[#F5F5F5] rounded-full ml-5 mr-[11px]">
-          <TrashIcon class="w-5 h-5 text-slate-500" />
-        </button>
+        <UiButton variant="secondary" size="icon" class="w-[42px] h-[42px] rounded-full ml-5 mr-[11px]">
+          <TrashIcon class="w-5 h-5" />
+        </UiButton>
       </div>
     </div>
   </div>

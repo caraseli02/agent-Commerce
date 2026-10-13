@@ -8,22 +8,14 @@
           <FiltersIcon class="w-6 h-6 text-slate-500 mr-2" />
           <span class="text-lg font-medium text-slate-500"> Add/Remove Filters </span>
         </div>
-        <button
-          class="rounded w-8 h-8 bg-[#F2F2F2] flex items-center justify-center text-gray-500 transition-colors duration-300 hover:text-slate-500"
-          @click="$emit('close')"
-        >
+        <UiButton variant="secondary" size="icon" class="w-8 h-8" @click="$emit('close')">
           <XIcon class="w-[15px] h-[15px]" />
-        </button>
+        </UiButton>
       </div>
       <div class="px-4 mb-4 md:px-6">
-        <label class="relative flex items-center border border-border rounded px-3">
+        <label class="relative flex items-center gap-2">
           <SearchIcon class="w-[18px] h-[18px] text-gray-500" />
-          <input
-            v-model="searchValue"
-            type="search"
-            placeholder="Search parameters"
-            class="bg-transparent flex-1 pl-2 pr-8 py-[9px] w-full text-sm placeholder:text-gray-500 focus:outline-none"
-          />
+          <UiInput v-model="searchValue" type="search" placeholder="Search parameters" class="flex-1" />
           <Transition name="fade">
             <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
           </Transition>
@@ -31,20 +23,24 @@
       </div>
       <div class="mb-[34px] lg:mb-[42px]">
         <div class="grid grid-cols-[repeat(2,1fr)_auto] gap-2 px-6 mb-2 md:px-8">
-          <button class="flex items-center" @click="parametersOrder ? (parametersOrder = 0) : (parametersOrder = 1)">
+          <UiButton
+            variant="ghost"
+            class="h-auto justify-start p-0"
+            @click="parametersOrder ? (parametersOrder = 0) : (parametersOrder = 1)"
+          >
             <span class="text-sm font-medium tracking-[0.6px] mr-2"> Parameters </span>
             <CaretIcon
               class="w-5 h-5 text-slate-500 transition-transform duration-300"
               :class="[parametersOrder ? 'rotate-90' : '-rotate-90']"
             />
-          </button>
-          <button class="flex items-center" @click="productsOrder ? (productsOrder = 0) : (productsOrder = 1)">
+          </UiButton>
+          <UiButton variant="ghost" class="h-auto justify-start p-0" @click="productsOrder ? (productsOrder = 0) : (productsOrder = 1)">
             <span class="text-sm font-medium tracking-[0.6px] mr-2"> Products </span>
             <CaretIcon
               class="w-5 h-5 text-slate-500 transition-transform duration-300"
               :class="[productsOrder ? 'rotate-90' : '-rotate-90']"
             />
-          </button>
+          </UiButton>
           <div class="w-[18px] h-[18px]" />
         </div>
         <div class="pr-1">
@@ -74,10 +70,8 @@
         </div>
       </div>
       <div class="flex justify-center gap-2.5 px-4 md:px-6">
-        <button class="flex bg-gray-100 rounded px-[26px] py-[11px] text-sm font-medium text-slate-500" @click="$emit('close')">
-          Cancel
-        </button>
-        <button class="flex bg-blue-500 rounded px-[34px] py-[11px] text-sm font-medium text-white" @click="saveFilters()">Save</button>
+        <UiButton variant="secondary" @click="$emit('close')"> Cancel </UiButton>
+        <UiButton @click="saveFilters()">Save</UiButton>
       </div>
     </div>
   </div>

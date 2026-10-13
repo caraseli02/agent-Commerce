@@ -22,13 +22,9 @@
             </NuxtLink>
             <UiDropdownMenu :modal="false" class="shrink-0 md:hidden">
               <UiDropdownMenuTrigger as-child>
-                <button
-                  type="button"
-                  class="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-primary"
-                  aria-label="Product options"
-                >
+                <UiButton type="button" variant="ghost" size="icon" class="h-8 w-8" aria-label="Product options">
                   <MoreHorizontal class="h-5 w-5" />
-                </button>
+                </UiButton>
               </UiDropdownMenuTrigger>
               <UiDropdownMenuContent align="end" class="w-44">
                 <UiDropdownMenuItem @click="onCopyProductName">Copy product name</UiDropdownMenuItem>
@@ -41,16 +37,12 @@
               class="hidden flex-shrink-0 text-slate-500 transition-colors duration-300 hover:text-primary md:inline-flex"
             />
           </div>
-          <button
-            type="button"
-            class="inline-flex max-w-full shrink-0 items-center rounded-full border border-slate-300 px-3 py-[5px] text-slate-500 transition-colors duration-300 hover:border-primary hover:text-primary"
-            @click="showCustomProductPartNumberModal = true"
-          >
+          <UiButton type="button" variant="outline" class="max-w-full shrink-0" @click="showCustomProductPartNumberModal = true">
             <span class="mr-2 truncate text-[15px] font-medium leading-tight">
               {{ item.manufacturerCode }}
             </span>
             <EditIcon class="h-5 w-5 flex-shrink-0" />
-          </button>
+          </UiButton>
           <span
             class="inline-flex shrink-0 items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold leading-tight text-green-600"
           >
@@ -79,14 +71,14 @@
             </div>
           </dl>
           <div class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <button type="button" class="flex items-center transition-colors duration-300 hover:text-blue-500">
+            <UiButton type="button" variant="link" class="h-auto p-0">
               <PDFIcon class="mr-[5px] h-[22px] w-[22px]" />
               <span class="text-xs font-medium leading-tight">Datasheet</span>
-            </button>
-            <button type="button" class="flex items-center transition-colors duration-300 hover:text-blue-500">
+            </UiButton>
+            <UiButton type="button" variant="link" class="h-auto p-0">
               <LeafIcon class="mr-[5px] h-[22px] w-[22px]" />
               <span class="text-xs font-medium leading-tight">RoHS</span>
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
@@ -125,27 +117,27 @@
           size="lg"
           :object="{ action: 'update', min: minPriceConfiguration.quantity, id: item._id } as ProductActionObject"
         />
-        <button
+        <UiButton
           type="button"
           :aria-busy="isThisProductAdding"
           :aria-disabled="isThisProductAdding || quantity === 0"
           :disabled="quantity === 0 && !isThisProductAdding"
-          class="flex flex-1 items-center justify-center rounded bg-blue-500 px-4 py-[9px] text-white transition-colors hover:bg-blue-600 disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+          class="flex-1 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
           @click="addToCart(item)"
         >
           <CartIcon class="mr-2 h-6 w-6" />
           <span class="text-sm font-medium">{{ isThisProductAdding ? 'Adding…' : 'Add to cart' }}</span>
-        </button>
+        </UiButton>
       </div>
     </div>
 
     <div class="absolute right-4 top-4 hidden flex-col gap-2.5 md:flex md:right-5 md:top-5">
-      <button type="button" class="flex justify-end text-gray-500 transition-colors duration-300 hover:text-blue">
+      <UiButton type="button" variant="ghost" size="icon" class="h-6 w-6">
         <HeartIcon class="h-6 w-6" />
-      </button>
-      <button type="button" class="flex justify-end text-gray-500 transition-colors duration-300 hover:text-blue">
+      </UiButton>
+      <UiButton type="button" variant="ghost" size="icon" class="h-6 w-6">
         <ShareIcon class="h-6 w-6" />
-      </button>
+      </UiButton>
     </div>
   </div>
   <LayoutCustomProductPartNumberModal
