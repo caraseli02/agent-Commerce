@@ -337,6 +337,47 @@ describe('Claude build queue', () => {
     expect(unblocked.eligible.map((entry) => entry.number)).toEqual([5]);
   });
 
+  it('treats an in-progress claim that carries ready-for-human as queued, not live, and stays idle with nothing eligible', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude', 'in-progress', 'ready-for-human'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1]),
+    });
+
+    expect(state.live).toEqual([]);
+    expect(state.queued.map((entry) => entry.number)).toEqual([1]);
+    expect(state.eligible).toEqual([]);
+    expect(state.idle).toBe(true);
+  });
+
+  it('is not idle while a live claim runs next to a queued one, or while work is eligible behind a queued one', () => {
+    const withLive = claudeQueueState(
+      [issue(1, ['agent:claude', 'in-progress', 'ready-for-human']), issue(2, ['agent:claude', 'in-progress'])],
+      { neverClaim, openIssueNumbers: new Set([1, 2]) },
+    );
+    const withEligible = claudeQueueState([issue(1, ['agent:claude', 'in-progress', 'ready-for-human']), issue(3, ['agent:claude'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1, 3]),
+    });
+
+    expect(withLive.live.map((entry) => entry.number)).toEqual([2]);
+    expect(withLive.queued.map((entry) => entry.number)).toEqual([1]);
+    expect(withLive.idle).toBe(false);
+    expect(withEligible.queued.map((entry) => entry.number)).toEqual([1]);
+    expect(withEligible.eligible.map((entry) => entry.number)).toEqual([3]);
+    expect(withEligible.idle).toBe(false);
+  });
+
+  it('keeps a blocked claim parked even when it also carries ready-for-human', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude', 'in-progress', 'blocked', 'ready-for-human'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1]),
+    });
+
+    expect(state.live).toEqual([]);
+    expect(state.queued).toEqual([]);
+    expect(state.idle).toBe(true);
+  });
+
   it('removes issues an open PR already closes or that have a claude/issue-<n> branch', () => {
     const state = claudeQueueState([issue(1, ['agent:claude']), issue(2, ['agent:claude']), issue(3, ['agent:claude'])], {
       neverClaim,

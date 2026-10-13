@@ -10,7 +10,8 @@
 //            conflict and no outstanding change request. Only the owner's merge is left.
 // - blocked: an open issue currently carries the `blocked` label.
 // - harness: a Claude-built PR touches protected paths without `owner-approved-harness`.
-// - queue:   Claude has no live issue and nothing eligible to build.
+// - queue:   Claude has no live issue and nothing eligible to build (a PASSed claim
+//            waiting for merge is queued, not live).
 //
 // Each notice carries a hidden marker so a rerun never posts it twice.
 import { createHash } from 'node:crypto';
@@ -269,6 +270,9 @@ export function hasCurrentSkipRecord(issue, comments, { trustedLogins }) {
 }
 
 // Mirrors the build-eligibility rule in .factory/automations/claude-routine.md §4.1.
+// Claims split three ways: parked (`blocked`), queued (`in-progress` + `ready-for-human`: PASSed and
+// waiting for the owner's merge) and live (the rest). Only live claims and eligible issues keep the
+// queue busy.
 // `claimedNumbers` are issues an open PR already closes or that have a claude/issue-<n>
 // branch; `skippedNumbers` carry a current skip record for checks that need judgment.
 export function claudeQueueState(issues, { neverClaim, openIssueNumbers, claimedNumbers = new Set(), skippedNumbers = new Set() }) {
@@ -276,7 +280,11 @@ export function claudeQueueState(issues, { neverClaim, openIssueNumbers, claimed
     (issue) => !issue.pull_request && (issue.labels ?? []).some((label) => label.name === 'agent:claude'),
   );
   const labelsOf = (issue) => new Set((issue.labels ?? []).map((label) => label.name));
-  const live = claude.filter((issue) => labelsOf(issue).has('in-progress') && !labelsOf(issue).has('blocked'));
+  const claimed = claude.filter((issue) => labelsOf(issue).has('in-progress') && !labelsOf(issue).has('blocked'));
+  // A claim whose PR already earned an evaluator PASS (the reviewer adds `ready-for-human`) only waits
+  // for the owner's merge: it is queued, not live, so it does not hold the single build slot.
+  const queued = claimed.filter((issue) => labelsOf(issue).has('ready-for-human'));
+  const live = claimed.filter((issue) => !labelsOf(issue).has('ready-for-human'));
   const eligible = claude.filter((issue) => {
     const labels = labelsOf(issue);
     if (labels.has('in-progress') || (issue.assignees ?? []).length) return false;
@@ -286,7 +294,7 @@ export function claudeQueueState(issues, { neverClaim, openIssueNumbers, claimed
     if (claimedNumbers.has(issue.number) || skippedNumbers.has(issue.number)) return false;
     return parseDependencies(issue.body).every((number) => !openIssueNumbers.has(number));
   });
-  return { live, eligible, idle: live.length === 0 && eligible.length === 0 };
+  return { live, queued, eligible, idle: live.length === 0 && eligible.length === 0 };
 }
 
 export function readyMessage({ owner, pr, verdict }) {
@@ -495,7 +503,7 @@ async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
     log(`Closed #${tracking.number}: Claude has work again`);
   } else {
     log(
-      `Claude queue: ${state.idle ? 'idle (already reported)' : `${state.live?.length ?? 0} live, ${state.eligible?.length ?? 0} eligible`}`,
+      `Claude queue: ${state.idle ? 'idle (already reported)' : `${state.live?.length ?? 0} live, ${state.queued?.length ?? 0} queued, ${state.eligible?.length ?? 0} eligible`}`,
     );
   }
 }
