@@ -7,6 +7,7 @@
           variant="ghost"
           size="icon"
           class="h-auto w-auto"
+          :aria-label="selectedSubCategory ? `Back to ${selectedCategory.name}` : 'Back to all categories'"
           @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
         >
           <CaretLeft class="w-6 h-6" />
@@ -18,7 +19,13 @@
           </div>
         </div>
       </template>
-      <UiButton variant="secondary" size="icon" class="h-8 w-8 rounded text-gray-500" @click="showNavModal = false">
+      <UiButton
+        variant="secondary"
+        size="icon"
+        class="h-8 w-8 rounded text-gray-500"
+        aria-label="Close products navigation"
+        @click="showNavModal = false"
+      >
         <XIcon class="w-[15px] h-[15px]" />
       </UiButton>
     </div>

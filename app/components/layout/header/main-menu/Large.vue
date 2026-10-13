@@ -114,6 +114,8 @@
         v-if="isStatic"
         class="hidden absolute z-20 top-[15px] right-0 h-auto px-[3px] py-[5px] bg-primary/70 rounded-none rounded-l overflow-hidden border border-primary/50 transition-all duration-300 hover:px-2 md:flex"
         :class="{ 'sideNav--toggler_active': isBannerExpanded }"
+        :aria-label="isBannerExpanded ? 'Collapse banner' : 'Expand banner'"
+        :aria-expanded="isBannerExpanded"
         :style="{
           boxShadow: '0px 0px 5px rgba(34, 34, 34, 0.15)',
         }"
@@ -144,6 +146,7 @@
           variant="ghost"
           size="icon"
           class="h-auto w-auto"
+          :aria-label="selectedSubCategory ? `Back to ${selectedCategory?.name}` : 'Back to all categories'"
           @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
         >
           <CaretLeft class="w-6 h-6" />
@@ -208,6 +211,7 @@
             variant="ghost"
             size="icon"
             class="h-auto w-auto"
+            :aria-label="selectedSubCategory ? `Back to ${selectedCategory?.name}` : 'Back to all categories'"
             @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
           >
             <CaretLeft class="w-6 h-6" />
