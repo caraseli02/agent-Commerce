@@ -623,6 +623,135 @@ export const scenarios: ParityScenario[] = [
     ],
   },
   {
+    id: 'storefront-header-search',
+    slice: 'M4',
+    route: '/',
+    viewports: ['desktop'],
+    region: (page) => page.locator('header').first(),
+    steps: [
+      {
+        name: 'the regional preferences trigger opens its sheet',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Regional preferences' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog').getByText('Regional Preferences')).toBeVisible();
+          await page.keyboard.press('Escape');
+          await expect(page.getByRole('dialog')).toBeHidden();
+        },
+      },
+      {
+        name: 'a keyword search opens the results',
+        act: async (_page, region) => {
+          await region.getByRole('searchbox').fill('STM32');
+          await region.getByRole('searchbox').press('Enter');
+        },
+        verify: async (page) => {
+          await expect(page).toHaveURL(/\/search\?keyword=STM32$/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'storefront-mobile-search',
+    slice: 'M4',
+    route: '/',
+    viewports: ['mobile'],
+    region: (page) => page.locator('header').first(),
+    steps: [
+      {
+        name: 'the search trigger opens a focused search box',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Search products' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('searchbox')).toBeFocused();
+          await expect(region.getByRole('button', { name: 'Close search' })).toBeVisible();
+        },
+        snapshot: (page) => page.locator('header').first(),
+      },
+      {
+        name: 'close search restores the header',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Close search' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('searchbox')).toBeHidden();
+          await expect(region.getByRole('button', { name: 'Search products' })).toBeVisible();
+        },
+      },
+    ],
+  },
+  {
+    id: 'desktop-products-navigation',
+    slice: 'M4',
+    route: '/',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Open products navigation' }).click();
+      await expect(page.getByRole('navigation', { name: 'Product categories', exact: true }).getByRole('button').first()).toBeVisible();
+    },
+    region: (page) => page.getByRole('navigation', { name: 'Product categories', exact: true }).locator('xpath=ancestor::section[1]'),
+    maxTabStops: 30,
+    steps: [
+      {
+        name: 'selecting a category shows its subcategories',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: /^Semiconductors/ }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: /^Semiconductors/ })).toHaveAttribute('aria-pressed', 'true');
+          await expect(region.getByRole('button', { name: 'All Categories' })).toBeVisible();
+        },
+        snapshot: (page) => page.getByRole('navigation', { name: 'Product categories', exact: true }).locator('xpath=ancestor::section[1]'),
+      },
+      {
+        name: 'all categories clears the selection',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'All Categories' }).click();
+        },
+        // Pre-existing: the button unmounts on click, so the popover's click-outside handler closes the whole popover.
+        verify: async (page) => {
+          await expect(page.getByRole('navigation', { name: 'Product categories', exact: true })).toBeHidden();
+          await expect(page.getByRole('button', { name: 'Open products navigation' })).toBeVisible();
+        },
+      },
+    ],
+  },
+  {
+    // Signed-in storefront pages log a pre-existing hydration mismatch, so the sheet is exercised from the dashboard header.
+    id: 'dashboard-notifications',
+    slice: 'M4',
+    route: '/dashboard/client?tab=home',
+    role: 'customer',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await expect(page.getByRole('button', { name: 'Open notifications' })).toBeVisible();
+    },
+    region: (page) => page.getByRole('button', { name: 'Open notifications' }).locator('xpath=..'),
+    steps: [
+      {
+        name: 'the notifications trigger opens the sheet',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Open notifications' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog').getByRole('heading', { name: 'Notifications' })).toBeVisible();
+        },
+        snapshot: (page) => page.getByRole('dialog'),
+      },
+      {
+        name: 'close notifications hides the sheet',
+        act: async (page) => {
+          await page.getByRole('dialog').getByRole('button', { name: 'Close notifications' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog')).toBeHidden();
+        },
+      },
+    ],
+  },
+  {
     id: 'dashboard-header',
     slice: 'M5',
     route: '/dashboard',

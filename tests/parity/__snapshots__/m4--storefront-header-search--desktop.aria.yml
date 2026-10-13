@@ -1,0 +1,21 @@
+- banner:
+    - img
+    - text: "/Sales: \\+1 \\d+ \\d+ \\d+ \\(Mon-Fri 8:00AM - 4:00PM EST\\) Free shipping on orders over \\d+ Lei/"
+    - button "Regional preferences":
+        - img
+        - text: Lei
+    - button "Open products navigation":
+        - img
+    - link "Components Marketplace home":
+        - /url: /
+        - img: DEMO
+    - searchbox
+    - img
+    - button "Open notifications":
+        - img
+        - text: ''
+    - button "Open my account":
+        - img
+        - text: My Account
+    - button "Open shopping cart":
+        - img
