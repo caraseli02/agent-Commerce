@@ -108,9 +108,6 @@
     "input": 2,
     "label": 2
   },
-  "app/components/global/CopyClipboard.vue": {
-    "button": 1
-  },
   "app/components/global/FormInput.vue": {
     "input": 1,
     "label": 1

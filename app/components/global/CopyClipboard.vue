@@ -1,12 +1,7 @@
 <template>
-  <button
-    type="button"
-    class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-    :aria-label="label || `Copy ${text}`"
-    @click="onCopyClick"
-  >
+  <UiButton type="button" variant="ghost" size="icon" class="min-h-11 min-w-11" :aria-label="label || `Copy ${text}`" @click="onCopyClick">
     <component :is="defaultIcon" class="h-5 w-5" aria-hidden="true" />
-  </button>
+  </UiButton>
 </template>
 
 <script setup lang="ts">
