@@ -13,8 +13,47 @@ export const scenarios: ParityScenario[] = [
     id: 'forgot-password-form',
     slice: 'M1',
     route: '/forgot-password',
-    viewports: ['desktop'],
+    viewports: ['desktop', 'mobile'],
     region: (page) => page.locator('form').filter({ has: page.getByLabel('Email Address') }),
+  },
+  {
+    id: 'password-reset-form',
+    slice: 'M1',
+    route: '/password-reset',
+    viewports: ['desktop', 'mobile'],
+    region: (page) => page.locator('form').filter({ has: page.getByLabel('New Password') }),
+    steps: [
+      {
+        name: 'mismatched passwords show an error',
+        act: async (_page, region) => {
+          await region.getByLabel('New Password').fill('first-password');
+          await region.getByLabel('Repeat Password').fill('second-password');
+          await region.getByRole('button', { name: 'Save Password' }).click();
+        },
+        verify: async (page, region) => {
+          await expect(region.getByText('Passwords do not match')).toBeVisible();
+          await expect(page).toHaveURL(/\/password-reset$/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'verify-email-action',
+    slice: 'M1',
+    route: '/verify-email',
+    viewports: ['desktop', 'mobile'],
+    region: (page) => page.getByRole('heading', { name: 'Verify your email' }).locator('xpath=..'),
+    steps: [
+      {
+        name: 'verify without a code stays on the page',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Verify' }).click();
+        },
+        verify: async (page) => {
+          await expect(page).toHaveURL(/\/verify-email$/);
+        },
+      },
+    ],
   },
   {
     id: 'search-result-card',

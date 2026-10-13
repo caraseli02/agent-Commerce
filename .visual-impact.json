@@ -160,6 +160,12 @@
       "impact": "none",
       "reason": "Unmatched signed Refund events now acknowledge only after durable manual receipts; they cannot change any buyer-visible financial or checkout state.",
       "consumers": "POST /api/payments/stripe/webhook calls handleStripeWebhook after raw-body signature verification, which invokes stripeRefunds.applyVerifiedRefundEvent. The new branch writes only checkout_stripe_refund_events with refund_id NULL, then returns manual-handling-required; ingress returns accepted and the webhook route returns HTTP 200. The new checkout_stripe_refund_manual_handling SQL view is queried by database operators, as documented in README. A repository reference scan finds no app/, order API, store, composable, label, or rendered-page reader of that ledger/view. Full-row Payment/Refund/Order/claim snapshots prove unchanged state for unknown events, durable-write failure, collision, and manual replay after later local correlation. No provider read/create or application callback is run for manual events. Known candidate validation, authoritative provider reads, and existing application consequences remain fail-closed and are covered by the existing signed Refund and full-refund suites. Migration010 preserves prior receipt rows and adds no application response fields, public route, financial table changes, or UI behavior. Actual H3 HTTP tests prove 400 invalid signature, 503 malformed refs/write failure/default-off, and 200 durable manual receipt/duplicate. No home/search/product/cart/orders screenshot can observe these receipts."
+    },
+    {
+      "fingerprint": "6109ef4f03dcd141970ba6f9e3548ae08be1e779045fa8cc776a8d6137d77cda",
+      "impact": "none",
+      "reason": "Swaps one native button for UiButton on /forgot-password, /password-reset and /verify-email (#638); no screenshot in the visual matrix renders those routes",
+      "consumers": "The three edited files are route pages; no component, store, composable, layout or style imports them, and the home, search, product, cart and orders screenshots never navigate to them. ui-conventions-baseline.json is read only by scripts/verify-ui-conventions.mjs. The pages themselves are covered by pnpm test:parity --grep M1 (desktop 1440 and mobile 390: ARIA tree, tab order, mismatch/verify steps, clean runtime) with region screenshots for review; the only visual drift is the UiButton text-sm label size."
     }
   ]
 }

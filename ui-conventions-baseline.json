@@ -326,14 +326,5 @@
   },
   "app/pages/dashboard/orders/index.vue": {
     "button": 1
-  },
-  "app/pages/forgot-password.vue": {
-    "button": 1
-  },
-  "app/pages/password-reset.vue": {
-    "button": 1
-  },
-  "app/pages/verify-email.vue": {
-    "button": 1
   }
 }
