@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <UiLabel class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-white md:flex">
+    <UiLabel class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-white font-normal md:flex">
       <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent>
         <UiInput
           ref="searchDOM"

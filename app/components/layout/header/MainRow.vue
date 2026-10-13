@@ -83,7 +83,7 @@
         <Transition name="fade">
           <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 left-0 w-full -translate-y-1/2 md:hidden">
             <div class="flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-3">
-              <UiLabel class="relative z-10 flex h-10 min-w-0 flex-1 items-center">
+              <UiLabel class="relative z-10 flex h-10 min-w-0 flex-1 items-center font-normal">
                 <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent="showMobileSearch = false">
                   <UiInput
                     ref="searchDOM"
