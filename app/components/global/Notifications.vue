@@ -1,7 +1,13 @@
 <template>
   <UiSheet :key="userDetails?._id" v-model:open="showNotifications">
     <UiSheetTrigger as-child>
-      <button type="button" class="flex items-center -mr-2.5 xl:-mr-4" aria-label="Open notifications">
+      <UiButton
+        type="button"
+        variant="ghost"
+        class="h-auto -mr-2.5 p-0 xl:-mr-4"
+        :class="adminView ? '' : 'hover:bg-white/10'"
+        aria-label="Open notifications"
+      >
         <div class="flex items-center">
           <div class="flex flex-col items-center">
             <BellIcon :class="adminView ? 'text-slate-500' : 'text-white'" class="mb-0 h-6 w-6 xl:mb-1" />
@@ -20,7 +26,7 @@
             </span>
           </span>
         </div>
-      </button>
+      </UiButton>
     </UiSheetTrigger>
     <LazyUiSheetContent
       side="right"
@@ -29,14 +35,16 @@
     >
       <header class="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 py-3 md:px-6">
         <h2 class="truncate text-lg font-semibold text-neutral-800">Notifications</h2>
-        <button
+        <UiButton
           type="button"
-          class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-light-300 text-slate-500 transition-colors duration-300 hover:bg-light-400 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          variant="secondary"
+          size="icon"
+          class="h-11 w-11 shrink-0 text-slate-500"
           aria-label="Close notifications"
           @click="showNotifications = false"
         >
           <XIcon class="h-5 w-5" />
-        </button>
+        </UiButton>
       </header>
 
       <div class="shrink-0 border-b border-slate-100 px-2 pt-2 md:px-4">
@@ -83,14 +91,16 @@
               <span class="mr-4 text-xs leading-[1.67] text-slate-500">
                 {{ getCurrentDate(notification.date) }}
               </span>
-              <button
+              <UiButton
                 type="button"
-                class="flex items-center justify-center text-slate-500 transition-colors duration-300 hover:text-blue-500"
+                variant="ghost"
+                size="icon"
+                class="h-auto w-auto text-slate-500 hover:text-blue-500"
                 aria-label="Delete notification"
                 @click.stop.prevent="deleteNotification(notification, index)"
               >
                 <XIcon class="h-4 w-4" />
-              </button>
+              </UiButton>
             </div>
           </div>
           <div class="flex min-h-12 items-center justify-between pb-2 pl-3 pr-2">

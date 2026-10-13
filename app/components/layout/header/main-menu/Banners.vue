@@ -2,6 +2,7 @@
   <div
     class="grid grid-cols-2 grid-rows-2 gap-x-2.5 gap-y-[15px] px-5 pb-5 md:grid-cols-3 md:grid-rows-[85px] md:gap-[15px] md:px-[15px] md:pb-[15px] lg:grid-rows-[120px] xl:grid-cols-1 xl:grid-rows-3 xl:gap-5 xl:justify-between xl:p-[25px]"
   >
+    <!-- ui-native: dead promo card (div/img content, no handler); kept native pending a product decision (#631 plan) -->
     <button
       class="relative flex flex-col rounded-md overflow-hidden p-[7px] pb-[30px] md:order-1 md:px-1.5 md:pt-2.5 md:pb-[42px] lg:p-[15px] xl:py-5 xl:items-start"
     >
@@ -25,6 +26,7 @@
         loading="lazy"
       />
     </button>
+    <!-- ui-native: dead promo card (div/img content, no handler); kept native pending a product decision (#631 plan) -->
     <button
       class="relative flex flex-col rounded-md overflow-hidden p-[7px] pb-[30px] md:order-3 md:px-1.5 md:pt-2.5 lg:p-[15px] xl:order-2 xl:pt-5"
     >
@@ -46,6 +48,7 @@
       <div class="absolute z-10 top-0 left-0 w-full h-full bg-slate-50/90 rounded-md" />
       <img :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
     </button>
+    <!-- ui-native: dead promo card (div/img content, no handler); kept native pending a product decision (#631 plan) -->
     <button
       class="relative flex flex-col col-span-2 rounded-md overflow-hidden px-[15px] py-6 md:order-2 md:col-span-1 md:px-1.5 md:py-2.5 lg:p-[15px] xl:order-3 xl:pt-5"
     >

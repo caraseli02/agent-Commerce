@@ -8,10 +8,11 @@
       class="relative z-40 flex flex-col gap-1 p-2.5 bg-white border-r border-gray-200 max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-bl-md w-[260px] transition-opacity duration-200 xl:w-[290px] xl:py-[13px] xl:gap-1"
       :class="[isStatic ? 'hidden h-0 md:h-auto md:flex' : '', isBannerExpanded ? 'md:opacity-0 md:pointer-events-none' : '']"
     >
-      <button
+      <UiButton
         v-for="(category, index) in allCategories"
         :key="index"
-        class="group flex items-center px-2 py-1.5 rounded-[5px] w-full text-slate-500 text-left font-Inter transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary xl:px-2.5 xl:py-2"
+        variant="ghost"
+        class="group h-auto justify-start px-2 py-1.5 rounded-[5px] w-full text-slate-500 text-left font-Inter hover:text-primary xl:px-2.5 xl:py-2"
         :class="[selectedCategory === category ? 'text-primary bg-[#F4F4F4]' : '']"
         @click="
           selectedCategory = category;
@@ -33,7 +34,7 @@
             {{ category.productCount }} items
           </div>
         </div>
-      </button>
+      </UiButton>
     </div>
     <div
       class="relative z-20 col-start-2 row-start-1 flex flex-col items-start px-[15px] pt-[15px] text-white h-full max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin transition-all duration-500 md:h-[448px] md:pt-5 lg:px-5 xl:px-[30px] xl:pt-[45px] xl:h-[550px]"
@@ -47,12 +48,12 @@
       >
         Explore sourcing, order management, and account workflows in one polished B2B electronics experience.
       </p>
-      <button
-        class="relative z-20 flex bg-primary text-primary-foreground rounded px-[15px] py-2 text-xs font-medium mb-[30px] md:px-6 md:py-[11px] md:text-sm md:mb-[60px] lg:mb-[34px] xl:mb-14"
+      <UiButton
+        class="relative z-20 h-auto rounded px-[15px] py-2 text-xs mb-[30px] md:px-6 md:py-[11px] md:text-sm md:mb-[60px] lg:mb-[34px] xl:mb-14"
         @click="router.push('/search')"
       >
         View More
-      </button>
+      </UiButton>
       <Swiper
         ref="swiperDOM"
         :key="String(isBannerExpanded)"
@@ -109,9 +110,9 @@
         class="absolute z-10 top-0 left-0 w-full h-full bg-slate-900/85 pointer-events-none"
         :class="[isBannerExpanded ? 'rounded-b-md' : 'rounded-br-md max-md:rounded-bl-md']"
       />
-      <button
+      <UiButton
         v-if="isStatic"
-        class="hidden absolute z-20 top-[15px] right-0 justify-center items-center px-[3px] py-[5px] bg-primary/70 rounded-l overflow-hidden border border-primary/50 transition-all duration-300 hover:px-2 md:flex"
+        class="hidden absolute z-20 top-[15px] right-0 h-auto px-[3px] py-[5px] bg-primary/70 rounded-none rounded-l overflow-hidden border border-primary/50 transition-all duration-300 hover:px-2 md:flex"
         :class="{ 'sideNav--toggler_active': isBannerExpanded }"
         :style="{
           boxShadow: '0px 0px 5px rgba(34, 34, 34, 0.15)',
@@ -132,16 +133,21 @@
             d="M8.549 14.5 3.532 9l5.013-5.464a.946.946 0 0 0 .252-.643c0-.265-.11-.53-.292-.719a1.006 1.006 0 0 0-1.397.076L1.54 8.357a.943.943 0 0 0 0 1.286l5.57 6.107c.363.396.952.43 1.396.075.374-.353.407-.967.044-1.325Zm.833-6.143a.943.943 0 0 0 0 1.286l5.607 6.107c.363.397.989.43 1.396.075.408-.353.442-.967.077-1.325L11.447 9l5.012-5.464a.946.946 0 0 0 .253-.643c0-.265-.11-.53-.293-.719a1.006 1.006 0 0 0-1.396.076L9.382 8.357Z"
           />
         </svg>
-      </button>
+      </UiButton>
     </div>
     <div
       class="relative z-30 col-start-2 row-start-1 flex flex-col bg-white font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:hidden"
       :class="[selectedCategory ? '' : 'opacity-0 pointer-events-none -translate-x-10']"
     >
       <div class="flex items-center justify-between border-b border-gray-200 px-[15px] py-2.5">
-        <button class="flex" @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)">
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="h-auto w-auto"
+          @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
+        >
           <CaretLeft class="w-6 h-6" />
-        </button>
+        </UiButton>
         <div class="text-sm font-semibold text-primary">
           {{ selectedSubCategory ? selectedSubCategory.name : selectedCategory?.name }}
         </div>
@@ -149,10 +155,11 @@
       <div class="flex flex-col flex-1">
         <div class="flex-1 overflow-y-auto scrollbar-thin">
           <div v-if="selectedCategory && !selectedSubCategory" class="flex flex-wrap gap-x-2.5 gap-y-[15px] p-2.5 lg:p-[15px]">
-            <button
+            <UiButton
               v-for="(subCategory, index) in selectedCategory.subcategory"
               :key="index"
-              class="group flex items-center px-2 py-1.5 rounded-[5px] text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
+              variant="ghost"
+              class="group h-auto px-2 py-1.5 rounded-[5px] text-slate-500 text-left hover:text-primary"
               @click="
                 selectedSubCategory = subCategory;
                 handleCategoryClick(subCategory);
@@ -166,7 +173,7 @@
                   {{ subCategory.productCount }} items
                 </div>
               </div>
-            </button>
+            </UiButton>
           </div>
           <div
             v-else-if="selectedSubCategory"
@@ -197,9 +204,14 @@
     >
       <div>
         <div class="flex items-center justify-between border-b border-gray-200 px-[15px] pt-5 pb-2.5 xl:pr-0">
-          <button class="flex" @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)">
+          <UiButton
+            variant="ghost"
+            size="icon"
+            class="h-auto w-auto"
+            @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
+          >
             <CaretLeft class="w-6 h-6" />
-          </button>
+          </UiButton>
           <div class="text-sm font-semibold text-primary">
             {{ selectedSubCategory ? selectedSubCategory.name : selectedCategory?.name }}
           </div>
@@ -207,10 +219,11 @@
         <div class="flex flex-col flex-1">
           <div class="flex-1 overflow-y-auto scrollbar-thin">
             <div v-if="selectedCategory" class="flex flex-wrap gap-2.5 pt-[15px] px-[25px] pb-5">
-              <button
+              <UiButton
                 v-for="(subCategory, index) in selectedCategory.subcategory"
                 :key="index"
-                class="group flex items-center px-2 py-1.5 rounded-[5px] text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
+                variant="ghost"
+                class="group h-auto px-2 py-1.5 rounded-[5px] text-slate-500 text-left hover:text-primary"
                 :class="[selectedSubCategory === subCategory ? 'text-primary bg-[#F4F4F4]' : '']"
                 @click="selectedSubCategory = subCategory"
               >
@@ -225,7 +238,7 @@
                     {{ subCategory.productCount }} items
                   </div>
                 </div>
-              </button>
+              </UiButton>
             </div>
             <div v-if="selectedCategory && selectedSubCategory" class="grid grid-cols-3 gap-x-5 gap-y-2 px-[25px] pb-5">
               <NuxtLink

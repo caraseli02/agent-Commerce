@@ -14,10 +14,10 @@
           <div class="mr-auto text-xs font-semibold leading-[1.67] text-primary md:mr-0 lg:text-sm lg:leading-[1.43]">
             <span class="uppercase">Free</span> shipping on orders over {{ freeShippingThreshold }}
           </div>
-          <button class="flex items-center" aria-label="Regional preferences" @click="showRegionalPreferencesModal = true">
+          <UiButton variant="link" class="h-auto p-0" aria-label="Regional preferences" @click="showRegionalPreferencesModal = true">
             <RonFlag class="mr-2.5 h-5 w-6" />
             <span class="text-sm leading-[1.43] text-slate-500">{{ regionalLabel }}</span>
-          </button>
+          </UiButton>
         </div>
       </div>
     </div>
