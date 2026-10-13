@@ -44,7 +44,7 @@ This makes the process observable and prevents scope creep.
 2. Skip issues already assigned, already `in-progress`, or already linked to an active PR.
 3. Add `in-progress`, assign the working account, and comment with branch name.
 4. Create a fresh branch/worktree from `origin/main`.
-5. Do not start a second issue while this builder's `in-progress` issue has an open PR (Claude only: a `blocked` claim is parked and does not count toward Claude's WIP=1, and Claude never has two live claims; `autonomous-workflow.md` § Claude parking). Keep the same issue until evaluator PASS or a human blocker/replacement and state cleanup, as defined in `autonomous-workflow.md`.
+5. Do not start a second issue while this builder's `in-progress` issue has an open PR (Claude only: parked (`blocked`) and queued (open PR with an evaluator PASS, waiting for Vlad's merge, at most `max_pass_queue`) claims do not count toward Claude's WIP=1, and Claude never has two live claims; `autonomous-workflow.md` § Claude parking). Keep the same issue until evaluator PASS or a human blocker/replacement and state cleanup, as defined in `autonomous-workflow.md`.
 
 ## 4. During work
 
