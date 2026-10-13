@@ -6,7 +6,7 @@ import sys
 import time
 import unittest
 
-from runtime import EnvironmentFailure, free_port, listener_pids, owned_server, stop_owned
+from runtime import EnvironmentFailure, bounded_command, free_port, listener_pids, owned_server, stop_owned
 
 
 def port():
@@ -65,6 +65,13 @@ class OwnedProcessTests(unittest.TestCase):
         with self.assertRaises(EnvironmentFailure):
             owned_server([sys.executable, '-c', code], [sys.executable, '-c', 'import time;time.sleep(.5)'], p, .1, os.environ, pathlib.Path(__file__).parent)
         self.assertEqual(listener_pids(p), set(), 'Exited leader must not orphan its listener')
+
+    def test_setup_budget_stops_owned_setup_descendants(self):
+        p = port()
+        code = f"import subprocess,sys,time; subprocess.Popen([sys.executable,'-m','http.server','{p}','--bind','127.0.0.1']); time.sleep(30)"
+        with self.assertRaises(EnvironmentFailure):
+            bounded_command([sys.executable, '-c', code], pathlib.Path(__file__).parent, os.environ, time.monotonic() + .5)
+        self.assertEqual(listener_pids(p), set())
 
 
 if __name__ == '__main__':

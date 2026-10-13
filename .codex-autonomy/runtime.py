@@ -111,6 +111,16 @@ def validate_checkout(cwd, head):
         raise EnvironmentFailure('Investigation requires clean separate checkout pinned to recorded main')
 
 
+def bounded_command(args, cwd, env, deadline):
+    child = subprocess.Popen(args, cwd=cwd, env=env, start_new_session=True)
+    try:
+        return child.wait(timeout=max(.1, deadline - time.monotonic()))
+    except subprocess.TimeoutExpired as error:
+        raise EnvironmentFailure('Investigation budget exhausted during build/database setup') from error
+    finally:
+        stop_owned(child)
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--checkout', type=pathlib.Path, required=True)
@@ -155,10 +165,11 @@ def main():
                 raise EnvironmentFailure('Unsupported investigation option/path; snapshot mutations forbidden')
         if not a.isolated:
             # Existing DB only, localhost only, isolated random schema via repository wrapper.
-            subprocess.run(['pnpm', 'build'], cwd=cwd, check=True, timeout=max(.1, deadline - time.monotonic()))
+            if bounded_command(['pnpm', 'build'], cwd, os.environ, deadline) != 0:
+                raise EnvironmentFailure('Pinned mock build failed; record environment evidence')
             command = ['node', 'scripts/with-test-database.mjs', '/usr/bin/python3', str(pathlib.Path(__file__).resolve()), '--lease-token', a.lease_token, '--isolated', '--checkout', str(cwd), '--worker-checkout', str(a.worker_checkout), '--head', a.head, '--port', str(a.port), '--minutes', str(a.minutes), *a.test]
             wrapper_env = dict(os.environ, CODEX_INVESTIGATION_DEADLINE=str(deadline))
-            raise SystemExit(subprocess.call(command, cwd=cwd, env=wrapper_env))
+            raise SystemExit(bounded_command(command, cwd, wrapper_env, deadline))
         from urllib.parse import parse_qs, urlparse
         if not parse_qs(urlparse(os.environ.get('DATABASE_URL', '')).query).get('options', [''])[0].startswith('-c search_path=ecas_test_'):
             raise EnvironmentFailure('Runtime must be inside existing isolated test-schema wrapper')
