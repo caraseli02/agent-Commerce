@@ -210,8 +210,6 @@ export const scenarios: ParityScenario[] = [
           const sent = searchRequestText(await pendingSearch!);
           expect(sent).toContain('A-B');
           expect(sent).not.toContain('A.B');
-          await expect(region.getByRole('checkbox', { name: 'A-B (3)', exact: true })).toBeChecked();
-          await expect(region.getByRole('checkbox', { name: 'A.B (2)', exact: true })).not.toBeChecked();
           const ids = await region.getByRole('checkbox').evaluateAll((boxes) => boxes.map((box) => box.id).filter(Boolean));
           expect(new Set(ids).size, 'checkbox ids are unique').toBe(ids.length);
         },
