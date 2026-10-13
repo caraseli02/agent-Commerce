@@ -1,9 +1,9 @@
 - img
 - text: Add/Remove Filters
-- button:
+- button "Close":
     - img
 - img
-- searchbox
+- searchbox "Search parameters"
 - button "Parameters":
     - text: ''
     - img

@@ -152,7 +152,7 @@
         <div class="hidden font-Inter font-semibold md:block">Products Found ({{ totalItems }})</div>
         <div class="flex items-center">
           <Transition name="fade">
-            <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" @click="atPage--">
+            <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" aria-label="Previous page" @click="atPage--">
               <ChevronRightIcon class="w-1.5 h-3 rotate-180" />
             </UiButton>
           </Transition>
@@ -177,7 +177,7 @@
             </template>
           </Pagination>
           <Transition name="fade">
-            <UiButton v-if="totalPages !== atPage" variant="ghost" size="icon" class="ml-4" @click="atPage++">
+            <UiButton v-if="totalPages !== atPage" variant="ghost" size="icon" class="ml-4" aria-label="Next page" @click="atPage++">
               <ChevronRightIcon class="w-1.5 h-3" />
             </UiButton>
           </Transition>
@@ -228,7 +228,7 @@
         </label>
         <div class="flex items-center">
           <Transition name="fade">
-            <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" @click="atPage--">
+            <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" aria-label="Previous page" @click="atPage--">
               <ChevronRightIcon class="w-1.5 h-3 rotate-180" />
             </UiButton>
           </Transition>
@@ -253,7 +253,7 @@
             </template>
           </Pagination>
           <Transition name="fade">
-            <UiButton v-if="totalPages !== atPage" variant="ghost" size="icon" class="ml-4" @click="atPage++">
+            <UiButton v-if="totalPages !== atPage" variant="ghost" size="icon" class="ml-4" aria-label="Next page" @click="atPage++">
               <ChevronRightIcon class="w-1.5 h-3" />
             </UiButton>
           </Transition>

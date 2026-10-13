@@ -17,5 +17,5 @@
 - text: /Manufacturer4 \(\d+\)/
 - checkbox /Micro Comercial Components \(\d+\)/
 - text: /Micro Comercial Components \(\d+\)/
-- button:
+- button "Remove filter":
     - img

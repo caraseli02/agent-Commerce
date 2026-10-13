@@ -6,7 +6,7 @@
     - img
     - text: ''
 - text: /Supply Voltage \(\d+\)/
-- button:
+- button "Hide Supply Voltage filter":
     - img
 - searchbox "Type here"
 - img
@@ -16,7 +16,7 @@
 - text: 3.3V (7)
 - button "Select All"
 - text: Package (5)
-- button:
+- button "Hide Package filter":
     - img
 - searchbox "Type here"
 - img
@@ -26,7 +26,7 @@
 - text: /QFN-\d+ \(2\)/
 - button "Select All"
 - text: Core (5)
-- button:
+- button "Hide Core filter":
     - img
 - searchbox "Type here"
 - img
@@ -34,5 +34,5 @@
 - text: ARM Cortex-M4 (5)
 - button "Select All"
 - text: Add/Remove Filter
-- button:
+- button "Add or remove filters":
     - img

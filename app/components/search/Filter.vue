@@ -7,7 +7,13 @@
         </div>
         <div class="text-xs leading-tight">({{ totalProducts }})</div>
       </div>
-      <UiButton variant="secondary" size="icon" class="w-[22px] h-[22px]" @click="$emit('close')">
+      <UiButton
+        variant="secondary"
+        size="icon"
+        class="w-[22px] h-[22px]"
+        :aria-label="`Hide ${FeatureName} filter`"
+        @click="$emit('close')"
+      >
         <XIcon class="w-[14px] h-[14px]" />
       </UiButton>
     </div>

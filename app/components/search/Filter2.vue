@@ -44,7 +44,7 @@
         </div>
       </div>
       <div class="max-w-max flex-shrink-0">
-        <UiButton variant="secondary" size="icon" class="w-[42px] h-[42px] rounded-full ml-5 mr-[11px]">
+        <UiButton variant="secondary" size="icon" class="w-[42px] h-[42px] rounded-full ml-5 mr-[11px]" aria-label="Remove filter">
           <TrashIcon class="w-5 h-5" />
         </UiButton>
       </div>

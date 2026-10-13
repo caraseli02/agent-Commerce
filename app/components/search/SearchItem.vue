@@ -132,10 +132,10 @@
     </div>
 
     <div class="absolute right-4 top-4 hidden flex-col gap-2.5 md:flex md:right-5 md:top-5">
-      <UiButton type="button" variant="ghost" size="icon" class="h-6 w-6">
+      <UiButton type="button" variant="ghost" size="icon" class="h-6 w-6" aria-label="Save product">
         <HeartIcon class="h-6 w-6" />
       </UiButton>
-      <UiButton type="button" variant="ghost" size="icon" class="h-6 w-6">
+      <UiButton type="button" variant="ghost" size="icon" class="h-6 w-6" aria-label="Share product">
         <ShareIcon class="h-6 w-6" />
       </UiButton>
     </div>

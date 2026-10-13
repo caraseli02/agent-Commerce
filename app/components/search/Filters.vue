@@ -39,6 +39,7 @@
             <div class="text-sm font-medium text-slate-500 mb-5">Add/Remove Filter</div>
             <UiButton
               size="icon"
+              aria-label="Add or remove filters"
               class="w-14 h-14 rounded-full transition-transform duration-300 hover:rotate-[360deg]"
               @click="showAddRemoveFilterModal = true"
             >

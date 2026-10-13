@@ -8,7 +8,7 @@
           <FiltersIcon class="w-6 h-6 text-slate-500 mr-2" />
           <span class="text-lg font-medium text-slate-500"> Add/Remove Filters </span>
         </div>
-        <UiButton variant="secondary" size="icon" class="w-8 h-8" @click="$emit('close')">
+        <UiButton variant="secondary" size="icon" class="w-8 h-8" aria-label="Close" @click="$emit('close')">
           <XIcon class="w-[15px] h-[15px]" />
         </UiButton>
       </div>
