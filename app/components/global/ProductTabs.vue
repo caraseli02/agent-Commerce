@@ -7,13 +7,14 @@
     </h2>
     <div class="relative flex max-w-full items-center gap-4 overflow-x-auto pb-1 xl:gap-6">
       <p v-for="(filter, index) in filters" :key="index" class="relative overflow-hidden shrink-0">
-        <button
-          class="relative text-sm font-medium pb-[13px] transition-colors duration-300 motion-reduce:transition-none hover:text-blue-700 md:text-base md:pb-3 whitespace-nowrap"
+        <UiButton
+          variant="link"
+          class="relative h-auto p-0 pb-[13px] text-sm font-medium motion-reduce:transition-none hover:text-blue-700 md:text-base md:pb-3"
           :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-700' : 'text-slate-500 after:opacity-0']"
           @click="setActiveFilter(filter)"
         >
           {{ filter }}
-        </button>
+        </UiButton>
         <span
           :class="activeFilter === textUtil.slugify(filter) ? 'scale-x-100' : 'scale-x-0'"
           class="absolute bottom-0 left-0 h-[4px] w-full origin-left scale-x-0 bg-blue-700 rounded-full transition-transform duration-300 motion-reduce:transition-none"

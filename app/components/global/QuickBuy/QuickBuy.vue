@@ -138,13 +138,10 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
     <div class="mt-auto pt-6 lg:hidden">
       <UiDialog v-model:open="isOpen">
         <UiDialogTrigger as-child>
-          <button
-            type="button"
-            class="flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-600 py-2 text-white transition-colors motion-reduce:transition-none hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
-          >
+          <UiButton type="button" class="min-h-11 w-full">
             <CartIcon class="w-6 h-6 mr-2" />
             <span class="text-sm font-medium">Add to cart</span>
-          </button>
+          </UiButton>
         </UiDialogTrigger>
         <UiDialogContent
           class="!inset-0 !flex !h-[100dvh] !w-screen !max-w-none !translate-x-0 !translate-y-0 flex-col gap-5 overflow-y-auto !border-0 rounded-none p-5 sm:!inset-auto sm:!left-1/2 sm:!top-1/2 sm:!grid sm:!h-auto sm:!w-full sm:!max-w-[640px] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:rounded-lg sm:!border sm:p-6"

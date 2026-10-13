@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import CheckIcon from '@/assets/icons/check.svg';
 import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchDataItems } from '~~/types/product';
 import { useProducts } from '~/composables/useProducts';
 import { useProductStore } from '~/store/productStore';
@@ -124,17 +123,18 @@ onMounted(() => {
   <div ref="elDOM" class="max-w-[1392px] mx-auto relative bg-white rounded-xl font-Inter px-4 py-5 shadow-m md:px-5 md:py-5">
     <div class="flex flex-col gap-3 mb-4 border-b border-gray-200 md:flex-row md:items-end md:justify-between md:gap-4 md:mb-5">
       <div class="relative flex items-center gap-4 min-w-0">
-        <button
+        <UiButton
           v-for="(filter, index) in filters"
           :key="index"
           type="button"
+          variant="link"
           :data-tab="textUtil.slugify(filter)"
-          class="relative text-sm font-semibold tracking-tight pb-3 transition-colors duration-300 hover:text-blue-500 md:text-base"
+          class="relative h-auto p-0 pb-3 text-sm font-semibold tracking-tight md:text-base"
           :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-500' : 'text-slate-500']"
           @click="setActiveFilter(filter)"
         >
           {{ filter }}
-        </button>
+        </UiButton>
         <div
           class="absolute bottom-0 h-[3px] bg-blue-500 rounded-t-sm transition-all duration-300"
           :style="{
@@ -144,53 +144,46 @@ onMounted(() => {
         />
       </div>
 
-      <button
+      <UiButton
         v-if="isLoading || canShowSimilar"
         type="button"
         :disabled="isLoading || !canShowSimilar"
-        class="inline-flex w-fit shrink-0 items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors duration-200 md:mb-2.5"
-        :class="isLoading || !canShowSimilar ? 'bg-gray-400 cursor-not-allowed' : 'bg-slate-500 hover:bg-slate-600'"
+        class="w-fit shrink-0 md:mb-2.5"
         @click="showSimilarProducts"
       >
         <span v-if="isLoading">Loading...</span>
         <span v-else>Show similar products ({{ totalSimilarProducts }})</span>
-      </button>
+      </UiButton>
     </div>
 
     <div class="overflow-x-auto -mx-1 px-1">
-      <table class="w-full border-collapse text-left">
-        <tbody>
-          <tr
+      <UiTable class="min-w-0 border-collapse text-left">
+        <UiTableBody>
+          <UiTableRow
             v-for="(item, index) in visibleFeatures"
             :key="index"
             class="group cursor-pointer text-xs leading-snug font-medium transition-colors duration-200 odd:bg-[#F2F2F2] hover:text-blue-500"
             @click="toggleFeature(item)"
           >
-            <td class="w-[9.5rem] py-2 pl-3 pr-3 text-slate-600 align-middle md:w-44 md:pl-4 md:pr-4">
+            <UiTableCell class="h-auto w-[9.5rem] py-2 pl-3 pr-3 text-slate-600 align-middle md:w-44 md:pl-4 md:pr-4">
               {{ item.FeatureName }}
-            </td>
-            <td class="py-2 pr-3 text-slate-900 align-middle break-words">
+            </UiTableCell>
+            <UiTableCell class="h-auto py-2 pl-0 pr-3 text-slate-900 align-middle break-words">
               {{ item.FeatureValue }}
-            </td>
-            <td class="w-10 py-0 pr-3 align-middle md:pr-4">
-              <label class="ml-auto flex min-h-11 min-w-11 cursor-pointer items-center justify-center" @click.stop>
-                <input
-                  v-model="item.checked"
-                  type="checkbox"
-                  class="peer sr-only"
+            </UiTableCell>
+            <UiTableCell class="h-auto w-10 py-0 pl-0 pr-3 align-middle md:pr-4">
+              <!-- The label keeps the whole 44px cell area toggling the checkbox; @click.stop keeps the row from toggling it again. -->
+              <UiLabel class="ml-auto flex min-h-11 min-w-11 cursor-pointer items-center justify-center" @click.stop>
+                <UiCheckbox
+                  :checked="item.checked"
                   :aria-label="`Include ${item.FeatureName} in similar-product search`"
+                  @update:checked="item.checked = $event"
                 />
-                <span
-                  class="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-border transition-colors duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 group-hover:border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500"
-                  aria-hidden="true"
-                >
-                  <CheckIcon v-if="item.checked" class="w-4 text-white" />
-                </span>
-              </label>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </UiLabel>
+            </UiTableCell>
+          </UiTableRow>
+        </UiTableBody>
+      </UiTable>
     </div>
   </div>
 </template>

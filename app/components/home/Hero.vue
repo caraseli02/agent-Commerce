@@ -21,29 +21,26 @@
           </p>
 
           <form class="mt-6 max-w-3xl sm:mt-7" novalidate @submit.prevent="submitSearch">
-            <label for="homepage-part-search" class="sr-only">Search by part number or keyword</label>
+            <UiLabel for="homepage-part-search" class="sr-only">Search by part number or keyword</UiLabel>
             <div class="flex flex-col gap-2 rounded-xl bg-white p-2 shadow-[0_8px_24px_rgba(2,8,23,0.2)] sm:flex-row">
               <div class="flex min-w-0 flex-1 items-center gap-3 px-3">
                 <SearchIcon class="h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
-                <input
+                <UiInput
                   id="homepage-part-search"
                   ref="searchInput"
                   v-model="searchTerm"
                   type="search"
                   autocomplete="off"
                   placeholder="e.g. STM32F407, 10k resistor, USB-C"
-                  class="h-11 min-w-0 flex-1 text-sm text-slate-900 outline-none placeholder:text-slate-400 sm:text-base"
+                  class="h-11 min-w-0 flex-1 text-sm sm:text-base"
                   :aria-invalid="Boolean(searchError)"
                   aria-describedby="homepage-search-help homepage-search-error"
                 />
               </div>
-              <button
-                type="submit"
-                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-              >
+              <UiButton type="submit" class="min-h-11 gap-2 px-5">
                 <SearchIcon class="h-4 w-4" aria-hidden="true" />
                 Search catalog
-              </button>
+              </UiButton>
             </div>
             <p id="homepage-search-help" class="mt-2 text-xs text-slate-300">Use a manufacturer part number for the most precise match.</p>
             <p v-if="searchError" id="homepage-search-error" class="mt-2 text-sm font-medium text-amber-200" role="alert">
@@ -125,7 +122,7 @@ import { categoryBrowseUrl } from '~~/helpers/categoryPath.helper';
 
 const router = useRouter();
 const { categories, getCategories } = useCategories();
-const searchInput = ref<HTMLInputElement | null>(null);
+const searchInput = ref<{ el: HTMLInputElement | null } | null>(null);
 const searchTerm = ref('');
 const searchError = ref('');
 
@@ -148,7 +145,7 @@ const submitSearch = async () => {
   if (!keyword) {
     searchError.value = 'Enter a part number or keyword to search.';
     await nextTick();
-    searchInput.value?.focus();
+    searchInput.value?.el?.focus();
     return;
   }
 
