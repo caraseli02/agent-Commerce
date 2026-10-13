@@ -1,0 +1,5 @@
+1. button
+2. searchbox
+3. checkbox "A.B (2)"
+4. checkbox "A-B (3)"
+5. button "Select All"

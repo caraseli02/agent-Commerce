@@ -23,12 +23,17 @@ const searchFiltersFixture = {
 
 type NuxtRoot = { __vue_app__: { config: { globalProperties: { $router: { push: (to: string) => Promise<unknown> } } } } };
 
+/** Distinct values that collapse to the same text once punctuation is replaced (#678 review). */
+const collidingFiltersFixture = {
+  Pitch: [filterValue('Pitch', 'A.B', '', 'pitch', 2), filterValue('Pitch', 'A-B', '', 'pitch', 3)],
+};
+
 /** Serves search responses with the filter fixture, then runs a client-side search so the filter UI renders. */
-const showSearchWithFilters = async (page: Page, viewport: ParityViewport) => {
+const showSearchWithFilters = async (page: Page, viewport: ParityViewport, filters: object = searchFiltersFixture) => {
   await page.route('**/api/products/search**', async (route) => {
     const response = await route.fetch();
     const json = await response.json();
-    json.data.filters = structuredClone(searchFiltersFixture);
+    json.data.filters = structuredClone(filters);
     await route.fulfill({ response, json });
   });
   await page.evaluate(async () => {
@@ -42,11 +47,14 @@ const showSearchWithFilters = async (page: Page, viewport: ParityViewport) => {
   await expect(ready).toBeVisible();
 };
 
+/** The text a search request carries: decoded query string plus body. */
+const searchRequestText = (request: Request) => `${decodeURIComponent(request.url())} ${request.postData() ?? ''}`;
+
 /** Waits for a search request whose query string or body matches `pattern`. */
 const waitForSearchWith = (page: Page, pattern: string | RegExp) =>
   page.waitForRequest((request) => {
     if (!request.url().includes('/api/products/search')) return false;
-    const sent = `${decodeURIComponent(request.url())} ${request.postData() ?? ''}`;
+    const sent = searchRequestText(request);
     return typeof pattern === 'string' ? sent.includes(pattern) : pattern.test(sent);
   });
 
@@ -185,6 +193,32 @@ export const scenarios: ParityScenario[] = [
     ],
   },
   {
+    id: 'search-filter-colliding-values',
+    slice: 'M2',
+    route: '/search?keyword=STM32',
+    viewports: ['desktop'],
+    setup: (page) => showSearchWithFilters(page, 'desktop', collidingFiltersFixture),
+    region: (page) => page.getByText('Pitch', { exact: true }).locator('xpath=ancestor::div[contains(@class, "flex-col")][1]'),
+    steps: [
+      {
+        name: 'each value label checks its own value',
+        act: async (page, region) => {
+          pendingSearch = waitForSearchWith(page, /A[.-]B/);
+          await region.getByText('A-B (3)', { exact: true }).click();
+        },
+        verify: async (_page, region) => {
+          const sent = searchRequestText(await pendingSearch!);
+          expect(sent).toContain('A-B');
+          expect(sent).not.toContain('A.B');
+          await expect(region.getByRole('checkbox', { name: 'A-B (3)', exact: true })).toBeChecked();
+          await expect(region.getByRole('checkbox', { name: 'A.B (2)', exact: true })).not.toBeChecked();
+          const ids = await region.getByRole('checkbox').evaluateAll((boxes) => boxes.map((box) => box.id).filter(Boolean));
+          expect(new Set(ids).size, 'checkbox ids are unique').toBe(ids.length);
+        },
+      },
+    ],
+  },
+  {
     id: 'search-add-remove-filters',
     slice: 'M2',
     route: '/search?keyword=STM32',
@@ -196,6 +230,15 @@ export const scenarios: ParityScenario[] = [
     region: (page) =>
       page.getByText('Add/Remove Filters', { exact: true }).locator('xpath=ancestor::div[contains(@class, "pointer-events-auto")][1]'),
     steps: [
+      {
+        name: 'clicking the search icon focuses the search box',
+        act: async (_page, region) => {
+          await region.getByPlaceholder('Search parameters').locator('xpath=preceding-sibling::*[1]').click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByPlaceholder('Search parameters')).toBeFocused();
+        },
+      },
       {
         name: 'searching narrows the parameter list',
         act: async (_page, region) => {
