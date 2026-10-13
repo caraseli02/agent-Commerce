@@ -13,6 +13,7 @@ import {
   hasChangesRequested,
   hasClaudeCoauthor,
   hasCurrentSkipRecord,
+  hasEvaluatorPassOnAnyHead,
   isClaudeBuilt,
   issueFingerprint,
   latestEvaluatorVerdict,
@@ -139,6 +140,41 @@ describe('evaluator verdict', () => {
     ];
 
     expect(latestEvaluatorVerdict(comments, HEAD, trusted)?.verdict).toBe('BLOCKED');
+  });
+
+  describe('hasEvaluatorPassOnAnyHead', () => {
+    const OLD = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
+
+    it('is false with no reports or with FAIL-only reports', () => {
+      expect(hasEvaluatorPassOnAnyHead([], trusted)).toBe(false);
+      expect(hasEvaluatorPassOnAnyHead([report(OLD, 'FAIL — needs generator fix.'), report(HEAD, 'BLOCKED — no env.')], trusted)).toBe(
+        false,
+      );
+    });
+
+    it('is true when an old head has a PASS even though the newest head FAILed', () => {
+      expect(hasEvaluatorPassOnAnyHead([report(OLD, 'PASS — ready-for-human.'), report(HEAD, 'FAIL — regressed.')], trusted)).toBe(true);
+    });
+
+    it('is true when one head carries contradictory reports that include a PASS', () => {
+      expect(hasEvaluatorPassOnAnyHead([report(HEAD, 'FAIL — x.'), report(HEAD, 'PASS — y.')], trusted)).toBe(true);
+    });
+
+    it('accepts the local-evaluator marker form', () => {
+      const local = report(OLD, 'PASS — ready-for-human.', {
+        body: `<!-- local-evaluator sha=${OLD} -->\n## Evaluator verdict\n\nPASS — ok.\n\nIndependent evaluator: Codex.`,
+      });
+      expect(hasEvaluatorPassOnAnyHead([local], trusted)).toBe(true);
+    });
+
+    it('ignores untrusted logins and markers quoted mid-body', () => {
+      expect(hasEvaluatorPassOnAnyHead([report(OLD, 'PASS — ok.', { user: { login: 'drive-by' } })], trusted)).toBe(false);
+      const quoted = {
+        user: { login: 'caraseli02' },
+        body: `Re-running review.\n\n<!-- evaluator-head: ${OLD} -->\n## Evaluator verdict\n\nPASS — ok.\n\nIndependent evaluator: Codex.`,
+      };
+      expect(hasEvaluatorPassOnAnyHead([quoted], trusted)).toBe(false);
+    });
   });
 });
 
@@ -335,6 +371,77 @@ describe('Claude build queue', () => {
 
     expect(live.idle).toBe(false);
     expect(unblocked.eligible.map((entry) => entry.number)).toEqual([5]);
+  });
+
+  // `queuedNumbers` are claims whose open claude/issue-<n> PR has an evaluator PASS on any head.
+  it('queues a PASSed claim without blocking the build slot, so an independent eligible candidate keeps the queue busy', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude', 'in-progress']), issue(2, ['agent:claude'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1, 2]),
+      queuedNumbers: new Set([1]),
+    });
+
+    expect(state.live).toEqual([]);
+    expect(state.queued.map((entry) => entry.number)).toEqual([1]);
+    expect(state.eligible.map((entry) => entry.number)).toEqual([2]);
+    expect(state.idle).toBe(false);
+  });
+
+  it('is idle when the only claim is queued and nothing is eligible', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude', 'in-progress'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1]),
+      queuedNumbers: new Set([1]),
+    });
+
+    expect(state.live).toEqual([]);
+    expect(state.queued.map((entry) => entry.number)).toEqual([1]);
+    expect(state.eligible).toEqual([]);
+    expect(state.idle).toBe(true);
+  });
+
+  it('keeps a repaired claim queued after ready-for-human is removed, and a live claim beside it still makes the queue busy', () => {
+    // PASS was recorded on the old head; the repair pushed a new, unreviewed head and dropped the label.
+    const repaired = claudeQueueState([issue(1, ['agent:claude', 'in-progress'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1]),
+      queuedNumbers: new Set([1]),
+    });
+    const beside = claudeQueueState([issue(1, ['agent:claude', 'in-progress']), issue(2, ['agent:claude', 'in-progress'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1, 2]),
+      queuedNumbers: new Set([1]),
+    });
+
+    expect(repaired.queued.map((entry) => entry.number)).toEqual([1]);
+    expect(repaired.live).toEqual([]);
+    expect(beside.live.map((entry) => entry.number)).toEqual([2]);
+    expect(beside.queued.map((entry) => entry.number)).toEqual([1]);
+    expect(beside.idle).toBe(false);
+  });
+
+  it('counts a claim with no open PR (closed unmerged) as live, not queued, even with ready-for-human', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude', 'in-progress', 'ready-for-human'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1]),
+      queuedNumbers: new Set(),
+    });
+
+    expect(state.live.map((entry) => entry.number)).toEqual([1]);
+    expect(state.queued).toEqual([]);
+    expect(state.idle).toBe(false);
+  });
+
+  it('keeps a blocked claim parked even when its PR has a PASS', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude', 'in-progress', 'blocked'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1]),
+      queuedNumbers: new Set([1]),
+    });
+
+    expect(state.live).toEqual([]);
+    expect(state.queued).toEqual([]);
+    expect(state.idle).toBe(true);
   });
 
   it('removes issues an open PR already closes or that have a claude/issue-<n> branch', () => {
@@ -613,6 +720,54 @@ describe('reconcile against a fake GitHub API', () => {
     });
     await handleEvent({ eventName: 'schedule', gh: edited.gh, owner, config });
     expect(edited.calls.find((call) => call.method === 'PATCH')).toMatchObject({ path: '/issues/50', body: { state: 'closed' } });
+  });
+
+  it('treats a PASSed open claude/issue-<n> PR as queued: idle with nothing else, but a closed-unmerged claim stays live', async () => {
+    const claim = {
+      number: 632,
+      state: 'open',
+      title: 'x',
+      body: '',
+      labels: [label('agent:claude'), label('in-progress')],
+      assignees: [],
+    };
+    const queuedRun = fakeGitHub({ ...readyRoutes([passComment]), '/issues?state=open': [claim] });
+    await handleEvent({ eventName: 'schedule', gh: queuedRun.gh, owner, config });
+    expect(posts(queuedRun.calls).filter((call) => call.path === '/issues')).toHaveLength(1);
+    expect(queuedRun.calls.some((call) => call.path === '/issues/658/comments' && call.method === 'GET')).toBe(true);
+
+    // PASS on an older head only (repaired, new head unreviewed) still counts as queued.
+    const oldHead = passComment.body.replace(HEAD, 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef');
+    const repaired = fakeGitHub({ ...readyRoutes([{ ...passComment, body: oldHead }]), '/issues?state=open': [claim] });
+    await handleEvent({ eventName: 'schedule', gh: repaired.gh, owner, config });
+    expect(posts(repaired.calls).filter((call) => call.path === '/issues')).toHaveLength(1);
+
+    // No open PR: the claim is live, so the queue is not idle.
+    const closed = fakeGitHub({ '/pulls?state=open': [], '/issues?state=open': [claim] });
+    await handleEvent({ eventName: 'schedule', gh: closed.gh, owner, config });
+    expect(posts(closed.calls).filter((call) => call.path === '/issues')).toEqual([]);
+
+    // An open PR on a different branch is not the claim's PR.
+    const other = { ...pr, head: { ...pr.head, ref: 'claude/issue-999' } };
+    const offBranch = fakeGitHub({ ...readyRoutes([passComment]), '/pulls?state=open': [other], '/issues?state=open': [claim] });
+    await handleEvent({ eventName: 'schedule', gh: offBranch.gh, owner, config });
+    expect(posts(offBranch.calls).filter((call) => call.path === '/issues')).toEqual([]);
+  });
+
+  it('keeps the queue busy when a PASSed claim sits beside an independent eligible issue', async () => {
+    const claim = {
+      number: 632,
+      state: 'open',
+      title: 'x',
+      body: '',
+      labels: [label('agent:claude'), label('in-progress')],
+      assignees: [],
+    };
+    const next = { number: 640, state: 'open', title: 'next', body: '', labels: [label('agent:claude')], assignees: [] };
+    const { gh, calls } = fakeGitHub({ ...readyRoutes([passComment]), '/issues?state=open': [claim, next], '/issues/640/comments': [] });
+    await handleEvent({ eventName: 'schedule', gh, owner, config });
+
+    expect(posts(calls).filter((call) => call.path === '/issues')).toEqual([]);
   });
 
   it('reports an idle queue when the only candidates already have an open PR or a claude/issue-<n> branch', async () => {

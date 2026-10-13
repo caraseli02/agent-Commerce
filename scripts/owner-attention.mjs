@@ -10,7 +10,8 @@
 //            conflict and no outstanding change request. Only the owner's merge is left.
 // - blocked: an open issue currently carries the `blocked` label.
 // - harness: a Claude-built PR touches protected paths without `owner-approved-harness`.
-// - queue:   Claude has no live issue and nothing eligible to build.
+// - queue:   Claude has no live issue and nothing eligible to build (a PASSed claim
+//            waiting for merge is queued, not live).
 //
 // Each notice carries a hidden marker so a rerun never posts it twice.
 import { createHash } from 'node:crypto';
@@ -169,6 +170,25 @@ export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
   return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : latest;
 }
 
+// True when an evaluator PASS was ever recorded on any head of the PR: the review history
+// shows the PR passed once, so only the owner's merge is left (or a repair of a later
+// change). Heads come from comments that start with an evaluator marker; each head is then
+// resolved by latestEvaluatorVerdict, so trust, attribution and contradiction rules match.
+const EVALUATOR_HEAD_MARKER = /^<!--\s*(?:evaluator-head:\s*|local-evaluator\s+sha=)([0-9a-f]+)\s*-->/i;
+export function hasEvaluatorPassOnAnyHead(comments, { trustedLogins }) {
+  const heads = new Set();
+  for (const comment of comments ?? []) {
+    const match = String(comment?.body ?? '')
+      .trimStart()
+      .match(EVALUATOR_HEAD_MARKER);
+    if (match) heads.add(match[1].toLowerCase());
+  }
+  return [...heads].some((head) => {
+    const result = latestEvaluatorVerdict(comments, head, { trustedLogins });
+    return result?.verdict === 'PASS' || (result?.verdict === 'CONFLICTING' && result.verdicts.includes('PASS'));
+  });
+}
+
 export function assessChecks(checkRuns, combinedStatus) {
   const failing = [];
   const pending = [];
@@ -269,14 +289,25 @@ export function hasCurrentSkipRecord(issue, comments, { trustedLogins }) {
 }
 
 // Mirrors the build-eligibility rule in .factory/automations/claude-routine.md §4.1.
+// Claims split three ways: parked (`blocked`), queued and live. A queued claim is
+// `in-progress`, not `blocked`, and its open `claude/issue-<n>` PR has an evaluator PASS on
+// some head (`queuedNumbers`; the `ready-for-human` label does not decide it, because a
+// repair removes it while the claim stays queued). A claim with no open PR, such as one
+// whose PR was closed unmerged, is live. Only live claims and eligible issues keep the
+// queue busy.
 // `claimedNumbers` are issues an open PR already closes or that have a claude/issue-<n>
 // branch; `skippedNumbers` carry a current skip record for checks that need judgment.
-export function claudeQueueState(issues, { neverClaim, openIssueNumbers, claimedNumbers = new Set(), skippedNumbers = new Set() }) {
+export function claudeQueueState(
+  issues,
+  { neverClaim, openIssueNumbers, claimedNumbers = new Set(), skippedNumbers = new Set(), queuedNumbers = new Set() },
+) {
   const claude = (issues ?? []).filter(
     (issue) => !issue.pull_request && (issue.labels ?? []).some((label) => label.name === 'agent:claude'),
   );
   const labelsOf = (issue) => new Set((issue.labels ?? []).map((label) => label.name));
-  const live = claude.filter((issue) => labelsOf(issue).has('in-progress') && !labelsOf(issue).has('blocked'));
+  const claimed = claude.filter((issue) => labelsOf(issue).has('in-progress') && !labelsOf(issue).has('blocked'));
+  const queued = claimed.filter((issue) => queuedNumbers.has(issue.number));
+  const live = claimed.filter((issue) => !queuedNumbers.has(issue.number));
   const eligible = claude.filter((issue) => {
     const labels = labelsOf(issue);
     if (labels.has('in-progress') || (issue.assignees ?? []).length) return false;
@@ -286,7 +317,7 @@ export function claudeQueueState(issues, { neverClaim, openIssueNumbers, claimed
     if (claimedNumbers.has(issue.number) || skippedNumbers.has(issue.number)) return false;
     return parseDependencies(issue.body).every((number) => !openIssueNumbers.has(number));
   });
-  return { live, eligible, idle: live.length === 0 && eligible.length === 0 };
+  return { live, queued, eligible, idle: live.length === 0 && eligible.length === 0 };
 }
 
 export function readyMessage({ owner, pr, verdict }) {
@@ -341,7 +372,9 @@ export function queueMessage({ owner, mode }) {
     marker('queue'),
     `@${owner} 💤 **Claude has nothing to build.**`,
     '',
-    `The claude-routine (mode \`${mode}\`) has no live \`in-progress\` issue and no eligible \`agent:claude\` issue: every candidate is claimed, assigned, blocked, a payment item, waiting on an open dependency, already has an open PR or \`claude/issue-<n>\` branch, was skipped by the routine with a recorded reason, or carries a \`never_claim\` label (\`needs-triage\`, \`needs-info\`, \`epic\`, ...).`,
+    `The claude-routine (mode \`${mode}\`) has no live \`in-progress\` issue (a claim whose PR already has an evaluator PASS is queued for your merge, not live) and no eligible \`agent:claude\` issue: every candidate is claimed, assigned, blocked, a payment item, waiting on an open dependency, already has an open PR or \`claude/issue-<n>\` branch, was skipped by the routine with a recorded reason, or carries a \`never_claim\` label (\`needs-triage\`, \`needs-info\`, \`epic\`, ...).`,
+    '',
+    'This means no new build is possible, not that no action remains: the routine still repairs queued PRs (merge conflicts, failed required checks, evaluator FAIL) and reviews PRs.',
     '',
     'Label the next issue `agent:claude` (or clear its blocker) to give Claude work. This issue closes itself as soon as Claude has work again.',
   ].join('\n');
@@ -471,12 +504,31 @@ async function claimedIssueNumbers(gh, prs) {
   return claimed;
 }
 
+// Claims whose open `claude/issue-<n>` PR has an evaluator PASS on any head.
+async function queuedClaimNumbers(gh, openIssues, prs, trustedLogins) {
+  const queued = new Set();
+  for (const issue of openIssues) {
+    const labels = new Set((issue.labels ?? []).map((entry) => entry.name));
+    if (issue.pull_request || !labels.has('agent:claude') || !labels.has('in-progress') || labels.has('blocked')) continue;
+    const pr = prs.find((candidate) => candidate.head?.ref === `claude/issue-${issue.number}`);
+    if (!pr) continue;
+    const comments = await gh.paginate(`/issues/${pr.number}/comments`);
+    if (hasEvaluatorPassOnAnyHead(comments, { trustedLogins })) queued.add(issue.number);
+  }
+  return queued;
+}
+
 async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
   const tracking = openIssues.find((issue) => issue.title === QUEUE_ISSUE_TITLE && issue.user?.login === BOT_LOGIN);
   const openIssueNumbers = new Set(openIssues.map((issue) => issue.number));
   let state = { idle: false };
   if (config.mode === 'build') {
-    const options = { neverClaim: config.neverClaim, openIssueNumbers, claimedNumbers: await claimedIssueNumbers(gh, prs) };
+    const options = {
+      neverClaim: config.neverClaim,
+      openIssueNumbers,
+      claimedNumbers: await claimedIssueNumbers(gh, prs),
+      queuedNumbers: await queuedClaimNumbers(gh, openIssues, prs, trustedLogins),
+    };
     // Only issues that pass the label checks can carry a skip record worth reading.
     const skippedNumbers = new Set();
     for (const issue of claudeQueueState(openIssues, options).eligible) {
@@ -495,7 +547,7 @@ async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
     log(`Closed #${tracking.number}: Claude has work again`);
   } else {
     log(
-      `Claude queue: ${state.idle ? 'idle (already reported)' : `${state.live?.length ?? 0} live, ${state.eligible?.length ?? 0} eligible`}`,
+      `Claude queue: ${state.idle ? 'idle (already reported)' : `${state.live?.length ?? 0} live, ${state.queued?.length ?? 0} queued, ${state.eligible?.length ?? 0} eligible`}`,
     );
   }
 }
