@@ -172,6 +172,18 @@
       "impact": "none",
       "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
       "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
+    },
+    {
+      "fingerprint": "f29df2e3b9a983efa2c718da787e0fef5a9cb4e9f5bc3fdf7dfce0dc007e7a64",
+      "impact": "none",
+      "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
+      "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
+    },
+    {
+      "fingerprint": "a0cd639aa40d7b8760328cbd0e96666c74b10e5b1f6437bf4a008f432fcf9b62",
+      "impact": "none",
+      "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
+      "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
     }
   ]
 }
