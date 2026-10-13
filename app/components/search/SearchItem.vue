@@ -122,6 +122,7 @@
           :aria-busy="isThisProductAdding"
           :aria-disabled="isThisProductAdding || quantity === 0"
           :disabled="quantity === 0 && !isThisProductAdding"
+          size="lg"
           class="flex-1 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
           @click="addToCart(item)"
         >
