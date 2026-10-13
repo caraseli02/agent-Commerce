@@ -11,7 +11,7 @@ The autonomous loop should behave like a standing `/goal` even when cron wakes i
 - A generator opens or updates the PR for that same issue/branch.
 - The ship path publishes an evaluator-ready PR after each verified head change. The evaluator is operated separately; the controller reads its GitHub comments/reviews rather than launching a review model.
 - If the evaluator returns `FAIL`, keep the issue `in-progress`, keep the same branch/PR, and produce a focused repair brief from the evaluator comment.
-- Do not promote or select a new issue for that builder while its `in-progress` issue has an open PR unless that issue is passed/blocked and state cleanup is complete. Claude only: parked (`blocked`) and queued (open PR with an evaluator PASS, waiting for Vlad's merge, at most `max_pass_queue`) claims do not count toward Claude's WIP=1, and Claude never has two live claims (§ Claude parking).
+- Do not promote or select a new issue for that builder while its `in-progress` issue has an open PR unless that issue is passed/blocked and state cleanup is complete. Claude: parked (`blocked`) and queued (open PR with an evaluator PASS, waiting for Vlad's merge, at most `max_pass_queue`) claims do not count toward Claude's WIP=1, and Claude never has two live claims (§ Claude parking).
 
 This is the runtime equivalent of: “work the currently claimed Components Marketplace issue until it is evaluator-approved or blocked.”
 
@@ -93,7 +93,7 @@ Default minimal flow:
 3. Open PR exists — generator output is ready for independent evaluation.
 4. Evaluator `FAIL` — same issue/branch/PR receives a repair brief; WIP remains 1.
 5. `ready-for-human` — evaluator passed the PR and it is ready for Vlad's review.
-6. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence. For Claude, a blocked claim keeps `in-progress` and is parked (§ Claude parking). Codex's handling of its own blocked claims is unchanged.
+6. `blocked` or issue comment — evaluator found a concrete blocker or missing evidence. For Claude, a blocked claim keeps `in-progress` and is parked (§ Claude parking). Codex parking and reporting follow the reviewed native routing contract below.
 
 Use this minimal flow unless the project explicitly adds a `ready-for-evaluator` label. An evaluator can discover work by scanning open PRs linked to `in-progress` issues.
 
@@ -175,9 +175,22 @@ Agents post to GitHub through Vlad's account, and GitHub never notifies a user a
 
 Every trigger (PR, comment, review, label and CI events, plus an hourly sweep during the run window) runs the same full reconcile from current GitHub state, and runs never overlap. An evaluator report counts only when it comes from the account the evaluators post through (`EVALUATOR_LOGINS`, default the repository owner) and carries an `Independent evaluator:` line. A blocker note's **Best next move** must name the single action Vlad has to take, because that is what the notice points him to.
 
+## Codex native queue and parking
+
+The versioned [.codex-autonomy source](../../.codex-autonomy/README.md) supplies the live classifier, read-only GitHub adapter, scope refresh, bounded investigation and post-merge host migration. It is activated only after human merge in a watched installation; old installed host policy remains authoritative until then.
+
+- One live Codex implementation includes implementing/verifying, waiting CI and waiting first independent evaluation. No second issue starts while that slot is occupied. Queued actionable repairs return to their original chat/PR before new claims, without interrupting an active worker.
+- Queue admission requires an open canonical Codex PR, trusted independent current-head Claude PASS, required green checks, known mergeability and no change request. At two queued PRs stop new claims; an already live issue may finish and queue. Queue identity survives repairs/re-review, but stale PASS never establishes readiness.
+- Park blocked claims and closed-unmerged PRs, preserving chat/branch/worktree and unpublished scope. Closed-unmerged work needs Vlad's explicit decision. Oldest eligible unparked claim precedes new claims. Reconcile merged/closed work without reviving its claim.
+- Check actual files, consumers/contracts against every open PR including drafts/Claude/human and registered unpublished work, during implementation and before publication. Unknown or expanded overlap requires a complete rescope or blocker; disclosures do not permit overlap. No global-file exceptions.
+- At unavailable implementation/capacity select one report-only unanswered risk by impact, evidence, independence and cost, capped to 40 minutes by default (maximum 45). Reuse valid evidence. Runtime uses a separate pinned mock checkout, existing local test-schema wrapper and owned built server/explicit URL, with listener identity and cleanup proof. Busy/missing prerequisites yield environment evidence, no app findings. Preserve the global lease; no parallel runtime migration.
+- Deduplicate findings across both builders and complete open/closed issue history. At most three new needs-triage findings per run, none at five open maintenance findings. No automatic implementation or promotion, reviewer launch or self-acceptance. Original issue chats, independent worker tokens, dispatch intent before release/message, two failed repair limit and Vlad's merge remain mandatory. Codex dispatcher cadence is the existing two hours; reviewer cadence/policy remains unchanged.
+
+Registry reporting caches the same live classifier result and preserves history; historical active_issue/state/verdict fields are not current acceptance. No shared snapshot changes. Rollout evidence remains separate from PR608.
+
 ## Claude parking
 
-This applies to Claude's routine only; Codex keeps its own blocker handling.
+This section applies to Claude's routine only; Codex uses the native contract above.
 
 - **Parked, queued, live and waiting.** A Claude claim is `agent:claude` + `in-progress`. It is **parked** while it also carries `blocked`. It is **queued** while it is not parked, its canonical PR (head `claude/issue-<n>`) is open, and that PR has at least one structured evaluator `PASS` report on any head: it only waits for Vlad's merge. The `ready-for-human` label does not decide it, so a queued PR stays queued through a repair and re-review. Among the remaining claims, exactly one is **live**: the one with the earliest live-since time (the latest `labeled in-progress` or `unlabeled blocked` event in its issue timeline). Any other remaining claim is **waiting**. `scripts/owner-attention.mjs` (`claudeQueueState`) applies the same rule.
 - **WIP=1 means exactly one live claim.** Parked and waiting claims are never worked; queued claims are only repaired (conflict, failed required check, evaluator `FAIL` on the current head), before the live claim. Claude claims a new issue only when every claim is parked or queued and fewer than `max_pass_queue` (`.factory/factory.yaml`, 2) claims are queued, and only an issue whose likely files do not overlap an open PR (outside `shared_ledger_files`). It never edits such a busy file during implementation: if the issue cannot be met without one, it parks the claim naming the file and PR instead. A live claim that passes at the cap still becomes queued; new claims wait until Vlad merges or closes a queued PR.

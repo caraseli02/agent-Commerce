@@ -166,6 +166,24 @@
       "impact": "none",
       "reason": "Swaps one native button for UiButton on /forgot-password, /password-reset and /verify-email (#638); no screenshot in the visual matrix renders those routes",
       "consumers": "The three edited files are route pages; no component, store, composable, layout or style imports them, and the home, search, product, cart and orders screenshots never navigate to them. ui-conventions-baseline.json is read only by scripts/verify-ui-conventions.mjs. The pages themselves are covered by pnpm test:parity --grep M1 (desktop 1440 and mobile 390: ARIA tree, tab order, mismatch/verify steps, clean runtime) with region screenshots for review; the only visual drift is the UiButton text-sm label size."
+    },
+    {
+      "fingerprint": "b1359e445ec8148441ee9f649b35b3d583ff68006da28bc0e86681fa269c8827",
+      "impact": "none",
+      "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
+      "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
+    },
+    {
+      "fingerprint": "f29df2e3b9a983efa2c718da787e0fef5a9cb4e9f5bc3fdf7dfce0dc007e7a64",
+      "impact": "none",
+      "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
+      "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
+    },
+    {
+      "fingerprint": "a0cd639aa40d7b8760328cbd0e96666c74b10e5b1f6437bf4a008f432fcf9b62",
+      "impact": "none",
+      "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
+      "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
     }
   ]
 }
