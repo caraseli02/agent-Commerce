@@ -1,0 +1,20 @@
+- img
+- text: Add/Remove Filters
+- button "Close":
+    - img
+- img
+- searchbox "Search parameters"
+- button "Parameters":
+    - text: ''
+    - img
+- button "Products":
+    - text: ''
+    - img
+- text: /Supply Voltage \d+/
+- img
+- text: Package 5
+- img
+- text: Core 5
+- img
+- button "Cancel"
+- button "Save"

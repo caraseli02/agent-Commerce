@@ -1,0 +1,7 @@
+- text: Filters
+- img
+- text: Filters
+- switch "Filters"
+- button "Reset Filters":
+    - img
+    - text: ''

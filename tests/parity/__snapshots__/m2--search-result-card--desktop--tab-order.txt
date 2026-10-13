@@ -9,5 +9,5 @@
 9. spinbutton "Quantity": "1"
 10. button "Increase quantity"
 11. button "Add to cart"
-12. button
-13. button
+12. button "Save product"
+13. button "Share product"
