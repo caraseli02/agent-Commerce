@@ -171,7 +171,9 @@ onMounted(() => {
             <UiTableCell class="h-auto py-2 pl-0 pr-3 text-slate-900 align-middle break-words">
               {{ item.FeatureValue }}
             </UiTableCell>
-            <UiTableCell class="h-auto w-10 py-0 pl-0 pr-3 align-middle md:pr-4">
+            <UiTableCell
+              class="h-auto w-10 py-0 pl-0 pr-3 align-middle md:pr-4 [&:has([role=checkbox])]:pr-3 md:[&:has([role=checkbox])]:pr-4"
+            >
               <!-- The label keeps the whole 44px cell area toggling the checkbox; @click.stop keeps the row from toggling it again. -->
               <UiLabel class="ml-auto flex min-h-11 min-w-11 cursor-pointer items-center justify-center" @click.stop>
                 <UiCheckbox

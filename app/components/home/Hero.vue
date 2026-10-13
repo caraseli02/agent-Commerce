@@ -32,7 +32,7 @@
                   type="search"
                   autocomplete="off"
                   placeholder="e.g. STM32F407, 10k resistor, USB-C"
-                  class="h-11 min-w-0 flex-1 text-sm sm:text-base"
+                  class="h-11 min-w-0 flex-1 text-sm text-slate-900 placeholder:text-slate-400 sm:text-base"
                   :aria-invalid="Boolean(searchError)"
                   aria-describedby="homepage-search-help homepage-search-error"
                 />
