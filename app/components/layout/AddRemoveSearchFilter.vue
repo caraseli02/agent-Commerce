@@ -13,13 +13,13 @@
         </UiButton>
       </div>
       <div class="px-4 mb-4 md:px-6">
-        <div class="relative flex items-center gap-2">
+        <label class="relative flex items-center gap-2">
           <SearchIcon class="w-[18px] h-[18px] text-gray-500" />
-          <UiInput v-model="searchValue" type="search" placeholder="Search parameters" class="flex-1" />
+          <UiInput v-model="searchValue" type="search" placeholder="Search parameters" aria-label="Search parameters" class="flex-1" />
           <Transition name="fade">
             <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
           </Transition>
-        </div>
+        </label>
       </div>
       <div class="mb-[34px] lg:mb-[42px]">
         <div class="grid grid-cols-[repeat(2,1fr)_auto] gap-2 px-6 mb-2 md:px-8">

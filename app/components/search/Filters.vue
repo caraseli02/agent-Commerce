@@ -40,7 +40,7 @@
             <UiButton
               size="icon"
               aria-label="Add or remove filters"
-              class="w-14 h-14 rounded-full transition-transform duration-300 hover:rotate-[360deg]"
+              class="w-14 h-14 transition-transform duration-300 hover:rotate-[360deg]"
               @click="showAddRemoveFilterModal = true"
             >
               <PlusIcon class="w-[30px] h-[30px]" />

@@ -74,8 +74,10 @@ watch(
 
 const searchValue = ref('');
 // Ids follow the option, not its position: radix copies the label text into aria-label once per id.
+// Every character outside [A-Za-z0-9] is escaped by code point, so distinct values (`A.B`, `A-B`) never share an id.
 const optionIdPrefix = useId();
-const optionId = (option: FilterOptions) => `${optionIdPrefix}-${option.rawFilter.FeatureValue.replace(/[^\w-]/g, '-')}`;
+const encodeIdPart = (value: string) => value.replace(/[^A-Za-z0-9]/gu, (char) => `_${char.codePointAt(0)?.toString(16)}_`);
+const optionId = (option: FilterOptions) => `${optionIdPrefix}-${encodeIdPart(option.rawFilter.FeatureValue)}`;
 
 const filter = ref(props.filter);
 const options = ref([] as FilterOptions[]);
