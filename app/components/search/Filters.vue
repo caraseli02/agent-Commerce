@@ -11,17 +11,8 @@
           <div class="flex items-center text-slate-500 select-none mr-[30px]">
             <EyeClosedIcon v-if="!showFilters" class="w-5 h-5 mr-2" />
             <EyeIcon v-else class="w-5 h-5 mr-2" />
-            <span class="text-sm leading-tight font-Inter font-medium mr-[15px]"> Filters </span>
-            <button
-              class="relative w-10 h-[22px] rounded-[25px] transition-colors duration-300"
-              :class="[showFilters ? 'bg-blue-500 ' : 'bg-border']"
-              @click="showFilters = !showFilters"
-            >
-              <div
-                class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full transition-all duration-300"
-                :class="[showFilters ? ' right-1' : 'right-5']"
-              />
-            </button>
+            <UiLabel for="search-filters-visibility" class="mr-[15px] cursor-pointer"> Filters </UiLabel>
+            <UiSwitch id="search-filters-visibility" :checked="showFilters" @update:checked="showFilters = $event" />
           </div>
           <UiButton class="group">
             <ResetIcon class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-[360deg]" />

@@ -1,18 +1,18 @@
 - button /Max\. forward impulse current \(\d+\)/:
     - text: ''
     - img
-- searchbox
+- searchbox "Type here"
 - img
 - checkbox /Micro Comercial Components \(\d+\)/
 - text: /Micro Comercial Components \(\d+\)/
-- checkbox /Manufacturer1 \(\d+\)/ [checked]
+- checkbox /Manufacturer1 \(\d+\)/ [checked]:
+    - img
 - text: /Manufacturer1 \(\d+\)/
-- img
 - checkbox /Manufacturer2 \(\d+\)/
 - text: /Manufacturer2 \(\d+\)/
-- checkbox /Manufacturer3 \(\d+\)/ [checked]
+- checkbox /Manufacturer3 \(\d+\)/ [checked]:
+    - img
 - text: /Manufacturer3 \(\d+\)/
-- img
 - checkbox /Manufacturer4 \(\d+\)/
 - text: /Manufacturer4 \(\d+\)/
 - checkbox /Micro Comercial Components \(\d+\)/

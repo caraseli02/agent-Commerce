@@ -153,9 +153,6 @@
   "app/components/icon/Upload.vue": {
     "input": 1
   },
-  "app/components/layout/AddRemoveSearchFilter.vue": {
-    "label": 1
-  },
   "app/components/layout/account-modal/Form.vue": {
     "label": 1
   },
@@ -266,16 +263,6 @@
     "input": 1,
     "label": 1,
     "table": 1
-  },
-  "app/components/search/Filter.vue": {
-    "label": 1
-  },
-  "app/components/search/Filter2.vue": {
-    "input": 1,
-    "label": 2
-  },
-  "app/components/search/Filters.vue": {
-    "button": 1
   },
   "app/components/search/Products.vue": {
     "button": 7,

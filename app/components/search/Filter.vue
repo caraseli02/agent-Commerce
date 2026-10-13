@@ -12,21 +12,16 @@
       </UiButton>
     </div>
     <div class="px-2.5 mb-2.5">
-      <label class="flex relative">
+      <div class="flex relative">
         <UiInput v-model="searchValue" type="search" placeholder="Type here" class="h-8 pr-10" @update:model-value="onInput" />
-        <FiltersIcon class="absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
-      </label>
+        <FiltersIcon class="pointer-events-none absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
+      </div>
     </div>
     <div class="flex-1 pr-[5px]">
       <div class="grid grid-cols-1 gap-2 flex-1 max-h-[115px] overflow-y-auto scrollbar-thin pb-[13px]">
-        <div v-for="(option, index) in options" :key="option.rawFilter.FeatureValue" class="flex items-start justify-between px-2.5">
-          <UiCheckbox
-            :id="`${optionIdPrefix}-${index}`"
-            :checked="option.checked"
-            class="order-last mt-px"
-            @update:checked="toggleOption(option)"
-          />
-          <UiLabel :for="`${optionIdPrefix}-${index}`" class="cursor-pointer">
+        <div v-for="option in options" :key="option.rawFilter.FeatureValue" class="flex items-start justify-between px-2.5">
+          <UiCheckbox :id="optionId(option)" :checked="option.checked" class="order-last mt-px" @update:checked="toggleOption(option)" />
+          <UiLabel :for="optionId(option)" class="cursor-pointer">
             {{ `${useTrimText(option.value + option.unit)} (${option.rawFilter.count})` }}
           </UiLabel>
         </div>
@@ -72,7 +67,9 @@ watch(
 );
 
 const searchValue = ref('');
+// Ids follow the option, not its position: radix copies the label text into aria-label once per id.
 const optionIdPrefix = useId();
+const optionId = (option: FilterOptions) => `${optionIdPrefix}-${option.rawFilter.FeatureValue.replace(/[^\w-]/g, '-')}`;
 
 const filter = ref(props.filter);
 const options = ref([] as FilterOptions[]);

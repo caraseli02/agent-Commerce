@@ -1,7 +1,7 @@
 - text: Filters
 - img
 - text: Filters
-- button
+- switch "Filters"
 - button "Reset Filters":
     - img
     - text: ''

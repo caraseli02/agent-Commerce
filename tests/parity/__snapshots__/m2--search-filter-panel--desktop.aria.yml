@@ -1,14 +1,14 @@
 - text: Filters
 - img
 - text: Filters
-- button
+- switch "Filters" [checked]
 - button "Reset Filters":
     - img
     - text: ''
 - text: /Supply Voltage \(\d+\)/
 - button:
     - img
-- searchbox
+- searchbox "Type here"
 - img
 - checkbox "1.8V (4)"
 - text: 1.8V (4)
@@ -18,7 +18,7 @@
 - text: Package (5)
 - button:
     - img
-- searchbox
+- searchbox "Type here"
 - img
 - checkbox /LQFP-\d+ \(3\)/
 - text: /LQFP-\d+ \(3\)/
@@ -28,7 +28,7 @@
 - text: Core (5)
 - button:
     - img
-- searchbox
+- searchbox "Type here"
 - img
 - checkbox "ARM Cortex-M4 (5)"
 - text: ARM Cortex-M4 (5)

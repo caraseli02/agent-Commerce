@@ -21,33 +21,24 @@
         </UiButton>
         <div v-if="showOptions" class="flex-1 flex flex-col">
           <div class="pl-2.5 pr-[15px] mb-2.5">
-            <label class="flex relative">
+            <div class="flex relative">
               <UiInput v-model="searchValue" type="search" placeholder="Type here" class="h-8 pr-10" />
-              <FiltersIcon class="absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
-            </label>
+              <FiltersIcon class="pointer-events-none absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
+            </div>
           </div>
           <div class="flex-1 pr-[5px]">
             <div class="grid grid-cols-1 gap-2 flex-1 max-h-[150px] overflow-y-auto scrollbar-thin pb-[13px]">
-              <label
-                v-for="(option, index) in filteredOptions"
-                :key="index"
-                class="group flex items-center justify-between cursor-pointer px-2.5"
-              >
-                <input v-model="option.checked" type="checkbox" class="sr-only" />
-                <span class="text-xs font-Inter transition-colors duration-300 group-hover:text-blue-500">
+              <div v-for="option in filteredOptions" :key="options.indexOf(option)" class="flex items-center justify-between px-2.5">
+                <UiCheckbox
+                  :id="`${optionIdPrefix}-${options.indexOf(option)}`"
+                  :checked="option.checked"
+                  class="order-last mt-px"
+                  @update:checked="option.checked = $event"
+                />
+                <UiLabel :for="`${optionIdPrefix}-${options.indexOf(option)}`" class="cursor-pointer">
                   {{ option.label }} ({{ option.quantity }})
-                </span>
-                <div
-                  class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
-                  :class="[
-                    option.checked
-                      ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-                      : 'bg-white  border-border group-hover:border-gray-300',
-                  ]"
-                >
-                  <CheckIcon v-if="option.checked" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
-                </div>
-              </label>
+                </UiLabel>
+              </div>
             </div>
           </div>
         </div>
@@ -64,7 +55,6 @@
 <script setup lang="ts">
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import FiltersIcon from '@/assets/icons/filters.svg';
-import CheckIcon from '@/assets/icons/check.svg';
 import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 
 const props = defineProps({
@@ -77,6 +67,8 @@ const props = defineProps({
 const swipedFilter = useState<number | undefined>('swiped-search-filter');
 
 const searchValue = ref('');
+// Ids follow the option, not its position: radix copies the label text into aria-label once per id.
+const optionIdPrefix = useId();
 
 const showOptions = ref(false);
 
