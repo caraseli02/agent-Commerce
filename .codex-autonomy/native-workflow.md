@@ -39,6 +39,24 @@ No token takeover, expiry, lock deletion or resource-scoped lease migration.
    Release last. Valid PASS/green checks queue for Vlad; quiet wait for unchanged state.
    Preserve chat/branch/worktree until human merge/closure, no per-issue scheduler.
 
+## Original-owner recovery
+
+On an explicitly scoped recovery request, first prove YOUR earlier turn stopped via
+native chat status and run installed `native_lease.py inspect` without any token.
+Require your actual chat/purpose and expected generation, no active command, and
+matching recovery fingerprint; unknown or a surviving command yields without takeover.
+Resume `native_lease.py acquire --thread <actual-id> --purpose work --resume
+--generation <expected-generation>`; only this original chat obtains its private token.
+Before further Git/pnpm/browser commands or edits, call `recovery.py --host <host>
+checkpoint --thread <actual-id> --generation <generation> --fingerprint <intent>
+--token <own-token>` as a short local metadata operation outside `run` (checkpoint
+requires zero active commands). Save the checkpoint, inspect preserved worktree/diff and
+prior verification, then continue only this same issue/PR and release last. If actual
+acquisition returns a NEW generation because the old lock was already free, do not
+checkpoint the old request; release, reconcile old intent as resolved and wait for normal
+dispatch. Never share the token, restore another owner's lease, kill commands or delete
+lock/owner metadata. Reviewer selection/verdict policy below is unchanged.
+
 ## Safe scheduled preflight
 
 When `settings.json` has `native_preflight_requested: true`, perform a smoke

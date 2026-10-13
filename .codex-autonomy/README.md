@@ -1,8 +1,8 @@
 # Codex native routing source
 
 This directory is reviewed source for the externally configured Mac mini Codex
-dispatcher. It does not replace `.factory/`, the native lease or either independent
-reviewer. Version 1 retains the global execution lease, one implementing Codex issue,
+dispatcher. It preserves `.factory/`, the native global exclusion and both independent
+reviewers. Routing/recovery version 1 retains the global execution lease, one implementing Codex issue,
 one real chat/branch/worktree per issue, normal hooks and Vlad's merge.
 
 `router.py` classifies complete live issue/PR evidence and selects implementation or
@@ -12,9 +12,11 @@ binds consumer/contract assessments to the actual working diff and rejects expan
 against fresh open-PR/unpublished reservations. `runtime.py` owns a built mock server
 and the explicit URL inside the existing local PostgreSQL isolated-schema wrapper.
 
-All host commands below must run through `native_lease.py run` under the caller's
+Except for sanitized busy-owner inspection/recovery delivery metadata and the original
+owner's zero-command checkpoint, host execution commands below must run through `native_lease.py run` under the caller's
 own token; acquire with the actual chat ID, never adopt another owner's token. Release
-last after commands stop. No lease takeover or diagnostics/recovery in this release.
+last after commands stop. Protocol 2 adds sanitized inspection and bounded original-owner recovery; no takeover.
+Only the installed release is active; legacy keepers remain unknown.
 
 ## Evidence and assessments
 
@@ -69,10 +71,15 @@ the independent evaluator remain required.
    Run `install.py --lease-token <own-token> --activate --host /Users/work/.local/share/agent-commerce/autonomy
 --merge <human-merge-sha> --pr <closing-pr-number>`. It verifies the exact checkout,
    current-main ancestry and live GitHub merged closing PR. It backs up old host
-   assets outside the checkout, stages a checksummed immutable release and preserves
+   assets outside the checkout, stages a checksummed immutable recovery release for the human-merged #683 closing PR and preserves
    registry history/activation flags/reviewer configuration. No queue is inferred
-   from old PASS. No native lease/reviewer source is installed or modified.
-3. In the same watched lease run, prepare current assessments and run read-only
+   from old PASS. The versioned native helper is installed under the SAME permanent lock inode.
+   Reviewer source and policy are unchanged. Stop after activation: let its registered
+   install command finish, release the original migration keeper, then reacquire with
+   your actual chat ID and verify protocol 2 before ANY further command. Do not run
+   simultaneous old/new keepers or replace/delete the inode. Unknown surviving old
+   commands block the migration; never kill or displace them.
+3. In the newly acquired protocol-2 watched lease run, prepare current assessments and run read-only
    discovery, compare decisions to live GitHub and inspect the migrated reporting
    cache. Test a bounded controlled owned-runtime question if selected; preserve
    original workers and ports. Journal installation identity, heads and actual results.
@@ -85,11 +92,44 @@ the independent evaluator remain required.
    uninstalled policy. The versioned prompt fails back to legacy policy if installation
    is absent. Record the native tool result in the private migration journal.
 5. Observe the next existing scheduled run and one meaningful queue/parked routing
-   transition before claiming rollout acceptance. Keep PR608's evidence separate.
+   transition before claiming routing rollout acceptance. Additionally observe a controlled
+   ORIGINAL-owner interruption/recovery on an existing issue chat after merge: record
+   actual chat/turn, generation, sanitized inspection, compact native status, durable
+   fingerprint, exactly one delivered request, original-owner checkpoint/release,
+   unchanged unpublished work/claim/PR and zero displaced commands. Process fixtures
+   and successful staging/setup do not satisfy this end-to-end watched recovery.
+   Store a private append-only watched record; `watched_recovery_accepted` remains false
+   until this evidence is independently reviewed. Keep PR608's evidence separate.
    Human review/merge is mandatory; no automatic archive or new per-issue scheduler.
 
-Rollback under the same exclusive lease: restore backed-up workflow/settings/registry
+Rollback only after the protocol-2 keeper/commands stop, under one watched exclusive
+migration lease. Never restore an old helper over an active new command. Restore the
+backed-up native helper as the last file, release that migration keeper and reacquire
+before any further commands; keep the permanent inode. Reconcile new recovery receipts
+and task history rather than dropping them. Rollback under that exclusive lease: restore backed-up workflow/settings/registry
 after reconciling any newer live task history (never blindly overwrite newer claims).
 Use native automation_update to restore the recorded prior prompt while preserving
 cadence/identity. Leave release and backup manifests for audit. Failed installation
 restores files it changed; no schedule is touched by install.py.
+
+## Lease/recovery process verification
+
+`native_lease.py` is reviewed protocol-2 source. Public `inspect` probes actual flock
+contention, binds inode and generation to the responsive keeper, and returns only
+owner/command identity summaries; no token, socket, command arguments or private logs.
+Released owner metadata is harmless. Missing/mismatched/legacy keepers fail closed.
+A command guardian retains the inherited descriptor until the actual process group
+stops, including descendants that close inherited descriptors and outlive their parent.
+Recovery never kills a process; bounded own-command timeout preserves the earlier
+command runner contract. Deliberately detached processes outside the registered group
+are not supported commands and must not be launched through this harness.
+
+`recovery.py` uses the existing router.handoff fingerprint before native messaging,
+serializes its separate metadata ledger and admits only fresh proven interrupted idle
+original owners. It performs no discovery or work under another owner's lease.
+See dispatcher-workflow.md and native-workflow.md for the exact native-tool sequence.
+The portable process/recovery tests run in normal Vitest/CI. Tests crash only temporary
+fixture keepers, never a host worker. Host helper/workflows/settings/automation are not
+changed by these tests or by PR publication. More than three source files are needed
+for this single recovery behavior because helper, controller, migration and executable
+process evidence must be reviewed together; no second issue/behavior is included.
