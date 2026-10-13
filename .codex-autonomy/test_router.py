@@ -20,7 +20,7 @@ def issue(number=1, claimed=True):
 
 
 def pr():
-    return {'number': 10, 'head': {'sha': HEAD, 'ref': 'codex/1-feature'}, 'state': 'open', 'draft': False, 'merged_at': None, 'mergeable': True, 'mergeable_state': 'clean', 'comments': [report()], 'reviews': [], 'observed_at': 'now', 'checks': [{'id': n, 'name': name, 'status': 'completed', 'conclusion': 'success'} for n, name in enumerate(CONFIG['required_checks'])], 'statuses': []}
+    return {'number': 10, 'head': {'sha': HEAD, 'ref': 'codex/1-feature', 'repo': {'full_name': CONFIG['repo']}}, 'user': {'login': CONFIG['builder_login']}, 'state': 'open', 'draft': False, 'merged_at': None, 'mergeable': True, 'mergeable_state': 'clean', 'comments': [report()], 'reviews': [], 'observed_at': 'now', 'checks': [{'id': n, 'name': name, 'status': 'completed', 'conclusion': 'success'} for n, name in enumerate(CONFIG['required_checks'])], 'statuses': []}
 
 
 class RoutingTests(unittest.TestCase):
@@ -127,6 +127,13 @@ class RoutingTests(unittest.TestCase):
         tracking = dict(issue(), labels=['epic'])
         self.assertEqual(classify(tracking, [pr(), pr()], {}, CONFIG)['state'], 'ineligible')
         self.assertEqual(classify(dict(tracking, labels=['epic', 'in-progress']), [], {}, CONFIG)['state'], 'evidence_blocked')
+
+    def test_fork_and_conflicting_assignment_are_not_canonical(self):
+        p = pr(); p['head']['repo']['full_name'] = 'outsider/agent-Commerce'
+        self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
+        p = pr(); p['user']['login'] = 'outsider'
+        self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
+        self.assertEqual(classify(dict(issue(), assignees=[{'login': 'someone-else'}]), [], {}, CONFIG)['state'], 'evidence_blocked')
 
     def test_handoff_duplicate_ambiguous_running_real_mapping(self):
         intent = {'issue': 1, 'head': HEAD, 'action': 'repair'}

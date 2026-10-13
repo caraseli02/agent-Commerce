@@ -1,6 +1,7 @@
 {
   "version": 1,
   "repo": "caraseli02/agent-Commerce",
+  "builder_login": "caraseli02",
   "trusted_evaluator_logins": ["caraseli02"],
   "required_checks": ["verify", "check"],
   "max_pass_queue": 2,

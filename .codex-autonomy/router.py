@@ -9,7 +9,7 @@ class UnsafeEvidence(ValueError):
 
 
 def validate_config(config):
-    if config.get('version') != 1 or config.get('max_pass_queue') != 2 or not 30 <= config.get('investigation_minutes', 0) <= 45 or not 0 < config.get('max_findings_per_run', 0) <= 3 or not 0 < config.get('max_open_findings', 0) <= 5 or not config.get('required_checks') or not config.get('trusted_evaluator_logins'):
+    if config.get('version') != 1 or not config.get('builder_login') or config.get('max_pass_queue') != 2 or not 30 <= config.get('investigation_minutes', 0) <= 45 or not 0 < config.get('max_findings_per_run', 0) <= 3 or not 0 < config.get('max_open_findings', 0) <= 5 or not config.get('required_checks') or not config.get('trusted_evaluator_logins'):
         raise UnsafeEvidence('Invalid routing caps/trust/config version; review configuration before dispatch')
 
 
@@ -114,6 +114,8 @@ def classify(issue, prs, saved, config):
     try:
         if owner(issue, prs) == 'claude':
             return dict(result, state='other_builder')
+        if 'in-progress' in labels(issue) and any(a.get('login', '').lower() != config['builder_login'].lower() for a in issue.get('assignees', [])):
+            raise UnsafeEvidence('Claim assignment contradicts configured Codex builder')
         if len(prs) > 1:
             raise UnsafeEvidence('Multiple canonical PRs for one issue')
         if prs and prs[0].get('merged_at'):
@@ -130,7 +132,7 @@ def classify(issue, prs, saved, config):
             return dict(result, state='eligible' if 'ready-for-agent' in labels(issue) and not labels(issue).intersection({'epic', 'needs-triage', 'needs-info'}) and not issue.get('assignees') and not issue.get('dependencies_open') else 'ineligible')
         pr = prs[0]
         result.update(pr=pr['number'], head=pr['head']['sha'])
-        if not pr['head']['ref'].startswith('codex/'):
+        if not pr['head']['ref'].startswith('codex/') or (pr['head'].get('repo') or {}).get('full_name', '').lower() != config['repo'].lower() or pr.get('user', {}).get('login', '').lower() != config['builder_login'].lower():
             raise UnsafeEvidence('Canonical Codex branch ownership is unreadable')
         if pr['state'] == 'closed':
             return dict(result, state='parked_closed_unmerged')
