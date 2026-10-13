@@ -1,0 +1,38 @@
+- text: Filters
+- img
+- text: Filters
+- button
+- button "Reset Filters":
+    - img
+    - text: ''
+- text: /Supply Voltage \(\d+\)/
+- button:
+    - img
+- searchbox
+- img
+- checkbox "1.8V (4)"
+- text: 1.8V (4)
+- checkbox "3.3V (7)"
+- text: 3.3V (7)
+- button "Select All"
+- text: Package (5)
+- button:
+    - img
+- searchbox
+- img
+- checkbox /LQFP-\d+ \(3\)/
+- text: /LQFP-\d+ \(3\)/
+- checkbox /QFN-\d+ \(2\)/
+- text: /QFN-\d+ \(2\)/
+- button "Select All"
+- text: Core (5)
+- button:
+    - img
+- searchbox
+- img
+- checkbox "ARM Cortex-M4 (5)"
+- text: ARM Cortex-M4 (5)
+- button "Select All"
+- text: Add/Remove Filter
+- button:
+    - img

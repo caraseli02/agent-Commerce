@@ -1,0 +1,31 @@
+- link "STM32F407VGT6 Microcontroller":
+    - /url: /product/stm32f407vgt6
+    - img "STM32F407VGT6 Microcontroller"
+- link "STM32F407VGT6 Microcontroller":
+    - /url: /product/stm32f407vgt6
+- button "Product options":
+    - img
+- button "Copy product name"
+- button "STM":
+    - text: ''
+    - img
+- img
+- text: "/\\d+ in stock \\d+-bit ARM Cortex-M4 MCU with FPU, 1 MB Flash, and rich peripheral set for industrial control\\. Manufacturer: STMicroelectronics Manufacturer part number: STM/"
+- button "Datasheet":
+    - img
+    - text: ''
+- button "RoHS":
+    - img
+    - text: ''
+- text: /Qty Price \(Ex VAT\) 1\+ \d+\.\d+ Lei 5\+ \d+\.\d+ Lei \d+\+ \d+\.\d+ Lei/
+- link "View More":
+    - /url: /product/stm32f407vgt6
+- button "Decrease quantity" [disabled]:
+    - img
+- spinbutton "Quantity": '1'
+- alert
+- button "Increase quantity":
+    - img
+- button "Add to cart":
+    - img
+    - text: ''

@@ -1,0 +1,8 @@
+- text: /Products Found \(\d+\)/
+- list:
+    - listitem: '1'
+    - listitem: '2'
+    - listitem: '3'
+    - listitem
+- button:
+    - img

@@ -1,0 +1,7 @@
+- text: Filters
+- img
+- text: Filters
+- button
+- button "Reset Filters":
+    - img
+    - text: ''

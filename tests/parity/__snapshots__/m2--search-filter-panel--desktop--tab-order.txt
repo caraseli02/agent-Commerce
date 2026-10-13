@@ -1,0 +1,17 @@
+1. button
+2. button "Reset Filters"
+3. button
+4. searchbox
+5. checkbox "1.8V (4)"
+6. checkbox "3.3V (7)"
+7. button "Select All"
+8. button
+9. searchbox
+10. checkbox "LQFP-100 (3)"
+11. checkbox "QFN-48 (2)"
+12. button "Select All"
+13. button
+14. searchbox
+15. checkbox "ARM Cortex-M4 (5)"
+16. button "Select All"
+17. button
