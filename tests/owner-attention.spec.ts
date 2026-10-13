@@ -1,4 +1,7 @@
-import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   BOT_LOGIN,
@@ -6,6 +9,7 @@ import {
   alreadyNotified,
   assessChecks,
   assessReadiness,
+  checksGreenVerdict,
   claudeQueueState,
   closingIssueNumbers,
   createClient,
@@ -19,7 +23,9 @@ import {
   latestEvaluatorVerdict,
   marker,
   parseDependencies,
+  parseCheckRuns,
   parseFactoryConfig,
+  passingEvaluatorHeads,
   protectedFilesTouched,
 } from '../scripts/owner-attention.mjs';
 
@@ -160,6 +166,18 @@ describe('evaluator verdict', () => {
       expect(hasEvaluatorPassOnAnyHead([report(HEAD, 'FAIL — x.'), report(HEAD, 'PASS — y.')], trusted)).toBe(true);
     });
 
+    it('passingEvaluatorHeads returns the lowercase SHAs that carry a PASS, in comment order', () => {
+      const upper = OLD.toUpperCase();
+      expect(passingEvaluatorHeads([], trusted)).toEqual([]);
+      expect(passingEvaluatorHeads([report(OLD, 'PASS — ok.'), report(HEAD, 'FAIL — regressed.')], trusted)).toEqual([OLD]);
+      expect(passingEvaluatorHeads([report(HEAD, 'PASS — a.'), report(OLD, 'PASS — b.'), report(upper, 'PASS — c.')], trusted)).toEqual([
+        HEAD,
+        OLD,
+      ]);
+      expect(passingEvaluatorHeads([report(HEAD, 'FAIL — x.'), report(HEAD, 'PASS — y.')], trusted)).toEqual([HEAD]);
+      expect(passingEvaluatorHeads([report(OLD, 'PASS — ok.', { user: { login: 'drive-by' } })], trusted)).toEqual([]);
+    });
+
     it('accepts the local-evaluator marker form', () => {
       const local = report(OLD, 'PASS — ready-for-human.', {
         body: `<!-- local-evaluator sha=${OLD} -->\n## Evaluator verdict\n\nPASS — ok.\n\nIndependent evaluator: Codex.`,
@@ -295,6 +313,36 @@ describe('recorded skips', () => {
     expect(hasCurrentSkipRecord(issue, [skip(issue), ready], trusted)).toBe(false);
     // Order comes from comment ids, not timestamps or response order.
     expect(hasCurrentSkipRecord(issue, [ready, skip(issue)], trusted)).toBe(false);
+  });
+
+  it('ignores trusted plan, spike and diagnosis comments posted after the skip', () => {
+    for (const marker of [
+      '<!-- claude-plan v=1 -->',
+      '<!-- claude-spike v=1 -->',
+      '<!-- claude-diagnosis -->',
+      '<!-- claude-diagnosis v=2 -->',
+    ]) {
+      const note = { id: 2, user: { login: 'caraseli02' }, body: `${marker}\nNotes for the next session.` };
+      expect(hasCurrentSkipRecord(issue, [skip(issue), note], trusted)).toBe(true);
+      expect(hasCurrentSkipRecord(issue, [note, skip(issue)], trusted)).toBe(true);
+    }
+    const plan = { id: 2, user: { login: 'caraseli02' }, body: '<!-- claude-plan v=1 -->\nplan' };
+    const ready = { id: 3, user: { login: 'caraseli02' }, body: 'Ready now.' };
+    expect(hasCurrentSkipRecord(issue, [skip(issue), plan, ready], trusted)).toBe(false);
+  });
+
+  it('lapses on an untrusted comment that imitates the plan marker', () => {
+    const fake = { id: 2, user: { login: 'drive-by' }, body: '<!-- claude-plan v=1 -->\nplan' };
+    expect(hasCurrentSkipRecord(issue, [skip(issue), fake], trusted)).toBe(false);
+    const bot = { id: 2, user: { login: BOT_LOGIN }, body: '<!-- claude-plan v=1 -->\nplan' };
+    expect(hasCurrentSkipRecord(issue, [skip(issue), bot], { trustedLogins: ['caraseli02', BOT_LOGIN] })).toBe(false);
+  });
+
+  it('lapses on a trusted comment whose marker is not on the first line, or is not a night-lane marker', () => {
+    const buried = { id: 2, user: { login: 'caraseli02' }, body: 'Hello\n<!-- claude-plan v=1 -->' };
+    const other = { id: 3, user: { login: 'caraseli02' }, body: '<!-- claude-planning -->\nx' };
+    expect(hasCurrentSkipRecord(issue, [skip(issue), buried], trusted)).toBe(false);
+    expect(hasCurrentSkipRecord(issue, [skip(issue), other], trusted)).toBe(false);
   });
 
   it('lapses on a body or title edit, even within the same second (evaluator reproduction)', () => {
@@ -527,6 +575,28 @@ describe('reconcile against a fake GitHub API', () => {
     '/issues?state=open': [busyIssue],
   });
   const posts = (calls: Call[]) => calls.filter((call) => call.method === 'POST');
+  const OLD_HEAD = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
+  const failingRuns = [
+    { id: 1, name: 'verify', status: 'completed', conclusion: 'failure' },
+    { id: 2, name: 'check', status: 'completed', conclusion: 'success' },
+  ];
+  const pendingRuns = [
+    { id: 1, name: 'verify', status: 'in_progress', conclusion: null },
+    { id: 2, name: 'check', status: 'completed', conclusion: 'success' },
+  ];
+  const checksFor = (sha: string, runs: unknown[], statuses: unknown[] = []): Routes => ({
+    [`/commits/${sha}/check-runs`]: { check_runs: runs },
+    [`/commits/${sha}/status`]: { statuses },
+  });
+  const passFor = (sha: string) => ({ ...passComment, body: passComment.body.replace(HEAD, sha) });
+  const claim632 = {
+    number: 632,
+    state: 'open',
+    title: 'x',
+    body: '',
+    labels: [label('agent:claude'), label('in-progress')],
+    assignees: [],
+  };
 
   it('mentions the owner once when the evaluator PASS lands on a green, mergeable head', async () => {
     const { gh, calls } = fakeGitHub(readyRoutes([passComment]));
@@ -737,8 +807,11 @@ describe('reconcile against a fake GitHub API', () => {
     expect(queuedRun.calls.some((call) => call.path === '/issues/658/comments' && call.method === 'GET')).toBe(true);
 
     // PASS on an older head only (repaired, new head unreviewed) still counts as queued.
-    const oldHead = passComment.body.replace(HEAD, 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef');
-    const repaired = fakeGitHub({ ...readyRoutes([{ ...passComment, body: oldHead }]), '/issues?state=open': [claim] });
+    const repaired = fakeGitHub({
+      ...readyRoutes([passFor(OLD_HEAD)]),
+      ...checksFor(OLD_HEAD, greenRuns),
+      '/issues?state=open': [claim],
+    });
     await handleEvent({ eventName: 'schedule', gh: repaired.gh, owner, config });
     expect(posts(repaired.calls).filter((call) => call.path === '/issues')).toHaveLength(1);
 
@@ -752,6 +825,77 @@ describe('reconcile against a fake GitHub API', () => {
     const offBranch = fakeGitHub({ ...readyRoutes([passComment]), '/pulls?state=open': [other], '/issues?state=open': [claim] });
     await handleEvent({ eventName: 'schedule', gh: offBranch.gh, owner, config });
     expect(posts(offBranch.calls).filter((call) => call.path === '/issues')).toEqual([]);
+  });
+
+  describe('queued only when the PASS head was green', () => {
+    const idleCreates = async (routes: Routes) => {
+      const { gh, calls } = fakeGitHub({ ...routes, '/issues?state=open': [claim632] });
+      await handleEvent({ eventName: 'schedule', gh, owner, config });
+      return { creates: posts(calls).filter((call) => call.path === '/issues'), calls };
+    };
+
+    it('stays live when the PASS head is still pending', async () => {
+      const { creates } = await idleCreates({ ...readyRoutes([passComment]), ...checksFor(HEAD, pendingRuns) });
+      expect(creates).toEqual([]);
+    });
+
+    it('stays live when the PASS head failed its required check', async () => {
+      const { creates } = await idleCreates({ ...readyRoutes([passComment]), ...checksFor(HEAD, failingRuns) });
+      expect(creates).toEqual([]);
+    });
+
+    it('stays live when the PASS head is green on runs but a commit status is failing', async () => {
+      const { creates } = await idleCreates({
+        ...readyRoutes([passComment]),
+        ...checksFor(HEAD, greenRuns, [{ context: 'ci/legacy', state: 'failure' }]),
+      });
+      expect(creates).toEqual([]);
+    });
+
+    it('stays queued when the PASS was on an old green head and the new head is failing', async () => {
+      const { creates, calls } = await idleCreates({
+        ...readyRoutes([passFor(OLD_HEAD)]),
+        ...checksFor(HEAD, failingRuns),
+        ...checksFor(OLD_HEAD, greenRuns),
+      });
+      expect(creates).toHaveLength(1);
+      expect(calls.some((call) => call.path === `/commits/${OLD_HEAD}/check-runs`)).toBe(true);
+    });
+
+    it('is not queued when the only PASS head is old and was itself failing', async () => {
+      const { creates } = await idleCreates({
+        ...readyRoutes([passFor(OLD_HEAD)]),
+        ...checksFor(OLD_HEAD, failingRuns),
+      });
+      expect(creates).toEqual([]);
+    });
+
+    it('is queued when any one of several PASS heads is green', async () => {
+      const { creates } = await idleCreates({
+        ...readyRoutes([passFor(OLD_HEAD), passComment]),
+        ...checksFor(OLD_HEAD, failingRuns),
+        ...checksFor(HEAD, greenRuns),
+      });
+      expect(creates).toHaveLength(1);
+    });
+
+    it('counts a cancelled run superseded by a successful same-name run as green', async () => {
+      const rerun = [
+        { id: 10, name: 'verify', status: 'completed', conclusion: 'cancelled' },
+        { id: 11, name: 'verify', status: 'completed', conclusion: 'success' },
+        { id: 12, name: 'check', status: 'completed', conclusion: 'success' },
+      ];
+      const { creates } = await idleCreates({ ...readyRoutes([passComment]), ...checksFor(HEAD, rerun) });
+      expect(creates).toHaveLength(1);
+
+      // A newer cancelled run does not hide behind an older success.
+      const newestCancelled = [
+        { id: 10, name: 'verify', status: 'completed', conclusion: 'success' },
+        { id: 11, name: 'verify', status: 'completed', conclusion: 'cancelled' },
+      ];
+      const { creates: stillLive } = await idleCreates({ ...readyRoutes([passComment]), ...checksFor(HEAD, newestCancelled) });
+      expect(stillLive).toEqual([]);
+    });
   });
 
   it('keeps the queue busy when a PASSed claim sits beside an independent eligible issue', async () => {
@@ -818,5 +962,104 @@ describe('reconcile against a fake GitHub API', () => {
     });
     await handleEvent({ eventName: 'schedule', gh: busy.gh, owner, config });
     expect(busy.calls.find((call) => call.method === 'PATCH')).toMatchObject({ path: '/issues/50', body: { state: 'closed' } });
+  });
+});
+
+describe('checks-green', () => {
+  const run = (id: number, name: string, conclusion: string | null = 'success') => ({
+    id,
+    name,
+    status: conclusion ? 'completed' : 'in_progress',
+    conclusion,
+  });
+  const green = [run(1, 'verify'), run(2, 'check')];
+  const ndjson = (runs: unknown[]) => runs.map((entry) => JSON.stringify(entry)).join('\n');
+
+  it('accepts newline-delimited objects, as gh --jq emits them', () => {
+    expect(checksGreenVerdict(ndjson(green))).toBe('green');
+    expect(checksGreenVerdict(`${ndjson(green)}\n`)).toBe('green');
+    expect(checksGreenVerdict(ndjson([run(1, 'verify', 'failure'), run(2, 'check')]))).toBe('not-green');
+  });
+
+  it('accepts a JSON array and the raw check-runs response', () => {
+    expect(checksGreenVerdict(JSON.stringify(green))).toBe('green');
+    expect(checksGreenVerdict(JSON.stringify({ total_count: 2, check_runs: green }))).toBe('green');
+    expect(checksGreenVerdict(JSON.stringify([run(1, 'verify', null), run(2, 'check')]))).toBe('not-green');
+  });
+
+  it('accepts pretty-printed objects spread across lines, including braces inside strings', () => {
+    const pretty = green.map((entry) => JSON.stringify({ ...entry, output: { title: 'a } tricky { "title"' } }, null, 2)).join('\n');
+    expect(parseCheckRuns(pretty)).toHaveLength(2);
+    expect(checksGreenVerdict(pretty)).toBe('green');
+  });
+
+  it('is not-green for empty input, a missing required check, a pending run, or a failed run', () => {
+    expect(checksGreenVerdict(ndjson([run(2, 'check')]))).toBe('not-green');
+    expect(checksGreenVerdict(ndjson([run(1, 'verify', null)]))).toBe('not-green');
+    expect(checksGreenVerdict(ndjson([run(1, 'verify'), run(2, 'check', 'timed_out')]))).toBe('not-green');
+  });
+
+  it('lets a successful rerun supersede a cancelled run of the same name', () => {
+    expect(checksGreenVerdict(ndjson([run(1, 'verify', 'cancelled'), run(2, 'verify')]))).toBe('green');
+    expect(checksGreenVerdict(ndjson([run(1, 'verify'), run(2, 'verify', 'cancelled')]))).toBe('not-green');
+  });
+
+  it('applies the combined status exactly as the reconcile does', () => {
+    const failing = { statuses: [{ context: 'ci/legacy', state: 'failure' }] };
+    const pending = { statuses: [{ context: 'ci/legacy', state: 'pending' }] };
+    const passing = { statuses: [{ context: 'ci/legacy', state: 'success' }] };
+    expect(checksGreenVerdict(ndjson(green), failing)).toBe('not-green');
+    expect(checksGreenVerdict(ndjson(green), pending)).toBe('not-green');
+    expect(checksGreenVerdict(ndjson(green), passing)).toBe('green');
+    expect(checksGreenVerdict(ndjson(green), undefined)).toBe('green');
+  });
+
+  it('throws on empty input and on an empty run list, since every real head has check runs', () => {
+    expect(() => checksGreenVerdict('')).toThrow(/no check runs/i);
+    expect(() => checksGreenVerdict('  \n')).toThrow(/no check runs/i);
+    expect(() => checksGreenVerdict('[]')).toThrow(/no check runs/i);
+    expect(() => checksGreenVerdict('{"check_runs": []}')).toThrow(/no check runs/i);
+  });
+
+  it('throws on unreadable input', () => {
+    expect(() => checksGreenVerdict('not json')).toThrow(/Unreadable/);
+    expect(() => checksGreenVerdict('{"name": "verify"')).toThrow(/Unreadable/);
+  });
+
+  it('prints exactly one word on stdout via the CLI and exits non-zero on empty or unreadable input', () => {
+    const cli = (input: string, args: string[] = []) =>
+      spawnSync('node', ['scripts/owner-attention.mjs', 'checks-green', ...args], { input, encoding: 'utf8' });
+    expect(cli(ndjson(green))).toMatchObject({ status: 0, stdout: 'green\n' });
+    expect(cli(ndjson([run(1, 'verify', 'failure')]))).toMatchObject({ status: 0, stdout: 'not-green\n' });
+    for (const input of ['', '  \n', '[]', 'garbage']) {
+      const bad = cli(input);
+      expect(bad.status).not.toBe(0);
+      expect(bad.stdout).toBe('');
+      expect(bad.stderr).not.toBe('');
+    }
+  });
+
+  it('reads the combined status from --status-file and errors when it is unreadable', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'checks-green-'));
+    try {
+      const cli = (args: string[]) =>
+        spawnSync('node', ['scripts/owner-attention.mjs', 'checks-green', ...args], { input: ndjson(green), encoding: 'utf8' });
+      const failing = join(dir, 'failing.json');
+      const passing = join(dir, 'passing.json');
+      const broken = join(dir, 'broken.json');
+      await writeFile(failing, JSON.stringify({ state: 'failure', statuses: [{ context: 'ci/legacy', state: 'failure' }] }));
+      await writeFile(passing, JSON.stringify({ state: 'success', statuses: [{ context: 'ci/legacy', state: 'success' }] }));
+      await writeFile(broken, 'not json');
+      expect(cli(['--status-file', failing])).toMatchObject({ status: 0, stdout: 'not-green\n' });
+      expect(cli(['--status-file', passing])).toMatchObject({ status: 0, stdout: 'green\n' });
+      for (const args of [['--status-file', join(dir, 'missing.json')], ['--status-file', broken], ['--status-file']]) {
+        const bad = cli(args);
+        expect(bad.status).not.toBe(0);
+        expect(bad.stdout).toBe('');
+        expect(bad.stderr).not.toBe('');
+      }
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });
