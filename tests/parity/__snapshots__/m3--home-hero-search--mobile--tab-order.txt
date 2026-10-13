@@ -1,0 +1,2 @@
+1. searchbox "Search by part number or keyword"
+2. button "Search catalog"

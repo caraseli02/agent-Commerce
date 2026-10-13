@@ -1,0 +1,6 @@
+- img
+- heading "Quick Buy" [level=2]
+- paragraph: Have a part list ready? Add manufacturer part numbers and quantities directly to your cart.
+- button "Add to cart":
+    - img
+    - text: ''

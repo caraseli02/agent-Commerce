@@ -5,7 +5,6 @@
     - /url: /product/stm32f407vgt6
 - button "Product options":
     - img
-- button "Copy product name"
 - button "STM":
     - text: ''
     - img

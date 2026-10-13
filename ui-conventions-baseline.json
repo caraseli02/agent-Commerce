@@ -108,9 +108,6 @@
     "input": 2,
     "label": 2
   },
-  "app/components/global/CopyClipboard.vue": {
-    "button": 1
-  },
   "app/components/global/FormInput.vue": {
     "input": 1,
     "label": 1
@@ -128,25 +125,8 @@
   "app/components/global/Notifications.vue": {
     "button": 3
   },
-  "app/components/global/ProductCard.vue": {
-    "button": 2
-  },
-  "app/components/global/ProductTabs.vue": {
-    "button": 1
-  },
   "app/components/global/QuantityButtons.vue": {
     "button": 2,
-    "input": 1,
-    "label": 1
-  },
-  "app/components/global/QuickBuy/QuickBuy.vue": {
-    "button": 1
-  },
-  "app/components/global/QuickBuy/QuickBuyInput.vue": {
-    "label": 1
-  },
-  "app/components/home/Hero.vue": {
-    "button": 1,
     "input": 1,
     "label": 1
   },
@@ -248,21 +228,6 @@
   },
   "app/components/order-summary/Table/ItemLG.vue": {
     "button": 4
-  },
-  "app/components/product/Details.vue": {
-    "button": 1
-  },
-  "app/components/product/Gallery.vue": {
-    "button": 4
-  },
-  "app/components/product/Quantity.vue": {
-    "button": 1
-  },
-  "app/components/product/Table.vue": {
-    "button": 2,
-    "input": 1,
-    "label": 1,
-    "table": 1
   },
   "app/components/search/Products.vue": {
     "button": 7,

@@ -1,0 +1,15 @@
+- heading "STM32F407VGT6 Microcontroller" [level=1]
+- button "Copy STM32F407VGT6 Microcontroller"
+- img "Manufacturer logo"
+- text: /Description \d+-bit ARM Cortex-M4 MCU with FPU, 1 MB Flash, and rich peripheral set for industrial control\. Manufacturer STMicroelectronics Customer’s Code/
+- button "Your Custom Code":
+    - text: ''
+    - img
+- text: EDA / CAD Models
+- img
+- text: stm32f407vgt6-ECAD-Model Technical Datasheet
+- link "STM32F407VGT6 Microcontroller-DataSheet":
+    - /url: datasheet-spm-001.pdf
+    - img
+    - text: ''
+- text: 'Tags: #Diode #Connector #GasDetector #Thermostat #Transistor'

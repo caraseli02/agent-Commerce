@@ -68,6 +68,12 @@ const resultsPagerRow = (page: Page) =>
 const filtersHeaderRow = (region: Locator) =>
   region.getByText('Reset Filters', { exact: true }).locator('xpath=ancestor::div[contains(@class, "justify-between")][1]');
 
+/** The tab-order walk slides the home carousel to a later card; reload so the card is back at the start. */
+const bringCardIntoView = async (page: Page, card: Locator) => {
+  await page.reload({ waitUntil: 'networkidle' });
+  await expect(card).toBeInViewport();
+};
+
 /**
  * Parity scenarios, one or more per migration slice (see #631). A slice adds
  * its scenarios and records snapshots on unchanged code before migrating.
@@ -346,6 +352,234 @@ export const scenarios: ParityScenario[] = [
         },
         verify: async (_page, region) => {
           await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('2');
+        },
+      },
+    ],
+  },
+  {
+    id: 'product-gallery',
+    slice: 'M3',
+    route: '/product/prod-1',
+    viewports: ['desktop', 'mobile'],
+    region: (page) => page.getByRole('button', { name: 'Share product' }).locator('xpath=ancestor::div[contains(@class, "shadow-m")][1]'),
+    steps: [
+      {
+        name: 'the 3D preview button opens its dialog',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'View 3D preview' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog').getByRole('heading', { name: '3D preview' })).toBeVisible();
+          await page.keyboard.press('Escape');
+          await expect(page.getByRole('dialog')).toHaveCount(0);
+        },
+      },
+      {
+        name: 'the main image opens the zoom gallery',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Open product image gallery' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog')).toBeVisible();
+        },
+      },
+    ],
+  },
+  {
+    id: 'product-details',
+    slice: 'M3',
+    route: '/product/prod-1',
+    viewports: ['desktop', 'mobile'],
+    region: (page) => page.getByRole('heading', { level: 1 }).locator('xpath=ancestor::div[contains(@class, "shadow-m")][1]'),
+    steps: [
+      {
+        name: 'the copy button copies the product name',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Copy STM32F407VGT6 Microcontroller' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByText('Text copied!', { exact: true })).toBeVisible();
+        },
+      },
+      {
+        name: 'the custom code button opens the custom code modal',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Your Custom Code' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog')).toBeVisible();
+        },
+      },
+    ],
+  },
+  {
+    id: 'product-specifications-table',
+    slice: 'M3',
+    route: '/product/prod-1',
+    viewports: ['desktop', 'mobile'],
+    region: (page) =>
+      page.getByRole('button', { name: 'Specifications', exact: true }).locator('xpath=ancestor::div[contains(@class, "shadow-m")][1]'),
+    steps: [
+      {
+        name: 'the checkbox includes a feature',
+        act: async (_page, region) => {
+          // The native checkbox is visually hidden; users click the box drawn in its cell.
+          await region.getByRole('cell', { name: 'Include Core in similar-product search' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('checkbox', { name: 'Include Core in similar-product search' })).toBeChecked();
+        },
+      },
+      {
+        name: 'clicking a row toggles its feature',
+        act: async (_page, region) => {
+          await region.getByRole('cell', { name: 'Flash', exact: true }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('checkbox', { name: 'Include Flash in similar-product search' })).toBeChecked();
+          await expect(region.getByRole('checkbox', { name: 'Include Core in similar-product search' })).toBeChecked();
+        },
+      },
+      {
+        name: 'clicking the row again clears it',
+        act: async (_page, region) => {
+          await region.getByRole('cell', { name: 'Flash', exact: true }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('checkbox', { name: 'Include Flash in similar-product search' })).not.toBeChecked();
+        },
+      },
+    ],
+  },
+  {
+    id: 'product-blocks-tabs',
+    slice: 'M3',
+    route: '/product/prod-1',
+    viewports: ['desktop', 'mobile'],
+    region: (page) =>
+      page.getByRole('button', { name: 'Best Sellers', exact: true }).locator('xpath=ancestor::div[contains(@class, "md:flex-row")][1]'),
+    steps: [
+      {
+        name: 'choosing a tab makes it the active tab',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Best Sellers', exact: true }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Best Sellers', exact: true })).toHaveClass(/text-blue-700/);
+          await expect(region.getByRole('button', { name: 'Featured', exact: true })).toHaveClass(/text-slate-500/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'product-card',
+    slice: 'M3',
+    route: '/',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await clearGuestCart(page);
+      await page.reload({ waitUntil: 'networkidle' });
+    },
+    region: (page) =>
+      page
+        .getByRole('button', { name: 'Add STM32F407VGT6 Microcontroller to cart' })
+        .first()
+        .locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+    steps: [
+      {
+        name: 'add to cart updates the header cart',
+        act: async (page, region) => {
+          await bringCardIntoView(page, region);
+          await Promise.all([
+            page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST'),
+            region.getByRole('button', { name: 'Add STM32F407VGT6 Microcontroller to cart' }).click(),
+          ]);
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('button', { name: 'Open shopping cart' })).toContainText('1');
+        },
+      },
+    ],
+  },
+  {
+    id: 'product-card-options',
+    slice: 'M3',
+    route: '/',
+    viewports: ['mobile'],
+    region: (page) =>
+      page
+        .getByRole('button', { name: 'Add STM32F407VGT6 Microcontroller to cart' })
+        .first()
+        .locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+    steps: [
+      {
+        name: 'the options button opens the card menu',
+        act: async (page, region) => {
+          await bringCardIntoView(page, region);
+          await region.getByRole('button', { name: 'Product options' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('menuitem', { name: 'Share' })).toBeVisible();
+          await expect(page.getByRole('menuitem', { name: '3D view' })).toBeVisible();
+        },
+      },
+    ],
+  },
+  {
+    id: 'quick-buy-mobile-trigger',
+    slice: 'M3',
+    route: '/product/prod-1',
+    viewports: ['mobile'],
+    region: (page) => page.getByRole('heading', { name: 'Quick Buy', level: 2 }).locator('xpath=ancestor::section[1]'),
+    steps: [
+      {
+        name: 'the add to cart trigger opens the quick buy dialog',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Add to cart' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog').getByRole('heading', { name: 'Quick buy' })).toBeVisible();
+          // The dialog rows reuse the inline form's input ids, so their labels point at the hidden form (pre-existing).
+          await expect(page.getByRole('dialog').getByPlaceholder('Manufacturer part number').first()).toBeVisible();
+        },
+        snapshot: (page) => page.getByRole('dialog'),
+      },
+    ],
+  },
+  {
+    id: 'quick-buy-form',
+    slice: 'M3',
+    route: '/product/prod-1',
+    viewports: ['desktop'],
+    region: (page) => page.getByRole('heading', { name: 'Quick Buy', level: 2 }).locator('xpath=ancestor::section[1]'),
+  },
+  {
+    id: 'home-hero-search',
+    slice: 'M3',
+    route: '/',
+    viewports: ['desktop', 'mobile'],
+    region: (page) => page.locator('form').filter({ has: page.getByRole('searchbox', { name: 'Search by part number or keyword' }) }),
+    steps: [
+      {
+        name: 'an empty search shows an error and focuses the search box',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Search catalog' }).click();
+        },
+        verify: async (page, region) => {
+          await expect(region.getByRole('alert')).toHaveText('Enter a part number or keyword to search.');
+          await expect(region.getByRole('searchbox', { name: 'Search by part number or keyword' })).toBeFocused();
+          await expect(page).toHaveURL(/\/$/);
+        },
+        snapshot: (page) => page.locator('form').filter({ has: page.getByRole('searchbox', { name: 'Search by part number or keyword' }) }),
+      },
+      {
+        name: 'a keyword search opens the results',
+        act: async (_page, region) => {
+          await region.getByRole('searchbox', { name: 'Search by part number or keyword' }).fill('STM32');
+          await region.getByRole('searchbox', { name: 'Search by part number or keyword' }).press('Enter');
+        },
+        verify: async (page) => {
+          await expect(page).toHaveURL(/\/search\?keyword=STM32$/);
         },
       },
     ],

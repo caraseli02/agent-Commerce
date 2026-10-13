@@ -82,7 +82,7 @@ describe('storefront product card image fallback', () => {
     expect(descriptor.template).toBeTruthy();
 
     const ast = baseParse(descriptor.template!.content);
-    const optionsButton = collectElements(ast, 'button').find((button) => getStaticAttrValue(button, 'aria-label') === 'Product options');
+    const optionsButton = collectElements(ast, 'UiButton').find((button) => getStaticAttrValue(button, 'aria-label') === 'Product options');
     const title = collectElements(ast, 'h3')[0];
     const menuWrapper = collectElements(ast, 'div').find((el) => {
       const className = getStaticAttrValue(el, 'class') || '';
@@ -120,7 +120,9 @@ describe('storefront product card image fallback', () => {
 
     const ast = baseParse(descriptor.template!.content);
     const rootCard = collectElements(ast, 'div')[0];
-    const cartButton = collectElements(ast, 'button').find((button) => getStaticAttrValue(button, 'aria-label') === 'Add product to cart');
+    const cartButton = collectElements(ast, 'UiButton').find(
+      (button) => getStaticAttrValue(button, 'aria-label') === 'Add product to cart',
+    );
     const actionsGroup = collectElements(ast, 'div').find((el) => getStaticAttrValue(el, 'aria-label') === 'Product actions');
 
     expect(rootCard).toBeDefined();
