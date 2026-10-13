@@ -13,7 +13,7 @@ export const scenarios: ParityScenario[] = [
     id: 'forgot-password-form',
     slice: 'M1',
     route: '/forgot-password',
-    viewports: ['desktop'],
+    viewports: ['desktop', 'mobile'],
     region: (page) => page.locator('form').filter({ has: page.getByLabel('Email Address') }),
   },
   {
