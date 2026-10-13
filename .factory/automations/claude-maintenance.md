@@ -24,10 +24,31 @@ Read the journal `/Users/work/.local/share/agent-commerce/claude/events.jsonl`, 
 | 2   | `e2e`          | `pnpm test:e2e`                                                                                                                                                                                                   | a failing Playwright test, a console error or a failed request it records                                                              |
 | 3   | `flaky`        | `pnpm test` three times; compare the failing test names                                                                                                                                                           | a test that fails in some runs and passes in others                                                                                    |
 | 4   | `dependencies` | `pnpm deps:audit`, then `pnpm deps:outdated`                                                                                                                                                                      | a `high` or `critical` advisory; a direct dependency at least one major version behind and not already tracked                         |
-| 5   | `performance`  | `pnpm test:performance`                                                                                                                                                                                           | a budget the suite reports as exceeded                                                                                                 |
+| 5   | `performance`  | `pnpm test:performance` against the isolated server below, never a bare port                                                                                                                                      | a budget the suite reports as exceeded                                                                                                 |
 | 6   | `architecture` | `node scripts/check-arch-invariants.mjs`; then read `CONTEXT.md`, `docs/adr/` and the API flow in `CLAUDE.md` § Architecture shortcuts, and look for modules that break the documented flow or duplicate a domain | an invariant failure; refactor candidates go into **one** issue per month (at most 3 candidates with file paths), never one issue each |
 
-Known noise, never a finding: `tests/stripe-unpaid-resume.spec.ts` can flake when another process shares the test Postgres; ports 3000/3100 can be busy while Codex verifies in the main checkout.
+Every task tests a server built from the checked-out `origin/main`, never one that happens to be listening:
+
+- `regression` and `e2e` start their own built server (`pnpm verify:full` smoke; `playwright.config.ts` `webServer` with `reuseExistingServer: false`). A busy port makes them fail to start, which is an environment failure, not a finding.
+- `performance` has no `webServer` (`playwright.performance.config.ts`), so start one yourself in a single command, built from this commit and served on its own port, and stop it when the suite ends:
+
+```bash
+test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" || exit 75
+port=3205
+lsof -nP -iTCP:$port -sTCP:LISTEN >/dev/null && { echo "port $port busy"; exit 75; }
+pnpm build > "$TMPDIR/perf-build.log" 2>&1 || exit 1
+HOST=127.0.0.1 PORT=$port NUXT_PUBLIC_MOCK_MODE=true NUXT_PUBLIC_BASE_URL_API=/api \
+  node --env-file-if-exists=.env --env-file-if-exists=.env.local .output/server/index.mjs > "$TMPDIR/perf-server.log" 2>&1 &
+server=$!
+trap 'kill $server 2>/dev/null' EXIT
+node -e "const u=process.argv[1];(async()=>{for(let i=0;i<120;i++){try{if((await fetch(u)).ok)return}catch{}await new Promise(r=>setTimeout(r,1000))}process.exit(1)})()" "http://127.0.0.1:$port/" || exit 75
+lsof -nP -a -p $server -iTCP:$port -sTCP:LISTEN >/dev/null || { echo "port $port not served by this run"; exit 75; }
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:$port pnpm test:performance
+```
+
+Exit code `75` means an environment failure (record it, file nothing). Any other non-zero exit is a candidate finding for §3.
+
+Known noise, never a finding: `tests/stripe-unpaid-resume.spec.ts` can flake when another process shares the test Postgres; ports 3000/3100 can be busy while Codex verifies in the main checkout (an environment failure, never a finding).
 
 ## 3. Confirm before filing
 

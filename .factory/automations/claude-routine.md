@@ -142,7 +142,8 @@ Work only on the claimed issue. A run that did not just create the branch first 
 - never modify files under `protected_paths`. If the issue truly needs one, stop and use the blocker protocol;
 - for UI effects, follow `.agents/skills/verify-ui-change/SKILL.md` with Playwright on the affected routes and viewports, and keep the screenshots for the PR;
 - commit as you go and push normally, so an interrupted run leaves its work on the branch for the next run;
-- if the change turns out to need a busy file (step 4.1) outside the shared ledger files, keep that edit minimal and name the file and the open PR under Known risks in the PR body; never touch another builder's branch;
+- never edit a busy file (step 4.1) outside the shared ledger files, and never touch another builder's branch. If the work turns out to need one, rescope only when every acceptance criterion is still met without it; otherwise commit and push what is done without that file, then park the claim with the blocker protocol naming the file and the open PR (Best next move: merge or close #<pr>, then remove `blocked`) and stop;
+- before opening the PR, recompute the busy files and compare them with `git diff --name-only origin/main...HEAD`; any overlap outside the shared ledger files is the same blocker, and no PR is opened;
 - run `pnpm verify:handoff` from a clean tree before opening the PR.
 
 Open the PR **ready for review** (not draft) from the canonical remote branch, never the run-local one: `gh pr create --head claude/issue-<number> --base main --title "<title>" --body-file <file> --label agent:claude`, filling `.github/pull_request_template.md` (`Closes #<issue>`, exact command outcomes, browser evidence, known risks). Leave the evaluator rubric scores blank. The `agent:claude` label routes it to Codex for review. Confirm with `gh pr view claude/issue-<number> --json headRefName,url` that the PR's head is `claude/issue-<number>`. End with `PR ready for evaluator` and stop.
