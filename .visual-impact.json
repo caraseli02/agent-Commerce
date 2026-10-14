@@ -1,6 +1,12 @@
 {
   "assessments": [
     {
+      "fingerprint": "cc56693b5e242e3de2b64f4afa87b8cd61c8df06e01ccb00799d831e54146c7d",
+      "impact": "none",
+      "reason": "PR-template preflight for agents (#702 review): a CLI mode of the PR body checker, a guard-hook rule and routine docs; nothing the app build reads",
+      "consumers": "scripts/check-pr-template.mjs is run only by .github/workflows/pr-template.yml, tests/pr-template-check.spec.ts and, after this change, the Claude guard hook; nuxt.config.ts, pages, components, stores, the Nitro server and package.json build scripts never import it. .factory/hooks/bash-guard.mjs (+ its test) is a PreToolUse hook installed outside the checkout by .factory/bin/install-local.sh and only screens shell commands; .factory/automations/claude-routine.md is agent instructions. None reaches .output, so no home, search, product, cart or orders screenshot can change."
+    },
+    {
       "fingerprint": "bc982bc1cab41fbc040f8f38d4b514ad541209855d9b6a08b84f122142e809c6",
       "impact": "targeted",
       "tests": ["cart"],
