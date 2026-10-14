@@ -37,7 +37,7 @@ labels:
   payments_area: area:payments # never built by Claude
   blocked: blocked
   passed: ready-for-human
-  never_claim: [epic, blocked, area:payments, needs-triage, needs-info, ready-for-human]
+  never_claim: [epic, blocked, area:payments, needs-triage, needs-info, ready-for-human, spike] # spike: a question for the night lane, never built
   owner_approved_harness: owner-approved-harness # set or removed only by Vlad, never by an agent (the guard hook blocks it)
 
 # Paths the Claude generator must not modify. A Claude PR touching any of these
@@ -73,8 +73,16 @@ protected_paths:
 automations:
   claude-routine:
     file: .factory/automations/claude-routine.md
-    role: one run does one thing - repair Claude's PR, else review one non-Claude PR, else build one agent:claude issue, else one report-only maintenance check
-    maintenance: .factory/automations/claude-maintenance.md # report-only lane when nothing is buildable; files deduplicated needs-triage issues, never code
+    role: one run does one thing - morning digest when due, else repair Claude's PR, else review one non-Claude PR, else build one agent:claude issue, else one night-lane item
+    maintenance: .factory/automations/claude-maintenance.md # night lane when nothing is buildable: digest, plan, diagnose, learning, spike, checks; comments and needs-triage issues only, never code
+    night_lane:
+      budget_minutes: 40 # per run, including install and build
+      digest_after: '07:00' # Europe/Madrid; first run at or after it posts the day's digest
+      digest_issue_title: Claude morning digest
+      plan_ahead: 2 # upcoming agent:claude issues kept with a current plan comment
+      spike_label: spike # created by Vlad; only labeled issues with a stated question are spiked
+      owned_server_port: 3205 # Codex investigations use 3206
+      learnings_inbox_title: 'Learnings inbox: <YYYY>-W<ww>' # weekly issue; Vlad ticks entries and labels it agent:claude to publish to docs/solutions/ (.agents/skills/compound-learning)
     mode: build # review-only | build. Build since 2026-10-08, after the rollout acceptance tracked on PR #608
     folder: ~/Documents/agent-Commerce # shared with Codex, which works in the main checkout; Claude runs only in .claude/worktrees/*
     worktree: true # fresh worktree from origin/main per run; .worktreeinclude copies .env.local
@@ -90,13 +98,13 @@ automations:
       max_focused_repair_attempts: 2 # consecutive unsuccessful repairs of the same problem; resets after a head passes
       max_reviews_per_run: 1
     # Excluded from the disjoint-file check (claude-routine.md §4.1): every PR of a series edits them and their conflicts are mechanical.
+    # pnpm-lock.yaml is deliberately not here (aligned with Codex #682): dependency changes never overlap.
     shared_ledger_files:
       - ui-conventions-baseline.json
       - .visual-impact.json
       - tests/parity/scenarios.ts
       - tests/parity/__snapshots__/**
       - tests/visual/__screenshots__/**
-      - pnpm-lock.yaml
 
 # Builder and reviewer of a PR are always different agents (cross-model review),
 # and a reviewer never grades work produced in its own session.

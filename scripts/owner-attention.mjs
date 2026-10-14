@@ -170,12 +170,12 @@ export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
   return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : latest;
 }
 
-// True when an evaluator PASS was ever recorded on any head of the PR: the review history
-// shows the PR passed once, so only the owner's merge is left (or a repair of a later
-// change). Heads come from comments that start with an evaluator marker; each head is then
-// resolved by latestEvaluatorVerdict, so trust, attribution and contradiction rules match.
+// Head SHAs that carry an evaluator PASS: the review history shows the PR passed once,
+// so only the owner's merge is left (or a repair of a later change). Heads come from
+// comments that start with an evaluator marker; each head is then resolved by
+// latestEvaluatorVerdict, so trust, attribution and contradiction rules match.
 const EVALUATOR_HEAD_MARKER = /^<!--\s*(?:evaluator-head:\s*|local-evaluator\s+sha=)([0-9a-f]+)\s*-->/i;
-export function hasEvaluatorPassOnAnyHead(comments, { trustedLogins }) {
+export function passingEvaluatorHeads(comments, { trustedLogins }) {
   const heads = new Set();
   for (const comment of comments ?? []) {
     const match = String(comment?.body ?? '')
@@ -183,10 +183,14 @@ export function hasEvaluatorPassOnAnyHead(comments, { trustedLogins }) {
       .match(EVALUATOR_HEAD_MARKER);
     if (match) heads.add(match[1].toLowerCase());
   }
-  return [...heads].some((head) => {
+  return [...heads].filter((head) => {
     const result = latestEvaluatorVerdict(comments, head, { trustedLogins });
     return result?.verdict === 'PASS' || (result?.verdict === 'CONFLICTING' && result.verdicts.includes('PASS'));
   });
+}
+
+export function hasEvaluatorPassOnAnyHead(comments, { trustedLogins }) {
+  return passingEvaluatorHeads(comments, { trustedLogins }).length > 0;
 }
 
 export function assessChecks(checkRuns, combinedStatus) {
@@ -255,6 +259,9 @@ export function parseDependencies(body) {
 }
 
 const SKIP_RECORD = /^<!-- claude-skip v=([0-9a-f]{16}) -->/;
+// Notes the night lane posts on candidate issues; they say nothing about whether the skip
+// reason still holds, so a trusted one never counts as the "newest comment".
+const NIGHT_LANE_NOTE = /^<!-- claude-(?:plan |spike |diagnosis)/;
 
 // Fingerprint of the parts of an issue a skip decision depends on: title, body and
 // labels. The routine writes it into the skip comment (`skip-fingerprint` command
@@ -276,12 +283,18 @@ export function issueFingerprint(issue) {
 // native dependency, a linked PR or branch) with a `<!-- claude-skip v=<fingerprint> -->`
 // comment. The record holds only while it is the issue's newest comment and the issue's
 // title, body and labels still match the fingerprint; any later comment or change lapses
-// it, and the routine then re-evaluates the issue.
+// it, and the routine then re-evaluates the issue. The one exception is a trusted
+// night-lane note (first line `<!-- claude-plan `, `<!-- claude-spike ` or
+// `<!-- claude-diagnosis`), which is ignored when finding the newest comment.
 export function hasCurrentSkipRecord(issue, comments, { trustedLogins }) {
   const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
   trusted.delete(BOT_LOGIN);
-  const latestComment = [...(comments ?? [])].sort((a, b) => Number(a?.id ?? 0) - Number(b?.id ?? 0)).at(-1);
-  if (!latestComment || !trusted.has(String(latestComment.user?.login ?? '').toLowerCase())) return false;
+  const isTrusted = (comment) => trusted.has(String(comment?.user?.login ?? '').toLowerCase());
+  const latestComment = [...(comments ?? [])]
+    .filter((comment) => !(isTrusted(comment) && NIGHT_LANE_NOTE.test(String(comment?.body ?? '').trimStart())))
+    .sort((a, b) => Number(a?.id ?? 0) - Number(b?.id ?? 0))
+    .at(-1);
+  if (!latestComment || !isTrusted(latestComment)) return false;
   const record = String(latestComment.body ?? '')
     .trimStart()
     .match(SKIP_RECORD);
@@ -504,7 +517,18 @@ async function claimedIssueNumbers(gh, prs) {
   return claimed;
 }
 
-// Claims whose open `claude/issue-<n>` PR has an evaluator PASS on any head.
+// True when the required checks (and combined status) are green on this exact commit.
+async function headChecksGreen(gh, sha) {
+  const [checkRuns, combinedStatus] = await Promise.all([
+    gh.paginate(`/commits/${sha}/check-runs`, (data) => data.check_runs),
+    gh.get(`/commits/${sha}/status`),
+  ]);
+  return assessChecks(checkRuns, combinedStatus).state === 'success';
+}
+
+// Claims whose open `claude/issue-<n>` PR has an evaluator PASS on a head whose required
+// checks were green. Queue identity survives later repairs (the PASS head stays green),
+// but a PASS on a pending or failing head leaves the claim live.
 async function queuedClaimNumbers(gh, openIssues, prs, trustedLogins) {
   const queued = new Set();
   for (const issue of openIssues) {
@@ -513,7 +537,12 @@ async function queuedClaimNumbers(gh, openIssues, prs, trustedLogins) {
     const pr = prs.find((candidate) => candidate.head?.ref === `claude/issue-${issue.number}`);
     if (!pr) continue;
     const comments = await gh.paginate(`/issues/${pr.number}/comments`);
-    if (hasEvaluatorPassOnAnyHead(comments, { trustedLogins })) queued.add(issue.number);
+    for (const sha of passingEvaluatorHeads(comments, { trustedLogins })) {
+      if (await headChecksGreen(gh, sha)) {
+        queued.add(issue.number);
+        break;
+      }
+    }
   }
   return queued;
 }
@@ -613,8 +642,121 @@ async function printSkipFingerprint() {
   log(issueFingerprint(JSON.parse(input)));
 }
 
+// Splits concatenated JSON values (NDJSON, or objects pretty-printed across lines) by
+// tracking brace depth outside strings. Throws on input that is not whole JSON values.
+function splitJsonValues(text) {
+  const values = [];
+  let depth = 0;
+  let start = -1;
+  let inString = false;
+  let escaped = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') inString = false;
+    } else if (char === '"') {
+      inString = true;
+    } else if (char === '{' || char === '[') {
+      if (depth === 0) start = index;
+      depth += 1;
+    } else if (char === '}' || char === ']') {
+      depth -= 1;
+      if (depth < 0) throw new Error('Unreadable JSON input: unbalanced brackets.');
+      if (depth === 0) values.push(JSON.parse(text.slice(start, index + 1)));
+    } else if (depth === 0 && !/\s/.test(char)) {
+      throw new Error(`Unreadable JSON input: unexpected "${char}".`);
+    }
+  }
+  if (depth !== 0 || inString) throw new Error('Unreadable JSON input: truncated JSON.');
+  return values;
+}
+
+// Check runs from `gh api .../check-runs --paginate --jq '.check_runs[]'` (one object per
+// run, possibly pretty-printed), a JSON array, or the raw `{ check_runs: [...] }` response.
+export function parseCheckRuns(text) {
+  const values = splitJsonValues(String(text ?? ''));
+  return values.flatMap((value) => (Array.isArray(value) ? value : Array.isArray(value?.check_runs) ? value.check_runs : [value]));
+}
+
+// Same rule the reconcile applies to a PASS head (`headChecksGreen`): check runs plus the
+// combined commit status. Empty input or an empty run list is an error, never `not-green`:
+// every real head has check runs, so none means the upstream `gh api` failed.
+export function checksGreenVerdict(text, combinedStatus) {
+  const runs = parseCheckRuns(text);
+  if (!runs.length) throw new Error('No check runs in the input; the upstream gh api call probably failed.');
+  return assessChecks(runs, combinedStatus).state === 'success' ? 'green' : 'not-green';
+}
+
+// `gh api repos/<repo>/commits/<sha>/status > "$TMPDIR/status.json"` then
+// `gh api repos/<repo>/commits/<sha>/check-runs --paginate --jq '.check_runs[]' | node scripts/owner-attention.mjs checks-green --status-file "$TMPDIR/status.json"`
+// prints `green` or `not-green` so the routine applies the same queued rule as the reconcile.
+// Empty stdin, an empty run list or an unreadable status file exits non-zero with nothing on stdout.
+async function printChecksGreen() {
+  const args = process.argv.slice(3);
+  let combinedStatus;
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--status-file' || arg.startsWith('--status-file=')) {
+      const path = arg === '--status-file' ? args[(index += 1)] : arg.slice('--status-file='.length);
+      if (!path) throw new Error('--status-file needs a path.');
+      try {
+        combinedStatus = JSON.parse(await readFile(path, 'utf8'));
+      } catch (error) {
+        throw new Error(`Unreadable status file ${path}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+      }
+    } else {
+      throw new Error(`Unknown checks-green argument: ${arg}`);
+    }
+  }
+  let input = '';
+  for await (const chunk of process.stdin) input += chunk;
+  log(checksGreenVerdict(input, combinedStatus));
+}
+
+// Issue comments from `gh api .../issues/<pr>/comments --paginate` (one array per page, or a
+// single array) → the PASS heads, resolved by passingEvaluatorHeads so the trust, attribution,
+// first-verdict-line and contradiction rules match the reconcile. Empty input is an error:
+// a readable API response is at least `[]`.
+export function passHeadsFromComments(text, { trustedLogins }) {
+  if (!String(text ?? '').trim()) throw new Error('No comments input; the upstream gh api call probably failed.');
+  const comments = splitJsonValues(String(text)).flatMap((value) => (Array.isArray(value) ? value : [value]));
+  return passingEvaluatorHeads(comments, { trustedLogins });
+}
+
+// `gh api repos/<repo>/issues/<pr>/comments --paginate | node scripts/owner-attention.mjs pass-heads --owner <login>`
+// prints each PASS head on its own line (nothing when there is none). Trusted evaluator logins
+// are EVALUATOR_LOGINS when set, otherwise the owner, exactly as the workflow resolves them.
+// Empty or unreadable input exits non-zero with nothing on stdout.
+async function printPassHeads() {
+  const args = process.argv.slice(3);
+  let owner;
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--owner' || arg.startsWith('--owner=')) {
+      owner = arg === '--owner' ? args[(index += 1)] : arg.slice('--owner='.length);
+      if (!owner) throw new Error('--owner needs a login.');
+    } else {
+      throw new Error(`Unknown pass-heads argument: ${arg}`);
+    }
+  }
+  const trustedLogins = (process.env.EVALUATOR_LOGINS || owner || '')
+    .split(',')
+    .map((login) => login.trim())
+    .filter(Boolean);
+  if (!trustedLogins.length) throw new Error('pass-heads needs --owner <login> or EVALUATOR_LOGINS.');
+  let input = '';
+  for await (const chunk of process.stdin) input += chunk;
+  const heads = passHeadsFromComments(input, { trustedLogins });
+  if (heads.length) log(heads.join('\n'));
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (process.argv[2] === 'skip-fingerprint' ? printSkipFingerprint() : main()).catch((error) => {
+  const command = process.argv[2];
+  const commands = { 'skip-fingerprint': printSkipFingerprint, 'checks-green': printChecksGreen, 'pass-heads': printPassHeads };
+  const run = commands[command] ?? main;
+  run().catch((error) => {
     console.error(error instanceof Error ? error.stack || error.message : String(error));
     process.exit(1);
   });

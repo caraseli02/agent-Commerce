@@ -96,6 +96,15 @@ describe('blocked commands', () => {
     'gh issue edit 5 --add-label "owner-approved-harness"',
     'gh label delete owner-approved-harness --yes',
     'gh label create something',
+    // The gh account is shared, so the last comment may be Vlad's or Codex's (2026-10-13).
+    'gh issue comment 641 --edit-last --body-file plan.md',
+    'gh pr comment 12 --edit-last --body x',
+    'gh issue comment 641 --delete-last --yes',
+    // gh accepts global flags before the command group.
+    'gh -R caraseli02/agent-Commerce pr merge 1',
+    'gh --repo caraseli02/agent-Commerce issue comment 5 --edit-last --body x',
+    'gh --repo=caraseli02/agent-Commerce pr review 3 --approve',
+    'gh -Rcaraseli02/agent-Commerce label create x',
   ];
   for (const command of blocked) {
     it(command, () => {
@@ -113,6 +122,8 @@ describe('blocked commands', () => {
 describe('allowed commands', () => {
   const allowed = [
     'git push',
+    'gh issue comment 641 --body-file plan.md',
+    'gh issue create --title "Claude morning digest" --body x',
     'git push origin claude/issue-42',
     'git push -u origin claude/issue-42',
     'git push origin HEAD',
@@ -132,6 +143,7 @@ describe('allowed commands', () => {
     'gh label list',
     'gh pr view 615 --json labels',
     'gh issue comment 5 --body-file /tmp/c.md',
+    'gh -R caraseli02/agent-Commerce issue comment 5 --body-file b.md',
     'gh auth status',
     'gh api repos/caraseli02/agent-Commerce/issues/5/comments --paginate --jq ".[].body"',
     'gh api graphql -f query="{ viewer { login } }"',
