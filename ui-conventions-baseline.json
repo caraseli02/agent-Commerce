@@ -122,9 +122,6 @@
     "input": 2,
     "label": 2
   },
-  "app/components/global/Notifications.vue": {
-    "button": 3
-  },
   "app/components/global/QuantityButtons.vue": {
     "button": 2,
     "input": 1,
@@ -135,33 +132,6 @@
   },
   "app/components/layout/account-modal/Form.vue": {
     "label": 1
-  },
-  "app/components/layout/header/Index.vue": {
-    "button": 1
-  },
-  "app/components/layout/header/MainRow.vue": {
-    "button": 4,
-    "input": 1,
-    "label": 1
-  },
-  "app/components/layout/header/Search.vue": {
-    "input": 1,
-    "label": 1
-  },
-  "app/components/layout/header/main-menu/Banners.vue": {
-    "button": 3
-  },
-  "app/components/layout/header/main-menu/DektopPopoverContainer.vue": {
-    "button": 4
-  },
-  "app/components/layout/header/main-menu/Index.vue": {
-    "button": 4
-  },
-  "app/components/layout/header/main-menu/Large.vue": {
-    "button": 7
-  },
-  "app/components/layout/header/main-menu/MobileSheet.vue": {
-    "button": 1
   },
   "app/components/order-confirm/AdminConfirmation.vue": {
     "textarea": 1
