@@ -663,13 +663,13 @@ function splitJsonValues(text) {
       depth += 1;
     } else if (char === '}' || char === ']') {
       depth -= 1;
-      if (depth < 0) throw new Error('Unreadable check-runs input: unbalanced brackets.');
+      if (depth < 0) throw new Error('Unreadable JSON input: unbalanced brackets.');
       if (depth === 0) values.push(JSON.parse(text.slice(start, index + 1)));
     } else if (depth === 0 && !/\s/.test(char)) {
-      throw new Error(`Unreadable check-runs input: unexpected "${char}".`);
+      throw new Error(`Unreadable JSON input: unexpected "${char}".`);
     }
   }
-  if (depth !== 0 || inString) throw new Error('Unreadable check-runs input: truncated JSON.');
+  if (depth !== 0 || inString) throw new Error('Unreadable JSON input: truncated JSON.');
   return values;
 }
 
@@ -715,9 +715,47 @@ async function printChecksGreen() {
   log(checksGreenVerdict(input, combinedStatus));
 }
 
+// Issue comments from `gh api .../issues/<pr>/comments --paginate` (one array per page, or a
+// single array) → the PASS heads, resolved by passingEvaluatorHeads so the trust, attribution,
+// first-verdict-line and contradiction rules match the reconcile. Empty input is an error:
+// a readable API response is at least `[]`.
+export function passHeadsFromComments(text, { trustedLogins }) {
+  if (!String(text ?? '').trim()) throw new Error('No comments input; the upstream gh api call probably failed.');
+  const comments = splitJsonValues(String(text)).flatMap((value) => (Array.isArray(value) ? value : [value]));
+  return passingEvaluatorHeads(comments, { trustedLogins });
+}
+
+// `gh api repos/<repo>/issues/<pr>/comments --paginate | node scripts/owner-attention.mjs pass-heads --owner <login>`
+// prints each PASS head on its own line (nothing when there is none). Trusted evaluator logins
+// are EVALUATOR_LOGINS when set, otherwise the owner, exactly as the workflow resolves them.
+// Empty or unreadable input exits non-zero with nothing on stdout.
+async function printPassHeads() {
+  const args = process.argv.slice(3);
+  let owner;
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--owner' || arg.startsWith('--owner=')) {
+      owner = arg === '--owner' ? args[(index += 1)] : arg.slice('--owner='.length);
+      if (!owner) throw new Error('--owner needs a login.');
+    } else {
+      throw new Error(`Unknown pass-heads argument: ${arg}`);
+    }
+  }
+  const trustedLogins = (process.env.EVALUATOR_LOGINS || owner || '')
+    .split(',')
+    .map((login) => login.trim())
+    .filter(Boolean);
+  if (!trustedLogins.length) throw new Error('pass-heads needs --owner <login> or EVALUATOR_LOGINS.');
+  let input = '';
+  for await (const chunk of process.stdin) input += chunk;
+  const heads = passHeadsFromComments(input, { trustedLogins });
+  if (heads.length) log(heads.join('\n'));
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const command = process.argv[2];
-  const run = command === 'skip-fingerprint' ? printSkipFingerprint : command === 'checks-green' ? printChecksGreen : main;
+  const commands = { 'skip-fingerprint': printSkipFingerprint, 'checks-green': printChecksGreen, 'pass-heads': printPassHeads };
+  const run = commands[command] ?? main;
   run().catch((error) => {
     console.error(error instanceof Error ? error.stack || error.message : String(error));
     process.exit(1);

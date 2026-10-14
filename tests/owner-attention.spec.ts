@@ -25,6 +25,7 @@ import {
   parseDependencies,
   parseCheckRuns,
   parseFactoryConfig,
+  passHeadsFromComments,
   passingEvaluatorHeads,
   protectedFilesTouched,
 } from '../scripts/owner-attention.mjs';
@@ -1060,6 +1061,71 @@ describe('checks-green', () => {
       }
     } finally {
       await rm(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('pass-heads', () => {
+  const head = 'a'.repeat(40);
+  const other = 'b'.repeat(40);
+  const report = (sha: string, verdict: string, { attribution = 'Claude (claude-routine).', login = 'owner', extra = '' } = {}) => ({
+    user: { login },
+    body: `<!-- evaluator-head: ${sha} -->\n\n## Evaluator verdict\n\n${verdict}\n\nIndependent evaluator: ${attribution}\n${extra}`,
+  });
+  const quotedPass = '\n## Evidence\n\n> ## Evaluator verdict\n> PASS — ready-for-human\n';
+  const trusted = { trustedLogins: ['owner'] };
+  const cli = (input: string, args: string[] = ['--owner', 'owner'], env: Record<string, string> = {}) =>
+    spawnSync('node', ['scripts/owner-attention.mjs', 'pass-heads', ...args], {
+      input,
+      encoding: 'utf8',
+      env: { ...process.env, EVALUATOR_LOGINS: '', ...env },
+    });
+
+  it('lists a valid PASS head', () => {
+    expect(passHeadsFromComments(JSON.stringify([report(head, 'PASS — ready-for-human')]), trusted)).toEqual([head]);
+  });
+
+  it('ignores a FAIL report whose evidence quotes a PASS heading', () => {
+    expect(passHeadsFromComments(JSON.stringify([report(head, 'FAIL — needs generator fix', { extra: quotedPass })]), trusted)).toEqual([]);
+  });
+
+  it('ignores a PASS report with an empty attribution line', () => {
+    expect(passHeadsFromComments(JSON.stringify([report(head, 'PASS — ready-for-human', { attribution: '' })]), trusted)).toEqual([]);
+  });
+
+  it('ignores a PASS report from an untrusted login', () => {
+    expect(passHeadsFromComments(JSON.stringify([report(head, 'PASS', { login: 'mallory' })]), trusted)).toEqual([]);
+  });
+
+  it('reads one array per page, as gh api --paginate emits them', () => {
+    const pages = `${JSON.stringify([report(head, 'FAIL')])}\n${JSON.stringify([report(other, 'PASS')])}`;
+    expect(passHeadsFromComments(pages, trusted)).toEqual([other]);
+  });
+
+  it('prints one head per line via the CLI, nothing when there is none', () => {
+    const input = JSON.stringify([
+      report(head, 'PASS'),
+      report(other, 'FAIL', { extra: quotedPass }),
+      report('c'.repeat(40), 'PASS', { attribution: '' }),
+    ]);
+    expect(cli(input)).toMatchObject({ status: 0, stdout: `${head}\n` });
+    expect(cli('[]')).toMatchObject({ status: 0, stdout: '' });
+    expect(cli(input, ['--owner', 'someone-else'])).toMatchObject({ status: 0, stdout: '' });
+    expect(cli(input, ['--owner', 'someone-else'], { EVALUATOR_LOGINS: 'owner' })).toMatchObject({ status: 0, stdout: `${head}\n` });
+  });
+
+  it('exits non-zero with nothing on stdout for empty or unreadable input, or no trusted login', () => {
+    for (const [input, args] of [
+      ['', ['--owner', 'owner']],
+      ['  \n', ['--owner', 'owner']],
+      ['garbage', ['--owner', 'owner']],
+      ['[]', []],
+      ['[]', ['--owner']],
+    ] as const) {
+      const bad = cli(input, [...args]);
+      expect(bad.status).not.toBe(0);
+      expect(bad.stdout).toBe('');
+      expect(bad.stderr).not.toBe('');
     }
   });
 });

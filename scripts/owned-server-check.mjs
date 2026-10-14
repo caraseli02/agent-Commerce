@@ -12,9 +12,16 @@
 // Exit codes: the Playwright exit code (0 pass, other non-zero = candidate finding); 1 when the build fails;
 // 75 for an environment failure (wrong head, unwrapped or non-local database, busy port, readiness timeout,
 // listener identity mismatch, budget exhausted, interrupted, bad arguments). With --bisect: 0 → 0, 75 → 125
-// (git bisect "skip"), any other non-zero → 1.
+// (git bisect "skip"), any other non-zero → 1, and a failed build is an environment failure.
+//
+// Bisect: historical revisions may predate this script, its config, the spec or the wrapper, so never run the
+// checkout's copy. Pin the reviewed copy outside the checkout and run it as one bisect step:
+//   git show origin/main:scripts/owned-server-check.mjs > "$PIN/owned-server-check.mjs"
+//   git bisect run node "$PIN/owned-server-check.mjs" bisect-step --config <name> [--grep ...] [--port ...] [specs]
+// The step skips (125) any revision missing a prerequisite or whose install fails, runs the wrapper and the pinned
+// check for the rest, and reports bad (1) only when the check itself printed result=fail.
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, openSync, closeSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, openSync, closeSync, realpathSync, statSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -185,6 +192,31 @@ export function summaryLine({ config, head, port, code, exitCode = code }) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
+export const TEST_DATABASE_WRAPPER = 'scripts/with-test-database.mjs';
+
+/** Prerequisites a bisect revision must carry for the check to mean anything; returns the missing paths. */
+export function bisectPrerequisitesMissing({ config, specs = [] }, fileExists = (path) => existsSync(path) && statSync(path).isFile()) {
+  return [TEST_DATABASE_WRAPPER, CONFIGS[config], ...specs].filter((path) => !path || !fileExists(path));
+}
+
+/** Arguments forwarded from `bisect-step` to the wrapped check; the step adds --any-head and --bisect itself. */
+export function bisectForwardArgs(argv) {
+  return argv.filter((argument) => argument !== '--any-head' && argument !== '--bisect');
+}
+
+/**
+ * git bisect verdict from the wrapped check's stdout: bad (1) only for its own `result=fail` summary line,
+ * good (0) only for `result=pass exit=0`; anything else (no summary, environment, wrapper or toolchain
+ * failure) skips with 125, so missing tooling never marks a revision bad.
+ */
+export function bisectStepExit(output) {
+  const summaries = String(output ?? '').match(/^owned-server-check: .* result=(pass|fail|environment) exit=(\d+)$/gm) ?? [];
+  const last = summaries.at(-1)?.match(/result=(pass|fail|environment) exit=(\d+)$/);
+  if (last?.[1] === 'pass' && last[2] === '0') return 0;
+  if (last?.[1] === 'fail') return 1;
+  return BISECT_SKIP_EXIT;
+}
+
 // Runtime section. It builds the app, serves it and drives a browser, so manual smoke runs cover it instead of unit tests.
 
 const LSOF = existsSync('/usr/sbin/lsof') ? '/usr/sbin/lsof' : 'lsof';
@@ -380,7 +412,8 @@ async function run(options, state) {
   }
   if (buildCode !== 0) {
     console.error(`owned-server-check: build failed with exit ${buildCode}; see ${buildLog}`);
-    return 1;
+    // A historical revision that does not build cannot be judged by a runtime check.
+    return options.bisect ? ENVIRONMENT_EXIT : 1;
   }
 
   // The build can take minutes; re-check that nobody took the port meanwhile.
@@ -467,6 +500,68 @@ async function main() {
   process.exit(exitCode);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
+/** One `git bisect run` step, run from a copy pinned outside the checkout (see the header). */
+async function bisectStep(argv) {
+  const skip = (reason) => {
+    console.error(`owned-server-check: bisect skip: ${reason}`);
+    process.exit(BISECT_SKIP_EXIT);
+  };
+  const forwarded = bisectForwardArgs(argv);
+  let options;
+  try {
+    options = parseArgs(forwarded);
+  } catch (error) {
+    skip(error instanceof Error ? error.message : String(error));
+  }
+  const missing = bisectPrerequisitesMissing(options);
+  if (missing.length) skip(`revision lacks ${missing.join(', ')}`);
+
+  const install = spawn('pnpm', ['install', '--frozen-lockfile', '--prefer-offline'], { stdio: ['ignore', 2, 2], shell: false });
+  const installCode = await new Promise((resolveInstall) => {
+    install.once('error', () => resolveInstall(null));
+    install.once('exit', (code) => resolveInstall(code));
+  });
+  if (installCode !== 0) skip(`pnpm install --frozen-lockfile exited ${installCode}`);
+
+  const pinned = fileURLToPath(import.meta.url);
+  const child = spawn(
+    process.execPath,
+    [
+      '--env-file-if-exists=.env',
+      '--env-file-if-exists=.env.local',
+      TEST_DATABASE_WRAPPER,
+      process.execPath,
+      pinned,
+      ...forwarded,
+      '--any-head',
+      '--bisect',
+    ],
+    { stdio: ['ignore', 'pipe', 'inherit'], shell: false },
+  );
+  let output = '';
+  child.stdout.on('data', (chunk) => {
+    output += chunk;
+    process.stdout.write(chunk);
+  });
+  await new Promise((resolveChild) => {
+    child.once('error', resolveChild);
+    child.once('close', resolveChild);
+  });
+  const exitCode = bisectStepExit(output);
+  process.stdout.write(`owned-server-check: bisect step exit=${exitCode}\n`);
+  process.exit(exitCode);
+}
+
+// Real paths: a pinned copy usually lives under a symlinked temp directory (macOS /var → /private/var).
+const invokedDirectly = (() => {
+  try {
+    return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+})();
+
+if (invokedDirectly) {
+  if (process.argv[2] === 'bisect-step') bisectStep(process.argv.slice(3));
+  else main();
 }

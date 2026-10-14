@@ -1,4 +1,7 @@
-import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   BASE_URL_VARIABLES,
@@ -6,6 +9,10 @@ import {
   CONFIGS,
   ENVIRONMENT_EXIT,
   EnvironmentFailure,
+  TEST_DATABASE_WRAPPER,
+  bisectForwardArgs,
+  bisectPrerequisitesMissing,
+  bisectStepExit,
   buildPlaywrightArgs,
   listenersOwnedBy,
   mapExitCode,
@@ -337,5 +344,66 @@ describe('summary', () => {
     expect(summaryLine({ code: ENVIRONMENT_EXIT })).toBe(
       'owned-server-check: config=unknown head=unknown port=unknown result=environment exit=75',
     );
+  });
+});
+
+describe('bisect step', () => {
+  it('lists the wrapper, config and specs a historical revision lacks', () => {
+    const has = (present: string[]) => (path: string) => present.includes(path);
+    expect(bisectPrerequisitesMissing({ config: 'parity', specs: [] }, has([TEST_DATABASE_WRAPPER, CONFIGS.parity]))).toEqual([]);
+    expect(bisectPrerequisitesMissing({ config: 'parity', specs: [] }, has([CONFIGS.parity]))).toEqual([TEST_DATABASE_WRAPPER]);
+    expect(bisectPrerequisitesMissing({ config: 'performance', specs: ['tests/a.spec.ts'] }, has([TEST_DATABASE_WRAPPER]))).toEqual([
+      CONFIGS.performance,
+      'tests/a.spec.ts',
+    ]);
+  });
+
+  it('forwards everything but the flags the step adds itself', () => {
+    expect(bisectForwardArgs(['--config', 'parity', '--any-head', '--grep', 'M1', '--bisect'])).toEqual([
+      '--config',
+      'parity',
+      '--grep',
+      'M1',
+    ]);
+  });
+
+  it('is bad only for the check’s own result=fail summary and good only for result=pass exit=0', () => {
+    const line = (result: string, exit: number) => `owned-server-check: config=parity head=abc port=3205 result=${result} exit=${exit}`;
+    expect(bisectStepExit(`building\n${line('pass', 0)}\n`)).toBe(0);
+    expect(bisectStepExit(`${line('fail', 1)}\n`)).toBe(1);
+    expect(bisectStepExit(`${line('environment', 125)}\n`)).toBe(BISECT_SKIP_EXIT);
+    // Missing tooling: the wrapper or node dies before any summary line (MODULE_NOT_FOUND and similar).
+    expect(bisectStepExit("Error: Cannot find module '/repo/scripts/owned-server-check.mjs'\n")).toBe(BISECT_SKIP_EXIT);
+    expect(bisectStepExit('')).toBe(BISECT_SKIP_EXIT);
+    expect(bisectStepExit(`  ${line('fail', 1)} trailing`)).toBe(BISECT_SKIP_EXIT);
+  });
+
+  it('skips (125) a revision that predates the helper, from a pinned copy outside the checkout', async () => {
+    const pin = await mkdtemp(join(tmpdir(), 'owned-pin-'));
+    const revision = await mkdtemp(join(tmpdir(), 'owned-old-revision-'));
+    try {
+      const pinned = join(pin, 'owned-server-check.mjs');
+      await copyFile(resolve('scripts/owned-server-check.mjs'), pinned);
+      const step = (args: string[]) => spawnSync(process.execPath, [pinned, 'bisect-step', ...args], { cwd: revision, encoding: 'utf8' });
+
+      // No wrapper, no config, no scripts/owned-server-check.mjs: the old checkout has none of the new tooling.
+      const bare = step(['--config', 'parity', '--grep', 'M1', '--port', '3207']);
+      expect(bare.status).toBe(BISECT_SKIP_EXIT);
+      expect(bare.stderr).toMatch(/bisect skip: revision lacks scripts\/with-test-database\.mjs, playwright\.parity\.config\.ts/);
+
+      // A spec the issue names that the old revision does not have yet.
+      await mkdir(join(revision, 'scripts'));
+      await writeFile(join(revision, TEST_DATABASE_WRAPPER), '');
+      await writeFile(join(revision, CONFIGS.parity), '');
+      expect(step(['--config', 'parity', 'tests/new.spec.ts']).status).toBe(BISECT_SKIP_EXIT);
+
+      // Prerequisites present but dependencies cannot be installed (no package.json at that revision).
+      const noInstall = step(['--config', 'parity', '--port', '3207']);
+      expect(noInstall.status).toBe(BISECT_SKIP_EXIT);
+      expect(noInstall.stderr).toMatch(/bisect skip: pnpm install/);
+    } finally {
+      await rm(pin, { recursive: true, force: true });
+      await rm(revision, { recursive: true, force: true });
+    }
   });
 });
