@@ -12,7 +12,10 @@ export default defineNuxtConfig({
     'build:manifest'(manifest) {
       // Nuxt otherwise prefetches dynamic route dependencies before activation.
       for (const [id, chunk] of Object.entries(manifest)) {
-        if (/(?:^|\/)components\/product\/Zoom(?:Gallery|Img)\.vue(?:\?|$)/.test(id)) {
+        if (
+          /(?:^|\/)components\/product\/Zoom(?:Gallery|Img)\.vue(?:\?|$)/.test(id) ||
+          /(?:^|\/)components\/global\/(?:QuickBuy\/QuickBuy|EcxlusiveOffer)\.vue(?:\?|$)/.test(id)
+        ) {
           chunk.prefetch = false;
         }
       }

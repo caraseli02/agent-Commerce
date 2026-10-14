@@ -4,8 +4,8 @@
     <HomeFeaturedProducts />
     <div class="container mb-10 lg:mb-14 xl:mb-16">
       <div class="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-stretch">
-        <LazyQuickBuy />
-        <LazyEcxlusiveOffer />
+        <LazyQuickBuy :hydrate-on-visible="{ rootMargin: '200px' }" />
+        <LazyEcxlusiveOffer :hydrate-on-visible="{ rootMargin: '200px' }" />
       </div>
     </div>
   </div>

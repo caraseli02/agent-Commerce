@@ -204,6 +204,13 @@
       "impact": "none",
       "reason": "Adds reviewed native Codex lease diagnostics and original-owner recovery source/migration assets; no rendered application behavior changes.",
       "consumers": "The only new executable consumers are .codex-autonomy/recovery.py, its immutable post-merge host installer, the external native dispatcher/worker workflows, and tests/codex-routing.spec.ts which spawns portable temporary-process fixtures in Vitest. Nuxt app/, server/, layouts, stores, runtime config, styles, assets, application dependencies and payment adapters neither import nor read .codex-autonomy or these host settings. Installed host files and automation remain legacy and unchanged by this PR. Actual lease/process and dispatcher delivery behavior is verified with temporary keeper/guardian/command fixtures, not storefront screenshots. Therefore home/search/product/cart/orders screenshots cannot observe this patch."
+    },
+    {
+      "fingerprint": "7254002345254249f2b7304a09f1437faa10499c2b6fc57a4307253f1c6ebcb0",
+      "impact": "targeted",
+      "tests": ["home", "search", "product"],
+      "reason": "Only Quick Buy and Exclusive Offer code-loading timing changes. Home defers hydration to a 200px visibility margin; search/product retain eager mounting through dynamic imports. Existing build-manifest suppression additionally disables only these two chunks' prefetch hints.",
+      "consumers": "Traced all QuickBuy/EcxlusiveOffer references: home, search and product pages. Components, shared cart/auth logic, server APIs, styles and existing zoom-prefetch matching are unchanged. Home/search/product screenshots at desktop/mobile cover the affected routes; dedicated production browser evidence also proves initial chunk absence, one-time activation, unchanged hydration geometry and Quick Buy/dialog/navigation behavior. No cart/order/dashboard consumer or public payment behavior changes."
     }
   ]
 }
