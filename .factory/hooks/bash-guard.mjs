@@ -20,7 +20,9 @@
 // .factory/README.md); tests: node --test .factory/hooks/bash-guard.test.mjs
 
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const PROTECTED_BRANCHES = new Set(['main', 'master']);
@@ -209,12 +211,66 @@ function stripGhGlobalFlags(words) {
   return [words[0], ...words.slice(i)];
 }
 
-function checkGh(allWords) {
+function flagValue(args, long, short) {
+  for (let i = 0; i < args.length; i += 1) {
+    if (args[i] === long || args[i] === short) return { value: args[i + 1] ?? '' };
+    if (args[i].startsWith(`${long}=`)) return { value: args[i].slice(long.length + 1) };
+  }
+  return null;
+}
+
+function expandPath(file, cwd) {
+  const expanded = file
+    .replace(/^~(?=\/|$)/, homedir())
+    .replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)/g, (_, braced, bare) => process.env[braced ?? bare] ?? '\0');
+  if (expanded.includes('\0') || /[`$*?]/.test(expanded)) return null;
+  return isAbsolute(expanded) ? expanded : resolve(cwd, expanded);
+}
+
+// PR template preflight (after #702): a PR body reaches GitHub only through a file that already
+// passes scripts/check-pr-template.mjs, the same check the "PR template / check" workflow runs.
+function checkPrBody(action, args, cwd) {
+  const inline = flagValue(args, '--body', '-b');
+  const bodyFile = flagValue(args, '--body-file', '-F');
+  const filled = args.some((arg) => /^--fill(-first|-verbose)?$/.test(arg) || arg === '-f');
+  if (action === 'edit' && !inline && !bodyFile) return null;
+  if (inline || filled || !bodyFile) {
+    return `gh pr ${action} must send the body with --body-file <file> so the PR template preflight can check it`;
+  }
+  const file = bodyFile.value && bodyFile.value !== '-' ? expandPath(bodyFile.value, cwd) : null;
+  if (!file || !existsSync(file)) {
+    return `PR body file ${bodyFile.value || '(none)'} not found; write it in an earlier command, then pass its literal path to --body-file`;
+  }
+  let root;
+  try {
+    root = execFileSync('git', ['-C', cwd, 'rev-parse', '--show-toplevel'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    return 'PR template preflight needs a git checkout to find scripts/check-pr-template.mjs';
+  }
+  const checker = join(root, 'scripts/check-pr-template.mjs');
+  if (!existsSync(checker)) return `PR template preflight cannot find ${checker}`;
+  try {
+    execFileSync(process.execPath, [checker, '--body-file', file], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    return null;
+  } catch (error) {
+    const details = String(error.stderr ?? '').trim() || error.message;
+    return `PR body fails the template check (node scripts/check-pr-template.mjs --body-file ${bodyFile.value}):\n${details}\nFix the body file, then rerun`;
+  }
+}
+
+function checkGh(allWords, cwd) {
   const words = stripGhGlobalFlags(allWords);
   const [, group, action] = words;
   const rest = words.slice(2);
   if (group === 'pr' && action === 'merge') return 'merging a PR (only Vlad merges)';
   if (words.some((arg) => /owner-approved-harness/.test(arg))) return 'changing the owner-approved-harness label (only Vlad sets it)';
+  if (group === 'pr' && (action === 'create' || action === 'edit')) {
+    const reason = checkPrBody(action, words.slice(3), cwd);
+    if (reason) return reason;
+  }
   if (group === 'label' && action !== 'list') return `gh label ${action}`;
   // The gh account is shared with Vlad and Codex, so the "last comment" may be theirs (2026-10-13).
   if (
@@ -281,7 +337,7 @@ export function check(command, cwd = process.cwd()) {
     const name = words ? program(words[0]) : null;
     let reason = null;
     if (name === 'git') reason = checkGit(words, cwd);
-    else if (name === 'gh') reason = checkGh(words);
+    else if (name === 'gh') reason = checkGh(words, cwd);
     else if (name === 'security' && /^find-(generic|internet)-password$/.test(words[1] ?? '')) {
       reason = 'reading secrets from the keychain';
     } else if (OPAQUE_GIT.test(text) || OPAQUE_GH.test(text)) {

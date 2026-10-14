@@ -195,7 +195,35 @@ export async function resolvePullRequestContext(event, fetchCurrentPullRequest) 
   return fetchCurrentPullRequest(event.pull_request.number);
 }
 
+function bodyFileArgument(argv) {
+  const index = argv.findIndex((arg) => arg === '--body-file' || arg.startsWith('--body-file='));
+  if (index === -1) return null;
+  const value = argv[index].includes('=') ? argv[index].slice(argv[index].indexOf('=') + 1) : argv[index + 1];
+  if (!value) throw new Error('--body-file needs a path.');
+  return value;
+}
+
+function report(result) {
+  if (result.status === 'skipped' || result.status === 'passed') {
+    console.log(result.reason);
+    return;
+  }
+
+  console.error(result.reason);
+  for (const violation of result.violations) {
+    console.error(`- ${violation}`);
+  }
+  process.exit(1);
+}
+
 async function main() {
+  // Local preflight: check a PR body file before `gh pr create` / `gh pr edit` sends it.
+  const bodyFile = bodyFileArgument(process.argv.slice(2));
+  if (bodyFile) {
+    report(assessPrTemplate({ body: await readFile(bodyFile, 'utf8') }));
+    return;
+  }
+
   const event = await loadGitHubEvent();
 
   if (!event?.pull_request) {
@@ -208,18 +236,7 @@ async function main() {
   const loadCurrentPullRequest = repository && token ? (number) => fetchCurrentPullRequest({ repository, number, token }) : null;
   const pullRequest = await resolvePullRequestContext(event, loadCurrentPullRequest);
   const labels = (pullRequest.labels ?? []).map((label) => label?.name).filter(Boolean);
-  const result = assessPrTemplate({ body: pullRequest.body, labels });
-
-  if (result.status === 'skipped' || result.status === 'passed') {
-    console.log(result.reason);
-    return;
-  }
-
-  console.error(result.reason);
-  for (const violation of result.violations) {
-    console.error(`- ${violation}`);
-  }
-  process.exit(1);
+  report(assessPrTemplate({ body: pullRequest.body, labels }));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

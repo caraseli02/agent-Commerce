@@ -1,3 +1,7 @@
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { assessPrTemplate, resolvePullRequestContext } from '../scripts/check-pr-template.mjs';
 
@@ -195,5 +199,46 @@ Looks good overall.`,
 
     expect(result.status).toBe('skipped');
     expect(result.violations).toEqual([]);
+  });
+
+  it('fails when the four commands share one grouped evidence row (#702)', () => {
+    const grouped = completeBody.replace(
+      /- \[x\] `pnpm build`[\s\S]*?- \[x\] `pnpm test` — outcome: pass/,
+      '- [x] `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test`: all passed inside `pnpm verify --base origin/main`.',
+    );
+
+    const result = assess({ body: grouped });
+
+    expect(result.status).toBe('failed');
+    expect(result.violations).toContain('Verification section is incomplete for: pnpm build, pnpm lint, pnpm typecheck, pnpm test.');
+  });
+});
+
+describe('PR template local preflight (--body-file)', () => {
+  const checker = join(process.cwd(), 'scripts/check-pr-template.mjs');
+
+  function runOn(body: string) {
+    const dir = mkdtempSync(join(tmpdir(), 'pr-template-'));
+    try {
+      const file = join(dir, 'body.md');
+      writeFileSync(file, body);
+      return spawnSync(process.execPath, [checker, '--body-file', file], { encoding: 'utf8', env: { PATH: process.env.PATH } });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  it('passes a complete body file', () => {
+    const result = runOn(completeBody);
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('includes the required');
+  });
+
+  it('fails an incomplete body file and names the missing commands', () => {
+    const result = runOn('## Verification\n\n- [x] `pnpm build` — outcome: pass\n');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('pnpm lint, pnpm typecheck, pnpm test');
   });
 });

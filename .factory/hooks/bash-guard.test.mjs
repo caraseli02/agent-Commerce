@@ -1,7 +1,7 @@
 // Tests for bash-guard.mjs. Run: node --test .factory/hooks/bash-guard.test.mjs
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
@@ -19,9 +19,44 @@ function repoOn(branch) {
 
 const onFeature = repoOn('claude/issue-42');
 const onMain = repoOn('main');
+
+// A checkout with the real PR template checker and two body files (#702 preflight).
+const withChecker = repoOn('claude/issue-42');
+mkdirSync(join(withChecker, 'scripts'));
+copyFileSync(
+  fileURLToPath(new URL('../../scripts/check-pr-template.mjs', import.meta.url)),
+  join(withChecker, 'scripts/check-pr-template.mjs'),
+);
+const rubric = ['Scope control', 'Acceptance criteria', 'Verification evidence', 'Harness hygiene', 'Risk reporting'].map(
+  (field) => `- ${field}: /10`,
+);
+const verification = ['build', 'lint', 'typecheck', 'test'].map((command) => `- [x] \`pnpm ${command}\` — outcome: passed`);
+writeFileSync(
+  join(withChecker, 'good.md'),
+  ['## Verification', '', ...verification, '', '## Known risks', '', '- [x] None', '', '## Evaluator rubric', '', ...rubric, ''].join('\n'),
+);
+writeFileSync(
+  join(withChecker, 'grouped.md'),
+  [
+    '## Verification',
+    '',
+    '- [x] `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test`: all passed inside `pnpm verify`.',
+    '',
+    '## Known risks',
+    '',
+    '- [x] None',
+    '',
+    '## Evaluator rubric',
+    '',
+    ...rubric,
+    '',
+  ].join('\n'),
+);
+
 after(() => {
   rmSync(onFeature, { recursive: true, force: true });
   rmSync(onMain, { recursive: true, force: true });
+  rmSync(withChecker, { recursive: true, force: true });
 });
 
 describe('blocked commands', () => {
@@ -136,7 +171,6 @@ describe('allowed commands', () => {
     'git branch -D local-only',
     'gh pr list --state open --json number,headRefOid',
     'gh pr view 12 --json mergeable',
-    'gh pr create --title t --body-file /tmp/body.md --label agent:claude',
     'gh pr comment 12 --body-file /tmp/verdict.md',
     'gh pr review 12 --comment -b "see verdict"',
     'gh issue edit 5 --add-label in-progress --remove-label ready-for-agent',
@@ -178,5 +212,45 @@ describe('hook protocol', () => {
 
   it('fails closed on unreadable input', () => {
     assert.equal(run('not json').status, 2);
+  });
+});
+
+describe('PR template preflight on gh pr create / edit (#702)', () => {
+  const allowed = [
+    'gh pr create --head claude/issue-42 --base main --title t --body-file good.md --label agent:claude',
+    `gh pr create --title t --body-file ${join(withChecker, 'good.md')} --label agent:claude`,
+    'gh pr create --title t -F good.md',
+    'gh pr create --title t --body-file=good.md',
+    'gh pr edit 12 --body-file good.md',
+    'gh pr edit 12 --add-label in-progress',
+    'gh pr edit 12 --title "new title"',
+  ];
+  for (const command of allowed) {
+    it(`allows: ${command}`, () => {
+      assert.equal(check(command, withChecker), null);
+    });
+  }
+
+  const blocked = {
+    'gh pr create --title t --body-file grouped.md --label agent:claude': /pnpm build, pnpm lint, pnpm typecheck, pnpm test/,
+    'gh pr edit 12 --body-file grouped.md': /fails the template check/,
+    'gh pr create --title t --body "x"': /--body-file/,
+    'gh pr create --title t -b x': /--body-file/,
+    'gh pr create --fill': /--body-file/,
+    'gh pr create --title t': /--body-file/,
+    'gh pr edit 12 --body x': /--body-file/,
+    'gh pr create --title t --body-file missing.md': /not found/,
+    'gh pr create --title t --body-file -': /not found/,
+    'gh pr create --title t --body-file "$NO_SUCH_VAR_702/body.md"': /not found/,
+  };
+  for (const [command, reason] of Object.entries(blocked)) {
+    it(`blocks: ${command}`, () => {
+      assert.match(check(command, withChecker) ?? '', reason);
+    });
+  }
+
+  it('fails closed when the checkout has no checker', () => {
+    writeFileSync(join(onFeature, 'good.md'), 'x');
+    assert.match(check('gh pr create --title t --body-file good.md', onFeature) ?? '', /cannot find/);
   });
 });
