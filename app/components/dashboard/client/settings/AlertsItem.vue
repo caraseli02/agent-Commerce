@@ -36,19 +36,25 @@ async function handleChange(title: string, type: string, value: boolean) {
   <div class="flex gap-5 justify-between px-0.5 mt-6 max-md:flex-wrap max-md:max-w-full">
     <span>{{ title }}</span>
     <div class="flex justify-between w-28">
-      <input
+      <UiCheckbox
         :id="`${title}-email`"
-        v-model="emailModel"
-        type="checkbox"
-        class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-        @change="handleChange(props.title, 'email', emailModel ?? false)"
+        :checked="emailModel"
+        :aria-label="`${title} (Email)`"
+        class="w-5 h-5"
+        @update:checked="
+          emailModel = $event;
+          handleChange(props.title, 'email', $event);
+        "
       />
-      <input
+      <UiCheckbox
         :id="`${title}-app`"
-        v-model="appModel"
-        type="checkbox"
-        class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-        @change="handleChange(props.title, 'app', appModel ?? false)"
+        :checked="appModel"
+        :aria-label="`${title} (App)`"
+        class="w-5 h-5"
+        @update:checked="
+          appModel = $event;
+          handleChange(props.title, 'app', $event);
+        "
       />
     </div>
   </div>

@@ -1,0 +1,6 @@
+1. button "Edit address"
+2. button "Delete address"
+3. button "Set as default address"
+4. button "Edit address"
+5. button "Delete address"
+6. button "Add billing address"

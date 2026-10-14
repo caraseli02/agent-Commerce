@@ -1,0 +1,62 @@
+- heading "Company Details" [level=2]
+- button "Edit":
+    - img
+    - text: ''
+- button "Copy Details":
+    - img
+    - text: ''
+- text: Company Name
+- textbox "Company Name" [disabled]:
+    - /placeholder: Company Name srl
+    - text: Demo Components LLC
+- text: Company Registration Number
+- textbox "Company Registration Number" [disabled]:
+    - /placeholder: RO123456
+    - text: /J40\/\d+\/\d+/
+- text: Tax ID
+- textbox "Tax ID" [disabled]:
+    - /placeholder: RO123456
+    - text: '-'
+- text: V.A.T Number
+- textbox "V.A.T Number" [disabled]:
+    - /placeholder: RO123456
+    - text: RO12345678
+- text: Country
+- button "United States United States" [disabled]:
+    - img "United States"
+    - text: ''
+    - img
+- text: County/Region
+- button [disabled]:
+    - img
+- text: City
+- textbox "City" [disabled]:
+    - /placeholder: Georgia
+    - text: New York
+- text: Address Line 1
+- textbox "Address Line 1" [disabled]:
+    - /placeholder: 5073 Mark Brown Rd
+    - text: /\d+ Main St/
+- text: Address Line 2
+- textbox "Address Line 2" [disabled]:
+    - /placeholder: NE Dalton
+- text: Postcode
+- textbox "Postcode" [disabled]:
+    - /placeholder: W1A5AB
+    - text: /\d+/
+- text: Mobile Number
+- textbox "Mobile Number" [disabled]:
+    - /placeholder: +1 (706) 275-0767
+    - text: /\+1-\d+-\d+/
+- text: Company Email
+- textbox "Company Email" [disabled]:
+    - /placeholder: madalina.dobrovolski@company.com
+    - text: john.smith@example.com
+- text: IBAN
+- textbox "IBAN" [disabled]:
+    - /placeholder: RO49AAAA1B31007593840000
+    - text: RO49AAAA1B31007593840000
+- text: Bank Details
+- textbox "Bank Details" [disabled]:
+    - /placeholder: Bank Name
+    - text: Demo Bank

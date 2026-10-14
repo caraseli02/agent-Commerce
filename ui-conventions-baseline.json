@@ -13,26 +13,8 @@
   "app/components/dashboard/client/PaymentCard.vue": {
     "button": 1
   },
-  "app/components/dashboard/client/settings/AlertsItem.vue": {
-    "input": 2
-  },
   "app/components/dashboard/client/settings/Credit.vue": {
     "button": 1
-  },
-  "app/components/dashboard/client/settings/Marketing.vue": {
-    "input": 1
-  },
-  "app/components/dashboard/control-panel/AccountView.vue": {
-    "button": 4
-  },
-  "app/components/dashboard/control-panel/BillingView.vue": {
-    "button": 4
-  },
-  "app/components/dashboard/control-panel/OrganizationView.vue": {
-    "button": 4
-  },
-  "app/components/dashboard/control-panel/ShippingView.vue": {
-    "button": 4
   },
   "app/components/dashboard/control-panel/settings-view/CustomerCredit.vue": {
     "button": 2
@@ -44,11 +26,6 @@
   "app/components/dashboard/control-panel/settings-view/CustomerDiscount.vue": {
     "button": 2,
     "input": 1
-  },
-  "app/components/dashboard/control-panel/settings-view/Settings.vue": {
-    "button": 1,
-    "input": 3,
-    "label": 3
   },
   "app/components/dashboard/customers/RecentTransactions.vue": {
     "button": 1

@@ -1,0 +1,19 @@
+- heading "Billing" [level=2]
+- img
+- text: Billing Address
+- img
+- text: /Default John Smith, \d+ Main St, NY, \d+, US/
+- button:
+    - img
+- button:
+    - img
+- img
+- text: /Second Address John Smith, \d+ Main St, NY, \d+, US/
+- button:
+    - img
+- button:
+    - img
+- button:
+    - img
+- button:
+    - img

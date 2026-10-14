@@ -1,0 +1,7 @@
+- heading "Account Details" [level=2]
+- button "Edit":
+    - img
+    - text: ''
+- button "Copy Details":
+    - img
+    - text: ''

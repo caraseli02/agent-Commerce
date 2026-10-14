@@ -18,46 +18,26 @@
               {{ item.label }}
             </div>
             <div class="flex justify-center">
-              <label class="flex cursor-pointer">
-                <input
-                  :value="item.email"
-                  type="checkbox"
-                  class="sr-only"
-                  @change="
-                    item.email = !item.email;
-                    markSettingAsRead(item, 'email');
-                  "
-                />
-                <div
-                  class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
-                  :class="[
-                    item.email ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
-                  ]"
-                >
-                  <CheckIcon v-if="item.email" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
-                </div>
-              </label>
+              <UiCheckbox
+                :checked="item.email"
+                :aria-label="`${item.label} (Email)`"
+                class="mt-px"
+                @update:checked="
+                  item.email = $event;
+                  markSettingAsRead(item, 'email');
+                "
+              />
             </div>
             <div class="flex justify-end">
-              <label class="flex cursor-pointer">
-                <input
-                  :value="item.app"
-                  type="checkbox"
-                  class="sr-only"
-                  @change="
-                    item.app = !item.app;
-                    markSettingAsRead(item, 'app');
-                  "
-                />
-                <div
-                  class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
-                  :class="[
-                    item.app ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
-                  ]"
-                >
-                  <CheckIcon v-if="item.app" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
-                </div>
-              </label>
+              <UiCheckbox
+                :checked="item.app"
+                :aria-label="`${item.label} (App)`"
+                class="mt-px"
+                @update:checked="
+                  item.app = $event;
+                  markSettingAsRead(item, 'app');
+                "
+              />
             </div>
           </div>
         </div>
@@ -73,14 +53,10 @@
             size="lg"
             class="max-md:mb-4"
           />
-          <button
-            type="button"
-            class="flex items-center justify-center w-full bg-blue-500 rounded-lg px-6 py-2.5 text-white"
-            @click="resetPassword(securityEmail)"
-          >
+          <UiButton type="button" class="h-auto flex w-full px-6 py-2.5" @click="resetPassword(securityEmail)">
             <SecurityUserIcon class="w-6 h-6 mr-2" />
             <span class="text-sm leading-[1.71] font-medium"> Send Password Reset </span>
-          </button>
+          </UiButton>
         </form>
       </div>
       <div class="border border-border rounded-xl p-4 md:p-6">
@@ -90,25 +66,15 @@
             <div class="text-sm leading-[1.71] text-left">
               {{ item.label }}
             </div>
-            <label class="flex cursor-pointer">
-              <input
-                :value="item.email"
-                type="checkbox"
-                class="sr-only"
-                @change="
-                  item.email = !item.email;
-                  markSettingAsRead(item, 'email');
-                "
-              />
-              <div
-                class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
-                :class="[
-                  item.email ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
-                ]"
-              >
-                <CheckIcon v-if="item.email" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
-              </div>
-            </label>
+            <UiCheckbox
+              :checked="item.email"
+              :aria-label="`${item.label} (Email)`"
+              class="mt-px"
+              @update:checked="
+                item.email = $event;
+                markSettingAsRead(item, 'email');
+              "
+            />
           </div>
         </div>
       </div>
@@ -117,7 +83,6 @@
 </template>
 
 <script setup lang="ts">
-import CheckIcon from '@/assets/icons/check.svg';
 import SecurityUserIcon from '@/assets/icons/dashboard/security-user.svg';
 import { AlertAndNotificationLabelsEnum, MarketingPreferencesEnum } from '~~/types/auth/account-settings';
 import { toast } from '~/components/ui/toast';
