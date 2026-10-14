@@ -1006,6 +1006,16 @@ export const scenarios: ParityScenario[] = [
     ],
   },
   {
+    id: 'orders-download-control',
+    slice: 'M5',
+    route: '/dashboard/orders',
+    role: 'admin',
+    viewports: ['desktop', 'mobile'],
+    // Below md the Download All text is hidden, so the button relies on its aria-label.
+    region: (page) =>
+      page.getByRole('button', { name: 'Download All' }).locator('xpath=ancestor::div[contains(@class, "justify-between")][1]'),
+  },
+  {
     id: 'customer-net-margin',
     slice: 'M5',
     route: '/dashboard/customers/customer-001',

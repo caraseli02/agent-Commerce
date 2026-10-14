@@ -62,6 +62,12 @@ describe('dashboard icon-only buttons', () => {
     }
   });
 
+  it('names the orders Download All control, whose text hides below md', () => {
+    const [download] = collectElements(parseTemplate('app/pages/dashboard/orders/index.vue'), 'UiButton');
+
+    expect(findProp(download!, 'aria-label')).toBeTruthy();
+  });
+
   it('names the icon-only client dashboard tab', () => {
     const [tab] = collectElements(parseTemplate('app/components/dashboard/client/TabBar.vue'), 'UiButton');
 
