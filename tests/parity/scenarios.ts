@@ -80,6 +80,59 @@ const bringCardIntoView = async (page: Page, card: Locator) => {
  * Keep regions tight around the migrated controls and steps free of copy that
  * the migration is not allowed to change.
  */
+/** Region of a control-panel view: the white card that wraps the view under its heading. */
+const controlPanelView = (page: Page, heading: string) =>
+  page.getByRole('heading', { name: heading, exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]');
+
+/**
+ * Every mock customer is a personal account, so the Organization view never renders. M6 serves
+ * customer-001 as a business account to client-side requests, then navigates there client-side.
+ */
+const showBusinessControlPanel = async (page: Page) => {
+  await page.route('**/api/dashboard/profile/*/customer-information', async (route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    json.data.accountType = 2;
+    json.data.companyDetails = {
+      name: 'Demo Components LLC',
+      registrationNumber: 'J40/1234/2024',
+      taxId: 'RO12345678',
+      vat: 'RO12345678',
+      bank_name: 'Demo Bank',
+      bank_iban: 'RO49AAAA1B31007593840000',
+      address: json.data.personalDetails?.address,
+    };
+    await route.fulfill({ response, json });
+  });
+  await page.evaluate(async () => {
+    const root = document.querySelector('#__nuxt') as unknown as NuxtRoot;
+    await root.__vue_app__.config.globalProperties.$router.push('/dashboard/customers/customer-001/control-panel/organization');
+  });
+  await expect(page.getByRole('heading', { name: 'Company Details', exact: true })).toBeVisible();
+};
+
+/**
+ * Mock customers have one (default) address, which renders only the edit control. M6 adds a second,
+ * non-default address to client-side address loads so the set-default and delete controls render too.
+ */
+const showAddressView = async (page: Page, view: 'shipping' | 'billing', heading: string) => {
+  await page.route('**/api/dashboard/control-panel/*/personal', async (route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    for (const key of ['shippingAddress', 'billingAddress']) {
+      const [first] = json.data[key] ?? [];
+      if (first) json.data[key] = [first, { ...first, _id: `${first._id ?? key}-second`, alias: 'Second Address', default: false }];
+    }
+    await route.fulfill({ response, json });
+  });
+  await page.evaluate(async (path) => {
+    const root = document.querySelector('#__nuxt') as unknown as NuxtRoot;
+    await root.__vue_app__.config.globalProperties.$router.push(path);
+  }, `/dashboard/customers/customer-001/control-panel/${view}`);
+  await expect(page.getByText('Second Address', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+};
+
 export const scenarios: ParityScenario[] = [
   {
     id: 'forgot-password-form',
@@ -1127,6 +1180,109 @@ export const scenarios: ParityScenario[] = [
         snapshot: (page) =>
           page.getByRole('heading', { name: 'Account Details' }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
       },
+      {
+        name: 'cancel leaves edit mode',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Cancel' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Save' })).toBeHidden();
+          await expect(region.getByRole('button', { name: 'Edit' })).toBeVisible();
+        },
+      },
     ],
   },
+  {
+    id: 'control-panel-account-details-mobile',
+    slice: 'M6',
+    route: '/dashboard/customers/customer-001/control-panel/account',
+    role: 'admin',
+    viewports: ['mobile'],
+    region: (page) => page.getByRole('heading', { name: 'Account Details' }).locator('xpath=..'),
+  },
+  {
+    id: 'control-panel-company-details',
+    slice: 'M6',
+    route: '/dashboard/customers/customer-001/control-panel/account',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: showBusinessControlPanel,
+    region: (page) => controlPanelView(page, 'Company Details'),
+    maxTabStops: 30,
+    steps: [
+      {
+        name: 'enter edit mode',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Edit' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Save' })).toBeVisible();
+          await expect(region.getByRole('button', { name: 'Cancel' })).toBeVisible();
+        },
+        snapshot: (page) => controlPanelView(page, 'Company Details'),
+      },
+      {
+        name: 'cancel leaves edit mode',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Cancel' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Save' })).toBeHidden();
+        },
+      },
+    ],
+  },
+  ...(
+    [
+      ['shipping', 'Shipping'],
+      ['billing', 'Billing'],
+    ] as const
+  ).map(([view, heading]): ParityScenario => ({
+    id: `control-panel-${view}-addresses`,
+    slice: 'M6',
+    route: '/dashboard/customers/customer-001/control-panel/account',
+    role: 'admin',
+    viewports: ['desktop', 'mobile'],
+    setup: (page) => showAddressView(page, view, heading),
+    region: (page) => controlPanelView(page, heading),
+    steps: [
+      {
+        name: 'the add control opens the add dialog',
+        act: async (_page, region) => {
+          await region.getByRole('button').last().click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog', { name: `Add ${heading} Address` })).toBeVisible();
+        },
+      },
+      {
+        name: 'closing the add dialog hides it',
+        act: async (page) => {
+          await page
+            .getByRole('dialog', { name: `Add ${heading} Address` })
+            .getByRole('button', { name: 'Close' })
+            .click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('dialog')).toBeHidden();
+        },
+      },
+      {
+        name: 'the second control of an address row opens the edit dialog',
+        act: async (_page, region) => {
+          await region
+            .getByText('Second Address', { exact: true })
+            .locator('xpath=ancestor::div[contains(@class, "border-dashed")][1]')
+            .getByRole('button')
+            .nth(1)
+            .click();
+        },
+        verify: async (page) => {
+          const dialog = page.getByRole('dialog', { name: `Edit ${heading} Details` });
+          await expect(dialog).toBeVisible();
+          await expect(dialog.getByPlaceholder('Address Alias 1')).toHaveValue('Second Address');
+        },
+      },
+    ],
+  })),
 ];

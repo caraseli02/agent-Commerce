@@ -1,0 +1,19 @@
+- heading "Shipping" [level=2]
+- img
+- text: /Main Address John Smith, \d+ Main St, NY, \d+, US/
+- img
+- text: Default
+- button:
+    - img
+- button:
+    - img
+- img
+- text: /Second Address John Smith, \d+ Main St, NY, \d+, US/
+- button:
+    - img
+- button:
+    - img
+- button:
+    - img
+- button:
+    - img
