@@ -102,6 +102,7 @@ const signInAsCustomer = async (page: Page) => {
     signInButton.click(),
   ]);
   await expect(page).toHaveURL(/\/dashboard\/client\?tab=home/);
+  await waitForVisualReady(page, '/dashboard/client?tab=home');
   return signals;
 };
 
