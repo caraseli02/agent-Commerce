@@ -1,4 +1,4 @@
-- checkbox
+- checkbox "Select All"
 - text: Select All Items selected
 - button "Delete Selected" [disabled]:
     - img
