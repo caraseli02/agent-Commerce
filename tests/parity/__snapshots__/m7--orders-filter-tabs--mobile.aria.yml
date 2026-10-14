@@ -1,0 +1,8 @@
+- region "Order filters":
+    - button /All orders \d+/
+    - button /Active \d+/
+    - button /Last \d+[hmsp]+ 0/
+    - button /Awaiting Processing \d+/
+    - button "Fulfilled 0"
+    - button "Completed 0"
+    - button /Canceled \d+/

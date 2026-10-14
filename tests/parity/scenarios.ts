@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, type Request } from '@playwright/test';
-import { clearGuestCart } from '../playwright-support/runtime';
+import { clearGuestCart, waitForVisualReady } from '../playwright-support/runtime';
 import type { ParityScenario, ParityViewport } from './scenario';
 
 const filterValue = (name: string, value: string, unit: string, id: string, count: number) => ({
@@ -131,6 +131,41 @@ const showAddressView = async (page: Page, view: 'shipping' | 'billing', heading
   }, `/dashboard/customers/customer-001/control-panel/${view}`);
   await expect(page.getByText('Second Address', { exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+};
+
+const orderFilterTab = (region: Locator, label: string) => region.getByRole('button', { name: new RegExp(`^${label}\\b`) });
+
+const rowMenu = (page: Page, firstItem: string) => page.getByRole('button', { name: firstItem, exact: true }).locator('xpath=..');
+
+const openNewCustomerMenu = async (page: Page) => {
+  await page
+    .getByText('New Customers', { exact: true })
+    .locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]')
+    .getByRole('link', { name: /^Melissa Anderson/ })
+    .locator('xpath=..')
+    .getByRole('button')
+    .click();
+  await expect(rowMenu(page, 'Profile')).toBeVisible();
+};
+
+const openCustomerInformationMenu = async (page: Page) => {
+  await page.getByRole('button', { name: 'Open customer information menu' }).click();
+  await expect(rowMenu(page, 'Control Panel')).toBeVisible();
+};
+
+const orderSummarySelectAll = (page: Page) =>
+  page.getByText('Select All', { exact: true }).locator('xpath=ancestor::div[contains(@class, "bg-light-500")][1]');
+
+const showOrderSummaryWithTwoItems = async (page: Page) => {
+  await clearGuestCart(page);
+  await page.request.post('/api/cart', {
+    data: {
+      products: ['prod-1', 'prod-2'].map((id) => ({ id, stock: 1, backorder_stock: 0, isFolder: false })),
+    },
+  });
+  await page.goto('/order-summary', { waitUntil: 'domcontentloaded' });
+  await waitForVisualReady(page, '/order-summary');
+  await expect(orderSummarySelectAll(page)).toBeVisible();
 };
 
 export const scenarios: ParityScenario[] = [
@@ -1090,7 +1125,7 @@ export const scenarios: ParityScenario[] = [
           await region.getByRole('button', { name: /^Transaction History/ }).click();
         },
         verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: /^Transaction History/ })).toHaveClass(/text-blue-500/);
+          await expect(region.getByRole('button', { name: /^Transaction History/ })).toHaveClass(/(^|\s)text-blue-500(\s|$)/);
         },
       },
     ],
@@ -1285,4 +1320,112 @@ export const scenarios: ParityScenario[] = [
       },
     ],
   })),
+  {
+    id: 'orders-filter-tabs',
+    slice: 'M7',
+    route: '/dashboard/orders',
+    role: 'admin',
+    viewports: ['desktop', 'mobile'],
+    region: (page) => page.getByTestId('order-filter-tabs'),
+    maxTabStops: 12,
+    steps: [
+      {
+        name: 'a filter tab becomes the active filter',
+        act: async (page, region) => {
+          await Promise.all([
+            page.waitForResponse((response) => response.url().includes('/api/orders') && response.ok()),
+            orderFilterTab(region, 'Fulfilled').click(),
+          ]);
+        },
+        verify: async (_page, region) => {
+          await expect(orderFilterTab(region, 'Fulfilled')).toHaveClass(/(^|\s)text-blue-500(\s|$)/);
+          await expect(orderFilterTab(region, 'All orders')).not.toHaveClass(/(^|\s)text-blue-500(\s|$)/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'new-customer-row-menu',
+    slice: 'M7',
+    route: '/dashboard',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: openNewCustomerMenu,
+    region: (page) => rowMenu(page, 'Profile'),
+    steps: [
+      {
+        name: 'the orders item closes the menu',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Orders', exact: true }).click();
+        },
+        verify: async (page) => {
+          await expect(rowMenu(page, 'Profile')).toBeHidden();
+        },
+      },
+      {
+        name: 'the profile item opens the customer profile',
+        act: async (page) => {
+          await openNewCustomerMenu(page);
+          await rowMenu(page, 'Profile').getByRole('button', { name: 'Profile', exact: true }).click();
+        },
+        verify: async (page) => {
+          await expect(page).toHaveURL(/\/dashboard\/customers\/[^/]+$/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'customer-information-menu',
+    slice: 'M7',
+    route: '/dashboard/customers/customer-001',
+    role: 'admin',
+    viewports: ['desktop', 'mobile'],
+    setup: openCustomerInformationMenu,
+    region: (page) => rowMenu(page, 'Control Panel'),
+    steps: [
+      {
+        name: 'the control panel item opens the control panel',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Control Panel', exact: true }).click();
+        },
+        verify: async (page) => {
+          await expect(page).toHaveURL(/\/dashboard\/customers\/customer-001\/control-panel/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'order-summary-select-all',
+    slice: 'M7',
+    route: '/',
+    viewports: ['desktop', 'mobile'],
+    setup: showOrderSummaryWithTwoItems,
+    region: orderSummarySelectAll,
+    steps: [
+      {
+        name: 'select all selects every item',
+        act: async (_page, region) => {
+          // Before M7 the native checkbox is sr-only under its label, so click where the user does.
+          await region.getByRole('checkbox').click({ force: true });
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByText('2', { exact: true })).toBeVisible();
+          await expect(region.getByRole('button', { name: 'Delete Selected' })).toBeEnabled();
+        },
+        snapshot: orderSummarySelectAll,
+      },
+      {
+        name: 'select all again clears the selection',
+        act: async (_page, region) => {
+          // Before M7 the native checkbox is sr-only under its label, so click where the user does.
+          await region.getByRole('checkbox').click({ force: true });
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByText('2', { exact: true })).toBeHidden();
+          await expect(region.getByRole('button', { name: 'Delete Selected' })).toBeDisabled();
+        },
+        snapshot: orderSummarySelectAll,
+      },
+    ],
+  },
 ];
