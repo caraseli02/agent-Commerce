@@ -1,6 +1,13 @@
 {
   "assessments": [
     {
+      "fingerprint": "bc982bc1cab41fbc040f8f38d4b514ad541209855d9b6a08b84f122142e809c6",
+      "impact": "targeted",
+      "tests": ["cart"],
+      "reason": "Cart sheet empty/error states now resolve the registered EmptyState component instead of the unregistered GlobalEmptyState tag (#686); only the header cart sheet renders the touched component.",
+      "consumers": "app/components/layout/favorites-cart-modal/cart/Index.vue is imported only by layout/favorites-cart-modal/Index.vue, the header cart sheet. The populated-cart branch, subtotal and checkout link are unchanged, so the cart visual group (populated cart page and sheet, both viewports) is selected as the representative screenshot check; home, search, product and orders never render this component. The changed empty and error branches are outside the screenshot matrix and are covered by tests/e2e/cart-chrome-coordination.spec.ts plus before/after browser screenshots of the empty sheet at 1440 and 390 with a keyboard check of the Start shopping link."
+    },
+    {
       "fingerprint": "4f79c970aacdd32e87f502c1987b0b6c1b7bce8fab7b90213da508a23e4ce6b9",
       "impact": "targeted",
       "tests": ["orders"],
