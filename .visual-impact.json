@@ -1,6 +1,13 @@
 {
   "assessments": [
     {
+      "fingerprint": "e6125a6b87de64218525519155c7214e7c3cfa7720895e27efc864004edfbf6b",
+      "impact": "targeted",
+      "tests": ["home", "orders"],
+      "reason": "B1 shadcn migration of the global form wrappers (#645): FormInput, FormPassword and FormSelect swap native label/input/button for UiLabel/UiInput/UiButton (checkbox mode: UiRadioGroup); props, emits and the size/icon/error matrix are unchanged; no store, composable, layout or shared style changes.",
+      "consumers": "git grep finds the wrappers in layout/account-modal/Form.vue (header account sheet, behind a click), layout/RegionalPreferencesModal.vue (behind a click), pages/password-reset.vue, dashboard/control-panel/{AccountView,OrganizationView,AddAddress,EditAddress,settings-view/Settings}.vue, dashboard/client/settings/{Details,BillingDialog,ShippingDialog}.vue and signup/* (deferred D1). No screenshot in the matrix opens the account or regional sheets or renders the control panel or client settings tab; home (header that opens both sheets) and orders (client dashboard surface) are kept as representative groups. The touched surfaces are covered by 6 B1 parity scenarios (ARIA, tab order, interaction outcomes, clean runtime) plus the M1 password-reset and M6 control-panel scenarios, a keyboard pass at 390 and 1440, and before/after region screenshots; the full visual suite also passed locally (9/9)."
+    },
+    {
       "fingerprint": "5e0be671141fbd1b9f7efb8f327c08d7520f12a27c5b0f33eb2aad9286b0d756",
       "impact": "targeted",
       "tests": ["home", "search"],
