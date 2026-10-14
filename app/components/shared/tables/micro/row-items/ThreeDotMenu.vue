@@ -7,63 +7,40 @@
       left: dropdownLeft + 'px',
     }"
   >
-    <button
-      v-if="profileButton"
-      class="flex items-center w-full text-left p-2 gap-3 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
-      @click="profileClicked"
-    >
+    <UiButton v-if="profileButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="profileClicked">
       <SvgoDashboardProfile class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ profileText }}</span>
-    </button>
-    <button
-      v-if="documentButton"
-      class="flex items-center w-full text-left p-2 gap-3 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
-      @click="documentClicked"
-    >
+    </UiButton>
+    <UiButton v-if="documentButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="documentClicked">
       <OrdersIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ documentText }}</span>
-    </button>
-    <button
-      v-if="settingsButton"
-      class="flex items-center w-full text-left p-2 gap-3 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
-      @click="settingsClicked"
-    >
+    </UiButton>
+    <UiButton v-if="settingsButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="settingsClicked">
       <SettingsIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ settingsText }}</span>
-    </button>
-    <button
-      v-if="deactivateButton"
-      class="flex items-center w-full text-left p-2 gap-3 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
-      @click="deactivateClicked"
-    >
+    </UiButton>
+    <UiButton v-if="deactivateButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="deactivateClicked">
       <SvgoDashboardDeactivate v-if="profile.active" viewBox="0 0 20 20" class="w-5 h-5 text-current" />
       <UserUnlockIcon v-else class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium"> {{ deactivateText }} </span>
-    </button>
-    <button
-      v-if="invoiceButton"
-      class="flex items-center w-full text-left p-2 gap-3 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
-      @click="invoiceClicked"
-    >
+    </UiButton>
+    <UiButton v-if="invoiceButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="invoiceClicked">
       <InvoiceIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ invoiceText }}</span>
-    </button>
-    <button
-      v-if="editButton"
-      class="flex items-center w-full text-left p-2 gap-3 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
-      @click="editClicked"
-    >
+    </UiButton>
+    <UiButton v-if="editButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="editClicked">
       <EditIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ editText }}</span>
-    </button>
-    <button
+    </UiButton>
+    <UiButton
       v-if="trashButton"
-      class="flex items-center w-full text-left p-2 gap-3 rounded-lg text-rose-500 transition-colors duration-300 hover:bg-[#F2F2F2]"
+      variant="ghost"
+      class="h-auto w-full justify-start gap-3 p-2 rounded-lg text-rose-500"
       @click="trashClicked"
     >
       <TrashIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium"> {{ trashText }} </span>
-    </button>
+    </UiButton>
   </div>
 </template>
 
