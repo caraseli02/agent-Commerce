@@ -1,6 +1,12 @@
 {
   "assessments": [
     {
+      "fingerprint": "05f32ac14507c8cebc103870d2088b6b64bf55aa1fcd77f37d95159c07ef7fc6",
+      "impact": "none",
+      "reason": "PR body checker prints its pass line with process.stdout.write instead of the console API (clean-state gate); CLI output only",
+      "consumers": "scripts/check-pr-template.mjs is run only by .github/workflows/pr-template.yml, tests/pr-template-check.spec.ts and the Claude guard hook; no app build, page, component, store or Nitro route imports it, so no screenshot can change."
+    },
+    {
       "fingerprint": "cc56693b5e242e3de2b64f4afa87b8cd61c8df06e01ccb00799d831e54146c7d",
       "impact": "none",
       "reason": "PR-template preflight for agents (#702 review): a CLI mode of the PR body checker, a guard-hook rule and routine docs; nothing the app build reads",
