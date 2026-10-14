@@ -1,10 +1,11 @@
 <template>
   <SharedScrollableRegion label="Dashboard sections" test-id="client-dashboard-tabs">
     <div class="relative flex items-center gap-4 bg-white rounded-xl px-3 shadow-xs md:gap-8 md:px-6">
-      <button
+      <UiButton
         v-for="(filter, index) in computedOrderFilters"
         :key="index"
-        class="ordersFilter flex items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 whitespace-nowrap transition-colors duration-300 md:py-8"
+        variant="ghost"
+        class="ordersFilter flex h-auto px-0 rounded-none hover:bg-transparent items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 whitespace-nowrap transition-colors duration-300 md:py-8"
         :class="[filter.label === activeOrderFilter?.label ? 'text-blue-500' : 'hover:text-blue-500']"
         @click="activeOrderFilter = filter"
       >
@@ -21,7 +22,7 @@
         <template v-if="filter.icon === 'dashboard'">
           <DashboardIcon />
         </template>
-      </button>
+      </UiButton>
       <div
         class="absolute bottom-0 bg-blue-500 h-1 rounded-t-lg transition-all duration-300"
         :style="{

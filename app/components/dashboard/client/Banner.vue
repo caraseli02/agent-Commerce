@@ -68,9 +68,9 @@
                 </div>
               </div>
             </section>
-            <button
+            <UiButton
               type="button"
-              class="justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+              class="h-auto justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
               :aria-label="`Add ${item.productCode || 'product'} to cart`"
               :aria-busy="isSlideAdding(item)"
               :aria-disabled="isSlideAdding(item) || !item._id"
@@ -105,7 +105,7 @@
               <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">
                 {{ isSlideAdding(item) ? 'Adding…' : item.addToCartText || 'Add to cart' }}
               </div>
-            </button>
+            </UiButton>
           </div>
         </div>
       </SwiperSlide>

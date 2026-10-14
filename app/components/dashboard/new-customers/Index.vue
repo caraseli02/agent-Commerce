@@ -34,17 +34,21 @@
       <div v-if="type !== 'landing'" class="flex items-center">
         <ArrowUpIcon class="w-4 h-4 mr-1" />
         <div class="text-sm leading-[1.43] font-medium text-[#00D395] mr-1">3,78%</div>
-        <button class="flex items-center" @click="showOptions = !showOptions">
+        <UiButton variant="ghost" class="flex h-auto p-0 hover:bg-transparent" @click="showOptions = !showOptions">
           <span class="text-sm left-[1.43] text-slate-500 font-medium mr-1">
             {{ selectedOption }}
           </span>
           <ChevronIcon class="w-5 h-5 text-slate-500 transition-transform duration-300" :class="[showOptions ? 'rotate-180' : '']" />
-        </button>
+        </UiButton>
       </div>
-      <button disabled class="flex items-center disabled:cursor-not-allowed disabled:opacity-60">
+      <UiButton
+        variant="link"
+        disabled
+        class="flex h-auto p-0 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
+      >
         <span class="text-sm font-medium left-[1.43] text-slate-500 mr-1"> View All </span>
         <ArrowRightIcon class="w-5 h-5" />
-      </button>
+      </UiButton>
     </div>
     <Transition name="fade-full">
       <div
@@ -55,10 +59,11 @@
           boxShadow: '0px 0px 6px rgba(51, 51, 51, 0.2)',
         }"
       >
-        <button
+        <UiButton
           v-for="(option, index) in options"
           :key="index"
-          class="flex items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+          variant="ghost"
+          class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
           :class="selectedOption === option ? 'bg-[#F2F2F2] text-blue-500' : ''"
           @click="
             showOptions = false;
@@ -66,7 +71,7 @@
           "
         >
           <span class="text-sm leading-[1.71] font-medium">{{ option }}</span>
-        </button>
+        </UiButton>
       </div>
     </Transition>
   </div>

@@ -55,22 +55,25 @@
             </div>
           </div>
           <div class="relative">
-            <button
-              class="flex text-[#9296AA] transition-colors duration-300 hover:text-blue-500"
+            <UiButton
+              variant="ghost"
+              size="icon"
+              class="flex h-auto w-auto text-[#9296AA] transition-colors duration-300 hover:bg-transparent hover:text-blue-500"
               @click="card.menu.showOptions = !card.menu.showOptions"
             >
               <DotsVerticalIcon class="w-6 h-6" />
-            </button>
+            </UiButton>
             <Transition name="fade-full">
               <div
                 v-if="card.menu.showOptions"
                 v-click-outside="() => (card.menu.showOptions = false)"
                 class="grid grid-cols-1 gap-1 absolute z-10 -bottom-2 right-0 translate-y-full min-w-max bg-white rounded-lg shadow-m p-3"
               >
-                <button
+                <UiButton
                   v-for="option in card.menu.options"
                   :key="option.label"
-                  class="group/option flex items-center justify-between w-full px-2 py-2 text-left rounded-lg text-sm font-medium leading-[1.71429] transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                  variant="ghost"
+                  class="group/option flex h-auto items-center justify-between w-full px-2 py-2 text-left rounded-lg text-sm font-medium leading-[1.71429] transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
                   :class="[option.label === card.menu.selected.label ? '' : 'text-neutral-700']"
                   @click="
                     card.menu.selected = option;
@@ -89,7 +92,7 @@
                   >
                     <div v-if="option.label === card.menu.selected.label" class="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                   </div>
-                </button>
+                </UiButton>
               </div>
             </Transition>
           </div>
@@ -100,7 +103,7 @@
           {{ card.menu.selected.noDropdownLabel }}
         </div>
         <div v-else class="relative">
-          <button class="flex items-center" @click="card.range.showOptions = !card.range.showOptions">
+          <UiButton variant="ghost" class="flex h-auto p-0 hover:bg-transparent" @click="card.range.showOptions = !card.range.showOptions">
             <span class="text-sm left-[1.43] text-slate-500 font-medium mr-1">
               {{ card.range.selected.label }}
             </span>
@@ -108,7 +111,7 @@
               class="w-5 h-5 text-slate-500 transition-transform duration-300"
               :class="[card.range.showOptions ? 'rotate-180' : '']"
             />
-          </button>
+          </UiButton>
           <Transition name="fade-full">
             <div
               v-if="card.range.showOptions"
@@ -118,10 +121,11 @@
                 boxShadow: '0px 0px 6px rgba(51, 51, 51, 0.2)',
               }"
             >
-              <button
+              <UiButton
                 v-for="(option, index) in options"
                 :key="index"
-                class="flex items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                variant="ghost"
+                class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
                 :class="card.range.selected.value === option.value ? 'bg-[#F2F2F2] text-blue-500' : ''"
                 @click="
                   card.range.showOptions = false;
@@ -130,14 +134,18 @@
                 "
               >
                 <span class="text-sm leading-[1.71] font-medium">{{ option.label }}</span>
-              </button>
+              </UiButton>
             </div>
           </Transition>
         </div>
-        <button disabled class="flex items-center text-slate-500 mr-2 disabled:cursor-not-allowed disabled:opacity-60">
+        <UiButton
+          variant="link"
+          disabled
+          class="flex h-auto p-0 text-slate-500 mr-2 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
+        >
           <span class="text-sm font-medium left-[1.43] mr-2"> More </span>
           <ArrowRightIcon class="w-4 h-4" />
-        </button>
+        </UiButton>
       </div>
     </div>
   </div>

@@ -32,19 +32,23 @@
                 {{ `${delta}%` }}
               </div>
             </template>
-            <button class="flex items-center" @click="showOptions = !showOptions">
+            <UiButton variant="ghost" class="flex h-auto p-0 hover:bg-transparent" @click="showOptions = !showOptions">
               <span class="text-sm left-[1.43] text-slate-500 font-medium mr-1">
                 {{ selectedOption.label }}
               </span>
               <ChevronIcon class="w-5 h-5 text-slate-500 transition-transform duration-300" :class="[showOptions ? 'rotate-180' : '']" />
-            </button>
+            </UiButton>
           </div>
-          <button disabled class="flex items-center disabled:cursor-not-allowed disabled:opacity-60">
+          <UiButton
+            variant="link"
+            disabled
+            class="flex h-auto p-0 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
+          >
             <span class="text-sm font-medium left-[1.43] text-slate-500 mr-1">
               <span class="md:hidden lg:inline-block"> View </span> more
             </span>
             <ArrowRightIcon class="w-4 h-4" />
-          </button>
+          </UiButton>
         </div>
       </template>
       <div v-else class="flex flex-col items-center justify-center flex-1 max-lg:mt-11 max-lg:mb-3">
@@ -57,10 +61,11 @@
           v-click-outside="() => (showOptions = false)"
           class="absolute z-10 -bottom-0.5 left-0 translate-y-full grid grid-cols-1 gap-1 rounded-lg bg-white p-3 w-[200px] shadow-m"
         >
-          <button
+          <UiButton
             v-for="(option, index) in options"
             :key="index"
-            class="flex items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+            variant="ghost"
+            class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
             :class="selectedOption.label === option.label ? 'bg-[#F2F2F2] text-blue-500' : ''"
             @click="
               showOptions = false;
@@ -68,7 +73,7 @@
             "
           >
             <span class="text-sm leading-[1.71] font-medium">{{ option.label }}</span>
-          </button>
+          </UiButton>
         </div>
       </Transition>
     </div>

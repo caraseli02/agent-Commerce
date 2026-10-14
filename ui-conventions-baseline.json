@@ -6,44 +6,11 @@
     "input": 2,
     "label": 2
   },
-  "app/components/dashboard/Aside.vue": {
-    "button": 4
-  },
-  "app/components/dashboard/CustomersTotal.vue": {
-    "button": 3
-  },
-  "app/components/dashboard/Header.vue": {
-    "button": 12,
-    "input": 1,
-    "label": 1
-  },
-  "app/components/dashboard/ReturningCustomers.vue": {
-    "button": 3
-  },
-  "app/components/dashboard/Search.vue": {
-    "input": 1,
-    "label": 1
-  },
-  "app/components/dashboard/client/Activity.vue": {
-    "button": 2
-  },
-  "app/components/dashboard/client/Banner.vue": {
-    "button": 1
-  },
   "app/components/dashboard/client/Credit.vue": {
     "button": 2,
     "label": 1
   },
-  "app/components/dashboard/client/Info.vue": {
-    "button": 1
-  },
   "app/components/dashboard/client/PaymentCard.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/client/RecentlyBought.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/client/TabBar.vue": {
     "button": 1
   },
   "app/components/dashboard/client/settings/AlertsItem.vue": {
@@ -83,26 +50,8 @@
     "input": 3,
     "label": 3
   },
-  "app/components/dashboard/customers/CustomerInformation.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/customers/DefaultShippingAddress.vue": {
-    "button": 3
-  },
-  "app/components/dashboard/customers/NetMargin.vue": {
-    "button": 1
-  },
   "app/components/dashboard/customers/RecentTransactions.vue": {
     "button": 1
-  },
-  "app/components/dashboard/new-customers/Index.vue": {
-    "button": 3
-  },
-  "app/components/dashboard/new-customers/Item.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/orders/InfoCards.vue": {
-    "button": 5
   },
   "app/components/dataTable/filter/Range.vue": {
     "input": 2,
@@ -230,15 +179,6 @@
     "button": 4
   },
   "app/error.vue": {
-    "button": 1
-  },
-  "app/pages/dashboard/customers/index.vue": {
-    "button": 1
-  },
-  "app/pages/dashboard/index.vue": {
-    "button": 1
-  },
-  "app/pages/dashboard/orders/index.vue": {
     "button": 1
   }
 }
