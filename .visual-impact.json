@@ -1,6 +1,13 @@
 {
   "assessments": [
     {
+      "fingerprint": "5e0be671141fbd1b9f7efb8f327c08d7520f12a27c5b0f33eb2aad9286b0d756",
+      "impact": "targeted",
+      "tests": ["home", "search"],
+      "reason": "v-click-outside now also checks event.composedPath(), so a click whose handler unmounts its own target inside the bound element no longer counts as outside (#692); static rendering is unchanged.",
+      "consumers": "app/plugins/click-outside.ts registers the directive used by 17 components (header DesktopPopover and Large menu, search/Products dropdowns, global FormSelect and DemoTooltip, dashboard widgets, order-summary). The added condition only differs from el.contains(target) when the clicked node was detached during the click, so it can only keep an open popup open in that case; no markup, style, store or initial state changes, and no matrix screenshot opens a click-outside popup. home (header on every storefront page) and search (Products dropdowns) are kept as representative groups. The changed interaction is outside the screenshot matrix and is covered by the M4 desktop-products-navigation parity scenario (new step: outside click still closes) plus before/after browser screenshots at 1440."
+    },
+    {
       "fingerprint": "2958001643a17265e060b39f9e24dc84cba164d7e9440bbc0a095837158e52e8",
       "impact": "targeted",
       "tests": ["cart", "orders"],
