@@ -1,0 +1,7 @@
+- text: Customer Information
+- button:
+    - img
+- img "Name"
+- text: "/John Smith Account Type: Personal Last Active: \\d+-\\d+-30T14:\\d+:\\d+\\.000Z Account Details 5 % User Name john\\.smith@example\\.com Name John Surname Smith Country/"
+- img "United States"
+- text: /United States Mobile Number \+1-\d+-\d+ Address \d+ Main St Registered \d+ January \d+, \d+:\d+ Email Marketing Subscribed/

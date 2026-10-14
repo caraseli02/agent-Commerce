@@ -772,6 +772,330 @@ export const scenarios: ParityScenario[] = [
     ],
   },
   {
+    id: 'dashboard-aside',
+    slice: 'M5',
+    route: '/dashboard',
+    role: 'admin',
+    viewports: ['desktop'],
+    region: (page) => page.getByRole('complementary'),
+    maxTabStops: 15,
+    steps: [
+      {
+        name: 'the expand control opens the side navigation',
+        act: async (_page, region) => {
+          await region.getByRole('button').last().click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Products' })).toBeEnabled();
+          await expect(region.getByRole('link', { name: 'Customers' })).toBeVisible();
+        },
+        snapshot: (page) => page.getByRole('complementary'),
+      },
+      {
+        name: 'the products item toggles its submenu',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Products' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('link', { name: 'Categories' })).toBeVisible();
+        },
+        snapshot: (page) => page.getByRole('complementary'),
+      },
+    ],
+  },
+  {
+    id: 'dashboard-mobile-header',
+    slice: 'M5',
+    route: '/dashboard',
+    role: 'admin',
+    viewports: ['mobile'],
+    region: (page) => page.locator('header').first(),
+    steps: [
+      {
+        name: 'the menu button opens the side navigation',
+        act: async (_page, region) => {
+          await region.getByRole('button').first().click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('complementary').getByRole('button', { name: 'Products' })).toBeVisible();
+        },
+        snapshot: (page) => page.getByRole('complementary'),
+      },
+      {
+        name: 'the close button hides the side navigation',
+        act: async (page) => {
+          await page.getByRole('complementary').getByRole('button').first().click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('complementary')).toBeHidden();
+        },
+      },
+      {
+        name: 'the search toggle opens the search box',
+        act: async (_page, region) => {
+          await region.getByRole('button').nth(1).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('searchbox')).toBeVisible();
+        },
+        snapshot: (page) => page.locator('header').first(),
+      },
+      {
+        name: 'the clear control empties the search box',
+        act: async (_page, region) => {
+          await region.getByRole('searchbox').fill('STM32');
+          await region.getByRole('searchbox').locator('xpath=ancestor::div[1]').getByRole('button').click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('searchbox')).toHaveValue('');
+        },
+      },
+    ],
+  },
+  {
+    id: 'customers-total-card',
+    slice: 'M5',
+    route: '/dashboard',
+    role: 'admin',
+    viewports: ['desktop'],
+    region: (page) => page.getByText('Customers Total', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+    steps: [
+      {
+        name: 'the period menu opens its options',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Last 7 Days' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'All Time' })).toBeVisible();
+        },
+        snapshot: (page) =>
+          page.getByText('Customers Total', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+      },
+      {
+        name: 'choosing a period closes the menu and shows it',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Last 30 Days' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'All Time' })).toBeHidden();
+          await expect(region.getByRole('button', { name: 'Last 30 Days' })).toBeVisible();
+        },
+      },
+    ],
+  },
+  {
+    id: 'returning-customers-card',
+    slice: 'M5',
+    route: '/dashboard',
+    role: 'admin',
+    viewports: ['desktop'],
+    region: (page) =>
+      page.getByText('Returning Customers', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+    steps: [
+      {
+        name: 'the period menu opens its options',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Last 7 Days' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'All Time' })).toBeVisible();
+        },
+        snapshot: (page) =>
+          page.getByText('Returning Customers', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+      },
+      {
+        name: 'choosing a period closes the menu and shows it',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Last 30 Days' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'All Time' })).toBeHidden();
+          await expect(region.getByRole('button', { name: 'Last 30 Days' })).toBeVisible();
+        },
+      },
+    ],
+  },
+  {
+    id: 'new-customers-card',
+    slice: 'M5',
+    route: '/dashboard',
+    role: 'admin',
+    viewports: ['desktop'],
+    region: (page) => page.getByText('New Customers', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+    maxTabStops: 20,
+    steps: [
+      {
+        name: 'a customer row menu opens',
+        act: async (_page, region) => {
+          await region
+            .getByRole('link', { name: /^Melissa Anderson/ })
+            .locator('xpath=..')
+            .getByRole('button')
+            .click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Profile' })).toBeVisible();
+        },
+        snapshot: (page) =>
+          page.getByText('New Customers', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+      },
+    ],
+  },
+  {
+    id: 'orders-info-card',
+    slice: 'M5',
+    route: '/dashboard/orders',
+    role: 'admin',
+    viewports: ['desktop'],
+    region: (page) => page.getByRole('button', { name: 'More' }).first().locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+    steps: [
+      {
+        name: 'the period menu opens its options',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'This Week' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'All Time' })).toBeVisible();
+        },
+        snapshot: (page) =>
+          page.getByRole('button', { name: 'More' }).first().locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+      },
+      {
+        name: 'choosing a period closes the menu and shows it',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'All Time' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Last 30 Days' })).toBeHidden();
+          await expect(region.getByRole('button', { name: 'All Time' })).toBeVisible();
+        },
+      },
+      {
+        name: 'the widget menu opens its options',
+        act: async (_page, region) => {
+          await region.getByRole('button').first().click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Revenue Growth' })).toBeVisible();
+        },
+        snapshot: (page) =>
+          page.getByRole('button', { name: 'More' }).first().locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+      },
+    ],
+  },
+  {
+    id: 'customer-profile-cards',
+    slice: 'M5',
+    route: '/dashboard/customers/customer-001',
+    role: 'admin',
+    viewports: ['desktop'],
+    region: (page) =>
+      page.getByText('Customer Information', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+    steps: [
+      {
+        name: 'the information menu opens',
+        act: async (_page, region) => {
+          await region.getByRole('button').first().click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button')).not.toHaveCount(1);
+        },
+        snapshot: (page) =>
+          page.getByText('Customer Information', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+      },
+    ],
+  },
+  {
+    id: 'customer-net-margin',
+    slice: 'M5',
+    route: '/dashboard/customers/customer-001',
+    role: 'admin',
+    viewports: ['desktop'],
+    region: (page) => page.getByText('Net Margin', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+  },
+  {
+    id: 'client-dashboard-sections',
+    slice: 'M5',
+    route: '/dashboard/client?tab=home',
+    role: 'customer',
+    viewports: ['desktop', 'mobile'],
+    region: (page) => page.getByRole('region', { name: 'Dashboard sections' }),
+    steps: [
+      {
+        name: 'a section tab becomes active',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: /^Transaction History/ }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: /^Transaction History/ })).toHaveClass(/text-blue-500/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'client-activity',
+    slice: 'M5',
+    route: '/dashboard/client?tab=home',
+    role: 'customer',
+    viewports: ['desktop'],
+    region: (page) => page.getByText('My Activity', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+  },
+  {
+    id: 'client-account-information',
+    slice: 'M5',
+    route: '/dashboard/client?tab=home',
+    role: 'customer',
+    viewports: ['desktop'],
+    region: (page) =>
+      page.getByText('Account Information', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+    steps: [
+      {
+        name: 'the information menu opens',
+        act: async (_page, region) => {
+          await region.getByRole('button').first().click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button')).not.toHaveCount(1);
+        },
+        snapshot: (page) =>
+          page.getByText('Account Information', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
+      },
+    ],
+  },
+  {
+    id: 'client-recently-bought',
+    slice: 'M5',
+    route: '/dashboard/client?tab=home',
+    role: 'customer',
+    viewports: ['desktop'],
+    region: (page) =>
+      page
+        .locator('header')
+        .filter({ hasText: /^Recently Bought$/ })
+        .locator('xpath=..'),
+    steps: [
+      {
+        name: 'view orders switches to the orders section',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'View Orders' }).click();
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('region', { name: 'Dashboard sections' }).getByRole('button', { name: /^Orders/ })).toHaveClass(
+            /text-blue-500/,
+          );
+        },
+      },
+    ],
+  },
+  {
+    id: 'client-hot-sale-banner',
+    slice: 'M5',
+    route: '/dashboard/client?tab=home',
+    role: 'customer',
+    viewports: ['desktop'],
+    region: (page) => page.getByRole('group', { name: '1 / 5' }),
+  },
+  {
     id: 'control-panel-account-details',
     slice: 'M6',
     route: '/dashboard/customers/customer-001/control-panel/account',

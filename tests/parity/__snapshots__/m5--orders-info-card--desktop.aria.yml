@@ -1,0 +1,10 @@
+- img
+- text: /Total Orders \d+/
+- button:
+    - img
+- button "This Week":
+    - text: ''
+    - img
+- button "More" [disabled]:
+    - text: ''
+    - img

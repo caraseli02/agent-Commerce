@@ -1,0 +1,4 @@
+1. button
+2. button
+3. button "Open notifications"
+4. button "Avatar"

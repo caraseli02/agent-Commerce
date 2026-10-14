@@ -1,0 +1,24 @@
+- complementary:
+    - link:
+        - /url: /
+        - img
+    - navigation:
+        - list:
+            - listitem:
+                - link:
+                    - /url: /dashboard
+                    - img
+            - listitem:
+                - button [disabled]:
+                    - img
+            - listitem:
+                - link:
+                    - /url: /dashboard/customers
+                    - img
+            - listitem:
+                - link:
+                    - /url: /dashboard/orders
+                    - img
+    - button:
+        - img
+    - text: V 1.0.0
