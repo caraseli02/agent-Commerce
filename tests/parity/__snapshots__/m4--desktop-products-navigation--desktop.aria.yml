@@ -1,0 +1,18 @@
+- navigation "Product categories":
+    - button "Semiconductors 2 items"
+    - button "Passives 1 item"
+    - button "Connectors 0 items"
+    - button "Audio 3 items"
+    - button "Electronics 4 items"
+    - button "Components 3 items"
+    - button "Accessories 3 items"
+    - button "Wearables 2 items"
+    - button "Tools 3 items"
+    - button "Home 2 items"
+    - button "Office 1 item"
+- region "Source electronic components with confidence":
+    - paragraph: Components Marketplace procurement demo
+    - heading "Source electronic components with confidence" [level=2]
+    - paragraph: Review stock, compare part details, and move from product discovery to checkout in a clearer B2B buying flow.
+    - link "Explore Products":
+        - /url: /search

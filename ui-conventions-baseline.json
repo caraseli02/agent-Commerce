@@ -6,66 +6,15 @@
     "input": 2,
     "label": 2
   },
-  "app/components/dashboard/Aside.vue": {
-    "button": 4
-  },
-  "app/components/dashboard/CustomersTotal.vue": {
-    "button": 3
-  },
-  "app/components/dashboard/Header.vue": {
-    "button": 12,
-    "input": 1,
-    "label": 1
-  },
-  "app/components/dashboard/ReturningCustomers.vue": {
-    "button": 3
-  },
-  "app/components/dashboard/Search.vue": {
-    "input": 1,
-    "label": 1
-  },
-  "app/components/dashboard/client/Activity.vue": {
-    "button": 2
-  },
-  "app/components/dashboard/client/Banner.vue": {
-    "button": 1
-  },
   "app/components/dashboard/client/Credit.vue": {
     "button": 2,
     "label": 1
   },
-  "app/components/dashboard/client/Info.vue": {
-    "button": 1
-  },
   "app/components/dashboard/client/PaymentCard.vue": {
     "button": 1
   },
-  "app/components/dashboard/client/RecentlyBought.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/client/TabBar.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/client/settings/AlertsItem.vue": {
-    "input": 2
-  },
   "app/components/dashboard/client/settings/Credit.vue": {
     "button": 1
-  },
-  "app/components/dashboard/client/settings/Marketing.vue": {
-    "input": 1
-  },
-  "app/components/dashboard/control-panel/AccountView.vue": {
-    "button": 4
-  },
-  "app/components/dashboard/control-panel/BillingView.vue": {
-    "button": 4
-  },
-  "app/components/dashboard/control-panel/OrganizationView.vue": {
-    "button": 4
-  },
-  "app/components/dashboard/control-panel/ShippingView.vue": {
-    "button": 4
   },
   "app/components/dashboard/control-panel/settings-view/CustomerCredit.vue": {
     "button": 2
@@ -78,38 +27,12 @@
     "button": 2,
     "input": 1
   },
-  "app/components/dashboard/control-panel/settings-view/Settings.vue": {
-    "button": 1,
-    "input": 3,
-    "label": 3
-  },
-  "app/components/dashboard/customers/CustomerInformation.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/customers/DefaultShippingAddress.vue": {
-    "button": 3
-  },
-  "app/components/dashboard/customers/NetMargin.vue": {
-    "button": 1
-  },
   "app/components/dashboard/customers/RecentTransactions.vue": {
     "button": 1
-  },
-  "app/components/dashboard/new-customers/Index.vue": {
-    "button": 3
-  },
-  "app/components/dashboard/new-customers/Item.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/orders/InfoCards.vue": {
-    "button": 5
   },
   "app/components/dataTable/filter/Range.vue": {
     "input": 2,
     "label": 2
-  },
-  "app/components/global/CopyClipboard.vue": {
-    "button": 1
   },
   "app/components/global/FormInput.vue": {
     "input": 1,
@@ -125,68 +48,16 @@
     "input": 2,
     "label": 2
   },
-  "app/components/global/Notifications.vue": {
-    "button": 3
-  },
-  "app/components/global/ProductCard.vue": {
-    "button": 2
-  },
-  "app/components/global/ProductTabs.vue": {
-    "button": 1
-  },
   "app/components/global/QuantityButtons.vue": {
     "button": 2,
-    "input": 1,
-    "label": 1
-  },
-  "app/components/global/QuickBuy/QuickBuy.vue": {
-    "button": 1
-  },
-  "app/components/global/QuickBuy/QuickBuyInput.vue": {
-    "label": 1
-  },
-  "app/components/home/Hero.vue": {
-    "button": 1,
     "input": 1,
     "label": 1
   },
   "app/components/icon/Upload.vue": {
     "input": 1
   },
-  "app/components/layout/AddRemoveSearchFilter.vue": {
-    "button": 5,
-    "input": 1,
-    "label": 1
-  },
   "app/components/layout/account-modal/Form.vue": {
     "label": 1
-  },
-  "app/components/layout/header/Index.vue": {
-    "button": 1
-  },
-  "app/components/layout/header/MainRow.vue": {
-    "button": 4,
-    "input": 1,
-    "label": 1
-  },
-  "app/components/layout/header/Search.vue": {
-    "input": 1,
-    "label": 1
-  },
-  "app/components/layout/header/main-menu/Banners.vue": {
-    "button": 3
-  },
-  "app/components/layout/header/main-menu/DektopPopoverContainer.vue": {
-    "button": 4
-  },
-  "app/components/layout/header/main-menu/Index.vue": {
-    "button": 4
-  },
-  "app/components/layout/header/main-menu/Large.vue": {
-    "button": 7
-  },
-  "app/components/layout/header/main-menu/MobileSheet.vue": {
-    "button": 1
   },
   "app/components/order-confirm/AdminConfirmation.vue": {
     "textarea": 1
@@ -254,41 +125,10 @@
   "app/components/order-summary/Table/ItemLG.vue": {
     "button": 4
   },
-  "app/components/product/Details.vue": {
-    "button": 1
-  },
-  "app/components/product/Gallery.vue": {
-    "button": 4
-  },
-  "app/components/product/Quantity.vue": {
-    "button": 1
-  },
-  "app/components/product/Table.vue": {
-    "button": 2,
-    "input": 1,
-    "label": 1,
-    "table": 1
-  },
-  "app/components/search/Filter.vue": {
-    "button": 2,
-    "input": 2,
-    "label": 2
-  },
-  "app/components/search/Filter2.vue": {
-    "button": 2,
-    "input": 2,
-    "label": 2
-  },
-  "app/components/search/Filters.vue": {
-    "button": 4
-  },
   "app/components/search/Products.vue": {
-    "button": 11,
+    "button": 7,
     "input": 1,
     "label": 5
-  },
-  "app/components/search/SearchItem.vue": {
-    "button": 7
   },
   "app/components/shared/tables/micro/CheckBoxAll.vue": {
     "input": 1,
@@ -316,24 +156,6 @@
     "button": 4
   },
   "app/error.vue": {
-    "button": 1
-  },
-  "app/pages/dashboard/customers/index.vue": {
-    "button": 1
-  },
-  "app/pages/dashboard/index.vue": {
-    "button": 1
-  },
-  "app/pages/dashboard/orders/index.vue": {
-    "button": 1
-  },
-  "app/pages/forgot-password.vue": {
-    "button": 1
-  },
-  "app/pages/password-reset.vue": {
-    "button": 1
-  },
-  "app/pages/verify-email.vue": {
     "button": 1
   }
 }

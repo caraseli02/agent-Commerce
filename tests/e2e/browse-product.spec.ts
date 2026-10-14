@@ -26,10 +26,11 @@ test.describe('Browse → Product Detail', () => {
     // Product name is visible
     await expect(page.getByRole('heading', { level: 1, name: 'STM32F407VGT6 Microcontroller' })).toBeVisible();
 
-    // Price tiers are displayed
-    await expect(page.getByText('999.99').first()).toBeVisible();
-    await expect(page.getByText('979.99').first()).toBeVisible();
-    await expect(page.getByText('959.99').first()).toBeVisible();
+    // Price tiers are displayed in the purchase panel (similar-product cards repeat prices elsewhere)
+    const purchasePanel = page.getByTestId('product-purchase-panel');
+    await expect(purchasePanel.getByText('999.99').filter({ visible: true }).first()).toBeVisible();
+    await expect(purchasePanel.getByText('979.99').filter({ visible: true }).first()).toBeVisible();
+    await expect(purchasePanel.getByText('959.99').filter({ visible: true }).first()).toBeVisible();
 
     // Stock information is shown
     await expect(page.getByText(/150 in stock/i).first()).toBeVisible();
@@ -64,12 +65,14 @@ test.describe('Browse → Product Detail', () => {
 
     await page.goto('/product/prod-1', { waitUntil: 'networkidle' });
 
-    const quantityInput = page.getByRole('spinbutton', { name: 'Quantity' });
+    // Other PDP sections render their own quantity controls; drive the purchase panel's.
+    const purchasePanel = page.getByTestId('product-purchase-panel');
+    const quantityInput = purchasePanel.getByRole('spinbutton', { name: 'Quantity' });
     await expect(quantityInput).toHaveValue('1');
-    await page.getByRole('button', { name: 'Increase Quantity' }).click();
+    await purchasePanel.getByRole('button', { name: 'Increase Quantity' }).click();
     await expect(quantityInput).toHaveValue('2');
 
-    const updateCartButton = page.getByRole('button', { name: 'Add to cart — selected quantity' });
+    const updateCartButton = purchasePanel.getByRole('button', { name: 'Add to cart — selected quantity' });
     const cartPostResponse = page.waitForResponse(
       (response) => response.url().includes('/api/cart') && response.request().method() === 'POST',
     );

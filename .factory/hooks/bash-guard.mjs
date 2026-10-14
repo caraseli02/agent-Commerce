@@ -199,12 +199,31 @@ function checkGit(words, cwd) {
   return null;
 }
 
-function checkGh(words) {
+// gh accepts the repository flag before the command group (`gh -R owner/repo pr merge 1`);
+// drop leading flags so every rule below reads the real group and action.
+function stripGhGlobalFlags(words) {
+  let i = 1;
+  while (i < words.length && words[i].startsWith('-') && words[i] !== '--') {
+    i += words[i] === '-R' || words[i] === '--repo' ? 2 : 1;
+  }
+  return [words[0], ...words.slice(i)];
+}
+
+function checkGh(allWords) {
+  const words = stripGhGlobalFlags(allWords);
   const [, group, action] = words;
   const rest = words.slice(2);
   if (group === 'pr' && action === 'merge') return 'merging a PR (only Vlad merges)';
   if (words.some((arg) => /owner-approved-harness/.test(arg))) return 'changing the owner-approved-harness label (only Vlad sets it)';
   if (group === 'label' && action !== 'list') return `gh label ${action}`;
+  // The gh account is shared with Vlad and Codex, so the "last comment" may be theirs (2026-10-13).
+  if (
+    ['issue', 'pr'].includes(group) &&
+    action === 'comment' &&
+    rest.some((arg) => /^--edit-last(=|$)/.test(arg) || arg === '--delete-last')
+  ) {
+    return 'editing or deleting the last comment (the gh account is shared; post a new comment)';
+  }
   if (group === 'pr' && action === 'review' && rest.some((arg) => arg === '--approve' || arg === '-a')) {
     return 'approving a PR via GitHub review';
   }

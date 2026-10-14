@@ -97,15 +97,17 @@ onBeforeUnmount(() => {
 <template>
   <UiSheet v-model:open="sheetOpen">
     <UiSheetTrigger as-child>
-      <button
+      <UiButton
         type="button"
-        class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md p-0 text-sm font-medium text-primary-foreground transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+        variant="ghost"
+        size="icon"
+        class="h-11 w-11 shrink-0 text-primary-foreground hover:bg-white/10"
         aria-controls="mobile-products-navigation"
         :aria-expanded="sheetOpen"
         :aria-label="sheetOpen ? 'Close products navigation' : 'Open products navigation'"
       >
         <MenuIcon class="w-6 h-6" />
-      </button>
+      </UiButton>
     </UiSheetTrigger>
     <UiSheetContent
       id="mobile-products-navigation"

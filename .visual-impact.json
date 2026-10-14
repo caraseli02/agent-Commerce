@@ -1,6 +1,20 @@
 {
   "assessments": [
     {
+      "fingerprint": "bc982bc1cab41fbc040f8f38d4b514ad541209855d9b6a08b84f122142e809c6",
+      "impact": "targeted",
+      "tests": ["cart"],
+      "reason": "Cart sheet empty/error states now resolve the registered EmptyState component instead of the unregistered GlobalEmptyState tag (#686); only the header cart sheet renders the touched component.",
+      "consumers": "app/components/layout/favorites-cart-modal/cart/Index.vue is imported only by layout/favorites-cart-modal/Index.vue, the header cart sheet. The populated-cart branch, subtotal and checkout link are unchanged, so the cart visual group (populated cart page and sheet, both viewports) is selected as the representative screenshot check; home, search, product and orders never render this component. The changed empty and error branches are outside the screenshot matrix and are covered by tests/e2e/cart-chrome-coordination.spec.ts plus before/after browser screenshots of the empty sheet at 1440 and 390 with a keyboard check of the Start shopping link."
+    },
+    {
+      "fingerprint": "4f79c970aacdd32e87f502c1987b0b6c1b7bce8fab7b90213da508a23e4ce6b9",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "M5 shadcn migration of dashboard widgets (#642): native buttons/inputs/labels become UiButton/UiInput/UiLabel, plus aria-labels on icon-only buttons; only dashboard routes render the touched components.",
+      "consumers": "git grep finds the touched components only in app/layouts/dashboard.vue (DashboardHeader, DashboardAside) and app/pages/dashboard/** (index, customers/index, customers/[slug], orders/index, client/index). No storefront page, layout, shared style, store or composable changes; Search.vue still emits update:modelValue with the string value. The orders visual group renders /dashboard/client?tab=orders, which includes the migrated client Banner and TabBar, so it is selected; home, search, product and cart never render a dashboard component. The admin dashboard, orders, customer profile and client home surfaces are outside the screenshot matrix and are covered by 15 M5 parity scenarios (desktop 1440 / mobile 390) plus before/after browser screenshots with identical page heights and an unchanged keyboard tab order."
+    },
+    {
       "fingerprint": "ee5c957eff08dfee37dbb4bbcb8bcdd491ddc3570a4aa85dbbfa496cc4b2a291",
       "impact": "none",
       "reason": "Adds a Vercel Ignored Build Step; it decides whether Vercel builds a push and never changes what a build emits",
@@ -160,6 +174,36 @@
       "impact": "none",
       "reason": "Unmatched signed Refund events now acknowledge only after durable manual receipts; they cannot change any buyer-visible financial or checkout state.",
       "consumers": "POST /api/payments/stripe/webhook calls handleStripeWebhook after raw-body signature verification, which invokes stripeRefunds.applyVerifiedRefundEvent. The new branch writes only checkout_stripe_refund_events with refund_id NULL, then returns manual-handling-required; ingress returns accepted and the webhook route returns HTTP 200. The new checkout_stripe_refund_manual_handling SQL view is queried by database operators, as documented in README. A repository reference scan finds no app/, order API, store, composable, label, or rendered-page reader of that ledger/view. Full-row Payment/Refund/Order/claim snapshots prove unchanged state for unknown events, durable-write failure, collision, and manual replay after later local correlation. No provider read/create or application callback is run for manual events. Known candidate validation, authoritative provider reads, and existing application consequences remain fail-closed and are covered by the existing signed Refund and full-refund suites. Migration010 preserves prior receipt rows and adds no application response fields, public route, financial table changes, or UI behavior. Actual H3 HTTP tests prove 400 invalid signature, 503 malformed refs/write failure/default-off, and 200 durable manual receipt/duplicate. No home/search/product/cart/orders screenshot can observe these receipts."
+    },
+    {
+      "fingerprint": "6109ef4f03dcd141970ba6f9e3548ae08be1e779045fa8cc776a8d6137d77cda",
+      "impact": "none",
+      "reason": "Swaps one native button for UiButton on /forgot-password, /password-reset and /verify-email (#638); no screenshot in the visual matrix renders those routes",
+      "consumers": "The three edited files are route pages; no component, store, composable, layout or style imports them, and the home, search, product, cart and orders screenshots never navigate to them. ui-conventions-baseline.json is read only by scripts/verify-ui-conventions.mjs. The pages themselves are covered by pnpm test:parity --grep M1 (desktop 1440 and mobile 390: ARIA tree, tab order, mismatch/verify steps, clean runtime) with region screenshots for review; the only visual drift is the UiButton text-sm label size."
+    },
+    {
+      "fingerprint": "b1359e445ec8148441ee9f649b35b3d583ff68006da28bc0e86681fa269c8827",
+      "impact": "none",
+      "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
+      "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
+    },
+    {
+      "fingerprint": "f29df2e3b9a983efa2c718da787e0fef5a9cb4e9f5bc3fdf7dfce0dc007e7a64",
+      "impact": "none",
+      "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
+      "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
+    },
+    {
+      "fingerprint": "a0cd639aa40d7b8760328cbd0e96666c74b10e5b1f6437bf4a008f432fcf9b62",
+      "impact": "none",
+      "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
+      "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
+    },
+    {
+      "fingerprint": "94cc319e608f7a1151950173caad5615dd33ad59c6bc321b155a27fd7f7be987",
+      "impact": "none",
+      "reason": "Adds reviewed native Codex lease diagnostics and original-owner recovery source/migration assets; no rendered application behavior changes.",
+      "consumers": "The only new executable consumers are .codex-autonomy/recovery.py, its immutable post-merge host installer, the external native dispatcher/worker workflows, and tests/codex-routing.spec.ts which spawns portable temporary-process fixtures in Vitest. Nuxt app/, server/, layouts, stores, runtime config, styles, assets, application dependencies and payment adapters neither import nor read .codex-autonomy or these host settings. Installed host files and automation remain legacy and unchanged by this PR. Actual lease/process and dispatcher delivery behavior is verified with temporary keeper/guardian/command fixtures, not storefront screenshots. Therefore home/search/product/cart/orders screenshots cannot observe this patch."
     }
   ]
 }

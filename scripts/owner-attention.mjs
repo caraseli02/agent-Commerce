@@ -10,7 +10,8 @@
 //            conflict and no outstanding change request. Only the owner's merge is left.
 // - blocked: an open issue currently carries the `blocked` label.
 // - harness: a Claude-built PR touches protected paths without `owner-approved-harness`.
-// - queue:   Claude has no live issue and nothing eligible to build.
+// - queue:   Claude has no live issue and nothing eligible to build (a PASSed claim
+//            waiting for merge is queued, not live).
 //
 // Each notice carries a hidden marker so a rerun never posts it twice.
 import { createHash } from 'node:crypto';
@@ -169,6 +170,29 @@ export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
   return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : latest;
 }
 
+// Head SHAs that carry an evaluator PASS: the review history shows the PR passed once,
+// so only the owner's merge is left (or a repair of a later change). Heads come from
+// comments that start with an evaluator marker; each head is then resolved by
+// latestEvaluatorVerdict, so trust, attribution and contradiction rules match.
+const EVALUATOR_HEAD_MARKER = /^<!--\s*(?:evaluator-head:\s*|local-evaluator\s+sha=)([0-9a-f]+)\s*-->/i;
+export function passingEvaluatorHeads(comments, { trustedLogins }) {
+  const heads = new Set();
+  for (const comment of comments ?? []) {
+    const match = String(comment?.body ?? '')
+      .trimStart()
+      .match(EVALUATOR_HEAD_MARKER);
+    if (match) heads.add(match[1].toLowerCase());
+  }
+  return [...heads].filter((head) => {
+    const result = latestEvaluatorVerdict(comments, head, { trustedLogins });
+    return result?.verdict === 'PASS' || (result?.verdict === 'CONFLICTING' && result.verdicts.includes('PASS'));
+  });
+}
+
+export function hasEvaluatorPassOnAnyHead(comments, { trustedLogins }) {
+  return passingEvaluatorHeads(comments, { trustedLogins }).length > 0;
+}
+
 export function assessChecks(checkRuns, combinedStatus) {
   const failing = [];
   const pending = [];
@@ -235,6 +259,9 @@ export function parseDependencies(body) {
 }
 
 const SKIP_RECORD = /^<!-- claude-skip v=([0-9a-f]{16}) -->/;
+// Notes the night lane posts on candidate issues; they say nothing about whether the skip
+// reason still holds, so a trusted one never counts as the "newest comment".
+const NIGHT_LANE_NOTE = /^<!-- claude-(?:plan |spike |diagnosis)/;
 
 // Fingerprint of the parts of an issue a skip decision depends on: title, body and
 // labels. The routine writes it into the skip comment (`skip-fingerprint` command
@@ -256,12 +283,18 @@ export function issueFingerprint(issue) {
 // native dependency, a linked PR or branch) with a `<!-- claude-skip v=<fingerprint> -->`
 // comment. The record holds only while it is the issue's newest comment and the issue's
 // title, body and labels still match the fingerprint; any later comment or change lapses
-// it, and the routine then re-evaluates the issue.
+// it, and the routine then re-evaluates the issue. The one exception is a trusted
+// night-lane note (first line `<!-- claude-plan `, `<!-- claude-spike ` or
+// `<!-- claude-diagnosis`), which is ignored when finding the newest comment.
 export function hasCurrentSkipRecord(issue, comments, { trustedLogins }) {
   const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
   trusted.delete(BOT_LOGIN);
-  const latestComment = [...(comments ?? [])].sort((a, b) => Number(a?.id ?? 0) - Number(b?.id ?? 0)).at(-1);
-  if (!latestComment || !trusted.has(String(latestComment.user?.login ?? '').toLowerCase())) return false;
+  const isTrusted = (comment) => trusted.has(String(comment?.user?.login ?? '').toLowerCase());
+  const latestComment = [...(comments ?? [])]
+    .filter((comment) => !(isTrusted(comment) && NIGHT_LANE_NOTE.test(String(comment?.body ?? '').trimStart())))
+    .sort((a, b) => Number(a?.id ?? 0) - Number(b?.id ?? 0))
+    .at(-1);
+  if (!latestComment || !isTrusted(latestComment)) return false;
   const record = String(latestComment.body ?? '')
     .trimStart()
     .match(SKIP_RECORD);
@@ -269,14 +302,25 @@ export function hasCurrentSkipRecord(issue, comments, { trustedLogins }) {
 }
 
 // Mirrors the build-eligibility rule in .factory/automations/claude-routine.md §4.1.
+// Claims split three ways: parked (`blocked`), queued and live. A queued claim is
+// `in-progress`, not `blocked`, and its open `claude/issue-<n>` PR has an evaluator PASS on
+// some head (`queuedNumbers`; the `ready-for-human` label does not decide it, because a
+// repair removes it while the claim stays queued). A claim with no open PR, such as one
+// whose PR was closed unmerged, is live. Only live claims and eligible issues keep the
+// queue busy.
 // `claimedNumbers` are issues an open PR already closes or that have a claude/issue-<n>
 // branch; `skippedNumbers` carry a current skip record for checks that need judgment.
-export function claudeQueueState(issues, { neverClaim, openIssueNumbers, claimedNumbers = new Set(), skippedNumbers = new Set() }) {
+export function claudeQueueState(
+  issues,
+  { neverClaim, openIssueNumbers, claimedNumbers = new Set(), skippedNumbers = new Set(), queuedNumbers = new Set() },
+) {
   const claude = (issues ?? []).filter(
     (issue) => !issue.pull_request && (issue.labels ?? []).some((label) => label.name === 'agent:claude'),
   );
   const labelsOf = (issue) => new Set((issue.labels ?? []).map((label) => label.name));
-  const live = claude.filter((issue) => labelsOf(issue).has('in-progress') && !labelsOf(issue).has('blocked'));
+  const claimed = claude.filter((issue) => labelsOf(issue).has('in-progress') && !labelsOf(issue).has('blocked'));
+  const queued = claimed.filter((issue) => queuedNumbers.has(issue.number));
+  const live = claimed.filter((issue) => !queuedNumbers.has(issue.number));
   const eligible = claude.filter((issue) => {
     const labels = labelsOf(issue);
     if (labels.has('in-progress') || (issue.assignees ?? []).length) return false;
@@ -286,7 +330,7 @@ export function claudeQueueState(issues, { neverClaim, openIssueNumbers, claimed
     if (claimedNumbers.has(issue.number) || skippedNumbers.has(issue.number)) return false;
     return parseDependencies(issue.body).every((number) => !openIssueNumbers.has(number));
   });
-  return { live, eligible, idle: live.length === 0 && eligible.length === 0 };
+  return { live, queued, eligible, idle: live.length === 0 && eligible.length === 0 };
 }
 
 export function readyMessage({ owner, pr, verdict }) {
@@ -341,7 +385,9 @@ export function queueMessage({ owner, mode }) {
     marker('queue'),
     `@${owner} 💤 **Claude has nothing to build.**`,
     '',
-    `The claude-routine (mode \`${mode}\`) has no live \`in-progress\` issue and no eligible \`agent:claude\` issue: every candidate is claimed, assigned, blocked, a payment item, waiting on an open dependency, already has an open PR or \`claude/issue-<n>\` branch, was skipped by the routine with a recorded reason, or carries a \`never_claim\` label (\`needs-triage\`, \`needs-info\`, \`epic\`, ...).`,
+    `The claude-routine (mode \`${mode}\`) has no live \`in-progress\` issue (a claim whose PR already has an evaluator PASS is queued for your merge, not live) and no eligible \`agent:claude\` issue: every candidate is claimed, assigned, blocked, a payment item, waiting on an open dependency, already has an open PR or \`claude/issue-<n>\` branch, was skipped by the routine with a recorded reason, or carries a \`never_claim\` label (\`needs-triage\`, \`needs-info\`, \`epic\`, ...).`,
+    '',
+    'This means no new build is possible, not that no action remains: the routine still repairs queued PRs (merge conflicts, failed required checks, evaluator FAIL) and reviews PRs.',
     '',
     'Label the next issue `agent:claude` (or clear its blocker) to give Claude work. This issue closes itself as soon as Claude has work again.',
   ].join('\n');
@@ -471,12 +517,47 @@ async function claimedIssueNumbers(gh, prs) {
   return claimed;
 }
 
+// True when the required checks (and combined status) are green on this exact commit.
+async function headChecksGreen(gh, sha) {
+  const [checkRuns, combinedStatus] = await Promise.all([
+    gh.paginate(`/commits/${sha}/check-runs`, (data) => data.check_runs),
+    gh.get(`/commits/${sha}/status`),
+  ]);
+  return assessChecks(checkRuns, combinedStatus).state === 'success';
+}
+
+// Claims whose open `claude/issue-<n>` PR has an evaluator PASS on a head whose required
+// checks were green. Queue identity survives later repairs (the PASS head stays green),
+// but a PASS on a pending or failing head leaves the claim live.
+async function queuedClaimNumbers(gh, openIssues, prs, trustedLogins) {
+  const queued = new Set();
+  for (const issue of openIssues) {
+    const labels = new Set((issue.labels ?? []).map((entry) => entry.name));
+    if (issue.pull_request || !labels.has('agent:claude') || !labels.has('in-progress') || labels.has('blocked')) continue;
+    const pr = prs.find((candidate) => candidate.head?.ref === `claude/issue-${issue.number}`);
+    if (!pr) continue;
+    const comments = await gh.paginate(`/issues/${pr.number}/comments`);
+    for (const sha of passingEvaluatorHeads(comments, { trustedLogins })) {
+      if (await headChecksGreen(gh, sha)) {
+        queued.add(issue.number);
+        break;
+      }
+    }
+  }
+  return queued;
+}
+
 async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
   const tracking = openIssues.find((issue) => issue.title === QUEUE_ISSUE_TITLE && issue.user?.login === BOT_LOGIN);
   const openIssueNumbers = new Set(openIssues.map((issue) => issue.number));
   let state = { idle: false };
   if (config.mode === 'build') {
-    const options = { neverClaim: config.neverClaim, openIssueNumbers, claimedNumbers: await claimedIssueNumbers(gh, prs) };
+    const options = {
+      neverClaim: config.neverClaim,
+      openIssueNumbers,
+      claimedNumbers: await claimedIssueNumbers(gh, prs),
+      queuedNumbers: await queuedClaimNumbers(gh, openIssues, prs, trustedLogins),
+    };
     // Only issues that pass the label checks can carry a skip record worth reading.
     const skippedNumbers = new Set();
     for (const issue of claudeQueueState(openIssues, options).eligible) {
@@ -495,7 +576,7 @@ async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
     log(`Closed #${tracking.number}: Claude has work again`);
   } else {
     log(
-      `Claude queue: ${state.idle ? 'idle (already reported)' : `${state.live?.length ?? 0} live, ${state.eligible?.length ?? 0} eligible`}`,
+      `Claude queue: ${state.idle ? 'idle (already reported)' : `${state.live?.length ?? 0} live, ${state.queued?.length ?? 0} queued, ${state.eligible?.length ?? 0} eligible`}`,
     );
   }
 }
@@ -561,8 +642,121 @@ async function printSkipFingerprint() {
   log(issueFingerprint(JSON.parse(input)));
 }
 
+// Splits concatenated JSON values (NDJSON, or objects pretty-printed across lines) by
+// tracking brace depth outside strings. Throws on input that is not whole JSON values.
+function splitJsonValues(text) {
+  const values = [];
+  let depth = 0;
+  let start = -1;
+  let inString = false;
+  let escaped = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') inString = false;
+    } else if (char === '"') {
+      inString = true;
+    } else if (char === '{' || char === '[') {
+      if (depth === 0) start = index;
+      depth += 1;
+    } else if (char === '}' || char === ']') {
+      depth -= 1;
+      if (depth < 0) throw new Error('Unreadable JSON input: unbalanced brackets.');
+      if (depth === 0) values.push(JSON.parse(text.slice(start, index + 1)));
+    } else if (depth === 0 && !/\s/.test(char)) {
+      throw new Error(`Unreadable JSON input: unexpected "${char}".`);
+    }
+  }
+  if (depth !== 0 || inString) throw new Error('Unreadable JSON input: truncated JSON.');
+  return values;
+}
+
+// Check runs from `gh api .../check-runs --paginate --jq '.check_runs[]'` (one object per
+// run, possibly pretty-printed), a JSON array, or the raw `{ check_runs: [...] }` response.
+export function parseCheckRuns(text) {
+  const values = splitJsonValues(String(text ?? ''));
+  return values.flatMap((value) => (Array.isArray(value) ? value : Array.isArray(value?.check_runs) ? value.check_runs : [value]));
+}
+
+// Same rule the reconcile applies to a PASS head (`headChecksGreen`): check runs plus the
+// combined commit status. Empty input or an empty run list is an error, never `not-green`:
+// every real head has check runs, so none means the upstream `gh api` failed.
+export function checksGreenVerdict(text, combinedStatus) {
+  const runs = parseCheckRuns(text);
+  if (!runs.length) throw new Error('No check runs in the input; the upstream gh api call probably failed.');
+  return assessChecks(runs, combinedStatus).state === 'success' ? 'green' : 'not-green';
+}
+
+// `gh api repos/<repo>/commits/<sha>/status > "$TMPDIR/status.json"` then
+// `gh api repos/<repo>/commits/<sha>/check-runs --paginate --jq '.check_runs[]' | node scripts/owner-attention.mjs checks-green --status-file "$TMPDIR/status.json"`
+// prints `green` or `not-green` so the routine applies the same queued rule as the reconcile.
+// Empty stdin, an empty run list or an unreadable status file exits non-zero with nothing on stdout.
+async function printChecksGreen() {
+  const args = process.argv.slice(3);
+  let combinedStatus;
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--status-file' || arg.startsWith('--status-file=')) {
+      const path = arg === '--status-file' ? args[(index += 1)] : arg.slice('--status-file='.length);
+      if (!path) throw new Error('--status-file needs a path.');
+      try {
+        combinedStatus = JSON.parse(await readFile(path, 'utf8'));
+      } catch (error) {
+        throw new Error(`Unreadable status file ${path}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+      }
+    } else {
+      throw new Error(`Unknown checks-green argument: ${arg}`);
+    }
+  }
+  let input = '';
+  for await (const chunk of process.stdin) input += chunk;
+  log(checksGreenVerdict(input, combinedStatus));
+}
+
+// Issue comments from `gh api .../issues/<pr>/comments --paginate` (one array per page, or a
+// single array) → the PASS heads, resolved by passingEvaluatorHeads so the trust, attribution,
+// first-verdict-line and contradiction rules match the reconcile. Empty input is an error:
+// a readable API response is at least `[]`.
+export function passHeadsFromComments(text, { trustedLogins }) {
+  if (!String(text ?? '').trim()) throw new Error('No comments input; the upstream gh api call probably failed.');
+  const comments = splitJsonValues(String(text)).flatMap((value) => (Array.isArray(value) ? value : [value]));
+  return passingEvaluatorHeads(comments, { trustedLogins });
+}
+
+// `gh api repos/<repo>/issues/<pr>/comments --paginate | node scripts/owner-attention.mjs pass-heads --owner <login>`
+// prints each PASS head on its own line (nothing when there is none). Trusted evaluator logins
+// are EVALUATOR_LOGINS when set, otherwise the owner, exactly as the workflow resolves them.
+// Empty or unreadable input exits non-zero with nothing on stdout.
+async function printPassHeads() {
+  const args = process.argv.slice(3);
+  let owner;
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--owner' || arg.startsWith('--owner=')) {
+      owner = arg === '--owner' ? args[(index += 1)] : arg.slice('--owner='.length);
+      if (!owner) throw new Error('--owner needs a login.');
+    } else {
+      throw new Error(`Unknown pass-heads argument: ${arg}`);
+    }
+  }
+  const trustedLogins = (process.env.EVALUATOR_LOGINS || owner || '')
+    .split(',')
+    .map((login) => login.trim())
+    .filter(Boolean);
+  if (!trustedLogins.length) throw new Error('pass-heads needs --owner <login> or EVALUATOR_LOGINS.');
+  let input = '';
+  for await (const chunk of process.stdin) input += chunk;
+  const heads = passHeadsFromComments(input, { trustedLogins });
+  if (heads.length) log(heads.join('\n'));
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (process.argv[2] === 'skip-fingerprint' ? printSkipFingerprint() : main()).catch((error) => {
+  const command = process.argv[2];
+  const commands = { 'skip-fingerprint': printSkipFingerprint, 'checks-green': printChecksGreen, 'pass-heads': printPassHeads };
+  const run = commands[command] ?? main;
+  run().catch((error) => {
     console.error(error instanceof Error ? error.stack || error.message : String(error));
     process.exit(1);
   });

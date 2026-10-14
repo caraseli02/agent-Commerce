@@ -40,14 +40,9 @@
         <div class="ml-auto shrink-0 md:hidden">
           <UiDropdownMenu :modal="false">
             <UiDropdownMenuTrigger as-child>
-              <button
-                type="button"
-                class="flex h-11 w-11 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                aria-label="Product options"
-                @click.prevent.stop
-              >
+              <UiButton type="button" variant="ghost" size="icon" class="h-11 w-11" aria-label="Product options" @click.prevent.stop>
                 <MoreHorizontal class="h-5 w-5" />
-              </button>
+              </UiButton>
             </UiDropdownMenuTrigger>
             <UiDropdownMenuContent align="end" class="w-44">
               <!-- Wrapper carries the click handler: DropdownMenuContent renders a fragment/portal root, so
@@ -89,18 +84,18 @@
           </span>
         </div>
       </div>
-      <button
+      <UiButton
         type="button"
         aria-label="Add product to cart"
         :aria-labelledby="`add-to-cart-${product._id}`"
         :aria-busy="isThisProductAdding"
         :aria-disabled="isThisProductAdding"
-        class="col-start-2 flex h-11 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        class="col-start-2 h-11 w-12 shrink-0 px-0 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
         <SvgoCart class="h-6 w-6 text-white" />
         <span :id="`add-to-cart-${product._id}`" class="sr-only">Add {{ product.name }} to cart</span>
-      </button>
+      </UiButton>
     </div>
   </div>
 </template>

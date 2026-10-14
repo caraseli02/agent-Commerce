@@ -1,0 +1,10 @@
+- text: Pitch (5)
+- button:
+    - img
+- searchbox
+- img
+- checkbox /A[\d,.]+[bkmBKM]+ \(2\)/
+- text: /A[\d,.]+[bkmBKM]+ \(2\)/
+- checkbox "A-B (3)"
+- text: A-B (3)
+- button "Select All"

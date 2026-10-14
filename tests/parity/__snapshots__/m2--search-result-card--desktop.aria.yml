@@ -35,7 +35,7 @@
 - button "Add to cart":
     - img
     - text: ''
-- button:
+- button "Save product":
     - img
-- button:
+- button "Share product":
     - img

@@ -1,0 +1,28 @@
+- button "Specifications"
+- table:
+    - rowgroup:
+        - row "Core ARM Cortex-M4 Include Core in similar-product search":
+            - cell "Core"
+            - cell "ARM Cortex-M4"
+            - cell "Include Core in similar-product search":
+                - checkbox "Include Core in similar-product search"
+        - row /Flash \d+ Include Flash in similar-product search/:
+            - cell "Flash"
+            - cell /\d+/
+            - cell "Include Flash in similar-product search":
+                - checkbox "Include Flash in similar-product search"
+        - row /SRAM \d+ Include SRAM in similar-product search/:
+            - cell "SRAM"
+            - cell /\d+/
+            - cell "Include SRAM in similar-product search":
+                - checkbox "Include SRAM in similar-product search"
+        - row /Package LQFP-\d+ Include Package in similar-product search/:
+            - cell "Package"
+            - cell /LQFP-\d+/
+            - cell "Include Package in similar-product search":
+                - checkbox "Include Package in similar-product search"
+        - row /Max Clock \d+ Include Max Clock in similar-product search/:
+            - cell "Max Clock"
+            - cell /\d+/
+            - cell "Include Max Clock in similar-product search":
+                - checkbox "Include Max Clock in similar-product search"

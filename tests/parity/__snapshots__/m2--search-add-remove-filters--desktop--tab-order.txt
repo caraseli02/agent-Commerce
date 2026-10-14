@@ -1,0 +1,6 @@
+1. button "Close"
+2. searchbox "Search parameters"
+3. button "Parameters"
+4. button "Products"
+5. button "Cancel"
+6. button "Save"

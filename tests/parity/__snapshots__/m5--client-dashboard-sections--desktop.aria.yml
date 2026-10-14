@@ -1,0 +1,6 @@
+- region "Dashboard sections":
+    - button:
+        - img
+    - button /Orders \d+/
+    - button "Transaction History 5"
+    - button "Settings"

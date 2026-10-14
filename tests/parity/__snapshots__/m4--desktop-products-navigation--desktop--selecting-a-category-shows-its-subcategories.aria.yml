@@ -1,0 +1,30 @@
+- navigation "Product categories":
+    - button "Semiconductors 2 items" [pressed]
+    - button "Passives 1 item"
+    - button "Connectors 0 items"
+    - button "Audio 3 items"
+    - button "Electronics 4 items"
+    - button "Components 3 items"
+    - button "Accessories 3 items"
+    - button "Wearables 2 items"
+    - button "Tools 3 items"
+    - button "Home 2 items"
+    - button "Office 1 item"
+- text: Main CategorySemiconductors
+- button "All Categories"
+- heading "Microcontrollers" [level=4]
+- button "ARM Cortex-M4 1 item"
+- button "View all"
+- heading "Interface ICs" [level=4]
+- button /RS-\d+ 1 item/
+- button "View all"
+- link "View our discounted offers":
+    - /url: /search
+- img
+- img
+- img
+- img
+- link "Contact Sales":
+    - /url: tel:+18005550199
+- link "Support":
+    - /url: tel:+18005550199

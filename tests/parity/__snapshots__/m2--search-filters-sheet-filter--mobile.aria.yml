@@ -1,0 +1,5 @@
+- button /Max\. forward impulse current \(\d+\)/:
+    - text: ''
+    - img
+- button "Remove filter":
+    - img

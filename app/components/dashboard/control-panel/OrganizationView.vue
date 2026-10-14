@@ -3,20 +3,18 @@
     <div class="mb-9 md:flex md:items-center md:justify-between">
       <h2 class="text-xl leading-[1.4] font-semibold max-md:mb-9">Company Details</h2>
       <div class="grid grid-cols-2 gap-3 md:grid-cols-[repeat(2,auto)]">
-        <button
-          class="flex items-center justify-center w-full text-left px-4 py-2 rounded-md transition-colors duration-300 bg-[#F2F2F2] text-slate-500 hover:text-white hover:bg-blue-500 xl:px-6"
-          :class="[isEditing ? 'text-white bg-blue-500' : '']"
+        <UiButton
+          class="h-auto flex w-full text-left px-4 py-2 xl:px-6"
+          :variant="isEditing ? 'default' : 'secondary'"
           @click="isEditing = !isEditing"
         >
           <EditIcon class="w-5 h-5 mr-2 text-current xl:w-6 xl:h-6" />
           <span class="text-sm leading-[1.42857] font-medium"> Edit </span>
-        </button>
-        <button
-          class="flex items-center justify-center w-full text-left px-4 py-2 rounded-md transition-colors duration-300 bg-[#F2F2F2] text-slate-500 hover:text-white hover:bg-blue-500 xl:px-6"
-        >
+        </UiButton>
+        <UiButton variant="secondary" class="h-auto flex w-full text-left px-4 py-2 xl:px-6">
           <CopyIcon class="w-5 h-5 mr-2 text-current xl:w-6 xl:h-6" />
           <span class="text-sm leading-[1.42857] font-medium"> Copy Details </span>
-        </button>
+        </UiButton>
       </div>
     </div>
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-x-9">
@@ -157,21 +155,22 @@
       />
     </div>
     <div v-if="isEditing" class="grid grid-cols-[auto_1fr] gap-4 mt-9 xl:w-1/2 xl:ml-auto xl:pl-4">
-      <button
-        class="flex items-center justify-center w-full text-left px-[31px] py-2 rounded-lg transition-colors duration-300 bg-[#F2F2F2] text-slate-500 md:px-[91px] xl:px-[61px]"
+      <UiButton
+        variant="secondary"
+        class="h-auto flex w-full text-left px-[31px] py-2 md:px-[91px] xl:px-[61px]"
         @click="isEditing = false"
       >
         <span class="leading-[1.75] font-medium"> Cancel </span>
-      </button>
-      <button
-        class="flex items-center justify-center w-full text-left px-[31px] py-2 rounded-lg transition-colors duration-300 bg-blue-500 text-white"
+      </UiButton>
+      <UiButton
+        class="h-auto flex w-full text-left px-[31px] py-2"
         @click="
           updateAccountDetails();
           isEditing = false;
         "
       >
         <span class="leading-[1.75] font-medium"> Save </span>
-      </button>
+      </UiButton>
     </div>
   </div>
 </template>

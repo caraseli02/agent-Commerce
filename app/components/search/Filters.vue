@@ -1,32 +1,20 @@
 <template>
   <div v-if="filteredData.length" class="mb-[30px] md:mb-[60px]">
     <div class="container">
-      <button
-        class="flex items-center justify-center bg-blue-500 text-white rounded px-[15px] py-[9px] text-sm font-medium w-full md:hidden"
-        @click="showSearchFiltersModal = true"
-      >
+      <UiButton class="w-full md:hidden" @click="showSearchFiltersModal = true">
         <FiltersIcon class="w-6 h-6 mr-2" />
         <span>Filters</span>
-      </button>
+      </UiButton>
       <div class="hidden items-center justify-between md:flex">
         <div class="font-medium">Filters</div>
         <div class="flex items-center">
           <div class="flex items-center text-slate-500 select-none mr-[30px]">
             <EyeClosedIcon v-if="!showFilters" class="w-5 h-5 mr-2" />
             <EyeIcon v-else class="w-5 h-5 mr-2" />
-            <span class="text-sm leading-tight font-Inter font-medium mr-[15px]"> Filters </span>
-            <button
-              class="relative w-10 h-[22px] rounded-[25px] transition-colors duration-300"
-              :class="[showFilters ? 'bg-blue-500 ' : 'bg-border']"
-              @click="showFilters = !showFilters"
-            >
-              <div
-                class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full transition-all duration-300"
-                :class="[showFilters ? ' right-1' : 'right-5']"
-              />
-            </button>
+            <UiLabel for="search-filters-visibility" class="mr-[15px] cursor-pointer"> Filters </UiLabel>
+            <UiSwitch id="search-filters-visibility" :checked="showFilters" @update:checked="showFilters = $event" />
           </div>
-          <button class="group flex bg-blue-500 text-white rounded px-3 py-[9px] text-sm font-medium">
+          <UiButton class="group">
             <ResetIcon class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-[360deg]" />
             <span
               @click="
@@ -36,7 +24,7 @@
             >
               Reset Filters
             </span>
-          </button>
+          </UiButton>
         </div>
       </div>
       <Transition name="slide-from-bottom">
@@ -49,12 +37,14 @@
           />
           <div class="flex flex-col items-center pt-[60px] pb-10">
             <div class="text-sm font-medium text-slate-500 mb-5">Add/Remove Filter</div>
-            <button
-              class="flex items-center justify-center w-14 h-14 bg-blue-500 rounded-full transition-transform duration-300 hover:rotate-[360deg]"
+            <UiButton
+              size="icon"
+              aria-label="Add or remove filters"
+              class="w-14 h-14 transition-transform duration-300 hover:rotate-[360deg]"
               @click="showAddRemoveFilterModal = true"
             >
-              <PlusIcon class="w-[30px] h-[30px] text-white" />
-            </button>
+              <PlusIcon class="w-[30px] h-[30px]" />
+            </UiButton>
           </div>
         </div>
       </Transition>

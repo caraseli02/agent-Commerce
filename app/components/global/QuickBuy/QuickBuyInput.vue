@@ -36,7 +36,7 @@ onMounted(() => {
 <template>
   <div class="grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-start gap-1.5">
     <div class="min-w-0">
-      <label :for="`quick-buy-part-${index}`" class="sr-only">Part number {{ index + 1 }}</label>
+      <UiLabel :for="`quick-buy-part-${index}`" class="sr-only">Part number {{ index + 1 }}</UiLabel>
       <UiInput
         :id="`quick-buy-part-${index}`"
         v-model="localCode"

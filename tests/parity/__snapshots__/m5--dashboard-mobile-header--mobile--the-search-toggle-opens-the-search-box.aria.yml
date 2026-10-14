@@ -1,0 +1,11 @@
+- banner:
+    - button:
+        - img
+    - button:
+        - img
+    - button "Open notifications":
+        - img
+    - button "Avatar":
+        - img "Avatar"
+    - searchbox
+    - img

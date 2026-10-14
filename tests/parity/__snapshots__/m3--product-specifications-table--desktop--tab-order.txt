@@ -1,0 +1,6 @@
+1. button "Specifications"
+2. checkbox "Include Core in similar-product search"
+3. checkbox "Include Flash in similar-product search"
+4. checkbox "Include SRAM in similar-product search"
+5. checkbox "Include Package in similar-product search"
+6. checkbox "Include Max Clock in similar-product search"

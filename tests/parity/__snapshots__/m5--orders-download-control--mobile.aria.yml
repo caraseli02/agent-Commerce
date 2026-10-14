@@ -1,0 +1,10 @@
+- link "Home":
+    - /url: /dashboard
+    - img
+    - text: ''
+- text: /
+- link "Orders":
+    - /url: /dashboard/orders
+- heading "Orders" [level=1]
+- button "Download All" [disabled]:
+    - img
