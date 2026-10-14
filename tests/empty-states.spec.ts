@@ -43,7 +43,9 @@ describe('empty state UX contract (#194)', () => {
     expect(cartPanel).toContain('cartReadError');
     expect(cartPanel).toContain('cartEmptyPreset');
     expect(cartPanel).toContain('cartErrorPreset');
-    expect(cartPanel).toContain('GlobalEmptyState');
+    // Auto-import registers EmptyState only; an unimported <GlobalEmptyState> renders nothing (#686).
+    expect(cartPanel).toContain('<EmptyState');
+    expect(cartPanel).not.toContain('<GlobalEmptyState');
   });
 
   it('uses shared empty and error states for client orders', () => {

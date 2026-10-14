@@ -60,7 +60,9 @@ describe('cart side-panel thumbnails', () => {
     expect(panelSource).toContain('hasItems');
     expect(panelSource).toContain('v-if="hasItems"');
     expect(panelSource).toContain('cartEmptyPreset');
-    expect(panelSource).toContain('GlobalEmptyState');
+    // Auto-import registers EmptyState only; an unimported <GlobalEmptyState> renders nothing (#686).
+    expect(panelSource).toContain('<EmptyState');
+    expect(panelSource).not.toContain('<GlobalEmptyState');
     expect(presetSource).toContain("primaryLabel: 'Start shopping'");
     expect(panelSource).toMatch(/NuxtLink[\s\S]*v-if="hasItems"[\s\S]*Go to Checkout/);
   });
