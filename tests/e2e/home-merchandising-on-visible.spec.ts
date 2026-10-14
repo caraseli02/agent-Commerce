@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Request } from '@playwright/test';
 
 function merchandisingChunks() {
   const directory = resolve('.output/public/_nuxt');
@@ -22,13 +22,28 @@ for (const viewport of [
     const warnings: string[] = [];
     const failures: string[] = [];
     const requested: string[] = [];
+    const inFlight = new Set<Request>();
+    let lastActivity = Date.now();
     page.on('pageerror', (error) => errors.push(error.message));
     page.on('console', (message) => {
       if (message.type() === 'error') errors.push(message.text());
       if (/hydration|mismatch/i.test(message.text())) warnings.push(message.text());
     });
-    page.on('request', (request) => requested.push(new URL(request.url()).pathname));
-    page.on('requestfailed', (request) => failures.push(request.url()));
+    page.on('request', (request) => {
+      requested.push(new URL(request.url()).pathname);
+      inFlight.add(request);
+      lastActivity = Date.now();
+    });
+    page.on('requestfinished', (request) => {
+      inFlight.delete(request);
+      lastActivity = Date.now();
+    });
+    page.on('requestfailed', (request) => {
+      failures.push(`${request.url()}: ${request.failure()?.errorText}`);
+      inFlight.delete(request);
+      lastActivity = Date.now();
+    });
+    const waitForNetworkQuiet = () => expect.poll(() => inFlight.size === 0 && Date.now() - lastActivity >= 500).toBe(true);
     page.on('response', (response) => {
       if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`);
     });
@@ -73,7 +88,8 @@ for (const viewport of [
     await offer.scrollIntoViewIfNeeded();
     await expect.poll(() => loaded(chunks.offer).length).toBeGreaterThan(0);
     await page.waitForLoadState('networkidle');
-    expect(await geometry(), 'hydrating merchandising changed the server-rendered section geometry').toEqual(beforeHydrationGeometry);
+    const hydratedGeometry = await geometry();
+    expect(hydratedGeometry, 'hydrating merchandising changed the server-rendered section geometry').toEqual(beforeHydrationGeometry);
     await quickBuy.scrollIntoViewIfNeeded();
     if (viewport.width < 1024) {
       await quickBuy.getByRole('button', { name: 'Add to cart', exact: true }).click();
@@ -100,20 +116,39 @@ for (const viewport of [
     await expect(link).toHaveAttribute('href', '/search');
     await page.screenshot({ path: testInfo.outputPath('merchandising-after-scroll.png') });
     const after = { quickBuy: loaded(chunks.quickBuy), offer: loaded(chunks.offer) };
+    expect(after.quickBuy).toHaveLength(1);
+    expect(after.offer).toHaveLength(1);
     const afterGeometry = await geometry();
+    await link.click();
+    await expect(page).toHaveURL(/\/search$/);
+    await expect(page.locator('section').filter({ has: page.getByRole('heading', { name: 'Quick Buy', exact: true }) })).toBeVisible();
+    await waitForNetworkQuiet();
+    await page.goto('/product/stm32f407vgt6', { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { name: 'Quick Buy', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Make a shortlist your team can trust.' })).toBeVisible();
+    await waitForNetworkQuiet();
     await writeFile(
       testInfo.outputPath('runtime.json'),
-      JSON.stringify({ viewport, chunks, before, after, beforeGeometry, afterGeometry, errors, warnings, failures }, null, 2),
+      JSON.stringify(
+        {
+          viewport,
+          chunks,
+          before,
+          after,
+          beforeGeometry,
+          beforeHydrationGeometry,
+          hydratedGeometry,
+          afterGeometry,
+          errors,
+          warnings,
+          failures,
+        },
+        null,
+        2,
+      ),
     );
     expect(errors).toEqual([]);
     expect(warnings).toEqual([]);
     expect(failures).toEqual([]);
-
-    await link.click();
-    await expect(page).toHaveURL(/\/search$/);
-    await expect(page.locator('section').filter({ has: page.getByRole('heading', { name: 'Quick Buy', exact: true }) })).toBeVisible();
-    await page.goto('/product/stm32f407vgt6', { waitUntil: 'networkidle' });
-    await expect(page.getByRole('heading', { name: 'Quick Buy', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Make a shortlist your team can trust.' })).toBeVisible();
   });
 }
