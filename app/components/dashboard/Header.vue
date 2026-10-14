@@ -4,20 +4,38 @@
     :class="[isCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:w-[calc(100%-280px)]']"
   >
     <div class="max-w-full mx-auto flex items-center justify-between px-4 py-3 transition-all duration-300 md:py-4 2xl:px-6">
-      <button class="flex md:opacity-0 md:pointer-events-none md:hidden" @click="$emit('show-side-nav')">
+      <UiButton
+        variant="ghost"
+        size="icon"
+        class="flex h-auto w-auto md:opacity-0 md:pointer-events-none md:hidden"
+        aria-label="Open navigation"
+        @click="$emit('show-side-nav')"
+      >
         <BurgerIcon class="w-6 h-6 text-slate-500" />
-      </button>
+      </UiButton>
       <DashboardSearch v-model="searchValue" placeholder="Search" class="w-[400px] max-md:hidden" />
       <div class="flex items-center">
-        <button class="flex mr-4 md:mr-8 md:hidden" @click="showMobileSearch = !showMobileSearch">
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="flex h-auto w-auto mr-4 md:mr-8 md:hidden"
+          aria-label="Search"
+          @click="showMobileSearch = !showMobileSearch"
+        >
           <SearchIcon class="w-6 h-6 text-slate-500" />
-        </button>
-        <button class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 mr-8 max-md:hidden">
+        </UiButton>
+        <UiButton variant="secondary" size="icon" class="flex w-8 h-8 rounded-full mr-8 max-md:hidden" aria-label="Create new">
           <PlusIcon class="w-6 h-6 text-slate-500" />
-        </button>
-        <button v-if="$route.name === 'dashboard-customers-slug'" class="flex mr-4 md:mr-8">
+        </UiButton>
+        <UiButton
+          v-if="$route.name === 'dashboard-customers-slug'"
+          variant="ghost"
+          size="icon"
+          class="flex h-auto w-auto mr-4 md:mr-8"
+          aria-label="Customer settings"
+        >
           <SettingsIcon class="w-6 h-6 text-slate-500" />
-        </button>
+        </UiButton>
         <div class="relative flex items-center">
           <div class="mr-3 mt-1 max-md:relative md:mr-10">
             <div class="relative">
@@ -37,8 +55,9 @@
                 class="flex flex-col fixed z-50 top-0 left-0 w-full h-full bg-white shadow-m md:absolute md:w-[316px] md:h-[508px] md:max-h-[80vh] md:left-[unset] md:right-0 md:top-[62px] md:rounded-xl md:overflow-hidden"
               >
                 <div class="relative flex items-center justify-between py-4 px-3 shadow-s">
-                  <button
-                    class="flex items-center text-slate-500 transition-colors duration-300 hover:text-blue-500 md:hidden"
+                  <UiButton
+                    variant="ghost"
+                    class="flex h-auto p-0 items-center text-slate-500 transition-colors duration-300 hover:text-blue-500 md:hidden"
                     @click="showNotifications = false"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2">
@@ -60,15 +79,20 @@
                       />
                     </svg>
                     <span class="text-sm leading-[1.43] font-medium"> Back </span>
-                  </button>
+                  </UiButton>
                   <div
                     class="max-md:absolute max-md:top-1/2 max-md:left-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2 text-sm leading-[1.43] font-medium"
                   >
                     Notifications
                   </div>
-                  <button class="flex text-slate-500 transition-colors duration-300 hover:text-blue-500">
+                  <UiButton
+                    variant="ghost"
+                    size="icon"
+                    class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:text-blue-500"
+                    aria-label="Notification settings"
+                  >
                     <SettingsIcon class="w-6 h-6" />
-                  </button>
+                  </UiButton>
                 </div>
                 <div class="flex-1 overflow-y-auto notifications-scroll">
                   <NuxtLink
@@ -106,12 +130,15 @@
                         <span class="text-xs leading-[1.67] text-slate-500 mr-4">
                           {{ getCurrentDate(notification.date) }}
                         </span>
-                        <button
-                          class="flex text-slate-500 transition-colors duration-300 hover:text-blue-500"
+                        <UiButton
+                          variant="ghost"
+                          size="icon"
+                          class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:text-blue-500"
+                          aria-label="Delete notification"
                           @click.stop.prevent="deleteNotification(notification, index)"
                         >
                           <XIcon class="w-4 h-4" />
-                        </button>
+                        </UiButton>
                       </div>
                     </div>
                     <div class="flex items-center justify-between">
@@ -171,7 +198,11 @@
             </Transition>
           </div>
           <div class="relative">
-            <button class="flex items-center text-left" @click="showOptions = !showOptions">
+            <UiButton
+              variant="ghost"
+              class="flex h-auto p-0 items-center text-left text-base font-normal"
+              @click="showOptions = !showOptions"
+            >
               <div class="relative lg:mr-4">
                 <img :src="DashboardAvatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover" loading="lazy" />
                 <div class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white" />
@@ -184,29 +215,32 @@
                   {{ user?.role !== AccountRole.Client ? AccountRole[user.role] : AccountType[user.role] }}
                 </div>
               </div>
-            </button>
+            </UiButton>
             <Transition name="fade-full">
               <div
                 v-if="showOptions"
                 v-click-outside="() => (showOptions = false)"
                 class="absolute -bottom-3.5 right-0 translate-y-full grid grid-cols-1 gap-1 w-full rounded-lg bg-white p-3 min-w-[174px] shadow-m md:-bottom-[18px] md:w-[210px] lg:w-[210px]"
               >
-                <button
-                  class="flex items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                <UiButton
+                  variant="ghost"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
                   @click="showOptions = false"
                 >
                   <ProfileIcon class="w-6 h-6 mr-3 text-current" />
                   <span class="text-sm leading-[1.71] font-medium"> Profile </span>
-                </button>
-                <button
-                  class="flex items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                </UiButton>
+                <UiButton
+                  variant="ghost"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
                   @click="showOptions = false"
                 >
                   <SettingsIcon class="w-6 h-6 mr-3 text-current" />
                   <span class="text-sm leading-[1.71] font-medium">Settings</span>
-                </button>
-                <button
-                  class="flex items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                </UiButton>
+                <UiButton
+                  variant="ghost"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
                   @click="
                     showOptions = false;
                     handleSignOut();
@@ -215,7 +249,7 @@
                 >
                   <SignOutIcon class="w-6 h-6 mr-3 text-current" />
                   <span class="text-sm leading-[1.71] font-medium"> Sign out </span>
-                </button>
+                </UiButton>
               </div>
             </Transition>
           </div>
@@ -227,20 +261,27 @@
             class="absolute z-50 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] md:hidden"
           >
             <div class="flex items-center border border-border bg-white rounded-lg pr-3">
-              <label class="relative z-10 flex-1 flex items-center">
+              <UiLabel class="relative z-10 flex-1 flex items-center font-normal">
                 <form action="" @submit.prevent>
-                  <input
+                  <UiInput
                     v-model="searchValue"
                     type="search"
                     placeholder="Search"
-                    class="bg-transparent flex-1 w-full px-3 py-2.5 text-sm leading-[1.43] placeholder:text-gray-500 focus:outline-none"
+                    class="h-auto rounded-none border-0 bg-transparent flex-1 w-full px-3 py-2.5 text-sm leading-[1.43] placeholder:text-gray-500 focus:outline-none focus-visible:!outline-none"
                   />
                 </form>
-              </label>
+              </UiLabel>
               <SearchIcon v-if="!searchValue" class="flex-shrink-0 w-5 h-5 text-gray-500" />
-              <button v-else class="flex" @click.stop="searchValue = ''">
+              <UiButton
+                v-else
+                variant="ghost"
+                size="icon"
+                class="flex h-auto w-auto"
+                aria-label="Clear search"
+                @click.stop="searchValue = ''"
+              >
                 <XIcon class="flex-shrink-0 w-5 h-5 text-gray-500" />
-              </button>
+              </UiButton>
             </div>
           </div>
         </Transition>

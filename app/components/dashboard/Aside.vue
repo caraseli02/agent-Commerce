@@ -58,12 +58,18 @@
             d="m90.373 17.945 4.134 7.668c.556 1.031-.069 2.387-1.1 2.387h-8.188c-1.027 0-1.653-1.342-1.107-2.375l4.054-7.668c.508-.963 1.69-.97 2.207-.012Z"
           />
         </svg>
-        <button class="flex items-center justify-center p-1 bg-[#2F3241] rounded-lg md:hidden" @click="$emit('close')">
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="flex h-auto w-auto p-1 rounded-lg md:hidden"
+          aria-label="Close navigation"
+          @click="$emit('close')"
+        >
           <XIcon class="w-6 h-6 text-gray-100" />
-        </button>
-        <button class="flex max-md:hidden" @click="$emit('close')">
+        </UiButton>
+        <UiButton variant="ghost" class="flex h-auto p-0 max-md:hidden" aria-label="Collapse navigation" @click="$emit('close')">
           <CollapseIcon class="w-6 h-6" />
-        </button>
+        </UiButton>
       </template>
     </div>
     <nav
@@ -94,10 +100,12 @@
               {{ item.count }}
             </div>
           </NuxtLink>
-          <button
+          <UiButton
             v-else
+            variant="ghost"
             :disabled="isCollapsedOnDesktop"
-            class="group flex items-center text-gray-100 rounded-lg transition-colors duration-300 hover:text-[#009FFF] hover:bg-[#2F3241] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-gray-100 disabled:hover:bg-transparent"
+            :aria-label="isCollapsedOnDesktop ? item.label : undefined"
+            class="group flex h-auto p-0 items-center text-gray-100 rounded-lg transition-colors duration-300 hover:text-[#009FFF] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-gray-100 disabled:hover:bg-transparent"
             :class="[
               item.dropdown?.show ? 'bg-[#2F3241]' : '',
               isCollapsedOnDesktop ? 'justify-center w-12 h-12 mx-auto' : 'justify-between p-3 w-full',
@@ -125,7 +133,7 @@
                 :class="[item.dropdown?.show ? 'rotate-180' : '']"
               />
             </div>
-          </button>
+          </UiButton>
           <Transition name="fade">
             <div v-if="item.dropdown?.show && !isCollapsedOnDesktop" class="py-2 bg-[#2F3241] rounded-lg mt-1">
               <NuxtLink
@@ -152,9 +160,15 @@
         </li>
       </ul>
     </nav>
-    <button v-if="isCollapsedOnDesktop" class="mt-5 max-md:hidden" @click="$emit('close')">
+    <UiButton
+      v-if="isCollapsedOnDesktop"
+      variant="ghost"
+      class="h-auto p-0 mt-5 max-md:hidden"
+      aria-label="Expand navigation"
+      @click="$emit('close')"
+    >
       <Collapse2Icon class="w-6 h-6" />
-    </button>
+    </UiButton>
     <div class="w-full pt-5 px-4 pb-4 text-center" :class="[isCollapsedOnDesktop ? 'mt-2' : 'border-t border-[#2F3241]']">
       <div v-if="!isCollapsedOnDesktop" class="text-xs text-[#C2C5CD] leading-normal mb-1">
         © {{ new Date().getFullYear() }} Components Marketplace Demo

@@ -1,0 +1,7 @@
+- group "1 / 5":
+    - text: October hot sale 5 %
+    - img
+    - text: /STM \d+-bit ARM Cortex-M4 MCU with FPU, 1 MB Flash, and rich peripheral set for industrial control\. Unit \d+\.\d+ Lei \(1\+\) \d+\.\d+ Lei \(1\+\)/
+    - button "Add STM to cart":
+        - img
+        - text: Add to cart

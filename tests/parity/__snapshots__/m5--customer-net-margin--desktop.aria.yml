@@ -1,0 +1,7 @@
+- text: Net Margin
+- img
+- application "area chart with 1 data series"
+- text: /\d+,\d+,\d+\.\d+ Lei/
+- button "View more" [disabled]:
+    - text: ''
+    - img

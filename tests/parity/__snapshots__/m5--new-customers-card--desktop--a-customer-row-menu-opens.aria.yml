@@ -1,0 +1,59 @@
+- text: New Customers
+- link "Melissa Anderson Melissa Anderson melissa.anderson@example.com":
+    - /url: /dashboard/customers/customer-010
+    - img "Melissa Anderson"
+    - text: ''
+- button:
+    - img
+- button "Profile":
+    - img
+    - text: ''
+- button "Orders":
+    - img
+    - text: ''
+- button "Settings":
+    - img
+    - text: ''
+- button "Lock Account":
+    - img
+    - text: ''
+- button "Delete Account":
+    - img
+    - text: ''
+- link "Kevin Thompson Kevin Thompson kevin.thompson@example.com":
+    - /url: /dashboard/customers/customer-009
+    - img "Kevin Thompson"
+    - text: ''
+- button:
+    - img
+- link "Jessica Taylor Jessica Taylor jessica.taylor@example.com":
+    - /url: /dashboard/customers/customer-008
+    - img "Jessica Taylor"
+    - text: ''
+- button:
+    - img
+- link "David Lee David Lee david.lee@example.com":
+    - /url: /dashboard/customers/customer-007
+    - img "David Lee"
+    - text: ''
+- button:
+    - img
+- link "Amanda Brown Amanda Brown amanda.brown@example.com":
+    - /url: /dashboard/customers/customer-006
+    - img "Amanda Brown"
+    - text: ''
+- button:
+    - img
+- link "Robert Wilson Robert Wilson robert.wilson@example.com":
+    - /url: /dashboard/customers/customer-005
+    - img "Robert Wilson"
+    - text: ''
+- img
+- button:
+    - img
+- link "Emily Davis Emily Davis emily.davis@example.com":
+    - /url: /dashboard/customers/customer-004
+    - img "Emily Davis"
+    - text: ''
+- button:
+    - img

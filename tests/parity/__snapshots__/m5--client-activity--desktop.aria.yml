@@ -1,0 +1,16 @@
+- text: My Activity
+- img
+- text: /My Favorites products \d+ folders \d+/
+- button "Favorites"
+- img
+- img
+- text: /Total Orders \d+ This month you have placed \d+ orders\./
+- button "Orders":
+    - text: ''
+    - img
+- img
+- text: /Returns \d+/
+- img
+- text: File a return
+- button "All Returns"
+- img

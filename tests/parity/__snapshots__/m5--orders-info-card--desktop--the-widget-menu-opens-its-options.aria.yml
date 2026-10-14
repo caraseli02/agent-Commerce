@@ -1,0 +1,12 @@
+- img
+- text: /Total Orders \d+/
+- button:
+    - img
+- button "Total Orders"
+- button "Revenue Growth"
+- button "All Time":
+    - text: ''
+    - img
+- button "More" [disabled]:
+    - text: ''
+    - img
