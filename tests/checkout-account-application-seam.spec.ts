@@ -27,7 +27,6 @@ const checkoutAccountSurfaces = [
   'app/components/dashboard/client/settings/Shipping.vue',
   'app/components/dashboard/client/settings/ShippingDialog.vue',
   'app/components/dashboard/client/settings/Security.vue',
-  'app/components/dashboard/client/settings/Marketing.vue',
   'app/components/dashboard/client/settings/AlertsItem.vue',
   'app/components/dashboard/client/settings/Alerts.vue',
   'app/components/dashboard/client/settings/CardsList.vue',

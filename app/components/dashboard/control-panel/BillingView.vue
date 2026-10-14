@@ -38,14 +38,18 @@
             <span class="text-xs font-medium leading-[1.3333]">Default</span>
           </div>
           <div class="flex items-center gap-4 ml-auto">
-            <button
+            <UiButton
               v-if="!address.default"
+              variant="ghost"
+              size="icon"
               class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
               @click="setAsDefault(address)"
             >
               <CheckIcon class="w-5 h-5" />
-            </button>
-            <button
+            </UiButton>
+            <UiButton
+              variant="ghost"
+              size="icon"
               class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
               @click="
                 editAddressModal = address;
@@ -53,26 +57,29 @@
               "
             >
               <EditIcon class="w-5 h-5" />
-            </button>
-            <button
+            </UiButton>
+            <UiButton
               v-if="addresses.length > 1"
+              variant="ghost"
+              size="icon"
               class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
               @click="handleDeleteAddress(index)"
             >
               <TrashIcon class="w-5 h-5" />
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
-      <button
-        class="flex items-center justify-center p-3 border border-dashed border-blue-500 rounded-xl md:p-4"
+      <UiButton
+        variant="outline"
+        class="h-auto flex items-center justify-center p-3 border border-dashed border-blue-500 rounded-xl md:p-4"
         @click="addAddressModal = true"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 40 40" class="w-8 h-8 text-blue-500 md:w-10 md:h-10">
           <path stroke="#007FFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12v16m8-8H12" />
           <rect width="38" height="38" x="1" y="1" stroke="#007FFF" stroke-width="2" rx="19" />
         </svg>
-      </button>
+      </UiButton>
     </div>
     <Teleport to="body">
       <Transition name="fade">
