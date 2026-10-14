@@ -1,0 +1,15 @@
+- button "Profile":
+    - img
+    - text: ''
+- button "Orders":
+    - img
+    - text: ''
+- button "Settings":
+    - img
+    - text: ''
+- button "Lock Account":
+    - img
+    - text: ''
+- button "Delete Account":
+    - img
+    - text: ''

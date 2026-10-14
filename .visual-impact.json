@@ -1,6 +1,13 @@
 {
   "assessments": [
     {
+      "fingerprint": "2958001643a17265e060b39f9e24dc84cba164d7e9440bbc0a095837158e52e8",
+      "impact": "targeted",
+      "tests": ["cart", "orders"],
+      "reason": "M7 shadcn migration of shared table micro components (#644): orders filter tabs and ThreeDotMenu items become UiButton, and the order-summary Select All checkbox becomes UiCheckbox; no store, composable, layout or shared style changes.",
+      "consumers": "admin-table/order/Order.vue renders only on /dashboard/orders. ThreeDotMenu renders only inside opened row menus of dashboard/new-customers/Item.vue (/dashboard, /dashboard/customers), dashboard/customers/CustomerInformation.vue (/dashboard/customers/[slug]) and dashboard/client/Info.vue (/dashboard/client), all behind a click. CheckBoxAll renders only in order-summary/Table/Head.vue on /order-summary. None of these appear in the home, search, product or cart sheet screenshots; cart (populated cart flow) and orders (dashboard surface) are kept as the representative groups. The touched surfaces are outside the screenshot matrix and are covered by 7 M7 parity scenarios (desktop 1440 / mobile 390: ARIA, tab order, interaction outcomes, clean runtime) plus before/after region screenshots with identical dimensions."
+    },
+    {
       "fingerprint": "bc982bc1cab41fbc040f8f38d4b514ad541209855d9b6a08b84f122142e809c6",
       "impact": "targeted",
       "tests": ["cart"],

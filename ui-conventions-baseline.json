@@ -1,7 +1,4 @@
 {
-  "app/components/admin-table/order/Order.vue": {
-    "button": 1
-  },
   "app/components/categories/Range.vue": {
     "input": 2,
     "label": 2
@@ -129,13 +126,6 @@
     "button": 7,
     "input": 1,
     "label": 5
-  },
-  "app/components/shared/tables/micro/CheckBoxAll.vue": {
-    "input": 1,
-    "label": 1
-  },
-  "app/components/shared/tables/micro/row-items/ThreeDotMenu.vue": {
-    "button": 7
   },
   "app/components/signup/BusinessDetails.vue": {
     "button": 2,
