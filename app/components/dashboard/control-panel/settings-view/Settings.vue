@@ -53,11 +53,7 @@
             size="lg"
             class="max-md:mb-4"
           />
-          <UiButton
-            type="button"
-            class="h-auto flex items-center justify-center w-full bg-blue-500 rounded-lg px-6 py-2.5 text-white"
-            @click="resetPassword(securityEmail)"
-          >
+          <UiButton type="button" class="h-auto flex w-full px-6 py-2.5" @click="resetPassword(securityEmail)">
             <SecurityUserIcon class="w-6 h-6 mr-2" />
             <span class="text-sm leading-[1.71] font-medium"> Send Password Reset </span>
           </UiButton>

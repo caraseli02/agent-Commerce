@@ -42,7 +42,7 @@
               v-if="!address.default"
               variant="ghost"
               size="icon"
-              class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
+              class="w-11 h-11"
               aria-label="Set as default address"
               @click="setAsDefault(address)"
             >
@@ -51,7 +51,7 @@
             <UiButton
               variant="ghost"
               size="icon"
-              class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
+              class="w-11 h-11"
               aria-label="Edit address"
               @click="
                 editAddressModal = address;
@@ -64,7 +64,7 @@
               v-if="addresses.length > 1"
               variant="ghost"
               size="icon"
-              class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
+              class="w-11 h-11"
               aria-label="Delete address"
               @click="handleDeleteAddress(index)"
             >
@@ -75,7 +75,7 @@
       </div>
       <UiButton
         variant="outline"
-        class="h-auto flex items-center justify-center p-3 border border-dashed border-blue-500 rounded-xl md:p-4"
+        class="h-auto flex p-3 border-dashed md:p-4"
         aria-label="Add billing address"
         @click="addAddressModal = true"
       >
