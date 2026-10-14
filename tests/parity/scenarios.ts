@@ -798,7 +798,20 @@ export const scenarios: ParityScenario[] = [
         act: async (_page, region) => {
           await region.getByRole('button', { name: 'All Categories' }).click();
         },
-        // Pre-existing: the button unmounts on click, so the popover's click-outside handler closes the whole popover.
+        // #692: the popover stays open and returns to the root list.
+        verify: async (page, region) => {
+          await expect(page.getByRole('navigation', { name: 'Product categories', exact: true })).toBeVisible();
+          await expect(region.getByRole('button', { name: /^Semiconductors/ })).toHaveAttribute('aria-pressed', 'false');
+          await expect(region.getByRole('button', { name: 'All Categories' })).toHaveCount(0);
+          await expect(page.getByRole('button', { name: 'Close products navigation' })).toBeVisible();
+        },
+        snapshot: (page) => page.getByRole('navigation', { name: 'Product categories', exact: true }).locator('xpath=ancestor::section[1]'),
+      },
+      {
+        name: 'an outside click still closes the popover',
+        act: async (page) => {
+          await page.mouse.click(5, 5);
+        },
         verify: async (page) => {
           await expect(page.getByRole('navigation', { name: 'Product categories', exact: true })).toBeHidden();
           await expect(page.getByRole('button', { name: 'Open products navigation' })).toBeVisible();
