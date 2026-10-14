@@ -6,7 +6,7 @@
     </div>
 
     <div v-else-if="cartReadError" class="flex flex-1 items-center px-4 py-6">
-      <GlobalEmptyState v-bind="cartErrorPreset" class="w-full" @primary-click="refreshCartRead()" />
+      <EmptyState v-bind="cartErrorPreset" class="w-full" @primary-click="refreshCartRead()" />
     </div>
 
     <template v-else>
@@ -16,7 +16,7 @@
         </div>
       </div>
       <div v-else class="flex flex-1 items-center px-4 py-6">
-        <GlobalEmptyState v-bind="cartEmptyPreset" class="w-full" @primary-click="$emit('close')" />
+        <EmptyState v-bind="cartEmptyPreset" class="w-full" @primary-click="$emit('close')" />
       </div>
       <div
         class="px-4 pt-4 pb-6 md:p-6"
