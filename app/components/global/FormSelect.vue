@@ -63,13 +63,14 @@
       >
         <div v-if="search" class="mb-[15px]">
           <div class="text-sm text-slate-500 mb-[5px]">Search {{ label }}</div>
-          <UiLabel class="relative flex items-center border border-border rounded px-3">
+          <!-- The label draws the border and focus state (and focuses the input from the icon), so the input drops its own. -->
+          <UiLabel class="relative flex items-center border border-border rounded px-3 focus-within:border-blue-500">
             <SearchIcon class="w-[18px] h-[18px] text-gray-500" />
             <UiInput
               v-model="searchValue"
               type="search"
               :placeholder="`Search ${label}`"
-              class="h-auto flex-1 border-0 bg-transparent pl-2 pr-8 py-[9px] text-sm font-normal"
+              class="h-auto flex-1 border-0 bg-transparent pl-2 pr-8 py-[9px] text-sm font-normal focus-visible:!outline-none"
             />
             <Transition name="fade">
               <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
