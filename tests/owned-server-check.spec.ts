@@ -13,6 +13,8 @@ import {
   bisectForwardArgs,
   bisectPrerequisitesMissing,
   bisectStepExit,
+  buildListArgs,
+  listedTestCount,
   buildPlaywrightArgs,
   listenersOwnedBy,
   mapExitCode,
@@ -406,4 +408,50 @@ describe('bisect step', () => {
       await rm(revision, { recursive: true, force: true });
     }
   });
+});
+
+describe('selected tests', () => {
+  it('lists with the same locked selection', () => {
+    expect(buildListArgs({ config: 'parity', grep: 'M1', specs: ['tests/a.spec.ts'] })).toEqual([
+      'exec',
+      'playwright',
+      'test',
+      '--list',
+      '--config=playwright.parity.config.ts',
+      '--update-snapshots=none',
+      '--grep=M1',
+      'tests/a.spec.ts',
+    ]);
+  });
+
+  it('reads the listed total, and nothing from unrelated output', () => {
+    expect(listedTestCount('  [chromium] › a.spec.ts:1:1 › x\nTotal: 6 tests in 1 file\n')).toBe(6);
+    expect(listedTestCount('Total: 1 test in 1 file\n')).toBe(1);
+    expect(listedTestCount('Error: No tests found\nListing tests:\nTotal: 0 tests in 0 files\n')).toBe(0);
+    expect(listedTestCount('Error: Cannot find module\n')).toBeUndefined();
+  });
+
+  it('skips a historical revision whose config exists but lacks the selected test title (command level)', () => {
+    // Real config and spec, a title no revision has: the check must stop before building, as an environment failure.
+    const result = spawnSync(
+      process.execPath,
+      [
+        'scripts/owned-server-check.mjs',
+        '--config',
+        'parity',
+        '--grep',
+        'HistoricallyAbsentReviewProbe',
+        '--any-head',
+        '--bisect',
+        '--port',
+        '3298',
+      ],
+      { encoding: 'utf8', env: { ...process.env, DATABASE_URL: wrapped('127.0.0.1'), DATABASE_URL_UNPOOLED: '' }, timeout: 120_000 },
+    );
+    expect(result.stderr).toMatch(/no selected tests at this revision \(playwright --list exit 1, 0 tests\)/);
+    expect(result.stdout).not.toMatch(/building/);
+    expect(result.stdout).toMatch(/result=environment exit=125$/m);
+    expect(result.status).toBe(BISECT_SKIP_EXIT);
+    expect(bisectStepExit(result.stdout)).toBe(BISECT_SKIP_EXIT);
+  }, 130_000);
 });

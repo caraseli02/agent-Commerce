@@ -10,7 +10,7 @@
 //     [--port 3205] [--any-head] [--bisect] [tests/....spec.ts ...]
 //
 // Exit codes: the Playwright exit code (0 pass, other non-zero = candidate finding); 1 when the build fails;
-// 75 for an environment failure (wrong head, unwrapped or non-local database, busy port, readiness timeout,
+// 75 for an environment failure (no test matches the selection or the config does not load, wrong head, unwrapped or non-local database, busy port, readiness timeout,
 // listener identity mismatch, budget exhausted, interrupted, bad arguments). With --bisect: 0 → 0, 75 → 125
 // (git bisect "skip"), any other non-zero → 1, and a failed build is an environment failure.
 //
@@ -20,7 +20,7 @@
 //   git bisect run node "$PIN/owned-server-check.mjs" bisect-step --config <name> [--grep ...] [--port ...] [specs]
 // The step skips (125) any revision missing a prerequisite or whose install fails, runs the wrapper and the pinned
 // check for the rest, and reports bad (1) only when the check itself printed result=fail.
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, openSync, closeSync, realpathSync, statSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -165,6 +165,18 @@ export function buildPlaywrightArgs({ config, grep, specs = [] }) {
   const args = ['exec', 'playwright', 'test', `--config=${CONFIGS[config]}`, '--update-snapshots=none'];
   if (grep !== undefined) args.push(`--grep=${grep}`);
   return [...args, ...specs];
+}
+
+/** argv that lists the selected tests without running them (no server needed: the base URL variables are set). */
+export function buildListArgs(options) {
+  const [exec, playwright, test, ...rest] = buildPlaywrightArgs(options);
+  return [exec, playwright, test, '--list', ...rest];
+}
+
+/** Number of tests from `playwright test --list` output (`Total: N tests in M files`), or undefined. */
+export function listedTestCount(output) {
+  const totals = [...String(output ?? '').matchAll(/^Total: (\d+) tests? in \d+ files?$/gm)];
+  return totals.length ? Number(totals.at(-1)[1]) : undefined;
 }
 
 /**
@@ -384,6 +396,24 @@ async function waitForReady(server, port, deadline) {
   );
 }
 
+// A selection that matches nothing (a title or scenario this revision does not have yet) or a config that
+// does not load is not a failing test, so it never becomes a finding or a bisect "bad".
+function requireSelectedTests(options) {
+  const listing = spawnSync('pnpm', buildListArgs(options), {
+    env: testEnvironment(process.env, `http://127.0.0.1:${options.port}`),
+    encoding: 'utf8',
+    timeout: 120_000,
+    shell: false,
+  });
+  const count = listedTestCount(listing.stdout);
+  if (listing.status !== 0 || !count) {
+    throw new EnvironmentFailure(
+      `no selected tests at this revision (playwright --list exit ${listing.status ?? 'none'}, ${count ?? 'unknown'} tests)`,
+    );
+  }
+  process.stdout.write(`owned-server-check: ${count} selected test(s)\n`);
+}
+
 async function run(options, state) {
   const startedAt = Date.now();
   const deadline = startedAt + options.minutes * 60_000;
@@ -396,6 +426,7 @@ async function run(options, state) {
   validateDatabaseUrl(process.env.DATABASE_URL);
   if (process.env.DATABASE_URL_UNPOOLED) validateDatabaseUrl(process.env.DATABASE_URL_UNPOOLED);
   await requireFreePort(options.port);
+  requireSelectedTests(options);
 
   const logDirectory = mkdtempSync(join(tmpdir(), 'owned-server-check-'));
   const buildLog = join(logDirectory, 'build.log');
