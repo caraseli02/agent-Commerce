@@ -1,33 +1,35 @@
 <template>
   <div>
-    <label v-if="label" :for="inputId" class="mb-1 block text-sm text-gray-500">
+    <UiLabel v-if="label" :for="inputId" class="mb-1 block">
       {{ label }}
-    </label>
+    </UiLabel>
     <div
       class="relative border w-full transition-colors duration-300"
       :class="[error ? 'border-rose-500' : 'border-border focus-within:border-blue-500', size === 'lg' ? 'rounded-lg' : 'rounded']"
     >
-      <input
+      <!-- The wrapper draws the border and focus state, so the input drops its own. -->
+      <UiInput
         :id="inputId"
-        :value="modelValue"
+        :model-value="modelValue"
         :type="showPassword ? 'text' : 'password'"
         :placeholder="placeholder"
         :aria-invalid="error ? 'true' : undefined"
         :aria-describedby="error ? errorId : undefined"
-        class="bg-transparent pl-3 pr-12 text-sm !placeholder:text-gray-500 w-full focus:outline-none"
-        :class="[size === 'lg' ? 'py-2.5' : 'py-2']"
-        @input="handleInput"
+        :class="['border-0 bg-transparent pl-3 pr-12 text-sm focus-visible:!outline-none', size === 'lg' ? 'h-auto py-2.5' : 'h-auto py-2']"
+        @update:model-value="handleInput"
       />
-      <button
+      <UiButton
         type="button"
-        class="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-r-lg text-gray-500 transition-colors hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+        variant="ghost"
+        size="icon"
+        class="absolute right-0 top-0 h-11 w-11 text-gray-500"
         :aria-label="showPassword ? 'Hide password' : 'Show password'"
         :aria-pressed="showPassword"
         @click="showPassword = !showPassword"
       >
         <EyeClosedIcon v-if="!showPassword" class="h-6 w-6" />
         <EyeIcon v-else class="h-6 w-6" />
-      </button>
+      </UiButton>
       <div v-if="handleStrength" class="flex flex-col mt-[15px]">
         <div class="grid grid-cols-5 gap-2.5 mb-[5px]">
           <div
@@ -138,9 +140,7 @@ const passwordStrength = computed(() => {
   return score;
 });
 
-const handleInput = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-
-  emits('update:modelValue', target.value);
+const handleInput = (value: string | number) => {
+  emits('update:modelValue', String(value));
 };
 </script>

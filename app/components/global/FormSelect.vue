@@ -3,13 +3,16 @@
     <div v-if="label" class="text-sm text-slate-500 mb-1">
       {{ label }}
     </div>
-    <button
+    <UiButton
       type="button"
-      class="flex items-center justify-between px-3 text-sm w-full border transition-colors duration-300 focus:outline-none"
+      variant="outline"
+      class="w-full justify-between px-3"
       :class="[
-        error ? 'border-red' : showOptions ? 'border-blue-500' : 'border-border',
-        disabled && showDisabledStyles ? 'disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none' : '',
-        size === 'lg' ? 'py-[9px] rounded-lg h-11' : 'py-2 rounded h-10',
+        error ? 'border-red' : showOptions ? 'border-blue-500' : '',
+        disabled && showDisabledStyles
+          ? 'disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none'
+          : 'disabled:opacity-100',
+        size === 'lg' ? 'h-11' : 'h-10',
       ]"
       :disabled="disabled"
       @click="showOptions = !showOptions"
@@ -50,7 +53,7 @@
           d="m5.836 8.332 4.167 3.333 4.166-3.333"
         />
       </svg>
-    </button>
+    </UiButton>
     <Transition name="fade-full">
       <div
         v-if="showOptions"
@@ -60,33 +63,26 @@
       >
         <div v-if="search" class="mb-[15px]">
           <div class="text-sm text-slate-500 mb-[5px]">Search {{ label }}</div>
-          <label class="relative flex items-center border border-border rounded px-3">
+          <UiLabel class="relative flex items-center border border-border rounded px-3">
             <SearchIcon class="w-[18px] h-[18px] text-gray-500" />
-            <input
+            <UiInput
               v-model="searchValue"
               type="search"
               :placeholder="`Search ${label}`"
-              class="bg-transparent flex-1 pl-2 pr-8 py-[9px] w-full text-sm placeholder:text-gray-500 focus:outline-none"
+              class="h-auto flex-1 border-0 bg-transparent pl-2 pr-8 py-[9px] text-sm font-normal"
             />
             <Transition name="fade">
               <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
             </Transition>
-          </label>
+          </UiLabel>
         </div>
-        <template v-if="checkboxes">
-          <label
+        <UiRadioGroup v-if="checkboxes" :model-value="modelValue?.value" class="gap-0" @update:model-value="radioHandler">
+          <UiLabel
             v-for="(option, index) in filteredOptions"
             :key="index"
             class="group flex items-center cursor-pointer py-[9px] px-2.5 transition-colors duration-300 hover:bg-[#F2F2F2] rounded-[5px]"
           >
-            <input
-              :value="option.value === modelValue?.value"
-              :checked="option.value === modelValue?.value"
-              type="radio"
-              name="option"
-              class="sr-only"
-              @change="inputHandler(option)"
-            />
+            <UiRadioGroupItem :value="option.value" class="sr-only" />
             <div
               class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300 mr-2.5"
               :class="[
@@ -102,14 +98,15 @@
             >
               {{ option.label }}
             </span>
-          </label>
-        </template>
+          </UiLabel>
+        </UiRadioGroup>
         <template v-else>
-          <button
+          <UiButton
             v-for="option in filteredOptions"
             :key="option.value"
             type="button"
-            class="flex w-full px-2.5 py-[9px] text-left rounded-[5px] text-slate-500 transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-neutral-700"
+            variant="ghost"
+            class="h-auto w-full justify-start whitespace-normal px-2.5 py-[9px] text-left"
             :class="[option.value === modelValue?.value ? 'text-blue-500' : '']"
             @click="inputHandler(option)"
           >
@@ -124,7 +121,7 @@
             <span>
               {{ option.label }}
             </span>
-          </button>
+          </UiButton>
         </template>
       </div>
     </Transition>
@@ -200,5 +197,13 @@ const filteredOptions = computed(() => {
 const inputHandler = (option: FormSelectOption) => {
   emits('update:modelValue', option);
   showOptions.value = false;
+};
+
+const radioHandler = (value: string) => {
+  const option = filteredOptions.value.find((e) => e.value === value);
+
+  if (option) {
+    inputHandler(option);
+  }
 };
 </script>
