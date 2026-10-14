@@ -20,15 +20,16 @@
             @blur="showMobileSearch = false"
           />
           <div class="flex items-center gap-2 md:ml-4 md:gap-6 lg:gap-9">
-            <button
-              class="flex min-h-11 min-w-11 items-center justify-center xl:hidden"
+            <UiButton
+              variant="ghost"
+              class="flex min-h-11 min-w-11 p-0 hover:bg-white/10 xl:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex']"
               aria-label="Search products"
               @click="showMobileSearch = true"
             >
               <SearchIcon class="h-6 w-6 text-primary-foreground xl:mr-2" />
               <span class="hidden font-medium leading-normal text-primary-foreground xl:inline-block"> Search </span>
-            </button>
+            </UiButton>
             <div class="relative hidden items-center max-md:hidden" :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex']">
               <ClientOnly>
                 <LazyNotifications
@@ -39,18 +40,20 @@
                 />
               </ClientOnly>
             </div>
-            <button
+            <UiButton
               type="button"
-              class="flex min-h-11 min-w-11 flex-col items-center justify-center"
+              variant="ghost"
+              class="flex h-auto min-h-11 min-w-11 flex-col p-0 hover:bg-white/10"
               :class="[showMobileSearch ? 'max-md:hidden md:hidden lg:flex' : '']"
               aria-label="Open my account"
               @click="openAccountModal()"
             >
               <UserIcon class="h-6 w-6 text-primary-foreground xl:mb-1" />
               <span class="hidden text-xs font-medium leading-[1.33] text-primary-foreground xl:inline-block"> My Account </span>
-            </button>
-            <button
-              class="relative flex min-h-11 min-w-11 items-center gap-2 text-left"
+            </UiButton>
+            <UiButton
+              variant="ghost"
+              class="relative h-auto min-h-11 min-w-11 justify-start gap-2 p-0 text-left hover:bg-white/10"
               :class="[showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
               aria-label="Open shopping cart"
               @click="openCartModal()"
@@ -74,20 +77,20 @@
                 <div class="text-sm font-medium leading-5">{{ formattedCartTotal }}</div>
                 <div class="text-[10px] leading-4">(ex VAT)</div>
               </div>
-            </button>
+            </UiButton>
           </div>
         </div>
         <Transition name="fade">
           <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 left-0 w-full -translate-y-1/2 md:hidden">
             <div class="flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-3">
-              <label class="relative z-10 flex h-10 min-w-0 flex-1 items-center">
+              <UiLabel class="relative z-10 flex h-10 min-w-0 flex-1 items-center font-normal">
                 <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent="showMobileSearch = false">
-                  <input
+                  <UiInput
                     ref="searchDOM"
                     v-model="searchVal"
                     type="search"
                     placeholder="Search products"
-                    class="h-full w-full min-w-0 bg-transparent py-2 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
+                    class="h-full w-full min-w-0 rounded-none border-0 bg-transparent py-2 pl-0 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
                     @input="onInput"
                     @keypress.enter="
                       $router.push('/search');
@@ -96,16 +99,18 @@
                     @blur="showMobileSearch = false"
                   />
                 </form>
-              </label>
-              <button
+              </UiLabel>
+              <UiButton
                 type="button"
-                class="flex flex-shrink-0 items-center justify-center text-slate-500"
+                variant="ghost"
+                size="icon"
+                class="h-auto w-auto flex-shrink-0 text-slate-500"
                 aria-label="Close search"
                 @mousedown.prevent
                 @click="showMobileSearch = false"
               >
                 <XIcon class="h-5 w-5" />
-              </button>
+              </UiButton>
             </div>
           </div>
         </Transition>
@@ -213,7 +218,7 @@ const openCartModal = () => {
 
 const searchVal = ref('');
 const showMobileSearch = ref(false);
-const searchDOM = ref<HTMLInputElement>();
+const searchDOM = ref<{ el: HTMLInputElement | null } | null>(null);
 const productList = ref<ProductInterface[]>([]);
 const isLoading = ref(false);
 
@@ -343,7 +348,7 @@ const deleteNotification = async (notification: Notification, index: number) => 
 watch(showMobileSearch, (newVal) => {
   if (newVal) {
     nextTick(() => {
-      searchDOM.value?.focus();
+      searchDOM.value?.el?.focus();
     });
   } else {
     searchVal.value = '';

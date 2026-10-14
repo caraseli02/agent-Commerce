@@ -1,0 +1,4 @@
+1. button "Featured"
+2. button "Best Sellers"
+3. button "Hot Deals"
+4. button "Top Searched"

@@ -1,0 +1,15 @@
+- link "View STM32F407VGT6 Microcontroller":
+    - /url: /product/stm32f407vgt6
+    - img
+    - text: /\d+/
+    - img "STM32F407VGT6 Microcontroller"
+- heading "STM32F407VGT6 Microcontroller" [level=3]:
+    - link "STM32F407VGT6 Microcontroller":
+        - /url: /product/stm32f407vgt6
+- button "Product options":
+    - img
+- strong: /\d+\.\d+ Lei/
+- text: (1+)
+- button "Add STM32F407VGT6 Microcontroller to cart":
+    - img
+    - text: ''

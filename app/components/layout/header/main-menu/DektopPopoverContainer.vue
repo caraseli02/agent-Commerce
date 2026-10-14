@@ -98,12 +98,13 @@ void getCategories();
           </div>
           <span class="sr-only">Loading categories…</span>
         </div>
-        <button
+        <UiButton
           v-for="category in categories"
           v-else
           :key="category.id"
           type="button"
-          class="group w-full h-[58px] flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-left transition-colors duration-200 hover:bg-[#ECEFF3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          variant="ghost"
+          class="group w-full h-[58px] justify-between gap-3 px-3 py-2 rounded-xl text-left"
           :class="isSelected(category.id) ? 'bg-[#ECEFF3]' : ''"
           :aria-pressed="isSelected(category.id)"
           @click="handleRootClick(category)"
@@ -135,7 +136,7 @@ void getCategories();
             :class="isSelected(category.id) ? 'text-primary' : 'text-[#2D3340]'"
             aria-hidden="true"
           />
-        </button>
+        </UiButton>
       </div>
       <div class="h-full min-h-0 pl-2">
         <LayoutHeaderMainMenuBannerNew v-if="!hasSelection" class="h-full" />
@@ -148,13 +149,7 @@ void getCategories();
                 <span :class="index === breadcrumbTrail.length - 1 ? 'text-[#2D3340] font-semibold' : ''">{{ crumb }}</span>
               </span>
             </div>
-            <button
-              type="button"
-              class="h-8 px-3 rounded-lg border border-[#D8DCE5] text-[13px] font-medium text-[#5E6572] hover:bg-[#F5F7FA] transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-              @click="resetSelection"
-            >
-              All Categories
-            </button>
+            <UiButton type="button" variant="outline" size="xs" class="shrink-0" @click="resetSelection"> All Categories </UiButton>
           </div>
 
           <div class="flex-1 overflow-y-auto p-5 min-h-0">
@@ -163,11 +158,12 @@ void getCategories();
                 <h4 class="text-[14px] leading-[1.3] font-semibold text-[#2D3340] truncate">
                   {{ column.title }}
                 </h4>
-                <button
+                <UiButton
                   v-for="entry in column.entries"
                   :key="entry.id"
                   type="button"
-                  class="text-left group block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  variant="ghost"
+                  class="group block h-auto w-full p-0 text-left"
                   @click="handleChildClick(entry)"
                 >
                   <div class="text-[13px] leading-[1.3] font-medium text-[#464D5A] group-hover:text-primary truncate">
@@ -176,14 +172,10 @@ void getCategories();
                   <div class="text-[11px] leading-[1.3] font-medium text-[#8A90A0] mt-0.5">
                     {{ formatItemCount(entry.productCount) }}
                   </div>
-                </button>
-                <button
-                  type="button"
-                  class="text-[13px] font-medium text-primary hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
-                  @click="handleViewAll(column.source)"
-                >
+                </UiButton>
+                <UiButton type="button" variant="link" class="h-auto p-0 text-[13px] text-primary" @click="handleViewAll(column.source)">
                   View all
-                </button>
+                </UiButton>
               </div>
             </div>
             <div v-else class="text-[14px] text-[#7B8290]">No subcategories available.</div>

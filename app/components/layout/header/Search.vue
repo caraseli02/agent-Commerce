@@ -1,14 +1,14 @@
 <template>
   <div class="relative">
-    <label class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-white md:flex">
+    <UiLabel class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-white font-normal md:flex">
       <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent>
-        <input
+        <UiInput
           ref="searchDOM"
           v-model="searchVal"
           type="search"
           placeholder="Search products"
           autocomplete="off"
-          class="h-full w-full flex-1 px-3 text-sm leading-5 text-slate-500 placeholder:text-gray-500 focus:outline-none"
+          class="h-full w-full flex-1 rounded-none border-0 px-3 text-sm leading-5 text-slate-500 placeholder:text-gray-500 focus:outline-none"
           @input="onInput"
           @keypress.enter="handleEnterButton"
           @blur="
@@ -23,7 +23,7 @@
       >
         <SearchIcon class="h-5 w-5 text-primary-foreground" />
       </div>
-    </label>
+    </UiLabel>
     <Transition name="fade">
       <LayoutHeaderSearchResults
         v-if="searchVal && showResults && showSearchResults"
@@ -57,7 +57,7 @@ const props = defineProps({
 
 defineEmits(['blur']);
 
-const searchDOM = ref<HTMLElement>();
+const searchDOM = ref<{ el: HTMLInputElement | null } | null>(null);
 const searchVal = ref('');
 const isLoading = ref<boolean>(false);
 const productList = ref<ProductInterface[]>([]);
@@ -103,7 +103,7 @@ watch(searchVal, (val) => {
 watch(focus, (newVal) => {
   if (newVal && window.innerWidth >= 768 && window.innerWidth <= 1024) {
     nextTick(() => {
-      searchDOM.value?.focus();
+      searchDOM.value?.el?.focus();
     });
   }
 });

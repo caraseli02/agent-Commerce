@@ -1,0 +1,5 @@
+- text: Search by part number or keyword
+- searchbox "Search by part number or keyword" [invalid]
+- button "Search catalog"
+- paragraph: Use a manufacturer part number for the most precise match.
+- alert: Enter a part number or keyword to search.

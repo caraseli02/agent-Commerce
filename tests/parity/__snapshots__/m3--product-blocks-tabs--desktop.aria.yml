@@ -1,0 +1,9 @@
+- heading "Featured Products" [level=2]
+- paragraph:
+    - button "Featured"
+- paragraph:
+    - button "Best Sellers"
+- paragraph:
+    - button "Hot Deals"
+- paragraph:
+    - button "Top Searched"

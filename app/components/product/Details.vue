@@ -33,14 +33,10 @@
     </div>
     <div class="flex items-center justify-between gap-3 rounded-lg bg-light-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Customer’s Code</div>
-      <button
-        type="button"
-        class="flex min-h-11 items-center text-slate-500 transition-colors duration-300 hover:text-blue-500"
-        @click="showCustomProductPartNumberModal = true"
-      >
+      <UiButton type="button" variant="link" class="h-auto min-h-11 p-0" @click="showCustomProductPartNumberModal = true">
         <span class="text-xs leading-tight mr-[5px] text-slate-500"> Your Custom Code </span>
         <SquarePen class="w-4 h-4 stroke-1" />
-      </button>
+      </UiButton>
     </div>
     <div class="flex items-center justify-between gap-3 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">EDA / CAD Models</div>

@@ -5,7 +5,12 @@ versioned dispatcher and investigation workflow; repository changes do not insta
 themselves. If routing_version is absent, use the legacy installed WIP1 policy and
 do not enable the proposed queue/investigation. Human merge precedes watched migration.
 Honor builder_enabled/native_execution_ready and the native global work lease using
-this actual chat ID. Busy/unknown yields; no takeover, age expiry or lock deletion.
+this actual chat ID. Busy uses the installed protocol-2 sanitized inspection and original-owner recovery
+procedure only when recovery_version is installed. Unknown ownership, a running chat or
+surviving command retains exclusion. Proven interrupted idle owners receive one durable
+deduplicated scoped recovery in their original chat; reconcile ambiguous delivery before
+retry and emit one blocker after two unresolved reconciliations. No takeover, age expiry
+or lock deletion; legacy keepers remain unknown, never auto-migrate.
 Use registered native commands, live GitHub and the one classifier for dispatch and
 registry reporting. Exactly one live implementation; pending first evaluation holds
 its slot. Trusted exact-head Claude PASS plus required green CI admits an open canonical

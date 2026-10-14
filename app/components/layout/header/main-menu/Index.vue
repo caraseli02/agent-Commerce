@@ -3,9 +3,15 @@
     <div class="flex items-center justify-between px-5 pt-[15px] pb-[15px] border-b border-gray-200 mb-[15px] md:hidden">
       <div v-if="!selectedCategory" class="text-lg font-semibold text-slate-500">Products</div>
       <template v-else>
-        <button class="flex" @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)">
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="h-auto w-auto"
+          :aria-label="selectedSubCategory ? `Back to ${selectedCategory.name}` : 'Back to all categories'"
+          @click="selectedSubCategory ? (selectedSubCategory = null) : (selectedCategory = null)"
+        >
           <CaretLeft class="w-6 h-6" />
-        </button>
+        </UiButton>
         <div class="flex items-center text-primary">
           <component :is="selectedCategory.icon" v-if="!selectedSubCategory" class="w-[22px] h-[22px] mr-1.5" />
           <div class="text-sm font-semibold">
@@ -13,21 +19,25 @@
           </div>
         </div>
       </template>
-      <button
-        class="rounded w-8 h-8 bg-[#F2F2F2] flex items-center justify-center text-gray-500 transition-colors duration-300 hover:text-slate-500"
+      <UiButton
+        variant="secondary"
+        size="icon"
+        class="h-8 w-8 rounded text-gray-500"
+        aria-label="Close products navigation"
         @click="showNavModal = false"
       >
         <XIcon class="w-[15px] h-[15px]" />
-      </button>
+      </UiButton>
     </div>
     <div
       class="flex-1 flex flex-col gap-1.5 font-Inter overflow-y-auto scrollbar-thin pl-2.5 pr-[15px] pb-[15px] border-b border-gray-200 mb-[15px]"
     >
       <template v-if="!selectedCategory">
-        <button
+        <UiButton
           v-for="(category, index) in allCategories"
           :key="index"
-          class="group flex items-center px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
+          variant="ghost"
+          class="group h-auto justify-start px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left hover:text-primary"
           @click="
             selectedCategory = category;
             handleCategoryClick(category);
@@ -44,13 +54,14 @@
               {{ category.productCount }} products
             </div>
           </div>
-        </button>
+        </UiButton>
       </template>
       <template v-else-if="selectedCategory && !selectedSubCategory">
-        <button
+        <UiButton
           v-for="(subCategory, index) in selectedCategory.subcategory"
           :key="index"
-          class="group flex items-center px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
+          variant="ghost"
+          class="group h-auto justify-start px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left hover:text-primary"
           @click="
             selectedSubCategory = subCategory;
             handleCategoryClick(subCategory);
@@ -64,7 +75,7 @@
               {{ subCategory.productCount }} products
             </div>
           </div>
-        </button>
+        </UiButton>
       </template>
       <template v-else-if="selectedSubCategory">
         <NuxtLink

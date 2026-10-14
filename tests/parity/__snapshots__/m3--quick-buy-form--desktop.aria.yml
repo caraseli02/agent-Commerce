@@ -1,0 +1,31 @@
+- img
+- heading "Quick Buy" [level=2]
+- paragraph: Have a part list ready? Add manufacturer part numbers and quantities directly to your cart.
+- text: Part number 1
+- textbox "Part number 1":
+    - /placeholder: Manufacturer part number
+- button "Decrease quantity" [disabled]:
+    - img
+- spinbutton "Quantity": '1'
+- alert
+- button "Increase quantity":
+    - img
+- button "Remove part 1":
+    - img
+- text: Part number 2
+- textbox "Part number 2":
+    - /placeholder: Manufacturer part number
+- button "Decrease quantity" [disabled]:
+    - img
+- spinbutton "Quantity": '1'
+- alert
+- button "Increase quantity":
+    - img
+- button "Remove part 2":
+    - img
+- button "Add part":
+    - img
+    - text: ''
+- button "Add to cart":
+    - img
+    - text: ''

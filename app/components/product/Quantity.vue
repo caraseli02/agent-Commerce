@@ -118,9 +118,9 @@
               "
             />
           </div>
-          <button
+          <UiButton
             type="button"
-            class="flex min-h-11 flex-1 items-center justify-center rounded-lg bg-blue-500 px-5 py-[9px] text-white disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+            class="min-h-11 flex-1 px-5 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
             aria-label="Add to cart — selected quantity"
             :aria-busy="!isCartReady || isAddingToCart"
             :aria-disabled="isAddingToCart"
@@ -132,7 +132,7 @@
             <span v-if="minPriceConfiguration && quantity" class="text-sm font-medium">
               {{ cartButtonLabel }}
             </span>
-          </button>
+          </UiButton>
         </div>
         <p
           id="cart-qty-unchanged-hint"
