@@ -184,6 +184,12 @@
       "impact": "none",
       "reason": "Versioned external Codex host routing and report-only investigation assets; no storefront runtime or visible state changes.",
       "consumers": "Traced .codex-autonomy Python entrypoints and JSON/workflows: loaded only by explicit native host commands and the portable test subprocess in tests/codex-routing.spec.ts. Nuxt app, Nitro routes, stores, API contracts, layouts, assets, dependency/build configuration and Playwright app configs do not import these files. Runtime helper starts a separate pinned mock checkout for evidence and changes no app source or UI data contract. Governing docs describe post-merge host installation; no installed routing code is activated. The application screenshot matrix has no changed consumer; owned-process/main smoke and focused routing tests verify the actual host effects."
+    },
+    {
+      "fingerprint": "94cc319e608f7a1151950173caad5615dd33ad59c6bc321b155a27fd7f7be987",
+      "impact": "none",
+      "reason": "Adds reviewed native Codex lease diagnostics and original-owner recovery source/migration assets; no rendered application behavior changes.",
+      "consumers": "The only new executable consumers are .codex-autonomy/recovery.py, its immutable post-merge host installer, the external native dispatcher/worker workflows, and tests/codex-routing.spec.ts which spawns portable temporary-process fixtures in Vitest. Nuxt app/, server/, layouts, stores, runtime config, styles, assets, application dependencies and payment adapters neither import nor read .codex-autonomy or these host settings. Installed host files and automation remain legacy and unchanged by this PR. Actual lease/process and dispatcher delivery behavior is verified with temporary keeper/guardian/command fixtures, not storefront screenshots. Therefore home/search/product/cart/orders screenshots cannot observe this patch."
     }
   ]
 }
