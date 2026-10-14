@@ -205,7 +205,7 @@ function bodyFileArgument(argv) {
 
 function report(result) {
   if (result.status === 'skipped' || result.status === 'passed') {
-    console.log(result.reason);
+    process.stdout.write(`${result.reason}\n`);
     return;
   }
 
