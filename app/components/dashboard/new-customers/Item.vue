@@ -38,7 +38,7 @@
       <UiButton
         variant="ghost"
         size="icon"
-        class="flex h-auto w-auto text-[#9296AA] transition-colors duration-300 hover:bg-transparent hover:text-blue-500"
+        class="flex h-auto w-auto text-[#9296AA] transition-colors duration-300 hover:text-blue-500"
         aria-label="Open customer menu"
         @click="showOptions = !showOptions"
       >

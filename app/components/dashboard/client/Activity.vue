@@ -51,7 +51,7 @@
               v-if="hasFavorites"
               class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 transition-all cursor-pointer"
             >
-              <UiButton variant="ghost" class="h-auto p-0 text-sm font-medium leading-5 grow hover:bg-transparent">Favorites</UiButton>
+              <UiButton variant="ghost" class="h-auto p-0 text-sm font-medium leading-5 grow">Favorites</UiButton>
               <SvgoArrowLeft16
                 class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"
               />
@@ -183,9 +183,7 @@
               </div>
             </div>
             <div class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 cursor-pointer">
-              <UiButton variant="ghost" class="h-auto p-0 text-sm font-medium leading-5 grow whitespace-nowrap hover:bg-transparent"
-                >All Returns</UiButton
-              >
+              <UiButton variant="ghost" class="h-auto p-0 text-sm font-medium leading-5 grow whitespace-nowrap">All Returns</UiButton>
               <SvgoArrowLeft16
                 class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"
               />

@@ -70,7 +70,7 @@
             </section>
             <UiButton
               type="button"
-              class="h-auto justify-between items-stretch bg-blue-500 flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit hover:bg-blue-400 hover:opacity-90 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+              class="h-auto justify-between items-stretch flex gap-2 px-9 py-2 rounded-lg max-md:px-5 w-fit aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
               :aria-label="`Add ${item.productCode || 'product'} to cart`"
               :aria-busy="isSlideAdding(item)"
               :aria-disabled="isSlideAdding(item) || !item._id"

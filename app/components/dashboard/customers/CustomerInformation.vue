@@ -9,7 +9,7 @@
         <UiButton
           variant="ghost"
           size="icon"
-          class="flex h-auto w-auto hover:bg-transparent"
+          class="flex h-auto w-auto"
           aria-label="Open customer information menu"
           @click="showOptions = !showOptions"
         >

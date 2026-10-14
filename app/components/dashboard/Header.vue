@@ -7,7 +7,7 @@
       <UiButton
         variant="ghost"
         size="icon"
-        class="flex h-auto w-auto hover:bg-transparent md:opacity-0 md:pointer-events-none md:hidden"
+        class="flex h-auto w-auto md:opacity-0 md:pointer-events-none md:hidden"
         aria-label="Open navigation"
         @click="$emit('show-side-nav')"
       >
@@ -18,25 +18,20 @@
         <UiButton
           variant="ghost"
           size="icon"
-          class="flex h-auto w-auto mr-4 hover:bg-transparent md:mr-8 md:hidden"
+          class="flex h-auto w-auto mr-4 md:mr-8 md:hidden"
           aria-label="Search"
           @click="showMobileSearch = !showMobileSearch"
         >
           <SearchIcon class="w-6 h-6 text-slate-500" />
         </UiButton>
-        <UiButton
-          variant="ghost"
-          size="icon"
-          class="flex w-8 h-8 rounded-full bg-gray-100 mr-8 hover:bg-gray-100 max-md:hidden"
-          aria-label="Create new"
-        >
+        <UiButton variant="secondary" size="icon" class="flex w-8 h-8 rounded-full mr-8 max-md:hidden" aria-label="Create new">
           <PlusIcon class="w-6 h-6 text-slate-500" />
         </UiButton>
         <UiButton
           v-if="$route.name === 'dashboard-customers-slug'"
           variant="ghost"
           size="icon"
-          class="flex h-auto w-auto mr-4 hover:bg-transparent md:mr-8"
+          class="flex h-auto w-auto mr-4 md:mr-8"
           aria-label="Customer settings"
         >
           <SettingsIcon class="w-6 h-6 text-slate-500" />
@@ -62,7 +57,7 @@
                 <div class="relative flex items-center justify-between py-4 px-3 shadow-s">
                   <UiButton
                     variant="ghost"
-                    class="flex h-auto p-0 items-center text-slate-500 transition-colors duration-300 hover:bg-transparent hover:text-blue-500 md:hidden"
+                    class="flex h-auto p-0 items-center text-slate-500 transition-colors duration-300 hover:text-blue-500 md:hidden"
                     @click="showNotifications = false"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2">
@@ -93,7 +88,7 @@
                   <UiButton
                     variant="ghost"
                     size="icon"
-                    class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:bg-transparent hover:text-blue-500"
+                    class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:text-blue-500"
                     aria-label="Notification settings"
                   >
                     <SettingsIcon class="w-6 h-6" />
@@ -138,7 +133,7 @@
                         <UiButton
                           variant="ghost"
                           size="icon"
-                          class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:bg-transparent hover:text-blue-500"
+                          class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:text-blue-500"
                           aria-label="Delete notification"
                           @click.stop.prevent="deleteNotification(notification, index)"
                         >
@@ -205,7 +200,7 @@
           <div class="relative">
             <UiButton
               variant="ghost"
-              class="flex h-auto p-0 items-center text-left text-base font-normal hover:bg-transparent"
+              class="flex h-auto p-0 items-center text-left text-base font-normal"
               @click="showOptions = !showOptions"
             >
               <div class="relative lg:mr-4">
@@ -229,7 +224,7 @@
               >
                 <UiButton
                   variant="ghost"
-                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
                   @click="showOptions = false"
                 >
                   <ProfileIcon class="w-6 h-6 mr-3 text-current" />
@@ -237,7 +232,7 @@
                 </UiButton>
                 <UiButton
                   variant="ghost"
-                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
                   @click="showOptions = false"
                 >
                   <SettingsIcon class="w-6 h-6 mr-3 text-current" />
@@ -245,7 +240,7 @@
                 </UiButton>
                 <UiButton
                   variant="ghost"
-                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
                   @click="
                     showOptions = false;
                     handleSignOut();
@@ -281,7 +276,7 @@
                 v-else
                 variant="ghost"
                 size="icon"
-                class="flex h-auto w-auto hover:bg-transparent"
+                class="flex h-auto w-auto"
                 aria-label="Clear search"
                 @click.stop="searchValue = ''"
               >

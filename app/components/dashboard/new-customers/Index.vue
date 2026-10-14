@@ -34,7 +34,7 @@
       <div v-if="type !== 'landing'" class="flex items-center">
         <ArrowUpIcon class="w-4 h-4 mr-1" />
         <div class="text-sm leading-[1.43] font-medium text-[#00D395] mr-1">3,78%</div>
-        <UiButton variant="ghost" class="flex h-auto p-0 hover:bg-transparent" @click="showOptions = !showOptions">
+        <UiButton variant="ghost" class="flex h-auto p-0" @click="showOptions = !showOptions">
           <span class="text-sm left-[1.43] text-slate-500 font-medium mr-1">
             {{ selectedOption }}
           </span>
@@ -63,7 +63,7 @@
           v-for="(option, index) in options"
           :key="index"
           variant="ghost"
-          class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+          class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
           :class="selectedOption === option ? 'bg-[#F2F2F2] text-blue-500' : ''"
           @click="
             showOptions = false;

@@ -6,7 +6,7 @@
         <UiButton
           variant="ghost"
           size="icon"
-          class="flex h-auto w-auto hover:bg-transparent"
+          class="flex h-auto w-auto"
           aria-label="Open shipping address menu"
           @click="showOptions = !showOptions"
         >
@@ -21,7 +21,7 @@
             <UiButton
               variant="ghost"
               disabled
-              class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-inherit"
+              class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-inherit"
             >
               <EyeIcon class="w-6 h-6 mr-3 text-current" />
               <span class="text-sm leading-[1.71] font-medium"> View All </span>
@@ -29,7 +29,7 @@
             <UiButton
               variant="ghost"
               disabled
-              class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-inherit"
+              class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-inherit"
             >
               <EditIcon class="w-6 h-6 mr-3 text-current" />
               <span class="text-sm leading-[1.71] font-medium"> Edit </span>
