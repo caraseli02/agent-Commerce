@@ -7,37 +7,32 @@
       left: dropdownLeft + 'px',
     }"
   >
-    <UiButton v-if="profileButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="profileClicked">
+    <UiButton v-if="profileButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2" @click="profileClicked">
       <SvgoDashboardProfile class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ profileText }}</span>
     </UiButton>
-    <UiButton v-if="documentButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="documentClicked">
+    <UiButton v-if="documentButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2" @click="documentClicked">
       <OrdersIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ documentText }}</span>
     </UiButton>
-    <UiButton v-if="settingsButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="settingsClicked">
+    <UiButton v-if="settingsButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2" @click="settingsClicked">
       <SettingsIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ settingsText }}</span>
     </UiButton>
-    <UiButton v-if="deactivateButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="deactivateClicked">
+    <UiButton v-if="deactivateButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2" @click="deactivateClicked">
       <SvgoDashboardDeactivate v-if="profile.active" viewBox="0 0 20 20" class="w-5 h-5 text-current" />
       <UserUnlockIcon v-else class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium"> {{ deactivateText }} </span>
     </UiButton>
-    <UiButton v-if="invoiceButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="invoiceClicked">
+    <UiButton v-if="invoiceButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2" @click="invoiceClicked">
       <InvoiceIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ invoiceText }}</span>
     </UiButton>
-    <UiButton v-if="editButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 rounded-lg" @click="editClicked">
+    <UiButton v-if="editButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2" @click="editClicked">
       <EditIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium">{{ editText }}</span>
     </UiButton>
-    <UiButton
-      v-if="trashButton"
-      variant="ghost"
-      class="h-auto w-full justify-start gap-3 p-2 rounded-lg text-rose-500"
-      @click="trashClicked"
-    >
+    <UiButton v-if="trashButton" variant="ghost" class="h-auto w-full justify-start gap-3 p-2 text-rose-500" @click="trashClicked">
       <TrashIcon class="w-5 h-5 text-current" />
       <span class="text-sm leading-[1.71] font-medium"> {{ trashText }} </span>
     </UiButton>

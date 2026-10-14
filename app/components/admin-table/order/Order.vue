@@ -207,7 +207,7 @@ onMounted(() => {
               v-for="(filter, index) in orderFilters"
               :key="index"
               variant="link"
-              class="ordersFilter relative z-10 h-auto flex-shrink-0 gap-3 px-0 py-5 font-medium leading-[1.71] md:py-8"
+              class="ordersFilter relative z-10 h-auto flex-shrink-0 gap-3 px-0 py-5 leading-[1.71] md:py-8"
               :class="[filter.label === activeOrderFilter.label ? 'text-blue-500' : '']"
               @click="onTabChange(filter, table)"
             >
