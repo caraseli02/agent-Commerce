@@ -39,6 +39,7 @@ async function handleChange(title: string, type: string, value: boolean) {
       <UiCheckbox
         :id="`${title}-email`"
         :checked="emailModel"
+        :aria-label="`${title} (Email)`"
         class="w-5 h-5"
         @update:checked="
           emailModel = $event;
@@ -48,6 +49,7 @@ async function handleChange(title: string, type: string, value: boolean) {
       <UiCheckbox
         :id="`${title}-app`"
         :checked="appModel"
+        :aria-label="`${title} (App)`"
         class="w-5 h-5"
         @update:checked="
           appModel = $event;

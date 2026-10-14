@@ -126,6 +126,11 @@ describe('control-panel Settings checkboxes', () => {
 
     const boxes = [...mounted.host.querySelectorAll<HTMLButtonElement>('[role="checkbox"]')];
     expect(boxes.map((box) => box.getAttribute('aria-checked'))).toEqual(['true', 'false', 'false']);
+    expect(boxes.map((box) => box.getAttribute('aria-label'))).toEqual([
+      'New Products (Email)',
+      'New Products (App)',
+      'Newsletter (Email)',
+    ]);
 
     boxes[0]!.click();
     boxes[1]!.click();
@@ -155,6 +160,7 @@ describe('client AlertsItem checkboxes', () => {
     }));
 
     const [email, app] = [...mounted.host.querySelectorAll<HTMLButtonElement>('[role="checkbox"]')];
+    expect([email!.getAttribute('aria-label'), app!.getAttribute('aria-label')]).toEqual(['HOT Deals (Email)', 'HOT Deals (App)']);
     email!.click();
     app!.click();
     await Vue.nextTick();

@@ -43,6 +43,7 @@
               variant="ghost"
               size="icon"
               class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
+              aria-label="Set as default address"
               @click="setAsDefault(address)"
             >
               <CheckIcon class="w-5 h-5" />
@@ -51,6 +52,7 @@
               variant="ghost"
               size="icon"
               class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
+              aria-label="Edit address"
               @click="
                 editAddressModal = address;
                 indexOfEditAddressModal = index;
@@ -63,6 +65,7 @@
               variant="ghost"
               size="icon"
               class="flex items-center justify-center w-11 h-11 bg-light-300 bg-opacity-95 rounded-full text-slate-500 transition-colors duration-300 hover:bg-blue-500 hover:text-white"
+              aria-label="Delete address"
               @click="handleDeleteAddress(index)"
             >
               <TrashIcon class="w-5 h-5" />
@@ -73,6 +76,7 @@
       <UiButton
         variant="outline"
         class="h-auto flex items-center justify-center p-3 border border-dashed border-blue-500 rounded-xl md:p-4"
+        aria-label="Add billing address"
         @click="addAddressModal = true"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 40 40" class="w-8 h-8 text-blue-500 md:w-10 md:h-10">

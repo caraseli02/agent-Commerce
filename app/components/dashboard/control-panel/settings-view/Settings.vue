@@ -20,6 +20,7 @@
             <div class="flex justify-center">
               <UiCheckbox
                 :checked="item.email"
+                :aria-label="`${item.label} (Email)`"
                 class="mt-px"
                 @update:checked="
                   item.email = $event;
@@ -30,6 +31,7 @@
             <div class="flex justify-end">
               <UiCheckbox
                 :checked="item.app"
+                :aria-label="`${item.label} (App)`"
                 class="mt-px"
                 @update:checked="
                   item.app = $event;
@@ -70,6 +72,7 @@
             </div>
             <UiCheckbox
               :checked="item.email"
+              :aria-label="`${item.label} (Email)`"
               class="mt-px"
               @update:checked="
                 item.email = $event;
