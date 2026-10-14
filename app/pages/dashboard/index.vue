@@ -4,7 +4,7 @@
       <UiButton
         variant="secondary"
         disabled
-        class="flex h-auto items-center rounded-lg bg-gray-100 text-base px-6 py-3 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
+        class="flex h-auto items-center rounded-lg text-base px-6 py-3 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span class="leading-normal text-slate-500 font-medium mr-2"> Download </span>
         <DownloadIcon class="w-6 h-6 text-slate-500" />
