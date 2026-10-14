@@ -62,11 +62,17 @@
           variant="ghost"
           size="icon"
           class="flex h-auto w-auto p-1 bg-[#2F3241] rounded-lg hover:bg-[#2F3241] md:hidden"
+          aria-label="Close navigation"
           @click="$emit('close')"
         >
           <XIcon class="w-6 h-6 text-gray-100" />
         </UiButton>
-        <UiButton variant="ghost" class="flex h-auto p-0 hover:bg-transparent max-md:hidden" @click="$emit('close')">
+        <UiButton
+          variant="ghost"
+          class="flex h-auto p-0 hover:bg-transparent max-md:hidden"
+          aria-label="Collapse navigation"
+          @click="$emit('close')"
+        >
           <CollapseIcon class="w-6 h-6" />
         </UiButton>
       </template>
@@ -103,6 +109,7 @@
             v-else
             variant="ghost"
             :disabled="isCollapsedOnDesktop"
+            :aria-label="isCollapsedOnDesktop ? item.label : undefined"
             class="group flex h-auto p-0 items-center text-gray-100 rounded-lg transition-colors duration-300 hover:text-[#009FFF] hover:bg-[#2F3241] disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-gray-100 disabled:hover:bg-transparent"
             :class="[
               item.dropdown?.show ? 'bg-[#2F3241]' : '',
@@ -162,6 +169,7 @@
       v-if="isCollapsedOnDesktop"
       variant="ghost"
       class="h-auto p-0 mt-5 hover:bg-transparent max-md:hidden"
+      aria-label="Expand navigation"
       @click="$emit('close')"
     >
       <Collapse2Icon class="w-6 h-6" />

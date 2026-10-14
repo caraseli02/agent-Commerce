@@ -1,1 +1,1 @@
-1. button
+1. button "Open account information menu"

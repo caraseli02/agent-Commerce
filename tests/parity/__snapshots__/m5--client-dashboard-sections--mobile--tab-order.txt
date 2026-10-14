@@ -1,4 +1,4 @@
-1. button
+1. button "Dashboard home"
 2. button "Orders 68"
 3. button "Transaction History 5"
 4. button "Settings"

@@ -5,6 +5,7 @@
         v-for="(filter, index) in computedOrderFilters"
         :key="index"
         variant="ghost"
+        :aria-label="filter.label ? undefined : 'Dashboard home'"
         class="ordersFilter flex h-auto px-0 rounded-none hover:bg-transparent items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 whitespace-nowrap transition-colors duration-300 md:py-8"
         :class="[filter.label === activeOrderFilter?.label ? 'text-blue-500' : 'hover:text-blue-500']"
         @click="activeOrderFilter = filter"

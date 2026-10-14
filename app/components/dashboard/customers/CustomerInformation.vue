@@ -6,7 +6,13 @@
       </div>
       <WarningIcon v-if="error" class="w-6 h-6" />
       <div v-else class="relative">
-        <UiButton variant="ghost" size="icon" class="flex h-auto w-auto hover:bg-transparent" @click="showOptions = !showOptions">
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="flex h-auto w-auto hover:bg-transparent"
+          aria-label="Open customer information menu"
+          @click="showOptions = !showOptions"
+        >
           <DotsVerticalIcon class="w-6 h-6 text-[#9296AA] transition-colors duration-300 hover:text-blue-500" />
         </UiButton>
         <Transition name="fade-bottom">

@@ -3,7 +3,13 @@
     <div class="flex items-center justify-between" :class="[emptyData || error ? 'mb-4' : 'mb-6']">
       <div class="text-sm font-semibold">Default Shipping Address</div>
       <div v-if="!error" class="relative">
-        <UiButton variant="ghost" size="icon" class="flex h-auto w-auto hover:bg-transparent" @click="showOptions = !showOptions">
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="flex h-auto w-auto hover:bg-transparent"
+          aria-label="Open shipping address menu"
+          @click="showOptions = !showOptions"
+        >
           <DotsVerticalIcon class="w-6 h-6 text-[#9296AA] transition-colors duration-300 hover:text-blue-500" />
         </UiButton>
         <Transition name="fade-full">

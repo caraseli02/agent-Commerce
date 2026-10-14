@@ -1,4 +1,4 @@
-1. button
-2. button
+1. button "Open navigation"
+2. button "Search"
 3. button "Open notifications"
 4. button "Avatar"

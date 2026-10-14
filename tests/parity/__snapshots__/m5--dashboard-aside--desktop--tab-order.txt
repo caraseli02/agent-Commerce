@@ -2,4 +2,4 @@
 2. link
 3. link
 4. link
-5. button
+5. button "Expand navigation"

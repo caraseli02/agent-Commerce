@@ -8,6 +8,7 @@
         variant="ghost"
         size="icon"
         class="flex h-auto w-auto hover:bg-transparent md:opacity-0 md:pointer-events-none md:hidden"
+        aria-label="Open navigation"
         @click="$emit('show-side-nav')"
       >
         <BurgerIcon class="w-6 h-6 text-slate-500" />
@@ -18,11 +19,17 @@
           variant="ghost"
           size="icon"
           class="flex h-auto w-auto mr-4 hover:bg-transparent md:mr-8 md:hidden"
+          aria-label="Search"
           @click="showMobileSearch = !showMobileSearch"
         >
           <SearchIcon class="w-6 h-6 text-slate-500" />
         </UiButton>
-        <UiButton variant="ghost" size="icon" class="flex w-8 h-8 rounded-full bg-gray-100 mr-8 hover:bg-gray-100 max-md:hidden">
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="flex w-8 h-8 rounded-full bg-gray-100 mr-8 hover:bg-gray-100 max-md:hidden"
+          aria-label="Create new"
+        >
           <PlusIcon class="w-6 h-6 text-slate-500" />
         </UiButton>
         <UiButton
@@ -30,6 +37,7 @@
           variant="ghost"
           size="icon"
           class="flex h-auto w-auto mr-4 hover:bg-transparent md:mr-8"
+          aria-label="Customer settings"
         >
           <SettingsIcon class="w-6 h-6 text-slate-500" />
         </UiButton>
@@ -86,6 +94,7 @@
                     variant="ghost"
                     size="icon"
                     class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:bg-transparent hover:text-blue-500"
+                    aria-label="Notification settings"
                   >
                     <SettingsIcon class="w-6 h-6" />
                   </UiButton>
@@ -130,6 +139,7 @@
                           variant="ghost"
                           size="icon"
                           class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:bg-transparent hover:text-blue-500"
+                          aria-label="Delete notification"
                           @click.stop.prevent="deleteNotification(notification, index)"
                         >
                           <XIcon class="w-4 h-4" />
@@ -267,7 +277,14 @@
                 </form>
               </UiLabel>
               <SearchIcon v-if="!searchValue" class="flex-shrink-0 w-5 h-5 text-gray-500" />
-              <UiButton v-else variant="ghost" size="icon" class="flex h-auto w-auto hover:bg-transparent" @click.stop="searchValue = ''">
+              <UiButton
+                v-else
+                variant="ghost"
+                size="icon"
+                class="flex h-auto w-auto hover:bg-transparent"
+                aria-label="Clear search"
+                @click.stop="searchValue = ''"
+              >
                 <XIcon class="flex-shrink-0 w-5 h-5 text-gray-500" />
               </UiButton>
             </div>

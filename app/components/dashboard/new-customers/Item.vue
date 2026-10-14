@@ -39,6 +39,7 @@
         variant="ghost"
         size="icon"
         class="flex h-auto w-auto text-[#9296AA] transition-colors duration-300 hover:bg-transparent hover:text-blue-500"
+        aria-label="Open customer menu"
         @click="showOptions = !showOptions"
       >
         <MoreVerticalIcon class="w-6 h-6" />
