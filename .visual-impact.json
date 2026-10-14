@@ -1,6 +1,13 @@
 {
   "assessments": [
     {
+      "fingerprint": "4f79c970aacdd32e87f502c1987b0b6c1b7bce8fab7b90213da508a23e4ce6b9",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "M5 shadcn migration of dashboard widgets (#642): native buttons/inputs/labels become UiButton/UiInput/UiLabel, plus aria-labels on icon-only buttons; only dashboard routes render the touched components.",
+      "consumers": "git grep finds the touched components only in app/layouts/dashboard.vue (DashboardHeader, DashboardAside) and app/pages/dashboard/** (index, customers/index, customers/[slug], orders/index, client/index). No storefront page, layout, shared style, store or composable changes; Search.vue still emits update:modelValue with the string value. The orders visual group renders /dashboard/client?tab=orders, which includes the migrated client Banner and TabBar, so it is selected; home, search, product and cart never render a dashboard component. The admin dashboard, orders, customer profile and client home surfaces are outside the screenshot matrix and are covered by 15 M5 parity scenarios (desktop 1440 / mobile 390) plus before/after browser screenshots with identical page heights and an unchanged keyboard tab order."
+    },
+    {
       "fingerprint": "ee5c957eff08dfee37dbb4bbcb8bcdd491ddc3570a4aa85dbbfa496cc4b2a291",
       "impact": "none",
       "reason": "Adds a Vercel Ignored Build Step; it decides whether Vercel builds a push and never changes what a build emits",
