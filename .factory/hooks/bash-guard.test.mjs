@@ -53,6 +53,11 @@ writeFileSync(
   ].join('\n'),
 );
 
+// The #703 review fixture: a valid body.md where the command starts and an invalid one in sub/.
+copyFileSync(join(withChecker, 'good.md'), join(withChecker, 'body.md'));
+mkdirSync(join(withChecker, 'sub'));
+copyFileSync(join(withChecker, 'grouped.md'), join(withChecker, 'sub/body.md'));
+
 after(() => {
   rmSync(onFeature, { recursive: true, force: true });
   rmSync(onMain, { recursive: true, force: true });
@@ -224,6 +229,8 @@ describe('PR template preflight on gh pr create / edit (#702)', () => {
     'gh pr edit 12 --body-file good.md',
     'gh pr edit 12 --add-label in-progress',
     'gh pr edit 12 --title "new title"',
+    `cd sub && gh pr create --title t --body-file ${join(withChecker, 'good.md')}`,
+    `cd sub && gh pr edit 12 --body-file ${join(withChecker, 'good.md')}`,
   ];
   for (const command of allowed) {
     it(`allows: ${command}`, () => {
@@ -242,6 +249,19 @@ describe('PR template preflight on gh pr create / edit (#702)', () => {
     'gh pr create --title t --body-file missing.md': /not found/,
     'gh pr create --title t --body-file -': /not found/,
     'gh pr create --title t --body-file "$NO_SUCH_VAR_702/body.md"': /not found/,
+    // gh sends the last body file, so a valid first file must not cover an invalid final one (#703 review).
+    'gh pr create --title t --body-file good.md --body-file grouped.md': /exactly once/,
+    'gh pr create --title t --body-file good.md -F grouped.md': /exactly once/,
+    'gh pr edit 12 -F good.md --body-file=grouped.md': /exactly once/,
+    'gh pr edit 12 -Fgrouped.md': /fails the template check/,
+    'gh pr create --title t --body-file good.md -bx': /--body-file/,
+    // A relative body path after a directory change would be read from another directory (#703 review).
+    'cd sub && gh pr create --title t --body-file body.md': /absolute --body-file/,
+    'cd sub && gh pr edit 12 --body-file body.md': /absolute --body-file/,
+    'pushd sub; gh pr create --title t --body-file body.md': /absolute --body-file/,
+    '(cd sub && gh pr create --title t --body-file body.md)': /absolute --body-file/,
+    'env -C sub gh pr create --title t --body-file body.md': /absolute --body-file/,
+    'bash -c "cd sub && gh pr edit 12 --body-file body.md"': /absolute --body-file/,
   };
   for (const [command, reason] of Object.entries(blocked)) {
     it(`blocks: ${command}`, () => {

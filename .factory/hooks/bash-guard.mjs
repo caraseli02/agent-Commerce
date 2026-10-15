@@ -211,35 +211,49 @@ function stripGhGlobalFlags(words) {
   return [words[0], ...words.slice(i)];
 }
 
-function flagValue(args, long, short) {
+// Every value given for a flag, in order: `--long v`, `--long=v`, `-s v` and `-sv`. gh keeps the
+// last one, so callers that check a value must see all of them.
+function flagValues(args, long, short) {
+  const values = [];
   for (let i = 0; i < args.length; i += 1) {
-    if (args[i] === long || args[i] === short) return { value: args[i + 1] ?? '' };
-    if (args[i].startsWith(`${long}=`)) return { value: args[i].slice(long.length + 1) };
+    if (args[i] === long || args[i] === short) values.push(args[i + 1] ?? '');
+    else if (args[i].startsWith(`${long}=`)) values.push(args[i].slice(long.length + 1));
+    else if (args[i].startsWith(short) && args[i].length > short.length) values.push(args[i].slice(short.length));
   }
-  return null;
+  return values;
 }
 
-function expandPath(file, cwd) {
+// Expand ~ and environment variables; null when the path still holds shell syntax this guard
+// cannot resolve. Relative paths stay relative so the caller knows they depend on the cwd.
+function expandPath(file) {
   const expanded = file
     .replace(/^~(?=\/|$)/, homedir())
     .replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)/g, (_, braced, bare) => process.env[braced ?? bare] ?? '\0');
   if (expanded.includes('\0') || /[`$*?]/.test(expanded)) return null;
-  return isAbsolute(expanded) ? expanded : resolve(cwd, expanded);
+  return expanded;
 }
 
 // PR template preflight (after #702): a PR body reaches GitHub only through a file that already
 // passes scripts/check-pr-template.mjs, the same check the "PR template / check" workflow runs.
-function checkPrBody(action, args, cwd) {
-  const inline = flagValue(args, '--body', '-b');
-  const bodyFile = flagValue(args, '--body-file', '-F');
+// gh keeps the last --body-file, so a repeated flag is refused rather than guessed. A relative
+// path is resolved against the command's cwd only when no earlier segment changed directory.
+function checkPrBody(action, args, cwd, cwdKnown) {
+  const inline = flagValues(args, '--body', '-b');
+  const bodyFiles = flagValues(args, '--body-file', '-F');
   const filled = args.some((arg) => /^--fill(-first|-verbose)?$/.test(arg) || arg === '-f');
-  if (action === 'edit' && !inline && !bodyFile) return null;
-  if (inline || filled || !bodyFile) {
+  if (action === 'edit' && inline.length === 0 && bodyFiles.length === 0) return null;
+  if (inline.length > 0 || filled || bodyFiles.length === 0) {
     return `gh pr ${action} must send the body with --body-file <file> so the PR template preflight can check it`;
   }
-  const file = bodyFile.value && bodyFile.value !== '-' ? expandPath(bodyFile.value, cwd) : null;
+  if (bodyFiles.length > 1) return `gh pr ${action} must pass --body-file exactly once (gh would send only the last file)`;
+  const [value] = bodyFiles;
+  const expanded = value && value !== '-' ? expandPath(value) : null;
+  if (expanded && !isAbsolute(expanded) && !cwdKnown) {
+    return `PR body file ${value} is relative but the command changes directory first; pass an absolute --body-file path`;
+  }
+  const file = expanded ? resolve(cwd, expanded) : null;
   if (!file || !existsSync(file)) {
-    return `PR body file ${bodyFile.value || '(none)'} not found; write it in an earlier command, then pass its literal path to --body-file`;
+    return `PR body file ${value || '(none)'} not found; write it in an earlier command, then pass its literal path to --body-file`;
   }
   let root;
   try {
@@ -257,18 +271,18 @@ function checkPrBody(action, args, cwd) {
     return null;
   } catch (error) {
     const details = String(error.stderr ?? '').trim() || error.message;
-    return `PR body fails the template check (node scripts/check-pr-template.mjs --body-file ${bodyFile.value}):\n${details}\nFix the body file, then rerun`;
+    return `PR body fails the template check (node scripts/check-pr-template.mjs --body-file ${value}):\n${details}\nFix the body file, then rerun`;
   }
 }
 
-function checkGh(allWords, cwd) {
+function checkGh(allWords, cwd, cwdKnown = true) {
   const words = stripGhGlobalFlags(allWords);
   const [, group, action] = words;
   const rest = words.slice(2);
   if (group === 'pr' && action === 'merge') return 'merging a PR (only Vlad merges)';
   if (words.some((arg) => /owner-approved-harness/.test(arg))) return 'changing the owner-approved-harness label (only Vlad sets it)';
   if (group === 'pr' && (action === 'create' || action === 'edit')) {
-    const reason = checkPrBody(action, words.slice(3), cwd);
+    const reason = checkPrBody(action, words.slice(3), cwd, cwdKnown);
     if (reason) return reason;
   }
   if (group === 'label' && action !== 'list') return `gh label ${action}`;
@@ -331,13 +345,22 @@ export function check(command, cwd = process.cwd()) {
     return 'overriding the GitHub credential or git configuration environment';
   }
   if (/\bunset\b[^\n;&|]*\b(GH_CONFIG_DIR|GH_TOKEN)\b/.test(flat)) return 'unsetting the GitHub credential environment';
+  // Once a segment changes directory (cd, pushd, popd, env -C), later relative paths no longer
+  // resolve against cwd; the PR body preflight then requires an absolute path.
+  let cwdKnown = true;
   for (const segment of segments(command)) {
-    const words = commandWords(tokens(segment));
+    const raw = tokens(segment);
+    const words = commandWords(raw);
     const text = segment.replace(/['"\\]/g, '');
     const name = words ? program(words[0]) : null;
+    const first = program(raw[0] === 'builtin' ? raw[1] : raw[0]);
+    if (['cd', 'pushd', 'popd'].includes(first)) cwdKnown = false;
+    if (words && raw.slice(0, raw.length - words.length).some((arg) => /^(-C|--chdir)(=|$)/.test(arg) || /^-C./.test(arg))) {
+      cwdKnown = false;
+    }
     let reason = null;
     if (name === 'git') reason = checkGit(words, cwd);
-    else if (name === 'gh') reason = checkGh(words, cwd);
+    else if (name === 'gh') reason = checkGh(words, cwd, cwdKnown);
     else if (name === 'security' && /^find-(generic|internet)-password$/.test(words[1] ?? '')) {
       reason = 'reading secrets from the keychain';
     } else if (OPAQUE_GIT.test(text) || OPAQUE_GH.test(text)) {
