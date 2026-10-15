@@ -95,11 +95,6 @@
   "app/components/order-summary/Table/ItemLG.vue": {
     "button": 4
   },
-  "app/components/search/Products.vue": {
-    "button": 7,
-    "input": 1,
-    "label": 5
-  },
   "app/components/signup/BusinessDetails.vue": {
     "button": 2,
     "label": 1

@@ -1,0 +1,6 @@
+- text: Show
+- combobox "Show": All products
+- text: Sort by
+- combobox "Sort by": Product Code A–Z
+- text: Products on page
+- combobox "Products on page": /\d+/

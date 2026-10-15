@@ -174,6 +174,27 @@ const pdpQuantityStepper = (page: Page) =>
 /** The open range filter popover (categories/Range and dataTable/filter/Range, B2). */
 const rangeFilterPopover = (page: Page) => page.getByRole('dialog').filter({ has: page.getByRole('button', { name: 'Clear Filter' }) });
 
+/** The search results toolbar: Show, Sort by and Products on page. */
+const searchResultsToolbar = (page: Page) =>
+  page.getByText('Sort by', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-2xl")][1]');
+
+/** The mobile-only footer under the results: a second Products on page control and the pager. */
+const searchResultsFooter = (page: Page) =>
+  page.getByText('Products on page', { exact: true }).last().locator('xpath=ancestor::div[contains(@class, "flex-col")][1]');
+
+/** The dropdown trigger next to a toolbar label; it stays a `<button>` whether custom or a select primitive. */
+const searchResultsTrigger = (scope: Locator, label: string) =>
+  scope.getByText(label, { exact: true }).locator('xpath=..').locator('button').first();
+
+/** The open dropdown's options; the select primitive portals its listbox out of the toolbar (#647). */
+const searchResultsMenu = (page: Page) => page.getByRole('listbox');
+
+/** A dropdown option by its text: inline in the region, or in a portalled listbox (never the select's hidden native `<option>`). */
+const searchResultsOption = (page: Page, scope: Locator, name: string) =>
+  searchResultsMenu(page)
+    .getByRole('option', { name, exact: true })
+    .or(scope.getByText(name, { exact: true }).and(scope.locator(':not(option)')));
+
 const showOrderSummaryWithTwoItems = async (page: Page) => {
   await clearGuestCart(page);
   await page.request.post('/api/cart', {
@@ -1745,6 +1766,108 @@ export const scenarios: ParityScenario[] = [
           await expect(rangeFilterPopover(page)).toBeHidden();
           await expect(page.getByRole('button', { name: /^Total/ })).toContainText('Max: 500');
           await expect(page.getByRole('button', { name: /^Total/ })).not.toContainText('Min:');
+        },
+      },
+    ],
+  },
+  {
+    id: 'search-results-toolbar',
+    slice: 'B3',
+    route: '/search?keyword=STM32',
+    viewports: ['desktop', 'mobile'],
+    region: searchResultsToolbar,
+    steps: [
+      {
+        name: 'the show menu lists the product filters',
+        act: async (_page, region) => {
+          await searchResultsTrigger(region, 'Show').click();
+        },
+        verify: async (page, region) => {
+          await expect(searchResultsOption(page, region, 'Available in stock')).toBeVisible();
+        },
+        snapshot: searchResultsMenu,
+      },
+      {
+        name: 'choosing a show filter searches with it',
+        act: async (page, region) => {
+          pendingSearch = waitForSearchWith(page, 'stockFrom=1');
+          await searchResultsOption(page, region, 'Available in stock').click();
+        },
+        verify: async (page) => {
+          await pendingSearch;
+          await expect(searchResultsToolbar(page)).toBeVisible();
+        },
+      },
+      {
+        name: 'the sort menu lists every sort order',
+        act: async (page) => {
+          await searchResultsTrigger(searchResultsToolbar(page), 'Sort by').click();
+        },
+        verify: async (page) => {
+          await expect(searchResultsOption(page, searchResultsToolbar(page), 'Price High–Low')).toBeVisible();
+        },
+        snapshot: searchResultsMenu,
+      },
+      {
+        name: 'choosing a sort order searches with it',
+        act: async (page) => {
+          pendingSearch = waitForSearchWith(page, /sortBy=price&sortOrder=asc/);
+          await searchResultsOption(page, searchResultsToolbar(page), 'Price Low–High').click();
+        },
+        verify: async (page) => {
+          await pendingSearch;
+          await expect(searchResultsToolbar(page)).toBeVisible();
+        },
+      },
+      {
+        name: 'the per-page menu lists the page sizes',
+        act: async (page) => {
+          await searchResultsTrigger(searchResultsToolbar(page), 'Products on page').click();
+        },
+        verify: async (page) => {
+          await expect(searchResultsOption(page, searchResultsToolbar(page), '50')).toBeVisible();
+        },
+        snapshot: searchResultsMenu,
+      },
+      {
+        name: 'choosing a page size searches with it',
+        act: async (page) => {
+          pendingSearch = waitForSearchWith(page, 'perPage=20');
+          await searchResultsOption(page, searchResultsToolbar(page), '20').click();
+        },
+        verify: async (page) => {
+          await pendingSearch;
+          await expect(searchResultsToolbar(page)).toBeVisible();
+        },
+      },
+    ],
+  },
+  {
+    id: 'search-results-footer-per-page',
+    slice: 'B3',
+    route: '/search?keyword=STM32',
+    viewports: ['mobile'],
+    region: searchResultsFooter,
+    steps: [
+      {
+        name: 'the footer per-page menu lists the page sizes',
+        act: async (_page, region) => {
+          await searchResultsTrigger(region, 'Products on page').click();
+        },
+        verify: async (page, region) => {
+          await expect(searchResultsOption(page, region, '50')).toBeVisible();
+        },
+        snapshot: searchResultsMenu,
+      },
+      {
+        name: 'choosing a footer page size searches with it',
+        act: async (page, region) => {
+          pendingSearch = waitForSearchWith(page, 'perPage=50');
+          await searchResultsOption(page, region, '50').click();
+        },
+        verify: async (page) => {
+          await pendingSearch;
+          await expect(searchResultsFooter(page)).toBeVisible();
         },
       },
     ],
