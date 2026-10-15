@@ -1,0 +1,2 @@
+1. spinbutton "Quantity": "1"
+2. button "Increase quantity"

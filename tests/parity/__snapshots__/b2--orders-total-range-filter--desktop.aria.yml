@@ -1,0 +1,10 @@
+- dialog:
+    - text: $
+    - spinbutton "$": '0'
+    - text: '- $'
+    - spinbutton "$": '0'
+    - text: $0 $0
+    - slider "Minimum"
+    - slider "Maximum"
+    - button "Clear Filter"
+    - button "Apply"
