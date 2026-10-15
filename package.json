@@ -5,10 +5,10 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "build": "node scripts/build-with-tailwind-guard.mjs",
-    "dev": "nuxt dev",
+    "build": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/build-with-tailwind-guard.mjs",
+    "dev": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/nuxt/bin/nuxt.mjs dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "preview": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/nuxt/bin/nuxt.mjs preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint . --ignore-pattern 'node_modules' --ignore-pattern '.nuxt' --ignore-pattern '.output' --ignore-pattern 'dist' --ignore-pattern '.agents/skills/impeccable/**'",
     "pretty": "prettier --write .",

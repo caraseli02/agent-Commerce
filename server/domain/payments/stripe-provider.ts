@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { stripeEnvironment } from './stripe-environment';
 import type { StripeIntentProvider, StripePaymentIntent } from './stripe-intents';
 import type { StripeRefundProvider, StripeRefund } from './stripe-refunds';
 
@@ -35,7 +36,7 @@ export const createStripeIntentProvider = (): StripeIntentProvider => {
           amount: input.amountMinor,
           currency: input.currency.toLowerCase(),
           allowed_payment_method_types: ['card'],
-          metadata: { paymentId: input.paymentId, orderId: input.orderId },
+          metadata: { paymentId: input.paymentId, orderId: input.orderId, agentCommerceEnvironment: stripeEnvironment() },
         },
         { idempotencyKey },
       );
@@ -75,7 +76,12 @@ export const createStripeRefundProvider = (): StripeRefundProvider => {
             payment_intent: input.paymentIntentId,
             amount: input.amountMinor,
             reason: input.reason,
-            metadata: { refundId: input.refundId, paymentId: input.paymentId, orderId: input.orderId },
+            metadata: {
+              refundId: input.refundId,
+              paymentId: input.paymentId,
+              orderId: input.orderId,
+              agentCommerceEnvironment: stripeEnvironment(),
+            },
           },
           { idempotencyKey, timeout: 10_000, maxNetworkRetries: 0 },
         ),

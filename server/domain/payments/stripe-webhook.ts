@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { isStripeEnvironment, type StripeEnvironment } from './stripe-environment';
 import { isSupportedStripeRefundEvent, type StripeRefund, type VerifiedRefundEventResult } from './stripe-refunds';
 import { isSupportedStripeIntentEvent, type VerifiedIntentEventResult } from './stripe-intents';
 
@@ -9,6 +10,7 @@ export const handleStripeWebhook = async (input: {
   signature: string | undefined;
   signingSecret: string | undefined;
   enabled: boolean;
+  environment?: StripeEnvironment;
   applyVerifiedIntentEvent: (event: { eventId: string; eventType: string; intentId: string }) => Promise<VerifiedIntentEventResult>;
   applyVerifiedRefundEvent?: (event: { eventId: string; eventType: string; refund: StripeRefund }) => Promise<VerifiedRefundEventResult>;
   finalizePaidCheckout?: (input: { paymentId: string; orderId: string }) => Promise<{ kind: 'finalized' | 'retry' }>;
@@ -22,6 +24,17 @@ export const handleStripeWebhook = async (input: {
     event = Stripe.webhooks.constructEvent(input.rawBody, input.signature, input.signingSecret);
   } catch {
     return { kind: 'invalid-signature' };
+  }
+
+  const routedObject = event.data.object;
+  if (input.environment && (routedObject.object === 'payment_intent' || routedObject.object === 'refund')) {
+    const environment = routedObject.metadata?.agentCommerceEnvironment;
+    // Untagged historical/manual objects keep the existing conservative path.
+    // Only a verified, recognized foreign environment can be acknowledged here.
+    if (environment !== undefined) {
+      if (!isStripeEnvironment(environment)) return { kind: 'retry' };
+      if (environment !== input.environment) return { kind: 'accepted' };
+    }
   }
 
   if (event.type.startsWith('refund.')) {

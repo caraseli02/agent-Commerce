@@ -2,6 +2,7 @@ import { stripePayments, stripeRefunds, stripePaymentsEnabled } from '~~/server/
 import { continuePaidCheckout } from '~~/server/application/checkout/continue-paid-checkout';
 import { terminalizeCanceledCheckout } from '~~/server/application/checkout/terminalize-canceled-checkout';
 import { handleStripeWebhook } from '~~/server/domain/payments';
+import { stripeEnvironment } from '~~/server/domain/payments/stripe-environment';
 
 export default defineEventHandler(async (event) => {
   const result = await handleStripeWebhook({
@@ -9,6 +10,7 @@ export default defineEventHandler(async (event) => {
     signature: getHeader(event, 'stripe-signature'),
     signingSecret: process.env.STRIPE_WEBHOOK_SECRET,
     enabled: stripePaymentsEnabled(),
+    environment: stripeEnvironment(),
     applyVerifiedRefundEvent: stripeRefunds.applyVerifiedRefundEvent,
     applyVerifiedIntentEvent: stripePayments.applyVerifiedIntentEvent,
     finalizePaidCheckout: continuePaidCheckout,

@@ -5,6 +5,7 @@
       aria-labelledby="payment-title"
     >
       <p class="text-sm font-medium text-primary">Secure card checkout</p>
+      <p class="mt-2 text-sm text-muted-foreground">Stripe test mode. Use a test card; no real money is charged.</p>
       <h1 id="payment-title" class="mt-2 text-2xl font-semibold text-foreground">{{ title }}</h1>
       <p v-if="orderId" class="mt-2 break-all text-sm text-muted-foreground">Order {{ orderId }}</p>
       <p class="mt-4 text-sm leading-6 text-muted-foreground" role="status" aria-live="polite">{{ description }}</p>

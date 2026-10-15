@@ -7,9 +7,7 @@
             <NuxtLink to="/" aria-label="Components Marketplace home" class="mb-3 flex">
               <Logo class="w-[121px]" />
             </NuxtLink>
-            <p class="max-w-[220px] text-sm leading-5 text-slate-500">
-              Self-contained portfolio demo. No external services or social accounts required.
-            </p>
+            <p class="max-w-[220px] text-sm leading-5 text-slate-500">Portfolio demo with sample products and accounts.</p>
           </div>
           <div class="grid grid-cols-2 gap-5 md:flex md:flex-wrap md:gap-x-[30px] lg:gap-x-[50px]">
             <div v-for="(items, label, index) in navItems" :key="index" class="md:max-w-max md:last:ml-[94px] lg:last:ml-0">
