@@ -1,0 +1,14 @@
+1. button "Edit"
+2. button "Copy Details"
+3. textbox "Name": John
+4. textbox "Name": Smith
+5. button "United States United States"
+6. button
+7. textbox "City"
+8. textbox "Address Line 1"
+9. textbox "Address Line 2"
+10. textbox "Postcode"
+11. textbox "Phone Number"
+12. textbox "Email"
+13. button "Cancel"
+14. button "Save"

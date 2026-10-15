@@ -1,0 +1,11 @@
+1. textbox "Address Alias 1"
+2. button "United States United States"
+3. button "New York"
+4. textbox "City"
+5. textbox "Address Line 1"
+6. textbox "Address Line 2"
+7. textbox "Postcode"
+8. button "Cancel"
+9. button "Save"
+10. button "Close"
+11. … stopped after 10 stops

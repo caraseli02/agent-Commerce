@@ -21,7 +21,9 @@ export default defineNuxtPlugin((nuxtApp) => {
             if (!clickedEl) {
               return;
             }
-            if (!el.contains(clickedEl)) {
+            // The click may have unmounted its own target (e.g. a button hidden by its handler), so
+            // `contains` alone misses it; the event path is fixed at dispatch and still includes `el`.
+            if (!el.contains(clickedEl) && !event.composedPath().includes(el)) {
               binding.value();
             }
           } else {

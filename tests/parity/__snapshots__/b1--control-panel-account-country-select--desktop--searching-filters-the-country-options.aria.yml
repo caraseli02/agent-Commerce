@@ -1,0 +1,51 @@
+- heading "Account Details" [level=2]
+- button "Edit":
+    - img
+    - text: ''
+- button "Copy Details":
+    - img
+    - text: ''
+- text: Name
+- textbox "Name": John
+- text: Name
+- textbox "Name": Smith
+- text: Country
+- button "United States United States":
+    - img "United States"
+    - text: ''
+    - img
+- text: Search Country
+- img
+- searchbox: Roman
+- img
+- button "Romania Romania":
+    - img "Romania"
+    - text: ''
+- text: County/Region
+- button:
+    - img
+- text: City
+- textbox "City":
+    - /placeholder: Georgia
+    - text: New York
+- text: Address Line 1
+- textbox "Address Line 1":
+    - /placeholder: 5073 Mark Brown Rd
+    - text: /\d+ Main St/
+- text: Address Line 2
+- textbox "Address Line 2":
+    - /placeholder: NE Dalton
+- text: Postcode
+- textbox "Postcode":
+    - /placeholder: ''
+    - text: /\d+/
+- text: Phone Number
+- textbox "Phone Number":
+    - /placeholder: +1 (706) 275-0767
+    - text: /\+1-\d+-\d+/
+- text: Email
+- textbox "Email":
+    - /placeholder: madalina.dobrovolski@company.com
+    - text: john.smith@example.com
+- button "Cancel"
+- button "Save"

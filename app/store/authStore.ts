@@ -6,6 +6,7 @@ import { userCards as fetchUserCards } from '~/composables/api/user';
 import type { StripeCardInterface, UserInfoJWT } from '~~/types';
 import type { UserInterface } from '~~/types/auth/user-interface';
 import type { GeneralSettingsInterface } from '~~/types/general-settings/general-settings';
+import { keepServerUserDetails } from '~/utils/sessionUser';
 
 export const useAuthStore = defineStore(
   'auth-store',
@@ -135,6 +136,7 @@ export const useAuthStore = defineStore(
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
       pick: ['loggedInUser', 'userDetails', 'generalSettings'],
+      ...keepServerUserDetails,
     },
   },
 );

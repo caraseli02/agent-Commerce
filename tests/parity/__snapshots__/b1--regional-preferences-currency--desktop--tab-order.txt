@@ -1,0 +1,5 @@
+1. button "Close regional preferences"
+2. button "Lei"
+3. button "Save"
+4. button "Cancel"
+5. … stopped after 4 stops

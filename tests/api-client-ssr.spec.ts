@@ -50,6 +50,11 @@ describe('API client SSR setup', () => {
     for (const [index, [request, init]] of eventFetch.mock.calls.entries()) {
       expect(new URL(String(request), 'http://nitro.local').pathname).toBe('/api/products');
       expect(new Headers(init?.headers).get('Authorization')).toBe(`Bearer ${index === 0 ? 'first-token' : 'updated-token'}`);
+      // Nitro's event.fetch spreads init.headers; a Headers instance would spread to nothing.
+      expect(init?.headers).not.toBeInstanceOf(Headers);
+      expect({ ...(init?.headers as Record<string, string>) }).toMatchObject({
+        authorization: `Bearer ${index === 0 ? 'first-token' : 'updated-token'}`,
+      });
     }
   });
 });
