@@ -331,6 +331,19 @@ function checkGh(allWords, cwd, cwdKnown = true) {
   return null;
 }
 
+// Builtins that change the directory, plus sourced scripts, which may cd.
+const DIRECTORY_CHANGERS = ['cd', 'pushd', 'popd', 'source', '.'];
+
+// Decide on the resolved command (after assignments, wrappers and `builtin`), as the
+// shell does. A segment this guard cannot see into counts as a directory change when
+// any of its words names one, so the preflight fails closed.
+function changesDirectory(raw, words) {
+  let resolved = words;
+  while (resolved && resolved[0] === 'builtin') resolved = commandWords(resolved.slice(1));
+  if (!resolved) return raw.some((word) => DIRECTORY_CHANGERS.includes(program(word)));
+  return DIRECTORY_CHANGERS.includes(program(resolved[0]));
+}
+
 const OPAQUE_GIT = /\bgit\b[\s\S]*\bpush\b/;
 const OPAQUE_GH = /\bgh\b[\s\S]*\b(merge|api|auth|config|secret|ruleset)\b/;
 
@@ -353,8 +366,7 @@ export function check(command, cwd = process.cwd()) {
     const words = commandWords(raw);
     const text = segment.replace(/['"\\]/g, '');
     const name = words ? program(words[0]) : null;
-    const first = program(raw[0] === 'builtin' ? raw[1] : raw[0]);
-    if (['cd', 'pushd', 'popd'].includes(first)) cwdKnown = false;
+    if (changesDirectory(raw, words)) cwdKnown = false;
     if (words && raw.slice(0, raw.length - words.length).some((arg) => /^(-C|--chdir)(=|$)/.test(arg) || /^-C./.test(arg))) {
       cwdKnown = false;
     }

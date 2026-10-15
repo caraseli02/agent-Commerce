@@ -262,6 +262,19 @@ describe('PR template preflight on gh pr create / edit (#702)', () => {
     '(cd sub && gh pr create --title t --body-file body.md)': /absolute --body-file/,
     'env -C sub gh pr create --title t --body-file body.md': /absolute --body-file/,
     'bash -c "cd sub && gh pr edit 12 --body-file body.md"': /absolute --body-file/,
+    // Wrappers and leading assignments around cd still change directory (#703 second review).
+    "bash -c 'command cd sub && gh pr create --title t --body-file body.md'": /absolute --body-file/,
+    "bash -c 'command cd sub && gh pr edit 12 --body-file body.md'": /absolute --body-file/,
+    "bash -c 'X=1 cd sub && gh pr create --title t --body-file body.md'": /absolute --body-file/,
+    "bash -c 'X=1 cd sub && gh pr edit 12 --body-file body.md'": /absolute --body-file/,
+    'command cd sub && gh pr create --title t --body-file body.md': /absolute --body-file/,
+    'X=1 cd sub && gh pr edit 12 --body-file body.md': /absolute --body-file/,
+    'command builtin cd sub && gh pr create --title t --body-file body.md': /absolute --body-file/,
+    'builtin command cd sub && gh pr edit 12 --body-file body.md': /absolute --body-file/,
+    'time pushd sub; gh pr edit 12 --body-file body.md': /absolute --body-file/,
+    'sudo cd sub; gh pr create --title t --body-file body.md': /absolute --body-file/,
+    '. ./setup.sh && gh pr create --title t --body-file body.md': /absolute --body-file/,
+    'source setup.sh && gh pr edit 12 --body-file body.md': /absolute --body-file/,
   };
   for (const [command, reason] of Object.entries(blocked)) {
     it(`blocks: ${command}`, () => {
