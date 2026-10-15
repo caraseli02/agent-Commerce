@@ -1,8 +1,4 @@
 {
-  "app/components/categories/Range.vue": {
-    "input": 2,
-    "label": 2
-  },
   "app/components/dashboard/client/Credit.vue": {
     "button": 2,
     "label": 1
@@ -26,15 +22,6 @@
   },
   "app/components/dashboard/customers/RecentTransactions.vue": {
     "button": 1
-  },
-  "app/components/dataTable/filter/Range.vue": {
-    "input": 2,
-    "label": 2
-  },
-  "app/components/global/QuantityButtons.vue": {
-    "button": 2,
-    "input": 1,
-    "label": 1
   },
   "app/components/icon/Upload.vue": {
     "input": 1
