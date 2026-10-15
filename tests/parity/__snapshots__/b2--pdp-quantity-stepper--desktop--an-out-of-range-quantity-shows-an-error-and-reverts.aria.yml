@@ -1,0 +1,6 @@
+- button "Decrease quantity":
+    - img
+- spinbutton "Quantity" [invalid]: '5'
+- alert: /Enter a whole number from 1 to \d+\./
+- button "Increase quantity":
+    - img

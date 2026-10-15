@@ -1,0 +1,760 @@
+- dialog "Add Shipping Address":
+    - heading "Add Shipping Address" [level=2]
+    - text: Address Alias
+    - img
+    - textbox "Address Alias 1"
+    - alert: Address Alias is required
+    - text: Country
+    - button "United States United States":
+        - img "United States"
+        - text: ''
+        - img
+    - text: Search Country
+    - img
+    - searchbox
+    - button "N/A"
+    - button "Andorra Andorra":
+        - img "Andorra"
+        - text: ''
+    - button "United Arab Emirates United Arab Emirates":
+        - img "United Arab Emirates"
+        - text: ''
+    - button "Afghanistan Afghanistan":
+        - img "Afghanistan"
+        - text: ''
+    - button "Antigua and Barbuda Antigua and Barbuda":
+        - img "Antigua and Barbuda"
+        - text: ''
+    - button "Anguilla Anguilla":
+        - img "Anguilla"
+        - text: ''
+    - button "Albania Albania":
+        - img "Albania"
+        - text: ''
+    - button "Armenia Armenia":
+        - img "Armenia"
+        - text: ''
+    - button "Angola Angola":
+        - img "Angola"
+        - text: ''
+    - button "Argentina Argentina":
+        - img "Argentina"
+        - text: ''
+    - button "Austria Austria":
+        - img "Austria"
+        - text: ''
+    - button "Australia Australia":
+        - img "Australia"
+        - text: ''
+    - button "Aruba Aruba":
+        - img "Aruba"
+        - text: ''
+    - button "Aland Islands Aland Islands":
+        - img "Aland Islands"
+        - text: ''
+    - button "Bosnia and Herzegovina Bosnia and Herzegovina":
+        - img "Bosnia and Herzegovina"
+        - text: ''
+    - button "Barbados Barbados":
+        - img "Barbados"
+        - text: ''
+    - button "Azerbaijan Azerbaijan":
+        - img "Azerbaijan"
+        - text: ''
+    - button "Bangladesh Bangladesh":
+        - img "Bangladesh"
+        - text: ''
+    - button "Belgium Belgium":
+        - img "Belgium"
+        - text: ''
+    - button "Burkina Faso Burkina Faso":
+        - img "Burkina Faso"
+        - text: ''
+    - button "Bulgaria Bulgaria":
+        - img "Bulgaria"
+        - text: ''
+    - button "Bahrain Bahrain":
+        - img "Bahrain"
+        - text: ''
+    - button "Burundi Burundi":
+        - img "Burundi"
+        - text: ''
+    - button "Benin Benin":
+        - img "Benin"
+        - text: ''
+    - button "Bermuda Bermuda":
+        - img "Bermuda"
+        - text: ''
+    - button "Brunei Darussalam Brunei Darussalam":
+        - img "Brunei Darussalam"
+        - text: ''
+    - button "Bolivia Bolivia":
+        - img "Bolivia"
+        - text: ''
+    - button "Bonaire, Sint Eustatius and Saba Bonaire, Sint Eustatius and Saba":
+        - img "Bonaire, Sint Eustatius and Saba"
+        - text: ''
+    - button "Brazil Brazil":
+        - img "Brazil"
+        - text: ''
+    - button "Bahamas Bahamas":
+        - img "Bahamas"
+        - text: ''
+    - button "Bhutan Bhutan":
+        - img "Bhutan"
+        - text: ''
+    - button "Bouvet Island Bouvet Island":
+        - img "Bouvet Island"
+        - text: ''
+    - button "Botswana Botswana":
+        - img "Botswana"
+        - text: ''
+    - button "Belarus Belarus":
+        - img "Belarus"
+        - text: ''
+    - button "Belize Belize":
+        - img "Belize"
+        - text: ''
+    - button "Canada Canada":
+        - img "Canada"
+        - text: ''
+    - button "Cocos Islands Cocos Islands":
+        - img "Cocos Islands"
+        - text: ''
+    - button "Democratic Republic of Congo Democratic Republic of Congo":
+        - img "Democratic Republic of Congo"
+        - text: ''
+    - button "Central African Republic Central African Republic":
+        - img "Central African Republic"
+        - text: ''
+    - button "Congo Congo":
+        - img "Congo"
+        - text: ''
+    - button "Switzerland Switzerland":
+        - img "Switzerland"
+        - text: ''
+    - button "Cote d'Ivoire Cote d'Ivoire":
+        - img "Cote d'Ivoire"
+        - text: ''
+    - button "Cook Islands Cook Islands":
+        - img "Cook Islands"
+        - text: ''
+    - button "Chile Chile":
+        - img "Chile"
+        - text: ''
+    - button "Cameroon Cameroon":
+        - img "Cameroon"
+        - text: ''
+    - button "China China":
+        - img "China"
+        - text: ''
+    - button "Colombia Colombia":
+        - img "Colombia"
+        - text: ''
+    - button "Costa Rica Costa Rica":
+        - img "Costa Rica"
+        - text: ''
+    - button "Cuba Cuba":
+        - img "Cuba"
+        - text: ''
+    - button "Cape Verde Cape Verde":
+        - img "Cape Verde"
+        - text: ''
+    - button "Curacao Curacao":
+        - img "Curacao"
+        - text: ''
+    - button "Christmas Island Christmas Island":
+        - img "Christmas Island"
+        - text: ''
+    - button "Cyprus Cyprus":
+        - img "Cyprus"
+        - text: ''
+    - button "Czech Republic Czech Republic":
+        - img "Czech Republic"
+        - text: ''
+    - button "Germany Germany":
+        - img "Germany"
+        - text: ''
+    - button "Djibouti Djibouti":
+        - img "Djibouti"
+        - text: ''
+    - button "Denmark Denmark":
+        - img "Denmark"
+        - text: ''
+    - button "Dominica Dominica":
+        - img "Dominica"
+        - text: ''
+    - button "Dominican Republic Dominican Republic":
+        - img "Dominican Republic"
+        - text: ''
+    - button "Algeria Algeria":
+        - img "Algeria"
+        - text: ''
+    - button "Ecuador Ecuador":
+        - img "Ecuador"
+        - text: ''
+    - button "Estonia Estonia":
+        - img "Estonia"
+        - text: ''
+    - button "Egypt Egypt":
+        - img "Egypt"
+        - text: ''
+    - button "Western Sahara Western Sahara":
+        - img "Western Sahara"
+        - text: ''
+    - button "Eritrea Eritrea":
+        - img "Eritrea"
+        - text: ''
+    - button "Spain Spain":
+        - img "Spain"
+        - text: ''
+    - button "Finland Finland":
+        - img "Finland"
+        - text: ''
+    - button "Fiji Fiji":
+        - img "Fiji"
+        - text: ''
+    - button "Falkland Islands Falkland Islands":
+        - img "Falkland Islands"
+        - text: ''
+    - button "Federated States of Micronesia Federated States of Micronesia":
+        - img "Federated States of Micronesia"
+        - text: ''
+    - button "Faroe Islands Faroe Islands":
+        - img "Faroe Islands"
+        - text: ''
+    - button "France France":
+        - img "France"
+        - text: ''
+    - button "Gabon Gabon":
+        - img "Gabon"
+        - text: ''
+    - button "United Kingdom United Kingdom":
+        - img "United Kingdom"
+        - text: ''
+    - button "Grenada Grenada":
+        - img "Grenada"
+        - text: ''
+    - button "Georgia Georgia":
+        - img "Georgia"
+        - text: ''
+    - button "French Guiana French Guiana":
+        - img "French Guiana"
+        - text: ''
+    - button "Guernsey Guernsey":
+        - img "Guernsey"
+        - text: ''
+    - button "Ghana Ghana":
+        - img "Ghana"
+        - text: ''
+    - button "Gibraltar Gibraltar":
+        - img "Gibraltar"
+        - text: ''
+    - button "Greenland Greenland":
+        - img "Greenland"
+        - text: ''
+    - button "Gambia Gambia":
+        - img "Gambia"
+        - text: ''
+    - button "Guinea Guinea":
+        - img "Guinea"
+        - text: ''
+    - button "Equatorial Guinea Equatorial Guinea":
+        - img "Equatorial Guinea"
+        - text: ''
+    - button "Greece Greece":
+        - img "Greece"
+        - text: ''
+    - button "South Georgia and the South Sandwich Islands South Georgia and the South Sandwich Islands":
+        - img "South Georgia and the South Sandwich Islands"
+        - text: ''
+    - button "Guatemala Guatemala":
+        - img "Guatemala"
+        - text: ''
+    - button "Guam Guam":
+        - img "Guam"
+        - text: ''
+    - button "Guinea-Bissau Guinea-Bissau":
+        - img "Guinea-Bissau"
+        - text: ''
+    - button "Guyana Guyana":
+        - img "Guyana"
+        - text: ''
+    - button "Hong Kong Hong Kong":
+        - img "Hong Kong"
+        - text: ''
+    - button "Heard Island and McDonalds Islands Heard Island and McDonalds Islands":
+        - img "Heard Island and McDonalds Islands"
+        - text: ''
+    - button "Honduras Honduras":
+        - img "Honduras"
+        - text: ''
+    - button "Croatia Croatia":
+        - img "Croatia"
+        - text: ''
+    - button "Haiti Haiti":
+        - img "Haiti"
+        - text: ''
+    - button "Hungary Hungary":
+        - img "Hungary"
+        - text: ''
+    - button "Indonesia Indonesia":
+        - img "Indonesia"
+        - text: ''
+    - button "Ireland Ireland":
+        - img "Ireland"
+        - text: ''
+    - button "Israel Israel":
+        - img "Israel"
+        - text: ''
+    - button "Isle of Man Isle of Man":
+        - img "Isle of Man"
+        - text: ''
+    - button "India India":
+        - img "India"
+        - text: ''
+    - button "British Indian Ocean Territory British Indian Ocean Territory":
+        - img "British Indian Ocean Territory"
+        - text: ''
+    - button "Iraq Iraq":
+        - img "Iraq"
+        - text: ''
+    - button "Iran Iran":
+        - img "Iran"
+        - text: ''
+    - button "Iceland Iceland":
+        - img "Iceland"
+        - text: ''
+    - button "Italy Italy":
+        - img "Italy"
+        - text: ''
+    - button "Jersey Jersey":
+        - img "Jersey"
+        - text: ''
+    - button "Jamaica Jamaica":
+        - img "Jamaica"
+        - text: ''
+    - button "Jordan Jordan":
+        - img "Jordan"
+        - text: ''
+    - button "Japan Japan":
+        - img "Japan"
+        - text: ''
+    - button "Kenya Kenya":
+        - img "Kenya"
+        - text: ''
+    - button "Kyrgyzstan Kyrgyzstan":
+        - img "Kyrgyzstan"
+        - text: ''
+    - button "Cambodia Cambodia":
+        - img "Cambodia"
+        - text: ''
+    - button "Kiribati Kiribati":
+        - img "Kiribati"
+        - text: ''
+    - button "Comoros Comoros":
+        - img "Comoros"
+        - text: ''
+    - button "Saint Kitts and Nevis Saint Kitts and Nevis":
+        - img "Saint Kitts and Nevis"
+        - text: ''
+    - button "North Korea North Korea":
+        - img "North Korea"
+        - text: ''
+    - button "South Korea South Korea":
+        - img "South Korea"
+        - text: ''
+    - button "Kuwait Kuwait":
+        - img "Kuwait"
+        - text: ''
+    - button "Cayman Islands Cayman Islands":
+        - img "Cayman Islands"
+        - text: ''
+    - button "Kazakhstan Kazakhstan":
+        - img "Kazakhstan"
+        - text: ''
+    - button "Laos Laos":
+        - img "Laos"
+        - text: ''
+    - button "Lebanon Lebanon":
+        - img "Lebanon"
+        - text: ''
+    - button "Saint Lucia Saint Lucia":
+        - img "Saint Lucia"
+        - text: ''
+    - button "Liechtenstein Liechtenstein":
+        - img "Liechtenstein"
+        - text: ''
+    - button "Sri Lanka Sri Lanka":
+        - img "Sri Lanka"
+        - text: ''
+    - button "Liberia Liberia":
+        - img "Liberia"
+        - text: ''
+    - button "Lesotho Lesotho":
+        - img "Lesotho"
+        - text: ''
+    - button "Lithuania Lithuania":
+        - img "Lithuania"
+        - text: ''
+    - button "Luxembourg Luxembourg":
+        - img "Luxembourg"
+        - text: ''
+    - button "Latvia Latvia":
+        - img "Latvia"
+        - text: ''
+    - button "Libya Libya":
+        - img "Libya"
+        - text: ''
+    - button "Morocco Morocco":
+        - img "Morocco"
+        - text: ''
+    - button "Monaco Monaco":
+        - img "Monaco"
+        - text: ''
+    - button "Moldova Moldova":
+        - img "Moldova"
+        - text: ''
+    - button "Montenegro Montenegro":
+        - img "Montenegro"
+        - text: ''
+    - button "Saint Martin Saint Martin":
+        - img "Saint Martin"
+        - text: ''
+    - button "Madagascar Madagascar":
+        - img "Madagascar"
+        - text: ''
+    - button "Marshall Islands Marshall Islands":
+        - img "Marshall Islands"
+        - text: ''
+    - button "North Macedonia North Macedonia":
+        - img "North Macedonia"
+        - text: ''
+    - button "Mali Mali":
+        - img "Mali"
+        - text: ''
+    - button "Mongolia Mongolia":
+        - img "Mongolia"
+        - text: ''
+    - button "Macao Macao":
+        - img "Macao"
+        - text: ''
+    - button "Northern Mariana Islands Northern Mariana Islands":
+        - img "Northern Mariana Islands"
+        - text: ''
+    - button "Martinique Martinique":
+        - img "Martinique"
+        - text: ''
+    - button "Mauritania Mauritania":
+        - img "Mauritania"
+        - text: ''
+    - button "Montserrat Montserrat":
+        - img "Montserrat"
+        - text: ''
+    - button "Malta Malta":
+        - img "Malta"
+        - text: ''
+    - button "Mauritius Mauritius":
+        - img "Mauritius"
+        - text: ''
+    - button "Maldives Maldives":
+        - img "Maldives"
+        - text: ''
+    - button "Malawi Malawi":
+        - img "Malawi"
+        - text: ''
+    - button "Mexico Mexico":
+        - img "Mexico"
+        - text: ''
+    - button "Malaysia Malaysia":
+        - img "Malaysia"
+        - text: ''
+    - button "Mozambique Mozambique":
+        - img "Mozambique"
+        - text: ''
+    - button "Namibia Namibia":
+        - img "Namibia"
+        - text: ''
+    - button "New Caledonia New Caledonia":
+        - img "New Caledonia"
+        - text: ''
+    - button "Niger Niger":
+        - img "Niger"
+        - text: ''
+    - button "Norfolk Island Norfolk Island":
+        - img "Norfolk Island"
+        - text: ''
+    - button "Nigeria Nigeria":
+        - img "Nigeria"
+        - text: ''
+    - button "Nicaragua Nicaragua":
+        - img "Nicaragua"
+        - text: ''
+    - button "Netherlands Netherlands":
+        - img "Netherlands"
+        - text: ''
+    - button "Norway Norway":
+        - img "Norway"
+        - text: ''
+    - button "Nepal Nepal":
+        - img "Nepal"
+        - text: ''
+    - button "Nauru Nauru":
+        - img "Nauru"
+        - text: ''
+    - button "Niue Niue":
+        - img "Niue"
+        - text: ''
+    - button "New Zealand New Zealand":
+        - img "New Zealand"
+        - text: ''
+    - button "Oman Oman":
+        - img "Oman"
+        - text: ''
+    - button "Panama Panama":
+        - img "Panama"
+        - text: ''
+    - button "Peru Peru":
+        - img "Peru"
+        - text: ''
+    - button "French Polynesia French Polynesia":
+        - img "French Polynesia"
+        - text: ''
+    - button "Papua New Guinea Papua New Guinea":
+        - img "Papua New Guinea"
+        - text: ''
+    - button "Philippines Philippines":
+        - img "Philippines"
+        - text: ''
+    - button "Pakistan Pakistan":
+        - img "Pakistan"
+        - text: ''
+    - button "Poland Poland":
+        - img "Poland"
+        - text: ''
+    - button "Saint Pierre and Miquelon Saint Pierre and Miquelon":
+        - img "Saint Pierre and Miquelon"
+        - text: ''
+    - button "Pitcairn Pitcairn":
+        - img "Pitcairn"
+        - text: ''
+    - button "Puerto Rico Puerto Rico":
+        - img "Puerto Rico"
+        - text: ''
+    - button "Palestine Palestine":
+        - img "Palestine"
+        - text: ''
+    - button "Portugal Portugal":
+        - img "Portugal"
+        - text: ''
+    - button "Palau Palau":
+        - img "Palau"
+        - text: ''
+    - button "Paraguay Paraguay":
+        - img "Paraguay"
+        - text: ''
+    - button "Qatar Qatar":
+        - img "Qatar"
+        - text: ''
+    - button "Reunion Reunion":
+        - img "Reunion"
+        - text: ''
+    - button "Romania Romania":
+        - img "Romania"
+        - text: ''
+    - button "Serbia Serbia":
+        - img "Serbia"
+        - text: ''
+    - button "Russia Russia":
+        - img "Russia"
+        - text: ''
+    - button "Rwanda Rwanda":
+        - img "Rwanda"
+        - text: ''
+    - button "Saudi Arabia Saudi Arabia":
+        - img "Saudi Arabia"
+        - text: ''
+    - button "Solomon Islands Solomon Islands":
+        - img "Solomon Islands"
+        - text: ''
+    - button "Seychelles Seychelles":
+        - img "Seychelles"
+        - text: ''
+    - button "Sudan Sudan":
+        - img "Sudan"
+        - text: ''
+    - button "Sweden Sweden":
+        - img "Sweden"
+        - text: ''
+    - button "Singapore Singapore":
+        - img "Singapore"
+        - text: ''
+    - button "Saint Helena, Ascension and Tristan da Cunha Saint Helena, Ascension and Tristan da Cunha":
+        - img "Saint Helena, Ascension and Tristan da Cunha"
+        - text: ''
+    - button "Slovenia Slovenia":
+        - img "Slovenia"
+        - text: ''
+    - button "Slovakia Slovakia":
+        - img "Slovakia"
+        - text: ''
+    - button "Sierra Leone Sierra Leone":
+        - img "Sierra Leone"
+        - text: ''
+    - button "San Marino San Marino":
+        - img "San Marino"
+        - text: ''
+    - button "Senegal Senegal":
+        - img "Senegal"
+        - text: ''
+    - button "Somalia Somalia":
+        - img "Somalia"
+        - text: ''
+    - button "Suriname Suriname":
+        - img "Suriname"
+        - text: ''
+    - button "South Sudan South Sudan":
+        - img "South Sudan"
+        - text: ''
+    - button "Sao Tome and Principe Sao Tome and Principe":
+        - img "Sao Tome and Principe"
+        - text: ''
+    - button "El Salvador El Salvador":
+        - img "El Salvador"
+        - text: ''
+    - button "Sint Maarten Sint Maarten":
+        - img "Sint Maarten"
+        - text: ''
+    - button "Syria Syria":
+        - img "Syria"
+        - text: ''
+    - button "Turks and Caicos Islands Turks and Caicos Islands":
+        - img "Turks and Caicos Islands"
+        - text: ''
+    - button "Chad Chad":
+        - img "Chad"
+        - text: ''
+    - button "French Southern and Antarctic Lands French Southern and Antarctic Lands":
+        - img "French Southern and Antarctic Lands"
+        - text: ''
+    - button "Togo Togo":
+        - img "Togo"
+        - text: ''
+    - button "Thailand Thailand":
+        - img "Thailand"
+        - text: ''
+    - button "Tajikistan Tajikistan":
+        - img "Tajikistan"
+        - text: ''
+    - button "Tokelau Tokelau":
+        - img "Tokelau"
+        - text: ''
+    - button "Timor-Leste Timor-Leste":
+        - img "Timor-Leste"
+        - text: ''
+    - button "Turkmenistan Turkmenistan":
+        - img "Turkmenistan"
+        - text: ''
+    - button "Tunisia Tunisia":
+        - img "Tunisia"
+        - text: ''
+    - button "Tonga Tonga":
+        - img "Tonga"
+        - text: ''
+    - button "Turkiye Turkiye":
+        - img "Turkiye"
+        - text: ''
+    - button "Trinidad and Tobago Trinidad and Tobago":
+        - img "Trinidad and Tobago"
+        - text: ''
+    - button "Tuvalu Tuvalu":
+        - img "Tuvalu"
+        - text: ''
+    - button "Taiwan Taiwan":
+        - img "Taiwan"
+        - text: ''
+    - button "Tanzania Tanzania":
+        - img "Tanzania"
+        - text: ''
+    - button "Ukraine Ukraine":
+        - img "Ukraine"
+        - text: ''
+    - button "Uganda Uganda":
+        - img "Uganda"
+        - text: ''
+    - button "United States United States":
+        - img "United States"
+        - text: ''
+    - button "Uruguay Uruguay":
+        - img "Uruguay"
+        - text: ''
+    - button "Uzbekistan Uzbekistan":
+        - img "Uzbekistan"
+        - text: ''
+    - button "Holy See (Vatican City) Holy See (Vatican City)":
+        - img "Holy See (Vatican City)"
+        - text: ''
+    - button "Saint Vincent and the Grenadines Saint Vincent and the Grenadines":
+        - img "Saint Vincent and the Grenadines"
+        - text: ''
+    - button "Venezuela Venezuela":
+        - img "Venezuela"
+        - text: ''
+    - button "Virgin Islands, British Virgin Islands, British":
+        - img "Virgin Islands, British"
+        - text: ''
+    - button "Virgin Islands, U.S. Virgin Islands, U.S.":
+        - img "Virgin Islands, U.S."
+        - text: ''
+    - button "Vietnam Vietnam":
+        - img "Vietnam"
+        - text: ''
+    - button "Vanuatu Vanuatu":
+        - img "Vanuatu"
+        - text: ''
+    - button "Wallis and Futuna Wallis and Futuna":
+        - img "Wallis and Futuna"
+        - text: ''
+    - button "Samoa Samoa":
+        - img "Samoa"
+        - text: ''
+    - button "Yemen Yemen":
+        - img "Yemen"
+        - text: ''
+    - button "Mayotte Mayotte":
+        - img "Mayotte"
+        - text: ''
+    - button "South Africa South Africa":
+        - img "South Africa"
+        - text: ''
+    - button "Zambia Zambia":
+        - img "Zambia"
+        - text: ''
+    - button "Zimbabwe Zimbabwe":
+        - img "Zimbabwe"
+        - text: ''
+    - text: Region
+    - button "New York":
+        - text: ''
+        - img
+    - alert: Region is required
+    - text: City
+    - textbox "City" [invalid]:
+        - /placeholder: Bucharest
+    - alert: City is required
+    - text: Address Line 1
+    - textbox "Address Line 1" [invalid]:
+        - /placeholder: 5073 Mark Brown Rd
+    - alert: Address Line 1 is required
+    - text: Address Line 2
+    - textbox "Address Line 2":
+        - /placeholder: NE Dalton
+    - text: Postcode
+    - textbox "Postcode" [invalid]:
+        - /placeholder: W1A5AB
+    - alert: Postcode is required
+    - button "Cancel"
+    - button "Save"
+    - button "Close":
+        - img
+        - text: ''

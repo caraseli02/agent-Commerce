@@ -13,6 +13,27 @@
       "consumers": "scripts/check-pr-template.mjs is run only by .github/workflows/pr-template.yml, tests/pr-template-check.spec.ts and, after this change, the Claude guard hook; nuxt.config.ts, pages, components, stores, the Nitro server and package.json build scripts never import it. .factory/hooks/bash-guard.mjs (+ its test) is a PreToolUse hook installed outside the checkout by .factory/bin/install-local.sh and only screens shell commands; .factory/automations/claude-routine.md is agent instructions. None reaches .output, so no home, search, product, cart or orders screenshot can change."
     },
     {
+      "fingerprint": "e6125a6b87de64218525519155c7214e7c3cfa7720895e27efc864004edfbf6b",
+      "impact": "targeted",
+      "tests": ["home", "orders"],
+      "reason": "B1 shadcn migration of the global form wrappers (#645): FormInput, FormPassword and FormSelect swap native label/input/button for UiLabel/UiInput/UiButton (checkbox mode: UiRadioGroup); props, emits and the size/icon/error matrix are unchanged; no store, composable, layout or shared style changes.",
+      "consumers": "git grep finds the wrappers in layout/account-modal/Form.vue (header account sheet, behind a click), layout/RegionalPreferencesModal.vue (behind a click), pages/password-reset.vue, dashboard/control-panel/{AccountView,OrganizationView,AddAddress,EditAddress,settings-view/Settings}.vue, dashboard/client/settings/{Details,BillingDialog,ShippingDialog}.vue and signup/* (deferred D1). No screenshot in the matrix opens the account or regional sheets or renders the control panel or client settings tab; home (header that opens both sheets) and orders (client dashboard surface) are kept as representative groups. The touched surfaces are covered by 6 B1 parity scenarios (ARIA, tab order, interaction outcomes, clean runtime) plus the M1 password-reset and M6 control-panel scenarios, a keyboard pass at 390 and 1440, and before/after region screenshots; the full visual suite also passed locally (9/9)."
+    },
+    {
+      "fingerprint": "5e0be671141fbd1b9f7efb8f327c08d7520f12a27c5b0f33eb2aad9286b0d756",
+      "impact": "targeted",
+      "tests": ["home", "search"],
+      "reason": "v-click-outside now also checks event.composedPath(), so a click whose handler unmounts its own target inside the bound element no longer counts as outside (#692); static rendering is unchanged.",
+      "consumers": "app/plugins/click-outside.ts registers the directive used by 17 components (header DesktopPopover and Large menu, search/Products dropdowns, global FormSelect and DemoTooltip, dashboard widgets, order-summary). The added condition only differs from el.contains(target) when the clicked node was detached during the click, so it can only keep an open popup open in that case; no markup, style, store or initial state changes, and no matrix screenshot opens a click-outside popup. home (header on every storefront page) and search (Products dropdowns) are kept as representative groups. The changed interaction is outside the screenshot matrix and is covered by the M4 desktop-products-navigation parity scenario (new step: outside click still closes) plus before/after browser screenshots at 1440."
+    },
+    {
+      "fingerprint": "2958001643a17265e060b39f9e24dc84cba164d7e9440bbc0a095837158e52e8",
+      "impact": "targeted",
+      "tests": ["cart", "orders"],
+      "reason": "M7 shadcn migration of shared table micro components (#644): orders filter tabs and ThreeDotMenu items become UiButton, and the order-summary Select All checkbox becomes UiCheckbox; no store, composable, layout or shared style changes.",
+      "consumers": "admin-table/order/Order.vue renders only on /dashboard/orders. ThreeDotMenu renders only inside opened row menus of dashboard/new-customers/Item.vue (/dashboard, /dashboard/customers), dashboard/customers/CustomerInformation.vue (/dashboard/customers/[slug]) and dashboard/client/Info.vue (/dashboard/client), all behind a click. CheckBoxAll renders only in order-summary/Table/Head.vue on /order-summary. None of these appear in the home, search, product or cart sheet screenshots; cart (populated cart flow) and orders (dashboard surface) are kept as the representative groups. The touched surfaces are outside the screenshot matrix and are covered by 7 M7 parity scenarios (desktop 1440 / mobile 390: ARIA, tab order, interaction outcomes, clean runtime) plus before/after region screenshots with identical dimensions."
+    },
+    {
       "fingerprint": "bc982bc1cab41fbc040f8f38d4b514ad541209855d9b6a08b84f122142e809c6",
       "impact": "targeted",
       "tests": ["cart"],
@@ -216,6 +237,13 @@
       "impact": "none",
       "reason": "Adds reviewed native Codex lease diagnostics and original-owner recovery source/migration assets; no rendered application behavior changes.",
       "consumers": "The only new executable consumers are .codex-autonomy/recovery.py, its immutable post-merge host installer, the external native dispatcher/worker workflows, and tests/codex-routing.spec.ts which spawns portable temporary-process fixtures in Vitest. Nuxt app/, server/, layouts, stores, runtime config, styles, assets, application dependencies and payment adapters neither import nor read .codex-autonomy or these host settings. Installed host files and automation remain legacy and unchanged by this PR. Actual lease/process and dispatcher delivery behavior is verified with temporary keeper/guardian/command fixtures, not storefront screenshots. Therefore home/search/product/cart/orders screenshots cannot observe this patch."
+    },
+    {
+      "fingerprint": "7254002345254249f2b7304a09f1437faa10499c2b6fc57a4307253f1c6ebcb0",
+      "impact": "targeted",
+      "tests": ["home", "search", "product"],
+      "reason": "Only Quick Buy and Exclusive Offer code-loading timing changes. Home defers hydration to a 200px visibility margin; search/product retain eager mounting through dynamic imports. Existing build-manifest suppression additionally disables only these two chunks' prefetch hints.",
+      "consumers": "Traced all QuickBuy/EcxlusiveOffer references: home, search and product pages. Components, shared cart/auth logic, server APIs, styles and existing zoom-prefetch matching are unchanged. Home/search/product screenshots at desktop/mobile cover the affected routes; dedicated production browser evidence also proves initial chunk absence, one-time activation, unchanged hydration geometry and Quick Buy/dialog/navigation behavior. No cart/order/dashboard consumer or public payment behavior changes."
     }
   ]
 }

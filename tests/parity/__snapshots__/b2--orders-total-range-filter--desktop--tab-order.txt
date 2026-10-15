@@ -1,0 +1,6 @@
+1. spinbutton "$": "0"
+2. spinbutton "$": "0"
+3. slider "Minimum"
+4. slider "Maximum"
+5. button "Clear Filter"
+6. … stopped after 5 stops

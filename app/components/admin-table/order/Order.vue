@@ -203,11 +203,12 @@ onMounted(() => {
       <template #tabs="{ table }">
         <SharedScrollableRegion class="mb-6" label="Order filters" test-id="order-filter-tabs">
           <div class="relative flex items-center gap-4 rounded-xl pl-2 md:gap-8">
-            <button
+            <UiButton
               v-for="(filter, index) in orderFilters"
               :key="index"
-              class="ordersFilter flex items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 transition-colors duration-300 md:py-8"
-              :class="[filter.label === activeOrderFilter.label ? 'text-blue-500' : 'hover:text-blue-500']"
+              variant="link"
+              class="ordersFilter relative z-10 h-auto flex-shrink-0 gap-3 px-0 py-5 leading-[1.71] md:py-8"
+              :class="[filter.label === activeOrderFilter.label ? 'text-blue-500' : '']"
               @click="onTabChange(filter, table)"
             >
               <span>
@@ -219,7 +220,7 @@ onMounted(() => {
               >
                 {{ filter.total_items || '0' }}
               </span>
-            </button>
+            </UiButton>
             <div
               class="absolute bottom-0 bg-blue-500 h-1 rounded-t-lg transition-all duration-300"
               :style="{

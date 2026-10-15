@@ -1,0 +1,19 @@
+- paragraph: Demo role
+- radiogroup "Demo role":
+    - radio "Customer Demo" [checked]
+    - radio "Admin Preview"
+- paragraph: Demo passwords stay hidden. Customer Demo is ready to use; Admin Preview opens sample back-office data.
+- text: E-mail or client code
+- textbox "E-mail or client code":
+    - /placeholder: you@company.com OR P-XXXXXX
+    - text: customer@demo.com
+- text: Password
+- textbox "Password":
+    - /placeholder: Hidden for demo sign-in
+- button "Show password":
+    - img
+- checkbox "Remember me"
+- text: Remember me
+- button "Sign In":
+    - img
+    - text: ''

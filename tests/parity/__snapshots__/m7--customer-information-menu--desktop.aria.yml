@@ -1,0 +1,9 @@
+- button "Control Panel":
+    - img
+    - text: ''
+- button "Lock Account":
+    - img
+    - text: ''
+- button "Delete Account":
+    - img
+    - text: ''

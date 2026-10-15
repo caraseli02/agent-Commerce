@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, type Request } from '@playwright/test';
-import { clearGuestCart } from '../playwright-support/runtime';
+import { clearGuestCart, waitForVisualReady } from '../playwright-support/runtime';
 import type { ParityScenario, ParityViewport } from './scenario';
 
 const filterValue = (name: string, value: string, unit: string, id: string, count: number) => ({
@@ -131,6 +131,59 @@ const showAddressView = async (page: Page, view: 'shipping' | 'billing', heading
   }, `/dashboard/customers/customer-001/control-panel/${view}`);
   await expect(page.getByText('Second Address', { exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+};
+
+const orderFilterTab = (region: Locator, label: string) => region.getByRole('button', { name: new RegExp(`^${label}\\b`) });
+
+const rowMenu = (page: Page, firstItem: string) => page.getByRole('button', { name: firstItem, exact: true }).locator('xpath=..');
+
+const openNewCustomerMenu = async (page: Page) => {
+  await page
+    .getByText('New Customers', { exact: true })
+    .locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]')
+    .getByRole('link', { name: /^Melissa Anderson/ })
+    .locator('xpath=..')
+    .getByRole('button')
+    .click();
+  await expect(rowMenu(page, 'Profile')).toBeVisible();
+};
+
+const openCustomerInformationMenu = async (page: Page) => {
+  await page.getByRole('button', { name: 'Open customer information menu' }).click();
+  await expect(rowMenu(page, 'Control Panel')).toBeVisible();
+};
+
+/** The trigger of a FormSelect: the button right after its text label (B1). */
+const formSelectTrigger = (scope: Locator, label: string) =>
+  scope.getByText(label, { exact: true }).locator('xpath=following-sibling::button[1]');
+
+/** The account panel's sign-in form (FormPassword, B1). */
+const accountSignInForm = (page: Page) => page.getByRole('dialog').locator('form');
+
+const regionalPreferencesSheet = (page: Page) => page.getByRole('dialog', { name: 'Regional Preferences' });
+
+const addShippingAddressDialog = (page: Page) => page.getByRole('dialog', { name: 'Add Shipping Address' });
+
+const orderSummarySelectAll = (page: Page) =>
+  page.getByText('Select All', { exact: true }).locator('xpath=ancestor::div[contains(@class, "bg-light-500")][1]');
+
+/** The PDP quantity stepper (GlobalQuantityButtons, B2): decrease, the number input, increase. */
+const pdpQuantityStepper = (page: Page) =>
+  page.getByTestId('product-purchase-panel').getByRole('button', { name: 'Decrease quantity' }).locator('xpath=..');
+
+/** The open range filter popover (categories/Range and dataTable/filter/Range, B2). */
+const rangeFilterPopover = (page: Page) => page.getByRole('dialog').filter({ has: page.getByRole('button', { name: 'Clear Filter' }) });
+
+const showOrderSummaryWithTwoItems = async (page: Page) => {
+  await clearGuestCart(page);
+  await page.request.post('/api/cart', {
+    data: {
+      products: ['prod-1', 'prod-2'].map((id) => ({ id, stock: 1, backorder_stock: 0, isFolder: false })),
+    },
+  });
+  await page.goto('/order-summary', { waitUntil: 'domcontentloaded' });
+  await waitForVisualReady(page, '/order-summary');
+  await expect(orderSummarySelectAll(page)).toBeVisible();
 };
 
 export const scenarios: ParityScenario[] = [
@@ -763,7 +816,20 @@ export const scenarios: ParityScenario[] = [
         act: async (_page, region) => {
           await region.getByRole('button', { name: 'All Categories' }).click();
         },
-        // Pre-existing: the button unmounts on click, so the popover's click-outside handler closes the whole popover.
+        // #692: the popover stays open and returns to the root list.
+        verify: async (page, region) => {
+          await expect(page.getByRole('navigation', { name: 'Product categories', exact: true })).toBeVisible();
+          await expect(region.getByRole('button', { name: /^Semiconductors/ })).toHaveAttribute('aria-pressed', 'false');
+          await expect(region.getByRole('button', { name: 'All Categories' })).toHaveCount(0);
+          await expect(page.getByRole('button', { name: 'Close products navigation' })).toBeVisible();
+        },
+        snapshot: (page) => page.getByRole('navigation', { name: 'Product categories', exact: true }).locator('xpath=ancestor::section[1]'),
+      },
+      {
+        name: 'an outside click still closes the popover',
+        act: async (page) => {
+          await page.mouse.click(5, 5);
+        },
         verify: async (page) => {
           await expect(page.getByRole('navigation', { name: 'Product categories', exact: true })).toBeHidden();
           await expect(page.getByRole('button', { name: 'Open products navigation' })).toBeVisible();
@@ -1090,7 +1156,7 @@ export const scenarios: ParityScenario[] = [
           await region.getByRole('button', { name: /^Transaction History/ }).click();
         },
         verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: /^Transaction History/ })).toHaveClass(/text-blue-500/);
+          await expect(region.getByRole('button', { name: /^Transaction History/ })).toHaveClass(/(^|\s)text-blue-500(\s|$)/);
         },
       },
     ],
@@ -1285,4 +1351,402 @@ export const scenarios: ParityScenario[] = [
       },
     ],
   })),
+  {
+    id: 'orders-filter-tabs',
+    slice: 'M7',
+    route: '/dashboard/orders',
+    role: 'admin',
+    viewports: ['desktop', 'mobile'],
+    region: (page) => page.getByTestId('order-filter-tabs'),
+    maxTabStops: 12,
+    steps: [
+      {
+        name: 'a filter tab becomes the active filter',
+        act: async (page, region) => {
+          await Promise.all([
+            page.waitForResponse((response) => response.url().includes('/api/orders') && response.ok()),
+            orderFilterTab(region, 'Fulfilled').click(),
+          ]);
+        },
+        verify: async (_page, region) => {
+          await expect(orderFilterTab(region, 'Fulfilled')).toHaveClass(/(^|\s)text-blue-500(\s|$)/);
+          await expect(orderFilterTab(region, 'All orders')).not.toHaveClass(/(^|\s)text-blue-500(\s|$)/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'new-customer-row-menu',
+    slice: 'M7',
+    route: '/dashboard',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: openNewCustomerMenu,
+    region: (page) => rowMenu(page, 'Profile'),
+    steps: [
+      {
+        name: 'the orders item closes the menu',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Orders', exact: true }).click();
+        },
+        verify: async (page) => {
+          await expect(rowMenu(page, 'Profile')).toBeHidden();
+        },
+      },
+      {
+        name: 'the profile item opens the customer profile',
+        act: async (page) => {
+          await openNewCustomerMenu(page);
+          await rowMenu(page, 'Profile').getByRole('button', { name: 'Profile', exact: true }).click();
+        },
+        verify: async (page) => {
+          await expect(page).toHaveURL(/\/dashboard\/customers\/[^/]+$/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'customer-information-menu',
+    slice: 'M7',
+    route: '/dashboard/customers/customer-001',
+    role: 'admin',
+    viewports: ['desktop', 'mobile'],
+    setup: openCustomerInformationMenu,
+    region: (page) => rowMenu(page, 'Control Panel'),
+    steps: [
+      {
+        name: 'the control panel item opens the control panel',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Control Panel', exact: true }).click();
+        },
+        verify: async (page) => {
+          await expect(page).toHaveURL(/\/dashboard\/customers\/customer-001\/control-panel/);
+        },
+      },
+    ],
+  },
+  {
+    id: 'order-summary-select-all',
+    slice: 'M7',
+    route: '/',
+    viewports: ['desktop', 'mobile'],
+    setup: showOrderSummaryWithTwoItems,
+    region: orderSummarySelectAll,
+    steps: [
+      {
+        name: 'select all selects every item',
+        act: async (_page, region) => {
+          // Before M7 the native checkbox is sr-only under its label, so click where the user does.
+          await region.getByRole('checkbox').click({ force: true });
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByText('2', { exact: true })).toBeVisible();
+          await expect(region.getByRole('button', { name: 'Delete Selected' })).toBeEnabled();
+        },
+        snapshot: orderSummarySelectAll,
+      },
+      {
+        name: 'select all again clears the selection',
+        act: async (_page, region) => {
+          // Before M7 the native checkbox is sr-only under its label, so click where the user does.
+          await region.getByRole('checkbox').click({ force: true });
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByText('2', { exact: true })).toBeHidden();
+          await expect(region.getByRole('button', { name: 'Delete Selected' })).toBeDisabled();
+        },
+        snapshot: orderSummarySelectAll,
+      },
+    ],
+  },
+  {
+    id: 'account-sign-in-form',
+    slice: 'B1',
+    route: '/',
+    viewports: ['desktop', 'mobile'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Open my account' }).click();
+      await expect(page.getByRole('radio', { name: 'Customer Demo' })).toBeVisible();
+    },
+    region: accountSignInForm,
+    steps: [
+      {
+        name: 'the eye toggle reveals the password',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Show password' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Hide password' })).toHaveAttribute('aria-pressed', 'true');
+          await expect(region.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'text');
+        },
+        snapshot: accountSignInForm,
+      },
+      {
+        name: 'the eye toggle hides the password again',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Hide password' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Show password' })).toHaveAttribute('aria-pressed', 'false');
+          await expect(region.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'password');
+        },
+      },
+    ],
+  },
+  {
+    id: 'regional-preferences-currency',
+    slice: 'B1',
+    route: '/',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Regional preferences' }).click();
+      await expect(regionalPreferencesSheet(page)).toBeVisible();
+    },
+    region: regionalPreferencesSheet,
+    // The sheet traps focus, so the walk would loop; one cycle covers every stop.
+    maxTabStops: 4,
+    steps: [
+      {
+        name: 'the currency select opens its options',
+        act: async (_page, region) => {
+          await formSelectTrigger(region, 'Demo currency').click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'EURO', exact: true })).toBeVisible();
+        },
+        snapshot: regionalPreferencesSheet,
+      },
+      {
+        name: 'choosing an option closes the menu and shows it',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'EURO', exact: true }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(formSelectTrigger(region, 'Demo currency')).toHaveText('EURO');
+          await expect(region.getByRole('button', { name: 'USD', exact: true })).toBeHidden();
+        },
+        snapshot: regionalPreferencesSheet,
+      },
+    ],
+  },
+  {
+    id: 'control-panel-account-country-select',
+    slice: 'B1',
+    route: '/dashboard/customers/customer-001/control-panel/account',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await controlPanelView(page, 'Account Details').getByRole('button', { name: 'Edit' }).click();
+    },
+    region: (page) => controlPanelView(page, 'Account Details'),
+    maxTabStops: 30,
+    steps: [
+      {
+        name: 'the country select opens with a search field',
+        act: async (_page, region) => {
+          await formSelectTrigger(region, 'Country').click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByPlaceholder('Search Country')).toBeVisible();
+        },
+        snapshot: (page) => controlPanelView(page, 'Account Details'),
+      },
+      {
+        name: 'searching filters the country options',
+        act: async (_page, region) => {
+          await region.getByPlaceholder('Search Country').fill('Roman');
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Romania Romania', exact: true })).toBeVisible();
+          await expect(region.getByRole('button', { name: 'Germany Germany', exact: true })).toBeHidden();
+        },
+        snapshot: (page) => controlPanelView(page, 'Account Details'),
+      },
+    ],
+  },
+  {
+    id: 'control-panel-add-address-dialog',
+    slice: 'B1',
+    route: '/dashboard/customers/customer-001/control-panel/account',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await showAddressView(page, 'shipping', 'Shipping');
+      await controlPanelView(page, 'Shipping').getByRole('button').last().click();
+      await expect(addShippingAddressDialog(page)).toBeVisible();
+    },
+    region: addShippingAddressDialog,
+    // The dialog traps focus, so the walk would loop; one cycle covers every stop.
+    maxTabStops: 10,
+    steps: [
+      {
+        name: 'the country select opens with a search field',
+        act: async (_page, region) => {
+          await formSelectTrigger(region, 'Country').click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByPlaceholder('Search Country')).toBeVisible();
+        },
+        snapshot: addShippingAddressDialog,
+      },
+    ],
+  },
+  {
+    id: 'client-settings-account-details',
+    slice: 'B1',
+    route: '/dashboard/client',
+    role: 'customer',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByTestId('client-dashboard-tabs').getByRole('button', { name: 'Settings' }).click();
+      await expect(page.getByRole('heading', { name: 'Account Details', exact: true })).toBeVisible();
+    },
+    region: (page) => page.getByRole('heading', { name: 'Account Details', exact: true }).locator('xpath=ancestor::section[1]'),
+  },
+  {
+    id: 'pdp-quantity-stepper',
+    slice: 'B2',
+    route: '/product/prod-1',
+    viewports: ['desktop', 'mobile'],
+    region: pdpQuantityStepper,
+    steps: [
+      {
+        name: 'increase quantity',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Increase quantity' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('2');
+        },
+      },
+      {
+        name: 'a typed quantity is kept',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton', { name: 'Quantity' }).fill('5');
+          await region.getByRole('spinbutton', { name: 'Quantity' }).press('Tab');
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('5');
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveAttribute('aria-invalid', 'false');
+        },
+        snapshot: pdpQuantityStepper,
+      },
+      {
+        name: 'an out-of-range quantity shows an error and reverts',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton', { name: 'Quantity' }).fill('0');
+          await region.getByRole('spinbutton', { name: 'Quantity' }).press('Tab');
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('alert')).toHaveText(/^Enter a whole number from \d+/);
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveAttribute('aria-invalid', 'true');
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('5');
+        },
+        snapshot: pdpQuantityStepper,
+      },
+      {
+        name: 'decrease quantity clears the error',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Decrease quantity' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('4');
+        },
+      },
+    ],
+  },
+  {
+    id: 'categories-items-total-range',
+    slice: 'B2',
+    route: '/dashboard/products/categories',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Items Total' }).click();
+      await expect(rangeFilterPopover(page)).toBeVisible();
+    },
+    region: rangeFilterPopover,
+    // The popover traps focus, so the walk would loop; one cycle covers every stop.
+    maxTabStops: 5,
+    steps: [
+      {
+        name: 'typed bounds show on the trigger',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton').first().fill('10');
+          await region.getByRole('spinbutton').last().fill('500');
+        },
+        verify: async (page, region) => {
+          await expect(region.getByText('10', { exact: true })).toBeVisible();
+          await expect(region.getByText('500', { exact: true })).toBeVisible();
+          await expect(page.getByRole('button', { name: /Items Total/ })).toContainText('Min: 10');
+          await expect(page.getByRole('button', { name: /Items Total/ })).toContainText('Max: 500');
+        },
+        snapshot: rangeFilterPopover,
+      },
+      {
+        // The min stays a number: a typed 0 equals the reset value, so its badge goes away.
+        name: 'a typed zero minimum hides its badge',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton').first().fill('0');
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('button', { name: /Items Total/ })).not.toContainText('Min:');
+          await expect(page.getByRole('button', { name: /Items Total/ })).toContainText('Max: 500');
+        },
+      },
+      {
+        name: 'clear filter resets both bounds',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Clear Filter' }).click();
+        },
+        verify: async (page, region) => {
+          await expect(region.getByRole('spinbutton').first()).toHaveValue('0');
+          await expect(region.getByRole('spinbutton').last()).toHaveValue('0');
+          await expect(page.getByRole('button', { name: /Items Total/ })).not.toContainText('Max:');
+        },
+        snapshot: rangeFilterPopover,
+      },
+    ],
+  },
+  {
+    id: 'orders-total-range-filter',
+    slice: 'B2',
+    route: '/dashboard/orders',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Total', exact: true }).click();
+      await expect(rangeFilterPopover(page)).toBeVisible();
+    },
+    region: rangeFilterPopover,
+    // The popover traps focus, so the walk would loop; one cycle covers every stop.
+    maxTabStops: 5,
+    steps: [
+      {
+        name: 'typed bounds follow the slider labels',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton').first().fill('10');
+          await region.getByRole('spinbutton').last().fill('500');
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByText('$10', { exact: true })).toBeVisible();
+          await expect(region.getByText('$500', { exact: true })).toBeVisible();
+        },
+        snapshot: rangeFilterPopover,
+      },
+      {
+        // The min stays a number: an applied 0 is falsy, so only the max badge shows.
+        name: 'apply with a zero minimum shows only the max badge',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton').first().fill('0');
+          await region.getByRole('button', { name: 'Apply' }).click();
+        },
+        verify: async (page) => {
+          await expect(rangeFilterPopover(page)).toBeHidden();
+          await expect(page.getByRole('button', { name: /^Total/ })).toContainText('Max: 500');
+          await expect(page.getByRole('button', { name: /^Total/ })).not.toContainText('Min:');
+        },
+      },
+    ],
+  },
 ];

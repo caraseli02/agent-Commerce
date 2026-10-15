@@ -1,0 +1,32 @@
+- dialog "Add Shipping Address":
+    - heading "Add Shipping Address" [level=2]
+    - text: Address Alias
+    - img
+    - textbox "Address Alias 1"
+    - text: Country
+    - button "United States United States":
+        - img "United States"
+        - text: ''
+        - img
+    - text: Region
+    - button "New York":
+        - text: ''
+        - img
+    - alert: Region is required
+    - text: City
+    - textbox "City":
+        - /placeholder: Bucharest
+    - text: Address Line 1
+    - textbox "Address Line 1":
+        - /placeholder: 5073 Mark Brown Rd
+    - text: Address Line 2
+    - textbox "Address Line 2":
+        - /placeholder: NE Dalton
+    - text: Postcode
+    - textbox "Postcode":
+        - /placeholder: W1A5AB
+    - button "Cancel"
+    - button "Save"
+    - button "Close":
+        - img
+        - text: ''
