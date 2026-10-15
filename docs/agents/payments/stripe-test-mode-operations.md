@@ -45,6 +45,7 @@ source .env.local
 set +a
 STRIPE_API_KEY="$STRIPE_SECRET_KEY" stripe listen \
   --device-name agent-commerce-local \
+  --events payment_intent.succeeded,payment_intent.payment_failed,payment_intent.processing,payment_intent.canceled,refund.created,refund.updated,refund.failed \
   --forward-to http://127.0.0.1:3000/api/payments/stripe/webhook
 ```
 
