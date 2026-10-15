@@ -1,0 +1,13 @@
+- listbox:
+    - option "Product Code A–Z"
+    - option "Product Code Z–A"
+    - option "Manufacturer A–Z"
+    - option "Manufacturer Z–A"
+    - option "Description A–Z"
+    - option "Description Z–A"
+    - option "Category A–Z"
+    - option "Category Z–A"
+    - option "Stock Low–High"
+    - option "Stock High–Low"
+    - option "Price Low–High"
+    - option "Price High–Low"

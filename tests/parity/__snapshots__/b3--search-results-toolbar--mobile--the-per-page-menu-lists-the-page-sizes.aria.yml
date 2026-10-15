@@ -1,0 +1,6 @@
+- listbox:
+    - option "5"
+    - option /\d+/ [selected]
+    - option /\d+/
+    - option /\d+/
+    - option /\d+/

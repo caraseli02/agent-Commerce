@@ -1,6 +1,13 @@
 {
   "assessments": [
     {
+      "fingerprint": "9b503744154d8f60b324cf12f790ddde2a80ff3b495c617ce135c7751ad886ad",
+      "impact": "targeted",
+      "tests": ["search"],
+      "reason": "B3 shadcn migration (#647): the search results Show / Sort by / Products on page dropdowns in search/Products.vue become UiSelect with UiLabel; emits are unchanged and the ratchet baseline drops the file. No store, composable, layout or shared style changes.",
+      "consumers": "git grep finds search/Products.vue only in app/pages/search.vue (SearchProducts), so only /search renders it; ui-conventions-baseline.json is read only by scripts/verify-ui-conventions.mjs. The search group (search-stm32 page and result card, desktop 1440 and mobile 390) shows the toolbar and was re-accepted in this PR. The open menus and selection outcomes are outside the screenshot matrix and are covered by the B3 parity scenarios (toolbar desktop/mobile, mobile footer per-page: ARIA, tab order, search requests for stockFrom, sortBy/sortOrder and perPage, clean runtime) plus a keyboard browser pass at 390 and 1440."
+    },
+    {
       "fingerprint": "e6125a6b87de64218525519155c7214e7c3cfa7720895e27efc864004edfbf6b",
       "impact": "targeted",
       "tests": ["home", "orders"],
