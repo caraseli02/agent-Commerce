@@ -1,0 +1,5 @@
+- listbox:
+    - option "New products only"
+    - option "Available in stock"
+    - option "Sales only"
+    - option "All products" [selected]

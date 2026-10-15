@@ -5,148 +5,45 @@
       <div
         class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 mb-6 md:grid-cols-[auto_auto] md:justify-start md:gap-x-6 md:gap-y-4 md:px-5 md:py-5 md:mb-8 lg:flex lg:flex-wrap lg:items-center lg:gap-4"
       >
-        <label class="flex items-center">
-          <span class="text-sm flex-shrink-0 mr-2.5">Show</span>
-          <div class="relative min-w-[215px]">
-            <button
-              class="flex items-center justify-between w-full border bg-white rounded px-2.5 py-[3px] transition-colors duration-300"
-              :class="[showShowOptions ? 'border-blue-500' : 'border-border']"
-              @click="showShowOptions = !showShowOptions"
-            >
-              <div class="flex items-center">
-                <span class="text-sm mr-2.5">{{ show.name }}</span>
-                <div
-                  class="flex items-center justify-center w-[18px] h-[18px] rounded border bg-blue-500 border-blue-500 transition-colors duration-300 mr-[13px]"
-                >
-                  <CheckIcon class="w-4 text-white" />
-                </div>
-              </div>
-              <ChevronDownIcon
-                class="w-6 h-6 text-slate-500 transition-transform duration-300"
-                :class="[showShowOptions ? 'rotate-180' : '']"
-              />
-            </button>
-            <transition name="fade-full">
-              <div
-                v-if="showShowOptions"
-                v-click-outside="() => (showShowOptions = false)"
-                :style="{
-                  boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-                }"
-                class="absolute z-10 -bottom-1 left-0 translate-y-full w-full flex flex-col gap-[5px] bg-white rounded-md max-h-[250px] border overflow-y-auto scrollbar-thin shadow-card py-1.5"
-              >
-                <label
-                  v-for="option in showOptions"
-                  :key="option.name"
-                  class="group flex w-full items-center justify-between cursor-pointer px-[9px] py-1.5 transition-colors duration-300 hover:bg-[#F2F2F2]"
-                >
-                  <input
-                    v-model="show.name"
-                    name="show"
-                    :value="option.name"
-                    type="radio"
-                    class="sr-only"
-                    @change="showShowOptions = false"
-                    @click="option?.key && emits('show-filter', option?.key)"
-                  />
-                  <span class="flex w-full text-left text-sm rounded-[5px]">
-                    {{ option.name }}
-                  </span>
-                  <div
-                    class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
-                    :class="[
-                      option.name === show.name
-                        ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-                        : 'bg-white  border-border group-hover:border-gray-300',
-                    ]"
-                  >
-                    <CheckIcon
-                      v-if="option.name === show.name"
-                      class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500"
-                    />
-                  </div>
-                </label>
-              </div>
-            </transition>
-          </div>
-        </label>
-        <label class="flex items-center lg:mr-auto">
-          <span class="text-sm flex-shrink-0 mr-2.5">Sort by</span>
-          <div class="relative min-w-[215px]">
-            <button
-              class="flex items-center justify-between w-full border bg-white rounded px-2.5 py-[3px] transition-colors duration-300"
-              :class="[showSortByOptions ? 'border-blue-500' : 'border-border']"
-              @click="showSortByOptions = !showSortByOptions"
-            >
-              <span class="text-sm text-left mr-2.5">{{ sortBy.label }}</span>
-              <ChevronDownIcon
-                class="w-6 h-6 text-slate-500 transition-transform duration-300"
-                :class="[showSortByOptions ? 'rotate-180' : '']"
-              />
-            </button>
-            <transition name="fade-full">
-              <div
-                v-if="showSortByOptions"
-                v-click-outside="() => (showSortByOptions = false)"
-                :style="{
-                  boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-                }"
-                class="absolute z-10 -bottom-1 border rounded left-0 translate-y-full w-full flex flex-col gap-[1px] bg-white rounded-md max-h-[300px] overflow-y-auto scrollbar-thin shadow-xl px-1 py-1"
-              >
-                <button
-                  v-for="option in sortByOptions"
-                  :key="`${option.name}-${option.order}`"
-                  class="flex w-full text-left text-sm rounded-[5px] transition-colors duration-300 hover:bg-slate-50 hover:text-blue-600 px-3 py-2"
-                  :class="{
-                    'text-blue-600 font-medium bg-slate-50': option.name === sortBy.name && option.order === sortBy.order,
-                  }"
-                  @click="selectSortBy(option)"
-                >
-                  {{ option.label }}
-                </button>
-              </div>
-            </transition>
-          </div>
-        </label>
-        <label class="flex items-center">
-          <span class="text-sm flex-shrink-0 mr-2.5">Products on page</span>
-          <div class="relative">
-            <button
-              class="flex items-center justify-between w-full border bg-white rounded px-2.5 py-[3px] transition-colors duration-300"
-              :class="[showPerPageOptions ? 'border-blue-500' : 'border-border']"
-              @click="showPerPageOptions = !showPerPageOptions"
-            >
-              <span class="text-sm mr-2">{{ perPage }}</span>
-              <ChevronDownIcon
-                class="w-6 h-6 text-slate-500 transition-transform duration-300"
-                :class="[showPerPageOptions ? 'rotate-180' : '']"
-              />
-            </button>
-            <transition name="fade-full">
-              <div
-                v-if="showPerPageOptions"
-                v-click-outside="() => (showPerPageOptions = false)"
-                :style="{
-                  boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-                }"
-                class="absolute z-10 -bottom-1 left-0 translate-y-full w-full flex flex-col gap-[5px] bg-white rounded-md max-h-[250px] overflow-y-auto border scrollbar-thin shadow-card p-2.5"
-              >
-                <button
-                  v-for="option in [5, 10, 20, 50, 100].filter((e) => e !== perPage)"
-                  :key="option"
-                  class="flex w-full text-left text-sm rounded-[5px] text-slate-500 transition-colors duration-300 hover:text-blue-500"
-                  @click="
-                    perPage = option;
-                    showPerPageOptions = false;
-                    emits('per-page', option);
-                  "
-                >
-                  {{ option }}
-                </button>
-              </div>
-            </transition>
-          </div>
-        </label>
+        <div class="flex items-center">
+          <UiLabel :for="showId" class="text-sm font-normal text-current leading-normal flex-shrink-0 mr-2.5">Show</UiLabel>
+          <UiSelect :model-value="show.name" @update:model-value="selectShow">
+            <UiSelectTrigger :id="showId" :class="triggerClass" class="min-w-[215px]">
+              <UiSelectValue>{{ show.name }}</UiSelectValue>
+            </UiSelectTrigger>
+            <UiSelectContent>
+              <UiSelectItem v-for="option in showOptions" :key="option.name" :value="option.name">
+                {{ option.name }}
+              </UiSelectItem>
+            </UiSelectContent>
+          </UiSelect>
+        </div>
+        <div class="flex items-center lg:mr-auto">
+          <UiLabel :for="sortById" class="text-sm font-normal text-current leading-normal flex-shrink-0 mr-2.5">Sort by</UiLabel>
+          <UiSelect :model-value="sortByValue(sortBy)" @update:model-value="selectSortBy">
+            <UiSelectTrigger :id="sortById" :class="triggerClass" class="min-w-[215px]">
+              <UiSelectValue>{{ sortBy.label }}</UiSelectValue>
+            </UiSelectTrigger>
+            <UiSelectContent>
+              <UiSelectItem v-for="option in sortByOptions" :key="sortByValue(option)" :value="sortByValue(option)">
+                {{ option.label }}
+              </UiSelectItem>
+            </UiSelectContent>
+          </UiSelect>
+        </div>
+        <div class="flex items-center">
+          <UiLabel :for="perPageId" class="text-sm font-normal text-current leading-normal flex-shrink-0 mr-2.5">Products on page</UiLabel>
+          <UiSelect :model-value="String(perPage)" @update:model-value="selectPerPage">
+            <UiSelectTrigger :id="perPageId" :class="triggerClass">
+              <UiSelectValue>{{ perPage }}</UiSelectValue>
+            </UiSelectTrigger>
+            <UiSelectContent>
+              <UiSelectItem v-for="option in perPageOptions" :key="option" :value="String(option)">
+                {{ option }}
+              </UiSelectItem>
+            </UiSelectContent>
+          </UiSelect>
+        </div>
       </div>
       <div class="flex items-center justify-center mb-8 md:justify-between xl:mb-8">
         <div class="hidden font-Inter font-semibold md:block">Products Found ({{ totalItems }})</div>
@@ -187,45 +84,21 @@
         <SearchItem v-for="item in paginatedProductsList" :key="item._id" :item="item" />
       </div>
       <div class="flex flex-col items-center gap-[25px] md:hidden">
-        <label class="flex items-center">
-          <span class="text-sm flex-shrink-0 mr-2.5">Products on page</span>
-          <div class="relative">
-            <button
-              class="flex items-center justify-between w-full border bg-white rounded px-2.5 py-[3px] transition-colors duration-300"
-              :class="[showPerPageOptions ? 'border-blue-500' : 'border-border']"
-              @click="showPerPageOptions = !showPerPageOptions"
-            >
-              <span class="text-sm mr-2">{{ perPage }}</span>
-              <ChevronDownIcon
-                class="w-6 h-6 text-slate-500 transition-transform duration-300"
-                :class="[showPerPageOptions ? 'rotate-180' : '']"
-              />
-            </button>
-            <transition name="fade-full">
-              <div
-                v-if="showPerPageOptions"
-                v-click-outside="() => (showPerPageOptions = false)"
-                :style="{
-                  boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-                }"
-                class="absolute z-10 -bottom-1 left-0 translate-y-full w-full flex flex-col gap-[5px] bg-white border rounded-md max-h-[250px] overflow-y-auto scrollbar-thin shadow-card p-2.5"
-              >
-                <button
-                  v-for="option in [5, 10, 20, 50, 100].filter((e) => e !== perPage)"
-                  :key="option"
-                  class="flex w-full text-left text-sm rounded-[5px] text-slate-500 transition-colors duration-300 hover:text-blue-500"
-                  @click="
-                    perPage = option;
-                    showPerPageOptions = false;
-                    emits('per-page', option);
-                  "
-                >
-                  {{ option }}
-                </button>
-              </div>
-            </transition>
-          </div>
-        </label>
+        <div class="flex items-center">
+          <UiLabel :for="footerPerPageId" class="text-sm font-normal text-current leading-normal flex-shrink-0 mr-2.5">
+            Products on page
+          </UiLabel>
+          <UiSelect :model-value="String(perPage)" @update:model-value="selectPerPage">
+            <UiSelectTrigger :id="footerPerPageId" :class="triggerClass">
+              <UiSelectValue>{{ perPage }}</UiSelectValue>
+            </UiSelectTrigger>
+            <UiSelectContent>
+              <UiSelectItem v-for="option in perPageOptions" :key="option" :value="String(option)">
+                {{ option }}
+              </UiSelectItem>
+            </UiSelectContent>
+          </UiSelect>
+        </div>
         <div class="flex items-center">
           <Transition name="fade">
             <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" aria-label="Previous page" @click="atPage--">
@@ -276,8 +149,6 @@
 <script setup lang="ts">
 import Pagination from 'vuejs-paginate-next';
 import { subHours } from 'date-fns';
-import CheckIcon from '@/assets/icons/check.svg';
-import ChevronDownIcon from '@/assets/icons/chevron-down.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import type { SearchData } from '~~/types/product';
 import EmptyState from '~/components/global/EmptyState.vue';
@@ -300,8 +171,14 @@ watch(
   { deep: true },
 );
 
+const showId = useId();
+const sortById = useId();
+const perPageId = useId();
+const footerPerPageId = useId();
+/** Keeps the compact look of the former custom dropdowns on the shared select trigger. */
+const triggerClass = 'h-auto w-auto gap-2 rounded border-border px-2.5 py-[3px]';
+
 const show = ref({ name: 'All products', key: {} });
-const showShowOptions = ref(false);
 const showOptions = ref([
   {
     name: 'New products only',
@@ -311,9 +188,15 @@ const showOptions = ref([
   { name: 'Sales only' },
   { name: 'All products', key: {} },
 ]);
-const showPerPageOptions = ref(false);
+
+const selectShow = (name: string) => {
+  const option = showOptions.value.find((item) => item.name === name);
+  if (!option) return;
+  show.value.name = option.name;
+  if (option.key) emits('show-filter', option.key);
+};
+
 const sortBy = ref<SortByOption>({ label: 'Product Code A–Z', name: 'manufacturerCode', order: 1 });
-const showSortByOptions = ref(false);
 
 const sortByOptions = ref<SortByOption[]>([
   { label: 'Product Code A–Z', name: 'code', order: 1 },
@@ -330,10 +213,20 @@ const sortByOptions = ref<SortByOption[]>([
   { label: 'Price High–Low', name: 'price', order: 0 },
 ]);
 
-const selectSortBy = (option: SortByOption) => {
+const sortByValue = (option: SortByOption) => `${option.name}-${option.order}`;
+
+const selectSortBy = (value: string) => {
+  const option = sortByOptions.value.find((item) => sortByValue(item) === value);
+  if (!option) return;
   sortBy.value = option;
-  showSortByOptions.value = false;
   emits('sort-by-change', option);
+};
+
+const perPageOptions = [5, 10, 20, 50, 100];
+
+const selectPerPage = (value: string) => {
+  perPage.value = Number(value);
+  emits('per-page', perPage.value);
 };
 
 const atPage = ref(1);

@@ -1,0 +1,4 @@
+- text: Products on page
+- combobox "Products on page": /\d+/
+- list:
+    - listitem: '1'
