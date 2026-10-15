@@ -17,5 +17,15 @@ test.describe('signed-in storefront hydration', () => {
     const signals = await visit(page, '/product/prod-1');
     expectCleanRuntime(signals, '/product/prod-1 (cookie only)');
     await expect(page.getByText('949.99 Lei').locator('visible=true').first()).toBeVisible();
+
+    // An older persisted snapshot (here a 10% discount) must not override the server's current 5%.
+    await page.evaluate(() => {
+      const stored = JSON.parse(localStorage.getItem('auth-store') ?? '{}');
+      stored.userDetails.adminSettings.discount.value = 10;
+      localStorage.setItem('auth-store', JSON.stringify(stored));
+    });
+    const staleSignals = await visit(page, '/product/prod-1');
+    expectCleanRuntime(staleSignals, '/product/prod-1 (stale persisted details)');
+    await expect(page.getByText('949.99 Lei').locator('visible=true').first()).toBeVisible();
   });
 });

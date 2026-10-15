@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { resolveSessionUserId } from '../app/utils/sessionUser';
+import { createPinia, defineStore, setActivePinia } from 'pinia';
+import { createPersistedState } from 'pinia-plugin-persistedstate';
+import { createApp, ref } from 'vue';
+import { keepServerUserDetails, resolveSessionUserId } from '../app/utils/sessionUser';
 
 const authStore = {
   userDetails: null as unknown,
@@ -78,5 +81,43 @@ describe('auth session SSR plugin', () => {
 
     await expect(runPlugin()).resolves.toBeUndefined();
     expect(authStore.userDetails).toBeNull();
+  });
+});
+
+describe('auth store persistence hydration', () => {
+  const memoryStorage = (value: unknown) => {
+    const items = new Map([['auth-store', JSON.stringify(value)]]);
+    return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, v: string) => items.set(key, v) };
+  };
+
+  const hydrate = (serverDetails: unknown, persisted: unknown) => {
+    const pinia = createPinia();
+    pinia.use(createPersistedState());
+    createApp({}).use(pinia);
+    // The Nuxt payload seeds Pinia state before the store (and the persistence plugin) runs.
+    pinia.state.value['auth-store'] = { userDetails: serverDetails };
+    setActivePinia(pinia);
+    const storage = memoryStorage(persisted);
+    const store = defineStore('auth-store', () => ({ userDetails: ref<unknown>(null) }), {
+      persist: { storage, pick: ['userDetails'], ...keepServerUserDetails },
+    })();
+    return { store, storage };
+  };
+
+  it('keeps server-resolved details over an older localStorage snapshot', () => {
+    const details = (discount: number) => ({ _id: 'mock-customer-1', adminSettings: { discount: { value: discount } } });
+
+    const { store, storage } = hydrate(details(5), { userDetails: details(10) });
+
+    expect(store.userDetails).toEqual(details(5));
+    expect(JSON.parse(storage.getItem('auth-store') ?? '{}').userDetails).toEqual(details(5));
+  });
+
+  it('restores persisted details when the server resolved none', () => {
+    const persisted = { _id: 'mock-customer-1' };
+
+    const { store } = hydrate(null, { userDetails: persisted });
+
+    expect(store.userDetails).toEqual(persisted);
   });
 });

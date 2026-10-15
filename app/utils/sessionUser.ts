@@ -25,3 +25,25 @@ export const resolveSessionUserId = (token: string | null | undefined, mockMode:
   const userId = decodeJwtPayload(token)?.user_id;
   return typeof userId === 'string' && userId ? userId : null;
 };
+
+type HydrationContext = { store: { userDetails?: unknown; $persist?: () => void } };
+const serverUserDetails = new WeakMap<object, unknown>();
+
+/**
+ * Persist hooks for the auth store. SSR resolves userDetails from the token cookie
+ * (plugins/auth-session.server.ts); keep those over an older localStorage snapshot so the
+ * client hydrates with the same customer pricing the server rendered.
+ */
+export const keepServerUserDetails = {
+  beforeHydrate: ({ store }: HydrationContext) => {
+    // Copy: the persisted patch deep-merges into the same object.
+    if (store.userDetails) serverUserDetails.set(store, JSON.parse(JSON.stringify(store.userDetails)));
+  },
+  afterHydrate: ({ store }: HydrationContext) => {
+    if (!serverUserDetails.has(store)) return;
+    store.userDetails = serverUserDetails.get(store);
+    serverUserDetails.delete(store);
+    // The persistence subscriber is not attached yet; replace the stale snapshot now.
+    store.$persist?.();
+  },
+};
