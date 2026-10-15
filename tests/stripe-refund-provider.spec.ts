@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createStripeRefundProvider } from '~~/server/domain/payments/stripe-provider';
+import { createStripeIntentProvider, createStripeRefundProvider } from '~~/server/domain/payments/stripe-provider';
 const sdk = vi.hoisted(() => ({ create: vi.fn(), retrieve: vi.fn() }));
+const intents = vi.hoisted(() => ({ create: vi.fn() }));
 vi.mock('stripe', () => ({
   default: class {
     refunds = sdk;
+    paymentIntents = intents;
   },
 }));
 afterEach(() => {
@@ -19,6 +21,30 @@ const response = {
   metadata: { refundId: 'refund-local', paymentId: 'pay-local', orderId: 'ord-local' },
 };
 describe('Stripe Refund SDK boundary', () => {
+  it.each(['preview', 'production'])('tags new PaymentIntents for the %s database', async (environment) => {
+    vi.stubEnv('STRIPE_SECRET_KEY', 'sk_test_fixture');
+    vi.stubEnv('VERCEL_ENV', environment);
+    intents.create.mockResolvedValue({
+      id: 'pi_test',
+      amount: 1234,
+      currency: 'ron',
+      status: 'requires_payment_method',
+      metadata: response.metadata,
+    });
+    await createStripeIntentProvider().create(
+      { paymentId: 'pay-local', orderId: 'ord-local', amountMinor: 1234, currency: 'RON' },
+      'payment:pay-local',
+    );
+    expect(intents.create).toHaveBeenCalledWith(
+      {
+        amount: 1234,
+        currency: 'ron',
+        allowed_payment_method_types: ['card'],
+        metadata: { paymentId: 'pay-local', orderId: 'ord-local', agentCommerceEnvironment: environment },
+      },
+      { idempotencyKey: 'payment:pay-local' },
+    );
+  });
   it('sends persisted full amount/reason/metadata with bounded same-key request options', async () => {
     vi.stubEnv('STRIPE_SECRET_KEY', 'sk_test_fixture');
     sdk.create.mockResolvedValue(response);
@@ -34,7 +60,12 @@ describe('Stripe Refund SDK boundary', () => {
       'refund:refund-local:full',
     );
     expect(sdk.create).toHaveBeenCalledExactlyOnceWith(
-      { payment_intent: 'pi_test', amount: 1234, reason: 'requested_by_customer', metadata: response.metadata },
+      {
+        payment_intent: 'pi_test',
+        amount: 1234,
+        reason: 'requested_by_customer',
+        metadata: { ...response.metadata, agentCommerceEnvironment: 'development' },
+      },
       { idempotencyKey: 'refund:refund-local:full', timeout: 10000, maxNetworkRetries: 0 },
     );
     expect(result).toEqual({

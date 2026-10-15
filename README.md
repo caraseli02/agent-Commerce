@@ -162,9 +162,20 @@ Set `PLAYWRIGHT_BASE_URL` only when intentionally targeting an externally
 managed deployment; in that case the caller owns the database/environment
 alignment.
 
-### Optional for live integrations
+### Stripe test-mode payments
 
-These are not required for the bundled mock demo, but the runtime config supports them:
+The owner selected ongoing Stripe test mode for local development, Vercel
+Preview, and the main portfolio demo on 2026-10-15. Card checkout, authentication,
+webhooks, reconciliation, and refunds use Stripe's real test APIs. Demo catalog
+and login data remain local samples (`NUXT_PUBLIC_MOCK_MODE=true`); that setting
+is independent of `PAYMENTS_PROVIDER=stripe`. No live-money keys are supported.
+See [Stripe test-mode operations](docs/agents/payments/stripe-test-mode-operations.md)
+for setup, environment separation, and rollback. Automated tests retain mock
+provider defaults and clear real Stripe secrets inside their isolated schemas.
+
+Private `.env.local` values are loaded by `pnpm dev`, `pnpm build`, and
+`pnpm preview`. A fresh checkout still defaults off until its database and
+sandbox credentials are configured. The runtime config reads:
 
 - `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 
@@ -174,7 +185,7 @@ The server-side PaymentIntent adapter introduced for #555 also reads
 `PAYMENTS_PROVIDER=stripe` and `STRIPE_GATE_A_APPROVED=true`; the checked-in
 defaults leave it off. Do not enable that gate until #559 proves every older
 mock-completion writer sharing the database is upgraded, retired, or isolated.
-The default checkout route continues to use the mock flow. When the existing
+Fresh unconfigured checkouts continue to use the mock flow. When the existing
 Stripe gate is explicitly approved and enabled, card checkout prepares an unpaid
 Order/Payment and opens `/checkout/session?id=<order-id>` without running the mock
 completion writer. That page uses Stripe's card-only Payment Element, including

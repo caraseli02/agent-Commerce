@@ -16,6 +16,11 @@ if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
   exit 1
 fi
 
+if [ "$(git rev-parse "$BASE")" = "$(git rev-parse HEAD)" ]; then
+  echo "Same-commit redeployment may contain configuration changes - building."
+  exit 1
+fi
+
 git diff --quiet "$BASE" HEAD -- . \
   ':(exclude)docs/**' ':(exclude)tests/**' ':(exclude)skills/**' \
   ':(exclude).factory/**' ':(exclude).claude/**' ':(exclude).agents/**' ':(exclude).codex/**' \

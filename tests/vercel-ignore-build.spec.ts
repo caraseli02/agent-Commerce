@@ -43,6 +43,11 @@ function repository() {
 }
 
 describe('Vercel ignored build step', () => {
+  it('builds a same-commit redeployment so environment changes can take effect', () => {
+    const repo = repository();
+    expect(repo.decide(repo.base).status).toBe(BUILD);
+  });
+
   it('builds the first deployment of a branch and when the previous deployment is not in the clone', () => {
     const repo = repository();
     expect(repo.decide().status).toBe(BUILD);
