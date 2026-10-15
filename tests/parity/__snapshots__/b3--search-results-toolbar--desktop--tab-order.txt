@@ -1,3 +1,3 @@
-1. button "Show"
-2. button "Sort by"
-3. button "Products on page"
+1. combobox "Show": All products
+2. combobox "Sort by": Product Code A–Z
+3. combobox "Products on page": "10"

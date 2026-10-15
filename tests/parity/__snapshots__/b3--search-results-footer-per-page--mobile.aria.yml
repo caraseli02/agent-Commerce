@@ -1,6 +1,4 @@
 - text: Products on page
-- button "Products on page":
-    - text: /\d+/
-    - img
+- combobox "Products on page": /\d+/
 - list:
     - listitem: '1'

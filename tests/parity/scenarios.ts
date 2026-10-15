@@ -186,9 +186,14 @@ const searchResultsFooter = (page: Page) =>
 const searchResultsTrigger = (scope: Locator, label: string) =>
   scope.getByText(label, { exact: true }).locator('xpath=..').locator('button').first();
 
-/** A dropdown option by its text: inline in the region, or in a portalled listbox. */
+/** The open dropdown's options; the select primitive portals its listbox out of the toolbar (#647). */
+const searchResultsMenu = (page: Page) => page.getByRole('listbox');
+
+/** A dropdown option by its text: inline in the region, or in a portalled listbox (never the select's hidden native `<option>`). */
 const searchResultsOption = (page: Page, scope: Locator, name: string) =>
-  page.getByRole('option', { name, exact: true }).or(scope.getByText(name, { exact: true }));
+  searchResultsMenu(page)
+    .getByRole('option', { name, exact: true })
+    .or(scope.getByText(name, { exact: true }).and(scope.locator(':not(option)')));
 
 const showOrderSummaryWithTwoItems = async (page: Page) => {
   await clearGuestCart(page);
@@ -1780,7 +1785,7 @@ export const scenarios: ParityScenario[] = [
         verify: async (page, region) => {
           await expect(searchResultsOption(page, region, 'Available in stock')).toBeVisible();
         },
-        snapshot: searchResultsToolbar,
+        snapshot: searchResultsMenu,
       },
       {
         name: 'choosing a show filter searches with it',
@@ -1801,7 +1806,7 @@ export const scenarios: ParityScenario[] = [
         verify: async (page) => {
           await expect(searchResultsOption(page, searchResultsToolbar(page), 'Price High–Low')).toBeVisible();
         },
-        snapshot: searchResultsToolbar,
+        snapshot: searchResultsMenu,
       },
       {
         name: 'choosing a sort order searches with it',
@@ -1822,7 +1827,7 @@ export const scenarios: ParityScenario[] = [
         verify: async (page) => {
           await expect(searchResultsOption(page, searchResultsToolbar(page), '50')).toBeVisible();
         },
-        snapshot: searchResultsToolbar,
+        snapshot: searchResultsMenu,
       },
       {
         name: 'choosing a page size searches with it',
@@ -1852,7 +1857,7 @@ export const scenarios: ParityScenario[] = [
         verify: async (page, region) => {
           await expect(searchResultsOption(page, region, '50')).toBeVisible();
         },
-        snapshot: searchResultsFooter,
+        snapshot: searchResultsMenu,
       },
       {
         name: 'choosing a footer page size searches with it',

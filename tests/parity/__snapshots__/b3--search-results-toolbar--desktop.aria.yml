@@ -1,13 +1,6 @@
 - text: Show
-- button "Show":
-    - text: All products
-    - img
-    - img
+- combobox "Show": All products
 - text: Sort by
-- button "Sort by":
-    - text: Product Code A–Z
-    - img
+- combobox "Sort by": Product Code A–Z
 - text: Products on page
-- button "Products on page":
-    - text: /\d+/
-    - img
+- combobox "Products on page": /\d+/

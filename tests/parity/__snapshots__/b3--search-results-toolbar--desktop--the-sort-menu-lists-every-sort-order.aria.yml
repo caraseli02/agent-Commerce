@@ -1,25 +1,13 @@
-- text: Show
-- button "Show":
-    - text: All products
-    - img
-    - img
-- text: Sort by
-- button "Sort by Product Code A–Z Product Code Z–A Manufacturer A–Z Manufacturer Z–A Description A–Z Description Z–A Category A–Z Category Z–A Stock Low–High Stock High–Low Price Low–High Price High–Low":
-    - text: ''
-    - img
-- button "Product Code A–Z"
-- button "Product Code Z–A"
-- button "Manufacturer A–Z"
-- button "Manufacturer Z–A"
-- button "Description A–Z"
-- button "Description Z–A"
-- button "Category A–Z"
-- button "Category Z–A"
-- button "Stock Low–High"
-- button "Stock High–Low"
-- button "Price Low–High"
-- button "Price High–Low"
-- text: Products on page
-- button "Products on page":
-    - text: /\d+/
-    - img
+- listbox:
+    - option "Product Code A–Z"
+    - option "Product Code Z–A"
+    - option "Manufacturer A–Z"
+    - option "Manufacturer Z–A"
+    - option "Description A–Z"
+    - option "Description Z–A"
+    - option "Category A–Z"
+    - option "Category Z–A"
+    - option "Stock Low–High"
+    - option "Stock High–Low"
+    - option "Price Low–High"
+    - option "Price High–Low"

@@ -1,10 +1,6 @@
-- text: Products on page
-- button /Products on page 5 \d+ \d+ \d+/:
-    - text: ''
-    - img
-- button "5"
-- button /\d+/
-- button /\d+/
-- button /\d+/
-- list:
-    - listitem: '1'
+- listbox:
+    - option "5"
+    - option /\d+/ [selected]
+    - option /\d+/
+    - option /\d+/
+    - option /\d+/

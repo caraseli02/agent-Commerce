@@ -1,2 +1,2 @@
-1. button "Products on page"
+1. combobox "Products on page": "10"
 2. text: "1"
