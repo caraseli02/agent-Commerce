@@ -49,19 +49,19 @@ const selectedValues = computed(() => props.column?.getFilterValue() as string[]
     <UiPopoverContent class="w-[256px] flex gap-4 p-0 justify-between" align="start">
       <div class="grid grid-cols-1 gap-5 rounded-lg bg-white p-4 px-3 w-[256px] shadow-xs">
         <div class="flex items-end gap-3">
-          <label>
+          <UiLabel>
             <div class="flex items-center border border-gray-300 rounded-lg pl-3 text-[14px] leading-4 h-8">
               <span v-if="props.prefix" class="font-medium mr-1">{{ props.prefix }}</span>
-              <input v-model.number="range[0]" type="number" class="bg-transparent py-2 w-full focus:outline-none" />
+              <UiInput v-model.number="range[0]" type="number" class="h-full w-full border-0 bg-transparent pl-0" />
             </div>
-          </label>
+          </UiLabel>
           <div class="h-full pt-[2.5px]">-</div>
-          <label>
+          <UiLabel>
             <div class="flex items-center border border-gray-300 rounded-lg pl-3 text-[14px] leading-4 h-8">
               <span v-if="props.prefix" class="font-medium mr-1">{{ props.prefix }}</span>
-              <input v-model.number="range[1]" type="number" class="bg-transparent py-2 w-full focus:outline-none" />
+              <UiInput v-model.number="range[1]" type="number" class="h-full w-full border-0 bg-transparent pl-0" />
             </div>
-          </label>
+          </UiLabel>
         </div>
         <section class="h-12">
           <div class="flex items-center justify-between mb-3">

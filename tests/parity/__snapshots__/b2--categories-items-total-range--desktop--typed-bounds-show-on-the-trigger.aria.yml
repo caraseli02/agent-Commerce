@@ -1,0 +1,9 @@
+- dialog:
+    - spinbutton: /\d+/
+    - text: '-'
+    - spinbutton: /\d+/
+    - text: /\d+ \d+/
+    - slider "Minimum"
+    - slider "Maximum"
+    - button "Clear Filter"
+    - button "Apply"

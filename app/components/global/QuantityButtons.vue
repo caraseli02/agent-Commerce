@@ -1,18 +1,20 @@
 <template>
   <div v-if="modelValue > 0" class="flex bg-stone-50 bg-opacity-95 rounded-lg max-w-max">
-    <button
+    <UiButton
       type="button"
+      variant="secondary"
+      size="icon"
       :disabled="Number(modelValue) === object.min || modelValue === 1"
-      class="flex min-h-11 min-w-11 items-center justify-center bg-gray-100 px-2.5 text-slate-500 transition-colors duration-300 disabled:text-border"
+      class="min-h-11 min-w-11"
       aria-label="Decrease quantity"
       @click="inputHandler(modelValue - 1)"
     >
       <MinusIcon class="w-6 h-6 flex-shrink-0" />
-    </button>
-    <label :key="modelValue" class="flex">
-      <input
+    </UiButton>
+    <div :key="modelValue" class="flex">
+      <UiInput
         v-if="modelValue > -1"
-        :value="Number(modelValue) < object.min && type === OrderType.Stock ? Number(object.min) : Number(modelValue)"
+        :model-value="Number(modelValue) < object.min && type === OrderType.Stock ? Number(object.min) : Number(modelValue)"
         type="number"
         :min="object.min || 1"
         :max="object.max"
@@ -21,20 +23,22 @@
         aria-label="Quantity"
         :aria-invalid="Boolean(inputError)"
         :aria-describedby="inputErrorId"
-        class="h-11 w-[56px] bg-transparent px-1 text-center text-sm leading-normal text-neutral-700 placeholder:text-[12px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        class="h-11 w-[56px] border-0 bg-transparent px-1 text-center"
         @change="inputHandlerModified"
       />
       <span :id="inputErrorId" class="sr-only" role="alert">{{ inputError }}</span>
-    </label>
-    <button
+    </div>
+    <UiButton
       type="button"
-      class="flex min-h-11 min-w-11 items-center justify-center bg-gray-100 px-2.5"
+      variant="secondary"
+      size="icon"
+      class="min-h-11 min-w-11"
       aria-label="Increase quantity"
       :disabled="object.max && props.type !== OrderType.Back ? Number(modelValue) >= object.max : false"
       @click="inputHandler(modelValue + 1)"
     >
       <PlusIcon class="w-6 h-6 flex-shrink-0 text-slate-500" />
-    </button>
+    </UiButton>
   </div>
   <UiSkeleton v-if="modelValue === 0" class="w-[140px] h-11" />
 </template>
@@ -126,6 +130,8 @@ const inputHandlerModified = (event: Event) => {
   if (!Number.isSafeInteger(quantity) || quantity < min || quantity > max) {
     inputError.value = `Enter a whole number from ${min}${max < Number.MAX_SAFE_INTEGER ? ` to ${max}` : ''}.`;
     target.value = String(props.modelValue);
+    // UiInput keeps its own v-model copy; sync it, or its next render restores the rejected entry.
+    target.dispatchEvent(new Event('input'));
     return;
   }
 

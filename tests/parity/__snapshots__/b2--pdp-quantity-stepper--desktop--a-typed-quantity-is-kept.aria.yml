@@ -1,0 +1,6 @@
+- button "Decrease quantity":
+    - img
+- spinbutton "Quantity": '5'
+- alert
+- button "Increase quantity":
+    - img

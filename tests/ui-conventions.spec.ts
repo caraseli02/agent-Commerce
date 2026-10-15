@@ -280,10 +280,10 @@ describe('verify-ui-conventions: baseline ratchet', () => {
     expect(() => validateBaseline([])).toThrow(/JSON object/);
   });
 
-  it('keeps the committed baseline valid and includes the Range.vue inputs after its nested template', () => {
+  // Range.vue was migrated in B2 (#646); its nested-template shape stays covered by the scanning fixture above.
+  it('keeps the committed baseline valid', () => {
     const baseline = validateBaseline(JSON.parse(readFileSync('ui-conventions-baseline.json', 'utf8')));
 
-    expect(baseline['app/components/dataTable/filter/Range.vue']).toEqual({ input: 2, label: 2 });
     expect(Object.keys(baseline).some((file) => file.startsWith('app/components/ui/'))).toBe(false);
   });
 });

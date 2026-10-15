@@ -167,6 +167,13 @@ const addShippingAddressDialog = (page: Page) => page.getByRole('dialog', { name
 const orderSummarySelectAll = (page: Page) =>
   page.getByText('Select All', { exact: true }).locator('xpath=ancestor::div[contains(@class, "bg-light-500")][1]');
 
+/** The PDP quantity stepper (GlobalQuantityButtons, B2): decrease, the number input, increase. */
+const pdpQuantityStepper = (page: Page) =>
+  page.getByTestId('product-purchase-panel').getByRole('button', { name: 'Decrease quantity' }).locator('xpath=..');
+
+/** The open range filter popover (categories/Range and dataTable/filter/Range, B2). */
+const rangeFilterPopover = (page: Page) => page.getByRole('dialog').filter({ has: page.getByRole('button', { name: 'Clear Filter' }) });
+
 const showOrderSummaryWithTwoItems = async (page: Page) => {
   await clearGuestCart(page);
   await page.request.post('/api/cart', {
@@ -1595,5 +1602,151 @@ export const scenarios: ParityScenario[] = [
       await expect(page.getByRole('heading', { name: 'Account Details', exact: true })).toBeVisible();
     },
     region: (page) => page.getByRole('heading', { name: 'Account Details', exact: true }).locator('xpath=ancestor::section[1]'),
+  },
+  {
+    id: 'pdp-quantity-stepper',
+    slice: 'B2',
+    route: '/product/prod-1',
+    viewports: ['desktop', 'mobile'],
+    region: pdpQuantityStepper,
+    steps: [
+      {
+        name: 'increase quantity',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Increase quantity' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('2');
+        },
+      },
+      {
+        name: 'a typed quantity is kept',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton', { name: 'Quantity' }).fill('5');
+          await region.getByRole('spinbutton', { name: 'Quantity' }).press('Tab');
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('5');
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveAttribute('aria-invalid', 'false');
+        },
+        snapshot: pdpQuantityStepper,
+      },
+      {
+        name: 'an out-of-range quantity shows an error and reverts',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton', { name: 'Quantity' }).fill('0');
+          await region.getByRole('spinbutton', { name: 'Quantity' }).press('Tab');
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('alert')).toHaveText(/^Enter a whole number from \d+/);
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveAttribute('aria-invalid', 'true');
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('5');
+        },
+        snapshot: pdpQuantityStepper,
+      },
+      {
+        name: 'decrease quantity clears the error',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Decrease quantity' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('4');
+        },
+      },
+    ],
+  },
+  {
+    id: 'categories-items-total-range',
+    slice: 'B2',
+    route: '/dashboard/products/categories',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Items Total' }).click();
+      await expect(rangeFilterPopover(page)).toBeVisible();
+    },
+    region: rangeFilterPopover,
+    // The popover traps focus, so the walk would loop; one cycle covers every stop.
+    maxTabStops: 5,
+    steps: [
+      {
+        name: 'typed bounds show on the trigger',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton').first().fill('10');
+          await region.getByRole('spinbutton').last().fill('500');
+        },
+        verify: async (page, region) => {
+          await expect(region.getByText('10', { exact: true })).toBeVisible();
+          await expect(region.getByText('500', { exact: true })).toBeVisible();
+          await expect(page.getByRole('button', { name: /Items Total/ })).toContainText('Min: 10');
+          await expect(page.getByRole('button', { name: /Items Total/ })).toContainText('Max: 500');
+        },
+        snapshot: rangeFilterPopover,
+      },
+      {
+        // The min stays a number: a typed 0 equals the reset value, so its badge goes away.
+        name: 'a typed zero minimum hides its badge',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton').first().fill('0');
+        },
+        verify: async (page) => {
+          await expect(page.getByRole('button', { name: /Items Total/ })).not.toContainText('Min:');
+          await expect(page.getByRole('button', { name: /Items Total/ })).toContainText('Max: 500');
+        },
+      },
+      {
+        name: 'clear filter resets both bounds',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Clear Filter' }).click();
+        },
+        verify: async (page, region) => {
+          await expect(region.getByRole('spinbutton').first()).toHaveValue('0');
+          await expect(region.getByRole('spinbutton').last()).toHaveValue('0');
+          await expect(page.getByRole('button', { name: /Items Total/ })).not.toContainText('Max:');
+        },
+        snapshot: rangeFilterPopover,
+      },
+    ],
+  },
+  {
+    id: 'orders-total-range-filter',
+    slice: 'B2',
+    route: '/dashboard/orders',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Total', exact: true }).click();
+      await expect(rangeFilterPopover(page)).toBeVisible();
+    },
+    region: rangeFilterPopover,
+    // The popover traps focus, so the walk would loop; one cycle covers every stop.
+    maxTabStops: 5,
+    steps: [
+      {
+        name: 'typed bounds follow the slider labels',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton').first().fill('10');
+          await region.getByRole('spinbutton').last().fill('500');
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByText('$10', { exact: true })).toBeVisible();
+          await expect(region.getByText('$500', { exact: true })).toBeVisible();
+        },
+        snapshot: rangeFilterPopover,
+      },
+      {
+        // The min stays a number: an applied 0 is falsy, so only the max badge shows.
+        name: 'apply with a zero minimum shows only the max badge',
+        act: async (_page, region) => {
+          await region.getByRole('spinbutton').first().fill('0');
+          await region.getByRole('button', { name: 'Apply' }).click();
+        },
+        verify: async (page) => {
+          await expect(rangeFilterPopover(page)).toBeHidden();
+          await expect(page.getByRole('button', { name: /^Total/ })).toContainText('Max: 500');
+          await expect(page.getByRole('button', { name: /^Total/ })).not.toContainText('Min:');
+        },
+      },
+    ],
   },
 ];
