@@ -24,6 +24,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - Use it to prove allowed statuses, the snapshot's single-active-item limit, and passing-item evidence stay mechanically correct. It does not enforce live per-builder GitHub WIP; inspect labels, assignments and linked PRs separately.
 5. **PR template completeness gate**
    - `node scripts/check-pr-template.mjs`
+   - Local preflight before `gh pr create` or a body edit: `node scripts/check-pr-template.mjs --body-file <file>` runs the same assessment on the body file and exits 1 with the violations. Claude's guard hook runs it on every `gh pr create` / `gh pr edit --body-file` and blocks a failing body or an inline `--body` (#702).
    - The focused `PR template / check` workflow runs separately from application CI and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
    - The workflow reads the current PR description from GitHub instead of trusting the immutable event snapshot. Description and label edits automatically rerun only this focused check; they do not rerun `pnpm verify`.
    - The gate expects filled verification outcomes, known-risks evidence, and rubric fields (scores are supplied by the independent evaluator); it skips when the PR carries the documented `skip-pr-template-check` or `human-hotfix` label so a human hotfix can intentionally bypass the agent template.
