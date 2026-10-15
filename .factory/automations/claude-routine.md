@@ -9,17 +9,47 @@ Every `stop` below means: finish the run on that route, then **release the run l
 ## 0. Start and take the run lock
 
 1. Put the worktree on the latest `main` (this changes nothing shared): `git fetch origin --prune && git checkout --detach origin/main`.
-2. Take the lock before reading any GitHub state (no `gh` call yet). Run it exactly like this, as its own command (it runs outside the sandbox so it can see which Claude session holds the lock):
+2. **Mark this worktree as a routine run**, before the lock so every run carries the marker. It lives in the worktree's own git admin folder, outside the working tree, so `git status` never shows it, and step 4 removes only worktrees that carry it:
+
+   ```zsh
+   date -u +started=%Y-%m-%dT%H:%M:%SZ > "$(git rev-parse --absolute-git-dir)/claude-routine-run"
+   ```
+
+3. Take the lock before reading any GitHub state (no `gh` call yet). Run it exactly like this, as its own command (it runs outside the sandbox so it can see which Claude session holds the lock):
 
    ```zsh
    /Users/work/.local/share/agent-commerce/bin/claude-run-lock acquire claude-routine
    ```
 
-   - `LOCK_HELD=no` (exit 3) → print its message and **stop without releasing**. The lock belongs to another run, or needs a human; never remove it yourself.
+   - `LOCK_HELD=no` (exit 3) → print its message, mark the run finished (the first command of step 5) and **stop without releasing**. The lock belongs to another run, or needs a human; never remove it yourself.
    - `LOCK_HELD=yes` → note the printed `LOCK_TOKEN`. You need it for the release, because shell state does not persist between tool calls.
    - Command not found → print `Claude routine: local guards not installed (sh .factory/bin/install-local.sh)` and stop.
 
-3. **Release** (the final step of every route, including every stop, skip and error): `/Users/work/.local/share/agent-commerce/bin/claude-run-lock release <LOCK_TOKEN>`. It removes the lock only when your token owns it.
+4. **Remove finished runs' worktrees.** Each run gets a fresh ~600 MB worktree (mostly `node_modules`), and archiving a session does not remove it, so the routine removes earlier runs' worktrees itself. You hold the lock, so no other routine run is working. Run this once, as its own command:
+
+   ```zsh
+   me=$(git rev-parse --show-toplevel)
+   git worktree list --porcelain | sed -n 's/^worktree //p' | while IFS= read -r wt; do
+     case "$wt" in /Users/work/Documents/agent-Commerce/.claude/worktrees/*) ;; *) continue ;; esac
+     [ "$wt" = "$me" ] && continue
+     m="$(git -C "$wt" rev-parse --absolute-git-dir 2>/dev/null)/claude-routine-run" || continue
+     grep -q '^finished=' "$m" 2>/dev/null || continue
+     [ -n "$(find "$m" -mmin +180 2>/dev/null)" ] || continue
+     s=$(git -C "$wt" status --porcelain 2>/dev/null) && [ -z "$s" ] || continue
+     [ "$(git -C "$wt" rev-list --count HEAD --not --remotes 2>/dev/null)" = 0 ] || continue
+     git worktree remove "$wt" && echo "removed $wt" || { echo "cleanup stopped at $wt"; break; }
+   done
+   git worktree prune
+   ```
+
+   A worktree is removed only when **all** hold: it is under `.claude/worktrees/` and is not this one; it carries the routine marker with a `finished=` line written more than 3 hours ago (a human may still be following up in a recently finished run's session); `git status --porcelain` is empty; and `git rev-list --count HEAD --not --remotes` is `0`. Everything else is kept: Codex's and Vlad's interactive worktrees (no marker), runs that crashed or were interrupted (no `finished=`; step "Recover interrupted work" reads them), and any worktree with uncommitted, untracked or unpushed work. Local branch refs are shared by all worktrees, so removing one never deletes a branch. Never use `--force`, never edit the script's conditions, and never remove a worktree any other way. A refused or failed removal stops the cleanup only: name the path in the summary and continue the run. Record the removed count as `worktrees_removed` in the journal (step 6).
+
+5. **Release** (the final step of every route, including every stop, skip and error): first mark this run finished, then release the lock. It removes the lock only when your token owns it.
+
+   ```zsh
+   date -u +finished=%Y-%m-%dT%H:%M:%SZ >> "$(git rev-parse --absolute-git-dir)/claude-routine-run"
+   /Users/work/.local/share/agent-commerce/bin/claude-run-lock release <LOCK_TOKEN>
+   ```
 
 The lock script is the installed copy of the reviewed `.factory/bin/run-lock.sh`, so a PR head checked out for review cannot change it. The lock is local to the Mac mini. It is held for the whole run, so a scheduled run and a manual **Run now** never work at the same time. A lock whose Claude session has stopped (crash, app quit) is recovered automatically by the next run; nothing is taken over by age. It is not a GitHub claim: issue labels, assignee, comment and the branch `claude/issue-<number>` are the claim record.
 
@@ -165,7 +195,7 @@ Every run works on its own run-local branch `claude/issue-<n>-run-<UTC timestamp
    - **Uncommitted tracked changes:** `git -C <path> diff --binary HEAD > "$TMPDIR/resume.patch"`; apply it only when the file is non-empty, with `git apply --3way --index "$TMPDIR/resume.patch"`.
    - **Untracked files:** copy each path from `git -C <path> ls-files --others --exclude-standard`; if the same path already exists here with different content, stop.
    - When anything changed, commit `chore: recover interrupted work from <path> at <sha>` and push with `git push origin HEAD:claude/issue-<n>`.
-   - Any refused or failed step (conflict, refused command, unreadable worktree) → blocker protocol naming `<path>`. Never continue without the earlier work, and never delete, reset or clean another worktree.
+   - Any refused or failed step (conflict, refused command, unreadable worktree) → blocker protocol naming `<path>`. Never continue without the earlier work, and never reset or clean another worktree. Never delete one either, except a finished run's clean, fully pushed worktree through step 0.4, which by its conditions never holds work this step would recover.
 
 **Ending a claim.** An issue stops being Claude's current work when its PR is merged (the issue closes). The blocker protocol only parks it: `blocked` is added, `in-progress` stays, and removing `blocked` resumes it, or makes it wait while another claim is live (step 2).
 
@@ -178,11 +208,12 @@ Every run works on its own run-local branch `claude/issue-<n>-run-<UTC timestamp
 - work on payment, checkout, Stripe, refund or migration code, or on any issue without the Claude label;
 - read, print or change credentials (`.env.local`, tokens, the gh configuration, the keychain);
 - add or remove the `owner-approved-harness` label (only Vlad sets it), or edit `protected_paths.factory` files. The single exception is the **Repair** in step 2: on a PR carrying `owner-approved-harness`, a repair may edit the protected files that PR already changes, except `.factory/**` and payment paths, which no routine run ever edits. If the workflow got in your way, open an issue labeled `needs-triage` titled `Factory improvement: <summary>` with the evidence instead;
+- remove, reset or clean another worktree, except through step 0.4;
 - commit `.env*` files, run ledgers or screenshots outside the PR evidence flow.
 
 ## 6. Finish (every route that held the lock)
 
 1. `git checkout --detach origin/main` when the tree is clean (leave a dirty tree as it is and say so in the summary).
-2. Append one JSON line to Claude's activity journal `/Users/work/.local/share/agent-commerce/claude/events.jsonl` (outside every checkout; create the folder if needed): `time` (UTC ISO), `actor` (`claude-routine`), `mode`, `action` (`repair` | `review` | `build` | `maintain` | `idle` | `skipped`), `issue`, `pr`, `head`, `verdict` (reviews), `task`, `check`, `findings`, `issues_filed` and `comments` (night lane), `verification` (commands with outcomes), `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
+2. Append one JSON line to Claude's activity journal `/Users/work/.local/share/agent-commerce/claude/events.jsonl` (outside every checkout; create the folder if needed): `time` (UTC ISO), `actor` (`claude-routine`), `mode`, `action` (`repair` | `review` | `build` | `maintain` | `idle` | `skipped`), `issue`, `pr`, `head`, `verdict` (reviews), `task`, `check`, `findings`, `issues_filed` and `comments` (night lane), `worktrees_removed` (step 0.4), `verification` (commands with outcomes), `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
 3. Print a short summary: action, issue/PR, head, checks run with outcomes, and what a human should look at.
-4. **Last action:** `/Users/work/.local/share/agent-commerce/bin/claude-run-lock release <LOCK_TOKEN>`.
+4. **Last action:** the release (step 0.5): mark the run finished, then `/Users/work/.local/share/agent-commerce/bin/claude-run-lock release <LOCK_TOKEN>`.
