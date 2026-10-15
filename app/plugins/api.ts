@@ -49,8 +49,8 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   /** create a new instance of $fetcher with custom option */
   const requestFetch = config.MOCK_MODE ? nuxtApp.ssrContext?.event.fetch : undefined;
-  // Nitro's event.fetch spreads init.headers, and spreading a Headers instance drops every
-  // header (including Authorization), so hand it a plain object.
+  // Nitro event.fetch spreads init.headers, and a spread Headers instance loses every
+  // header, Authorization included. Hand it a plain object instead.
   const apiFetcher = $fetch.create(
     fetchOptions,
     requestFetch
