@@ -1,0 +1,13 @@
+- text: Show
+- button "Show":
+    - text: All products
+    - img
+    - img
+- text: Sort by
+- button "Sort by":
+    - text: Product Code A–Z
+    - img
+- text: Products on page
+- button "Products on page":
+    - text: /\d+/
+    - img

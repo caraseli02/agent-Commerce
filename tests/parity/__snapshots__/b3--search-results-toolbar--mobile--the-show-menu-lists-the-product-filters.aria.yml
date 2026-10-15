@@ -1,0 +1,22 @@
+- text: Show
+- button "Show New products only Available in stock Sales only All products":
+    - text: ''
+    - img
+    - img
+- radio "New products only"
+- text: New products only
+- radio "Available in stock"
+- text: Available in stock
+- radio "Sales only"
+- text: Sales only
+- radio "All products" [checked]
+- text: All products
+- img
+- text: Sort by
+- button "Sort by":
+    - text: Product Code A–Z
+    - img
+- text: Products on page
+- button "Products on page":
+    - text: /\d+/
+    - img

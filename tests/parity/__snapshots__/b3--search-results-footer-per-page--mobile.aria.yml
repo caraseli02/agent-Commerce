@@ -1,0 +1,6 @@
+- text: Products on page
+- button "Products on page":
+    - text: /\d+/
+    - img
+- list:
+    - listitem: '1'
