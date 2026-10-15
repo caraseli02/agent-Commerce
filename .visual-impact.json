@@ -218,6 +218,12 @@
       "tests": ["home", "search", "product"],
       "reason": "Only Quick Buy and Exclusive Offer code-loading timing changes. Home defers hydration to a 200px visibility margin; search/product retain eager mounting through dynamic imports. Existing build-manifest suppression additionally disables only these two chunks' prefetch hints.",
       "consumers": "Traced all QuickBuy/EcxlusiveOffer references: home, search and product pages. Components, shared cart/auth logic, server APIs, styles and existing zoom-prefetch matching are unchanged. Home/search/product screenshots at desktop/mobile cover the affected routes; dedicated production browser evidence also proves initial chunk absence, one-time activation, unchanged hydration geometry and Quick Buy/dialog/navigation behavior. No cart/order/dashboard consumer or public payment behavior changes."
+    },
+    {
+      "fingerprint": "698b38cb40bf376a1d43ed4cd8beaa66498fc4e64ea4c18541c5db7333d9fe97",
+      "impact": "none",
+      "reason": "Same-commit Vercel redeployments rebuild to apply changed configuration; emitted application code is unchanged.",
+      "consumers": "scripts/vercel-ignore-build.sh is read only by Vercel before a build and temporary Git fixture tests. No app, Nitro, store, style or route imports it. App build command and rendered output remain unchanged; regression coverage checks the same-commit decision and preserves docs-only skipping."
     }
   ]
 }
