@@ -1,0 +1,39 @@
+- heading "Account Details" [level=2]
+- button "Edit":
+    - img
+    - text: ''
+- button "Copy Details":
+    - img
+    - text: ''
+- text: First Name
+- textbox "First Name" [disabled]: Demo
+- text: Last Name
+- textbox "Last Name" [disabled]: Customer
+- text: Country
+- button "United States United States" [disabled]:
+    - img "United States"
+    - text: ''
+    - img
+- text: County
+- button "California" [disabled]:
+    - text: ''
+    - img
+- text: City
+- textbox "City" [disabled]: San Francisco
+- text: Address Line 1
+- textbox "Address Line 1" [disabled]: /Demo Street \d+/
+- text: Address Line 2
+- textbox "Address Line 2" [disabled]: Floor 2
+- text: Postcode
+- textbox "Postcode" [disabled]: /\d+/
+- text: Phone Number
+- textbox "Phone Number" [disabled]:
+    - /placeholder: +1 (555) 867-5309
+    - text: /\+\d+/
+- text: Mobile Number
+- textbox "Mobile Number" [disabled]:
+    - /placeholder: +1 (555) 867-5309
+- text: Email
+- textbox "Email" [disabled]:
+    - /placeholder: youremail@gmail.com
+    - text: customer@demo.com

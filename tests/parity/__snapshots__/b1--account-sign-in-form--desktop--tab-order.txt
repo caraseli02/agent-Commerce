@@ -1,0 +1,6 @@
+1. radio "Customer Demo" [checked]
+2. textbox "E-mail or client code"
+3. textbox "Password"
+4. button "Show password"
+5. checkbox "Remember me"
+6. button "Sign In"

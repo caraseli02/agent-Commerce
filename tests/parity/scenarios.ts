@@ -153,6 +153,17 @@ const openCustomerInformationMenu = async (page: Page) => {
   await expect(rowMenu(page, 'Control Panel')).toBeVisible();
 };
 
+/** The trigger of a FormSelect: the button right after its text label (B1). */
+const formSelectTrigger = (scope: Locator, label: string) =>
+  scope.getByText(label, { exact: true }).locator('xpath=following-sibling::button[1]');
+
+/** The account panel's sign-in form (FormPassword, B1). */
+const accountSignInForm = (page: Page) => page.getByRole('dialog').locator('form');
+
+const regionalPreferencesSheet = (page: Page) => page.getByRole('dialog', { name: 'Regional Preferences' });
+
+const addShippingAddressDialog = (page: Page) => page.getByRole('dialog', { name: 'Add Shipping Address' });
+
 const orderSummarySelectAll = (page: Page) =>
   page.getByText('Select All', { exact: true }).locator('xpath=ancestor::div[contains(@class, "bg-light-500")][1]');
 
@@ -1440,5 +1451,149 @@ export const scenarios: ParityScenario[] = [
         snapshot: orderSummarySelectAll,
       },
     ],
+  },
+  {
+    id: 'account-sign-in-form',
+    slice: 'B1',
+    route: '/',
+    viewports: ['desktop', 'mobile'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Open my account' }).click();
+      await expect(page.getByRole('radio', { name: 'Customer Demo' })).toBeVisible();
+    },
+    region: accountSignInForm,
+    steps: [
+      {
+        name: 'the eye toggle reveals the password',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Show password' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Hide password' })).toHaveAttribute('aria-pressed', 'true');
+          await expect(region.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'text');
+        },
+        snapshot: accountSignInForm,
+      },
+      {
+        name: 'the eye toggle hides the password again',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'Hide password' }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Show password' })).toHaveAttribute('aria-pressed', 'false');
+          await expect(region.getByLabel('Password', { exact: true })).toHaveAttribute('type', 'password');
+        },
+      },
+    ],
+  },
+  {
+    id: 'regional-preferences-currency',
+    slice: 'B1',
+    route: '/',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByRole('button', { name: 'Regional preferences' }).click();
+      await expect(regionalPreferencesSheet(page)).toBeVisible();
+    },
+    region: regionalPreferencesSheet,
+    // The sheet traps focus, so the walk would loop; one cycle covers every stop.
+    maxTabStops: 4,
+    steps: [
+      {
+        name: 'the currency select opens its options',
+        act: async (_page, region) => {
+          await formSelectTrigger(region, 'Demo currency').click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'EURO', exact: true })).toBeVisible();
+        },
+        snapshot: regionalPreferencesSheet,
+      },
+      {
+        name: 'choosing an option closes the menu and shows it',
+        act: async (_page, region) => {
+          await region.getByRole('button', { name: 'EURO', exact: true }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(formSelectTrigger(region, 'Demo currency')).toHaveText('EURO');
+          await expect(region.getByRole('button', { name: 'USD', exact: true })).toBeHidden();
+        },
+        snapshot: regionalPreferencesSheet,
+      },
+    ],
+  },
+  {
+    id: 'control-panel-account-country-select',
+    slice: 'B1',
+    route: '/dashboard/customers/customer-001/control-panel/account',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await controlPanelView(page, 'Account Details').getByRole('button', { name: 'Edit' }).click();
+    },
+    region: (page) => controlPanelView(page, 'Account Details'),
+    maxTabStops: 30,
+    steps: [
+      {
+        name: 'the country select opens with a search field',
+        act: async (_page, region) => {
+          await formSelectTrigger(region, 'Country').click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByPlaceholder('Search Country')).toBeVisible();
+        },
+        snapshot: (page) => controlPanelView(page, 'Account Details'),
+      },
+      {
+        name: 'searching filters the country options',
+        act: async (_page, region) => {
+          await region.getByPlaceholder('Search Country').fill('Roman');
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Romania Romania', exact: true })).toBeVisible();
+          await expect(region.getByRole('button', { name: 'Germany Germany', exact: true })).toBeHidden();
+        },
+        snapshot: (page) => controlPanelView(page, 'Account Details'),
+      },
+    ],
+  },
+  {
+    id: 'control-panel-add-address-dialog',
+    slice: 'B1',
+    route: '/dashboard/customers/customer-001/control-panel/account',
+    role: 'admin',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await showAddressView(page, 'shipping', 'Shipping');
+      await controlPanelView(page, 'Shipping').getByRole('button').last().click();
+      await expect(addShippingAddressDialog(page)).toBeVisible();
+    },
+    region: addShippingAddressDialog,
+    // The dialog traps focus, so the walk would loop; one cycle covers every stop.
+    maxTabStops: 10,
+    steps: [
+      {
+        name: 'the country select opens with a search field',
+        act: async (_page, region) => {
+          await formSelectTrigger(region, 'Country').click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByPlaceholder('Search Country')).toBeVisible();
+        },
+        snapshot: addShippingAddressDialog,
+      },
+    ],
+  },
+  {
+    id: 'client-settings-account-details',
+    slice: 'B1',
+    route: '/dashboard/client',
+    role: 'customer',
+    viewports: ['desktop'],
+    setup: async (page) => {
+      await page.getByTestId('client-dashboard-tabs').getByRole('button', { name: 'Settings' }).click();
+      await expect(page.getByRole('heading', { name: 'Account Details', exact: true })).toBeVisible();
+    },
+    region: (page) => page.getByRole('heading', { name: 'Account Details', exact: true }).locator('xpath=ancestor::section[1]'),
   },
 ];
