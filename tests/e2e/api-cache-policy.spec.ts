@@ -11,9 +11,7 @@ const expectPrivate = (response: APIResponse) => {
 test('built Nitro applies private headers to guest/authenticated reads, mutations and failures', async ({ request }) => {
   const catalog = await request.get('/api/products/prod-2');
   expect(catalog.ok()).toBe(true);
-  expect(catalog.headers()['cache-control']).toBeUndefined();
-  expect(catalog.headers()['cdn-cache-control']).toBeUndefined();
-  expect(catalog.headers()['vercel-cdn-cache-control']).toBeUndefined();
+  expectPrivate(catalog);
 
   const guestCart = await request.get('/api/cart');
   expect(guestCart.ok()).toBe(true);
