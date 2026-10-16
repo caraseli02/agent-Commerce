@@ -2,7 +2,7 @@
 
 See the [infrastructure audit and approved original design](local-ci-audit.md) for observed host state and the architecture decision.
 
-Owner approved the standalone design on 2026-10-16. Issue #731 replaces #720's selected architecture; PR #728 stays open and unmerged pending owner disposition. GitHub Actions remain disabled. This service does not require Actions, a paid runner, either AI dispatcher, or an LLM.
+Owner approved the standalone design on 2026-10-16. Issue #731 replaces #720's selected architecture; PR #728 was closed as superseded at the owner’s explicit request; PR #732 is the sole active CI implementation PR. GitHub Actions remain disabled. This service does not require Actions, a paid runner, either AI dispatcher, or an LLM.
 
 **Deployment status: disabled, not installed.** Software tests exercise real subprocesses, SQLite and HTTP with a simulated GitHub server/worker. The native VZ helper compiles on the Mac mini. There is no trusted guest image, dedicated service account, GitHub App credential, watched guest execution, live status publication, or reboot proof yet. Do not describe this as operational CI or use it to accept PRs. Phase 2 cannot start until Phase 1 is reviewed and merged.
 
@@ -135,7 +135,7 @@ The manual client is a local socket client, not a scheduler. Existing Claude/Cod
 
 After Phase 1 is reviewed and merged, a separate PR must update both evaluators, PR readiness, queue admission and Owner Attention to require current head/base/policy local-CI evidence plus independent evaluator PASS, known acceptable mergeability, no change requests and owner protected-path approval. A visible status context alone is insufficient. Add App-bot/native owner notifications with durable deduplication, and prove delivery; owner-account self-mentions do not work as evidence. The repository's current branch-protection API returns 403 for its plan, so readiness must fail closed while documenting that GitHub may still allow a manual merge.
 
-Recommend superseding PR #728's staged Actions runner/probe and hosted activation plan. Retain useful audit/security findings and selected dormant-workflow hardening only if separately desired. Preserve its tests as historical scoped evidence, not standalone-CI proof. Do not merge or close PR #728 automatically. Its temporary outage guidance remains until a reviewed Phase 2 contract replaces it.
+Recommend superseding PR #728's staged Actions runner/probe and hosted activation plan. Retain useful audit/security findings and selected dormant-workflow hardening only if separately desired. Preserve its tests as historical scoped evidence, not standalone-CI proof. PR #728 is closed as superseded by explicit owner request; continue implementation only in PR #732. Its temporary outage guidance remains until a reviewed Phase 2 contract replaces it.
 
 ## Primary references
 

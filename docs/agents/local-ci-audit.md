@@ -1,5 +1,7 @@
 # Standalone local CI: audit and proposed design
 
+Current disposition: the owner subsequently requested one open CI PR. PR #728 is closed as superseded; PR #732 is the sole active implementation. The original recommendations below are retained as the historical design record.
+
 Observed 2026-10-16, Europe/Madrid. Status: investigation/design complete enough for owner review; implementation, installation and activation have not begun. This proposal replaces the hosted-runner direction, not the independent review requirement. No GitHub Actions, paid runners or re-enablement are required by the proposed service.
 
 ## 1. Observed infrastructure
