@@ -69,8 +69,9 @@ The script initializes the disposable test role/database and offline pnpm store.
 Choose these account names only after confirming they do not already exist. `sysadminctl -password -` prompts for passwords; do not paste passwords into this chat or command arguments. Accounts stay standard and have no admin/sudo/FDA grants.
 
 ```sh
-sudo sysadminctl -addUser agentci -fullName 'Agent Commerce CI coordinator' -home /var/empty -shell /usr/bin/false -password -
-sudo sysadminctl -addUser agentci-worker -fullName 'Agent Commerce CI worker' -home /var/empty -shell /usr/bin/false -password -
+sudo install -d -o root -g wheel -m 0755 /Library/AgentCommerceCI /Library/AgentCommerceCI/homes
+sudo sysadminctl -addUser agentci -fullName 'Agent Commerce CI coordinator' -home /Library/AgentCommerceCI/homes/agentci -shell /usr/bin/false -password -
+sudo sysadminctl -addUser agentci-worker -fullName 'Agent Commerce CI worker' -home /Library/AgentCommerceCI/homes/agentci-worker -shell /usr/bin/false -password -
 sudo dseditgroup -o create agentci-ipc
 sudo dseditgroup -o edit -a agentci -t user agentci-ipc
 sudo dseditgroup -o edit -a agentci-worker -t user agentci-ipc

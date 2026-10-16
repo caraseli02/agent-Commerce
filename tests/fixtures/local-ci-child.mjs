@@ -8,6 +8,7 @@ const github = new GitHub({
   repository: 'caraseli02/agent-Commerce',
   api: process.env.TEST_CI_API,
   tokenProvider: async () => 'test-only-token',
+  publisherId: 7,
 });
 let mode = 'success';
 let recoverable = true;

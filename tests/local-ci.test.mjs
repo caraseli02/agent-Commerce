@@ -55,7 +55,7 @@ async function fixture(t, initial = [pr()]) {
     else if (path.startsWith('/statuses/') && req.method === 'POST') {
       let text = '';
       for await (const chunk of req) text += chunk;
-      data.statuses.push({ ...JSON.parse(text), sha: path.split('/')[2] });
+      data.statuses.push({ ...JSON.parse(text), sha: path.split('/')[2], creator: { id: 7 } });
       if (data.drop) {
         data.drop = false;
         res.destroy();
@@ -228,6 +228,18 @@ test('lost GitHub response after publication converges without duplicate status 
   assert.equal(f.data.statuses.length, 1);
   await c.call('publish');
   assert.equal(f.data.statuses.length, 1);
+});
+
+test('another actor cannot impersonate the App publication in lost-response reconciliation', async (t) => {
+  const f = await fixture(t);
+  const c = await f.launch();
+  await c.call('discover');
+  f.data.drop = true;
+  await assert.rejects(c.call('publish'));
+  f.data.statuses[0].creator.id = 999;
+  await c.call('publish');
+  assert.equal(f.data.statuses.length, 2);
+  assert.equal(f.data.statuses.at(-1).creator.id, 7);
 });
 
 test('GitHub outage and invalid credentials preserve queued jobs and outbox', async (t) => {

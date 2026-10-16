@@ -3,9 +3,9 @@ import { readFile, lstat } from 'node:fs/promises';
 import { trustedPath } from './config.mjs';
 
 export class GitHub {
-  constructor({ repository, appId, installationId, privateKeyPath, api = 'https://api.github.com', tokenProvider }) {
+  constructor({ repository, appId, installationId, privateKeyPath, api = 'https://api.github.com', tokenProvider, publisherId }) {
     if (!/^[\w.-]+\/[\w.-]+$/.test(repository)) throw new Error('Invalid repository');
-    Object.assign(this, { repository, appId, installationId, privateKeyPath, api, tokenProvider });
+    Object.assign(this, { repository, appId, installationId, privateKeyPath, api, tokenProvider, publisherId });
   }
   async token() {
     if (this.tokenProvider) return this.tokenProvider();
@@ -18,11 +18,16 @@ export class GitHub {
     const unsigned = `${encode({ alg: 'RS256', typ: 'JWT' })}.${encode({ iat: now - 60, exp: now + 540, iss: String(this.appId) })}`;
     const key = createPrivateKey(await readFile(this.privateKeyPath));
     const jwt = `${unsigned}.${sign('RSA-SHA256', Buffer.from(unsigned), key).toString('base64url')}`;
+    const app = await this.request('/app', { token: jwt });
+    if (String(app.id) !== String(this.appId) || !app.slug) throw new Error('GitHub App identity mismatch');
     const response = await this.request(`/app/installations/${encodeURIComponent(this.installationId)}/access_tokens`, {
       method: 'POST',
       token: jwt,
       data: { repositories: [this.repository.split('/')[1]], permissions: { contents: 'read', pull_requests: 'read', statuses: 'write' } },
     });
+    const publisher = await this.request(`/users/${encodeURIComponent(`${app.slug}[bot]`)}`, { token: response.token });
+    if (publisher.type !== 'Bot' || !Number.isSafeInteger(publisher.id)) throw new Error('GitHub App bot identity unavailable');
+    this.publisherId = publisher.id;
     this.cached = { token: response.token, expires: Date.parse(response.expires_at) };
     return this.cached.token;
   }
@@ -69,9 +74,10 @@ export class GitHub {
     return { ...pr, base: { ...pr.base, sha: ref.object.sha } };
   }
   async publish(item) {
+    await this.token();
     const statuses = await this.repo(`/commits/${item.head}/statuses?per_page=100`);
     const previous = statuses.find((s) => s.context === 'local-ci/verify');
-    if (previous?.state === item.state && previous.description === item.description) return;
+    if (previous?.creator?.id === this.publisherId && previous?.state === item.state && previous.description === item.description) return;
     await this.repo(`/statuses/${item.head}`, {
       method: 'POST',
       data: { context: 'local-ci/verify', state: item.state, description: item.description.slice(0, 140) },
