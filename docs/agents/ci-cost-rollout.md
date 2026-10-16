@@ -6,6 +6,23 @@ been registered, no host service installed, and no production cutover performed.
 The probe is disabled until `NOTIFICATIONS_RUNNER_PROBE_ENABLED=true` is explicitly
 set by the owner after the prerequisites below. It is not a required check.
 
+## Current repository setting: Actions disabled
+
+On 2026-10-16 the owner confirmed Actions are disabled; the live repository
+`/actions/permissions` API returned `enabled: false`. The workflows in this PR
+remain configured for hosted execution but cannot execute while that setting is
+off. This includes CI, Owner attention, PR template and the optional runner probe.
+It is separate from the earlier observed billing/spending failure. Re-enabling
+Actions and restoring hosted billing eligibility are owner-controlled actions.
+
+The owner selected **continue locally; keep acceptance blocked**. Follow the
+[disabled-Actions continuation policy](autonomous-workflow.md#github-actions-disabled-local-continuation-acceptance-blocked):
+local gates and independent review continue, current-head hosted checks remain
+unavailable, no acceptance/queue promotion occurs, and an unchanged outage does
+not trigger code repairs or repeated CI/review attempts. GitHub bot notifications
+are unavailable too; local desktop schedules remain separate. No Actions setting
+or runner route is changed by this policy.
+
 ## Baseline observed on 2026-10-16
 
 GitHub REST queries used the existing login, the UTC creation window

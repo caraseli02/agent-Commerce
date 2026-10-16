@@ -164,6 +164,39 @@ The Mac mini builder controller plans and generates; a separately operated evalu
 - PASS still requires the existing rubric, CI/runtime evidence and mergeability checks. Wait for human merge. FAIL routes a bounded repair to the same issue/branch/PR; BLOCKED stops dependent work.
 - Poll quietly while unchanged. Notify the user on a meaningful verdict, CI failure, completed repair or decision needed. The separate evaluator owns review scheduling.
 
+## GitHub Actions disabled: local continuation, acceptance blocked
+
+Owner decision, 2026-10-16 (#720): continue local implementation and independent
+review while GitHub Actions are disabled; keep PR acceptance blocked. Confirm the
+repository setting with `gh api repos/caraseli02/agent-Commerce/actions/permissions`.
+`enabled: false` is an infrastructure prerequisite, not an application test failure.
+Missing check results alone do not prove Actions are disabled; API errors remain
+unknown evidence. Record the setting, observation time, exact head and local results.
+
+- Continue authorized local work, real hooks, the selected delivery gate and
+  independent exact-head source/runtime review. Preserve existing ownership,
+  lease, WIP, queue and same-PR rules; this mode grants no extra claims or merges.
+- Keep missing hosted checks explicitly unavailable. Local success, Vercel success
+  and historical green checks cannot satisfy current-head `verify` / `check`.
+  No acceptance PASS, queue admission or `ready-for-human` transition while the
+  required checks are unavailable. A reviewer records useful local findings; when
+  otherwise passing, use `INCONCLUSIVE` naming disabled Actions as the prerequisite.
+  Real code defects remain actionable findings and may receive `FAIL`.
+- Do not edit code, create empty commits, spend repair attempts, dispatch/rerun
+  workflows or repeatedly re-review an unchanged head solely to cure this outage.
+  Record one outage blocker; unchanged disabled state waits quietly. New code or
+  substantive feedback may receive the normal bounded local work/review. Resume
+  the unchanged head's hosted verification/evaluation after the owner restores
+  Actions and fresh current-head checks can run, or an explicit owner request.
+- Never enable Actions, alter required checks, activate a self-hosted runner or
+  substitute a local-only acceptance policy automatically. Owner-controlled
+  re-enablement does not itself prove checks green; inspect actual results.
+- GitHub Actions notifications (`Owner attention`), PR-template validation, CI and
+  the runner probe cannot execute while repository Actions are disabled. The local
+  desktop dispatcher/reviewer schedules remain separate. Publish one GitHub status
+  note and surface the blocker in the app; do not claim a bot @mention was sent.
+  No additional scheduler is introduced.
+
 ## Owner attention
 
 Agents post to GitHub through Vlad's account, and GitHub never notifies a user about their own activity, so agent comments and labels alone reach nobody. `.github/workflows/owner-attention.yml` runs `scripts/owner-attention.mjs` as `github-actions[bot]` and @mentions Vlad, once per occurrence, when:
