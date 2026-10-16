@@ -1,0 +1,14 @@
+[Unit]
+Description=Trusted CI image entry point
+After=local-fs.target systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/chmod 600 /dev/hvc1
+ExecStart=/usr/local/bin/node /opt/local-ci/guest-run.mjs
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/hvc0
+TimeoutStartSec=44min
+ExecStopPost=/usr/sbin/poweroff -f

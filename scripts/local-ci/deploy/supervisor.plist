@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.agent-commerce.local-ci.supervisor</string>
+  <key>UserName</key><string>agentci-worker</string>
+  <key>GroupName</key><string>agentci-ipc</string>
+  <key>ProgramArguments</key><array>
+    <string>/Library/AgentCommerceCI/runtime/bin/node</string>
+    <string>/Library/AgentCommerceCI/releases/RELEASE/scripts/local-ci/service.mjs</string>
+    <string>supervisor</string><string>/Library/AgentCommerceCI/config.json</string>
+  </array>
+  <key>RunAtLoad</key><true/><key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>30</integer>
+  <key>Umask</key><integer>63</integer>
+  <key>StandardOutPath</key><string>/Library/AgentCommerceCI/worker/service.log</string>
+  <key>StandardErrorPath</key><string>/Library/AgentCommerceCI/worker/service-error.log</string>
+</dict></plist>

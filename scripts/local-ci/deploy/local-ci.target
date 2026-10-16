@@ -1,0 +1,5 @@
+[Unit]
+Description=Disposable networkless CI guest
+Requires=local-ci.service
+After=local-fs.target
+AllowIsolate=yes
