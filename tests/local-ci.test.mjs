@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fork } from 'node:child_process';
+import { fork, spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { Store } from '../scripts/local-ci/store.mjs';
@@ -342,6 +342,8 @@ test('host process limits fail closed and isolate control channel from PR output
   assert.equal(result.code, 0);
   assert.equal(await readFile(controlLog, 'utf8'), 'trusted error');
   assert.equal(await readFile(log, 'utf8'), 'forged PASS');
+  const captured = await command(process.execPath, ['-e', 'process.stdout.write("revision")'], { log, capture: true });
+  assert.equal(captured.output, 'revision');
   await assert.rejects(command(process.execPath, ['-e', 'setInterval(()=>{},1000)'], { timeout: 30 }), /timeout/);
   await assert.rejects(command(process.execPath, ['-e', 'process.stdout.write("x".repeat(10000))'], { limit: 20 }), /limit/);
 });
@@ -384,4 +386,34 @@ test('a shared SHA cannot turn green when another current PR template fails', as
   await c.call('execute');
   await c.call('publish');
   assert.equal(f.data.statuses.at(-1).state, 'failure');
+});
+
+test('supervisor takes exclusion before awaiting orphan reconciliation', async () => {
+  const supervisor = new Supervisor({ policy: 'a'.repeat(64) });
+  let release;
+  supervisor.recover = () =>
+    new Promise((resolve) => {
+      release = resolve;
+    });
+  const spec = { id: '12345678-1234-1234-1234-123456789abc', head, base, policy: 'a'.repeat(64) };
+  const first = supervisor.run(spec);
+  await assert.rejects(supervisor.run(spec), /busy/);
+  release(false);
+  await assert.rejects(first, /cleanup/);
+});
+
+test('architecture allows only the local-CI GitHub credential boundary, not other worker files', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'ci-architecture-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const { mkdir, copyFile } = await import('node:fs/promises');
+  await mkdir(join(dir, 'scripts/local-ci'), { recursive: true });
+  const checker = join(dir, 'scripts/check-arch-invariants.mjs');
+  await copyFile(fileURLToPath(new URL('../scripts/check-arch-invariants.mjs', import.meta.url)), checker);
+  const header = 'const headers = { Authorization: "Bearer example" };';
+  await writeFile(join(dir, 'scripts/local-ci/github.mjs'), header);
+  assert.equal(spawnSync(process.execPath, [checker]).status, 0);
+  await writeFile(join(dir, 'scripts/local-ci/worker.mjs'), header);
+  const result = spawnSync(process.execPath, [checker], { encoding: 'utf8' });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /scripts\/local-ci\/worker.mjs/);
 });

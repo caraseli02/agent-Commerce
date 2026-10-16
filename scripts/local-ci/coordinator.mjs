@@ -86,7 +86,8 @@ export class Coordinator {
           : states.every((s) => s === 'success')
             ? 'success'
             : 'pending';
-      await this.github.publish({ ...item, state });
+      const description = `${job.id.slice(0, 8)} base:${job.base.slice(0, 10)} policy:${JSON.parse(job.spec).policy.slice(0, 10)} ${state}`;
+      await this.github.publish({ ...item, state, description });
       this.store.sent(item.id);
     }
   }

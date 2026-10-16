@@ -79,6 +79,7 @@ export async function startCoordinator(cfg) {
       await coordinator.execute();
       await coordinator.publish();
       const removed = store.prune();
+      for (const id of removed) await rm(join(cfg.stateRoot, `${id}.source.log`), { force: true });
       // Log ownership/retention is enforced independently in the supervisor.
       if (removed.length) await writeFile(join(cfg.stateRoot, 'last-prune.json'), JSON.stringify(removed));
     } catch (error) {

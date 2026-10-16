@@ -80,6 +80,8 @@ export class WorkerClient {
         const result = await command('/usr/bin/git', args, {
           cwd: bare,
           env,
+          log: join(this.cfg.stateRoot, `${spec.id}.source.log`),
+          capture: true,
           limit: 2 * 1024 * 1024,
           timeout: 180_000,
           guard: () => capacity(this.cfg.stateRoot),
@@ -116,8 +118,8 @@ export class Supervisor {
     this.busy = false;
     this.blocked = false;
   }
-  async recover() {
-    if (this.busy) return false;
+  async recover(owned = false) {
+    if (this.busy && !owned) return false;
     for (const name of await readdir(this.cfg.workerRoot)) {
       if (!uuid.test(name)) continue;
       const dir = join(this.cfg.workerRoot, name);
@@ -149,8 +151,15 @@ export class Supervisor {
   async run(spec) {
     validateSpec(spec);
     if (spec.policy !== this.cfg.policy) throw new Error('Coordinator and supervisor policy differ');
-    if (this.busy || this.blocked || !(await this.recover())) throw new Error('Worker busy or unresolved cleanup');
+    if (this.busy || this.blocked) throw new Error('Worker busy or unresolved cleanup');
     this.busy = true;
+    try {
+      if (!(await this.recover(true))) throw new Error('Worker busy or unresolved cleanup');
+    } catch (error) {
+      this.busy = false;
+      this.blocked = true;
+      throw error;
+    }
     const dir = join(this.cfg.workerRoot, spec.id);
     let stopped = true;
     let cleaned = false;

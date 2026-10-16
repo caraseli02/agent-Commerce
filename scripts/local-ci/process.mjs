@@ -5,7 +5,7 @@ import { dirname } from 'node:path';
 export async function command(
   program,
   args,
-  { cwd, env = {}, input, log, controlLog, timeout = 120_000, limit = 100 * 1024 * 1024, started = () => {}, guard } = {},
+  { cwd, env = {}, input, log, controlLog, timeout = 120_000, limit = 100 * 1024 * 1024, started = () => {}, guard, capture = false } = {},
 ) {
   if (log) await mkdir(dirname(log), { recursive: true, mode: 0o700 });
   const file = log ? await open(log, 'a', 0o600) : null;
@@ -44,8 +44,10 @@ export async function command(
           }
           const target = stream === child.stderr && control ? control : file;
           if (target) writing = writing.then(() => target.write(data)).catch(() => stop('Log write failed'));
-          else if (bytes <= 2 * 1024 * 1024) output += data.toString();
-          else stop('Command output limit exceeded');
+          if (!target || capture) {
+            if (bytes <= 2 * 1024 * 1024) output += data.toString();
+            else stop('Command output limit exceeded');
+          }
         });
       child.on('error', (error) => {
         fault = error;
