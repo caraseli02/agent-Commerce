@@ -71,45 +71,44 @@
       </div>
 
       <div class="notifications-scroll min-h-0 flex-1 overflow-y-auto">
-        <NuxtLink
-          v-for="(notification, index) in first50"
-          :key="index"
-          :to="`${route.path}`"
-          event=""
-          class="flex w-full flex-col border-b border-border bg-white px-2 py-3 pt-2 pb-1 transition-colors duration-300 last:border-b-0 hover:bg-[#F5F5F5]"
-          @click.prevent="markNotificationAsRead(notification, index)"
-        >
-          <div class="flex w-full items-center justify-between px-2 py-3">
-            <div class="flex items-center">
-              <NotificationIcon class="mr-2 h-5 w-5" :class="getNotificationClass(notification.title)" />
-              <span v-if="!notification.seen" class="mr-2 flex h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
-              <span class="text-sm font-medium capitalize leading-[1.43]">
-                {{ notification.title }}
+        <div v-for="(notification, index) in first50" :key="index" class="relative border-b border-border last:border-b-0">
+          <UiButton
+            type="button"
+            variant="ghost"
+            class="flex h-auto w-full flex-col items-stretch whitespace-normal rounded-none bg-white px-2 py-3 pt-2 pb-1 text-left font-normal transition-colors duration-300 hover:bg-[#F5F5F5] focus-visible:ring-inset focus-visible:ring-offset-0"
+            :aria-label="`Mark notification as read: ${notification.title}`"
+            @click="markNotificationAsRead(notification, index)"
+          >
+            <span class="flex w-full items-center justify-between px-2 py-3">
+              <span class="flex items-center">
+                <NotificationIcon class="mr-2 h-5 w-5" :class="getNotificationClass(notification.title)" />
+                <span v-if="!notification.seen" class="mr-2 flex h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+                <span class="text-sm font-medium capitalize leading-[1.43]">
+                  {{ notification.title }}
+                </span>
               </span>
-            </div>
-            <div class="flex items-center">
-              <span class="mr-4 text-xs leading-[1.67] text-slate-500">
+              <span class="mr-8 text-xs leading-[1.67] text-slate-500">
                 {{ getCurrentDate(notification.date) }}
               </span>
-              <UiButton
-                type="button"
-                variant="ghost"
-                size="icon"
-                class="h-auto w-auto text-slate-500 hover:text-blue-500"
-                aria-label="Delete notification"
-                @click.stop.prevent="deleteNotification(notification, index)"
-              >
-                <XIcon class="h-4 w-4" />
-              </UiButton>
-            </div>
-          </div>
-          <div class="flex min-h-12 items-center justify-between pb-2 pl-3 pr-2">
-            <div class="mr-1 text-sm leading-[1.43] text-slate-500">
-              {{ notification.description }}
-            </div>
-            <ChevronRight class="h-[18px] w-[18px] flex-shrink-0" />
-          </div>
-        </NuxtLink>
+            </span>
+            <span class="flex min-h-12 items-center justify-between pb-2 pl-3 pr-2">
+              <span class="mr-1 text-sm leading-[1.43] text-slate-500">
+                {{ notification.description }}
+              </span>
+              <ChevronRight class="h-[18px] w-[18px] flex-shrink-0" />
+            </span>
+          </UiButton>
+          <UiButton
+            type="button"
+            variant="ghost"
+            size="icon"
+            class="absolute right-4 top-[22px] h-auto w-auto text-slate-500 hover:text-blue-500"
+            aria-label="Delete notification"
+            @click.stop.prevent="deleteNotification(notification, index)"
+          >
+            <XIcon class="h-4 w-4" />
+          </UiButton>
+        </div>
       </div>
 
       <div class="sticky bottom-0 z-10 flex shrink-0 items-center justify-between border-t border-slate-100 bg-white px-4 py-4">
@@ -141,8 +140,6 @@ enum NotificationsGroups {
   Orders = 1,
   System = 2,
 }
-
-const route = useRoute();
 
 const emits = defineEmits(['close', 'markAsRead', 'delete']);
 
