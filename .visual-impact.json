@@ -257,6 +257,12 @@
       "impact": "none",
       "reason": "Same-commit Vercel redeployments rebuild to apply changed configuration; emitted application code is unchanged.",
       "consumers": "scripts/vercel-ignore-build.sh is read only by Vercel before a build and temporary Git fixture tests. No app, Nitro, store, style or route imports it. App build command and rendered output remain unchanged; regression coverage checks the same-commit decision and preserves docs-only skipping."
+    },
+    {
+      "fingerprint": "cfcbdd28a87497d9ea401422f9bac6cc48332b67adfc65d69ccf0e2ad174c38e",
+      "impact": "none",
+      "reason": "Auth token cookie gains SameSite=Lax and an HTTPS-only Secure attribute (#110); cookie name, value, maxAge and every reader are unchanged",
+      "consumers": "authTokenCookieOptions is imported only by app/store/authStore.ts, which passes it to useCookie(\"token\"). The other token readers (app/plugins/api.ts, app/middleware/*.ts, app/composables/api/cart.ts, app/composables/useCart.ts) read the same value with no options. The visual suite runs on plain-HTTP 127.0.0.1, so secure stays false and the same-origin token cookie is sent exactly as before; no markup, style, page, component or server response changes, so no home, search, product, cart or orders screenshot can change."
     }
   ]
 }
