@@ -47,6 +47,10 @@ export const useCookie = (name: string) => ({
 
 (globalThis as typeof globalThis & { useCookie: typeof useCookie }).useCookie = useCookie;
 
+export const useRequestURL = () => new URL('http://localhost:3000/');
+
+(globalThis as typeof globalThis & { useRequestURL: typeof useRequestURL }).useRequestURL = useRequestURL;
+
 export const useNuxtApp = () => ({
   $apiClient: mockApiClient,
   $api: {
