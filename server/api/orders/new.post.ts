@@ -1,10 +1,23 @@
+import { z } from 'zod';
 import { checkoutErrorData, checkoutErrorResponse } from '~~/types/order/checkout-error';
 import { placeOrder, PlaceOrderError } from '~~/server/application/checkout/place-order';
 import { createMockGuestCheckoutUser, getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
 import { requireMockCartUserId } from '~~/server/utils/mockCart';
+import { parseZodBody } from '~~/server/utils/zodBody';
+
+// Shape check only: missing review fields keep the existing `cart_changed` response,
+// and the remaining order fields pass through to `placeOrder` unchanged.
+const createOrderBodySchema = z
+  .object({
+    cartId: z.string().max(128).optional(),
+    checkoutRequestId: z.string().max(128).optional(),
+    reviewedCartRevision: z.string().max(256).optional(),
+    reviewedQuoteFingerprint: z.string().max(256).optional(),
+  })
+  .passthrough();
 
 export default defineEventHandler(async (event) => {
-  const body = (await readBody(event)) as Record<string, unknown>;
+  const body = parseZodBody(createOrderBodySchema, await readBody(event));
   const headers = getHeaders(event);
   const mockModeEnabled = String(useRuntimeConfig(event).public.MOCK_MODE) === 'true';
 
@@ -23,10 +36,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const cartId = typeof body.cartId === 'string' ? body.cartId : '';
-  const checkoutRequestId = typeof body.checkoutRequestId === 'string' ? body.checkoutRequestId : undefined;
-  const reviewedCartRevision = typeof body.reviewedCartRevision === 'string' ? body.reviewedCartRevision.trim() : '';
-  const reviewedQuoteFingerprint = typeof body.reviewedQuoteFingerprint === 'string' ? body.reviewedQuoteFingerprint.trim() : '';
+  const cartId = body.cartId ?? '';
+  const checkoutRequestId = body.checkoutRequestId;
+  const reviewedCartRevision = body.reviewedCartRevision?.trim() ?? '';
+  const reviewedQuoteFingerprint = body.reviewedQuoteFingerprint?.trim() ?? '';
 
   if (!reviewedCartRevision || !reviewedQuoteFingerprint) {
     throw createError(checkoutErrorResponse('cart_changed'));
