@@ -6,6 +6,9 @@ const localQuantity = ref(1);
 
 const props = defineProps<QuickBuyItem & { error?: string; canRemove?: boolean }>();
 const localCode = ref(props.code);
+// Inline and dialog rows render side by side, so IDs come from useId rather than the row index (#700).
+const inputId = useId();
+const errorId = useId();
 
 const emit = defineEmits<{
   updateProduct: [{ index: number; code: string; quantity: number }];
@@ -36,17 +39,17 @@ onMounted(() => {
 <template>
   <div class="grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-start gap-1.5">
     <div class="min-w-0">
-      <UiLabel :for="`quick-buy-part-${index}`" class="sr-only">Part number {{ index + 1 }}</UiLabel>
+      <UiLabel :for="inputId" class="sr-only">Part number {{ index + 1 }}</UiLabel>
       <UiInput
-        :id="`quick-buy-part-${index}`"
+        :id="inputId"
         v-model="localCode"
         type="text"
         placeholder="Manufacturer part number"
         :aria-invalid="Boolean(error)"
-        :aria-describedby="error ? `quick-buy-error-${index}` : undefined"
+        :aria-describedby="error ? errorId : undefined"
         @input="emitUpdate"
       />
-      <p v-if="error" :id="`quick-buy-error-${index}`" class="mt-1 text-xs font-medium text-amber-700" role="alert">{{ error }}</p>
+      <p v-if="error" :id="errorId" class="mt-1 text-xs font-medium text-amber-700" role="alert">{{ error }}</p>
     </div>
     <div aria-label="Quantity">
       <QuantityButtons v-model="localQuantity" size="lg" />
