@@ -126,7 +126,9 @@ test.describe('Synthetic mobile performance', () => {
       await observeVitals(page);
       await configureMobilePerformanceProfile(page);
       await page.goto('/', { waitUntil: 'load' });
-      await page.waitForTimeout(1_000);
+      // Under this throttling profile the client chunks finish well after `load`; a click on the
+      // server-rendered cart button before hydration is lost (#719).
+      await page.waitForLoadState('networkidle');
 
       await page.getByRole('button', { name: 'Open shopping cart' }).click();
       await expect(page.getByRole('heading', { name: /shopping cart/i })).toBeVisible();
