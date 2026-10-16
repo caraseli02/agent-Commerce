@@ -263,6 +263,12 @@
       "impact": "none",
       "reason": "Auth token cookie gains SameSite=Lax and an HTTPS-only Secure attribute (#110); cookie name, value, maxAge and every reader are unchanged",
       "consumers": "authTokenCookieOptions is imported only by app/store/authStore.ts, which passes it to useCookie(\"token\"). The other token readers (app/plugins/api.ts, app/middleware/*.ts, app/composables/api/cart.ts, app/composables/useCart.ts) read the same value with no options. The visual suite runs on plain-HTTP 127.0.0.1, so secure stays false and the same-origin token cookie is sent exactly as before; no markup, style, page, component or server response changes, so no home, search, product, cart or orders screenshot can change."
+    },
+    {
+      "fingerprint": "44fe5dc420c727b1b662cc07ad3ed295201e7cd8b9fb12d02c7c2e96a5d3faba",
+      "impact": "none",
+      "reason": "Quick Buy rows take their input and error IDs from useId instead of the row index (#700); only id, for and aria-describedby attribute values change",
+      "consumers": "QuickBuyInput.vue is rendered only by app/components/global/QuickBuy/QuickBuy.vue (LazyQuickBuy on home, search and product). Classes, text, layout and the error paragraph's v-if are unchanged; IDs are not painted, so no home, search, product, cart or orders screenshot can change. Label association and focus are covered by tests/e2e/quick-buy-input-ids.spec.ts."
     }
   ]
 }
