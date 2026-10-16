@@ -1,0 +1,36 @@
+name: Notifications runner probe
+
+# Staged only. Enable after the isolation prerequisites in docs/agents/ci-cost-rollout.md.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: notifications-runner-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    if: >-
+      vars.NOTIFICATIONS_RUNNER_PROBE_ENABLED == 'true' &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+      github.actor == github.repository_owner
+    runs-on: [self-hosted, macOS, ARM64, mac-mini-notifications]
+    timeout-minutes: 5
+    steps:
+      - name: Verify dedicated identity and runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -s)" = Darwin
+          test "$(uname -m)" = arm64
+          test "$(id -un)" = github-notifications
+          test "$(id -u)" -ne 0
+          case " $(id -Gn) " in
+            *" admin "*|*" wheel "*) echo 'Runner account must be unprivileged' >&2; exit 1 ;;
+          esac
+          node -e 'if (process.versions.node.split(".")[0] !== "24") process.exit(1)'
+          node -e 'const r = await fetch("https://api.github.com/meta"); if (!r.ok) throw new Error(`GitHub connectivity: ${r.status}`)'
+          printf 'Dedicated macOS ARM64 identity, Node 24 and GitHub connectivity verified\n'
