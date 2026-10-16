@@ -1,5 +1,7 @@
 # Standalone local CI — Phase 1
 
+See the [infrastructure audit and approved original design](local-ci-audit.md) for observed host state and the architecture decision.
+
 Owner approved the standalone design on 2026-10-16. Issue #731 replaces #720's selected architecture; PR #728 stays open and unmerged pending owner disposition. GitHub Actions remain disabled. This service does not require Actions, a paid runner, either AI dispatcher, or an LLM.
 
 **Deployment status: disabled, not installed.** Software tests exercise real subprocesses, SQLite and HTTP with a simulated GitHub server/worker. The native VZ helper compiles on the Mac mini. There is no trusted guest image, dedicated service account, GitHub App credential, watched guest execution, live status publication, or reboot proof yet. Do not describe this as operational CI or use it to accept PRs. Phase 2 cannot start until Phase 1 is reviewed and merged.

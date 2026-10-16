@@ -114,6 +114,7 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 - `docs/agents/domain.md` — where domain context lives
 - `docs/agents/session-lifecycle.md` — initialization, WIP=1, blocker protocol, clean handoff
 - `docs/agents/verification.md` — done gates, E2E/runtime verification, evaluator rubric
+- `docs/agents/local-ci.md` — standalone CI service, disabled Phase 1 deployment and operational acceptance gates
 - `docs/agents/harness-audit.md` — course coverage and known harness watch points
 
 ## Repository map
