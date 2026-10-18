@@ -98,3 +98,11 @@ The label `lane:nightly` was renamed to `agent:claude` on GitHub on 2026-10-06; 
 - The unattended Claude routine may not edit the factory. When it hits a workflow problem, it opens a `needs-triage` issue titled `Factory improvement: …`.
 - Harness changes Vlad asks for in an interactive Claude session are normal PRs: Vlad adds `owner-approved-harness`, and the reviewer judges them on their merits instead of failing them for touching protected paths. Only Vlad sets or removes that label; the guard hook blocks Claude from doing it. The session ends with an explicit action line for Vlad (`Add owner-approved-harness to PR #N`), and the owner-attention workflow also pings him, so the label is in place before the first review.
 - To pause Claude, pause the routine in Claude Desktop.
+
+## Phase 2 local-CI acceptance contract
+
+After human merge and a watched rollout, this section supersedes hosted-check and historical-PASS admission instructions above. Both independent evaluators use the root-owned `/Library/AgentCommerceCI/bin/evidence PR_NUMBER` client. It reads pinned current service evidence, never PR code. Require `checks.state=success` before an evaluator PASS and `readiness.ready=true` before readiness labels or queue admission. The latter includes an independently attributed exact-head PASS, acceptable mergeability, no outstanding change requests and Claude protected-path authorization; payment paths remain excluded.
+
+New head/base/policy/body/labels or stale/unavailable health invalidates current acceptance. Missing client, operational proof or App publication is a named infrastructure prerequisite, not a source defect. Do not restore hosted-check fallback, create commits to cure outages or infer permission from agent text. On coordinator failure the existing native schedule surfaces one meaningful failure and waits quietly while unchanged; it cannot dispatch acceptance from cached receipts. App-bot notification intent/readback persists in the coordinator outbox.
+
+This PR changes reviewed source only. Installed settings, native automation prompts, credentials and service activation remain unchanged until owner-approved post-merge rollout. The inactive Phase 1 merge exception does not admit product PRs or grant Phase 2 operational acceptance.

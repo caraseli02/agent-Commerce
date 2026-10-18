@@ -144,3 +144,35 @@ Recommend superseding PR #728's staged Actions runner/probe and hosted activatio
 - [Apple Linux VM configuration](https://developer.apple.com/documentation/virtualization/running-linux-in-a-virtual-machine)
 - [Apple VM shutdown delegate](https://developer.apple.com/documentation/virtualization/vzvirtualmachinedelegate)
 - [Lima plain-mode limitations](https://lima-vm.io/docs/config/plain/)
+
+## Phase 2 implementation and watched rollout
+
+Phase 2 source adds a separate GET-only evidence socket, shared readiness evaluator, immutable native client and App notification outbox. No service, account, credential, image, agent setting or scheduler is installed by this change. The existing Phase 1 proof requirements still apply. The service may run a supervised canary without an operational proof, but all acceptance remains unavailable.
+
+Stage the release with `scripts/local-ci/`, `scripts/owner-attention.mjs`, `scripts/check-pr-template.mjs` and `.factory/factory.yaml` at their original relative paths; all are included in the policy digest. Root owns the pinned release and reader config. Create an evidence directory owned by the coordinator UID, mode 0755, under root-owned `/Library/AgentCommerceCI`. The service creates `read.sock` mode 0666 inside it: this socket only reads sanitized GitHub/verification data and has no retry, log, credential or mutation endpoint. Clients validate socket ownership and every ancestor; a PR-controlled socket/config is rejected. The control socket remains private.
+
+Copy `deploy/reader.example.json` to a root-owned immutable `/Library/AgentCommerceCI/reader.json`. Pin the actual nonroot coordinator UID and deployed policy digest; leave `enabled:false` until proof is accepted. Install `deploy/evidence-client.sh` root-owned executable at `/Library/AgentCommerceCI/bin/evidence`, replacing RELEASE with the exact reviewed release path. The Python native adapter invokes only that fixed immutable client with a PR number, never a PR-selected command.
+
+For App-bot notifications, separately approve the App's Issues write permission and `notifications:true` in the root-owned service config. No repository-write, Actions or admin permission is added. Changing App identity, notification activation, code or pinned assets changes policy and invalidates older proof. Use the existing open issue configured by `attentionIssue` for queue/outage notices; no automatic issue closing. The coordinator persists message intent and delivery receipts in SQLite. Before acceptance, run the approved canary through `service.mjs notify-canary CONFIG ISSUE_NUMBER`, record the actual App comment URL/ID, and have Vlad verify that its mention reached his inbox. A POST response alone does not prove inbox receipt.
+
+Only after the watched guest isolation, teardown, real status publication, restart/reboot and notification receipt tests pass may the operator create root-owned `operational-proof.json`:
+
+```json
+{
+  "version": 1,
+  "policy": "EXACT_DEPLOYED_POLICY_SHA256",
+  "acceptedBy": "caraseli02",
+  "acceptedAt": "ACTUAL_UTC_ACCEPTANCE_TIME",
+  "evidence": {
+    "isolation": "reviewed real-guest evidence reference",
+    "cleanup": "reviewed teardown evidence reference",
+    "publication": "actual GitHub App status reference",
+    "reboot": "watched restart/reboot evidence reference",
+    "notificationDelivery": "App comment URL plus Vlad inbox receipt"
+  }
+}
+```
+
+The proof is re-read for every evidence query; missing, revoked or policy-mismatched proof blocks acceptance. Then pin that policy in reader.json and explicitly enable the reader. A fresh `evidence PR_NUMBER` must show `checks.state=success`. The independent evaluator reviews the same head, publishes PASS, and rechecks `readiness.ready=true` before any label/queue transition. Approve and install the reviewed native routing/reviewer source in a watched run; the old #683-only installer does not authorize a Phase 2 installation. Review the concrete file/automation diff before changing installed prompts; never copy a PR's scripts directly into agent settings.
+
+Recovery/rollback: set the root-owned reader `enabled:false` to revoke acceptance immediately, stop admission using the Phase 1 recipe, preserve SQLite/outbox and prior immutable release, and inspect the failed prerequisite. Policy/image/code changes require new proof and reader pinning. A stopped/stale service is reported by the next existing native controller/reviewer run; no new timer or scheduler is installed. The dormant hosted workflow has no access to the local socket and cannot promote a PR. The Phase 1 inactive-merge exception remains scoped to that merged PR.

@@ -13,7 +13,7 @@ import {
   claudeQueueState,
   closingIssueNumbers,
   createClient,
-  handleEvent,
+  handleEvent as realHandleEvent,
   hasChangesRequested,
   hasClaudeCoauthor,
   hasCurrentSkipRecord,
@@ -527,6 +527,10 @@ describe('owner attention workflow', () => {
 describe('reconcile against a fake GitHub API', () => {
   type Call = { method: string; path: string; body?: { body?: string; title?: string; state?: string } };
   type Routes = Record<string, unknown>;
+  // Explicit test transport: production uses only the root-owned local socket.
+  const testReaders = new WeakMap<object, (number: number) => Promise<unknown>>();
+  const handleEvent = (args: Parameters<typeof realHandleEvent>[0]) =>
+    realHandleEvent({ ...args, evidenceProvider: testReaders.get(args.gh) });
 
   // Stateful fake: posted comments and issues become visible to later reads,
   // so repeated or back-to-back runs exercise the real dedupe path.
@@ -549,7 +553,25 @@ describe('reconcile against a fake GitHub API', () => {
       if (data === undefined) return new Response('not found', { status: 404 });
       return new Response(JSON.stringify(data), { status: 200 });
     };
-    return { gh: createClient({ repository: 'o/r', token: 't', fetchImpl }), calls };
+    const gh = createClient({ repository: 'o/r', token: 't', fetchImpl });
+    testReaders.set(gh, async (number) => {
+      const live = routes[`/pulls/${number}`] as typeof pr;
+      const comments = routes[`/issues/${number}/comments`] as unknown[];
+      const checks = assessChecks(
+        (routes[`/commits/${live.head.sha}/check-runs`] as { check_runs: unknown[] })?.check_runs ?? [],
+        routes[`/commits/${live.head.sha}/status`],
+      );
+      const verdict = latestEvaluatorVerdict(comments, live.head.sha, { trustedLogins: [owner] });
+      return {
+        head: live.head.sha,
+        base: 'base',
+        policy: 'policy',
+        metadata: 'metadata',
+        checks,
+        readiness: assessReadiness({ pr: live, checks, verdict, reviews: routes[`/pulls/${number}/reviews`] ?? [] }),
+      };
+    });
+    return { gh, calls };
   }
 
   const owner = 'caraseli02';
@@ -606,7 +628,7 @@ describe('reconcile against a fake GitHub API', () => {
     expect(posts(calls)).toHaveLength(1);
     expect(posts(calls)[0].path).toBe('/issues/658/comments');
     expect(posts(calls)[0].body?.body).toContain('@caraseli02');
-    expect(posts(calls)[0].body?.body).toContain(marker(`ready:${HEAD}`));
+    expect(posts(calls)[0].body?.body).toContain(marker(`ready:${HEAD}:base:policy:metadata`));
   });
 
   it('posts each notice once across back-to-back runs triggered by different events', async () => {
@@ -807,14 +829,14 @@ describe('reconcile against a fake GitHub API', () => {
     expect(posts(queuedRun.calls).filter((call) => call.path === '/issues')).toHaveLength(1);
     expect(queuedRun.calls.some((call) => call.path === '/issues/658/comments' && call.method === 'GET')).toBe(true);
 
-    // PASS on an older head only (repaired, new head unreviewed) still counts as queued.
+    // An older PASS no longer admits the current head.
     const repaired = fakeGitHub({
       ...readyRoutes([passFor(OLD_HEAD)]),
       ...checksFor(OLD_HEAD, greenRuns),
       '/issues?state=open': [claim],
     });
     await handleEvent({ eventName: 'schedule', gh: repaired.gh, owner, config });
-    expect(posts(repaired.calls).filter((call) => call.path === '/issues')).toHaveLength(1);
+    expect(posts(repaired.calls).filter((call) => call.path === '/issues')).toHaveLength(0);
 
     // No open PR: the claim is live, so the queue is not idle.
     const closed = fakeGitHub({ '/pulls?state=open': [], '/issues?state=open': [claim] });
@@ -853,14 +875,14 @@ describe('reconcile against a fake GitHub API', () => {
       expect(creates).toEqual([]);
     });
 
-    it('stays queued when the PASS was on an old green head and the new head is failing', async () => {
+    it('does not admit an old green PASS when the current head is failing', async () => {
       const { creates, calls } = await idleCreates({
         ...readyRoutes([passFor(OLD_HEAD)]),
         ...checksFor(HEAD, failingRuns),
         ...checksFor(OLD_HEAD, greenRuns),
       });
-      expect(creates).toHaveLength(1);
-      expect(calls.some((call) => call.path === `/commits/${OLD_HEAD}/check-runs`)).toBe(true);
+      expect(creates).toHaveLength(0);
+      expect(calls.some((call) => call.path === `/commits/${OLD_HEAD}/check-runs`)).toBe(false);
     });
 
     it('is not queued when the only PASS head is old and was itself failing', async () => {
@@ -1027,11 +1049,11 @@ describe('checks-green', () => {
     expect(() => checksGreenVerdict('{"name": "verify"')).toThrow(/Unreadable/);
   });
 
-  it('prints exactly one word on stdout via the CLI and exits non-zero on empty or unreadable input', () => {
+  it('rejects historical hosted-check CLI input as readiness evidence', () => {
     const cli = (input: string, args: string[] = []) =>
       spawnSync('node', ['scripts/owner-attention.mjs', 'checks-green', ...args], { input, encoding: 'utf8' });
-    expect(cli(ndjson(green))).toMatchObject({ status: 0, stdout: 'green\n' });
-    expect(cli(ndjson([run(1, 'verify', 'failure')]))).toMatchObject({ status: 0, stdout: 'not-green\n' });
+    expect(cli(ndjson(green))).toMatchObject({ status: 1, stdout: '' });
+    expect(cli(ndjson([run(1, 'verify', 'failure')]))).toMatchObject({ status: 1, stdout: '' });
     for (const input of ['', '  \n', '[]', 'garbage']) {
       const bad = cli(input);
       expect(bad.status).not.toBe(0);
@@ -1051,8 +1073,8 @@ describe('checks-green', () => {
       await writeFile(failing, JSON.stringify({ state: 'failure', statuses: [{ context: 'ci/legacy', state: 'failure' }] }));
       await writeFile(passing, JSON.stringify({ state: 'success', statuses: [{ context: 'ci/legacy', state: 'success' }] }));
       await writeFile(broken, 'not json');
-      expect(cli(['--status-file', failing])).toMatchObject({ status: 0, stdout: 'not-green\n' });
-      expect(cli(['--status-file', passing])).toMatchObject({ status: 0, stdout: 'green\n' });
+      expect(cli(['--status-file', failing])).toMatchObject({ status: 1, stdout: '' });
+      expect(cli(['--status-file', passing])).toMatchObject({ status: 1, stdout: '' });
       for (const args of [['--status-file', join(dir, 'missing.json')], ['--status-file', broken], ['--status-file']]) {
         const bad = cli(args);
         expect(bad.status).not.toBe(0);

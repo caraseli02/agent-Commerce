@@ -3,9 +3,18 @@ import { readFile, lstat } from 'node:fs/promises';
 import { trustedPath } from './config.mjs';
 
 export class GitHub {
-  constructor({ repository, appId, installationId, privateKeyPath, api = 'https://api.github.com', tokenProvider, publisherId }) {
+  constructor({
+    repository,
+    appId,
+    installationId,
+    privateKeyPath,
+    api = 'https://api.github.com',
+    tokenProvider,
+    publisherId,
+    notifications = false,
+  }) {
     if (!/^[\w.-]+\/[\w.-]+$/.test(repository)) throw new Error('Invalid repository');
-    Object.assign(this, { repository, appId, installationId, privateKeyPath, api, tokenProvider, publisherId });
+    Object.assign(this, { repository, appId, installationId, privateKeyPath, api, tokenProvider, publisherId, notifications });
   }
   async token() {
     if (this.tokenProvider) return this.tokenProvider();
@@ -23,7 +32,10 @@ export class GitHub {
     const response = await this.request(`/app/installations/${encodeURIComponent(this.installationId)}/access_tokens`, {
       method: 'POST',
       token: jwt,
-      data: { repositories: [this.repository.split('/')[1]], permissions: { contents: 'read', pull_requests: 'read', statuses: 'write' } },
+      data: {
+        repositories: [this.repository.split('/')[1]],
+        permissions: { contents: 'read', pull_requests: 'read', statuses: 'write', ...(this.notifications ? { issues: 'write' } : {}) },
+      },
     });
     const publisher = await this.request(`/users/${encodeURIComponent(`${app.slug}[bot]`)}`, { token: response.token });
     if (publisher.type !== 'Bot' || !Number.isSafeInteger(publisher.id)) throw new Error('GitHub App bot identity unavailable');
@@ -57,6 +69,26 @@ export class GitHub {
   }
   repo(path, options) {
     return this.request(`/repos/${this.repository}${path}`, options);
+  }
+  async list(path) {
+    const result = [];
+    for (let page = 1; ; page++) {
+      const rows = await this.repo(`${path}${path.includes('?') ? '&' : '?'}per_page=100&page=${page}`);
+      if (!Array.isArray(rows)) throw new Error('Malformed GitHub collection');
+      result.push(...rows);
+      if (rows.length < 100) return result;
+    }
+  }
+  async published(job) {
+    await this.token();
+    const statuses = await this.list(`/commits/${job.head}/statuses`);
+    const latest = statuses.find((s) => s.context === 'local-ci/verify');
+    const spec = JSON.parse(job.spec);
+    return (
+      latest?.creator?.id === this.publisherId &&
+      latest?.state === 'success' &&
+      latest?.description === `${job.id.slice(0, 8)} base:${job.base.slice(0, 10)} policy:${spec.policy.slice(0, 10)} success`
+    );
   }
   async prs() {
     const result = [];

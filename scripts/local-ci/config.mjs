@@ -46,15 +46,49 @@ export async function loadConfig(path) {
     'service.mjs',
     'vm.swift',
     'guest-run.mjs',
+    'evidence.mjs',
+    'readiness.mjs',
+    'attention.mjs',
+    '../owner-attention.mjs',
+    '../../.factory/factory.yaml',
     '../check-pr-template.mjs',
   ]) {
     await trustedPath(join(release, name));
     code.push(await fileDigest(join(release, name)));
   }
   cfg.policy = createHash('sha256')
-    .update(JSON.stringify([code, ['kernel', 'initrd', 'image', 'vmBinary'].map((f) => cfg[f].sha256), 'networkless-vz-full-fresh-v1']))
+    .update(
+      JSON.stringify([
+        code,
+        ['kernel', 'initrd', 'image', 'vmBinary'].map((f) => cfg[f].sha256),
+        [cfg.repository, cfg.appId, cfg.installationId, cfg.notifications === true],
+        'networkless-vz-full-fresh-v2',
+      ]),
+    )
     .digest('hex');
+  cfg.operationalProof = await readOperationalProof(cfg);
+  if (!cfg.evidenceSocket || !isAbsolute(cfg.evidenceSocket)) throw new Error('Missing absolute read-only evidence socket');
+  if (cfg.notifications !== undefined && typeof cfg.notifications !== 'boolean') throw new Error('Invalid notification activation setting');
   return cfg;
+}
+export async function readOperationalProof(cfg) {
+  if (!cfg.operationalProofPath) return false;
+  try {
+    await trustedPath(cfg.operationalProofPath);
+    const proof = JSON.parse(await readFile(cfg.operationalProofPath, 'utf8'));
+    return (
+      proof.version === 1 &&
+      proof.policy === cfg.policy &&
+      proof.acceptedBy === 'caraseli02' &&
+      Number.isFinite(Date.parse(proof.acceptedAt)) &&
+      ['isolation', 'cleanup', 'publication', 'reboot', 'notificationDelivery'].every(
+        (key) => typeof proof.evidence?.[key] === 'string' && proof.evidence[key].trim().length > 0,
+      )
+    );
+  } catch (error) {
+    if (error.code === 'ENOENT') return false;
+    throw error;
+  }
 }
 export async function capacity(path) {
   const fs = await statfs(path);

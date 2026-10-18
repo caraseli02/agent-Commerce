@@ -263,3 +263,11 @@ A useful failure message says:
 - Run `pnpm smoke` against `pnpm dev` to verify the core routes load without crashing.
 - v1 smoke matrix: homepage (`/`) plus one representative product or gallery route selected from `pages/`.
 - Use this broad smoke at delivery when required by the full gate. During repairs, exercise only the affected route/flow and its relevant consumers.
+
+## Phase 2 independent CI evidence
+
+Standalone CI replaces disabled Actions as the acceptance provider only after the owner completes the watched rollout in [local-ci.md](local-ci.md). Existing local build/lint/typecheck/coverage and runtime checks remain mandatory. The operator-installed immutable `/Library/AgentCommerceCI/bin/evidence PR_NUMBER` command returns current head, actual base ref tip, policy, metadata, cleaned synthetic-merge result, template outcome, authenticated status publication and fresh coordinator/supervisor health. The reader validates root-owned configuration, socket owner and directory permissions. A green `local-ci/verify` string, Vercel, user-owned JSON, or old receipt cannot waive this boundary.
+
+Before an evaluator PASS require `checks.state=success` and perform the independent exact-head source/runtime review. The reply's `readiness.ready` additionally requires the independent report, so read it again before readiness/queue transitions. Unknown/conflicting mergeability, change requests, missing protected-path authorization, missing owner-approved operational proof or health older than 120 seconds blocks acceptance. Both builders use the same live decision; historical queue identity is not current readiness.
+
+Software regression fixtures include changed head/base/policy/body/labels, stale/future timestamps, missing cleanup, forged publication, self-review, contradictory reports, payment exceptions and lost notification responses across SQLite restart. These tests do not prove guest isolation, live App delivery or reboot recovery. Activation remains separately gated and unperformed.
