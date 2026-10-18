@@ -35,30 +35,37 @@ export class Attention {
   async deliver(active, { cancelInactive = true } = {}) {
     await this.github.token();
     if (!Number.isSafeInteger(this.github.publisherId)) throw new Error('Notification App identity unavailable');
+    const errors = [];
     for (const row of this.store.db.prepare("SELECT * FROM attention WHERE state='pending'").all()) {
       if (!active.has(row.key)) {
         if (cancelInactive) this.store.db.prepare("UPDATE attention SET state='cancelled' WHERE key=?").run(row.key);
         continue;
       }
-      if (!(await this.beforeSend(row))) {
-        this.store.db.prepare("UPDATE attention SET state='cancelled' WHERE key=?").run(row.key);
-        continue;
+      try {
+        if (!(await this.beforeSend(row))) {
+          this.store.db.prepare("UPDATE attention SET state='cancelled' WHERE key=?").run(row.key);
+          continue;
+        }
+        const comments = await this.github.list(`/issues/${row.pr}/comments`);
+        let receipt = comments.find((c) => c.user?.id === this.github.publisherId && c.body?.startsWith(marker(row.key)));
+        receipt ??= await this.github.repo(`/issues/${row.pr}/comments`, { method: 'POST', data: { body: row.body } });
+        if (receipt.user?.id !== this.github.publisherId || !receipt.id || !receipt.html_url || !receipt.body?.startsWith(marker(row.key)))
+          throw new Error('App notification delivery not confirmed');
+        this.store.db.prepare("UPDATE attention SET state='delivered',delivery=? WHERE key=?").run(
+          JSON.stringify({
+            id: receipt.id,
+            url: receipt.html_url,
+            publisherId: this.github.publisherId,
+            observedAt: new Date().toISOString(),
+          }),
+          row.key,
+        );
+      } catch (error) {
+        // Keep this intent pending, but do not starve unrelated recipients.
+        errors.push(error);
       }
-      const comments = await this.github.list(`/issues/${row.pr}/comments`);
-      let receipt = comments.find((c) => c.user?.id === this.github.publisherId && c.body?.startsWith(marker(row.key)));
-      receipt ??= await this.github.repo(`/issues/${row.pr}/comments`, { method: 'POST', data: { body: row.body } });
-      if (receipt.user?.id !== this.github.publisherId || !receipt.id || !receipt.html_url || !receipt.body?.startsWith(marker(row.key)))
-        throw new Error('App notification delivery not confirmed');
-      this.store.db.prepare("UPDATE attention SET state='delivered',delivery=? WHERE key=?").run(
-        JSON.stringify({
-          id: receipt.id,
-          url: receipt.html_url,
-          publisherId: this.github.publisherId,
-          observedAt: new Date().toISOString(),
-        }),
-        row.key,
-      );
     }
+    if (errors.length) throw new AggregateError(errors, errors.map((error) => error.message).join('; '));
   }
   async reconcile({ prs, results, config }) {
     const active = new Set();

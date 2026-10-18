@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile, mkdir, rm, readdir, stat, writeFile } from 'node:fs/promises';
+import { readFile, mkdir, rm, readdir, stat, writeFile, rename } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadConfig, readOperationalProof } from './config.mjs';
@@ -25,6 +25,7 @@ export async function startCoordinator(cfg) {
   let recovered = false;
   let coordinatorError = 'Starting';
   let workerError = null;
+  let notificationError = null;
   let health = { ok: false, error: coordinatorError };
   let healthWrite = Promise.resolve();
   let delay = 60_000;
@@ -75,13 +76,20 @@ export async function startCoordinator(cfg) {
   });
   const publishHealth = () => {
     const error = coordinatorError ?? workerError;
-    const snapshot = { ok: error === null, policy: cfg.policy, ...(error === null ? {} : { error }), observedAt: new Date().toISOString() };
+    const snapshot = {
+      ok: error === null,
+      policy: cfg.policy,
+      ...(error === null ? {} : { error }),
+      observedAt: new Date().toISOString(),
+      notifications: { ok: notificationError === null, ...(notificationError === null ? {} : { error: notificationError }) },
+    };
     health = snapshot;
     // Both loops publish health. Preserve observation order on disk and in the outbox.
     healthWrite = healthWrite
       .catch(() => {})
       .then(async () => {
-        await writeFile(join(cfg.stateRoot, 'health.json'), JSON.stringify(snapshot), { mode: 0o600 });
+        await writeFile(join(cfg.stateRoot, 'health.json.tmp'), JSON.stringify(snapshot), { mode: 0o600 });
+        await rename(join(cfg.stateRoot, 'health.json.tmp'), join(cfg.stateRoot, 'health.json'));
         if (attention) await attention.observeHealth(snapshot, cfg.policy).catch(() => {}); // Intent survives network loss.
       });
     return healthWrite;
@@ -111,16 +119,29 @@ export async function startCoordinator(cfg) {
         await rm(join(cfg.stateRoot, name));
       }
       await coordinator.publish();
-      coordinatorError = null;
-      await publishHealth();
+      let prs = [];
+      const results = [];
       if (attention) {
-        const prs = await github.prs();
-        const results = [];
+        prs = await github.prs();
         for (const pr of prs) {
           const evidence = await evidenceFor(pr.number);
           results.push({ pr: evidence.pr, evidence, readiness: evidence.readiness });
         }
-        await attention.reconcile({ prs, results, config });
+      }
+      // Evidence collection is part of a complete coordinator iteration. Never
+      // close its outage before the operations which can fail have completed.
+      coordinatorError = null;
+      await publishHealth();
+      if (attention) {
+        try {
+          await attention.reconcile({ prs, results, config });
+          notificationError = null;
+        } catch (error) {
+          // Delivery/discovery of owner notices is independently retryable. It
+          // cannot revoke verified CI or prevent workers from executing jobs.
+          notificationError = error.message;
+        }
+        await publishHealth();
       }
       // Polling remains independent while a single worker job is in progress.
       delay = 60_000;
@@ -139,9 +160,14 @@ export async function startCoordinator(cfg) {
     }
   };
   let working = false;
+  let workerDone = Promise.resolve();
   const workerTimer = setInterval(async () => {
     if (stopping || !recovered || working || coordinatorError !== null) return;
     working = true;
+    let finishWorker;
+    workerDone = new Promise((resolve) => {
+      finishWorker = resolve;
+    });
     try {
       if (store.jobs().some((job) => job.state === 'cleaning')) await coordinator.recover();
       await coordinator.execute();
@@ -159,6 +185,7 @@ export async function startCoordinator(cfg) {
       await recordFailure('worker', error);
     } finally {
       working = false;
+      finishWorker();
     }
   }, 1000);
   cycleDone = cycle();
@@ -170,10 +197,11 @@ export async function startCoordinator(cfg) {
       clearTimeout(timer);
       clearInterval(workerTimer);
       await cycleDone;
+      await workerDone;
+      await healthWrite;
       await new Promise((resolve) => server.close(resolve));
       await new Promise((resolve) => evidenceServer.close(resolve));
-      // A running job is recovered through the separate supervisor after restart.
-      if (!working) store.close();
+      store.close();
     },
   };
 }

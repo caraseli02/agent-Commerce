@@ -155,6 +155,10 @@ Copy `deploy/reader.example.json` to a root-owned immutable `/Library/AgentComme
 
 For App-bot notifications, separately approve the App's Issues write permission and `notifications:true` in the root-owned service config. No repository-write, Actions or admin permission is added. Changing App identity, notification activation, code or pinned assets changes policy and invalidates older proof. Use the existing open issue configured by `attentionIssue` for queue/outage notices; no automatic issue closing. The coordinator persists message intent and delivery receipts in SQLite. Before acceptance, run the approved canary through `service.mjs notify-canary CONFIG ISSUE_NUMBER`, record the actual App comment URL/ID, and have Vlad verify that its mention reached his inbox. A POST response alone does not prove inbox receipt.
 
+Coordinator health recovers only after discovery, publication and evidence collection complete. Worker failures clear only after a complete successful worker iteration. Owner-notification reconciliation and delivery have their own `notifications.ok` / `notifications.error` diagnostic in both health sockets and `health.json`; a notification outage alone neither invalidates CI acceptance health nor stops worker dispatch. Failed delivery intents remain pending, and unrelated recipients are still attempted. Health is refreshed after reconciliation so its duration is included in the observation time; stalled coordinator work still expires under the existing freshness bound.
+
+**Pre-activation gate:** the mode-0666 read socket currently performs live GitHub work for each evidence request. Before activation, implement and verify bounded request/API consumption for untrusted local clients, without weakening current head/base/policy/metadata checks or the 120-second freshness limit. This remains deferred hardening for inactive source, not authorization to activate the socket or a cache that accepts stale success.
+
 Only after the watched guest isolation, teardown, real status publication, restart/reboot and notification receipt tests pass may the operator create root-owned `operational-proof.json`:
 
 ```json

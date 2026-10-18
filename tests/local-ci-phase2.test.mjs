@@ -10,7 +10,8 @@ import { assessEvidence, metadataDigest, collectEvidence, readTrustedEvidence } 
 import { localReadiness } from '../scripts/local-ci/readiness.mjs';
 import { Attention } from '../scripts/local-ci/attention.mjs';
 import { startCoordinator } from '../scripts/local-ci/service.mjs';
-import { listen, rpc } from '../scripts/local-ci/worker.mjs';
+import { Coordinator } from '../scripts/local-ci/coordinator.mjs';
+import { listen, rpc, WorkerClient } from '../scripts/local-ci/worker.mjs';
 
 const repository = 'caraseli02/agent-Commerce';
 const policy = 'a'.repeat(64);
@@ -347,6 +348,151 @@ test('unreadable linked-issue provenance is a named readiness prerequisite', asy
   const result = await localReadiness({ github, pr: p, evidence: receipt(p), repository, policy, config, owner: 'caraseli02' });
   assert.equal(result.ready, false);
   assert(result.reasons.some((reason) => reason.includes('builder provenance unavailable: /issues/1: HTTP 404')));
+});
+
+async function coordinatorFixture(t, { list, repo } = {}) {
+  const realTimeout = globalThis.setTimeout;
+  t.mock.method(globalThis, 'setTimeout', (fn, ms, ...args) => realTimeout(fn, ms >= 60_000 ? 50 : ms, ...args));
+  const dir = await mkdtemp(join(tmpdir(), 'ci-cycle-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const worker = await listen(join(dir, 'w'), () => ({ cleaned: true, busy: false, blocked: false }));
+  t.after(() => new Promise((resolve) => worker.close(resolve)));
+  const cfg = {
+    stateRoot: dir,
+    coordinatorSocket: join(dir, 'c'),
+    evidenceSocket: join(dir, 'e'),
+    workerSocket: join(dir, 'w'),
+    repository,
+    policy,
+    notifications: true,
+    attentionIssue: 2,
+    tokenProvider: async () => 'fixture',
+    publisherId: 7,
+  };
+  const comments = [];
+  t.mock.method(GitHub.prototype, 'list', list ?? (async (path) => (path.includes('/comments') ? comments : [])));
+  t.mock.method(
+    GitHub.prototype,
+    'repo',
+    repo ??
+      (async (path, { data }) => {
+        const comment = {
+          id: comments.length + 1,
+          html_url: `https://github.test/${comments.length + 1}`,
+          user: { id: 7 },
+          body: data.body,
+        };
+        comments.push(comment);
+        return comment;
+      }),
+  );
+  let cycles = 0;
+  t.mock.method(Coordinator.prototype, 'discover', async () => {
+    cycles++;
+  });
+  const service = await startCoordinator(cfg);
+  t.after(() => service.stop());
+  const until = async (predicate, message) => {
+    const deadline = Date.now() + 6000;
+    while (!(await predicate())) {
+      assert(Date.now() < deadline, message);
+      await new Promise((resolve) => realTimeout(resolve, 20));
+    }
+  };
+  return { cfg, service, comments, until, cycles: () => cycles, health: () => rpc(cfg.evidenceSocket, '/health') };
+}
+
+for (const failure of ['PR discovery', 'supervisor health'])
+  test(`persistent ${failure} failures form one outage until a complete coordinator recovery`, async (t) => {
+    let fail = true;
+    if (failure === 'PR discovery') {
+      t.mock.method(GitHub.prototype, 'prs', async () => {
+        if (fail) throw new Error('Evidence discovery unavailable');
+        return [];
+      });
+    } else {
+      t.mock.method(GitHub.prototype, 'prs', async () => [pr()]);
+      t.mock.method(GitHub.prototype, 'pr', async () => pr());
+      t.mock.method(WorkerClient.prototype, 'health', async () => {
+        if (fail) throw new Error('Supervisor socket unavailable');
+        return { busy: false, blocked: false };
+      });
+    }
+    const fixture = await coordinatorFixture(t);
+    const { until, health, comments, cycles } = fixture;
+    const outages = () => comments.filter((c) => c.body.includes('local-ci-unhealthy:'));
+    await until(() => cycles() >= 4, 'Persistent evidence failure must be retried across coordinator cycles');
+    assert.equal(outages().length, 1, 'One persistent coordinator failure must produce one outage notice');
+    assert.equal((await health()).ok, false);
+    fail = false;
+    await until(async () => (await health()).ok, 'A full successful coordinator cycle must recover health');
+    await until(
+      () =>
+        JSON.parse(fixture.service.store.db.prepare('SELECT value FROM meta WHERE key=?').get(`attention:ci-unhealthy:${policy}`).value)
+          .active === false,
+      'Persisted recovery must close the first episode',
+    );
+    fail = true;
+    const start = cycles();
+    await until(() => cycles() >= start + 4, 'Second persistent outage must be retried');
+    assert.equal((await health()).ok, false);
+    assert.equal(outages().length, 2, 'Only an actual coordinator recovery may open a new outage episode');
+  });
+
+test('notification failures remain visible without poisoning acceptance health or stopping worker dispatch', async (t) => {
+  t.mock.method(GitHub.prototype, 'prs', async () => []);
+  let fail = true;
+  const { cfg, service, until, health, cycles } = await coordinatorFixture(t, {
+    list: async (path) => {
+      if (path === '/issues?state=open') return [{ number: 3, title: 'Blocked', body: '', labels: [{ name: 'blocked' }] }];
+      return [];
+    },
+    repo: async (path, { data }) => {
+      if (fail) throw new Error('Notification POST unavailable');
+      return { id: 1, html_url: 'https://github.test/1', user: { id: 7 }, body: data.body };
+    },
+  });
+  let workers = 0;
+  const prune = service.store.prune.bind(service.store);
+  service.store.prune = () => {
+    workers++;
+    return prune();
+  };
+  await until(() => cycles() >= 4, 'Notification outage must not stop coordinator polling');
+  assert.equal((await health()).ok, true, 'Notification failure must not invalidate successful CI acceptance health');
+  await until(() => workers >= 2, 'Notification failure must not stop actual worker iterations');
+  const snapshot = JSON.parse(await readFile(join(cfg.stateRoot, 'health.json'), 'utf8'));
+  assert.equal(snapshot.notifications.ok, false);
+  assert.match(snapshot.notifications.error, /Notification POST unavailable/);
+  assert.equal((await rpc(cfg.coordinatorSocket, '/health')).notifications.ok, false);
+  fail = false;
+  await until(async () => (await health()).notifications.ok, 'Notification recovery must clear its own diagnostic');
+});
+
+test('one failed notification leaves its intent pending while unrelated notices are delivered', async () => {
+  const store = new Store(':memory:');
+  try {
+    const delivered = [];
+    const github = {
+      publisherId: 7,
+      token: async () => 'fixture',
+      list: async () => [],
+      repo: async (path, { data }) => {
+        if (path.includes('/issues/1/')) throw new Error('First recipient unavailable');
+        delivered.push(data.body);
+        return { id: 1, html_url: 'https://github.test/1', user: { id: 7 }, body: data.body };
+      },
+    };
+    const attention = new Attention({ store, github, owner: 'caraseli02', issue: 2 });
+    const first = attention.enqueue('first', 1, 'First', 'one');
+    const second = attention.enqueue('second', 2, 'Second', 'two');
+    await assert.rejects(attention.deliver(new Set([first, second])), /First recipient unavailable/);
+    assert.equal(delivered.length, 1, 'A failed notice must not starve unrelated recipients');
+    assert.equal(store.db.prepare('SELECT state FROM attention WHERE key=?').get(first).state, 'pending');
+    assert.equal(store.db.prepare('SELECT state FROM attention WHERE key=?').get(second).state, 'delivered');
+  } finally {
+    store.close();
+  }
 });
 
 test('persistent worker failures stay unhealthy across coordinator cycles and notify once until worker recovery', async (t) => {
