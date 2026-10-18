@@ -7,7 +7,7 @@ import { Store } from './store.mjs';
 import { GitHub } from './github.mjs';
 import { Coordinator } from './coordinator.mjs';
 import { WorkerClient, Supervisor, listen, rpc } from './worker.mjs';
-import { collectEvidence, readTrustedEvidence } from './evidence.mjs';
+import { collectEvidence, readTrustedEvidence, publicEvidenceHandler } from './evidence.mjs';
 import { localReadiness } from './readiness.mjs';
 import { Attention } from './attention.mjs';
 import { parseFactoryConfig } from '../owner-attention.mjs';
@@ -54,15 +54,15 @@ export async function startCoordinator(cfg) {
       return current.readiness.ready && current.job === row.context;
     };
   // Separate socket, GET only; no source, credentials, logs, retry or mutation API.
+  const publicEvidence = publicEvidenceHandler(evidenceFor);
   const evidenceServer = await listen(
     cfg.evidenceSocket,
     async (method, path) => {
       if (method === 'GET' && path === '/health') return health;
-      const match = path.match(/^\/evidence\/([1-9][0-9]*)$/);
-      if (method !== 'GET' || !match) throw new Error('Read-only evidence endpoint');
-      return evidenceFor(Number(match[1]));
+      return publicEvidence(method, path);
     },
     0o666,
+    { readOnly: true },
   );
   const server = await listen(cfg.coordinatorSocket, async (method, path, body) => {
     if (method === 'GET' && path === '/health') return health;

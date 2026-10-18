@@ -1,6 +1,7 @@
 import { createPrivateKey, sign } from 'node:crypto';
 import { readFile, lstat } from 'node:fs/promises';
 import { trustedPath } from './config.mjs';
+import { evidenceApiSignal } from './evidence.mjs';
 
 export class GitHub {
   constructor({
@@ -44,9 +45,10 @@ export class GitHub {
     return this.cached.token;
   }
   async request(path, { method = 'GET', data, token } = {}) {
+    const publicSignal = evidenceApiSignal();
     const response = await fetch(`${this.api}${path}`, {
       method,
-      signal: AbortSignal.timeout(30_000),
+      signal: publicSignal ? AbortSignal.any([publicSignal, AbortSignal.timeout(30_000)]) : AbortSignal.timeout(30_000),
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${token ?? (await this.token())}`,

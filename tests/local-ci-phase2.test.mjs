@@ -3,10 +3,16 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createServer } from 'node:http';
+import { createServer, request } from 'node:http';
 import { Store } from '../scripts/local-ci/store.mjs';
 import { GitHub } from '../scripts/local-ci/github.mjs';
-import { assessEvidence, metadataDigest, collectEvidence, readTrustedEvidence } from '../scripts/local-ci/evidence.mjs';
+import {
+  assessEvidence,
+  metadataDigest,
+  collectEvidence,
+  readTrustedEvidence,
+  publicEvidenceHandler,
+} from '../scripts/local-ci/evidence.mjs';
 import { localReadiness } from '../scripts/local-ci/readiness.mjs';
 import { Attention } from '../scripts/local-ci/attention.mjs';
 import { startCoordinator } from '../scripts/local-ci/service.mjs';
@@ -56,6 +62,105 @@ const config = {
     { pattern: 'server/api/payments/**', group: 'payments' },
   ],
 };
+
+test('public evidence admission bounds bursts across PRs, recovers and never caches context', async () => {
+  let now = 0;
+  let finish;
+  let calls = 0;
+  let currentHead = head;
+  const handler = publicEvidenceHandler(
+    async (number) => {
+      calls++;
+      if (number === 1)
+        await new Promise((resolve) => {
+          finish = resolve;
+        });
+      return { number, head: currentHead };
+    },
+    () => now,
+  );
+  const first = handler('GET', '/evidence/1');
+  await handler('GET', '/evidence/2');
+  await assert.rejects(handler('GET', '/evidence/3'), /Evidence request limit/);
+  assert.equal(calls, 2, 'Rejected work must not reach GitHub or supervisor');
+  now = 15000;
+  currentHead = 'e'.repeat(40);
+  assert.equal((await handler('GET', '/evidence/2')).head, currentHead);
+  finish();
+  await first;
+  await assert.rejects(handler('GET', '/evidence/3'), /Evidence request limit/);
+  now += 15000;
+  assert.equal((await handler('GET', '/evidence/3')).number, 3);
+  for (const path of ['/evidence/0', '/evidence/9007199254740992', '/evidence/1?x=1', '/request'])
+    await assert.rejects(handler('GET', path), /Read-only evidence endpoint/);
+});
+
+test('public evidence bounds concurrent work even when time replenishes admission', async () => {
+  let now = 0;
+  const releases = [];
+  const handler = publicEvidenceHandler(
+    () => new Promise((resolve) => releases.push(resolve)),
+    () => now,
+  );
+  const first = handler('GET', '/evidence/1');
+  const second = handler('GET', '/evidence/2');
+  now = 60000;
+  await assert.rejects(handler('GET', '/evidence/3'), /Evidence request limit/);
+  assert.equal(releases.length, 2);
+  releases.forEach((resolve) => resolve({}));
+  await Promise.all([first, second]);
+});
+
+test('public evidence caps paginated API work and releases failed slots', async (t) => {
+  let calls = 0;
+  t.mock.method(globalThis, 'fetch', async () => {
+    calls++;
+    return { ok: true, status: 200, json: async () => Array(100).fill({}) };
+  });
+  const github = new GitHub({ repository, tokenProvider: async () => 'fixture' });
+  let now = 0;
+  const handler = publicEvidenceHandler(
+    () => github.list('/issues/1/comments'),
+    () => now,
+  );
+  await assert.rejects(handler('GET', '/evidence/1'), /Evidence API budget/);
+  assert.equal(calls, 40, 'Pagination cannot consume an unbounded API budget');
+  now = 15000;
+  await assert.rejects(handler('GET', '/evidence/2'), /Evidence API budget/);
+  assert.equal(calls, 80, 'A failed request releases its slot while retaining its rate cost');
+});
+
+test('read-only socket rejects methods and request bodies before evidence work', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'ci-read-limits-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  let calls = 0;
+  const socketPath = join(dir, 'e');
+  const server = await listen(
+    socketPath,
+    () => {
+      calls++;
+      return {};
+    },
+    0o666,
+    { readOnly: true },
+  );
+  t.after(() => new Promise((resolve) => server.close(resolve)));
+  const send = (method, headers = {}, body) =>
+    new Promise((resolve, reject) => {
+      const req = request({ socketPath, path: '/evidence/1', method, headers }, (res) => {
+        res.resume();
+        res.on('end', () => resolve(res.statusCode));
+      });
+      req.on('error', reject);
+      req.end(body);
+    });
+  assert.equal(await send('POST'), 503);
+  assert.equal(await send('GET', { 'Content-Length': '1' }, 'x'), 503);
+  assert.equal(await send('GET', { 'Transfer-Encoding': 'chunked' }, 'x'), 503);
+  assert.equal(calls, 0);
+  assert.equal(await send('GET'), 200);
+  assert.equal(calls, 1);
+});
 
 test('green status alone is insufficient; full current healthy receipt is required', () => {
   const p = pr();

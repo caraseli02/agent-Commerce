@@ -3,10 +3,46 @@
 import { lstat, readFile, realpath } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { request } from 'node:http';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { trustedPath } from './config.mjs';
 import { contextKey, digest } from './store.mjs';
 
 export const READER_CONFIG = '/Library/AgentCommerceCI/reader.json';
+const publicRequest = new AsyncLocalStorage();
+
+// Global admission, not per PR or client identity. There is no successful-result
+// cache: every admitted read still validates live context and operational proof.
+export function publicEvidenceHandler(evidenceFor, clock = () => performance.now()) {
+  let tokens = 2;
+  let updated = clock();
+  let active = 0;
+  return async (method, path) => {
+    const match = path.match(/^\/evidence\/([1-9][0-9]*)$/);
+    const number = Number(match?.[1]);
+    if (method !== 'GET' || !match || !Number.isSafeInteger(number)) throw new Error('Read-only evidence endpoint');
+    const now = clock();
+    tokens = Math.min(2, tokens + Math.max(0, now - updated) / 15000);
+    updated = now;
+    if (active >= 2 || tokens < 1) throw new Error('Evidence request limit; retry later');
+    tokens--;
+    active++;
+    try {
+      return await publicRequest.run({ remaining: 40, signal: AbortSignal.timeout(15000) }, () => evidenceFor(number));
+    } finally {
+      active--;
+    }
+  };
+}
+
+// Called at the actual HTTP boundary, including pagination and App token work.
+// Private coordinator work has no public-request context or public budget.
+export function evidenceApiSignal() {
+  const scope = publicRequest.getStore();
+  if (!scope) return undefined;
+  scope.signal.throwIfAborted();
+  if (scope.remaining-- <= 0) throw new Error('Evidence API budget exhausted');
+  return scope.signal;
+}
 export const metadataDigest = (pr) => digest([pr.body, pr.labels.map((l) => l.name).sort()]);
 export const fresh = (time, now = Date.now()) =>
   Number.isFinite(Date.parse(time)) && now - Date.parse(time) >= 0 && now - Date.parse(time) <= 120_000;

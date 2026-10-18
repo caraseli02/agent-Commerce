@@ -11,7 +11,7 @@ export function validateSpec(spec) {
   if (!uuid.test(spec.id) || !sha.test(spec.head) || !sha.test(spec.base) || !/^[a-f0-9]{64}$/.test(spec.policy))
     throw new Error('Invalid worker job identity');
 }
-export function rpc(socketPath, path, data) {
+export function rpc(socketPath, path, data, timeout = 50 * 60_000) {
   return new Promise((resolve, reject) => {
     const req = request(
       {
@@ -19,7 +19,7 @@ export function rpc(socketPath, path, data) {
         path,
         method: data === undefined ? 'GET' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        timeout: 50 * 60_000,
+        timeout,
       },
       (res) => {
         let body = '';
@@ -54,7 +54,7 @@ export class WorkerClient {
     return (await rpc(this.cfg.workerSocket, '/recover')).cleaned === true;
   }
   async health() {
-    return rpc(this.cfg.workerSocket, '/health');
+    return rpc(this.cfg.workerSocket, '/health', undefined, 10_000);
   }
   async run(spec) {
     validateSpec(spec);
@@ -237,7 +237,7 @@ export class Supervisor {
   }
 }
 
-export async function listen(socketPath, handler, mode = 0o600) {
+export async function listen(socketPath, handler, mode = 0o600, { readOnly = false } = {}) {
   // Do not unlink a listening socket and admit a second coordinator/supervisor.
   try {
     await rpc(socketPath, '/health');
@@ -248,8 +248,10 @@ export async function listen(socketPath, handler, mode = 0o600) {
       if (e.code !== 'ENOENT') throw e;
     });
   }
-  const server = createServer(async (req, res) => {
+  const server = createServer({ maxHeaderSize: 8192 }, async (req, res) => {
     try {
+      if (readOnly && (req.method !== 'GET' || req.headers['transfer-encoding'] || Number(req.headers['content-length'] ?? 0) !== 0))
+        throw new Error('Read-only evidence endpoint');
       let body = '';
       for await (const data of req) {
         body += data;
@@ -263,6 +265,14 @@ export async function listen(socketPath, handler, mode = 0o600) {
       res.end(JSON.stringify({ error: error.message }));
     }
   });
+  if (readOnly) {
+    server.maxConnections = 16;
+    server.maxRequestsPerSocket = 1;
+    server.headersTimeout = 2000;
+    server.requestTimeout = 5000;
+    server.keepAliveTimeout = 1;
+    server.setTimeout(20000, (socket) => socket.destroy());
+  }
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(socketPath, resolve);
