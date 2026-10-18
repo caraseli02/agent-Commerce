@@ -70,6 +70,11 @@ export async function startCoordinator(cfg) {
     }
     throw new Error('Unknown coordinator request');
   });
+  const recordFailure = async (error) => {
+    health = { ok: false, error: error.message, observedAt: new Date().toISOString() };
+    await writeFile(join(cfg.stateRoot, 'health.json'), JSON.stringify(health), { mode: 0o600 });
+    if (attention) await attention.observeHealth(health, cfg.policy).catch(() => {}); // Intent persists across auth/network loss.
+  };
   const cycle = async () => {
     if (stopping || busy) return;
     busy = true;
@@ -105,9 +110,7 @@ export async function startCoordinator(cfg) {
       // Polling remains independent while a single worker job is in progress.
       delay = 60_000;
     } catch (error) {
-      health = { ok: false, error: error.message, observedAt: new Date().toISOString() };
-      await writeFile(join(cfg.stateRoot, 'health.json'), JSON.stringify(health), { mode: 0o600 });
-      if (attention) await attention.observeHealth(health, cfg.policy).catch(() => {}); // Intent persists across auth/network loss.
+      await recordFailure(error);
       delay = Math.min(3600_000, Math.max(error.retryMs ?? 0, delay * 2));
     } finally {
       busy = false;
@@ -133,7 +136,7 @@ export async function startCoordinator(cfg) {
       // Log ownership/retention is enforced independently in the supervisor.
       if (removed.length) await writeFile(join(cfg.stateRoot, 'last-prune.json'), JSON.stringify(removed));
     } catch (error) {
-      health = { ok: false, error: error.message, observedAt: new Date().toISOString() };
+      await recordFailure(error);
     } finally {
       working = false;
     }

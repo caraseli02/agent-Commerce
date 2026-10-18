@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
@@ -9,6 +9,8 @@ import { GitHub } from '../scripts/local-ci/github.mjs';
 import { assessEvidence, metadataDigest, collectEvidence, readTrustedEvidence } from '../scripts/local-ci/evidence.mjs';
 import { localReadiness } from '../scripts/local-ci/readiness.mjs';
 import { Attention } from '../scripts/local-ci/attention.mjs';
+import { startCoordinator } from '../scripts/local-ci/service.mjs';
+import { listen } from '../scripts/local-ci/worker.mjs';
 
 const repository = 'caraseli02/agent-Commerce';
 const policy = 'a'.repeat(64);
@@ -339,4 +341,58 @@ test('unreadable linked-issue provenance is a named readiness prerequisite', asy
   const result = await localReadiness({ github, pr: p, evidence: receipt(p), repository, policy, config, owner: 'caraseli02' });
   assert.equal(result.ready, false);
   assert(result.reasons.some((reason) => reason.includes('builder provenance unavailable: /issues/1: HTTP 404')));
+});
+
+test('a running coordinator persists and notifies worker-loop failures', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'ci-h-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const comments = [];
+  const api = createServer(async (req, res) => {
+    if (req.method === 'POST') {
+      let body = '';
+      for await (const chunk of req) body += chunk;
+      const comment = {
+        id: comments.length + 1,
+        html_url: `https://github.test/${comments.length + 1}`,
+        user: { id: 7 },
+        body: JSON.parse(body).body,
+      };
+      comments.push(comment);
+      res.end(JSON.stringify(comment));
+    } else res.end(JSON.stringify(req.url.includes('/comments') ? comments : []));
+  });
+  await new Promise((resolve) => api.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise((resolve) => api.close(resolve)));
+  const worker = await listen(join(dir, 'w'), () => ({ cleaned: true, busy: false, blocked: false }));
+  t.after(() => new Promise((resolve) => worker.close(resolve)));
+  const cfg = {
+    stateRoot: dir,
+    coordinatorSocket: join(dir, 'c'),
+    evidenceSocket: join(dir, 'e'),
+    workerSocket: join(dir, 'w'),
+    repository,
+    policy,
+    notifications: true,
+    attentionIssue: 2,
+    tokenProvider: async () => 'fixture',
+    publisherId: 7,
+    api: `http://127.0.0.1:${api.address().port}`,
+  };
+  const coordinator = await startCoordinator(cfg);
+  t.after(() => coordinator.stop());
+  coordinator.store.prune = () => {
+    throw new Error('Worker maintenance failed');
+  };
+  const deadline = Date.now() + 5000;
+  while (!comments.some((c) => c.body.includes('local-ci-unhealthy:'))) {
+    assert(Date.now() < deadline, 'Worker-loop failure did not notify the configured attention issue');
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  const health = JSON.parse(await readFile(join(dir, 'health.json'), 'utf8'));
+  assert.equal(health.ok, false);
+  assert.match(health.error, /Worker maintenance failed/);
+  assert.equal(
+    coordinator.store.db.prepare("SELECT count(*) AS n FROM attention WHERE state='delivered' AND context=?").get(`health:${policy}`).n,
+    1,
+  );
 });
