@@ -26,9 +26,15 @@ export function publicEvidenceHandler(evidenceFor, clock = () => performance.now
     if (active >= 2 || tokens < 1) throw new Error('Evidence request limit; retry later');
     tokens--;
     active++;
+    const controller = new AbortController();
     try {
-      return await publicRequest.run({ remaining: 40, signal: AbortSignal.timeout(15000) }, () => evidenceFor(number));
+      return await publicRequest.run({ remaining: 40, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]) }, () =>
+        evidenceFor(number),
+      );
     } finally {
+      // Promise.all can reject before siblings finish. Cancel their outstanding
+      // GitHub calls before another public request can occupy this slot.
+      controller.abort();
       active--;
     }
   };

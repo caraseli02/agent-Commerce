@@ -248,7 +248,7 @@ export async function listen(socketPath, handler, mode = 0o600, { readOnly = fal
       if (e.code !== 'ENOENT') throw e;
     });
   }
-  const server = createServer({ maxHeaderSize: 8192 }, async (req, res) => {
+  const server = createServer(readOnly ? { maxHeaderSize: 8192, connectionsCheckingInterval: 1000 } : {}, async (req, res) => {
     try {
       if (readOnly && (req.method !== 'GET' || req.headers['transfer-encoding'] || Number(req.headers['content-length'] ?? 0) !== 0))
         throw new Error('Read-only evidence endpoint');

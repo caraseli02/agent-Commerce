@@ -4,6 +4,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer, request } from 'node:http';
+import { createConnection } from 'node:net';
 import { Store } from '../scripts/local-ci/store.mjs';
 import { GitHub } from '../scripts/local-ci/github.mjs';
 import {
@@ -113,9 +114,10 @@ test('public evidence bounds concurrent work even when time replenishes admissio
 
 test('public evidence caps paginated API work and releases failed slots', async (t) => {
   let calls = 0;
+  let rows = Array(100).fill({});
   t.mock.method(globalThis, 'fetch', async () => {
     calls++;
-    return { ok: true, status: 200, json: async () => Array(100).fill({}) };
+    return { ok: true, status: 200, json: async () => rows };
   });
   const github = new GitHub({ repository, tokenProvider: async () => 'fixture' });
   let now = 0;
@@ -128,6 +130,66 @@ test('public evidence caps paginated API work and releases failed slots', async 
   now = 15000;
   await assert.rejects(handler('GET', '/evidence/2'), /Evidence API budget/);
   assert.equal(calls, 80, 'A failed request releases its slot while retaining its rate cost');
+  rows = [];
+  now = 30000;
+  assert.deepEqual(await handler('GET', '/evidence/3'), []);
+  assert.deepEqual(await github.list('/issues/1/comments'), [], 'Private work is not charged to an exhausted public context');
+});
+
+test('public failure cancels sibling API work and newly admitted requests recover', async (t) => {
+  let outstandingSignal;
+  const github = new GitHub({ repository, tokenProvider: async () => 'fixture' });
+  t.mock.method(globalThis, 'fetch', async (_url, { signal }) => {
+    outstandingSignal = signal;
+    return { ok: true, status: 200, json: async () => ({}) };
+  });
+  const handler = publicEvidenceHandler(async (number) => {
+    if (number === 1) {
+      await github.repo('/probe');
+      throw new Error('Sibling failed');
+    }
+    return github.repo('/recovered');
+  });
+  await assert.rejects(handler('GET', '/evidence/1'), /Sibling failed/);
+  assert.equal(outstandingSignal.aborted, true, 'No abandoned API scope may survive a failed public request');
+  assert.deepEqual(await handler('GET', '/evidence/2'), {});
+});
+
+test('public deadline aborts fetch and counts nested App authentication', async (t) => {
+  const timeout = AbortSignal.timeout.bind(AbortSignal);
+  const deadline = new AbortController();
+  t.mock.method(AbortSignal, 'timeout', (ms) => (ms === 15000 ? deadline.signal : timeout(ms)));
+  let entered;
+  const started = new Promise((resolve) => {
+    entered = resolve;
+  });
+  t.mock.method(
+    globalThis,
+    'fetch',
+    async (_url, { signal }) =>
+      new Promise((_resolve, reject) => {
+        entered();
+        signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+      }),
+  );
+  const github = new GitHub({ repository, tokenProvider: async () => 'fixture' });
+  const handler = publicEvidenceHandler(() => github.repo('/deadline'));
+  const read = handler('GET', '/evidence/1');
+  await started;
+  deadline.abort(new Error('deadline fixture'));
+  await assert.rejects(read, /deadline fixture/);
+  t.mock.restoreAll();
+  let calls = 0;
+  let authCalls = 0;
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    calls++;
+    const auth = url.endsWith('/app-auth');
+    if (auth) authCalls++;
+    return { ok: true, status: 200, json: async () => (auth ? { token: 'fixture' } : Array(100).fill({})) };
+  });
+  t.mock.method(github, 'token', async () => (await github.request('/app-auth', { token: 'fixture' })).token);
+  await assert.rejects(publicEvidenceHandler(() => github.list('/issues/1/comments'))('GET', '/evidence/1'), /Evidence API budget/);
+  assert(calls <= 40 && authCalls > 0, 'Nested authentication must consume the same finite HTTP budget');
 });
 
 test('read-only socket rejects methods and request bodies before evidence work', async (t) => {
@@ -160,6 +222,47 @@ test('read-only socket rejects methods and request bodies before evidence work',
   assert.equal(calls, 0);
   assert.equal(await send('GET'), 200);
   assert.equal(calls, 1);
+  assert.equal(await send('GET', { 'X-Oversized': 'x'.repeat(9000) }), 431);
+  assert.equal(calls, 1, 'Oversized headers must never reach evidence collection');
+});
+
+test('public socket caps simultaneous connections and expires incomplete headers', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'ci-read-connections-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const socketPath = join(dir, 'e');
+  const server = await listen(
+    socketPath,
+    () => {
+      throw new Error('Incomplete headers must not reach evidence');
+    },
+    0o666,
+    { readOnly: true },
+  );
+  const sockets = [];
+  t.after(() => {
+    sockets.forEach((socket) => socket.destroy());
+    server.closeAllConnections();
+    return new Promise((resolve) => server.close(resolve));
+  });
+  for (let i = 0; i < 16; i++) {
+    const socket = createConnection(socketPath);
+    sockets.push(socket);
+    socket.on('error', () => {});
+    await new Promise((resolve) => socket.once('connect', resolve));
+    socket.write('GET /evidence/1 HTTP/1.1\r\nHost: unfinished');
+  }
+  const extra = createConnection(socketPath);
+  sockets.push(extra);
+  extra.on('error', () => {});
+  await new Promise((resolve) => extra.once('close', resolve));
+  assert.equal(
+    await new Promise((resolve, reject) => server.getConnections((error, count) => (error ? reject(error) : resolve(count)))),
+    16,
+  );
+  const started = performance.now();
+  sockets[0].resume();
+  await new Promise((resolve) => sockets[0].once('close', resolve));
+  assert(performance.now() - started < 5000, 'Incomplete public headers must expire promptly');
 });
 
 test('green status alone is insufficient; full current healthy receipt is required', () => {
