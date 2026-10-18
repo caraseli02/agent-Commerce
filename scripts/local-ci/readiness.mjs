@@ -4,16 +4,20 @@ import { assessEvidence } from './evidence.mjs';
 // All live callers share this decision. Source review and CI remain separate:
 // evaluators may inspect .checks before publishing their independent verdict.
 export async function localReadiness({ github, pr, evidence, repository, policy, config, owner }) {
-  const [comments, reviews, files, claude] = await Promise.all([
+  const [comments, reviews, files, provenance] = await Promise.all([
     github.list(`/issues/${pr.number}/comments`),
     github.list(`/pulls/${pr.number}/reviews`),
     github.list(`/pulls/${pr.number}/files`),
-    isClaudeBuiltPr({ get: (p) => github.repo(p), paginate: (p) => github.list(p) }, pr),
+    isClaudeBuiltPr({ get: (p) => github.repo(p), paginate: (p) => github.list(p) }, pr)
+      .then((claude) => ({ claude }))
+      .catch((error) => ({ error: `builder provenance unavailable: ${error.message}` })),
   ]);
   const checks = assessEvidence(evidence, { repository, pr, policy });
   const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins: [owner] });
   const result = assessReadiness({ pr, checks, verdict, reviews });
   const reasons = [...result.reasons];
+  if (provenance.error) reasons.push(provenance.error);
+  const claude = provenance.claude;
   if (!['clean', 'unstable', 'has_hooks'].includes(pr.mergeable_state)) reasons.push('mergeability state is unknown or unacceptable');
   if (files.length >= 3000) reasons.push('protected-path diff may be truncated');
   const touched = protectedFilesTouched(files, config.protectedPaths);

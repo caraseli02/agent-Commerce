@@ -283,3 +283,60 @@ test('bot-created issue timestamps do not repeat blocked/queue notices; new epis
   await run();
   assert.equal(posts, 4);
 });
+
+test('outages notify once per episode and notify again after a healthy cycle and restart', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'ci-health-episodes-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const db = join(dir, 'queue');
+  let store = new Store(db);
+  t.after(() => store.close());
+  const comments = [];
+  let unavailable = false;
+  const github = {
+    publisherId: 7,
+    token: async () => {
+      if (unavailable) throw new Error('GitHub unavailable');
+      return 'fixture';
+    },
+    list: async () => comments,
+    repo: async (path, { data }) => {
+      const comment = { id: comments.length + 1, html_url: `https://github.test/${comments.length + 1}`, user: { id: 7 }, body: data.body };
+      comments.push(comment);
+      return comment;
+    },
+  };
+  const observe = (health) => new Attention({ store, github, owner: 'caraseli02', issue: 2 }).observeHealth(health, policy);
+  await observe({ ok: false, error: 'First outage' });
+  await observe({ ok: false, error: 'Same outage, different error' });
+  assert.equal(comments.length, 1);
+  await observe({ ok: true });
+  store.close();
+  store = new Store(db);
+  await observe({ ok: false, error: 'Second outage' });
+  await observe({ ok: false });
+  assert.equal(comments.length, 2);
+  assert.notEqual(comments[0].body, comments[1].body);
+  await observe({ ok: true });
+  unavailable = true;
+  await assert.rejects(observe({ ok: false }), /unavailable/);
+  assert.equal(store.db.prepare("SELECT count(*) AS n FROM attention WHERE state='pending'").get().n, 1);
+  await observe({ ok: true }); // Recovery cancels the undeliverable old outage.
+  unavailable = false;
+  await observe({ ok: false });
+  assert.equal(comments.length, 3);
+});
+
+test('unreadable linked-issue provenance is a named readiness prerequisite', async () => {
+  const p = pr();
+  p.labels = [];
+  p.head.ref = 'codex/issue-1';
+  const github = {
+    list: async () => [],
+    repo: async (path) => {
+      throw new Error(`${path}: HTTP 404`);
+    },
+  };
+  const result = await localReadiness({ github, pr: p, evidence: receipt(p), repository, policy, config, owner: 'caraseli02' });
+  assert.equal(result.ready, false);
+  assert(result.reasons.some((reason) => reason.includes('builder provenance unavailable: /issues/1: HTTP 404')));
+});

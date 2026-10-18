@@ -21,6 +21,17 @@ export class Attention {
     this.store.db.prepare('INSERT OR REPLACE INTO meta VALUES(?,?)').run(key, JSON.stringify({ active, epoch, fingerprint }));
     return `local-${name}:${epoch}`;
   }
+  async observeHealth(health, policy) {
+    const key = this.episode(`ci-unhealthy:${policy}`, health.ok !== true);
+    const context = `health:${policy}`;
+    if (health.ok === true) {
+      this.store.db.prepare("UPDATE attention SET state='cancelled' WHERE context=? AND state='pending'").run(context);
+      return;
+    }
+    if (!Number.isSafeInteger(this.issue)) return;
+    this.enqueue(key, this.issue, 'Local CI has failed; acceptance is blocked. Inspect coordinator health and logs.', context);
+    await this.deliver(new Set([key]));
+  }
   async deliver(active) {
     await this.github.token();
     if (!Number.isSafeInteger(this.github.publisherId)) throw new Error('Notification App identity unavailable');
@@ -49,7 +60,7 @@ export class Attention {
       );
     }
   }
-  async reconcile({ prs, results, config, health }) {
+  async reconcile({ prs, results, config }) {
     const active = new Set();
     const add = (key, number, text, context = key) => active.add(this.enqueue(key, number, text, context));
     for (const { pr, evidence, readiness } of results) {
@@ -94,12 +105,6 @@ export class Attention {
       );
     }
     if (Number.isSafeInteger(this.issue)) {
-      if (!health.ok)
-        add(
-          `local-ci-unhealthy:${digest(health.error ?? 'unavailable')}`,
-          this.issue,
-          `Local CI is unavailable: ${health.error ?? 'unknown health'}. PR acceptance is blocked.`,
-        );
       const queuedNumbers = new Set(results.filter((r) => r.readiness.ready).flatMap((r) => closingIssueNumbers(r.pr.body)));
       const queue = claudeQueueState(issues, {
         neverClaim: config.neverClaim,

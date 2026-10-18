@@ -99,22 +99,15 @@ export async function startCoordinator(cfg) {
           const evidence = await evidenceFor(pr.number);
           results.push({ pr: evidence.pr, evidence, readiness: evidence.readiness });
         }
-        await attention.reconcile({ prs, results, config, health });
+        await attention.reconcile({ prs, results, config });
+        await attention.observeHealth(health, cfg.policy);
       }
       // Polling remains independent while a single worker job is in progress.
       delay = 60_000;
     } catch (error) {
       health = { ok: false, error: error.message, observedAt: new Date().toISOString() };
       await writeFile(join(cfg.stateRoot, 'health.json'), JSON.stringify(health), { mode: 0o600 });
-      if (attention && Number.isSafeInteger(cfg.attentionIssue)) {
-        const key = attention.enqueue(
-          `local-ci-unhealthy:${cfg.policy}`,
-          cfg.attentionIssue,
-          'Local CI has failed; acceptance is blocked. Inspect coordinator health and logs.',
-          cfg.policy,
-        );
-        await attention.deliver(new Set([key])).catch(() => {}); // Intent persists across auth/network loss.
-      }
+      if (attention) await attention.observeHealth(health, cfg.policy).catch(() => {}); // Intent persists across auth/network loss.
       delay = Math.min(3600_000, Math.max(error.retryMs ?? 0, delay * 2));
     } finally {
       busy = false;
