@@ -223,3 +223,63 @@ test('real HTTP lost-response notification survives restart, ignores owner imper
   assert.equal(store.db.prepare('SELECT state FROM attention WHERE key=?').get(obsolete).state, 'cancelled');
   assert.equal(posts, 1);
 });
+
+test('bot-created issue timestamps do not repeat blocked/queue notices; new episodes survive restart', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'ci-attention-episodes-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const db = join(dir, 'queue');
+  let store = new Store(db);
+  t.after(() => store.close());
+  const issues = [
+    { number: 1, state: 'open', title: 'Blocked task', body: 'Needs owner', labels: [{ name: 'blocked' }], updated_at: 'old' },
+    { number: 2, state: 'open', title: 'Attention', body: '', labels: [], updated_at: 'old' },
+  ];
+  const comments = new Map();
+  let posts = 0;
+  const github = {
+    publisherId: 7,
+    token: async () => 'fixture',
+    list: async (path) => (path === '/issues?state=open' ? issues : (comments.get(path) ?? [])),
+    repo: async (path, { data }) => {
+      const receipt = { id: ++posts, html_url: `https://github.test/${posts}`, user: { id: 7, type: 'Bot' }, body: data.body };
+      comments.set(path, [...(comments.get(path) ?? []), receipt]);
+      issues.forEach((i) => {
+        i.updated_at = new Date().toISOString();
+      });
+      return receipt;
+    },
+  };
+  const run = () =>
+    new Attention({ store, github, owner: 'caraseli02', issue: 2 }).reconcile({
+      prs: [],
+      results: [],
+      config: { mode: 'build', neverClaim: ['blocked'] },
+      health: { ok: true },
+    });
+  await run();
+  assert.equal(posts, 2);
+  await run();
+  await run();
+  assert.equal(posts, 2);
+  store.close();
+  store = new Store(db);
+  await run();
+  assert.equal(posts, 2);
+  issues[0].labels = [];
+  await run();
+  issues[0].labels = [{ name: 'blocked' }];
+  await run();
+  assert.equal(posts, 3);
+  issues.push({
+    number: 3,
+    state: 'open',
+    title: 'Live',
+    body: '',
+    labels: [{ name: 'agent:claude' }, { name: 'in-progress' }],
+    updated_at: 'new',
+  });
+  await run();
+  issues.pop();
+  await run();
+  assert.equal(posts, 4);
+});

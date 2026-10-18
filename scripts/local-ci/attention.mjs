@@ -1,4 +1,4 @@
-import { marker, protectedFilesTouched, isClaudeBuiltPr, claudeQueueState } from '../owner-attention.mjs';
+import { marker, protectedFilesTouched, isClaudeBuiltPr, claudeQueueState, closingIssueNumbers } from '../owner-attention.mjs';
 import { digest } from './store.mjs';
 
 // Durable intent precedes POST. Only a reply/readback from the authenticated App
@@ -12,6 +12,14 @@ export class Attention {
     this.store.db.prepare('INSERT OR IGNORE INTO attention(key,pr,body,context) VALUES(?,?,?,?)').run(key, number, body, context);
     this.store.db.prepare("UPDATE attention SET state='pending' WHERE key=? AND state='cancelled'").run(key);
     return key;
+  }
+  episode(name, active, fingerprint = '') {
+    const key = `attention:${name}`;
+    const saved = this.store.db.prepare('SELECT value FROM meta WHERE key=?').get(key);
+    const old = saved ? JSON.parse(saved.value) : { active: false, epoch: 0 };
+    const epoch = old.epoch + (active && (!old.active || old.fingerprint !== fingerprint) ? 1 : 0);
+    this.store.db.prepare('INSERT OR REPLACE INTO meta VALUES(?,?)').run(key, JSON.stringify({ active, epoch, fingerprint }));
+    return `local-${name}:${epoch}`;
   }
   async deliver(active) {
     await this.github.token();
@@ -69,11 +77,18 @@ export class Attention {
     }
     const issues = (await this.github.list('/issues?state=open')).filter((i) => !i.pull_request);
     for (const issue of issues) {
-      if (!issue.labels.some((l) => l.name === 'blocked')) continue;
+      if (!issue.labels.some((l) => l.name === 'blocked')) {
+        this.episode(`blocked:${issue.number}`, false);
+        continue;
+      }
       const comments = await this.github.list(`/issues/${issue.number}/comments`);
       const blocker = comments.filter((c) => c.user?.type !== 'Bot' && /^\s*##\s*Blocked\b/m.test(c.body ?? '')).at(-1);
       add(
-        `local-blocked:${issue.number}:${blocker?.id ?? issue.updated_at}`,
+        this.episode(
+          `blocked:${issue.number}`,
+          true,
+          digest([issue.title, issue.body, issue.labels.map((l) => l.name).sort(), blocker?.id ?? null]),
+        ),
         issue.number,
         `Issue #${issue.number} is blocked and needs your decision. ${blocker?.html_url ?? issue.html_url}`,
       );
@@ -85,25 +100,16 @@ export class Attention {
           this.issue,
           `Local CI is unavailable: ${health.error ?? 'unknown health'}. PR acceptance is blocked.`,
         );
-      const queuedNumbers = new Set(
-        results
-          .filter((r) => r.readiness.ready)
-          .flatMap((r) => [...String(r.pr.body).matchAll(/\b(?:closes?|fixes|resolves?)\s+#(\d+)/gi)].map((m) => Number(m[1]))),
-      );
+      const queuedNumbers = new Set(results.filter((r) => r.readiness.ready).flatMap((r) => closingIssueNumbers(r.pr.body)));
       const queue = claudeQueueState(issues, {
         neverClaim: config.neverClaim,
         openIssueNumbers: new Set(issues.map((i) => i.number)),
-        claimedNumbers: new Set(
-          prs.flatMap((p) => [...String(p.body).matchAll(/\b(?:closes?|fixes|resolves?)\s+#(\d+)/gi)].map((m) => Number(m[1]))),
-        ),
+        claimedNumbers: new Set(prs.flatMap((p) => closingIssueNumbers(p.body))),
         queuedNumbers,
       });
+      const queueKey = this.episode('queue', config.mode === 'build' && queue.idle);
       if (config.mode === 'build' && queue.idle)
-        add(
-          `local-queue:${digest(issues.map((i) => [i.number, i.labels, i.updated_at]))}`,
-          this.issue,
-          'Claude has no eligible build work. Review the queue and label the next bounded issue when appropriate.',
-        );
+        add(queueKey, this.issue, 'Claude has no eligible build work. Review the queue and label the next bounded issue when appropriate.');
     }
     await this.deliver(active);
   }
