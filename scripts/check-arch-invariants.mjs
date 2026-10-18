@@ -13,6 +13,8 @@ const approvedAuthHeaderPaths = [
   'app/composables/api/',
   'scripts/check-pr-template.mjs',
   'scripts/owner-attention.mjs',
+  // Standalone trusted GitHub App client; guest and worker code never receive its token.
+  'scripts/local-ci/github.mjs',
   'tests/',
 ];
 
