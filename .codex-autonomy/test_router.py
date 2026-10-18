@@ -2,6 +2,7 @@ import copy
 import json
 import pathlib
 import unittest
+import datetime
 
 from router import UnsafeEvidence, admit_findings, classify, evaluator, fingerprint, handoff, overlap, route
 from discover import registry_report
@@ -20,7 +21,9 @@ def issue(number=1, claimed=True):
 
 
 def pr():
-    return {'number': 10, 'head': {'sha': HEAD, 'ref': 'codex/1-feature', 'repo': {'full_name': CONFIG['repo']}}, 'user': {'login': CONFIG['builder_login']}, 'state': 'open', 'draft': False, 'merged_at': None, 'mergeable': True, 'mergeable_state': 'clean', 'comments': [report()], 'reviews': [], 'observed_at': 'now', 'checks': [{'id': n, 'name': name, 'status': 'completed', 'conclusion': 'success'} for n, name in enumerate(CONFIG['required_checks'])], 'statuses': []}
+    stamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    evidence = {'version': 1, 'number': 10, 'repository': CONFIG['repo'], 'head': HEAD, 'base': 'b' * 40, 'baseRef': 'main', 'policy': 'c' * 64, 'observedAt': stamp, 'health': {'ok': True, 'observedAt': stamp}, 'checks': {'state': 'success'}, 'operationalProof': True, 'result': {'cleaned': True}, 'published': True, 'pr': {'body': None, 'labels': []}, 'readiness': {'ready': True}}
+    return {'number': 10, 'base': {'ref': 'main', 'sha': 'b' * 40}, 'local_ci': evidence, 'head': {'sha': HEAD, 'ref': 'codex/1-feature', 'repo': {'full_name': CONFIG['repo']}}, 'user': {'login': CONFIG['builder_login']}, 'state': 'open', 'draft': False, 'merged_at': None, 'mergeable': True, 'mergeable_state': 'clean', 'comments': [report()], 'reviews': [], 'observed_at': 'now', 'checks': [{'id': n, 'name': name, 'status': 'completed', 'conclusion': 'success'} for n, name in enumerate(CONFIG['required_checks'])], 'statuses': []}
 
 
 class RoutingTests(unittest.TestCase):
@@ -95,16 +98,21 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
 
     def test_ci_missing_failed_rerun_mergeability_and_requests(self):
-        p = pr(); p['checks'] = []
+        p = pr(); p['local_ci'] = {}
         self.assertEqual(self.state(p=p)['state'], 'waiting_ci')
-        p = pr(); p['checks'][0]['conclusion'] = 'failure'
+        p = pr(); p['local_ci']['checks']['state'] = 'failure'
         self.assertEqual(self.state(p=p)['state'], 'repair')
-        p['checks'].append(dict(p['checks'][0], id=99, conclusion='success'))
+        p['local_ci']['checks']['state'] = 'success'
         self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
         p['mergeable'] = None
         self.assertNotEqual(self.state(p=p)['state'], 'queued_awaiting_human')
         p = pr(); p['reviews'] = [{'state': 'CHANGES_REQUESTED', 'user': {'login': 'human'}}]
         self.assertEqual(self.state(p=p)['state'], 'repair')
+
+    def test_local_evidence_drift_health_and_readiness_block_admission(self):
+        for field, value in [('head', 'f' * 40), ('base', 'f' * 40), ('baseRef', 'other'), ('policy', 'invalid'), ('observedAt', '2000-01-01T00:00:00Z'), ('published', False), ('operationalProof', False), ('health', {'ok': False, 'observedAt': '2000-01-01T00:00:00Z'}), ('readiness', {'ready': False}), ('pr', {'body': 'changed', 'labels': []})]:
+            p = pr(); p['local_ci'][field] = value
+            self.assertNotEqual(self.state(p=p)['state'], 'queued_awaiting_human', field)
 
     def test_unpublished_drafts_contracts_global_paths_not_exempt(self):
         for path in ['pnpm-lock.yaml', 'tests/shared.spec.ts', 'nuxt.config.ts', 'migrations/001.sql', 'types/shared.ts']:

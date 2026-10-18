@@ -7,6 +7,7 @@ import subprocess
 
 from router import classify, closing_numbers, fingerprint, route
 from scope_check import working_scope
+from local_ci import evidence as local_ci_evidence
 
 
 def gh(path, pages=False):
@@ -49,6 +50,10 @@ def snapshot(config, registry, assessments):
             latest.setdefault(status['context'], status)
         detail['statuses'] = list(latest.values())
         detail['observed_at'] = now
+        if detail['state'] == 'open':
+            from urllib.parse import quote
+            detail['base']['sha'] = gh(f'repos/{repo}/git/ref/heads/{quote(detail["base"]["ref"], safe="")}')['object']['sha']
+            detail['local_ci'] = local_ci_evidence(pr['number'])
         for n in linked:
             by_issue.setdefault(n, []).append(detail)
         if detail['state'] == 'open':

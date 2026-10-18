@@ -18,6 +18,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
+import { readTrustedEvidence } from './local-ci/evidence.mjs';
 
 export const BOT_LOGIN = 'github-actions[bot]';
 export const QUEUE_ISSUE_TITLE = "Owner attention: Claude's build queue is empty";
@@ -128,10 +129,10 @@ export function hasClaudeCoauthor(commits) {
 
 // Every provenance signal the routine uses: label, branch, body signature, a linked
 // `agent:claude` issue, or a `Co-Authored-By: Claude` commit trailer.
-async function isClaudeBuiltPr(gh, pr) {
+export async function isClaudeBuiltPr(gh, pr) {
   if (isClaudeBuilt(pr)) return true;
   for (const number of closingIssueNumbers(pr.body)) {
-    const issue = await gh.get(`/issues/${number}`).catch(() => null);
+    const issue = await gh.get(`/issues/${number}`);
     if ((issue?.labels ?? []).some((label) => label.name === 'agent:claude')) return true;
   }
   return hasClaudeCoauthor(await gh.paginate(`/pulls/${pr.number}/commits`));
@@ -333,9 +334,9 @@ export function claudeQueueState(
   return { live, queued, eligible, idle: live.length === 0 && eligible.length === 0 };
 }
 
-export function readyMessage({ owner, pr, verdict }) {
+export function readyMessage({ owner, pr, verdict, key = `ready:${pr.head.sha}` }) {
   return [
-    marker(`ready:${pr.head.sha}`),
+    marker(key),
     `@${owner} ✅ **PR #${pr.number} is waiting only on your review and merge.**`,
     '',
     `- CI: green on \`${pr.head.sha.slice(0, 12)}\``,
@@ -454,29 +455,27 @@ async function postOnce(gh, number, key, body) {
   return true;
 }
 
-async function checkReady(gh, owner, number, trustedLogins) {
+async function checkReady(gh, owner, number, trustedLogins, evidenceProvider) {
   const pr = await loadPullRequest(gh, number);
   if (pr.state !== 'open' || pr.draft) return;
   const sha = pr.head.sha;
-  const [comments, checkRuns, combinedStatus, reviews] = await Promise.all([
-    gh.paginate(`/issues/${number}/comments`),
-    gh.paginate(`/commits/${sha}/check-runs`, (data) => data.check_runs),
-    gh.get(`/commits/${sha}/status`),
-    gh.paginate(`/pulls/${number}/reviews`),
-  ]);
+  const comments = await gh.paginate(`/issues/${number}/comments`);
+  const evidence = await evidenceProvider(number);
   const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins });
-  const checks = assessChecks(checkRuns, combinedStatus);
-  const { ready, reasons } = assessReadiness({ pr, checks, verdict, reviews });
+  const reviews = await gh.paginate(`/pulls/${number}/reviews`);
+  const ready =
+    evidence.head === sha && evidence.readiness?.ready === true && assessReadiness({ pr, checks: evidence.checks, verdict, reviews }).ready;
+  const reasons = evidence.readiness?.reasons ?? ['trusted local CI evidence unavailable'];
   if (!ready) {
     log(`PR #${number} not ready: ${reasons.join('; ')}`);
     return;
   }
-  const key = `ready:${sha}`;
+  const key = `ready:${sha}:${evidence.base}:${evidence.policy}:${evidence.metadata}`;
   if (alreadyNotified(comments, key)) {
     log(`PR #${number}: ${key} already notified`);
     return;
   }
-  await gh.post(`/issues/${number}/comments`, { body: readyMessage({ owner, pr, verdict }) });
+  await gh.post(`/issues/${number}/comments`, { body: readyMessage({ owner, pr, verdict, key }) });
   log(`PR #${number}: posted ${key}`);
 }
 
@@ -517,37 +516,22 @@ async function claimedIssueNumbers(gh, prs) {
   return claimed;
 }
 
-// True when the required checks (and combined status) are green on this exact commit.
-async function headChecksGreen(gh, sha) {
-  const [checkRuns, combinedStatus] = await Promise.all([
-    gh.paginate(`/commits/${sha}/check-runs`, (data) => data.check_runs),
-    gh.get(`/commits/${sha}/status`),
-  ]);
-  return assessChecks(checkRuns, combinedStatus).state === 'success';
-}
-
-// Claims whose open `claude/issue-<n>` PR has an evaluator PASS on a head whose required
-// checks were green. Queue identity survives later repairs (the PASS head stays green),
-// but a PASS on a pending or failing head leaves the claim live.
-async function queuedClaimNumbers(gh, openIssues, prs, trustedLogins) {
+// Admission is current-context only; historical PASS does not release a WIP slot.
+async function queuedClaimNumbers(gh, openIssues, prs, trustedLogins, evidenceProvider) {
   const queued = new Set();
   for (const issue of openIssues) {
     const labels = new Set((issue.labels ?? []).map((entry) => entry.name));
     if (issue.pull_request || !labels.has('agent:claude') || !labels.has('in-progress') || labels.has('blocked')) continue;
     const pr = prs.find((candidate) => candidate.head?.ref === `claude/issue-${issue.number}`);
     if (!pr) continue;
-    const comments = await gh.paginate(`/issues/${pr.number}/comments`);
-    for (const sha of passingEvaluatorHeads(comments, { trustedLogins })) {
-      if (await headChecksGreen(gh, sha)) {
-        queued.add(issue.number);
-        break;
-      }
-    }
+    const evidence = await evidenceProvider(pr.number);
+    if (evidence.head === pr.head.sha && evidence.checks?.state === 'success' && evidence.readiness?.ready === true)
+      queued.add(issue.number);
   }
   return queued;
 }
 
-async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
+async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins, evidenceProvider) {
   const tracking = openIssues.find((issue) => issue.title === QUEUE_ISSUE_TITLE && issue.user?.login === BOT_LOGIN);
   const openIssueNumbers = new Set(openIssues.map((issue) => issue.number));
   let state = { idle: false };
@@ -556,7 +540,7 @@ async function checkQueue(gh, owner, config, openIssues, prs, trustedLogins) {
       neverClaim: config.neverClaim,
       openIssueNumbers,
       claimedNumbers: await claimedIssueNumbers(gh, prs),
-      queuedNumbers: await queuedClaimNumbers(gh, openIssues, prs, trustedLogins),
+      queuedNumbers: await queuedClaimNumbers(gh, openIssues, prs, trustedLogins, evidenceProvider),
     };
     // Only issues that pass the label checks can carry a skip record worth reading.
     const skippedNumbers = new Set();
@@ -594,24 +578,24 @@ async function guarded(label, task) {
 // Every event reconciles the whole repository from current GitHub state instead of
 // trusting the event payload. The workflow runs one reconcile at a time, so a dedupe
 // read and its write never race, and a superseded queued run loses nothing.
-export async function reconcile({ gh, owner, config, trustedLogins }) {
+export async function reconcile({ gh, owner, config, trustedLogins, evidenceProvider = readTrustedEvidence }) {
   const prs = await gh.paginate('/pulls?state=open');
   for (const pr of prs) {
     if (pr.draft) continue;
     await guarded(`PR #${pr.number}`, async () => {
       await checkHarness(gh, owner, pr.number, config);
-      await checkReady(gh, owner, pr.number, trustedLogins);
+      await checkReady(gh, owner, pr.number, trustedLogins, evidenceProvider);
     });
   }
 
   const openIssues = await gh.paginate('/issues?state=open');
   for (const issue of openIssues) await guarded(`#${issue.number}`, () => checkBlocked(gh, owner, issue));
-  await guarded('Claude queue', () => checkQueue(gh, owner, config, openIssues, prs, trustedLogins));
+  await guarded('Claude queue', () => checkQueue(gh, owner, config, openIssues, prs, trustedLogins, evidenceProvider));
 }
 
-export async function handleEvent({ eventName, gh, owner, config, trustedLogins = [owner] }) {
+export async function handleEvent({ eventName, gh, owner, config, trustedLogins = [owner], evidenceProvider = readTrustedEvidence }) {
   log(`Reconciling after ${eventName}.`);
-  await reconcile({ gh, owner, config, trustedLogins });
+  await reconcile({ gh, owner, config, trustedLogins, evidenceProvider });
 }
 
 async function main() {
@@ -694,25 +678,9 @@ export function checksGreenVerdict(text, combinedStatus) {
 // prints `green` or `not-green` so the routine applies the same queued rule as the reconcile.
 // Empty stdin, an empty run list or an unreadable status file exits non-zero with nothing on stdout.
 async function printChecksGreen() {
-  const args = process.argv.slice(3);
-  let combinedStatus;
-  for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
-    if (arg === '--status-file' || arg.startsWith('--status-file=')) {
-      const path = arg === '--status-file' ? args[(index += 1)] : arg.slice('--status-file='.length);
-      if (!path) throw new Error('--status-file needs a path.');
-      try {
-        combinedStatus = JSON.parse(await readFile(path, 'utf8'));
-      } catch (error) {
-        throw new Error(`Unreadable status file ${path}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
-      }
-    } else {
-      throw new Error(`Unknown checks-green argument: ${arg}`);
-    }
-  }
-  let input = '';
-  for await (const chunk of process.stdin) input += chunk;
-  log(checksGreenVerdict(input, combinedStatus));
+  throw new Error(
+    'checks-green cannot establish readiness. Use /Library/AgentCommerceCI/bin/evidence PR_NUMBER and require current checks.state=success plus readiness.ready=true.',
+  );
 }
 
 // Issue comments from `gh api .../issues/<pr>/comments --paginate` (one array per page, or a

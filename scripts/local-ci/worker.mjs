@@ -53,6 +53,9 @@ export class WorkerClient {
   async recover() {
     return (await rpc(this.cfg.workerSocket, '/recover')).cleaned === true;
   }
+  async health() {
+    return rpc(this.cfg.workerSocket, '/health');
+  }
   async run(spec) {
     validateSpec(spec);
     await capacity(this.cfg.stateRoot);

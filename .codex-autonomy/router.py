@@ -2,6 +2,7 @@
 import hashlib
 import json
 import re
+import datetime
 
 
 class UnsafeEvidence(ValueError):
@@ -97,6 +98,28 @@ def checks(pr, required):
     return 'failure' if failed else 'pending' if pending else 'success'
 
 
+def local_checks(pr):
+    """Only discover's immutable client supplies this transient evidence, never history."""
+    e = pr.get('local_ci', {})
+    try:
+        now = datetime.datetime.now(datetime.timezone.utc)
+        for stamp in (e['observedAt'], e['health']['observedAt']):
+            age = (now - datetime.datetime.fromisoformat(stamp.replace('Z', '+00:00'))).total_seconds()
+            if not 0 <= age <= 120:
+                return 'pending'
+        if e['number'] != pr['number'] or e['repository'] != pr['head']['repo']['full_name'] or e['head'] != pr['head']['sha'] or e['base'] != pr['base']['sha'] or e['baseRef'] != pr['base']['ref']:
+            return 'pending'
+        if e['pr']['body'] != pr.get('body') or labels(e['pr']) != labels(pr):
+            return 'pending'
+        if e['checks']['state'] == 'failure':
+            return 'failure'
+        if e['checks']['state'] != 'success' or not e['health']['ok'] or e['operationalProof'] is not True or e['result']['cleaned'] is not True or e['published'] is not True or not re.fullmatch('[a-f0-9]{64}', e['policy']):
+            return 'pending'
+        return 'success'
+    except (KeyError, TypeError, ValueError):
+        return 'pending'
+
+
 def changed_requested(pr):
     latest = {}
     for review in pr['reviews']:
@@ -139,14 +162,14 @@ def classify(issue, prs, saved, config):
         if pr['draft']:
             return dict(result, state='implementing_verifying')
         verdict = evaluator(pr['comments'], pr['head']['sha'].lower(), config['trusted_evaluator_logins'])
-        ci = checks(pr, config['required_checks'])
+        ci = local_checks(pr)
         conflict = pr.get('mergeable') is False or pr.get('mergeable_state') == 'dirty'
         repair = ci == 'failure' or conflict or verdict == 'FAIL' or changed_requested(pr)
         if verdict == 'BLOCKED':
             return dict(result, state='parked_blocked')
         if repair:
             return dict(result, state='queued_repair' if result['queued_at'] else 'repair')
-        if ci == 'success' and verdict == 'PASS' and pr.get('mergeable') is True:
+        if ci == 'success' and verdict == 'PASS' and pr.get('mergeable') is True and pr.get('mergeable_state') in ('clean', 'unstable', 'has_hooks') and pr['local_ci'].get('readiness', {}).get('ready') is True:
             # No historical PASS is used for admission. Timestamp comes from this snapshot.
             return dict(result, state='queued_awaiting_human', queued_at=result['queued_at'] or pr['observed_at'])
         if result['queued_at']:

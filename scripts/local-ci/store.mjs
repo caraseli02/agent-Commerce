@@ -18,6 +18,7 @@ export class Store {
         created INTEGER NOT NULL, updated INTEGER NOT NULL, detail TEXT NOT NULL DEFAULT '', attempt INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS current(pr INTEGER PRIMARY KEY,context TEXT NOT NULL,job TEXT NOT NULL,metadata TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS outbox(id INTEGER PRIMARY KEY,job TEXT NOT NULL,state TEXT NOT NULL,description TEXT NOT NULL,sent INTEGER NOT NULL DEFAULT 0);
+      CREATE TABLE IF NOT EXISTS attention(key TEXT PRIMARY KEY,pr INTEGER NOT NULL,body TEXT NOT NULL,context TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'pending',delivery TEXT);
       CREATE UNIQUE INDEX IF NOT EXISTS single_worker ON jobs((1)) WHERE state IN ('preparing','running','cleaning');`);
     const version = this.db.prepare("SELECT value FROM meta WHERE key='schema'").get();
     if (version && version.value !== '1') throw new Error('Unsupported local CI database schema; stop before downgrade.');
