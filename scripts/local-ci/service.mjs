@@ -23,7 +23,10 @@ export async function startCoordinator(cfg) {
   let busy = false;
   let stopping = false;
   let recovered = false;
-  let health = { ok: false, error: 'Starting' };
+  let coordinatorError = 'Starting';
+  let workerError = null;
+  let health = { ok: false, error: coordinatorError };
+  let healthWrite = Promise.resolve();
   let delay = 60_000;
   let timer;
   let cycleDone = Promise.resolve();
@@ -70,10 +73,23 @@ export async function startCoordinator(cfg) {
     }
     throw new Error('Unknown coordinator request');
   });
-  const recordFailure = async (error) => {
-    health = { ok: false, error: error.message, observedAt: new Date().toISOString() };
-    await writeFile(join(cfg.stateRoot, 'health.json'), JSON.stringify(health), { mode: 0o600 });
-    if (attention) await attention.observeHealth(health, cfg.policy).catch(() => {}); // Intent persists across auth/network loss.
+  const publishHealth = () => {
+    const error = coordinatorError ?? workerError;
+    const snapshot = { ok: error === null, policy: cfg.policy, ...(error === null ? {} : { error }), observedAt: new Date().toISOString() };
+    health = snapshot;
+    // Both loops publish health. Preserve observation order on disk and in the outbox.
+    healthWrite = healthWrite
+      .catch(() => {})
+      .then(async () => {
+        await writeFile(join(cfg.stateRoot, 'health.json'), JSON.stringify(snapshot), { mode: 0o600 });
+        if (attention) await attention.observeHealth(snapshot, cfg.policy).catch(() => {}); // Intent survives network loss.
+      });
+    return healthWrite;
+  };
+  const recordFailure = async (source, error) => {
+    if (source === 'worker') workerError = error.message;
+    else coordinatorError = error.message;
+    await publishHealth();
   };
   const cycle = async () => {
     if (stopping || busy) return;
@@ -95,8 +111,8 @@ export async function startCoordinator(cfg) {
         await rm(join(cfg.stateRoot, name));
       }
       await coordinator.publish();
-      health = { ok: true, policy: cfg.policy, observedAt: new Date().toISOString() };
-      await writeFile(join(cfg.stateRoot, 'health.json'), JSON.stringify(health), { mode: 0o600 });
+      coordinatorError = null;
+      await publishHealth();
       if (attention) {
         const prs = await github.prs();
         const results = [];
@@ -105,12 +121,11 @@ export async function startCoordinator(cfg) {
           results.push({ pr: evidence.pr, evidence, readiness: evidence.readiness });
         }
         await attention.reconcile({ prs, results, config });
-        await attention.observeHealth(health, cfg.policy);
       }
       // Polling remains independent while a single worker job is in progress.
       delay = 60_000;
     } catch (error) {
-      await recordFailure(error);
+      await recordFailure('coordinator', error);
       delay = Math.min(3600_000, Math.max(error.retryMs ?? 0, delay * 2));
     } finally {
       busy = false;
@@ -125,7 +140,7 @@ export async function startCoordinator(cfg) {
   };
   let working = false;
   const workerTimer = setInterval(async () => {
-    if (stopping || !recovered || working || !health.ok) return;
+    if (stopping || !recovered || working || coordinatorError !== null) return;
     working = true;
     try {
       if (store.jobs().some((job) => job.state === 'cleaning')) await coordinator.recover();
@@ -135,8 +150,13 @@ export async function startCoordinator(cfg) {
       for (const id of removed) await rm(join(cfg.stateRoot, `${id}.source.log`), { force: true });
       // Log ownership/retention is enforced independently in the supervisor.
       if (removed.length) await writeFile(join(cfg.stateRoot, 'last-prune.json'), JSON.stringify(removed));
+      // Only a complete successful worker iteration clears a worker outage.
+      if (workerError !== null) {
+        workerError = null;
+        await publishHealth();
+      }
     } catch (error) {
-      await recordFailure(error);
+      await recordFailure('worker', error);
     } finally {
       working = false;
     }

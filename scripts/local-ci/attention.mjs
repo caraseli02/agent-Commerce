@@ -30,14 +30,14 @@ export class Attention {
     }
     if (!Number.isSafeInteger(this.issue)) return;
     this.enqueue(key, this.issue, 'Local CI has failed; acceptance is blocked. Inspect coordinator health and logs.', context);
-    await this.deliver(new Set([key]));
+    await this.deliver(new Set([key]), { cancelInactive: false });
   }
-  async deliver(active) {
+  async deliver(active, { cancelInactive = true } = {}) {
     await this.github.token();
     if (!Number.isSafeInteger(this.github.publisherId)) throw new Error('Notification App identity unavailable');
     for (const row of this.store.db.prepare("SELECT * FROM attention WHERE state='pending'").all()) {
       if (!active.has(row.key)) {
-        this.store.db.prepare("UPDATE attention SET state='cancelled' WHERE key=?").run(row.key);
+        if (cancelInactive) this.store.db.prepare("UPDATE attention SET state='cancelled' WHERE key=?").run(row.key);
         continue;
       }
       if (!(await this.beforeSend(row))) {

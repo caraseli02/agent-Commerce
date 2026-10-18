@@ -10,7 +10,7 @@ import { assessEvidence, metadataDigest, collectEvidence, readTrustedEvidence } 
 import { localReadiness } from '../scripts/local-ci/readiness.mjs';
 import { Attention } from '../scripts/local-ci/attention.mjs';
 import { startCoordinator } from '../scripts/local-ci/service.mjs';
-import { listen } from '../scripts/local-ci/worker.mjs';
+import { listen, rpc } from '../scripts/local-ci/worker.mjs';
 
 const repository = 'caraseli02/agent-Commerce';
 const policy = 'a'.repeat(64);
@@ -308,7 +308,13 @@ test('outages notify once per episode and notify again after a healthy cycle and
     },
   };
   const observe = (health) => new Attention({ store, github, owner: 'caraseli02', issue: 2 }).observeHealth(health, policy);
+  const pending = new Attention({ store, github, owner: 'caraseli02', issue: 2 }).enqueue('local-ready:pending', 1, 'Ready', 'job');
   await observe({ ok: false, error: 'First outage' });
+  assert.equal(
+    store.db.prepare('SELECT state FROM attention WHERE key=?').get(pending).state,
+    'pending',
+    'Health delivery must preserve unrelated pending notices',
+  );
   await observe({ ok: false, error: 'Same outage, different error' });
   assert.equal(comments.length, 1);
   await observe({ ok: true });
@@ -321,7 +327,7 @@ test('outages notify once per episode and notify again after a healthy cycle and
   await observe({ ok: true });
   unavailable = true;
   await assert.rejects(observe({ ok: false }), /unavailable/);
-  assert.equal(store.db.prepare("SELECT count(*) AS n FROM attention WHERE state='pending'").get().n, 1);
+  assert.equal(store.db.prepare("SELECT count(*) AS n FROM attention WHERE state='pending' AND context=?").get(`health:${policy}`).n, 1);
   await observe({ ok: true }); // Recovery cancels the undeliverable old outage.
   unavailable = false;
   await observe({ ok: false });
@@ -343,7 +349,10 @@ test('unreadable linked-issue provenance is a named readiness prerequisite', asy
   assert(result.reasons.some((reason) => reason.includes('builder provenance unavailable: /issues/1: HTTP 404')));
 });
 
-test('a running coordinator persists and notifies worker-loop failures', async (t) => {
+test('persistent worker failures stay unhealthy across coordinator cycles and notify once until worker recovery', async (t) => {
+  const realTimeout = globalThis.setTimeout;
+  t.mock.method(globalThis, 'setTimeout', (fn, ms, ...args) => realTimeout(fn, ms >= 60_000 ? 100 : ms, ...args));
+  let cycles = 0;
   const dir = await mkdtemp(join(tmpdir(), 'ci-h-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const comments = [];
@@ -359,7 +368,10 @@ test('a running coordinator persists and notifies worker-loop failures', async (
       };
       comments.push(comment);
       res.end(JSON.stringify(comment));
-    } else res.end(JSON.stringify(req.url.includes('/comments') ? comments : []));
+    } else {
+      if (req.url.includes('/pulls?')) cycles++;
+      res.end(JSON.stringify(req.url.includes('/comments') ? comments : []));
+    }
   });
   await new Promise((resolve) => api.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise((resolve) => api.close(resolve)));
@@ -380,19 +392,46 @@ test('a running coordinator persists and notifies worker-loop failures', async (
   };
   const coordinator = await startCoordinator(cfg);
   t.after(() => coordinator.stop());
+  const prune = coordinator.store.prune.bind(coordinator.store);
+  let failWorker = true;
+  let failures = 0;
   coordinator.store.prune = () => {
-    throw new Error('Worker maintenance failed');
+    if (failWorker) {
+      failures++;
+      throw new Error('Worker maintenance failed');
+    }
+    return prune();
   };
-  const deadline = Date.now() + 5000;
-  while (!comments.some((c) => c.body.includes('local-ci-unhealthy:'))) {
-    assert(Date.now() < deadline, 'Worker-loop failure did not notify the configured attention issue');
-    await new Promise((resolve) => setTimeout(resolve, 20));
-  }
+  const outages = () => comments.filter((c) => c.body.includes('local-ci-unhealthy:'));
+  const until = async (predicate, message) => {
+    const deadline = Date.now() + 6000;
+    while (!(await predicate())) {
+      assert(Date.now() < deadline, message);
+      await new Promise((resolve) => realTimeout(resolve, 20));
+    }
+  };
+  await until(() => outages().length === 1, 'Worker failure must notify');
+  const firstCycle = cycles;
+  await until(() => cycles >= firstCycle + 5, 'Coordinator must continue polling during a worker outage');
+  assert.equal((await rpc(cfg.evidenceSocket, '/health')).ok, false, 'Coordinator polling must not clear worker health');
+  await until(() => failures >= 3, 'Unhealthy workers must retry to discover recovery');
+  assert.equal(outages().length, 1, 'One persistent worker failure must produce exactly one outage notice');
   const health = JSON.parse(await readFile(join(dir, 'health.json'), 'utf8'));
   assert.equal(health.ok, false);
   assert.match(health.error, /Worker maintenance failed/);
-  assert.equal(
-    coordinator.store.db.prepare("SELECT count(*) AS n FROM attention WHERE state='delivered' AND context=?").get(`health:${policy}`).n,
-    1,
+  assert.equal((await rpc(cfg.coordinatorSocket, '/health')).ok, false);
+  failWorker = false;
+  await until(async () => (await rpc(cfg.evidenceSocket, '/health')).ok, 'A successful worker iteration must recover health');
+  await until(
+    () =>
+      JSON.parse(coordinator.store.db.prepare('SELECT value FROM meta WHERE key=?').get(`attention:ci-unhealthy:${policy}`).value)
+        .active === false,
+    'Recovery must close the outage episode',
   );
+  failWorker = true;
+  await until(() => outages().length === 2, 'A later worker outage must notify again after actual recovery');
+  const secondCycle = cycles;
+  await until(() => cycles >= secondCycle + 5, 'Coordinator polling must continue after the second outage');
+  assert.equal((await rpc(cfg.evidenceSocket, '/health')).ok, false);
+  assert.equal(outages().length, 2, 'The second persistent outage must also deduplicate');
 });
