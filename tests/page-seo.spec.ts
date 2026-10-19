@@ -58,12 +58,12 @@ describe('usePageSeo', () => {
       description: 'Find parts fast.',
       robots: 'index,follow',
       ogType: 'website',
-      ogSiteName: 'Components Marketplace',
-      ogTitle: 'Search | Components Marketplace',
+      ogSiteName: 'DEMO',
+      ogTitle: 'Search | DEMO',
       ogDescription: 'Find parts fast.',
       ogUrl: 'http://request.test:3201/search',
       twitterCard: 'summary',
-      twitterTitle: 'Search | Components Marketplace',
+      twitterTitle: 'Search | DEMO',
       twitterDescription: 'Find parts fast.',
     });
     expect(emittedHead().link).toEqual([{ rel: 'canonical', href: 'http://request.test:3201/search' }]);
@@ -108,7 +108,7 @@ describe('usePageSeo', () => {
     image.value = '//cdn.example.com/lm317.jpg';
     expect(emittedMeta()).toMatchObject({
       title: 'LM317',
-      ogTitle: 'LM317 | Components Marketplace',
+      ogTitle: 'LM317 | DEMO',
       ogImage: 'https://cdn.example.com/lm317.jpg',
       twitterCard: 'summary_large_image',
     });

@@ -16,6 +16,8 @@ const isLoading = ref(false);
 const hasSubmitted = ref(false);
 const formError = ref('');
 const successMessage = ref('');
+const partList = ref('');
+const importMessage = ref('');
 const hasProductCode = computed(() => products.value.some((product) => product.code.trim()));
 
 const updateProduct = (payload: QuickBuyItem) => {
@@ -31,6 +33,39 @@ const removeProduct = (index: number) => {
 
 const addProduct = () => {
   products.value.push({ code: '', quantity: 1 });
+};
+
+const importPartList = () => {
+  formError.value = '';
+  importMessage.value = '';
+  const parsedRows = partList.value
+    .split(/\r?\n/)
+    .map((line) => line.split(/[\t,;]/).map((cell) => cell.trim().replace(/^"|"$/g, '')))
+    .filter(([code]) => code && !/^(mpn|manufacturer part number|part number|sku|item)$/i.test(code))
+    .map(([code, quantity]) => ({ code: code!, quantityText: quantity ?? '' }));
+
+  if (!parsedRows.length) {
+    formError.value = 'Paste one part number per line to import your parts list.';
+    return;
+  }
+
+  const invalidQuantity = parsedRows.find(({ quantityText }) => {
+    if (!quantityText) return false;
+    if (!/^\d+$/.test(quantityText)) return true;
+    return !Number.isSafeInteger(Number(quantityText)) || Number(quantityText) < 1;
+  });
+
+  if (invalidQuantity) {
+    formError.value = `Quantity for ${invalidQuantity.code} must be a positive whole number within the safe range.`;
+    return;
+  }
+
+  const parsedParts = parsedRows.map(({ code, quantityText }) => ({ code, quantity: quantityText ? Number(quantityText) : 1 }));
+  const enteredProducts = products.value.filter((product) => product.code.trim());
+  products.value = [...enteredProducts, ...parsedParts];
+  partList.value = '';
+  hasSubmitted.value = false;
+  importMessage.value = `${parsedParts.length} ${parsedParts.length === 1 ? 'part' : 'parts'} added from your pasted list.`;
 };
 
 const addToCart = async () => {
@@ -108,6 +143,17 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
       <NuxtLink to="/cart" class="ml-1 font-semibold underline underline-offset-2 hover:text-emerald-950">View cart</NuxtLink>
     </div>
     <form class="mt-5 hidden min-h-0 flex-1 flex-col lg:flex" @submit.prevent="addToCart">
+      <details class="mb-3 rounded-lg border border-slate-200 px-3 py-2">
+        <summary class="cursor-pointer text-sm font-medium text-slate-700">Paste a parts list</summary>
+        <div class="mt-2">
+          <UiLabel for="quick-buy-part-list-desktop" class="mb-1 block text-sm font-medium text-slate-800"
+            >Part numbers and optional quantities</UiLabel
+          >
+          <UiTextarea id="quick-buy-part-list-desktop" v-model="partList" class="min-h-20 bg-white" placeholder="STM32F407VGT6, 5" />
+          <UiButton type="button" variant="secondary" class="mt-2 min-h-10" @click="importPartList">Import and review</UiButton>
+        </div>
+      </details>
+      <p v-if="importMessage" class="mb-3 text-sm text-emerald-700" role="status" aria-live="polite">{{ importMessage }}</p>
       <div class="grid gap-2" aria-live="polite">
         <QuickBuyInput
           v-for="(product, index) in products"
@@ -150,6 +196,17 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
             <UiDialogTitle>Quick buy</UiDialogTitle>
           </UiDialogHeader>
           <p class="text-sm text-slate-500">Paste one or more manufacturer part numbers from your BOM. Remove any rows you do not need.</p>
+          <details class="rounded-lg border border-slate-200 px-3 py-2">
+            <summary class="cursor-pointer text-sm font-medium text-slate-700">Paste a parts list</summary>
+            <div class="mt-2">
+              <UiLabel for="quick-buy-part-list-mobile" class="mb-1 block text-sm font-medium text-slate-800"
+                >Part numbers and optional quantities</UiLabel
+              >
+              <UiTextarea id="quick-buy-part-list-mobile" v-model="partList" class="min-h-24 bg-white" placeholder="STM32F407VGT6, 5" />
+              <UiButton type="button" variant="secondary" class="mt-2 min-h-10" @click="importPartList">Import and review</UiButton>
+            </div>
+          </details>
+          <p v-if="importMessage" class="text-sm text-emerald-700" role="status" aria-live="polite">{{ importMessage }}</p>
           <div class="grid gap-4 py-4" aria-live="polite">
             <QuickBuyInput
               v-for="(product, index) in products"

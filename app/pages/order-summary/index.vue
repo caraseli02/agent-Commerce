@@ -4,7 +4,7 @@
     <div class="grid grid-cols-1">
       <div class="container px-4">
         <div
-          v-if="!cartReadError && isGuestCheckout && !guestCheckoutMode"
+          v-if="!cartReadError && !isCartEmpty && isGuestCheckout && !guestCheckoutMode"
           class="mb-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4 text-blue-800"
         >
           <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
@@ -20,7 +20,7 @@
           </div>
         </div>
         <div
-          v-else-if="!cartReadError && isGuestCheckoutMode"
+          v-else-if="!cartReadError && !isCartEmpty && isGuestCheckoutMode"
           class="mb-6 mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-4 text-emerald-900"
         >
           <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600">
@@ -35,7 +35,7 @@
             </p>
           </div>
         </div>
-        <OrderSummaryHeader v-if="!cartReadError" />
+        <OrderSummaryHeader v-if="!cartReadError && !isCartEmpty" />
         <div v-if="cartReadError" class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800" role="alert">
           <p class="font-semibold">We could not load your cart</p>
           <p class="mt-1 text-sm">Try again before continuing checkout.</p>
@@ -46,6 +46,21 @@
             </NuxtLink>
           </div>
         </div>
+        <section
+          v-else-if="isCartEmpty"
+          class="mb-8 rounded-2xl border border-slate-200 bg-white px-5 py-8 text-center shadow-sm sm:px-8 sm:py-10"
+        >
+          <h1 class="text-2xl font-semibold tracking-tight text-slate-900">Your cart is empty</h1>
+          <p class="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600">
+            Add a component to your cart to review pricing, delivery options, and checkout details.
+          </p>
+          <NuxtLink
+            to="/search"
+            class="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          >
+            Browse components
+          </NuxtLink>
+        </section>
         <div v-else class="gap-6 xl:grid xl:grid-cols-[1fr_392px]">
           <div class="flex flex-col gap-9 max-w-[992px]">
             <OrderSummaryBackOrderWarning v-if="showWarning" />
@@ -149,6 +164,7 @@ const {
   error: cartReadError,
   refresh: refreshCartRead,
 } = useAsyncData(cartReadCacheKey('order-summary'), () => loadCartRead(() => refreshCart()), { server: false });
+const isCartEmpty = computed(() => !cartReadPending.value && !cartReadError.value && cartItems.value.length === 0);
 
 const orderItems = computed(() => {
   return cartItems.value.map((item) => {

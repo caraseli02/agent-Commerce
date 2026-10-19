@@ -16,7 +16,7 @@
     >
       <slot />
       <div class="flex justify-center text-center text-xs leading-normal text-slate-500 mt-2 mb-6 md:mt-0">
-        Components Marketplace portfolio demo — mock mode for reviewer walkthroughs
+        DEMO portfolio demo — mock mode for reviewer walkthroughs
       </div>
     </main>
     <Toaster />

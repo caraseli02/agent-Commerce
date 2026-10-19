@@ -4,7 +4,7 @@
       <div class="container">
         <div class="mb-8 md:flex md:items-start md:gap-[45px] md:mb-6 lg:justify-between">
           <div class="mb-[30px] md:mb-0">
-            <NuxtLink to="/" aria-label="Components Marketplace home" class="mb-3 flex">
+            <NuxtLink to="/" aria-label="DEMO home" class="mb-3 flex">
               <Logo class="w-[121px]" />
             </NuxtLink>
             <p class="max-w-[220px] text-sm leading-5 text-slate-500">Portfolio demo with sample products and accounts.</p>
@@ -31,7 +31,7 @@
           </div>
         </div>
         <div>
-          <p class="text-[15px] text-center text-slate-500">&copy; {{ new Date().getFullYear() }} Components Marketplace</p>
+          <p class="text-[15px] text-center text-slate-500">&copy; {{ new Date().getFullYear() }} DEMO</p>
         </div>
       </div>
     </div>

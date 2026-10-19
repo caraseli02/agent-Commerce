@@ -76,11 +76,11 @@ describe('cart pricing and stock helpers', () => {
       items: [{ productId: product._id!, quantity: browsePricing!.minimumOrderQuantityConfiguration!.quantity }],
     });
 
-    expect(browsePricing?.minimumOrderQuantityConfiguration).toMatchObject({ quantity: 1, price: 999.99 });
-    expect(browsePricing?.currentConfigurationDiscountPrice).toBe(949.99);
+    expect(browsePricing?.minimumOrderQuantityConfiguration).toMatchObject({ quantity: 1, price: 8.95 });
+    expect(browsePricing?.currentConfigurationDiscountPrice).toBe(8.5);
     expect(quote.kind).toBe('quoted');
     if (quote.kind === 'quoted') {
-      expect(quote.quote.lines[0]?.unitPrice.minor).toBe(94_999);
+      expect(quote.quote.lines[0]?.unitPrice.minor).toBe(850);
     }
   });
 
@@ -192,9 +192,9 @@ describe('mock cart stock and volume pricing enforcement', () => {
     const line = response.data.products.find((product) => product.id === 'prod-1');
 
     expect(line?.stock).toBe(150);
-    expect(line?.initialUnitPrice).toBe(959.99);
-    expect(line?.unitPriceAfterDiscounts).toBe(959.99);
-    expect(line?.total).toBe(143998.5);
+    expect(line?.initialUnitPrice).toBe(8.1);
+    expect(line?.unitPriceAfterDiscounts).toBe(8.1);
+    expect(line?.total).toBe(1215);
   });
 
   it('stores volume tier pricing when adding bulk quantities', async () => {
@@ -223,8 +223,8 @@ describe('mock cart stock and volume pricing enforcement', () => {
     const line = response.data.products.find((product) => product.id === 'prod-1');
 
     expect(line?.stock).toBe(10);
-    expect(line?.initialUnitPrice).toBe(959.99);
-    expect(line?.total).toBe(9599.9);
+    expect(line?.initialUnitPrice).toBe(8.1);
+    expect(line?.total).toBe(81);
   });
 
   it('preserves backorder when available stock is reduced on a mixed line', async () => {

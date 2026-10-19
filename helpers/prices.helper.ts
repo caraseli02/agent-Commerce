@@ -20,6 +20,22 @@ export {
   type ClampCartQuantityResult,
 };
 
+const demoCurrencySettings: Record<string, { code: string; locale: string }> = {
+  ron: { code: 'RON', locale: 'ro-RO' },
+  euro: { code: 'EUR', locale: 'es-ES' },
+  usd: { code: 'USD', locale: 'en-US' },
+};
+
+export const formatRegionalPrice = (amount: number, currencyValue?: string) => {
+  const setting = demoCurrencySettings[currencyValue || 'ron'] || demoCurrencySettings.ron!;
+  return new Intl.NumberFormat(setting.locale, {
+    style: 'currency',
+    currency: setting.code,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
+
 export const parseProductPriceConfiguration = (product: ProductInterface | null | undefined, userDetails: UserInterface, quantity = 0) => {
   let unitPrice = 0;
 

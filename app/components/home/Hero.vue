@@ -34,7 +34,7 @@
                   placeholder="e.g. STM32F407, 10k resistor, USB-C"
                   class="h-11 min-w-0 flex-1 text-sm text-slate-900 placeholder:text-slate-400 sm:text-base"
                   :aria-invalid="Boolean(searchError)"
-                  aria-describedby="homepage-search-help homepage-search-error"
+                  :aria-describedby="searchError ? 'homepage-search-help homepage-search-error' : 'homepage-search-help'"
                 />
               </div>
               <UiButton type="submit" class="min-h-11 gap-2 px-5">
@@ -136,7 +136,9 @@ const fallbackCategories: CategoryLink[] = [
 ];
 
 const categoryLinks = computed<CategoryLink[]>(() => {
-  const source = categories.value.length ? categories.value : fallbackCategories;
+  const source = categories.value.length
+    ? categories.value.filter((category) => Number(category.productCount || 0) > 0)
+    : fallbackCategories;
   return source.slice(0, 4);
 });
 

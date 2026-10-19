@@ -15,6 +15,6 @@
 usePageSeo({
   title: 'Electronic Components Sourced Reliably',
   description:
-    'Source electronic components with confidence. Compare specifications, check real-time stock across trusted manufacturers, and order the parts your build needs.',
+    'Source electronic components with confidence. Search sample parts by number and compare product details, listed stock, and quantity pricing.',
 });
 </script>

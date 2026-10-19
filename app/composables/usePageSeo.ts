@@ -3,9 +3,9 @@ import type { MaybeRefOrGetter } from 'vue';
 
 import { PRIVATE_ROBOTS, isPrivateRoute } from '~~/helpers/seo-routes';
 
-const SITE_NAME = 'Components Marketplace';
+const SITE_NAME = 'DEMO';
 const DEFAULT_DESCRIPTION =
-  'Browse thousands of electronic components from trusted manufacturers. Check live stock, compare specifications, and order with confidence.';
+  'Explore sample electronic components, compare product details, and review listed stock and pricing in this portfolio demo.';
 
 type JsonLd = Record<string, unknown>;
 

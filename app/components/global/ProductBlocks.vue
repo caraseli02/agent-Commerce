@@ -6,15 +6,32 @@
       <ProductTabs
         v-if="filters?.length"
         :class="slots.banner ? 'order-2 xl:order-1 xl:col-span-2 xl:ml-0' : 'order-1'"
+        :retry-key="retryKey"
         :filters="filters"
         :initial-products="fetchedProducts"
         @new-products="onProductsLoaded"
+        @load-start="onProductLoadStart"
+        @load-error="onProductLoadError"
       />
       <div v-if="isLoading" class="order-3 px-1 mt-6 md:pr-0 min-h-[284px] w-full" aria-busy="true" aria-live="polite">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div v-for="n in 3" :key="n" class="h-[280px] rounded-xl bg-slate-100 animate-pulse" />
         </div>
         <span class="sr-only">Loading products…</span>
+      </div>
+      <div v-else-if="productLoadError" class="order-3 px-1 mt-6 md:pr-0 w-full" role="alert">
+        <div class="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-950">
+          <p class="font-semibold">Featured products couldn’t load.</p>
+          <p class="mt-1 text-sm">Check your connection and try this collection again.</p>
+          <UiButton
+            type="button"
+            variant="outline"
+            class="mt-3 inline-flex min-h-10 items-center rounded-lg border border-amber-800 px-3 text-sm font-semibold text-amber-900 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-800"
+            @click="retryKey++"
+          >
+            Retry
+          </UiButton>
+        </div>
       </div>
       <div v-else-if="productList.length === 0" class="order-3 px-1 mt-6 md:pr-0 min-h-[284px] w-full">
         <div class="flex flex-col gap-10 items-center content-center justify-center w-full h-full">
@@ -59,9 +76,22 @@ const slots = defineSlots<{
 
 const productList = ref<ProductInterface[]>(props.fetchedProducts ?? []);
 const isLoading = ref(!props.fetchedProducts);
+const productLoadError = ref('');
+const retryKey = ref(0);
+
+const onProductLoadStart = () => {
+  productLoadError.value = '';
+  isLoading.value = true;
+};
+
+const onProductLoadError = (message: string) => {
+  productLoadError.value = message;
+  isLoading.value = false;
+};
 
 const onProductsLoaded = (products: ProductInterface[]) => {
   productList.value = products;
+  productLoadError.value = '';
   isLoading.value = false;
 };
 

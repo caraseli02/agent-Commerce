@@ -26,6 +26,7 @@ export async function fetchCartList() {
 
   return await $apiClient<CartResponse>(RESOURCE, {
     method: 'GET',
+    timeout: 10_000,
   });
 }
 

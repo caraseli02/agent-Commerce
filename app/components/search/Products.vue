@@ -138,7 +138,7 @@
         v-bind="searchEmptyPreset"
         :description="
           keyword
-            ? `We could not find products for “${keyword}”. Try adjusting your keywords or filters to discover products in the Components Marketplace catalog.`
+            ? `We could not find products for “${keyword}”. Try adjusting your keywords or filters to discover products in the DEMO catalog.`
             : searchEmptyPreset.description
         "
       />

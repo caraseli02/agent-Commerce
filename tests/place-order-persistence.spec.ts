@@ -113,24 +113,24 @@ describe('durable PlaceOrder persistence', () => {
     expect(independentRead?.order._id).toBe(first.orderId);
     expect(independentRead?.order.products[0]).toMatchObject({
       id: 'prod-1',
-      initialUnitPrice: 999.99,
-      unitPriceAfterDiscounts: 949.99,
-      discount: expect.objectContaining({ value: 5, total: 50 }),
-      subtotal: 949.99,
-      vatTotal: 180.5,
+      initialUnitPrice: 8.95,
+      unitPriceAfterDiscounts: 8.5,
+      discount: expect.objectContaining({ value: 5, total: 0.45 }),
+      subtotal: 8.5,
+      vatTotal: 1.62,
     });
-    expect(independentRead?.order.subtotal).toBe(949.99);
+    expect(independentRead?.order.subtotal).toBe(8.5);
     expect(independentRead?.order.money).toEqual({
       currency: 'RON',
-      subtotal: 949.99,
-      discountAmount: 50,
+      subtotal: 8.5,
+      discountAmount: 0.45,
       shippingCost: 19.9,
-      smallOrderCharge: 0,
+      smallOrderCharge: 4.99,
       vatRate: 0.19,
-      vatAmount: 180.5,
-      total: 1150.39,
+      vatAmount: 1.62,
+      total: 35.01,
     });
-    expect(independentRead?.order.total).toBe(1150.39);
+    expect(independentRead?.order.total).toBe(35.01);
     expect(independentList.some((order) => order._id === first.orderId)).toBe(true);
     expect(crossCustomerRead).toBeNull();
     expect(crossCustomerList.some((order) => order._id === first.orderId)).toBe(false);
@@ -419,6 +419,6 @@ describe('durable PlaceOrder persistence', () => {
     const persisted = await ordersModule.orders.findById(result.orderId);
 
     expect(user.adminSettings?.discount?.value).toBe(0);
-    expect(persisted?.order.subtotal).toBe(999.99);
+    expect(persisted?.order.subtotal).toBe(8.95);
   });
 });

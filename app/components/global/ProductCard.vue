@@ -69,15 +69,20 @@
           <template v-if="productDiscount">
             {{
               priceConfiguration
-                ? `${priceConfiguration.price.toFixed(2)} Lei
-                    (${priceConfiguration.quantity}+)`
+                ? `${formatRegionalPrice(priceConfiguration.price, currency?.value)} (${priceConfiguration.quantity}+)`
                 : '-'
             }}
           </template>
         </div>
         <div class="flex flex-wrap items-center gap-1" :class="[productDiscount ? 'text-rose-500' : '']">
           <strong class="text-sm leading-tight md:text-base">
-            {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : priceConfiguration?.price.toFixed(2) || '-' }}
+            {{
+              discountPrice
+                ? formatRegionalPrice(discountPrice, currency?.value)
+                : priceConfiguration
+                  ? formatRegionalPrice(priceConfiguration.price, currency?.value)
+                  : '-'
+            }}
           </strong>
           <span class="text-xs">
             {{ priceConfiguration ? `(${priceConfiguration.quantity}+)` : '-' }}
@@ -105,17 +110,20 @@ import type { PropType } from 'vue';
 import { storeToRefs } from 'pinia';
 import { MoreHorizontal } from '@lucide/vue';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~~/types/product';
-import { addToCartHelper, resolveProductBrowsePricing } from '~~/helpers/prices.helper';
+import { addToCartHelper, formatRegionalPrice, resolveProductBrowsePricing } from '~~/helpers/prices.helper';
 import { getProductTaxonomyPath, humanizeCategorySlug, toCategorySlugSegments } from '~~/helpers/categoryPath.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 import ProductCardStock from '~/components/global/ProductCardStock.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 
 const authStore = useAuthStore();
+const regionalPreferencesStore = useRegionalPreferencesStore();
 const { isProductAddInFlight } = useCart();
 
 const { getUserDetails } = storeToRefs(authStore);
+const { currency } = storeToRefs(regionalPreferencesStore);
 
 const props = defineProps({
   product: {

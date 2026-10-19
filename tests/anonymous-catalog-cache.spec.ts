@@ -201,6 +201,16 @@ describe('anonymous catalog using the installed Nitro SWR implementation', () =>
       const firstTab = await read('/api/products/featured', {}, pathOrigin);
       expect(firstId.body.data._id).toBe('prod-1');
       expect(firstTab.body.data.length).toBeGreaterThan(0);
+      for (const origin of [idOrigin, pathOrigin]) {
+        const collections = await Promise.all(
+          ['featured', 'best-sellers', 'hot-deals'].map(async (tab) =>
+            (await read(`/api/products/${tab}`, {}, origin)).body.data.map((product: { _id: string }) => product._id),
+          ),
+        );
+        expect(collections[0]).not.toEqual(collections[1]);
+        expect(collections[1]).not.toEqual(collections[2]);
+      }
+      const collectionCacheEntries = state.entries.size;
       for (let variant = 0; variant < 64; variant++) {
         const mixedCase = (value: string) => {
           let bit = 0;
@@ -213,10 +223,10 @@ describe('anonymous catalog using the installed Nitro SWR implementation', () =>
         expect(id.response.headers.get('x-catalog-generated-at')).toBe(firstId.response.headers.get('x-catalog-generated-at'));
         expect(tab.response.headers.get('x-catalog-generated-at')).toBe(firstTab.response.headers.get('x-catalog-generated-at'));
         expect((await read(`/api/products/unknown-${variant}`, {}, idOrigin)).response.status).toBe(404);
-        expect(state.entries.size).toBe(2);
+        expect(state.entries.size).toBe(collectionCacheEntries);
       }
       expect((await read('/api/products/Semiconductors%2Fmicrocontrollers', {}, pathOrigin)).response.status).toBe(404);
-      expect(state.entries.size).toBe(2);
+      expect(state.entries.size).toBe(collectionCacheEntries);
     } finally {
       await Promise.all(servers.map((instance) => new Promise<void>((resolve) => instance.close(() => resolve()))));
     }

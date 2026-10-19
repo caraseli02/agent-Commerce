@@ -11,8 +11,7 @@ useHead({
   htmlAttrs: {
     lang: 'en',
   },
-  titleTemplate: (title?: string | null) =>
-    title ? `${title} | Components Marketplace` : 'Components Marketplace — Electronic Components',
+  titleTemplate: (title?: string | null) => (title ? `${title} | DEMO` : 'DEMO — Electronic Components'),
 });
 
 // Private routes get noindex,nofollow here; public storefront pages own their

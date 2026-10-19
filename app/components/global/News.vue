@@ -7,7 +7,7 @@
           <article class="flex h-full flex-col rounded-xl border border-slate-200 bg-white shadow-[0_2px_8px_rgba(15,23,42,0.05)]">
             <ImageWithFallback
               :src="item.cover"
-              alt="Cover"
+              alt=""
               class-name="aspect-[1.69] w-full rounded-t-md object-cover md:aspect-[1.76] lg:aspect-[2.11]"
             />
             <div

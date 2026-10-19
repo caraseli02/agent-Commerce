@@ -1,5 +1,5 @@
 import type { ProductInterface } from '~~/types/product';
-import { mockProducts } from '~~/server/utils/mockProducts';
+import { mockCatalogProducts } from '~~/server/utils/mockProducts';
 import { getProductTaxonomyPath, matchesCategoryPath } from '~~/helpers/categoryPath.helper';
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     perPage?: number;
   };
 
-  let filteredProducts = mockProducts as ProductInterface[];
+  let filteredProducts = mockCatalogProducts as ProductInterface[];
 
   const keywordSource =
     body.keyword ||
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
   };
 
   if (keyword) {
-    filteredProducts = (mockProducts as ProductInterface[]).filter((p) => matchesKeyword(p, keyword));
+    filteredProducts = (mockCatalogProducts as ProductInterface[]).filter((p) => matchesKeyword(p, keyword));
   }
 
   const category = String(body.category || query.category || '').trim();

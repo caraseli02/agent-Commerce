@@ -35,7 +35,9 @@
                     class="flex items-center justify-between gap-3 border-t border-slate-100 py-2 text-xs leading-tight"
                   >
                     <span class="text-slate-500">{{ bulkQuantity[0] }}+</span>
-                    <span :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</span>
+                    <span :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{
+                      formatRegionalPrice(bulkQuantity[1], currency?.value)
+                    }}</span>
                   </div>
                 </div>
               </details>
@@ -48,7 +50,9 @@
                   @click="quantity = bulkQuantity[0] + 1"
                 >
                   <div class="text-slate-500">{{ bulkQuantity[0] }}+</div>
-                  <div :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</div>
+                  <div :class="['text-neutral-700', productDiscount ? 'text-red' : '']">
+                    {{ formatRegionalPrice(bulkQuantity[1], currency?.value) }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -87,11 +91,21 @@
             <div class="flex items-center justify-between font-Inter mb-4 lg:justify-start lg:items-end">
               <div class="lg:mr-[15px]">
                 <div v-if="productDiscount" class="text-sm leading-tight line-through">
-                  {{ minPriceConfiguration ? `${minPriceConfiguration.price.toFixed(2)} Lei (${minPriceConfiguration.quantity}+)` : '-' }}
+                  {{
+                    minPriceConfiguration
+                      ? `${formatRegionalPrice(minPriceConfiguration.price, currency?.value)} (${minPriceConfiguration.quantity}+)`
+                      : '-'
+                  }}
                 </div>
                 <div class="text-xl leading-tight font-semibold" :class="[productDiscount ? 'text-rose-500' : '']">
                   <span>
-                    {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : `${minPriceConfiguration?.price.toFixed(2)} Lei` || '-' }}
+                    {{
+                      discountPrice
+                        ? formatRegionalPrice(discountPrice, currency?.value)
+                        : minPriceConfiguration
+                          ? formatRegionalPrice(minPriceConfiguration.price, currency?.value)
+                          : '-'
+                    }}
                   </span>
                   {{ currentPriceConfiguration ? `(${currentPriceConfiguration.quantity}+)` : '-' }}
                 </div>
@@ -122,16 +136,31 @@
             type="button"
             class="min-h-11 flex-1 px-5 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
             aria-label="Add to cart — selected quantity"
-            :aria-busy="!isCartReady || isAddingToCart"
+            :aria-busy="isCartLoading || isAddingToCart"
             :aria-disabled="isAddingToCart"
             :aria-describedby="showAlreadyInCartMessage ? 'cart-qty-unchanged-hint' : undefined"
-            :disabled="isCartButtonDisabled && !isAddingToCart"
+            :disabled="isCartButtonDisabled"
             @click="addToCart(props.product)"
           >
             <CartIcon class="w-6 h-6 mr-2" />
             <span v-if="minPriceConfiguration && quantity" class="text-sm font-medium">
               {{ cartButtonLabel }}
             </span>
+          </UiButton>
+        </div>
+        <p v-if="isCartLoading" class="sr-only" role="status" aria-live="polite">
+          Checking your cart. The Add to cart action will be available when this is complete.
+        </p>
+        <div v-if="cartLoadError" class="flex items-center justify-between gap-3 text-xs text-rose-700" role="alert">
+          <span>Cart details couldn’t load. Try again before adding.</span>
+          <UiButton
+            type="button"
+            variant="link"
+            class="min-h-11 shrink-0 rounded px-2 font-semibold underline underline-offset-2 hover:text-rose-900"
+            :disabled="isCartLoading"
+            @click="fetchCart"
+          >
+            Retry
           </UiButton>
         </div>
         <p
@@ -154,18 +183,26 @@ import { storeToRefs } from 'pinia';
 import CartIcon from '@/assets/icons/cart.svg';
 import type { ProductActionObject } from '~~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~~/types/product';
-import { addToCartHelper, clampCartQuantity, initializeQuantities, parseProductPriceConfiguration } from '~~/helpers/prices.helper';
+import {
+  addToCartHelper,
+  clampCartQuantity,
+  formatRegionalPrice,
+  initializeQuantities,
+  parseProductPriceConfiguration,
+} from '~~/helpers/prices.helper';
 import { toast } from '~/components/ui/toast';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
 import { useCart } from '~/composables/useCart';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+const regionalPreferencesStore = useRegionalPreferencesStore();
 const { isProductAddInFlight } = useCart();
 
 const { getUserDetails } = storeToRefs(authStore);
-const { getCart } = storeToRefs(cartStore);
+const { currency } = storeToRefs(regionalPreferencesStore);
 
 const props = defineProps<{
   product: ProductInterface;
@@ -176,8 +213,11 @@ const initialRequestedQuantity = ref(0);
 const isLocalAddingToCart = ref(false);
 const isAddingToCart = computed(() => isLocalAddingToCart.value || isProductAddInFlight(props.product._id ?? ''));
 const isCartReady = ref(false);
+const isCartLoading = ref(false);
+const cartLoadError = ref(false);
 const isInCart = computed(() => initialRequestedQuantity.value > 0);
 const cartButtonLabel = computed(() => {
+  if (cartLoadError.value) return 'Cart unavailable';
   if (!isCartReady.value) return 'Loading cart…';
   if (isAddingToCart.value) return 'Adding…';
   return isInCart.value ? 'Update cart' : 'Add to cart';
@@ -188,6 +228,8 @@ const cartButtonLabel = computed(() => {
 const isCartButtonDisabled = computed(
   () =>
     !isCartReady.value ||
+    isCartLoading.value ||
+    cartLoadError.value ||
     isAddingToCart.value ||
     quantity.value < 1 ||
     (isInCart.value && quantity.value === initialRequestedQuantity.value),
@@ -214,17 +256,33 @@ const getPricesConfiguration = () => {
 };
 
 const fetchCart = async () => {
-  // Always refresh from the API. Persisted Pinia cart alone can mark a product as
-  // already in cart and disable "Add to cart" at qty 1 when the server cart is empty.
-  const data = (await cartStore.updateAndReturnCart()) ?? getCart.value;
+  if (isCartLoading.value) return;
+  isCartLoading.value = true;
+  cartLoadError.value = false;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  try {
+    // Persisted Pinia state can be stale; initialize the purchase controls from the API response.
+    const refresh = cartStore.updateAndReturnCart();
+    const deadline = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Cart refresh timed out')), 10_000);
+    });
+    const data = await Promise.race([refresh, deadline]);
+    if (!data) throw new Error('Cart refresh returned no data');
 
-  if (minPriceConfiguration.value) {
-    initializeQuantities(props.product, data, quantity, initialRequestedQuantity, minPriceConfiguration.value);
-  } else {
-    initialRequestedQuantity.value = 0;
+    if (minPriceConfiguration.value) {
+      initializeQuantities(props.product, data, quantity, initialRequestedQuantity, minPriceConfiguration.value);
+    } else {
+      initialRequestedQuantity.value = 0;
+    }
+    getPricesConfiguration();
+    isCartReady.value = true;
+  } catch (error) {
+    console.error('Failed to initialize product cart state', error);
+    cartLoadError.value = true;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+    isCartLoading.value = false;
   }
-  getPricesConfiguration();
-  isCartReady.value = true;
 };
 
 getPricesConfiguration();

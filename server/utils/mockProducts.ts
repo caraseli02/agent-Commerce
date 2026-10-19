@@ -16,24 +16,24 @@ export const mockProducts = [
     sold: 1250,
     favourite: false,
     priceHistory: [
-      { price: 999.99, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
-      { price: 949.99, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
+      { price: 8.95, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
+      { price: 8.45, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
     ],
     priceConfiguration: {
       smartLinkId: 'smart-price-1',
       configuration: [
-        { price: 999.99, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 979.99, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 959.99, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 8.95, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 8.5, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 8.1, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
       ],
     },
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-spm-001.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Semiconductors > Microcontrollers > ARM Cortex-M4',
         TaxonomyPathIDs: 'cat-001,cat-012,cat-045',
-        SmallImageURL: '/images/products/microcontroller.webp',
+        SmallImageURL: '',
         PartDescription: 'LQFP-100, 168 MHz, 192 KB SRAM',
         Manufacturer: 'STMicroelectronics',
       },
@@ -47,9 +47,9 @@ export const mockProducts = [
         ],
       },
       ProductImage: {
-        ProductImageSmall: '/images/products/microcontroller.webp',
-        ProductImageLarge: '/images/products/microcontroller.webp',
-        images: ['/images/products/microcontroller.webp'],
+        ProductImageSmall: '',
+        ProductImageLarge: '',
+        images: [],
       },
     },
   },
@@ -70,24 +70,24 @@ export const mockProducts = [
     sold: 890,
     favourite: true,
     priceHistory: [
-      { price: 1499.99, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
-      { price: 1449.99, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
+      { price: 14.5, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
+      { price: 13.75, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
     ],
     priceConfiguration: {
       smartLinkId: 'smart-price-2',
       configuration: [
-        { price: 1499.99, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 1474.99, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 1449.99, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 14.5, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 13.9, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 13.25, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
       ],
     },
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-lap-002.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Semiconductors > Interface ICs > RS-485',
         TaxonomyPathIDs: 'cat-001,cat-020,cat-055',
-        SmallImageURL: '/images/products/microcontroller.webp',
+        SmallImageURL: '',
         PartDescription: 'SOIC-16, 500 kbps, 5 kV isolation',
         Manufacturer: 'Analog Devices',
       },
@@ -101,9 +101,9 @@ export const mockProducts = [
         ],
       },
       ProductImage: {
-        ProductImageSmall: '/images/products/microcontroller.webp',
-        ProductImageLarge: '/images/products/microcontroller.webp',
-        images: ['/images/products/microcontroller.webp'],
+        ProductImageSmall: '',
+        ProductImageLarge: '',
+        images: [],
       },
     },
   },
@@ -124,24 +124,24 @@ export const mockProducts = [
     sold: 2340,
     favourite: false,
     priceHistory: [
-      { price: 149.99, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
-      { price: 139.99, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
+      { price: 0.18, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
+      { price: 0.15, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
     ],
     priceConfiguration: {
       smartLinkId: 'smart-price-3',
       configuration: [
-        { price: 149.99, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 144.99, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 139.99, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 0.18, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 0.16, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 0.14, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
       ],
     },
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-dio-003.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Passives > Diodes > Schottky',
         TaxonomyPathIDs: 'cat-002,cat-021,cat-061',
-        SmallImageURL: '/images/products/microcontroller.webp',
+        SmallImageURL: '',
         PartDescription: 'SOT-23, dual series, 30 V, 200 mA',
         Manufacturer: 'Nexperia',
       },
@@ -153,9 +153,9 @@ export const mockProducts = [
         ],
       },
       ProductImage: {
-        ProductImageSmall: '/images/products/microcontroller.webp',
-        ProductImageLarge: '/images/products/microcontroller.webp',
-        images: ['/images/products/microcontroller.webp'],
+        ProductImageSmall: '',
+        ProductImageLarge: '',
+        images: [],
       },
     },
   },
@@ -190,7 +190,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-aud-004.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Audio > Headphones > Wireless',
         TaxonomyPathIDs: 'cat-004,cat-040,cat-070',
         SmallImageURL: '/images/products/headphones.webp',
@@ -242,7 +242,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-spk-005.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Audio > Speaker > Bluetooth',
         TaxonomyPathIDs: 'cat-004,cat-041,cat-071',
         SmallImageURL: '/images/products/speaker.webp',
@@ -294,7 +294,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-tab-006.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Electronics > Tablet > Premium',
         TaxonomyPathIDs: 'cat-001,cat-013,cat-046',
         SmallImageURL: '/images/products/tablet.webp',
@@ -346,7 +346,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-mou-007.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Components > Mouse > Gaming',
         TaxonomyPathIDs: 'cat-003,cat-031,cat-061',
         SmallImageURL: '/images/products/mouse.webp',
@@ -398,7 +398,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-swa-008.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Wearables > Smartwatch > Premium',
         TaxonomyPathIDs: 'cat-005,cat-050,cat-080',
         SmallImageURL: '/images/products/smartwatch.webp',
@@ -450,7 +450,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-mon-009.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Electronics > Monitor > 4K',
         TaxonomyPathIDs: 'cat-001,cat-015,cat-047',
         SmallImageURL: '/images/products/monitor.webp',
@@ -502,7 +502,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-drill-010.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Tools > Power Tools > Drill',
         TaxonomyPathIDs: 'cat-006,cat-060,cat-090',
         SmallImageURL: '/images/products/drill.webp',
@@ -554,7 +554,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-cbl-011.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Accessories > Cables > USB-C',
         TaxonomyPathIDs: 'cat-007,cat-070,cat-095',
         SmallImageURL: '/images/products/usb-c-cable.webp',
@@ -606,7 +606,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-cam-012.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Electronics > Camera > Mirrorless',
         TaxonomyPathIDs: 'cat-001,cat-018,cat-048',
         SmallImageURL: '/images/products/camera.webp',
@@ -658,7 +658,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-saw-013.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Tools > Power Tools > Saw',
         TaxonomyPathIDs: 'cat-006,cat-062,cat-092',
         SmallImageURL: '/images/products/circular-saw.webp',
@@ -710,7 +710,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-bpk-014.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Accessories > Bags > Backpacks',
         TaxonomyPathIDs: 'cat-007,cat-072,cat-097',
         SmallImageURL: '/images/products/backpack.webp',
@@ -762,7 +762,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-ear-015.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Wearables > Earbuds > Premium',
         TaxonomyPathIDs: 'cat-005,cat-052,cat-082',
         SmallImageURL: '/images/products/earbuds.webp',
@@ -814,7 +814,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-lamp-016.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Office > Lighting > Desk Lamp',
         TaxonomyPathIDs: 'cat-008,cat-080,cat-100',
         SmallImageURL: '/images/products/desk-lamp.webp',
@@ -866,7 +866,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-cfe-017.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Home > Kitchen > Coffee Maker',
         TaxonomyPathIDs: 'cat-009,cat-090,cat-110',
         SmallImageURL: '/images/products/coffee-maker.webp',
@@ -918,7 +918,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-hst-018.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Components > Headset > Gaming',
         TaxonomyPathIDs: 'cat-003,cat-033,cat-064',
         SmallImageURL: '/images/products/gaming-headset.webp',
@@ -970,7 +970,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-apu-019.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Home > Air Quality > Purifier',
         TaxonomyPathIDs: 'cat-009,cat-092,cat-112',
         SmallImageURL: '/images/products/air-purifier.webp',
@@ -1022,7 +1022,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-rtr-020.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Electronics > Networking > Router',
         TaxonomyPathIDs: 'cat-001,cat-025,cat-057',
         SmallImageURL: '/images/products/router.webp',
@@ -1074,7 +1074,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-stn-021.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Accessories > Stands > Laptop',
         TaxonomyPathIDs: 'cat-007,cat-074,cat-099',
         SmallImageURL: '/images/products/laptop-stand.webp',
@@ -1126,7 +1126,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-ssd-022.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Components > Storage > SSD',
         TaxonomyPathIDs: 'cat-003,cat-037,cat-067',
         SmallImageURL: '/images/products/nvme-ssd.webp',
@@ -1178,7 +1178,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-tls-023.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Tools > Hand Tools > Mechanic Set',
         TaxonomyPathIDs: 'cat-006,cat-065,cat-094',
         SmallImageURL: '/images/products/tool-set.webp',
@@ -1230,7 +1230,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-mic-024.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Audio > Microphone > USB',
         TaxonomyPathIDs: 'cat-004,cat-043,cat-073',
         SmallImageURL: '/images/products/microphone.webp',
@@ -1252,3 +1252,6 @@ export const mockProducts = [
     },
   },
 ];
+
+/** All sample products stay searchable; the component products lead the featured sample. */
+export const mockCatalogProducts = mockProducts;
