@@ -275,6 +275,12 @@
       "impact": "none",
       "reason": "#741 replaces the verification provider and archives retired CI; no application behavior or styling changes.",
       "consumers": "Inspected Husky -> select-visual-checks -> verify/metadata CLI, owner-attention local-readiness, .factory instructions and .codex-autonomy routing. None is imported by app/, server/, Nuxt runtime config or rendered routes. Removed scripts/local-ci and its test fixtures were standalone tooling only. Application code, assets, dependency lockfile and visual baselines are unchanged."
+    },
+    {
+      "fingerprint": "fc69a50db960b731ffb829d46a860eb738ac685fb340dee0cacfdb4c3ecaa70f",
+      "impact": "none",
+      "reason": "#741 retires standalone CI and changes local verification/acceptance only.",
+      "consumers": "Traced Husky -> selector -> verify and live PR metadata CLI; local-readiness -> .factory and native router/discovery. Source/deployment archives are tooling records. No app/, server/, Nuxt runtime configuration, product assets, dependency lockfile, or visual baseline changes; no rendered consumer imports these tooling paths."
     }
   ]
 }

@@ -9,6 +9,15 @@ from router import classify, closing_numbers, fingerprint, route
 from scope_check import working_scope
 
 
+def review_evidence(number, config):
+    # Installed releases retain the same scripts/.factory layout as the checkout.
+    root = pathlib.Path(__file__).resolve().parent
+    script = root / 'scripts' / 'owner-attention.mjs'
+    if not script.exists():
+        script = root.parent / 'scripts' / 'owner-attention.mjs'
+    return json.loads(subprocess.check_output(['node', str(script), 'local-readiness', str(number), '--repo', config['repo']], text=True, timeout=180))
+
+
 def gh(path, pages=False):
     args = ['gh', 'api', path]
     if pages:
@@ -43,6 +52,7 @@ def snapshot(config, registry, assessments):
         if detail['state'] == 'open':
             from urllib.parse import quote
             detail['base']['sha'] = gh(f'repos/{repo}/git/ref/heads/{quote(detail["base"]["ref"], safe="")}')['object']['sha']
+            detail['local_review'] = review_evidence(pr['number'], config)
         for n in linked:
             by_issue.setdefault(n, []).append(detail)
         if detail['state'] == 'open':

@@ -14,6 +14,7 @@
 // Each notice carries a hidden marker so a rerun never posts it twice.
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 import { execFileSync } from 'node:child_process';
@@ -146,7 +147,7 @@ const ATTRIBUTION_LINE = /^[ \t>]*(?:[*_]{1,2})?Independent evaluator(?:[*_]{1,2
 // independent-evaluator attribution, so an outsider's look-alike comment never counts.
 // Contradictory reports for the same head need clarification, so they resolve to
 // CONFLICTING rather than letting the newest one win.
-export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
+export function latestEvaluatorVerdict(comments, headSha, { trustedLogins, contextMarker = null }) {
   const head = String(headSha ?? '').toLowerCase();
   if (!head) return null;
   const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
@@ -162,12 +163,26 @@ export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
     const after = body.slice(body.indexOf(VERDICT_HEADING) + VERDICT_HEADING.length);
     const firstLine = after.split(/\r?\n/).find((line) => line.trim()) ?? '';
     const match = firstLine.match(/^[\s*_>]*(PASS|FAIL|BLOCKED|INCONCLUSIVE)\b/i);
-    if (match) reports.push({ verdict: match[1].toUpperCase(), url: comment.html_url ?? null });
+    if (match)
+      reports.push({
+        verdict: match[1].toUpperCase(),
+        url: comment.html_url ?? null,
+        current: contextMarker !== null && body.split(/\r?\n/).includes(contextMarker),
+        contextual: /^<!-- local-verification:/m.test(body),
+      });
   }
-  if (!reports.length) return null;
-  const latest = reports.at(-1);
-  const verdicts = [...new Set(reports.map((report) => report.verdict))];
-  return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : latest;
+  // Append one report for a new context rather than editing an arbitrary comment
+  // posted through the shared owner account. Contradictions in one context block.
+  const selected =
+    contextMarker === null
+      ? reports
+      : reports.some((report) => report.current)
+        ? reports.filter((report) => report.current)
+        : reports.filter((report) => !report.contextual);
+  if (!selected.length) return null;
+  const latest = selected.at(-1);
+  const verdicts = [...new Set(selected.map((report) => report.verdict))];
+  return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : { verdict: latest.verdict, url: latest.url };
 }
 
 // An independent review attests local execution; this is not a separate CI receipt.
@@ -220,10 +235,11 @@ export async function readLocalEvidence(number, { gh, owner, config, trustedLogi
   const reviews = await gh.paginate(`/pulls/${number}/reviews`);
   const claude = await isClaudeBuiltPr(gh, pr);
   const checks = assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator: claude ? 'Codex' : 'Claude' });
-  const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins });
+  const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins, contextMarker: localVerificationMarker(pr) });
   const readiness = assessReadiness({ pr, checks, verdict, reviews });
   if (claude) {
     const files = await gh.paginate(`/pulls/${number}/files`);
+    if (files.length >= 3000) throw new Error('PR file list may be truncated; protected-path review is incomplete.');
     const touched = protectedFilesTouched(files, config.protectedPaths);
     if (
       touched.some((entry) => entry.group === 'payments' || !(pr.labels ?? []).some((label) => label.name === 'owner-approved-harness'))
@@ -540,7 +556,7 @@ async function checkReady(gh, owner, number, trustedLogins, evidenceProvider) {
   const sha = pr.head.sha;
   const comments = await gh.paginate(`/issues/${number}/comments`);
   const evidence = await evidenceProvider(number);
-  const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins });
+  const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins, contextMarker: evidence.marker ?? null });
   const reviews = await gh.paginate(`/pulls/${number}/reviews`);
   const ready =
     evidence.head === sha && evidence.readiness?.ready === true && assessReadiness({ pr, checks: evidence.checks, verdict, reviews }).ready;
@@ -804,7 +820,7 @@ async function printPassHeads() {
   if (heads.length) log(heads.join('\n'));
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const command = process.argv[2];
   const commands = {
     'skip-fingerprint': printSkipFingerprint,

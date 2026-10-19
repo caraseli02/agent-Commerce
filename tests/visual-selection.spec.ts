@@ -222,20 +222,22 @@ it('runs the real hook with captured push stdin and stops before visuals when ve
   const bin = mkdtempSync(join(tmpdir(), 'visual-hook-bin-'));
   roots.push(bin);
   const log = join(bin, 'calls');
-  writeFileSync(join(bin, 'gh'), "#!/bin/sh\nprintf '[]\\n'\n", { mode: 0o755 });
+  writeFileSync(join(bin, 'gh'), '#!/bin/sh\nprintf "%s\\n" "${VISUAL_HOOK_PRS:-[]}"\n', { mode: 0o755 });
   const fakePnpm = join(bin, 'pnpm');
   writeFileSync(fakePnpm, '#!/bin/sh\necho "$*" >> "$VISUAL_HOOK_LOG"\nexit "${VISUAL_HOOK_EXIT:-0}"\n', { mode: 0o755 });
   const hook = readFileSync(join(sourceRoot, '.husky/pre-push'), 'utf8');
-  const execute = (code: string) =>
+  const execute = (code: string, prs = '[]') =>
     spawnSync('sh', ['-c', hook, 'pre-push', 'origin'], {
       cwd: r.cwd,
       input: r.push(),
       encoding: 'utf8',
-      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, VISUAL_HOOK_LOG: log, VISUAL_HOOK_EXIT: code },
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, VISUAL_HOOK_LOG: log, VISUAL_HOOK_EXIT: code, VISUAL_HOOK_PRS: prs },
     });
   expect(execute('0').status).toBe(0);
   const verifyArgs = `verify --reuse --base ${r.base} --head ${r.git('rev-parse', 'HEAD')}\n`;
   expect(readFileSync(log, 'utf8')).toBe(verifyArgs);
+  expect(execute('0', JSON.stringify([{ number: 10, body: '', labels: [] }])).status).toBe(1);
+  expect(readFileSync(log, 'utf8')).toBe(verifyArgs); // Invalid metadata stops before application/visual commands.
   r.write('app/pages/index.vue', '<div>visible change</div>');
   r.commit();
   expect(execute('9').status).toBe(9);

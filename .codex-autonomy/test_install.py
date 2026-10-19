@@ -2,6 +2,7 @@ import json
 import pathlib
 import tempfile
 import unittest
+import subprocess
 from unittest.mock import patch
 
 from install import FILES, install_merged, migrate_registry, stage
@@ -14,6 +15,9 @@ class InstallTests(unittest.TestCase):
             manifest = stage(pathlib.Path(__file__).parent, target)
             self.assertEqual(set(manifest), set(FILES))
             self.assertTrue((target / 'manifest.json').exists())
+            check = subprocess.run(['node', str(target / 'scripts/owner-attention.mjs'), 'checks-green'], capture_output=True, text=True)
+            self.assertEqual(check.returncode, 1)
+            self.assertIn('Hosted checks are retired', check.stderr)
         original = {'version': 1, 'active_issue': 482, 'issues': {'482': {'state': 'blocked', 'worktree': 'preserve', 'history': [1]}, '454': {'independent_verdict': 'PASS'}}}
         result = migrate_registry(original)
         self.assertEqual(result['active_issue'], 482)

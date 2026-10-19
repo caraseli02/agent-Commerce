@@ -78,8 +78,7 @@ with the same host lease and `--purpose review`. It requires `reviewer_enabled`
 and `native_execution_ready`. It shares Codex's full-run exclusion; its review
 fixture or checkout is separate from a builder's. GitHub exact-head reports and
 the private journal preserve evidence across fresh chats and prevent duplicate
-reviews. A policy-only reevaluation amends the existing same-head report; new
-commits receive a fresh report. Busy or unknown lease ownership yields.
+reviews. A changed context or owner policy permits one new attributed context report, retaining the prior report; unchanged contexts are not reviewed twice. Busy or unknown lease ownership yields.
 Review only a non-draft PR explicitly owned by Claude (label `agent:claude` or
 verified legacy Claude branch/linked issue), never one implemented by this
 Codex builder or its internal delegates. Missing or contradictory ownership
@@ -91,15 +90,17 @@ behavior using the repository evaluator contract. One strongest gate and
 necessary focused/UI evidence suffice. Unattended protected-harness work stays
 human-led; an explicit human request may authorize an interactive review.
 
-Post one concise structured verdict per head with attribution, the exact
+Post one concise structured verdict per head/base/metadata context with attribution, the exact
 `<!-- evaluator-head: <sha> -->` marker and `## Evaluator verdict`; update its
 linked issue's readiness on PASS, never merge or approve. INCONCLUSIVE is
 nonfinal, uses its distinct marker and retries no sooner than two hours;
 two unresolved prerequisite failures produce one blocker. Read GitHub directly,
 keep private execution logs/actual-usage journal, release last and stay quiet
-while no actionable new head exists. Claude reviews Codex output on its own
+while no actionable new context exists. Claude reviews Codex output on its own
 schedule; Codex does not start Claude.
 
 ## Husky acceptance — owner decision 2026-10-19
 
-GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the attributed report only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. Changed head/base/body/labels require revalidation. The context marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.
+GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the context report; award PASS only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. Changed head/base/body/labels require revalidation. The context marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.
+
+A final report suppresses only unchanged current-context work. A same-head PASS with a stale base/body/labels marker, a material mergeability change, or a report blocked solely by the superseded CI policy is eligible for revalidation. Publish one new attributed report for the changed head/base/metadata context, preserving previous reports. Do not duplicate an unchanged context or wait for a new commit. Current-context reports supersede legacy unmarked reports; contradictory reports within the same context still block.

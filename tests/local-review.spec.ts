@@ -141,4 +141,18 @@ describe('Husky and independent local acceptance', () => {
       expect((await readiness(options)).readiness.ready).toBe(false);
     expect((await readiness({ authorized: true, files: [{ filename: 'scripts/example.mjs' }] })).readiness.ready).toBe(true);
   });
+
+  it('retains old-context and legacy reports without contradicting a new-context result', async () => {
+    const old = report({ ...fixture(), body: body + '\nprevious context' }, 'Codex', 'FAIL');
+    expect((await readiness({ comments: [old, report()] })).readiness.ready).toBe(true);
+    const legacy = {
+      ...old,
+      body: old.body
+        .split('\n')
+        .filter((line) => !line.startsWith('<!-- local-verification:'))
+        .join('\n'),
+    };
+    expect((await readiness({ comments: [legacy, report()] })).readiness.ready).toBe(true);
+    expect((await readiness({ comments: [legacy] })).readiness.ready).toBe(false);
+  });
 });

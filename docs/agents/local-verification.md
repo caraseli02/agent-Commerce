@@ -38,7 +38,7 @@ node scripts/owner-attention.mjs local-readiness PR_NUMBER
 
 The marker identifies the exact head, current base and a digest of the current
 body, labels and base ref. It is a context identifier, not proof of test execution.
-Only after real checks pass, include it on its own line in the attributed report:
+Include it on its own line in each attributed context report. Award PASS only after real checks pass:
 
 ```md
 <!-- evaluator-head: <full-head-sha> -->
@@ -60,8 +60,7 @@ Standards/Spec findings and required follow-up. Recheck the command after publis
 It requires a trusted, independently attributed current-context PASS, valid live PR
 metadata, mergeability, no change request and Claude protected-path authorization.
 Claude payment paths remain excluded. New heads/base tips/body/labels invalidate
-the marker; amend the same-head report after revalidation, preserving its history
-in the private journal. Never infer readiness from a historical PASS.
+the marker; publish one new report after revalidation for the changed context, preserving prior reports on GitHub. Current-context reports supersede legacy unmarked reports; contradictions within one context still block. Never infer readiness from a historical PASS.
 
 Missing/failed local checks remain a blocker or repair. Disabled/missing/failed
 `verify`, `check`, `local-ci/verify` and other retired CI statuses are not gates.
@@ -79,3 +78,5 @@ required; never claim that posting through Vlad's account notified him.
 The service, old workflows, tests and previous instructions are preserved in
 [the retirement archive](../archive/local-ci/README.md). Do not reactivate them or
 require their deployment/reboot/health proofs for ordinary autonomous work.
+
+A final report suppresses only unchanged current-context work. A same-head PASS with a stale base/body/labels marker, a material mergeability change, or a report blocked solely by the superseded CI policy is eligible for revalidation. Publish one new attributed report for the changed head/base/metadata context, preserving previous reports. Do not duplicate an unchanged context or wait for a new commit. Current-context reports supersede legacy unmarked reports; contradictory reports within the same context still block.

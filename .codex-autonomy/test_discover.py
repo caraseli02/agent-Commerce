@@ -29,7 +29,7 @@ class DiscoveryTests(unittest.TestCase):
             if '/comments?' in path or '/reviews?' in path or '/commits?' in path or '/statuses?' in path: return []
             self.fail('Unexpected API path ' + path)
         assessment = dict(SCOPE, head=HEAD)
-        with patch.object(discover, 'gh', side_effect=api), patch.object(discover.subprocess, 'check_output', return_value='[]'), patch.object(discover, 'route', return_value={'action': 'wait'}):
+        with patch.object(discover, 'gh', side_effect=api), patch.object(discover, 'review_evidence', return_value=p['local_review']), patch.object(discover, 'route', return_value={'action': 'wait'}):
             result = discover.snapshot(CONFIG, {'issues': {'1': {'independent_verdict': 'PASS'}}}, {'prs': {'10': assessment}})
         self.assertEqual(result['states'][0]['state'], 'waiting_first_evaluation')
         self.assertEqual(result['reservations'][0]['scope'], assessment)

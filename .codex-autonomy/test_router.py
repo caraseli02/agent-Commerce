@@ -22,6 +22,7 @@ def issue(number=1, claimed=True):
 def pr():
     value = {'number': 10, 'base': {'ref': 'main', 'sha': 'b' * 40}, 'head': {'sha': HEAD, 'ref': 'codex/1-feature', 'repo': {'full_name': CONFIG['repo']}}, 'user': {'login': CONFIG['builder_login']}, 'state': 'open', 'draft': False, 'merged_at': None, 'mergeable': True, 'mergeable_state': 'clean', 'comments': [report()], 'reviews': [], 'observed_at': 'now'}
     value['comments'][0]['body'] += '\n' + local_verification_marker(value)
+    value['local_review'] = {'head': HEAD, 'base': value['base']['sha'], 'marker': local_verification_marker(value), 'checks': {'state': 'success'}, 'readiness': {'ready': True}}
     return value
 
 
@@ -82,7 +83,7 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(s['state'], 'merged_closed'); self.assertIsNone(s['queued_at'])
 
     def test_contradictions_unknown_and_duplicate_fail_closed(self):
-        p = pr(); p['comments'].append(report('FAIL'))
+        p = pr(); conflicting = report('FAIL'); conflicting['body'] += '\n' + local_verification_marker(p); p['comments'].append(conflicting)
         self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
         p = pr(); p['labels'] = ['agent:claude']
         self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
@@ -113,6 +114,20 @@ class RoutingTests(unittest.TestCase):
             p = pr(); p['base'][field] = 'f' * 40
             self.assertNotEqual(self.state(p=p)['state'], 'queued_awaiting_human', field)
         p = pr(); p['checks'] = []; p['statuses'] = [{'context': 'local-ci/verify', 'state': 'failure'}]
+        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+
+    def test_live_template_failure_and_context_race_block_queue_admission(self):
+        p = pr(); p['local_review']['checks']['state'] = 'failure'
+        self.assertEqual(self.state(p=p)['state'], 'repair')
+        for key, value in [('marker', 'changed'), ('head', 'f' * 40), ('base', 'f' * 40), ('readiness', {'ready': False})]:
+            p = pr(); p['local_review'][key] = value
+            self.assertNotEqual(self.state(p=p)['state'], 'queued_awaiting_human', key)
+
+    def test_new_context_report_preserves_history_without_conflict(self):
+        p = pr(); old = report('FAIL'); old['body'] += '\n' + local_verification_marker(dict(p, body='previous context'))
+        p['comments'].insert(0, old)
+        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+        p = pr(); p['comments'].insert(0, report('FAIL'))
         self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
 
     def test_unpublished_drafts_contracts_global_paths_not_exempt(self):
