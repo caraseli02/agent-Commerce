@@ -287,6 +287,12 @@
       "impact": "none",
       "reason": "#741 retires CI infrastructure and changes local verification policy only.",
       "consumers": "Inspected .factory/native instructions and routing, Husky selector -> verify/PR metadata, and read-only local-readiness. None is imported by app/ or server/ runtime, and no app sources, Nuxt runtime config, assets, dependency lockfile or visual baselines change."
+    },
+    {
+      "fingerprint": "376d17e39ae7836ba1b12f3f46976c2c654b6dc7b82c6f5982043d22a1651168",
+      "impact": "none",
+      "reason": "Admin transaction history resolves the dashboard customer id customer-001 to its seeded order owner (#722); customer-token reads and order mapping output are unchanged.",
+      "consumers": "server/api/transaction.get.ts is read only through app/composables/api/control-panel.ts (TRANSACTION_RESOURCE), rendered by client-table/transaction in the customer dashboard and the admin control-panel transaction-history page. The changed branch runs only for admin tokens with a userId query; customer tokens keep user._id, so /dashboard/client tabs (orders group) are unaffected. resolveOrderOwnerId replaces the identical inline ternary in mapOrderToContract, so seeded order owners are unchanged. No home, search, product, cart or orders screenshot renders the admin control panel; the changed route is covered by tests/transaction-route-scope.spec.ts and a runtime API check against the built Nitro output."
     }
   ]
 }
