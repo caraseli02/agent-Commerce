@@ -25,13 +25,13 @@ This file maps Components Marketplace repo artifacts to the course recommendatio
 
 These are not blockers, but should be revisited when the repo grows:
 
-1. **Gate weight** — use targeted checks for normal repair loops and one strongest delivery gate. Reuse unchanged local delivery evidence at pre-push; CI retains fresh executable checks.
+1. **Gate weight** — use targeted checks for normal repair loops and one strongest delivery gate. Reuse unchanged local delivery evidence at pre-push; Independent review retains fresh executable checks.
 2. **Runtime smoke depth** — `pnpm smoke` checks representative static routes, but auth/cart/checkout/dashboard changes still need targeted runtime evidence.
 3. **Telemetry depth** — runtime logs and PR evidence are required, but no app-level tracing stack exists.
 4. **Source-of-truth hygiene** — GitHub Issues are the primary work tracker; `PROGRESS.md` must stay current as the short session mirror and should not drift behind merged PRs.
 5. **Issue loop model quality** — local model workers should stay on tiny tasks; cloud model escalation remains appropriate for broad diagnosis/review.
 6. **UI design-system consistency** — static gates do not detect native HTML vs shadcn usage; evaluators must apply the UI checklist in `docs/agents/verification.md`. Legacy modals still mix patterns; new modal work should prefer shadcn.
-7. **CI/pre-push parity** — CI runs fresh checks for executable/unknown ranges and focused checks for verified documentation-only ranges. Pre-push invokes the same classifier and reuses matching local base-gate evidence, then additionally selects local macOS visuals by pushed runtime impact. See `verification.md` for conservative defaults and reviewed assessments.
+7. **Local verification parity** — Independent review runs fresh checks for executable/unknown ranges and focused checks for verified documentation-only ranges. Pre-push invokes the same classifier and reuses matching local base-gate evidence, then additionally selects local macOS visuals by pushed runtime impact. See `verification.md` for conservative defaults and reviewed assessments.
 
 ## Rule for future updates
 

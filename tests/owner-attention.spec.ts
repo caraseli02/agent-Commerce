@@ -508,26 +508,16 @@ describe('Claude build queue', () => {
   });
 });
 
-describe('owner attention workflow', () => {
-  it('runs the trusted default-branch script with write access only to issues and PRs', async () => {
-    const workflow = await readFile('.github/workflows/owner-attention.yml', 'utf8');
-
-    expect(workflow).toContain('pull_request_target');
-    expect(workflow).toContain('workflow_run');
-    expect(workflow).toContain('schedule');
-    expect(workflow).toContain('ref: ${{ github.event.repository.default_branch }}');
-    expect(workflow).toContain('node scripts/owner-attention.mjs');
-    expect(workflow).not.toContain('github.event.pull_request.head');
-    expect(workflow).not.toMatch(/contents:\s*write/);
-    // Runs never overlap, so dedupe reads and writes cannot race.
-    expect(workflow).toMatch(/concurrency:\s*\n\s*group: owner-attention\s*\n\s*cancel-in-progress: false/);
+describe('retired owner attention workflow', () => {
+  it('has no runnable Actions notifier', async () => {
+    await expect(readFile('.github/workflows/owner-attention.yml')).rejects.toMatchObject({ code: 'ENOENT' });
   });
 });
 
 describe('reconcile against a fake GitHub API', () => {
   type Call = { method: string; path: string; body?: { body?: string; title?: string; state?: string } };
   type Routes = Record<string, unknown>;
-  // Explicit test transport: production uses only the root-owned local socket.
+  // Explicit test transport: production reads current GitHub review evidence.
   const testReaders = new WeakMap<object, (number: number) => Promise<unknown>>();
   const handleEvent = (args: Parameters<typeof realHandleEvent>[0]) =>
     realHandleEvent({ ...args, evidenceProvider: testReaders.get(args.gh) });

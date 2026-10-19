@@ -1,5 +1,7 @@
 # Codex native routing source
 
+GitHub Actions stay disabled. Husky and independent local review govern acceptance; follow [local verification](../docs/agents/local-verification.md). The standalone CI migration is retired.
+
 This directory is reviewed source for the externally configured Mac mini Codex
 dispatcher. It preserves `.factory/`, the native global exclusion and both independent
 reviewers. Routing/recovery version 1 retains the global execution lease, one implementing Codex issue,

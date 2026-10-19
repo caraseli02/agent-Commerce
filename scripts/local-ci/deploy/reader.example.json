@@ -1,8 +1,0 @@
-{
-  "version": 1,
-  "enabled": false,
-  "repository": "caraseli02/agent-Commerce",
-  "coordinatorUid": 0,
-  "evidenceSocket": "/Library/AgentCommerceCI/evidence/read.sock",
-  "policy": "OWNER_PINS_DEPLOYED_POLICY_AFTER_OPERATIONAL_PROOF"
-}

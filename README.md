@@ -1,5 +1,7 @@
 # agent-Commerce
 
+GitHub Actions stay disabled. Husky and independent local review govern acceptance; follow [local verification](docs/agents/local-verification.md). The standalone CI migration is retired.
+
 Components Marketplace is a Nuxt 4 e-commerce frontend prepared as a **self-contained portfolio demo** in the agent-Commerce repository.
 
 The project includes a storefront, authenticated customer flows, and dashboard surfaces backed by local Nitro mock endpoints so the app can be reviewed without a live backend.
@@ -332,5 +334,5 @@ Component review:
 
 - Package manager for this repo is **pnpm**
 - `.env` is ignored; use `.env.example` as the template
-- Local gates are documented in `docs/agents/verification.md`; pre-commit formats staged files. Run one strongest delivery gate (`pnpm verify:handoff` for final handoff); pre-push reuses matching successful local base-gate evidence for up to four hours and selects macOS visuals from pushed impact. CI runs fresh full checks for executable/unknown changes. Verified documentation-only ranges use formatting/state checks. Use `--fresh` when earlier evidence is insufficient.
+- Local gates are documented in `docs/agents/verification.md`; pre-commit formats staged files. Run one strongest delivery gate (`pnpm verify:handoff` for final handoff); pre-push reuses matching successful local base-gate evidence for up to four hours and selects macOS visuals from pushed impact. Independent review runs fresh full checks for executable/unknown changes. Verified documentation-only ranges use formatting/state checks. Use `--fresh` when earlier evidence is insufficient.
 - For portfolio demos, validate the key review flows above before capturing screenshots or video

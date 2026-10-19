@@ -7,7 +7,15 @@ import subprocess
 
 from router import classify, closing_numbers, fingerprint, route
 from scope_check import working_scope
-from local_ci import evidence as local_ci_evidence
+
+
+def review_evidence(number, config):
+    # Installed releases retain the same scripts/.factory layout as the checkout.
+    root = pathlib.Path(__file__).resolve().parent
+    script = root / 'scripts' / 'owner-attention.mjs'
+    if not script.exists():
+        script = root.parent / 'scripts' / 'owner-attention.mjs'
+    return json.loads(subprocess.check_output(['node', str(script), 'local-readiness', str(number), '--repo', config['repo']], text=True, timeout=180))
 
 
 def gh(path, pages=False):
@@ -40,20 +48,11 @@ def snapshot(config, registry, assessments):
         detail['comments'] = gh(f'repos/{repo}/issues/{pr["number"]}/comments?per_page=100', True)
         detail['reviews'] = gh(f'repos/{repo}/pulls/{pr["number"]}/reviews?per_page=100', True)
         sha = detail['head']['sha']
-        # These endpoints return nested arrays; paginate explicitly rather than cap them.
-        check_pages = json.loads(subprocess.check_output(['gh', 'api', '--paginate', '--slurp', f'repos/{repo}/commits/{sha}/check-runs?per_page=100'], text=True))
-        detail['checks'] = [c for p in check_pages for c in p['check_runs']]
-        # statuses endpoint returns reverse chronology; retain latest per context.
-        statuses = gh(f'repos/{repo}/commits/{sha}/statuses?per_page=100', True)
-        latest = {}
-        for status in statuses:
-            latest.setdefault(status['context'], status)
-        detail['statuses'] = list(latest.values())
         detail['observed_at'] = now
         if detail['state'] == 'open':
             from urllib.parse import quote
             detail['base']['sha'] = gh(f'repos/{repo}/git/ref/heads/{quote(detail["base"]["ref"], safe="")}')['object']['sha']
-            detail['local_ci'] = local_ci_evidence(pr['number'])
+            detail['local_review'] = review_evidence(pr['number'], config)
         for n in linked:
             by_issue.setdefault(n, []).append(detail)
         if detail['state'] == 'open':

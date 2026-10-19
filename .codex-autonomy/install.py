@@ -7,7 +7,7 @@ import pathlib
 import subprocess
 import tempfile
 
-FILES = ('native_lease.py', 'recovery.py', 'router.py', 'discover.py', 'local_ci.py', 'scope_check.py', 'runtime.py', 'lease_guard.py', 'config.json', 'dispatcher-workflow.md', 'native-workflow.md', 'investigation-workflow.md', 'automation-prompt.md')
+FILES = ('native_lease.py', 'recovery.py', 'router.py', 'discover.py', 'scope_check.py', 'runtime.py', 'lease_guard.py', 'config.json', 'dispatcher-workflow.md', 'native-workflow.md', 'investigation-workflow.md', 'automation-prompt.md', 'scripts/owner-attention.mjs', 'scripts/check-pr-template.mjs', '.factory/factory.yaml')
 
 
 def migrate_registry(registry):
@@ -27,8 +27,9 @@ def stage(source, destination):
     destination.mkdir(parents=True, exist_ok=False)
     manifest = {}
     for name in FILES:
-        data = (source / name).read_bytes()
+        data = ((source.parent if '/' in name else source) / name).read_bytes()
         manifest[name] = hashlib.sha256(data).hexdigest()
+        (destination / name).parent.mkdir(parents=True, exist_ok=True)
         (destination / name).write_bytes(data)
     (destination / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     return manifest

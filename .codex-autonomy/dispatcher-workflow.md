@@ -30,10 +30,10 @@ unresolved risk. Neither internal consultation nor self-auditing is acceptance.
    `scope_check.py`. New overlap requires a complete rescope or blocker; Known risks
    never authorizes overlap. Leave all reserved unpublished work intact.
 4. Follow the returned decision. Exactly one live implementation, including waiting
-   CI/first evaluation, holds the implementation slot. Actionable repairs use the
+   local verification/first evaluation, holds the implementation slot. Actionable repairs use the
    original issue/chat/PR before new claims; never interrupt another active worker.
    Initial queue admission requires an open canonical Codex PR, trusted independent
-   exact-head Claude PASS, required green checks, mergeability and no change request.
+   exact-head Claude PASS, current head/base local verification, mergeability and no change request.
    `queued_at` retains queue identity through repairs and re-review, never readiness.
    At two queued PRs stop new claims; an already live issue may finish and queue.
    Parked/blocked claims preserve their work and do not hold the live slot. Oldest
@@ -52,7 +52,7 @@ unresolved risk. Neither internal consultation nor self-auditing is acceptance.
    explicit resolved-delivery retry only if delivery is known absent. Vlad authorized
    these scoped messages only. Release then send in the final tool call; no tools
    follow it. Worker acquires its own token, never the dispatcher's. New feedback,
-   CI failure/conflict or meaningful cleanup can dispatch; unchanged waiting cannot.
+   local verification failure/conflict or meaningful cleanup can dispatch; unchanged waiting cannot.
 7. With no eligible implementation/capacity, choose the planner's ONE unanswered
    report-only investigation by user impact, uncertainty, independence and cost.
    Rotation breaks ties only. Read investigation-workflow.md; main/head is pinned,
@@ -118,10 +118,8 @@ unresponsive keepers are unknown; no compatibility takeover or automatic install
    Keep watched post-merge evidence pending until an actual interrupted original owner
    recovers, with no unpublished loss, duplicate delivery/claim or displaced commands.
 
-## Phase 2 local-CI acceptance contract
+## Husky acceptance — owner decision 2026-10-19
 
-After human merge and a watched rollout, this section supersedes hosted-check and historical-PASS admission instructions above. Both independent evaluators use the root-owned `/Library/AgentCommerceCI/bin/evidence PR_NUMBER` client. It reads pinned current service evidence, never PR code. Require `checks.state=success` before an evaluator PASS and `readiness.ready=true` before readiness labels or queue admission. The latter includes an independently attributed exact-head PASS, acceptable mergeability, no outstanding change requests and Claude protected-path authorization; payment paths remain excluded.
+GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the context report; award PASS only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. Changed head/base/body/labels require revalidation. The context marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.
 
-New head/base/policy/body/labels or stale/unavailable health invalidates current acceptance. Missing client, operational proof or App publication is a named infrastructure prerequisite, not a source defect. Do not restore hosted-check fallback, create commits to cure outages or infer permission from agent text. On coordinator failure the existing native schedule surfaces one meaningful failure and waits quietly while unchanged; it cannot dispatch acceptance from cached receipts. App-bot notification intent/readback persists in the coordinator outbox.
-
-This PR changes reviewed source only. Installed settings, native automation prompts, credentials and service activation remain unchanged until owner-approved post-merge rollout. The inactive Phase 1 merge exception does not admit product PRs or grant Phase 2 operational acceptance.
+A final report suppresses only unchanged current-context work. A same-head PASS with a stale base/body/labels marker, a material mergeability change, or a report blocked solely by the superseded CI policy is eligible for revalidation. Publish one new attributed report for the changed head/base/metadata context, preserving previous reports. Do not duplicate an unchanged context or wait for a new commit. Current-context reports supersede legacy unmarked reports; contradictory reports within the same context still block.

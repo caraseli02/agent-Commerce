@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+GitHub Actions stay disabled. Husky and independent local review govern acceptance; follow [local verification](docs/agents/local-verification.md). The standalone CI migration is retired.
+
 Project-level guidance for Claude Code working in the **agent-Commerce** repository.
 
 ## What agent-Commerce is
@@ -83,7 +85,7 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 1. During implementation, inspect the diff/affected consumers and select the smallest relevant checks with reasons. Use `.agents/skills/verify-ui-change/SKILL.md` for direct or indirect UI effects.
 2. After repairs, rerun only invalidated checks; continue until the scoped behavior passes or a blocker applies.
-3. At delivery, run `pnpm verify`, `pnpm verify:full` when architecture/runtime evidence is needed, and `pnpm verify:handoff` from a clean working tree. Existing pre-push/CI gates remain. Documentation/skill-only local work follows the targeted exception in `docs/agents/verification.md`.
+3. At delivery, run `pnpm verify`, `pnpm verify:full` when architecture/runtime evidence is needed, and `pnpm verify:handoff` from a clean working tree. Existing local pre-push gates remain. Documentation/skill-only local work follows the targeted exception in `docs/agents/verification.md`.
 
 Use `docs/agents/verification.md` before declaring done.
 

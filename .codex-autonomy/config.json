@@ -3,7 +3,7 @@
   "repo": "caraseli02/agent-Commerce",
   "builder_login": "caraseli02",
   "trusted_evaluator_logins": ["caraseli02"],
-  "required_checks": ["verify", "check"],
+  "verification_provider": "husky-local-review",
   "max_pass_queue": 2,
   "investigation_minutes": 40,
   "max_findings_per_run": 3,

@@ -2,6 +2,13 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## Husky replaces hosted and standalone CI — 2026-10-19
+
+- Vlad explicitly retired the local-CI migration and chose Husky plus independent local review with GitHub Actions disabled (#741). This supersedes earlier hosted-check blockers, App/service/health/reboot acceptance prerequisites and bot-notification requirements.
+- Pre-push retains application/coverage/visual gates and validates existing PR descriptions. Independent opposite-builder review verifies current head/base and live metadata; an attributed PASS with its local-verification marker admits readiness and the existing bounded human queue. Hooks are local and bypassable; independent review and Vlad's merge are the accepted safeguards.
+- Preserve ownership, WIP, original-chat repairs, protected paths, payment restrictions and all real verification failures. No LLM check-runner, extra scheduler or automatic merge is introduced.
+- Source and runbooks (including unmerged PR #737) are archived under docs/archive/local-ci; protected installation and private deployment evidence remain retained, disabled and unloaded. See docs/agents/local-verification.md for current instructions.
+
 ## UI-conventions baseline is builder-editable, guarded by origin/main — 2026-10-12
 
 - `ui-conventions-baseline.json` moved from `scripts/` (protected) to the repo root (Vlad, 2026-10-12, #666), so Claude may lower it in the same commit as a migration (`node scripts/verify-ui-conventions.mjs --update`). The script stays protected. The ratchet refuses any per-file/per-tag count above the baseline on the merge base with `origin/main` and fails closed when that commit cannot be resolved, so a hand edit can lower counts but never raise them.

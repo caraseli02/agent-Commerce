@@ -10,7 +10,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - `pnpm verify`
    - Runs `build`, `lint`, `typecheck`, `test:coverage`, and `feature_list.json` validation.
    - `pnpm test:coverage` measures all files in `app/composables/api/**` and `app/store/**`. The enforced global baseline is 28% statements, 23% branches, 25% functions, and 29% lines, rounded down from the initial measured report (28.78%, 23.45%, 25.55%, and 29.33%) to avoid false failures from insignificant instrumentation variance.
-   - Run this before delivery/push, rather than after every focused repair. Default `verify` runs fresh; `--reuse` allows the matching successful local base-gate receipt described below. CI always runs fresh executable checks.
+   - Run this before delivery/push, rather than after every focused repair. Default `verify` runs fresh; `--reuse` allows the matching successful local base-gate receipt described below. Independent reviewers run fresh checks in their own fixture.
 2. **Full local gate**
    - `pnpm verify:full`
    - Adds architecture invariants and preview smoke on top of the fast gate.
@@ -25,8 +25,8 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 5. **PR template completeness gate**
    - `node scripts/check-pr-template.mjs`
    - Local preflight before `gh pr create` or a body edit: `node scripts/check-pr-template.mjs --body-file <file>` runs the same assessment on the body file and exits 1 with the violations. Claude's guard hook runs it on every `gh pr create` / `gh pr edit --body-file` and blocks a failing body or an inline `--body` (#702).
-   - The focused `PR template / check` workflow runs separately from application CI and fails generator PRs whose body leaves the required template sections boilerplate-only or empty.
-   - The workflow reads the current PR description from GitHub instead of trusting the immutable event snapshot. Description and label edits automatically rerun only this focused check; they do not rerun `pnpm verify`.
+   - Husky validates live descriptions for existing PRs before push; publication preflight and independent review validate first publication and later metadata edits. Invalid metadata blocks readiness.
+   - The read-only local-readiness command reads the current body and labels. Metadata edits invalidate readiness and require focused revalidation; they do not require rerunning unchanged application checks.
    - The gate expects filled verification outcomes, known-risks evidence, and rubric fields (scores are supplied by the independent evaluator); it skips when the PR carries the documented `skip-pr-template-check` or `human-hotfix` label so a human hotfix can intentionally bypass the agent template.
 6. **Clean-state handoff validator**
    - `node scripts/check-clean-state.mjs`
@@ -70,7 +70,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 4. On failure, make a focused repair and rerun the failed check plus any checks invalidated by the repair. Keep evidence only when its relevant source, dependencies, and environment remain unchanged; rerun the relevant check when uncertain.
 5. Continue until the scoped behavior passes or the blocker protocol applies (two focused failed repair attempts, missing required decision, or unavailable required environment). Run the delivery gates when ready to ship; the independent evaluator remains responsible for PR readiness.
 
-Documentation/skill-only local work can use changed-file formatting, link/frontmatter validation, and consistency inspection. Application build, tests, and browser checks are not required when no executable behavior or runtime configuration changed; state that reason in the evidence. Push/CI classify the actual committed range conservatively: verified documentation-only changes receive formatting/state validation; executable or unknown changes retain the application gate. PR-template validation remains separate.
+Documentation/skill-only local work can use changed-file formatting, link/frontmatter validation, and consistency inspection. Application build, tests, and browser checks are not required when no executable behavior or runtime configuration changed; state that reason in the evidence. Local gates classify the actual committed range conservatively: verified documentation-only changes receive formatting/state validation; executable or unknown changes retain the application gate. PR-template validation remains separate.
 
 ## Saved verification state
 
@@ -99,9 +99,9 @@ Successful local application gates may write `tmp/verification/delivery.json` (i
 
 Documentation/state text is excluded from application evidence, so a tracking update does not rerun unchanged application checks. Feature/UI validators still run on reuse, full/handoff still run architecture and fresh preview smoke, and handoff still requires a clean tree. Visual selection is independently bound to the pushed runtime patch. Missing/malformed/expired receipts, missing dependencies/artifacts, changed inputs, or failed gates run fresh or block. A failed verification attempt removes any old receipt; a successful run writes one only if executable inputs stayed unchanged throughout. Use `--fresh` after installing/modifying dependencies manually, after an unresolved focused-test failure, or whenever an external environment change makes earlier evidence insufficient. Receipts do not prove arbitrary manual changes inside installed packages and never replace independent review.
 
-CI never reads/reuses local receipts. `--base <ref> --head <ref>` enables conservative documentation-only classification over the complete committed range plus current dirty/untracked inputs. Only named root Markdown/state files, Markdown under `docs/`, and skill Markdown qualify. Tests, workflows, hooks, scripts, dependencies, public Markdown, arbitrary JSON, symlinks, executables, unknown paths, renames/deletions of executable files, and unavailable bases cannot waive application checks. Pre-push requires the exact pushed HEAD and a clean checkout, including tracking files, so validators cannot accidentally prove a different committed state. A pushed executable tree different from the checkout blocks verification. Multiple pushed ranges conservatively use the full gate.
+Independent reviewers never reuse a builder's local receipt. `--base <ref> --head <ref>` enables conservative documentation-only classification over the complete committed range plus current dirty/untracked inputs. Only named root Markdown/state files, Markdown under `docs/`, and skill Markdown qualify. Tests, workflows, hooks, scripts, dependencies, public Markdown, arbitrary JSON, symlinks, executables, unknown paths, renames/deletions of executable files, and unavailable bases cannot waive application checks. Pre-push requires the exact pushed HEAD and a clean checkout, including tracking files, so validators cannot accidentally prove a different committed state. A pushed executable tree different from the checkout blocks verification. Multiple pushed ranges conservatively use the full gate.
 
-Documentation-only runs use changed-file Prettier and feature-state validation; handoff also checks clean state. Explicitly inspect links and document consistency. CI obtains its base from the event and fetches full Git history. The classifier is stricter than the visual selector: a nonvisual test or workflow still requires the application gate.
+Documentation-only runs use changed-file Prettier and feature-state validation; handoff also checks clean state. Explicitly inspect links and document consistency. Reviewers resolve the current PR base tip from GitHub and fetch the required history. The classifier is stricter than the visual selector: a nonvisual test or workflow still requires the application gate.
 
 ## Evidence policy
 
@@ -234,7 +234,7 @@ Mechanical gates do **not** enforce design-system consistency. Evaluators must c
 - **Modals and dialogs:** prefer `UiDialog`, `UiDialogContent`, `UiButton`, `UiInput`, and `UiLabel` from shadcn-nuxt over raw `<button>`, `<input>`, and `<label>` unless the issue explicitly calls for a legacy/native pattern.
 - **Match nearby surfaces:** when editing an existing modal, follow the conventions of sibling modals only when the issue scope is a bugfix; prefer shadcn when the modal is being materially reworked or is a known follow-up (for example `CustomProductPartNumberModal.vue`).
 - **Runtime evidence for UI:** modal and route changes need browser smoke on the affected flow, not only `pnpm verify` static output. Issue acceptance criteria that mention smoke-testing must show route/viewport evidence in the PR body.
-- **PR template completeness:** generator PRs must fill the template sections (verification outcomes, known risks, evaluator rubric) before opening the PR. Rubric numeric scores are filled by the evaluator before PASS; generators may leave `/10` placeholders. The focused `PR template / check` workflow enforces this against current GitHub metadata, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when application CI passes.
+- **PR template completeness:** generator PRs must fill the template sections (verification outcomes, known risks, evaluator rubric) before opening the PR. Rubric numeric scores are filled by the evaluator before PASS; generators may leave `/10` placeholders. Local publication/push preflight and independent review enforce this against current GitHub metadata, and the `skip-pr-template-check` / `human-hotfix` label escape hatch is reserved for intentionally human-authored hotfix PRs. A minimal body with only command names is not review-ready even when local application checks pass.
 
 ## Agent-oriented failure messages
 
@@ -264,10 +264,6 @@ A useful failure message says:
 - v1 smoke matrix: homepage (`/`) plus one representative product or gallery route selected from `pages/`.
 - Use this broad smoke at delivery when required by the full gate. During repairs, exercise only the affected route/flow and its relevant consumers.
 
-## Phase 2 independent CI evidence
+## Husky acceptance
 
-Standalone CI replaces disabled Actions as the acceptance provider only after the owner completes the watched rollout in [local-ci.md](local-ci.md). Existing local build/lint/typecheck/coverage and runtime checks remain mandatory. The operator-installed immutable `/Library/AgentCommerceCI/bin/evidence PR_NUMBER` command returns current head, actual base ref tip, policy, metadata, cleaned synthetic-merge result, template outcome, authenticated status publication and fresh coordinator/supervisor health. The reader validates root-owned configuration, socket owner and directory permissions. A green `local-ci/verify` string, Vercel, user-owned JSON, or old receipt cannot waive this boundary.
-
-Before an evaluator PASS require `checks.state=success` and perform the independent exact-head source/runtime review. The reply's `readiness.ready` additionally requires the independent report, so read it again before readiness/queue transitions. Unknown/conflicting mergeability, change requests, missing protected-path authorization, missing owner-approved operational proof or health older than 120 seconds blocks acceptance. Both builders use the same live decision; historical queue identity is not current readiness.
-
-Software regression fixtures include changed head/base/policy/body/labels, stale/future timestamps, missing cleanup, forged publication, self-review, contradictory reports, payment exceptions and lost notification responses across SQLite restart. These tests do not prove guest isolation, live App delivery or reboot recovery. Activation remains separately gated and unperformed.
+Follow [local verification](local-verification.md). GitHub Actions remain disabled; no hosted status or standalone CI service is required for acceptance. Independent reviewers execute fresh checks and attest the exact head/current base and live metadata in their structured report.

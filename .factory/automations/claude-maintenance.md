@@ -78,7 +78,7 @@ Follow `.agents/skills/compound-learning/SKILL.md`. Sources from the last 14 day
 
 ## 6. `check`: what the merge pipeline does not run
 
-CI runs `pnpm verify` on every PR and every push to `main`, the pre-push hook runs the selected visual checks, and the evaluator runs `verify:full`. Never repeat those here. The checks, in priority order:
+Husky pre-push runs `pnpm verify` and selected visual checks; the independent evaluator runs the appropriate fresh gate (including `verify:full` when needed). Never repeat those here. The checks, in priority order:
 
 | `check`        | Command                                                 | Due when                                   | A finding is                                                                                                   |
 | -------------- | ------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -163,7 +163,7 @@ One comment per day on the open issue titled `night_lane.digest_issue_title` (`C
 ```md
 <!-- claude-digest: <YYYY-MM-DD> -->
 
-**Ready to merge** (evaluator PASS on the current head, checks green), suggested order: #N title (why first).
+**Ready to merge** (evaluator PASS on the current head, local verification current), suggested order: #N title (why first).
 **Needs your decision:** blocked issues and PRs with their Best next move; open questions in plans.
 **Overnight:** builds, repairs, reviews; plans, diagnoses, spikes and learnings written; findings filed (from the journal since the previous digest).
 **Learnings inbox:** entries waiting for your tick.

@@ -1,12 +1,10 @@
 #!/usr/bin/env node
-// Notifies the repository owner when the autonomous workflow needs them.
-//
-// Every agent posts to GitHub through the owner's own account, and GitHub never
-// notifies a user about their own activity. This script runs in GitHub Actions
-// and posts as github-actions[bot], so its @mentions do reach the owner.
+// Shared autonomous-workflow policy and read-only local readiness CLI.
+// The Actions notifier is retired. Existing agent chats surface owner attention;
+// no bot delivery is implied by a self-mention.
 //
 // Signals:
-// - ready:   an open PR has a green CI, an exact-head evaluator PASS, no merge
+// - ready:   an open PR has local verification, an exact-head evaluator PASS, no merge
 //            conflict and no outstanding change request. Only the owner's merge is left.
 // - blocked: an open issue currently carries the `blocked` label.
 // - harness: a Claude-built PR touches protected paths without `owner-approved-harness`.
@@ -16,9 +14,11 @@
 // Each notice carries a hidden marker so a rerun never posts it twice.
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
-import { readTrustedEvidence } from './local-ci/evidence.mjs';
+import { execFileSync } from 'node:child_process';
+import { assessPrTemplate } from './check-pr-template.mjs';
 
 export const BOT_LOGIN = 'github-actions[bot]';
 export const QUEUE_ISSUE_TITLE = "Owner attention: Claude's build queue is empty";
@@ -147,7 +147,7 @@ const ATTRIBUTION_LINE = /^[ \t>]*(?:[*_]{1,2})?Independent evaluator(?:[*_]{1,2
 // independent-evaluator attribution, so an outsider's look-alike comment never counts.
 // Contradictory reports for the same head need clarification, so they resolve to
 // CONFLICTING rather than letting the newest one win.
-export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
+export function latestEvaluatorVerdict(comments, headSha, { trustedLogins, contextMarker = null }) {
   const head = String(headSha ?? '').toLowerCase();
   if (!head) return null;
   const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
@@ -163,12 +163,107 @@ export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
     const after = body.slice(body.indexOf(VERDICT_HEADING) + VERDICT_HEADING.length);
     const firstLine = after.split(/\r?\n/).find((line) => line.trim()) ?? '';
     const match = firstLine.match(/^[\s*_>]*(PASS|FAIL|BLOCKED|INCONCLUSIVE)\b/i);
-    if (match) reports.push({ verdict: match[1].toUpperCase(), url: comment.html_url ?? null });
+    if (match)
+      reports.push({
+        verdict: match[1].toUpperCase(),
+        url: comment.html_url ?? null,
+        current: contextMarker !== null && body.split(/\r?\n/).includes(contextMarker),
+        contextual: /^<!-- local-verification:/m.test(body),
+      });
   }
-  if (!reports.length) return null;
-  const latest = reports.at(-1);
-  const verdicts = [...new Set(reports.map((report) => report.verdict))];
-  return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : latest;
+  // Append one report for a new context rather than editing an arbitrary comment
+  // posted through the shared owner account. Contradictions in one context block.
+  const selected =
+    contextMarker === null
+      ? reports
+      : reports.some((report) => report.current)
+        ? reports.filter((report) => report.current)
+        : reports.filter((report) => !report.contextual);
+  if (!selected.length) return null;
+  const latest = selected.at(-1);
+  const verdicts = [...new Set(selected.map((report) => report.verdict))];
+  return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : { verdict: latest.verdict, url: latest.url };
+}
+
+// An independent review attests local execution; this is not a separate CI receipt.
+// Include live metadata so a changed description or authorization needs revalidation.
+export function localVerificationMarker(pr) {
+  const labels = (pr.labels ?? []).map((label) => (typeof label === 'string' ? label : label.name)).sort();
+  const metadata = createHash('sha256')
+    .update(JSON.stringify([pr.body ?? '', labels, pr.base.ref]))
+    .digest('hex');
+  return `<!-- local-verification: head=${pr.head.sha} base=${pr.base.sha} metadata=${metadata} -->`;
+}
+
+export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator }) {
+  const pending = [];
+  const failing = [];
+  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label) });
+  if (template.status === 'failed') failing.push(...template.violations);
+  const marker = localVerificationMarker(pr);
+  const verified = comments.some((comment) => {
+    const verdict = latestEvaluatorVerdict([comment], pr.head.sha, { trustedLogins });
+    const attribution = String(comment.body ?? '').match(
+      /^[ \t]*(?:\*{1,2})?Independent evaluator(?:\*{1,2})?\s*:(?:\*{1,2})?[^\S\n]*([^\n]+)/im,
+    );
+    return (
+      verdict?.verdict === 'PASS' &&
+      new RegExp(`\\b${expectedEvaluator}\\b`, 'i').test(attribution?.[1] ?? '') &&
+      String(comment.body).split(/\r?\n/).includes(marker)
+    );
+  });
+  if (!verified) pending.push('independent local verification for current head/base/metadata');
+  return { state: failing.length ? 'failure' : pending.length ? 'pending' : 'success', failing, pending };
+}
+
+// Read-only GitHub client using the existing gh login. No token is extracted.
+export function createGhClient(repository) {
+  const api = (path, pages = false) => {
+    const args = ['api', `repos/${repository}${path}`];
+    if (pages) args.push('--paginate', '--slurp');
+    const value = JSON.parse(execFileSync('gh', args, { encoding: 'utf8', timeout: 30_000 }));
+    return pages ? value.flat() : value;
+  };
+  return { get: (path) => api(path), paginate: (path) => api(`${path}${path.includes('?') ? '&' : '?'}per_page=100`, true) };
+}
+
+export async function readLocalEvidence(number, { gh, owner, config, trustedLogins = [owner] }) {
+  const pr = await gh.get(`/pulls/${number}`);
+  const ref = `/git/ref/heads/${encodeURIComponent(pr.base.ref)}`;
+  pr.base.sha = (await gh.get(ref)).object.sha;
+  const comments = await gh.paginate(`/issues/${number}/comments`);
+  const reviews = await gh.paginate(`/pulls/${number}/reviews`);
+  const claude = await isClaudeBuiltPr(gh, pr);
+  const checks = assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator: claude ? 'Codex' : 'Claude' });
+  const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins, contextMarker: localVerificationMarker(pr) });
+  const readiness = assessReadiness({ pr, checks, verdict, reviews });
+  if (claude) {
+    const files = await gh.paginate(`/pulls/${number}/files`);
+    if (files.length >= 3000) throw new Error('PR file list may be truncated; protected-path review is incomplete.');
+    const touched = protectedFilesTouched(files, config.protectedPaths);
+    if (
+      touched.some((entry) => entry.group === 'payments' || !(pr.labels ?? []).some((label) => label.name === 'owner-approved-harness'))
+    ) {
+      readiness.ready = false;
+      readiness.reasons.push('Claude protected-path authorization missing or payment path changed');
+    }
+  }
+  // A changing context during the read is pending, never an old green result.
+  const current = await gh.get(`/pulls/${number}`);
+  const base = (await gh.get(ref)).object.sha;
+  if (
+    current.state !== 'open' ||
+    current.draft ||
+    current.mergeable !== true ||
+    current.base.ref !== pr.base.ref ||
+    current.head.sha !== pr.head.sha ||
+    base !== pr.base.sha ||
+    localVerificationMarker({ ...current, base: { ...current.base, sha: base } }) !== localVerificationMarker(pr)
+  ) {
+    readiness.ready = false;
+    readiness.reasons.push('PR context changed during readiness read');
+  }
+  return { head: pr.head.sha, base: pr.base.sha, marker: localVerificationMarker(pr), checks, readiness };
 }
 
 // Head SHAs that carry an evaluator PASS: the review history shows the PR passed once,
@@ -339,7 +434,7 @@ export function readyMessage({ owner, pr, verdict, key = `ready:${pr.head.sha}` 
     marker(key),
     `@${owner} ✅ **PR #${pr.number} is waiting only on your review and merge.**`,
     '',
-    `- CI: green on \`${pr.head.sha.slice(0, 12)}\``,
+    `- Local verification: passed on \`${pr.head.sha.slice(0, 12)}\``,
     `- Evaluator: PASS on this exact head${verdict.url ? ` ([report](${verdict.url}))` : ''}`,
     `- Mergeable: yes (${pr.mergeable_state})`,
     '- No outstanding change requests',
@@ -461,16 +556,16 @@ async function checkReady(gh, owner, number, trustedLogins, evidenceProvider) {
   const sha = pr.head.sha;
   const comments = await gh.paginate(`/issues/${number}/comments`);
   const evidence = await evidenceProvider(number);
-  const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins });
+  const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins, contextMarker: evidence.marker ?? null });
   const reviews = await gh.paginate(`/pulls/${number}/reviews`);
   const ready =
     evidence.head === sha && evidence.readiness?.ready === true && assessReadiness({ pr, checks: evidence.checks, verdict, reviews }).ready;
-  const reasons = evidence.readiness?.reasons ?? ['trusted local CI evidence unavailable'];
+  const reasons = evidence.readiness?.reasons ?? ['independent local verification unavailable'];
   if (!ready) {
     log(`PR #${number} not ready: ${reasons.join('; ')}`);
     return;
   }
-  const key = `ready:${sha}:${evidence.base}:${evidence.policy}:${evidence.metadata}`;
+  const key = `ready:${sha}:${evidence.base}:${evidence.policy ?? 'husky'}:${evidence.metadata ?? ''}`;
   if (alreadyNotified(comments, key)) {
     log(`PR #${number}: ${key} already notified`);
     return;
@@ -578,7 +673,13 @@ async function guarded(label, task) {
 // Every event reconciles the whole repository from current GitHub state instead of
 // trusting the event payload. The workflow runs one reconcile at a time, so a dedupe
 // read and its write never race, and a superseded queued run loses nothing.
-export async function reconcile({ gh, owner, config, trustedLogins, evidenceProvider = readTrustedEvidence }) {
+export async function reconcile({
+  gh,
+  owner,
+  config,
+  trustedLogins,
+  evidenceProvider = (number) => readLocalEvidence(number, { gh, owner, config, trustedLogins }),
+}) {
   const prs = await gh.paginate('/pulls?state=open');
   for (const pr of prs) {
     if (pr.draft) continue;
@@ -593,29 +694,28 @@ export async function reconcile({ gh, owner, config, trustedLogins, evidenceProv
   await guarded('Claude queue', () => checkQueue(gh, owner, config, openIssues, prs, trustedLogins, evidenceProvider));
 }
 
-export async function handleEvent({ eventName, gh, owner, config, trustedLogins = [owner], evidenceProvider = readTrustedEvidence }) {
+export async function handleEvent({ eventName, gh, owner, config, trustedLogins = [owner], evidenceProvider }) {
   log(`Reconciling after ${eventName}.`);
   await reconcile({ gh, owner, config, trustedLogins, evidenceProvider });
 }
 
 async function main() {
-  const repository = process.env.GITHUB_REPOSITORY;
-  const token = process.env.GITHUB_TOKEN;
-  const eventName = process.env.GITHUB_EVENT_NAME;
-  if (!repository || !token || !eventName) throw new Error('GITHUB_REPOSITORY, GITHUB_TOKEN and GITHUB_EVENT_NAME are required.');
+  throw new Error(
+    'The Actions notifier is retired. Existing agent chats surface owner attention; use local-readiness for read-only readiness.',
+  );
+}
 
-  const owner = process.env.OWNER_LOGIN || process.env.GITHUB_REPOSITORY_OWNER;
-  const config = parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8'));
-  // With OWNER_ATTENTION_DRY_RUN set to 1 it reads live state and prints what it would post.
-  const gh = createClient({ repository, token, dryRun: process.env.OWNER_ATTENTION_DRY_RUN === '1' });
-
-  // Agents post evaluator reports through the owner's account unless EVALUATOR_LOGINS says otherwise.
-  const trustedLogins = (process.env.EVALUATOR_LOGINS || owner)
-    .split(',')
-    .map((login) => login.trim())
-    .filter(Boolean);
-
-  await handleEvent({ eventName, gh, owner, config, trustedLogins });
+async function printLocalReadiness() {
+  const args = process.argv.slice(3);
+  const number = Number(args[0]);
+  if (!Number.isSafeInteger(number) || number <= 0) throw new Error('local-readiness needs a positive PR number.');
+  const repoIndex = args.indexOf('--repo');
+  const repository = repoIndex < 0 ? 'caraseli02/agent-Commerce' : args[repoIndex + 1];
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repository ?? '')) throw new Error('Invalid repository.');
+  const owner = repository.split('/')[0];
+  const config = parseFactoryConfig(await readFile(new URL('../.factory/factory.yaml', import.meta.url), 'utf8'));
+  const result = await readLocalEvidence(number, { gh: createGhClient(repository), owner, config });
+  log(JSON.stringify(result));
 }
 
 // `gh issue view <n> --json title,body,labels | node scripts/owner-attention.mjs skip-fingerprint`
@@ -679,7 +779,7 @@ export function checksGreenVerdict(text, combinedStatus) {
 // Empty stdin, an empty run list or an unreadable status file exits non-zero with nothing on stdout.
 async function printChecksGreen() {
   throw new Error(
-    'checks-green cannot establish readiness. Use /Library/AgentCommerceCI/bin/evidence PR_NUMBER and require current checks.state=success plus readiness.ready=true.',
+    'Hosted checks are retired. Use node scripts/owner-attention.mjs local-readiness PR_NUMBER; require readiness.ready=true.',
   );
 }
 
@@ -720,9 +820,14 @@ async function printPassHeads() {
   if (heads.length) log(heads.join('\n'));
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const command = process.argv[2];
-  const commands = { 'skip-fingerprint': printSkipFingerprint, 'checks-green': printChecksGreen, 'pass-heads': printPassHeads };
+  const commands = {
+    'skip-fingerprint': printSkipFingerprint,
+    'checks-green': printChecksGreen,
+    'pass-heads': printPassHeads,
+    'local-readiness': printLocalReadiness,
+  };
   const run = commands[command] ?? main;
   run().catch((error) => {
     console.error(error instanceof Error ? error.stack || error.message : String(error));
