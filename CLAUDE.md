@@ -34,9 +34,9 @@ A Nuxt 4 + TypeScript e-commerce demo, branded as Components Marketplace, with V
 
 ## Harness state files
 
-- `PROGRESS.md` — reviewed focus, blockers and verification snapshot; recheck live GitHub claims
+- `PROGRESS.md` — optional historical session note; normal feature PRs leave it unchanged
 - `DECISIONS.md` — durable cross-session decisions
-- `feature_list.json` — reviewed validation/evidence snapshot; its validator does not enforce live GitHub WIP
+- `feature_list.json` — schema v2 durable policy and historical evidence archive; no task status or claims
 
 ## Agent skills
 
@@ -91,4 +91,4 @@ Use `docs/agents/verification.md` before declaring done.
 
 ## State
 
-GitHub labels, assignments and linked PRs are live claim state. Unattended agents record transitions and evidence there; shared `PROGRESS.md` and `feature_list.json` snapshots change only through explicit reviewed reconciliation.
+GitHub issue labels, assignments and linked PRs are the only live task state. Record transitions, blockers and verification evidence there. Normal feature PRs leave `PROGRESS.md` and `feature_list.json` unchanged. Session notes change at most once per session on `main` when explicitly requested, or are generated from GitHub; archive edits require an explicit archival/policy task. Code-only handoffs require neither snapshot edits nor live-task headings.
