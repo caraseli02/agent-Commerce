@@ -7,9 +7,9 @@ Use this when starting, continuing, or ending an Components Marketplace agent se
 Read these before coding:
 
 1. `AGENTS.md` — repo router and hard constraints
-2. `PROGRESS.md` — current durable state
+2. `PROGRESS.md` — optional historical session context; recheck live GitHub for current work
 3. `DECISIONS.md` — durable architecture/product decisions
-4. `feature_list.json` — machine-readable task state
+4. `feature_list.json` — durable policy and historical evidence archive, without task statuses
 5. Relevant issue via `gh issue view <number> --comments`
 6. Relevant topic docs under `docs/agents/`
 
@@ -56,7 +56,7 @@ Codex native routing additionally distinguishes live, queued and parked claims a
 - Scope by one observable behavior, including its necessary implementation/endpoint/tests. Review scope when it exceeds roughly three implementation files; split unrelated outcomes into named issues before coding.
 - Do not refactor adjacent code until the core behavior is verified.
 - Record durable decisions in `DECISIONS.md`, not in chat only.
-- Record unattended task transitions in GitHub labels and issue/PR comments. Update shared `feature_list.json` / `PROGRESS.md` snapshots only during explicit reviewed reconciliation; they do not replace a live GitHub claim check.
+- Record all live task transitions, blockers and evidence in GitHub labels and issue/PR comments. Normal feature PRs leave `feature_list.json` / `PROGRESS.md` unchanged. Update the optional short session note at most once per session on `main` when explicitly requested, or generate it from GitHub; archive edits require an explicit archival/policy task. Historical notes never replace live claim checks.
 
 ## 5. Blocker protocol
 
@@ -91,9 +91,9 @@ Also verify:
 
 - `git status --short` contains only intentional files.
 - No temporary debug files are left under `tmp/`, project root, or source folders.
-- No new `console.log`, commented-out code, or TODO/FIXME markers were introduced unless explicitly intended; `node scripts/check-clean-state.mjs` checks the changed source files for those regressions and only performs the `PROGRESS.md` shape checks it can verify mechanically, while skipping itself so it does not self-flag.
-- GitHub labels, assignments and linked PRs are live task state. `PROGRESS.md` preserves a reviewed snapshot of issue/PR, focus, blockers and verification; unattended runs publish current state on GitHub.
-- Explicit tracking reconciliations update `feature_list.json` evidence; unattended runs leave the shared snapshot unchanged and record evidence in their issue/PR.
+- No new `console.log`, commented-out code, or TODO/FIXME markers were introduced unless explicitly intended; `node scripts/check-clean-state.mjs` checks the changed source files for those regressions while skipping itself so it does not self-flag. It does not read `PROGRESS.md` or require a session-note update.
+- GitHub issue labels, assignments and linked PRs are the only live task state. Verify them directly; a historical archive entry cannot claim an issue or prove completion.
+- A code-only handoff passes with `PROGRESS.md` and `feature_list.json` unchanged. Preserve evidence in the issue/PR, not in a duplicate tracked task ledger.
 - Remove temporary screenshots/logs/task records before handoff. The ignored four-hour delivery receipt may remain for pre-push reuse; it is never committed or treated as an evaluator verdict.
 - PR body includes verification evidence and any known risks.
 - If a PR was created or updated, publish evaluator-ready evidence for its exact head. The separate evaluator owns scheduling; wait for its report and human merge before another issue for this builder.

@@ -13,7 +13,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - Autonomous work uses a planner → generator → evaluator split. The generator opens the PR; the evaluator decides whether it is review-ready.
 - The controller behaves like a standing `/goal`: keep one executable issue alive until the evaluator passes it, a human blocks it, or the user replaces the goal. Tracking epics are never claimed; WIP=1 applies to a bounded child whose PR closes that child. Do not start a second issue for that builder while its `in-progress` issue has an open PR. Exception, Claude: parked (`blocked`) and queued (open PR with an evaluator PASS, waiting for Vlad's merge, at most `max_pass_queue`) claims do not count toward Claude's WIP=1, and Claude never has two live claims (`docs/agents/autonomous-workflow.md` § Claude parking).
 - WIP=1 applies per builder. Claude owns issues labeled `agent:claude`; Codex owns other eligible issues. Internal model delegation shares its builder's claim. Claude never builds payment work; its routines are defined in `.factory/`. See `docs/agents/autonomous-workflow.md` for ownership and independent cross-review.
-- GitHub labels, assignments and linked PRs are live claim state. `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md` preserve reviewed session/evidence snapshots; unattended agents keep task transitions on GitHub.
+- GitHub issue labels, assignments and linked PRs are the only live task state. `PROGRESS.md` is a short historical session note, `feature_list.json` archives validation/evidence without task statuses, and `DECISIONS.md` / `CONTEXT.md` preserve durable decisions/context. Ordinary feature PRs leave session notes and the archive unchanged.
 
 Codex uses the reviewed native queue/parking policy in [Codex routing](.codex-autonomy/README.md): one live implementation including waiting local verification/first evaluation, at most two queued PRs for new claims, independent exact-head Claude PASS plus current head/base local verification for admission, original-chat repairs, preserved parked work and oldest eligible unparked priority. Versioned source does not activate host routing; human merge precedes watched installation. Report-only investigations remain exclusive under the existing native global lease.
 
@@ -23,7 +23,7 @@ Codex uses the reviewed native queue/parking policy in [Codex routing](.codex-au
 2. How is it organized? → repo structure below
 3. How do I run it? → commands below
 4. How do I verify it? → verification checklist below
-5. Where are we now? → `PROGRESS.md` + git history
+5. Where are we now? → live GitHub issues/PRs + git history; `PROGRESS.md` is historical context only
 
 If any answer is missing, add the missing file/section before doing bigger work.
 
@@ -71,9 +71,9 @@ Initialization outputs:
 
 - a runnable environment
 - at least one verified test/build check
-- `PROGRESS.md` with current focus and next step
+- a short session note in `PROGRESS.md` when explicitly requested on `main`; live focus and next steps belong on the GitHub issue/PR
 - `DECISIONS.md` for durable cross-session choices
-- `feature_list.json` for machine-readable work state
+- `feature_list.json` for durable policy and historical evidence only (no per-task status)
 
 Do not mix initialization with feature implementation unless the task is explicitly about harness setup.
 
@@ -88,12 +88,12 @@ Do not mix initialization with feature implementation unless the task is explici
 
 ## Feature list contract
 
-`feature_list.json` is a reviewed validation/evidence snapshot. GitHub is the authority for live task claims; unattended agents do not edit this shared snapshot or `PROGRESS.md`. Explicit user-requested reconciliation may update them.
+`feature_list.json` schema v2 keeps durable policy and an `archive` of historical validation/evidence notes. It is not a task queue, completion verdict, or current claim record. Earlier evidence text is preserved as history, including gaps and pending work; read live GitHub before acting on it.
 
-- each item needs: `id`, `description`, `validation`, `status`, `evidence`
-- allowed statuses: `not_started`, `active`, `blocked`, `passing`
-- the snapshot validator allows at most one item marked `active`; this is snapshot consistency, not enforcement of live per-builder GitHub WIP
-- a task may move to `passing` only after its validation evidence is recorded
+- archive entries require nonempty `id`, `description`, `validation`, and `evidence`
+- only the documented schema fields are allowed; per-task statuses, assignees, claims and active counts are rejected
+- the durable WIP=1 per-builder policy is enforced against live GitHub by the claim guard, never by counting archive entries
+- normal feature PRs do not edit the archive; an explicit archival/policy change preserves honest evidence without synchronizing task state
 
 ## Session lifecycle
 
@@ -142,20 +142,15 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 - Keep the demo self-contained unless the task explicitly needs live integrations.
 - Do not invent new environment variables without checking how the app reads config.
 - Preserve existing public routes and demo flows unless the task explicitly changes them.
-- If a fix is architectural, document why in `PROGRESS.md`.
+- If a fix is architectural, document the durable decision in `DECISIONS.md` and the task evidence on its GitHub issue/PR.
 
 ## State management
 
 For payment/checkout state or public error changes, follow [payment contract guardrails](docs/agents/payment-contracts.md): import module-owned contracts, parse untrusted boundaries, keep presentation mappings exhaustive, and preserve conservative unknown handling. `tests/payment-contract-ownership.spec.ts` enforces scoped server declaration/producer ownership and UI enum-label usage in Vitest; parser/presentation and corrupt-state regressions check runtime rejection. Typecheck rejects undeclared public codes and incomplete presentation maps. Verify actual label consumers and failure navigation, including local cleanup independent of remote cancellation. Documentation alone is not automated enforcement.
 
-Use `PROGRESS.md` for work that spans sessions. Keep it short and factual:
+GitHub issues and PRs are the only live record of active work, blockers, claims and verification evidence. Recheck labels, assignments and linked PRs on resume.
 
-- current focus
-- in progress
-- blocked
-- next verification
-
-GitHub Issues remain the primary task queue and live claim authority. `PROGRESS.md` is a reviewed session snapshot: summarize its issue/PR, blockers, and baseline, then recheck GitHub on resume. Unattended transitions belong in issue/PR comments and labels rather than concurrent edits to shared snapshots.
+`PROGRESS.md` is an optional short session note, updated at most once per session on `main` when explicitly requested, or generated from GitHub with its observation time. It may retain historical context; it must not be maintained as a second active-task ledger. Ordinary feature branches and code-only handoffs leave it unchanged. No handoff check requires its headings, active focus or modification. Durable decisions belong in `DECISIONS.md`; the evidence archive changes only for an explicit archival/policy task.
 
 ## Autonomous task shape
 

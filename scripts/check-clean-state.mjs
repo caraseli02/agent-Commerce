@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { readFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
@@ -88,24 +87,6 @@ async function scanFile(base, { path: filePath, previousPath }) {
   return hits;
 }
 
-async function checkProgressStateShape() {
-  const contents = await readFile(path.join(rootDir, 'PROGRESS.md'), 'utf8');
-  const requiredHeadings = ['## Current focus', '## In progress', '## Blocked / known baseline failures', '## Verification baseline'];
-
-  const missingHeadings = requiredHeadings.filter((heading) => !contents.includes(heading));
-  if (missingHeadings.length > 0) {
-    fail(`PROGRESS.md is missing required clean-state sections: ${missingHeadings.join(', ')}.`);
-  }
-
-  if (!/^## Current focus\n[\s\S]*?-\s+/m.test(contents)) {
-    fail('PROGRESS.md current focus section is empty; the handoff state needs at least one active focus bullet.');
-  }
-
-  if (!/^## In progress\n[\s\S]*?-\s+/m.test(contents)) {
-    fail('PROGRESS.md in-progress section is empty; the handoff state needs a live task or an explicit none/blocked note.');
-  }
-}
-
 async function main() {
   const status = await runGit(['status', '--porcelain']);
   if (status) {
@@ -118,8 +99,6 @@ async function main() {
   if (trackedTempArtifacts.length > 0) {
     fail(`tracked temporary/debug artifacts are present in the branch diff: ${trackedTempArtifacts.join(', ')}.`);
   }
-
-  await checkProgressStateShape();
 
   const scanTargets = changedFiles.filter((file) => isSourceFile(file.path) && file.path !== validatorSelfPath);
   const violations = [];

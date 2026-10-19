@@ -286,3 +286,41 @@ it('runs only focused formatting and state validation for a real documentation-o
   expect(readFileSync(log, 'utf8')).toBe('exec prettier --check --ignore-unknown README.md\n');
   expect(execute({ VALIDATOR_EXIT: '9' }).status).toBe(1);
 });
+
+it('hands off a code-only range with unchanged session notes and archive through the real validators', () => {
+  const r = repository();
+  for (const file of ['verify.mjs', 'verification-evidence.mjs', 'check-clean-state.mjs', 'validate-feature-list.sh', 'smoke.mjs'])
+    r.write(`scripts/${file}`, readFileSync(join(process.cwd(), 'scripts', file), 'utf8'));
+  for (const file of ['check-bundle-size.mjs', 'verify-ui-conventions.mjs', 'check-arch-invariants.mjs'])
+    r.write(`scripts/${file}`, 'process.exit(0);');
+  r.write('feature_list.json', readFileSync(join(process.cwd(), 'feature_list.json'), 'utf8'));
+  r.write('PROGRESS.md', '# Historical session note\n\nLive claims are on GitHub.\n');
+  r.write('app/pages/index.vue', '<template>Fixture</template>');
+  r.write(
+    '.output/server/index.mjs',
+    'import { createServer } from "node:http"; createServer((req, res) => res.end("Fixture")).listen(Number(process.env.PORT), process.env.HOST);',
+  );
+  r.write('bin/pnpm', '#!/bin/sh\nif [ "$1" = "--version" ]; then echo 10.18.3; exit 0; fi\nprintf "%s\\n" "$*" >> "$GATE_LOG"\nexit 0\n');
+  chmodSync(join(r.cwd, 'bin/pnpm'), 0o755);
+  const base = r.commit();
+  r.git('update-ref', 'refs/remotes/origin/main', base);
+  r.write('server/payment.ts', 'export const status = "PENDING";');
+  r.commit();
+  expect(r.git('diff', '--name-only', `${base}..HEAD`)).toBe('server/payment.ts');
+  mkdirSync(join(r.cwd, 'tmp'), { recursive: true });
+  const log = join(r.cwd, 'tmp/calls');
+  const env = { ...r.env, PATH: `${join(r.cwd, 'bin')}:${r.env.PATH}`, GATE_LOG: log };
+  const result = spawnSync(process.execPath, ['scripts/verify.mjs', '--handoff', '--base', base, '--fresh'], {
+    cwd: r.cwd,
+    env,
+    encoding: 'utf8',
+  });
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.stdout).toContain('archived evidence note(s)');
+  expect(result.stdout).toContain('Smoke check passed.');
+  expect(result.stdout).toContain('Clean-state validation OK');
+  expect(result.stdout).toContain('pnpm verify:handoff passed.');
+  expect(readFileSync(log, 'utf8').trim().split('\n')).toEqual(['build', 'lint', 'typecheck', 'test:coverage']);
+  expect(r.git('diff', '--name-only', `${base}..HEAD`)).toBe('server/payment.ts');
+  expect(r.git('status', '--porcelain')).toBe('');
+});

@@ -2,6 +2,13 @@
 
 Use this file for durable cross-session decisions that should survive context resets.
 
+## GitHub is the only live task record — 2026-10-19 (#602)
+
+- Issue labels, assignments and linked PRs alone record active work, blockers and readiness. Keep the existing live GitHub claim guard and per-builder WIP=1; no archive count can replace those checks.
+- `feature_list.json` schema v2 retains durable per-builder policy and historical validation/evidence notes under `archive`. Remove all per-task statuses and redundant active counts. Preserve earlier note text without promoting it to current completion or review evidence; reject unknown fields so closed issues cannot acquire a second tracked active claim.
+- `PROGRESS.md` is an optional short historical session note, updated at most once per session on `main` when explicitly requested, or generated from GitHub with its observation time. Normal feature PRs and code-only handoffs leave both files unchanged. This supersedes earlier reviewed-snapshot task-state semantics; this migration does not reconcile unrelated task histories.
+- Clean handoff still requires a clean tree and rejects temporary/debug artifacts and newly introduced debug patterns. It no longer reads session-note shape or demands a live task there. Current verification evidence remains on the issue/PR; the archive validator requires honest historical context and evidence, never an active task or completion verdict.
+
 ## Husky replaces hosted and standalone CI — 2026-10-19
 
 - Vlad explicitly retired the local-CI migration and chose Husky plus independent local review with GitHub Actions disabled (#741). This supersedes earlier hosted-check blockers, App/service/health/reboot acceptance prerequisites and bot-notification requirements.
