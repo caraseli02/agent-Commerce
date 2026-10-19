@@ -2,7 +2,7 @@
 
 ## Current focus
 
-- Owner-requested #741: retire standalone CI/Actions workflows; use Husky and independent current head/base local acceptance. Source archive is preserved in docs/archive/local-ci; private deployment evidence is retained. Delivery verification and independent review are pending.
+- Owner-requested #741: retire standalone CI/Actions workflows; use Husky and independent current head/base local acceptance. Source archive is preserved in docs/archive/local-ci; private deployment evidence is retained. Fresh pnpm verify:handoff passed: 129 suites, 1,142 tests + 2 todo, coverage, architecture, preview smoke and clean state. Installed local acceptance instructions are updated; independent Claude review and human merge remain.
 
 - Reviewed payment snapshot from live GitHub at origin/main `517627ff` (2026-10-12). Nonpayment queue state was not rechecked; earlier snapshots remain in Git history and feature evidence.
 

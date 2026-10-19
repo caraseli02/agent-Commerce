@@ -281,6 +281,12 @@
       "impact": "none",
       "reason": "#741 retires standalone CI and changes local verification/acceptance only.",
       "consumers": "Traced Husky -> selector -> verify and live PR metadata CLI; local-readiness -> .factory and native router/discovery. Source/deployment archives are tooling records. No app/, server/, Nuxt runtime configuration, product assets, dependency lockfile, or visual baseline changes; no rendered consumer imports these tooling paths."
+    },
+    {
+      "fingerprint": "79696c3a2ab387bb291e7cc0407412b23daaf728525f0cdfc1844da338d1fd4a",
+      "impact": "none",
+      "reason": "#741 retires CI infrastructure and changes local verification policy only.",
+      "consumers": "Inspected .factory/native instructions and routing, Husky selector -> verify/PR metadata, and read-only local-readiness. None is imported by app/ or server/ runtime, and no app sources, Nuxt runtime config, assets, dependency lockfile or visual baselines change."
     }
   ]
 }
