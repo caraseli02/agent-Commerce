@@ -8,7 +8,6 @@ import { describe, expect, it } from 'vitest';
 const storefrontSurfaces = [
   'app/components/home/FeaturedProducts.vue',
   'app/components/global/News.vue',
-  'app/components/global/Manufacturers.vue',
   'app/components/global/EcxlusiveOffer.vue',
   'app/components/global/Banner.vue',
   'app/components/product/Banners.vue',
@@ -65,7 +64,10 @@ describe('storefront ImageWithFallback adoption', () => {
     expect(featuredProducts).toContain('md:max-h-[240px]');
     expect(news).toContain('aspect-[1.69]');
     expect(news).toContain('object-cover');
-    expect(manufacturers).toContain('max-h-8');
-    expect(manufacturers).toContain('xl:h-[55px]');
+    expect(manufacturers).toContain('text-center text-sm font-semibold');
+    expect(manufacturers).toContain('STMicroelectronics');
+    expect(manufacturers).toContain('Analog Devices');
+    expect(manufacturers).toContain('Nexperia');
+    expect(manufacturers).not.toContain('Microchip');
   });
 });

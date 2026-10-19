@@ -17,11 +17,7 @@
           class="flex min-h-[64px] items-center justify-center rounded-md border border-slate-200 bg-white px-4 md:min-h-0 md:border-0 md:bg-transparent md:px-0"
           :aria-label="`Search ${logo.name} parts`"
         >
-          <ImageWithFallback
-            :src="logo.image"
-            :alt="`${logo.name} logo`"
-            class-name="max-h-8 max-w-full object-contain md:h-[30px] md:max-h-none lg:h-10 xl:h-[55px]"
-          />
+          <span class="text-center text-sm font-semibold text-slate-700 md:text-base">{{ logo.name }}</span>
         </NuxtLink>
       </div>
       <NuxtLink
@@ -35,22 +31,5 @@
 </template>
 
 <script setup lang="ts">
-import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import MicrochipLogo from '@/assets/media/home/microchip.png';
-import TDKLogo from '@/assets/media/home/tdk.png';
-import DigiKeyLogo from '@/assets/media/home/digi-key.png';
-import QuectelLogo from '@/assets/media/home/quectel.png';
-import MaximIntegratedLogo from '@/assets/media/home/maxim-integrated.png';
-import TrestonLogo from '@/assets/media/home/treston.png';
-import TexasInstrumentsLogo from '@/assets/media/home/texas-instruments.png';
-
-const logos = [
-  { name: 'Microchip', image: MicrochipLogo },
-  { name: 'TDK', image: TDKLogo },
-  { name: 'Digi-Key', image: DigiKeyLogo },
-  { name: 'Quectel', image: QuectelLogo },
-  { name: 'Maxim Integrated', image: MaximIntegratedLogo },
-  { name: 'Treston', image: TrestonLogo },
-  { name: 'Texas Instruments', image: TexasInstrumentsLogo },
-];
+const logos = [{ name: 'STMicroelectronics' }, { name: 'Analog Devices' }, { name: 'Nexperia' }];
 </script>

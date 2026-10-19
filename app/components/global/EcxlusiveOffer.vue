@@ -7,7 +7,7 @@
     >
       <h2 class="max-w-xl text-2xl font-semibold leading-tight md:text-3xl">Make a shortlist your team can trust.</h2>
       <p class="mt-3 max-w-xl text-sm leading-6 text-slate-300 md:text-base">
-        Compare stock, lead times, manufacturers, and volume pricing in the catalog before you send a purchase request for review.
+        Compare stock, manufacturers, and volume pricing in the sample catalog before you send a purchase request for review.
       </p>
       <NuxtLink
         to="/search"

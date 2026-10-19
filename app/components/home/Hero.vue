@@ -17,7 +17,7 @@
             Source the right part, with evidence.
           </h1>
           <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:mt-4 sm:text-base md:mt-5 md:text-lg md:leading-7">
-            Search by part number or keyword, then compare specifications, stock, lead times, and manufacturers before you buy.
+            Search by part number or keyword, then compare specifications, stock, and manufacturers before you buy.
           </p>
 
           <form class="mt-6 max-w-3xl sm:mt-7" novalidate @submit.prevent="submitSearch">
@@ -101,15 +101,15 @@
       >
         <div class="flex items-center gap-2 px-1 sm:px-4 sm:first:pl-0">
           <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
-          <span><strong class="font-semibold text-slate-800">10,000+</strong> catalog items online</span>
+          <span>Sample catalog online</span>
         </div>
         <div class="flex items-center gap-2 px-1 sm:px-4">
           <span class="h-2 w-2 shrink-0 rounded-full bg-blue-500" aria-hidden="true" />
-          <span>Stock and lead-time details</span>
+          <span>Stock and manufacturer details</span>
         </div>
         <div class="flex items-center gap-2 px-1 sm:px-4 sm:last:pr-0">
           <span class="h-2 w-2 shrink-0 rounded-full bg-violet-500" aria-hidden="true" />
-          <span>Trusted manufacturer coverage</span>
+          <span>Manufacturer details for every part</span>
         </div>
       </div>
     </div>
@@ -131,13 +131,13 @@ type CategoryLink = { id: string; name: string; path: string; productCount?: num
 const fallbackCategories: CategoryLink[] = [
   { id: 'semiconductors', name: 'Semiconductors', path: 'semiconductors' },
   { id: 'passives', name: 'Passives', path: 'passives' },
-  { id: 'connectors', name: 'Cables & Connectors', path: 'cables-connectors' },
-  { id: 'power-supply', name: 'Power Supply', path: 'power-supply' },
 ];
 
 const categoryLinks = computed<CategoryLink[]>(() => {
   const source = categories.value.length
-    ? categories.value.filter((category) => Number(category.productCount || 0) > 0)
+    ? categories.value.filter(
+        (category) => ['semiconductors', 'passives'].includes(category.path.split('/')[0] || '') && Number(category.productCount || 0) > 0,
+      )
     : fallbackCategories;
   return source.slice(0, 4);
 });

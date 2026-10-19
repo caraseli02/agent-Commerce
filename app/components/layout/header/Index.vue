@@ -31,6 +31,7 @@ import { storeToRefs } from 'pinia';
 import RonFlag from '@/assets/icons/flags/ron.svg';
 import HeadphonesIcon from '@/assets/icons/headphones.svg';
 import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
+import { formatRegionalPrice } from '~~/helpers/prices.helper';
 
 const regionalPreferencesStore = useRegionalPreferencesStore();
 const { currency } = storeToRefs(regionalPreferencesStore);
@@ -38,8 +39,7 @@ const { currency } = storeToRefs(regionalPreferencesStore);
 const regionalLabel = computed(() => currency.value?.label || 'Lei');
 
 const freeShippingThreshold = computed(() => {
-  const curr = currency.value?.label || 'Lei';
-  return `150 ${curr}`;
+  return formatRegionalPrice(150, currency.value?.value);
 });
 
 const showRegionalPreferencesModal = ref(false);

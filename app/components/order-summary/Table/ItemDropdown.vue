@@ -21,15 +21,17 @@
               </div>
             </div>
             <div v-if="lineMoney.discountPercent" class="flex flex-col text-center h-[36px] justify-center">
-              <span v-if="hasDiscount" class="line-through text-neutral-700 text-sm font-normal leading-5"
-                >{{ lineMoney.listUnitPrice.toFixed(2) }} Lei</span
-              >
-              <span class="text-sm font-normal leading-5" :class="hasDiscount ? 'text-rose-500' : ''"
-                >{{ lineMoney.unitPrice.toFixed(2) }} Lei</span
-              >
+              <span v-if="hasDiscount" class="line-through text-neutral-700 text-sm font-normal leading-5">{{
+                formatRegionalPrice(lineMoney.listUnitPrice, currency?.value)
+              }}</span>
+              <span class="text-sm font-normal leading-5" :class="hasDiscount ? 'text-rose-500' : ''">{{
+                formatRegionalPrice(lineMoney.unitPrice, currency?.value)
+              }}</span>
             </div>
             <div v-else class="flex flex-col text-center h-[36px] justify-center">
-              <span class="text-neutral-700 text-sm font-normal leading-5">{{ lineMoney.unitPrice.toFixed(2) }} Lei</span>
+              <span class="text-neutral-700 text-sm font-normal leading-5">{{
+                formatRegionalPrice(lineMoney.unitPrice, currency?.value)
+              }}</span>
             </div>
           </div>
           <div class="flex flex-row justify-between items-center xl:flex-col xl:gap-4">
@@ -56,13 +58,15 @@
               >Tax (VAT {{ vatPercent }}%)</span
             >
             <div class="flex flex-col text-center h-[36px] justify-center">
-              <span class="text-neutral-700 text-sm font-normal leading-5">{{ Number(taxPrice).toFixed(2) }} Lei</span>
+              <span class="text-neutral-700 text-sm font-normal leading-5">{{
+                formatRegionalPrice(Number(taxPrice), currency?.value)
+              }}</span>
             </div>
           </div>
           <div class="flex flex-row justify-between items-center xl:flex-col xl:gap-4">
             <span class="text-neutral-700 text-center text-sm font-normal leading-6 xl:gap-4 px-0 xl:px-4">Subtotal</span>
             <div class="flex flex-col text-center h-[36px] justify-center">
-              <span class="text-neutral-700 text-sm font-normal leading-5">{{ subtotal.toFixed(2) }} Lei</span>
+              <span class="text-neutral-700 text-sm font-normal leading-5">{{ formatRegionalPrice(subtotal, currency?.value) }}</span>
             </div>
           </div>
         </div>
@@ -84,12 +88,15 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import ProductDetails from './ProductDetails.vue';
 import AdditionalDetails from './AdditionalDetails.vue';
 import CartDeleteDialog from '~/components/cart/CartDeleteDialog.vue';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import { resolveOrderSummaryLineMoney, type OrderSummaryQuoteLine } from '~~/helpers/order-summary-line-money';
 import { ProductAction, type CartProductsInterface } from '~~/types/cart';
+import { formatRegionalPrice } from '~~/helpers/prices.helper';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 import { OrderType } from '~~/types';
 
@@ -106,6 +113,8 @@ const showPackagingDetails = ref(false);
 const showDeliveryDetails = ref(false);
 const deleteItem = ref(false);
 const quantity = ref(props.stockItem ? props.item.stock : props.item.backorder_stock);
+const regionalPreferencesStore = useRegionalPreferencesStore();
+const { currency } = storeToRefs(regionalPreferencesStore);
 
 watch(
   [quantity, deleteItem],

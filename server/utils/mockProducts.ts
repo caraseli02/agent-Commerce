@@ -33,7 +33,7 @@ export const mockProducts = [
         Datasheet: '',
         TaxonomyPath: 'Semiconductors > Microcontrollers > ARM Cortex-M4',
         TaxonomyPathIDs: 'cat-001,cat-012,cat-045',
-        SmallImageURL: '',
+        SmallImageURL: '/images/products/microcontroller.webp',
         PartDescription: 'LQFP-100, 168 MHz, 192 KB SRAM',
         Manufacturer: 'STMicroelectronics',
       },
@@ -47,9 +47,9 @@ export const mockProducts = [
         ],
       },
       ProductImage: {
-        ProductImageSmall: '',
-        ProductImageLarge: '',
-        images: [],
+        ProductImageSmall: '/images/products/microcontroller.webp',
+        ProductImageLarge: '/images/products/microcontroller.webp',
+        images: ['/images/products/microcontroller.webp'],
       },
     },
   },
@@ -87,7 +87,7 @@ export const mockProducts = [
         Datasheet: '',
         TaxonomyPath: 'Semiconductors > Interface ICs > RS-485',
         TaxonomyPathIDs: 'cat-001,cat-020,cat-055',
-        SmallImageURL: '',
+        SmallImageURL: '/images/products/rs485-transceiver.svg',
         PartDescription: 'SOIC-16, 500 kbps, 5 kV isolation',
         Manufacturer: 'Analog Devices',
       },
@@ -101,9 +101,9 @@ export const mockProducts = [
         ],
       },
       ProductImage: {
-        ProductImageSmall: '',
-        ProductImageLarge: '',
-        images: [],
+        ProductImageSmall: '/images/products/rs485-transceiver.svg',
+        ProductImageLarge: '/images/products/rs485-transceiver.svg',
+        images: ['/images/products/rs485-transceiver.svg'],
       },
     },
   },
@@ -141,7 +141,7 @@ export const mockProducts = [
         Datasheet: '',
         TaxonomyPath: 'Passives > Diodes > Schottky',
         TaxonomyPathIDs: 'cat-002,cat-021,cat-061',
-        SmallImageURL: '',
+        SmallImageURL: '/images/products/schottky-diode.svg',
         PartDescription: 'SOT-23, dual series, 30 V, 200 mA',
         Manufacturer: 'Nexperia',
       },
@@ -153,9 +153,9 @@ export const mockProducts = [
         ],
       },
       ProductImage: {
-        ProductImageSmall: '',
-        ProductImageLarge: '',
-        images: [],
+        ProductImageSmall: '/images/products/schottky-diode.svg',
+        ProductImageLarge: '/images/products/schottky-diode.svg',
+        images: ['/images/products/schottky-diode.svg'],
       },
     },
   },
@@ -1253,5 +1253,22 @@ export const mockProducts = [
   },
 ];
 
-/** All sample products stay searchable; the component products lead the featured sample. */
+// Keep general demo products searchable while limiting storefront sourcing collections to parts.
 export const mockCatalogProducts = mockProducts;
+const mockSourcingProducts = mockProducts.filter((product) => ['Semiconductors', 'Passives'].includes(product.category));
+
+const getCatalogVolumeSavings = (product: (typeof mockSourcingProducts)[number]) => {
+  const prices = product.priceConfiguration.configuration;
+  return (prices[0]?.price ?? 0) - (prices[prices.length - 1]?.price ?? 0);
+};
+
+// The sample catalog is intentionally small, so collections rank the same
+// relevant parts instead of filling tabs with unrelated consumer products.
+export const mockCatalogCollections = {
+  featured: mockSourcingProducts.slice(0, 8),
+  bestSellers: [...mockSourcingProducts].sort((a, b) => b.sold - a.sold).slice(0, 8),
+  hotDeals: [...mockSourcingProducts].sort((a, b) => getCatalogVolumeSavings(b) - getCatalogVolumeSavings(a)).slice(0, 8),
+  topSearched: [...mockSourcingProducts].sort((a, b) => Number(b.favourite) - Number(a.favourite) || b.sold - a.sold).slice(0, 8),
+};
+
+export const mockSourcingProductsForRecommendations = mockSourcingProducts;

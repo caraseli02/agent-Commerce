@@ -14,11 +14,13 @@
 import type { ProductInterface } from '~~/types/product';
 import { useProducts } from '~/composables/useProducts';
 
-const { loadProductTabProducts } = useProducts();
+const props = defineProps<{ currentProductId?: string }>();
+const { loadFeaturedProductsList } = useProducts();
 const productList = ref<ProductInterface[]>([]);
 
 async function getProductTab() {
-  productList.value = await loadProductTabProducts('best-sellers');
+  const featuredProducts = await loadFeaturedProductsList();
+  productList.value = featuredProducts.filter((product) => product._id !== props.currentProductId);
 }
 
 onMounted(() => {

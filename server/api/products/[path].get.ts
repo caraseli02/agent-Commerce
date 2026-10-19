@@ -1,5 +1,5 @@
 import type { ProductInterface } from '~~/types/product';
-import { mockCatalogProducts, mockProducts } from '~~/server/utils/mockProducts';
+import { mockCatalogCollections, mockProducts } from '~~/server/utils/mockProducts';
 import { defineAnonymousCatalogHandler } from '~~/server/utils/anonymousCatalogCache';
 
 export default defineAnonymousCatalogHandler(
@@ -9,10 +9,10 @@ export default defineAnonymousCatalogHandler(
     const normalizedPath = String(path || '').toLowerCase();
 
     const tabHandlers: Record<string, () => unknown[]> = {
-      featured: () => mockCatalogProducts.slice(0, 8),
-      'best-sellers': () => mockCatalogProducts.slice(8, 16),
-      'hot-deals': () => mockCatalogProducts.slice(16, 24),
-      'top-searched': () => mockCatalogProducts.slice(0, 8),
+      featured: () => mockCatalogCollections.featured,
+      'best-sellers': () => mockCatalogCollections.bestSellers,
+      'hot-deals': () => mockCatalogCollections.hotDeals,
+      'top-searched': () => mockCatalogCollections.topSearched,
     };
 
     if (tabHandlers[normalizedPath]) {

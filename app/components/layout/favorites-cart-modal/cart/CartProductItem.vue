@@ -17,8 +17,10 @@
             <strong>
               {{
                 currentConfigurationDiscountPrice
-                  ? `${currentConfigurationDiscountPrice.toFixed(2)} Lei`
-                  : minPriceConfiguration?.price.toFixed(2) || '-'
+                  ? formatRegionalPrice(currentConfigurationDiscountPrice, currency?.value)
+                  : minPriceConfiguration
+                    ? formatRegionalPrice(minPriceConfiguration.price, currency?.value)
+                    : '-'
               }}
             </strong>
             {{ currentPriceConfiguration ? `(${currentPriceConfiguration.quantity}+)` : '-' }}
@@ -38,7 +40,7 @@
 
     <div class="flex items-end justify-between">
       <div class="font-Inter font-semibold leading-[1.25]">
-        {{ product ? (currentConfigurationDiscountPrice * (quantity || 1)).toFixed(2) : 0 }} Lei
+        {{ formatRegionalPrice(product ? currentConfigurationDiscountPrice * (quantity || 1) : 0, currency?.value) }}
       </div>
       <QuantityButtons
         v-if="typeof productItem.quantity === 'number'"
@@ -61,10 +63,11 @@ import TrashIcon from '@/assets/icons/trash-can.svg';
 import { ProductAction } from '~~/types/cart';
 import type { ProductActionObject } from '~~/types/cart';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~~/types/product';
-import { parseProductPriceConfiguration } from '~~/helpers/prices.helper';
+import { formatRegionalPrice, parseProductPriceConfiguration } from '~~/helpers/prices.helper';
 import { useCart } from '~/composables/useCart';
 import { useAuthStore } from '~/store/authStore';
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 export interface CartLineItem {
   id: string;
@@ -86,8 +89,10 @@ const productItem = ref<CartLineItem>(props.product);
 const emits = defineEmits(['delete-product']);
 
 const authStore = useAuthStore();
+const regionalPreferencesStore = useRegionalPreferencesStore();
 const { removeFromCart } = useCart();
 const { getUserDetails } = storeToRefs(authStore);
+const { currency } = storeToRefs(regionalPreferencesStore);
 
 const minPriceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(undefined);
 const currentPriceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(undefined);

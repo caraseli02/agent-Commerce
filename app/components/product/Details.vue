@@ -48,8 +48,9 @@
     <div class="flex items-center justify-between gap-3 rounded-lg bg-light-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Technical Datasheet</div>
       <a
+        v-if="datasheetUrl"
         class="flex min-h-11 items-center"
-        :href="product.details?.SummaryData.Datasheet"
+        :href="datasheetUrl"
         :download="`${product.name} Datasheet`"
         target="_blank"
         rel="noopener noreferrer"
@@ -57,15 +58,12 @@
         <PDFIcon class="w-5 h-5 mr-[5px]" />
         <span class="text-xs leading-tight text-slate-500 hover:underline"> {{ product.name }}-DataSheet </span>
       </a>
+      <span v-else class="text-xs leading-tight text-slate-500">Not available</span>
     </div>
-    <div class="mt-1 flex items-start gap-2 rounded-lg border border-slate-100 px-3 py-3">
+    <div v-if="productTags.length" class="mt-1 flex items-start gap-2 rounded-lg border border-slate-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0">Tags:</div>
       <div class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-xs leading-tight font-medium text-blue-500">
-        <span> #Diode </span>
-        <span> #Connector </span>
-        <span> #GasDetector </span>
-        <span> #Thermostat </span>
-        <span> #Transistor </span>
+        <span v-for="tag in productTags" :key="tag"> #{{ tag }} </span>
       </div>
     </div>
     <LayoutCustomProductPartNumberModal
@@ -88,5 +86,12 @@ const props = defineProps<{
 }>();
 
 const showCustomProductPartNumberModal = ref(false);
+const datasheetUrl = computed(() => props.product.details?.SummaryData?.Datasheet?.trim() || '');
+const productTags = computed(() =>
+  (props.product.details?.SummaryData?.TaxonomyPath || '')
+    .split('>')
+    .map((segment) => segment.trim())
+    .filter(Boolean),
+);
 const cadModelLabel = computed(() => `${props.product.alias || props.product.manufacturerCode || props.product.name}-ECAD-Model`);
 </script>

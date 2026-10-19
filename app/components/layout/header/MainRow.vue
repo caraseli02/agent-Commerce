@@ -156,15 +156,21 @@ import { useNotificationStore } from '~/store/notificationStore';
 import { useUiStore } from '~/store/uiStore';
 import { useClientReady } from '~/composables/useClientReady';
 import { useCartBadgeMotion } from '~/composables/useCartBadgeMotion';
+import { formatRegionalPrice } from '~~/helpers/prices.helper';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 const cartStore = useCartStore();
+const regionalPreferencesStore = useRegionalPreferencesStore();
+const { currency } = storeToRefs(regionalPreferencesStore);
 const uiStore = useUiStore();
 const { searchHeaderResults } = useProducts();
 const isClientReady = useClientReady();
 const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
 const showCartBadge = computed(() => isClientReady.value && cartItems.value > 0);
 const showCartTotal = computed(() => isClientReady.value && totalCartPrice.value > 0);
-const formattedCartTotal = computed(() => `${Number(isClientReady.value ? totalCartPrice.value || 0 : 0).toFixed(2)} Lei`);
+const formattedCartTotal = computed(() =>
+  formatRegionalPrice(Number(isClientReady.value ? totalCartPrice.value || 0 : 0), currency.value?.value),
+);
 const { getCart, getCartSubtotal } = storeToRefs(cartStore);
 
 const notificationStore = useNotificationStore();

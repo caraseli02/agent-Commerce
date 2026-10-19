@@ -6,14 +6,18 @@
     <div class="flex flex-col gap-2 relative">
       <div class="flex flex-row justify-between w-full">
         <span class="text-slate-500 text-sm font-normal leading-6">Subtotal</span>
-        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedSubtotal.toFixed(2) }} Lei</span>
+        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{
+          formatRegionalPrice(resolvedSubtotal, currency?.value)
+        }}</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row gap-6">
           <span class="text-slate-500 text-sm font-normal leading-6">Discount</span>
         </div>
-        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedDiscount.toFixed(2) }} Lei</span>
+        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{
+          formatRegionalPrice(resolvedDiscount, currency?.value)
+        }}</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div v-if="smallOrder" class="flex flex-row justify-between w-full">
@@ -27,7 +31,9 @@
           <span class="text-neutral-700 italic text-sm font-normal leading-6">Small order charge</span>
         </div>
         <div class="flex flex-col justify-end">
-          <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ smallOrder.toFixed(2) }} Lei</span>
+          <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{
+            formatRegionalPrice(smallOrder, currency?.value)
+          }}</span>
           <UiSkeleton v-else class="h-4 w-20" />
         </div>
       </div>
@@ -63,13 +69,17 @@
           </button>
           <span class="text-neutral-700 text-sm font-normal leading-6 ml-6">(VAT {{ vatPercent }}%)</span>
         </div>
-        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ calculatedVAT }} Lei</span>
+        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{
+          formatRegionalPrice(calculatedVAT, currency?.value)
+        }}</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div class="w-full h-[1px] bg-light-500 rounded-lg" />
       <div class="flex flex-row justify-between w-full">
         <span class="text-neutral-700 text-xl font-normal leading-9">Total</span>
-        <span v-if="isSummaryReady" class="text-neutral-700 text-2xl font-semibold leading-9">{{ calculatedTotal }} Lei</span>
+        <span v-if="isSummaryReady" class="text-neutral-700 text-2xl font-semibold leading-9">{{
+          formatRegionalPrice(calculatedTotal, currency?.value)
+        }}</span>
         <UiSkeleton v-else class="h-8 w-24" />
       </div>
     </div>
@@ -83,8 +93,12 @@ import InformationIcon from '~/assets/icons/information.svg';
 import { toCheckoutMoneyView, type CheckoutQuote } from '~~/helpers/checkout-quote';
 import type { CheckoutOrderDraft } from '~~/types';
 import { useCartStore } from '~/store/cartStore';
+import { formatRegionalPrice } from '~~/helpers/prices.helper';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 const cartStore = useCartStore();
+const regionalPreferencesStore = useRegionalPreferencesStore();
+const { currency } = storeToRefs(regionalPreferencesStore);
 const { hasFetchedCart } = storeToRefs(cartStore);
 // Wait for a completed cart fetch — client mount alone still races the async cart load.
 const isSummaryReady = computed(() => hasFetchedCart.value && Boolean(props.quote));
@@ -110,5 +124,5 @@ const shippingText = computed(() => {
 
   return `${shipping.value.service.courierName} (${shipping.value.service.courierName})`;
 });
-const formattedShippingPrice = computed(() => `${(money.value?.shippingCost ?? 0).toFixed(2)} Lei`);
+const formattedShippingPrice = computed(() => formatRegionalPrice(money.value?.shippingCost ?? 0, currency.value?.value));
 </script>

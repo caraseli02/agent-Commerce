@@ -29,7 +29,7 @@
           class="flex items-center justify-between leading-[1.25] font-semibold mb-4 md:text-xl md:leading-[1.2] md:mb-6"
         >
           <div>Subtotal</div>
-          <div class="text-right">{{ getCartSubtotal.toFixed(2) }} Lei</div>
+          <div class="text-right">{{ formatRegionalPrice(getCartSubtotal, currency?.value) }}</div>
         </div>
         <NuxtLink
           v-if="hasItems"
@@ -54,10 +54,14 @@ import CartProductItem, { type CartLineItem } from '~/components/layout/favorite
 import { useCartStore } from '~/store/cartStore';
 import { cartReadCacheKey, loadCartRead } from '~/composables/loadCartRead';
 import { cartEmptyPreset, cartErrorPreset } from '~/components/global/empty-state-presets';
+import { formatRegionalPrice } from '~~/helpers/prices.helper';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 defineEmits(['close']);
 
 const cartStore = useCartStore();
+const regionalPreferencesStore = useRegionalPreferencesStore();
+const { currency } = storeToRefs(regionalPreferencesStore);
 const { removeFromCart, refreshCart } = useCart();
 const { getCartSubtotal, cart } = storeToRefs(cartStore);
 

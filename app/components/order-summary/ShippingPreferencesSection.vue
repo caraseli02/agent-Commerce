@@ -63,7 +63,7 @@
               </div>
             </div>
             <span class="text-neutral-700 text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
-              {{ `${deliveryType.price.total} Lei` }}</span
+              {{ formatRegionalPrice(deliveryType.price.total) }}</span
             >
           </button>
         </div>
@@ -84,6 +84,8 @@ import type {
   StockorderShippingTypesInterface,
 } from '~~/types/general-settings/general-settings';
 import type { ShippingOrderPricingOption, ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
+import { formatRegionalPrice } from '~~/helpers/prices.helper';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 export default defineComponent({
   name: 'ShippingPreferencesSection',
@@ -123,6 +125,9 @@ export default defineComponent({
     },
   },
   methods: {
+    formatRegionalPrice(amount: number) {
+      return formatRegionalPrice(amount, useRegionalPreferencesStore().currency?.value);
+    },
     selectBackorderPreference(this: { order: CheckoutOrderDraft }, option: BackorderShippingTypesInterface) {
       if (this.order) {
         // eslint-disable-next-line vue/no-mutating-props

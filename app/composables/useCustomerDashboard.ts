@@ -20,7 +20,7 @@ import type { BillingAddressInterface, ShippingAddressInterface, UserInterface }
 import type { ProductInterface } from '~~/types/product';
 import { AccountType } from '~~/types';
 import type { StripeCardInterface } from '~~/types';
-import { resolveProductBrowsePricing } from '~~/helpers/prices.helper';
+import { formatRegionalPrice, resolveProductBrowsePricing } from '~~/helpers/prices.helper';
 import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 interface OrderIdItem {
@@ -160,7 +160,7 @@ export const useCustomerDashboard = () => {
 
   const hotSalesFunction = async () => {
     const currMonthName = format(new Date(), 'MMMM');
-    const currencyLabel = useRegionalPreferencesStore().currency?.label || 'Lei';
+    const currencyValue = useRegionalPreferencesStore().currency?.value || 'ron';
 
     hotSales.value = myMonthHotSale.value.map((slide): ProductBannerInterface => {
       const discountPrice = resolveProductBrowsePricing(slide, getUserDetails.value);
@@ -172,14 +172,12 @@ export const useCustomerDashboard = () => {
         details: slide.variant ?? slide.measure ?? '',
         originalPrice:
           discountPrice?.priceConfiguration?.price != null
-            ? `${discountPrice.priceConfiguration.price.toFixed(2)} ${currencyLabel} (${
-                discountPrice.minimumOrderQuantityConfiguration?.quantity ?? 1
-              }+)`
-            : `— ${currencyLabel}`,
+            ? `${formatRegionalPrice(discountPrice.priceConfiguration.price, currencyValue)} (${discountPrice.minimumOrderQuantityConfiguration?.quantity ?? 1}+)`
+            : '—',
         salePrice:
           discountPrice?.currentConfigurationDiscountPrice != null
-            ? `${discountPrice.currentConfigurationDiscountPrice.toFixed(2)} ${currencyLabel}`
-            : `— ${currencyLabel}`,
+            ? formatRegionalPrice(discountPrice.currentConfigurationDiscountPrice, currencyValue)
+            : '—',
         _id: slide._id,
         quantity: discountPrice?.minimumOrderQuantityConfiguration?.quantity ?? 1,
         availableStock: Number(slide.stock ?? 0),

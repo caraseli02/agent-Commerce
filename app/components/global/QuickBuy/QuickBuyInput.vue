@@ -31,6 +31,13 @@ watch(
   },
 );
 
+watch(
+  () => props.quantity,
+  (quantity) => {
+    if (localQuantity.value !== quantity) localQuantity.value = quantity;
+  },
+);
+
 onMounted(() => {
   localQuantity.value = props.quantity;
 });

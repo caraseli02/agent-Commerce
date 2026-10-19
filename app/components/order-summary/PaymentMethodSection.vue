@@ -103,7 +103,9 @@
           <div class="flex flex-row gap-2">
             <span class="text-neutral-700 text-sm font-normal leading-6">Available:</span>
             <button @click="showCreditInfoModal = true">
-              <span class="text-blue-500 text-sm font-semibold leading-6">{{ accountCredit?.available?.toFixed(2) || 0 }}</span>
+              <span class="text-blue-500 text-sm font-semibold leading-6">{{
+                formatRegionalPrice(accountCredit?.available || 0, currency?.value)
+              }}</span>
             </button>
           </div>
         </div>
@@ -153,6 +155,8 @@ import { isPaymentManagementVisible } from '~~/helpers/mock-integration';
 import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 import { resolveCreditUnavailableReason } from '~~/helpers/checkout-credit';
 import { useAuthStore } from '~/store/authStore';
+import { formatRegionalPrice } from '~~/helpers/prices.helper';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 import { usePaymentStore } from '~/store/paymentStore';
 import { usePaymentCards } from '~/composables/usePaymentCards';
 
@@ -173,6 +177,8 @@ const showCreditInfoModal = ref(false);
 const payment = ref<PaymentDetails>({} as PaymentDetails);
 
 const authStore = useAuthStore();
+const regionalPreferencesStore = useRegionalPreferencesStore();
+const { currency } = storeToRefs(regionalPreferencesStore);
 
 const { getGeneralSettings } = storeToRefs(authStore);
 const availablePaymentMethods = ref<PaymentTypeEnum[]>([]);

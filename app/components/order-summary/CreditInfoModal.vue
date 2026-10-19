@@ -24,7 +24,7 @@
         </div>
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Total Spent</span>
-          <span class="text-neutral-700 text-xs font-medium leading-5">{{ accountCredit.spent.toFixed(2) }} Lei</span>
+          <span class="text-neutral-700 text-xs font-medium leading-5">{{ formatRegionalPrice(accountCredit.spent) }}</span>
         </div>
       </div>
       <div class="flex flex-col gap-4">
@@ -34,7 +34,7 @@
         </div>
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Available</span>
-          <span class="text-[#EE514E] text-xs font-medium leading-5">{{ accountCredit.available.toFixed(2) }} Lei</span>
+          <span class="text-[#EE514E] text-xs font-medium leading-5">{{ formatRegionalPrice(accountCredit.available) }}</span>
         </div>
       </div>
     </div>
@@ -45,6 +45,8 @@
 import { formatReviewerDate } from '~~/helpers/reviewer-dates';
 import SettingCog from '@/assets/icons/setting-cog.svg';
 import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
+import { formatRegionalPrice } from '~~/helpers/prices.helper';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 export default defineComponent({
   name: 'CreditInfoModal',
@@ -60,6 +62,11 @@ export default defineComponent({
   computed: {
     formattedDueDate(this: { accountCredit: CustomerCreditInterface }) {
       return formatReviewerDate(this.accountCredit.dueDate);
+    },
+  },
+  methods: {
+    formatRegionalPrice(amount: number) {
+      return formatRegionalPrice(amount, useRegionalPreferencesStore().currency?.value);
     },
   },
 });

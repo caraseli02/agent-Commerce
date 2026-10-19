@@ -10,7 +10,7 @@
       <section class="mb-1 flex flex-col gap-1 px-2 md:flex-row md:items-end md:justify-between md:px-3">
         <div>
           <h2 class="text-xl font-semibold text-slate-900 md:text-2xl">Featured inventory</h2>
-          <p class="text-sm text-slate-500">Compare live catalog options before you commit to a shortlist.</p>
+          <p class="text-sm text-slate-500">Compare sample parts before you commit to a shortlist.</p>
         </div>
       </section>
     </template>
@@ -20,15 +20,15 @@
           class="flex h-full gap-4 rounded-xl border border-slate-200 bg-slate-50 p-6 md:m-0 md:gap-6 xl:w-[330px] xl:flex-col xl:gap-6 xl:mb-[30px]"
         >
           <ImageWithFallback
-            :src="PromoItem"
-            alt="Electronic component kit"
+            src="/images/products/microcontroller.webp"
+            alt="Microcontroller component"
             class-name="h-[100px] w-[120px] object-contain md:h-auto md:w-[290px] md:max-h-[240px] xl:h-[180px] xl:w-full xl:shrink-0"
           />
           <div class="flex flex-1 flex-col justify-center gap-4 xl:items-start xl:justify-start">
             <div>
               <div class="text-sm font-semibold xl:text-xl">Better rates on in-stock lines</div>
               <p class="mt-3 text-xs text-slate-600 md:text-[13px] xl:text-base">
-                Qualifying quantities unlock better unit pricing on semiconductors, passives, and connectors — without leaving the catalog.
+                Qualifying quantities unlock better unit pricing on semiconductors and passives — without leaving the catalog.
               </p>
             </div>
             <NuxtLink
@@ -46,7 +46,6 @@
 
 <script setup lang="ts">
 import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import PromoItem from '@/assets/media/home/black-friday-item.png';
 import { useProducts } from '~/composables/useProducts';
 
 const filters = ['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched'];

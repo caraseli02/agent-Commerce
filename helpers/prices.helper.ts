@@ -20,10 +20,11 @@ export {
   type ClampCartQuantityResult,
 };
 
-const demoCurrencySettings: Record<string, { code: string; locale: string }> = {
-  ron: { code: 'RON', locale: 'ro-RO' },
-  euro: { code: 'EUR', locale: 'es-ES' },
-  usd: { code: 'USD', locale: 'en-US' },
+const demoCurrencySettings: Record<string, { code: string; locale: string; rate: number }> = {
+  ron: { code: 'RON', locale: 'ro-RO', rate: 1 },
+  // Fixed illustrative rates keep this portfolio demo self-contained. Orders remain in RON.
+  euro: { code: 'EUR', locale: 'es-ES', rate: 0.2 },
+  usd: { code: 'USD', locale: 'en-US', rate: 0.22 },
 };
 
 export const formatRegionalPrice = (amount: number, currencyValue?: string) => {
@@ -33,7 +34,7 @@ export const formatRegionalPrice = (amount: number, currencyValue?: string) => {
     currency: setting.code,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(amount * setting.rate);
 };
 
 export const parseProductPriceConfiguration = (product: ProductInterface | null | undefined, userDetails: UserInterface, quantity = 0) => {
