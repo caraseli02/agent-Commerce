@@ -66,7 +66,7 @@ test.describe('Admin Smoke Path', () => {
     await expect(page.getByText(/credit limit/i).first()).toBeVisible();
     await expect(page.getByText(/available credit/i).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: /account details/i })).toBeVisible();
-    await expect(page.locator('input[value="John"]').first()).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Name', exact: true }).first()).toHaveValue('John');
     expect(runtimeErrors).toEqual([]);
   });
 });
