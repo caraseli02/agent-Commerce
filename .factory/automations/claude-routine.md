@@ -99,7 +99,7 @@ Sort the claims that are neither parked nor queued as follows:
 
 `gh pr list --repo caraseli02/agent-Commerce --state open --json number,title,isDraft,headRefOid,labels,updatedAt,author`.
 
-Keep PRs that are not draft, were **not built by Claude**, do not carry `skip-eval`, and either have no final report, have a final report whose local-verification marker no longer matches the current head/base/body/labels, or have an infrastructure-only report invalidated by the owner’s CI policy replacement. A material mergeability/readiness change is also actionable. Never skip a stale-context report solely because its head was already reviewed.
+Keep PRs that are not draft, were **not built by Claude**, do not carry `skip-eval`, and either have no final report, lack an effective current-context final report because the newest applicable marker no longer matches the current head/base/body/labels, or have an infrastructure-only report invalidated by the owner’s CI policy replacement. A material mergeability/readiness change is also actionable. Never skip a stale-context report solely because its head was already reviewed.
 
 A PR counts as **Claude-built** when any of these holds; the label alone is not proof either way, so check them all:
 
