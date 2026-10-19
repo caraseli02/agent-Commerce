@@ -98,7 +98,7 @@
         class="col-start-2 h-11 w-12 shrink-0 px-0 aria-disabled:cursor-not-allowed aria-disabled:bg-slate-200 aria-disabled:text-slate-800 aria-disabled:opacity-100 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
-        <SvgoCart class="h-6 w-6 text-slate-700" />
+        <SvgoCart class="h-6 w-6 text-current" />
         <span :id="`add-to-cart-${product._id}`" class="sr-only">Add {{ product.name }} to cart</span>
         <span class="sr-only md:not-sr-only" aria-hidden="true">Add</span>
       </UiButton>

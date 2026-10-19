@@ -28,7 +28,10 @@ const demoCurrencySettings: Record<string, { code: string; locale: string; rate:
 };
 
 export const formatRegionalPrice = (amount: number, currencyValue?: string) => {
-  const setting = demoCurrencySettings[currencyValue || 'ron'] || demoCurrencySettings.ron!;
+  const requestedCurrency = currencyValue || 'ron';
+  const setting = Object.hasOwn(demoCurrencySettings, requestedCurrency)
+    ? demoCurrencySettings[requestedCurrency]!
+    : demoCurrencySettings.ron!;
   return new Intl.NumberFormat(setting.locale, {
     style: 'currency',
     currency: setting.code,

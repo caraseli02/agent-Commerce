@@ -98,7 +98,7 @@
         >
           <span class="font-medium text-slate-600">{{ qty }}+</span>
           <span class="text-right font-semibold tabular-nums" :class="[productDiscount ? 'text-rose-500' : 'text-blue-600']">
-            {{ price.toFixed(2) }} Lei
+            {{ formatRegionalPrice(price, currency?.value) }}
           </span>
         </div>
       </div>
@@ -165,9 +165,10 @@ import ShareIcon from '@/assets/icons/share.svg';
 import type { ProductActionObject } from '~~/types/cart';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
-import { addToCartHelper, initializeQuantities, parseProductPriceConfiguration } from '~~/helpers/prices.helper';
+import { addToCartHelper, formatRegionalPrice, initializeQuantities, parseProductPriceConfiguration } from '~~/helpers/prices.helper';
 import type { PriceConfigurationSettingsInterface, ProductInterface } from '~~/types/product';
 import { useCart } from '~/composables/useCart';
+import { useRegionalPreferencesStore } from '~/store/regionalPreferencesStore';
 
 const quantity = ref(1);
 const initialRequestedQuantity = ref(0);
@@ -181,11 +182,13 @@ const props = defineProps({
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+const regionalPreferencesStore = useRegionalPreferencesStore();
 const { isProductAddInFlight } = useCart();
 const isThisProductAdding = computed(() => isProductAddInFlight(props.item._id ?? ''));
 
 const { getUserDetails } = storeToRefs(authStore);
 const { cart } = storeToRefs(cartStore);
+const { currency } = storeToRefs(regionalPreferencesStore);
 
 const minPriceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(undefined);
 const currentPriceConfiguration = ref<PriceConfigurationSettingsInterface | undefined>(undefined);
