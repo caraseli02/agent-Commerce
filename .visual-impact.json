@@ -287,6 +287,12 @@
       "impact": "none",
       "reason": "#741 retires CI infrastructure and changes local verification policy only.",
       "consumers": "Inspected .factory/native instructions and routing, Husky selector -> verify/PR metadata, and read-only local-readiness. None is imported by app/ or server/ runtime, and no app sources, Nuxt runtime config, assets, dependency lockfile or visual baselines change."
+    },
+    {
+      "fingerprint": "20e4a513a9fc0f6ed31df426622c7094e050f58f1901d03654ce4c7f6e62ca0b",
+      "impact": "none",
+      "reason": "Issue #602 changes only agent instructions and CLI archive/clean-handoff validation; there is no observable application or UI change.",
+      "consumers": "CLAUDE.md is read by coding agents, not Nuxt or Nitro. scripts/validate-feature-list.sh is invoked only by scripts/verify.mjs (normal/docs-only delivery) and fixture tests. scripts/check-clean-state.mjs is invoked by package.json clean-state and scripts/verify.mjs handoff, plus fixture tests. A consumer search across app/, server/, nuxt.config.ts, package.json and scripts/ found no application imports of these files. The changed reads are Git metadata and the historical feature_list archive; writes are CLI diagnostics/exit status only. No pages, components, stores, API responses, styles, assets, build inputs or visible browser states change, so home/search/product/cart/orders screenshots cannot observe this patch."
     }
   ]
 }
