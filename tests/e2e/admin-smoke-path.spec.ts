@@ -51,7 +51,9 @@ test.describe('Admin Smoke Path', () => {
     runtimeErrors.length = 0;
 
     await expect(page.getByRole('heading', { name: 'Orders', exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: /ORD-2024-0001/i }).first()).toBeVisible();
+    // Orders list newest-first, so assert the first row links to an order rather than a fixed seed.
+    const firstOrderRow = page.getByTestId('virtualized-table-body').first().locator('tr[data-index]').first();
+    await expect(firstOrderRow.locator('a[href^="/dashboard/orders/"]').first()).toBeVisible();
 
     await Promise.all([page.waitForURL(/\/dashboard\/customers$/), page.locator('a[href="/dashboard/customers"]').click()]);
     await expect(page).toHaveURL(/\/dashboard\/customers$/);

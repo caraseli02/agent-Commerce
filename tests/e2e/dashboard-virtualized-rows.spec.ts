@@ -50,6 +50,8 @@ test.describe('Dashboard virtualized orders table', () => {
 
     const region = page.getByRole('region', { name: 'Data table' });
     await expect(region).toBeVisible();
-    await expect(page.getByRole('link', { name: /ORD-2024-0001/i }).first()).toBeVisible();
+    // Orders list newest-first, so assert the first row links to an order rather than a fixed seed.
+    const firstOrderRow = page.getByTestId('virtualized-table-body').first().locator('tr[data-index]').first();
+    await expect(firstOrderRow.locator('a[href^="/dashboard/orders/"]').first()).toBeVisible();
   });
 });

@@ -1,5 +1,6 @@
 import { getQuery } from 'h3';
 import { orders } from '~~/server/domain/orders';
+import { resolveOrderOwnerId } from '~~/server/utils/mockDashboardDemo';
 import { getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
 import { PaymentStatusEnum } from '~~/types/order-summary/item';
 import { AccountRole } from '~~/types/signup/form';
@@ -12,7 +13,7 @@ export default defineEventHandler(async (event) => {
   const user = getMockUserFromAuthHeader(getHeaders(event).authorization);
   if (!user) throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
   const requestedUserId = typeof query.userId === 'string' ? query.userId.trim() : '';
-  const scopedUserId = user.role === AccountRole.Admin && requestedUserId ? requestedUserId : user._id;
+  const scopedUserId = user.role === AccountRole.Admin && requestedUserId ? resolveOrderOwnerId(requestedUserId) : user._id;
 
   // Transaction history is derived from durable paid Orders. Pending, failed, and
   // duplicate checkout attempts have no customer-visible transaction entry.
