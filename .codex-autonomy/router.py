@@ -2,7 +2,6 @@
 import hashlib
 import json
 import re
-import datetime
 
 
 class UnsafeEvidence(ValueError):
@@ -10,7 +9,7 @@ class UnsafeEvidence(ValueError):
 
 
 def validate_config(config):
-    if config.get('version') != 1 or not config.get('builder_login') or config.get('max_pass_queue') != 2 or not 30 <= config.get('investigation_minutes', 0) <= 45 or not 0 < config.get('max_findings_per_run', 0) <= 3 or not 0 < config.get('max_open_findings', 0) <= 5 or not config.get('required_checks') or not config.get('trusted_evaluator_logins'):
+    if config.get('version') != 1 or not config.get('builder_login') or config.get('max_pass_queue') != 2 or not 30 <= config.get('investigation_minutes', 0) <= 45 or not 0 < config.get('max_findings_per_run', 0) <= 3 or not 0 < config.get('max_open_findings', 0) <= 5 or config.get('verification_provider') != 'husky-local-review' or not config.get('trusted_evaluator_logins'):
         raise UnsafeEvidence('Invalid routing caps/trust/config version; review configuration before dispatch')
 
 
@@ -72,52 +71,19 @@ def evaluator(comments, head, trusted):
     return reports[-1] if reports else None
 
 
-def checks(pr, required):
-    latest = {}
-    for run in pr['checks']:
-        if run['name'] not in latest or run['id'] > latest[run['name']]['id']:
-            latest[run['name']] = run
-    failed, pending = [], []
-    for name, run in latest.items():
-        if name == 'owner-attention':
-            continue
-        if run['status'] != 'completed':
-            pending.append(name)
-        elif run.get('conclusion') in ('failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure', 'stale'):
-            failed.append(name)
-        elif run.get('conclusion') not in ('success', 'neutral', 'skipped'):
-            pending.append(name)
-    for status in pr['statuses']:
-        if status['state'] in ('error', 'failure'):
-            failed.append(status['context'])
-        elif status['state'] != 'success':
-            pending.append(status['context'])
-    for name in required:
-        if name not in latest or latest[name].get('conclusion') != 'success':
-            pending.append(name)
-    return 'failure' if failed else 'pending' if pending else 'success'
+def local_verification_marker(pr):
+    # Same canonical body/labels tuple as scripts/owner-attention.mjs.
+    metadata = hashlib.sha256(json.dumps([pr.get('body') or '', sorted(labels(pr)), pr['base']['ref']], ensure_ascii=False, separators=(',', ':')).encode()).hexdigest()
+    return f"<!-- local-verification: head={pr['head']['sha']} base={pr['base']['sha']} metadata={metadata} -->"
 
 
-def local_checks(pr):
-    """Only discover's immutable client supplies this transient evidence, never history."""
-    e = pr.get('local_ci', {})
-    try:
-        now = datetime.datetime.now(datetime.timezone.utc)
-        for stamp in (e['observedAt'], e['health']['observedAt']):
-            age = (now - datetime.datetime.fromisoformat(stamp.replace('Z', '+00:00'))).total_seconds()
-            if not 0 <= age <= 120:
-                return 'pending'
-        if e['number'] != pr['number'] or e['repository'] != pr['head']['repo']['full_name'] or e['head'] != pr['head']['sha'] or e['base'] != pr['base']['sha'] or e['baseRef'] != pr['base']['ref']:
-            return 'pending'
-        if e['pr']['body'] != pr.get('body') or labels(e['pr']) != labels(pr):
-            return 'pending'
-        if e['checks']['state'] == 'failure':
-            return 'failure'
-        if e['checks']['state'] != 'success' or not e['health']['ok'] or e['operationalProof'] is not True or e['result']['cleaned'] is not True or e['published'] is not True or not re.fullmatch('[a-f0-9]{64}', e['policy']):
-            return 'pending'
-        return 'success'
-    except (KeyError, TypeError, ValueError):
-        return 'pending'
+def local_checks(pr, trusted):
+    """The independent current-context PASS attests executed local checks."""
+    marker = local_verification_marker(pr)
+    for comment in pr['comments']:
+        if evaluator([comment], pr['head']['sha'].lower(), trusted) == 'PASS' and marker in comment.get('body', '').splitlines():
+            return 'success'
+    return 'pending'
 
 
 def changed_requested(pr):
@@ -162,19 +128,19 @@ def classify(issue, prs, saved, config):
         if pr['draft']:
             return dict(result, state='implementing_verifying')
         verdict = evaluator(pr['comments'], pr['head']['sha'].lower(), config['trusted_evaluator_logins'])
-        ci = local_checks(pr)
+        ci = local_checks(pr, config['trusted_evaluator_logins'])
         conflict = pr.get('mergeable') is False or pr.get('mergeable_state') == 'dirty'
         repair = ci == 'failure' or conflict or verdict == 'FAIL' or changed_requested(pr)
         if verdict == 'BLOCKED':
             return dict(result, state='parked_blocked')
         if repair:
             return dict(result, state='queued_repair' if result['queued_at'] else 'repair')
-        if ci == 'success' and verdict == 'PASS' and pr.get('mergeable') is True and pr.get('mergeable_state') in ('clean', 'unstable', 'has_hooks') and pr['local_ci'].get('readiness', {}).get('ready') is True:
+        if ci == 'success' and verdict == 'PASS' and pr.get('mergeable') is True and pr.get('mergeable_state') in ('clean', 'unstable', 'has_hooks'):
             # No historical PASS is used for admission. Timestamp comes from this snapshot.
             return dict(result, state='queued_awaiting_human', queued_at=result['queued_at'] or pr['observed_at'])
         if result['queued_at']:
             return dict(result, state='queued_rereview')
-        return dict(result, state='waiting_ci' if ci != 'success' or pr.get('mergeable') is None else 'waiting_first_evaluation')
+        return dict(result, state='waiting_first_evaluation' if verdict is None else 'waiting_local_verification')
     except (UnsafeEvidence, KeyError, TypeError) as error:
         return dict(result, state='evidence_blocked', reason=str(error))
 
@@ -216,14 +182,14 @@ def route(states, reservations, candidates, evidence, head, config):
     validate_config(config)
     if any(s['state'] == 'evidence_blocked' for s in states):
         return {'action': 'blocked', 'reason': 'Unreadable or contradictory live evidence'}
-    live = [s for s in states if s['state'] in ('implementing_verifying', 'waiting_ci', 'waiting_first_evaluation', 'repair')]
+    live = [s for s in states if s['state'] in ('implementing_verifying', 'waiting_local_verification', 'waiting_first_evaluation', 'repair')]
     if len(live) > 1:
         return {'action': 'blocked', 'reason': 'Multiple live Codex implementations'}
     repairs = [s for s in states if s['state'] in ('queued_repair', 'repair')]
     # Never interrupt a live implementation to run a second issue's repair.
     if live and live[0]['state'] == 'implementing_verifying':
         return {'action': 'continue', 'issue': live[0]['issue']}
-    if repairs and not any(s['state'] in ('waiting_ci', 'waiting_first_evaluation') for s in live):
+    if repairs and not any(s['state'] in ('waiting_local_verification', 'waiting_first_evaluation') for s in live):
         return {'action': 'repair', 'issue': sorted(repairs, key=lambda s: (s['queued_at'] or s['created_at'], s['issue']))[0]['issue']}
     queued = [s for s in states if s['state'].startswith('queued_')]
     if not live and len(queued) < config['max_pass_queue'] and not repairs:

@@ -234,7 +234,7 @@ function expandPath(file) {
 }
 
 // PR template preflight (after #702): a PR body reaches GitHub only through a file that already
-// passes scripts/check-pr-template.mjs, the same check the "PR template / check" workflow runs.
+// passes scripts/check-pr-template.mjs, the local publication and pre-push metadata check.
 // gh keeps the last --body-file, so a repeated flag is refused rather than guessed. A relative
 // path is resolved against the command's cwd only when no earlier segment changed directory.
 function checkPrBody(action, args, cwd, cwdKnown) {

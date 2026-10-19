@@ -25,12 +25,12 @@ The repo workflow itself (roles, verdicts, verification ladder) stays in `AGENTS
 
 ## Daily loop
 
-| Time (Europe/Madrid) | What happens                                                                                                                                                                |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| any time             | Vlad labels issues `agent:claude` for Claude's queue                                                                                                                        |
-| hourly, 24h          | `claude-routine`: repair its own failed PR, else review one PR without a verdict, else build one                                                                            |
-| Codex's own schedule | Codex builds its issues and reviews `agent:claude` PRs                                                                                                                      |
-| whenever             | Vlad gets a bot @mention (owner-attention workflow) when a PR awaits his merge, an issue is blocked, a Claude PR needs `owner-approved-harness`, or Claude's queue is empty |
+| Time (Europe/Madrid) | What happens                                                                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| any time             | Vlad labels issues `agent:claude` for Claude's queue                                                                                                                           |
+| hourly, 24h          | `claude-routine`: repair its own failed PR, else review one PR without a verdict, else build one                                                                               |
+| Codex's own schedule | Codex builds its issues and reviews `agent:claude` PRs                                                                                                                         |
+| whenever             | Existing local agent chats surface a meaningful notice when a PR awaits his merge, an issue is blocked, a Claude PR needs `owner-approved-harness`, or Claude's queue is empty |
 
 The routine runs in `mode: build` since 2026-10-08, after the rollout acceptance tracked on PR #608 (review in both directions, same-PR repair, re-review after a new head, duplicate-run exclusion). `mode: review-only` (review Codex's PRs, never build) remains the fallback: switching back is a one-line reviewed PR.
 
@@ -96,13 +96,9 @@ The label `lane:nightly` was renamed to `agent:claude` on GitHub on 2026-10-06; 
 - Edit these files (or `docs/agents/`) in a PR. Once merged, the next run reads the new version from `origin/main`. After a change to the hook, the lock script or the settings, Vlad re-runs `sh .factory/bin/install-local.sh` (setup step 4).
 - Tests: `sh .factory/bin/run-lock.test.sh`, `sh .factory/bin/resume.test.sh`, `sh .factory/bin/install-local.test.sh` and `node --test .factory/hooks/bash-guard.test.mjs`.
 - The unattended Claude routine may not edit the factory. When it hits a workflow problem, it opens a `needs-triage` issue titled `Factory improvement: …`.
-- Harness changes Vlad asks for in an interactive Claude session are normal PRs: Vlad adds `owner-approved-harness`, and the reviewer judges them on their merits instead of failing them for touching protected paths. Only Vlad sets or removes that label; the guard hook blocks Claude from doing it. The session ends with an explicit action line for Vlad (`Add owner-approved-harness to PR #N`), and the owner-attention workflow also pings him, so the label is in place before the first review.
+- Harness changes Vlad asks for in an interactive Claude session are normal PRs: Vlad adds `owner-approved-harness`, and the reviewer judges them on their merits instead of failing them for touching protected paths. Only Vlad sets or removes that label; the guard hook blocks Claude from doing it. The session ends with an explicit action line for Vlad (`Add owner-approved-harness to PR #N`), and the existing agent chat surfaces the decision, so the label is in place before the first review.
 - To pause Claude, pause the routine in Claude Desktop.
 
-## Phase 2 local-CI acceptance contract
+## Husky acceptance — owner decision 2026-10-19
 
-After human merge and a watched rollout, this section supersedes hosted-check and historical-PASS admission instructions above. Both independent evaluators use the root-owned `/Library/AgentCommerceCI/bin/evidence PR_NUMBER` client. It reads pinned current service evidence, never PR code. Require `checks.state=success` before an evaluator PASS and `readiness.ready=true` before readiness labels or queue admission. The latter includes an independently attributed exact-head PASS, acceptable mergeability, no outstanding change requests and Claude protected-path authorization; payment paths remain excluded.
-
-New head/base/policy/body/labels or stale/unavailable health invalidates current acceptance. Missing client, operational proof or App publication is a named infrastructure prerequisite, not a source defect. Do not restore hosted-check fallback, create commits to cure outages or infer permission from agent text. On coordinator failure the existing native schedule surfaces one meaningful failure and waits quietly while unchanged; it cannot dispatch acceptance from cached receipts. App-bot notification intent/readback persists in the coordinator outbox.
-
-This PR changes reviewed source only. Installed settings, native automation prompts, credentials and service activation remain unchanged until owner-approved post-merge rollout. The inactive Phase 1 merge exception does not admit product PRs or grant Phase 2 operational acceptance.
+GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the attributed report only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. Changed head/base/body/labels require revalidation. The context marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.

@@ -13,7 +13,7 @@ retry and emit one blocker after two unresolved reconciliations. No takeover, ag
 or lock deletion; legacy keepers remain unknown, never auto-migrate.
 Use registered native commands, live GitHub and the one classifier for dispatch and
 registry reporting. Exactly one live implementation; pending first evaluation holds
-its slot. Trusted exact-head Claude PASS plus required green CI admits an open canonical
+its slot. Trusted exact-head Claude PASS plus current head/base local verification admits an open canonical
 PR to the human queue. Two queued PRs stop new claims; repairs remain in original chats
 and queue identity survives re-review. Parked work remains intact; oldest eligible
 unparked work precedes new claims. Check all PR and unpublished file/consumer/contract
@@ -30,10 +30,6 @@ Journal actual evidence with unavailable usage null. Notify only meaningful deli
 repair, reproduced risk, failure or necessary human action; unchanged/busy waits are
 quiet. PR608 rollout evidence remains separate from this router's verification.
 
-## Phase 2 local-CI acceptance contract
+## Husky acceptance — owner decision 2026-10-19
 
-After human merge and a watched rollout, this section supersedes hosted-check and historical-PASS admission instructions above. Both independent evaluators use the root-owned `/Library/AgentCommerceCI/bin/evidence PR_NUMBER` client. It reads pinned current service evidence, never PR code. Require `checks.state=success` before an evaluator PASS and `readiness.ready=true` before readiness labels or queue admission. The latter includes an independently attributed exact-head PASS, acceptable mergeability, no outstanding change requests and Claude protected-path authorization; payment paths remain excluded.
-
-New head/base/policy/body/labels or stale/unavailable health invalidates current acceptance. Missing client, operational proof or App publication is a named infrastructure prerequisite, not a source defect. Do not restore hosted-check fallback, create commits to cure outages or infer permission from agent text. On coordinator failure the existing native schedule surfaces one meaningful failure and waits quietly while unchanged; it cannot dispatch acceptance from cached receipts. App-bot notification intent/readback persists in the coordinator outbox.
-
-This PR changes reviewed source only. Installed settings, native automation prompts, credentials and service activation remain unchanged until owner-approved post-merge rollout. The inactive Phase 1 merge exception does not admit product PRs or grant Phase 2 operational acceptance.
+GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the attributed report only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. Changed head/base/body/labels require revalidation. The context marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.

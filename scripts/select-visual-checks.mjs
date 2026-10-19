@@ -4,6 +4,7 @@ import { readFileSync, mkdtempSync, openSync, closeSync, readSync, rmSync } from
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { checkPushTemplates } from './check-pr-template.mjs';
 
 export const assessmentPath = '.visual-impact.json';
 export const visualTests = {
@@ -21,7 +22,8 @@ export function nonObservable(path) {
     /^(docs\/|\.agents\/|\.github\/|\.husky\/)/.test(path) ||
     /^(AGENTS\.md|README\.md|PROGRESS\.md|DECISIONS\.md|CONTEXT\.md|feature_list\.json|\.visual-impact\.json)$/.test(path) ||
     /^tests\/(?!visual\/)/.test(path) ||
-    path === 'scripts/select-visual-checks.mjs'
+    path === 'scripts/select-visual-checks.mjs' ||
+    path === 'scripts/check-pr-template.mjs'
   );
 }
 
@@ -185,13 +187,15 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   try {
     const args = process.argv.slice(2);
     const baseIndex = args.indexOf('--base');
+    const input = baseIndex < 0 ? readFileSync(0, 'utf8') : '';
     const selection = plan({
-      input: baseIndex < 0 ? readFileSync(0, 'utf8') : '',
+      input,
       base: baseIndex < 0 ? undefined : args[baseIndex + 1],
       remote: args[0] && !args[0].startsWith('--') ? args[0] : 'origin',
       local: baseIndex >= 0,
     });
     process.stdout.write(`${JSON.stringify(selection, null, 2)}\n`);
+    if (args.includes('--verify') && input) checkPushTemplates(input);
     if (args.includes('--verify') && selection.ranges.length) {
       const pushedHead = selection.ranges[0][1];
       if (selection.ranges.some(([, after]) => after !== pushedHead))

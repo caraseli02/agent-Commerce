@@ -16,7 +16,6 @@ class DiscoveryTests(unittest.TestCase):
     def test_paginated_adapter_uses_current_head_not_saved_verdict(self):
         i = dict(issue(), title='feature', body=None, updated_at='now')
         p = dict(pr(), body='Closes #1')
-        p['local_ci']['pr']['body'] = p['body']
         p['comments'] = []
         calls = []
         def api(path, pages=False):
@@ -30,7 +29,7 @@ class DiscoveryTests(unittest.TestCase):
             if '/comments?' in path or '/reviews?' in path or '/commits?' in path or '/statuses?' in path: return []
             self.fail('Unexpected API path ' + path)
         assessment = dict(SCOPE, head=HEAD)
-        with patch.object(discover, 'gh', side_effect=api), patch.object(discover.subprocess, 'check_output', return_value=json.dumps([{'check_runs': p['checks']}])), patch.object(discover, 'local_ci_evidence', return_value=p['local_ci']), patch.object(discover, 'route', return_value={'action': 'wait'}):
+        with patch.object(discover, 'gh', side_effect=api), patch.object(discover.subprocess, 'check_output', return_value='[]'), patch.object(discover, 'route', return_value={'action': 'wait'}):
             result = discover.snapshot(CONFIG, {'issues': {'1': {'independent_verdict': 'PASS'}}}, {'prs': {'10': assessment}})
         self.assertEqual(result['states'][0]['state'], 'waiting_first_evaluation')
         self.assertEqual(result['reservations'][0]['scope'], assessment)

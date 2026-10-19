@@ -2,6 +2,8 @@
 
 ## Current focus
 
+- Owner-requested #741: retire standalone CI/Actions workflows; use Husky and independent current head/base local acceptance. Source archive is preserved in docs/archive/local-ci; private deployment evidence is retained. Delivery verification and independent review are pending.
+
 - Reviewed payment snapshot from live GitHub at origin/main `517627ff` (2026-10-12). Nonpayment queue state was not rechecked; earlier snapshots remain in Git history and feature evidence.
 
 ## In progress

@@ -2,6 +2,29 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
+import { execFileSync } from 'node:child_process';
+
+// First pushes may precede PR creation. Existing PRs must validate their live body;
+// creating/editing a body still requires --body-file before publication.
+export function checkPushTemplates(input, { run = (args) => execFileSync('gh', args, { encoding: 'utf8', timeout: 30_000 }) } = {}) {
+  const branches = new Set();
+  for (const line of input.trim().split('\n').filter(Boolean)) {
+    const fields = line.trim().split(/\s+/);
+    if (fields.length !== 4) throw new Error('Invalid pre-push ref input.');
+    const [, sha, ref] = fields;
+    if (/^0+$/.test(sha)) continue;
+    if (ref.startsWith('refs/heads/')) branches.add(ref.slice('refs/heads/'.length));
+  }
+  for (const branch of branches) {
+    const prs = JSON.parse(run(['pr', 'list', '--head', branch, '--state', 'open', '--limit', '100', '--json', 'number,body,labels']));
+    if (!Array.isArray(prs) || prs.length >= 100) throw new Error('Incomplete PR metadata lookup.');
+    if (!prs.length) process.stdout.write(`No open PR for ${branch}; validate --body-file before creating the PR.\n`);
+    for (const pr of prs) {
+      const result = assessPrTemplate({ body: pr.body, labels: pr.labels.map((label) => label.name) });
+      if (result.status === 'failed') throw new Error(`PR #${pr.number}: ${result.violations.join(' ')}`);
+    }
+  }
+}
 
 const REQUIRED_HEADINGS = ['Verification', 'Known risks', 'Evaluator rubric'];
 const VERIFICATION_COMMANDS = ['pnpm build', 'pnpm lint', 'pnpm typecheck', 'pnpm test'];

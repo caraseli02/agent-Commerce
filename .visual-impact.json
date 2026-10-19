@@ -269,6 +269,12 @@
       "impact": "none",
       "reason": "Quick Buy rows take their input and error IDs from useId instead of the row index (#700); only id, for and aria-describedby attribute values change",
       "consumers": "QuickBuyInput.vue is rendered only by app/components/global/QuickBuy/QuickBuy.vue (LazyQuickBuy on home, search and product). Classes, text, layout and the error paragraph's v-if are unchanged; IDs are not painted, so no home, search, product, cart or orders screenshot can change. Label association and focus are covered by tests/e2e/quick-buy-input-ids.spec.ts."
+    },
+    {
+      "fingerprint": "3b378ab95007089b02d97d3cae1988239b24be24d7b8518d3e2130cdfb85db2a",
+      "impact": "none",
+      "reason": "#741 replaces the verification provider and archives retired CI; no application behavior or styling changes.",
+      "consumers": "Inspected Husky -> select-visual-checks -> verify/metadata CLI, owner-attention local-readiness, .factory instructions and .codex-autonomy routing. None is imported by app/, server/, Nuxt runtime config or rendered routes. Removed scripts/local-ci and its test fixtures were standalone tooling only. Application code, assets, dependency lockfile and visual baselines are unchanged."
     }
   ]
 }

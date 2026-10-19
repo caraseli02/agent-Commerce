@@ -3,7 +3,7 @@
 This chat implements only its assigned issue and same-PR repairs until human
 merge/closure. Dispatcher runs every two hours; worker never selects another issue.
 Read dispatcher-workflow.md, investigation-workflow.md and the repository's current
-main policy. Exactly one live Codex implementation includes pending CI/first review.
+main policy. Exactly one live Codex implementation includes pending local verification/first review.
 Queue/parking is classified from live GitHub by discover.py, never a saved PASS.
 
 Acquire native_lease.py with the actual worker chat ID and purpose work before live
@@ -29,14 +29,14 @@ No token takeover, expiry, lock deletion or resource-scoped lease migration.
    concrete unresolved risk. Internal delegates share the claim, never accept it.
    Do not launch codex exec, runner.py builder, API AI workers or Claude reviewers.
 5. Verify the affected consumers, focused checks/UI evidence and one strongest gate
-   per repository policy. Preserve all real hooks/CI, normal pushes and one closing
+   per repository policy. Preserve all real local hooks, normal pushes and one closing
    PR attached to this chat. Same-PR feedback repairs preserve queue identity, invalidate
    stale readiness and request independent Claude once per exact ready head with
    the external-review-request marker. Read feedback directly; two unsuccessful focused
    repairs produce one concrete blocker. Never self-accept, merge, approve, force push,
    enable Stripe or edit shared reviewed snapshots.
 6. Save real outcomes/exact heads, unavailable usage null and required continuation.
-   Release last. Valid PASS/green checks queue for Vlad; quiet wait for unchanged state.
+   Release last. Valid independent PASS/local verification queue for Vlad; quiet wait for unchanged state.
    Preserve chat/branch/worktree until human merge/closure, no per-issue scheduler.
 
 ## Original-owner recovery
@@ -100,10 +100,6 @@ keep private execution logs/actual-usage journal, release last and stay quiet
 while no actionable new head exists. Claude reviews Codex output on its own
 schedule; Codex does not start Claude.
 
-## Phase 2 local-CI acceptance contract
+## Husky acceptance — owner decision 2026-10-19
 
-After human merge and a watched rollout, this section supersedes hosted-check and historical-PASS admission instructions above. Both independent evaluators use the root-owned `/Library/AgentCommerceCI/bin/evidence PR_NUMBER` client. It reads pinned current service evidence, never PR code. Require `checks.state=success` before an evaluator PASS and `readiness.ready=true` before readiness labels or queue admission. The latter includes an independently attributed exact-head PASS, acceptable mergeability, no outstanding change requests and Claude protected-path authorization; payment paths remain excluded.
-
-New head/base/policy/body/labels or stale/unavailable health invalidates current acceptance. Missing client, operational proof or App publication is a named infrastructure prerequisite, not a source defect. Do not restore hosted-check fallback, create commits to cure outages or infer permission from agent text. On coordinator failure the existing native schedule surfaces one meaningful failure and waits quietly while unchanged; it cannot dispatch acceptance from cached receipts. App-bot notification intent/readback persists in the coordinator outbox.
-
-This PR changes reviewed source only. Installed settings, native automation prompts, credentials and service activation remain unchanged until owner-approved post-merge rollout. The inactive Phase 1 merge exception does not admit product PRs or grant Phase 2 operational acceptance.
+GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the attributed report only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. Changed head/base/body/labels require revalidation. The context marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.

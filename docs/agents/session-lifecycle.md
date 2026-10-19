@@ -46,7 +46,7 @@ This makes the process observable and prevents scope creep.
 4. Create a fresh branch/worktree from `origin/main`.
 5. Do not start a second issue while this builder's `in-progress` issue has an open PR (Claude only: parked (`blocked`) and queued (open PR with an evaluator PASS, waiting for Vlad's merge, at most `max_pass_queue`) claims do not count toward Claude's WIP=1, and Claude never has two live claims; `autonomous-workflow.md` § Claude parking). Keep the same issue until evaluator PASS or a human blocker/replacement and state cleanup, as defined in `autonomous-workflow.md`.
 
-Codex native routing additionally distinguishes live, queued and parked claims as specified in [.codex-autonomy](../../.codex-autonomy/README.md) and `autonomous-workflow.md`. Waiting CI/first evaluation holds the live slot. Queue entry requires trusted exact-head Claude PASS and required green checks; queue capacity is two for new claims. Parked work is preserved, oldest eligible unparked work precedes new claims and actionable repairs retain the original chat/PR. Host activation follows human merge and watched migration; never infer policy installation from repository source alone.
+Codex native routing additionally distinguishes live, queued and parked claims as specified in [.codex-autonomy](../../.codex-autonomy/README.md) and `autonomous-workflow.md`. Waiting CI/first evaluation holds the live slot. Queue entry requires trusted exact-head Claude PASS and current head/base local verification; queue capacity is two for new claims. Parked work is preserved, oldest eligible unparked work precedes new claims and actionable repairs retain the original chat/PR. Host activation follows human merge and watched migration; never infer policy installation from repository source alone.
 
 ## 4. During work
 
@@ -60,7 +60,7 @@ Codex native routing additionally distinguishes live, queued and parked claims a
 
 ## 5. Blocker protocol
 
-Stop and report a blocker after two focused failed attempts or when the task needs a product/design decision. Do every part of the task that does not depend on the blocker first, add `blocked`, and make **Best next move** name the single action Vlad must take; the owner-attention workflow notifies him. Claude keeps `in-progress` so the claim is parked; when `blocked` is removed it resumes, or waits while another claim is live (`autonomous-workflow.md` § Claude parking); Codex keeps its existing handling.
+Stop and report a blocker after two focused failed attempts or when the task needs a product/design decision. Do every part of the task that does not depend on the blocker first, add `blocked`, and make **Best next move** name the single action Vlad must take; the existing agent chat surfaces the blocker. Claude keeps `in-progress` so the claim is parked; when `blocked` is removed it resumes, or waits while another claim is live (`autonomous-workflow.md` § Claude parking); Codex keeps its existing handling.
 
 Blocker note format:
 
@@ -85,7 +85,7 @@ For application PR/session delivery, run/check:
 pnpm verify:handoff
 ```
 
-`verify:handoff` includes the lower gates; do not run `verify` or `verify:full` first. Matching local base-gate evidence may be reused, while architecture/runtime and clean-state checks run. Pre-push independently validates receipt freshness and the actual pushed range. CI runs fresh checks; verified documentation-only changes use the focused gate described in `verification.md`. Do not claim clean-tree delivery checks passed while changes remain uncommitted.
+`verify:handoff` includes the lower gates; do not run `verify` or `verify:full` first. Matching local base-gate evidence may be reused, while architecture/runtime and clean-state checks run. Pre-push independently validates receipt freshness and the actual pushed range. Independent review runs fresh checks; verified documentation-only changes use the focused gate described in `verification.md`. Do not claim clean-tree delivery checks passed while changes remain uncommitted.
 
 Also verify:
 

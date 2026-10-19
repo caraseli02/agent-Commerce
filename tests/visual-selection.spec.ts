@@ -218,9 +218,11 @@ it('runs the real hook with captured push stdin and stops before visuals when ve
   r.write('README.md', 'nonvisual');
   r.commit();
   r.write('scripts/select-visual-checks.mjs', readFileSync(join(sourceRoot, 'scripts/select-visual-checks.mjs'), 'utf8'));
+  r.write('scripts/check-pr-template.mjs', readFileSync(join(sourceRoot, 'scripts/check-pr-template.mjs'), 'utf8'));
   const bin = mkdtempSync(join(tmpdir(), 'visual-hook-bin-'));
   roots.push(bin);
   const log = join(bin, 'calls');
+  writeFileSync(join(bin, 'gh'), "#!/bin/sh\nprintf '[]\\n'\n", { mode: 0o755 });
   const fakePnpm = join(bin, 'pnpm');
   writeFileSync(fakePnpm, '#!/bin/sh\necho "$*" >> "$VISUAL_HOOK_LOG"\nexit "${VISUAL_HOOK_EXIT:-0}"\n', { mode: 0o755 });
   const hook = readFileSync(join(sourceRoot, '.husky/pre-push'), 'utf8');

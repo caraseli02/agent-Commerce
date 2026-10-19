@@ -1,5 +1,7 @@
 # agent-Commerce — Agent Harness
 
+GitHub Actions stay disabled. Husky and independent local review govern acceptance; follow [local verification](docs/agents/local-verification.md). The standalone CI migration is retired.
+
 agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Stripe hooks, and local Nitro mock endpoints.
 
 ## Current mode
@@ -13,7 +15,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - WIP=1 applies per builder. Claude owns issues labeled `agent:claude`; Codex owns other eligible issues. Internal model delegation shares its builder's claim. Claude never builds payment work; its routines are defined in `.factory/`. See `docs/agents/autonomous-workflow.md` for ownership and independent cross-review.
 - GitHub labels, assignments and linked PRs are live claim state. `PROGRESS.md`, `DECISIONS.md`, `feature_list.json`, and `CONTEXT.md` preserve reviewed session/evidence snapshots; unattended agents keep task transitions on GitHub.
 
-Codex uses the reviewed native queue/parking policy in [Codex routing](.codex-autonomy/README.md): one live implementation including waiting CI/first evaluation, at most two queued PRs for new claims, independent exact-head Claude PASS plus required green checks for admission, original-chat repairs, preserved parked work and oldest eligible unparked priority. Versioned source does not activate host routing; human merge precedes watched installation. Report-only investigations remain exclusive under the existing native global lease.
+Codex uses the reviewed native queue/parking policy in [Codex routing](.codex-autonomy/README.md): one live implementation including waiting local verification/first evaluation, at most two queued PRs for new claims, independent exact-head Claude PASS plus current head/base local verification for admission, original-chat repairs, preserved parked work and oldest eligible unparked priority. Versioned source does not activate host routing; human merge precedes watched installation. Report-only investigations remain exclusive under the existing native global lease.
 
 ## The 5 questions every fresh session must answer
 
@@ -55,7 +57,7 @@ Use **pnpm** for this repo.
 
 During implementation, inspect the diff and affected consumers, select the smallest relevant checks with reasons, and run those checks. For UI effects (including indirect data/store/style changes), use `.agents/skills/verify-ui-change/SKILL.md` and verify only the impacted routes/interactions and relevant viewports in the browser. After a focused repair, rerun only checks whose evidence was invalidated; continue the authorized task without asking the user to continue.
 
-Choose one strongest delivery gate: `pnpm verify`, `pnpm verify:full` where architecture/runtime evidence is required, or `pnpm verify:handoff` from a clean working tree for final PR/session handoff. Do not invoke every superset in sequence. Handoff/full and pre-push can reuse matching successful local build/lint/typecheck/coverage evidence for four hours; source, locked installation metadata, config/environment, runtime, or generated build changes invalidate reuse. Use `--fresh` after an unresolved failure or when fresh evidence is required. Lightweight validators, handoff runtime checks, and selected visuals still run. CI never reuses receipts; executable/unknown changes run full CI. Verified documentation-only ranges use formatting/state checks without application tests. See `docs/agents/verification.md` for the conservative classifier.
+Choose one strongest delivery gate: `pnpm verify`, `pnpm verify:full` where architecture/runtime evidence is required, or `pnpm verify:handoff` from a clean working tree for final PR/session handoff. Do not invoke every superset in sequence. Handoff/full and pre-push can reuse matching successful local build/lint/typecheck/coverage evidence for four hours; source, locked installation metadata, config/environment, runtime, or generated build changes invalidate reuse. Use `--fresh` after an unresolved failure or when fresh evidence is required. Lightweight validators, handoff runtime checks, and selected visuals still run. Independent review never reuses builder receipts; executable/unknown changes run full CI. Verified documentation-only ranges use formatting/state checks without application tests. See `docs/agents/verification.md` for the conservative classifier.
 
 Pre-push invokes `pnpm verify --reuse` with the actual pushed base/head and selects macOS screenshots from actual pushed ranges. Runtime skips or targeted groups require a committed, diff-bound consumer assessment; uncertain impact runs the full suite. `pnpm test:visual` still runs the full matrix explicitly.
 
@@ -114,7 +116,7 @@ Use `docs/agents/session-lifecycle.md` for startup, sprint contract, blocker, an
 - `docs/agents/domain.md` — where domain context lives
 - `docs/agents/session-lifecycle.md` — initialization, WIP=1, blocker protocol, clean handoff
 - `docs/agents/verification.md` — done gates, E2E/runtime verification, evaluator rubric
-- `docs/agents/local-ci.md` — standalone CI service, disabled Phase 1 deployment and operational acceptance gates
+- `docs/agents/local-verification.md` — Husky checks, independent acceptance and disabled-Actions operation
 - `docs/agents/harness-audit.md` — course coverage and known harness watch points
 
 ## Repository map
