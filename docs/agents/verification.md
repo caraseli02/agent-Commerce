@@ -21,7 +21,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
    - Use this once before final PR/session handoff, after intentional files are committed or otherwise clean. Full/handoff reuse matching local base checks when available, then run their additional checks.
 4. **Harness-state validator**
    - `./scripts/validate-feature-list.sh` whenever `feature_list.json` changes.
-   - Use it to prove allowed statuses, the snapshot's single-active-item limit, and passing-item evidence stay mechanically correct. It does not enforce live per-builder GitHub WIP; inspect labels, assignments and linked PRs separately.
+   - Use it to prove schema v2 permits only durable policy and historical notes with nonempty identity, description, validation and evidence. It rejects unknown fields, per-task statuses, active counts and claims; even a closed issue cannot be represented as active in the archive. It does not enforce live per-builder GitHub WIP; inspect labels, assignments and linked PRs through the existing claim guard.
 5. **PR template completeness gate**
    - `node scripts/check-pr-template.mjs`
    - Local preflight before `gh pr create` or a body edit: `node scripts/check-pr-template.mjs --body-file <file>` runs the same assessment on the body file and exits 1 with the violations. Claude's guard hook runs it on every `gh pr create` / `gh pr edit --body-file` and blocks a failing body or an inline `--body` (#702).
@@ -31,7 +31,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 6. **Clean-state handoff validator**
    - `node scripts/check-clean-state.mjs`
    - This is a non-mutating handoff check that expects a clean working tree, rejects tracked temp/debug artifacts, and scans changed source files for fresh `console.log`, TODO/FIXME, or commented-out-code regressions. It intentionally skips scanning `scripts/check-clean-state.mjs` itself so the validator does not self-flag its own pattern definitions.
-   - It also treats stale session-state shape as a failure signal where practical: the validator only checks the `PROGRESS.md` handoff shape it can verify mechanically, while deeper task-state semantics stay with `./scripts/validate-feature-list.sh` and human review.
+   - It does not read `PROGRESS.md`, require live-task headings, or require either session-note or archive edits. A code-only branch passes with both files unchanged. Live task evidence belongs on the GitHub issue/PR; archive validation checks historical note structure, never completion or live WIP. `tests/harness-state.spec.ts` exercises unchanged-note code-only handoffs and preserves dirty-tree, temporary-artifact and debug rejection; `tests/delivery-verification.spec.ts` exercises the handoff orchestration with isolated lower-gate doubles.
 7. **UI-conventions gate**
    - `node scripts/verify-ui-conventions.mjs`
    - This runs inside `pnpm verify`, `pnpm verify:full`, and `pnpm verify:handoff`.
@@ -91,7 +91,7 @@ Compute the fingerprint from the actual diff bytes and untracked file contents, 
 
 Associate each result with its checked environment/runtime identity (a short identifier referencing the setup is enough); do not overwrite older results with a newer global setup. Update the record after edits/checks and before interruption. On resume, compare revision, fingerprint, relevant dependencies, and environment against each result. A changed overall fingerprint prompts inspection of the change; it does not invalidate unrelated checks automatically. Reuse only evidence with demonstrably unchanged inputs. A preview must be rebuilt after a relevant edit; a dev server must have consumed the current changes (restart for config/server changes when needed). Never label a stale runtime check as evidence for the current diff.
 
-This record is a local continuation aid, not a scheduler or an independent evaluator verdict. Keep live issue/PR state and unattended evidence on GitHub; preserve shared `PROGRESS.md` and `feature_list.json` snapshots during explicit reviewed reconciliation. Copy useful evidence into the handoff and remove temporary task records/artifacts before clean handoff. The ignored delivery receipt described below may remain until expiration for pre-push reuse.
+This record is a local continuation aid, not a scheduler or an independent evaluator verdict. Keep live issue/PR state and unattended evidence on GitHub; leave `PROGRESS.md` session notes and the `feature_list.json` historical archive unchanged in normal feature PRs. Session notes change at most once per session on `main` when explicitly requested, or are generated from GitHub; archive changes require an explicit archival/policy task. Copy useful evidence into the handoff and remove temporary task records/artifacts before clean handoff. The ignored delivery receipt described below may remain until expiration for pre-push reuse.
 
 ## Local delivery receipt and focused documentation gate
 
@@ -189,7 +189,7 @@ Example evidence block for a future PR:
 
 1. Stop and fix the failing command before pushing.
 2. If `lint-staged` rewrites files, restage those changes and rerun the hook.
-3. If the failure is outside the current scope, record the exact command and output in the issue/PR (or `PROGRESS.md` during explicit reconciliation) and do not widen the task.
+3. If the failure is outside the current scope, record the exact command and output in the issue/PR (not in a duplicate tracked task ledger) and do not widen the task.
 
 ## Done gate
 
@@ -200,7 +200,7 @@ A task is not done until all are true:
 - Browser/runtime evidence exists for UI or route changes.
 - The evaluator confirmed the PR is mergeable and not in a conflict state before granting PASS.
 - No unrelated refactor was bundled into the task.
-- GitHub labels, assignments and linked PRs carry live state and unattended transitions. Explicit reviewed reconciliations update `feature_list.json` / `PROGRESS.md` snapshots with evidence; these snapshots do not replace live claim checks.
+- GitHub issue labels, assignments and linked PRs are the only live task state and carry current verification evidence. Normal feature handoffs do not edit `feature_list.json` or `PROGRESS.md`; historical archive notes do not assert current completion, claims or readiness.
 - The PR body contains evidence, not just a confidence statement; for harness-state validator work, include the exact validator command output and at least one failure-mode example.
 - For harness-state validator work, make the PR body itself repeat the validation rules, command evidence, and a failure-mode example so the evaluator can review the evidence without hunting through the diff.
 - An evaluator other than the generator has reviewed the PR evidence and returned a passing verdict.

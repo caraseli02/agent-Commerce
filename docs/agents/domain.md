@@ -11,9 +11,9 @@ Components Marketplace is a **single-context** repo.
 - **`docs/buyer-flow-architecture.md`** — Buyer Flow as-built architecture (layers, routes, mock boundary, observations)
 - **`docs/adr/`** — read ADRs that touch the area you're about to work in
 - **`AGENTS.md`** — harness/router for autonomous loops
-- **`PROGRESS.md`** — current focus and verification baseline
+- **`PROGRESS.md`** — optional historical session context; current focus and verification evidence live on GitHub
 - **`DECISIONS.md`** — durable cross-session choices
-- **`feature_list.json`** — machine-readable work state
+- **`feature_list.json`** — durable policy and historical evidence archive; live tasks are on GitHub
 
 If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The producer skills (`/grilling` with `/domain-modeling`) create them lazily when terms or decisions actually get resolved.
 

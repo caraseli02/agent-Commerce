@@ -26,8 +26,9 @@ The local checkout model now has strong retry/concurrency semantics. The remaini
 ## Current planning controls
 
 - GitHub Issues are the task queue.
-- `PROGRESS.md` is the current session/progress mirror.
-- `feature_list.json` is the machine-readable feature state and keeps WIP limited to one active feature.
+- GitHub issue labels, assignments and linked PRs are the only live task state and enforce per-builder WIP=1.
+- `PROGRESS.md` is a historical session note; ordinary feature PRs leave it unchanged.
+- `feature_list.json` archives historical validation/evidence without task statuses, active counts or claims.
 - #536 and epic #535 are complete/passing. The reconciliation closed #537-#542 and #544-#547 after current-main coverage and preview-browser checks; #543 had already merged and closed.
 
 The recorded reconciliation evidence is: stable product/cart/refreshed checkout pricing (#537); 150/151 and last-stock safeguards (#538); cart-change recovery (#539/#543); restored checkout drafts (#540); credit shortfall explanation (#541); unsigned tracking protection (#542); linked Paid transaction history (#544); exact and no-match order search (#545); saved checkout addresses (#546); and cart/draft identity isolation (#547). No residual #535 defect was reproduced.

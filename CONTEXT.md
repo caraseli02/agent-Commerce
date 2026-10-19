@@ -64,9 +64,9 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 
 - `AGENTS.md` — harness/router
 - `CLAUDE.md` — project-level Claude guidance
-- `PROGRESS.md` — current focus and verification baseline
+- `PROGRESS.md` — optional historical session note; current focus and evidence live on GitHub
 - `DECISIONS.md` — durable decisions
-- `feature_list.json` — machine-readable harness state
+- `feature_list.json` — durable policy and historical evidence archive; live task state exists only on GitHub issues/PRs
 
 ## API access
 

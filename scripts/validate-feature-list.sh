@@ -13,95 +13,61 @@ function fail(message) {
   process.exit(1);
 }
 
-let raw;
-try {
-  raw = fs.readFileSync(path, 'utf8');
-} catch (error) {
-  console.error(`feature_list.json validation failed: cannot read ${path}. Check that the file exists at the repo root before running the harness validator.`);
-  process.exit(1);
-}
-
 let data;
 try {
-  data = JSON.parse(raw);
+  data = JSON.parse(fs.readFileSync(path, 'utf8'));
 } catch (error) {
-  console.error(`feature_list.json validation failed: file is not valid JSON. This blocks harness state checks because agents rely on machine-readable task state. Check ${path} for syntax errors.`);
-  process.exit(1);
+  fail(`cannot read valid JSON at ${path}. Restore the archive or fix its JSON syntax.`);
 }
 
-if (!data || typeof data !== 'object' || Array.isArray(data)) {
-  fail(`top-level value must be a JSON object. The harness reads policy and feature entries from this file, so inspect ${path}.`);
-}
-
-const allowedStatuses = new Set(['not_started', 'active', 'blocked', 'passing']);
-const features = Array.isArray(data.features) ? data.features : null;
-const policy = data.policy && typeof data.policy === 'object' && !Array.isArray(data.policy) ? data.policy : null;
+const object = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+const text = (value) => typeof value === 'string' && value.trim().length > 0;
 const errors = [];
-
-if (!features) {
-  errors.push('features must be an array. The validator cannot enforce WIP=1 or evidence rules without a feature list. Check the top-level "features" field.');
+function fields(value, allowed, location) {
+  for (const key of Object.keys(value)) {
+    if (!allowed.includes(key)) {
+      errors.push(`${location}.${key} is not an archive field. Live task status/claims belong only on GitHub issues and PRs; remove the field rather than synchronizing it.`);
+    }
+  }
 }
 
-if (!policy) {
-  errors.push('policy must be a JSON object. The harness uses policy.wip_limit and policy.active_feature_count to detect stale or conflicting task state. Check the top-level "policy" field.');
+if (!object(data)) fail('top-level value must be an archive object; inspect the repository feature_list.json.');
+fields(data, ['schema_version', 'purpose', 'policy', 'archive'], 'root');
+if (data.schema_version !== 2) errors.push('schema_version must be 2 (policy and historical evidence only; no per-task statuses).');
+if (!text(data.purpose)) errors.push('purpose must describe the historical archive semantics.');
+
+if (!object(data.policy)) {
+  errors.push('policy must be an object containing the durable per-builder WIP rule and GitHub authority.');
+} else {
+  fields(data.policy, ['wip_limit_per_builder', 'live_claim_authority'], 'policy');
+  if (data.policy.wip_limit_per_builder !== 1) errors.push('policy.wip_limit_per_builder must remain 1. Check live GitHub claims to enforce it.');
+  if (data.policy.live_claim_authority !== 'GitHub issues and PRs') errors.push('policy.live_claim_authority must be "GitHub issues and PRs".');
 }
 
-if (features) {
-  let activeCount = 0;
-  for (const [index, feature] of features.entries()) {
-    const location = `feature at index ${index}`;
-    if (!feature || typeof feature !== 'object' || Array.isArray(feature)) {
-      errors.push(`${location} is not a JSON object. Each feature must be a structured record so agents can safely read task state in ${path}.`);
+if (!Array.isArray(data.archive)) {
+  errors.push('archive must be an array of historical validation/evidence notes, never a task queue.');
+} else {
+  const ids = new Set();
+  for (const [index, entry] of data.archive.entries()) {
+    const location = `archive[${index}]`;
+    if (!object(entry)) {
+      errors.push(`${location} must be an object with id, description, validation and evidence.`);
       continue;
     }
-
-    const id = typeof feature.id === 'string' && feature.id.trim() ? feature.id.trim() : null;
-    const label = id ? `feature ${id}` : location;
-    const status = feature.status;
-
-    if (!allowedStatuses.has(status)) {
-      errors.push(`${label} has invalid status ${JSON.stringify(status)}. Allowed statuses are not_started, active, blocked, passing. This keeps the harness task-state machine coherent; update the feature entry in ${path}.`);
+    fields(entry, ['id', 'description', 'validation', 'evidence'], location);
+    for (const key of ['id', 'description', 'validation']) {
+      if (!text(entry[key])) errors.push(`${location}.${key} must be a nonempty string. Preserve the historical note's identity and validation context.`);
     }
-
-    if (status === 'active') {
-      activeCount += 1;
+    if (text(entry.id)) {
+      if (ids.has(entry.id.trim())) errors.push(`${location}.id duplicates ${entry.id}. Keep historical identities unambiguous.`);
+      ids.add(entry.id.trim());
     }
-
-    if (status === 'passing') {
-      if (!Array.isArray(feature.evidence) || feature.evidence.length === 0) {
-        errors.push(`${label} is marked passing but has no evidence. Passing items must point to concrete proof so future agents know what validated the state; add one or more evidence entries in ${path}.`);
-      }
+    if (!Array.isArray(entry.evidence) || entry.evidence.length === 0 || !entry.evidence.every(text)) {
+      errors.push(`${location}.evidence must contain nonempty proof references or explicit historical evidence gaps; an archive entry is not a completion verdict.`);
     }
-  }
-
-  const wipLimit = policy && Number.isInteger(policy.wip_limit) ? policy.wip_limit : null;
-  if (wipLimit == null) {
-    errors.push('policy.wip_limit must be an integer. The harness needs an explicit WIP cap to enforce one active task at a time; check the top-level policy object.');
-  } else if (activeCount > wipLimit) {
-    errors.push(`${activeCount} feature(s) are active, but policy.wip_limit is ${wipLimit}. WIP=1 prevents parallel tasks from overlapping; reduce the number of active features in ${path}.`);
-  }
-
-  if (policy && Object.prototype.hasOwnProperty.call(policy, 'active_feature_count')) {
-    if (!Number.isInteger(policy.active_feature_count)) {
-      errors.push('policy.active_feature_count must be an integer if present. The field is redundant bookkeeping, so it must stay machine-checkable or be removed from policy.');
-    } else if (policy.active_feature_count !== activeCount) {
-      errors.push(`policy.active_feature_count is ${policy.active_feature_count}, but ${activeCount} feature(s) are actually active. This stale redundant count can hide WIP violations; update or remove the field in ${path}.`);
-    }
-  }
-
-  if (!policy && features) {
-    // no-op; the earlier policy error already explains the issue
   }
 }
 
-if (errors.length > 0) {
-  for (const error of errors) {
-    console.error(`feature_list.json validation failed: ${error}`);
-  }
-  process.exit(1);
-}
-
-const activeCount = features ? features.filter((feature) => feature && feature.status === 'active').length : 0;
-const passingCount = features ? features.filter((feature) => feature && feature.status === 'passing').length : 0;
-console.log(`feature_list.json OK: ${features ? features.length : 0} feature(s), ${activeCount} active, ${passingCount} passing.`);
+if (errors.length) fail(errors.join('\n'));
+console.log(`feature_list.json OK: ${data.archive.length} archived evidence note(s); live task state belongs only on GitHub issues and PRs.`);
 NODE
