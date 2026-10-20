@@ -1,7 +1,9 @@
 import { cancelRuntimeOrder } from '~~/server/utils/mockRuntimeOrders';
+import { requireOwnedOrder } from '~~/server/utils/requireRequester';
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id');
+  await requireOwnedOrder(event, id);
   cancelRuntimeOrder(id);
 
   return {

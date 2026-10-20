@@ -1,6 +1,5 @@
 import { orders } from '~~/server/domain/orders';
-import { getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
-import { AccountRole } from '~~/types/signup/form';
+import { requireRequester } from '~~/server/utils/requireRequester';
 
 const parseStartDate = (value?: string) => {
   if (!value) {
@@ -35,11 +34,8 @@ export default defineEventHandler(async (event) => {
 
   const page = Number.parseInt(query.page || '1', 10);
   const perPage = Number.parseInt(query.perPage || '10', 10);
-  const authenticatedUser = getMockUserFromAuthHeader(getHeaders(event).authorization);
-  if (!authenticatedUser) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
-  }
-  const scopedUserId = authenticatedUser.role === AccountRole.Admin ? query.userId : authenticatedUser._id;
+  const requester = requireRequester(event);
+  const scopedUserId = requester.isAdmin ? query.userId : requester.userId;
 
   let items = await orders.list(scopedUserId);
 

@@ -1,7 +1,9 @@
 import { getMockUserById } from '~~/server/utils/mockUsers';
+import { requireSelfOrAdmin } from '~~/server/utils/requireRequester';
 
 export default defineEventHandler(async (event) => {
   const userId = getRouterParam(event, 'id');
+  requireSelfOrAdmin(event, userId);
   const mockUser = getMockUserById(userId);
 
   return {
