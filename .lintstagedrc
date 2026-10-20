@@ -1,4 +1,4 @@
 {
   "*": "prettier --ignore-unknown --write",
-  "*.vue": ["prettier --ignore-unknown --write", "eslint --fix"]
+  "*.vue": ["prettier --ignore-unknown --write", "eslint --fix --pass-on-unpruned-suppressions"]
 }

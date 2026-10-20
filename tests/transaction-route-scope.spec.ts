@@ -39,4 +39,32 @@ describe('transaction history route scope', () => {
     });
     expect(listOrders).toHaveBeenCalledWith('mock-customer-1');
   });
+
+  it('resolves an admin-requested dashboard customer id to its seeded order owner', async () => {
+    const { default: handler } = (await import('../server/api/transaction.get')) as {
+      default: (event: unknown) => Promise<{ data: { items: Array<{ user: string }> } }>;
+    };
+    listOrders.mockResolvedValue([{ _id: 'order-1', shortId: 'ORD-1', total: 10, paymentDetails: { status: 1, invoiceId: 'inv-1' } }]);
+
+    const response = await handler({
+      headers: { authorization: `Bearer demo-token::mock-admin-1::${Date.now()}` },
+      query: { userId: 'customer-001' },
+    });
+    expect(listOrders).toHaveBeenCalledWith('mock-customer-1');
+    expect(response.data.items[0]?.user).toBe('mock-customer-1');
+
+    listOrders.mockClear();
+    await handler({
+      headers: { authorization: `Bearer demo-token::mock-admin-1::${Date.now()}` },
+      query: { userId: 'customer-002' },
+    });
+    expect(listOrders).toHaveBeenCalledWith('customer-002');
+
+    listOrders.mockClear();
+    await handler({
+      headers: { authorization: `Bearer demo-token::mock-customer-1::${Date.now()}` },
+      query: { userId: 'customer-001' },
+    });
+    expect(listOrders).toHaveBeenCalledWith('mock-customer-1');
+  });
 });

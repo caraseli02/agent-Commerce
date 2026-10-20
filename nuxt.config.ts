@@ -133,6 +133,12 @@ export default defineNuxtConfig({
     },
   },
 
+  // The Node server output serves `/_nuxt/*` as-is; emit `.br`/`.gz` siblings so
+  // static CSS/JS is sent compressed when the client accepts it (#729).
+  nitro: {
+    compressPublicAssets: true,
+  },
+
   ignore: ['**/node_modules/**', '**/.git/**', '**/.nuxt/**', '**/dist/**', '**/coverage/**', '**/.output/**'],
 
   // Private routes also send `X-Robots-Tag`; client-only dashboard HTML has no server-rendered robots meta.
