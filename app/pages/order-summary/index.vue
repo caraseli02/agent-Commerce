@@ -61,8 +61,8 @@
             Browse components
           </NuxtLink>
         </section>
-        <div v-else class="gap-6 xl:grid xl:grid-cols-[1fr_392px]">
-          <div class="flex flex-col gap-9 max-w-[992px]">
+        <div v-else class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,392px)]">
+          <div class="flex min-w-0 flex-col gap-6">
             <OrderSummaryBackOrderWarning v-if="showWarning" />
             <OrderSummaryTable
               :loading="loading || cartReadPending"
@@ -70,12 +70,6 @@
               @update-subtotal="updateSubtotal($event, order)"
               @delete-selected="deleteSelected"
             />
-            <div class="hidden lg:flex flex-col">
-              <OrderSummarySimilarProducts :loading="loading" />
-              <OrderSummaryBannerImageCard class="hidden xl:flex" />
-            </div>
-          </div>
-          <div class="flex flex-col justify-start">
             <OrderStockType
               :items="cartItems"
               :account-credit="accountCredit"
@@ -84,6 +78,8 @@
               :shipping-preferences="shippingPreferences"
               @update-payment-details="updatePaymentDetails"
             />
+          </div>
+          <div class="flex min-w-0 flex-col justify-start">
             <OrderSummaryNoteSection />
             <OrderSummary :order="order" :quote="authoritativeQuote" />
             <OrderSummaryCheckoutButtons
@@ -91,9 +87,6 @@
               :is-guest-checkout="isGuestCheckout"
               :signin-href="signinHref"
             />
-            <OrderSummaryBannerCard />
-            <OrderSummaryEcxlusiveOffer class="max-lg:hidden" />
-            <OrderSummarySimilarProducts :loading="loading" />
           </div>
         </div>
       </div>

@@ -121,7 +121,7 @@
         </div>
       </div>
       <div class="mt-auto flex w-full shrink-0 flex-col gap-2 border-t border-slate-100 pt-4">
-        <div class="flex w-full gap-2.5">
+        <div class="flex w-full flex-col gap-2.5 min-[400px]:flex-row">
           <div class="min-h-11 min-w-[140px]">
             <QuantityButtons
               v-if="minPriceConfiguration"

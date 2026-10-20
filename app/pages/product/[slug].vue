@@ -31,6 +31,20 @@
     <template v-else-if="product">
       <ProductBreadcrumbs :product="product" />
       <div class="container mb-[30px] lg:mb-10">
+        <div class="mb-4 flex items-start gap-2">
+          <div class="min-w-0">
+            <p class="mb-1 text-sm font-medium text-slate-500">{{ product.manufacturer }}</p>
+            <h1 class="break-words text-2xl font-semibold leading-tight text-slate-900 md:text-3xl">{{ product.name }}</h1>
+            <p v-if="product.details?.SummaryData?.PartDescription" class="mt-2 text-sm leading-6 text-slate-600">
+              {{ product.details.SummaryData.PartDescription }}
+            </p>
+          </div>
+          <CopyClipboard
+            :text="product.name || 'N/A'"
+            :label="`Copy ${product.name || 'product name'}`"
+            class="mt-6 shrink-0 text-slate-500 hover:text-blue-500"
+          />
+        </div>
         <div class="w-full flex items-center justify-end md:gap-0w mb-3">
           <UiDropdownMenu :modal="false">
             <UiDropdownMenuTrigger as-child>
@@ -69,7 +83,6 @@
         </div>
         <LazyProductTable :features="product?.details?.ParametricData?.Features" />
       </div>
-      <ProductBanners />
       <NewProducts :current-product-id="product?._id"> Similar Products </NewProducts>
       <Banner class="hidden lg:flex xl:hidden" />
       <div class="container mb-[30px] lg:mb-10 xl:mb-[60px]">

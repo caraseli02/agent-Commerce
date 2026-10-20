@@ -111,6 +111,8 @@ function checkCartItem(itemId: string) {
     <div>
       <div class="hidden xl:flex flex-row gap-4 ml-4">
         <button
+          type="button"
+          :aria-label="`Remove ${item.productEntity?.name || 'product'} from order`"
           class="flex text-slate-500 items-center justify-center ml-auto transition-colors duration-300 hover:text-rose-500"
           @click="emit('deleteItem', true)"
         >

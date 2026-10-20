@@ -34,9 +34,10 @@ describe('heading hierarchy (#189)', () => {
   });
 
   it('keeps the product name as the product page h1', () => {
-    const source = read('app/components/product/Details.vue');
+    const source = read('app/pages/product/[slug].vue');
 
     expect(h1Count(source)).toBe(1);
     expect(source).toMatch(/<h1[^>]*>[\s\S]*?<\/h1>/);
+    expect(h1Count(read('app/components/product/Details.vue'))).toBe(0);
   });
 });

@@ -2,16 +2,25 @@
   <div class="p-4 xl:p-6 flex flex-col gap-6 bg-[#FFF] rounded-xl shadow-xs mb-6">
     <div class="flex flex-row justify-between w-full">
       <span class="text-neutral-700 text-base font-medium leading-6">Add a note for this order</span>
-      <button class="group" @click="textBoxOpen = !textBoxOpen">
-        <EditBig class="text-[#5E6278] group-hover:text-[#007FFF] transition duration-300" />
+      <button
+        type="button"
+        aria-label="Edit order note"
+        :aria-expanded="textBoxOpen"
+        aria-controls="order-note"
+        class="group flex h-11 w-11 shrink-0 items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-blue-500"
+        @click="textBoxOpen = !textBoxOpen"
+      >
+        <EditBig class="h-5 w-5 text-slate-600 group-hover:text-blue-500 transition duration-300" aria-hidden="true" />
       </button>
     </div>
     <div v-if="textBoxOpen">
       <textarea
+        id="order-note"
         v-model="note"
+        aria-label="Order note"
         :rows="rows"
         maxlength="170"
-        class="no-focus thin-scrollbar w-full p-3 text-neutral-700 text-sm font-normal leading-6 bg-[#F9F9F9] rounded-lg border border-[#D4D4D4] resize-none"
+        class="thin-scrollbar w-full p-3 text-neutral-700 text-sm font-normal leading-6 bg-slate-50 rounded-lg border border-slate-300 resize-none focus-visible:outline-2 focus-visible:outline-blue-500"
         placeholder="Type your note here..."
         @input="adjustHeight"
         @focusout="UpdateNote"
@@ -64,11 +73,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.no-focus:focus {
-  outline: none;
-  border-color: #d4d4d4;
-}
-
 .thin-scrollbar::-webkit-scrollbar {
   width: 8px;
 }

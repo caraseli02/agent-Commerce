@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { PlusIcon } from '@lucide/vue';
+import { PlusIcon, ShoppingCart } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
-import QuickBuyIcon from '@/assets/icons/quick-buy-2.svg';
 import CartIcon from '@/assets/icons/cart.svg';
 import type { AddToCartRequestInterface, CartProductsInterface } from '~~/types/cart';
 import { useCart } from '~/composables/useCart';
@@ -125,7 +124,7 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
 <template>
   <section class="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_16px_rgba(15,23,42,0.06)] md:p-6">
     <div class="flex items-start gap-3">
-      <QuickBuyIcon class="mt-0.5 h-9 w-9 shrink-0" />
+      <ShoppingCart class="mt-0.5 h-7 w-7 shrink-0 text-slate-600" :stroke-width="1.5" aria-hidden="true" />
       <div>
         <h2 class="text-xl font-semibold text-slate-900">Quick Buy</h2>
         <p class="mt-1 text-sm leading-5 text-slate-500">

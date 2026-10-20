@@ -50,9 +50,6 @@
         <div class="flex flex-col gap-1">
           <div v-if="shipping" class="flex flex-row gap-2 items-center">
             <span class="text-slate-500 text-sm font-normal leading-6">Shipping</span>
-            <button class="group">
-              <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
-            </button>
           </div>
           <span v-if="shipping" class="text-neutral-700 italic text-sm font-normal leading-6">{{ shippingText }}</span>
         </div>
@@ -64,9 +61,6 @@
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row">
           <span class="text-slate-500 text-sm font-normal leading-6">Tax:</span>
-          <button class="group ml-2">
-            <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
-          </button>
           <span class="text-neutral-700 text-sm font-normal leading-6 ml-6">(VAT {{ vatPercent }}%)</span>
         </div>
         <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{

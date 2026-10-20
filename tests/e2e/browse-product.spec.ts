@@ -28,9 +28,24 @@ test.describe('Browse → Product Detail', () => {
 
     // Price tiers are displayed in the purchase panel (similar-product cards repeat prices elsewhere)
     const purchasePanel = page.getByTestId('product-purchase-panel');
-    await expect(purchasePanel.getByText('999.99').filter({ visible: true }).first()).toBeVisible();
-    await expect(purchasePanel.getByText('979.99').filter({ visible: true }).first()).toBeVisible();
-    await expect(purchasePanel.getByText('959.99').filter({ visible: true }).first()).toBeVisible();
+    await expect(
+      purchasePanel
+        .getByText(/8,95\sRON/)
+        .filter({ visible: true })
+        .first(),
+    ).toBeVisible();
+    await expect(
+      purchasePanel
+        .getByText(/8,50\sRON/)
+        .filter({ visible: true })
+        .first(),
+    ).toBeVisible();
+    await expect(
+      purchasePanel
+        .getByText(/8,10\sRON/)
+        .filter({ visible: true })
+        .first(),
+    ).toBeVisible();
 
     // Stock information is shown
     await expect(page.getByText(/150 in stock/i).first()).toBeVisible();

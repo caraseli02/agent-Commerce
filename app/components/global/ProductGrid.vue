@@ -45,6 +45,7 @@ const props = defineProps<{
 const computedCols = computed(() => {
   if (props.hasBanner) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
   if (props.orderSummaryView) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+  if (props.productsList.length === 3) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
   return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4';
 });
 

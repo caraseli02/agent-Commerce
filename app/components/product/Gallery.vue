@@ -12,7 +12,7 @@
     <UiButton
       type="button"
       variant="ghost"
-      class="h-auto min-h-0 w-full flex-1 items-stretch justify-stretch overflow-hidden rounded-lg bg-light-100 p-0"
+      class="h-auto min-h-0 w-full flex-1 items-stretch justify-stretch overflow-hidden rounded-lg bg-white p-5"
       aria-label="Open product image gallery"
       @click="emit('showZoomModal')"
     >
@@ -22,6 +22,10 @@
         class-name="h-full w-full cursor-pointer object-contain"
       />
     </UiButton>
+
+    <p class="mt-3 text-center text-xs leading-5 text-slate-500">
+      Representative package image. Check the specifications for exact details.
+    </p>
 
     <ul v-if="showThumbnails" class="mt-3 flex shrink-0 list-none gap-2 overflow-x-auto pb-0.5" aria-label="Product image thumbnails">
       <li v-for="(image, index) in images" :key="index" class="shrink-0">

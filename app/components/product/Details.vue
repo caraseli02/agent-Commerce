@@ -3,21 +3,10 @@
     class="col-span-2 lg:col-span-1 min-w-0 w-full relative bg-white rounded-2xl font-Inter px-4 py-4 shadow-m md:px-5 md:py-5 lg:h-full"
   >
     <div class="flex items-start justify-between gap-4 mb-5">
-      <div class="flex min-w-0 items-center">
-        <h1 class="mr-2 min-w-0 text-xl font-semibold leading-tight">
-          {{ product.name }}
-        </h1>
-        <CopyClipboard
-          :text="product.name || 'N/A'"
-          :label="`Copy ${product.name || 'product name'}`"
-          class="mr-2 text-slate-500 transition-colors duration-300 hover:text-blue-500"
-        />
-      </div>
-      <ImageWithFallback
-        :src="product.details?.ProductImage?.ProductImageLarge"
-        alt="Manufacturer logo"
-        class-name="w-[82px] h-[50px] object-contain"
-      />
+      <h2 class="text-base font-semibold text-slate-900">Product details</h2>
+      <span class="max-w-[55%] rounded-md bg-slate-100 px-2.5 py-1.5 text-right text-xs font-medium text-slate-700">
+        {{ product.manufacturer }}
+      </span>
     </div>
     <div class="flex items-start justify-between gap-3 rounded-lg bg-light-100 px-3 py-3">
       <div class="text-xs leading-tight font-medium flex-shrink-0 text-neutral-700">Description</div>
@@ -78,7 +67,6 @@
 import { SquarePen } from '@lucide/vue';
 import CADModelsIcon from '@/assets/icons/cad-models.svg';
 import PDFIcon from '@/assets/icons/pdf.svg';
-import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import type { ProductDetail } from '~~/types/product';
 
 const props = defineProps<{

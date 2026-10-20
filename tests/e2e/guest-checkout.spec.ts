@@ -24,8 +24,10 @@ test.describe('Guest checkout flow', () => {
     await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 
     const addToCartButton = page.getByRole('button', { name: /add to cart/i }).first();
-    await addToCartButton.click();
-    await page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
+    await Promise.all([
+      page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST'),
+      addToCartButton.click(),
+    ]);
 
     await page.goto('/order-summary', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Viewing Summary as Guest/i)).toBeVisible();

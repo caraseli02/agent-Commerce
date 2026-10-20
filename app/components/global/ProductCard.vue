@@ -7,15 +7,15 @@
       :aria-label="`View ${product.name}`"
       class="group relative col-start-1 row-start-1 row-span-2 w-full max-w-[108px] self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 md:max-w-none md:row-span-auto md:self-auto"
     >
-      <!-- Catalog media frame: white backdrop; cover fills the frame -->
+      <!-- Keep the complete package and its leads visible at every card size. -->
       <div
-        class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-white transition-transform duration-200 group-hover:scale-[1.02] md:aspect-auto md:h-[160px]"
+        class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-white p-2 transition-transform duration-200 group-hover:scale-[1.02] md:aspect-auto md:h-[160px]"
       >
         <ProductCardStock :stock="product.stock" />
         <ImageWithFallback
           :src="productCardImageSrc"
           :alt="product.name"
-          class-name="h-full w-full object-cover object-center transition-opacity duration-200 group-hover:opacity-95"
+          class-name="h-full w-full object-contain object-center transition-opacity duration-200 group-hover:opacity-95"
         />
       </div>
       <div
@@ -95,7 +95,7 @@
         :aria-labelledby="`add-to-cart-${product._id}`"
         :aria-busy="isThisProductAdding"
         :aria-disabled="isThisProductAdding"
-        class="col-start-2 h-11 w-12 shrink-0 px-0 aria-disabled:cursor-not-allowed aria-disabled:bg-slate-200 aria-disabled:text-slate-800 aria-disabled:opacity-100 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        class="col-start-2 h-11 w-12 shrink-0 gap-2 px-0 aria-disabled:cursor-not-allowed aria-disabled:bg-slate-200 aria-disabled:text-slate-800 aria-disabled:opacity-100 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
         <SvgoCart class="h-6 w-6 text-current" />
