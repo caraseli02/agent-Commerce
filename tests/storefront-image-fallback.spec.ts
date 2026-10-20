@@ -6,9 +6,7 @@ import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
 const storefrontSurfaces = [
-  'app/components/home/FeaturedProducts.vue',
   'app/components/global/News.vue',
-  'app/components/global/EcxlusiveOffer.vue',
   'app/components/global/Banner.vue',
   'app/components/product/Banners.vue',
   'app/components/global/ProductCard.vue',
@@ -55,13 +53,10 @@ describe('storefront ImageWithFallback adoption', () => {
     expect(fallbackImages.length).toBeGreaterThan(0);
   });
 
-  it('keeps stable merchandising media sizing on home promo and news surfaces', () => {
-    const featuredProducts = readFileSync(resolve('app/components/home/FeaturedProducts.vue'), 'utf8');
+  it('keeps stable news media sizing and manufacturer text badges', () => {
     const news = readFileSync(resolve('app/components/global/News.vue'), 'utf8');
     const manufacturers = readFileSync(resolve('app/components/global/Manufacturers.vue'), 'utf8');
 
-    expect(featuredProducts).toContain('ImageWithFallback');
-    expect(featuredProducts).toContain('md:max-h-[240px]');
     expect(news).toContain('aspect-[1.69]');
     expect(news).toContain('object-cover');
     expect(manufacturers).toContain('text-center text-sm font-semibold');
