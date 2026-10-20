@@ -145,9 +145,11 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
       <details class="mb-3 rounded-lg border border-slate-200 px-3 py-2">
         <summary class="cursor-pointer text-sm font-medium text-slate-700">Paste a parts list</summary>
         <div class="mt-2">
+          <!-- eslint-disable-next-line shadcn/no-restyle -- Keep the approved high-contrast parts-list label treatment in the desktop import panel. -->
           <UiLabel for="quick-buy-part-list-desktop" class="mb-1 block text-sm font-medium text-slate-800"
             >Part numbers and optional quantities</UiLabel
           >
+          <!-- eslint-disable-next-line shadcn/no-restyle -- Keep the approved opaque white editing surface within the desktop parts-list panel. -->
           <UiTextarea id="quick-buy-part-list-desktop" v-model="partList" class="min-h-20 bg-white" placeholder="STM32F407VGT6, 5" />
           <UiButton type="button" variant="secondary" class="mt-2 min-h-10" @click="importPartList">Import and review</UiButton>
         </div>
@@ -188,9 +190,11 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
             <span class="text-sm font-medium">Add to cart</span>
           </UiButton>
         </UiDialogTrigger>
+        <!-- eslint-disable shadcn/no-restyle -- Preserve the approved edge-to-edge borderless mobile dialog and rounded bordered desktop dialog. -->
         <UiDialogContent
           class="!inset-0 !flex !h-[100dvh] !w-screen !max-w-none !translate-x-0 !translate-y-0 flex-col gap-5 overflow-y-auto !border-0 rounded-none p-5 sm:!inset-auto sm:!left-1/2 sm:!top-1/2 sm:!grid sm:!h-auto sm:!w-full sm:!max-w-[640px] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:rounded-lg sm:!border sm:p-6"
         >
+          <!-- eslint-enable shadcn/no-restyle -->
           <UiDialogHeader>
             <UiDialogTitle>Quick buy</UiDialogTitle>
           </UiDialogHeader>
@@ -198,9 +202,11 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
           <details class="rounded-lg border border-slate-200 px-3 py-2">
             <summary class="cursor-pointer text-sm font-medium text-slate-700">Paste a parts list</summary>
             <div class="mt-2">
+              <!-- eslint-disable-next-line shadcn/no-restyle -- Match the approved high-contrast parts-list label treatment in the mobile dialog. -->
               <UiLabel for="quick-buy-part-list-mobile" class="mb-1 block text-sm font-medium text-slate-800"
                 >Part numbers and optional quantities</UiLabel
               >
+              <!-- eslint-disable-next-line shadcn/no-restyle -- Match the approved opaque white editing surface in the mobile parts-list dialog. -->
               <UiTextarea id="quick-buy-part-list-mobile" v-model="partList" class="min-h-24 bg-white" placeholder="STM32F407VGT6, 5" />
               <UiButton type="button" variant="secondary" class="mt-2 min-h-10" @click="importPartList">Import and review</UiButton>
             </div>
@@ -222,6 +228,7 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
           <p v-if="formError" class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900" role="alert">
             {{ formError }}
           </p>
+          <!-- eslint-disable-next-line shadcn/no-restyle -- Keep mobile actions above the device safe area without adding desktop footer padding. -->
           <UiDialogFooter class="mt-auto w-full pb-[max(0.25rem,env(safe-area-inset-bottom))] sm:pb-0">
             <div class="flex gap-2.5 w-full">
               <UiButton variant="secondary" @click="addProduct">

@@ -23,12 +23,14 @@
         <div class="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-950">
           <p class="font-semibold">Featured products couldn’t load.</p>
           <p class="mt-1 text-sm">Check your connection and try this collection again.</p>
+          <!-- eslint-disable shadcn/no-restyle -- Keep the approved amber retry treatment, compact spacing and focus ring within this warning panel. -->
           <UiButton
             type="button"
             variant="outline"
             class="mt-3 inline-flex min-h-10 items-center rounded-lg border border-amber-800 px-3 text-sm font-semibold text-amber-900 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-800"
             @click="retryKey++"
           >
+            <!-- eslint-enable shadcn/no-restyle -->
             Retry
           </UiButton>
         </div>

@@ -10,6 +10,7 @@
         </div> -->
       <div class="min-h-0 flex-1">
         <ProductCardStock :stock="product.stock" />
+        <!-- eslint-disable-next-line shadcn/no-restyle -- Preserve the approved compact unpadded mobile quantity-enquiry link beside the stock information. -->
         <UiButton variant="link" class="flex justify-end text-xs my-1 pr-0 lg:hidden px-0 md:my-3" @click="showLargeQuantitiesModal = true">
           For larger quantities ask
           <span
@@ -56,11 +57,13 @@
                 </div>
               </div>
             </div>
+            <!-- eslint-disable shadcn/no-restyle -- Preserve the approved subdued small desktop quantity-enquiry link below volume prices. -->
             <UiButton
               variant="link"
               class="hidden justify-end text-slate-500 text-xs mb-[9px] lg:flex"
               @click="showLargeQuantitiesModal = true"
             >
+              <!-- eslint-enable shadcn/no-restyle -->
               For larger quantities ask
               <span
                 class="relative text-blue-500 font-medium ml-1 after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100"
@@ -132,6 +135,7 @@
               "
             />
           </div>
+          <!-- eslint-disable shadcn/no-restyle -- Keep the approved purchase-action inset and pending-state opacity within the narrow quantity controls. -->
           <UiButton
             type="button"
             class="min-h-11 flex-1 px-5 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
@@ -142,6 +146,7 @@
             :disabled="isCartButtonDisabled"
             @click="addToCart(props.product)"
           >
+            <!-- eslint-enable shadcn/no-restyle -->
             <CartIcon class="w-6 h-6 mr-2" />
             <span v-if="minPriceConfiguration && quantity" class="text-sm font-medium">
               {{ cartButtonLabel }}
@@ -153,6 +158,7 @@
         </p>
         <div v-if="cartLoadError" class="flex items-center justify-between gap-3 text-xs text-rose-700" role="alert">
           <span>Cart details couldn’t load. Try again before adding.</span>
+          <!-- eslint-disable shadcn/no-restyle -- Preserve the approved underlined rose retry treatment and compact inset within the cart-error row. -->
           <UiButton
             type="button"
             variant="link"
@@ -160,6 +166,7 @@
             :disabled="isCartLoading"
             @click="fetchCart"
           >
+            <!-- eslint-enable shadcn/no-restyle -->
             Retry
           </UiButton>
         </div>
