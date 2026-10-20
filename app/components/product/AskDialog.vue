@@ -65,9 +65,9 @@ defineExpose({
         <UiDialogTitle>Ask about the product</UiDialogTitle>
         <UiDialogDescription class="sr-only">Save a sample product enquiry in the portfolio demo.</UiDialogDescription>
       </UiDialogHeader>
-      <form class="flex flex-col gap-4 w-full bg-white shadow-sm" @submit="onSubmit">
-        <h4 id="price-enquiry-title" class="text-xl text-slate-500 leading-7 mb-4">
-          Part No: <span class="font-medium text-neutral-700">XOEIJLSCDA</span>
+      <form class="flex flex-col gap-4 w-full bg-card shadow-sm" @submit="onSubmit">
+        <h4 id="price-enquiry-title" class="text-xl text-muted-foreground leading-7 mb-4">
+          Part No: <span class="font-medium text-foreground">XOEIJLSCDA</span>
         </h4>
 
         <!-- Email Field -->
@@ -91,7 +91,7 @@ defineExpose({
           <FormItem>
             <FormLabel>Additional Details (Optional)</FormLabel>
             <FormControl>
-              <UiTextarea class="min-h-[140px] bg-light-100" placeholder="Type your note here..." v-bind="componentField" />
+              <UiTextarea class="min-h-[140px] bg-muted" placeholder="Type your note here..." v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>

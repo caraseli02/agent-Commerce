@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-white">
+  <div class="flex flex-col bg-card">
     <div class="flex items-center overflow-hidden">
       <div
         v-touch:drag="onDrag"
@@ -10,7 +10,7 @@
         <UiButton
           variant="ghost"
           class="w-full justify-between px-2.5 text-left"
-          :class="[isSwiped ? 'text-gray-500' : '']"
+          :class="[isSwiped ? 'text-muted-foreground' : '']"
           @click="isSwiped ? null : (showOptions = !showOptions)"
         >
           <div class="text-sm font-medium font-Inter leading-tight truncate">
@@ -23,7 +23,7 @@
           <div class="pl-2.5 pr-[15px] mb-2.5">
             <div class="flex relative">
               <UiInput v-model="searchValue" type="search" placeholder="Type here" class="h-8 pr-10" />
-              <FiltersIcon class="pointer-events-none absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
+              <FiltersIcon class="pointer-events-none absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-muted-foreground" />
             </div>
           </div>
           <div class="flex-1 pr-[5px]">

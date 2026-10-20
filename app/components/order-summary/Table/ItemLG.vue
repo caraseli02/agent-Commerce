@@ -4,7 +4,7 @@
       class="grid grid-cols-[75px_1fr_100px_64px_145px_120px_120px] items-center 2xl:grid-cols-[32px_75px_1fr_100px_64px_145px_130px_120px]"
     >
       <div
-        class="flex items-center justify-center w-[22px] h-[22px] border border-border rounded text-sm font-medium leading-tight text-slate-500 max-2xl:hidden"
+        class="flex items-center justify-center w-[22px] h-[22px] border border-border rounded text-sm font-medium leading-tight text-muted-foreground max-2xl:hidden"
       >
         {{ index }}
       </div>
@@ -14,7 +14,7 @@
           <div class="font-semibold leading-tight mr-2.5">
             {{ item.title }}
           </div>
-          <button class="flex border border-border rounded px-2 py-[3px] text-sm font-semibold leading-tight text-slate-500">
+          <button class="flex border border-border rounded px-2 py-[3px] text-sm font-semibold leading-tight text-muted-foreground">
             CUSTOM1234
           </button>
         </div>
@@ -28,7 +28,7 @@
         </div>
       </div>
       <div class="flex flex-col font-semibold">
-        <span v-if="item.discount" class="text-sm text-slate-500 mb-0.5"> $150,00 </span>
+        <span v-if="item.discount" class="text-sm text-muted-foreground mb-0.5"> $150,00 </span>
         <span :class="[item.discount ? 'bg-green-500 mb-2.5' : '']"> $120,00 </span>
         <div v-if="item.discount" class="flex bg-rose-500 rounded-[25px] px-1.5 py-0.5 text-xs font-extrabold text-white self-start ml-4">
           {{ item.discount }}%
@@ -37,7 +37,7 @@
       <div>19%</div>
       <QuantityButtons v-model="quantity" />
       <div class="font-semibold">$3000,00</div>
-      <div class="flex items-center gap-[15px] text-slate-500">
+      <div class="flex items-center gap-[15px] text-muted-foreground">
         <button class="flex transition-colors duration-300 hover:text-blue-500">
           <D3Icon class="w-6 h-6" />
         </button>

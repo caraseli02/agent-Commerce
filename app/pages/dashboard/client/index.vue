@@ -57,7 +57,7 @@
     <template #fallback>
       <section class="flex flex-col justify-center mb-16">
         <div class="max-w-full p-4 mx-auto md:py-6 lg:px-6 xl:p-0 xl:pt-8">
-          <div class="bg-white rounded-xl shadow-xs p-6 text-sm text-slate-500">Loading dashboard...</div>
+          <div class="bg-card rounded-xl shadow-xs p-6 text-sm text-muted-foreground">Loading dashboard...</div>
         </div>
       </section>
     </template>

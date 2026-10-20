@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-xl px-4 py-6 shadow-xs md:px-6">
+  <div class="bg-card rounded-xl px-4 py-6 shadow-xs md:px-6">
     <DashboardControlPanelOrganizationView
       v-if="activeView === ControlPanelTabsEnum.Organization && customerDetails.accountType !== AccountType.Personal"
       :id="customerSlug"

@@ -37,22 +37,19 @@ const activeFilterValues = computed((): string[] => {
 <template>
   <UiPopover class="">
     <UiPopoverTrigger as-child>
-      <UiButton variant="outline" size="sm" class="!ml-0 border-dashed text-neutral-700 hover:bg-light-300">
+      <UiButton variant="outline" size="sm" class="!ml-0 border-dashed text-foreground hover:bg-accent">
         <PlusCircleIcon class="mr-2 h-4 w-4" />
         {{ title }}
         <template v-if="selectedValues.size > 0">
           <UiSeparator orientation="vertical" class="mx-2 h-4 bg-grey-300" />
-          <UiBadge
-            variant="secondary"
-            class="bg-light-300 text-neutral-700 rounded-sm px-1 py-[3px] font-normal lg:hidden hover:bg-light-500"
-          >
+          <UiBadge variant="secondary" class="bg-accent text-foreground rounded-sm px-1 py-[3px] font-normal lg:hidden hover:bg-accent">
             {{ selectedValues.size }}
           </UiBadge>
           <div class="hidden space-x-1 lg:flex">
             <UiBadge
               v-if="selectedValues.size > 2"
               variant="secondary"
-              class="rounded bg-light-300 hover:bg-light-500 text-neutral-700 px-1 py-[3px] font-normal"
+              class="rounded bg-accent hover:bg-accent text-foreground px-1 py-[3px] font-normal"
             >
               {{ selectedValues.size }} selected
             </UiBadge>
@@ -63,7 +60,7 @@ const activeFilterValues = computed((): string[] => {
                   v-for="option in options.filter((option) => selectedValues.has(option.value))"
                   :key="option.value"
                   variant="secondary"
-                  class="rounded bg-light-300 px-1 py-[3px] font-normal text-neutral-700"
+                  class="rounded bg-accent px-1 py-[3px] font-normal text-foreground"
                 >
                   <span
                     v-if="option?.badge"
@@ -85,7 +82,7 @@ const activeFilterValues = computed((): string[] => {
                   v-for="option in activeFilterValues.filter((option) => selectedValues.has(option))"
                   :key="option"
                   variant="secondary"
-                  class="rounded bg-light-300 px-1 py-[3px] font-normal text-neutral-700"
+                  class="rounded bg-accent px-1 py-[3px] font-normal text-foreground"
                 >
                   <span
                     :class="statusColors?.[option as OrderStatus]"

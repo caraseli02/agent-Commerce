@@ -10,7 +10,7 @@
         <UiButton
           variant="link"
           class="relative h-auto p-0 pb-[13px] text-sm font-medium motion-reduce:transition-none hover:text-blue-700 md:text-base md:pb-3"
-          :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-700' : 'text-slate-500 after:opacity-0']"
+          :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-700' : 'text-muted-foreground after:opacity-0']"
           @click="setActiveFilter(filter)"
         >
           {{ filter }}

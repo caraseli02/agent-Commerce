@@ -5,7 +5,7 @@
     </UiSelectTrigger>
     <UiSelectContent>
       <UiSelectGroup>
-        <UiSelectItem v-for="status in statuses" :key="status.value" class="p-2 focus:bg-light-300" :value="status.value">
+        <UiSelectItem v-for="status in statuses" :key="status.value" class="p-2 focus:bg-accent" :value="status.value">
           <div class="flex items-center gap-2">
             <p class="w-3 h-3 rounded-full" :class="status.color" />
             {{ status.label }}
@@ -16,16 +16,16 @@
   </UiSelect>
   <UiDialog v-model:open="isOpen">
     <UiDialogContent class="border-none shadow-s max-w-[348px] md:max-w-[440px] rounded-xl">
-      <section class="flex flex-col gap-12 justify-center bg-white">
+      <section class="flex flex-col gap-12 justify-center bg-card">
         <header class="flex flex-col justify-center w-full">
           <div class="flex gap-10 justify-between items-center w-full">
-            <h1 class="self-stretch my-auto text-base font-semibold leading-7 text-zinc-800">Order Status Update</h1>
+            <h1 class="self-stretch my-auto text-base font-semibold leading-7 text-foreground">Order Status Update</h1>
           </div>
           <div class="flex flex-col self-center mt-12">
-            <p class="self-start text-sm leading-none text-center text-zinc-800">You are about to change the status for:</p>
+            <p class="self-start text-sm leading-none text-center text-foreground">You are about to change the status for:</p>
             <div class="flex gap-4 items-center mt-4 text-2xl leading-none">
-              <span class="self-stretch my-auto text-gray-500"> Order ID: </span>
-              <strong class="self-stretch my-auto font-medium text-zinc-800"> S-241030007 </strong>
+              <span class="self-stretch my-auto text-muted-foreground"> Order ID: </span>
+              <strong class="self-stretch my-auto font-medium text-foreground"> S-241030007 </strong>
             </div>
           </div>
         </header>

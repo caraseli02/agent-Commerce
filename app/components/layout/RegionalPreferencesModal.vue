@@ -9,13 +9,13 @@
       <div class="flex items-center justify-between border-b border-gray-200 p-5">
         <div class="flex items-center">
           <GlobeIcon class="mr-2 h-7 w-7" />
-          <UiSheetTitle class="text-lg font-semibold text-slate-500">Regional Preferences</UiSheetTitle>
+          <UiSheetTitle class="text-lg font-semibold text-muted-foreground">Regional Preferences</UiSheetTitle>
         </div>
         <UiSheetClose as-child>
           <UiButton
             variant="ghost"
             size="icon"
-            class="inline-flex h-8 w-8 flex-shrink-0 rounded bg-[#F2F2F2] text-gray-500 hover:bg-[#F2F2F2] hover:text-slate-500"
+            class="inline-flex h-8 w-8 flex-shrink-0 rounded bg-[#F2F2F2] text-muted-foreground hover:bg-[#F2F2F2] hover:text-muted-foreground"
             aria-label="Close regional preferences"
           >
             <XIcon class="h-5 w-5" />
@@ -24,7 +24,7 @@
       </div>
 
       <div class="mb-10 px-5">
-        <p class="mb-5 text-sm text-slate-500">
+        <p class="mb-5 text-sm text-muted-foreground">
           Choose a demo currency to preview pricing labels on demo.app. This portfolio build does not include locale translation —
           storefront copy stays in English.
         </p>
@@ -42,7 +42,7 @@
 
       <div class="mt-auto flex items-center justify-center gap-2.5 pb-[50px]">
         <UiButton class="px-[34px] py-[11px]" @click="closeModal">Save</UiButton>
-        <UiButton variant="secondary" class="px-[26px] py-[11px] text-slate-500" @click="closeModal">Cancel</UiButton>
+        <UiButton variant="secondary" class="px-[26px] py-[11px] text-muted-foreground" @click="closeModal">Cancel</UiButton>
       </div>
     </UiSheetContent>
   </UiSheet>

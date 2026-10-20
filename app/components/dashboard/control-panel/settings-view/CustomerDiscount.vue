@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-white rounded-xl p-4 shadow-xs md:p-6 xl:pt-10 xl:shadow-none xl:rounded-none">
+  <div class="flex flex-col bg-card rounded-xl p-4 shadow-xs md:p-6 xl:pt-10 xl:shadow-none xl:rounded-none">
     <div class="mb-4">
       <div class="flex items-start justify-between">
         <h2 class="text-xl leading-[1.4] font-semibold">Customer Discount</h2>
@@ -14,9 +14,9 @@
     <div class="mb-9">
       <SkeletonLoader v-if="loading" class="w-full h-[68px]" />
       <template v-else>
-        <div class="text-sm text-slate-500 mb-1">Customer Discount</div>
+        <div class="text-sm text-muted-foreground mb-1">Customer Discount</div>
         <div class="flex border border-border rounded-lg h-11 overflow-hidden">
-          <div class="text-xl leading-[1.3] px-3 py-2 border-r border-border bg-[#F5F5F5]">%</div>
+          <div class="text-xl leading-[1.3] px-3 py-2 border-r border-border bg-muted">%</div>
           <input
             v-model="customerDiscountBuffer"
             type="number"

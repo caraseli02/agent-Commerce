@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute z-10 grid grid-cols-1 gap-1 rounded-lg bg-white p-1 w-[195px] shadow-m -translate-x-full"
+    class="absolute z-10 grid grid-cols-1 gap-1 rounded-lg bg-card p-1 w-[195px] shadow-m -translate-x-full"
     :class="[index > 5 ? '-translate-y-[calc(100%+42px)]' : '']"
     :style="{
       top: dropdownTop + 'px',

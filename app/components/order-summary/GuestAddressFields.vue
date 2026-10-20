@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div class="flex flex-col gap-1.5 sm:col-span-2">
-      <label class="text-xs font-medium text-neutral-600" :for="`${addressType}-line-1`">Address line 1</label>
+      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-line-1`">Address line 1</label>
       <UiInput
         :id="`${addressType}-line-1`"
         :model-value="modelValue.name1"
@@ -11,7 +11,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5 sm:col-span-2">
-      <label class="text-xs font-medium text-neutral-600" :for="`${addressType}-line-2`">Address line 2 (optional)</label>
+      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-line-2`">Address line 2 (optional)</label>
       <UiInput
         :id="`${addressType}-line-2`"
         :model-value="modelValue.name2 || ''"
@@ -21,7 +21,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-neutral-600" :for="`${addressType}-city`">City</label>
+      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-city`">City</label>
       <UiInput
         :id="`${addressType}-city`"
         :model-value="modelValue.city"
@@ -31,7 +31,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-neutral-600" :for="`${addressType}-region`">Region / State</label>
+      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-region`">Region / State</label>
       <UiInput
         :id="`${addressType}-region`"
         :model-value="modelValue.region"
@@ -41,7 +41,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-neutral-600" :for="`${addressType}-postcode`">Postcode</label>
+      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-postcode`">Postcode</label>
       <UiInput
         :id="`${addressType}-postcode`"
         :model-value="modelValue.postcode"
@@ -51,7 +51,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-neutral-600" :for="`${addressType}-country`">Country</label>
+      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-country`">Country</label>
       <UiInput
         :id="`${addressType}-country`"
         :model-value="modelValue.country"

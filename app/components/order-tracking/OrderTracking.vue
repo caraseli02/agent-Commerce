@@ -150,27 +150,27 @@ const handleMoreOptions = () => {
 
 <template>
   <section
-    class="w-full mx-auto flex overflow-hidden flex-col gap-8 p-6 bg-white rounded-xl border border-solid border-D3D3D3-300 max-md:px-4 max-md:gap-4"
+    class="w-full mx-auto flex overflow-hidden flex-col gap-8 p-6 bg-card rounded-xl border border-solid border-D3D3D3-300 max-md:px-4 max-md:gap-4"
   >
     <section class="flex flex-col w-full">
       <div class="flex flex-wrap gap-10 justify-between items-start w-full max-md:gap-4">
         <div
-          class="flex flex-col lg:flex-row flex-wrap gap-6 items-center text-xl sm:text-2xl leading-none w-full md:w-auto max-md:gap-3 border md:border-none border-grey-300 p-2 bg-light-100 md:bg-transparent rounded-lg"
+          class="flex flex-col lg:flex-row flex-wrap gap-6 items-center text-xl sm:text-2xl leading-none w-full md:w-auto max-md:gap-3 border md:border-none border-border p-2 bg-muted md:bg-transparent rounded-lg"
         >
           <div class="flex justify-between md:justify-start gap-3 items-center self-stretch my-auto w-full md:w-auto">
-            <span class="text-gray-500 font-normal">Order ID:</span>
-            <span class="font-medium text-zinc-800">{{ processedOrder.orderId }}</span>
+            <span class="text-muted-foreground font-normal">Order ID:</span>
+            <span class="font-medium text-foreground">{{ processedOrder.orderId }}</span>
           </div>
           <div class="hidden lg:block w-px h-6 bg-stone-300" />
           <div
-            class="flex justify-between md:justify-start gap-3 items-center self-stretch my-auto text-slate-500 w-full md:w-auto text-base sm:text-2xl"
+            class="flex justify-between md:justify-start gap-3 items-center self-stretch my-auto text-muted-foreground w-full md:w-auto text-base sm:text-2xl"
           >
             <span class="font-normal">AWB:</span>
             <p v-if="processedOrder.awb" class="flex items-center gap-2">
               {{ processedOrder.awb }}
               <CopyClipboard :text="processedOrder.awb" />
             </p>
-            <p v-else class="flex items-center gap-2 text-sm text-neutral-700">
+            <p v-else class="flex items-center gap-2 text-sm text-foreground">
               <span class="bg-orange-500 flex shrink-0 self-stretch my-auto w-3 h-3 rounded-full" aria-hidden="true" />
               Pending
             </p>
@@ -179,7 +179,7 @@ const handleMoreOptions = () => {
 
         <div class="flex justify-end gap-4 items-start w-full md:w-auto max-md:gap-4">
           <UiBadge class="flex gap-3 items-center font-normal px-3 py-1 text-sm rounded-md h-8" variant="outline">
-            <div class="text-zinc-800">
+            <div class="text-foreground">
               <span>{{ processedOrder.amount.toFixed(2) }}</span>
               <span> Lei</span>
             </div>
@@ -191,12 +191,12 @@ const handleMoreOptions = () => {
             </span>
           </UiBadge>
           <UiButton
-            class="flex justify-center items-center p-1 w-8 h-8 rounded-md bg-zinc-100"
+            class="flex justify-center items-center p-1 w-8 h-8 rounded-md bg-muted"
             aria-label="More options"
             size="xs"
             @click="handleMoreOptions"
           >
-            <MoreVertical class="w-6 h-6 text-black stroke-1" />
+            <MoreVertical class="w-6 h-6 text-foreground stroke-1" />
           </UiButton>
         </div>
       </div>
@@ -206,10 +206,10 @@ const handleMoreOptions = () => {
           <div class="w-8 h-8 flex items-center justify-center bg-sky-100 rounded-full text-sky-500">
             {{ processedOrder.company.initial }}
           </div>
-          <span class="text-sm leading-6 text-zinc-800">{{ processedOrder.company.name }}</span>
+          <span class="text-sm leading-6 text-foreground">{{ processedOrder.company.name }}</span>
         </div>
         <div class="hidden lg:block w-px h-6 bg-stone-300" />
-        <div class="flex gap-1 items-center text-sm leading-6 text-zinc-800 w-fit md:flex-1">
+        <div class="flex gap-1 items-center text-sm leading-6 text-foreground w-fit md:flex-1">
           <MapPin class="w-5 h-5 shrink-0" />
           <address class="not-italic">
             {{
@@ -220,19 +220,19 @@ const handleMoreOptions = () => {
           </address>
         </div>
         <div class="hidden lg:block w-px h-6 bg-stone-300" />
-        <div class="flex gap-1 items-center text-sm leading-6 text-zinc-800">
+        <div class="flex gap-1 items-center text-sm leading-6 text-foreground">
           <FileSpreadsheet class="w-5 h-5" />
           <span class="capitalize">{{ billingStatusLabel }}</span>
         </div>
       </div>
     </section>
 
-    <section class="flex flex-col gap-6 px-4 py-6 rounded-xl border border-solid bg-light-100 border-grey-300">
+    <section class="flex flex-col gap-6 px-4 py-6 rounded-xl border border-solid bg-muted border-border">
       <div class="flex md:flex-wrap gap-10 justify-between md:items-center text-sm leading-6 max-md:gap-4">
         <div class="flex flex-col md:flex-row md:items-center max-md:gap-1 w-full md:w-auto">
-          <h2 class="font-medium text-zinc-800">Order {{ processedOrder.status === OrderStatus.Pending ? 'received' : 'updated' }}</h2>
+          <h2 class="font-medium text-foreground">Order {{ processedOrder.status === OrderStatus.Pending ? 'received' : 'updated' }}</h2>
           <DotIcon class="hidden md:block text-stone-300" />
-          <time class="flex gap-1 text-gray-500">
+          <time class="flex gap-1 text-muted-foreground">
             <span>{{ formattedDate.day }}</span>
             <span>{{ formattedDate.month }}</span>
             <span>{{ formattedDate.year }}</span>
@@ -241,7 +241,7 @@ const handleMoreOptions = () => {
         <UiBadge
           :class="
             cn(
-              'flex items-start md:items-center justify-end md:justify-start gap-2 bg-light-100 text-neutral-700 font-normal p-0 text-sm rounded-md w-full md:w-auto',
+              'flex items-start md:items-center justify-end md:justify-start gap-2 bg-muted text-foreground font-normal p-0 text-sm rounded-md w-full md:w-auto',
             )
           "
         >
@@ -254,9 +254,9 @@ const handleMoreOptions = () => {
         <template v-for="status in trackingStatusOrder" :key="status">
           <component
             :is="statusIcons[status]"
-            class="w-6 h-6 md:w-8 md:h-8 lg:w-9 lg:h-9 shrink-0 z-10 bg-light-100 p-1"
+            class="w-6 h-6 md:w-8 md:h-8 lg:w-9 lg:h-9 shrink-0 z-10 bg-muted p-1"
             :class="{
-              'text-slate-500': isTrackingStepActive(status),
+              'text-muted-foreground': isTrackingStepActive(status),
               'text-gray-300': !isTrackingStepActive(status),
             }"
           />

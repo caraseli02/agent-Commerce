@@ -5,9 +5,11 @@
       <div class="container px-4">
         <div
           v-if="!cartReadError && isGuestCheckout && !guestCheckoutMode"
-          class="mb-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-4 text-blue-800"
+          class="mb-6 mt-4 p-4 bg-blue-50 dark:bg-primary/10 border border-blue-200 dark:border-border rounded-xl flex items-center gap-4 text-blue-800 dark:text-foreground"
         >
-          <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
+          <div
+            class="w-10 h-10 rounded-full bg-blue-100 dark:bg-primary/15 flex items-center justify-center flex-shrink-0 text-blue-600 dark:text-primary"
+          >
             <InfoIcon class="w-6 h-6" />
           </div>
           <div class="flex-1">

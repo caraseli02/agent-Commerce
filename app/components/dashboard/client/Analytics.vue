@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <div
-      class="relative items-stretch shadow-xs bg-white flex w-full lg:w-fit md:min-w-[476px] xl:min-w-[472px] h-[240px] flex-col rounded-xl overflow-hidden pr-2"
+      class="relative items-stretch shadow-xs bg-card flex w-full lg:w-fit md:min-w-[476px] xl:min-w-[472px] h-[240px] flex-col rounded-xl overflow-hidden pr-2"
     >
       <div v-if="isMobile" class="flex justify-between items-center px-4 py-2 absolute right-0 z-10">
         <UiButton size="xs" variant="ghost" class="text-lg rounded-full" @click="shiftMonths(-1)">

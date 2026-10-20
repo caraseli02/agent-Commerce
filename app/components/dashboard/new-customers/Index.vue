@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col bg-white rounded-xl p-4 pr-2 shadow-xs md:p-6 md:pr-3"
+    class="relative flex flex-col bg-card rounded-xl p-4 pr-2 shadow-xs md:p-6 md:pr-3"
     :class="[type === 'default' ? 'pb-5 md:pb-8' : 'md:pb-6']"
   >
     <div class="flex items-start justify-between">
@@ -24,7 +24,7 @@
     </div>
     <div v-if="people.length === 0" class="flex flex-col items-center justify-center flex-1 max-lg:mt-11 max-lg:mb-3">
       <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
-      <div class="text-sm font-medium leading-normal text-gray-500">No data available</div>
+      <div class="text-sm font-medium leading-normal text-muted-foreground">No data available</div>
     </div>
     <div
       v-if="type !== 'default' && people.length > 0"
@@ -35,10 +35,10 @@
         <ArrowUpIcon class="w-4 h-4 mr-1" />
         <div class="text-sm leading-[1.43] font-medium text-[#00D395] mr-1">3,78%</div>
         <UiButton variant="ghost" class="flex h-auto p-0" @click="showOptions = !showOptions">
-          <span class="text-sm left-[1.43] text-slate-500 font-medium mr-1">
+          <span class="text-sm left-[1.43] text-muted-foreground font-medium mr-1">
             {{ selectedOption }}
           </span>
-          <ChevronIcon class="w-5 h-5 text-slate-500 transition-transform duration-300" :class="[showOptions ? 'rotate-180' : '']" />
+          <ChevronIcon class="w-5 h-5 text-muted-foreground transition-transform duration-300" :class="[showOptions ? 'rotate-180' : '']" />
         </UiButton>
       </div>
       <UiButton
@@ -46,7 +46,7 @@
         disabled
         class="flex h-auto p-0 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <span class="text-sm font-medium left-[1.43] text-slate-500 mr-1"> View All </span>
+        <span class="text-sm font-medium left-[1.43] text-muted-foreground mr-1"> View All </span>
         <ArrowRightIcon class="w-5 h-5" />
       </UiButton>
     </div>
@@ -54,7 +54,7 @@
       <div
         v-if="showOptions"
         v-click-outside="() => (showOptions = false)"
-        class="absolute z-10 -bottom-0.5 left-0 translate-y-full grid grid-cols-1 gap-1 rounded-lg bg-white p-3 w-[200px]"
+        class="absolute z-10 -bottom-0.5 left-0 translate-y-full grid grid-cols-1 gap-1 rounded-lg bg-card p-3 w-[200px]"
         :style="{
           boxShadow: '0px 0px 6px rgba(51, 51, 51, 0.2)',
         }"
@@ -64,7 +64,7 @@
           :key="index"
           variant="ghost"
           class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
-          :class="selectedOption === option ? 'bg-[#F2F2F2] text-blue-500' : ''"
+          :class="selectedOption === option ? 'bg-muted text-blue-500' : ''"
           @click="
             showOptions = false;
             selectedOption = option;

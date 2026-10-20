@@ -22,7 +22,7 @@
             <SvgoNotFound class="hidden sm:block" />
             <SvgoNotFoundSmall class="block sm:hidden" />
           </div>
-          <div class="flex flex-col justify-center items-center text-gray-500">
+          <div class="flex flex-col justify-center items-center text-muted-foreground">
             <h4 class="text-xl text-center text-semibold">No Products Found</h4>
             <p>Oops! Seems like there’s nothing here yet.</p>
           </div>

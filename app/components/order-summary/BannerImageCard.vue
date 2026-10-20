@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row gap-[46px] rounded-xl border border-slate-200 bg-slate-800 p-9 shadow-xs w-full mb-9">
+  <div class="flex flex-row gap-[46px] rounded-xl border border-border bg-slate-800 p-9 shadow-xs w-full mb-9">
     <div class="flex flex-col gap-9">
       <div class="flex flex-col gap-6">
         <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Volume pricing</p>
@@ -9,7 +9,7 @@
         </p>
       </div>
       <div>
-        <button type="button" class="px-6 rounded-lg bg-white text-slate-800">
+        <button type="button" class="px-6 rounded-lg bg-card text-foreground">
           <div class="p-2">
             <span class="text-base font-medium leading-7">View pricing tiers</span>
           </div>

@@ -66,7 +66,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="container py-8">
-    <section class="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+    <section class="mx-auto max-w-3xl rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8">
       <div class="flex flex-col gap-6">
         <div class="flex items-start gap-4">
           <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
@@ -78,10 +78,10 @@ onBeforeUnmount(() => {
             <p class="text-sm font-semibold uppercase tracking-[0.14em] text-amber-600">
               {{ timedOut ? 'Checkout delayed' : 'Payment pending' }}
             </p>
-            <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
+            <h1 class="text-3xl font-semibold tracking-tight text-foreground">
               {{ timedOut ? 'We are still waiting for confirmation.' : 'Your payment is being processed.' }}
             </h1>
-            <p class="max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
+            <p class="max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
               {{
                 timedOut
                   ? 'The payment provider has not confirmed the charge yet. You can retry the payment session or cancel and return to your cart.'
@@ -91,13 +91,13 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[auto_1fr] md:items-center">
-          <div class="flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm">
+        <div class="grid gap-4 rounded-2xl border border-border bg-muted p-4 md:grid-cols-[auto_1fr] md:items-center">
+          <div class="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted-foreground shadow-sm">
             <LoaderIcon v-if="!timedOut" class="h-5 w-5 animate-spin" />
             <AlertTriangleIcon v-else class="h-5 w-5 text-amber-600" />
           </div>
-          <div class="space-y-1 text-sm leading-6 text-slate-600">
-            <p class="font-medium text-slate-900">
+          <div class="space-y-1 text-sm leading-6 text-muted-foreground">
+            <p class="font-medium text-foreground">
               {{ timedOut ? 'Timeout reached' : 'Checking payment status' }}
             </p>
             <p>
@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
                   : 'We are waiting for a final response from the payment provider and will keep this session alive until the timeout.'
               }}
             </p>
-            <p v-if="!timedOut" class="text-xs text-slate-500">Auto timeout in {{ remainingSeconds }}s.</p>
+            <p v-if="!timedOut" class="text-xs text-muted-foreground">Auto timeout in {{ remainingSeconds }}s.</p>
           </div>
         </div>
 

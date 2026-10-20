@@ -1,12 +1,12 @@
 <template>
   <div class="fixed z-[90] top-0 left-0 w-screen h-screen flex items-center justify-center pointer-events-none">
     <div
-      class="relative z-10 w-[700px] max-w-[calc(100vw-32px)] pt-4 pb-8 bg-white rounded-md shadow-xs pointer-events-auto md:pt-6 md:pb-8"
+      class="relative z-10 w-[700px] max-w-[calc(100vw-32px)] pt-4 pb-8 bg-card rounded-md shadow-xs pointer-events-auto md:pt-6 md:pb-8"
     >
       <div class="flex items-center justify-between px-4 mb-10 md:px-6">
         <div class="flex items-center">
-          <FiltersIcon class="w-6 h-6 text-slate-500 mr-2" />
-          <span class="text-lg font-medium text-slate-500"> Add/Remove Filters </span>
+          <FiltersIcon class="w-6 h-6 text-muted-foreground mr-2" />
+          <span class="text-lg font-medium text-muted-foreground"> Add/Remove Filters </span>
         </div>
         <UiButton variant="secondary" size="icon" class="w-8 h-8" aria-label="Close" @click="$emit('close')">
           <XIcon class="w-[15px] h-[15px]" />
@@ -14,10 +14,10 @@
       </div>
       <div class="px-4 mb-4 md:px-6">
         <UiLabel class="relative flex items-center gap-2">
-          <SearchIcon class="w-[18px] h-[18px] text-gray-500" />
+          <SearchIcon class="w-[18px] h-[18px] text-muted-foreground" />
           <UiInput v-model="searchValue" type="search" placeholder="Search parameters" aria-label="Search parameters" class="flex-1" />
           <Transition name="fade">
-            <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
+            <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-muted-foreground cursor-pointer" @click="searchValue = ''" />
           </Transition>
         </UiLabel>
       </div>
@@ -30,14 +30,14 @@
           >
             <span class="text-sm font-medium tracking-[0.6px] mr-2"> Parameters </span>
             <CaretIcon
-              class="w-5 h-5 text-slate-500 transition-transform duration-300"
+              class="w-5 h-5 text-muted-foreground transition-transform duration-300"
               :class="[parametersOrder ? 'rotate-90' : '-rotate-90']"
             />
           </UiButton>
           <UiButton variant="ghost" class="h-auto justify-start p-0" @click="productsOrder ? (productsOrder = 0) : (productsOrder = 1)">
             <span class="text-sm font-medium tracking-[0.6px] mr-2"> Products </span>
             <CaretIcon
-              class="w-5 h-5 text-slate-500 transition-transform duration-300"
+              class="w-5 h-5 text-muted-foreground transition-transform duration-300"
               :class="[productsOrder ? 'rotate-90' : '-rotate-90']"
             />
           </UiButton>
@@ -60,7 +60,7 @@
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                 :class="[
-                  item.checked ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
+                  item.checked ? 'bg-blue-500 border-blue-500 group-hover:bg-card' : 'bg-card  border-border group-hover:border-border',
                 ]"
               >
                 <CheckIcon v-if="item.checked" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />

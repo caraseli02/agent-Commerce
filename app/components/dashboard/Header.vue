@@ -1,6 +1,6 @@
 <template>
   <header
-    class="fixed z-30 top-0 left-0 w-full bg-white shadow-xs md:transition-all md:duration-300 md:delay-50 md:ml-[96px] md:w-[calc(100%-96px)]"
+    class="fixed z-30 top-0 left-0 w-full bg-card shadow-xs md:transition-all md:duration-300 md:delay-50 md:ml-[96px] md:w-[calc(100%-96px)]"
     :class="[isCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:w-[calc(100%-280px)]']"
   >
     <div class="max-w-full mx-auto flex items-center justify-between px-4 py-3 transition-all duration-300 md:py-4 2xl:px-6">
@@ -11,7 +11,7 @@
         aria-label="Open navigation"
         @click="$emit('show-side-nav')"
       >
-        <BurgerIcon class="w-6 h-6 text-slate-500" />
+        <BurgerIcon class="w-6 h-6 text-muted-foreground" />
       </UiButton>
       <DashboardSearch v-model="searchValue" placeholder="Search" class="w-[400px] max-md:hidden" />
       <div class="flex items-center">
@@ -22,10 +22,10 @@
           aria-label="Search"
           @click="showMobileSearch = !showMobileSearch"
         >
-          <SearchIcon class="w-6 h-6 text-slate-500" />
+          <SearchIcon class="w-6 h-6 text-muted-foreground" />
         </UiButton>
         <UiButton variant="secondary" size="icon" class="flex w-8 h-8 rounded-full mr-8 max-md:hidden" aria-label="Create new">
-          <PlusIcon class="w-6 h-6 text-slate-500" />
+          <PlusIcon class="w-6 h-6 text-muted-foreground" />
         </UiButton>
         <UiButton
           v-if="$route.name === 'dashboard-customers-slug'"
@@ -34,7 +34,7 @@
           class="flex h-auto w-auto mr-4 md:mr-8"
           aria-label="Customer settings"
         >
-          <SettingsIcon class="w-6 h-6 text-slate-500" />
+          <SettingsIcon class="w-6 h-6 text-muted-foreground" />
         </UiButton>
         <div class="relative flex items-center">
           <div class="mr-3 mt-1 max-md:relative md:mr-10">
@@ -52,12 +52,12 @@
               <div
                 v-if="showNotifications"
                 v-click-outside="() => (showNotifications = false)"
-                class="flex flex-col fixed z-50 top-0 left-0 w-full h-full bg-white shadow-m md:absolute md:w-[316px] md:h-[508px] md:max-h-[80vh] md:left-[unset] md:right-0 md:top-[62px] md:rounded-xl md:overflow-hidden"
+                class="flex flex-col fixed z-50 top-0 left-0 w-full h-full bg-card shadow-m md:absolute md:w-[316px] md:h-[508px] md:max-h-[80vh] md:left-[unset] md:right-0 md:top-[62px] md:rounded-xl md:overflow-hidden"
               >
                 <div class="relative flex items-center justify-between py-4 px-3 shadow-s">
                   <UiButton
                     variant="ghost"
-                    class="flex h-auto p-0 items-center text-slate-500 transition-colors duration-300 hover:text-blue-500 md:hidden"
+                    class="flex h-auto p-0 items-center text-muted-foreground transition-colors duration-300 hover:text-blue-500 md:hidden"
                     @click="showNotifications = false"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2">
@@ -88,7 +88,7 @@
                   <UiButton
                     variant="ghost"
                     size="icon"
-                    class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:text-blue-500"
+                    class="flex h-auto w-auto text-muted-foreground transition-colors duration-300 hover:text-blue-500"
                     aria-label="Notification settings"
                   >
                     <SettingsIcon class="w-6 h-6" />
@@ -100,7 +100,7 @@
                     :key="index"
                     :to="`${route.path}`"
                     event=""
-                    class="flex flex-col w-full bg-white pt-2 pb-1 px-3 border-b border-border last:border-b-0 transition-colors duration-300 hover:bg-[#F5F5F5]"
+                    class="flex flex-col w-full bg-card pt-2 pb-1 px-3 border-b border-border last:border-b-0 transition-colors duration-300 hover:bg-muted"
                     @click.prevent="markNotificationAsRead(notification, index)"
                   >
                     <div class="flex items-center justify-between w-full mb-2">
@@ -109,7 +109,7 @@
                           class="w-5 h-5 mr-2"
                           :class="[
                             notification.title === 'Others'
-                              ? 'text-slate-500'
+                              ? 'text-muted-foreground'
                               : notification.title === 'Password change' || notification.title === 'Reset password'
                                 ? 'text-blue-500'
                                 : notification.title === 'Removed'
@@ -127,13 +127,13 @@
                         </span>
                       </div>
                       <div class="flex items-center">
-                        <span class="text-xs leading-[1.67] text-slate-500 mr-4">
+                        <span class="text-xs leading-[1.67] text-muted-foreground mr-4">
                           {{ getCurrentDate(notification.date) }}
                         </span>
                         <UiButton
                           variant="ghost"
                           size="icon"
-                          class="flex h-auto w-auto text-slate-500 transition-colors duration-300 hover:text-blue-500"
+                          class="flex h-auto w-auto text-muted-foreground transition-colors duration-300 hover:text-blue-500"
                           aria-label="Delete notification"
                           @click.stop.prevent="deleteNotification(notification, index)"
                         >
@@ -142,7 +142,7 @@
                       </div>
                     </div>
                     <div class="flex items-center justify-between">
-                      <div class="text-sm leading-[1.43] text-slate-500 mr-1">
+                      <div class="text-sm leading-[1.43] text-muted-foreground mr-1">
                         {{ notification.description }}
                       </div>
                       <svg
@@ -211,7 +211,7 @@
                 <div class="leading-normal font-medium">
                   {{ (user?.contactDetails?.firstName || '') + ' ' + (user?.contactDetails?.lastName || '') }}
                 </div>
-                <div class="text-xs leading-normal text-slate-500">
+                <div class="text-xs leading-normal text-muted-foreground">
                   {{ user?.role !== AccountRole.Client ? AccountRole[user.role] : AccountType[user.role] }}
                 </div>
               </div>
@@ -220,7 +220,7 @@
               <div
                 v-if="showOptions"
                 v-click-outside="() => (showOptions = false)"
-                class="absolute -bottom-3.5 right-0 translate-y-full grid grid-cols-1 gap-1 w-full rounded-lg bg-white p-3 min-w-[174px] shadow-m md:-bottom-[18px] md:w-[210px] lg:w-[210px]"
+                class="absolute -bottom-3.5 right-0 translate-y-full grid grid-cols-1 gap-1 w-full rounded-lg bg-card p-3 min-w-[174px] shadow-m md:-bottom-[18px] md:w-[210px] lg:w-[210px]"
               >
                 <UiButton
                   variant="ghost"
@@ -260,18 +260,18 @@
             v-click-outside="() => (showMobileSearch = false)"
             class="absolute z-50 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] md:hidden"
           >
-            <div class="flex items-center border border-border bg-white rounded-lg pr-3">
+            <div class="flex items-center border border-border bg-card rounded-lg pr-3">
               <UiLabel class="relative z-10 flex-1 flex items-center font-normal">
                 <form action="" @submit.prevent>
                   <UiInput
                     v-model="searchValue"
                     type="search"
                     placeholder="Search"
-                    class="h-auto rounded-none border-0 bg-transparent flex-1 w-full px-3 py-2.5 text-sm leading-[1.43] placeholder:text-gray-500 focus:outline-none focus-visible:!outline-none"
+                    class="h-auto rounded-none border-0 bg-transparent flex-1 w-full px-3 py-2.5 text-sm leading-[1.43] placeholder:text-muted-foreground focus:outline-none focus-visible:!outline-none"
                   />
                 </form>
               </UiLabel>
-              <SearchIcon v-if="!searchValue" class="flex-shrink-0 w-5 h-5 text-gray-500" />
+              <SearchIcon v-if="!searchValue" class="flex-shrink-0 w-5 h-5 text-muted-foreground" />
               <UiButton
                 v-else
                 variant="ghost"
@@ -280,7 +280,7 @@
                 aria-label="Clear search"
                 @click.stop="searchValue = ''"
               >
-                <XIcon class="flex-shrink-0 w-5 h-5 text-gray-500" />
+                <XIcon class="flex-shrink-0 w-5 h-5 text-muted-foreground" />
               </UiButton>
             </div>
           </div>

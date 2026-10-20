@@ -1,7 +1,7 @@
 <template>
-  <div class="fixed z-[60] top-0 left-0 w-screen h-screen flex flex-col bg-white md:hidden">
+  <div class="fixed z-[60] top-0 left-0 w-screen h-screen flex flex-col bg-card md:hidden">
     <div class="flex items-center justify-between px-5 pt-[15px] pb-[15px] border-b border-gray-200 mb-[15px] md:hidden">
-      <div v-if="!selectedCategory" class="text-lg font-semibold text-slate-500">Products</div>
+      <div v-if="!selectedCategory" class="text-lg font-semibold text-muted-foreground">Products</div>
       <template v-else>
         <UiButton
           variant="ghost"
@@ -22,7 +22,7 @@
       <UiButton
         variant="secondary"
         size="icon"
-        class="h-8 w-8 rounded text-gray-500"
+        class="h-8 w-8 rounded text-muted-foreground"
         aria-label="Close products navigation"
         @click="showNavModal = false"
       >
@@ -37,7 +37,7 @@
           v-for="(category, index) in allCategories"
           :key="index"
           variant="ghost"
-          class="group h-auto justify-start px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left hover:text-primary"
+          class="group h-auto justify-start px-2.5 py-[5px] rounded-[5px] w-full text-muted-foreground text-left hover:text-primary"
           @click="
             selectedCategory = category;
             handleCategoryClick(category);
@@ -50,7 +50,7 @@
             <div class="text-[15px] font-semibold mb-px">
               {{ category.name }}
             </div>
-            <div class="text-xs font-semibold text-gray-500 transition-colors duration-300 group-hover:text-slate-500">
+            <div class="text-xs font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-muted-foreground">
               {{ category.productCount }} products
             </div>
           </div>
@@ -61,7 +61,7 @@
           v-for="(subCategory, index) in selectedCategory.subcategory"
           :key="index"
           variant="ghost"
-          class="group h-auto justify-start px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left hover:text-primary"
+          class="group h-auto justify-start px-2.5 py-[5px] rounded-[5px] w-full text-muted-foreground text-left hover:text-primary"
           @click="
             selectedSubCategory = subCategory;
             handleCategoryClick(subCategory);
@@ -71,7 +71,7 @@
             <div class="text-[15px] font-semibold mb-px">
               {{ subCategory.name }}
             </div>
-            <div class="text-xs font-semibold text-gray-500 transition-colors duration-300 group-hover:text-slate-500">
+            <div class="text-xs font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-muted-foreground">
               {{ subCategory.productCount }} products
             </div>
           </div>
@@ -82,11 +82,11 @@
           v-for="(subCategory, index) in selectedSubCategory.subcategory"
           :key="index"
           :to="categoryBrowseUrl(subCategory)"
-          class="group flex items-center justify-between px-2.5 py-[5px] rounded-[5px] w-full text-slate-500 text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
+          class="group flex items-center justify-between px-2.5 py-[5px] rounded-[5px] w-full text-muted-foreground text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary"
         >
           <div>
             <div class="text-[15px] font-semibold mb-px">{{ subCategory.name }}</div>
-            <div class="text-xs font-semibold text-gray-500 transition-colors duration-300 group-hover:text-slate-500">
+            <div class="text-xs font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-muted-foreground">
               {{ subCategory.productCount }} products
             </div>
           </div>
@@ -94,7 +94,7 @@
       </template>
     </div>
     <div v-if="!selectedCategory">
-      <div class="bg-primary px-5 pt-[17px] pb-[21px] text-xs font-semibold text-primary-foreground text-center">
+      <div class="bg-header px-5 pt-[17px] pb-[21px] text-xs font-semibold text-header-foreground text-center">
         Sales: +1 800 555 0199 (Mon-Fri 8:00AM - 4:00PM EST)
       </div>
     </div>

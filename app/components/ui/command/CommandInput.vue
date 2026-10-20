@@ -31,7 +31,7 @@ const forwardedProps = useForwardProps(delegatedProps);
       auto-focus
       :class="
         cn(
-          'flex text-gray-600 h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-slate-400',
+          'flex text-muted-foreground h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-slate-400',
           props.class,
         )
       "

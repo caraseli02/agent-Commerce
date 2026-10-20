@@ -1,6 +1,6 @@
 <template>
   <SharedScrollableRegion label="Dashboard sections" test-id="client-dashboard-tabs">
-    <div class="relative flex items-center gap-4 bg-white rounded-xl px-3 shadow-xs md:gap-8 md:px-6">
+    <div class="relative flex items-center gap-4 bg-card rounded-xl px-3 shadow-xs md:gap-8 md:px-6">
       <UiButton
         v-for="(filter, index) in computedOrderFilters"
         :key="index"
@@ -16,7 +16,7 @@
         <span
           v-if="filter.total_items"
           class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-300 text-center"
-          :class="filter.label === activeOrderFilter?.label ? 'text-white bg-blue-500' : 'text-slate-500 bg-gray-100'"
+          :class="filter.label === activeOrderFilter?.label ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted'"
         >
           {{ filter.total_items }}
         </span>

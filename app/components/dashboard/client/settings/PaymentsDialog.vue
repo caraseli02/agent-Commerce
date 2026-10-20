@@ -81,7 +81,7 @@ const showErrorMsg = ref(true);
         <UiDialogTitle>Add New Card</UiDialogTitle>
       </UiDialogHeader>
       <PaymentSetupCardForm />
-      <!--            <section class="flex flex-col self-stretch bg-white rounded-xl shadow-sm max-md:px-5 max-h-[85vh] overflow-y-auto"> -->
+      <!--            <section class="flex flex-col self-stretch bg-card rounded-xl shadow-sm max-md:px-5 max-h-[85vh] overflow-y-auto"> -->
       <!--                <form class="mt-5 flex flex-col gap-y-6 gap-x-9" @submit="onSubmit"> -->
       <!--                    <FormField v-slot="{ componentField }" name="phoneNumber"> -->
       <!--                        <FormItem> -->
@@ -92,7 +92,7 @@ const showErrorMsg = ref(true);
       <!--                                        v-model="cardFields.phoneNumber" -->
       <!--                                        type="tel" -->
       <!--                                        placeholder="+1 (555) 867-5309" -->
-      <!--                                        class="mt-1 block w-full pr-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
+      <!--                                        class="mt-1 block w-full pr-10 px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
       <!--                                        v-bind="componentField" -->
       <!--                                    /> -->
       <!--                                </div> -->
@@ -109,7 +109,7 @@ const showErrorMsg = ref(true);
       <!--                                        v-model="cardFields.cardNumber" -->
       <!--                                        type="text" -->
       <!--                                        placeholder="0000-0000-0000-0000" -->
-      <!--                                        class="mt-1 block w-full pr-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
+      <!--                                        class="mt-1 block w-full pr-10 px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
       <!--                                        v-bind="componentField" -->
       <!--                                    /> -->
       <!--                                    <div class="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none"> -->
@@ -130,7 +130,7 @@ const showErrorMsg = ref(true);
       <!--                                            v-model="cardFields.expiryDate" -->
       <!--                                            type="text" -->
       <!--                                            placeholder="MM/YY" -->
-      <!--                                            class="mt-1 block w-full pr-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
+      <!--                                            class="mt-1 block w-full pr-10 px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
       <!--                                            v-bind="componentField" -->
       <!--                                        /> -->
       <!--                                        <div class="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none"> -->
@@ -150,7 +150,7 @@ const showErrorMsg = ref(true);
       <!--                                            v-model="cardFields.cvv" -->
       <!--                                            type="text" -->
       <!--                                            placeholder="123" -->
-      <!--                                            class="mt-1 block w-full pr-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
+      <!--                                            class="mt-1 block w-full pr-10 px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
       <!--                                            v-bind="componentField" -->
       <!--                                        /> -->
       <!--                                        <div class="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none"> -->
@@ -162,7 +162,7 @@ const showErrorMsg = ref(true);
       <!--                            </FormItem> -->
       <!--                        </FormField> -->
       <!--                    </div> -->
-      <!--                    <div class="flex justify-end gap-4 col-span-2 sticky bottom-0 bg-white pt-2"> -->
+      <!--                    <div class="flex justify-end gap-4 col-span-2 sticky bottom-0 bg-card pt-2"> -->
       <!--                        <UiButton variant="secondary" type="reset" @click="onCloseDialog()"> Cancel</UiButton> -->
       <!--                        <UiButton type="submit" class="w-60"> Continue</UiButton> -->
       <!--                    </div> -->
@@ -175,6 +175,6 @@ const showErrorMsg = ref(true);
 <style scoped>
 @reference "../../../../assets/css/main.css";
 label {
-  @apply text-slate-500;
+  @apply text-muted-foreground;
 }
 </style>

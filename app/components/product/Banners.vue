@@ -3,12 +3,12 @@
     <div class="container">
       <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div
-          class="relative flex items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-[30px] py-[13px] overflow-hidden"
+          class="relative flex items-center justify-between rounded-md border border-border bg-muted px-[30px] py-[13px] overflow-hidden"
         >
           <div class="relative z-20 flex flex-col gap-1 md:flex-row md:items-center md:gap-4">
             <NewIcon class="w-8 h-8 flex-shrink-0 md:w-[42px] md:h-[42px] md:mr-[15px]" />
             <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Fast path</p>
+              <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Fast path</p>
               <h2 class="font-semibold md:text-[32px] lg:text-2xl xl:text-[32px]">Quote-ready parts for active orders</h2>
             </div>
           </div>
@@ -21,7 +21,7 @@
           />
         </div>
         <div
-          class="relative flex items-center justify-between rounded-md px-[30px] py-[13px] overflow-hidden border border-slate-200 bg-slate-800"
+          class="relative flex items-center justify-between rounded-md px-[30px] py-[13px] overflow-hidden border border-border bg-slate-800"
         >
           <div class="relative z-20 flex flex-col gap-1 md:flex-row md:items-center">
             <div>

@@ -110,8 +110,8 @@ onMounted(() => {
   <div class="container py-8">
     <section v-if="!routeOrderId" class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8">
       <div class="space-y-4 text-center">
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">No order reference to confirm</h1>
-        <p class="text-sm leading-6 text-slate-600 md:text-base">
+        <h1 class="text-3xl font-semibold tracking-tight text-foreground">No order reference to confirm</h1>
+        <p class="text-sm leading-6 text-muted-foreground md:text-base">
           This success page needs a valid order reference from checkout. If you opened it directly, return to your order summary or cart to
           complete a demo purchase.
         </p>
@@ -128,7 +128,7 @@ onMounted(() => {
 
     <section
       v-else-if="loading"
-      class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+      class="overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
       aria-busy="true"
       aria-label="Loading order details"
     >
@@ -154,7 +154,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="space-y-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm">
+        <div class="space-y-4 rounded-3xl border border-border bg-muted/80 p-6 shadow-sm">
           <div class="space-y-2">
             <UiSkeleton class="h-3 w-36 rounded-md" />
             <UiSkeleton class="h-7 w-56 max-w-full rounded-md" />
@@ -172,8 +172,8 @@ onMounted(() => {
       class="mx-auto max-w-3xl rounded-3xl border border-amber-200 bg-amber-50/80 p-6 shadow-sm md:p-8"
     >
       <div class="space-y-4">
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Order details unavailable</h1>
-        <p class="text-sm leading-6 text-slate-600 md:text-base">
+        <h1 class="text-3xl font-semibold tracking-tight text-foreground">Order details unavailable</h1>
+        <p class="text-sm leading-6 text-muted-foreground md:text-base">
           {{ fetchError || 'We could not find order details for this reference. Return to checkout or your cart to try again.' }}
         </p>
         <div class="flex flex-col gap-3 sm:flex-row">
@@ -191,38 +191,38 @@ onMounted(() => {
       <div class="grid gap-8 p-6 md:p-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
         <div class="space-y-6">
           <div
-            class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700"
+            class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-card px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700"
           >
             <CheckCircle2 class="h-4 w-4" />
             Payment confirmed
           </div>
 
           <div class="space-y-3">
-            <h1 class="text-3xl font-semibold tracking-tight text-slate-900 md:text-5xl">Success — your order is locked in.</h1>
-            <p class="max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
+            <h1 class="text-3xl font-semibold tracking-tight text-foreground md:text-5xl">Success — your order is locked in.</h1>
+            <p class="max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
               This payment went through. Review the live order details, keep the reference handy, and jump back into shopping whenever you
               want.
             </p>
           </div>
 
           <div class="grid gap-3 md:grid-cols-3">
-            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order reference</p>
-              <p class="mt-2 text-lg font-semibold text-slate-900">
+            <div class="rounded-2xl border border-border bg-card p-4 shadow-sm">
+              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Order reference</p>
+              <p class="mt-2 text-lg font-semibold text-foreground">
                 {{ order?.shortId || order?._id }}
               </p>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Total paid</p>
-              <p class="mt-2 text-lg font-semibold text-slate-900">
+            <div class="rounded-2xl border border-border bg-card p-4 shadow-sm">
+              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Total paid</p>
+              <p class="mt-2 text-lg font-semibold text-foreground">
                 {{ formatMoney(order?.total, order?.currency) }}
               </p>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Confirmed at</p>
-              <p class="mt-2 text-lg font-semibold text-slate-900">
+            <div class="rounded-2xl border border-border bg-card p-4 shadow-sm">
+              <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Confirmed at</p>
+              <p class="mt-2 text-lg font-semibold text-foreground">
                 {{ orderDate }}
               </p>
             </div>
@@ -252,28 +252,28 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="space-y-4 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
+        <div class="space-y-4 rounded-3xl border border-border bg-card/90 p-6 shadow-sm">
           <div class="space-y-1">
-            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">What happens next</p>
-            <h2 class="text-xl font-semibold text-slate-900">The order is ready for handoff.</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">What happens next</p>
+            <h2 class="text-xl font-semibold text-foreground">The order is ready for handoff.</h2>
           </div>
 
-          <div class="space-y-3 text-sm leading-6 text-slate-600">
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p class="font-medium text-slate-900">Payment method</p>
+          <div class="space-y-3 text-sm leading-6 text-muted-foreground">
+            <div class="rounded-2xl border border-border bg-muted px-4 py-3">
+              <p class="font-medium text-foreground">Payment method</p>
               <p>{{ paymentLabel }}</p>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p class="font-medium text-slate-900">Shipping method</p>
+            <div class="rounded-2xl border border-border bg-muted px-4 py-3">
+              <p class="font-medium text-foreground">Shipping method</p>
               <p>{{ order?.shippingDetails?.stockorderShippingType?.service?.courierName || 'Selected at checkout' }}</p>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <div class="rounded-2xl border border-border bg-muted px-4 py-3">
               <div class="flex items-start gap-3">
-                <TruckIcon class="mt-0.5 h-4 w-4 text-slate-500" />
+                <TruckIcon class="mt-0.5 h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p class="font-medium text-slate-900">Fulfilment update</p>
+                  <p class="font-medium text-foreground">Fulfilment update</p>
                   <p>
                     {{
                       estimatedPickup ? `Estimated pickup ${estimatedPickup}.` : 'Tracking updates will appear as fulfilment progresses.'

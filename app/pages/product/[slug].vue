@@ -13,15 +13,15 @@
     </div>
 
     <div v-else-if="error" class="container mb-10 min-h-[320px] flex flex-col items-start justify-center gap-4" role="alert">
-      <p class="text-lg font-semibold text-slate-900">We could not load this product</p>
-      <p class="text-sm text-slate-600 max-w-xl">
+      <p class="text-lg font-semibold text-foreground">We could not load this product</p>
+      <p class="text-sm text-muted-foreground max-w-xl">
         The product may be unavailable or the link may be outdated. Try again or return to the catalog.
       </p>
       <div class="flex flex-wrap gap-3">
         <UiButton type="button" @click="refresh()">Try again</UiButton>
         <NuxtLink
           to="/search"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          class="inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
         >
           Browse catalog
         </NuxtLink>
@@ -34,7 +34,7 @@
         <div class="w-full flex items-center justify-end md:gap-0w mb-3">
           <UiDropdownMenu :modal="false">
             <UiDropdownMenuTrigger as-child>
-              <UiButton variant="ghost" class="flex h-10 w-10 p-0 text-slate-500 sm:hidden">
+              <UiButton variant="ghost" class="flex h-10 w-10 p-0 text-muted-foreground sm:hidden">
                 <MoreVertical class="h-5 w-5" />
                 <span class="sr-only">Product actions</span>
               </UiButton>

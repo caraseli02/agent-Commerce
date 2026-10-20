@@ -17,8 +17,8 @@ const taxonomyCrumbs = computed(() => {
 <template>
   <div class="hidden mb-[30px] md:flex">
     <div class="container">
-      <div class="border-b border-gray-200 pt-[15px] pb-[14px]">
-        <div class="flex items-center gap-1 text-slate-500">
+      <div class="border-b border-gray-200 dark:border-border pt-[15px] pb-[14px]">
+        <div class="flex items-center gap-1 text-muted-foreground">
           <template v-for="crumb in taxonomyCrumbs" :key="crumb.path">
             <CaretRightIcon class="w-4 h-4" />
             <NuxtLink

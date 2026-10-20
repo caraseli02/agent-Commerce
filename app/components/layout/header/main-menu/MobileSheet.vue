@@ -101,7 +101,7 @@ onBeforeUnmount(() => {
         type="button"
         variant="ghost"
         size="icon"
-        class="h-11 w-11 shrink-0 text-primary-foreground hover:bg-white/10"
+        class="h-11 w-11 shrink-0 text-header-foreground hover:bg-card/10"
         aria-controls="mobile-products-navigation"
         :aria-expanded="sheetOpen"
         :aria-label="sheetOpen ? 'Close products navigation' : 'Open products navigation'"
@@ -117,7 +117,7 @@ onBeforeUnmount(() => {
       hidde-close-button
       :overlay-class-name="`${mobileSheetOverlayClass} md:top-[var(--mobile-nav-sheet-top,110px)]`"
     >
-      <UiSheetHeader class="bg-grey-100 border-b border-grey-300">
+      <UiSheetHeader class="bg-muted border-b border-border">
         <UiSheetTitle class="px-4 py-2">
           <div class="flex items-center justify-between gap-3">
             <UiButton
@@ -135,7 +135,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="ghost"
               size="icon"
-              class="w-9 h-9 flex-shrink-0 items-center justify-center leading-none text-slate-500"
+              class="w-9 h-9 flex-shrink-0 items-center justify-center leading-none text-muted-foreground"
               aria-label="Close products navigation"
               @click="closeMobileMenu"
             >
@@ -151,23 +151,23 @@ onBeforeUnmount(() => {
             <div class="flex items-center gap-4">
               <UiButton
                 variant="link"
-                class="text-left pl-0 flex-col items-start font-normal text-neutral-700"
+                class="text-left pl-0 flex-col items-start font-normal text-foreground"
                 :disabled="sub.productCount === 0"
               >
                 {{ sub.name }}
-                <span class="text-xs font-light text-slate-500">{{ formatProductCount(sub.productCount) }}</span>
+                <span class="text-xs font-light text-muted-foreground">{{ formatProductCount(sub.productCount) }}</span>
               </UiButton>
               <UiBadge v-if="false" class="bg-primary text-xs px-2"> New </UiBadge>
               <UiBadge v-if="false" class="bg-rose-600 text-xs px-2"> Sale </UiBadge>
             </div>
-            <ChevronRight v-if="sub.productCount !== 0 && (sub.subcategory?.length ?? 0) > 0" class="w-4 h-4 text-neutral-700" />
+            <ChevronRight v-if="sub.productCount !== 0 && (sub.subcategory?.length ?? 0) > 0" class="w-4 h-4 text-foreground" />
           </section>
         </div>
       </div>
       <div v-if="showDiscountSection" class="flex flex-col gap-4 h-full md:max-w-screen-sm">
         <div>
           <UiButton class="font-medium p-0 justify-between w-full gap-2 h-11" size="xs" variant="link" @click="showDiscountSection = false">
-            <ChevronLeftIcon class="w-4 h-4 text-black ml-2" />
+            <ChevronLeftIcon class="w-4 h-4 text-foreground ml-2" />
             <span class="w-full text-start">View our discounted offers</span>
           </UiButton>
           <UiSeparator class="my-1" />
@@ -181,8 +181,12 @@ onBeforeUnmount(() => {
       </div>
       <!-- Left Column: Main Categories -->
       <div v-else class="w-full h-full flex flex-col items-start container mt-2">
-        <div class="grid w-full grid-cols-1 gap-2 pb-3 mb-2 border-b border-grey-300 md:hidden" aria-label="Account shortcuts">
-          <UiButton variant="link" class="h-10 justify-start gap-2 px-2 text-sm font-medium text-slate-600" @click="openAccountFromDrawer">
+        <div class="grid w-full grid-cols-1 gap-2 pb-3 mb-2 border-b border-border md:hidden" aria-label="Account shortcuts">
+          <UiButton
+            variant="link"
+            class="h-10 justify-start gap-2 px-2 text-sm font-medium text-muted-foreground"
+            @click="openAccountFromDrawer"
+          >
             <UserIcon class="w-4 h-4" />
             My Account
           </UiButton>
@@ -195,29 +199,29 @@ onBeforeUnmount(() => {
           @click="onMobileCategoryClick(category, true)"
         >
           <div class="flex gap-2 items-center">
-            <component :is="category.icon" v-if="category.icon && category.icon !== 'N/A'" class="min-w-5 min-h-5 text-black" />
-            <CardPlaceholderSmall v-else class="min-w-6 min-h-6 text-black" />
+            <component :is="category.icon" v-if="category.icon && category.icon !== 'N/A'" class="min-w-5 min-h-5 text-foreground" />
+            <CardPlaceholderSmall v-else class="min-w-6 min-h-6 text-foreground" />
             <p class="flex flex-col items-start w-full font-medium">
               {{ category.name }}
-              <span class="text-xs font-normal text-slate-500">{{ formatProductCount(category.productCount) }}</span>
+              <span class="text-xs font-normal text-muted-foreground">{{ formatProductCount(category.productCount) }}</span>
             </p>
           </div>
-          <ChevronRight class="w-4 h-4 text-black" />
+          <ChevronRight class="w-4 h-4 text-foreground" />
         </UiButton>
         <UiButton class="font-medium p-0 justify-between w-full gap-2 h-11" size="xs" variant="link" @click="showDiscountSection = true">
-          <GemIcon class="min-w-6 h-6 text-black" />
+          <GemIcon class="min-w-6 h-6 text-foreground" />
           <span class="w-full text-start">View our discounted offers</span>
-          <ChevronRight class="w-5 h-5 text-black" />
+          <ChevronRight class="w-5 h-5 text-foreground" />
         </UiButton>
       </div>
-      <section class="sticky bottom-0 flex justify-end items-center h-10 border-t z-10 bg-white">
+      <section class="sticky bottom-0 flex justify-end items-center h-10 border-t z-10 bg-card">
         <UiButton size="xs" class="text-xs gap-2 px-1" variant="link">
-          <Building2Icon class="w-4 h-4 text-black" />
+          <Building2Icon class="w-4 h-4 text-foreground" />
           Contact Sales
         </UiButton>
         <UiSeparator orientation="vertical" class="mx-1 bg-gray-200 h-4" />
         <UiButton size="xs" class="text-xs gap-2 px-1" variant="link">
-          <HeadsetIcon class="w-4 h-4 text-black" />
+          <HeadsetIcon class="w-4 h-4 text-foreground" />
           Support
         </UiButton>
       </section>

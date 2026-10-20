@@ -2,12 +2,12 @@
   <div class="flex flex-col pt-[30px] px-[15px] pb-10 md:pt-[130px] md:px-4 md:pb-5 md:flex-1 lg:max-w-[410px] lg:mx-auto lg:pb-10">
     <div class="flex items-center mb-5">
       <div class="font-medium mr-2 md:text-xl">Select account type</div>
-      <QuestionIcon class="w-5 h-5 text-gray-500" />
+      <QuestionIcon class="w-5 h-5 text-muted-foreground" />
     </div>
     <div class="grid grid-cols-3 gap-3 mb-[30px] md:mb-10">
       <button
         class="flex flex-col items-center p-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'personal' ? 'text-white bg-blue-500' : 'text-slate-500 bg-[#F2F2F2]']"
+        :class="[props.selectedType === 'personal' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'personal')"
       >
         <PersonalIcon class="w-8 h-8 mb-2.5" />
@@ -15,7 +15,7 @@
       </button>
       <button
         class="flex flex-col items-center px-2.5 py-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'sole-trader' ? 'text-white bg-blue-500' : 'text-slate-500 bg-[#F2F2F2]']"
+        :class="[props.selectedType === 'sole-trader' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'sole-trader')"
       >
         <SoleTraderIcon class="w-8 h-8 mb-2.5" />
@@ -23,7 +23,7 @@
       </button>
       <button
         class="flex flex-col items-center p-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'business' ? 'text-white bg-blue-500' : 'text-slate-500 bg-[#F2F2F2]']"
+        :class="[props.selectedType === 'business' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'business')"
       >
         <BusinessIcon class="w-8 h-8 flex-shrink-0 mb-2.5" />
@@ -33,7 +33,7 @@
     <template v-if="props.selectedType === 'business'">
       <div class="flex items-center mb-5">
         <div class="font-medium mr-2 md:text-xl">Business Account Type</div>
-        <QuestionIcon class="w-5 h-5 text-gray-500" />
+        <QuestionIcon class="w-5 h-5 text-muted-foreground" />
       </div>
       <div class="mb-[86px] md:mb-[70px]">
         <FormSelect
@@ -59,7 +59,7 @@
       :class="[props.selectedType !== 'business' ? 'mt-[200px] md:mt-[188px]' : '']"
     >
       <button
-        class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white transition-colors duration-300 disabled:bg-gray-100 disabled:text-gray-500"
+        class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white transition-colors duration-300 disabled:bg-muted disabled:text-muted-foreground"
         :disabled="!props.selectedType"
         @click="$emit('continue')"
       >
@@ -68,13 +68,13 @@
       </button>
     </div>
     <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] md:hidden" aria-hidden="true">
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500">
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
         <TwitterIcon class="w-5" />
       </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500">
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
         <LinkedInIcon class="w-5" />
       </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-slate-500">
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
         <InstagramIcon class="w-5 h-5" />
       </span>
     </div>
@@ -97,7 +97,7 @@
         Sign in
       </NuxtLink>
     </div>
-    <div class="text-sm text-slate-500 text-center max-md:hidden">© {{ new Date().getFullYear() }} Components Marketplace</div>
+    <div class="text-sm text-muted-foreground text-center max-md:hidden">© {{ new Date().getFullYear() }} Components Marketplace</div>
   </div>
 </template>
 

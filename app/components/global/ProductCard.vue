@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-white px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:py-4"
+    class="relative grid h-full grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl bg-card px-3 py-3 font-Inter shadow-xs md:flex md:min-h-[280px] md:flex-col md:grid-rows-none md:gap-2 md:px-4 md:py-4"
   >
     <NuxtLink
       :to="productRoute"
@@ -9,7 +9,7 @@
     >
       <!-- Catalog media frame: white backdrop; cover fills the frame -->
       <div
-        class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-white transition-transform duration-200 group-hover:scale-[1.02] md:aspect-auto md:h-[160px]"
+        class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-card transition-transform duration-200 group-hover:scale-[1.02] md:aspect-auto md:h-[160px]"
       >
         <ProductCardStock :stock="product.stock" />
         <ImageWithFallback
@@ -28,7 +28,7 @@
 
     <div class="relative col-start-2 row-start-1 flex w-full min-w-0 max-w-full flex-col gap-1 md:min-h-[64px]">
       <div class="flex w-full min-w-0 max-w-full items-start gap-1 md:items-center md:gap-2">
-        <h3 class="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-neutral-700 md:text-base md:leading-normal">
+        <h3 class="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-foreground md:text-base md:leading-normal">
           <NuxtLink
             :to="productRoute"
             class="cursor-pointer rounded-sm text-inherit transition-colors hover:text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
@@ -56,8 +56,8 @@
         </div>
       </div>
       <div class="hidden max-w-[220px] flex-col gap-1 text-xs md:flex md:min-h-[34px]">
-        <p v-if="productCategory" class="break-words text-xs font-semibold leading-tight text-slate-500">{{ productCategory }}</p>
-        <p class="line-clamp-2 text-xs text-slate-500" :title="product.description">{{ product.description }}</p>
+        <p v-if="productCategory" class="break-words text-xs font-semibold leading-tight text-muted-foreground">{{ productCategory }}</p>
+        <p class="line-clamp-2 text-xs text-muted-foreground" :title="product.description">{{ product.description }}</p>
       </div>
     </div>
 
@@ -90,10 +90,10 @@
         :aria-labelledby="`add-to-cart-${product._id}`"
         :aria-busy="isThisProductAdding"
         :aria-disabled="isThisProductAdding"
-        class="col-start-2 h-11 w-12 shrink-0 px-0 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        class="col-start-2 h-11 w-12 shrink-0 px-0 dark:!bg-primary dark:!text-primary-foreground dark:hover:!bg-primary/90 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
-        <SvgoCart class="h-6 w-6 text-white" />
+        <SvgoCart class="h-6 w-6" />
         <span :id="`add-to-cart-${product._id}`" class="sr-only">Add {{ product.name }} to cart</span>
       </UiButton>
     </div>

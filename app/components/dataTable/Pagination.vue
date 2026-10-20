@@ -12,7 +12,7 @@ defineProps<{
 
 <template>
   <div class="flex flex-col md:flex-row gap-4 md:items-center justify-between px-2">
-    <div class="flex-1 text-sm text-grey-600">{{ totalItems }} item(s)</div>
+    <div class="flex-1 text-sm text-muted-foreground">{{ totalItems }} item(s)</div>
     <div class="flex items-center justify-between space-x-6 lg:space-x-8">
       <div v-if="totalItems > 10" class="flex flex-col md:flex-row gap-4 md:items-center space-x-2">
         <p class="text-sm font-medium">Rows per page</p>

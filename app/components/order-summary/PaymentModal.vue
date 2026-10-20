@@ -1,13 +1,13 @@
 <template>
   <section
-    class="flex flex-col items-center justify-between min-h-screen w-full shadow-xs bg-white max-w-[358px] md:max-w-[400px] px-4 md:px-6 py-0 rounded-l-xl h-full overflow-hidden scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-slate-700 scrollbar-track-slate-300"
+    class="flex flex-col items-center justify-between min-h-screen w-full shadow-xs bg-card max-w-[358px] md:max-w-[400px] px-4 md:px-6 py-0 rounded-l-xl h-full overflow-hidden scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-slate-700 scrollbar-track-slate-300"
   >
-    <div class="sticky top-0 justify-between items-start self-stretch flex gap-5 bg-white z-10 min-h-16 pt-6">
-      <div class="text-zinc-800 text-base font-semibold leading-7 my-auto">Payment Method</div>
+    <div class="sticky top-0 justify-between items-start self-stretch flex gap-5 bg-card z-10 min-h-16 pt-6">
+      <div class="text-foreground text-base font-semibold leading-7 my-auto">Payment Method</div>
       <UiButton
         variant="ghost"
         size="icon"
-        class="flex aspect-square h-11 w-11 flex-col items-center justify-center self-stretch rounded-lg bg-zinc-100 px-1"
+        class="flex aspect-square h-11 w-11 flex-col items-center justify-center self-stretch rounded-lg bg-muted px-1"
         aria-label="Close payment method"
         @click="
           paymentStore.toggleCardModal();
@@ -19,12 +19,12 @@
     </div>
     <div class="flex flex-col gap-3 h-full overflow-y-auto relative">
       <OrderSummaryNewCard
-        class="mt-8 sticky top-0 bg-white"
+        class="mt-8 sticky top-0 bg-card"
         :is-selected="isNewCardSelected"
         @click="isNewCardSelected = true"
         @select-payment-option="selectPaymentOption({ type: PaymentTypeEnum.Card, info: null })"
       />
-      <h4 v-if="cards.length > 1" class="text-zinc-800 text-sm font-medium leading-6 self-stretch mt-2">Saved cards</h4>
+      <h4 v-if="cards.length > 1" class="text-foreground text-sm font-medium leading-6 self-stretch mt-2">Saved cards</h4>
       <div v-for="savedCard in cards" :key="savedCard.id" class="pt-4">
         <OrderSummaryPayByCard
           view="payment"
@@ -42,7 +42,7 @@
         />
       </div>
     </div>
-    <div class="sticky bottom-0 flex flex-col justify-center items-center w-full justify-self-end bg-white z-10 pb-6">
+    <div class="sticky bottom-0 flex flex-col justify-center items-center w-full justify-self-end bg-card z-10 pb-6">
       <div class="items-stretch self-center flex gap-3 mt-10">
         <svg width="41" height="40" viewBox="0 0 41 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -52,7 +52,7 @@
             fill="#00C088"
           />
         </svg>
-        <div class="text-zinc-800 text-sm leading-6 self-center grow whitespace-nowrap my-auto">Secure credit card payment</div>
+        <div class="text-foreground text-sm leading-6 self-center grow whitespace-nowrap my-auto">Secure credit card payment</div>
       </div>
       <UiButton
         class="justify-center items-center self-stretch bg-blue-500 flex w-full flex-col mt-4 px-16 py-2 h-11 rounded-lg hover:bg-blue-500"

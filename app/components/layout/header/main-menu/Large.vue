@@ -5,14 +5,14 @@
     :class="[isBannerExpanded ? '' : 'grid-cols-[0px_1fr] md:grid-cols-[260px_1fr] lg:grid-cols-[260px_1fr] xl:grid-cols-[290px_1fr]']"
   >
     <div
-      class="relative z-40 flex flex-col gap-1 p-2.5 bg-white border-r border-gray-200 max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-bl-md w-[260px] transition-opacity duration-200 xl:w-[290px] xl:py-[13px] xl:gap-1"
+      class="relative z-40 flex flex-col gap-1 p-2.5 bg-card border-r border-gray-200 max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-bl-md w-[260px] transition-opacity duration-200 xl:w-[290px] xl:py-[13px] xl:gap-1"
       :class="[isStatic ? 'hidden h-0 md:h-auto md:flex' : '', isBannerExpanded ? 'md:opacity-0 md:pointer-events-none' : '']"
     >
       <UiButton
         v-for="(category, index) in allCategories"
         :key="index"
         variant="ghost"
-        class="group h-auto justify-start px-2 py-1.5 rounded-[5px] w-full text-slate-500 text-left font-Inter hover:text-primary xl:px-2.5 xl:py-2"
+        class="group h-auto justify-start px-2 py-1.5 rounded-[5px] w-full text-muted-foreground text-left font-Inter hover:text-primary xl:px-2.5 xl:py-2"
         :class="[selectedCategory === category ? 'text-primary bg-[#F4F4F4]' : '']"
         @click="
           selectedCategory = category;
@@ -28,8 +28,8 @@
             {{ category.name }}
           </div>
           <div
-            class="text-xs font-semibold transition-colors duration-300 group-hover:text-slate-500"
-            :class="[selectedCategory === category ? 'text-slate-500 ' : 'text-gray-500']"
+            class="text-xs font-semibold transition-colors duration-300 group-hover:text-muted-foreground"
+            :class="[selectedCategory === category ? 'text-muted-foreground ' : 'text-muted-foreground']"
           >
             {{ category.productCount }} items
           </div>
@@ -138,7 +138,7 @@
       </UiButton>
     </div>
     <div
-      class="relative z-30 col-start-2 row-start-1 flex flex-col bg-white font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:hidden"
+      class="relative z-30 col-start-2 row-start-1 flex flex-col bg-card font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:hidden"
       :class="[selectedCategory ? '' : 'opacity-0 pointer-events-none -translate-x-10']"
     >
       <div class="flex items-center justify-between border-b border-gray-200 px-[15px] py-2.5">
@@ -162,7 +162,7 @@
               v-for="(subCategory, index) in selectedCategory.subcategory"
               :key="index"
               variant="ghost"
-              class="group h-auto px-2 py-1.5 rounded-[5px] text-slate-500 text-left hover:text-primary"
+              class="group h-auto px-2 py-1.5 rounded-[5px] text-muted-foreground text-left hover:text-primary"
               @click="
                 selectedSubCategory = subCategory;
                 handleCategoryClick(subCategory);
@@ -172,7 +172,7 @@
                 <div class="text-sm font-semibold">
                   {{ subCategory.name }}
                 </div>
-                <div class="text-xs font-semibold text-gray-500 transition-colors duration-300 group-hover:text-slate-500">
+                <div class="text-xs font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-muted-foreground">
                   {{ subCategory.productCount }} items
                 </div>
               </div>
@@ -202,7 +202,7 @@
       </div>
     </div>
     <div
-      class="hidden relative z-30 col-start-2 row-start-1 grid-cols-[1fr_340px] gap-[25px] bg-white font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:grid xl:gap-0"
+      class="hidden relative z-30 col-start-2 row-start-1 grid-cols-[1fr_340px] gap-[25px] bg-card font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:grid xl:gap-0"
       :class="[selectedCategory ? '' : 'opacity-0 pointer-events-none -translate-x-10']"
     >
       <div>
@@ -227,7 +227,7 @@
                 v-for="(subCategory, index) in selectedCategory.subcategory"
                 :key="index"
                 variant="ghost"
-                class="group h-auto px-2 py-1.5 rounded-[5px] text-slate-500 text-left hover:text-primary"
+                class="group h-auto px-2 py-1.5 rounded-[5px] text-muted-foreground text-left hover:text-primary"
                 :class="[selectedSubCategory === subCategory ? 'text-primary bg-[#F4F4F4]' : '']"
                 @click="selectedSubCategory = subCategory"
               >
@@ -236,8 +236,8 @@
                     {{ subCategory.name }}
                   </div>
                   <div
-                    class="text-xs font-semibold transition-colors duration-300 group-hover:text-slate-500"
-                    :class="[selectedSubCategory === subCategory ? 'text-slate-500' : 'text-gray-500']"
+                    class="text-xs font-semibold transition-colors duration-300 group-hover:text-muted-foreground"
+                    :class="[selectedSubCategory === subCategory ? 'text-muted-foreground' : 'text-muted-foreground']"
                   >
                     {{ subCategory.productCount }} items
                   </div>
@@ -464,7 +464,7 @@ onMounted(async () => {
 }
 
 .headerSubmenu--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-white!;
+  @apply scale-125 bg-card!;
 }
 </style>
 

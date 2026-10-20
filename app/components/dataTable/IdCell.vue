@@ -1,5 +1,5 @@
 <template>
-  <div class="min-w-[128px] flex justify-between items-center text-neutral-700">
+  <div class="min-w-[128px] flex justify-between items-center text-foreground">
     <NuxtLink v-if="props.orderId && !showInvoiceLink" :to="orderLink">
       <UiButton variant="link" class="text-sm hover:text-blue-500">{{ IdCell ?? 'N/A' }}</UiButton>
     </NuxtLink>
@@ -11,7 +11,7 @@
         <UiTooltip>
           <UiTooltipTrigger>
             <svg
-              class="w-4 h-4 text-slate-500 hover:text-blue-500"
+              class="w-4 h-4 text-muted-foreground hover:text-blue-500"
               width="16"
               height="16"
               viewBox="0 0 16 16"

@@ -2,12 +2,12 @@
   <section class="mb-[30px] lg:mb-10 xl:mb-[60px]">
     <div class="container">
       <div
-        class="relative flex min-h-[156px] items-start rounded-md border border-slate-200 bg-slate-50 overflow-hidden py-5 pl-5 pr-[110px] md:min-h-0 md:items-center md:justify-between md:px-10 md:py-[5px] lg:pl-[50px] lg:pr-[114px] xl:pr-[200px] xl:py-1.5"
+        class="relative flex min-h-[156px] items-start rounded-md border border-border bg-muted overflow-hidden py-5 pl-5 pr-[110px] md:min-h-0 md:items-center md:justify-between md:px-10 md:py-[5px] lg:pl-[50px] lg:pr-[114px] xl:pr-[200px] xl:py-1.5"
       >
         <div class="relative z-20 flex min-w-0 flex-col gap-1 md:flex-row md:items-center md:gap-4">
           <NewIcon class="w-8 h-8 md:w-[42px] md:h-[42px] md:mr-[15px]" />
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Procurement highlight</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Procurement highlight</p>
             <h2 class="font-semibold md:text-[32px] lg:text-4xl">Stock visibility for urgent sourcing</h2>
           </div>
         </div>

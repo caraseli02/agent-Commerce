@@ -3,7 +3,7 @@
     <NuxtLink
       v-show="!route.path.includes('dashboard')"
       :to="isAdmin ? '/dashboard' : '/dashboard/client'"
-      class="hover:bg-zinc-100 text-neutral-800 hover:text-blue-500 items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
+      class="hover:bg-muted text-foreground hover:text-blue-500 items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
       @click="emit('close')"
     >
       <component :is="IconApps" class="w-6 h-6" />
@@ -14,7 +14,7 @@
       :key="index"
       type="button"
       variant="ghost"
-      class="w-full items-stretch justify-start gap-3 rounded-lg py-3 pl-3 pr-20 text-neutral-800 hover:bg-zinc-100 hover:text-blue-500"
+      class="w-full items-stretch justify-start gap-3 rounded-lg py-3 pl-3 pr-20 text-foreground hover:bg-muted hover:text-blue-500"
       @click="(emit('close'), menuItem.action())"
     >
       <component :is="menuItem.icon" class="w-6 h-6" />
@@ -33,7 +33,7 @@
       :key="index"
       :to="menuItem.to"
       class="items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
-      :class="menuItem.disabled ? 'text-neutral-200 cursor-not-allowed' : 'hover:bg-zinc-100 text-neutral-800 hover:text-blue-500'"
+      :class="menuItem.disabled ? 'text-neutral-200 cursor-not-allowed' : 'hover:bg-muted text-foreground hover:text-blue-500'"
       @click="emit('close')"
     >
       <component :is="menuItem.icon" class="w-6 h-6" />
@@ -42,7 +42,7 @@
         class="transition-all text-sm font-medium leading-6 whitespace-nowrap flex items-center justify-between flex-1"
       >
         <span>{{ menuItem.text }}</span>
-        <span class="text-[10px] bg-zinc-100 text-zinc-400 px-1.5 py-0.5 rounded ml-2 font-bold tracking-tight">COMING SOON</span>
+        <span class="text-[10px] bg-muted text-zinc-400 px-1.5 py-0.5 rounded ml-2 font-bold tracking-tight">COMING SOON</span>
       </div>
       <div v-else class="transition-all text-sm font-medium leading-6 whitespace-nowrap">
         {{ menuItem.text }}

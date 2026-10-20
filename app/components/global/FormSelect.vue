@@ -1,6 +1,6 @@
 <template>
   <div class="relative" :class="[error ? 'mb-4' : '']">
-    <div v-if="label" class="text-sm text-slate-500 mb-1">
+    <div v-if="label" class="text-sm text-muted-foreground mb-1">
       {{ label }}
     </div>
     <UiButton
@@ -10,7 +10,7 @@
       :class="[
         error ? 'border-red' : showOptions ? 'border-blue-500' : '',
         disabled && showDisabledStyles
-          ? 'disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none'
+          ? 'disabled:bg-muted disabled:text-muted-foreground disabled:border-border disabled:shadow-none'
           : 'disabled:opacity-100',
         size === 'lg' ? 'h-11' : 'h-10',
       ]"
@@ -20,11 +20,11 @@
       <span
         class="flex items-center text-left truncate"
         :class="{
-          'text-slate-500': !modelValue,
-          'font-semibold text-slate-500': checkboxes,
+          'text-muted-foreground': !modelValue,
+          'font-semibold text-muted-foreground': checkboxes,
         }"
       >
-        <component :is="icon" v-if="icon" class="w-6 h-6 text-slate-500 mr-2" />
+        <component :is="icon" v-if="icon" class="w-6 h-6 text-muted-foreground mr-2" />
         <img
           v-if="modelValue?.icon && typeof modelValue.icon === 'string'"
           :src="modelValue.icon"
@@ -32,8 +32,8 @@
           class="w-8 rounded mr-2"
           loading="lazy"
         />
-        <component :is="modelValue.icon" v-else-if="modelValue?.icon" class="w-6 h-6 text-slate-500 mr-2" />
-        <span :class="[disabled ? 'text-gray-500' : 'text-slate-500']">
+        <component :is="modelValue.icon" v-else-if="modelValue?.icon" class="w-6 h-6 text-muted-foreground mr-2" />
+        <span :class="[disabled ? 'text-muted-foreground' : 'text-muted-foreground']">
           {{ modelValue?.label || placeholder }}
         </span>
       </span>
@@ -43,7 +43,7 @@
         height="20"
         fill="none"
         class="w-5 h-5 transition-all duration-300"
-        :class="[showOptions ? 'rotate-180' : '', disabled ? 'text-gray-500' : 'text-slate-500']"
+        :class="[showOptions ? 'rotate-180' : '', disabled ? 'text-muted-foreground' : 'text-muted-foreground']"
       >
         <path
           stroke="currentColor"
@@ -58,14 +58,14 @@
       <div
         v-if="showOptions"
         v-click-outside="() => (showOptions = false)"
-        class="absolute -bottom-1 left-0 translate-y-full w-full bg-white rounded-md overflow-y-auto scrollbar-thin shadow-m px-3 py-[15px]"
+        class="absolute -bottom-1 left-0 translate-y-full w-full bg-card rounded-md overflow-y-auto scrollbar-thin shadow-m px-3 py-[15px]"
         :class="[checkboxes ? 'max-h-[200px]' : 'max-h-[250px]']"
       >
         <div v-if="search" class="mb-[15px]">
-          <div class="text-sm text-slate-500 mb-[5px]">Search {{ label }}</div>
+          <div class="text-sm text-muted-foreground mb-[5px]">Search {{ label }}</div>
           <!-- The label draws the border and focus state (and focuses the input from the icon), so the input drops its own. -->
           <UiLabel class="relative flex items-center border border-border rounded px-3 focus-within:border-blue-500">
-            <SearchIcon class="w-[18px] h-[18px] text-gray-500" />
+            <SearchIcon class="w-[18px] h-[18px] text-muted-foreground" />
             <UiInput
               v-model="searchValue"
               type="search"
@@ -73,7 +73,7 @@
               class="h-auto flex-1 border-0 bg-transparent pl-2 pr-8 py-[9px] text-sm font-normal focus-visible:!outline-none"
             />
             <Transition name="fade">
-              <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-gray-500 cursor-pointer" @click="searchValue = ''" />
+              <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-muted-foreground cursor-pointer" @click="searchValue = ''" />
             </Transition>
           </UiLabel>
         </div>
@@ -87,15 +87,15 @@
             <div
               class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300 mr-2.5"
               :class="[
-                option.value === modelValue?.value ? 'bg-blue-500 border-blue-500 ' : 'bg-white  border-border group-hover:border-gray-300',
+                option.value === modelValue?.value ? 'bg-blue-500 border-blue-500 ' : 'bg-card  border-border group-hover:border-border',
               ]"
             >
               <CheckIcon v-if="option.value === modelValue?.value" class="w-4 text-white" />
             </div>
-            <component :is="option.icon" v-if="option.icon" class="w-6 h-6 text-slate-500 mr-2" />
+            <component :is="option.icon" v-if="option.icon" class="w-6 h-6 text-muted-foreground mr-2" />
             <span
-              class="text-sm font-Inter text-slate-500 font-semibold truncate transition-colors duration-300 group-hover:text-neutral-700"
-              :class="[option.value === modelValue?.value ? 'text-neutral-700' : '']"
+              class="text-sm font-Inter text-muted-foreground font-semibold truncate transition-colors duration-300 group-hover:text-foreground"
+              :class="[option.value === modelValue?.value ? 'text-foreground' : '']"
             >
               {{ option.label }}
             </span>

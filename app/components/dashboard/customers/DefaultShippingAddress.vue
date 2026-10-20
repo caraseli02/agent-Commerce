@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-xl p-4 shadow-xs md:p-6">
+  <div class="bg-card rounded-xl p-4 shadow-xs md:p-6">
     <div class="flex items-center justify-between" :class="[emptyData || error ? 'mb-4' : 'mb-6']">
       <div class="text-sm font-semibold">Default Shipping Address</div>
       <div v-if="!error" class="relative">
@@ -16,7 +16,7 @@
           <div
             v-if="showOptions"
             v-click-outside="() => (showOptions = false)"
-            class="absolute -bottom-3.5 right-0 translate-y-full grid grid-cols-1 gap-1 w-full rounded-lg bg-white p-3 min-w-[154px] shadow-m"
+            class="absolute -bottom-3.5 right-0 translate-y-full grid grid-cols-1 gap-1 w-full rounded-lg bg-card p-3 min-w-[154px] shadow-m"
           >
             <UiButton
               variant="ghost"
@@ -41,7 +41,7 @@
     </div>
     <div v-if="emptyData || error" class="flex items-center md:justify-center">
       <EmojiSadIcon class="w-[52px] h-[52px] mr-4" />
-      <div class="text-sm font-medium text-gray-500">No data available</div>
+      <div class="text-sm font-medium text-muted-foreground">No data available</div>
     </div>
     <div v-else class="flex items-start">
       <BusinessIcon class="w-11 h-11 text-[#00D395] flex-shrink-0 mr-4" />

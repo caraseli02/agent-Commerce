@@ -1,7 +1,7 @@
 <template>
   <div class="container my-10 flex min-h-[50vh] flex-col items-center gap-8">
     <template v-if="cartStore.previousCheckoutError">
-      <section class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border-[1.5px] border-red-500 bg-light-100 p-6">
+      <section class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border-[1.5px] border-red-500 bg-muted p-6">
         <h4 class="text-2xl font-medium">{{ failurePresentation.title }}</h4>
         <AlertTriangleIcon class="h-10 w-10 stroke-2 text-red-500" />
         <p>Reason: {{ failurePresentation.message }}</p>
@@ -22,12 +22,12 @@
 
     <section
       v-else
-      class="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm md:p-8"
+      class="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 rounded-3xl border border-border bg-card p-6 text-center shadow-sm md:p-8"
     >
       <AlertTriangleIcon class="h-10 w-10 text-amber-600" />
       <div class="space-y-2">
-        <h1 class="text-2xl font-semibold text-slate-900">No checkout failure details to show</h1>
-        <p class="text-sm leading-6 text-slate-600 md:text-base">
+        <h1 class="text-2xl font-semibold text-foreground">No checkout failure details to show</h1>
+        <p class="text-sm leading-6 text-muted-foreground md:text-base">
           This page opens after a payment failure during checkout. If you arrived here directly, return to your order summary or cart to
           continue the demo checkout flow.
         </p>

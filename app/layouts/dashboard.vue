@@ -15,7 +15,7 @@
       :class="[isSideNavCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:max-w-[calc(100vw-280px)]']"
     >
       <slot />
-      <div class="flex justify-center text-center text-xs leading-normal text-slate-500 mt-2 mb-6 md:mt-0">
+      <div class="flex justify-center text-center text-xs leading-normal text-muted-foreground mt-2 mb-6 md:mt-0">
         Components Marketplace portfolio demo — mock mode for reviewer walkthroughs
       </div>
     </main>

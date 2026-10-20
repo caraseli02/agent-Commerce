@@ -1,6 +1,6 @@
 <template>
   <div class="container mb-5 md:mb-6">
-    <h1 class="break-words text-xl font-semibold text-slate-900 md:text-2xl">{{ title }}</h1>
+    <h1 class="break-words text-xl font-semibold text-foreground md:text-2xl">{{ title }}</h1>
   </div>
 </template>
 

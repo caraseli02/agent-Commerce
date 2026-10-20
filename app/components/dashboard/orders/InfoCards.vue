@@ -1,6 +1,6 @@
 <template>
   <div class="relative z-20 grid grid-cols-1 gap-4 mb-9 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
-    <div v-for="(card, indexOfWidget) in cards" :key="indexOfWidget" class="group bg-white rounded-xl p-4 pr-2 shadow-xs md:p-6 md:pr-4">
+    <div v-for="(card, indexOfWidget) in cards" :key="indexOfWidget" class="group bg-card rounded-xl p-4 pr-2 shadow-xs md:p-6 md:pr-4">
       <div
         class="flex items-start w-full mb-8 xl:mb-12"
         :class="[isLoading[indexOfWidget] ? 'justify-center md:justify-between' : 'justify-between']"
@@ -38,14 +38,14 @@
             </div>
             <div>
               <div class="flex items-center gap-2 mb-3">
-                <div class="text-sm font-semibold text-slate-500">
+                <div class="text-sm font-semibold text-muted-foreground">
                   {{ card.menu.selected.label }}
                 </div>
                 <WarningIcon v-if="error[indexOfWidget]" class="w-5 h-5" />
               </div>
               <div
                 v-if="error[indexOfWidget] || card.menu.selected.value === null || card.menu.selected.value === undefined"
-                class="text-sm font-medium leading-[1.71] text-gray-500"
+                class="text-sm font-medium leading-[1.71] text-muted-foreground"
               >
                 No data available
               </div>
@@ -68,14 +68,14 @@
               <div
                 v-if="card.menu.showOptions"
                 v-click-outside="() => (card.menu.showOptions = false)"
-                class="grid grid-cols-1 gap-1 absolute z-10 -bottom-2 right-0 translate-y-full min-w-max bg-white rounded-lg shadow-m p-3"
+                class="grid grid-cols-1 gap-1 absolute z-10 -bottom-2 right-0 translate-y-full min-w-max bg-card rounded-lg shadow-m p-3"
               >
                 <UiButton
                   v-for="option in card.menu.options"
                   :key="option.label"
                   variant="ghost"
                   class="group/option flex h-auto items-center justify-between w-full px-2 py-2 text-left rounded-lg text-sm font-medium leading-[1.71429] transition-colors duration-300 hover:text-blue-500"
-                  :class="[option.label === card.menu.selected.label ? '' : 'text-neutral-700']"
+                  :class="[option.label === card.menu.selected.label ? '' : 'text-foreground']"
                   @click="
                     card.menu.selected = option;
                     card.menu.showOptions = false;
@@ -100,16 +100,16 @@
         </template>
       </div>
       <div class="flex items-center justify-between">
-        <div v-if="card.menu.selected.noDropdownLabel" class="text-sm font-medium leading-[1.43] text-slate-500">
+        <div v-if="card.menu.selected.noDropdownLabel" class="text-sm font-medium leading-[1.43] text-muted-foreground">
           {{ card.menu.selected.noDropdownLabel }}
         </div>
         <div v-else class="relative">
           <UiButton variant="ghost" class="flex h-auto p-0" @click="card.range.showOptions = !card.range.showOptions">
-            <span class="text-sm left-[1.43] text-slate-500 font-medium mr-1">
+            <span class="text-sm left-[1.43] text-muted-foreground font-medium mr-1">
               {{ card.range.selected.label }}
             </span>
             <ChevronIcon
-              class="w-5 h-5 text-slate-500 transition-transform duration-300"
+              class="w-5 h-5 text-muted-foreground transition-transform duration-300"
               :class="[card.range.showOptions ? 'rotate-180' : '']"
             />
           </UiButton>
@@ -117,7 +117,7 @@
             <div
               v-if="card.range.showOptions"
               v-click-outside="() => (card.range.showOptions = false)"
-              class="absolute z-10 -bottom-2 left-0 translate-y-full grid grid-cols-1 gap-1 rounded-lg bg-white p-3 w-[200px]"
+              class="absolute z-10 -bottom-2 left-0 translate-y-full grid grid-cols-1 gap-1 rounded-lg bg-card p-3 w-[200px]"
               :style="{
                 boxShadow: '0px 0px 6px rgba(51, 51, 51, 0.2)',
               }"
@@ -127,7 +127,7 @@
                 :key="index"
                 variant="ghost"
                 class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
-                :class="card.range.selected.value === option.value ? 'bg-[#F2F2F2] text-blue-500' : ''"
+                :class="card.range.selected.value === option.value ? 'bg-muted text-blue-500' : ''"
                 @click="
                   card.range.showOptions = false;
                   card.range.selected = option;
@@ -142,7 +142,7 @@
         <UiButton
           variant="link"
           disabled
-          class="flex h-auto p-0 text-slate-500 mr-2 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
+          class="flex h-auto p-0 text-muted-foreground mr-2 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span class="text-sm font-medium left-[1.43] mr-2"> More </span>
           <ArrowRightIcon class="w-4 h-4" />

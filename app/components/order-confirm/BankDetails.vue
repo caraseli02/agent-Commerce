@@ -1,46 +1,46 @@
 <template>
   <section class="flex flex-col w-full">
     <header class="flex flex-wrap gap-10 justify-between items-center w-full max-md:max-w-full">
-      <h2 class="self-stretch my-auto text-base font-semibold text-zinc-800">Bank Details</h2>
+      <h2 class="self-stretch my-auto text-base font-semibold text-foreground">Bank Details</h2>
       <OrderConfirmBankSelect @bank-select="onBankSelect" />
     </header>
     <div v-if="selectedBank" class="flex flex-col mt-4 w-full text-sm leading-6 max-md:max-w-full">
       <dl>
         <div class="flex flex-col md:flex-row flex-wrap gap-0.5 md:gap-3 items-center w-full max-md:max-w-full">
-          <dt class="self-stretch my-auto text-gray-500">Bank Name:</dt>
-          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-zinc-800 max-md:max-w-full">
+          <dt class="self-stretch my-auto text-muted-foreground">Bank Name:</dt>
+          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-foreground max-md:max-w-full">
             {{ selectedBank.bankName }}
           </dd>
         </div>
         <div class="flex flex-col md:flex-row flex-wrap gap-0.5 md:gap-3 items-center mt-2 md:mt-1 max-w-full w-[506px]">
-          <dt class="self-stretch my-auto text-gray-500">Bank Address:</dt>
-          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-zinc-800">
+          <dt class="self-stretch my-auto text-muted-foreground">Bank Address:</dt>
+          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-foreground">
             {{ selectedBank.bankAddress }}
           </dd>
         </div>
         <div class="flex flex-col md:flex-row flex-wrap gap-0.5 md:gap-3 items-center mt-2 md:mt-1 w-full max-md:max-w-full">
-          <dt class="self-stretch my-auto text-gray-500">Account Number:</dt>
-          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-zinc-800 max-md:max-w-full">
+          <dt class="self-stretch my-auto text-muted-foreground">Account Number:</dt>
+          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-foreground max-md:max-w-full">
             {{ selectedBank.accountNumber }}
           </dd>
         </div>
         <div
           class="flex flex-col md:flex-row flex-wrap gap-0.5 md:gap-3 items-center mt-2 md:mt-1 w-full whitespace-nowrap max-md:max-w-full"
         >
-          <dt class="self-stretch my-auto text-gray-500">SWIFT/BIC:</dt>
-          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-zinc-800 max-md:max-w-full">
+          <dt class="self-stretch my-auto text-muted-foreground">SWIFT/BIC:</dt>
+          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-foreground max-md:max-w-full">
             {{ selectedBank.swift }}
           </dd>
         </div>
         <div class="flex flex-col md:flex-row flex-wrap gap-0.5 md:gap-3 items-center mt-2 md:mt-1 w-full max-md:max-w-full">
-          <dt class="self-stretch my-auto text-gray-500">IBAN:</dt>
-          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-zinc-800 max-md:max-w-full">
+          <dt class="self-stretch my-auto text-muted-foreground">IBAN:</dt>
+          <dd class="flex-1 shrink self-stretch my-auto basis-0 text-foreground max-md:max-w-full">
             {{ selectedBank.iban }}
           </dd>
         </div>
       </dl>
     </div>
-    <div v-else class="text-gray-500">Please select a bank to view its details.</div>
+    <div v-else class="text-muted-foreground">Please select a bank to view its details.</div>
   </section>
 </template>
 

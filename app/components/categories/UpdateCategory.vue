@@ -103,7 +103,7 @@ const updateCustomPropertiesEnabled = (value: boolean) => {
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger as-child>
       <UiButton variant="ghost" size="icon" :disabled="selectedCategories.length > 1 || isLocked">
-        <PencilLine class="w-5 h-5 text-slate-500" />
+        <PencilLine class="w-5 h-5 text-muted-foreground" />
       </UiButton>
     </UiDialogTrigger>
     <UiDialogContent class="sm:max-w-[640px]">

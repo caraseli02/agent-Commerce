@@ -7,12 +7,12 @@
       class="z-[70] flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden rounded-t-[15px] border-none p-0 shadow-xs sm:max-w-none [&>button.fixed]:hidden"
     >
       <div v-touch:drag="onDrag" class="flex items-center justify-between px-5 py-5">
-        <UiSheetTitle class="text-lg font-semibold text-slate-500 tracking-[0.6px]">Filters</UiSheetTitle>
+        <UiSheetTitle class="text-lg font-semibold text-muted-foreground tracking-[0.6px]">Filters</UiSheetTitle>
         <UiSheetClose as-child>
           <UiButton
             variant="ghost"
             size="icon"
-            class="h-11 w-11 rounded bg-[#F2F2F2] text-gray-500 hover:bg-[#F2F2F2] hover:text-slate-500"
+            class="h-11 w-11 rounded bg-[#F2F2F2] text-muted-foreground hover:bg-[#F2F2F2] hover:text-muted-foreground"
             aria-label="Close filters"
           >
             <XIcon class="h-[15px] w-[15px]" />

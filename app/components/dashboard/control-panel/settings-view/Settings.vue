@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-xl p-4 shadow-xs md:p-6 xl:order-1">
+  <div class="bg-card rounded-xl p-4 shadow-xs md:p-6 xl:order-1">
     <div class="mb-6 md:mb-9">
       <h2 class="text-xl leading-[1.4] font-semibold">Customer Settings</h2>
     </div>

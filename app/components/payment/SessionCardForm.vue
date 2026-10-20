@@ -19,7 +19,7 @@
           />
           <p v-if="!elementReady" class="text-sm text-muted-foreground">Loading secure card fields…</p>
         </div>
-        <p v-if="message || sdkError" role="alert" class="text-sm text-destructive">{{ message || sdkError }}</p>
+        <p v-if="message || sdkError" role="alert" class="text-sm text-destructive dark:text-red-300">{{ message || sdkError }}</p>
         <UiButton
           type="submit"
           class="w-full"

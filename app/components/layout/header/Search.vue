@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <UiLabel class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-white font-normal md:flex">
+    <UiLabel class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-card font-normal md:flex">
       <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent>
         <UiInput
           ref="searchDOM"
@@ -8,7 +8,7 @@
           type="search"
           placeholder="Search products"
           autocomplete="off"
-          class="h-full w-full flex-1 rounded-none border-0 px-3 text-sm leading-5 text-slate-500 placeholder:text-gray-500 focus:outline-none"
+          class="h-full w-full flex-1 rounded-none border-0 px-3 text-sm leading-5 text-muted-foreground placeholder:text-muted-foreground focus:outline-none"
           @input="onInput"
           @keypress.enter="handleEnterButton"
           @blur="

@@ -12,13 +12,13 @@
       :class="compact ? 'h-16 w-16' : 'h-[120px] w-[120px]'"
       aria-hidden="true"
     />
-    <h2 :id="resolvedHeadingId" class="font-semibold text-slate-900" :class="compact ? 'text-base' : 'text-lg md:text-xl'">
+    <h2 :id="resolvedHeadingId" class="font-semibold text-foreground" :class="compact ? 'text-base' : 'text-lg md:text-xl'">
       {{ heading }}
     </h2>
-    <p v-if="description" class="mt-2 max-w-md text-sm leading-6 text-slate-600">
+    <p v-if="description" class="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
       {{ description }}
     </p>
-    <ul v-if="variant === 'empty' && suggestions?.length" class="mt-4 max-w-md space-y-1 text-left text-sm text-slate-600">
+    <ul v-if="variant === 'empty' && suggestions?.length" class="mt-4 max-w-md space-y-1 text-left text-sm text-muted-foreground">
       <li v-for="suggestion in suggestions" :key="suggestion" class="flex gap-2">
         <span aria-hidden="true" class="text-slate-400">•</span>
         <span>{{ suggestion }}</span>
@@ -39,7 +39,7 @@
       <NuxtLink
         v-if="secondaryTo"
         :to="secondaryTo"
-        class="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+        class="inline-flex min-h-11 items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-slate-300 hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
         @click="$emit('secondary-click')"
       >
         {{ secondaryLabel }}

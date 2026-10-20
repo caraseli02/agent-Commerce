@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4 text-sm text-neutral-700">
+  <div class="flex flex-col gap-4 text-sm text-foreground">
     <p>
       Orders from {{ tier.min.toFixed(2) }} Lei to below {{ tier.max.toFixed(2) }} Lei excluding VAT have a {{ tier.price.toFixed(2) }} Lei
       handling charge.

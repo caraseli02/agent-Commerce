@@ -147,7 +147,7 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
 </script>
 
 <template>
-  <div class="space-y-4 mt-5 font-Poppins text-neutral-700 relative">
+  <div class="space-y-4 mt-5 font-Poppins text-foreground relative">
     <slot name="tabs" :table="table" />
     <slot name="header" :make-refresh="() => (refresh = true)" :table="table" />
     <slot name="toolbar" :table="table" />
@@ -162,7 +162,7 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
       >
         <div ref="scrollContainerRef" class="max-h-[600px] overflow-y-auto" data-testid="virtualized-table-scroll">
           <UiTable :table-style="tableMinWidth ? { minWidth: tableMinWidth } : undefined">
-            <UiTableHeader class="sticky top-0 z-10 bg-light-200">
+            <UiTableHeader class="sticky top-0 z-10 bg-muted">
               <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
                 <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
                   <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
@@ -177,7 +177,7 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
                 <UiTableRow
                   v-for="{ virtualRow, row } in visibleVirtualRows"
                   :key="row.id"
-                  class="hover:bg-light-200"
+                  class="hover:bg-muted"
                   :data-state="row.getIsSelected() && 'selected'"
                   :data-index="virtualRow.index"
                 >

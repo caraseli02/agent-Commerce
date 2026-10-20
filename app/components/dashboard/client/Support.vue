@@ -1,6 +1,6 @@
 <template>
   <section
-    class="items-stretch shadow-xs bg-white w-full xl:max-w-[330px] h-168 xl:h-full flex flex-col justify-center px-6 py-12 rounded-xl"
+    class="items-stretch shadow-xs bg-card w-full xl:max-w-[330px] h-168 xl:h-full flex flex-col justify-center px-6 py-12 rounded-xl"
   >
     <div class="justify-center items-stretch flex flex-col px-16">
       <svg
@@ -23,7 +23,7 @@
         <path d="M11.6665 21.6665H21.6665" stroke="#007FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
 
-      <div class="text-neutral-800 text-center font-medium leading-6 whitespace-nowrap mt-4">Customer Support</div>
+      <div class="text-foreground text-center font-medium leading-6 whitespace-nowrap mt-4">Customer Support</div>
     </div>
   </section>
 </template>

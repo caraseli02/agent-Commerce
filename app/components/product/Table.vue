@@ -120,8 +120,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="elDOM" class="max-w-[1392px] mx-auto relative bg-white rounded-xl font-Inter px-4 py-5 shadow-m md:px-5 md:py-5">
-    <div class="flex flex-col gap-3 mb-4 border-b border-gray-200 md:flex-row md:items-end md:justify-between md:gap-4 md:mb-5">
+  <div ref="elDOM" class="max-w-[1392px] mx-auto relative bg-card rounded-xl font-Inter px-4 py-5 shadow-m md:px-5 md:py-5">
+    <div
+      class="flex flex-col gap-3 mb-4 border-b border-gray-200 dark:border-border md:flex-row md:items-end md:justify-between md:gap-4 md:mb-5"
+    >
       <div class="relative flex items-center gap-4 min-w-0">
         <UiButton
           v-for="(filter, index) in filters"
@@ -130,7 +132,7 @@ onMounted(() => {
           variant="link"
           :data-tab="textUtil.slugify(filter)"
           class="relative h-auto p-0 pb-3 text-sm font-semibold tracking-tight md:text-base"
-          :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-500' : 'text-slate-500']"
+          :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-500' : 'text-muted-foreground']"
           @click="setActiveFilter(filter)"
         >
           {{ filter }}
@@ -162,13 +164,13 @@ onMounted(() => {
           <UiTableRow
             v-for="(item, index) in visibleFeatures"
             :key="index"
-            class="group cursor-pointer text-xs leading-snug font-medium transition-colors duration-200 odd:bg-[#F2F2F2] hover:text-blue-500"
+            class="group cursor-pointer text-xs leading-snug font-medium transition-colors duration-200 odd:bg-muted hover:text-blue-500"
             @click="toggleFeature(item)"
           >
-            <UiTableCell class="h-auto w-[9.5rem] py-2 pl-3 pr-3 text-slate-600 align-middle md:w-44 md:pl-4 md:pr-4">
+            <UiTableCell class="h-auto w-[9.5rem] py-2 pl-3 pr-3 text-muted-foreground align-middle md:w-44 md:pl-4 md:pr-4">
               {{ item.FeatureName }}
             </UiTableCell>
-            <UiTableCell class="h-auto py-2 pl-0 pr-3 text-slate-900 align-middle break-words">
+            <UiTableCell class="h-auto py-2 pl-0 pr-3 text-foreground align-middle break-words">
               {{ item.FeatureValue }}
             </UiTableCell>
             <UiTableCell

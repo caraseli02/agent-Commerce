@@ -6,6 +6,9 @@
 @import './animations.css';
 @import './vendors/v-calendar.css';
 
+/* Class-based dark mode, toggled by @nuxtjs/color-mode on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @plugin 'tailwind-scrollbar' {
   nocompatible: true;
 }
@@ -58,6 +61,8 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+  --color-header: hsl(var(--header));
+  --color-header-foreground: hsl(var(--header-foreground));
 
   /* Light scale */
   --color-light-50: #fdfdfd;
@@ -320,32 +325,37 @@
 }
 
 :root {
-  /* Industrial palette — OKLCH-derived, tinted toward hue 235 */
+  color-scheme: light;
   --font-sans: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Archivo', var(--font-sans);
-  --background: 220 14% 98%;
-  --foreground: 225 12% 12%;
+  /* Semantic tokens, shadcn-vue convention. Light values match the project palette. */
+  --background: 0 0% 100%;
+  --foreground: 229 12% 17%;
   --card: 0 0% 100%;
-  --card-foreground: 225 12% 12%;
+  --card-foreground: 229 12% 17%;
   --popover: 0 0% 100%;
-  --popover-foreground: 225 12% 12%;
+  --popover-foreground: 229 12% 17%;
   --primary: 215 55% 38%;
   --primary-foreground: 210 20% 98%;
   --secondary: 220 12% 94%;
-  --secondary-foreground: 225 12% 18%;
-  --muted: 220 10% 94%;
-  --muted-foreground: 220 8% 42%;
-  --accent: 220 12% 92%;
-  --accent-foreground: 225 12% 18%;
+  --secondary-foreground: 229 12% 17%;
+  --muted: 240 10% 94%;
+  --muted-foreground: 231 12% 42%;
+  --accent: 0 0% 95%;
+  --accent-foreground: 229 12% 17%;
   --destructive: 0 72% 46%;
   --destructive-foreground: 0 0% 98%;
-  --border: 220 10% 86%;
-  --input: 220 10% 86%;
+  --border: 230 9% 73%;
+  --input: 230 9% 73%;
   --ring: 215 40% 52%;
   --radius: 0.5rem;
+  /* Brand header: blue in light mode, page background in dark mode. */
+  --header: 215 55% 38%;
+  --header-foreground: 0 0% 100%;
 }
 
 .dark {
+  color-scheme: dark;
   --background: 225 14% 8%;
   --foreground: 210 15% 96%;
   --card: 225 14% 10%;
@@ -365,6 +375,8 @@
   --border: 225 10% 18%;
   --input: 225 10% 18%;
   --ring: 215 25% 70%;
+  --header: 225 14% 8%;
+  --header-foreground: 210 15% 96%;
 }
 
 @layer base {

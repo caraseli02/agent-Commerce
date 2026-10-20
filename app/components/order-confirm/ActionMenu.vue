@@ -154,7 +154,7 @@ const onSubmit = handleSubmit(async (values) => {
       <UiButton
         variant="ghost"
         size="icon"
-        class="flex overflow-hidden justify-center items-center self-stretch p-1 my-auto w-8 h-8 rounded-md bg-zinc-100"
+        class="flex overflow-hidden justify-center items-center self-stretch p-1 my-auto w-8 h-8 rounded-md bg-muted"
         aria-label="Additional options"
       >
         <DotsVerticalIcon alt="" class="object-contain self-stretch my-auto w-6 aspect-square" />
@@ -163,7 +163,7 @@ const onSubmit = handleSubmit(async (values) => {
     <UiPopoverContent class="w-fit flex flex-col gap-2 p-2 border-none" align="end">
       <UiButton
         :disabled="props.order?.status === OrderStatus.Completed || props.order?.status === OrderStatus.Canceled"
-        class="hover:text-blue-500 hover:bg-light-300 justify-start gap-2 min-w-[164px]"
+        class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
       >
@@ -179,7 +179,7 @@ const onSubmit = handleSubmit(async (values) => {
           props.order?.status === OrderStatus.Canceled ||
           props.order?.paymentDetails?.status === PaymentStatusEnum.Paid
         "
-        class="hover:text-blue-500 hover:bg-light-300 justify-start gap-2 min-w-[164px]"
+        class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
       >
@@ -187,7 +187,7 @@ const onSubmit = handleSubmit(async (values) => {
         Cancel Order
       </UiButton>
       <UiButton
-        class="hover:text-blue-500 hover:bg-light-300 justify-start gap-2 min-w-[164px]"
+        class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
         :disabled="
@@ -201,7 +201,7 @@ const onSubmit = handleSubmit(async (values) => {
         Mark as Paid
       </UiButton>
       <UiButton
-        class="hover:text-blue-500 hover:bg-light-300 justify-start gap-2 min-w-[164px]"
+        class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
         @click="emit('showTrackingDialog')"
@@ -213,21 +213,21 @@ const onSubmit = handleSubmit(async (values) => {
   </UiPopover>
   <UiDialog v-model:open="isOpen">
     <UiDialogContent class="border-none shadow-s rounded-xl max-w-[358px] md:max-w-[480px]">
-      <section data-layername="property1Desktop" class="flex flex-col gap-10 bg-white rounded-xl shadow-sm max-w-[480px]">
+      <section data-layername="property1Desktop" class="flex flex-col gap-10 bg-card rounded-xl shadow-sm max-w-[480px]">
         <header class="flex gap-10 justify-between items-center w-full">
-          <h2 data-layername="markAsPaid" class="self-stretch my-auto text-base font-semibold leading-7 text-zinc-800">Mark as Paid</h2>
+          <h2 data-layername="markAsPaid" class="self-stretch my-auto text-base font-semibold leading-7 text-foreground">Mark as Paid</h2>
         </header>
         <form class="flex flex-col gap-4 w-full text-sm" @submit="onSubmit">
           <div class="flex gap-3 items-start w-full">
             <FormField v-slot="{ componentField }" :validate-on-blur="!isFieldDirty" class="flex flex-col" name="amountPaid">
               <div class="flex flex-col w-full">
-                <FormLabel for="amountPaid" class="leading-none text-slate-500"> Amount Paid </FormLabel>
+                <FormLabel for="amountPaid" class="leading-none text-muted-foreground"> Amount Paid </FormLabel>
                 <FormControl>
                   <UiInput
                     v-bind="componentField"
                     id="amountPaid"
                     disabled
-                    class="mt-2.5 h-10 border border-grey-300"
+                    class="mt-2.5 h-10 border border-border"
                     type="number"
                     placeholder="Amount Paid"
                   />
@@ -237,10 +237,10 @@ const onSubmit = handleSubmit(async (values) => {
             </FormField>
             <FormField v-slot="{ componentField }" name="currency">
               <FormItem class="relative">
-                <FormLabel for="currency" data-layername="dropDownField" class="leading-none text-slate-500"> Currency </FormLabel>
+                <FormLabel for="currency" data-layername="dropDownField" class="leading-none text-muted-foreground"> Currency </FormLabel>
                 <UiSelect v-bind="componentField">
                   <FormControl>
-                    <UiSelectTrigger disabled class="border-grey-300 border max-w-[125px] w-[125px]">
+                    <UiSelectTrigger disabled class="border-border border max-w-[125px] w-[125px]">
                       <UiSelectValue class="items-start text-start" placeholder="Currency" />
                     </UiSelectTrigger>
                   </FormControl>
@@ -257,14 +257,11 @@ const onSubmit = handleSubmit(async (values) => {
           </div>
           <FormField v-slot="{ componentField, value }" name="dop">
             <FormItem class="flex flex-col gap-2">
-              <FormLabel class="text-slate-500"> Payment Date </FormLabel>
+              <FormLabel class="text-muted-foreground"> Payment Date </FormLabel>
               <UiPopover>
                 <UiPopoverTrigger as-child>
                   <FormControl>
-                    <UiButton
-                      variant="outline"
-                      :class="cn('ps-3 text-start font-normal border-grey-300', !value && 'text-muted-foreground')"
-                    >
+                    <UiButton variant="outline" :class="cn('ps-3 text-start font-normal border-border', !value && 'text-muted-foreground')">
                       <span>{{ value ? format(value, 'PPP') : 'Pick a date' }}</span>
                       <CalendarDays class="ms-auto h-4 w-4 opacity-50" />
                     </UiButton>
@@ -290,7 +287,7 @@ const onSubmit = handleSubmit(async (values) => {
             <FormItem>
               <FormLabel>Comments</FormLabel>
               <FormControl>
-                <UiTextarea placeholder="Comments..." class="resize-none min-h-32 border-grey-300 bg-light-100" v-bind="componentField" />
+                <UiTextarea placeholder="Comments..." class="resize-none min-h-32 border-border bg-muted" v-bind="componentField" />
               </FormControl>
               <FormMessage />
             </FormItem>

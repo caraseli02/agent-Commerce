@@ -1,33 +1,33 @@
 <template>
-  <div class="p-4 xl:p-6 flex flex-col gap-4 bg-white rounded-xl shadow-xs mb-9">
+  <div class="p-4 xl:p-6 flex flex-col gap-4 bg-card rounded-xl shadow-xs mb-9">
     <div class="flex flex-row w-full">
-      <span class="text-neutral-700 text-base font-medium leading-6">Payment Summary</span>
+      <span class="text-foreground text-base font-medium leading-6">Payment Summary</span>
     </div>
     <div class="flex flex-col gap-2 relative">
       <div class="flex flex-row justify-between w-full">
-        <span class="text-slate-500 text-sm font-normal leading-6">Subtotal</span>
-        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedSubtotal.toFixed(2) }} Lei</span>
+        <span class="text-muted-foreground text-sm font-normal leading-6">Subtotal</span>
+        <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ resolvedSubtotal.toFixed(2) }} Lei</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row gap-6">
-          <span class="text-slate-500 text-sm font-normal leading-6">Discount</span>
+          <span class="text-muted-foreground text-sm font-normal leading-6">Discount</span>
         </div>
-        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ resolvedDiscount.toFixed(2) }} Lei</span>
+        <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ resolvedDiscount.toFixed(2) }} Lei</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div v-if="smallOrder" class="flex flex-row justify-between w-full">
         <div class="flex flex-col gap-1">
           <div class="flex flex-row gap-2 items-center">
-            <span class="text-slate-500 text-sm font-normal leading-6">Handling Charge</span>
+            <span class="text-muted-foreground text-sm font-normal leading-6">Handling Charge</span>
             <button type="button" aria-label="Explain small order handling charge" class="group" @click="showSmallOrderModal = true">
-              <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
+              <InformationIcon class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
             </button>
           </div>
-          <span class="text-neutral-700 italic text-sm font-normal leading-6">Small order charge</span>
+          <span class="text-foreground italic text-sm font-normal leading-6">Small order charge</span>
         </div>
         <div class="flex flex-col justify-end">
-          <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ smallOrder.toFixed(2) }} Lei</span>
+          <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ smallOrder.toFixed(2) }} Lei</span>
           <UiSkeleton v-else class="h-4 w-20" />
         </div>
       </div>
@@ -43,33 +43,33 @@
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-col gap-1">
           <div v-if="shipping" class="flex flex-row gap-2 items-center">
-            <span class="text-slate-500 text-sm font-normal leading-6">Shipping</span>
+            <span class="text-muted-foreground text-sm font-normal leading-6">Shipping</span>
             <button class="group">
-              <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
+              <InformationIcon class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
             </button>
           </div>
-          <span v-if="shipping" class="text-neutral-700 italic text-sm font-normal leading-6">{{ shippingText }}</span>
+          <span v-if="shipping" class="text-foreground italic text-sm font-normal leading-6">{{ shippingText }}</span>
         </div>
         <div v-if="shipping" class="flex flex-col justify-end">
-          <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ formattedShippingPrice }}</span>
+          <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ formattedShippingPrice }}</span>
           <UiSkeleton v-else class="h-4 w-20" />
         </div>
       </div>
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row">
-          <span class="text-slate-500 text-sm font-normal leading-6">Tax:</span>
+          <span class="text-muted-foreground text-sm font-normal leading-6">Tax:</span>
           <button class="group ml-2">
-            <InformationIcon class="text-slate-500 group-hover:text-blue-500 transition duration-300" />
+            <InformationIcon class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
           </button>
-          <span class="text-neutral-700 text-sm font-normal leading-6 ml-6">(VAT {{ vatPercent }}%)</span>
+          <span class="text-foreground text-sm font-normal leading-6 ml-6">(VAT {{ vatPercent }}%)</span>
         </div>
-        <span v-if="isSummaryReady" class="text-neutral-700 text-sm font-medium leading-6">{{ calculatedVAT }} Lei</span>
+        <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ calculatedVAT }} Lei</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
-      <div class="w-full h-[1px] bg-light-500 rounded-lg" />
+      <div class="w-full h-[1px] bg-accent rounded-lg" />
       <div class="flex flex-row justify-between w-full">
-        <span class="text-neutral-700 text-xl font-normal leading-9">Total</span>
-        <span v-if="isSummaryReady" class="text-neutral-700 text-2xl font-semibold leading-9">{{ calculatedTotal }} Lei</span>
+        <span class="text-foreground text-xl font-normal leading-9">Total</span>
+        <span v-if="isSummaryReady" class="text-foreground text-2xl font-semibold leading-9">{{ calculatedTotal }} Lei</span>
         <UiSkeleton v-else class="h-8 w-24" />
       </div>
     </div>

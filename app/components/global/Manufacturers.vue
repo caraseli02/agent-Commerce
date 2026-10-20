@@ -4,7 +4,7 @@
       <div class="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 class="text-xl font-semibold">Manufacturer coverage</h2>
-          <p class="text-sm text-slate-500">Search a manufacturer to see its available catalog lines.</p>
+          <p class="text-sm text-muted-foreground">Search a manufacturer to see its available catalog lines.</p>
         </div>
       </div>
       <div
@@ -14,7 +14,7 @@
           v-for="logo in logos"
           :key="logo.name"
           :to="{ path: '/search', query: { keyword: logo.name } }"
-          class="flex min-h-[64px] items-center justify-center rounded-md border border-slate-200 bg-white px-4 md:min-h-0 md:border-0 md:bg-transparent md:px-0"
+          class="flex min-h-[64px] items-center justify-center rounded-md border border-border bg-card px-4 md:min-h-0 md:border-0 md:bg-transparent md:px-0 dark:md:bg-white dark:md:rounded-md dark:md:px-3 dark:md:py-2"
           :aria-label="`Search ${logo.name} parts`"
         >
           <ImageWithFallback
@@ -26,7 +26,7 @@
       </div>
       <NuxtLink
         to="/search"
-        class="relative flex ml-auto max-w-max text-xs text-slate-500 after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-neutral-700 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100"
+        class="relative flex ml-auto max-w-max text-xs text-muted-foreground after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-neutral-700 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100"
       >
         Search all manufacturers
       </NuxtLink>

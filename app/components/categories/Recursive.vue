@@ -22,19 +22,19 @@ const computedPadding = computed(() => {
   <template v-for="item in items" :key="item.id">
     <section class="w-full flex flex-col gap-1">
       <section v-if="item.subcategory?.length === 0" class="w-full flex items-center gap-2 py-2 max-md:flex-wrap px-3 border-b">
-        <article class="flex items-center flex-1 gap-2 self-stretch rounded-lg bg-white bg-opacity-0 max-md:flex-wrap">
+        <article class="flex items-center flex-1 gap-2 self-stretch rounded-lg bg-card bg-opacity-0 max-md:flex-wrap">
           <UiCheckbox :checked="selectedCategories.includes(item.id)" @update:checked="selectCategory(item.id)" />
           <div :style="{ 'padding-left': computedPadding + 'px' }" class="flex gap-2 max-w-[348px]">
-            <figure class="ml-10 flex justify-center items-center min-w-10 h-10 rounded-lg bg-light-300">
+            <figure class="ml-10 flex justify-center items-center min-w-10 h-10 rounded-lg bg-accent">
               <div v-if="item.icon && item.icon !== 'N/A' && item.icon.includes('.svg')" class="h-5 w-5 stroke-1" v-html="item.icon" />
               <CardPlaceholderSmall v-else-if="item.icon === 'N/A'" class="w-5 aspect-square stroke-1" />
               <CardPlaceholderSmall v-else class="w-5 aspect-square stroke-1" />
             </figure>
             <p
-              class="my-auto text-sm font-medium leading-4 text-neutral-700 max-md:max-w-full min-w-[260px] flex flex-col justify-between h-full"
+              class="my-auto text-sm font-medium leading-4 text-foreground max-md:max-w-full min-w-[260px] flex flex-col justify-between h-full"
             >
               {{ item.name }}
-              <span v-if="item.productCount" class="text-xs text-slate-500">{{ item.productCount }} items</span>
+              <span v-if="item.productCount" class="text-xs text-muted-foreground">{{ item.productCount }} items</span>
             </p>
           </div>
           <div class="flex items-center text-sm">
@@ -49,13 +49,13 @@ const computedPadding = computed(() => {
       </section>
       <UiAccordion v-else type="multiple" class="w-full border-none flex flex-col gap-1" collapsible>
         <UiAccordionItem v-slot="{ open }" :value="item.name">
-          <div class="flex items-center gap-1 hover:bg-light-200 px-3" :class="{ 'bg-light-200 border-t': open }">
+          <div class="flex items-center gap-1 hover:bg-muted px-3" :class="{ 'bg-muted border-t': open }">
             <UiCheckbox :checked="selectedCategories.includes(item.id)" @update:checked="selectCategory(item.id)" />
             <UiAccordionTrigger class="flex-row-reverse justify-center gap-2.5 py-1 truncate min-w-10 max-w-[50px] h-7" />
             <section class="w-full flex gap-2 items-center py-2 max-md:flex-wrap">
-              <article class="flex flex-1 gap-2 self-stretch rounded-lg bg-white bg-opacity-0 max-md:flex-wrap">
+              <article class="flex flex-1 gap-2 self-stretch rounded-lg bg-card bg-opacity-0 max-md:flex-wrap">
                 <div :style="{ 'padding-left': computedPadding + 'px' }" class="flex gap-2 max-w-[308px]">
-                  <figure class="flex justify-center items-center px-2.5 min-w-10 h-10 rounded-lg bg-light-300">
+                  <figure class="flex justify-center items-center px-2.5 min-w-10 h-10 rounded-lg bg-accent">
                     <div
                       v-if="item.icon && item.icon !== 'N/A' && item.icon.includes('.svg')"
                       class="h-5 w-5 stroke-1"
@@ -65,7 +65,7 @@ const computedPadding = computed(() => {
                     <CardPlaceholderSmall v-else class="w-5 aspect-square stroke-1" />
                   </figure>
                   <p
-                    class="my-auto text-sm font-medium leading-4 text-neutral-700 max-md:max-w-full min-w-[260px] flex flex-col justify-between h-full"
+                    class="my-auto text-sm font-medium leading-4 text-foreground max-md:max-w-full min-w-[260px] flex flex-col justify-between h-full"
                   >
                     {{ item.name }}
                     <span v-if="item.productCount" class="text-xs">{{ item.productCount }} items</span>
@@ -95,9 +95,9 @@ const computedPadding = computed(() => {
               <template v-for="child in item.subcategory" :key="child.id">
                 <section class="w-full flex gap-2 items-center py-2 max-md:flex-wrap">
                   <UiCheckbox :checked="selectedCategories.includes(item.id)" @update:checked="selectCategory(item.id)" />
-                  <article class="flex items-center flex-1 gap-2 self-stretch ml-5 px-5 rounded-lg bg-white bg-opacity-0 max-md:flex-wrap">
+                  <article class="flex items-center flex-1 gap-2 self-stretch ml-5 px-5 rounded-lg bg-card bg-opacity-0 max-md:flex-wrap">
                     <div :style="{ 'padding-left': computedPadding + 'px' }" class="flex gap-2 max-w-[348px]">
-                      <figure class="flex ml-4 justify-center items-center px-2.5 min-w-10 h-10 rounded-lg bg-light-300">
+                      <figure class="flex ml-4 justify-center items-center px-2.5 min-w-10 h-10 rounded-lg bg-accent">
                         <div
                           v-if="child.icon && child.icon !== 'N/A' && child.icon.includes('.svg')"
                           class="h-5 w-5 stroke-1"
@@ -107,7 +107,7 @@ const computedPadding = computed(() => {
                         <CardPlaceholderSmall v-else class="w-5 aspect-square stroke-1" />
                       </figure>
                       <p
-                        class="my-auto text-sm font-medium leading-4 text-neutral-700 max-md:max-w-full min-w-[260px] flex flex-col justify-between h-full"
+                        class="my-auto text-sm font-medium leading-4 text-foreground max-md:max-w-full min-w-[260px] flex flex-col justify-between h-full"
                       >
                         {{ child.name }}
                         <span v-if="child.productCount" class="text-xs">{{ child.productCount }} items</span>

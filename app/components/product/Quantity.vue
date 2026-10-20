@@ -2,7 +2,7 @@
   <div class="col-span-2 min-w-0 h-full min-[1440px]:col-span-1">
     <div
       data-testid="product-purchase-panel"
-      class="relative flex h-full w-full flex-col bg-white rounded-2xl shadow-m px-4 py-4 md:px-5 md:py-5"
+      class="relative flex h-full w-full flex-col bg-card rounded-2xl shadow-m px-4 py-4 md:px-5 md:py-5"
     >
       <!-- <div class="absolute top-0 left-0 px-2.5 py-2 flex items-center rounded-tl-md rounded-br-md bg-green-600">
             <CheckCircle2 class="w-4 h-4 mr-1 text-white" />
@@ -21,21 +21,23 @@
         </UiButton>
         <div class="lg:grid lg:grid-cols-2">
           <div class="lg:order-2 lg:pl-6">
-            <div class="flex items-center justify-between gap-3 text-xs leading-tight text-slate-500 rounded-lg bg-slate-50 px-3.5 py-3">
+            <div
+              class="flex items-center justify-between gap-3 text-xs leading-tight text-muted-foreground rounded-lg bg-muted px-3.5 py-3"
+            >
               <div class="flex-shrink-0">Quantity</div>
               <div>Price ( Ex VAT )</div>
             </div>
             <div class="font-Inter mt-1.5 mb-6 space-y-1 lg:mb-[25px]">
-              <details v-if="bulkQuantities.size" class="mb-2 rounded-lg border border-slate-100 px-3.5 py-1 md:hidden md:py-2">
-                <summary class="cursor-pointer text-xs font-medium leading-5 text-slate-600">Volume prices</summary>
+              <details v-if="bulkQuantities.size" class="mb-2 rounded-lg border border-border px-3.5 py-1 md:hidden md:py-2">
+                <summary class="cursor-pointer text-xs font-medium leading-5 text-muted-foreground">Volume prices</summary>
                 <div class="mt-2">
                   <div
                     v-for="(bulkQuantity, index) in bulkQuantities"
                     :key="index"
-                    class="flex items-center justify-between gap-3 border-t border-slate-100 py-2 text-xs leading-tight"
+                    class="flex items-center justify-between gap-3 border-t border-border py-2 text-xs leading-tight"
                   >
-                    <span class="text-slate-500">{{ bulkQuantity[0] }}+</span>
-                    <span :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</span>
+                    <span class="text-muted-foreground">{{ bulkQuantity[0] }}+</span>
+                    <span :class="['text-foreground', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</span>
                   </div>
                 </div>
               </details>
@@ -43,18 +45,18 @@
                 <div
                   v-for="(bulkQuantity, index) in bulkQuantities"
                   :key="index"
-                  class="flex items-center justify-between gap-3 px-3.5 py-3 text-xs leading-tight rounded-md cursor-pointer hover:bg-light-300"
-                  :class="currentPriceConfiguration?.quantity === bulkQuantity[0] ? 'bg-light-100' : ''"
+                  class="flex items-center justify-between gap-3 px-3.5 py-3 text-xs leading-tight rounded-md cursor-pointer hover:bg-accent"
+                  :class="currentPriceConfiguration?.quantity === bulkQuantity[0] ? 'bg-muted' : ''"
                   @click="quantity = bulkQuantity[0] + 1"
                 >
-                  <div class="text-slate-500">{{ bulkQuantity[0] }}+</div>
-                  <div :class="['text-neutral-700', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</div>
+                  <div class="text-muted-foreground">{{ bulkQuantity[0] }}+</div>
+                  <div :class="['text-foreground', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</div>
                 </div>
               </div>
             </div>
             <UiButton
               variant="link"
-              class="hidden justify-end text-slate-500 text-xs mb-[9px] lg:flex"
+              class="hidden justify-end text-muted-foreground text-xs mb-[9px] lg:flex"
               @click="showLargeQuantitiesModal = true"
             >
               For larger quantities ask
@@ -67,21 +69,19 @@
           </div>
           <div class="lg:order-1 lg:pt-10 xl:pt-6">
             <div
-              class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg bg-light-300 px-3.5 py-3.5 text-xs leading-snug mb-4 md:mb-8 lg:mb-5 lg:flex-col lg:items-start lg:justify-start lg:gap-0 lg:bg-transparent lg:p-0"
+              class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg bg-accent px-3.5 py-3.5 text-xs leading-snug mb-4 md:mb-8 lg:mb-5 lg:flex-col lg:items-start lg:justify-start lg:gap-0 lg:bg-transparent lg:p-0"
             >
               <div class="flex items-center gap-1 min-h-6">
-                <span class="text-slate-500">Price for:</span>
-                <span class="text-neutral-700 font-medium">Each</span>
+                <span class="text-muted-foreground">Price for:</span>
+                <span class="text-foreground font-medium">Each</span>
               </div>
               <div class="flex items-center gap-1 min-h-6">
-                <span class="text-slate-500">Multiple:</span>
-                <span class="font-Inter text-neutral-700 font-medium">1</span>
+                <span class="text-muted-foreground">Multiple:</span>
+                <span class="font-Inter text-foreground font-medium">1</span>
               </div>
               <div class="flex items-center gap-1 min-h-6">
-                <span class="text-slate-500">Minimum Order:</span>
-                <span class="font-Inter text-neutral-700 font-medium">{{
-                  minPriceConfiguration ? minPriceConfiguration.quantity : 1
-                }}</span>
+                <span class="text-muted-foreground">Minimum Order:</span>
+                <span class="font-Inter text-foreground font-medium">{{ minPriceConfiguration ? minPriceConfiguration.quantity : 1 }}</span>
               </div>
             </div>
             <div class="flex items-center justify-between font-Inter mb-4 lg:justify-start lg:items-end">
@@ -106,7 +106,7 @@
           </div>
         </div>
       </div>
-      <div class="mt-auto flex w-full shrink-0 flex-col gap-2 border-t border-slate-100 pt-4">
+      <div class="mt-auto flex w-full shrink-0 flex-col gap-2 border-t border-border pt-4">
         <div class="flex w-full gap-2.5">
           <div class="min-h-11 min-w-[140px]">
             <QuantityButtons
@@ -137,7 +137,7 @@
         <p
           id="cart-qty-unchanged-hint"
           data-testid="cart-qty-unchanged-hint"
-          class="min-h-[1.125rem] text-xs leading-snug text-slate-500"
+          class="min-h-[1.125rem] text-xs leading-snug text-muted-foreground"
           :class="{ invisible: !showAlreadyInCartMessage }"
           :aria-hidden="!showAlreadyInCartMessage"
         >

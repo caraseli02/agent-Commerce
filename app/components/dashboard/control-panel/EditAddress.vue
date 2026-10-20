@@ -13,7 +13,7 @@
               <FormLabel>Address Alias</FormLabel>
               <FormControl>
                 <section class="flex items-center">
-                  <div class="flex items-center justify-center w-11 h-11 rounded-l-lg bg-stone-50 border border-grey-300">
+                  <div class="flex items-center justify-center w-11 h-11 rounded-l-lg bg-muted border border-border">
                     <BusinessIcon class="w-5 h-5" />
                   </div>
                   <UiInput class="rounded-l-[0px] border-l-0" type="text" v-bind="componentField" placeholder="Address Alias 1" />
@@ -111,7 +111,7 @@
               <TrashIcon class="w-6 h-6 mr-2" />
               <span class="font-medium leading-[1.75]"> Delete </span>
             </UiButton>
-            <UiButton variant="secondary" class="px-[41px] leading-[1.75] text-slate-500" type="button" @click="onCloseDialog()">
+            <UiButton variant="secondary" class="px-[41px] leading-[1.75] text-muted-foreground" type="button" @click="onCloseDialog()">
               Cancel
             </UiButton>
             <UiButton class="w-full px-5 leading-[1.75]" type="submit"> Save </UiButton>

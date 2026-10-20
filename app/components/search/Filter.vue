@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-white rounded-md shadow-m">
+  <div class="flex flex-col bg-card rounded-md shadow-m">
     <div class="flex items-start justify-between p-2.5">
       <div class="font-Inter">
         <div class="text-xs font-semibold leading-tight truncate w-[140px] mb-[5px]">
@@ -20,7 +20,7 @@
     <div class="px-2.5 mb-2.5">
       <div class="flex relative">
         <UiInput v-model="searchValue" type="search" placeholder="Type here" class="h-8 pr-10" @update:model-value="onInput" />
-        <FiltersIcon class="pointer-events-none absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-gray-500" />
+        <FiltersIcon class="pointer-events-none absolute top-1/2 -translate-y-1/2 right-2.5 w-5 h-5 text-muted-foreground" />
       </div>
     </div>
     <div class="flex-1 pr-[5px]">
@@ -39,7 +39,7 @@
       </span>
       <div
         class="flex items-center justify-center w-[18px] h-[18px] rounded border transition-colors duration-300"
-        :class="[selectedAll ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300']"
+        :class="[selectedAll ? 'bg-blue-500 border-blue-500 group-hover:bg-card' : 'bg-card  border-border group-hover:border-border']"
       >
         <CheckIcon v-if="selectedAll" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
       </div>

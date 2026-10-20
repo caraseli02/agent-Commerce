@@ -4,7 +4,7 @@
       <div class="flex flex-col h-full md:max-w-[410px] md:mx-auto">
         <div class="flex items-center mb-5">
           <div class="font-medium mr-2 md:text-xl">Profile Details</div>
-          <QuestionIcon class="w-5 h-5 text-gray-500" />
+          <QuestionIcon class="w-5 h-5 text-muted-foreground" />
         </div>
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
@@ -14,13 +14,13 @@
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2.5"
                 :class="[
                   details.useContactEmail
-                    ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-                    : 'bg-white  border-border group-hover:border-gray-300',
+                    ? 'bg-blue-500 border-blue-500 group-hover:bg-card'
+                    : 'bg-card  border-border group-hover:border-border',
                 ]"
               >
                 <CheckIcon v-if="details.useContactEmail" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
               </div>
-              <span class="text-sm text-slate-500"> Use Contact E-mail </span>
+              <span class="text-sm text-muted-foreground"> Use Contact E-mail </span>
             </label>
             <BuyerFormInput
               v-model="details.accountEmail.value"
@@ -50,14 +50,14 @@
               placeholder="Repeat Password"
             />
             <div class="flex items-center justify-between my-[15px]">
-              <div class="text-sm leading-tight text-slate-500">Subscribe to our newsletter</div>
+              <div class="text-sm leading-tight text-muted-foreground">Subscribe to our newsletter</div>
               <button
                 class="relative w-10 h-[22px] rounded-[25px] transition-colors duration-300"
                 :class="[details.subscribeToNewsletter ? 'bg-blue-500 ' : 'bg-border']"
                 @click="details.subscribeToNewsletter = !details.subscribeToNewsletter"
               >
                 <div
-                  class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full transition-all duration-300"
+                  class="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-card rounded-full transition-all duration-300"
                   :class="[details.subscribeToNewsletter ? ' right-1' : 'right-5']"
                 />
               </button>
@@ -68,13 +68,13 @@
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded border transition-colors duration-300 mr-2.5"
                 :class="[
                   details.agreeToTerms
-                    ? 'bg-blue-500 border-blue-500 group-hover:bg-white'
-                    : 'bg-white  border-border group-hover:border-gray-300',
+                    ? 'bg-blue-500 border-blue-500 group-hover:bg-card'
+                    : 'bg-card  border-border group-hover:border-border',
                 ]"
               >
                 <CheckIcon v-if="details.agreeToTerms" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
               </div>
-              <span class="text-xs text-slate-500">
+              <span class="text-xs text-muted-foreground">
                 I have read and agreed to Demo's
                 <NuxtLink to="/" class="text-blue-500 font-medium">Terms of Service</NuxtLink>,
                 <NuxtLink to="/" class="text-blue-500 font-medium">Privacy Policy</NuxtLink>
@@ -89,7 +89,7 @@
                         </p>
                     </div> -->
           <div class="flex items-center justify-between">
-            <button class="flex items-center rounded bg-gray-100 px-[22px] py-[11px] text-slate-500" @click="$emit('back')">
+            <button class="flex items-center rounded bg-muted px-[22px] py-[11px] text-muted-foreground" @click="$emit('back')">
               <ChevronRightIcon class="w-3 h-3 mr-2 rotate-180" />
               <span class="text-sm font-medium">Back</span>
             </button>
@@ -103,7 +103,7 @@
             </UiButton>
           </div>
         </div>
-        <div class="text-xs text-center text-slate-500 mt-auto">
+        <div class="text-xs text-center text-muted-foreground mt-auto">
           For assistance please contact
           <a href="mailto:support@demo.app" class="text-blue-500"> support@demo.app </a>
         </div>

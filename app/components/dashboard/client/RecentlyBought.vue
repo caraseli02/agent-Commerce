@@ -1,6 +1,6 @@
 <template>
-  <div class="h-[474px] max-w-[330px] items-stretch shadow-xs bg-white hidden lg:flex flex-col p-6 rounded-xl">
-    <header class="text-zinc-800 text-base font-semibold leading-6">Recently Bought</header>
+  <div class="h-[474px] max-w-[330px] items-stretch shadow-xs bg-card hidden lg:flex flex-col p-6 rounded-xl">
+    <header class="text-foreground text-base font-semibold leading-6">Recently Bought</header>
     <section class="w-[282px] h-[312px] overflow-hidden flex flex-col gap-7 mt-8">
       <div v-for="item in data" :key="item._id" class="items-stretch flex justify-between gap-3">
         <div class="justify-center items-center border border-neutral-300 flex aspect-square flex-col w-10 h-10 rounded-lg border-solid">
@@ -8,10 +8,10 @@
           <NuxtImg v-if="item.photo" :src="item.photo" loading="lazy" />
         </div>
         <div class="items-stretch flex grow basis-[0%] flex-col whitespace-nowrap max-w-[230px]">
-          <div class="text-neutral-800 text-sm font-semibold leading-4 text-ellipsis overflow-hidden">
+          <div class="text-foreground text-sm font-semibold leading-4 text-ellipsis overflow-hidden">
             {{ item.name }}
           </div>
-          <div class="overflow-hidden text-slate-500 text-ellipsis text-xs leading-4 mt-2 inline">
+          <div class="overflow-hidden text-muted-foreground text-ellipsis text-xs leading-4 mt-2 inline">
             {{ item.description }}
           </div>
         </div>
@@ -25,7 +25,7 @@
         </div>
       </div>
     </section>
-    <div class="self-end align-end flex justify-end items-end gap-2 h-fit grow text-slate-500 hover:text-blue-500 transition-colors">
+    <div class="self-end align-end flex justify-end items-end gap-2 h-fit grow text-muted-foreground hover:text-blue-500 transition-colors">
       <UiButton
         variant="ghost"
         class="h-auto p-0 text-sm font-medium leading-5 grow whitespace-nowrap"

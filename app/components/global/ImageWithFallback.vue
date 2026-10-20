@@ -14,7 +14,7 @@
       v-else
       role="img"
       :aria-label="alt || 'Product image unavailable'"
-      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] bg-light-200 ring-1 ring-inset ring-grey-200"
+      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] bg-muted ring-1 ring-inset ring-grey-200"
     >
       <Package class="h-[36%] w-[36%] min-h-8 min-w-8 max-h-12 max-w-12 text-slate-400" :stroke-width="1.5" aria-hidden="true" />
     </div>

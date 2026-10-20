@@ -18,13 +18,13 @@ const handlePayNow = () => {};
 </script>
 
 <template>
-  <section class="flex flex-col self-stretch p-4 md:p-6 bg-white rounded-xl shadow-l">
-    <h2 class="text-xl font-semibold leading-7 text-neutral-800 max-md:max-w-full">Account Credit</h2>
-    <div class="flex flex-col py-6 mt-8 bg-white rounded-xl max-md:max-w-full">
+  <section class="flex flex-col self-stretch p-4 md:p-6 bg-card rounded-xl shadow-l">
+    <h2 class="text-xl font-semibold leading-7 text-foreground max-md:max-w-full">Account Credit</h2>
+    <div class="flex flex-col py-6 mt-8 bg-card rounded-xl max-md:max-w-full">
       <div class="flex gap-2 justify-between leading-[133%] max-md:flex-wrap max-md:max-w-full">
         <div class="flex flex-col justify-center">
-          <p class="text-2xl font-semibold tracking-normal text-neutral-700">{{ availableCredit.toFixed(2) }} Lei</p>
-          <p class="mt-1 text-xs font-medium text-slate-500">Available Credit</p>
+          <p class="text-2xl font-semibold tracking-normal text-foreground">{{ availableCredit.toFixed(2) }} Lei</p>
+          <p class="mt-1 text-xs font-medium text-muted-foreground">Available Credit</p>
         </div>
         <svg
           class="text-slate-300 shrink-0 self-start w-6 aspect-square lucide lucide-ellipsis-vertical"
@@ -48,10 +48,10 @@ const handlePayNow = () => {};
       </div>
       <div class="flex gap-5 justify-between mt-4 w-full max-md:flex-wrap max-md:max-w-full">
         <div class="flex gap-2">
-          <p class="text-base font-medium leading-6 text-slate-500">Balance:</p>
-          <p class="text-lg font-semibold leading-6 text-neutral-700">{{ balance.toFixed(2) }} Lei</p>
+          <p class="text-base font-medium leading-6 text-muted-foreground">Balance:</p>
+          <p class="text-lg font-semibold leading-6 text-foreground">{{ balance.toFixed(2) }} Lei</p>
         </div>
-        <button class="flex gap-1 text-base font-semibold leading-6 text-slate-500" @click="handlePayNow">
+        <button class="flex gap-1 text-base font-semibold leading-6 text-muted-foreground" @click="handlePayNow">
           <CreditCard class="shrink-0 w-6 aspect-square" />
           <span>Pay now</span>
         </button>

@@ -5,7 +5,7 @@
         <UiButton
           variant="ghost"
           size="icon"
-          class="mb-4 ml-auto flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 text-slate-500 transition-colors duration-300 hover:text-blue-500"
+          class="mb-4 ml-auto flex h-11 w-11 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors duration-300 hover:text-blue-500"
           aria-label="Close"
         >
           <XIcon class="h-6 w-6" />
@@ -17,10 +17,10 @@
       <div class="mb-[78px] flex items-center">
         <div
           class="relative mr-4 flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
-          :class="[!user.avatar ? 'bg-gray-100' : '']"
+          :class="[!user.avatar ? 'bg-muted' : '']"
         >
           <NuxtImg v-if="user.avatar" :src="user.avatar" :alt="user.name" class="h-full w-full rounded-full object-cover" loading="lazy" />
-          <UserIcon v-else class="h-7 w-7 text-gray-500" />
+          <UserIcon v-else class="h-7 w-7 text-muted-foreground" />
         </div>
         <div>
           <div class="mb-1 flex items-center gap-3">
@@ -32,13 +32,13 @@
               <div class="rounded-[25px] bg-blue-500 px-2 text-xs font-semibold leading-[1.67] text-white">10%</div>
             </div>
           </div>
-          <div class="truncate text-xs leading-[1.33] text-slate-500">
+          <div class="truncate text-xs leading-[1.33] text-muted-foreground">
             {{ user.email }}
           </div>
         </div>
       </div>
       <div class="grid grid-cols-[auto_1fr] gap-4">
-        <UiButton variant="secondary" class="px-8 py-2 text-sm font-medium leading-[1.71] text-slate-500" @click="closeModal">
+        <UiButton variant="secondary" class="px-8 py-2 text-sm font-medium leading-[1.71] text-muted-foreground" @click="closeModal">
           Cancel
         </UiButton>
         <UiButton
