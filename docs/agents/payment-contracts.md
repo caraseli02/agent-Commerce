@@ -1,5 +1,7 @@
 # Payment and checkout contract guardrails
 
+Owner decision, 2026-10-20: payment paths and `area:payments` no longer exclude Claude. Normal label ownership, WIP, dependency/overlap checks and opposite-builder independent review apply. Vlad explicitly approved PR #753’s payment-path styling changes; that approval is scope authorization, not passing verification. This replaces the earlier blanket exclusion. Payment contracts below, mock-mode checks, Stripe activation gates and Vlad’s final merge remain required.
+
 Apply these rules to payment state, checkout workflow, paid recovery, public checkout errors, and their UI consumers. Keep issue-specific scope, model assignments, and acceptance evidence in the GitHub issue and session record.
 
 ## Ownership and boundaries

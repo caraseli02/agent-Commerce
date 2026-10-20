@@ -17,7 +17,7 @@ This is the runtime equivalent of: “work the currently claimed Components Mark
 
 ## Builder ownership and shared state
 
-Claude and Codex each have WIP=1. Claude owns issues labeled `agent:claude`; Codex skips `agent:claude` and owns other eligible issues. Claude never builds payments, checkout, refund or migration work. Claude's schedules, protected paths and prompts are defined in `.factory/`; routines are enabled on the Mac mini, not by this document.
+Claude and Codex each have WIP=1. Claude owns issues labeled `agent:claude`; Codex skips `agent:claude` and owns other eligible issues. Payment, checkout, refund and migration work use the same label ownership rules; payment-contract verification and Stripe activation gates remain mandatory (Vlad, 2026-10-20). Claude's schedules, protected paths and prompts are defined in `.factory/`; routines are enabled on the Mac mini, not by this document.
 
 GitHub issue labels, assignments and linked PRs are the live claim authority. Check the builder's complete active pool before selection, and skip assigned issues or issues with active PRs. Delegated implementation models share one parent issue and do not create new WIP. Concurrent runs of the same builder must serialize selection and claiming; an issue-specific branch alone does not enforce the builder-wide WIP limit. On the Mac mini every scheduled or manual run of a Claude routine takes a local run lock first (see below).
 

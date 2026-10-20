@@ -43,12 +43,11 @@ describe('factory config', () => {
     const config = parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8'));
 
     expect(config.mode).toMatch(/^(build|review-only)$/);
-    expect(config.neverClaim).toEqual(expect.arrayContaining(['epic', 'blocked', 'area:payments', 'needs-triage']));
+    expect(config.neverClaim).toEqual(expect.arrayContaining(['epic', 'blocked', 'needs-triage']));
     expect(config.protectedPaths).toEqual(
       expect.arrayContaining([
         { group: 'factory', pattern: 'docs/agents/**' },
         { group: 'factory', pattern: 'AGENTS.md' },
-        { group: 'payments', pattern: 'server/api/payments/**' },
       ]),
     );
   });
@@ -69,7 +68,6 @@ describe('factory config', () => {
     expect(touched).toEqual([
       { file: 'docs/agents/verification.md', group: 'factory' },
       { file: 'notes/moved.md', group: 'factory' },
-      { file: 'server/api/payments/intent.post.ts', group: 'payments' },
     ]);
   });
 });
@@ -377,7 +375,7 @@ describe('recorded skips', () => {
 });
 
 describe('Claude build queue', () => {
-  const neverClaim = ['epic', 'blocked', 'area:payments', 'needs-triage', 'needs-info', 'ready-for-human'];
+  const neverClaim = ['epic', 'blocked', 'needs-triage', 'needs-info', 'ready-for-human'];
   const issue = (number: number, labels: string[], extra: Record<string, unknown> = {}) => ({
     number,
     title: `Issue ${number}`,
@@ -394,12 +392,26 @@ describe('Claude build queue', () => {
     expect(state.idle).toBe(false);
   });
 
+  it('allows payment labels and Payments/Checkout titles under normal Claude ownership', async () => {
+    const actualConfig = parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8'));
+    const state = claudeQueueState(
+      [
+        issue(1, ['agent:claude', 'area:payments'], { title: 'Payments: refunds' }),
+        issue(2, ['agent:claude'], { title: 'Checkout: resume' }),
+        issue(3, ['ready-for-agent', 'area:payments']),
+        issue(4, ['agent:claude', 'area:payments', 'blocked']),
+      ],
+      { neverClaim: actualConfig.neverClaim, openIssueNumbers: new Set([1, 2, 3, 4]) },
+    );
+    expect(state.eligible.map((entry) => entry.number)).toEqual([1, 2]);
+  });
+
   it('is idle when every Claude issue is claimed elsewhere, excluded or waiting on an open dependency', () => {
     const issues = [
       issue(1, ['agent:claude', 'in-progress', 'blocked']),
       issue(2, ['agent:claude', 'needs-triage']),
       issue(3, ['agent:claude'], { assignees: [{ login: 'someone' }] }),
-      issue(4, ['agent:claude'], { title: 'Payments: refunds' }),
+      issue(4, ['agent:claude', 'needs-info'], { title: 'Payments: refunds' }),
       issue(5, ['agent:claude'], { body: 'Scope...\n\nDepends on #9\n' }),
       issue(6, ['ready-for-agent']),
       issue(7, ['agent:claude'], { pull_request: {} }),
@@ -646,7 +658,7 @@ describe('reconcile against a fake GitHub API', () => {
     expect(posts(calls)).toEqual([]);
   });
 
-  it('flags an unlabeled interactive Claude PR (body signature only) that touches payment paths', async () => {
+  it('does not flag payment paths on an interactive Claude PR without a harness label', async () => {
     const interactive = {
       ...pr,
       labels: [],
@@ -659,15 +671,9 @@ describe('reconcile against a fake GitHub API', () => {
       '/pulls/658': interactive,
       '/pulls/658/files': [{ filename: 'server/api/payments/intent.post.ts' }],
     });
-    await handleEvent({
-      eventName: 'pull_request_target',
-      gh,
-      owner,
-      config: { ...config, protectedPaths: [...config.protectedPaths, { group: 'payments', pattern: 'server/api/payments/**' }] },
-    });
-
-    expect(posts(calls)).toHaveLength(1);
-    expect(posts(calls)[0].body?.body).toContain('payment paths');
+    const actualConfig = parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8'));
+    await handleEvent({ eventName: 'pull_request_target', gh, owner, config: actualConfig });
+    expect(posts(calls)).toEqual([]);
   });
 
   it('flags a PR whose only Claude signal is a linked agent:claude issue or a co-author trailer', async () => {
