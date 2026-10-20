@@ -1,0 +1,652 @@
+{
+  "app/components/BuyerFormInput.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/admin-table/customer/Toolbar.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/admin-table/order/Order.vue": {
+    "shadcn/no-restyle": {
+      "count": 8
+    }
+  },
+  "app/components/admin-table/order/Toolbar.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/cart/CartDeleteDialog.vue": {
+    "shadcn/no-restyle": {
+      "count": 10
+    }
+  },
+  "app/components/categories/Actions.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/categories/FacetedFilter.vue": {
+    "shadcn/no-restyle": {
+      "count": 11
+    }
+  },
+  "app/components/categories/Filters.vue": {
+    "shadcn/no-restyle": {
+      "count": 5
+    }
+  },
+  "app/components/categories/MoveDialog.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/categories/Range.vue": {
+    "shadcn/no-restyle": {
+      "count": 20
+    }
+  },
+  "app/components/categories/Recursive.vue": {
+    "shadcn/no-restyle": {
+      "count": 8
+    }
+  },
+  "app/components/categories/RowActions.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/categories/Rows.vue": {
+    "shadcn/no-restyle": {
+      "count": 15
+    }
+  },
+  "app/components/categories/Select/EntryPrice.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/categories/Select/Margin.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/categories/Select/Quantity.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/client-table/agents/Toolbar.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/client-table/order/Toolbar.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/client-table/transaction/Toolbar.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/dashboard/Aside.vue": {
+    "shadcn/no-restyle": {
+      "count": 15
+    }
+  },
+  "app/components/dashboard/CustomersTotal.vue": {
+    "shadcn/no-restyle": {
+      "count": 11
+    }
+  },
+  "app/components/dashboard/DeactivateUserModal.vue": {
+    "shadcn/no-restyle": {
+      "count": 33
+    }
+  },
+  "app/components/dashboard/Header.vue": {
+    "shadcn/no-restyle": {
+      "count": 47
+    }
+  },
+  "app/components/dashboard/ReturningCustomers.vue": {
+    "shadcn/no-restyle": {
+      "count": 11
+    }
+  },
+  "app/components/dashboard/Search.vue": {
+    "shadcn/no-restyle": {
+      "count": 27
+    }
+  },
+  "app/components/dashboard/client/ActiveOrders.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/dashboard/client/Activity.vue": {
+    "shadcn/no-restyle": {
+      "count": 12
+    }
+  },
+  "app/components/dashboard/client/AddressCards.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/dashboard/client/Analytics.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dashboard/client/Banner.vue": {
+    "shadcn/no-restyle": {
+      "count": 6
+    }
+  },
+  "app/components/dashboard/client/PaymentCard.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/dashboard/client/RecentlyBought.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dashboard/client/TabBar.vue": {
+    "shadcn/no-restyle": {
+      "count": 13
+    }
+  },
+  "app/components/dashboard/client/settings/AddressCard.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/dashboard/client/settings/BillingDialog.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dashboard/client/settings/Details.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/dashboard/client/settings/PaymentsDialog.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/dashboard/client/settings/Security.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/dashboard/client/settings/ShippingDialog.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dashboard/control-panel/AccountView.vue": {
+    "shadcn/no-restyle": {
+      "count": 12
+    }
+  },
+  "app/components/dashboard/control-panel/AddAddress.vue": {
+    "shadcn/no-restyle": {
+      "count": 16
+    }
+  },
+  "app/components/dashboard/control-panel/BillingView.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/dashboard/control-panel/EditAddress.vue": {
+    "shadcn/no-restyle": {
+      "count": 21
+    }
+  },
+  "app/components/dashboard/control-panel/OrganizationView.vue": {
+    "shadcn/no-restyle": {
+      "count": 12
+    }
+  },
+  "app/components/dashboard/control-panel/ShippingView.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/dashboard/control-panel/settings-view/Settings.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/dashboard/customers/DefaultShippingAddress.vue": {
+    "shadcn/no-restyle": {
+      "count": 18
+    }
+  },
+  "app/components/dashboard/customers/NetMargin.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/dashboard/new-customers/Index.vue": {
+    "shadcn/no-restyle": {
+      "count": 11
+    }
+  },
+  "app/components/dashboard/new-customers/Item.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dashboard/orders/InfoCards.vue": {
+    "shadcn/no-restyle": {
+      "count": 26
+    }
+  },
+  "app/components/dataTable/HeadControls.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/dataTable/IdCell.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dataTable/Pagination.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dataTable/RowActions.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dataTable/UserInfo.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dataTable/ViewOptions.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/dataTable/filter/Date.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/dataTable/filter/Faceted.vue": {
+    "shadcn/no-restyle": {
+      "count": 31
+    }
+  },
+  "app/components/dataTable/filter/Input.vue": {
+    "shadcn/no-restyle": {
+      "count": 12
+    }
+  },
+  "app/components/dataTable/filter/Range.vue": {
+    "shadcn/no-restyle": {
+      "count": 20
+    }
+  },
+  "app/components/dataTable/index.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/global/Dialog/ReportError.vue": {
+    "shadcn/no-restyle": {
+      "count": 10
+    }
+  },
+  "app/components/global/FormInput.vue": {
+    "shadcn/no-restyle": {
+      "count": 11
+    }
+  },
+  "app/components/global/FormPassword.vue": {
+    "shadcn/no-restyle": {
+      "count": 9
+    }
+  },
+  "app/components/global/FormSelect.vue": {
+    "shadcn/no-restyle": {
+      "count": 31
+    }
+  },
+  "app/components/global/Notifications.vue": {
+    "shadcn/no-restyle": {
+      "count": 28
+    }
+  },
+  "app/components/global/ProductCard.vue": {
+    "shadcn/no-restyle": {
+      "count": 7
+    }
+  },
+  "app/components/global/ProductTabs.vue": {
+    "shadcn/no-restyle": {
+      "count": 11
+    }
+  },
+  "app/components/global/QuantityButtons.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/global/QuickBuy/QuickBuy.vue": {
+    "shadcn/no-restyle": {
+      "count": 6
+    }
+  },
+  "app/components/home/Hero.vue": {
+    "shadcn/no-restyle": {
+      "count": 6
+    }
+  },
+  "app/components/icon/Select.vue": {
+    "shadcn/no-restyle": {
+      "count": 6
+    }
+  },
+  "app/components/layout/AddRemoveSearchFilter.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/layout/CustomProductPartNumberModal.vue": {
+    "shadcn/no-restyle": {
+      "count": 26
+    }
+  },
+  "app/components/layout/RegionalPreferencesModal.vue": {
+    "shadcn/no-restyle": {
+      "count": 15
+    }
+  },
+  "app/components/layout/SearchFiltersModal.vue": {
+    "shadcn/no-restyle": {
+      "count": 30
+    }
+  },
+  "app/components/layout/account-modal/Form.vue": {
+    "shadcn/no-restyle": {
+      "count": 25
+    }
+  },
+  "app/components/layout/account-modal/Index.vue": {
+    "shadcn/no-restyle": {
+      "count": 18
+    }
+  },
+  "app/components/layout/account-modal/Links.vue": {
+    "shadcn/no-restyle": {
+      "count": 8
+    }
+  },
+  "app/components/layout/favorites-cart-modal/Index.vue": {
+    "shadcn/no-restyle": {
+      "count": 13
+    }
+  },
+  "app/components/layout/favorites-cart-modal/cart/CartProductItem.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/layout/header/Index.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/layout/header/MainRow.vue": {
+    "shadcn/no-restyle": {
+      "count": 18
+    }
+  },
+  "app/components/layout/header/Search.vue": {
+    "shadcn/no-restyle": {
+      "count": 13
+    }
+  },
+  "app/components/layout/header/main-menu/BannerNew.vue": {
+    "shadcn/no-restyle": {
+      "count": 5
+    }
+  },
+  "app/components/layout/header/main-menu/DektopPopoverContainer.vue": {
+    "shadcn/no-restyle": {
+      "count": 9
+    }
+  },
+  "app/components/layout/header/main-menu/DesktopPopover.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/layout/header/main-menu/Index.vue": {
+    "shadcn/no-restyle": {
+      "count": 12
+    }
+  },
+  "app/components/layout/header/main-menu/Large.vue": {
+    "shadcn/no-restyle": {
+      "count": 40
+    }
+  },
+  "app/components/layout/header/main-menu/MobileSheet.vue": {
+    "shadcn/no-restyle": {
+      "count": 40
+    }
+  },
+  "app/components/order-confirm/ActionMenu.vue": {
+    "shadcn/no-restyle": {
+      "count": 38
+    }
+  },
+  "app/components/order-confirm/AdminBtns.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/order-confirm/AdminConfirmation.vue": {
+    "shadcn/no-restyle": {
+      "count": 8
+    }
+  },
+  "app/components/order-confirm/BackItems.vue": {
+    "shadcn/no-restyle": {
+      "count": 6
+    }
+  },
+  "app/components/order-confirm/BankSelect.vue": {
+    "shadcn/no-restyle": {
+      "count": 7
+    }
+  },
+  "app/components/order-confirm/BuyerConfirmation.vue": {
+    "shadcn/no-restyle": {
+      "count": 11
+    }
+  },
+  "app/components/order-confirm/Details.vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  },
+  "app/components/order-confirm/Header.vue": {
+    "shadcn/no-restyle": {
+      "count": 14
+    }
+  },
+  "app/components/order-confirm/PaySummary.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/order-confirm/StackItems.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/order-confirm/StackItemsHeader.vue": {
+    "shadcn/no-restyle": {
+      "count": 19
+    }
+  },
+  "app/components/order-confirm/StatusSelect.vue": {
+    "shadcn/no-restyle": {
+      "count": 5
+    }
+  },
+  "app/components/order-summary/CheckoutButtons.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/order-summary/PayByCard.vue": {
+    "shadcn/no-restyle": {
+      "count": 9
+    }
+  },
+  "app/components/order-summary/PaymentMethodSection.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/order-summary/PaymentModal.vue": {
+    "shadcn/no-restyle": {
+      "count": 8
+    }
+  },
+  "app/components/order-tracking/OrderTracking.vue": {
+    "shadcn/no-restyle": {
+      "count": 17
+    }
+  },
+  "app/components/payment/SessionCardForm.vue": {
+    "shadcn/no-restyle": {
+      "count": 12
+    }
+  },
+  "app/components/product/AskDialog.vue": {
+    "shadcn/no-restyle": {
+      "count": 8
+    }
+  },
+  "app/components/product/Details.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/product/Gallery.vue": {
+    "shadcn/no-restyle": {
+      "count": 14
+    }
+  },
+  "app/components/product/LargeQuantitiesModal.vue": {
+    "shadcn/no-restyle": {
+      "count": 5
+    }
+  },
+  "app/components/product/Quantity.vue": {
+    "shadcn/no-restyle": {
+      "count": 7
+    }
+  },
+  "app/components/product/Table.vue": {
+    "shadcn/no-restyle": {
+      "count": 31
+    }
+  },
+  "app/components/product/ZoomGallery.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/search/Filter.vue": {
+    "shadcn/no-restyle": {
+      "count": 1
+    }
+  },
+  "app/components/search/Filter2.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/search/Filters.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/components/search/Products.vue": {
+    "shadcn/no-restyle": {
+      "count": 36
+    }
+  },
+  "app/components/search/SearchItem.vue": {
+    "shadcn/no-restyle": {
+      "count": 3
+    }
+  },
+  "app/components/shared/tables/micro/row-items/ThreeDotMenu.vue": {
+    "shadcn/no-restyle": {
+      "count": 15
+    }
+  },
+  "app/components/signup/ProfileDetails.vue": {
+    "shadcn/no-restyle": {
+      "count": 5
+    }
+  },
+  "app/pages/checkout/fail/index.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/pages/checkout/pending/index.vue": {
+    "shadcn/no-restyle": {
+      "count": 2
+    }
+  },
+  "app/pages/checkout/success/index.vue": {
+    "shadcn/no-restyle": {
+      "count": 7
+    }
+  },
+  "app/pages/dashboard/customers/index.vue": {
+    "shadcn/no-restyle": {
+      "count": 5
+    }
+  },
+  "app/pages/dashboard/index.vue": {
+    "shadcn/no-restyle": {
+      "count": 5
+    }
+  },
+  "app/pages/dashboard/orders/index.vue": {
+    "shadcn/no-restyle": {
+      "count": 6
+    }
+  },
+  "app/pages/product/[slug].vue": {
+    "shadcn/no-restyle": {
+      "count": 4
+    }
+  }
+}
