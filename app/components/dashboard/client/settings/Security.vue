@@ -34,12 +34,12 @@ async function sendResetPasswordLink() {
 </script>
 
 <template>
-  <section class="flex flex-col items-start self-stretch p-4 md:p-6 bg-white rounded-xl shadow-l">
-    <h2 class="text-xl font-semibold leading-7 text-neutral-800">Security</h2>
-    <p class="mt-4 text-sm leading-5 text-neutral-800">Send a password reset link.</p>
+  <section class="flex flex-col items-start self-stretch p-4 md:p-6 bg-card rounded-xl shadow-l">
+    <h2 class="text-xl font-semibold leading-7 text-foreground">Security</h2>
+    <p class="mt-4 text-sm leading-5 text-foreground">Send a password reset link.</p>
     <div class="flex flex-col md:flex-row items-end gap-4 self-stretch mt-8 max-md:flex-wrap">
       <div class="flex flex-col gap-1 flex-1 justify-between text-sm leading-5 w-full">
-        <UiLabel for="accountEmail" class="text-slate-500 max-md:max-w-full"> Account Email </UiLabel>
+        <UiLabel for="accountEmail" class="text-muted-foreground max-md:max-w-full"> Account Email </UiLabel>
         <UiInput id="accountEmail" v-model:model-value="email" :placeholder="getUserDetails.contactDetails.email" :v-bind="email" />
       </div>
       <UiButton class="w-full md:w-fit" size="lg" @click="sendResetPasswordLink()">
@@ -78,8 +78,8 @@ async function sendResetPasswordLink() {
       </UiButton>
     </div>
     <hr class="self-stretch mt-8 w-full border border-grey-100 border-solid stroke-[1px] stroke-gray-200 max-md:max-w-full" />
-    <h2 class="mt-8 text-xl font-semibold leading-7 text-neutral-800">Third party applications logins</h2>
-    <p class="mt-4 text-sm leading-5 text-neutral-800">Connect or disable third party application logins here.</p>
+    <h2 class="mt-8 text-xl font-semibold leading-7 text-foreground">Third party applications logins</h2>
+    <p class="mt-4 text-sm leading-5 text-foreground">Connect or disable third party application logins here.</p>
     <UiButton class="min-w-[320px] border-blue-500 mt-8" size="lg" variant="outline">
       <div class="flex gap-2 justify-center">
         <svg class="shrink-0 w-6 aspect-square" width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -110,8 +110,8 @@ async function sendResetPasswordLink() {
         <span>Link Google</span>
       </div>
     </UiButton>
-    <p class="mt-4 text-sm leading-5 text-grey-600">
-      <span class="text-neutral-800">Linked account:</span>
+    <p class="mt-4 text-sm leading-5 text-muted-foreground">
+      <span class="text-foreground">Linked account:</span>
       madalina.dobrovolski@gmail.com
     </p>
   </section>

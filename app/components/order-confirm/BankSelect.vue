@@ -31,16 +31,16 @@ const selectedBank = computed(() => banks.find((bank) => bank.value === value.va
 
 <template>
   <UiPopover v-model:open="open">
-    <UiPopoverTrigger class="border-grey-300" as-child>
+    <UiPopoverTrigger class="border-border" as-child>
       <UiButton variant="outline" role="combobox" :aria-expanded="open" class="min-w-[326px] justify-between">
-        <p class="flex justify-between w-full text-grey-600 pr-2">
+        <p class="flex justify-between w-full text-muted-foreground pr-2">
           <span>{{ selectedBank?.label }}</span>
           <span>{{ selectedBank?.currency }}</span>
         </p>
         <CaretSortIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </UiButton>
     </UiPopoverTrigger>
-    <UiPopoverContent class="min-w-[326px] p-0 border-grey-300">
+    <UiPopoverContent class="min-w-[326px] p-0 border-border">
       <UiCommand>
         <UiCommandInput class="h-9" placeholder="Search bank..." />
         <UiCommandEmpty>No bank found.</UiCommandEmpty>
@@ -50,8 +50,8 @@ const selectedBank = computed(() => banks.find((bank) => bank.value === value.va
               v-for="bank in banks"
               :key="bank.value"
               :value="bank.value"
-              class="justify-between text-neutral-700 hover:text-blue-500 w-full hover:bg-light-300"
-              :class="{ 'text-blue-500 bg-light-300': bank.value === selectedBank?.value }"
+              class="justify-between text-foreground hover:text-blue-500 w-full hover:bg-accent"
+              :class="{ 'text-blue-500 bg-accent': bank.value === selectedBank?.value }"
               @select="handleSelect"
             >
               {{ bank.label }}

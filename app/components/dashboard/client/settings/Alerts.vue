@@ -63,7 +63,7 @@ watch(
 </script>
 
 <template>
-  <section class="flex flex-col self-stretch p-6 text-sm leading-6 bg-white rounded-xl shadow-l text-neutral-800 max-md:px-5">
+  <section class="flex flex-col self-stretch p-6 text-sm leading-6 bg-card rounded-xl shadow-l text-foreground max-md:px-5">
     <h2 class="self-start text-xl font-semibold leading-7">Alerts and Notifications</h2>
     <p class="self-start mt-4">Change to alerts and notification settings.</p>
     <div class="flex gap-5 justify-between self-end mt-8 max-w-full whitespace-nowrap w-[123px]">

@@ -6,9 +6,9 @@
     <div class="relative">
       <div
         v-if="icon"
-        class="absolute top-1/2 -translate-y-1/2 left-px w-11 h-[40px] bg-[#F5F5F5] flex items-center justify-center rounded-l-md border-r border-border"
+        class="absolute top-1/2 -translate-y-1/2 left-px w-11 h-[40px] bg-muted flex items-center justify-center rounded-l-md border-r border-border"
       >
-        <component :is="icon" class="w-5 h-5 text-slate-500" />
+        <component :is="icon" class="w-5 h-5 text-muted-foreground" />
       </div>
       <UiInput
         :id="inputId"
@@ -21,7 +21,7 @@
           'pr-3 text-sm',
           error ? 'border-rose-500' : '',
           disabled && showDisabledStyles
-            ? 'disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none'
+            ? 'disabled:bg-muted disabled:text-muted-foreground disabled:border-border disabled:shadow-none'
             : '',
           icon ? 'pl-[52px]' : 'pl-3',
           size === 'lg' ? 'h-auto py-2.5' : 'h-auto py-2',

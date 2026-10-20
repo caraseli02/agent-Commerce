@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex h-[298px] flex-col overflow-hidden rounded-xl bg-white p-3 shadow-m lg:h-full lg:p-3.5">
+  <div class="relative flex h-[298px] flex-col overflow-hidden rounded-xl bg-card p-3 shadow-m lg:h-full lg:p-3.5">
     <div class="absolute right-4 top-4 z-10 flex flex-col items-end gap-2 lg:right-5 lg:top-5">
       <UiButton type="button" variant="outline" size="icon" class="h-11 w-11" aria-label="Share product" @click="shareProduct">
         <Share2Icon class="h-5 w-5" />
@@ -12,7 +12,7 @@
     <UiButton
       type="button"
       variant="ghost"
-      class="h-auto min-h-0 w-full flex-1 items-stretch justify-stretch overflow-hidden rounded-lg bg-light-100 p-0"
+      class="h-auto min-h-0 w-full flex-1 items-stretch justify-stretch overflow-hidden rounded-lg bg-muted p-0"
       aria-label="Open product image gallery"
       @click="emit('showZoomModal')"
     >

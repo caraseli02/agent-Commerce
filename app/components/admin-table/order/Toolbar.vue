@@ -56,7 +56,7 @@ const orderTypeOptions = orderType as unknown as StringFacetedFilterOption[];
       <UiButton
         v-if="isFiltered"
         variant="ghost"
-        class="h-8 px-2 lg:px-3 flex items-center text-neutral-700"
+        class="h-8 px-2 lg:px-3 flex items-center text-foreground"
         @click="table.resetColumnFilters()"
       >
         Reset

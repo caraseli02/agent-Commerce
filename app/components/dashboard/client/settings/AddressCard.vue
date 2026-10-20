@@ -50,7 +50,7 @@ const setDefault = () => {
         <!-- <NuxtImg :src="addressData.icon" :alt="addressData.alias" class="shrink-0 my-auto w-8 aspect-square" loading="lazy"/> -->
         <div class="flex flex-col max-md:max-w-full">
           <div class="flex gap-5 max-md:flex-wrap">
-            <h2 class="text-base font-semibold leading-6 text-neutral-800">
+            <h2 class="text-base font-semibold leading-6 text-foreground">
               {{ addressData.alias }}
             </h2>
             <div
@@ -61,13 +61,13 @@ const setDefault = () => {
               <span>Default</span>
             </div>
           </div>
-          <p class="mt-2 text-sm leading-5 text-gray-500 max-md:max-w-full">
+          <p class="mt-2 text-sm leading-5 text-muted-foreground max-md:max-w-full">
             {{ addressData.name }}
           </p>
-          <p class="mt-2 text-sm leading-5 text-gray-500 max-md:max-w-full">
+          <p class="mt-2 text-sm leading-5 text-muted-foreground max-md:max-w-full">
             {{ addressData.address }}
           </p>
-          <p class="mt-2 text-sm leading-5 text-gray-500 max-md:max-w-full">
+          <p class="mt-2 text-sm leading-5 text-muted-foreground max-md:max-w-full">
             {{ addressData.phone }}
           </p>
         </div>

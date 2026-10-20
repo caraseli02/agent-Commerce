@@ -22,12 +22,12 @@
       class="homeNews--swiper"
     >
       <SwiperSlide v-for="(message, index) in messages" :key="index">
-        <div class="self-stretch bg-white flex flex-col m-2 p-4 rounded-xl items-end w-fit shadow-s z-10">
+        <div class="self-stretch bg-card flex flex-col m-2 p-4 rounded-xl items-end w-fit shadow-s z-10">
           <div class="justify-between items-stretch self-stretch flex gap-5">
-            <div class="text-neutral-800 text-sm font-medium leading-5 grow">{{ message.title }}</div>
+            <div class="text-foreground text-sm font-medium leading-5 grow">{{ message.title }}</div>
             <svgo-x class="w-[18px] h-[18px]" />
           </div>
-          <div class="self-stretch text-neutral-800 text-xs leading-4 mt-2">
+          <div class="self-stretch text-foreground text-xs leading-4 mt-2">
             {{ message.body }}
           </div>
           <NuxtLink v-if="message.actionTo" :to="message.actionTo" class="items-center flex gap-2 mt-2">

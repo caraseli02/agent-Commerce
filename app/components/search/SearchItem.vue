@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm font-Inter md:p-5 md:pr-14 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.95fr)] lg:items-center lg:gap-0"
+    class="relative overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm font-Inter md:p-5 md:pr-14 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.95fr)] lg:items-center lg:gap-0"
   >
     <!-- Identity: image + title/code/stock + meta -->
     <div class="flex min-w-0 items-start gap-3 md:gap-4 lg:items-center lg:pr-6">
@@ -8,7 +8,7 @@
         <ImageWithFallback
           :src="item.details?.ProductImage?.ProductImageLarge"
           :alt="item.name"
-          class="h-[100px] w-[100px] rounded-lg bg-slate-50 object-contain md:h-[120px] md:w-[120px]"
+          class="h-[100px] w-[100px] rounded-lg bg-muted object-contain md:h-[120px] md:w-[120px]"
         />
       </NuxtLink>
       <div class="min-w-0 flex-1">
@@ -34,7 +34,7 @@
             <CopyClipboard
               :text="item.name || 'N/A'"
               label="Copy product name"
-              class="hidden flex-shrink-0 text-slate-500 transition-colors duration-300 hover:text-primary md:inline-flex"
+              class="hidden flex-shrink-0 text-muted-foreground transition-colors duration-300 hover:text-primary md:inline-flex"
             />
           </div>
           <UiButton type="button" variant="outline" class="max-w-full shrink-0" @click="showCustomProductPartNumberModal = true">
@@ -50,23 +50,23 @@
             {{ item.stock }} in stock
           </span>
         </div>
-        <div class="grid grid-cols-1 gap-1.5 text-xs leading-snug text-slate-600">
+        <div class="grid grid-cols-1 gap-1.5 text-xs leading-snug text-muted-foreground">
           <div class="line-clamp-3 md:line-clamp-none" :title="item.description">{{ item.description }}</div>
           <div class="flex flex-wrap gap-x-4 gap-y-1">
             <span>Manufacturer: {{ item.manufacturer }}</span>
             <span>Manufacturer part number: {{ item.manufacturerCode }}</span>
           </div>
-          <dl class="hidden flex-wrap gap-x-4 gap-y-1 text-[13px] leading-tight text-neutral-700 md:flex">
+          <dl class="hidden flex-wrap gap-x-4 gap-y-1 text-[13px] leading-tight text-foreground md:flex">
             <div class="flex gap-1.5">
-              <dt class="text-slate-500">Price for:</dt>
+              <dt class="text-muted-foreground">Price for:</dt>
               <dd class="font-medium">Each</dd>
             </div>
             <div class="flex gap-1.5">
-              <dt class="text-slate-500">Multiple:</dt>
+              <dt class="text-muted-foreground">Multiple:</dt>
               <dd class="font-medium">1</dd>
             </div>
             <div class="flex gap-1.5">
-              <dt class="text-slate-500">Min order:</dt>
+              <dt class="text-muted-foreground">Min order:</dt>
               <dd class="font-medium">{{ minPriceConfiguration ? minPriceConfiguration.quantity : 0 }}</dd>
             </div>
           </dl>
@@ -85,18 +85,18 @@
     </div>
 
     <!-- Commerce: pricing + purchase -->
-    <div class="mt-4 flex min-w-0 flex-col gap-3 border-t border-slate-100 pt-4 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-      <div class="w-full min-w-0 overflow-hidden rounded-lg border border-slate-100 bg-white">
-        <div class="grid grid-cols-2 gap-2 bg-slate-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+    <div class="mt-4 flex min-w-0 flex-col gap-3 border-t border-border pt-4 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+      <div class="w-full min-w-0 overflow-hidden rounded-lg border border-border bg-card">
+        <div class="grid grid-cols-2 gap-2 bg-muted px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
           <span>Qty</span>
           <span class="text-right">Price (Ex VAT)</span>
         </div>
         <div
           v-for="[qty, price] in bulkQuantities"
           :key="qty"
-          class="grid grid-cols-2 gap-2 border-t border-slate-100 px-3 py-1.5 text-[13px] leading-tight"
+          class="grid grid-cols-2 gap-2 border-t border-border px-3 py-1.5 text-[13px] leading-tight"
         >
-          <span class="font-medium text-slate-600">{{ qty }}+</span>
+          <span class="font-medium text-muted-foreground">{{ qty }}+</span>
           <span class="text-right font-semibold tabular-nums" :class="[productDiscount ? 'text-rose-500' : 'text-blue-600']">
             {{ price.toFixed(2) }} Lei
           </span>

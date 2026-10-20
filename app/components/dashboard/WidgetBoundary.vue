@@ -5,12 +5,12 @@
       <template #error="{ error, clearError }">
         <div
           role="alert"
-          class="flex h-full min-h-[11rem] w-full flex-col items-center justify-center rounded-xl bg-white p-4 text-center shadow-xs md:p-6"
+          class="flex h-full min-h-[11rem] w-full flex-col items-center justify-center rounded-xl bg-card p-4 text-center shadow-xs md:p-6"
           :data-dashboard-widget-boundary="widgetId"
         >
           <WarningIcon class="mb-3 h-8 w-8 text-slate-400" />
-          <p class="text-sm font-semibold text-slate-700">{{ title }} couldn&apos;t load</p>
-          <p class="mt-1 text-xs text-slate-500">Other dashboard areas remain available.</p>
+          <p class="text-sm font-semibold text-foreground">{{ title }} couldn&apos;t load</p>
+          <p class="mt-1 text-xs text-muted-foreground">Other dashboard areas remain available.</p>
           <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
             <UiButton size="sm" variant="outline" @click="clearError">Try again</UiButton>
             <UiButton v-if="recoveryHref" size="sm" variant="ghost" as-child>

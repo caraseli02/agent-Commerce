@@ -20,17 +20,17 @@
     >
       <SwiperSlide v-for="slide in slides" :key="slide.title">
         <div
-          class="max-w-[396px] items-stretch self-stretch shadow-xs flex flex-col justify-center px-4 py-3 rounded-xl border border-slate-200 bg-slate-50"
+          class="max-w-[396px] items-stretch self-stretch shadow-xs flex flex-col justify-center px-4 py-3 rounded-xl border border-border bg-muted"
         >
           <div class="items-stretch flex justify-between gap-4">
             <div class="items-stretch flex grow basis-[0%] flex-col gap-4">
               <div class="flex flex-col gap-1">
-                <h4 class="text-slate-900 text-sm font-bold leading-5">{{ slide.title }}</h4>
-                <p class="text-slate-600 text-xs leading-4 font-normal">{{ slide.description }}</p>
+                <h4 class="text-foreground text-sm font-bold leading-5">{{ slide.title }}</h4>
+                <p class="text-muted-foreground text-xs leading-4 font-normal">{{ slide.description }}</p>
               </div>
               <NuxtLink
                 :to="slide.to"
-                class="w-fit text-slate-800 text-sm font-medium leading-6 justify-center bg-white border border-slate-200 py-1 px-4 rounded-md items-start hover:border-slate-300"
+                class="w-fit text-foreground text-sm font-medium leading-6 justify-center bg-card border border-border py-1 px-4 rounded-md items-start hover:border-slate-300"
               >
                 {{ slide.cta }}
               </NuxtLink>

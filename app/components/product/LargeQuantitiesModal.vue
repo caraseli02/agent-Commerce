@@ -38,8 +38,8 @@ const isOpen = defineModel<boolean>();
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogContent class="border-none shadow-s max-w-[358px] md:max-w-md rounded-xl">
-      <form class="flex flex-col gap-4 w-full bg-white shadow-sm" @submit="onSubmit">
-        <h4 id="price-enquiry-title" class="text-lg font-semibold leading-7 text-gray-800 mb-6">Price Enquiry</h4>
+      <form class="flex flex-col gap-4 w-full bg-card shadow-sm" @submit="onSubmit">
+        <h4 id="price-enquiry-title" class="text-lg font-semibold leading-7 text-foreground mb-6">Price Enquiry</h4>
 
         <!-- Quantity Field -->
         <FormField v-slot="{ value }" name="quantity">
@@ -98,7 +98,7 @@ const isOpen = defineModel<boolean>();
           <FormItem>
             <FormLabel>Additional Details (Optional)</FormLabel>
             <FormControl>
-              <UiTextarea class="min-h-[140px] bg-light-100" placeholder="Type your note here..." v-bind="componentField" />
+              <UiTextarea class="min-h-[140px] bg-muted" placeholder="Type your note here..." v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>

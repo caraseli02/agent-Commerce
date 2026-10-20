@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-white rounded-xl p-4 shadow-xs md:p-6">
+  <div class="flex flex-col bg-card rounded-xl p-4 shadow-xs md:p-6">
     <div class="flex items-center justify-between mb-6 lg:mb-8">
       <div class="leading-normal font-semibold">Customers by Country</div>
       <WarningIcon v-if="error" class="w-6 h-6" />

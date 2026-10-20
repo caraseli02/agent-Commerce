@@ -4,11 +4,11 @@
       <div>
         <NuxtLink
           to="/search"
-          class="px-6 flex flex-row items-center justify-center w-full min-h-[52px] bg-light-500 rounded-xl border border-slate-200 transition-colors duration-300 hover:border-slate-300 hover:bg-slate-50"
+          class="px-6 flex flex-row items-center justify-center w-full min-h-[52px] bg-accent rounded-xl border border-border transition-colors duration-300 hover:border-slate-300 hover:bg-muted"
         >
-          <ArrowLeft class="text-slate-500" />
+          <ArrowLeft class="text-muted-foreground" />
           <div class="p-2">
-            <span class="text-slate-500 text-base font-medium leading-7">Continue Shopping</span>
+            <span class="text-muted-foreground text-base font-medium leading-7">Continue Shopping</span>
           </div>
         </NuxtLink>
       </div>
@@ -26,7 +26,7 @@
         <button
           type="button"
           data-testid="checkout-as-guest"
-          class="flex min-h-[52px] items-center justify-center w-full rounded-xl border border-slate-300 bg-white px-6 py-2 text-slate-700 transition-colors duration-300 hover:border-slate-400 hover:bg-slate-50"
+          class="flex min-h-[52px] items-center justify-center w-full rounded-xl border border-slate-300 bg-card px-6 py-2 text-foreground transition-colors duration-300 hover:border-slate-400 hover:bg-muted"
           @click="startGuestCheckout"
         >
           <span class="text-base font-medium leading-7">Checkout as Guest</span>
@@ -49,9 +49,7 @@
         </UiButton>
       </div>
     </div>
-    <div
-      class="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 sm:gap-6 lg:justify-between lg:gap-4"
-    >
+    <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card px-4 py-4 sm:gap-6 lg:justify-between lg:gap-4">
       <BadgeVisa />
       <BadgeMaster />
       <BadgeApplePay />

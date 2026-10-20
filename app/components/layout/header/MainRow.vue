@@ -1,5 +1,5 @@
 <template>
-  <div data-mobile-main-row class="bg-primary py-3 max-md:py-3.5 md:border-b md:border-black/10 md:py-[14px]">
+  <div data-mobile-main-row class="bg-header py-3 max-md:py-3.5 md:border-b md:border-black/10 md:py-[14px]">
     <div class="container">
       <div class="relative">
         <div class="flex items-center justify-between gap-4 lg:gap-[35px] xl:gap-[78px]">
@@ -22,13 +22,13 @@
           <div class="flex items-center gap-2 md:ml-4 md:gap-6 lg:gap-9">
             <UiButton
               variant="ghost"
-              class="flex min-h-11 min-w-11 p-0 hover:bg-white/10 xl:hidden"
+              class="flex min-h-11 min-w-11 p-0 hover:bg-card/10 xl:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex']"
               aria-label="Search products"
               @click="showMobileSearch = true"
             >
-              <SearchIcon class="h-6 w-6 text-primary-foreground xl:mr-2" />
-              <span class="hidden font-medium leading-normal text-primary-foreground xl:inline-block"> Search </span>
+              <SearchIcon class="h-6 w-6 text-header-foreground xl:mr-2" />
+              <span class="hidden font-medium leading-normal text-header-foreground xl:inline-block"> Search </span>
             </UiButton>
             <div class="relative hidden items-center max-md:hidden" :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex']">
               <ClientOnly>
@@ -43,24 +43,24 @@
             <UiButton
               type="button"
               variant="ghost"
-              class="flex h-auto min-h-11 min-w-11 flex-col p-0 hover:bg-white/10"
+              class="flex h-auto min-h-11 min-w-11 flex-col p-0 hover:bg-card/10"
               :class="[showMobileSearch ? 'max-md:hidden md:hidden lg:flex' : '']"
               aria-label="Open my account"
               @click="openAccountModal()"
             >
-              <UserIcon class="h-6 w-6 text-primary-foreground xl:mb-1" />
-              <span class="hidden text-xs font-medium leading-[1.33] text-primary-foreground xl:inline-block"> My Account </span>
+              <UserIcon class="h-6 w-6 text-header-foreground xl:mb-1" />
+              <span class="hidden text-xs font-medium leading-[1.33] text-header-foreground xl:inline-block"> My Account </span>
             </UiButton>
             <UiButton
               variant="ghost"
-              class="relative h-auto min-h-11 min-w-11 justify-start gap-2 p-0 text-left hover:bg-white/10"
+              class="relative h-auto min-h-11 min-w-11 justify-start gap-2 p-0 text-left hover:bg-card/10"
               :class="[showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
               aria-label="Open shopping cart"
               @click="openCartModal()"
             >
               <!-- Fixed slot includes badge overhang so the total never collides with the count. -->
               <div class="relative flex h-6 w-9 shrink-0 items-center">
-                <CartIcon class="h-6 w-6 text-primary-foreground" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
+                <CartIcon class="h-6 w-6 text-header-foreground" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
                 <span
                   class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-500 px-1 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
                   :class="[showCartBadge ? 'opacity-100' : 'opacity-0', isCartPulsing ? 'cart-badge-pop' : '']"
@@ -70,7 +70,7 @@
                 </span>
               </div>
               <div
-                class="hidden min-w-[6.5rem] shrink-0 flex-col justify-center text-primary-foreground tabular-nums md:flex"
+                class="hidden min-w-[6.5rem] shrink-0 flex-col justify-center text-header-foreground tabular-nums md:flex"
                 :class="showCartTotal ? 'visible' : 'invisible'"
                 :aria-hidden="!showCartTotal"
               >
@@ -82,7 +82,7 @@
         </div>
         <Transition name="fade">
           <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 left-0 w-full -translate-y-1/2 md:hidden">
-            <div class="flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-3">
+            <div class="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3">
               <UiLabel class="relative z-10 flex h-10 min-w-0 flex-1 items-center font-normal">
                 <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent="showMobileSearch = false">
                   <UiInput
@@ -90,7 +90,7 @@
                     v-model="searchVal"
                     type="search"
                     placeholder="Search products"
-                    class="h-full w-full min-w-0 rounded-none border-0 bg-transparent py-2 pl-0 text-sm leading-[1.71] placeholder:text-gray-500 focus:outline-none"
+                    class="h-full w-full min-w-0 rounded-none border-0 bg-transparent py-2 pl-0 text-sm leading-[1.71] placeholder:text-muted-foreground focus:outline-none"
                     @input="onInput"
                     @keypress.enter="
                       $router.push('/search');
@@ -104,7 +104,7 @@
                 type="button"
                 variant="ghost"
                 size="icon"
-                class="h-auto w-auto flex-shrink-0 text-slate-500"
+                class="h-auto w-auto flex-shrink-0 text-muted-foreground"
                 aria-label="Close search"
                 @mousedown.prevent
                 @click="showMobileSearch = false"

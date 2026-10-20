@@ -43,14 +43,14 @@ const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubm
       <UiDialogHeader>
         <UiDialogTitle>{{ (address?._id ? 'Edit ' : 'Add ') + 'Shipping Address' }}</UiDialogTitle>
       </UiDialogHeader>
-      <section class="flex flex-col self-stretch bg-white rounded-xl shadow-sm max-md:px-5 max-h-[85vh] overflow-y-auto">
+      <section class="flex flex-col self-stretch bg-card rounded-xl shadow-sm max-md:px-5 max-h-[85vh] overflow-y-auto">
         <form class="mt-5 flex flex-col gap-y-6 gap-x-9" @submit="onSubmit">
           <FormField v-slot="{ componentField }" name="addressAlias">
             <FormItem>
               <FormLabel>Address Alias</FormLabel>
               <FormControl>
                 <section class="flex items-center">
-                  <div class="flex items-center justify-center w-11 h-11 rounded-l-lg bg-stone-50 border border-grey-300">
+                  <div class="flex items-center justify-center w-11 h-11 rounded-l-lg bg-muted border border-border">
                     <Building2Icon class="w-5 h-5" />
                   </div>
                   <UiInput class="rounded-l-[0px] border-l-0" type="text" v-bind="componentField" placeholder="Address Alias 1" />
@@ -136,7 +136,7 @@ const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubm
             </FormItem>
           </FormField>
 
-          <div class="flex justify-end gap-4 col-span-2 sticky bottom-0 bg-white pt-2">
+          <div class="flex justify-end gap-4 col-span-2 sticky bottom-0 bg-card pt-2">
             <UiButton variant="secondary" type="reset" @click="onCloseDialog()"> Cancel </UiButton>
             <UiButton type="submit" class="w-60"> Save </UiButton>
           </div>
@@ -149,6 +149,6 @@ const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubm
 <style scoped>
 @reference "../../../../assets/css/main.css";
 label {
-  @apply text-slate-500;
+  @apply text-muted-foreground;
 }
 </style>

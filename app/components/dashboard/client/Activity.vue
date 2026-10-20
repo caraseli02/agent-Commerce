@@ -1,6 +1,6 @@
 <template>
-  <div class="items-stretch shadow-xs bg-white flex flex-col p-6 rounded-xl max-md:px-5">
-    <div class="text-zinc-800 text-base font-semibold leading-6 max-md:max-w-full">My Activity</div>
+  <div class="items-stretch shadow-xs bg-card flex flex-col p-6 rounded-xl max-md:px-5">
+    <div class="text-foreground text-base font-semibold leading-6 max-md:max-w-full">My Activity</div>
     <div class="mt-9 max-md:max-w-full">
       <div class="gap-4 md:gap-5 flex max-md:flex-col max-md:items-stretch">
         <div class="flex flex-col items-stretch w-[33%] min-h-[114px] justify-between max-md:w-full max-md:ml-0">
@@ -26,13 +26,13 @@
                 </div>
               </div>
               <div class="items-stretch flex grow basis-[0%] flex-col text-sm whitespace-nowrap">
-                <div class="text-neutral-800 font-semibold leading-5">My Favorites</div>
+                <div class="text-foreground font-semibold leading-5">My Favorites</div>
                 <template v-if="hasFavorites">
                   <div v-for="(val, key, index) in data.favorites" :key="index" class="items-stretch flex justify-between gap-3 mt-0.5">
-                    <div class="text-slate-500 leading-6 capitalize">
+                    <div class="text-muted-foreground leading-6 capitalize">
                       {{ key }}
                     </div>
-                    <div class="text-neutral-800 font-medium leading-6">
+                    <div class="text-foreground font-medium leading-6">
                       {{ val }}
                     </div>
                   </div>
@@ -49,7 +49,7 @@
             </div>
             <div
               v-if="hasFavorites"
-              class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 transition-all cursor-pointer"
+              class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-blue-500 transition-all cursor-pointer"
             >
               <UiButton variant="ghost" class="h-auto p-0 text-sm font-medium leading-5 grow">Favorites</UiButton>
               <SvgoArrowLeft16
@@ -58,7 +58,7 @@
             </div>
           </div>
         </div>
-        <div class="h-0.5 w-full md:h-[114px] md:w-[2px] bg-light-500" />
+        <div class="h-0.5 w-full md:h-[114px] md:w-[2px] bg-accent" />
         <div class="flex flex-col items-stretch w-[33%] min-h-[114px] justify-between lg:ml-5 max-md:w-full max-md:ml-0">
           <div class="justify-between items-stretch self-stretch flex grow flex-col">
             <div class="items-stretch flex justify-between gap-4">
@@ -109,18 +109,18 @@
               </div>
               <div class="items-stretch flex grow basis-[0%] flex-col text-sm self-start">
                 <div class="items-stretch flex gap-2 font-semibold self-start">
-                  <div class="text-neutral-800 leading-5 grow">Total Orders</div>
-                  <div class="text-zinc-800 leading-5">
+                  <div class="text-foreground leading-5 grow">Total Orders</div>
+                  <div class="text-foreground leading-5">
                     {{ data.totalOrders }}
                   </div>
                 </div>
-                <div class="text-slate-500 leading-6 mt-0.5">
+                <div class="text-muted-foreground leading-6 mt-0.5">
                   This month you have placed
-                  <span class="font-semibold text-neutral-800">{{ data.monthOrder }}</span> orders.
+                  <span class="font-semibold text-foreground">{{ data.monthOrder }}</span> orders.
                 </div>
               </div>
             </div>
-            <div class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 cursor-pointer">
+            <div class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-blue-500 cursor-pointer">
               <UiButton variant="ghost" size="xs" class="text-sm font-medium leading-5 gap-2" @click="openSettingTab">
                 Orders
                 <SvgoArrowLeft16
@@ -130,7 +130,7 @@
             </div>
           </div>
         </div>
-        <div class="h-0.5 w-full md:h-[114px] md:w-[2px] bg-light-500" />
+        <div class="h-0.5 w-full md:h-[114px] md:w-[2px] bg-accent" />
         <div class="flex flex-col items-stretch w-[33%] min-h-[114px] justify-between lg:ml-5 max-md:w-full max-md:ml-0">
           <div class="justify-between items-stretch self-stretch flex grow flex-col">
             <div class="items-stretch flex gap-4">
@@ -156,8 +156,8 @@
               </div>
               <div class="items-stretch flex grow basis-[0%] flex-col">
                 <div class="items-stretch flex gap-2 text-sm font-semibold whitespace-nowrap">
-                  <div class="text-neutral-800 leading-5 shrink basis-auto">Returns</div>
-                  <div class="text-zinc-800 leading-5">
+                  <div class="text-foreground leading-5 shrink basis-auto">Returns</div>
+                  <div class="text-foreground leading-5">
                     {{ data.returns }}
                   </div>
                 </div>
@@ -178,11 +178,11 @@
                       stroke-linejoin="round"
                     />
                   </svg>
-                  <div class="text-slate-500 text-sm leading-5">File a return</div>
+                  <div class="text-muted-foreground text-sm leading-5">File a return</div>
                 </div>
               </div>
             </div>
-            <div class="items-stretch flex gap-2 self-end text-slate-500 hover:text-blue-500 cursor-pointer">
+            <div class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-blue-500 cursor-pointer">
               <UiButton variant="ghost" class="h-auto p-0 text-sm font-medium leading-5 grow whitespace-nowrap">All Returns</UiButton>
               <SvgoArrowLeft16
                 class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"

@@ -92,17 +92,17 @@ onMounted(() => {
         :payment-method="paymentMethod"
         :has-mixed-items="hasMixedItems"
       />
-      <UiSeparator class="bg-grey-100" />
+      <UiSeparator class="bg-muted" />
       <OrderConfirmAddress v-if="addresses" :shipping-address="addresses.shippingAddress" :billing-address="addresses.billingAddress" />
       <OrderConfirmStackItems v-if="stockOrder && showStockOrder" :data="stockOrder" :order-type="resolvedOrderTypeValue" />
       <OrderConfirmBackItems v-if="backOrder && showBackOrder" :data="backOrder" :order-type="resolvedOrderTypeValue" />
       <section class="flex flex-col lg:flex-row gap-9">
-        <div class="flex flex-col order-3 lg:order-1 w-full self-stretch text-sm leading-6 text-neutral-700">
+        <div class="flex flex-col order-3 lg:order-1 w-full self-stretch text-sm leading-6 text-foreground">
           <h2 class="w-full font-semibold max-md:max-w-full">Customer Notes</h2>
           <textarea
             disabled
             :placeholder="notes[0] && notes[0].message ? notes[0].message : 'No message provided'"
-            class="min-h-[204px] justify-center px-3 pt-3 pb-16 mt-4 rounded-lg border border-solid bg-light-100 border-grey-300 max-md:pb-10 max-md:max-w-full"
+            class="min-h-[204px] justify-center px-3 pt-3 pb-16 mt-4 rounded-lg border border-solid bg-muted border-border max-md:pb-10 max-md:max-w-full"
           />
         </div>
         <OrderConfirmPaySummary v-if="paymentSummary" :order-pay-sum="paymentSummary" />
@@ -111,7 +111,7 @@ onMounted(() => {
         <OrderConfirmCompanyDetails />
         <OrderConfirmBankDetails />
       </div>
-      <UiSeparator class="bg-grey-100" />
+      <UiSeparator class="bg-muted" />
       <div v-if="paymentSummary" class="flex flex-col gap-6">
         <h4 class="font-semibold text-sm">Need Help?</h4>
         <section class="flex gap-6 flex-wrap">

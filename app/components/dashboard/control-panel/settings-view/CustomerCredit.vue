@@ -1,12 +1,12 @@
 <template>
   <div
-    class="relative bg-white rounded-xl p-4 shadow-xs md:p-6 xl:pb-10 xl:shadow-none xl:rounded-none xl:after:absolute xl:after:bottom-0 xl:after:left-1/2 xl:after:-translate-x-1/2 xl:after:bg-gray-100 xl:after:h-px xl:after:w-[calc(100%-48px)]"
+    class="relative bg-card rounded-xl p-4 shadow-xs md:p-6 xl:pb-10 xl:shadow-none xl:rounded-none xl:after:absolute xl:after:bottom-0 xl:after:left-1/2 xl:after:-translate-x-1/2 xl:after:bg-gray-100 xl:after:h-px xl:after:w-[calc(100%-48px)]"
   >
     <div class="mb-4">
       <div class="flex items-start justify-between">
         <h2 class="text-xl leading-[1.4] font-semibold">Customer Credit</h2>
         <button
-          class="flex items-center justify-center rounded-lg w-8 h-8 text-slate-500 transition-colors duration-300 hover:text-blue-500 disabled:pointer-events-none"
+          class="flex items-center justify-center rounded-lg w-8 h-8 text-muted-foreground transition-colors duration-300 hover:text-blue-500 disabled:pointer-events-none"
           :disabled="loading || error"
           @click="$emit('toggle-editing')"
         >
@@ -25,19 +25,19 @@
         class="grid grid-cols-3 border border-border rounded-lg p-3 max-md:mb-12 md:order-2 lg:order-1"
       >
         <div class="relative pr-4 after:absolute after:w-px after:top-0 after:right-0 after:h-full after:bg-border">
-          <div class="text-xs leading-[1.5] font-medium text-slate-500 mb-2">Credit Limit</div>
+          <div class="text-xs leading-[1.5] font-medium text-muted-foreground mb-2">Credit Limit</div>
           <div class="text-sm leading-[1.43] font-semibold">
             {{ (creditObject?.limit ? getAmountFormat(creditObject.limit) : '0') + ' Lei' }}
           </div>
         </div>
         <div class="relative px-4 after:absolute after:w-px after:top-0 after:right-0 after:h-full after:bg-border">
-          <div class="text-xs leading-[1.5] font-medium text-slate-500 mb-2">Till Due</div>
+          <div class="text-xs leading-[1.5] font-medium text-muted-foreground mb-2">Till Due</div>
           <div class="text-sm leading-[1.43] font-semibold">
             {{ creditObject?.tillDue ? creditObject.tillDue + ' days' : '-' }}
           </div>
         </div>
         <div class="pl-4">
-          <div class="text-xs leading-[1.5] font-medium text-slate-500 mb-2">Due Date</div>
+          <div class="text-xs leading-[1.5] font-medium text-muted-foreground mb-2">Due Date</div>
           <div class="text-sm leading-[1.43] font-semibold">
             {{ formatReviewerDate(creditObject?.dueDate) }}
           </div>

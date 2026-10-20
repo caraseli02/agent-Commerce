@@ -299,20 +299,20 @@ watch(region, (newRegion) => {
 </script>
 
 <template>
-  <div v-if="hasUserDetails" class="bg-white shadow-l rounded-xl">
-    <section class="flex flex-col self-stretch p-4 md:p-6 bg-white rounded-xl shadow-sm">
+  <div v-if="hasUserDetails" class="bg-card shadow-l rounded-xl">
+    <section class="flex flex-col self-stretch p-4 md:p-6 bg-card rounded-xl shadow-sm">
       <header class="flex flex-col md:flex-row gap-2.5 justify-between w-full max-md:flex-wrap max-md:max-w-full">
-        <h2 class="self-start text-xl font-semibold leading-7 text-neutral-700">Account Details</h2>
-        <div class="flex flex-col md:flex-row gap-3 text-sm font-medium leading-6 text-gray-500">
+        <h2 class="self-start text-xl font-semibold leading-7 text-foreground">Account Details</h2>
+        <div class="flex flex-col md:flex-row gap-3 text-sm font-medium leading-6 text-muted-foreground">
           <UiButton
-            :class="openEdit ? 'text-white' : 'text-slate-500'"
+            :class="openEdit ? 'text-white' : 'text-muted-foreground'"
             :variant="openEdit ? 'default' : 'secondary'"
             :disabled="getUserDetails.accountType === AccountType.Agent"
           >
             <FilePenLineIcon class="w-5 h-5 stroke-1.5 mr-2" />
             <span>Edit</span>
           </UiButton>
-          <UiButton class="text-slate-500" variant="secondary">
+          <UiButton class="text-muted-foreground" variant="secondary">
             <CopyIcon class="w-5 h-5 stroke-1.5 mr-2" />
             <span>Copy Details</span>
           </UiButton>
@@ -512,12 +512,12 @@ watch(region, (newRegion) => {
       </form>
     </section>
   </div>
-  <div v-else class="bg-white shadow-l rounded-xl p-6 text-sm text-slate-500">Loading account details...</div>
+  <div v-else class="bg-card shadow-l rounded-xl p-6 text-sm text-muted-foreground">Loading account details...</div>
 </template>
 
 <style scoped>
 @reference "../../../../assets/css/main.css";
 label {
-  @apply text-slate-500;
+  @apply text-muted-foreground;
 }
 </style>

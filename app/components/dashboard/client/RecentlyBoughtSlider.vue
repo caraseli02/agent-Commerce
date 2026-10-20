@@ -1,13 +1,13 @@
 <template>
-  <div class="w-full justify-center items-stretch shadow-xs bg-white flex gap-6 lg:hidden flex-col px-6 py-5 rounded-xl max-md:px-5">
+  <div class="w-full justify-center items-stretch shadow-xs bg-card flex gap-6 lg:hidden flex-col px-6 py-5 rounded-xl max-md:px-5">
     <section class="flex">
-      <p class="header text-zinc-800 text-base font-semibold leading-6 grow shrink basis-auto">Recently Bought</p>
+      <p class="header text-foreground text-base font-semibold leading-6 grow shrink basis-auto">Recently Bought</p>
       <div class="items-stretch flex gap-2 self-start">
-        <NuxtLink to="/dashboard/client?tab=orders" class="text-slate-500 text-sm font-medium leading-5 grow whitespace-nowrap">
+        <NuxtLink to="/dashboard/client?tab=orders" class="text-muted-foreground text-sm font-medium leading-5 grow whitespace-nowrap">
           View Orders
         </NuxtLink>
         <SvgoArrowLeft16
-          class="aspect-square object-contain object-center w-4 justify-center items-center shrink-0 my-auto text-slate-500"
+          class="aspect-square object-contain object-center w-4 justify-center items-center shrink-0 my-auto text-muted-foreground"
         />
       </div>
     </section>
@@ -39,10 +39,10 @@
               <NuxtImg v-if="item.photo" :src="item.photo" loading="lazy" />
             </div>
             <div class="items-stretch flex flex-col whitespace-nowrap flex-1 self-start max-w-[240px] overflow-hidden">
-              <div class="text-neutral-800 text-sm font-semibold leading-4 text-ellipsis overflow-hidden">
+              <div class="text-foreground text-sm font-semibold leading-4 text-ellipsis overflow-hidden">
                 {{ item.title }}
               </div>
-              <div class="text-slate-500 text-ellipsis text-xs leading-4 mt-2 overflow-hidden">
+              <div class="text-muted-foreground text-ellipsis text-xs leading-4 mt-2 overflow-hidden">
                 {{ item.subtitle }}
               </div>
             </div>
@@ -101,7 +101,7 @@ const data = [
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-light-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-1.5 md:h-1.5!;
+  @apply w-1.5 h-1.5 bg-accent rounded-full opacity-100 m-0 transition-all duration-300 md:w-1.5 md:h-1.5!;
   margin-right: 0 !important;
 }
 

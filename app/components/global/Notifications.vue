@@ -5,12 +5,12 @@
         type="button"
         variant="ghost"
         class="h-auto -mr-2.5 p-0 xl:-mr-4"
-        :class="adminView ? '' : 'hover:bg-white/10'"
+        :class="adminView ? '' : 'hover:bg-card/10'"
         aria-label="Open notifications"
       >
         <div class="flex items-center">
           <div class="flex flex-col items-center">
-            <BellIcon :class="adminView ? 'text-slate-500' : 'text-white'" class="mb-0 h-6 w-6 xl:mb-1" />
+            <BellIcon :class="adminView ? 'text-muted-foreground' : 'text-white'" class="mb-0 h-6 w-6 xl:mb-1" />
             <span v-if="!adminView" class="hidden text-xs font-medium leading-[1.33] text-white xl:inline-block"> Notifications </span>
           </div>
           <span
@@ -31,15 +31,15 @@
     <LazyUiSheetContent
       side="right"
       hidde-close-button
-      class="flex h-full w-full flex-col gap-0 overflow-hidden rounded-none border-l border-slate-100 p-0 shadow-lg sm:max-w-[440px] md:w-[440px]"
+      class="flex h-full w-full flex-col gap-0 overflow-hidden rounded-none border-l border-border p-0 shadow-lg sm:max-w-[440px] md:w-[440px]"
     >
-      <header class="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 py-3 md:px-6">
-        <h2 class="truncate text-lg font-semibold text-neutral-800">Notifications</h2>
+      <header class="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 md:px-6">
+        <h2 class="truncate text-lg font-semibold text-foreground">Notifications</h2>
         <UiButton
           type="button"
           variant="secondary"
           size="icon"
-          class="h-11 w-11 shrink-0 text-slate-500"
+          class="h-11 w-11 shrink-0 text-muted-foreground"
           aria-label="Close notifications"
           @click="showNotifications = false"
         >
@@ -47,10 +47,10 @@
         </UiButton>
       </header>
 
-      <div class="shrink-0 border-b border-slate-100 px-2 pt-2 md:px-4">
+      <div class="shrink-0 border-b border-border px-2 pt-2 md:px-4">
         <UiTabs v-model="selectedTab">
           <UiTabsList
-            class="min-h-9 w-full justify-start overflow-x-scroll overflow-y-hidden rounded-none bg-white p-0 scrollbar-none lg:overscroll-x-none"
+            class="min-h-9 w-full justify-start overflow-x-scroll overflow-y-hidden rounded-none bg-card p-0 scrollbar-none lg:overscroll-x-none"
           >
             <template v-for="tab in tabs" :key="tab.value">
               <UiTabsTrigger class="relative pb-3 data-[state=active]:text-blue-500 data-[state=active]:shadow-none" :value="tab.value">
@@ -75,7 +75,7 @@
           <UiButton
             type="button"
             variant="ghost"
-            class="flex h-auto w-full flex-col items-stretch whitespace-normal rounded-none bg-white px-2 py-3 pt-2 pb-1 text-left font-normal transition-colors duration-300 hover:bg-[#F5F5F5] focus-visible:ring-inset focus-visible:ring-offset-0"
+            class="flex h-auto w-full flex-col items-stretch whitespace-normal rounded-none bg-card px-2 py-3 pt-2 pb-1 text-left font-normal transition-colors duration-300 hover:bg-muted focus-visible:ring-inset focus-visible:ring-offset-0"
             :aria-label="`Mark notification as read: ${notification.title}`"
             @click="markNotificationAsRead(notification, index)"
           >
@@ -87,12 +87,12 @@
                   {{ notification.title }}
                 </span>
               </span>
-              <span class="mr-8 text-xs leading-[1.67] text-slate-500">
+              <span class="mr-8 text-xs leading-[1.67] text-muted-foreground">
                 {{ getCurrentDate(notification.date) }}
               </span>
             </span>
             <span class="flex min-h-12 items-center justify-between pb-2 pl-3 pr-2">
-              <span class="mr-1 text-sm leading-[1.43] text-slate-500">
+              <span class="mr-1 text-sm leading-[1.43] text-muted-foreground">
                 {{ notification.description }}
               </span>
               <ChevronRight class="h-[18px] w-[18px] flex-shrink-0" />
@@ -102,7 +102,7 @@
             type="button"
             variant="ghost"
             size="icon"
-            class="absolute right-4 top-[22px] h-auto w-auto text-slate-500 hover:text-blue-500"
+            class="absolute right-4 top-[22px] h-auto w-auto text-muted-foreground hover:text-blue-500"
             aria-label="Delete notification"
             @click.stop.prevent="deleteNotification(notification, index)"
           >
@@ -111,12 +111,12 @@
         </div>
       </div>
 
-      <div class="sticky bottom-0 z-10 flex shrink-0 items-center justify-between border-t border-slate-100 bg-white px-4 py-4">
+      <div class="sticky bottom-0 z-10 flex shrink-0 items-center justify-between border-t border-border bg-card px-4 py-4">
         <NuxtLink to="/" class="flex items-center text-blue-500">
           <span class="mr-2 text-sm font-medium leading-[1.43]"> View all </span>
           <ArrowRight class="h-5 w-5 text-blue-500" />
         </NuxtLink>
-        <Settings class="h-5 w-5 text-slate-500" aria-hidden="true" />
+        <Settings class="h-5 w-5 text-muted-foreground" aria-hidden="true" />
       </div>
     </LazyUiSheetContent>
   </UiSheet>
@@ -221,7 +221,7 @@ const deleteNotification = async (notification: Notification, index: number) => 
 function getNotificationClass(notificationTitle: string): string {
   switch (notificationTitle) {
     case 'Others':
-      return 'text-slate-500';
+      return 'text-muted-foreground';
     case 'Processing':
       return 'text-purple-500';
     case 'Failed':

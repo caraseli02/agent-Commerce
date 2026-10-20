@@ -173,7 +173,7 @@
       <div v-if="!isCollapsedOnDesktop" class="text-xs text-[#C2C5CD] leading-normal mb-1">
         © {{ new Date().getFullYear() }} Components Marketplace Demo
       </div>
-      <div class="text-xs leading-normal text-slate-500">V 1.0.0</div>
+      <div class="text-xs leading-normal text-muted-foreground">V 1.0.0</div>
     </div>
     <Transition name="fade">
       <div

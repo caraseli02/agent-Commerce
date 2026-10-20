@@ -1,7 +1,7 @@
 <template>
   <div class="p-3 flex flex-col gap-4 border border-[#D4D4D4] rounded-xl bg-[#FFF] shadow-l">
     <div class="flex flex-row justify-between w-full">
-      <span class="text-neutral-700 text-sm font-medium leading-6">Credit Info</span>
+      <span class="text-foreground text-sm font-medium leading-6">Credit Info</span>
       <UiButton variant="ghost" size="icon" class="group inline-flex h-11 w-11 items-center justify-center" aria-label="Credit settings">
         <SettingCog class="text-[#5E6278] transition duration-300 group-hover:text-[#007FFF]" />
       </UiButton>
@@ -10,27 +10,27 @@
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Credit Limit</span>
-          <span class="text-neutral-700 text-xs font-medium leading-5">{{ accountCredit.limit }}</span>
+          <span class="text-foreground text-xs font-medium leading-5">{{ accountCredit.limit }}</span>
         </div>
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Till Due</span>
-          <span class="text-neutral-700 text-xs font-medium leading-5">{{ accountCredit.tillDue }}</span>
+          <span class="text-foreground text-xs font-medium leading-5">{{ accountCredit.tillDue }}</span>
         </div>
       </div>
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Credit Term</span>
-          <span class="text-neutral-700 text-xs font-medium leading-5">{{ accountCredit.term }}</span>
+          <span class="text-foreground text-xs font-medium leading-5">{{ accountCredit.term }}</span>
         </div>
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Total Spent</span>
-          <span class="text-neutral-700 text-xs font-medium leading-5">{{ accountCredit.spent.toFixed(2) }} Lei</span>
+          <span class="text-foreground text-xs font-medium leading-5">{{ accountCredit.spent.toFixed(2) }} Lei</span>
         </div>
       </div>
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Due Date</span>
-          <span class="text-neutral-700 text-xs font-medium leading-5">{{ formattedDueDate }}</span>
+          <span class="text-foreground text-xs font-medium leading-5">{{ formattedDueDate }}</span>
         </div>
         <div class="flex flex-col gap-1">
           <span class="text-[#5E6278] text-xs font-normal leading-5">Available</span>

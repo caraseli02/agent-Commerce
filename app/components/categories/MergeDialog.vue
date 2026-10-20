@@ -26,7 +26,7 @@ const options = computed(() => {
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger>
       <UiButton :disabled="isLocked" variant="ghost">
-        <MergeIcon class="w-5 h-5 text-slate-500 cursor-pointer" />
+        <MergeIcon class="w-5 h-5 text-muted-foreground cursor-pointer" />
       </UiButton>
     </UiDialogTrigger>
     <UiDialogContent class="sm:max-w-[640px]">

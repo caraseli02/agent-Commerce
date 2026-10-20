@@ -63,7 +63,7 @@ defineExpose({
     </UiDialogTrigger>
     <UiDialogContent class="border-none shadow-s max-w-[358px] md:max-w-md rounded-xl">
       <DialogHeader>
-        <DialogTitle class="text-lg font-semibold leading-7 text-gray-800 mb-10"> Report an error </DialogTitle>
+        <DialogTitle class="text-lg font-semibold leading-7 text-foreground mb-10"> Report an error </DialogTitle>
         <DialogDescription class="sr-only"> Report an error </DialogDescription>
       </DialogHeader>
       <form class="w-full space-y-6" @submit="onSubmit">
@@ -73,7 +73,7 @@ defineExpose({
             <FormControl>
               <Textarea
                 placeholder="Describe the issue you encountered"
-                class="resize-none min-h-[140px] bg-light-100"
+                class="resize-none min-h-[140px] bg-muted"
                 v-bind="componentField"
               />
             </FormControl>

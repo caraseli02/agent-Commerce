@@ -60,7 +60,7 @@ function checkCartItem(itemId: string) {
 
 <template>
   <div
-    class="relative cursor-pointer xl:cursor-default flex flex-row justify-between p-4 bg-light-500 w-full border-[1px] border-light-500 header-transition"
+    class="relative cursor-pointer xl:cursor-default flex flex-row justify-between p-4 bg-accent w-full border-[1px] border-border header-transition"
     :class="expanded ? 'rounded-t-lg' : 'rounded-lg'"
     @click="handleExpand"
   >
@@ -69,9 +69,7 @@ function checkCartItem(itemId: string) {
         <input :value="item.selected" type="checkbox" class="sr-only" @change="checkCartItem(item.id)" />
         <div
           class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
-          :class="[
-            item.selected ? 'bg-blue-500 border-blue-500 group-hover:bg-white' : 'bg-white  border-border group-hover:border-gray-300',
-          ]"
+          :class="[item.selected ? 'bg-blue-500 border-blue-500 group-hover:bg-card' : 'bg-card  border-border group-hover:border-border']"
         >
           <CheckIcon v-if="item.selected" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
         </div>
@@ -79,7 +77,7 @@ function checkCartItem(itemId: string) {
       <div class="max-w-[220px] lg:max-w-[245px] flex">
         <span
           v-if="stockItem"
-          class="truncate text-neutral-700 text-sm leading-6 font-normal self-center justify-self-center"
+          class="truncate text-foreground text-sm leading-6 font-normal self-center justify-self-center"
           :class="expanded && shortStock ? 'hidden sm:block' : 'block'"
           >{{ item.productEntity?.name }}</span
         >
@@ -103,7 +101,7 @@ function checkCartItem(itemId: string) {
       </div>
       <div
         v-if="stockItem && item.discount.value && discounts?.productDiscount"
-        class="px-2 border-[1px] rounded-[25px] border-rose-500 bg-white ml-4 sm:flex items-center hidden"
+        class="px-2 border-[1px] rounded-[25px] border-rose-500 bg-card ml-4 sm:flex items-center hidden"
       >
         <span class="text-xs font-semibold leading-5 text-rose-500">{{ item.discount.value }} %</span>
       </div>
@@ -111,7 +109,7 @@ function checkCartItem(itemId: string) {
     <div>
       <div class="hidden xl:flex flex-row gap-4 ml-4">
         <button
-          class="flex text-slate-500 items-center justify-center ml-auto transition-colors duration-300 hover:text-rose-500"
+          class="flex text-muted-foreground items-center justify-center ml-auto transition-colors duration-300 hover:text-rose-500"
           @click="emit('deleteItem', true)"
         >
           <TrashIcon class="w-5 h-5" />
@@ -119,7 +117,7 @@ function checkCartItem(itemId: string) {
       </div>
       <ChevronDownIcon
         class="w-5 h-5 flex-shrink-0 roun ded-full transition duration-300 xl:hidden flex"
-        :class="[expanded ? 'rotate-180 text-blue-500' : 'text-slate-500']"
+        :class="[expanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
       />
     </div>
   </div>

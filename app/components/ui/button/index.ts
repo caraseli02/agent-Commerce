@@ -7,13 +7,14 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-blue-700 text-white hover:bg-blue-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90',
+        default: 'bg-blue-700 text-white hover:bg-blue-800 dark:bg-muted dark:text-foreground dark:hover:bg-muted/90',
+        cart: 'bg-blue-700 text-white hover:bg-blue-800 dark:!bg-primary dark:!text-primary-foreground dark:hover:!bg-primary/90',
         destructive: 'bg-red-600 text-slate-50 hover:bg-red-700 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90',
         outline:
-          'border border-slate-200 bg-white hover:bg-light-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50',
-        secondary: 'bg-light-400 text-neutral-700 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80',
-        ghost: 'hover:bg-light-500 dark:hover:bg-slate-800 dark:hover:text-slate-50',
-        link: 'text-slate-900 underline-offset-4 hover:text-blue-500 dark:text-slate-50 font-light',
+          'border border-border bg-card hover:bg-accent hover:text-foreground dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50',
+        secondary: 'bg-secondary text-foreground hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80',
+        ghost: 'hover:bg-accent dark:hover:bg-slate-800 dark:hover:text-slate-50',
+        link: 'text-foreground underline-offset-4 hover:text-blue-500 dark:text-slate-50 font-light',
       },
       size: {
         default: 'h-10 px-4 py-2',

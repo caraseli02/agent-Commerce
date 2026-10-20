@@ -34,12 +34,12 @@ function selectIcon(icon: IconName): void {
   <UiPopover v-model:open="open">
     <UiPopoverTrigger as-child>
       <section class="flex flex-col gap-2 w-fit">
-        <div class="text-sm font-medium leading-4 text-zinc-700">
+        <div class="text-sm font-medium leading-4 text-foreground">
           {{ title }}
         </div>
         <section class="flex items-center gap-4">
           <div
-            class="flex flex-col justify-center items-center h-12 w-12 max-w-12 bg-white rounded-lg border border-gray-200 border-solid shadow-sm max-md:px-5"
+            class="flex flex-col justify-center items-center h-12 w-12 max-w-12 bg-card rounded-lg border border-gray-200 border-solid shadow-sm max-md:px-5"
           >
             <!-- Handle case when no icon is selected by showing a default or placeholder icon -->
             <IconAsync v-if="selectedIcon" :key="selectedIcon" :name="selectedIcon" class="aspect-square stroke-1 w-7 h-7" />
@@ -49,7 +49,7 @@ function selectIcon(icon: IconName): void {
       </section>
     </UiPopoverTrigger>
     <UiPopoverContent :collision-padding="10" class="w-[300px] p-0 flex flex-col gap-4">
-      <div class="relative w-full max-w-sm items-center border-b border-gray-300">
+      <div class="relative w-full max-w-sm items-center border-b border-border">
         <UiInput
           id="search"
           v-model="search"

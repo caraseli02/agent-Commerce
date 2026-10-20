@@ -31,7 +31,7 @@ onMounted(() => {
     <Billing />
     <Payments />
   </template>
-  <div v-else class="bg-white rounded-xl shadow-xs p-6 text-sm text-slate-500">Loading settings...</div>
+  <div v-else class="bg-card rounded-xl shadow-xs p-6 text-sm text-muted-foreground">Loading settings...</div>
 </template>
 
 <style scoped lang="postcss"></style>

@@ -15,7 +15,7 @@
           <!-- Bundled asset URLs must bypass Nuxt Image's runtime IPX provider. -->
           <!-- eslint-disable-next-line vue/html-self-closing -->
           <img v-if="item.avatar" :src="item.avatar" :alt="`${item.name}`" class="w-full h-full rounded-full object-cover" loading="lazy" />
-          <UserIcon v-else class="w-7 h-7 text-gray-500" />
+          <UserIcon v-else class="w-7 h-7 text-muted-foreground" />
         </template>
       </div>
       <div :class="[loading ? 'w-full' : 'truncate']">
@@ -24,12 +24,12 @@
           {{ `${item.name}` }}
         </div>
         <SkeletonLoader v-if="loading" class="w-full h-4" />
-        <div v-else class="text-xs leading-[1.67] text-slate-500 truncate">{{ item.email }}</div>
+        <div v-else class="text-xs leading-[1.67] text-muted-foreground truncate">{{ item.email }}</div>
       </div>
     </NuxtLink>
     <div v-if="!loading" class="relative flex">
       <DemoTooltip v-if="!item.active" theme="black" :position="'top'" class="self-start mx-3">
-        <LockKeyholeIcon class="w-4 h-4 text-slate-500 transition-colors duration-300 hover:text-blue-500" />
+        <LockKeyholeIcon class="w-4 h-4 text-muted-foreground transition-colors duration-300 hover:text-blue-500" />
         <template #content>
           <span class="capitalize">Account Locked</span>
         </template>

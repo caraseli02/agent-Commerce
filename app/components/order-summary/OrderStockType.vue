@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col p-4 xl:p-6 rounded-xl bg-white items-start shadow-xs gap-4 mb-6 h-fit">
+  <div class="flex flex-col p-4 xl:p-6 rounded-xl bg-card items-start shadow-xs gap-4 mb-6 h-fit">
     <div v-if="showGuestSignInWall" class="flex w-full flex-col gap-1" data-testid="guest-address-prompt">
-      <p class="text-sm font-medium text-neutral-700">Sign in to use saved addresses</p>
-      <p class="text-xs text-slate-500">
+      <p class="text-sm font-medium text-foreground">Sign in to use saved addresses</p>
+      <p class="text-xs text-muted-foreground">
         Speed up checkout with your billing and shipping details, or choose
         <span class="font-medium text-blue-600">Checkout as Guest</span>
         below to enter your details manually.
@@ -11,7 +11,7 @@
 
     <template v-else>
       <div v-if="stockOrder || backOrder" class="flex flex-col gap-6">
-        <h2 class="text-neutral-500 text-base font-medium leading-6">Order Type</h2>
+        <h2 class="text-muted-foreground text-base font-medium leading-6">Order Type</h2>
         <div class="flex flex-row gap-3">
           <div v-if="stockOrder && backOrder" class="px-3 py-[3px] justify-center flex rounded bg-blue-50">
             <span class="text-blue-500 text-sm font-medium leading-5">Mixed Order</span>
@@ -32,7 +32,7 @@
           <button class="flex flex-row justify-between py-2 group header-transition" @click="expandShippingAndBilling">
             <span
               class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
-              :class="shippingAndBillingExpanded ? 'text-blue-500' : 'text-neutral-700'"
+              :class="shippingAndBillingExpanded ? 'text-blue-500' : 'text-foreground'"
               >Shipping and Billing</span
             >
             <div class="flex flex-row gap-6">
@@ -44,11 +44,11 @@
                   </template>
                 </DemoTooltip>
                 <WarningErrorYellow class="hidden sm:flex lg:hidden" />
-                <span class="text-slate-500 text-xs font-medium leading-4 hidden sm:flex lg:hidden">Missing Info</span>
+                <span class="text-muted-foreground text-xs font-medium leading-4 hidden sm:flex lg:hidden">Missing Info</span>
               </div>
               <ChevronDownIcon
                 class="w-5 h-5 flex-shrink-0 rounded-full transition duration-300 flex"
-                :class="[shippingAndBillingExpanded ? 'rotate-180 text-blue-500' : 'text-slate-500']"
+                :class="[shippingAndBillingExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
               />
             </div>
           </button>
@@ -66,7 +66,7 @@
           <button class="flex flex-row justify-between py-2 group" @click="expandShippingPreferences">
             <span
               class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
-              :class="shippingPreferencesExpanded ? 'text-blue-500' : 'text-neutral-700'"
+              :class="shippingPreferencesExpanded ? 'text-blue-500' : 'text-foreground'"
               >Shipping Preferences</span
             >
             <div class="flex flex-row gap-6">
@@ -78,11 +78,11 @@
                   </template>
                 </DemoTooltip>
                 <WarningErrorHuge class="hidden sm:flex lg:hidden" />
-                <span class="text-slate-500 text-xs font-medium leading-4 hidden sm:flex lg:hidden">Mandatory</span>
+                <span class="text-muted-foreground text-xs font-medium leading-4 hidden sm:flex lg:hidden">Mandatory</span>
               </div>
               <ChevronDownIcon
                 class="w-5 h-5 flex-shrink-0 rounded-full transition duration-300 flex"
-                :class="[shippingPreferencesExpanded ? 'rotate-180 text-blue-500' : 'text-slate-500']"
+                :class="[shippingPreferencesExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
               />
             </div>
           </button>
@@ -101,7 +101,7 @@
         <button class="flex flex-row justify-between py-2 group" @click="expandPaymentMethod">
           <span
             class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
-            :class="paymentMethodExpanded ? 'text-blue-500' : 'text-neutral-700'"
+            :class="paymentMethodExpanded ? 'text-blue-500' : 'text-foreground'"
             >Payment Method</span
           >
           <div class="flex flex-row gap-6">
@@ -113,11 +113,11 @@
                 </template>
               </DemoTooltip>
               <WarningErrorHuge class="hidden sm:flex lg:hidden" />
-              <span class="text-slate-500 text-xs font-medium leading-4 hidden sm:flex lg:hidden">Mandatory</span>
+              <span class="text-muted-foreground text-xs font-medium leading-4 hidden sm:flex lg:hidden">Mandatory</span>
             </div>
             <ChevronDownIcon
               class="w-5 h-5 flex-shrink-0 rounded-full transition duration-300 flex"
-              :class="[paymentMethodExpanded ? 'rotate-180 text-blue-500' : 'text-slate-500']"
+              :class="[paymentMethodExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
             />
           </div>
         </button>

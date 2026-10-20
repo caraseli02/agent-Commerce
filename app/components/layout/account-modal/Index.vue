@@ -7,10 +7,8 @@
       class="z-[60] flex h-full w-full max-w-none flex-col gap-0 overflow-y-auto border-none p-0 shadow-none scrollbar-thin md:w-[440px] sm:max-w-none min-h-[100dvh]"
       @open-auto-focus="handleOpenAutoFocus"
     >
-      <header
-        class="sticky top-0 z-20 flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 py-3 md:px-6"
-      >
-        <UiSheetTitle class="truncate text-lg font-semibold text-neutral-800">
+      <header class="sticky top-0 z-20 flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 md:px-6">
+        <UiSheetTitle class="truncate text-lg font-semibold text-foreground">
           {{ loggedInUser ? 'Your account' : 'Sign in' }}
         </UiSheetTitle>
         <UiSheetClose as-child>
@@ -18,10 +16,10 @@
             ref="closeButtonRef"
             variant="ghost"
             size="icon"
-            class="inline-flex h-11 w-11 shrink-0 rounded-lg bg-light-300 hover:bg-light-400"
+            class="inline-flex h-11 w-11 shrink-0 rounded-lg bg-accent hover:bg-secondary"
             aria-label="Close account panel"
           >
-            <XIcon class="h-5 w-5 text-gray-600 hover:text-blue-500" />
+            <XIcon class="h-5 w-5 text-muted-foreground hover:text-blue-500" />
           </UiButton>
         </UiSheetClose>
       </header>
@@ -32,13 +30,13 @@
         </div>
         <div v-if="!loggedInUser" class="flex flex-1 flex-col">
           <section>
-            <p class="mb-4 text-xs leading-5 text-slate-500">
+            <p class="mb-4 text-xs leading-5 text-muted-foreground">
               Choose a demo role to continue. Passwords stay private unless you enter one.
             </p>
             <LayoutAccountModalForm @signed-in="handleSignedIn" />
           </section>
-          <p class="mt-auto flex flex-wrap items-center justify-center gap-2 pt-5 text-xs text-slate-500">
-            <SvgoMenuHelp class="h-4 w-4 !text-xs text-slate-500" />
+          <p class="mt-auto flex flex-wrap items-center justify-center gap-2 pt-5 text-xs text-muted-foreground">
+            <SvgoMenuHelp class="h-4 w-4 !text-xs text-muted-foreground" />
             For assistance please contact
             <a href="mailto:support@demo.app" class="text-blue-500 hover:text-blue-400 hover:underline"> support@demo.app </a>
           </p>
@@ -57,8 +55,8 @@
               <SignOutIcon class="mr-2 h-6 w-6" />
               Sign Out
             </UiButton>
-            <p class="flex items-center justify-center gap-2 text-slate-500">
-              <SvgoMenuHelp class="h-4 w-4 text-xs text-slate-500" />
+            <p class="flex items-center justify-center gap-2 text-muted-foreground">
+              <SvgoMenuHelp class="h-4 w-4 text-xs text-muted-foreground" />
               For assistance please contact
               <a href="mailto:support@demo.app" class="text-blue-500 hover:text-blue-400 hover:underline"> support@demo.app </a>
             </p>

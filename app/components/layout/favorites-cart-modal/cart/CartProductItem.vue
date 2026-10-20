@@ -28,7 +28,7 @@
       <UiButton
         variant="ghost"
         size="icon"
-        class="ml-auto text-slate-500 transition-colors duration-300 hover:text-rose-500"
+        class="ml-auto text-muted-foreground transition-colors duration-300 hover:text-rose-500"
         aria-label="Remove item from cart"
         @click="deleteItemFromCart"
       >

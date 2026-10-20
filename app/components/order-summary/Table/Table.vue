@@ -2,7 +2,7 @@
   <div v-if="isClientReady && cartStore.mappedCartItems.length" class="flex flex-col gap-6 mb-6">
     <OrderSummaryTableHead @check-all="checkAll" @delete-selected="deleteSelected" />
     <div v-if="stockItems && stockItems.length">
-      <span class="text-neutral-700 text-base font-semibold leading-6">Stock Items: {{ stockItems.length }}</span>
+      <span class="text-foreground text-base font-semibold leading-6">Stock Items: {{ stockItems.length }}</span>
     </div>
     <SkeletonLoader v-if="loading" />
     <OrderSummaryTableItem
@@ -14,7 +14,7 @@
       @update-quantity="updateSubtotal"
     />
     <div v-if="backOrderItems && backOrderItems.length">
-      <span class="text-neutral-700 text-base font-semibold leading-6">Backorder Items: {{ backOrderItems.length }}</span>
+      <span class="text-foreground text-base font-semibold leading-6">Backorder Items: {{ backOrderItems.length }}</span>
     </div>
     <SkeletonLoader v-if="loading" />
     <OrderSummaryTableItem

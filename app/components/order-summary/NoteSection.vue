@@ -1,7 +1,7 @@
 <template>
-  <div class="p-4 xl:p-6 flex flex-col gap-6 bg-[#FFF] rounded-xl shadow-xs mb-6">
+  <div class="p-4 xl:p-6 flex flex-col gap-6 bg-card rounded-xl shadow-xs mb-6">
     <div class="flex flex-row justify-between w-full">
-      <span class="text-neutral-700 text-base font-medium leading-6">Add a note for this order</span>
+      <span class="text-foreground text-base font-medium leading-6">Add a note for this order</span>
       <button class="group" @click="textBoxOpen = !textBoxOpen">
         <EditBig class="text-[#5E6278] group-hover:text-[#007FFF] transition duration-300" />
       </button>
@@ -11,7 +11,7 @@
         v-model="note"
         :rows="rows"
         maxlength="170"
-        class="no-focus thin-scrollbar w-full p-3 text-neutral-700 text-sm font-normal leading-6 bg-[#F9F9F9] rounded-lg border border-[#D4D4D4] resize-none"
+        class="no-focus thin-scrollbar w-full p-3 text-foreground text-sm font-normal leading-6 bg-muted rounded-lg border border-border resize-none"
         placeholder="Type your note here..."
         @input="adjustHeight"
         @focusout="UpdateNote"

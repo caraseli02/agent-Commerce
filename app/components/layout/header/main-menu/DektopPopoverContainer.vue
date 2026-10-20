@@ -140,7 +140,7 @@ void getCategories();
       </div>
       <div class="h-full min-h-0 pl-2">
         <LayoutHeaderMainMenuBannerNew v-if="!hasSelection" class="h-full" />
-        <div v-else class="h-full bg-white rounded-xl border border-[#E1E4EA] overflow-hidden flex flex-col">
+        <div v-else class="h-full bg-card rounded-xl border border-[#E1E4EA] overflow-hidden flex flex-col">
           <div class="h-12 px-5 border-b border-[#E8EBEF] flex items-center justify-between gap-3 shrink-0">
             <div class="text-[15px] leading-none font-medium text-[#5E6572] truncate">
               <span class="text-[#8A90A0]">Main Category</span>

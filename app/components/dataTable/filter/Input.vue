@@ -48,14 +48,14 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
 <template>
   <UiPopover>
     <UiPopoverTrigger as-child>
-      <UiButton variant="outline" size="sm" class="!ml-0 border-dashed text-neutral-700">
+      <UiButton variant="outline" size="sm" class="!ml-0 border-dashed text-foreground">
         <PlusCircleIcon class="mr-2 h-4 w-4" />
         {{ title }}
         <template v-if="selectedValues.size > 0">
           <UiSeparator orientation="vertical" class="mx-2 h-4" />
           <!-- <UiBadge
             variant="secondary"
-            class="rounded bg-light-300 px-1 font-normal lg:hidden"
+            class="rounded bg-accent px-1 font-normal lg:hidden"
           >
             {{ searchArr.length }}
           </UiBadge>
@@ -63,7 +63,7 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
             <UiBadge
               v-if="searchArr.length > 2"
               variant="secondary"
-              class="rounded bg-light-300 px-1 py-[3px] font-normal"
+              class="rounded bg-accent px-1 py-[3px] font-normal"
             >
               {{ searchArr.length }} selected
             </UiBadge>
@@ -72,13 +72,13 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
                 v-for="item in searchArr"
                 :key="item"
                 variant="secondary"
-                class="rounded bg-light-300 px-1 py-[3px] font-normal"
+                class="rounded bg-accent px-1 py-[3px] font-normal"
               >
                 {{ item }}
               </UiBadge>
             </template>
           </div> -->
-          <UiBadge variant="secondary" class="rounded bg-light-300 px-1 py-[3px] font-normal">
+          <UiBadge variant="secondary" class="rounded bg-accent px-1 py-[3px] font-normal">
             {{ props.column?.getFilterValue() }}
           </UiBadge>
         </template>
@@ -86,7 +86,7 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
     </UiPopoverTrigger>
     <UiPopoverContent class="w-[280px] flex flex-col gap-2 p-2" align="start">
       <div class="flex gap-3 justify-between">
-        <UiInput v-model="searchText" placeholder="Filter name or email..." class="h-9 w-full text-neutral-700 border-gray-300" />
+        <UiInput v-model="searchText" placeholder="Filter name or email..." class="h-9 w-full text-foreground border-border" />
         <!-- <UiInput
         placeholder="Filter name or email..."
         :model-value=modelValue
@@ -99,7 +99,7 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
       </div>
       <UiButton
         v-if="selectedValues.size > 0"
-        class="text-neutral-700 font-normal text-sm"
+        class="text-foreground font-normal text-sm"
         size="sm"
         variant="ghost"
         @click="column?.setFilterValue(undefined)"

@@ -21,12 +21,12 @@
     >
       <div v-for="(step, index) in steps" :key="index" class="relative z-10 flex flex-col items-center md:flex-row">
         <div
-          class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white border-2 mb-2.5 md:w-[42px] md:h-[42px] md:mb-0 md:mr-3"
+          class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-card border-2 mb-2.5 md:w-[42px] md:h-[42px] md:mb-0 md:mr-3"
           :class="[currentStep === index ? 'border-blue-500' : 'border-border md:border-blue-500']"
         >
           <div
             class="flex items-center justify-center rounded-full w-[22px] h-[22px] transition-colors duration-300 md:w-[25px] md:h-[25px]"
-            :class="[currentStep === index ? 'bg-blue-500 text-white' : 'text-slate-500']"
+            :class="[currentStep === index ? 'bg-blue-500 text-white' : 'text-muted-foreground']"
           >
             <span class="leading-tight font-medium font-Inter">
               {{ index + 1 }}
@@ -47,13 +47,13 @@
       </div>
     </div>
     <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] max-md:hidden" aria-hidden="true">
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white">
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-card/10 text-white">
         <TwitterIcon class="w-5" />
       </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white">
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-card/10 text-white">
         <LinkedInIcon class="w-5" />
       </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-white/10 text-white">
+      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-card/10 text-white">
         <InstagramIcon class="w-5 h-5" />
       </span>
     </div>

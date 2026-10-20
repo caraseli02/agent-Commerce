@@ -4,7 +4,7 @@
   >
     <div class="relative z-10 border-b border-border bg-muted py-1.5 md:py-2">
       <div class="container">
-        <div class="flex items-center text-slate-500 md:justify-between">
+        <div class="flex items-center text-muted-foreground md:justify-between">
           <div class="mr-4 flex items-center gap-2 md:mr-0">
             <HeadphonesIcon class="h-5 w-5" />
             <div class="hidden text-xs leading-[1.67] md:flex lg:text-sm lg:leading-tight">
@@ -16,7 +16,7 @@
           </div>
           <UiButton variant="link" class="h-auto p-0" aria-label="Regional preferences" @click="showRegionalPreferencesModal = true">
             <RonFlag class="mr-2.5 h-5 w-6" />
-            <span class="text-sm leading-[1.43] text-slate-500">{{ regionalLabel }}</span>
+            <span class="text-sm leading-[1.43] text-muted-foreground">{{ regionalLabel }}</span>
           </UiButton>
         </div>
       </div>

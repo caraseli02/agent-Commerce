@@ -1,20 +1,20 @@
 <template>
   <div class="flex w-full items-start gap-3">
     <div
-      class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-slate-200 text-lg font-semibold text-slate-600 select-none"
+      class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-slate-200 text-lg font-semibold text-muted-foreground select-none"
       aria-hidden="true"
     >
       {{ avatarInitials }}
     </div>
     <div class="min-w-0 flex-1 pt-0.5">
       <div class="flex min-w-0 items-center gap-2">
-        <p class="truncate text-sm font-medium leading-5 text-neutral-700">
+        <p class="truncate text-sm font-medium leading-5 text-foreground">
           {{ fullname || 'Loading...' }}
         </p>
         <DemoTooltip theme="black" position="bottom">
           <component
             :is="getIconBadgeByAccountType()"
-            class="h-5 w-5 shrink-0 text-slate-500 transition-colors duration-300 hover:text-blue-500"
+            class="h-5 w-5 shrink-0 text-muted-foreground transition-colors duration-300 hover:text-blue-500"
           />
           <template #content>
             <span class="text-sm">{{
@@ -23,7 +23,7 @@
           </template>
         </DemoTooltip>
       </div>
-      <p class="mt-0.5 truncate text-xs leading-4 text-slate-500">
+      <p class="mt-0.5 truncate text-xs leading-4 text-muted-foreground">
         {{ getUserDetails?.contactDetails.email || 'Loading...' }}
       </p>
       <div class="mt-2 flex min-w-0 items-center gap-1.5">

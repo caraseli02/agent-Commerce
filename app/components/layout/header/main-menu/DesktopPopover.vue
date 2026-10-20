@@ -48,7 +48,7 @@ onBeforeUnmount(() => {
     <UiButton
       :variant="isOpen ? 'secondary' : 'ghost'"
       class="h-11 w-11 shrink-0 p-0"
-      :class="{ 'text-primary-foreground hover:bg-white/10': !isOpen }"
+      :class="{ 'text-header-foreground hover:bg-card/10': !isOpen }"
       :aria-label="isOpen ? 'Close products navigation' : 'Open products navigation'"
       :aria-expanded="isOpen"
       @click="togglePopover"

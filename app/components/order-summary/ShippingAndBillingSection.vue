@@ -6,7 +6,7 @@
       <div class="flex flex-col gap-4 w-full">
         <div class="flex flex-row justify-between">
           <div class="flex flex-row items-center gap-3">
-            <span class="text-neutral-700 text-sm font-medium leading-6">Billing Information</span>
+            <span class="text-foreground text-sm font-medium leading-6">Billing Information</span>
             <DemoTooltip v-if="billingInfoMissing" theme="black" position="top">
               <WarningErrorYellow />
               <template #content>
@@ -60,7 +60,7 @@
       <div class="flex flex-col gap-4 w-full">
         <div class="flex flex-row justify-between">
           <div class="flex flex-row items-center gap-3">
-            <span class="text-neutral-700 text-sm font-medium leading-6">Shipping Information</span>
+            <span class="text-foreground text-sm font-medium leading-6">Shipping Information</span>
             <DemoTooltip v-if="shippingInfoMissing" theme="black" position="top">
               <WarningErrorYellow />
               <template #content>
@@ -99,7 +99,7 @@
         </div>
         <div v-else class="flex flex-col gap-2">
           <div class="flex flex-row justify-between">
-            <span class="text-neutral-700 text-sm font-medium leading-6">{{ order.shippingDetails?.address?.alias }}</span>
+            <span class="text-foreground text-sm font-medium leading-6">{{ order.shippingDetails?.address?.alias }}</span>
             <div
               v-if="order.shippingDetails?.address?.default"
               class="px-2 py-1 rounded-[100px] border-[1px] border-[#00D395] flex items-center justify-center gap-1"

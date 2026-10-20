@@ -1,12 +1,12 @@
 <template>
-  <div class="items-stretch shadow-xs bg-white flex w-full lg:max-w-[476px] xl:max-w-[330px] flex-col p-6 rounded-xl">
+  <div class="items-stretch shadow-xs bg-card flex w-full lg:max-w-[476px] xl:max-w-[330px] flex-col p-6 rounded-xl">
     <header class="justify-between items-stretch flex gap-5">
       <div class="justify-center items-stretch flex flex-col whitespace-nowrap">
-        <div class="text-zinc-800 text-2xl font-semibold leading-7">
+        <div class="text-foreground text-2xl font-semibold leading-7">
           {{ Number(availableCredit).toFixed(2) }}
           Lei
         </div>
-        <div class="text-slate-500 text-xs leading-4 mt-1">Available Credit</div>
+        <div class="text-muted-foreground text-xs leading-4 mt-1">Available Credit</div>
       </div>
       <button class="text-slate-300 hover:text-blue-500">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,10 +29,10 @@
     </div>
     <form class="justify-between items-stretch flex w-full gap-5 mt-4">
       <div class="items-stretch flex justify-between gap-2 text-sm whitespace-nowrap">
-        <label for="balance" class="text-slate-500 leading-5 grow">Balance:</label>
-        <div class="text-zinc-800 font-semibold leading-5 grow">{{ Number(balance).toFixed(2) }} Lei</div>
+        <label for="balance" class="text-muted-foreground leading-5 grow">Balance:</label>
+        <div class="text-foreground font-semibold leading-5 grow">{{ Number(balance).toFixed(2) }} Lei</div>
       </div>
-      <div class="flex items-center justify-between gap-2 text-slate-500 hover:text-blue-500">
+      <div class="flex items-center justify-between gap-2 text-muted-foreground hover:text-blue-500">
         <SvgoCard16 />
         <button type="submit" class="text-sm font-medium leading-5 grow whitespace-nowrap">Pay now</button>
       </div>

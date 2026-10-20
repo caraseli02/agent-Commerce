@@ -41,9 +41,9 @@ const callAction = (option: ActionOptionsConfiguration) => {
 <template>
   <section class="flex justify-end items-center gap-3">
     <UiBadge v-if="discount" class="h-[22px] text-xs !pt-[3px]" variant="outline"> {{ discount }}% </UiBadge>
-    <LockKeyholeIcon v-if="lock" class="w-5 h-5 text-slate-500 transition-colors duration-300 hover:text-blue-500" />
+    <LockKeyholeIcon v-if="lock" class="w-5 h-5 text-muted-foreground transition-colors duration-300 hover:text-blue-500" />
     <svg
-      class="text-slate-500 hover:text-blue-500 cursor-pointer"
+      class="text-muted-foreground hover:text-blue-500 cursor-pointer"
       width="20"
       height="20"
       viewBox="0 0 20 20"
@@ -84,7 +84,7 @@ const callAction = (option: ActionOptionsConfiguration) => {
       />
     </svg>
     <svg
-      class="text-slate-500 hover:text-blue-500 cursor-pointer"
+      class="text-muted-foreground hover:text-blue-500 cursor-pointer"
       width="20"
       height="20"
       viewBox="0 0 20 20"
@@ -114,7 +114,7 @@ const callAction = (option: ActionOptionsConfiguration) => {
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="lucide lucide-ellipsis-vertical h-4 w-4 text-slate-500 hover:text-blue-500 cursor-pointer"
+            class="lucide lucide-ellipsis-vertical h-4 w-4 text-muted-foreground hover:text-blue-500 cursor-pointer"
           >
             <circle cx="12" cy="12" r="1" />
             <circle cx="12" cy="5" r="1" />

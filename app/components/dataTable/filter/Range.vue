@@ -29,35 +29,35 @@ const selectedValues = computed(() => props.column?.getFilterValue() as string[]
 <template>
   <UiPopover>
     <UiPopoverTrigger as-child>
-      <UiButton variant="outline" size="sm" class="!ml-0 border-dashed text-neutral-700">
-        <PlusCircleIcon class="mr-2 h-4 w-4 text-neutral-700" />
+      <UiButton variant="outline" size="sm" class="!ml-0 border-dashed text-foreground">
+        <PlusCircleIcon class="mr-2 h-4 w-4 text-foreground" />
         {{ title }}
         <!-- Check if either min or max range values are greater than 0 -->
         <template v-if="selectedValues">
           <UiSeparator orientation="vertical" class="mx-2 h-4" />
           <!-- Badge for Min -->
-          <UiBadge v-if="selectedValues[0]" variant="secondary" class="rounded bg-light-300 px-1 py-[3px] font-normal mr-1">
+          <UiBadge v-if="selectedValues[0]" variant="secondary" class="rounded bg-accent px-1 py-[3px] font-normal mr-1">
             Min: {{ selectedValues[0] }}
           </UiBadge>
           <!-- Badge for Max -->
-          <UiBadge v-if="selectedValues[1]" variant="secondary" class="rounded bg-light-300 px-1 py-[3px] font-normal">
+          <UiBadge v-if="selectedValues[1]" variant="secondary" class="rounded bg-accent px-1 py-[3px] font-normal">
             Max: {{ selectedValues[1] }}
           </UiBadge>
         </template>
       </UiButton>
     </UiPopoverTrigger>
     <UiPopoverContent class="w-[256px] flex gap-4 p-0 justify-between" align="start">
-      <div class="grid grid-cols-1 gap-5 rounded-lg bg-white p-4 px-3 w-[256px] shadow-xs">
+      <div class="grid grid-cols-1 gap-5 rounded-lg bg-card p-4 px-3 w-[256px] shadow-xs">
         <div class="flex items-end gap-3">
           <UiLabel>
-            <div class="flex items-center border border-gray-300 rounded-lg pl-3 text-[14px] leading-4 h-8">
+            <div class="flex items-center border border-border rounded-lg pl-3 text-[14px] leading-4 h-8">
               <span v-if="props.prefix" class="font-medium mr-1">{{ props.prefix }}</span>
               <UiInput v-model.number="range[0]" type="number" class="h-full w-full border-0 bg-transparent pl-0" />
             </div>
           </UiLabel>
           <div class="h-full pt-[2.5px]">-</div>
           <UiLabel>
-            <div class="flex items-center border border-gray-300 rounded-lg pl-3 text-[14px] leading-4 h-8">
+            <div class="flex items-center border border-border rounded-lg pl-3 text-[14px] leading-4 h-8">
               <span v-if="props.prefix" class="font-medium mr-1">{{ props.prefix }}</span>
               <UiInput v-model.number="range[1]" type="number" class="h-full w-full border-0 bg-transparent pl-0" />
             </div>
@@ -74,7 +74,7 @@ const selectedValues = computed(() => props.column?.getFilterValue() as string[]
             :max="100000"
             :step="10"
             :tooltips="false"
-            class="rangeSlider bg-light-500"
+            class="rangeSlider bg-accent"
             @slide="range = $event"
           />
         </section>

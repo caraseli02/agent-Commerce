@@ -22,7 +22,7 @@
         type="button"
         variant="ghost"
         size="icon"
-        class="absolute right-0 top-0 h-11 w-11 text-gray-500"
+        class="absolute right-0 top-0 h-11 w-11 text-muted-foreground"
         :aria-label="showPassword ? 'Hide password' : 'Show password'"
         :aria-pressed="showPassword"
         @click="showPassword = !showPassword"
@@ -39,7 +39,7 @@
             :class="[passwordStrength >= num ? 'bg-green-500' : 'bg-[#E7E7EB]']"
           />
         </div>
-        <div class="text-xs text-gray-500">Use 8 or more characters with a mix of letters, numbers & symbols.</div>
+        <div class="text-xs text-muted-foreground">Use 8 or more characters with a mix of letters, numbers & symbols.</div>
       </div>
     </div>
     <p v-if="error" :id="errorId" role="alert" class="mt-1 text-xs leading-normal text-rose-500">

@@ -4,7 +4,7 @@
       <div class="flex flex-wrap gap-y-2 items-center mb-3">
         <NuxtLink
           to="/dashboard"
-          class="flex items-center flex-shrink-0 font-medium text-slate-500 transition-colors duration-300 hover:text-blue-500"
+          class="flex items-center flex-shrink-0 font-medium text-muted-foreground transition-colors duration-300 hover:text-blue-500"
         >
           <HomeIcon class="w-[18px] h-[18px] mr-2" />
           <span class="text-xs leading-[1.33]">Home</span>
@@ -13,7 +13,7 @@
         <NuxtLink
           to="/dashboard/customers"
           class="text-xs leading-[1.33] flex-shrink-0 font-medium transition-colors duration-300 hover:text-blue-500"
-          :class="[customer ? 'text-slate-500' : 'text-blue-500']"
+          :class="[customer ? 'text-muted-foreground' : 'text-blue-500']"
         >
           Customers
         </NuxtLink>
@@ -22,7 +22,7 @@
           <NuxtLink
             :to="`/dashboard/customers/${customer.replace(/ /g, '-')}`"
             class="text-xs leading-[1.33] font-medium flex-shrink-0 text-blue-500 transition-colors duration-300 hover:text-blue-500"
-            :class="[panelView ? 'text-slate-500' : 'text-blue-500']"
+            :class="[panelView ? 'text-muted-foreground' : 'text-blue-500']"
           >
             {{ customerName }}
           </NuxtLink>
@@ -31,7 +31,7 @@
           <span class="text-xs leading-[1.33] flex-shrink-0 mx-1">/</span>
           <NuxtLink
             :to="`/dashboard/customers/${customer}/control-panel/${accountType == 0 ? 'account' : 'organization'}`"
-            class="text-xs leading-[1.33] font-medium text-slate-500 flex-shrink-0 transition-colors duration-300 hover:text-blue-500"
+            class="text-xs leading-[1.33] font-medium text-muted-foreground flex-shrink-0 transition-colors duration-300 hover:text-blue-500"
           >
             Control Panel
           </NuxtLink>
@@ -41,7 +41,7 @@
           </div>
         </template>
       </div>
-      <h2 class="text-xl leading-[1.4] text-neutral-700 font-semibold">
+      <h2 class="text-xl leading-[1.4] text-foreground font-semibold">
         {{ title }}
       </h2>
     </div>

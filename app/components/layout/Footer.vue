@@ -1,13 +1,13 @@
 <template>
   <footer>
-    <div class="bg-[#F5F5F5] pt-[30px] pb-6 md:pb-8">
+    <div class="bg-muted pt-[30px] pb-6 md:pb-8">
       <div class="container">
         <div class="mb-8 md:flex md:items-start md:gap-[45px] md:mb-6 lg:justify-between">
           <div class="mb-[30px] md:mb-0">
             <NuxtLink to="/" aria-label="Components Marketplace home" class="mb-3 flex">
               <Logo class="w-[121px]" />
             </NuxtLink>
-            <p class="max-w-[220px] text-sm leading-5 text-slate-500">Portfolio demo with sample products and accounts.</p>
+            <p class="max-w-[220px] text-sm leading-5 text-muted-foreground">Portfolio demo with sample products and accounts.</p>
           </div>
           <div class="grid grid-cols-2 gap-5 md:flex md:flex-wrap md:gap-x-[30px] lg:gap-x-[50px]">
             <div v-for="(items, label, index) in navItems" :key="index" class="md:max-w-max md:last:ml-[94px] lg:last:ml-0">
@@ -31,7 +31,7 @@
           </div>
         </div>
         <div>
-          <p class="text-[15px] text-center text-slate-500">&copy; {{ new Date().getFullYear() }} Components Marketplace</p>
+          <p class="text-[15px] text-center text-muted-foreground">&copy; {{ new Date().getFullYear() }} Components Marketplace</p>
         </div>
       </div>
     </div>

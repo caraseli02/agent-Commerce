@@ -1,5 +1,5 @@
 <template>
-  <div v-if="modelValue > 0" class="flex bg-stone-50 bg-opacity-95 rounded-lg max-w-max">
+  <div v-if="modelValue > 0" class="flex bg-muted bg-opacity-95 rounded-lg max-w-max">
     <UiButton
       type="button"
       variant="secondary"
@@ -37,7 +37,7 @@
       :disabled="object.max && props.type !== OrderType.Back ? Number(modelValue) >= object.max : false"
       @click="inputHandler(modelValue + 1)"
     >
-      <PlusIcon class="w-6 h-6 flex-shrink-0 text-slate-500" />
+      <PlusIcon class="w-6 h-6 flex-shrink-0 text-muted-foreground" />
     </UiButton>
   </div>
   <UiSkeleton v-if="modelValue === 0" class="w-[140px] h-11" />
@@ -152,10 +152,10 @@ watch(
 </script>
 
 <!-- <template>
-    <div v-if="modelValue > 0" class="flex bg-stone-50 bg-opacity-95 rounded-lg max-w-max">
+    <div v-if="modelValue > 0" class="flex bg-muted bg-opacity-95 rounded-lg max-w-max">
         <button
             :disabled="Number(modelValue) === object.min || modelValue === 1"
-            class="flex items-center justify-center bg-gray-100 text-slate-500 px-2.5 transition-colors duration-300 disabled:text-border"
+            class="flex items-center justify-center bg-muted text-muted-foreground px-2.5 transition-colors duration-300 disabled:text-border"
             :class="[size === 'sm' ? 'w-8 h-9' : 'w-[42px] h-[42px]']"
             @click.once="inputHandler(Number(modelValue) - 1)"
         >
@@ -168,19 +168,19 @@ watch(
                 type="number"
                 :min="1"
                 placeholder="Quantity"
-                class="bg-transparent w-[56px] px-1 text-sm leading-normal text-neutral-700 text-center placeholder:text-[12px] focus:outline-none"
+                class="bg-transparent w-[56px] px-1 text-sm leading-normal text-foreground text-center placeholder:text-[12px] focus:outline-none"
                 :class="[size === 'sm' ? 'h-9' : 'h-[42px]']"
                 @focusout.once="($event) => inputHandlerModified($event)"
                 @mouseleave.once="($event) => inputHandlerModified($event)"
             />
         </label>
         <button
-            class="flex items-center justify-center bg-gray-100 px-2.5"
+            class="flex items-center justify-center bg-muted px-2.5"
             :class="[size === 'sm' ? 'w-8 h-9' : 'w-[42px] h-[42px]']"
             :disabled="object.max && props.type !== OrderType.Back ? Number(modelValue) >= object.max : false"
             @click.once="inputHandler(Number(modelValue) + 1)"
         >
-            <PlusIcon class="w-6 h-6 flex-shrink-0 text-slate-500" />
+            <PlusIcon class="w-6 h-6 flex-shrink-0 text-muted-foreground" />
         </button>
     </div>
     <UiSkeleton v-if="modelValue === 0" class="w-[140px] h-[42px]" />

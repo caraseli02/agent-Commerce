@@ -39,7 +39,7 @@ fetchAndSetCustomersList(1, 10);
 </script>
 
 <template>
-  <div class="h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-white">
+  <div class="h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-card">
     <DataTable
       :fetch-fn="fetchAndSetCustomersList"
       :page-count="pageCount"

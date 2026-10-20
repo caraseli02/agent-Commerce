@@ -8,7 +8,7 @@
             v-for="(categoryObj, index) in categoryLabels"
             :key="categoryObj.path"
             :to="`/search?category=${encodeURIComponent(categoryObj.path)}`"
-            class="text-xs leading-[1.33] text-slate-500 font-Inter md:flex lg:font-medium"
+            class="text-xs leading-[1.33] text-muted-foreground font-Inter md:flex lg:font-medium"
             :class="{ 'font-semibold': index === categoryLabels.length - 1 }"
           >
             <CaretRightIcon v-if="index > 0" class="hidden w-4 h-4 md:flex" />

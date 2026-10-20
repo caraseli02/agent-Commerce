@@ -1,13 +1,13 @@
 <template>
-  <div class="bg-light-500 p-4 rounded-lg flex sm:flex-row gap-6 sm:gap-0 flex-col justify-between">
+  <div class="bg-accent p-4 rounded-lg flex sm:flex-row gap-6 sm:gap-0 flex-col justify-between">
     <div class="flex flex-row justify-between">
       <div class="flex justify-center items-center gap-2">
         <SharedTablesMicroCheckBoxAll :check-all="checkAllBox" @check-all="toggleCheckAll" />
-        <span class="text-sm font-normal text-slate-500">Select All</span>
+        <span class="text-sm font-normal text-muted-foreground">Select All</span>
       </div>
       <div class="ml-9 flex gap-2 items-center">
-        <span class="text-neutral-700 text-sm font-medium" />
-        <span class="text-sm font-normal text-slate-500">Items selected</span>
+        <span class="text-foreground text-sm font-medium" />
+        <span class="text-sm font-normal text-muted-foreground">Items selected</span>
         <span v-if="selectedItems > 0" class="text-sm">
           {{ selectedItems }}
         </span>
@@ -21,8 +21,10 @@
         :aria-disabled="!canDeleteSelected"
         @click="isOpen = true"
       >
-        <TrashOutline class="text-slate-500 group-hover:text-rose-500 transition duration-150" />
-        <span class="text-sm font-normal text-slate-500 ml-2 group-hover:text-rose-500 transition duration-150"> Delete Selected </span>
+        <TrashOutline class="text-muted-foreground group-hover:text-rose-500 transition duration-150" />
+        <span class="text-sm font-normal text-muted-foreground ml-2 group-hover:text-rose-500 transition duration-150">
+          Delete Selected
+        </span>
       </button>
       <CartDeleteDialog v-model="isOpen" :product-ids="selectedProductIds" @removed="onDeleted" />
     </div>

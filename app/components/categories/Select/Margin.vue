@@ -66,7 +66,7 @@ watchEffect(() => {
 
 <template>
   <section class="flex flex-col gap-1 entry-price">
-    <span class="text-grey-600 text-sm">{{ title }}</span>
+    <span class="text-muted-foreground text-sm">{{ title }}</span>
     <UiPopover v-model:open="open" class="w-full">
       <UiPopoverTrigger as-child>
         <UiButton variant="outline" role="combobox" :aria-expanded="open" class="w-full justify-between">
@@ -90,7 +90,7 @@ watchEffect(() => {
                 {{ framework.label }}
                 <div class="flex items-center gap-1 p-0.5">
                   <div v-for="val in framework.value" :key="val">
-                    <UiBadge class="bg-light-300" variant="secondary">
+                    <UiBadge class="bg-accent" variant="secondary">
                       {{ val }}
                     </UiBadge>
                   </div>

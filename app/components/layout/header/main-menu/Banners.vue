@@ -18,7 +18,7 @@
         class="absolute z-20 bottom-0 right-0 w-24 object-contain lg:w-[130px] xl:w-[160px]"
         loading="lazy"
       />
-      <div class="absolute z-10 top-0 left-0 w-full h-full bg-slate-50/90 rounded-md" />
+      <div class="absolute z-10 top-0 left-0 w-full h-full bg-muted/90 rounded-md" />
       <img
         :src="BannerBg"
         alt="Background"
@@ -45,7 +45,7 @@
         class="absolute z-20 bottom-0 right-0 w-20 object-contain lg:w-[120px] xl:w-[150px]"
         loading="lazy"
       />
-      <div class="absolute z-10 top-0 left-0 w-full h-full bg-slate-50/90 rounded-md" />
+      <div class="absolute z-10 top-0 left-0 w-full h-full bg-muted/90 rounded-md" />
       <img :src="BannerBg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover rounded-md" loading="lazy" />
     </button>
     <!-- ui-native: dead promo card (div/img content, no handler); kept native pending a product decision (#631 plan) -->

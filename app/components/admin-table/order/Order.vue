@@ -179,7 +179,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="relative h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 md:w-[640px] lg:w-[896px] xl:w-[1312px] 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-white"
+    class="relative h-full flex-1 flex-col space-y-8 flex w-full max-w-full min-w-0 md:w-[640px] lg:w-[896px] xl:w-[1312px] 2xl:w-[1444px] shadow-xs p-2 pt-6 md:p-6 rounded-xl bg-card"
   >
     <DataTable
       :fetch-fn="debouncedFetchAndSetOrdersList"
@@ -216,7 +216,7 @@ onMounted(() => {
               </span>
               <span
                 class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-300"
-                :class="filter.label === activeOrderFilter.label ? 'text-white bg-blue-500' : 'text-slate-500 bg-gray-100'"
+                :class="filter.label === activeOrderFilter.label ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted'"
               >
                 {{ filter.total_items || '0' }}
               </span>

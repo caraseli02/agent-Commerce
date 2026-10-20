@@ -8,7 +8,7 @@
         class="p-4 border border-dashed border-border rounded-xl md:flex md:items-center md:justify-between"
       >
         <div class="flex items-center gap-4 max-md:mb-9">
-          <BusinessIcon class="w-8 h-8 flex-shrink-0 text-slate-500" />
+          <BusinessIcon class="w-8 h-8 flex-shrink-0 text-muted-foreground" />
           <div class="md:w-[301px] lg:w-auto">
             <div class="flex items-center mb-2">
               <div class="font-semibold leading-normal md:mr-6">
@@ -19,7 +19,7 @@
                 <span class="text-xs font-medium leading-[1.3333]">Default</span>
               </div>
             </div>
-            <div class="text-sm leading-[1.42857] text-slate-500">
+            <div class="text-sm leading-[1.42857] text-muted-foreground">
               {{
                 address.name1 +
                 ', ' +

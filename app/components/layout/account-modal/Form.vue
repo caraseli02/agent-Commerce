@@ -1,8 +1,8 @@
 <template>
   <form novalidate class="mx-auto" @submit.prevent="handleSignIn">
     <div>
-      <p class="text-xs text-slate-500 mb-2">Demo role</p>
-      <div role="radiogroup" aria-label="Demo role" class="grid grid-cols-2 gap-2 p-1 rounded-lg bg-slate-100">
+      <p class="text-xs text-muted-foreground mb-2">Demo role</p>
+      <div role="radiogroup" aria-label="Demo role" class="grid grid-cols-2 gap-2 p-1 rounded-lg bg-muted">
         <UiButton
           type="button"
           variant="ghost"
@@ -11,7 +11,7 @@
           :tabindex="selectedLoginRole === 'customer' ? 0 : -1"
           class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors"
           :class="
-            selectedLoginRole === 'customer' ? 'bg-white text-blue-500 shadow-sm hover:bg-white' : 'text-slate-500 hover:text-blue-500'
+            selectedLoginRole === 'customer' ? 'bg-card text-blue-500 shadow-sm hover:bg-card' : 'text-muted-foreground hover:text-blue-500'
           "
           @click="selectDemoRole('customer')"
           @keydown="handleDemoRoleKeydown($event, 'customer')"
@@ -25,7 +25,9 @@
           :aria-checked="selectedLoginRole === 'admin'"
           :tabindex="selectedLoginRole === 'admin' ? 0 : -1"
           class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors"
-          :class="selectedLoginRole === 'admin' ? 'bg-white text-blue-500 shadow-sm hover:bg-white' : 'text-slate-500 hover:text-blue-500'"
+          :class="
+            selectedLoginRole === 'admin' ? 'bg-card text-blue-500 shadow-sm hover:bg-card' : 'text-muted-foreground hover:text-blue-500'
+          "
           @click="selectDemoRole('admin')"
           @keydown="handleDemoRoleKeydown($event, 'admin')"
         >
@@ -33,7 +35,7 @@
         </UiButton>
       </div>
     </div>
-    <p class="mt-3 text-xs leading-5 text-slate-600">
+    <p class="mt-3 text-xs leading-5 text-muted-foreground">
       Demo passwords stay hidden. Customer Demo is ready to use; Admin Preview opens sample back-office data.
     </p>
     <div class="grid grid-cols-1 gap-3 mt-4">
@@ -50,7 +52,7 @@
     <div class="mt-3 mb-5">
       <label class="flex min-h-11 cursor-pointer items-center gap-2" for="account-remember-me">
         <UiCheckbox id="account-remember-me" :checked="rememberMe" @update:checked="rememberMe = $event" />
-        <span class="select-none text-xs text-slate-500"> Remember me </span>
+        <span class="select-none text-xs text-muted-foreground"> Remember me </span>
       </label>
     </div>
     <UiButton type="submit" class="flex min-h-11 w-full items-center justify-center py-[10px]" :disabled="isLoading">

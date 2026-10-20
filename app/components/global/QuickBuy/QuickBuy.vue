@@ -88,12 +88,12 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
 </script>
 
 <template>
-  <section class="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_4px_16px_rgba(15,23,42,0.06)] md:p-6">
+  <section class="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-[0_4px_16px_rgba(15,23,42,0.06)] md:p-6">
     <div class="flex items-start gap-3">
       <QuickBuyIcon class="mt-0.5 h-9 w-9 shrink-0" />
       <div>
-        <h2 class="text-xl font-semibold text-slate-900">Quick Buy</h2>
-        <p class="mt-1 text-sm leading-5 text-slate-500">
+        <h2 class="text-xl font-semibold text-foreground">Quick Buy</h2>
+        <p class="mt-1 text-sm leading-5 text-muted-foreground">
           Have a part list ready? Add manufacturer part numbers and quantities directly to your cart.
         </p>
       </div>
@@ -149,7 +149,9 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
           <UiDialogHeader>
             <UiDialogTitle>Quick buy</UiDialogTitle>
           </UiDialogHeader>
-          <p class="text-sm text-slate-500">Paste one or more manufacturer part numbers from your BOM. Remove any rows you do not need.</p>
+          <p class="text-sm text-muted-foreground">
+            Paste one or more manufacturer part numbers from your BOM. Remove any rows you do not need.
+          </p>
           <div class="grid gap-4 py-4" aria-live="polite">
             <QuickBuyInput
               v-for="(product, index) in products"

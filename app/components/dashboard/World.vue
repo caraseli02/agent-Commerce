@@ -120,7 +120,7 @@ const onEachFeature = (feature: { properties?: { name?: string } }, layer: Leafl
 <style>
 @reference "../../assets/css/main.css";
 .leaflet-container {
-  @apply bg-[#F5FAFF] rounded-xl overflow-hidden aspect-[2.3] xl:h-full xl:w-full;
+  @apply bg-[#F5FAFF] dark:bg-card rounded-xl overflow-hidden aspect-[2.3] xl:h-full xl:w-full;
   .leaflet-pane {
     z-index: 1;
   }
@@ -128,18 +128,21 @@ const onEachFeature = (feature: { properties?: { name?: string } }, layer: Leafl
     z-index: 1;
   }
   .leaflet-interactive {
-    @apply stroke-white fill-[#E2E2EA];
+    @apply stroke-white dark:stroke-background fill-[#E2E2EA];
     stroke-width: 1px;
+  }
+  .dark & .leaflet-interactive[fill='#D9D9D9'] {
+    fill: #3a3d46;
   }
   .leaflet-control {
     @apply mt-3.5 mr-3.5 flex flex-col gap-2 border-hidden;
     a {
-      @apply flex items-center justify-center w-[26px] h-[26px] border-none bg-[#F2F2F2] rounded text-slate-500 transition-colors duration-300 font-medium hover:text-blue-500;
+      @apply flex items-center justify-center w-[26px] h-[26px] border-none bg-muted rounded text-muted-foreground transition-colors duration-300 font-medium hover:text-blue-500;
       @media (pointer: coarse) {
         display: block !important;
       }
       &.leaflet-disabled {
-        @apply text-gray-500;
+        @apply text-muted-foreground;
       }
       span {
         @apply leading-[0];

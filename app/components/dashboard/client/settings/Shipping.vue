@@ -94,9 +94,9 @@ const handleChange = async (address: ShippingAddressInterface) => {
 </script>
 
 <template>
-  <section id="Shipping" class="flex flex-col gap-9 self-stretch p-4 md:p-6 bg-white rounded-xl shadow-l">
+  <section id="Shipping" class="flex flex-col gap-9 self-stretch p-4 md:p-6 bg-card rounded-xl shadow-l">
     <div class="flex gap-2.5 justify-between w-full max-md:flex-wrap max-md:max-w-full">
-      <h2 class="self-start text-xl font-semibold leading-7 text-neutral-700">Shipping</h2>
+      <h2 class="self-start text-xl font-semibold leading-7 text-foreground">Shipping</h2>
     </div>
     <AddressList :addresses="addresses" @edit="handleEdit" @delete="handleDelete" @set-default="handleSetDefault" />
     <section class="flex justify-center items-center self-stretch p-4 rounded-xl border border-blue-500 border-dashed max-md:px-5">

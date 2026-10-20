@@ -4,7 +4,7 @@
       <div class="flex flex-col h-full md:max-w-[410px] md:mx-auto">
         <div class="flex items-center mb-5">
           <div class="font-medium mr-2 md:text-xl">Personal Details</div>
-          <QuestionIcon class="w-5 h-5 text-gray-500" />
+          <QuestionIcon class="w-5 h-5 text-muted-foreground" />
         </div>
         <div class="mb-[30px]">
           <div class="grid grid-cols-1 gap-[15px] mb-10">
@@ -50,7 +50,7 @@
             />
           </div>
           <div class="flex items-center justify-between">
-            <button class="flex items-center rounded bg-gray-100 px-[22px] py-[11px] text-slate-500" @click="$emit('back')">
+            <button class="flex items-center rounded bg-muted px-[22px] py-[11px] text-muted-foreground" @click="$emit('back')">
               <ChevronRightIcon class="w-3 h-3 mr-2 rotate-180" />
               <span class="text-sm font-medium">Back</span>
             </button>
@@ -60,7 +60,7 @@
             </button>
           </div>
         </div>
-        <div class="text-xs text-center text-slate-500 mt-auto">
+        <div class="text-xs text-center text-muted-foreground mt-auto">
           For assistance please contact
           <a href="mailto:support@demo.app" class="text-blue-500">support@demo.app</a>
         </div>

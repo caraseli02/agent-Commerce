@@ -1,5 +1,5 @@
 <template>
-  <div class="relative overflow-x-hidden rounded-2xl border border-slate-200 aspect-[1.24] md:aspect-auto shadow-sm">
+  <div class="relative overflow-x-hidden rounded-2xl border border-border aspect-[1.24] md:aspect-auto shadow-sm">
     <Swiper
       :modules="[A11y, Pagination, Autoplay]"
       :autoplay="
@@ -97,6 +97,6 @@ const slides = ref([
   margin-right: 0 !important;
 }
 .orderSummaryExclusiveOffer--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-white!;
+  @apply scale-125 bg-card!;
 }
 </style>

@@ -26,10 +26,10 @@
               class="w-10 sm:w-5 lg:w-10 h-5 my-[3px] text-[#D4D4D4] group-hover:text-[#5E6278] transition duration-300"
             />
             <div class="flex flex-col items-start">
-              <h2 class="text-neutral-700 text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
+              <h2 class="text-foreground text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
                 {{ backOrderOption.title }}
               </h2>
-              <p class="text-neutral-700 text-sm font-normal leading-6 text-start">
+              <p class="text-foreground text-sm font-normal leading-6 text-start">
                 {{ backOrderOption.description }}
               </p>
             </div>
@@ -39,10 +39,10 @@
     </template>
 
     <div v-if="!shippingPreferences" class="flex flex-col gap-4">
-      <span class="text-neutral-700 text-sm font-medium leading-6">No delivery methods available for the current selection</span>
+      <span class="text-foreground text-sm font-medium leading-6">No delivery methods available for the current selection</span>
     </div>
     <div v-if="shippingPreferences?.list" class="flex flex-col gap-4">
-      <span class="text-neutral-700 text-sm font-medium leading-6">Delivery Method</span>
+      <span class="text-foreground text-sm font-medium leading-6">Delivery Method</span>
       <!-- eslint-disable-next-line vue/require-v-for-key -->
       <div v-for="deliveryType in shippingPreferences.list" class="flex flex-col gap-4">
         <div v-if="deliveryType.service">
@@ -54,15 +54,15 @@
               />
               <RadioButton v-else class="w-5 h-5 my-[3px] text-[#D4D4D4] group-hover:text-[#5E6278] transition duration-300" />
               <div class="flex flex-col items-start">
-                <h2 class="text-neutral-700 text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
+                <h2 class="text-foreground text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
                   {{ deliveryType.service.courierName + ' ' }}
                 </h2>
-                <p class="text-neutral-700 text-sm font-normal leading-6 text-start">
+                <p class="text-foreground text-sm font-normal leading-6 text-start">
                   {{ deliveryType.service.name }}
                 </p>
               </div>
             </div>
-            <span class="text-neutral-700 text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
+            <span class="text-foreground text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
               {{ `${deliveryType.price.total} Lei` }}</span
             >
           </button>

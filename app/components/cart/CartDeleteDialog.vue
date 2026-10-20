@@ -2,13 +2,13 @@
   <UiDialog :open="isOpen" @update:open="onOpenChange">
     <UiDialogContent>
       <UiDialogHeader class="space-y-3 pr-8 text-center sm:text-center">
-        <div class="flex items-center justify-center gap-2 text-slate-500">
+        <div class="flex items-center justify-center gap-2 text-muted-foreground">
           <TrashIcon class="w-6 h-6 shrink-0" aria-hidden="true" />
-          <UiDialogTitle class="text-base font-medium leading-none tracking-normal text-slate-500">
+          <UiDialogTitle class="text-base font-medium leading-none tracking-normal text-muted-foreground">
             {{ resolvedTitle }}
           </UiDialogTitle>
         </div>
-        <UiDialogDescription class="text-sm text-center text-slate-700 dark:text-slate-300">
+        <UiDialogDescription class="text-sm text-center text-foreground dark:text-slate-300">
           {{ resolvedDescription }}
         </UiDialogDescription>
       </UiDialogHeader>

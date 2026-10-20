@@ -19,8 +19,8 @@
     </div>
 
     <div v-else-if="error" class="container mb-10 min-h-[200px] flex flex-col items-start justify-center gap-4" role="alert">
-      <p class="text-lg font-semibold text-slate-900">We could not load search results</p>
-      <p class="text-sm text-slate-600 max-w-xl">Try again or adjust your filters.</p>
+      <p class="text-lg font-semibold text-foreground">We could not load search results</p>
+      <p class="text-sm text-muted-foreground max-w-xl">Try again or adjust your filters.</p>
       <UiButton type="button" @click="refresh()">Try again</UiButton>
     </div>
 

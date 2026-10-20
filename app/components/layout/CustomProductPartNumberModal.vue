@@ -9,13 +9,13 @@
       >
         <div class="flex items-center">
           <BarCodeIcon class="mr-2 h-7 w-7" />
-          <span class="text-lg font-medium text-slate-500">Add custom part number</span>
+          <span class="text-lg font-medium text-muted-foreground">Add custom part number</span>
         </div>
         <UiDialogClose as-child>
           <UiButton
             variant="ghost"
             size="icon"
-            class="h-8 w-8 rounded bg-[#F2F2F2] text-gray-500 hover:bg-[#F2F2F2] hover:text-slate-500"
+            class="h-8 w-8 rounded bg-[#F2F2F2] text-muted-foreground hover:bg-[#F2F2F2] hover:text-muted-foreground"
             aria-label="Close"
           >
             <XIcon class="h-[15px] w-[15px]" />
@@ -33,7 +33,7 @@
             :model-value="partNumber"
             readonly
             type="text"
-            class="h-[42px] border-border bg-transparent px-2.5 py-[5px] text-xl font-semibold leading-tight text-neutral-700"
+            class="h-[42px] border-border bg-transparent px-2.5 py-[5px] text-xl font-semibold leading-tight text-foreground"
           />
         </div>
 
@@ -49,21 +49,21 @@
             placeholder="Type your custom part number here"
             class="h-[42px] border-border bg-transparent px-2.5 py-[9px] text-sm"
           />
-          <p id="custom-part-number-help" class="mt-2 text-sm text-slate-500">
+          <p id="custom-part-number-help" class="mt-2 text-sm text-muted-foreground">
             {{ isCustomNumberValid ? 'Save is ready.' : 'Enter a custom part number to enable Save.' }}
           </p>
         </div>
 
         <div class="flex gap-2.5">
           <UiButton class="px-[34px] py-[11px]" :disabled="!isCustomNumberValid" @click="handleSave"> Save </UiButton>
-          <UiButton variant="secondary" class="px-[26px] py-[11px] text-slate-500" @click="closeModal"> Cancel </UiButton>
+          <UiButton variant="secondary" class="px-[26px] py-[11px] text-muted-foreground" @click="closeModal"> Cancel </UiButton>
         </div>
       </div>
 
       <Transition name="fade">
         <div v-if="submitSuccess" class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
           <CheckIcon class="mb-5 h-[140px] w-[140px] bg-green-500" />
-          <div class="text-2xl text-slate-500">Saved</div>
+          <div class="text-2xl text-muted-foreground">Saved</div>
         </div>
       </Transition>
     </UiDialogContent>
