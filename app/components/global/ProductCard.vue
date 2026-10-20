@@ -7,7 +7,7 @@
       :aria-label="`View ${product.name}`"
       class="group relative col-start-1 row-start-1 row-span-2 w-full max-w-[108px] self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 md:max-w-none md:row-span-auto md:self-auto"
     >
-      <!-- Catalog media frame: white backdrop; cover fills the frame -->
+      <!-- Catalog media frame: card backdrop; cover fills the frame -->
       <div
         class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-card transition-transform duration-200 group-hover:scale-[1.02] md:aspect-auto md:h-[160px]"
       >
@@ -86,11 +86,12 @@
       </div>
       <UiButton
         type="button"
+        variant="cart"
         aria-label="Add product to cart"
         :aria-labelledby="`add-to-cart-${product._id}`"
         :aria-busy="isThisProductAdding"
         :aria-disabled="isThisProductAdding"
-        class="col-start-2 h-11 w-12 shrink-0 px-0 dark:!bg-primary dark:!text-primary-foreground dark:hover:!bg-primary/90 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        class="col-start-2 h-11 w-12 shrink-0 px-0 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
         <SvgoCart class="h-6 w-6" />

@@ -8,6 +8,7 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-blue-700 text-white hover:bg-blue-800 dark:bg-muted dark:text-foreground dark:hover:bg-muted/90',
+        cart: 'bg-blue-700 text-white hover:bg-blue-800 dark:!bg-primary dark:!text-primary-foreground dark:hover:!bg-primary/90',
         destructive: 'bg-red-600 text-slate-50 hover:bg-red-700 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90',
         outline:
           'border border-border bg-card hover:bg-accent hover:text-foreground dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50',

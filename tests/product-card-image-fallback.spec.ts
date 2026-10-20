@@ -71,7 +71,7 @@ describe('storefront product card image fallback', () => {
     expect(getStaticAttrValue(fallbackImage, 'class-name')).toContain('object-cover');
     expect(source).toContain('aspect-square');
     expect(source).toContain('md:h-[160px]');
-    expect(source).toContain('bg-white');
+    expect(source).toContain('bg-card');
     expect(source).not.toContain('bg-slate-50');
     expect(source).toContain("!src.includes('not_valid_image')");
   });
