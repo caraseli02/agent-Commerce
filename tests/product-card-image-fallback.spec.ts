@@ -68,7 +68,8 @@ describe('storefront product card image fallback', () => {
     expect(hasProp(fallbackImage, 'alt')).toBe(true);
     expect(getStaticAttrValue(fallbackImage, 'class-name')).toContain('h-full');
     expect(getStaticAttrValue(fallbackImage, 'class-name')).toContain('w-full');
-    expect(getStaticAttrValue(fallbackImage, 'class-name')).toContain('object-cover');
+    // Preserve the complete package silhouette rather than cropping its leads.
+    expect(getStaticAttrValue(fallbackImage, 'class-name')).toContain('object-contain');
     expect(source).toContain('aspect-square');
     expect(source).toContain('md:h-[160px]');
     expect(source).toContain('bg-white');
