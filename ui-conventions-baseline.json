@@ -79,7 +79,7 @@
     "button": 2
   },
   "app/components/order-summary/Summary.vue": {
-    "button": 3
+    "button": 1
   },
   "app/components/order-summary/Table/AdditionalDetails.vue": {
     "button": 3
