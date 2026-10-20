@@ -38,12 +38,16 @@
   },
   "pnpm": {
     "overrides": {
-      "@vue/reactivity": "3.5.41",
-      "@vue/runtime-core": "3.5.41",
-      "@vue/runtime-dom": "3.5.41",
-      "@vue/server-renderer": "3.5.41",
-      "@vue/shared": "3.5.41",
-      "vue": "3.5.41"
+      "@vue/compiler-core": "3.5.44",
+      "@vue/compiler-dom": "3.5.44",
+      "@vue/compiler-sfc": "3.5.44",
+      "@vue/compiler-ssr": "3.5.44",
+      "@vue/reactivity": "3.5.44",
+      "@vue/runtime-core": "3.5.44",
+      "@vue/runtime-dom": "3.5.44",
+      "@vue/server-renderer": "3.5.44",
+      "@vue/shared": "3.5.44",
+      "vue": "3.5.44"
     }
   },
   "devDependencies": {
@@ -55,7 +59,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/pg": "^8.23.1",
     "@vitest/coverage-v8": "4.1.10",
-    "@vue/compiler-dom": "^3.5.41",
+    "@vue/compiler-dom": "^3.5.44",
     "eslint": "^10.8.1",
     "happy-dom": "^20.11.2",
     "husky": "^9.1.7",
