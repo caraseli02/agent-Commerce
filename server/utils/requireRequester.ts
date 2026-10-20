@@ -11,7 +11,7 @@ export type Requester = { userId: string; isAdmin: boolean };
 export const requireRequester = (event: H3Event, options: { allowGuest?: boolean } = {}): Requester => {
   const authorization = getHeaders(event).authorization;
   const user = getMockUserFromAuthHeader(authorization);
-  if (user) return { userId: user._id, isAdmin: user.role === AccountRole.Admin };
+  if (user?._id) return { userId: user._id, isAdmin: user.role === AccountRole.Admin };
 
   const mockModeEnabled = String(useRuntimeConfig(event).public.MOCK_MODE) === 'true';
   const guestOwnerId = options.allowGuest && mockModeEnabled ? getExistingMockCartUserId(event, authorization) : '';
