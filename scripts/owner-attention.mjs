@@ -241,11 +241,9 @@ export async function readLocalEvidence(number, { gh, owner, config, trustedLogi
     const files = await gh.paginate(`/pulls/${number}/files`);
     if (files.length >= 3000) throw new Error('PR file list may be truncated; protected-path review is incomplete.');
     const touched = protectedFilesTouched(files, config.protectedPaths);
-    if (
-      touched.some((entry) => entry.group === 'payments' || !(pr.labels ?? []).some((label) => label.name === 'owner-approved-harness'))
-    ) {
+    if (touched.length && !(pr.labels ?? []).some((label) => label.name === 'owner-approved-harness')) {
       readiness.ready = false;
-      readiness.reasons.push('Claude protected-path authorization missing or payment path changed');
+      readiness.reasons.push('Claude protected-harness authorization missing');
     }
   }
   // A changing context during the read is pending, never an old green result.
@@ -421,7 +419,6 @@ export function claudeQueueState(
     const labels = labelsOf(issue);
     if (labels.has('in-progress') || (issue.assignees ?? []).length) return false;
     if (neverClaim.some((label) => labels.has(label))) return false;
-    if (/^(Payments|Checkout):/i.test(issue.title ?? '')) return false;
     if ((issue.issue_dependencies_summary?.blocked_by ?? 0) > 0) return false;
     if (claimedNumbers.has(issue.number) || skippedNumbers.has(issue.number)) return false;
     return parseDependencies(issue.body).every((number) => !openIssueNumbers.has(number));
@@ -453,27 +450,14 @@ export function blockedMessage({ owner, issue, blockerUrl }) {
 }
 
 export function harnessMessage({ owner, pr, touched }) {
-  const payment = touched.filter((entry) => entry.group === 'payments');
-  const factory = touched.filter((entry) => entry.group !== 'payments');
-  const lines = [marker(`harness:${payment.length ? 'payments' : 'factory'}`)];
-  if (factory.length) {
-    lines.push(
-      `@${owner} 🔐 **PR #${pr.number} changes protected harness paths and has no \`owner-approved-harness\` label.**`,
-      '',
-      ...factory.map((entry) => `- \`${entry.file}\``),
-      '',
-      'If you asked for this change, add `owner-approved-harness` now; only you can, and without it the evaluator must FAIL the PR. Otherwise ask for these files to be dropped.',
-    );
-  }
-  if (payment.length) {
-    lines.push(
-      '',
-      `@${owner} ⛔ **PR #${pr.number} is Claude-built and changes payment paths, which are never exempt.**`,
-      '',
-      ...payment.map((entry) => `- \`${entry.file}\``),
-    );
-  }
-  return lines.join('\n').trim();
+  return [
+    marker('harness:factory'),
+    `@${owner} 🔐 **PR #${pr.number} changes protected harness paths and has no \`owner-approved-harness\` label.**`,
+    '',
+    ...touched.map((entry) => `- \`${entry.file}\``),
+    '',
+    'If you asked for this change, add `owner-approved-harness` now; only you can, and without it the evaluator must FAIL the PR. Otherwise ask for these files to be dropped.',
+  ].join('\n');
 }
 
 export function queueMessage({ owner, mode }) {
@@ -481,7 +465,7 @@ export function queueMessage({ owner, mode }) {
     marker('queue'),
     `@${owner} 💤 **Claude has nothing to build.**`,
     '',
-    `The claude-routine (mode \`${mode}\`) has no live \`in-progress\` issue (a claim whose PR already has an evaluator PASS is queued for your merge, not live) and no eligible \`agent:claude\` issue: every candidate is claimed, assigned, blocked, a payment item, waiting on an open dependency, already has an open PR or \`claude/issue-<n>\` branch, was skipped by the routine with a recorded reason, or carries a \`never_claim\` label (\`needs-triage\`, \`needs-info\`, \`epic\`, ...).`,
+    `The claude-routine (mode \`${mode}\`) has no live \`in-progress\` issue (a claim whose PR already has an evaluator PASS is queued for your merge, not live) and no eligible \`agent:claude\` issue: every candidate is claimed, assigned, blocked, waiting on an open dependency, already has an open PR or \`claude/issue-<n>\` branch, was skipped by the routine with a recorded reason, or carries a \`never_claim\` label (\`needs-triage\`, \`needs-info\`, \`epic\`, ...).`,
     '',
     'This means no new build is possible, not that no action remains: the routine still repairs queued PRs (merge conflicts, failed required checks, evaluator FAIL) and reviews PRs.',
     '',
@@ -579,11 +563,9 @@ async function checkHarness(gh, owner, number, config) {
   if (pr.state !== 'open') return;
   const labels = (pr.labels ?? []).map((label) => label.name);
   const files = await gh.paginate(`/pulls/${number}/files`);
-  const touched = protectedFilesTouched(files, config.protectedPaths).filter(
-    (entry) => entry.group === 'payments' || !labels.includes('owner-approved-harness'),
-  );
+  const touched = protectedFilesTouched(files, config.protectedPaths).filter(() => !labels.includes('owner-approved-harness'));
   if (!touched.length || !(await isClaudeBuiltPr(gh, pr))) return;
-  const key = `harness:${touched.some((entry) => entry.group === 'payments') ? 'payments' : 'factory'}`;
+  const key = 'harness:factory';
   await postOnce(gh, number, key, harnessMessage({ owner, pr, touched }));
 }
 

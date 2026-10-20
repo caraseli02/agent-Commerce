@@ -59,7 +59,7 @@ Standards/Spec findings and required follow-up. Recheck the command after publis
 `readiness.ready=true` is required before readiness labels or new queue admission.
 It requires a trusted, independently attributed current-context PASS, valid live PR
 metadata, mergeability, no change request and Claude protected-path authorization.
-Claude payment paths remain excluded. New heads/base tips/body/labels invalidate
+Payment paths follow normal label ownership and independent review; no Claude-specific exclusion applies (Vlad, 2026-10-20). Payment-contract guardrails and Stripe activation gates still apply. New heads/base tips/body/labels invalidate
 the marker; publish one new report after revalidation for the changed context, preserving prior reports on GitHub. Current-context reports supersede legacy unmarked reports; contradictions within one context still block. Never infer readiness from a historical PASS.
 
 Missing/failed local checks remain a blocker or repair. Disabled/missing/failed

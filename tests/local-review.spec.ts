@@ -1,7 +1,8 @@
+import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { assessLocalChecks, localVerificationMarker, readLocalEvidence } from '../scripts/owner-attention.mjs';
+import { assessLocalChecks, localVerificationMarker, parseFactoryConfig, readLocalEvidence } from '../scripts/owner-attention.mjs';
 import { checkPushTemplates } from '../scripts/check-pr-template.mjs';
 
 const head = 'a'.repeat(40);
@@ -119,12 +120,7 @@ describe('Husky and independent local acceptance', () => {
     return readLocalEvidence(10, {
       gh,
       owner: 'owner',
-      config: {
-        protectedPaths: [
-          { group: 'factory', pattern: 'scripts/**' },
-          { group: 'payments', pattern: 'server/api/payments/**' },
-        ],
-      },
+      config: parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8')),
     });
   }
 
@@ -136,10 +132,21 @@ describe('Husky and independent local acceptance', () => {
       { changed: true },
       { mergeable: false },
       { files: [{ filename: 'scripts/example.mjs' }] },
-      { authorized: true, files: [{ filename: 'server/api/payments/example.ts' }] },
     ])
       expect((await readiness(options)).readiness.ready).toBe(false);
     expect((await readiness({ authorized: true, files: [{ filename: 'scripts/example.mjs' }] })).readiness.ready).toBe(true);
+  });
+
+  it('allows payment paths with a current independent PASS, without a harness exception', async () => {
+    const files = [
+      { filename: 'server/api/payments/example.ts' },
+      { filename: 'app/components/payment/SessionCardForm.vue' },
+      { filename: 'app/pages/checkout/index.vue' },
+      { filename: 'server/infrastructure/migrations/020-example.sql' },
+    ];
+    expect((await readiness({ files })).readiness.ready).toBe(true);
+    expect((await readiness({ files, comments: [] })).readiness.ready).toBe(false);
+    expect((await readiness({ files: [...files, { filename: '.factory/factory.yaml' }] })).readiness.ready).toBe(false);
   });
 
   it('retains old-context and legacy reports without contradicting a new-context result', async () => {

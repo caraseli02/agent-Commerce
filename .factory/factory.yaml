@@ -21,7 +21,6 @@ host: Mac mini only (local routines, no cloud runners)
 agents:
   claude:
     builds: open issues labeled agent:claude (the only owner label; set only by Vlad; ready-for-agent not required)
-    never_builds: [area:payments]
     branch: claude/issue-<number> # holds the code only
     claim_record: issue labels (in-progress, assignee) + comment + branch claude/issue-<number>, pushed normally; nothing else is pushed
     reviews: ready PRs WITHOUT the agent:claude label (Codex and human PRs, including payments)
@@ -34,28 +33,17 @@ labels:
   claimed: in-progress
   owner_claude: agent:claude
   owner_codex: agent:codex # optional; issues without agent:claude are Codex's pool
-  payments_area: area:payments # never built by Claude
+  payments_area: area:payments # normal label ownership applies
   blocked: blocked
   passed: ready-for-human
-  never_claim: [epic, blocked, area:payments, needs-triage, needs-info, ready-for-human, spike] # spike: a question for the night lane, never built
+  never_claim: [epic, blocked, needs-triage, needs-info, ready-for-human, spike] # spike: a question for the night lane, never built
   owner_approved_harness: owner-approved-harness # set or removed only by Vlad, never by an agent (the guard hook blocks it)
 
-# Paths the Claude generator must not modify. A Claude PR touching any of these
-# is a scope violation and its reviewer must FAIL it, unless the PR carries
-# owner-approved-harness: Vlad requested that change in an interactive session
-# (Vlad, 2026-10-08), so the reviewer judges it on its merits. Payment paths
-# are never exempt for Claude. The unattended routine never edits these paths, except that a
-# repair on a PR carrying owner-approved-harness may edit the protected files that PR already
-# changes; .factory/** and payment paths stay off-limits (claude-routine.md §2 Repair).
+# Harness paths remain protected. Vlad may authorize interactive harness work
+# with owner-approved-harness; routine repairs may edit already-changed protected
+# files on that PR, except .factory/**. Payment paths use normal label ownership,
+# payment-contract verification and independent review (owner decision 2026-10-20).
 protected_paths:
-  payments:
-    - server/domain/payments/**
-    - server/application/checkout/**
-    - server/api/checkout/**
-    - server/api/payments/**
-    - server/infrastructure/migrations/**
-    - app/components/payment/**
-    - app/pages/checkout/**
   factory:
     - .factory/**
     - .claude/**
