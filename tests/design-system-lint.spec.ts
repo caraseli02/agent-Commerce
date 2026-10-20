@@ -28,6 +28,21 @@ describe('design-system lint (@shadcn/lint)', () => {
     expect(findings).toEqual([]);
   });
 
+  it('accepts primitive-owned storefront treatments without suppression directives', async () => {
+    const findings = await restyleFindings(`
+  <UiButton variant="warning-outline" size="warning" class="mt-3 min-h-10">Retry</UiButton>
+  <UiButton variant="catalog-action" size="catalog" class="h-11 w-12 md:w-auto">Add</UiButton>
+  <UiButton variant="purchase-action" size="purchase" class="min-h-11 flex-1">Add to cart</UiButton>
+  <UiButton variant="muted-link" size="compact-link">Enquire</UiButton>
+  <UiButton variant="link" size="inline-link">Enquire</UiButton>
+  <UiButton variant="recovery-link" size="retry">Retry</UiButton>
+  <UiLabel variant="strong" class="mb-1 block">Parts</UiLabel>
+  <UiTextarea variant="surface" class="min-h-20" />
+  <UiDialogContent variant="responsive-form">Body</UiDialogContent>
+  <UiDialogFooter variant="safe-area" class="mt-auto w-full">Actions</UiDialogFooter>`);
+    expect(findings).toEqual([]);
+  });
+
   it('reports an appearance override on an auto-imported UiButton with actionable guidance', async () => {
     const findings = await restyleFindings('  <UiButton class="mt-4 bg-red-500 px-10 rounded-full">Save</UiButton>');
 
@@ -62,8 +77,10 @@ describe('design-system lint (@shadcn/lint)', () => {
     );
 
     const text = findings.map((finding) => finding.message).join('\n');
-    expect(text).toContain('Use a size (default, xs, sm, lg, icon)');
-    expect(text).toContain('Use a variant: default, destructive, outline, secondary, ghost, link');
+    expect(text).toMatch(/Use a size \([^)]*\bicon\b/);
+    expect(text).toContain('Use a variant:');
+    expect(text).toContain('outline');
+    expect(text).toContain('recovery-link');
   });
 
   it('applies the documented contracts for skeletons and overlay panels', async () => {

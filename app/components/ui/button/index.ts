@@ -7,6 +7,15 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
+        'warning-outline':
+          'border border-slate-200 bg-white hover:bg-light-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50 border-amber-800 font-semibold text-amber-900 hover:bg-amber-100 focus-visible:ring-amber-800',
+        'catalog-action':
+          'bg-blue-700 text-white hover:bg-blue-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90 aria-disabled:bg-slate-200 aria-disabled:text-slate-800 aria-disabled:opacity-100',
+        'purchase-action':
+          'bg-blue-700 text-white hover:bg-blue-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90 aria-disabled:opacity-50',
+        'muted-link': 'text-slate-900 underline-offset-4 hover:text-blue-500 dark:text-slate-50 font-light text-slate-500',
+        'recovery-link':
+          'text-slate-900 underline-offset-4 hover:text-blue-500 dark:text-slate-50 font-light rounded font-semibold underline underline-offset-2 hover:text-rose-900',
         default: 'bg-blue-700 text-white hover:bg-blue-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90',
         destructive: 'bg-red-600 text-slate-50 hover:bg-red-700 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90',
         outline:
@@ -21,6 +30,12 @@ export const buttonVariants = cva(
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
         icon: 'h-9 w-9',
+        warning: 'h-10 rounded-lg px-3 py-2',
+        catalog: 'h-10 gap-2 px-0 py-2 md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3',
+        purchase: 'h-10 px-5 py-2',
+        'inline-link': 'h-10 px-0 py-2 text-xs',
+        'compact-link': 'h-10 px-4 py-2 text-xs',
+        retry: 'h-10 px-2 py-2',
       },
     },
     defaultVariants: {

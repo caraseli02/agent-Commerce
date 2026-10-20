@@ -89,17 +89,17 @@
           </span>
         </div>
       </div>
-      <!-- eslint-disable shadcn/no-restyle -- Preserve the approved icon-only mobile action, desktop card-corner shape and readable pending-state colors. -->
       <UiButton
         type="button"
+        variant="catalog-action"
+        size="catalog"
         aria-label="Add product to cart"
         :aria-labelledby="`add-to-cart-${product._id}`"
         :aria-busy="isThisProductAdding"
         :aria-disabled="isThisProductAdding"
-        class="col-start-2 h-11 w-12 shrink-0 gap-2 px-0 aria-disabled:cursor-not-allowed aria-disabled:bg-slate-200 aria-disabled:text-slate-800 aria-disabled:opacity-100 md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto md:rounded-none md:rounded-br-xl md:rounded-tl-xl md:px-6 md:py-3"
+        class="col-start-2 h-11 w-12 shrink-0 aria-disabled:cursor-not-allowed md:absolute md:bottom-0 md:right-0 md:min-h-11 md:w-auto"
         @click.prevent="addToCart(product, priceConfiguration ? priceConfiguration.quantity : 1)"
       >
-        <!-- eslint-enable shadcn/no-restyle -->
         <SvgoCart class="h-6 w-6 text-current" />
         <span :id="`add-to-cart-${product._id}`" class="sr-only">Add {{ product.name }} to cart</span>
         <span class="sr-only md:not-sr-only" aria-hidden="true">Add</span>
