@@ -1,7 +1,8 @@
 import { handleUpdateAddress } from '~~/server/utils/mockAddressHandlers';
 
 export default defineEventHandler(async (event) => {
-  const userId = getRouterParam(event, 'userId');
+  // The segment is named `id` to match `[id].delete.ts`: the router names a shared segment once (#723).
+  const userId = getRouterParam(event, 'id');
 
   return handleUpdateAddress(event, 'billing', userId);
 });

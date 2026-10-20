@@ -87,6 +87,10 @@ export const resolveCustomerId = (userId?: string) => {
   return userIdToCustomerId[normalizedUserId] || DEFAULT_CUSTOMER_ID;
 };
 
+// Seeded orders of the default dashboard customer are owned by the mock customer
+// user, so admin reads by customer id must query that owner.
+export const resolveOrderOwnerId = (customerId: string) => (customerId === DEFAULT_CUSTOMER_ID ? MOCK_CUSTOMER_USER_ID : customerId);
+
 export const getDemoCustomer = (userId?: string) => {
   const customerId = resolveCustomerId(userId);
 
@@ -321,7 +325,7 @@ const mapOrderToContract = (order: MockDashboardOrder, index: number, userId?: s
   const customerId = order.customerId || resolveCustomerId(userId);
   const customer = mockCustomers.find((entry) => entry._id === customerId) || getDemoCustomer(userId);
   const name = splitName(customer.name);
-  const ownerId = userId ? normalizeUserId(userId) : customerId === DEFAULT_CUSTOMER_ID ? MOCK_CUSTOMER_USER_ID : customerId;
+  const ownerId = userId ? normalizeUserId(userId) : resolveOrderOwnerId(customerId);
   const products = mapOrderItems(order);
   const subtotal = Number(products.reduce((sum, product) => sum + product.subtotal, 0).toFixed(2));
   const total = Number(order.total || subtotal);
