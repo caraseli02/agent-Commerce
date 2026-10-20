@@ -10,8 +10,8 @@ const root = dirname(fileURLToPath(import.meta.url));
 // @shadcn/lint matches a tag without an import by its export name (`Button`),
 // but Nuxt auto-imports our primitives with the `Ui` prefix (`<UiButton>`).
 // Re-export each one under its Nuxt name, read from Nuxt's own component
-// registry, so the linter resolves `<UiButton>` to the Button barrel and its
-// variants. Generated on every lint run, so it cannot drift from Nuxt.
+// registry, so the linter resolves `<UiButton>` to the Button barrel and
+// its variants. Generated on every lint run, so it cannot drift from Nuxt.
 // See docs/design-system-lint.md.
 function writeNuxtUiBridge() {
   const registry = readFileSync(resolve(root, '.nuxt/components.d.ts'), 'utf8');
@@ -38,8 +38,8 @@ export default withNuxt(
       // Existing code relies on assignments this newer ESLint rule reports.
       // Keep the pre-upgrade lint baseline; cleanup belongs in its own issue.
       'no-useless-assignment': 'off',
-      // Prettier 3 consistently emits self-closing Vue void elements. Keep the
-      // formatter and lint output compatible without changing rendered markup.
+      // Prettier 3 consistently emits self-closing Vue void elements. Keep
+      // the formatter and lint output compatible without changing rendered markup.
       'vue/html-self-closing': 'off',
     },
   },
