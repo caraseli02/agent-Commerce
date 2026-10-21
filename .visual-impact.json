@@ -299,6 +299,13 @@
       "impact": "none",
       "reason": "Admin transaction history resolves the dashboard customer id customer-001 to its seeded order owner (#722); customer-token reads and order mapping output are unchanged.",
       "consumers": "server/api/transaction.get.ts is read only through app/composables/api/control-panel.ts (TRANSACTION_RESOURCE), rendered by client-table/transaction in the customer dashboard and the admin control-panel transaction-history page. The changed branch runs only for admin tokens with a userId query; customer tokens keep user._id, so /dashboard/client tabs (orders group) are unaffected. resolveOrderOwnerId replaces the identical inline ternary in mapOrderToContract, so seeded order owners are unchanged. No home, search, product, cart or orders screenshot renders the admin control panel; the changed route is covered by tests/transaction-route-scope.spec.ts and a runtime API check against the built Nitro output."
+    },
+    {
+      "fingerprint": "56b7f20a7fe0ba7158ef1755b32fd040d584602fff4264480812349f908f30fb",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "#749: the Name and Total cells of the admin and client order tables go through new cellValues helpers that render the same \"First Last\", email and formatNumberWithCommas total for a complete order and N/A only when user/contact details or a numeric total are missing; the other changes are e2e and unit test files.",
+      "consumers": "git grep finds admin-table/order/columns.ts only in admin-table/order/Order.vue (/dashboard/orders, admin) and client-table/order/columns.ts only in client-table/order/Index.vue (pages/dashboard/client/index.vue and pages/dashboard/customers/[slug]/index.vue). Seeded demo orders all carry user.contactDetails and a numeric total, so no screenshot changes; the orders group (client dashboard, mobile) is the representative check. Admin /dashboard/orders at 1440 and 390 is covered by browser evidence in the PR."
     }
   ]
 }
