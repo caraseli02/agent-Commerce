@@ -3,10 +3,10 @@
     <h1 class="text-xl font-semibold text-foreground">Order Summary</h1>
     <div class="flex items-center">
       <DialogReportError />
-      <button class="flex items-center text-muted-foreground transition-colors duration-300 hover:text-blue-500" @click="printPage">
+      <UiButton variant="ghost" size="sm" @click="printPage">
         <Printer class="w-[22px] h-[22px]" />
-        <span class="text-xs leading-tight ml-[5px] max-md:hidden"> Print this page </span>
-      </button>
+        <span class="ml-[5px] max-md:hidden"> Print this page </span>
+      </UiButton>
     </div>
   </div>
 </template>

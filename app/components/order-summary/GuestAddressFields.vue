@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div class="flex flex-col gap-1.5 sm:col-span-2">
-      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-line-1`">Address line 1</label>
+      <UiLabel :for="`${addressType}-line-1`">Address line 1</UiLabel>
       <UiInput
         :id="`${addressType}-line-1`"
         :model-value="modelValue.name1"
@@ -11,7 +11,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5 sm:col-span-2">
-      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-line-2`">Address line 2 (optional)</label>
+      <UiLabel :for="`${addressType}-line-2`">Address line 2 (optional)</UiLabel>
       <UiInput
         :id="`${addressType}-line-2`"
         :model-value="modelValue.name2 || ''"
@@ -21,7 +21,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-city`">City</label>
+      <UiLabel :for="`${addressType}-city`">City</UiLabel>
       <UiInput
         :id="`${addressType}-city`"
         :model-value="modelValue.city"
@@ -31,7 +31,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-region`">Region / State</label>
+      <UiLabel :for="`${addressType}-region`">Region / State</UiLabel>
       <UiInput
         :id="`${addressType}-region`"
         :model-value="modelValue.region"
@@ -41,7 +41,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-postcode`">Postcode</label>
+      <UiLabel :for="`${addressType}-postcode`">Postcode</UiLabel>
       <UiInput
         :id="`${addressType}-postcode`"
         :model-value="modelValue.postcode"
@@ -51,7 +51,7 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-muted-foreground" :for="`${addressType}-country`">Country</label>
+      <UiLabel :for="`${addressType}-country`">Country</UiLabel>
       <UiInput
         :id="`${addressType}-country`"
         :model-value="modelValue.country"

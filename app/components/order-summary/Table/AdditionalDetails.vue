@@ -1,11 +1,11 @@
 <template>
   <div class="relative px-4 flex flex-row justify-between xl:justify-start xl:gap-6">
     <!-- Packaging toggle button and details display -->
-    <button class="flex flex-col gap-2 items-center group xl:flex-row" @click="togglePackagingDetails">
-      <PackageBox class="text-muted-foreground group-hover:text-blue-500 transition duration-150 block xl:hidden" />
-      <PackageBoxSmall class="text-muted-foreground group-hover:text-blue-500 transition duration-150 hidden xl:block" />
-      <span class="text-muted-foreground text-xs font-normal leading-5 group-hover:text-blue-500 transition duration-150">Packaging</span>
-    </button>
+    <UiButton variant="ghost" size="sm" class="h-auto flex-col xl:flex-row" @click="togglePackagingDetails">
+      <PackageBox class="block xl:hidden" />
+      <PackageBoxSmall class="hidden xl:block" />
+      <span>Packaging</span>
+    </UiButton>
     <Transition name="fade-bottom">
       <div
         v-if="showPackagingDetails"
@@ -20,11 +20,11 @@
       </div>
     </Transition>
     <!-- Delivery toggle button and details display -->
-    <button class="flex flex-col gap-2 items-center group xl:flex-row" @click="toggleDeliveryDetails">
-      <DeliveryTruck class="text-muted-foreground group-hover:text-blue-500 transition duration-150 block xl:hidden" />
-      <DeliveryTruckSmall class="text-muted-foreground group-hover:text-blue-500 transition duration-150 hidden xl:block" />
-      <span class="text-muted-foreground text-xs font-normal leading-5 group-hover:text-blue-500 transition duration-150">Delivery</span>
-    </button>
+    <UiButton variant="ghost" size="sm" class="h-auto flex-col xl:flex-row" @click="toggleDeliveryDetails">
+      <DeliveryTruck class="block xl:hidden" />
+      <DeliveryTruckSmall class="hidden xl:block" />
+      <span>Delivery</span>
+    </UiButton>
     <Transition name="fade-bottom">
       <div
         v-if="showDeliveryDetails"
@@ -43,10 +43,10 @@
       </div>
     </Transition>
     <!-- Delete button -->
-    <button class="flex flex-col gap-2 xl:hidden items-center group" @click="emits('deleteItem')">
-      <TrashOutlineBig class="text-muted-foreground group-hover:text-rose-500 transition duration-150" />
-      <span class="text-muted-foreground text-xs font-normal leading-5 group-hover:text-rose-500 transition duration-150">Delete</span>
-    </button>
+    <UiButton variant="ghost" size="sm" class="h-auto flex-col xl:hidden" @click="emits('deleteItem')">
+      <TrashOutlineBig />
+      <span>Delete</span>
+    </UiButton>
   </div>
 </template>
 

@@ -108,12 +108,9 @@ function checkCartItem(itemId: string) {
     </div>
     <div>
       <div class="hidden xl:flex flex-row gap-4 ml-4">
-        <button
-          class="flex text-muted-foreground items-center justify-center ml-auto transition-colors duration-300 hover:text-rose-500"
-          @click="emit('deleteItem', true)"
-        >
+        <UiButton variant="ghost" size="icon" class="ml-auto" @click="emit('deleteItem', true)">
           <TrashIcon class="w-5 h-5" />
-        </button>
+        </UiButton>
       </div>
       <ChevronDownIcon
         class="w-5 h-5 flex-shrink-0 roun ded-full transition duration-300 xl:hidden flex"

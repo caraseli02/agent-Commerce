@@ -2,49 +2,50 @@
   <div class="flex flex-col mb-8 gap-6">
     <div class="flex flex-col gap-4">
       <div>
-        <NuxtLink
-          to="/search"
-          class="px-6 flex flex-row items-center justify-center w-full min-h-[52px] bg-accent rounded-xl border border-border transition-colors duration-300 hover:border-slate-300 hover:bg-muted"
-        >
-          <ArrowLeft class="text-muted-foreground" />
-          <div class="p-2">
-            <span class="text-muted-foreground text-base font-medium leading-7">Continue Shopping</span>
-          </div>
-        </NuxtLink>
+        <UiButton as-child variant="secondary" size="lg" class="w-full min-h-[52px]">
+          <NuxtLink to="/search">
+            <ArrowLeft />
+            <div>
+              <span>Continue Shopping</span>
+            </div>
+          </NuxtLink>
+        </UiButton>
       </div>
 
       <div v-if="showGuestSignInWall" class="flex flex-col gap-3">
-        <NuxtLink
-          :to="signinHref"
-          class="flex min-h-[52px] items-center justify-center w-full rounded-xl bg-blue-500 px-6 py-2 text-white transition-colors duration-300 hover:bg-blue-400 shadow-sm"
-        >
-          <ShieldIcon class="text-white" />
-          <div class="p-2">
-            <span class="text-white text-base font-medium leading-7">Sign in to Continue Checkout</span>
-          </div>
-        </NuxtLink>
-        <button
+        <UiButton as-child size="lg" class="w-full min-h-[52px]">
+          <NuxtLink :to="signinHref">
+            <ShieldIcon />
+            <div>
+              <span>Sign in to Continue Checkout</span>
+            </div>
+          </NuxtLink>
+        </UiButton>
+        <UiButton
           type="button"
           data-testid="checkout-as-guest"
-          class="flex min-h-[52px] items-center justify-center w-full rounded-xl border border-slate-300 bg-card px-6 py-2 text-foreground transition-colors duration-300 hover:border-slate-400 hover:bg-muted"
+          variant="outline"
+          size="lg"
+          class="w-full min-h-[52px]"
           @click="startGuestCheckout"
         >
-          <span class="text-base font-medium leading-7">Checkout as Guest</span>
-        </button>
+          <span>Checkout as Guest</span>
+        </UiButton>
       </div>
 
       <div v-else>
         <UiButton
           :disabled="isCheckoutDisabled"
-          class="w-full min-h-[52px] rounded-xl shadow-sm"
+          size="lg"
+          class="w-full min-h-[52px]"
           @click.once="
             checkout = true;
             stopButtonTrigger();
           "
         >
-          <ShieldIcon class="text-white" />
-          <div class="p-2">
-            <span class="text-white text-base font-medium leading-7">Secure Checkout</span>
+          <ShieldIcon />
+          <div>
+            <span>Secure Checkout</span>
           </div>
         </UiButton>
       </div>
