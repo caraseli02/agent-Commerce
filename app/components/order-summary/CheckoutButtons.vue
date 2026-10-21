@@ -16,7 +16,7 @@
       <div v-if="showGuestSignInWall" class="flex flex-col gap-3">
         <NuxtLink
           :to="signinHref"
-          class="flex min-h-[52px] items-center justify-center w-full rounded-xl bg-blue-700 px-6 py-2 text-white transition-colors duration-300 hover:bg-blue-800 shadow-sm"
+          class="flex min-h-[52px] items-center justify-center w-full rounded-xl bg-blue-500 px-6 py-2 text-white transition-colors duration-300 hover:bg-blue-400 shadow-sm"
         >
           <ShieldIcon class="text-white" />
           <div class="p-2">

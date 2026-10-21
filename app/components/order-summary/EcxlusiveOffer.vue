@@ -29,7 +29,7 @@
             {{ item.description }}
           </p>
           <button
-            class="flex bg-blue-700 rounded-lg px-4 py-2 text-[13px] font-medium md:px-6 md:py-2.5 md:text-sm lg:mb-0 lg:mx-auto shadow-sm"
+            class="flex bg-blue-500 rounded-lg px-4 py-2 text-[13px] font-medium md:px-6 md:py-2.5 md:text-sm lg:mb-0 lg:mx-auto shadow-sm"
           >
             Buy Now
           </button>
