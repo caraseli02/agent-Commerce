@@ -9,6 +9,8 @@ export const buttonVariants = cva(
       variant: {
         default: 'bg-blue-700 text-white hover:bg-blue-800 dark:bg-muted dark:text-foreground dark:hover:bg-muted/90',
         cart: 'bg-blue-700 text-white hover:bg-blue-800 dark:!bg-primary dark:!text-primary-foreground dark:hover:!bg-primary/90',
+        // Green-700 keeps white text above 4.5:1 in both themes.
+        success: 'bg-green-700 text-white hover:bg-green-800',
         destructive: 'bg-red-600 text-slate-50 hover:bg-red-700 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90',
         outline:
           'border border-input bg-card hover:bg-accent hover:text-foreground dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50',
