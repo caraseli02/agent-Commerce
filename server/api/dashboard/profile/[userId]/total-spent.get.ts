@@ -1,7 +1,9 @@
 import { getDemoOrdersForUser } from '~~/server/utils/mockDashboardDemo';
+import { requireSelfOrAdmin } from '~~/server/utils/requireRequester';
 
 export default defineEventHandler((event) => {
   const userId = getRouterParam(event, 'userId');
+  requireSelfOrAdmin(event, userId);
   const total = getDemoOrdersForUser(userId).reduce((sum, order) => sum + Number(order.total || 0), 0);
 
   return {

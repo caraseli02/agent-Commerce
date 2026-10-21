@@ -85,16 +85,23 @@ describe('orders route customer scope', () => {
     expect(findOrder).toHaveBeenCalledWith('placed-order-1', 'mock-customer-1');
   });
 
-  it('does not reveal another customer order or allow unauthenticated detail reads', async () => {
+  it('forbids another customer order, 404s unknown orders and rejects unauthenticated detail reads', async () => {
     const { default: handler } = (await import('../server/api/orders/[id].get')) as {
       default: (event: unknown) => Promise<unknown>;
     };
     const authorization = `Bearer demo-token::mock-customer-1::${Date.now()}`;
 
+    findOrder.mockImplementation(async (_id, customerId) =>
+      customerId ? null : { order: { _id: 'another-customer-order' }, children: [] },
+    );
     await expect(handler({ headers: { authorization }, params: { id: 'another-customer-order' } })).rejects.toMatchObject({
-      statusCode: 404,
+      statusCode: 403,
     });
     expect(findOrder).toHaveBeenCalledWith('another-customer-order', 'mock-customer-1');
+
+    findOrder.mockReset();
+    findOrder.mockResolvedValue(null);
+    await expect(handler({ headers: { authorization }, params: { id: 'missing-order' } })).rejects.toMatchObject({ statusCode: 404 });
 
     findOrder.mockClear();
     await expect(handler({ params: { id: 'another-customer-order' } })).rejects.toMatchObject({ statusCode: 401 });
