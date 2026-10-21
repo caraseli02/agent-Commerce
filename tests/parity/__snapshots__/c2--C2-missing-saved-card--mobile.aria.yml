@@ -1,0 +1,48 @@
+- heading "Order Type" [level=2]
+- text: Mixed Order
+- button "Shipping and Billing":
+    - text: ''
+    - img
+- button "Shipping Preferences":
+    - text: ''
+    - img
+- button "Backorder Standard Standard shipping for backorder items" [pressed]:
+    - img
+    - heading "Backorder Standard" [level=2]
+    - paragraph: Standard shipping for backorder items
+- text: Delivery Method
+- button /Demo Express Standard Delivery \d+\.\d+ Lei/:
+    - img
+    - heading "Demo Express" [level=2]
+    - paragraph: Standard Delivery
+    - text: ''
+- button /Fast Lane Next Day \d+\.\d+ Lei/:
+    - img
+    - heading "Fast Lane" [level=2]
+    - paragraph: Next Day
+    - text: ''
+- button "Payment Method":
+    - text: ''
+    - img
+    - img
+- alert: Your saved card is no longer available. Choose another payment method to continue.
+- text: Select Payment
+- button /visa •••• \d+ Pay by card/:
+    - img
+    - text: ''
+    - img
+    - img
+    - text: ''
+- button "Bank Transfer":
+    - img
+    - img
+    - text: ''
+- 'button /Pay from credit Available: \d+\.\d+/':
+    - img
+    - img
+    - text: ''
+    - button /\d+\.\d+/
+- button "Cash on delivery":
+    - img
+    - img
+    - text: ''

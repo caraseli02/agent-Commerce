@@ -2,6 +2,7 @@ import { expect, type Locator, type Page, type Request } from '@playwright/test'
 import { clearGuestCart, waitForVisualReady } from '../playwright-support/runtime';
 import type { ParityScenario, ParityViewport } from './scenario';
 import { c1Scenarios } from './c1-scenarios';
+import { c2Scenarios } from './c2-scenarios';
 
 const filterValue = (name: string, value: string, unit: string, id: string, count: number) => ({
   FeatureName: name,
@@ -210,6 +211,7 @@ const showOrderSummaryWithTwoItems = async (page: Page) => {
 
 export const scenarios: ParityScenario[] = [
   ...c1Scenarios,
+  ...c2Scenarios,
   {
     id: 'forgot-password-form',
     slice: 'M1',
