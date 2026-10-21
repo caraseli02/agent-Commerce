@@ -28,6 +28,7 @@ import {
   passHeadsFromComments,
   passingEvaluatorHeads,
   protectedFilesTouched,
+  routeDecision,
 } from '../scripts/owner-attention.mjs';
 
 const HEAD = '0c0c9be5a1aa4b77afe25a7bc43fed68367381cc';
@@ -517,6 +518,81 @@ describe('Claude build queue', () => {
 
   it('parses Depends on / Blocked by lines only', () => {
     expect(parseDependencies('Related #631\nDepends on #632 and #633\n> Blocked by: #7\nSee #8')).toEqual([632, 633, 7]);
+  });
+  it('counts a self-started claim as live but never as an eligible build', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude-self', 'in-progress']), issue(2, ['agent:claude-self'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1, 2]),
+    });
+
+    expect(state.live.map((entry) => entry.number)).toEqual([1]);
+    expect(state.eligible).toEqual([]);
+    expect(state.selfClaims.map((entry) => entry.number)).toEqual([1]);
+  });
+
+  it('keeps a parked self-started claim in the improve slot count', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude-self', 'in-progress', 'blocked'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1]),
+    });
+
+    expect(state.live).toEqual([]);
+    expect(state.selfClaims.map((entry) => entry.number)).toEqual([1]);
+  });
+});
+
+describe('routine route', () => {
+  const base = {
+    mode: 'build',
+    maxPassQueue: 2,
+    improve: { enabled: true, maxOpen: 1 },
+    claims: [] as { number: number; live: boolean; pr: { number: number; mergeable: boolean | null; verdict: string | null } | null }[],
+    reviewable: [] as number[],
+    eligible: [] as number[],
+    selfClaims: 0,
+  };
+
+  it('reads the improve settings and queue cap from the factory config', async () => {
+    const config = parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8'));
+
+    expect(config.improve).toEqual({ enabled: true, maxOpen: 1 });
+    expect(config.maxPassQueue).toBe(2);
+    expect(config.mode).toBe('build');
+  });
+
+  it('repairs a conflicting or failed Claude PR before anything else', () => {
+    const claims = [{ number: 5, live: false, pr: { number: 50, mergeable: false, verdict: 'PASS' } }];
+
+    expect(routeDecision({ ...base, claims, reviewable: [9] })).toMatchObject({ route: 'repair', issue: 5, pr: 50 });
+  });
+
+  it('resumes a live claim without a PR, then reviews', () => {
+    expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: null }], reviewable: [9] })).toMatchObject({
+      route: 'build',
+      issue: 5,
+    });
+    expect(routeDecision({ ...base, reviewable: [9], eligible: [3] })).toMatchObject({ route: 'review', pr: 9 });
+  });
+
+  it('builds a labeled issue before self-starting an improvement', () => {
+    expect(routeDecision({ ...base, eligible: [3] })).toMatchObject({ route: 'build', issue: 3 });
+    expect(routeDecision(base)).toMatchObject({ route: 'improve' });
+  });
+
+  it('sends the run to the night lane while a claim waits, the queue is full or the improve slot is taken', () => {
+    const waiting = [{ number: 5, live: true, pr: { number: 50, mergeable: true, verdict: null } }];
+    const queued = [1, 2].map((number) => ({ number, live: false, pr: { number: number * 10, mergeable: true, verdict: 'PASS' } }));
+
+    expect(routeDecision({ ...base, claims: waiting })).toMatchObject({ route: 'night' });
+    expect(routeDecision({ ...base, claims: queued, eligible: [3] })).toMatchObject({ route: 'night' });
+    expect(routeDecision({ ...base, selfClaims: 1 })).toMatchObject({ route: 'night' });
+    expect(routeDecision({ ...base, improve: { enabled: false, maxOpen: 1 } })).toMatchObject({ route: 'night' });
+  });
+
+  it('only reviews in review-only mode', () => {
+    expect(routeDecision({ ...base, mode: 'review-only', claims: [{ number: 5, live: true, pr: null }] })).toMatchObject({
+      route: 'night',
+    });
   });
 });
 

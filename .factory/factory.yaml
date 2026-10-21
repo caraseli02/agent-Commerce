@@ -20,7 +20,7 @@ host: Mac mini only (local routines, no cloud runners)
 # by unattended agents). Each agent keeps WIP=1 inside its own label.
 agents:
   claude:
-    builds: open issues labeled agent:claude (the only owner label; set only by Vlad; ready-for-agent not required)
+    builds: open issues labeled agent:claude (owner label; set only by Vlad; ready-for-agent not required), plus agent:claude-self issues it opens itself in the improve lane
     branch: claude/issue-<number> # holds the code only
     claim_record: issue labels (in-progress, assignee) + comment + branch claude/issue-<number>, pushed normally; nothing else is pushed
     reviews: ready PRs WITHOUT the agent:claude label (Codex and human PRs, including payments)
@@ -32,6 +32,7 @@ labels:
   eligible: ready-for-agent # Codex's pool; Claude's is agent:claude alone
   claimed: in-progress
   owner_claude: agent:claude
+  self_claude: agent:claude-self # issues Claude opened and claimed itself in the improve lane (claude-improve.md); Claude may set it only there
   owner_codex: agent:codex # optional; issues without agent:claude are Codex's pool
   payments_area: area:payments # normal label ownership applies
   blocked: blocked
@@ -61,7 +62,8 @@ protected_paths:
 automations:
   claude-routine:
     file: .factory/automations/claude-routine.md
-    role: one run does one thing - morning digest when due, else repair Claude's PR, else review one non-Claude PR, else build one agent:claude issue, else one night-lane item
+    role: one run does one thing - morning digest when due, else repair Claude's PR, else review one non-Claude PR, else build one agent:claude issue, else self-start one small improvement, else one night-lane item
+    improve: .factory/automations/claude-improve.md # self-started improvement lane when nothing labeled is buildable
     maintenance: .factory/automations/claude-maintenance.md # night lane when nothing is buildable: digest, plan, diagnose, learning, spike, checks; comments and needs-triage issues only, never code
     night_lane:
       budget_minutes: 40 # per run, including install and build
@@ -71,6 +73,23 @@ automations:
       spike_label: spike # created by Vlad; only labeled issues with a stated question are spiked
       owned_server_port: 3205 # Codex investigations use 3206
       learnings_inbox_title: 'Learnings inbox: <YYYY>-W<ww>' # weekly issue; Vlad ticks entries and labels it agent:claude to publish to docs/solutions/ (.agents/skills/compound-learning)
+    improve:
+      enabled: true # kill switch; false sends idle runs straight to the night lane
+      max_open: 1 # open agent:claude-self claims (with or without PR); a rejected or merged one frees the slot
+      max_files: 6 # changed files per improvement, excluding shared_ledger_files
+      max_diff_lines: 300 # added + removed lines, excluding shared_ledger_files and snapshots
+      areas: [ui-a11y, ux-flow, logic, performance] # rotated: least recently improved first (journal)
+      surfaces: [home, catalog-search, product-detail, cart, account-orders, auth, admin-control-panel, dashboard]
+      allowed_paths:
+        - app/components/**
+        - app/pages/**
+        - app/layouts/**
+        - app/composables/**
+        - app/assets/**
+        - app/utils/**
+        - server/api/**
+        - tests/**
+      excluded: payment, checkout, Stripe, refund and migration code; dependency changes; new features; brand or legal copy # always, even inside allowed_paths
     mode: build # review-only | build. Build since 2026-10-08, after the rollout acceptance tracked on PR #608
     folder: ~/Documents/agent-Commerce # shared with Codex, which works in the main checkout; Claude runs only in .claude/worktrees/*
     worktree: true # fresh worktree from origin/main per run; .worktreeinclude copies .env.local

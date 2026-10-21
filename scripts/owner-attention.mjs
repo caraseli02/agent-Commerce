@@ -21,6 +21,8 @@ import { execFileSync } from 'node:child_process';
 import { assessPrTemplate } from './check-pr-template.mjs';
 
 export const BOT_LOGIN = 'github-actions[bot]';
+const SELF_LABEL = 'agent:claude-self';
+const CLAUDE_OWNER_LABELS = new Set(['agent:claude', SELF_LABEL]);
 export const QUEUE_ISSUE_TITLE = "Owner attention: Claude's build queue is empty";
 const log = (message) => process.stdout.write(`${message}\n`);
 const OWN_CHECK_NAMES = new Set(['owner-attention']);
@@ -45,6 +47,9 @@ export function parseFactoryConfig(yamlText) {
   let group = null;
   let neverClaim = [];
   let mode = null;
+  let maxPassQueue = null;
+  let inImprove = false;
+  const improve = { enabled: false, maxOpen: 0 };
 
   for (const raw of lines) {
     const line = raw.replace(/\s+#.*$/, '');
@@ -71,11 +76,21 @@ export function parseFactoryConfig(yamlText) {
         .filter(Boolean);
       continue;
     }
+    if (/^ {4}\S/.test(line)) inImprove = /^ {4}improve:\s*$/.test(line);
+    if (inImprove) {
+      const enabledMatch = line.match(/^ {6}enabled:\s*(true|false)\s*$/);
+      if (enabledMatch) improve.enabled = enabledMatch[1] === 'true';
+      const maxOpenMatch = line.match(/^ {6}max_open:\s*(\d+)\s*$/);
+      if (maxOpenMatch) improve.maxOpen = Number(maxOpenMatch[1]);
+      continue;
+    }
+    const queueMatch = line.match(/^\s+max_pass_queue:\s*(\d+)\s*$/);
+    if (queueMatch) maxPassQueue = Number(queueMatch[1]);
     const modeMatch = line.match(/^ {4}mode:\s*([\w-]+)/);
     if (modeMatch && mode === null) mode = modeMatch[1];
   }
 
-  return { protectedPaths, neverClaim, mode };
+  return { protectedPaths, neverClaim, mode, maxPassQueue, improve };
 }
 
 export function globToRegExp(pattern) {
@@ -409,21 +424,52 @@ export function claudeQueueState(
   { neverClaim, openIssueNumbers, claimedNumbers = new Set(), skippedNumbers = new Set(), queuedNumbers = new Set() },
 ) {
   const claude = (issues ?? []).filter(
-    (issue) => !issue.pull_request && (issue.labels ?? []).some((label) => label.name === 'agent:claude'),
+    (issue) => !issue.pull_request && (issue.labels ?? []).some((label) => CLAUDE_OWNER_LABELS.has(label.name)),
   );
   const labelsOf = (issue) => new Set((issue.labels ?? []).map((label) => label.name));
   const claimed = claude.filter((issue) => labelsOf(issue).has('in-progress') && !labelsOf(issue).has('blocked'));
   const queued = claimed.filter((issue) => queuedNumbers.has(issue.number));
   const live = claimed.filter((issue) => !queuedNumbers.has(issue.number));
+  // Only Vlad's agent:claude queues a build; a released self-started issue never comes back.
   const eligible = claude.filter((issue) => {
     const labels = labelsOf(issue);
+    if (!labels.has('agent:claude')) return false;
     if (labels.has('in-progress') || (issue.assignees ?? []).length) return false;
     if (neverClaim.some((label) => labels.has(label))) return false;
     if ((issue.issue_dependencies_summary?.blocked_by ?? 0) > 0) return false;
     if (claimedNumbers.has(issue.number) || skippedNumbers.has(issue.number)) return false;
     return parseDependencies(issue.body).every((number) => !openIssueNumbers.has(number));
   });
-  return { live, queued, eligible, idle: live.length === 0 && eligible.length === 0 };
+  // Parked self claims still hold an improve slot, so blocked ideas never pile up.
+  const selfClaims = claude.filter((issue) => labelsOf(issue).has(SELF_LABEL) && labelsOf(issue).has('in-progress'));
+  return { live, queued, eligible, selfClaims, idle: live.length === 0 && eligible.length === 0 };
+}
+
+// The routine's cheap first look (claude-routine.md step 1.6). It orders the routes the
+// way steps 2-4 do, from GitHub state alone, so a run with nothing to repair, review or
+// build skips the heavy setup and scans. The routine still confirms the chosen route's
+// own conditions before acting.
+// `claims` are { number, live, pr: { number, mergeable, verdict } | null } for every Claude
+// claim that is neither parked nor waiting; `reviewable` are non-Claude PR numbers without
+// an effective current-context report.
+export function routeDecision({ mode, maxPassQueue, improve, claims, reviewable, eligible, selfClaims }) {
+  const build = mode === 'build';
+  if (build) {
+    const repair = claims.find((claim) => claim.pr && (claim.pr.mergeable === false || claim.pr.verdict === 'FAIL'));
+    if (repair) return { route: 'repair', issue: repair.number, pr: repair.pr.number };
+    const resume = claims.find((claim) => claim.live && !claim.pr);
+    if (resume) return { route: 'build', issue: resume.number, reason: 'live claim has no PR' };
+  }
+  if (reviewable.length) return { route: 'review', pr: reviewable[0] };
+  if (!build) return { route: 'night', reason: 'review-only mode' };
+  const waiting = claims.find((claim) => claim.live);
+  if (waiting) return { route: 'night', reason: `live claim #${waiting.number} waits for review` };
+  const queued = claims.filter((claim) => !claim.live).length;
+  if (queued >= maxPassQueue) return { route: 'night', reason: `PASS queue full (${queued})` };
+  if (eligible.length) return { route: 'build', issue: eligible[0], reason: 'eligible agent:claude issue (confirm overlap)' };
+  if (!improve?.enabled) return { route: 'night', reason: 'improve lane disabled' };
+  if (selfClaims >= improve.maxOpen) return { route: 'night', reason: `self-started claims at cap (${selfClaims})` };
+  return { route: 'improve', reason: 'nothing labeled is buildable' };
 }
 
 export function readyMessage({ owner, pr, verdict, key = `ready:${pr.head.sha}` }) {
@@ -598,7 +644,13 @@ async function queuedClaimNumbers(gh, openIssues, prs, trustedLogins, evidencePr
   const queued = new Set();
   for (const issue of openIssues) {
     const labels = new Set((issue.labels ?? []).map((entry) => entry.name));
-    if (issue.pull_request || !labels.has('agent:claude') || !labels.has('in-progress') || labels.has('blocked')) continue;
+    if (
+      issue.pull_request ||
+      !(labels.has('agent:claude') || labels.has(SELF_LABEL)) ||
+      !labels.has('in-progress') ||
+      labels.has('blocked')
+    )
+      continue;
     const pr = prs.find((candidate) => candidate.head?.ref === `claude/issue-${issue.number}`);
     if (!pr) continue;
     const evidence = await evidenceProvider(pr.number);
@@ -698,6 +750,70 @@ async function printLocalReadiness() {
   const config = parseFactoryConfig(await readFile(new URL('../.factory/factory.yaml', import.meta.url), 'utf8'));
   const result = await readLocalEvidence(number, { gh: createGhClient(repository), owner, config });
   log(JSON.stringify(result));
+}
+
+// `node scripts/owner-attention.mjs route` prints the routeDecision for current GitHub state as
+// one JSON line. Waiting claims (unblocked while another is live) are left to step 2's
+// timeline sort; issues that only look eligible stay a hint until step 4.1's overlap check.
+async function printRoute() {
+  const repository = 'caraseli02/agent-Commerce';
+  const owner = repository.split('/')[0];
+  const trustedLogins = [owner];
+  const config = parseFactoryConfig(await readFile(new URL('../.factory/factory.yaml', import.meta.url), 'utf8'));
+  const gh = createGhClient(repository);
+  const prs = await gh.paginate('/pulls?state=open');
+  const openIssues = await gh.paginate('/issues?state=open');
+  const openIssueNumbers = new Set(openIssues.map((issue) => issue.number));
+  const claimedNumbers = await claimedIssueNumbers(gh, prs);
+  const evidence = new Map();
+  const evidenceProvider = async (number) => {
+    if (!evidence.has(number)) evidence.set(number, await readLocalEvidence(number, { gh, owner, config, trustedLogins }));
+    return evidence.get(number);
+  };
+  const queuedNumbers = await queuedClaimNumbers(gh, openIssues, prs, trustedLogins, evidenceProvider);
+  const options = { neverClaim: config.neverClaim, openIssueNumbers, claimedNumbers, queuedNumbers };
+  const first = claudeQueueState(openIssues, options);
+  const skippedNumbers = new Set();
+  for (const issue of first.eligible) {
+    const comments = await gh.paginate(`/issues/${issue.number}/comments`);
+    if (hasCurrentSkipRecord(issue, comments, { trustedLogins })) skippedNumbers.add(issue.number);
+  }
+  const state = claudeQueueState(openIssues, { ...options, skippedNumbers });
+
+  const claims = [];
+  for (const issue of [...state.queued, ...state.live]) {
+    const pr = prs.find((candidate) => candidate.head?.ref === `claude/issue-${issue.number}`);
+    let summary = null;
+    if (pr) {
+      const full = await gh.get(`/pulls/${pr.number}`);
+      const comments = await gh.paginate(`/issues/${pr.number}/comments`);
+      const verdict = latestEvaluatorVerdict(comments, full.head.sha, { trustedLogins });
+      summary = { number: pr.number, mergeable: full.mergeable, verdict: verdict?.verdict ?? null };
+    }
+    claims.push({ number: issue.number, live: !queuedNumbers.has(issue.number), pr: summary });
+  }
+
+  const reviewable = [];
+  for (const pr of [...prs].sort((a, b) => String(a.updated_at).localeCompare(String(b.updated_at)))) {
+    if (pr.draft || (pr.labels ?? []).some((label) => label.name === 'skip-eval')) continue;
+    if (await isClaudeBuiltPr(gh, pr)) continue;
+    const full = await gh.get(`/pulls/${pr.number}`);
+    full.base.sha = (await gh.get(`/git/ref/heads/${encodeURIComponent(full.base.ref)}`)).object.sha;
+    const comments = await gh.paginate(`/issues/${pr.number}/comments`);
+    const verdict = latestEvaluatorVerdict(comments, full.head.sha, { trustedLogins, contextMarker: localVerificationMarker(full) });
+    if (!verdict || verdict.verdict === 'INCONCLUSIVE') reviewable.push(pr.number);
+  }
+
+  const decision = routeDecision({
+    mode: config.mode,
+    maxPassQueue: config.maxPassQueue ?? 2,
+    improve: config.improve,
+    claims,
+    reviewable,
+    eligible: state.eligible.map((issue) => issue.number),
+    selfClaims: state.selfClaims.length,
+  });
+  log(JSON.stringify({ ...decision, claims, reviewable, eligible: state.eligible.map((issue) => issue.number) }));
 }
 
 // `gh issue view <n> --json title,body,labels | node scripts/owner-attention.mjs skip-fingerprint`
@@ -809,6 +925,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
     'checks-green': printChecksGreen,
     'pass-heads': printPassHeads,
     'local-readiness': printLocalReadiness,
+    route: printRoute,
   };
   const run = commands[command] ?? main;
   run().catch((error) => {
