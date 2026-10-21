@@ -68,8 +68,12 @@ describe('Husky and independent local acceptance', () => {
 
   it('validates live PR metadata before push and propagates lookup failures', () => {
     const input = `refs/heads/topic ${head} refs/heads/topic ${base}\n`;
-    expect(() => checkPushTemplates(input, { run: () => JSON.stringify([{ number: 10, body, labels: [] }]) })).not.toThrow();
-    expect(() => checkPushTemplates(input, { run: () => JSON.stringify([{ number: 10, body: '', labels: [] }]) })).toThrow('PR #10');
+    expect(() =>
+      checkPushTemplates(input, { uiFingerprint: () => null, run: () => JSON.stringify([{ number: 10, body, labels: [] }]) }),
+    ).not.toThrow();
+    expect(() =>
+      checkPushTemplates(input, { uiFingerprint: () => null, run: () => JSON.stringify([{ number: 10, body: '', labels: [] }]) }),
+    ).toThrow('PR #10');
     expect(() =>
       checkPushTemplates(input, {
         run: () => {
@@ -77,7 +81,7 @@ describe('Husky and independent local acceptance', () => {
         },
       }),
     ).toThrow('GitHub unavailable');
-    expect(() => checkPushTemplates(input, { run: () => '[]' })).not.toThrow();
+    expect(() => checkPushTemplates(input, { uiFingerprint: () => null, run: () => '[]' })).not.toThrow();
     checkPushTemplates(`refs/heads/topic ${'0'.repeat(40)} refs/heads/topic ${base}`, {
       run: () => {
         throw new Error('deletion must not query PRs');

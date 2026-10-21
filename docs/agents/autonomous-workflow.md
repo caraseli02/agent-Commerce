@@ -134,7 +134,7 @@ Required checks:
 - Check GitHub mergeability before PASS: run `gh pr view --json mergeable,mergeStateStatus` and require the PR to be mergeable. If `mergeable=CONFLICTING` or `mergeStateStatus=DIRTY`, verdict must be `FAIL — needs generator fix` until the branch is rebased or conflicts are resolved.
 - Run or inspect evidence for the relevant verification ladder in `docs/agents/verification.md`.
 - Before PASS follow [Husky acceptance](local-verification.md): independently execute the selected fresh gate against exact head/current base and applicable runtime/browser checks, validate live PR metadata, and include its local-verification marker in the attributed report. Recheck local-readiness before readiness labels. No hosted or retired service evidence is required.
-- Require browser/runtime evidence for UI, route, auth, cart, checkout, mock API, or state-flow changes.
+- Require browser/runtime evidence for UI, route, auth, cart, checkout, mock API, or state-flow changes. For UI files, the PR body's `## Screenshots` must be current (the preflight checks its marker), and the before/after images must show the change the issue asks for on the affected routes. When the PR says `No visible change:`, check that the reason holds.
 - Confirm clean handoff: branch/PR linked, issue state clear, risks documented, and no temporary/debug files left behind.
 
 Verdicts:

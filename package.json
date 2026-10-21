@@ -9,6 +9,7 @@
     "dev": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/nuxt/bin/nuxt.mjs dev",
     "generate": "nuxt generate",
     "preview": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/nuxt/bin/nuxt.mjs preview",
+    "pr:screenshots": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/with-test-database.mjs node scripts/pr-screenshots.mjs",
     "postinstall": "nuxt prepare",
     "lint": "eslint . --pass-on-unpruned-suppressions --ignore-pattern 'node_modules' --ignore-pattern '.nuxt' --ignore-pattern '.output' --ignore-pattern 'dist' --ignore-pattern '.agents/skills/impeccable/**'",
     "lint:design": "DESIGN_LINT_AUDIT=1 eslint app --pass-on-unpruned-suppressions",

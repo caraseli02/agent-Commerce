@@ -58,6 +58,7 @@ Run the narrowest meaningful check first, then climb until the changed behavior 
 - Start `pnpm dev` or a fresh `pnpm preview` when observable UI/routes are affected, including indirect store, data, composable, layout, or style effects. Static success does not replace browser evidence.
 - Exercise the affected page or server route.
 - Capture screenshot or exact route/flow evidence in the PR.
+- **Before/after screenshots.** When the PR changes `app/`, `public/` or UI config (`scripts/ui-evidence.mjs` `uiPath`), commit the change, then run `pnpm pr:screenshots --routes "<affected routes>"` and paste its `## Screenshots` section into the PR body. It builds the merge base with main and the PR head in throwaway worktrees, captures each route in light and dark at 1440×900 and 390×844, and stores the PNGs on the append-only `pr-evidence` branch, which is never merged. The body links them by commit SHA. The section carries `<!-- pr-screenshots: ui=<fingerprint> -->`, a hash of the PR's own UI diff. Merging main keeps it valid, while any later UI edit makes it stale. `scripts/check-pr-template.mjs` (body preflight and pre-push) rejects a UI PR whose section is missing or stale. When UI files changed but nothing visible did, write a line starting `No visible change:` with the reason. The reviewer judges that reason.
 
 12. **Integration check**
     - If auth, checkout, cart, mock API, or state persistence changes, verify the full affected flow rather than only the touched component.
@@ -113,7 +114,7 @@ The current writer still fills legacy payment-choice columns for old readers, bu
 Use this policy to keep PRs reviewable and avoid scattering one-off artifacts across the repo.
 
 - **Command output** stays in the PR body or PR comments when it is part of the proof. Keep the exact command and the relevant pass/fail output together.
-- **Screenshots, logs, and runtime notes** belong in the PR body or linked PR comments when they help an evaluator verify the change without hunting through the diff.
+- **Screenshots, logs, and runtime notes** belong in the PR body or linked PR comments when they help an evaluator verify the change without hunting through the diff. Screenshots must be visible in the PR as images: use `pnpm pr:screenshots` (above), never a local `tmp/` path or a colour description alone.
 - **Durable evidence** may be committed only when it is part of the repo's long-lived docs, tests, or fixtures. If the artifact is only proof of a run, do not commit it.
 - **Temporary artifacts** belong in `tmp/` during capture and should be removed before handoff unless the issue explicitly asks to retain them.
 - **Tracked `tmp/` files** are discouraged by default. If a `tmp/` artifact must be kept for review, document why it is retained and clean it up in the same task or follow-up.
