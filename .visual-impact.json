@@ -308,11 +308,11 @@
       "consumers": "git grep finds admin-table/order/columns.ts only in admin-table/order/Order.vue (/dashboard/orders, admin) and client-table/order/columns.ts only in client-table/order/Index.vue (pages/dashboard/client/index.vue and pages/dashboard/customers/[slug]/index.vue). Seeded demo orders all carry user.contactDetails and a numeric total, so no screenshot changes; the orders group (client dashboard, mobile) is the representative check. Admin /dashboard/orders at 1440 and 390 is covered by browser evidence in the PR."
     },
     {
-      "fingerprint": "aeb391413adbb838ad8d51166b08928077580dd11185bd856da9ecec72ebb456",
+      "fingerprint": "2fbcd92bbbd8ed448c9a73315229d0a62b61cc6bc70c94294d2da1b44f89eca9",
       "impact": "targeted",
       "tests": ["home", "search", "product", "cart", "orders"],
-      "reason": "Dark-theme follow-up (#759): class-only edits. Light hex surfaces gain dark: pairs (light output unchanged); UiButton sites swap hex for the equal light token (bg-accent = #F2F2F2, bg-secondary ~ #ECEFF3); text-bearing bg-blue-500 moves to bg-blue-700 (white text 3.83:1 -> 6.71:1), a called-out light-mode change.",
-      "consumers": "Touched files render on the storefront header mega-menu (home), /search (skeleton, pagination, filter modals), /product (skeleton, cart sheet checkout button), /order-summary (back-order warning, packaging/delivery popovers, credit info, checkout button) and dashboard/control-panel surfaces (orders tab bars, notifications, credit/discount settings). All five groups are selected; the light suite passed 9/9 locally with unchanged baselines. Dark mode is outside the matrix (#762) and is covered by dark Playwright captures at 1440 of the mega-menu, search, product, cart sheet, order summary, admin orders and control panel."
+      "reason": "Dark-theme follow-up (#759): class-only edits. Light hex surfaces gain dark: pairs (light output unchanged); UiButton sites swap hex for the equal light token (bg-accent = #F2F2F2, bg-secondary ~ #ECEFF3); text-bearing bg-blue-500 moves to bg-blue-700 (white text 3.83:1 -> 6.71:1), a called-out light-mode change. CheckoutButtons, EcxlusiveOffer and Table/AdditionalDetails are left to open PR #768 and follow after it merges.",
+      "consumers": "Touched files render on the storefront header mega-menu (home), /search (skeleton, pagination, filter modals), /product (skeleton, cart sheet checkout button), /order-summary (back-order warning, credit info) and dashboard/control-panel surfaces (orders tab bars, notifications, credit/discount settings). All five groups are selected; the light suite passed 9/9 locally with unchanged baselines. Dark mode is outside the matrix (#762) and is covered by dark Playwright captures at 1440 of the mega-menu, search, product, cart sheet, order summary, admin orders and control panel."
     }
   ]
 }
