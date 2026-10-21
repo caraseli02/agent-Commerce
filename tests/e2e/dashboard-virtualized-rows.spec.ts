@@ -18,7 +18,10 @@ test.describe('Dashboard virtualized orders table', () => {
   test('mounts fewer DOM rows than loaded items at max page size', async ({ page }) => {
     await signInAsAdmin(page);
     await expect(page.getByRole('heading', { name: 'Orders', exact: true })).toBeVisible();
-    await expect(page.getByText('120 item(s)')).toBeVisible();
+    // Other specs add orders to the shared test schema, so the loaded count is not pinned to the seed.
+    const itemCount = page.getByText(/^\s*\d+ item\(s\)\s*$/);
+    await expect(itemCount).toBeVisible();
+    expect(Number.parseInt((await itemCount.textContent()) ?? '', 10)).toBeGreaterThan(50);
 
     const rowsPerPageTrigger = page.getByRole('combobox').first();
     await rowsPerPageTrigger.click();
