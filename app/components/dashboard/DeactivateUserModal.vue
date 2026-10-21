@@ -29,7 +29,7 @@
             </div>
             <div class="flex cursor-default items-center gap-3">
               <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="mr-2 w-8 rounded" loading="lazy" />
-              <div class="rounded-[25px] bg-blue-500 px-2 text-xs font-semibold leading-[1.67] text-white">10%</div>
+              <div class="rounded-[25px] bg-blue-700 px-2 text-xs font-semibold leading-[1.67] text-white">10%</div>
             </div>
           </div>
           <div class="truncate text-xs leading-[1.33] text-muted-foreground">

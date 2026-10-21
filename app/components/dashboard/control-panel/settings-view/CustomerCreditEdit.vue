@@ -108,7 +108,7 @@
               <button
                 v-for="option in creditTermOptions"
                 :key="option.value"
-                class="group flex items-center justify-between w-full px-2 py-2 text-left rounded-lg text-sm font-medium leading-[1.71429] transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                class="group flex items-center justify-between w-full px-2 py-2 text-left rounded-lg text-sm font-medium leading-[1.71429] transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500 dark:hover:bg-muted"
                 :class="[option.value === creditTerm?.value ? '' : 'text-foreground']"
                 @click="
                   creditTerm = option;
@@ -146,7 +146,7 @@
           Cancel
         </button>
         <button
-          class="flex items-center justify-center px-5 py-2 rounded-lg bg-blue-500 leading-[1.75] text-white font-medium"
+          class="flex items-center justify-center px-5 py-2 rounded-lg bg-blue-700 leading-[1.75] text-white font-medium"
           @click="
             $emit('close');
             updateCreditTerm(creditTerm?.value, creditAmount);

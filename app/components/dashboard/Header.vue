@@ -205,7 +205,9 @@
             >
               <div class="relative lg:mr-4">
                 <img :src="DashboardAvatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover" loading="lazy" />
-                <div class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white" />
+                <div
+                  class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white dark:border-card"
+                />
               </div>
               <div class="flex flex-col max-lg:hidden">
                 <div class="leading-normal font-medium">
@@ -440,12 +442,12 @@ Promise.all([fetchNofications()]);
   }
 
   &::-webkit-scrollbar-track {
-    @apply bg-[#f5f5f5];
+    @apply bg-[#f5f5f5] dark:bg-muted;
   }
 
   &::-webkit-scrollbar-thumb {
     background: #d4d4d4;
-    @apply rounded-[100px] border-[#f5f5f5];
+    @apply rounded-[100px] border-[#f5f5f5] dark:border-muted;
   }
 }
 </style>

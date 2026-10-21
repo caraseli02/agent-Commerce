@@ -13,7 +13,7 @@
         :key="index"
         variant="ghost"
         class="group h-auto justify-start px-2 py-1.5 rounded-[5px] w-full text-muted-foreground text-left font-Inter hover:text-primary xl:px-2.5 xl:py-2"
-        :class="[selectedCategory === category ? 'text-primary bg-[#F4F4F4]' : '']"
+        :class="[selectedCategory === category ? 'text-primary bg-accent' : '']"
         @click="
           selectedCategory = category;
           selectedSubCategory = null;
@@ -228,7 +228,7 @@
                 :key="index"
                 variant="ghost"
                 class="group h-auto px-2 py-1.5 rounded-[5px] text-muted-foreground text-left hover:text-primary"
-                :class="[selectedSubCategory === subCategory ? 'text-primary bg-[#F4F4F4]' : '']"
+                :class="[selectedSubCategory === subCategory ? 'text-primary bg-accent' : '']"
                 @click="selectedSubCategory = subCategory"
               >
                 <div>

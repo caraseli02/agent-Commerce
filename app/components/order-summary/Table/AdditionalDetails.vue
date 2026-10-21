@@ -10,7 +10,7 @@
       <div
         v-if="showPackagingDetails"
         v-click-outside="togglePackagingDetails"
-        class="absolute border-[1px] p-3 xl:bottom-7 bottom-[76px] z-10 max-w-[216px] min-h-[176px] bg-[#FFF] rounded-xl shadow-l flex flex-col gap-3"
+        class="absolute border-[1px] p-3 xl:bottom-7 bottom-[76px] z-10 max-w-[216px] min-h-[176px] bg-[#FFF] dark:bg-card rounded-xl shadow-l flex flex-col gap-3"
       >
         <h2 class="text-foreground text-sm font-medium leading-6">Packaging Details</h2>
         <p class="text-foreground text-xs font-normal leading-5">
@@ -29,7 +29,7 @@
       <div
         v-if="showDeliveryDetails"
         v-click-outside="toggleDeliveryDetails"
-        class="absolute border-[1px] p-3 xl:bottom-7 bottom-[76px] xl:left-12 left-[calc(25%-40px)] z-10 max-w-[240px] min-h-[176px] bg-[#FFF] rounded-xl shadow-l flex flex-col gap-3"
+        class="absolute border-[1px] p-3 xl:bottom-7 bottom-[76px] xl:left-12 left-[calc(25%-40px)] z-10 max-w-[240px] min-h-[176px] bg-[#FFF] dark:bg-card rounded-xl shadow-l flex flex-col gap-3"
       >
         <h2 class="text-foreground text-sm font-medium leading-6">Delivery Details</h2>
         <p class="text-foreground text-xs font-normal leading-5">

@@ -58,7 +58,7 @@
                 <UiBadge
                   :key="tab.badge"
                   variant="secondary"
-                  :class="{ 'bg-blue-500 text-white': selectedTab === tab.value }"
+                  :class="{ 'bg-blue-700 text-white': selectedTab === tab.value }"
                   class="ml-1 h-5 min-w-5 rounded-full p-1.5 text-xs"
                 >
                   {{ tab.badge }}

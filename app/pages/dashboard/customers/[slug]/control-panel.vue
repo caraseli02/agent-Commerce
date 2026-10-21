@@ -83,7 +83,7 @@
             {{ view.name }}
           </NuxtLink>
           <div
-            class="absolute top-1/2 -translate-y-1/2 bg-blue-500 h-11 rounded-lg transition-all duration-300"
+            class="absolute top-1/2 -translate-y-1/2 bg-blue-700 h-11 rounded-lg transition-all duration-300"
             :style="{
               width: viewHighlightWidth + 'px',
               left: viewHightlightLeft + 'px',

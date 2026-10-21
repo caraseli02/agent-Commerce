@@ -12,7 +12,7 @@
       />
       <div v-if="isLoading" class="order-3 px-1 mt-6 md:pr-0 min-h-[284px] w-full" aria-busy="true" aria-live="polite">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div v-for="n in 3" :key="n" class="h-[280px] rounded-xl bg-slate-100 animate-pulse" />
+          <div v-for="n in 3" :key="n" class="h-[280px] rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
         </div>
         <span class="sr-only">Loading products…</span>
       </div>

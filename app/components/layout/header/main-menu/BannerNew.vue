@@ -4,7 +4,7 @@ import BannerBg from '@/assets/media/home/banner-bg.webp';
 
 <template>
   <section
-    class="relative h-full min-h-0 overflow-hidden rounded-xl border border-[#E1E4EA] bg-card"
+    class="relative h-full min-h-0 overflow-hidden rounded-xl border border-[#E1E4EA] bg-card dark:border-border"
     role="region"
     aria-labelledby="hero-title"
   >
@@ -15,7 +15,10 @@ import BannerBg from '@/assets/media/home/banner-bg.webp';
       class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.14]"
       loading="lazy"
     />
-    <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-white via-slate-50/95 to-slate-100/90" aria-hidden="true" />
+    <div
+      class="pointer-events-none absolute inset-0 bg-gradient-to-br from-white via-slate-50/95 to-slate-100/90 dark:from-card dark:via-card/95 dark:to-card/90"
+      aria-hidden="true"
+    />
     <div class="relative z-10 flex h-full flex-col justify-center px-8 py-10 lg:px-12 lg:py-12 xl:px-14">
       <div class="flex max-w-[520px] flex-col gap-5 text-foreground">
         <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Components Marketplace procurement demo</p>

@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="relative grid grid-cols-2 gap-1 z-0">
-      <div class="relative h-2 bg-[#F2F2F2] rounded-lg" />
+      <div class="relative h-2 bg-[#F2F2F2] rounded-lg dark:bg-muted" />
       <div class="grid grid-cols-3 gap-1">
-        <div class="relative h-2 bg-[#F2F2F2] rounded-lg" />
-        <div class="relative h-2 bg-[#F2F2F2] rounded-lg" />
-        <div class="relative h-2 bg-[#F2F2F2] rounded-lg" />
+        <div class="relative h-2 bg-[#F2F2F2] rounded-lg dark:bg-muted" />
+        <div class="relative h-2 bg-[#F2F2F2] rounded-lg dark:bg-muted" />
+        <div class="relative h-2 bg-[#F2F2F2] rounded-lg dark:bg-muted" />
       </div>
     </div>
     <div class="relative h-8 grid grid-cols-2 gap-1 -translate-y-6">

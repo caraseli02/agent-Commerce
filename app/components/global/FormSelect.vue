@@ -81,7 +81,7 @@
           <UiLabel
             v-for="(option, index) in filteredOptions"
             :key="index"
-            class="group flex items-center cursor-pointer py-[9px] px-2.5 transition-colors duration-300 hover:bg-[#F2F2F2] rounded-[5px]"
+            class="group flex items-center cursor-pointer py-[9px] px-2.5 transition-colors duration-300 hover:bg-accent rounded-[5px]"
           >
             <UiRadioGroupItem :value="option.value" class="sr-only" />
             <div

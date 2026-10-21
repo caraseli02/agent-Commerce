@@ -65,7 +65,7 @@
       </div>
       <button
         v-if="chartSeries[0] === 0"
-        class="flex items-center justify-center w-full bg-blue-500 rounded-lg px-5 py-2 text-white h-11 md:order-3"
+        class="flex items-center justify-center w-full bg-blue-700 rounded-lg px-5 py-2 text-white h-11 md:order-3"
         @click="$emit('toggle-editing')"
       >
         Credit Account
