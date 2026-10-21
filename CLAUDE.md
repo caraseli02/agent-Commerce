@@ -68,7 +68,7 @@ Course coverage and known watch points live in `docs/agents/harness-audit.md`.
 
 - First session on a fresh branch should initialize the repo before feature work.
 - One loop should make one narrow change, verify it, and continue the authorized task; stop for completion or the documented blocker protocol.
-- Keep one executable issue active per builder. Claude owns issues labeled `agent:claude`, excludes payment work, and shares its claim across internal subtasks. A `blocked` Claude claim is parked and a claim whose open PR has an evaluator PASS is queued (at most `max_pass_queue`); neither counts, and Claude never has two live claims (`.factory/automations/claude-routine.md` §2). Follow `docs/agents/autonomous-workflow.md` for separately operated cross-review.
+- Keep one executable issue active per builder. Claude owns issues labeled `agent:claude` (set by Vlad) and the `agent:claude-self` issues its idle-time improve lane opens (`.factory/automations/claude-improve.md`, at most `improve.max_open`), excludes payment work, and shares its claim across internal subtasks. A `blocked` Claude claim is parked and a claim whose open PR has an evaluator PASS is queued (at most `max_pass_queue`); neither counts, and Claude never has two live claims (`.factory/automations/claude-routine.md` §2). Follow `docs/agents/autonomous-workflow.md` for separately operated cross-review.
 - If the task grows beyond a few files or turns into a second unrelated fix, split it.
 - When a PR changes a path in `.factory/factory.yaml` `protected_paths`, end the session with a separate action line for Vlad: `Add owner-approved-harness to PR #N`. Only he can set it, and without it the evaluator must FAIL the PR.
 
