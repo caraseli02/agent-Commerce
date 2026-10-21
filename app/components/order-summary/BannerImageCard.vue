@@ -9,11 +9,11 @@
         </p>
       </div>
       <div>
-        <button type="button" class="px-6 rounded-lg bg-card text-foreground">
-          <div class="p-2">
-            <span class="text-base font-medium leading-7">View pricing tiers</span>
+        <UiButton type="button" variant="secondary" size="lg">
+          <div>
+            <span>View pricing tiers</span>
           </div>
-        </button>
+        </UiButton>
       </div>
     </div>
     <div>
