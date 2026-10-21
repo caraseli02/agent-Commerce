@@ -452,10 +452,22 @@ export function claudeQueueState(
 // `claims` are { number, live, pr: { number, mergeable, verdict } | null } for every Claude
 // claim that is neither parked nor waiting; `reviewable` are non-Claude PR numbers without
 // an effective current-context report.
+// What routeDecision needs from a claim's open PR. `pr.base.sha` must be the current base
+// tip, so the verdict is selected for the current head/base/metadata context the same way
+// local-readiness selects it: an older-context PASS never hides a current-context FAIL.
+// A failed PR-template check is routine step 2 repair work (rewrite the body).
+export function claimPrSummary(pr, comments, { trustedLogins }) {
+  const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins, contextMarker: localVerificationMarker(pr) });
+  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label) });
+  return { number: pr.number, mergeable: pr.mergeable, verdict: verdict?.verdict ?? null, templateFailed: template.status === 'failed' };
+}
+
 export function routeDecision({ mode, maxPassQueue, improve, claims, reviewable, eligible, selfClaims }) {
   const build = mode === 'build';
   if (build) {
-    const repair = claims.find((claim) => claim.pr && (claim.pr.mergeable === false || claim.pr.verdict === 'FAIL'));
+    const repair = claims.find(
+      (claim) => claim.pr && (claim.pr.mergeable === false || claim.pr.verdict === 'FAIL' || claim.pr.templateFailed === true),
+    );
     if (repair) return { route: 'repair', issue: repair.number, pr: repair.pr.number };
     const resume = claims.find((claim) => claim.live && !claim.pr);
     if (resume) return { route: 'build', issue: resume.number, reason: 'live claim has no PR' };
@@ -786,9 +798,9 @@ async function printRoute() {
     let summary = null;
     if (pr) {
       const full = await gh.get(`/pulls/${pr.number}`);
+      full.base.sha = (await gh.get(`/git/ref/heads/${encodeURIComponent(full.base.ref)}`)).object.sha;
       const comments = await gh.paginate(`/issues/${pr.number}/comments`);
-      const verdict = latestEvaluatorVerdict(comments, full.head.sha, { trustedLogins });
-      summary = { number: pr.number, mergeable: full.mergeable, verdict: verdict?.verdict ?? null };
+      summary = claimPrSummary(full, comments, { trustedLogins });
     }
     claims.push({ number: issue.number, live: !queuedNumbers.has(issue.number), pr: summary });
   }

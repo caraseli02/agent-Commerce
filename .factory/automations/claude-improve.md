@@ -16,7 +16,7 @@ All of these hold, otherwise continue at the **Night lane** (step 4.3):
 ## 2. Pick the focus
 
 1. **Area:** the first of `improve.areas` with no `"action":"improve"` journal line, otherwise the one whose newest `improve` line is oldest.
-2. **Surface:** within that area, the first of `improve.surfaces` not used in the area's last `len(surfaces)` improve lines.
+2. **Surface:** within that area, the least recently used of `improve.surfaces`: the first surface with no improve line in that area, otherwise the one whose newest improve line in that area is oldest. This wraps after a full rotation, so a choice always exists.
 
 | Area          | What to look for                                                                                                     | Repo skills to apply (`.agents/skills/`)           |
 | ------------- | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |

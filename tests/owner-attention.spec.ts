@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { parse as parseYaml } from 'yaml';
 import {
   BOT_LOGIN,
   QUEUE_ISSUE_TITLE,
@@ -10,6 +11,7 @@ import {
   assessChecks,
   assessReadiness,
   checksGreenVerdict,
+  claimPrSummary,
   claudeQueueState,
   closingIssueNumbers,
   createClient,
@@ -21,6 +23,7 @@ import {
   isClaudeBuilt,
   issueFingerprint,
   latestEvaluatorVerdict,
+  localVerificationMarker,
   marker,
   parseDependencies,
   parseCheckRuns,
@@ -546,7 +549,11 @@ describe('routine route', () => {
     mode: 'build',
     maxPassQueue: 2,
     improve: { enabled: true, maxOpen: 1 },
-    claims: [] as { number: number; live: boolean; pr: { number: number; mergeable: boolean | null; verdict: string | null } | null }[],
+    claims: [] as {
+      number: number;
+      live: boolean;
+      pr: { number: number; mergeable: boolean | null; verdict: string | null; templateFailed?: boolean } | null;
+    }[],
     reviewable: [] as number[],
     eligible: [] as number[],
     selfClaims: 0,
@@ -560,10 +567,92 @@ describe('routine route', () => {
     expect(config.mode).toBe('build');
   });
 
+  it('parses the factory file with a standard YAML parser (no duplicate keys)', async () => {
+    const doc = parseYaml(await readFile('.factory/factory.yaml', 'utf8'));
+
+    expect(doc.automations['claude-routine'].improve).toMatchObject({
+      file: '.factory/automations/claude-improve.md',
+      enabled: true,
+      max_open: 1,
+    });
+  });
+
   it('repairs a conflicting or failed Claude PR before anything else', () => {
     const claims = [{ number: 5, live: false, pr: { number: 50, mergeable: false, verdict: 'PASS' } }];
 
     expect(routeDecision({ ...base, claims, reviewable: [9] })).toMatchObject({ route: 'repair', issue: 5, pr: 50 });
+  });
+
+  describe('claim PR summary', () => {
+    const trusted = { trustedLogins: ['caraseli02'] };
+    const validBody = [
+      '## Summary',
+      '',
+      '- Harness change.',
+      '',
+      '## Template evidence',
+      '',
+      '- [x] This PR uses the Components Marketplace PR template / checklist.',
+      '- [x] I filled out every required section, or explained why it does not apply.',
+      '- [x] The checklist is visible in the rendered PR body.',
+      '',
+      '## Review flow',
+      '',
+      '1. Vlad checks verification outcomes and known risks.',
+      '',
+      '## Verification',
+      '',
+      '- [x] `pnpm build` — outcome: pass',
+      '- [x] `pnpm lint` — outcome: pass',
+      '- [x] `pnpm typecheck` — outcome: pass',
+      '- [x] `pnpm test` — outcome: pass',
+      '- [x] Browser/runtime evidence, if applicable — route / screenshot / notes: not applicable',
+      '',
+      '## Known risks',
+      '',
+      '- [x] None',
+      '',
+      '## Evaluator rubric',
+      '',
+      '- Scope control: /10',
+      '- Acceptance criteria: /10',
+      '- Verification evidence: /10',
+      '- Harness hygiene: /10',
+      '- Risk reporting: /10',
+    ].join('\n');
+    const pr = (body = validBody, baseSha = 'b'.repeat(40)) => ({
+      number: 50,
+      mergeable: true,
+      body,
+      labels: [label('agent:claude')],
+      head: { sha: HEAD },
+      base: { ref: 'main', sha: baseSha },
+    });
+    const report = (verdict: string, contextMarker: string) => ({
+      user: { login: 'caraseli02' },
+      body: `<!-- evaluator-head: ${HEAD} -->\n\n## Evaluator verdict\n\n${verdict}\n\nIndependent evaluator: Codex.\n${contextMarker}`,
+    });
+
+    it('selects the current-context verdict, so an older-context PASS never hides a current FAIL', () => {
+      const old = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
+      const current = localVerificationMarker(pr());
+      const comments = [report('PASS — ready-for-human', old), report('FAIL — needs generator fix', current)];
+      const summary = claimPrSummary(pr(), comments, trusted);
+
+      expect(summary).toEqual({ number: 50, mergeable: true, verdict: 'FAIL', templateFailed: false });
+      expect(latestEvaluatorVerdict(comments, HEAD, trusted)?.verdict).toBe('CONFLICTING');
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: summary }] })).toMatchObject({ route: 'repair', pr: 50 });
+    });
+
+    it('routes a failed PR-template check to repair even without an evaluator report', () => {
+      const summary = claimPrSummary(pr('## Summary\n\n- no template'), [], trusted);
+
+      expect(summary).toMatchObject({ verdict: null, templateFailed: true });
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: summary }] })).toMatchObject({ route: 'repair', pr: 50 });
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: claimPrSummary(pr(), [], trusted) }] })).toMatchObject({
+        route: 'night',
+      });
+    });
   });
 
   it('resumes a live claim without a PR, then reviews', () => {
