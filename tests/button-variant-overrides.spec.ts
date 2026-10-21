@@ -52,7 +52,7 @@ describe('Button variants', () => {
   });
 
   it('success pairs white text with a background dark enough for WCAG AA', () => {
-    expect(buttonVariants({ variant: 'success' })).toContain('bg-green-700');
+    expect(buttonVariants({ variant: 'success' })).toContain('bg-green-800');
     expect(buttonVariants({ variant: 'success' })).toContain('text-white');
   });
 });
