@@ -41,7 +41,7 @@ function contrast(a: Hsl, b: Hsl): number {
 describe('control boundary contrast (#760)', () => {
   it.each([
     [':root', ['background', 'card', 'muted', 'secondary']],
-    ['.dark', ['background', 'card']],
+    ['.dark', ['background', 'card', 'muted', 'secondary']],
   ])('--input in %s reaches 3:1 against the surfaces controls sit on', (selector, surfaces) => {
     const block = themeBlock(selector);
     const input = token(block, 'input');

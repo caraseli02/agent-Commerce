@@ -20,7 +20,8 @@ colour:
 
 - Light `--input`: `230 9% 56%`, at least 3:1 on `--background`, `--card`,
   `--muted` and `--secondary`.
-- Dark `--input`: `225 10% 42%`, at least 3:1 on `--background` and `--card`.
+- Dark `--input`: `225 10% 47%`, at least 3:1 on `--background`, `--card`,
+  `--muted` and `--secondary` (the search toolbar selects sit on `bg-muted`).
 - `UiInput`, `UiTextarea`, `UiSelectTrigger` and the `outline` `UiButton`
   variant draw their edge with `border-input`. The select trigger and outline
   button no longer override the edge in dark mode.
