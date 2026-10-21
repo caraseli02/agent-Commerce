@@ -9,7 +9,15 @@
     </div>
     <div class="flex flex-row justify-between items-center">
       <span class="text-foreground text-sm font-medium leading-6">Select Payment</span>
-      <UiButton v-if="paymentManagementVisible" type="button" data-testid="payment-management" variant="ghost" size="icon" class="group">
+      <UiButton
+        v-if="paymentManagementVisible"
+        type="button"
+        data-testid="payment-management"
+        aria-label="Manage payment methods"
+        variant="ghost"
+        size="icon"
+        class="group"
+      >
         <SettingCog class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
       </UiButton>
     </div>
@@ -24,8 +32,8 @@
           type="button"
           size="xs"
           variant="link"
-          class="flex items-center justify-end"
-          @click="paymentStore.toggleCardModal()"
+          class="flex gap-2 items-center justify-end hover:underline pt-4"
+          @click.stop="paymentStore.toggleCardModal()"
         >
           <SvgoChangeCard />
           <span class="text-foreground text-sm font-normal leading-6">Change</span>
@@ -72,48 +80,57 @@
         class="h-auto flex-col whitespace-normal group"
         @click="selectPaymentOption({ type: PaymentTypeEnum.Bank })"
       >
-        <div class="flex flex-row justify-between w-full">
-          <RadioButtonChecked
-            v-if="order.paymentDetails?.type === 3"
-            class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
-          />
-          <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
-          <BankIcon />
-        </div>
-        <div>
-          <span class="text-foreground text-sm font-normal leading-6">Bank Transfer</span>
-        </div>
-      </UiButton>
-      <UiButton
-        v-if="availablePaymentMethods.includes(PaymentTypeEnum.Credit)"
-        type="button"
-        data-testid="credit-payment-option"
-        :variant="order.paymentDetails?.type === 1 ? 'secondary' : 'outline'"
-        class="h-auto flex-col whitespace-normal group"
-        :disabled="creditUnavailableReason !== null"
-        @click="selectPaymentOption({ type: PaymentTypeEnum.Credit })"
-      >
-        <div class="flex flex-row justify-between w-full">
-          <RadioButtonChecked
-            v-if="order.paymentDetails?.type === 1"
-            class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
-          />
-          <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
-          <PieChart />
-        </div>
-        <div class="flex flex-row justify-between w-full">
-          <span class="text-foreground text-sm font-normal leading-6">Pay from credit</span>
-          <div class="flex flex-row gap-2">
-            <span class="text-foreground text-sm font-normal leading-6">Available:</span>
-            <UiButton type="button" variant="link" size="xs" @click="showCreditInfoModal = true">
-              <span class="text-blue-500 text-sm font-semibold leading-6">{{ accountCredit?.available?.toFixed(2) || 0 }}</span>
-            </UiButton>
+        <div class="flex w-full flex-col gap-3">
+          <div class="flex flex-row justify-between w-full">
+            <RadioButtonChecked
+              v-if="order.paymentDetails?.type === 3"
+              class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
+            />
+            <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
+            <BankIcon />
+          </div>
+          <div>
+            <span class="text-foreground text-sm font-normal leading-6">Bank Transfer</span>
           </div>
         </div>
-        <p v-if="creditUnavailableReason" class="text-left text-xs leading-5 text-muted-foreground" data-testid="credit-unavailable-reason">
-          {{ creditUnavailableReason }}
-        </p>
       </UiButton>
+      <div v-if="availablePaymentMethods.includes(PaymentTypeEnum.Credit)" class="flex flex-col gap-2">
+        <UiButton
+          type="button"
+          data-testid="credit-payment-option"
+          :variant="order.paymentDetails?.type === 1 ? 'secondary' : 'outline'"
+          class="h-auto flex-col whitespace-normal group"
+          :disabled="creditUnavailableReason !== null"
+          @click="selectPaymentOption({ type: PaymentTypeEnum.Credit })"
+        >
+          <div class="flex w-full flex-col gap-3">
+            <div class="flex flex-row justify-between w-full">
+              <RadioButtonChecked
+                v-if="order.paymentDetails?.type === 1"
+                class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
+              />
+              <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
+              <PieChart />
+            </div>
+            <div class="flex flex-row justify-between w-full">
+              <span class="text-foreground text-sm font-normal leading-6">Pay from credit</span>
+            </div>
+            <p
+              v-if="creditUnavailableReason"
+              class="text-left text-xs leading-5 text-muted-foreground"
+              data-testid="credit-unavailable-reason"
+            >
+              {{ creditUnavailableReason }}
+            </p>
+          </div>
+        </UiButton>
+        <div class="flex flex-row items-center justify-end gap-2">
+          <span class="text-foreground text-sm font-normal leading-6">Available:</span>
+          <UiButton type="button" variant="link" size="xs" @click="showCreditInfoModal = true">
+            <span class="text-blue-500 text-sm font-semibold leading-6">{{ accountCredit?.available?.toFixed(2) || 0 }}</span>
+          </UiButton>
+        </div>
+      </div>
       <Transition name="fade-bottom">
         <div v-if="showCreditInfoModal" v-click-outside="() => (showCreditInfoModal = false)" class="absolute bottom-[160px] right-0">
           <OrderSummaryCreditInfoModal :account-credit="accountCredit" />
@@ -126,16 +143,18 @@
         class="h-auto flex-col whitespace-normal group"
         @click="selectPaymentOption({ type: PaymentTypeEnum.Cash })"
       >
-        <div class="flex flex-row justify-between w-full">
-          <RadioButtonChecked
-            v-if="order.paymentDetails?.type === 2"
-            class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
-          />
-          <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
-          <MoneyIcon />
-        </div>
-        <div>
-          <span class="text-foreground text-sm font-normal leading-6">Cash on delivery</span>
+        <div class="flex w-full flex-col gap-3">
+          <div class="flex flex-row justify-between w-full">
+            <RadioButtonChecked
+              v-if="order.paymentDetails?.type === 2"
+              class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
+            />
+            <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
+            <MoneyIcon />
+          </div>
+          <div>
+            <span class="text-foreground text-sm font-normal leading-6">Cash on delivery</span>
+          </div>
         </div>
       </UiButton>
     </div>

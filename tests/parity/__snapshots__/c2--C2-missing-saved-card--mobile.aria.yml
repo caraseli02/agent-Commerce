@@ -37,11 +37,12 @@
     - img
     - img
     - text: ''
-- 'button /Pay from credit Available: \d+\.\d+/':
+- button "Pay from credit":
     - img
     - img
     - text: ''
-    - button /\d+\.\d+/
+- text: 'Available:'
+- button /\d+\.\d+/
 - button "Cash on delivery":
     - img
     - img

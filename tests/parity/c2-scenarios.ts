@@ -63,6 +63,21 @@ export const c2Scenarios: ParityScenario[] = [
         },
         snapshot: controls,
       },
+      {
+        name: 'credit details open by keyboard without changing payment',
+        act: async (page, region) => {
+          const before = await page.evaluate(() => JSON.parse(sessionStorage.getItem('checkout-draft-v1') || '{}').paymentDetails);
+          await region.getByRole('button', { name: /^0\.00$/ }).focus();
+          await page.keyboard.press('Enter');
+          const after = await page.evaluate(() => JSON.parse(sessionStorage.getItem('checkout-draft-v1') || '{}').paymentDetails);
+          expect(after).toEqual(before);
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByText('Credit Info', { exact: true })).toBeVisible();
+          await expect(region.locator('button button')).toHaveCount(0);
+        },
+        snapshot: (page) => page.getByText('Credit Info', { exact: true }).locator('xpath=../..'),
+      },
     ],
   },
   {
@@ -121,6 +136,7 @@ export const c2Scenarios: ParityScenario[] = [
         verify: async (_page, region) => {
           await expect(region.getByText('4242', { exact: true })).toBeVisible();
           await expect(region.getByRole('button', { name: 'Delete', exact: true })).toBeVisible();
+          await expect(region.locator('button button')).toHaveCount(0);
         },
         snapshot: (page) => page.locator('#payments'),
       },

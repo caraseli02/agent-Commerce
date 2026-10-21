@@ -15,7 +15,7 @@
 15. button "Demo Express Standard Delivery 19.9 Lei"
 16. button "Fast Lane Next Day 29.9 Lei"
 17. button "Payment Method"
-18. button
+18. button "Pay by card"
 19. button "Bank Transfer"
 20. button "0.00"
 21. button "Cash on delivery"

@@ -65,19 +65,20 @@
     - text: ''
     - img
 - text: Select Payment
-- button:
+- button "Pay by card":
     - img
     - img
 - button "Bank Transfer":
     - img
     - img
     - text: ''
-- 'button /Pay from credit Available: \d+\.\d+ Credit checkout is unavailable because this account has no active credit facility\./ [disabled]':
+- button "Pay from credit Credit checkout is unavailable because this account has no active credit facility." [disabled]:
     - img
     - img
     - text: ''
-    - button /\d+\.\d+/
     - paragraph: Credit checkout is unavailable because this account has no active credit facility.
+- text: 'Available:'
+- button /\d+\.\d+/
 - button "Cash on delivery":
     - img
     - img

@@ -6,6 +6,6 @@
 6. button "Payment Method"
 7. button "visa •••• 4242 Pay by card"
 8. button "Bank Transfer"
-9. 'button "Pay from credit Available: 3800.00"'
+9. button "Pay from credit"
 10. button "3800.00"
 11. button "Cash on delivery"
