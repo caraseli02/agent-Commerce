@@ -18,6 +18,21 @@ test('guest restarts a canceled checkout through HTTP, re-reviews, and creates a
   const oldReservationId = `res-canceled-${suffix}`;
   const oldRequestId = `request-canceled-${suffix}`;
   const timestamp = new Date().toISOString();
+  // The row stays in the shared test schema, so it carries the shape order tables read (#749).
+  const oldOrderPayload = JSON.stringify({
+    order: {
+      _id: oldOrderId,
+      shortId: `#C${suffix.slice(0, 6).toUpperCase()}`,
+      type: 0,
+      status: 'Canceled',
+      user: { _id: cart.userId, contactDetails: { firstName: 'Canceled', lastName: 'Checkout', email: 'canceled@example.com' } },
+      total: 12.34,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      paymentDetails: { status: 0 },
+    },
+    children: [],
+  });
   const database = await getCheckoutDatabase();
   await database.execute(
     `INSERT INTO checkout_reservations (id,reservation_key,fingerprint,items_json,expires_at,status)
@@ -29,9 +44,9 @@ test('guest restarts a canceled checkout through HTTP, re-reviews, and creates a
     `INSERT INTO checkout_orders
        (id,customer_id,checkout_request_id,source_cart_id,source_cart_revision,fingerprint,payload_json,
         created_at,updated_at,grand_total_minor,currency)
-     VALUES ($1,$2,$3,$4,$5,'old-fingerprint','{"order":{"paymentDetails":{"status":0}}}',
+     VALUES ($1,$2,$3,$4,$5,'old-fingerprint',$7,
              $6,$6,1234,'RON')`,
-    [oldOrderId, cart.userId, oldRequestId, cart._id, Number(cart.revision), timestamp],
+    [oldOrderId, cart.userId, oldRequestId, cart._id, Number(cart.revision), timestamp, oldOrderPayload],
   );
   await database.execute(
     `INSERT INTO checkout_payments
