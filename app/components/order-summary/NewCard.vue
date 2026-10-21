@@ -1,7 +1,8 @@
 <template>
-  <button
-    class="min-h-[100px] items-stretch self-stretch border hover:border-blue-500 flex w-full flex-col px-3 py-2 rounded-lg border-dashed group"
-    :class="isSelected ? 'border-blue-500' : 'border-border'"
+  <UiButton
+    type="button"
+    :variant="isSelected ? 'secondary' : 'outline'"
+    class="h-auto min-h-[100px] items-stretch self-stretch w-full flex-col whitespace-normal group"
     @click="paymentMethods(cardInfo)"
   >
     <section class="items-center flex justify-between gap-3">
@@ -11,7 +12,7 @@
     </section>
     <div class="text-muted-foreground text-xs leading-4 whitespace-nowrap self-end">Your card details will be required at checkout</div>
     <slot />
-  </button>
+  </UiButton>
 </template>
 
 <script setup lang="ts">

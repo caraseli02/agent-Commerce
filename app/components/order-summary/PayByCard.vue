@@ -41,9 +41,10 @@ const onEditClick = () => {
 </script>
 
 <template>
-  <button
-    class="p-3 w-full min-w-[326px] min-h-[100px] flex flex-col gap-3 border rounded-lg hover:bg-blue-500/5 hover:border-blue-500 transition duration-300 group"
-    :class="isSelected ? 'border-blue-500 bg-blue-500/5' : 'border-border'"
+  <UiButton
+    type="button"
+    :variant="isSelected ? 'secondary' : 'outline'"
+    class="h-auto w-full min-w-[326px] min-h-[100px] flex-col whitespace-normal group"
     @click="paymentMethods(cardInfo)"
   >
     <div class="flex flex-row justify-between w-full gap-3">
@@ -76,23 +77,12 @@ const onEditClick = () => {
       >
       <div class="flex justify-end w-full gap-2">
         <div v-if="!isExpired && !showPayWithLabel && cardInfo && !cardInfo.default" class="flex gap-2 items-center justify-end">
-          <UiButton
-            variant="ghost"
-            size="xs"
-            class="text-foreground text-sm font-normal leading-6"
-            @click.stop="emits('set-default', cardInfo)"
-          >
+          <UiButton type="button" variant="ghost" size="xs" @click.stop="emits('set-default', cardInfo)">
             <CheckCircle2 class="w-4 h-4 stroke-1 mr-1" />
             Set as default
           </UiButton>
         </div>
-        <UiButton
-          v-if="enableEdit"
-          size="xs"
-          variant="link"
-          class="flex gap-2 items-center justify-end hover:underline"
-          @click="onEditClick()"
-        >
+        <UiButton v-if="enableEdit" type="button" size="xs" variant="link" class="flex items-center justify-end" @click="onEditClick()">
           <SvgoChangeCard />
           <span class="text-foreground text-sm font-normal leading-6">Edit</span>
         </UiButton>
@@ -103,20 +93,20 @@ const onEditClick = () => {
         <AlertTriangle class="w-5 h-5 text-rose-500" />
         <div class="text-red-500 text-sm leading-6">Card expired</div>
       </span>
-      <UiButton v-if="!isDefault && !isExpired" class="gap-1.5" variant="ghost" size="xs" @click.stop="emits('set-default', cardInfo)">
+      <UiButton v-if="!isDefault && !isExpired" type="button" variant="ghost" size="xs" @click.stop="emits('set-default', cardInfo)">
         <CheckCircle2 class="w-4 h-4" />
         <span class="text-foreground text-sm font-normal leading-6">Set as default</span>
       </UiButton>
-      <UiButton v-if="enableEdit" class="gap-1.5" variant="ghost" size="xs" @click.stop="emits('edit-card', cardInfo)">
+      <UiButton v-if="enableEdit" type="button" variant="ghost" size="xs" @click.stop="emits('edit-card', cardInfo)">
         <SvgoChangeCard />
         <span class="text-foreground text-sm font-normal leading-6">Edit</span>
       </UiButton>
-      <UiButton class="gap-1.5" variant="ghost" size="xs" @click.stop="emits('delete-card', cardInfo)">
+      <UiButton type="button" variant="ghost" size="xs" @click.stop="emits('delete-card', cardInfo)">
         <Trash2Icon class="w-4 h-4" />
         <span class="text-foreground text-sm font-normal leading-6">Delete</span>
       </UiButton>
     </div>
-  </button>
+  </UiButton>
 </template>
 
 <style scoped></style>
