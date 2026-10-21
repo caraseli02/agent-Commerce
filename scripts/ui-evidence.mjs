@@ -5,6 +5,9 @@ import { createHash } from 'node:crypto';
 // It is never merged; PR bodies link its images by commit SHA so they never change.
 export const evidenceBranch = 'pr-evidence';
 export const evidenceRef = `refs/heads/${evidenceBranch}`;
+// Vercel deploys every pushed branch and reads vercel.json from the pushed commit, so the evidence
+// branch carries its own switch-off. Without it each screenshot push would start a deployment.
+export const evidenceVercelConfig = '{\n  "git": { "deploymentEnabled": false }\n}\n';
 
 // Files whose change a reviewer should be able to see. Server, data and tooling changes can be
 // visible too, but paths cannot prove it; those PRs keep the browser-evidence rule instead.
@@ -56,8 +59,9 @@ export function screenshotMarker(fingerprint) {
 }
 
 /**
- * The pr-evidence branch only ever gains PNG files. Called by the pre-push hook for pushes to it,
- * so it cannot carry code, delete earlier evidence or be rewritten.
+ * The pr-evidence branch only ever gains screenshots, and every tip keeps the vercel.json that turns
+ * Vercel off. Called by the pre-push hook for pushes to it, so it cannot carry code, delete earlier
+ * evidence, be rewritten or start a deployment.
  */
 export function checkEvidencePush({ cwd = process.cwd(), localSha, remoteSha }) {
   const git = gitIn(cwd);
@@ -76,7 +80,16 @@ export function checkEvidencePush({ cwd = process.cwd(), localSha, remoteSha }) 
     .filter(Boolean);
   const bad = lines.filter((line) => {
     const [status, path] = line.split('\t');
-    return status !== 'A' || !/^[\w.-]+(\/[\w.-]+)*\.png$/.test(path ?? '');
+    return status !== 'A' || !(path === 'vercel.json' || /^[\w.-]+(\/[\w.-]+)+\.(png|jpg)$/.test(path ?? ''));
   });
-  if (bad.length) throw new Error(`${evidenceBranch} accepts only added .png files; found: ${bad.slice(0, 5).join(', ')}.`);
+  if (bad.length) throw new Error(`${evidenceBranch} accepts only added screenshots; found: ${bad.slice(0, 5).join(', ')}.`);
+  let config = '';
+  try {
+    config = git(['show', `${localSha}:vercel.json`]);
+  } catch {
+    /* reported below */
+  }
+  if (config !== evidenceVercelConfig) {
+    throw new Error(`${evidenceBranch} must keep vercel.json with deployments disabled, or Vercel deploys every push.`);
+  }
 }

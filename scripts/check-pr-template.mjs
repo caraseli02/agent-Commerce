@@ -111,7 +111,7 @@ function validateScreenshots(sections, fingerprint) {
   const marker = section.match(/<!-- pr-screenshots: ui=([0-9a-f]{64}) -->/);
   if (!marker) return [`## Screenshots has no pr-screenshots marker; ${howTo}.`];
   if (marker[1] !== fingerprint) return [`## Screenshots is stale: the PR's UI diff changed since they were captured; ${howTo}.`];
-  const images = section.match(/<img\s[^>]*src="https:\/\/github\.com\/[^"]+\.png\?raw=true"/g) ?? [];
+  const images = section.match(/<img\s[^>]*src="https:\/\/github\.com\/[^"]+\.(?:png|jpg)\?raw=true"/g) ?? [];
   if (images.length < 2) return ['## Screenshots needs at least one before/after image pair.'];
   return [];
 }

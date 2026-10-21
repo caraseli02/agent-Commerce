@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { assessPrTemplate, checkPushTemplates } from '../scripts/check-pr-template.mjs';
 import { plan } from '../scripts/select-visual-checks.mjs';
-import { checkEvidencePush, screenshotMarker, uiDiff, uiPath } from '../scripts/ui-evidence.mjs';
+import { checkEvidencePush, evidenceVercelConfig, screenshotMarker, uiDiff, uiPath } from '../scripts/ui-evidence.mjs';
 
 const roots: string[] = [];
 afterEach(() => roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })));
@@ -39,7 +39,7 @@ const template = readFileSync('.github/pull_request_template.md', 'utf8')
   .replaceAll('- [ ]', '- [x]')
   .replaceAll('— outcome:', '— outcome: pass');
 const fingerprint = 'f'.repeat(64);
-const image = (side: string) => `<img src="https://github.com/o/r/blob/${'c'.repeat(40)}/b/${side}.png?raw=true" width="420">`;
+const image = (side: string) => `<img src="https://github.com/o/r/blob/${'c'.repeat(40)}/b/${side}.jpg?raw=true" width="420">`;
 const withScreenshots = (section: string) => template.replace(/## Screenshots[\s\S]*?(?=\n## )/, `## Screenshots\n\n${section}\n`);
 const captured = (marker = fingerprint) =>
   withScreenshots(
@@ -113,29 +113,42 @@ describe('UI screenshot evidence', () => {
     ).not.toThrow();
   });
 
-  it('lets pr-evidence only gain PNG files and skips the visual suite for it', () => {
+  it('lets pr-evidence only gain screenshots, keeps Vercel off and skips the visual suite for it', () => {
     const r = repository();
     const zero = '0'.repeat(40);
     r.git('checkout', '-q', '--orphan', 'pr-evidence');
     r.git('rm', '-rqf', '.');
-    r.write('topic/abc/home-light-desktop-before.png', 'png');
+    r.write('topic/abc/home-light-desktop-before.jpg', 'jpg');
+    const withoutConfig = r.commit();
+    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: withoutConfig, remoteSha: zero })).toThrow('vercel.json');
+
+    r.write('vercel.json', evidenceVercelConfig);
     const first = r.commit();
     expect(() => checkEvidencePush({ cwd: r.cwd, localSha: first, remoteSha: zero })).not.toThrow();
     expect(plan({ cwd: r.cwd, input: `refs/heads/x ${first} refs/heads/pr-evidence ${zero}\n` }).mode).toBe('skip');
 
+    r.write('topic/abc/home-dark-mobile-after.png', 'png');
+    const more = r.commit();
+    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: more, remoteSha: first })).not.toThrow();
+
     r.write('topic/abc/notes.md', 'not an image');
     const text = r.commit();
-    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: text, remoteSha: first })).toThrow('only added .png');
+    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: text, remoteSha: more })).toThrow('only added screenshots');
 
-    r.git('reset', '-q', '--hard', first);
-    r.git('rm', '-q', 'topic/abc/home-light-desktop-before.png');
+    r.git('reset', '-q', '--hard', more);
+    r.git('rm', '-q', 'topic/abc/home-light-desktop-before.jpg');
     const removal = r.commit();
-    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: removal, remoteSha: first })).toThrow('only added .png');
+    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: removal, remoteSha: more })).toThrow('only added screenshots');
+
+    r.git('reset', '-q', '--hard', more);
+    r.write('vercel.json', '{}');
+    const enabled = r.commit();
+    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: enabled, remoteSha: more })).toThrow('only added screenshots');
 
     r.git('checkout', '-q', '--orphan', 'rewrite');
-    r.write('other.png', 'png');
+    r.write('other/x.png', 'png');
     const unrelated = r.commit();
-    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: unrelated, remoteSha: first })).toThrow('append-only');
-    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: zero, remoteSha: first })).toThrow('append-only');
+    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: unrelated, remoteSha: more })).toThrow('append-only');
+    expect(() => checkEvidencePush({ cwd: r.cwd, localSha: zero, remoteSha: more })).toThrow('append-only');
   });
 });

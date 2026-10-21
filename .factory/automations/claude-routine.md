@@ -205,7 +205,7 @@ Every run works on its own run-local branch `claude/issue-<n>-run-<UTC timestamp
 ## 5. Never
 
 - merge, approve, close PRs, push to `main`, force-push, delete remote branches, or bypass git hooks (the guard hook blocks these; a block is a reason to stop and report, not to find another route);
-- push anything except `HEAD:claude/issue-<number>` (or creating that branch) with plain pushes. The one other push is the append-only `pr-evidence` branch, and only through `pnpm pr:screenshots` (pre-push lets it gain PNG files only);
+- push anything except `HEAD:claude/issue-<number>` (or creating that branch) with plain pushes. The one other push is the append-only `pr-evidence` branch, and only through `pnpm pr:screenshots` (pre-push lets it gain screenshots only and keeps Vercel deployments off for it). Pass only the routes the change affects, since every fetch downloads that branch;
 - release or take over a claim or a lock by guessing; two live Claude claims (step 2) is a blocker report, not a puzzle to solve;
 - review your own PRs or any PR labeled `agent:claude`;
 - work on payment, checkout, Stripe, refund or migration code, or on any issue without the Claude label;
