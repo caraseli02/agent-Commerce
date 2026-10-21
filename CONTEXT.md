@@ -68,6 +68,13 @@ _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order t
 - `DECISIONS.md` — durable decisions
 - `feature_list.json` — durable policy and historical evidence archive; live task state exists only on GitHub issues/PRs
 
+## Directory layout
+
+- `app/` — Vue/Nuxt application code (Nuxt 4 `srcDir`): pages, components, composables, layouts, middleware, plugins, utils, assets, store, `app.vue`, `error.vue`.
+- `server/` — Nitro/backend code (API routes, server utils).
+- `shared/` — only for code intentionally shared by both runtimes; today that role is filled by root `types/`, `helpers/`, `model/` and `data/`, imported as `~~/...`.
+- `tests/nuxt4-directory-contract.spec.ts` fails `pnpm test` (and so `pnpm verify`) when application sources reappear at the repository root.
+
 ## API access
 
 - `app/plugins/api.ts` creates the authenticated `$fetch` client with `$fetch.create()` and provides it as `$apiClient`.
