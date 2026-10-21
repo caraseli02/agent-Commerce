@@ -653,6 +653,79 @@ describe('routine route', () => {
         route: 'night',
       });
     });
+
+    // Runs the real `route` command with a fake `gh` first on PATH that answers
+    // `gh api repos/<repo><path>` from fixtures, as Codex reproduced the defects (#769).
+    describe('route CLI', () => {
+      const repo = 'repos/caraseli02/agent-Commerce';
+      const baseSha = 'b'.repeat(40);
+      const claimIssue = { number: 5, title: 'Issue 5', labels: [label('agent:claude'), label('in-progress')], assignees: [], body: '' };
+      const openPr = (body: string) => ({ ...pr(body, baseSha), state: 'open', draft: false, head: { sha: HEAD, ref: 'claude/issue-5' } });
+
+      async function runRoute(fixtures: Record<string, unknown>) {
+        const dir = await mkdtemp(join(tmpdir(), 'route-cli-'));
+        try {
+          await writeFile(join(dir, 'fixtures.json'), JSON.stringify(fixtures));
+          const fakeGh = [
+            '#!/usr/bin/env node',
+            "const fixtures = JSON.parse(require('node:fs').readFileSync(process.env.FAKE_GH_FIXTURES, 'utf8'));",
+            'const [group, path, ...flags] = process.argv.slice(2);',
+            `const key = group === 'api' ? path.replace('${repo}', '') : null;`,
+            "if (!key || !(key in fixtures)) { console.error('fake gh: no fixture for ' + process.argv.slice(2).join(' ')); process.exit(1); }",
+            'const value = fixtures[key];',
+            "process.stdout.write(JSON.stringify(flags.includes('--slurp') ? [value] : value));",
+          ].join('\n');
+          await writeFile(join(dir, 'gh'), fakeGh, { mode: 0o755 });
+          const result = spawnSync('node', ['scripts/owner-attention.mjs', 'route'], {
+            encoding: 'utf8',
+            env: { ...process.env, PATH: `${dir}:${process.env.PATH}`, FAKE_GH_FIXTURES: join(dir, 'fixtures.json') },
+          });
+          expect(result.stderr).toBe('');
+          expect(result.status).toBe(0);
+          return JSON.parse(result.stdout);
+        } finally {
+          await rm(dir, { recursive: true, force: true });
+        }
+      }
+
+      const fixturesFor = (prs: unknown[], issues: unknown[], prComments: unknown[] = []) => {
+        const fixtures: Record<string, unknown> = {
+          '/pulls?state=open&per_page=100': prs,
+          '/issues?state=open&per_page=100': issues,
+          '/git/matching-refs/heads/claude/issue-?per_page=100': [],
+          '/git/ref/heads/main': { object: { sha: baseSha } },
+        };
+        for (const entry of prs as { number: number }[]) {
+          fixtures[`/pulls/${entry.number}`] = entry;
+          fixtures[`/issues/${entry.number}/comments?per_page=100`] = prComments;
+          fixtures[`/pulls/${entry.number}/reviews?per_page=100`] = [];
+          fixtures[`/pulls/${entry.number}/files?per_page=100`] = [{ filename: 'app/pages/index.vue' }];
+        }
+        return fixtures;
+      };
+
+      it('routes a claimed PR with an invalid template body to repair', async () => {
+        const result = await runRoute(fixturesFor([openPr('## Summary\n\n- no template')], [claimIssue]));
+
+        expect(result).toMatchObject({ route: 'repair', issue: 5, pr: 50 });
+        expect(result.claims[0].pr).toMatchObject({ templateFailed: true, verdict: null });
+      });
+
+      it('routes an older-context PASS with a current-context FAIL to repair', async () => {
+        const old = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
+        const current = localVerificationMarker(openPr(validBody));
+        const comments = [report('PASS — ready-for-human', old), report('FAIL — needs generator fix', current)];
+        const result = await runRoute(fixturesFor([openPr(validBody)], [claimIssue], comments));
+
+        expect(result).toMatchObject({ route: 'repair', issue: 5, pr: 50 });
+        expect(result.claims[0].pr.verdict).toBe('FAIL');
+      });
+
+      it('waits in the night lane for review of a valid claimed PR, and improves when nothing is claimed', async () => {
+        expect(await runRoute(fixturesFor([openPr(validBody)], [claimIssue]))).toMatchObject({ route: 'night' });
+        expect(await runRoute(fixturesFor([], []))).toMatchObject({ route: 'improve', claims: [], reviewable: [], eligible: [] });
+      });
+    });
   });
 
   it('resumes a live claim without a PR, then reviews', () => {

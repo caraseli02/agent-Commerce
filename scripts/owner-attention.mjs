@@ -449,9 +449,6 @@ export function claudeQueueState(
 // way steps 2-4 do, from GitHub state alone, so a run with nothing to repair, review or
 // build skips the heavy setup and scans. The routine still confirms the chosen route's
 // own conditions before acting.
-// `claims` are { number, live, pr: { number, mergeable, verdict } | null } for every Claude
-// claim that is neither parked nor waiting; `reviewable` are non-Claude PR numbers without
-// an effective current-context report.
 // What routeDecision needs from a claim's open PR. `pr.base.sha` must be the current base
 // tip, so the verdict is selected for the current head/base/metadata context the same way
 // local-readiness selects it: an older-context PASS never hides a current-context FAIL.
@@ -462,6 +459,9 @@ export function claimPrSummary(pr, comments, { trustedLogins }) {
   return { number: pr.number, mergeable: pr.mergeable, verdict: verdict?.verdict ?? null, templateFailed: template.status === 'failed' };
 }
 
+// `claims` are { number, live, pr: claimPrSummary | null } for every Claude claim that is
+// neither parked nor waiting; `reviewable` are non-Claude PR numbers without an effective
+// current-context report.
 export function routeDecision({ mode, maxPassQueue, improve, claims, reviewable, eligible, selfClaims }) {
   const build = mode === 'build';
   if (build) {
