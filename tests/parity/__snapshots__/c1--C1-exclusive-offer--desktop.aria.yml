@@ -1,0 +1,28 @@
+- group "1 / 4":
+    - heading "Built for modern B2B procurement" [level=3]
+    - paragraph: Compare parts, confirm availability, and move from shortlist to checkout with a cleaner reviewer-friendly flow.
+    - button "Buy Now"
+    - img "Img"
+    - img "Background"
+- group "2 / 4":
+    - heading "Shortlist faster with buyer-ready detail" [level=3]
+    - paragraph: Keep pricing tiers, stock, and shipping decisions in one view so reviewers can understand the procurement flow immediately.
+    - button "Buy Now"
+    - img "Img"
+    - img "Background"
+- group "3 / 4":
+    - heading "Checkout flow built for operational clarity" [level=3]
+    - paragraph: Reduce friction between cart review, account access, and order confirmation with clearer spacing and next-step cues.
+    - button "Buy Now"
+    - img "Img"
+    - img "Background"
+- group "4 / 4":
+    - heading "Reliable ordering without retail noise" [level=3]
+    - paragraph: Present promotions as procurement support, not consumer hype, so the page stays credible during portfolio review.
+    - button "Buy Now"
+    - img "Img"
+    - img "Background"
+- button "Go to slide 1"
+- button "Go to slide 2"
+- button "Go to slide 3"
+- button "Go to slide 4"

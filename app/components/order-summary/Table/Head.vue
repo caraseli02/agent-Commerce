@@ -14,18 +14,17 @@
       </div>
     </div>
     <div class="flex flex-row gap-9">
-      <button
+      <UiButton
         type="button"
-        class="group flex items-center disabled:pointer-events-none disabled:opacity-40"
+        variant="ghost"
+        size="sm"
         :disabled="!canDeleteSelected"
         :aria-disabled="!canDeleteSelected"
         @click="isOpen = true"
       >
-        <TrashOutline class="text-muted-foreground group-hover:text-rose-500 transition duration-150" />
-        <span class="text-sm font-normal text-muted-foreground ml-2 group-hover:text-rose-500 transition duration-150">
-          Delete Selected
-        </span>
-      </button>
+        <TrashOutline />
+        <span class="ml-2"> Delete Selected </span>
+      </UiButton>
       <CartDeleteDialog v-model="isOpen" :product-ids="selectedProductIds" @removed="onDeleted" />
     </div>
   </div>

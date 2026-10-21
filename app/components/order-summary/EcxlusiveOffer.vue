@@ -28,11 +28,7 @@
           <p class="text-xs leading-5 mb-6 md:text-sm md:max-w-[420px] md:mb-5 lg:max-w-[434px] lg:mb-6 lg:text-center">
             {{ item.description }}
           </p>
-          <button
-            class="flex bg-blue-500 rounded-lg px-4 py-2 text-[13px] font-medium md:px-6 md:py-2.5 md:text-sm lg:mb-0 lg:mx-auto shadow-sm"
-          >
-            Buy Now
-          </button>
+          <UiButton class="lg:mb-0 lg:mx-auto"> Buy Now </UiButton>
           <img
             :src="item.item"
             alt="Img"

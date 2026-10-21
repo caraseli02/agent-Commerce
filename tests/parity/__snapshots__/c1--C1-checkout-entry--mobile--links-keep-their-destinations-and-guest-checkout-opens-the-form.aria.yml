@@ -1,0 +1,12 @@
+- link "Continue Shopping":
+    - /url: /search
+    - img
+    - text: ''
+- button "Secure Checkout" [disabled]:
+    - img
+    - text: ''
+- img
+- img
+- img
+- img
+- img

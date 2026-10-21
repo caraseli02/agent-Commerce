@@ -1,0 +1,8 @@
+1. checkbox "Select All"
+2. checkbox "Select ADM2587E RS-485 Transceiver"
+3. 'link "prod-2 75 in stock Description: Isolated RS-485 transceiver with integrated power and signal isolation for industrial fieldbus."'
+4. spinbutton "Quantity": "1"
+5. button "Increase quantity"
+6. button "Packaging"
+7. button "Delivery"
+8. button "Delete"

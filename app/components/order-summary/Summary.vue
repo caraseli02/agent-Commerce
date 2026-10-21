@@ -20,9 +20,15 @@
         <div class="flex flex-col gap-1">
           <div class="flex flex-row gap-2 items-center">
             <span class="text-muted-foreground text-sm font-normal leading-6">Handling Charge</span>
-            <button type="button" aria-label="Explain small order handling charge" class="group" @click="showSmallOrderModal = true">
-              <InformationIcon class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
-            </button>
+            <UiButton
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Explain small order handling charge"
+              @click="showSmallOrderModal = true"
+            >
+              <InformationIcon />
+            </UiButton>
           </div>
           <span class="text-foreground italic text-sm font-normal leading-6">Small order charge</span>
         </div>
@@ -44,9 +50,9 @@
         <div class="flex flex-col gap-1">
           <div v-if="shipping" class="flex flex-row gap-2 items-center">
             <span class="text-muted-foreground text-sm font-normal leading-6">Shipping</span>
-            <button class="group">
-              <InformationIcon class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
-            </button>
+            <UiButton variant="ghost" size="icon" aria-label="Shipping information">
+              <InformationIcon />
+            </UiButton>
           </div>
           <span v-if="shipping" class="text-foreground italic text-sm font-normal leading-6">{{ shippingText }}</span>
         </div>
@@ -58,9 +64,9 @@
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row">
           <span class="text-muted-foreground text-sm font-normal leading-6">Tax:</span>
-          <button class="group ml-2">
-            <InformationIcon class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
-          </button>
+          <UiButton variant="ghost" size="icon" class="ml-2" aria-label="Tax information">
+            <InformationIcon />
+          </UiButton>
           <span class="text-foreground text-sm font-normal leading-6 ml-6">(VAT {{ vatPercent }}%)</span>
         </div>
         <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ calculatedVAT }} Lei</span>

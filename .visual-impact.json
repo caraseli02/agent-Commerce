@@ -306,6 +306,12 @@
       "tests": ["orders"],
       "reason": "#749: the Name and Total cells of the admin and client order tables go through new cellValues helpers that render the same \"First Last\", email and formatNumberWithCommas total for a complete order and N/A only when user/contact details or a numeric total are missing; the other changes are e2e and unit test files.",
       "consumers": "git grep finds admin-table/order/columns.ts only in admin-table/order/Order.vue (/dashboard/orders, admin) and client-table/order/columns.ts only in client-table/order/Index.vue (pages/dashboard/client/index.vue and pages/dashboard/customers/[slug]/index.vue). Seeded demo orders all carry user.contactDetails and a numeric total, so no screenshot changes; the orders group (client dashboard, mobile) is the representative check. Admin /dashboard/orders at 1440 and 390 is covered by browser evidence in the PR."
+    },
+    {
+      "fingerprint": "a24a0b9941f2eee2ea1e9edd745395e7d3601d5d2404c73ce1dad895391aeaf9",
+      "impact": "none",
+      "reason": "#648 changes controls only on /order-summary. The existing screenshot matrix does not visit that route; C1 parity supplies the affected-route ARIA, keyboard, interaction, runtime and before/after screenshot evidence at 390 and 1440. This assessment skips only unrelated matrix screenshots.",
+      "consumers": "Traced app/pages/order-summary/index.vue -> Header, NoteSection, Summary, CheckoutButtons, BannerCard, BannerImageCard, EcxlusiveOffer and Table -> Head/Item -> ItemHeader/ItemDropdown -> AdditionalDetails; OrderStockType -> ShippingAndBillingSection -> GuestCheckoutAddressForm -> GuestAddressFields. No shared UI primitive, global style, store or API implementation changes. ItemLG has no app/test consumers; ProductCard was already absent. Only the existing local selected flag handler is retained; the checkbox now reflects it. Sidebar cart rows/amounts do not consume that selection presentation. Home/search/product/cart-sheet/customer-order-history matrix routes do not render these controls; guest completion and sign-in checkout entry E2E additionally pass. ui-conventions-baseline.json is dev-only ratchet data."
     }
   ]
 }
