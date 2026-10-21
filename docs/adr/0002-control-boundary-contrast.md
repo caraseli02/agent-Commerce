@@ -33,7 +33,10 @@ colour:
 - Inputs and outline buttons have visibly stronger edges in both modes.
   Dividers and card outlines do not change.
 - Call sites that pass their own `border-*` colour to these primitives still
-  win through `cn`. They are outside this decision.
+  win through `cn`. The search toolbar selects (`search/Products.vue`) dropped
+  their `border-border` override in this change; the disabled select in
+  `order-confirm/ActionMenu.vue` keeps it, since 1.4.11 exempts inactive
+  controls.
 - The select trigger previously used `border-grey-600` (about 2.3:1 on white)
   and `dark:border-slate-800`, so it moves to the token too. The checkbox keeps
   its fixed edges (`border-slate-600` in light, `slate-50` in dark), which
