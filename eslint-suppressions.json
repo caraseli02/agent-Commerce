@@ -336,7 +336,7 @@
   },
   "app/components/global/ProductCard.vue": {
     "shadcn/no-restyle": {
-      "count": 7
+      "count": 1
     }
   },
   "app/components/global/ProductTabs.vue": {
@@ -350,11 +350,6 @@
     }
   },
   "app/components/global/QuickBuy/QuickBuy.vue": {
-    "shadcn/no-restyle": {
-      "count": 6
-    }
-  },
-  "app/components/home/Hero.vue": {
     "shadcn/no-restyle": {
       "count": 6
     }
