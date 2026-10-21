@@ -1,0 +1,4 @@
+- text: Add a note for this order
+- button:
+    - img
+- textbox "Type your note here...": Deliver to reception Use the side entrance Call on arrival

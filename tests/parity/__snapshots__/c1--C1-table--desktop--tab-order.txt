@@ -1,0 +1,8 @@
+1. checkbox "Select All"
+2. checkbox
+3. button
+4. 'link "75 in stock Description: Isolated RS-485 transceiver with integrated power and signal isolation for industrial fieldbus."'
+5. spinbutton "Quantity": "1"
+6. button "Increase quantity"
+7. button "Packaging"
+8. button "Delivery"

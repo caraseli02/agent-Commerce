@@ -1,0 +1,34 @@
+- checkbox "Select All" [checked]:
+    - img
+- text: Select All Items selected 1
+- button "Delete Selected":
+    - img
+    - text: ''
+- text: 'Stock Items: 1'
+- checkbox
+- img
+- text: /ADM2587E RS-\d+ Transceiver/
+- img
+- img
+- 'link /prod-2 \d+ in stock Description: Isolated RS-\d+ transceiver with integrated power and signal isolation for industrial fieldbus\./':
+    - /url: /product/prod-2
+    - text: ''
+    - img
+    - text: ''
+- text: /Unit Price \d+\.\d+ Lei Quantity/
+- button "Decrease quantity" [disabled]:
+    - img
+- spinbutton "Quantity": '1'
+- alert
+- button "Increase quantity":
+    - img
+- text: /Tax \(VAT \d+%\) \d+\.\d+ Lei Subtotal \d+\.\d+ Lei/
+- button "Packaging":
+    - img
+    - text: ''
+- button "Delivery":
+    - img
+    - text: ''
+- button "Delete":
+    - img
+    - text: ''
