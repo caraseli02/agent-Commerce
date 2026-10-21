@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import TrashIcon from '@/assets/icons/trash-can.svg';
-import CheckIcon from '@/assets/icons/check.svg';
 import OrangeCheckCircle from '@/assets/icons/orange-check-circle.svg';
 import GreenCheckCircle from '@/assets/icons/green-check-circle.svg';
 import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';
@@ -65,15 +64,12 @@ function checkCartItem(itemId: string) {
     @click="handleExpand"
   >
     <div class="flex flex-row truncate">
-      <label class="flex cursor-pointer mr-4">
-        <input :value="item.selected" type="checkbox" class="sr-only" @change="checkCartItem(item.id)" />
-        <div
-          class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
-          :class="[item.selected ? 'bg-blue-500 border-blue-500 group-hover:bg-card' : 'bg-card  border-border group-hover:border-border']"
-        >
-          <CheckIcon v-if="item.selected" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
-        </div>
-      </label>
+      <UiCheckbox
+        :checked="item.selected"
+        :aria-label="`Select ${item.productEntity?.name || item.id}`"
+        class="mr-4 mt-px"
+        @update:checked="checkCartItem(item.id)"
+      />
       <div class="max-w-[220px] lg:max-w-[245px] flex">
         <span
           v-if="stockItem"
@@ -108,7 +104,7 @@ function checkCartItem(itemId: string) {
     </div>
     <div>
       <div class="hidden xl:flex flex-row gap-4 ml-4">
-        <UiButton variant="ghost" size="icon" class="ml-auto" @click="emit('deleteItem', true)">
+        <UiButton variant="ghost" size="icon" class="ml-auto" aria-label="Delete item" @click="emit('deleteItem', true)">
           <TrashIcon class="w-5 h-5" />
         </UiButton>
       </div>

@@ -1,13 +1,13 @@
 - text: Billing Information
 - img
-- button:
+- button "Edit billing address":
     - img
 - paragraph: John Smith
 - paragraph: New York, NY
 - paragraph: /\d+, US/
 - text: Shipping Information
 - img
-- button:
+- button "Edit shipping address":
     - img
 - text: Main Address
 - img

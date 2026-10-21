@@ -2,7 +2,7 @@
   <div class="p-4 xl:p-6 flex flex-col gap-6 bg-card rounded-xl shadow-xs mb-6">
     <div class="flex flex-row justify-between w-full">
       <span class="text-foreground text-base font-medium leading-6">Add a note for this order</span>
-      <UiButton variant="ghost" size="icon" @click="textBoxOpen = !textBoxOpen">
+      <UiButton variant="ghost" size="icon" aria-label="Edit order note" @click="textBoxOpen = !textBoxOpen">
         <EditBig />
       </UiButton>
     </div>

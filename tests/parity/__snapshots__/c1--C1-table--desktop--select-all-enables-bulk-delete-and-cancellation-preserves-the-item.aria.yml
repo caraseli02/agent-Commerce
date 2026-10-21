@@ -5,11 +5,11 @@
     - img
     - text: ''
 - text: 'Stock Items: 1'
-- checkbox
-- img
+- checkbox "Select ADM2587E RS-485 Transceiver" [checked]:
+    - img
 - text: /ADM2587E RS-\d+ Transceiver/
 - img
-- button:
+- button "Delete item":
     - img
 - 'link /\d+ in stock Description: Isolated RS-\d+ transceiver with integrated power and signal isolation for industrial fieldbus\./':
     - /url: /product/prod-2

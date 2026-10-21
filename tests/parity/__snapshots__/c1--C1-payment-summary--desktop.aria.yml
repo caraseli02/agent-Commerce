@@ -2,9 +2,9 @@
 - button "Explain small order handling charge":
     - img
 - text: /Small order charge \d+\.\d+ Lei Shipping/
-- button:
+- button "Shipping information":
     - img
 - text: /Demo Express \(Demo Express\) \d+\.\d+ Lei Tax:/
-- button:
+- button "Tax information":
     - img
 - text: /\(VAT \d+%\) 3\.8 Lei Total \d+\.\d+ Lei/

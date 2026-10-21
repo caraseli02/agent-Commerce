@@ -50,7 +50,7 @@
         <div class="flex flex-col gap-1">
           <div v-if="shipping" class="flex flex-row gap-2 items-center">
             <span class="text-muted-foreground text-sm font-normal leading-6">Shipping</span>
-            <UiButton variant="ghost" size="icon">
+            <UiButton variant="ghost" size="icon" aria-label="Shipping information">
               <InformationIcon />
             </UiButton>
           </div>
@@ -64,7 +64,7 @@
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row">
           <span class="text-muted-foreground text-sm font-normal leading-6">Tax:</span>
-          <UiButton variant="ghost" size="icon" class="ml-2">
+          <UiButton variant="ghost" size="icon" class="ml-2" aria-label="Tax information">
             <InformationIcon />
           </UiButton>
           <span class="text-foreground text-sm font-normal leading-6 ml-6">(VAT {{ vatPercent }}%)</span>

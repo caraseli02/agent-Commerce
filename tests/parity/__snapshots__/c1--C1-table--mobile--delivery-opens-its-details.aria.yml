@@ -4,7 +4,7 @@
     - img
     - text: ''
 - text: 'Stock Items: 1'
-- checkbox
+- checkbox "Select ADM2587E RS-485 Transceiver"
 - text: /ADM2587E RS-\d+ Transceiver/
 - img
 - img

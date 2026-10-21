@@ -50,10 +50,6 @@
   "app/components/order-summary/ShippingPreferencesSection.vue": {
     "button": 2
   },
-  "app/components/order-summary/Table/ItemHeader.vue": {
-    "input": 1,
-    "label": 1
-  },
   "app/components/signup/BusinessDetails.vue": {
     "button": 2,
     "label": 1

@@ -17,7 +17,7 @@
           </div>
           <div v-if="hasBillingAddress" class="flex flex-row gap-4">
             <DemoTooltip theme="black" position="top">
-              <UiButton type="button" variant="ghost" size="icon">
+              <UiButton type="button" variant="ghost" size="icon" aria-label="Edit billing address">
                 <EditSmall @click="router.push('/dashboard/client?tab=settings')" />
               </UiButton>
               <template #content>
@@ -68,7 +68,7 @@
           </div>
           <div v-if="hasShippingAddress" class="flex flex-row gap-4">
             <DemoTooltip theme="black" position="top">
-              <UiButton type="button" variant="ghost" size="icon">
+              <UiButton type="button" variant="ghost" size="icon" aria-label="Edit shipping address">
                 <EditSmall @click="router.push('/dashboard/client?tab=settings')" />
               </UiButton>
               <template #content>

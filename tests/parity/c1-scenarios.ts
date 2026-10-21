@@ -254,6 +254,45 @@ export const c1Scenarios: ParityScenario[] = [
         },
         snapshot: table,
       },
+      {
+        name: 'keyboard item selection stays synchronized with select all',
+        act: async (page, region) => {
+          const item = region.getByRole('checkbox', { name: 'Select ADM2587E RS-485 Transceiver', exact: true });
+          const all = region.getByRole('checkbox', { name: 'Select All', exact: true });
+          await expect(item).toBeChecked();
+          await item.focus();
+          await page.keyboard.press('Space');
+          await expect(item).not.toBeChecked();
+          await expect(all).not.toBeChecked();
+          await expect(region.getByRole('button', { name: 'Delete Selected' })).toBeDisabled();
+          await page.keyboard.press('Space');
+          await expect(item).toBeChecked();
+          await expect(all).toBeChecked();
+          await all.click();
+          await expect(item).not.toBeChecked();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByRole('button', { name: 'Delete Selected' })).toBeDisabled();
+        },
+      },
+      {
+        name: 'single item delete opens by keyboard and cancellation preserves the cart',
+        act: async (page, region) => {
+          const remove =
+            page.viewportSize()!.width >= 1280
+              ? region.getByRole('button', { name: 'Delete item', exact: true })
+              : region.getByRole('button', { name: 'Delete', exact: true });
+          await remove.focus();
+          await page.keyboard.press('Enter');
+          const dialog = page.getByRole('dialog');
+          await expect(dialog.getByRole('heading', { name: 'Delete Item', exact: true })).toBeVisible();
+          await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
+        },
+        verify: async (_page, region) => {
+          await expect(region.getByText('ADM2587E RS-485 Transceiver', { exact: true })).toBeVisible();
+          await expect(region.getByRole('checkbox', { name: 'Select ADM2587E RS-485 Transceiver', exact: true })).not.toBeChecked();
+        },
+      },
     ],
   },
   {

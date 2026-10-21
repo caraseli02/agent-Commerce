@@ -1,6 +1,6 @@
 1. checkbox "Select All"
-2. checkbox
-3. button
+2. checkbox "Select ADM2587E RS-485 Transceiver"
+3. button "Delete item"
 4. 'link "75 in stock Description: Isolated RS-485 transceiver with integrated power and signal isolation for industrial fieldbus."'
 5. spinbutton "Quantity": "1"
 6. button "Increase quantity"
