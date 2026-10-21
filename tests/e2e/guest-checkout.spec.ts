@@ -40,6 +40,11 @@ test.describe('Guest checkout flow', () => {
 
     await fillGuestCheckoutForm(page);
 
+    await page.getByRole('button', { name: 'Edit order note', exact: true }).click();
+    const note = page.getByPlaceholder('Type your note here...', { exact: true });
+    await note.fill('Please deliver to reception.');
+    await note.press('Tab');
+
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
     await expect(secureCheckoutButton).toBeEnabled();
 
@@ -52,6 +57,9 @@ test.describe('Guest checkout flow', () => {
     const placeOrderJson = (await placeOrderResponse.json()) as { status?: string; data?: { orderId?: string } };
     expect(placeOrderJson.status).toBe('success');
     expect(placeOrderJson.data?.orderId).toMatch(/^ord-/);
+    expect(placeOrderResponse.request().postDataJSON()).toMatchObject({
+      notes: [{ message: 'Please deliver to reception.' }],
+    });
     await expect(page.getByText(/payment confirmed/i)).toBeVisible();
   });
 });

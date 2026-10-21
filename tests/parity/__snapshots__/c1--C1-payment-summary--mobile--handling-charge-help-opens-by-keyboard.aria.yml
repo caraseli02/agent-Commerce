@@ -1,0 +1,8 @@
+- dialog "Small Order Handling Charge":
+    - heading "Small Order Handling Charge" [level=2]
+    - paragraph: The handling charge is based on your reviewed merchandise subtotal, excluding VAT.
+    - paragraph: /Orders from \d+\.\d+ Lei to below \d+\.\d+ Lei excluding VAT have a \d+\.\d+ Lei handling charge\./
+    - paragraph: Delivery is charged separately. The Payment Summary includes this handling charge in your total.
+    - button "Close":
+        - img
+        - text: ''

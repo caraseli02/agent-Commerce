@@ -7,11 +7,11 @@
       </p>
     </div>
     <div class="flex flex-row justify-center">
-      <button class="px-6 bg-[#007FFF] rounded-lg">
+      <UiButton size="lg">
         <div class="my-2 ml-2">
-          <span class="text-[#FFF] text-base font-medium leading-7">View more</span>
+          <span>View more</span>
         </div>
-      </button>
+      </UiButton>
     </div>
   </div>
 </template>

@@ -1,0 +1,8 @@
+1. button "Buy Now"
+2. button "Buy Now"
+3. button "Buy Now"
+4. button "Buy Now"
+5. button "Go to slide 1"
+6. button "Go to slide 2"
+7. button "Go to slide 3"
+8. button "Go to slide 4"
