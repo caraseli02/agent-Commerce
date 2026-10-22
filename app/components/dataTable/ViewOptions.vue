@@ -16,7 +16,7 @@ const columns = computed(() =>
 <template>
   <UiDropdownMenu :modal="false">
     <UiDropdownMenuTrigger as-child>
-      <UiButton class="bg-accent text-foreground hover:bg-accent" size="icon">
+      <UiButton variant="secondary" size="icon">
         <EyeIcon class="w-4 h-4" />
       </UiButton>
     </UiDropdownMenuTrigger>

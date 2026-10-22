@@ -145,8 +145,8 @@ export const signInAsCustomer = async (page: Page) => {
   return signals;
 };
 
-export const disableMotion = async (page: Page) => {
-  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+export const disableMotion = async (page: Page, { colorScheme = 'light' }: { colorScheme?: 'light' | 'dark' } = {}) => {
+  await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' });
   await page.addInitScript(() => {
     const disableMotion = () => {
       const style = document.createElement('style');

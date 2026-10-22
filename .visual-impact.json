@@ -312,6 +312,19 @@
       "impact": "none",
       "reason": "#648 changes controls only on /order-summary. The existing screenshot matrix does not visit that route; C1 parity supplies the affected-route ARIA, keyboard, interaction, runtime and before/after screenshot evidence at 390 and 1440. This assessment skips only unrelated matrix screenshots.",
       "consumers": "Traced app/pages/order-summary/index.vue -> Header, NoteSection, Summary, CheckoutButtons, BannerCard, BannerImageCard, EcxlusiveOffer and Table -> Head/Item -> ItemHeader/ItemDropdown -> AdditionalDetails; OrderStockType -> ShippingAndBillingSection -> GuestCheckoutAddressForm -> GuestAddressFields. No shared UI primitive, global style, store or API implementation changes. ItemLG has no app/test consumers; ProductCard was already absent. Only the existing local selected flag handler is retained; the checkbox now reflects it. Sidebar cart rows/amounts do not consume that selection presentation. Home/search/product/cart-sheet/customer-order-history matrix routes do not render these controls; guest completion and sign-in checkout entry E2E additionally pass. ui-conventions-baseline.json is dev-only ratchet data."
+    },
+    {
+      "fingerprint": "65a4ac54ed450c5cd44f5683c6ff53077c18257f61f0c52ca89b485616083e2d",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "Dark-mode button overrides (#761): adds a success Button variant (existing variants unchanged) and moves four call sites off bg-* overrides onto success, destructive and secondary; eslint-suppressions.json only lowers counts.",
+      "consumers": "buttonVariants gains a key, so only callers that pass variant=\"success\" change. DeactivateUserModal renders behind a click from dashboard new-customers/Item, client/Info and customers/CustomerInformation (no matrix screenshot opens it). ActiveOrders renders on the /dashboard/client overview tab (not in the matrix). HeadControls and ViewOptions render in every dataTable header, including the client order table on /dashboard/client?tab=orders that the orders group (mobile) captures, so orders is selected; light-mode secondary (238,239,242) is within a few levels of the old accent (242,242,242). The modal, overview and admin tables are covered by browser evidence at 1440 in light and dark with computed colours."
+    },
+    {
+      "fingerprint": "85a5a3e32c9da16517f449706b0b14a1bcb36cfdd0b1a97ae026decb9b9190b7",
+      "impact": "none",
+      "reason": "#649 changes only checkout structural controls on /order-summary and saved-card controls on the client settings tab. Neither surface is rendered by the existing home/search/product/cart-sheet/order-history screenshot matrix. Affected routes instead have C2 desktop1440/mobile390 ARIA, tab-order, interaction, clean-runtime and before/after screenshot evidence.",
+      "consumers": "Traced app/pages/order-summary/index.vue -> OrderStockType -> ShippingPreferencesSection/PaymentMethodSection -> PayByCard/NewCard. PaymentModal also consumes PayByCard/NewCard under the checkout-only payment-management gate; its Change/Edit/action propagation is exercised against compiled real SFC scripts/templates and SSR markup. PayByCard is additionally consumed by dashboard/client/settings/CardsList.vue, rendered only by the settings Payments section, covered in the C2 browser scenarios at both widths. No shared primitive, global CSS, store, composable, route, API, price or payment contract implementation changes. ui-conventions-baseline.json is a development-only native-control ratchet; it removes exactly the five touched entries. Cart-sheet line rendering, product purchase controls and client order history do not import these components."
     }
   ]
 }
