@@ -1,11 +1,11 @@
-import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { assessPrTemplate, checkPushTemplates } from '../scripts/check-pr-template.mjs';
 import { plan } from '../scripts/select-visual-checks.mjs';
-import { checkEvidencePush, evidenceVercelConfig, screenshotMarker, uiDiff, uiPath } from '../scripts/ui-evidence.mjs';
+import { checkEvidencePush, evidenceVercelConfig, screenshotMarker, shotName, uiDiff, uiPath } from '../scripts/ui-evidence.mjs';
 
 const roots: string[] = [];
 afterEach(() => roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })));
@@ -150,5 +150,30 @@ describe('UI screenshot evidence', () => {
     const unrelated = r.commit();
     expect(() => checkEvidencePush({ cwd: r.cwd, localSha: unrelated, remoteSha: more })).toThrow('append-only');
     expect(() => checkEvidencePush({ cwd: r.cwd, localSha: zero, remoteSha: more })).toThrow('append-only');
+  });
+
+  it("names every route's screenshots apart, even when their slugs collide", () => {
+    const routes = ['/search?keyword=a.b', '/search?keyword=a-b', '/'];
+    const names = routes.flatMap((route) => ['light', 'dark'].map((scheme) => shotName(route, scheme, 'desktop')));
+    expect(new Set(names).size).toBe(names.length);
+    expect(shotName('/search?keyword=a.b', 'light', 'desktop')).toBe(shotName('/search?keyword=a.b', 'light', 'desktop'));
+    for (const name of names) expect(`topic/abc/${name}-before.jpg`).toMatch(/^[\w.-]+(\/[\w.-]+)+\.(png|jpg)$/);
+  });
+
+  it('removes its temporary worktree when installing a side fails', () => {
+    const r = repository();
+    const bin = mkdtempSync(join(tmpdir(), 'pr-screenshots-bin-'));
+    roots.push(bin);
+    writeFileSync(join(bin, 'pnpm'), '#!/bin/sh\nexit 9\n');
+    chmodSync(join(bin, 'pnpm'), 0o755);
+    const result = spawnSync(process.execPath, [resolve('scripts/pr-screenshots.mjs'), '--routes', '/', '--no-push'], {
+      cwd: r.cwd,
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+    });
+    const kept = result.stdout.match(/Screenshots kept in (.+)\/shots/)?.[1];
+    if (kept) roots.push(kept);
+    expect(result.status).toBe(1);
+    expect(r.git('worktree', 'list', '--porcelain').match(/^worktree /gm)).toHaveLength(1);
   });
 });

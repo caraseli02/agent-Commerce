@@ -12,7 +12,7 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync,
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import process from 'node:process';
-import { evidenceBranch, evidenceRef, evidenceVercelConfig, screenshotMarker, uiDiff } from './ui-evidence.mjs';
+import { evidenceBranch, evidenceRef, evidenceVercelConfig, screenshotMarker, shotName, uiDiff } from './ui-evidence.mjs';
 
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 } };
 const SCHEMES = ['light', 'dark'];
@@ -58,19 +58,12 @@ function repoSlug() {
   return match[1];
 }
 
-function slug(route) {
-  return (
-    route
-      .replace(/[^a-z0-9]+/gi, '-')
-      .replace(/^-|-$/g, '')
-      .toLowerCase() || 'home'
-  );
-}
-
-// One throwaway worktree per side, so the PR checkout and its .output stay untouched.
-function prepare(root, name, sha) {
+// One throwaway worktree per side, so the PR checkout and its .output stay untouched. It joins
+// `worktrees` as soon as it exists, so a failed install or build still removes it.
+function prepare(root, name, sha, worktrees) {
   const dir = join(root, name);
   git(['worktree', 'add', '--detach', dir, sha]);
+  worktrees.push(dir);
   for (const file of ['.env', '.env.local']) if (existsSync(file)) copyFileSync(file, join(dir, file));
   process.stdout.write(`\n▶ ${name}: install and build ${sha.slice(0, 7)}\n`);
   run('pnpm', ['install', '--frozen-lockfile', '--prefer-offline', '--reporter=silent'], dir);
@@ -180,10 +173,8 @@ async function main() {
   const servers = [];
   const worktrees = [];
   try {
-    const before = prepare(root, 'before', ui.base);
-    worktrees.push(before);
-    const after = prepare(root, 'after', ui.head);
-    worktrees.push(after);
+    const before = prepare(root, 'before', ui.base, worktrees);
+    const after = prepare(root, 'after', ui.head, worktrees);
     servers.push(await serve(before, options.port), await serve(after, options.port + 1));
 
     const { chromium } = await import('@playwright/test');
@@ -195,7 +186,7 @@ async function main() {
       for (const route of options.routes) {
         for (const scheme of options.schemes) {
           for (const viewport of options.viewports) {
-            const name = `${slug(route)}-${scheme}-${viewport}`;
+            const name = shotName(route, scheme, viewport);
             const shot = (side) => [`${name}-${side}.jpg`, join(shots, `${name}-${side}.jpg`)];
             await capture({ browser, url: servers[0].url, route, scheme, viewport, file: shot('before')[1] });
             const errors = await capture({ browser, url: servers[1].url, route, scheme, viewport, file: shot('after')[1] });

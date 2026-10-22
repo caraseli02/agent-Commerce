@@ -54,6 +54,21 @@ export function uiDiff({ cwd = process.cwd(), head = 'HEAD', remote = 'origin' }
   return { base, head: headSha, files, fingerprint: createHash('sha256').update(patch).digest('hex') };
 }
 
+/**
+ * File stem for one route, scheme and viewport. The readable slug alone collides for routes that
+ * differ only in punctuation (`?keyword=a.b` and `?keyword=a-b`), so a digest of the exact route
+ * keeps every route's before/after pair apart.
+ */
+export function shotName(route, scheme, viewport) {
+  const readable =
+    route
+      .replace(/[^a-z0-9]+/gi, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase() || 'home';
+  const digest = createHash('sha256').update(route).digest('hex').slice(0, 8);
+  return `${readable}-${digest}-${scheme}-${viewport}`;
+}
+
 export function screenshotMarker(fingerprint) {
   return `<!-- pr-screenshots: ui=${fingerprint} -->`;
 }
