@@ -72,7 +72,7 @@ void getCategories();
 <template>
   <div class="font-Poppins mt-3">
     <section
-      class="grid grid-cols-[minmax(280px,320px)_1fr] h-[min(480px,70vh)] min-h-[420px] p-2 bg-muted/60 rounded-2xl border border-border shadow-[0_2px_6px_rgba(15,23,42,0.06)] overflow-hidden"
+      class="grid grid-cols-[minmax(280px,320px)_1fr] h-[min(480px,70vh)] min-h-[420px] p-2 bg-muted rounded-2xl border border-border shadow-[0_2px_6px_rgba(15,23,42,0.06)] overflow-hidden"
     >
       <div
         class="h-full min-h-0 pr-2 border-r border-border overflow-y-auto scrollbar-thin"
@@ -105,7 +105,7 @@ void getCategories();
           type="button"
           variant="ghost"
           class="group w-full h-[58px] justify-between gap-3 px-3 py-2 rounded-xl text-left"
-          :class="isSelected(category.id) ? 'bg-muted' : ''"
+          :class="isSelected(category.id) ? 'bg-card' : ''"
           :aria-pressed="isSelected(category.id)"
           @click="handleRootClick(category)"
         >
