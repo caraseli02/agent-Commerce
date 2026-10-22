@@ -1,5 +1,5 @@
 - text: Card
-- button:
+- button "Edit payment settings":
     - img
 - img
 - text: /visa •••• \d+/

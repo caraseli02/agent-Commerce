@@ -1,5 +1,5 @@
 - text: /\d+\.\d+ Lei Available Credit/
-- button:
+- button "Credit options":
     - img
 - text: "/Balance: \\d+\\.\\d+ Lei/"
 - img

@@ -72,7 +72,7 @@ const showErrorMsg = ref(true);
 <template>
   <UiDialog v-model:open="localIsOpen">
     <UiDialogTrigger as-child>
-      <UiButton class="rounded-full" size="icon" variant="ghost">
+      <UiButton class="rounded-full" size="icon" variant="ghost" aria-label="Add new card">
         <PlusCircleIcon class="aspect-square w-10 h-10 stroke-1 text-blue-500" />
       </UiButton>
     </UiDialogTrigger>

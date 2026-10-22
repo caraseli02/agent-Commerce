@@ -1,2 +1,2 @@
-1. button
+1. button "Edit payment settings"
 2. button "Transactions"

@@ -6,5 +6,5 @@
 - button "Delete":
     - img
     - text: ''
-- button:
+- button "Add new card":
     - img

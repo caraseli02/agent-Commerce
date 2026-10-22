@@ -5,7 +5,7 @@
     <div class="mb-4">
       <div class="flex items-start justify-between">
         <h2 class="text-xl leading-[1.4] font-semibold">Customer Credit</h2>
-        <UiButton variant="ghost" size="icon" @click="$emit('toggle-editing')">
+        <UiButton variant="ghost" size="icon" aria-label="Close credit editor" @click="$emit('toggle-editing')">
           <XIcon class="w-6 h-6" />
         </UiButton>
       </div>

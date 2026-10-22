@@ -1,2 +1,2 @@
-1. button
+1. button "Credit options"
 2. button "Pay now"

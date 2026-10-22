@@ -3,7 +3,7 @@
     <template v-if="card">
       <section class="justify-between items-stretch flex gap-5">
         <div class="text-foreground text-sm font-medium leading-5 capitalize">Card</div>
-        <UiButton variant="ghost" class="p-1 w-10 h-10" @click="openSettingTab">
+        <UiButton variant="ghost" class="p-1 w-10 h-10" aria-label="Edit payment settings" @click="openSettingTab">
           <SvgoEditGray24 class="text-slate-300 hover:text-blue-500" />
         </UiButton>
       </section>
