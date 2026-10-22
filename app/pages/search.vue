@@ -35,23 +35,9 @@
       @show-filter="additionalFilters = $event"
     />
 
-    <template v-if="showAdditionalContent">
-      <ProductBlocks
-        :rows-number="2"
-        class="mb-7 lg:mb-[38px] xl:mb-[58px]"
-        :filters="['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched']"
-      />
-      <Banner />
-      <div class="container mb-[30px] lg:mb-10 xl:mb-[60px]">
-        <div class="grid grid-cols-1 gap-[15px] md:grid-cols-[40%_calc(60%-20px)] md:gap-5 xl:grid-cols-[41%_calc(59%-20px)]">
-          <LazyQuickBuy />
-          <LazyEcxlusiveOffer />
-        </div>
-      </div>
-      <NewProducts :row-count="2" />
-      <News />
-      <Manufacturers />
-    </template>
+    <div v-if="showQuickBuy" class="container mb-[30px] lg:mb-10 xl:mb-[60px]">
+      <LazyQuickBuy />
+    </div>
   </div>
 </template>
 
@@ -90,7 +76,7 @@ const onSortByChange = (option: { label: string; name: string; order?: 0 | 1 }) 
 };
 const resetProductsFilters = ref(false);
 const category = ref<string | null>(route.query?.category?.toString() || null);
-const showAdditionalContent = computed(() => {
+const showQuickBuy = computed(() => {
   const isBrowsingCatalog = !keyword.value.trim() && !category.value;
   return isBrowsingCatalog && (products.value?.items?.total_items ?? 0) > 0;
 });

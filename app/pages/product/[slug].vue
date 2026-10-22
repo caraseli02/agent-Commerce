@@ -3,7 +3,7 @@
     <div v-if="pending" class="container mb-10 min-h-[480px]" aria-busy="true" aria-live="polite">
       <div class="h-6 w-72 rounded bg-slate-100 animate-pulse mb-6" />
       <div
-        class="grid grid-cols-1 gap-y-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 min-[1440px]:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]"
+        class="grid grid-cols-1 gap-y-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 xl:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]"
       >
         <div class="col-span-2 min-h-[320px] rounded-2xl bg-slate-100 animate-pulse lg:col-span-1" />
         <div class="col-span-2 min-h-[280px] rounded-2xl bg-slate-100 animate-pulse lg:col-span-1" />
@@ -48,13 +48,13 @@
 
           <ProductAskDialog ref="askDialog" trigger-class="hidden sm:inline-flex" />
           <DialogReportError ref="reportErrorDialog" trigger-class="hidden sm:inline-flex" />
-          <UiButton variant="link" class="hidden sm:inline-flex text-slate-300 gap-1" @click="printPage">
+          <UiButton variant="link" class="hidden sm:inline-flex text-muted-foreground gap-1" @click="printPage">
             <PrinterIcon class="w-[22px] h-[22px]" />
             <span class="text-xs leading-tight">Print this page</span>
           </UiButton>
         </div>
         <div
-          class="grid grid-cols-1 gap-y-[30px] mb-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 lg:items-stretch lg:mb-10 min-[1440px]:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]"
+          class="grid grid-cols-1 gap-y-[30px] mb-[30px] md:grid-cols-2 md:gap-6 lg:grid-rows-1 lg:items-stretch lg:mb-10 xl:grid-cols-[minmax(0,340fr)_minmax(0,542fr)_minmax(0,460fr)]"
         >
           <ProductGallery
             v-if="images.length"
@@ -64,23 +64,12 @@
             :product="product"
             @show-zoom-modal="showZoomGallery = true"
           />
-          <ProductDetails class="order-3 col-span-2 min-w-0 md:order-2 lg:col-span-1" :product="product" />
-          <ProductQuantity class="order-2 md:order-3" :product="product" />
+          <ProductDetails class="order-2 col-span-2 min-w-0 lg:col-span-1" :product="product" />
+          <ProductQuantity class="order-3" :product="product" />
         </div>
         <LazyProductTable :features="product?.details?.ParametricData?.Features" />
       </div>
-      <ProductBanners />
-      <NewProducts> Similar Products </NewProducts>
-      <Banner class="hidden lg:flex xl:hidden" />
-      <div class="container mb-[30px] lg:mb-10 xl:mb-[60px]">
-        <div class="grid grid-cols-1 gap-[15px] md:grid-cols-[40%_calc(60%-20px)] md:gap-5 xl:grid-cols-[41%_calc(59%-20px)]">
-          <LazyQuickBuy />
-          <LazyEcxlusiveOffer />
-        </div>
-      </div>
-      <ProductBlocks :rows-number="2" class="mb-7 lg:mb-[38px] xl:mb-[58px]" :filters="filters" />
-      <News />
-      <Manufacturers />
+      <ProductSimilar :product="product" />
       <LazyProductZoomGallery
         v-if="showZoomGallery"
         v-model:selected-index="activeImageIndex"
@@ -148,8 +137,6 @@ const images = computed((): ProductImageInterface[] => {
 
   return Array.isArray(productImage) ? productImage.filter((image): image is ProductImageInterface => Boolean(image)) : [productImage];
 });
-
-const filters = ['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched'];
 
 const activeImageIndex = ref(0);
 const showZoomGallery = ref(false);

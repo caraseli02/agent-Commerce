@@ -20,6 +20,10 @@
         :src="props.images[activeImageIndex]?.ProductImageLarge"
         :alt="`${props.product.name || props.product.alias || 'Product'} image`"
         class-name="h-full w-full cursor-pointer object-contain"
+        priority
+        sizes="(min-width: 1280px) 540px, (min-width: 768px) 50vw, 100vw"
+        :width="600"
+        :height="480"
       />
     </UiButton>
 
@@ -29,12 +33,19 @@
           type="button"
           variant="ghost"
           class="h-auto rounded-md p-0 ring-1 ring-inset ring-transparent transition-opacity duration-300"
-          :class="index === activeImageIndex ? 'opacity-100 ring-blue-500' : 'opacity-50 hover:opacity-80'"
+          :class="index === activeImageIndex ? 'opacity-100 ring-primary' : 'opacity-50 hover:opacity-80'"
           :aria-label="`Show product image ${index + 1}`"
           :aria-pressed="index === activeImageIndex"
           @click="handleSlideTo(index)"
         >
-          <ImageWithFallback :src="image?.ProductImageSmall" alt="" class-name="h-12 w-14 object-contain" />
+          <ImageWithFallback
+            :src="image?.ProductImageSmall"
+            alt=""
+            class-name="h-12 w-14 object-contain"
+            sizes="56px"
+            :width="56"
+            :height="48"
+          />
         </UiButton>
       </li>
     </ul>
