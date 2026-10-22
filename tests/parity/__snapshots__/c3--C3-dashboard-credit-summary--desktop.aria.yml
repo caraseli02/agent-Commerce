@@ -1,0 +1,6 @@
+- text: /\d+\.\d+ Lei Available Credit/
+- button:
+    - img
+- text: "/Balance: \\d+\\.\\d+ Lei/"
+- img
+- button "Pay now"

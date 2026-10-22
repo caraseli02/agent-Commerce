@@ -1,0 +1,9 @@
+- dialog "Add New Card":
+    - heading "Add New Card" [level=2]
+    - heading "Card setup disabled in demo" [level=1]
+    - paragraph: Stripe card setup is not available in this portfolio preview build. Use the enabled navigation below to return to account settings.
+    - button "Back to settings"
+    - button "Back home"
+    - button "Close":
+        - img
+        - text: ''
