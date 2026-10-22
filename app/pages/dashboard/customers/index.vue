@@ -11,7 +11,7 @@
       </UiButton>
     </DashboardBreadcrumbs>
     <div
-      class="grid grid-cols-1 gap-4 md:grid-cols-[1fr_325px] md:gap-6 lg:grid-cols-[1fr_398px] lg:grid-rows-[repeat(3,auto)] xl:grid-cols-[1fr_320px_300px] 2xl:grid-cols-[1fr_358px_358px]"
+      class="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_300px] md:gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[repeat(3,auto)] xl:grid-cols-[minmax(0,1fr)_280px_280px] 2xl:grid-cols-[minmax(0,1fr)_300px_300px]"
     >
       <LazyDashboardCustomersByCountry class="row-start-1 md:col-span-2 xl:col-span-1 xl:row-span-2" />
       <LazyDashboardCustomersTotal class="md:row-start-2 md:col-start-1 xl:col-start-2 xl:row-start-1" />

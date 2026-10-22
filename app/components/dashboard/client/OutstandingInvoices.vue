@@ -31,10 +31,10 @@ defineProps<{
         </div>
       </div>
       <div class="items-stretch flex justify-end gap-3">
-        <UiButton as-child>
+        <UiButton as-child variant="outline">
           <NuxtLink to="/dashboard/client?tab=orders" class="inline-flex items-center justify-center">
-            <FileText class="w-4 h-4 mr-2 text-white" />
-            <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">View All Invoices</div>
+            <FileText class="w-4 h-4 mr-2" />
+            <div class="text-sm font-medium leading-6 grow whitespace-nowrap">View All Invoices</div>
           </NuxtLink>
         </UiButton>
       </div>

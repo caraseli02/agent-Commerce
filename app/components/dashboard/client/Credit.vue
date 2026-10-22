@@ -23,13 +23,13 @@
       <div
         class="justify-end items-center bg-green-500 flex shrink-0 h-3 flex-col rounded-[100px]"
         :style="{
-          width: `${(Number(availableCredit) / Number(balance)) * 100}%`,
+          width: `${creditShare}%`,
         }"
       />
     </div>
     <form class="justify-between items-stretch flex w-full gap-5 mt-4">
       <div class="items-stretch flex justify-between gap-2 text-sm whitespace-nowrap">
-        <label for="balance" class="text-muted-foreground leading-5 grow">Balance:</label>
+        <span class="text-muted-foreground leading-5 grow">Credit limit:</span>
         <div class="text-foreground font-semibold leading-5 grow">{{ Number(balance).toFixed(2) }} Lei</div>
       </div>
       <div class="flex items-center justify-between gap-2 text-muted-foreground hover:text-primary">
@@ -41,10 +41,15 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   availableCredit: number;
+  /** Total credit limit the available amount is measured against. */
   balance: number;
 }>();
+
+const creditShare = computed(() =>
+  Number(props.balance) > 0 ? Math.min(100, (Number(props.availableCredit) / Number(props.balance)) * 100) : 0,
+);
 </script>
 
 <style scoped></style>

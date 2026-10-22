@@ -31,15 +31,15 @@ defineProps<{
         </div>
       </div>
       <div class="items-stretch flex justify-between gap-3">
-        <UiButton as-child variant="success" class="w-full">
+        <UiButton as-child variant="outline" class="w-full">
           <NuxtLink to="/dashboard/client?tab=orders" class="w-full inline-flex items-center justify-center">
-            <BoxIcon class="w-4 h-4 mr-2 text-white" />
+            <BoxIcon class="w-4 h-4 mr-2" />
             All Active
           </NuxtLink>
         </UiButton>
-        <UiButton as-child class="w-full">
+        <UiButton as-child variant="ghost" class="w-full">
           <NuxtLink to="/order-tracking" class="w-full inline-flex items-center justify-center">
-            <MapPinIcon class="w-4 h-4 mr-2 text-white" />
+            <MapPinIcon class="w-4 h-4 mr-2" />
             Track Order
           </NuxtLink>
         </UiButton>
