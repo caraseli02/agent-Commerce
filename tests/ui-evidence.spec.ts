@@ -82,6 +82,40 @@ describe('UI screenshot evidence', () => {
     expect(uiDiff({ cwd: r.cwd }).fingerprint).not.toBe(first.fingerprint);
   });
 
+  it('keeps the fingerprint when main edits other lines of the same UI file, and changes it on a PR line edit', () => {
+    const r = repository();
+    const lines = Array.from({ length: 30 }, (_, index) => `<p>line ${index + 1}</p>`);
+    const file = (edits: Record<number, string>) => `${lines.map((line, index) => edits[index] ?? line).join('\n')}\n`;
+    r.write('app/components/Long.vue', file({}));
+    r.write('public/logo.png', 'binary\0v1');
+    const base = r.commit('long file');
+    r.git('update-ref', 'refs/remotes/origin/main', base);
+
+    r.git('checkout', '-qb', 'topic');
+    r.write('app/components/Long.vue', file({ 0: '<p>PR edit</p>' }));
+    r.write('public/logo.png', 'binary\0v2');
+    r.commit('PR edits line 1 and the logo');
+    const first = uiDiff({ cwd: r.cwd }).fingerprint;
+
+    r.git('checkout', '-q', 'main');
+    r.write('app/components/Long.vue', file({ 29: '<p>main edit</p>' }));
+    const main = r.commit('main edits line 30');
+    r.git('update-ref', 'refs/remotes/origin/main', main);
+    r.git('checkout', '-q', 'topic');
+    r.git('merge', '-q', '--no-edit', 'main');
+    expect(r.git('show', 'HEAD:app/components/Long.vue')).toContain('main edit');
+    expect(uiDiff({ cwd: r.cwd }).fingerprint).toBe(first);
+
+    r.write('public/logo.png', 'binary\0v3');
+    r.commit('PR edits the logo again');
+    const binaryEdit = uiDiff({ cwd: r.cwd }).fingerprint;
+    expect(binaryEdit).not.toBe(first);
+
+    r.write('app/components/Long.vue', file({ 0: '<p>PR edit, revised</p>', 29: '<p>main edit</p>' }));
+    r.commit('PR revises its line');
+    expect(uiDiff({ cwd: r.cwd }).fingerprint).not.toBe(binaryEdit);
+  });
+
   it('requires a current before/after section, or a reason, when UI files changed', () => {
     const ui = { fingerprint };
     expect(assessPrTemplate({ body: template, ui: { fingerprint: null } }).status).toBe('passed');
@@ -174,6 +208,38 @@ describe('UI screenshot evidence', () => {
     const kept = result.stdout.match(/Screenshots kept in (.+)\/shots/)?.[1];
     if (kept) roots.push(kept);
     expect(result.status).toBe(1);
+    expect(r.git('worktree', 'list', '--porcelain').match(/^worktree /gm)).toHaveLength(1);
+  });
+
+  it('stops the first preview and removes both worktrees when the second preview fails to start', async () => {
+    const r = repository();
+    const bin = mkdtempSync(join(tmpdir(), 'pr-screenshots-bin-'));
+    roots.push(bin);
+    // Install succeeds; build writes a preview that listens on the "before" side and exits 9 on "after".
+    const before =
+      "import { createServer } from 'node:http'; createServer((q, s) => s.end('ok')).listen(Number(process.env.PORT), process.env.HOST);";
+    writeFileSync(
+      join(bin, 'pnpm'),
+      `#!/bin/sh\n[ "$1" = build ] || exit 0\nmkdir -p .output/server\nif [ "$(basename "$PWD")" = before ]; then echo "${before}" > .output/server/index.mjs; else echo "process.exit(9);" > .output/server/index.mjs; fi\n`,
+    );
+    chmodSync(join(bin, 'pnpm'), 0o755);
+    const port = 41000 + Math.floor(Math.random() * 2000);
+    const result = spawnSync(
+      process.execPath,
+      [resolve('scripts/pr-screenshots.mjs'), '--routes', '/', '--no-push', '--port', String(port)],
+      {
+        cwd: r.cwd,
+        encoding: 'utf8',
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+        // A leaked preview keeps the stderr pipe open; fail instead of hanging the suite.
+        timeout: 60_000,
+      },
+    );
+    const kept = result.stdout.match(/Screenshots kept in (.+)\/shots/)?.[1];
+    if (kept) roots.push(kept);
+    expect(result.stderr).toContain(`Preview on port ${port + 1} exited`);
+    expect(result.status).toBe(1);
+    await expect(fetch(`http://127.0.0.1:${port}`)).rejects.toThrow();
     expect(r.git('worktree', 'list', '--porcelain').match(/^worktree /gm)).toHaveLength(1);
   });
 });

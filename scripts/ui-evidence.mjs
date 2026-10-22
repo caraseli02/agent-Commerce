@@ -33,8 +33,10 @@ function gitIn(cwd) {
 
 /**
  * The PR's own UI change: files under uiPath() between the merge base with main and `head`,
- * plus a fingerprint of that patch. Merging main keeps the fingerprint unless the PR's UI diff
- * itself changes, so screenshots stay valid across no-op merges and go stale on real edits.
+ * plus a fingerprint of that change. The fingerprint hashes only the lines the PR removes and
+ * adds (zero context, no blob IDs, no hunk positions), and the head blob of binary files. A
+ * conflict-free merge of main, even one that edits other lines of the same file, keeps it; any
+ * edit to the PR's own UI lines changes it, so screenshots go stale exactly then.
  */
 export function uiDiff({ cwd = process.cwd(), head = 'HEAD', remote = 'origin' } = {}) {
   const git = gitIn(cwd);
@@ -45,13 +47,32 @@ export function uiDiff({ cwd = process.cwd(), head = 'HEAD', remote = 'origin' }
     .filter((file) => file && uiPath(file))
     .sort();
   if (!files.length) return { base, head: headSha, files, fingerprint: null };
+  const hash = createHash('sha256');
   const patch = git(
-    ['diff', '--no-ext-diff', '--no-textconv', '--no-renames', '--full-index', '--binary', '--no-color', base, headSha, '--', ...files],
+    ['diff', '--no-ext-diff', '--no-textconv', '--no-renames', '--unified=0', '--no-color', base, headSha, '--', ...files],
     {
       encoding: 'buffer',
     },
   );
-  return { base, head: headSha, files, fingerprint: createHash('sha256').update(patch).digest('hex') };
+  for (const line of patch.toString('latin1').split('\n')) {
+    if (line.startsWith('index ')) continue; // whole-file blob IDs change when main edits other lines
+    hash.update(`${line.startsWith('@@') ? '@@' : line}\n`); // hunk positions shift with main's edits
+  }
+  // Text diffs say only "Binary files differ"; the head blob pins the binary content itself.
+  const binaries = git(['diff', '--no-renames', '--numstat', '-z', base, headSha, '--', ...files])
+    .split('\0')
+    .filter((entry) => entry.startsWith('-\t-\t'))
+    .map((entry) => entry.slice(4));
+  for (const file of binaries.sort()) {
+    let blob = 'deleted';
+    try {
+      blob = git(['rev-parse', `${headSha}:${file}`]).trim();
+    } catch {
+      /* deleted in the PR */
+    }
+    hash.update(`binary ${file} ${blob}\n`);
+  }
+  return { base, head: headSha, files, fingerprint: hash.digest('hex') };
 }
 
 /**

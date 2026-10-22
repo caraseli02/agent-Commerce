@@ -71,13 +71,16 @@ function prepare(root, name, sha, worktrees) {
   return dir;
 }
 
-async function serve(dir, port) {
+// Registers the preview in `servers` as soon as it is spawned, so a later failure (this preview's
+// own timeout, or the next preview failing to start) still stops it.
+async function serve(dir, port, servers) {
   const child = spawn(process.execPath, [join(dir, '.output/server/index.mjs')], {
     cwd: dir,
     env: { ...process.env, HOST: '127.0.0.1', PORT: String(port), NUXT_PUBLIC_MOCK_MODE: 'true', NUXT_PUBLIC_BASE_URL_API: '/api' },
     stdio: ['ignore', 'ignore', 'inherit'],
   });
   const url = `http://127.0.0.1:${port}`;
+  servers.push({ child, url });
   for (let attempt = 0; attempt < 60; attempt += 1) {
     if (child.exitCode !== null) throw new Error(`Preview on port ${port} exited (${child.exitCode}).`);
     try {
@@ -87,8 +90,17 @@ async function serve(dir, port) {
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  child.kill();
   throw new Error(`Preview on port ${port} did not answer within 30s.`);
+}
+
+// Resolves once the preview has exited, escalating to SIGKILL, so its worktree can be removed.
+async function stop(child) {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  const exited = new Promise((resolve) => child.once('exit', resolve));
+  child.kill();
+  const timer = setTimeout(() => child.kill('SIGKILL'), 5_000);
+  await exited;
+  clearTimeout(timer);
 }
 
 async function capture({ browser, url, route, scheme, viewport, file }) {
@@ -175,7 +187,8 @@ async function main() {
   try {
     const before = prepare(root, 'before', ui.base, worktrees);
     const after = prepare(root, 'after', ui.head, worktrees);
-    servers.push(await serve(before, options.port), await serve(after, options.port + 1));
+    await serve(before, options.port, servers);
+    await serve(after, options.port + 1, servers);
 
     const { chromium } = await import('@playwright/test');
     const browser = await chromium.launch();
@@ -222,7 +235,7 @@ async function main() {
       process.stderr.write(`\nAfter-side runtime errors (report them in the PR):\n${problems.map((line) => `- ${line}`).join('\n')}\n`);
     }
   } finally {
-    for (const { child } of servers) child.kill();
+    await Promise.all(servers.map(({ child }) => stop(child)));
     for (const dir of worktrees) {
       try {
         git(['worktree', 'remove', '--force', dir]);
