@@ -128,7 +128,7 @@ const onEachFeature = (feature: { properties?: { name?: string } }, layer: Leafl
     z-index: 1;
   }
   .leaflet-interactive {
-    @apply stroke-white dark:stroke-background fill-[#E2E2EA];
+    @apply stroke-white dark:stroke-background;
     stroke-width: 1px;
   }
   .dark & .leaflet-interactive[fill='#D9D9D9'] {
