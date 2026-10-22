@@ -67,22 +67,6 @@
         <ChevronRightIcon class="w-3 h-3" />
       </button>
     </div>
-    <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] md:hidden" aria-hidden="true">
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
-        <TwitterIcon class="w-5" />
-      </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
-        <LinkedInIcon class="w-5" />
-      </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
-        <InstagramIcon class="w-5 h-5" />
-      </span>
-    </div>
-    <div class="flex items-center justify-center gap-5 md:hidden">
-      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Terms </NuxtLink>
-      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Help </NuxtLink>
-      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Contact </NuxtLink>
-    </div>
     <div class="text-sm text-center mb-[60px] mt-auto max-md:hidden lg:mb-10">
       Already have an account?
       <NuxtLink
@@ -108,9 +92,6 @@ import SoleTraderIcon from '@/assets/icons/signup/sole-trader.svg';
 import BusinessIcon from '@/assets/icons/signup/business.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import AgentIcon from '@/assets/icons/signup/agent.svg';
-import TwitterIcon from '@/assets/icons/social/twitter.svg';
-import LinkedInIcon from '@/assets/icons/social/linkedin.svg';
-import InstagramIcon from '@/assets/icons/social/instagram.svg';
 import type { FormSelectOption, SignupAccountType } from '~~/types';
 
 const emits = defineEmits(['set-type', 'continue', 'set-business-type']);

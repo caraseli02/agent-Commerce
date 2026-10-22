@@ -28,7 +28,8 @@
             class="flex items-center justify-center rounded-full w-[22px] h-[22px] transition-colors duration-300 md:w-[25px] md:h-[25px]"
             :class="[currentStep === index ? 'bg-blue-500 text-white' : 'text-muted-foreground']"
           >
-            <span class="leading-tight font-medium font-Inter">
+            <Check v-if="index < currentStep" class="h-4 w-4 text-blue-500" aria-label="Completed" />
+            <span v-else class="leading-tight font-medium font-Inter">
               {{ index + 1 }}
             </span>
           </div>
@@ -46,30 +47,12 @@
         <div v-for="dash in 100" :key="dash" class="rounded-full w-1.5 h-[3px] bg-border flex-shrink-0 md:w-[3px] md:h-1.5" />
       </div>
     </div>
-    <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] max-md:hidden" aria-hidden="true">
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-card/10 text-white">
-        <TwitterIcon class="w-5" />
-      </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-card/10 text-white">
-        <LinkedInIcon class="w-5" />
-      </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-card/10 text-white">
-        <InstagramIcon class="w-5 h-5" />
-      </span>
-    </div>
-    <div class="flex items-center justify-center gap-5 max-md:hidden">
-      <NuxtLink to="/" class="text-sm text-white transition-colors duration-300 hover:text-blue-500"> Terms </NuxtLink>
-      <NuxtLink to="/" class="text-sm text-white transition-colors duration-300 hover:text-blue-500"> Help </NuxtLink>
-      <NuxtLink to="/" class="text-sm text-white transition-colors duration-300 hover:text-blue-500"> Contact </NuxtLink>
-    </div>
   </aside>
 </template>
 
 <script setup lang="ts">
+import { Check } from '@lucide/vue';
 import Logo from '@/assets/media/logo-light.svg';
-import TwitterIcon from '@/assets/icons/social/twitter.svg';
-import LinkedInIcon from '@/assets/icons/social/linkedin.svg';
-import InstagramIcon from '@/assets/icons/social/instagram.svg';
 import type { SignupAccountType } from '~~/types';
 import { useSignupState } from '@/composables/signup/useSignupState';
 
@@ -91,15 +74,15 @@ const steps = computed(() => [
   },
   {
     label: `${selectedType.value === 'personal' ? 'Personal' : 'Business'} <span class='max-md:hidden'>Details</span>`,
-    description: `Setup your ${selectedType.value === 'personal' ? 'personal' : 'business'} details`,
+    description: `Set up your ${selectedType.value === 'personal' ? 'personal' : 'business'} details`,
   },
   {
     label: "Contact <span class='max-md:hidden'>Details</span>",
-    description: 'Setup your contact details',
+    description: 'Set up your contact details',
   },
   {
     label: 'Profile',
-    description: 'Setup your profile info',
+    description: 'Set up your profile info',
   },
   {
     label: 'Finished',
