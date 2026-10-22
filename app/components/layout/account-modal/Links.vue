@@ -7,7 +7,7 @@
       @click="emit('close')"
     >
       <component :is="IconApps" class="w-6 h-6" />
-      <div class="transition-all text-sm font-medium leading-6 whitespace-nowrap">Dashboard</div>
+      <div class="transition-colors text-sm font-medium leading-6 whitespace-nowrap">Dashboard</div>
     </NuxtLink>
     <UiButton
       v-for="(menuItem, index) in menuActions"
@@ -18,7 +18,7 @@
       @click="(emit('close'), menuItem.action())"
     >
       <component :is="menuItem.icon" class="w-6 h-6" />
-      <div class="transition-all text-sm font-medium leading-6 whitespace-nowrap">
+      <div class="transition-colors text-sm font-medium leading-6 whitespace-nowrap">
         {{ menuItem.text }}
       </div>
       <div
@@ -39,12 +39,12 @@
       <component :is="menuItem.icon" class="w-6 h-6" />
       <div
         v-if="menuItem.disabled"
-        class="transition-all text-sm font-medium leading-6 whitespace-nowrap flex items-center justify-between flex-1"
+        class="transition-colors text-sm font-medium leading-6 whitespace-nowrap flex items-center justify-between flex-1"
       >
         <span>{{ menuItem.text }}</span>
         <span class="text-[10px] bg-muted text-zinc-400 px-1.5 py-0.5 rounded ml-2 font-bold tracking-tight">COMING SOON</span>
       </div>
-      <div v-else class="transition-all text-sm font-medium leading-6 whitespace-nowrap">
+      <div v-else class="transition-colors text-sm font-medium leading-6 whitespace-nowrap">
         {{ menuItem.text }}
       </div>
     </NuxtLink>

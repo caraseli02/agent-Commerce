@@ -1,6 +1,6 @@
 <template>
   <header
-    class="fixed z-50 top-0 left-0 w-full bg-background transition-transform duration-300 md:shadow-[0_1px_0_0_hsl(var(--border)),0_4px_12px_-4px_rgba(15,23,42,0.06)]"
+    class="fixed z-50 top-0 left-0 w-full bg-background transition-transform duration-200 ease-out md:shadow-[0_1px_0_0_hsl(var(--border)),0_4px_12px_-4px_rgba(15,23,42,0.06)]"
   >
     <div class="relative z-10 border-b border-border bg-muted py-1.5 md:py-2">
       <div class="container">
@@ -14,7 +14,13 @@
           <div class="mr-auto text-xs font-semibold leading-[1.67] text-primary md:mr-0 lg:text-sm lg:leading-[1.43]">
             <span class="uppercase">Free</span> shipping on orders over {{ freeShippingThreshold }}
           </div>
-          <UiButton variant="link" class="h-auto p-0" aria-label="Regional preferences" @click="showRegionalPreferencesModal = true">
+          <!-- Negative margin keeps a 44px hit area without growing the slim bar. -->
+          <UiButton
+            variant="link"
+            class="-my-3 h-auto min-h-11 p-0"
+            aria-label="Regional preferences"
+            @click="showRegionalPreferencesModal = true"
+          >
             <RonFlag class="mr-2.5 h-5 w-6" />
             <span class="text-sm leading-[1.43] text-muted-foreground">{{ regionalLabel }}</span>
           </UiButton>
