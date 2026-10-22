@@ -1,6 +1,6 @@
 # Claude night lane
 
-The claude-routine follows this file from step 4.3 when nothing is buildable: the live claim's PR waits for review, no eligible issue, the PASS queue is full, or mode `review-only` with no PR to review. The run already holds the run lock and has passed the guards in step 1. When this file is done, return to step 6 (**Finish**) of `.factory/automations/claude-routine.md`; the lock release stays the last action.
+The claude-routine follows this file from step 4.3 when nothing is buildable and the improve lane (step 4.4, `claude-improve.md`) does not run: the live claim's PR waits for review, the PASS queue is full, the improve slot is taken or found nothing, or mode `review-only` with no PR to review. The run already holds the run lock and has passed the guards in step 1. When this file is done, return to step 6 (**Finish**) of `.factory/automations/claude-routine.md`; the lock release stays the last action.
 
 The lane does the work a senior engineer does while waiting for review: prepare the next task, explain open failures, keep what was learned, answer explicit spike questions, run the checks the merge pipeline does not run, and hand Vlad a short morning summary. Settings live under `claude-routine.night_lane` in `.factory/factory.yaml`.
 
@@ -166,6 +166,7 @@ One comment per day on the open issue titled `night_lane.digest_issue_title` (`C
 **Ready to merge** (evaluator PASS on the current head, local verification current), suggested order: #N title (why first).
 **Needs your decision:** blocked issues and PRs with their Best next move; open questions in plans.
 **Overnight:** builds, repairs, reviews; plans, diagnoses, spikes and learnings written; findings filed (from the journal since the previous digest).
+**Self-started:** improve-lane issues claimed, PRs opened, merged and declined since the previous digest, and `Improvement idea:` proposals waiting for triage.
 **Learnings inbox:** entries waiting for your tick.
 **Idle runs:** count since the previous digest, with the main reason.
 ```
