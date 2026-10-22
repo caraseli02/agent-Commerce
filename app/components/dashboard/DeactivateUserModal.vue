@@ -5,7 +5,7 @@
         <UiButton
           variant="ghost"
           size="icon"
-          class="mb-4 ml-auto flex h-11 w-11 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors duration-300 hover:text-blue-500"
+          class="mb-4 ml-auto flex h-11 w-11 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors duration-200 hover:text-primary"
           aria-label="Close"
         >
           <XIcon class="h-6 w-6" />
@@ -24,12 +24,12 @@
         </div>
         <div>
           <div class="mb-1 flex items-center gap-3">
-            <div class="truncate text-sm font-semibold leading-[1.43] transition-colors duration-300 group-hover/link:text-blue-500">
+            <div class="truncate text-sm font-semibold leading-[1.43] transition-colors duration-200 group-hover/link:text-primary">
               {{ user.name }}
             </div>
             <div class="flex cursor-default items-center gap-3">
               <img v-if="country && country.label" :src="country.icon" :alt="country.label" class="mr-2 w-8 rounded" loading="lazy" />
-              <div class="rounded-[25px] bg-blue-500 px-2 text-xs font-semibold leading-[1.67] text-white">10%</div>
+              <div class="rounded-[25px] bg-primary px-2 text-xs font-semibold leading-[1.67] text-white">10%</div>
             </div>
           </div>
           <div class="truncate text-xs leading-[1.33] text-muted-foreground">

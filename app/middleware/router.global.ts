@@ -1,5 +1,6 @@
 import { useAuthStore } from '~/store/authStore';
 import { UserPermissionsEnum } from '~~/types/auth/permissions';
+import { toast } from '~/components/ui/toast';
 import { getMockPermissionsByUserId, parseMockToken } from '~/utils/mockAuth';
 
 const getRequiredPermission = (path: string) => {
@@ -62,6 +63,10 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   if (!permissions.includes(requiredPermission)) {
+    if (import.meta.client) {
+      toast({ title: 'Access restricted', description: 'Your account cannot open that page, so we brought you back home.' });
+    }
+
     return navigateTo('/');
   }
 });

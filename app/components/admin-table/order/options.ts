@@ -1,9 +1,9 @@
 import { OrderStatus, OrderType, type OrderTypeInfo } from '~~/types/order-summary/item';
 
 export const orderType = [
-  { value: OrderType.Stock, label: 'Stock Order', badge: { bg: 'bg-green-600', text: 'S' } },
-  { value: OrderType.Back, label: 'Back Order', badge: { bg: 'bg-purple-500', text: 'B' } },
-  { value: OrderType.Mixed, label: 'Mixed Order', badge: { bg: 'bg-blue-500', text: 'M' } },
+  { value: OrderType.Stock, label: 'Stock Order', badge: { bg: 'bg-green-800', text: 'S' } },
+  { value: OrderType.Back, label: 'Back Order', badge: { bg: 'bg-purple-800', text: 'B' } },
+  { value: OrderType.Mixed, label: 'Mixed Order', badge: { bg: 'bg-primary', text: 'M' } },
 ];
 
 export function getOrderTypeInfo(Order: number): OrderTypeInfo | null {
@@ -15,9 +15,9 @@ export const statusColors = {
   // [OrderStatus.AwaitingPayment]: 'bg-orange-500',
   // [OrderStatus.PartiallyRefunded]: 'bg-purple-500',
   [OrderStatus.Completed]: 'bg-green-600',
-  // [OrderStatus.PartiallyShipped]: 'bg-blue-500',
+  // [OrderStatus.PartiallyShipped]: 'bg-primary',
   [OrderStatus.Processing]: 'bg-purple-500',
-  [OrderStatus.Packaging]: 'bg-blue-500',
+  [OrderStatus.Packaging]: 'bg-primary',
   // [OrderStatus.AwaitingFulfillment]: 'bg-orange-500',
   // [OrderStatus.VerificationRequired]: 'bg-gray-500',
   [OrderStatus.Canceled]: 'bg-gray-500',

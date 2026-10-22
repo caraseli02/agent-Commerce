@@ -10,7 +10,7 @@ import { CustomerTableColumnsEnum } from '~/components/admin-table/customer/colu
 import AccountType from '~/components/dataTable/AccountType.vue';
 import { AccountType as AccountTypeEnum } from '~~/types';
 import { activateUser, deactivateUser, deleteUser } from '~/composables/api/dashboard-admin';
-import { formatNumberWithCommas } from '~/utils/numbers';
+import { formatLei } from '~/utils/numbers';
 
 export const columns: ColumnDef<CustomerTableColumns>[] = [
   // {
@@ -53,7 +53,7 @@ export const columns: ColumnDef<CustomerTableColumns>[] = [
   {
     accessorKey: CustomerTableColumnsEnum.SPENT,
     header: ({ column }) => renderColumnHeader(column, 'Spent'),
-    cell: ({ row }) => h('div', { class: 'inline overflow-hidden' }, formatNumberWithCommas((row.original.spent ?? 0) as number, 'lei')),
+    cell: ({ row }) => h('div', { class: 'inline overflow-hidden' }, formatLei(row.original.spent ?? 0)),
   },
   {
     accessorKey: CustomerTableColumnsEnum.ORDERS_COUNT,

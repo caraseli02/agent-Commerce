@@ -38,10 +38,10 @@
                 class="capitalize font-medium"
                 :class="[
                   transaction.status === 'success'
-                    ? 'text-[#00D395]'
+                    ? 'text-green-800 dark:text-green-400'
                     : transaction.status === 'declined'
-                      ? 'text-rose-500'
-                      : 'text-[#FF8A00]',
+                      ? 'text-rose-700 dark:text-rose-400'
+                      : 'text-amber-700 dark:text-amber-400',
                 ]"
                 >{{ transaction.status }}</span
               >

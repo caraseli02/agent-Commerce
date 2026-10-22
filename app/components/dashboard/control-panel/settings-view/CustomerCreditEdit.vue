@@ -6,7 +6,7 @@
       <div class="flex items-start justify-between">
         <h2 class="text-xl leading-[1.4] font-semibold">Customer Credit</h2>
         <button
-          class="flex items-center justify-center rounded-lg w-8 h-8 bg-muted text-muted-foreground transition-colors duration-300 hover:text-blue-500"
+          class="flex items-center justify-center rounded-lg w-8 h-8 bg-muted text-muted-foreground transition-colors duration-200 hover:text-primary"
           @click="$emit('toggle-editing')"
         >
           <XIcon class="w-6 h-6" />
@@ -56,7 +56,7 @@
           <span class="text-sm leading-[1.71] font-medium min-w-max"> Close Credit </span>
         </button>
         <button
-          class="flex items-center justify-center border-[1.5px] border-blue-500 rounded-md px-4 py-1 text-blue-500 h-8"
+          class="flex items-center justify-center border-[1.5px] border-primary rounded-md px-4 py-1 text-primary h-8"
           @click="switchFreeze()"
         >
           <FreezeIcon class="w-4 h-4 mr-2" />
@@ -67,8 +67,8 @@
         <div class="relative z-10">
           <div class="text-sm text-muted-foreground mb-1">Credit Term</div>
           <button
-            class="flex items-center justify-between px-3 text-sm w-full border py-[9px] rounded-lg h-11 transition-colors duration-300 focus:outline-none"
-            :class="[showCreditTermOptions ? 'border-blue-500' : 'border-border']"
+            class="flex items-center justify-between px-3 text-sm w-full border py-[9px] rounded-lg h-11 transition-colors duration-200 focus:outline-none"
+            :class="[showCreditTermOptions ? 'border-primary' : 'border-border']"
             @click="showCreditTermOptions = !showCreditTermOptions"
           >
             <span
@@ -87,7 +87,7 @@
               width="20"
               height="20"
               fill="none"
-              class="w-5 h-5 text-muted-foreground transition-all duration-300"
+              class="w-5 h-5 text-muted-foreground transition-transform duration-200"
               :class="[showCreditTermOptions ? 'rotate-180' : '']"
             >
               <path
@@ -108,7 +108,7 @@
               <button
                 v-for="option in creditTermOptions"
                 :key="option.value"
-                class="group flex items-center justify-between w-full px-2 py-2 text-left rounded-lg text-sm font-medium leading-[1.71429] transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
+                class="group flex items-center justify-between w-full px-2 py-2 text-left rounded-lg text-sm font-medium leading-[1.71429] transition-colors duration-200 hover:bg-[#F2F2F2] hover:text-primary"
                 :class="[option.value === creditTerm?.value ? '' : 'text-foreground']"
                 @click="
                   creditTerm = option;
@@ -119,10 +119,10 @@
                   {{ option.label }}
                 </span>
                 <div
-                  class="flex items-center justify-center w-[18px] h-[18px] rounded-full border-2 transition-colors duration-300"
-                  :class="[option.value === creditTerm?.value ? 'border-blue-500' : 'border-border group-hover:border-dark']"
+                  class="flex items-center justify-center w-[18px] h-[18px] rounded-full border-2 transition-colors duration-200"
+                  :class="[option.value === creditTerm?.value ? 'border-primary' : 'border-border group-hover:border-dark']"
                 >
-                  <div v-if="option.value === creditTerm?.value" class="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                  <div v-if="option.value === creditTerm?.value" class="w-2.5 h-2.5 bg-primary rounded-full" />
                 </div>
               </button>
             </div>
@@ -136,7 +136,7 @@
             v-model="creditAmount"
             type="number"
             placeholder="Discount (i.e. 5, 10, 17)"
-            class="bg-transparent px-2 text-sm w-full transition-colors duration-300 focus:outline-none"
+            class="bg-transparent px-2 text-sm w-full transition-colors duration-200 focus:outline-none"
           />
           <div class="text-xl leading-[1.3] px-3 py-2 border-r border-border bg-muted">Lei</div>
         </div>
@@ -146,7 +146,7 @@
           Cancel
         </button>
         <button
-          class="flex items-center justify-center px-5 py-2 rounded-lg bg-blue-500 leading-[1.75] text-white font-medium"
+          class="flex items-center justify-center px-5 py-2 rounded-lg bg-primary leading-[1.75] text-white font-medium"
           @click="
             $emit('close');
             updateCreditTerm(creditTerm?.value, creditAmount);

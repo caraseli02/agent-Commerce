@@ -4,7 +4,7 @@
       <section class="justify-between items-stretch flex gap-5">
         <div class="text-foreground text-sm font-medium leading-5 capitalize">Card</div>
         <UiButton variant="ghost" class="p-1 w-10 h-10" @click="openSettingTab">
-          <SvgoEditGray24 class="text-slate-300 hover:text-blue-500" />
+          <SvgoEditGray24 class="text-slate-300 hover:text-primary" />
         </UiButton>
       </section>
       <div v-if="card && card.type" class="items-stretch flex justify-between gap-3 mt-6 pr-7">
@@ -28,7 +28,7 @@
         </div>
       </div>
       <button
-        class="items-stretch flex gap-2 mt-6 self-end text-muted-foreground hover:text-blue-500"
+        class="items-stretch flex gap-2 mt-6 self-end text-muted-foreground hover:text-primary"
         @click="
           Emitter.emit('customer-dashboard-nav-tab', {
             label: 'Transaction History',

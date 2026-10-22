@@ -25,7 +25,7 @@
         </div>
       </div>
     </section>
-    <div class="self-end align-end flex justify-end items-end gap-2 h-fit grow text-muted-foreground hover:text-blue-500 transition-colors">
+    <div class="self-end align-end flex justify-end items-end gap-2 h-fit grow text-muted-foreground hover:text-primary transition-colors">
       <UiButton
         variant="ghost"
         class="h-auto p-0 text-sm font-medium leading-5 grow whitespace-nowrap"

@@ -1,17 +1,17 @@
 <template>
   <div class="min-w-[128px] flex justify-between items-center text-foreground">
     <NuxtLink v-if="props.orderId && !showInvoiceLink" :to="orderLink">
-      <UiButton variant="link" class="text-sm hover:text-blue-500">{{ IdCell ?? 'N/A' }}</UiButton>
+      <UiButton variant="link" class="text-sm hover:text-primary">{{ displayId }}</UiButton>
     </NuxtLink>
-    <UiButton v-else-if="invoiceId" variant="link" class="text-sm hover:text-blue-500" @click="download">
-      {{ IdCell ?? 'N/A' }}
+    <UiButton v-else-if="invoiceId" variant="link" class="text-sm hover:text-primary" @click="download">
+      {{ displayId }}
     </UiButton>
     <NuxtLink v-if="notes" to="#">
       <UiTooltipProvider>
         <UiTooltip>
           <UiTooltipTrigger>
             <svg
-              class="w-4 h-4 text-muted-foreground hover:text-blue-500"
+              class="w-4 h-4 text-muted-foreground hover:text-primary"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -41,6 +41,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/store/authStore';
+import { formatOrderRef } from '~/utils/numbers';
 
 const authStore = useAuthStore();
 
@@ -52,6 +53,9 @@ const props = defineProps<{
   invoiceId?: string;
   showInvoiceLink?: boolean;
 }>();
+
+// Orders show one reference shape (ORD-...) however the id was generated.
+const displayId = computed(() => (props.orderId && !props.showInvoiceLink ? formatOrderRef(props.IdCell) : (props.IdCell ?? 'N/A')));
 
 const isAdmin = computed(() => authStore.userDetails?.role === 1);
 

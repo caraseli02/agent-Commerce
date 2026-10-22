@@ -11,7 +11,7 @@
         {{ index === 0 ? 'Shipping' : 'Billing' }}
       </div>
       <UiButton variant="ghost" class="p-1 w-10 h-10" @click="openSettingTab(index === 0 ? 'Shipping' : 'Billing')">
-        <SvgoEditGray24 class="text-slate-300 hover:text-blue-500" />
+        <SvgoEditGray24 class="text-slate-300 hover:text-primary" />
       </UiButton>
     </section>
     <div aria-label="Address Details" role="group" class="items-stretch flex justify-between gap-3 mt-6">

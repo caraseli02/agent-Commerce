@@ -14,7 +14,7 @@
               <div class="font-semibold leading-normal md:mr-6">
                 {{ address.alias || 'Address Alias ' + (index + 1) }}
               </div>
-              <div v-if="address.default" class="flex items-center gap-1 bg-[#00D395] rounded-[100px] px-2 py-1 text-white max-md:hidden">
+              <div v-if="address.default" class="flex items-center gap-1 bg-green-800 rounded-[100px] px-2 py-1 text-white max-md:hidden">
                 <CheckIcon class="w-4 h-4" />
                 <span class="text-xs font-medium leading-[1.3333]">Default</span>
               </div>
@@ -33,7 +33,7 @@
           </div>
         </div>
         <div class="flex items-center justify-between">
-          <div v-if="address.default" class="flex items-center gap-1 bg-[#00D395] rounded-[100px] px-2 py-1 text-white md:hidden">
+          <div v-if="address.default" class="flex items-center gap-1 bg-green-800 rounded-[100px] px-2 py-1 text-white md:hidden">
             <CheckIcon class="w-4 h-4" />
             <span class="text-xs font-medium leading-[1.3333]">Default</span>
           </div>
@@ -79,7 +79,7 @@
         aria-label="Add shipping address"
         @click="addAddressModal = true"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 40 40" class="w-8 h-8 text-blue-500 md:w-10 md:h-10">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 40 40" class="w-8 h-8 text-primary md:w-10 md:h-10">
           <path stroke="#007FFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12v16m8-8H12" />
           <rect width="38" height="38" x="1" y="1" stroke="#007FFF" stroke-width="2" rx="19" />
         </svg>
@@ -107,7 +107,7 @@
         />
       </Transition>
       <div
-        class="fixed z-50 top-0 left-0 w-full h-full bg-[#2F3241]/10 transition-all duration-300 cursor-pointer"
+        class="fixed z-50 top-0 left-0 w-full h-full bg-[#2F3241]/10 transition-opacity duration-200 cursor-pointer"
         :class="[addAddressModal || editAddressModal ? 'backdrop-blur-[7.5px]' : 'backdrop-blur-0 opacity-0 pointer-events-none']"
         @click="
           addAddressModal = false;

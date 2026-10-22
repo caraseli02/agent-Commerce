@@ -73,7 +73,7 @@ const showErrorMsg = ref(true);
   <UiDialog v-model:open="localIsOpen">
     <UiDialogTrigger as-child>
       <UiButton class="rounded-full" size="icon" variant="ghost">
-        <PlusCircleIcon class="aspect-square w-10 h-10 stroke-1 text-blue-500" />
+        <PlusCircleIcon class="aspect-square w-10 h-10 stroke-1 text-primary" />
       </UiButton>
     </UiDialogTrigger>
     <UiDialogContent class="max-w-[350px] sm:max-w-[480px] rounded-xl">

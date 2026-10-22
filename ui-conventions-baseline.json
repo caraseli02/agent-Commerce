@@ -1,7 +1,6 @@
 {
   "app/components/dashboard/client/Credit.vue": {
-    "button": 2,
-    "label": 1
+    "button": 2
   },
   "app/components/dashboard/client/PaymentCard.vue": {
     "button": 1

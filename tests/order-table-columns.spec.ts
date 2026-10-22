@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { orderTotal, orderUserInfo } from '../app/components/client-table/order/cellValues';
-import { formatNumberWithCommas } from '../app/utils/numbers';
+import { orderTotal, orderTotalLei, orderUserInfo } from '../app/components/client-table/order/cellValues';
+import { formatLei, formatNumberWithCommas, formatOrderRef } from '../app/utils/numbers';
 import type { OrderTableColumns } from '../types';
 
 const completeOrder = {
@@ -26,5 +26,15 @@ describe('order table cell values', () => {
   it('keeps the parts of the contact details that exist', () => {
     const order = { user: { contactDetails: { firstName: 'Ana' } } } as unknown as OrderTableColumns;
     expect(orderUserInfo(order)).toEqual({ name: 'Ana', email: 'N/A' });
+  });
+
+  it('formats money like the storefront and unifies order references', () => {
+    expect(formatLei(1499.99)).toBe('1499.99 Lei');
+    expect(orderTotalLei(1499.99)).toBe('1499.99 Lei');
+    expect(orderTotalLei(undefined)).toBe('N/A');
+    expect(formatOrderRef('#953775')).toBe('ORD-953775');
+    expect(formatOrderRef('ORD-953775')).toBe('ORD-953775');
+    expect(formatOrderRef('ORD-2024-0030')).toBe('ORD-2024-0030');
+    expect(formatOrderRef(undefined)).toBe('N/A');
   });
 });

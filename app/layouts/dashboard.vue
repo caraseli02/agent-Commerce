@@ -13,8 +13,8 @@
     <main
       id="main"
       tabindex="-1"
-      class="outline-none pt-[68px] flex-1 transition-[margin,max-width] duration-200 ease-out flex flex-col justify-between md:pt-[76px] md:ml-[96px] md:max-w-[calc(100vw-96px)]"
-      :class="[isSideNavCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:max-w-[calc(100vw-280px)]']"
+      class="outline-none pt-[68px] flex-1 transition-[margin,max-width] duration-200 ease-out flex flex-col justify-between md:pt-[76px]"
+      :class="[isSideNavCollapsedOnDesktop ? 'md:ml-[96px] md:max-w-[calc(100vw-96px)]' : 'md:ml-[280px] md:max-w-[calc(100vw-280px)]']"
     >
       <slot />
       <div class="flex justify-center text-center text-xs leading-normal text-muted-foreground mt-2 mb-6 md:mt-0">
@@ -28,7 +28,8 @@
 <script setup lang="ts">
 import { Toaster } from '@/components/ui/toast';
 
-const isSideNavCollapsedOnDesktop = ref(true);
+// Expanded with labels from xl up; icon-only rail below it.
+const isSideNavCollapsedOnDesktop = ref(!import.meta.client || !window.matchMedia('(min-width: 1280px)').matches);
 const showSideNav = ref(false);
 </script>
 
