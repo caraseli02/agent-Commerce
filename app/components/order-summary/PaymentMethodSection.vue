@@ -3,7 +3,7 @@
     <div
       v-if="requiresPaymentReselection"
       role="alert"
-      class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-5 text-amber-900"
+      class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-5 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
     >
       Your saved card is no longer available. Choose another payment method to continue.
     </div>
@@ -18,7 +18,7 @@
         size="icon"
         class="group"
       >
-        <SettingCog class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
+        <SettingCog class="text-muted-foreground group-hover:text-primary transition duration-300" />
       </UiButton>
     </div>
     <div class="flex flex-col gap-4 relative">
@@ -83,10 +83,7 @@
       >
         <div class="flex w-full flex-col gap-3">
           <div class="flex flex-row justify-between w-full">
-            <RadioButtonChecked
-              v-if="order.paymentDetails?.type === 3"
-              class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
-            />
+            <RadioButtonChecked v-if="order.paymentDetails?.type === 3" class="w-5 h-5 my-[3px] text-primary transition duration-300" />
             <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
             <BankIcon />
           </div>
@@ -95,7 +92,7 @@
           </div>
         </div>
       </UiButton>
-      <div v-if="availablePaymentMethods.includes(PaymentTypeEnum.Credit)" class="flex flex-col gap-2">
+      <div v-if="!hideCredit && availablePaymentMethods.includes(PaymentTypeEnum.Credit)" class="flex flex-col gap-2">
         <UiButton
           type="button"
           data-testid="credit-payment-option"
@@ -107,10 +104,7 @@
         >
           <div class="flex w-full flex-col gap-3">
             <div class="flex flex-row justify-between w-full">
-              <RadioButtonChecked
-                v-if="order.paymentDetails?.type === 1"
-                class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
-              />
+              <RadioButtonChecked v-if="order.paymentDetails?.type === 1" class="w-5 h-5 my-[3px] text-primary transition duration-300" />
               <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
               <PieChart />
             </div>
@@ -129,7 +123,9 @@
         <div class="flex flex-row items-center justify-end gap-2">
           <span class="text-foreground text-sm font-normal leading-6">Available:</span>
           <UiButton type="button" variant="link" size="xs" @click="showCreditInfoModal = true">
-            <span class="text-blue-500 text-sm font-semibold leading-6">{{ accountCredit?.available?.toFixed(2) || 0 }}</span>
+            <span class="whitespace-nowrap text-primary text-sm font-semibold leading-6"
+              >{{ (accountCredit?.available ?? 0).toFixed(2) }}&nbsp;Lei</span
+            >
           </UiButton>
         </div>
       </div>
@@ -148,10 +144,7 @@
       >
         <div class="flex w-full flex-col gap-3">
           <div class="flex flex-row justify-between w-full">
-            <RadioButtonChecked
-              v-if="order.paymentDetails?.type === 2"
-              class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
-            />
+            <RadioButtonChecked v-if="order.paymentDetails?.type === 2" class="w-5 h-5 my-[3px] text-primary transition duration-300" />
             <RadioButton v-else class="w-5 h-5 my-[3px] text-grey-300 group-hover:text-muted-foreground transition duration-300" />
             <MoneyIcon />
           </div>
@@ -192,6 +185,8 @@ const props = defineProps<{
   order: CheckoutOrderDraft;
   accountCredit: CustomerCreditInterface;
   requiresPaymentReselection?: boolean;
+  /** Guests have no account credit line, so the option is not offered. */
+  hideCredit?: boolean;
 }>();
 
 const emits = defineEmits(['update-payment-details', 'change-is-new-card-selected']);
