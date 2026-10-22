@@ -17,12 +17,7 @@
         <div class="text-sm text-muted-foreground mb-1">Customer Discount</div>
         <div class="flex border border-border rounded-lg h-11 overflow-hidden">
           <div class="text-xl leading-[1.3] px-3 py-2 border-r border-border bg-muted">%</div>
-          <input
-            v-model="customerDiscountBuffer"
-            type="number"
-            placeholder="Discount (i.e. 5, 10, 17)"
-            class="bg-transparent px-2 text-sm w-full transition-colors duration-300 focus:outline-none"
-          />
+          <UiInput v-model="customerDiscountBuffer" type="number" placeholder="Discount (i.e. 5, 10, 17)" />
         </div>
       </template>
     </div>
@@ -30,9 +25,11 @@
       class="grid grid-cols-1 gap-4 md:grid-cols-[auto_1fr] lg:grid-cols-1 lg:mt-auto"
       :class="[error || loading ? ' opacity-0 pointer-events-none' : '']"
     >
-      <button
+      <UiButton
         v-if="customerDiscount"
-        class="flex items-center justify-center w-full border-[1.5px] border-[#FA4B4B] rounded-lg px-5 py-2 text-rose-500 h-11"
+        variant="destructive"
+        size="lg"
+        class="w-full"
         @click="
           customerDiscount = 0;
           customerDiscountBuffer = 0;
@@ -41,9 +38,10 @@
       >
         <TrashIcon class="w-6 h-6 mr-2" />
         <span class="leading-[1.71] font-medium"> Cancel Discount </span>
-      </button>
-      <button
-        class="flex items-center justify-center w-full bg-blue-500 rounded-lg px-5 py-2 text-white h-11"
+      </UiButton>
+      <UiButton
+        size="lg"
+        class="w-full"
         @click="
           customerDiscount = customerDiscountBuffer;
           updateDiscount(customerDiscountBuffer);
@@ -51,7 +49,7 @@
       >
         <PercentageIcon class="w-6 h-6 mr-2" />
         <span class="leading-[1.71] font-medium"> {{ customerDiscount ? 'Update' : 'Apply' }} Discount </span>
-      </button>
+      </UiButton>
     </div>
   </div>
 </template>

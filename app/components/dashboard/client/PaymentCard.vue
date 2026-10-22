@@ -27,8 +27,10 @@
           </div>
         </div>
       </div>
-      <button
-        class="items-stretch flex gap-2 mt-6 self-end text-muted-foreground hover:text-blue-500"
+      <UiButton
+        variant="bare"
+        size="flush"
+        class="flex mt-6 self-end"
         @click="
           Emitter.emit('customer-dashboard-nav-tab', {
             label: 'Transaction History',
@@ -38,9 +40,9 @@
       >
         <div class="text-sm font-medium leading-5 grow">Transactions</div>
         <SvgoArrowLeft16
-          class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"
+          class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto ml-2"
         />
-      </button>
+      </UiButton>
     </template>
     <section v-else class="absolute inset-0 flex flex-col items-center justify-center text-center">
       <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />

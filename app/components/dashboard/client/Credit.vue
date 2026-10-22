@@ -8,7 +8,7 @@
         </div>
         <div class="text-muted-foreground text-xs leading-4 mt-1">Available Credit</div>
       </div>
-      <button class="text-slate-300 hover:text-blue-500">
+      <UiButton variant="ghost" size="icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             fill-rule="evenodd"
@@ -17,7 +17,7 @@
             fill="currentColor"
           />
         </svg>
-      </button>
+      </UiButton>
     </header>
     <div class="items-stretch bg-gray-200 flex flex-col justify-center mt-6 pr-12 rounded-[100px] overflow-hidden relative">
       <div
@@ -29,12 +29,12 @@
     </div>
     <form class="justify-between items-stretch flex w-full gap-5 mt-4">
       <div class="items-stretch flex justify-between gap-2 text-sm whitespace-nowrap">
-        <label for="balance" class="text-muted-foreground leading-5 grow">Balance:</label>
+        <UiLabel for="balance" class="grow">Balance:</UiLabel>
         <div class="text-foreground font-semibold leading-5 grow">{{ Number(balance).toFixed(2) }} Lei</div>
       </div>
       <div class="flex items-center justify-between gap-2 text-muted-foreground hover:text-blue-500">
         <SvgoCard16 />
-        <button type="submit" class="text-sm font-medium leading-5 grow whitespace-nowrap">Pay now</button>
+        <UiButton type="submit" variant="bare" size="flush" class="grow whitespace-nowrap">Pay now</UiButton>
       </div>
     </form>
   </div>

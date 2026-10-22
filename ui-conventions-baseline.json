@@ -1,39 +1,9 @@
 {
-  "app/components/dashboard/client/Credit.vue": {
-    "button": 2,
-    "label": 1
-  },
-  "app/components/dashboard/client/PaymentCard.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/client/settings/Credit.vue": {
-    "button": 1
-  },
-  "app/components/dashboard/control-panel/settings-view/CustomerCredit.vue": {
-    "button": 2
-  },
-  "app/components/dashboard/control-panel/settings-view/CustomerCreditEdit.vue": {
-    "button": 7,
-    "input": 1
-  },
-  "app/components/dashboard/control-panel/settings-view/CustomerDiscount.vue": {
-    "button": 2,
-    "input": 1
-  },
-  "app/components/dashboard/customers/RecentTransactions.vue": {
-    "button": 1
-  },
   "app/components/icon/Upload.vue": {
     "input": 1
   },
   "app/components/layout/account-modal/Form.vue": {
     "label": 1
-  },
-  "app/components/order-confirm/AdminConfirmation.vue": {
-    "textarea": 1
-  },
-  "app/components/order-confirm/BuyerConfirmation.vue": {
-    "textarea": 1
   },
   "app/components/signup/BusinessDetails.vue": {
     "button": 2,
