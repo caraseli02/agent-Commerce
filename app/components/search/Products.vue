@@ -49,7 +49,14 @@
         <div class="hidden font-Inter font-semibold md:block">Products Found ({{ totalItems }})</div>
         <div class="flex items-center">
           <Transition name="fade">
-            <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" aria-label="Previous page" @click="atPage--">
+            <UiButton
+              v-if="atPage !== 1"
+              variant="ghost"
+              size="icon"
+              class="mr-2 h-11 w-11 md:mr-4"
+              aria-label="Previous page"
+              @click="atPage--"
+            >
               <ChevronRightIcon class="w-1.5 h-3 rotate-180" />
             </UiButton>
           </Transition>
@@ -74,7 +81,14 @@
             </template>
           </Pagination>
           <Transition name="fade">
-            <UiButton v-if="totalPages !== atPage" variant="ghost" size="icon" class="ml-4" aria-label="Next page" @click="atPage++">
+            <UiButton
+              v-if="totalPages !== atPage"
+              variant="ghost"
+              size="icon"
+              class="ml-2 h-11 w-11 md:ml-4"
+              aria-label="Next page"
+              @click="atPage++"
+            >
               <ChevronRightIcon class="w-1.5 h-3" />
             </UiButton>
           </Transition>
@@ -101,7 +115,14 @@
         </div>
         <div class="flex items-center">
           <Transition name="fade">
-            <UiButton v-if="atPage !== 1" variant="ghost" size="icon" class="mr-4" aria-label="Previous page" @click="atPage--">
+            <UiButton
+              v-if="atPage !== 1"
+              variant="ghost"
+              size="icon"
+              class="mr-2 h-11 w-11 md:mr-4"
+              aria-label="Previous page"
+              @click="atPage--"
+            >
               <ChevronRightIcon class="w-1.5 h-3 rotate-180" />
             </UiButton>
           </Transition>
@@ -126,7 +147,14 @@
             </template>
           </Pagination>
           <Transition name="fade">
-            <UiButton v-if="totalPages !== atPage" variant="ghost" size="icon" class="ml-4" aria-label="Next page" @click="atPage++">
+            <UiButton
+              v-if="totalPages !== atPage"
+              variant="ghost"
+              size="icon"
+              class="ml-2 h-11 w-11 md:ml-4"
+              aria-label="Next page"
+              @click="atPage++"
+            >
               <ChevronRightIcon class="w-1.5 h-3" />
             </UiButton>
           </Transition>
@@ -262,11 +290,11 @@ watch(
 <style>
 @reference "../../assets/css/main.css";
 .searchProducts--pagination-item {
-  @apply cursor-pointer flex items-center justify-center w-8 h-8 mx-1 text-sm font-Inter font-semibold rounded-md bg-muted text-muted-foreground transition-colors duration-300 hover:bg-blue-500 hover:text-white focus-visible:bg-blue-500 focus-visible:text-white!;
+  @apply cursor-pointer flex items-center justify-center w-11 h-11 mx-0.5 md:w-8 md:h-8 md:mx-1 text-sm font-Inter font-semibold rounded-md bg-muted text-muted-foreground transition-colors duration-300 hover:bg-primary hover:text-primary-foreground focus-visible:bg-primary focus-visible:text-primary-foreground!;
 }
 
 .searchProducts--pagination-item-active .searchProducts--pagination-item {
-  @apply bg-blue-500 text-white!;
+  @apply bg-primary text-primary-foreground!;
 }
 
 .searchProducts--pagination-item_prev,

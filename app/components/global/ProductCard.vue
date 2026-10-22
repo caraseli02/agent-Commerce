@@ -75,7 +75,7 @@
             }}
           </template>
         </div>
-        <div class="flex flex-wrap items-center gap-1" :class="[productDiscount ? 'text-rose-500' : '']">
+        <div class="flex flex-wrap items-center gap-1" :class="[productDiscount ? 'text-red-700' : '']">
           <strong class="text-base leading-tight md:text-lg">
             {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : priceConfiguration?.price.toFixed(2) || '-' }}
           </strong>

@@ -35,6 +35,13 @@ let latestSimilarSearch = 0;
 const visibleFeatures = computed(() => features?.filter((feature) => feature?.FeatureValue !== '') ?? []);
 const canShowSimilar = computed(() => !isLoading.value && totalSimilarProducts.value > 0);
 
+// Seed values are bare numbers with the unit in its own field; values that already carry a unit are left alone.
+const formatFeatureValue = (feature: ProductParametricDataFeaturesInterface) => {
+  const value = String(feature.FeatureValue ?? '');
+  const unit = feature.FeatureUnit?.trim();
+  return unit && /^[\d.,\-+/\s]+$/.test(value) ? `${value} ${unit}` : value;
+};
+
 const setFilterLine = () => {
   if (elDOM.value) {
     const activeFilterEl = elDOM.value.querySelector(`[data-tab=${activeFilter.value}]`) as HTMLButtonElement;
@@ -121,9 +128,7 @@ onMounted(() => {
 
 <template>
   <div ref="elDOM" class="max-w-[1392px] mx-auto relative bg-card rounded-xl font-Inter px-4 py-5 shadow-m md:px-5 md:py-5">
-    <div
-      class="flex flex-col gap-3 mb-4 border-b border-gray-200 dark:border-border md:flex-row md:items-end md:justify-between md:gap-4 md:mb-5"
-    >
+    <div class="flex flex-col gap-3 mb-4 border-b border-border md:flex-row md:items-end md:justify-between md:gap-4 md:mb-5">
       <div class="relative flex items-center gap-4 min-w-0">
         <UiButton
           v-for="(filter, index) in filters"
@@ -132,13 +137,13 @@ onMounted(() => {
           variant="link"
           :data-tab="textUtil.slugify(filter)"
           class="relative h-auto p-0 pb-3 text-sm font-semibold tracking-tight md:text-base"
-          :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-500' : 'text-muted-foreground']"
+          :class="[activeFilter === textUtil.slugify(filter) ? 'text-primary' : 'text-muted-foreground']"
           @click="setActiveFilter(filter)"
         >
           {{ filter }}
         </UiButton>
         <div
-          class="absolute bottom-0 h-[3px] bg-blue-500 rounded-t-sm transition-all duration-300"
+          class="absolute bottom-0 h-[3px] bg-primary rounded-t-sm transition-all duration-300"
           :style="{
             left: filterLineLeftPosition + 'px',
             width: filterLineWidth + 'px',
@@ -158,23 +163,30 @@ onMounted(() => {
       </UiButton>
     </div>
 
-    <div class="overflow-x-auto -mx-1 px-1">
+    <div class="overflow-x-auto -mx-1 px-1 [&_tr]:border-border">
       <UiTable class="min-w-0 border-collapse text-left">
+        <UiTableHeader>
+          <UiTableRow>
+            <UiTableHead>Specification</UiTableHead>
+            <UiTableHead>Value</UiTableHead>
+            <UiTableHead>Find similar</UiTableHead>
+          </UiTableRow>
+        </UiTableHeader>
         <UiTableBody>
           <UiTableRow
             v-for="(item, index) in visibleFeatures"
             :key="index"
-            class="group cursor-pointer text-xs leading-snug font-medium transition-colors duration-200 odd:bg-muted hover:text-blue-500"
+            class="group cursor-pointer text-xs leading-snug font-medium transition-colors duration-200 odd:bg-muted hover:text-primary"
             @click="toggleFeature(item)"
           >
             <UiTableCell class="h-auto w-[9.5rem] py-2 pl-3 pr-3 text-muted-foreground align-middle md:w-44 md:pl-4 md:pr-4">
               {{ item.FeatureName }}
             </UiTableCell>
             <UiTableCell class="h-auto py-2 pl-0 pr-3 text-foreground align-middle break-words">
-              {{ item.FeatureValue }}
+              {{ formatFeatureValue(item) }}
             </UiTableCell>
             <UiTableCell
-              class="h-auto w-10 py-0 pl-0 pr-3 align-middle md:pr-4 [&:has([role=checkbox])]:pr-3 md:[&:has([role=checkbox])]:pr-4"
+              class="h-auto w-24 py-0 pl-0 pr-3 align-middle md:pr-4 [&:has([role=checkbox])]:pr-3 md:[&:has([role=checkbox])]:pr-4"
             >
               <!-- The label keeps the whole 44px cell area toggling the checkbox; @click.stop keeps the row from toggling it again. -->
               <UiLabel class="ml-auto flex min-h-11 min-w-11 cursor-pointer items-center justify-center" @click.stop>
