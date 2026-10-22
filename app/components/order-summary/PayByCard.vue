@@ -45,8 +45,9 @@ const onEditClick = () => {
   <div class="flex w-full min-w-[326px] flex-col gap-3">
     <UiButton
       type="button"
-      :variant="isSelected ? 'secondary' : 'outline'"
-      class="h-auto w-full min-w-[326px] min-h-[100px] flex-col whitespace-normal group"
+      :variant="isSelected ? 'option-selected' : 'option'"
+      size="card"
+      class="w-full min-w-[326px] min-h-[100px] flex-col whitespace-normal group"
       :aria-label="!hasCard && !showPayWithLabel ? 'Pay by card' : undefined"
       @click="paymentMethods(cardInfo, $event)"
     >

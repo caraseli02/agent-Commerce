@@ -14,8 +14,9 @@
           <UiButton
             type="button"
             :aria-pressed="order.backorderOption?._id === backOrderOption._id"
-            variant="ghost"
-            class="h-auto w-full justify-start items-start whitespace-normal group"
+            variant="bare"
+            size="flush"
+            class="w-full justify-start items-start whitespace-normal group"
             @click="selectBackorderPreference(backOrderOption)"
           >
             <span class="inline-flex items-center gap-3">
@@ -51,8 +52,9 @@
         <div v-if="deliveryType.service">
           <UiButton
             type="button"
-            variant="ghost"
-            class="h-auto w-full justify-between whitespace-normal group"
+            variant="bare"
+            size="flush"
+            class="w-full justify-between whitespace-normal group"
             @click="selectDeliveryMethod(deliveryType)"
           >
             <div class="flex flex-row gap-3 items-start">

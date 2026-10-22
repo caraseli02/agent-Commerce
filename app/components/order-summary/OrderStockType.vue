@@ -29,7 +29,7 @@
       <div class="gap-2 flex flex-col w-full">
         <div class="h-[1px] rounded-lg bg-neutral-100 block" />
         <div class="flex flex-col">
-          <UiButton type="button" variant="ghost" class="w-full justify-between group" @click="expandShippingAndBilling">
+          <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandShippingAndBilling">
             <span
               class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
               :class="shippingAndBillingExpanded ? 'text-blue-500' : 'text-foreground'"
@@ -63,7 +63,7 @@
         </div>
         <div class="h-[1px] rounded-lg bg-neutral-100 block" />
         <div class="flex flex-col">
-          <UiButton type="button" variant="ghost" class="w-full justify-between group" @click="expandShippingPreferences">
+          <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandShippingPreferences">
             <span
               class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
               :class="shippingPreferencesExpanded ? 'text-blue-500' : 'text-foreground'"
@@ -98,7 +98,7 @@
           </Transition>
         </div>
         <div class="h-[1px] rounded-lg bg-neutral-100 block" />
-        <UiButton type="button" variant="ghost" class="w-full justify-between group" @click="expandPaymentMethod">
+        <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandPaymentMethod">
           <span
             class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
             :class="paymentMethodExpanded ? 'text-blue-500' : 'text-foreground'"

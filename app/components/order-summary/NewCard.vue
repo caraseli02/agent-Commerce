@@ -2,8 +2,9 @@
   <div class="flex w-full flex-col gap-3">
     <UiButton
       type="button"
-      :variant="isSelected ? 'secondary' : 'outline'"
-      class="h-auto min-h-[100px] items-stretch self-stretch w-full flex-col whitespace-normal group"
+      :variant="isSelected ? 'option-dashed-selected' : 'option-dashed'"
+      size="card-compact"
+      class="min-h-[100px] items-stretch self-stretch w-full flex-col whitespace-normal group"
       @click="paymentMethods(cardInfo, $event)"
     >
       <section class="items-center flex justify-between gap-3">

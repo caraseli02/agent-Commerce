@@ -76,8 +76,9 @@
       <UiButton
         v-if="availablePaymentMethods.includes(PaymentTypeEnum.Bank)"
         type="button"
-        :variant="order.paymentDetails?.type === 3 ? 'secondary' : 'outline'"
-        class="h-auto flex-col whitespace-normal group"
+        :variant="order.paymentDetails?.type === 3 ? 'option-selected' : 'option'"
+        size="card"
+        class="flex-col whitespace-normal group"
         @click="selectPaymentOption({ type: PaymentTypeEnum.Bank })"
       >
         <div class="flex w-full flex-col gap-3">
@@ -98,8 +99,9 @@
         <UiButton
           type="button"
           data-testid="credit-payment-option"
-          :variant="order.paymentDetails?.type === 1 ? 'secondary' : 'outline'"
-          class="h-auto flex-col whitespace-normal group"
+          :variant="order.paymentDetails?.type === 1 ? 'option-selected' : 'option'"
+          size="card"
+          class="flex-col whitespace-normal group"
           :disabled="creditUnavailableReason !== null"
           @click="selectPaymentOption({ type: PaymentTypeEnum.Credit })"
         >
@@ -139,8 +141,9 @@
       <UiButton
         v-if="availablePaymentMethods.includes(PaymentTypeEnum.Cash)"
         type="button"
-        :variant="order.paymentDetails?.type === 2 ? 'secondary' : 'outline'"
-        class="h-auto flex-col whitespace-normal group"
+        :variant="order.paymentDetails?.type === 2 ? 'option-selected' : 'option'"
+        size="card"
+        class="flex-col whitespace-normal group"
         @click="selectPaymentOption({ type: PaymentTypeEnum.Cash })"
       >
         <div class="flex w-full flex-col gap-3">
