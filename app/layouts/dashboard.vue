@@ -5,7 +5,7 @@
       <DashboardAside v-if="showSideNav" class="w-full md:hidden" @close="showSideNav = false" />
     </transition>
     <DashboardAside
-      class="w-[280px] max-md:hidden md:z-30 md:transition-all md:duration-300 md:delay-50"
+      class="w-[280px] max-md:hidden md:z-30 md:transition-[width] md:duration-200 md:ease-out"
       :class="[isSideNavCollapsedOnDesktop ? 'md:w-[96px]' : 'md:w-[280px]']"
       :is-collapsed-on-desktop="isSideNavCollapsedOnDesktop"
       @close="isSideNavCollapsedOnDesktop = !isSideNavCollapsedOnDesktop"
@@ -13,7 +13,7 @@
     <main
       id="main"
       tabindex="-1"
-      class="outline-none pt-[68px] flex-1 transition-all duration-300 flex flex-col justify-between md:pt-[76px] md:ml-[96px] md:max-w-[calc(100vw-96px)]"
+      class="outline-none pt-[68px] flex-1 transition-[margin,max-width] duration-200 ease-out flex flex-col justify-between md:pt-[76px] md:ml-[96px] md:max-w-[calc(100vw-96px)]"
       :class="[isSideNavCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:max-w-[calc(100vw-280px)]']"
     >
       <slot />

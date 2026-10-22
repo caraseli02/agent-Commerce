@@ -3,7 +3,7 @@
     <UiSheetContent
       side="bottom"
       hidde-close-button
-      overlay-class-name="z-[70] bg-[#333333]/70 backdrop-blur-[2px]"
+      overlay-class-name="z-[70] bg-[#333333]/70"
       class="z-[70] flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden rounded-t-[15px] border-none p-0 shadow-xs sm:max-w-none [&>button.fixed]:hidden"
     >
       <div v-touch:drag="onDrag" class="flex items-center justify-between px-5 py-5">

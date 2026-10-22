@@ -9,7 +9,7 @@ export const buttonVariants = cva(
       variant: {
         default: 'bg-blue-700 text-white hover:bg-blue-800 dark:bg-muted dark:text-foreground dark:hover:bg-muted/90',
         cart: 'bg-blue-700 text-white hover:bg-blue-800 dark:!bg-primary dark:!text-primary-foreground dark:hover:!bg-primary/90',
-        // The project's green-800 (#007452) keeps white text above 4.5:1 in both themes; green-700 does not.
+        // The project's green-800 (#005a40) keeps white text above 8:1 in both themes.
         success: 'bg-green-800 text-white hover:bg-green-900',
         destructive: 'bg-red-600 text-slate-50 hover:bg-red-700 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90',
         outline:

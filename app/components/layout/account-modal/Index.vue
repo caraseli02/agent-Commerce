@@ -3,7 +3,7 @@
     <UiSheetContent
       side="right"
       hidde-close-button
-      overlay-class-name="z-[60] bg-[rgba(47,50,65,0.10)] backdrop-blur-[7.5px]"
+      overlay-class-name="z-[60]"
       class="z-[60] flex h-full w-full max-w-none flex-col gap-0 overflow-y-auto border-none p-0 shadow-none scrollbar-thin md:w-[440px] sm:max-w-none min-h-[100dvh]"
       @open-auto-focus="handleOpenAutoFocus"
     >
