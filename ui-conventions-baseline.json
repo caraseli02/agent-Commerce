@@ -35,21 +35,6 @@
   "app/components/order-confirm/BuyerConfirmation.vue": {
     "textarea": 1
   },
-  "app/components/order-summary/NewCard.vue": {
-    "button": 1
-  },
-  "app/components/order-summary/OrderStockType.vue": {
-    "button": 3
-  },
-  "app/components/order-summary/PayByCard.vue": {
-    "button": 1
-  },
-  "app/components/order-summary/PaymentMethodSection.vue": {
-    "button": 5
-  },
-  "app/components/order-summary/ShippingPreferencesSection.vue": {
-    "button": 2
-  },
   "app/components/signup/BusinessDetails.vue": {
     "button": 2,
     "label": 1

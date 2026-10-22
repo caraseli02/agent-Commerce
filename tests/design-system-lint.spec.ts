@@ -62,8 +62,10 @@ describe('design-system lint (@shadcn/lint)', () => {
     );
 
     const text = findings.map((finding) => finding.message).join('\n');
-    expect(text).toContain('Use a size (default, xs, sm, lg, icon)');
-    expect(text).toContain('Use a variant: default, cart, success, destructive, outline, secondary, ghost, link');
+    expect(text).toContain('Use a size (default, xs, sm, lg, icon, card, card-compact, row, flush)');
+    expect(text).toContain(
+      'Use a variant: default, cart, success, destructive, outline, secondary, ghost, link, option, option-selected, option-dashed, option-dashed-selected, bare',
+    );
   });
 
   it('applies the documented contracts for skeletons and overlay panels', async () => {

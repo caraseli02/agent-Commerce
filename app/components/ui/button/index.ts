@@ -17,6 +17,13 @@ export const buttonVariants = cva(
         secondary: 'bg-secondary text-foreground hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80',
         ghost: 'hover:bg-accent dark:hover:bg-slate-800 dark:hover:text-slate-50',
         link: 'text-foreground underline-offset-4 hover:text-blue-500 dark:text-slate-50 font-light',
+        // Selectable option cards (checkout payment methods, saved cards): bordered, blue border and tint when chosen.
+        option: 'rounded-lg border border-border bg-card hover:border-blue-500 hover:bg-blue-500/5 dark:bg-slate-950',
+        'option-selected': 'rounded-lg border border-blue-500 bg-blue-500/5 dark:bg-blue-500/10',
+        'option-dashed': 'rounded-lg border border-dashed border-border bg-card hover:border-blue-500 dark:bg-slate-950',
+        'option-dashed-selected': 'rounded-lg border border-dashed border-blue-500 bg-card dark:bg-slate-950',
+        // Unframed row whose content supplies its own hover cue (accordion headers, radio rows).
+        bare: 'bg-transparent',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -24,6 +31,10 @@ export const buttonVariants = cva(
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
         icon: 'h-9 w-9',
+        card: 'h-auto p-3',
+        'card-compact': 'h-auto px-3 py-2',
+        row: 'h-auto px-0 py-2',
+        flush: 'h-auto p-0',
       },
     },
     defaultVariants: {

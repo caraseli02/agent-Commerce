@@ -29,7 +29,7 @@
       <div class="gap-2 flex flex-col w-full">
         <div class="h-[1px] rounded-lg bg-neutral-100 block" />
         <div class="flex flex-col">
-          <button class="flex flex-row justify-between py-2 group header-transition" @click="expandShippingAndBilling">
+          <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandShippingAndBilling">
             <span
               class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
               :class="shippingAndBillingExpanded ? 'text-blue-500' : 'text-foreground'"
@@ -51,7 +51,7 @@
                 :class="[shippingAndBillingExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
               />
             </div>
-          </button>
+          </UiButton>
           <Transition name="expand">
             <OrderSummaryShippingAndBillingSection
               v-if="shippingAndBillingExpanded"
@@ -63,7 +63,7 @@
         </div>
         <div class="h-[1px] rounded-lg bg-neutral-100 block" />
         <div class="flex flex-col">
-          <button class="flex flex-row justify-between py-2 group" @click="expandShippingPreferences">
+          <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandShippingPreferences">
             <span
               class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
               :class="shippingPreferencesExpanded ? 'text-blue-500' : 'text-foreground'"
@@ -85,7 +85,7 @@
                 :class="[shippingPreferencesExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
               />
             </div>
-          </button>
+          </UiButton>
           <Transition name="expand">
             <OrderSummaryShippingPreferencesSection
               v-if="shippingPreferencesExpanded"
@@ -98,7 +98,7 @@
           </Transition>
         </div>
         <div class="h-[1px] rounded-lg bg-neutral-100 block" />
-        <button class="flex flex-row justify-between py-2 group" @click="expandPaymentMethod">
+        <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandPaymentMethod">
           <span
             class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
             :class="paymentMethodExpanded ? 'text-blue-500' : 'text-foreground'"
@@ -120,7 +120,7 @@
               :class="[paymentMethodExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
             />
           </div>
-        </button>
+        </UiButton>
         <Transition name="expand">
           <OrderSummaryPaymentMethodSection
             v-if="paymentMethodExpanded"
@@ -342,11 +342,5 @@ const { showCardsModal } = storeToRefs(paymentStore);
 
 .item {
   transform-origin: top;
-}
-
-.header-transition {
-  transition-property: box-shadow, border-radius, opacity;
-  transition-timing-function: cubic-bezier(0, 0.3, 0.6, 1);
-  transition-duration: 150ms;
 }
 </style>
