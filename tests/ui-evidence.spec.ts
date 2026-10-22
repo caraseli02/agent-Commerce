@@ -116,6 +116,26 @@ describe('UI screenshot evidence', () => {
     expect(uiDiff({ cwd: r.cwd }).fingerprint).not.toBe(binaryEdit);
   });
 
+  it('changes the fingerprint when the same edit moves to another copy of a repeated line', () => {
+    const r = repository();
+    const page = (header: string, product: string) =>
+      `<header>\n  <span>${header}</span>\n</header>\n<article>\n  <span>${product}</span>\n</article>\n`;
+    r.write('app/components/Buy.vue', page('Buy', 'Buy'));
+    const base = r.commit('two identical controls');
+    r.git('update-ref', 'refs/remotes/origin/main', base);
+
+    r.git('checkout', '-qb', 'topic');
+    r.write('app/components/Buy.vue', page('Add to cart', 'Buy'));
+    r.commit('PR edits the header control');
+    const header = uiDiff({ cwd: r.cwd }).fingerprint;
+
+    r.write('app/components/Buy.vue', page('Buy', 'Add to cart'));
+    r.commit('PR moves the edit to the product control');
+    const product = uiDiff({ cwd: r.cwd }).fingerprint;
+    expect(product).not.toBe(header);
+    expect(assessPrTemplate({ body: captured(header), ui: { fingerprint: product } }).violations.join(' ')).toContain('stale');
+  });
+
   it('requires a current before/after section, or a reason, when UI files changed', () => {
     const ui = { fingerprint };
     expect(assessPrTemplate({ body: template, ui: { fingerprint: null } }).status).toBe('passed');

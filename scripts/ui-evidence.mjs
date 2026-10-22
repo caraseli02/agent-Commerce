@@ -34,7 +34,8 @@ function gitIn(cwd) {
 /**
  * The PR's own UI change: files under uiPath() between the merge base with main and `head`,
  * plus a fingerprint of that change. The fingerprint hashes only the lines the PR removes and
- * adds (zero context, no blob IDs, no hunk positions), and the head blob of binary files. A
+ * adds, each with which copy of its text it is (zero context, no blob IDs, no hunk positions),
+ * and the head blob of binary files. A
  * conflict-free merge of main, even one that edits other lines of the same file, keeps it; any
  * edit to the PR's own UI lines changes it, so screenshots go stale exactly then.
  */
@@ -54,9 +55,46 @@ export function uiDiff({ cwd = process.cwd(), head = 'HEAD', remote = 'origin' }
       encoding: 'buffer',
     },
   );
+  // A changed line is identified by its text plus which copy of that text it is in its file, so
+  // moving an edit between two identical lines changes the fingerprint while main's edits that
+  // only shift line numbers do not. A new identical line above the PR's edit makes it stale.
+  const lines = (rev, file) => {
+    try {
+      return git(['show', `${rev}:${file}`], { encoding: 'buffer' })
+        .toString('latin1')
+        .split('\n');
+    } catch {
+      return []; // added or deleted in the PR
+    }
+  };
+  const copy = (content, number) => {
+    const text = content[number - 1];
+    return content.slice(0, number - 1).filter((line) => line === text).length;
+  };
+  let file;
+  let before = [];
+  let after = [];
+  let removed = 0;
+  let added = 0;
   for (const line of patch.toString('latin1').split('\n')) {
+    if (line.startsWith('diff --git ')) {
+      file = files.find((path) => line.endsWith(` b/${path}`));
+      before = file ? lines(base, file) : [];
+      after = file ? lines(headSha, file) : [];
+      removed = added = 0;
+    }
     if (line.startsWith('index ')) continue; // whole-file blob IDs change when main edits other lines
-    hash.update(`${line.startsWith('@@') ? '@@' : line}\n`); // hunk positions shift with main's edits
+    const hunk = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(line);
+    if (hunk) {
+      [removed, added] = [Number(hunk[1]), Number(hunk[2])];
+      hash.update('@@\n'); // hunk positions shift with main's edits
+    } else if (removed && line.startsWith('-')) {
+      hash.update(`${copy(before, removed++)}${line}\n`);
+    } else if (added && line.startsWith('+')) {
+      hash.update(`${copy(after, added++)}${line}\n`);
+    } else {
+      hash.update(`${line}\n`);
+    }
   }
   // Text diffs say only "Binary files differ"; the head blob pins the binary content itself.
   const binaries = git(['diff', '--no-renames', '--numstat', '-z', base, headSha, '--', ...files])
