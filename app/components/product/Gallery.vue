@@ -21,7 +21,7 @@
         :alt="`${props.product.name || props.product.alias || 'Product'} image`"
         class-name="h-full w-full cursor-pointer object-contain"
         priority
-        sizes="(min-width: 1280px) 540px, (min-width: 768px) 50vw, 100vw"
+        sizes="xs:100vw md:50vw xl:540px"
         :width="600"
         :height="480"
       />
