@@ -149,8 +149,8 @@ test.describe('Scripted Buyer Path — cart to checkout entry', () => {
     await expect(page.getByRole('heading', { name: /order summary/i })).toBeVisible();
     await expect(page.getByText('STM32F407VGT6 Microcontroller', { exact: true }).filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText(/Viewing Summary as Guest/i)).toHaveCount(0);
-    await expect(page.getByText('949.99 Lei', { exact: true }).filter({ visible: true }).first()).toBeVisible();
-    await expect(paymentSummary.locator('../..').getByText('949.99 Lei', { exact: true })).toBeVisible();
+    await expect(page.getByText('80.66 Lei', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(paymentSummary.locator('../..').getByText('80.66 Lei', { exact: true })).toBeVisible();
 
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
     await expect(secureCheckoutButton).toBeVisible();

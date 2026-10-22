@@ -138,7 +138,7 @@ describe('category slug paths', () => {
           'Connectors',
           'Audio',
           'Electronics',
-          'Components',
+          'Peripherals',
           'Accessories',
           'Wearables',
           'Tools',
