@@ -1,9 +1,9 @@
 <template>
   <header
-    class="fixed z-30 top-0 left-0 w-full bg-card shadow-xs md:transition-all md:duration-300 md:delay-50 md:ml-[96px] md:w-[calc(100%-96px)]"
-    :class="[isCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:w-[calc(100%-280px)]']"
+    class="fixed z-30 top-0 left-0 w-full bg-card shadow-xs md:transition-[margin,width] md:duration-200"
+    :class="[isCollapsedOnDesktop ? 'md:ml-[96px] md:w-[calc(100%-96px)]' : 'md:ml-[280px] md:w-[calc(100%-280px)]']"
   >
-    <div class="max-w-full mx-auto flex items-center justify-between px-4 py-3 transition-all duration-300 md:py-4 2xl:px-6">
+    <div class="max-w-full mx-auto flex items-center justify-between px-4 py-3 md:py-4 2xl:px-6">
       <UiButton
         variant="ghost"
         size="icon"
@@ -57,7 +57,7 @@
                 <div class="relative flex items-center justify-between py-4 px-3 shadow-s">
                   <UiButton
                     variant="ghost"
-                    class="flex h-auto p-0 items-center text-muted-foreground transition-colors duration-300 hover:text-blue-500 md:hidden"
+                    class="flex h-auto p-0 items-center text-muted-foreground transition-colors duration-200 hover:text-primary md:hidden"
                     @click="showNotifications = false"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2">
@@ -88,7 +88,7 @@
                   <UiButton
                     variant="ghost"
                     size="icon"
-                    class="flex h-auto w-auto text-muted-foreground transition-colors duration-300 hover:text-blue-500"
+                    class="flex h-auto w-auto text-muted-foreground transition-colors duration-200 hover:text-primary"
                     aria-label="Notification settings"
                   >
                     <SettingsIcon class="w-6 h-6" />
@@ -100,7 +100,7 @@
                     :key="index"
                     :to="`${route.path}`"
                     event=""
-                    class="flex flex-col w-full bg-card pt-2 pb-1 px-3 border-b border-border last:border-b-0 transition-colors duration-300 hover:bg-muted"
+                    class="flex flex-col w-full bg-card pt-2 pb-1 px-3 border-b border-border last:border-b-0 transition-colors duration-200 hover:bg-muted"
                     @click.prevent="markNotificationAsRead(notification, index)"
                   >
                     <div class="flex items-center justify-between w-full mb-2">
@@ -111,17 +111,17 @@
                             notification.title === 'Others'
                               ? 'text-muted-foreground'
                               : notification.title === 'Password change' || notification.title === 'Reset password'
-                                ? 'text-blue-500'
+                                ? 'text-primary'
                                 : notification.title === 'Removed'
-                                  ? 'text-rose-500'
+                                  ? 'text-rose-700 dark:text-rose-400'
                                   : notification.title === 'Completed'
-                                    ? 'text-[#00D395]'
+                                    ? 'text-green-800 dark:text-green-400'
                                     : notification.title === 'Pending'
-                                      ? 'text-[#FFB100]'
-                                      : 'text-[#A460BC]',
+                                      ? 'text-amber-700 dark:text-amber-400'
+                                      : 'text-purple-700 dark:text-purple-400',
                           ]"
                         />
-                        <span v-if="!notification.seen" class="flex w-2 h-2 flex-shrink-0 bg-blue-500 rounded-full mr-2" />
+                        <span v-if="!notification.seen" class="flex w-2 h-2 flex-shrink-0 bg-primary rounded-full mr-2" />
                         <span class="capitalize text-sm leading-[1.43] font-medium">
                           {{ notification.title }}
                         </span>
@@ -133,7 +133,7 @@
                         <UiButton
                           variant="ghost"
                           size="icon"
-                          class="flex h-auto w-auto text-muted-foreground transition-colors duration-300 hover:text-blue-500"
+                          class="flex h-auto w-auto text-muted-foreground transition-colors duration-200 hover:text-primary"
                           aria-label="Delete notification"
                           @click.stop.prevent="deleteNotification(notification, index)"
                         >
@@ -165,7 +165,7 @@
                   </NuxtLink>
                 </div>
                 <div class="flex justify-center py-4 shadow-s relative z-10">
-                  <NuxtLink to="/" class="flex items-center text-blue-500">
+                  <NuxtLink to="/" class="flex items-center text-primary">
                     <span class="text-sm leading-[1.43] font-medium mr-2"> View all </span>
                     <svg
                       width="16"
@@ -205,7 +205,7 @@
             >
               <div class="relative lg:mr-4">
                 <img :src="DashboardAvatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover" loading="lazy" />
-                <div class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-[#00D395] border-4 border-white" />
+                <div class="absolute -bottom-1 -right-1 box-content w-2.5 h-2.5 rounded-full bg-green-600 border-4 border-white" />
               </div>
               <div class="flex flex-col max-lg:hidden">
                 <div class="leading-normal font-medium">
@@ -224,7 +224,7 @@
               >
                 <UiButton
                   variant="ghost"
-                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 hover:text-primary"
                   @click="showOptions = false"
                 >
                   <ProfileIcon class="w-6 h-6 mr-3 text-current" />
@@ -232,7 +232,7 @@
                 </UiButton>
                 <UiButton
                   variant="ghost"
-                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 hover:text-primary"
                   @click="showOptions = false"
                 >
                   <SettingsIcon class="w-6 h-6 mr-3 text-current" />
@@ -240,7 +240,7 @@
                 </UiButton>
                 <UiButton
                   variant="ghost"
-                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
+                  class="flex h-auto justify-start items-center w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 hover:text-primary"
                   @click="
                     showOptions = false;
                     handleSignOut();

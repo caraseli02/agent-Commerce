@@ -101,7 +101,7 @@ const data = [
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-accent rounded-full opacity-100 m-0 transition-all duration-300 md:w-1.5 md:h-1.5!;
+  @apply w-1.5 h-1.5 bg-accent rounded-full opacity-100 m-0 transition-[width,height] duration-200 md:w-1.5 md:h-1.5!;
   margin-right: 0 !important;
 }
 

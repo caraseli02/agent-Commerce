@@ -37,7 +37,7 @@
               {{ selectedOption.label }}
             </span>
             <ChevronIcon
-              class="w-5 h-5 text-muted-foreground transition-transform duration-300"
+              class="w-5 h-5 text-muted-foreground transition-transform duration-200"
               :class="[showOptions ? 'rotate-180' : '']"
             />
           </UiButton>
@@ -68,8 +68,8 @@
           v-for="(option, index) in options"
           :key="index"
           variant="ghost"
-          class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500"
-          :class="selectedOption.label === option.label ? 'bg-muted text-blue-500' : ''"
+          class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 hover:text-primary"
+          :class="selectedOption.label === option.label ? 'bg-muted text-primary' : ''"
           @click="
             showOptions = false;
             selectedOption = option;

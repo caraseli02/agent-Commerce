@@ -1,10 +1,10 @@
 <template>
-  <div class="w-[1488px] max-w-full p-4 mx-auto transition-all duration-300 md:py-6 2xl:px-6">
-    <DashboardBreadcrumbs title="Customers" class="max-sm:hidden">
+  <div class="w-[1488px] max-w-full p-4 mx-auto md:py-6 2xl:px-6">
+    <DashboardBreadcrumbs title="Customers">
       <UiButton
         variant="secondary"
         disabled
-        class="flex h-auto items-center rounded-lg text-base px-6 py-3 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
+        class="flex h-auto items-center rounded-lg text-base px-6 py-3 max-sm:hidden disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span class="leading-normal text-muted-foreground font-medium mr-2"> Download </span>
         <DownloadIcon class="w-6 h-6 text-muted-foreground" />
@@ -25,9 +25,7 @@
 <script setup lang="ts">
 import DownloadIcon from '@/assets/icons/dashboard/download.svg';
 
-useHead({
-  title: 'Customers Profile',
-});
+usePageSeo({ title: 'Customers', robots: 'noindex,nofollow' });
 
 definePageMeta({
   middleware: 'auth',

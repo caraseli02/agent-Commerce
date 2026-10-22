@@ -36,7 +36,7 @@ const { countries, country, region, regions, showErrorMsg, onCloseDialog, onSubm
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger as-child>
       <UiButton size="icon" class="rounded-full" variant="ghost">
-        <PlusCircleIcon class="aspect-square w-10 h-10 stroke-1 text-blue-500" />
+        <PlusCircleIcon class="aspect-square w-10 h-10 stroke-1 text-primary" />
       </UiButton>
     </UiDialogTrigger>
     <UiDialogContent ref="dialog" class="max-w-[350px] sm:max-w-[640px] rounded-xl">

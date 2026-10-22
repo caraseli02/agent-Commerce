@@ -6,7 +6,7 @@
       <div class="flex items-start justify-between">
         <h2 class="text-xl leading-[1.4] font-semibold">Customer Credit</h2>
         <button
-          class="flex items-center justify-center rounded-lg w-8 h-8 text-muted-foreground transition-colors duration-300 hover:text-blue-500 disabled:pointer-events-none"
+          class="flex items-center justify-center rounded-lg w-8 h-8 text-muted-foreground transition-colors duration-200 hover:text-primary disabled:pointer-events-none"
           :disabled="loading || error"
           @click="$emit('toggle-editing')"
         >
@@ -65,7 +65,7 @@
       </div>
       <button
         v-if="chartSeries[0] === 0"
-        class="flex items-center justify-center w-full bg-blue-500 rounded-lg px-5 py-2 text-white h-11 md:order-3"
+        class="flex items-center justify-center w-full bg-primary rounded-lg px-5 py-2 text-white h-11 md:order-3"
         @click="$emit('toggle-editing')"
       >
         Credit Account

@@ -50,8 +50,8 @@ const selectedBank = computed(() => banks.find((bank) => bank.value === value.va
               v-for="bank in banks"
               :key="bank.value"
               :value="bank.value"
-              class="justify-between text-foreground hover:text-blue-500 w-full hover:bg-accent"
-              :class="{ 'text-blue-500 bg-accent': bank.value === selectedBank?.value }"
+              class="justify-between text-foreground hover:text-primary w-full hover:bg-accent"
+              :class="{ 'text-primary bg-accent': bank.value === selectedBank?.value }"
               @select="handleSelect"
             >
               {{ bank.label }}

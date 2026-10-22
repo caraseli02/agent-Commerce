@@ -4,8 +4,8 @@
       <div class="flex items-center">
         <div class="mr-4">
           <EmojiSadIcon v-if="emptyData || error.lastOrder" class="w-[52px] h-[52px]" />
-          <div v-else class="flex items-center justify-center w-14 h-14 bg-blue-500/25 rounded-full">
-            <div class="flex items-center justify-center w-10 h-10 bg-blue-500 rounded-full">
+          <div v-else class="flex items-center justify-center w-14 h-14 bg-primary/25 rounded-full">
+            <div class="flex items-center justify-center w-10 h-10 bg-primary rounded-full">
               <LastOrderIcon class="w-6 h-6 text-white" />
             </div>
           </div>
@@ -16,8 +16,8 @@
           <div v-else-if="emptyData || error.lastOrder || !lastOrder" class="text-sm font-medium leading-[1.714] text-muted-foreground">
             No data available
           </div>
-          <div v-else-if="!emptyData && !error.lastOrder" class="text-xl font-semibold text-blue-500 leading-[1.2]">
-            {{ `#${lastOrder?.shortId}` || '-' }}
+          <div v-else-if="!emptyData && !error.lastOrder" class="text-xl font-semibold text-primary leading-[1.2]">
+            {{ lastOrder?.shortId ? formatOrderRef(lastOrder.shortId) : '-' }}
           </div>
         </div>
       </div>

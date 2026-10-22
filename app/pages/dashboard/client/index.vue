@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <section class="flex flex-col justify-center mb-16">
-      <div class="max-w-full p-4 mx-auto transition-all duration-300 !pb-0 md:py-6 lg:px-6 xl:p-0 xl:pt-8">
+      <div class="max-w-full p-4 mx-auto !pb-0 md:py-6 lg:px-6 xl:p-0 xl:pt-8">
         <div class="grid w-full max-w-[calc(100vw-2rem)] grid-cols-1 gap-4 md:gap-6 md:max-w-[736px] lg:max-w-[976px] xl:max-w-[1392px]">
           <section class="flex justify-between gap-6 flex-wrap xl:flex-nowrap">
             <DashboardClientActiveOrders :items="ordersIds" />

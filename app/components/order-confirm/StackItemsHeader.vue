@@ -94,12 +94,12 @@ const showTrackingDialog = ref(false);
           </section>
         </UiPopoverTrigger>
         <UiPopoverContent v-if="isAdmin" class="w-fit flex flex-col gap-2 p-2" align="end">
-          <UiButton v-if="!awb" class="hover:text-blue-500 justify-start gap-1" variant="ghost" size="sm" @click="generateAWB">
+          <UiButton v-if="!awb" class="hover:text-primary justify-start gap-1" variant="ghost" size="sm" @click="generateAWB">
             <BarcodeIcon class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" />
             Generate AWB
             <span class="flex shrink-0 self-stretch my-auto w-3 h-3 bg-amber-500 rounded-full fill-amber-500" aria-hidden="true" />
           </UiButton>
-          <UiButton v-if="awb" disabled class="hover:text-blue-500 justify-start gap-1" variant="ghost" size="sm">
+          <UiButton v-if="awb" disabled class="hover:text-primary justify-start gap-1" variant="ghost" size="sm">
             <BarcodeIcon class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" />
             Generate AWB
             <span class="flex shrink-0 self-stretch my-auto w-3 h-3 bg-emerald-500 rounded-full fill-emerald-500" aria-hidden="true" />
@@ -162,12 +162,12 @@ const showTrackingDialog = ref(false);
           </section>
         </UiPopoverTrigger>
         <UiPopoverContent class="w-fit flex flex-col gap-2 p-2" align="end">
-          <UiButton v-if="!awb" class="hover:text-blue-500 justify-start gap-1" variant="ghost" size="sm" @click="generateAWB">
+          <UiButton v-if="!awb" class="hover:text-primary justify-start gap-1" variant="ghost" size="sm" @click="generateAWB">
             <BarcodeIcon class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" />
             Generate AWB
             <span class="flex shrink-0 self-stretch my-auto w-3 h-3 bg-amber-500 rounded-full fill-amber-500" aria-hidden="true" />
           </UiButton>
-          <UiButton v-if="awb" disabled class="hover:text-blue-500 justify-start gap-1" variant="ghost" size="sm">
+          <UiButton v-if="awb" disabled class="hover:text-primary justify-start gap-1" variant="ghost" size="sm">
             <BarcodeIcon class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" />
             Generate AWB
             <span class="flex shrink-0 self-stretch my-auto w-3 h-3 bg-emerald-500 rounded-full fill-emerald-500" aria-hidden="true" />
@@ -215,7 +215,7 @@ const showTrackingDialog = ref(false);
                 <div class="flex gap-10 justify-between items-start mt-2 w-full whitespace-nowrap">
                   <dt class="text-muted-foreground">Reference</dt>
                   <dd class="text-foreground">
-                    {{ order.shortId }}
+                    {{ formatOrderRef(order.shortId) }}
                   </dd>
                 </div>
               </dl>

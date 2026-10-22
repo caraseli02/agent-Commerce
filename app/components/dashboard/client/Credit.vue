@@ -8,7 +8,7 @@
         </div>
         <div class="text-muted-foreground text-xs leading-4 mt-1">Available Credit</div>
       </div>
-      <button class="text-slate-300 hover:text-blue-500">
+      <button class="text-slate-300 hover:text-primary">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             fill-rule="evenodd"
@@ -32,7 +32,7 @@
         <label for="balance" class="text-muted-foreground leading-5 grow">Balance:</label>
         <div class="text-foreground font-semibold leading-5 grow">{{ Number(balance).toFixed(2) }} Lei</div>
       </div>
-      <div class="flex items-center justify-between gap-2 text-muted-foreground hover:text-blue-500">
+      <div class="flex items-center justify-between gap-2 text-muted-foreground hover:text-primary">
         <SvgoCard16 />
         <button type="submit" class="text-sm font-medium leading-5 grow whitespace-nowrap">Pay now</button>
       </div>

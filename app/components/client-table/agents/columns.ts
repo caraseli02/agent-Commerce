@@ -63,8 +63,7 @@ export const columns: ColumnDef<CustomerTableColumns>[] = [
   {
     accessorKey: AgentsTableColumnsEnum.TOTAL,
     header: ({ column }) => renderColumnHeader(column, 'Total'),
-    cell: ({ row }) =>
-      h('div', { class: 'inline overflow-hidden' }, formatNumberWithCommas(row.getValue(AgentsTableColumnsEnum.TOTAL), 'Lei')),
+    cell: ({ row }) => h('div', { class: 'inline overflow-hidden' }, formatLei(row.getValue(AgentsTableColumnsEnum.TOTAL))),
   },
   {
     id: 'actions',

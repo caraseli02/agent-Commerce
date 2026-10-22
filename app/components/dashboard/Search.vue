@@ -1,7 +1,7 @@
 <template>
   <div class="rounded-lg focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1">
     <UiLabel
-      class="flex relative border border-border bg-card rounded-lg overflow-hidden font-normal transition-colors duration-300 focus-within:border-blue-500"
+      class="flex relative border border-border bg-card rounded-lg overflow-hidden font-normal transition-colors duration-200 focus-within:border-primary"
       :class="[size === 'lg' ? 'h-11' : size === 'md' ? 'h-10' : 'h-9']"
     >
       <UiInput
@@ -9,7 +9,7 @@
         type="search"
         :placeholder="placeholder"
         :aria-label="placeholder || 'Search'"
-        class="flex w-full rounded-none border-0 px-3 pr-10 text-sm bg-card leading-[1.6] text-muted-foreground placeholder:text-muted-foreground font-normal placeholder:font-normal transition-colors duration-300 focus:outline-none focus-visible:!outline-none focus:border-blue-500"
+        class="flex w-full rounded-none border-0 px-3 pr-10 text-sm bg-card leading-[1.6] text-muted-foreground placeholder:text-muted-foreground font-normal placeholder:font-normal transition-colors duration-200 focus:outline-none focus-visible:!outline-none focus:border-primary"
         :class="[size === 'lg' ? 'py-2.5 h-11' : size === 'md' ? 'py-1.5 h-10' : 'py-1.5 h-9']"
         @update:model-value="handleInput"
       />

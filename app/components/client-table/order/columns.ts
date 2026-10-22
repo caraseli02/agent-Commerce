@@ -12,7 +12,7 @@ import UserInfo from '~/components/dataTable/UserInfo.vue';
 import CellDate from '~/components/dataTable/CellDate.vue';
 import { renderColumnHeader } from '~/components/dataTable/renderColumnHeader';
 import { OrderTableColumnsEnum } from '~/components/client-table/order/columns.enum';
-import { orderTotal, orderUserInfo } from '~/components/client-table/order/cellValues';
+import { orderTotalLei, orderUserInfo } from '~/components/client-table/order/cellValues';
 import { downloadDocument } from '~/composables/api/documents';
 import { useAuthStore } from '~/store/authStore';
 
@@ -70,7 +70,7 @@ export const columns: ColumnDef<OrderTableColumns>[] = [
   {
     accessorKey: OrderTableColumnsEnum.TOTAL,
     header: ({ column }) => renderColumnHeader(column, 'Total'),
-    cell: ({ row }) => h('div', { class: 'inline overflow-hidden' }, orderTotal(row.getValue(OrderTableColumnsEnum.TOTAL), ' lei')),
+    cell: ({ row }) => h('div', { class: 'inline overflow-hidden' }, orderTotalLei(row.getValue(OrderTableColumnsEnum.TOTAL))),
   },
   {
     id: 'actions',

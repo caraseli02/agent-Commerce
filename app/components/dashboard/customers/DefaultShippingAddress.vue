@@ -10,7 +10,7 @@
           aria-label="Open shipping address menu"
           @click="showOptions = !showOptions"
         >
-          <DotsVerticalIcon class="w-6 h-6 text-[#9296AA] transition-colors duration-300 hover:text-blue-500" />
+          <DotsVerticalIcon class="w-6 h-6 text-[#9296AA] transition-colors duration-200 hover:text-primary" />
         </UiButton>
         <Transition name="fade-full">
           <div
@@ -21,7 +21,7 @@
             <UiButton
               variant="ghost"
               disabled
-              class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-inherit"
+              class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 hover:text-primary disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-inherit"
             >
               <EyeIcon class="w-6 h-6 mr-3 text-current" />
               <span class="text-sm leading-[1.71] font-medium"> View All </span>
@@ -29,7 +29,7 @@
             <UiButton
               variant="ghost"
               disabled
-              class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-300 hover:text-blue-500 disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-inherit"
+              class="flex h-auto justify-start w-full text-left px-3 py-2 rounded-lg transition-colors duration-200 hover:text-primary disabled:pointer-events-auto disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-inherit"
             >
               <EditIcon class="w-6 h-6 mr-3 text-current" />
               <span class="text-sm leading-[1.71] font-medium"> Edit </span>
@@ -44,7 +44,7 @@
       <div class="text-sm font-medium text-muted-foreground">No data available</div>
     </div>
     <div v-else class="flex items-start">
-      <BusinessIcon class="w-11 h-11 text-[#00D395] flex-shrink-0 mr-4" />
+      <BusinessIcon class="w-11 h-11 text-green-800 dark:text-green-400 flex-shrink-0 mr-4" />
       <SkeletonLoader v-if="isLoading" class="w-full h-16 md:h-11" />
       <div v-else>
         <div class="text-sm font-semibold mb-1">

@@ -23,9 +23,9 @@ defineProps<{
               v-for="item in items"
               :key="item.id"
               :to="`/order-summary/${item.id}`"
-              class="w-fit text-muted-foreground hover:text-blue-500 text-[12px] leading-5 font-medium flex justify-center items-center bg-muted px-[6px] rounded-3xl"
+              class="w-fit text-muted-foreground hover:text-primary text-[12px] leading-5 font-medium flex justify-center items-center bg-muted px-[6px] rounded-3xl"
             >
-              {{ item.shortId }}
+              {{ formatOrderRef(item.shortId) }}
             </NuxtLink>
           </div>
         </div>
