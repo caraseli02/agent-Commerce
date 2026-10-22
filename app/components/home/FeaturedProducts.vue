@@ -1,52 +1,27 @@
 <template>
-  <ProductBlocks
-    masonry-view
-    :rows-number="2"
-    class="mb-7 lg:mb-[38px] xl:mb-[58px]"
-    :filters="filters"
-    :fetched-products="productList ?? []"
-  >
+  <ProductBlocks tabs-in-header :rows-number="2" class="mt-12 md:mt-16" :filters="filters" :fetched-products="productList ?? []">
     <template #header>
-      <section class="mb-1 flex flex-col gap-1 px-2 md:flex-row md:items-end md:justify-between md:px-3">
-        <div>
-          <h2 class="text-xl font-semibold text-foreground md:text-2xl">Featured inventory</h2>
-          <p class="text-sm text-muted-foreground">Compare live catalog options before you commit to a shortlist.</p>
-        </div>
-      </section>
-    </template>
-    <template #banner>
-      <div class="order-1 h-[calc(100%-30px)] mx-2 md:pt-6 md:pr-0 md:mx-3 xl:order-2 xl:mx-0 xl:mr-3 xl:min-w-[330px]">
-        <div
-          class="flex h-full gap-4 rounded-xl border border-border bg-muted p-6 md:m-0 md:gap-6 xl:w-[330px] xl:flex-col xl:gap-6 xl:mb-[30px]"
-        >
-          <ImageWithFallback
-            :src="PromoItem"
-            alt="Electronic component kit"
-            class-name="h-[100px] w-[120px] object-contain md:h-auto md:w-[290px] md:max-h-[240px] xl:h-[180px] xl:w-full xl:shrink-0"
-          />
-          <div class="flex flex-1 flex-col justify-center gap-4 xl:items-start xl:justify-start">
-            <div>
-              <div class="text-sm font-semibold xl:text-xl">Better rates on in-stock lines</div>
-              <p class="mt-3 text-xs text-muted-foreground md:text-[13px] xl:text-base">
-                Qualifying quantities unlock better unit pricing on semiconductors, passives, and connectors — without leaving the catalog.
-              </p>
-            </div>
-            <NuxtLink
-              to="/search"
-              class="flex w-fit rounded-lg bg-primary px-3 py-1.5 text-[13px] font-medium text-primary-foreground md:px-6 md:py-[11px] md:text-sm xl:mt-auto"
-            >
-              Browse in-stock catalog
-            </NuxtLink>
-          </div>
-        </div>
+      <div class="min-w-0">
+        <h2 class="font-display text-2xl font-semibold leading-tight tracking-[-0.02em] text-foreground md:text-[28px]">
+          Featured inventory
+        </h2>
+        <p class="mt-1.5 max-w-[60ch] text-[15px] leading-6 text-muted-foreground md:text-base">
+          Stock and unit pricing at a glance.
+          <NuxtLink
+            to="/search"
+            class="ml-1 inline-flex items-center gap-1 whitespace-nowrap rounded-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            Browse the full catalog
+            <ArrowRight class="h-4 w-4" aria-hidden="true" />
+          </NuxtLink>
+        </p>
       </div>
     </template>
   </ProductBlocks>
 </template>
 
 <script setup lang="ts">
-import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
-import PromoItem from '@/assets/media/home/black-friday-item.png';
+import { ArrowRight } from '@lucide/vue';
 import { useProducts } from '~/composables/useProducts';
 
 const filters = ['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched'];

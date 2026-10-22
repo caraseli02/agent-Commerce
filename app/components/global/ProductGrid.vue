@@ -10,19 +10,11 @@
         clickable: true,
       } as any
     "
-    class="homeFeaturedProducts--swiper w-[100%] block"
+    :class="['homeFeaturedProducts--swiper block w-[100%]', { '-mx-1': flush }]"
   >
     <SwiperSlide v-for="(item, index) in productsByViewport" :key="index">
-      <div class="grid items-stretch gap-6" :class="[hasBanner ? 'mt-0 xl:mt-6 px-2 md:px-3' : 'mt-6 px-2', computedCols]">
-        <template v-if="Array.isArray(item)">
-          <ProductCard
-            v-for="(product, productIndex) in item"
-            :key="productIndex"
-            :product="product"
-            :class="[cardClass, { 'md:first:col-span-2': masonryView }]"
-          />
-        </template>
-        <ProductCard v-else :product="item" />
+      <div :class="['grid items-stretch', flush ? 'gap-4 p-1 md:gap-6' : 'mt-6 gap-6 px-2', computedCols]">
+        <ProductCard v-for="(product, productIndex) in item" :key="productIndex" :product="product" :class="cardClass" />
       </div>
     </SwiperSlide>
   </Swiper>
@@ -36,14 +28,13 @@ import type { ProductInterface } from '~~/types/product';
 const props = defineProps<{
   productsList: ProductInterface[];
   cardClass?: string;
-  masonryView?: boolean;
-  hasBanner?: boolean;
   orderSummaryView?: boolean;
   rowsNumber?: number;
+  /** Drop the inner gutters so cards line up with the container edge. */
+  flush?: boolean;
 }>();
 
 const computedCols = computed(() => {
-  if (props.hasBanner) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
   if (props.orderSummaryView) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
   return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4';
 });
@@ -69,20 +60,11 @@ onMounted(() => {
 
 const productsByViewport = computed(() => {
   const rowsNumber = props.rowsNumber ?? 1;
-  const breakpointsMasonryBanner = {
-    xs: props.productsList,
-    sm: createChunkedArray(3, props.productsList),
-    md: createChunkedArray(3, props.productsList),
-    lg: createChunkedArray(5, props.productsList),
-    xl: createChunkedArray(5, props.productsList),
-    '2xl': createChunkedArray(5, props.productsList),
-  };
-
-  const breakpointsMasonry = { ...breakpointsMasonryBanner, '2xl': createChunkedArray(7, props.productsList) };
-
+  // Single-column phones use the SSR fallback's ('lg') slide size, so a mobile
+  // visitor sees a short stacked list and the slides do not re-chunk on hydration.
   const breakpoints = {
-    xs: props.productsList,
-    sm: createChunkedArray(2 * rowsNumber, props.productsList),
+    xs: createChunkedArray(3 * rowsNumber, props.productsList),
+    sm: createChunkedArray(3 * rowsNumber, props.productsList),
     md: createChunkedArray(2 * rowsNumber, props.productsList),
     lg: createChunkedArray(3 * rowsNumber, props.productsList),
     xl: createChunkedArray(3 * rowsNumber, props.productsList),
@@ -94,12 +76,6 @@ const productsByViewport = computed(() => {
     '2xl': createChunkedArray(3, props.productsList),
   };
 
-  if (props.hasBanner && props.masonryView) {
-    return breakpointsMasonryBanner[renderedBreakpoint.value as keyof typeof breakpoints] || [];
-  }
-  if (props.masonryView) {
-    return breakpointsMasonry[renderedBreakpoint.value as keyof typeof breakpoints] || [];
-  }
   if (props.orderSummaryView) {
     return breakpointsOrderSummary[renderedBreakpoint.value as keyof typeof breakpoints] || [];
   }
@@ -110,7 +86,7 @@ const productsByViewport = computed(() => {
 <style>
 @reference "../../assets/css/main.css";
 .homeFeaturedProducts--swiper {
-  @apply px-0 pt-0 pb-8!;
+  @apply px-0 pt-0 pb-10!;
 }
 
 .homeFeaturedProducts--swiper .swiper-slide {
@@ -118,15 +94,19 @@ const productsByViewport = computed(() => {
 }
 
 .homeFeaturedProducts--swiper .swiper-pagination {
-  @apply bottom-0 space-x-1.5 md:space-x-2!;
+  @apply bottom-0 flex justify-center gap-1;
 }
 
+/* Each bullet is a 24px button (WCAG 2.5.8 target size) drawing a smaller visible dot. */
 .homeFeaturedProducts--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-accent rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2!;
-  margin-right: 0 !important;
+  @apply relative m-0! h-6 w-6 rounded-full bg-transparent opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
 }
 
-.homeFeaturedProducts--swiper .swiper-pagination-bullet.swiper-pagination-bullet-active {
-  @apply scale-125 bg-gray-300!;
+.homeFeaturedProducts--swiper .swiper-pagination-bullet::before {
+  @apply absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-input transition-colors duration-200 content-[''] motion-reduce:transition-none;
+}
+
+.homeFeaturedProducts--swiper .swiper-pagination-bullet-active::before {
+  @apply w-5 bg-primary;
 }
 </style>
