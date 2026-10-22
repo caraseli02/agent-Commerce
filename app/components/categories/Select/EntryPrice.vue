@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue';
-import { CaretSortIcon, CheckIcon } from '@radix-icons/vue';
+import { Check, ChevronsUpDown } from '@lucide/vue';
 import { storeToRefs } from 'pinia';
 import { cn } from '@/lib/utils';
 import { usePricingStore } from '~/store/pricingStore';
@@ -60,7 +60,7 @@ watchEffect(() => {
       <UiPopoverTrigger as-child>
         <UiButton variant="outline" role="combobox" :aria-expanded="open" class="w-full justify-between">
           {{ selectedLabel }}
-          <CaretSortIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </UiButton>
       </UiPopoverTrigger>
       <UiPopoverContent disabled-portal class="w-full p-0">
@@ -83,9 +83,7 @@ watchEffect(() => {
                       {{ val }}
                     </UiBadge>
                   </div>
-                  <CheckIcon
-                    :class="cn('ml-auto h-4 w-4', framework.value.some((val) => value.includes(val)) ? 'opacity-100' : 'opacity-0')"
-                  />
+                  <Check :class="cn('ml-auto h-4 w-4', framework.value.some((val) => value.includes(val)) ? 'opacity-100' : 'opacity-0')" />
                 </div>
               </UiCommandItem>
             </UiCommandGroup>

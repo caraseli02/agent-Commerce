@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CaretSortIcon } from '@radix-icons/vue';
+import { ChevronsUpDown } from '@lucide/vue';
 
 const banks = [
   { value: 'bcr_ron', label: 'BCR Bank', currency: 'RON' },
@@ -37,7 +37,7 @@ const selectedBank = computed(() => banks.find((bank) => bank.value === value.va
           <span>{{ selectedBank?.label }}</span>
           <span>{{ selectedBank?.currency }}</span>
         </p>
-        <CaretSortIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </UiButton>
     </UiPopoverTrigger>
     <UiPopoverContent class="min-w-[326px] p-0 border-border">
