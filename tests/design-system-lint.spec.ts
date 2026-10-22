@@ -62,9 +62,9 @@ describe('design-system lint (@shadcn/lint)', () => {
     );
 
     const text = findings.map((finding) => finding.message).join('\n');
-    expect(text).toContain('Use a size (default, xs, sm, lg, icon, card, card-compact, row, flush)');
+    expect(text).toContain('Use a size (default, xs, sm, lg, icon, card, card-compact, row, flush, addon)');
     expect(text).toContain(
-      'Use a variant: default, cart, success, destructive, outline, secondary, ghost, link, option, option-selected, option-dashed, option-dashed-selected, bare',
+      'Use a variant: default, cart, success, destructive, outline, secondary, ghost, link, option, option-selected, option-dashed, option-dashed-selected, bare, input-addon',
     );
   });
 
