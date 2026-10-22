@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[474px] max-w-[330px] items-stretch shadow-xs bg-card hidden lg:flex flex-col p-6 rounded-xl">
+  <div class="h-[474px] w-full min-w-0 items-stretch shadow-xs bg-card hidden lg:flex flex-col p-6 rounded-xl">
     <header class="text-foreground text-base font-semibold leading-6">Recently Bought</header>
     <section class="w-[282px] h-[312px] overflow-hidden flex flex-col gap-7 mt-8">
       <div v-for="item in data" :key="item._id" class="items-stretch flex justify-between gap-3">

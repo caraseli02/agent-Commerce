@@ -4,7 +4,7 @@
     :key="index"
     :aria-label="index === 0 ? 'Shipping' : 'Billing'"
     role="group"
-    class="items-stretch shadow-xs bg-card flex w-full lg:max-w-[476px] xl:max-w-md flex-col p-6 rounded-xl"
+    class="items-stretch shadow-xs bg-card flex w-full flex-col p-6 rounded-xl"
   >
     <section class="justify-between items-stretch flex gap-5">
       <div class="text-foreground text-sm font-medium leading-5">

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative items-stretch shadow-xs bg-card flex w-full lg:max-w-[476px] xl:max-w-md flex-col p-6 rounded-xl">
+  <div class="relative items-stretch shadow-xs bg-card flex w-full flex-col p-6 rounded-xl">
     <template v-if="card">
       <section class="justify-between items-stretch flex gap-5">
         <div class="text-foreground text-sm font-medium leading-5 capitalize">Card</div>

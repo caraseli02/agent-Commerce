@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-card rounded-xl p-4 shadow-xs md:p-6 w-full lg:w-[622px] xl:w-[684px] max-h-[592px] md:h-[474px]">
+  <div class="bg-card rounded-xl p-4 shadow-xs md:p-6 w-full max-h-[592px] md:h-[474px]">
     <div class="flex items-center justify-between mb-8">
       <div class="flex items-center justify-between">
         <div class="font-semibold md:leading-[1.2]">Account Information</div>

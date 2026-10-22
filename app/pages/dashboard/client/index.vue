@@ -24,17 +24,22 @@
           <LazyDashboardClientSettings v-if="activeOrderFilter.value === 'settings'" />
           <template v-if="activeOrderFilter.value === 'home'">
             <DashboardClientActivity :data="myActivityData" />
-            <div class="flex flex-wrap items-start gap-4 md:gap-6">
-              <DashboardClientInfo :id="myAccountInformation?._id ?? ''" :account-information="myAccountInformation" />
+            <!-- Row 1: account info, recent purchases, credit and support. Row 2: addresses and card. -->
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
+              <DashboardClientInfo
+                :id="myAccountInformation?._id ?? ''"
+                :account-information="myAccountInformation"
+                class="md:col-span-2 lg:col-span-1"
+              />
               <DashboardClientRecentlyBought :data="myRecentlyBougth" />
-              <div class="flex flex-col gap-4 md:gap-6">
+              <div class="flex flex-col gap-4 md:col-span-2 md:gap-6 lg:col-span-1">
                 <DashboardClientCredit
                   :available-credit="myAccountInformation.adminSettings?.customerCredit?.available || 0"
                   :balance="myAccountInformation.adminSettings?.customerCredit?.limit || 0"
                 />
                 <DashboardClientSupport />
               </div>
-              <DashboardClientRecentlyBoughtSlider />
+              <DashboardClientRecentlyBoughtSlider class="md:col-span-2" />
               <DashboardClientAddressCards v-if="myAddresses.length > 0" :addresses="myAddresses" />
               <DashboardClientPaymentCard :card="myCard" />
             </div>

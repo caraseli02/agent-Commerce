@@ -1,5 +1,5 @@
 <template>
-  <div class="items-stretch shadow-xs bg-card flex w-full lg:max-w-[476px] xl:max-w-[330px] flex-col p-6 rounded-xl">
+  <div class="items-stretch shadow-xs bg-card flex w-full flex-col p-6 rounded-xl">
     <header class="justify-between items-stretch flex gap-5">
       <div class="justify-center items-stretch flex flex-col whitespace-nowrap">
         <div class="text-foreground text-2xl font-semibold leading-7">
