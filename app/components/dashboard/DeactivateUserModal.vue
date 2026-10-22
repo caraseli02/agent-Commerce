@@ -43,14 +43,16 @@
         </UiButton>
         <UiButton
           v-if="user.active"
-          class="justify-center bg-rose-500 px-5 py-2 text-sm font-medium leading-[1.71] text-white hover:bg-rose-500"
+          variant="destructive"
+          class="justify-center px-5 py-2 text-sm font-medium leading-[1.71]"
           @click="deactivateAccountAsAdmin(user.firebaseId)"
         >
           Lock Account
         </UiButton>
         <UiButton
           v-else
-          class="justify-center bg-[#00D395] px-5 py-2 text-sm font-medium leading-[1.71] text-white hover:bg-[#00D395]"
+          variant="success"
+          class="justify-center px-5 py-2 text-sm font-medium leading-[1.71]"
           @click="activateAccountAsAdmin(user.firebaseId)"
         >
           Unlock Account

@@ -70,7 +70,7 @@ describe('storefront product card image fallback', () => {
     expect(getStaticAttrValue(fallbackImage, 'class-name')).toContain('w-full');
     expect(getStaticAttrValue(fallbackImage, 'class-name')).toContain('object-cover');
     expect(source).toContain('aspect-square');
-    expect(source).toContain('md:h-[160px]');
+    expect(source).toContain('md:aspect-[4/3]');
     expect(source).toContain('bg-card');
     expect(source).not.toContain('bg-slate-50');
     expect(source).toContain("!src.includes('not_valid_image')");
@@ -132,11 +132,12 @@ describe('storefront product card image fallback', () => {
 
     expect(getStaticAttrValue(rootCard, 'class')).toContain('grid-cols-[108px_minmax(0,1fr)]');
     expect(getStaticAttrValue(rootCard, 'class')).toContain('md:flex');
-    expect(getStaticAttrValue(rootCard, 'class')).toContain('md:min-h-[280px]');
+    expect(getStaticAttrValue(rootCard, 'class')).toContain('md:flex-col');
 
     expect(cartButton).toBeTruthy();
-    expect(getStaticAttrValue(cartButton!, 'class')).toContain('col-start-2');
-    expect(getStaticAttrValue(cartButton!, 'class')).toContain('md:absolute');
+    // A regular 44px button in the price row, not a tab pinned to the card corner.
+    expect(getStaticAttrValue(cartButton!, 'class')).toContain('h-11 w-11');
+    expect(getStaticAttrValue(cartButton!, 'class')).not.toContain('md:absolute');
     expect(getStaticAttrValue(cartButton!, 'type')).toBe('button');
 
     expect(actionsGroup).toBeUndefined();
@@ -163,7 +164,7 @@ describe('storefront product card image fallback', () => {
     expect(hasProp(imageLink!, 'to')).toBe(true);
     expect(hasProp(titleLink!, 'to')).toBe(true);
     expect(source).not.toContain('absolute inset-0');
-    expect(source).toContain('group-hover:scale-[1.02]');
+    expect(source).toContain('group-hover:scale-[1.03]');
     expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:underline');
     expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:text-blue-600');
   });

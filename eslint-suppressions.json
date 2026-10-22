@@ -106,7 +106,7 @@
   },
   "app/components/dashboard/DeactivateUserModal.vue": {
     "shadcn/no-restyle": {
-      "count": 33
+      "count": 27
     }
   },
   "app/components/dashboard/Header.vue": {
@@ -122,11 +122,6 @@
   "app/components/dashboard/Search.vue": {
     "shadcn/no-restyle": {
       "count": 27
-    }
-  },
-  "app/components/dashboard/client/ActiveOrders.vue": {
-    "shadcn/no-restyle": {
-      "count": 1
     }
   },
   "app/components/dashboard/client/Activity.vue": {
@@ -254,11 +249,6 @@
       "count": 26
     }
   },
-  "app/components/dataTable/HeadControls.vue": {
-    "shadcn/no-restyle": {
-      "count": 3
-    }
-  },
   "app/components/dataTable/IdCell.vue": {
     "shadcn/no-restyle": {
       "count": 4
@@ -281,7 +271,7 @@
   },
   "app/components/dataTable/ViewOptions.vue": {
     "shadcn/no-restyle": {
-      "count": 4
+      "count": 1
     }
   },
   "app/components/dataTable/filter/Date.vue": {
@@ -336,7 +326,7 @@
   },
   "app/components/global/ProductCard.vue": {
     "shadcn/no-restyle": {
-      "count": 7
+      "count": 1
     }
   },
   "app/components/global/ProductTabs.vue": {
@@ -350,11 +340,6 @@
     }
   },
   "app/components/global/QuickBuy/QuickBuy.vue": {
-    "shadcn/no-restyle": {
-      "count": 6
-    }
-  },
-  "app/components/home/Hero.vue": {
     "shadcn/no-restyle": {
       "count": 6
     }
