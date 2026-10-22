@@ -16,20 +16,22 @@
               >Unit Price</span
             >
             <div v-if="stockItem && lineMoney.discountPercent" class="flex lg:hidden">
-              <div class="px-2 border-[1px] rounded-[25px] border-rose-500 bg-card ml-4 flex items-center lg:hidden">
-                <span class="text-xs font-semibold leading-5 text-rose-500">{{ lineMoney.discountPercent }} %</span>
+              <div class="px-2 border-[1px] rounded-[25px] border-rose-700 dark:border-rose-400 bg-card ml-4 flex items-center lg:hidden">
+                <span class="text-xs font-semibold leading-5 text-rose-700 dark:text-rose-400">{{ lineMoney.discountPercent }} %</span>
               </div>
             </div>
             <div v-if="lineMoney.discountPercent" class="flex flex-col text-center h-[36px] justify-center">
-              <span v-if="hasDiscount" class="line-through text-foreground text-sm font-normal leading-5"
-                >{{ lineMoney.listUnitPrice.toFixed(2) }} Lei</span
-              >
-              <span class="text-sm font-normal leading-5" :class="hasDiscount ? 'text-rose-500' : ''"
-                >{{ lineMoney.unitPrice.toFixed(2) }} Lei</span
+              <span v-if="hasDiscount" class="whitespace-nowrap line-through text-foreground text-sm font-normal leading-5">{{
+                formatLei(lineMoney.listUnitPrice)
+              }}</span>
+              <span
+                class="whitespace-nowrap text-sm font-normal leading-5"
+                :class="hasDiscount ? 'text-rose-700 dark:text-rose-400' : ''"
+                >{{ formatLei(lineMoney.unitPrice) }}</span
               >
             </div>
             <div v-else class="flex flex-col text-center h-[36px] justify-center">
-              <span class="text-foreground text-sm font-normal leading-5">{{ lineMoney.unitPrice.toFixed(2) }} Lei</span>
+              <span class="whitespace-nowrap text-foreground text-sm font-normal leading-5">{{ formatLei(lineMoney.unitPrice) }}</span>
             </div>
           </div>
           <div class="flex flex-row justify-between items-center xl:flex-col xl:gap-4">
@@ -54,13 +56,13 @@
           <div class="flex flex-row justify-between items-center xl:flex-col xl:gap-4">
             <span class="text-foreground text-center text-sm font-normal leading-6 xl:gap-4 px-0 xl:px-4">Tax (VAT {{ vatPercent }}%)</span>
             <div class="flex flex-col text-center h-[36px] justify-center">
-              <span class="text-foreground text-sm font-normal leading-5">{{ Number(taxPrice).toFixed(2) }} Lei</span>
+              <span class="whitespace-nowrap text-foreground text-sm font-normal leading-5">{{ formatLei(taxPrice) }}</span>
             </div>
           </div>
           <div class="flex flex-row justify-between items-center xl:flex-col xl:gap-4">
             <span class="text-foreground text-center text-sm font-normal leading-6 xl:gap-4 px-0 xl:px-4">Subtotal</span>
             <div class="flex flex-col text-center h-[36px] justify-center">
-              <span class="text-foreground text-sm font-normal leading-5">{{ subtotal.toFixed(2) }} Lei</span>
+              <span class="whitespace-nowrap text-foreground text-sm font-normal leading-5">{{ formatLei(subtotal) }}</span>
             </div>
           </div>
         </div>
@@ -90,6 +92,7 @@ import { resolveOrderSummaryLineMoney, type OrderSummaryQuoteLine } from '~~/hel
 import { ProductAction, type CartProductsInterface } from '~~/types/cart';
 
 import { OrderType } from '~~/types';
+import { formatLei } from '~~/helpers/money-format';
 
 const emits = defineEmits(['updateQuantity']);
 

@@ -4,7 +4,7 @@
       <p class="text-sm font-medium text-foreground">Sign in to use saved addresses</p>
       <p class="text-xs text-muted-foreground">
         Speed up checkout with your billing and shipping details, or choose
-        <span class="font-medium text-blue-600">Checkout as Guest</span>
+        <span class="font-medium text-foreground">Checkout as Guest</span>
         below to enter your details manually.
       </p>
     </div>
@@ -13,26 +13,26 @@
       <div v-if="stockOrder || backOrder" class="flex flex-col gap-6">
         <h2 class="text-muted-foreground text-base font-medium leading-6">Order Type</h2>
         <div class="flex flex-row gap-3">
-          <div v-if="stockOrder && backOrder" class="px-3 py-[3px] justify-center flex rounded bg-blue-50">
-            <span class="text-blue-500 text-sm font-medium leading-5">Mixed Order</span>
+          <div v-if="stockOrder && backOrder" class="px-3 py-[3px] justify-center flex rounded bg-blue-50 dark:bg-blue-950">
+            <span class="text-blue-800 dark:text-blue-200 text-sm font-medium leading-5">Mixed Order</span>
           </div>
           <template v-else>
-            <div v-if="stockOrder" class="px-3 py-[3px] justify-center flex rounded bg-green-50">
-              <span class="text-green-500 text-sm font-medium leading-5">Stock Order</span>
+            <div v-if="stockOrder" class="px-3 py-[3px] justify-center flex rounded bg-green-50 dark:bg-green-950">
+              <span class="text-green-800 dark:text-green-200 text-sm font-medium leading-5">Stock Order</span>
             </div>
-            <div v-if="backOrder" class="px-3 py-[3px] justify-center flex rounded bg-orange-50">
-              <span class="text-orange-500 text-sm font-medium leading-5">Back Order</span>
+            <div v-if="backOrder" class="px-3 py-[3px] justify-center flex rounded bg-orange-50 dark:bg-orange-950">
+              <span class="text-orange-800 dark:text-orange-200 text-sm font-medium leading-5">Back Order</span>
             </div>
           </template>
         </div>
       </div>
       <div class="gap-2 flex flex-col w-full">
-        <div class="h-[1px] rounded-lg bg-neutral-100 block" />
+        <div class="h-[1px] rounded-lg bg-border block" />
         <div class="flex flex-col">
           <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandShippingAndBilling">
             <span
-              class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
-              :class="shippingAndBillingExpanded ? 'text-blue-500' : 'text-foreground'"
+              class="text-base font-medium leading-6 transition duration-300 group-hover:text-primary"
+              :class="shippingAndBillingExpanded ? 'text-primary' : 'text-foreground'"
               >Shipping and Billing</span
             >
             <div class="flex flex-row gap-6">
@@ -48,7 +48,7 @@
               </div>
               <ChevronDownIcon
                 class="w-5 h-5 flex-shrink-0 rounded-full transition duration-300 flex"
-                :class="[shippingAndBillingExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
+                :class="[shippingAndBillingExpanded ? 'rotate-180 text-primary' : 'text-muted-foreground']"
               />
             </div>
           </UiButton>
@@ -61,12 +61,12 @@
             />
           </Transition>
         </div>
-        <div class="h-[1px] rounded-lg bg-neutral-100 block" />
+        <div class="h-[1px] rounded-lg bg-border block" />
         <div class="flex flex-col">
           <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandShippingPreferences">
             <span
-              class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
-              :class="shippingPreferencesExpanded ? 'text-blue-500' : 'text-foreground'"
+              class="text-base font-medium leading-6 transition duration-300 group-hover:text-primary"
+              :class="shippingPreferencesExpanded ? 'text-primary' : 'text-foreground'"
               >Shipping Preferences</span
             >
             <div class="flex flex-row gap-6">
@@ -82,7 +82,7 @@
               </div>
               <ChevronDownIcon
                 class="w-5 h-5 flex-shrink-0 rounded-full transition duration-300 flex"
-                :class="[shippingPreferencesExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
+                :class="[shippingPreferencesExpanded ? 'rotate-180 text-primary' : 'text-muted-foreground']"
               />
             </div>
           </UiButton>
@@ -97,11 +97,11 @@
             />
           </Transition>
         </div>
-        <div class="h-[1px] rounded-lg bg-neutral-100 block" />
+        <div class="h-[1px] rounded-lg bg-border block" />
         <UiButton type="button" variant="bare" size="row" class="w-full justify-between group" @click="expandPaymentMethod">
           <span
-            class="text-base font-medium leading-6 transition duration-300 group-hover:text-blue-500"
-            :class="paymentMethodExpanded ? 'text-blue-500' : 'text-foreground'"
+            class="text-base font-medium leading-6 transition duration-300 group-hover:text-primary"
+            :class="paymentMethodExpanded ? 'text-primary' : 'text-foreground'"
             >Payment Method</span
           >
           <div class="flex flex-row gap-6">
@@ -117,7 +117,7 @@
             </div>
             <ChevronDownIcon
               class="w-5 h-5 flex-shrink-0 rounded-full transition duration-300 flex"
-              :class="[paymentMethodExpanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
+              :class="[paymentMethodExpanded ? 'rotate-180 text-primary' : 'text-muted-foreground']"
             />
           </div>
         </UiButton>
@@ -127,6 +127,7 @@
             :order="order"
             :account-credit="accountCredit"
             :requires-payment-reselection="requiresPaymentReselection"
+            :hide-credit="isGuestCheckout"
             class="item"
             @update-payment-details="emits('update-payment-details', $event)"
           />
