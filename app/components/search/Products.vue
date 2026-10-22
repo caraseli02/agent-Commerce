@@ -176,7 +176,7 @@ const sortById = useId();
 const perPageId = useId();
 const footerPerPageId = useId();
 /** Keeps the compact look of the former custom dropdowns on the shared select trigger. */
-const triggerClass = 'h-auto w-auto gap-2 rounded border-border px-2.5 py-[3px]';
+const triggerClass = 'h-auto w-auto gap-2 rounded px-2.5 py-[3px]';
 
 const show = ref({ name: 'All products', key: {} });
 const showOptions = ref([
