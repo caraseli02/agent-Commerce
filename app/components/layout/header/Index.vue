@@ -12,7 +12,7 @@
             </div>
           </div>
           <div class="mr-auto text-xs font-semibold leading-[1.67] text-primary md:mr-0 lg:text-sm lg:leading-[1.43]">
-            <span class="uppercase">Free</span> shipping on orders over {{ freeShippingThreshold }}
+            Flat-rate shipping from {{ flatShippingFrom }}
           </div>
           <!-- Negative margin keeps a 44px hit area without growing the slim bar. -->
           <UiButton
@@ -43,9 +43,10 @@ const { currency } = storeToRefs(regionalPreferencesStore);
 
 const regionalLabel = computed(() => currency.value?.label || 'Lei');
 
-const freeShippingThreshold = computed(() => {
+// Matches the cheapest catalog shipping quote (Demo Express); the quote has no free tier.
+const flatShippingFrom = computed(() => {
   const curr = currency.value?.label || 'Lei';
-  return `150 ${curr}`;
+  return `19.90 ${curr}`;
 });
 
 const showRegionalPreferencesModal = ref(false);

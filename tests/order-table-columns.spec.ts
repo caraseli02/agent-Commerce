@@ -29,8 +29,8 @@ describe('order table cell values', () => {
   });
 
   it('formats money like the storefront and unifies order references', () => {
-    expect(formatLei(1499.99)).toBe('1499.99 Lei');
-    expect(orderTotalLei(1499.99)).toBe('1499.99 Lei');
+    expect(formatLei(1499.99)).toBe('1499.99\u00a0Lei');
+    expect(orderTotalLei(1499.99)).toBe('1499.99\u00a0Lei');
     expect(orderTotalLei(undefined)).toBe('N/A');
     expect(formatOrderRef('#953775')).toBe('ORD-953775');
     expect(formatOrderRef('ORD-953775')).toBe('ORD-953775');

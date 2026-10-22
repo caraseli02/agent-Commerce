@@ -339,6 +339,7 @@ export function useOrder() {
         title: 'Error',
         description: `${!resultBilling.data.valid ? 'Billing' : 'Shipping'} address is invalid`,
       });
+      checkout.value = false;
       return;
     }
 
