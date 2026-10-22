@@ -157,7 +157,7 @@ const showTrackingDialog = ref(false);
               <p v-if="awb" class="self-stretch my-auto font-medium">
                 {{ awb }}
               </p>
-              <InfoIcon class="object-contain shrink-0 self-stretch my-auto w-4 aspect-square text-muted-foreground" @click="generateAWB" />
+              <InfoIcon class="object-contain shrink-0 self-stretch my-auto w-4 aspect-square text-muted-foreground" aria-hidden="true" />
             </section>
           </section>
         </UiPopoverTrigger>

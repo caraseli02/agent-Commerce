@@ -11,12 +11,14 @@
       @close="isSideNavCollapsedOnDesktop = !isSideNavCollapsedOnDesktop"
     />
     <main
-      class="pt-[68px] flex-1 transition-all duration-300 flex flex-col justify-between md:pt-[76px] md:ml-[96px] md:max-w-[calc(100vw-96px)]"
+      id="main"
+      tabindex="-1"
+      class="outline-none pt-[68px] flex-1 transition-all duration-300 flex flex-col justify-between md:pt-[76px] md:ml-[96px] md:max-w-[calc(100vw-96px)]"
       :class="[isSideNavCollapsedOnDesktop ? '' : '2xl:ml-[280px] 2xl:max-w-[calc(100vw-280px)]']"
     >
       <slot />
       <div class="flex justify-center text-center text-xs leading-normal text-muted-foreground mt-2 mb-6 md:mt-0">
-        Components Marketplace portfolio demo — mock mode for reviewer walkthroughs
+        Components Marketplace demo. Mock data, no real orders or payments.
       </div>
     </main>
     <Toaster />

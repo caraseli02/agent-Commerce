@@ -260,13 +260,16 @@
             v-click-outside="() => (showMobileSearch = false)"
             class="absolute z-50 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] md:hidden"
           >
-            <div class="flex items-center border border-border bg-card rounded-lg pr-3">
+            <div
+              class="flex items-center border border-border bg-card rounded-lg pr-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1"
+            >
               <UiLabel class="relative z-10 flex-1 flex items-center font-normal">
                 <form action="" @submit.prevent>
                   <UiInput
                     v-model="searchValue"
                     type="search"
                     placeholder="Search"
+                    aria-label="Search"
                     class="h-auto rounded-none border-0 bg-transparent flex-1 w-full px-3 py-2.5 text-sm leading-[1.43] placeholder:text-muted-foreground focus:outline-none focus-visible:!outline-none"
                   />
                 </form>

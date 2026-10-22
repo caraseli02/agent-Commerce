@@ -24,6 +24,8 @@ export const buttonVariants = cva(
         'option-dashed-selected': 'rounded-lg border border-dashed border-blue-500 bg-card dark:bg-slate-950',
         // Unframed row whose content supplies its own hover cue (accordion headers, radio rows).
         bare: 'bg-transparent',
+        // Submit segment fused to the right edge of a bordered search field.
+        'input-addon': 'rounded-none bg-primary text-primary-foreground hover:bg-primary/90',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -35,6 +37,7 @@ export const buttonVariants = cva(
         'card-compact': 'h-auto px-3 py-2',
         row: 'h-auto px-0 py-2',
         flush: 'h-auto p-0',
+        addon: 'h-full px-4',
       },
     },
     defaultVariants: {

@@ -82,7 +82,9 @@
         </div>
         <Transition name="fade">
           <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 left-0 w-full -translate-y-1/2 md:hidden">
-            <div class="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3">
+            <div
+              class="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1"
+            >
               <UiLabel class="relative z-10 flex h-10 min-w-0 flex-1 items-center font-normal">
                 <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent="showMobileSearch = false">
                   <UiInput
@@ -90,6 +92,7 @@
                     v-model="searchVal"
                     type="search"
                     placeholder="Search products"
+                    aria-label="Search products"
                     class="h-full w-full min-w-0 rounded-none border-0 bg-transparent py-2 pl-0 text-sm leading-[1.71] placeholder:text-muted-foreground focus:outline-none"
                     @input="onInput"
                     @keypress.enter="

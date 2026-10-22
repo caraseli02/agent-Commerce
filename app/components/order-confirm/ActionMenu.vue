@@ -166,11 +166,9 @@ const onSubmit = handleSubmit(async (values) => {
         class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
+        @click="changeStatus(OrderStatus.Dispatched)"
       >
-        <PackageCheck
-          class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square"
-          @click="changeStatus(OrderStatus.Dispatched)"
-        />
+        <PackageCheck class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" aria-hidden="true" />
         Fulfill Order
       </UiButton>
       <UiButton
@@ -182,8 +180,9 @@ const onSubmit = handleSubmit(async (values) => {
         class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
+        @click="cancelOrder()"
       >
-        <PackageCheck class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" @click="cancelOrder()" />
+        <PackageCheck class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" aria-hidden="true" />
         Cancel Order
       </UiButton>
       <UiButton

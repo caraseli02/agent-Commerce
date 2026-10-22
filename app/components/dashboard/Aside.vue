@@ -19,7 +19,7 @@
       class="flex items-center w-full transition-all duration-300"
       :class="[isCollapsedOnDesktop ? 'px-6 pt-6 pb-[96px] justify-center' : 'px-4 pt-6 pb-[50px] justify-between md:pb-[60px]']"
     >
-      <NuxtLink v-if="isCollapsedOnDesktop" to="/" class="flex">
+      <NuxtLink v-if="isCollapsedOnDesktop" to="/" class="flex" aria-label="Components Marketplace home">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 28" class="w-[30px]">
           <path
             fill="#fff"
@@ -82,13 +82,14 @@
           <NuxtLink
             v-if="item.to"
             :to="item.to"
+            :aria-label="isCollapsedOnDesktop ? item.label : undefined"
             class="group flex items-center justify-between text-gray-100 p-3 rounded-lg transition-colors duration-300 hover:text-[#009FFF] hover:bg-[#2F3241]"
             :class="[isCollapsedOnDesktop ? 'justify-center w-12 h-12 mx-auto' : '']"
             @mouseenter="handleNavItemMouseEnter($event, item)"
             @mouseleave="hoveredNavItem = null"
           >
             <div class="flex items-center">
-              <component :is="item.icon" class="w-6 h-6" />
+              <component :is="item.icon" class="w-6 h-6" aria-hidden="true" />
               <span v-if="!isCollapsedOnDesktop" class="text-sm leading-[1.43] font-medium ml-3">
                 {{ item.label }}
               </span>
