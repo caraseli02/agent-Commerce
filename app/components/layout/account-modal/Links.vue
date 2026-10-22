@@ -29,7 +29,7 @@
       </div>
     </UiButton>
     <NuxtLink
-      v-for="(menuItem, index) in menuLinks"
+      v-for="(menuItem, index) in menuLinks.filter((link) => !link.disabled)"
       :key="index"
       :to="menuItem.to"
       class="items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
