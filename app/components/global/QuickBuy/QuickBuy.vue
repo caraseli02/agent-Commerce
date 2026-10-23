@@ -180,8 +180,8 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
           </p>
           <UiDialogFooter class="mt-auto w-full pb-[max(0.25rem,env(safe-area-inset-bottom))] sm:pb-0">
             <div class="flex gap-2.5 w-full">
-              <UiButton variant="secondary" @click="addProduct">
-                <PlusIcon class="w-5 h-5" />
+              <UiButton variant="secondary" class="min-h-11 min-w-11" aria-label="Add part" @click="addProduct">
+                <PlusIcon class="w-5 h-5" aria-hidden="true" />
               </UiButton>
               <UiButton :disabled="isLoading" class="w-full" @click="addToCart">
                 <CartIcon class="w-6 h-6 mr-2" />

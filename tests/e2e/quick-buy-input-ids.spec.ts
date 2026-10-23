@@ -58,6 +58,11 @@ test.describe('Quick Buy input IDs', () => {
     await expect(dialog.getByLabel('Part number 2', { exact: true })).toHaveCount(0);
     await expect(firstPart).toHaveValue('ABC-123');
     expect(await duplicateIds(page)).toEqual([]);
+
+    // #783: the icon-only footer button carries the same name as the desktop control.
+    await dialog.getByRole('button', { name: 'Add part', exact: true }).click();
+    await expect(dialog.getByLabel('Part number 2', { exact: true })).toBeVisible();
+    expect(await duplicateIds(page)).toEqual([]);
   });
 
   test('desktop inline labels target the inline inputs', async ({ page }) => {
