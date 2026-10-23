@@ -54,6 +54,13 @@
         </div>
         <section v-else-if="isCartEmpty" class="rounded-2xl border border-border bg-card shadow-xs" data-testid="order-summary-empty">
           <EmptyState v-bind="orderSummaryEmptyPreset" />
+          <!-- A guest's account cart only appears after sign-in, so keep that route open from an empty cart. -->
+          <p v-if="isGuestCheckout" class="px-4 pb-8 text-center text-sm text-muted-foreground">
+            Have an account?
+            <NuxtLink :to="signinHref" class="font-semibold text-primary underline underline-offset-2"
+              >Sign in to see your saved cart</NuxtLink
+            >
+          </p>
         </section>
         <div v-else class="gap-6 xl:grid xl:grid-cols-[1fr_392px]">
           <div class="flex flex-col gap-9 max-w-[992px]">

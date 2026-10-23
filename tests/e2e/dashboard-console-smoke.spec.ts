@@ -78,8 +78,12 @@ test.describe('Dashboard console smoke', () => {
     expect(runtimeErrors, 'categories dashboard').toEqual([]);
 
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/customers by country/i)).toBeVisible();
+    await expect(page.getByText(/recent orders/i)).toBeVisible();
     expect(runtimeErrors, 'dashboard overview').toEqual([]);
+
+    await page.goto('/dashboard/customers', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/customers by country/i)).toBeVisible();
+    expect(runtimeErrors, 'customers dashboard').toEqual([]);
   });
 
   test('customer representative paths stay free of console errors', async ({ page }) => {

@@ -97,11 +97,11 @@ const title = computed(
       ready: 'Pay by card',
       confirming: 'Processing payment…',
       processing: 'Processing payment…',
-      'paid-finalizing': 'Payment received. Finishing your order',
+      'paid-finalizing': 'Payment received — finishing your order',
       completed: 'Payment confirmed',
       canceled: 'This payment was canceled',
       'recovery-required': 'Your payment needs review',
-      compensation: 'Payment received. Order under review',
+      compensation: 'Payment received — order under review',
       disabled: 'Stripe checkout disabled in demo',
     })[state.value],
 );
