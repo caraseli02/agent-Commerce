@@ -7,4 +7,4 @@
     - /url: /search
     - img
     - text: ''
-- paragraph: 'Demo store: orders use sample data and no money is charged.'
+- paragraph: Card payments via Stripe test mode. No real money is charged.
