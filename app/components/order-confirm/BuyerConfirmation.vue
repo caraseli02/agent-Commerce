@@ -99,10 +99,10 @@ onMounted(() => {
       <section class="flex flex-col lg:flex-row gap-9">
         <div class="flex flex-col order-3 lg:order-1 w-full self-stretch text-sm leading-6 text-foreground">
           <h2 class="w-full font-semibold max-md:max-w-full">Customer Notes</h2>
-          <textarea
+          <UiTextarea
             disabled
             :placeholder="notes[0] && notes[0].message ? notes[0].message : 'No message provided'"
-            class="min-h-[204px] justify-center px-3 pt-3 pb-16 mt-4 rounded-lg border border-solid bg-muted border-border max-md:pb-10 max-md:max-w-full"
+            class="min-h-[204px] justify-center mt-4 max-md:max-w-full"
           />
         </div>
         <OrderConfirmPaySummary v-if="paymentSummary" :order-pay-sum="paymentSummary" />
