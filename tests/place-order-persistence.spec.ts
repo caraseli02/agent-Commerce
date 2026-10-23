@@ -47,6 +47,22 @@ describe('durable PlaceOrder persistence', () => {
     }
   });
 
+  it('seeds demo history once when a cold dashboard reads orders concurrently', async () => {
+    const previousMockMode = process.env.NUXT_PUBLIC_MOCK_MODE;
+    process.env.NUXT_PUBLIC_MOCK_MODE = 'true';
+
+    try {
+      const { orders } = await import('../server/domain/orders');
+      const reads = await Promise.all([orders.list(), orders.list(), orders.list('mock-customer-1'), orders.list()]);
+
+      expect(reads[0].length).toBeGreaterThan(0);
+      expect(new Set([reads[0].length, reads[1].length, reads[3].length]).size).toBe(1);
+    } finally {
+      if (previousMockMode === undefined) delete process.env.NUXT_PUBLIC_MOCK_MODE;
+      else process.env.NUXT_PUBLIC_MOCK_MODE = previousMockMode;
+    }
+  });
+
   it('replays, reads, and lists one checkout across independent service instances', async () => {
     const [cartModule, userModule, checkoutModule, cartDomain, catalogModule, inventoryModule, ordersModule, paymentsModule] =
       await Promise.all([
