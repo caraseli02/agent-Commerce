@@ -7,5 +7,5 @@
 7. button "visa •••• 4242 Pay by card"
 8. button "Bank Transfer"
 9. button "Pay from credit"
-10. button "3800.00 Lei"
+10. button "3800.00"
 11. button "Cash on delivery"

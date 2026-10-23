@@ -7,4 +7,5 @@
 7. button "Payment Method"
 8. button "Pay by card"
 9. button "Bank Transfer"
-10. button "Cash on delivery"
+10. button "0.00"
+11. button "Cash on delivery"

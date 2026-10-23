@@ -38,6 +38,13 @@
     - img
     - img
     - text: ''
+- button "Pay from credit Credit checkout is unavailable because this account has no active credit facility." [disabled]:
+    - img
+    - img
+    - text: ''
+    - paragraph: Credit checkout is unavailable because this account has no active credit facility.
+- text: 'Available:'
+- button /\d+\.\d+/
 - button "Cash on delivery":
     - img
     - img

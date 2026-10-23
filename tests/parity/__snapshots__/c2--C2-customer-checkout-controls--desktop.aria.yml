@@ -40,7 +40,7 @@
     - img
     - text: ''
 - text: 'Available:'
-- button /\d+\.\d+ Lei/
+- button /\d+\.\d+/
 - button "Cash on delivery":
     - img
     - img
