@@ -177,10 +177,10 @@ onMounted(() => {
               <span>
                 {{ filter.label }}
               </span>
-              <UiSkeleton v-if="loadingFilters" class="h-5 min-w-[32px]" />
+              <UiSkeleton v-if="loadingFilters" class="ml-2 h-5 min-w-[32px]" />
               <span
                 v-else
-                class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-200"
+                class="ml-2 px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-200"
                 :class="filter.label === activeOrderFilter.label ? 'text-primary-foreground bg-primary' : 'text-muted-foreground bg-muted'"
               >
                 {{ filter.total_items || '0' }}
