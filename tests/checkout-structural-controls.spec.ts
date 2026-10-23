@@ -7,6 +7,7 @@ import { renderToString } from '@vue/server-renderer';
 import { compileScript, parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
 import { OrderType, PaymentTypeEnum } from '../types';
+import { isBuyerCheckoutPaymentType, unavailablePaymentMethodMessage } from '../helpers/checkout-payment-methods';
 
 const Icon = Vue.defineComponent({ setup: () => () => Vue.h('svg', { 'aria-hidden': 'true' }) });
 const Button = Vue.defineComponent({
@@ -20,24 +21,27 @@ const toggle = vi.fn();
 const push = vi.fn();
 const store = { showCardsModal: false, toggleCardModal: toggle };
 const savedCard = { id: 'card-test', default: false, card: { brand: 'visa', last4: '4242', exp_month: 12, exp_year: 2030 } };
+const selectedCard = Vue.ref<typeof savedCard | null>(null);
 const settings = Vue.ref({ orderSettings: { paymentMethods: [0, 1, 2, 3].map((type) => ({ type })) } });
 const newCardSelected = Vue.ref(true);
+const mockMode = Vue.ref(false);
 const auth = { getGeneralSettings: settings, generalSettings: settings, token: Vue.ref('demo') };
 const modules: Record<string, unknown> = {
   vue: Vue,
   '@lucide/vue': { AlertTriangle: Icon, CheckCircle2: Icon, Trash2Icon: Icon },
-  '#app': { useRouter: () => ({ push }), useRuntimeConfig: () => ({ public: { MOCK_MODE: false } }) },
+  '#app': { useRouter: () => ({ push }), useRuntimeConfig: () => ({ public: { MOCK_MODE: mockMode.value } }) },
   pinia: { storeToRefs: (value: unknown) => (value === store ? { showCardsModal: Vue.ref(store.showCardsModal) } : value) },
   '~/store/paymentStore': { usePaymentStore: () => store },
   '~/store/authStore': { useAuthStore: () => auth },
   '~/composables/useUser': { useUser: () => ({ user: Vue.ref({ firebaseId: 'customer' }) }) },
   '~/composables/useGuestCheckout': { useGuestCheckout: () => ({ guestCheckoutMode: Vue.ref(false) }) },
   '~/composables/usePaymentCards': {
-    usePaymentCards: () => ({ card: Vue.ref(null), cards: Vue.ref([savedCard]), isNewCardSelected: newCardSelected }),
+    usePaymentCards: () => ({ card: selectedCard, cards: Vue.ref([savedCard]), isNewCardSelected: newCardSelected }),
   },
   '~~/helpers/mock-integration': { isPaymentManagementVisible: (mock: boolean) => !mock },
   '~~/helpers/address.helper': { isCompleteSavedAddress: () => true },
   '~~/helpers/checkout-credit': { resolveCreditUnavailableReason: () => null },
+  '~~/helpers/checkout-payment-methods': { isBuyerCheckoutPaymentType, unavailablePaymentMethodMessage },
   '~~/types': { PaymentTypeEnum, OrderType },
   'tiny-emitter/instance.js': { default: { emit: vi.fn() } },
 };
@@ -107,6 +111,10 @@ const assertValidButtons = (html: string) => {
 afterEach(() => {
   for (const app of apps.splice(0)) app.unmount();
   document.body.replaceChildren();
+  settings.value = { orderSettings: { paymentMethods: [0, 1, 2, 3].map((type) => ({ type })) } };
+  newCardSelected.value = true;
+  selectedCard.value = null;
+  mockMode.value = false;
   vi.clearAllMocks();
 });
 
@@ -143,6 +151,46 @@ describe('C2 structural controls', () => {
     button(container, 'Pay with a new card').click();
     expect(updated).toHaveBeenCalledExactlyOnceWith({ type: PaymentTypeEnum.Card, card: null });
     expect(container.querySelector('button button')).toBeNull();
+  });
+
+  it('keeps non-card choices visible and disabled regardless of settings or credit balance', () => {
+    settings.value = { orderSettings: { paymentMethods: [] } };
+    const updated = vi.fn();
+    const container = mount(PaymentMethod, {
+      order: { paymentDetails: { type: PaymentTypeEnum.Bank }, total: 10 },
+      accountCredit: { available: 1000 },
+      'onUpdate-payment-details': updated,
+    });
+
+    for (const label of ['Bank Transfer', 'Pay from credit', 'Cash on delivery']) {
+      const choice = button(container, label);
+      expect(choice.disabled).toBe(true);
+      expect(choice.getAttribute('aria-label')).toContain(unavailablePaymentMethodMessage);
+      expect(choice.getAttribute('variant')).toBe('option');
+      choice.click();
+    }
+    expect(container.textContent).toContain(unavailablePaymentMethodMessage);
+    expect(updated).not.toHaveBeenCalled();
+
+    button(container, 'Pay with a new card').click();
+    expect(updated).toHaveBeenCalledExactlyOnceWith({ type: PaymentTypeEnum.Card, card: null });
+  });
+
+  it('keeps new-card selection available with a saved card when management is hidden', () => {
+    selectedCard.value = savedCard;
+    newCardSelected.value = false;
+    mockMode.value = true;
+    const updated = vi.fn();
+    const container = mount(PaymentMethod, {
+      order: { paymentDetails: { type: PaymentTypeEnum.Card, card: savedCard }, total: 10 },
+      accountCredit: { available: 100 },
+      'onUpdate-payment-details': updated,
+    });
+
+    expect(container.textContent).toContain('4242');
+    expect(container.querySelector('[data-testid="payment-management"]')).toBeNull();
+    button(container, 'Pay with a new card').click();
+    expect(updated).toHaveBeenCalledExactlyOnceWith({ type: PaymentTypeEnum.Card, card: null });
   });
 
   it('saved-card actions preserve their payloads without selecting the card', () => {
