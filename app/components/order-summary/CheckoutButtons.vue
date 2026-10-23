@@ -50,12 +50,13 @@
         </UiButton>
       </div>
     </div>
-    <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card px-4 py-4 sm:gap-6 lg:justify-between lg:gap-4">
-      <BadgeVisa />
-      <BadgeMaster />
-      <BadgeApplePay />
-      <BadgeGooglePay />
-      <BadgeStripe />
+    <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card px-4 py-4">
+      <p class="text-sm text-muted-foreground">Card payments via Stripe test mode. No real money is charged.</p>
+      <div class="flex flex-wrap items-center gap-4" aria-hidden="true">
+        <BadgeVisa />
+        <BadgeMaster />
+        <BadgeStripe />
+      </div>
     </div>
   </div>
 </template>
@@ -67,8 +68,6 @@ import ArrowLeft from '@/assets/icons/arrow-left.svg';
 import ShieldIcon from '@/assets/icons/shield.svg';
 import BadgeVisa from '@/assets/icons/badge-visa.svg';
 import BadgeMaster from '@/assets/icons/badge-master.svg';
-import BadgeApplePay from '@/assets/icons/badge-applepay.svg';
-import BadgeGooglePay from '@/assets/icons/badge-googlepay.svg';
 import BadgeStripe from '@/assets/icons/badge-stripe.svg';
 import { useCheckoutStore } from '~/store/checkoutStore';
 import { useGuestCheckout } from '~/composables/useGuestCheckout';

@@ -294,7 +294,7 @@ test('actual default-off route exposes the demo boundary without loading Stripe'
     return route.abort();
   });
   await page.goto('/checkout/session?id=ord-gate-disabled');
-  await expect(page.getByRole('heading', { name: 'Stripe checkout disabled in demo' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Card payments are temporarily unavailable' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Back to order summary', exact: true })).toBeEnabled();
   expect(stripeLoads).toBe(0);
 });

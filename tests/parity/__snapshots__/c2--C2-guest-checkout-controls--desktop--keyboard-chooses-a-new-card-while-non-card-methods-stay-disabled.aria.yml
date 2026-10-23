@@ -1,0 +1,87 @@
+- heading "Order Type" [level=2]
+- text: Mixed Order
+- button "Shipping and Billing":
+    - text: ''
+    - img
+    - img
+- paragraph: Contact information
+- paragraph: We will use this to send order updates.
+- text: First name
+- textbox "First name":
+    - /placeholder: Jane
+- text: Last name
+- textbox "Last name":
+    - /placeholder: Doe
+- text: Email
+- textbox "Email":
+    - /placeholder: jane@example.com
+- text: Phone
+- textbox "Phone":
+    - /placeholder: +1 555 0100
+- paragraph: Shipping address
+- text: Address line 1
+- textbox "Address line 1":
+    - /placeholder: 123 Market Street
+- text: Address line 2 (optional)
+- textbox "Address line 2 (optional)":
+    - /placeholder: Apt 4B
+- text: City
+- textbox "City":
+    - /placeholder: San Francisco
+- text: Region / State
+- textbox "Region / State":
+    - /placeholder: California
+- text: Postcode
+- textbox "Postcode":
+    - /placeholder: '94105'
+- text: Country
+- textbox "Country":
+    - /placeholder: US
+    - text: US
+- paragraph: Billing address
+- checkbox "Same as shipping" [checked]:
+    - img
+- text: Same as shipping
+- paragraph: Billing address will match your shipping address.
+- button "Shipping Preferences":
+    - text: ''
+    - img
+- button "Backorder Standard Standard shipping for backorder items" [pressed]:
+    - img
+    - heading "Backorder Standard" [level=2]
+    - paragraph: Standard shipping for backorder items
+- text: Delivery Method
+- button /Demo Express Standard Delivery \d+\.\d+ Lei/:
+    - img
+    - heading "Demo Express" [level=2]
+    - paragraph: Standard Delivery
+    - text: ''
+- button /Fast Lane Next Day \d+\.\d+ Lei/:
+    - img
+    - heading "Fast Lane" [level=2]
+    - paragraph: Next Day
+    - text: ''
+- button "Payment Method":
+    - text: ''
+    - img
+- text: Select Payment
+- button "Pay with a new card Your card details will be required at checkout":
+    - img
+    - text: ''
+- button "Bank Transfer — Temporarily unavailable" [disabled]:
+    - img
+    - img
+    - text: ''
+    - paragraph: Temporarily unavailable
+- button "Pay from credit — Temporarily unavailable" [disabled]:
+    - img
+    - img
+    - text: ''
+    - paragraph: Temporarily unavailable
+- text: 'Available:'
+- button /\d+\.\d+/
+- button "Cash on delivery — Temporarily unavailable" [disabled]:
+    - img
+    - img
+    - text: ''
+    - paragraph: Temporarily unavailable
