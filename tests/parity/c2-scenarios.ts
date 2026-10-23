@@ -50,16 +50,18 @@ export const c2Scenarios: ParityScenario[] = [
         snapshot: controls,
       },
       {
-        name: 'keyboard chooses cash and a valid payment section can collapse',
+        name: 'keyboard chooses a new card while non-card methods stay disabled',
         act: async (page, region) => {
-          await region.getByRole('button', { name: 'Cash on delivery', exact: true }).focus();
+          await expect(region.getByRole('button', { name: /Cash on delivery/ })).toBeDisabled();
+          await region.getByRole('button', { name: /Pay with a new card/ }).focus();
           await page.keyboard.press('Enter');
           await region.getByRole('button', { name: 'Payment Method', exact: true }).click();
         },
         verify: async (_page, region) => {
           await expect(region.getByText('Select Payment', { exact: true })).toBeHidden();
           await region.getByRole('button', { name: 'Payment Method', exact: true }).click();
-          await expect(region.getByText('Cash on delivery', { exact: true })).toBeVisible();
+          await expect(region.getByRole('button', { name: /Cash on delivery/ })).toBeVisible();
+          await expect(region.getByRole('button', { name: /Cash on delivery/ })).toBeDisabled();
         },
         snapshot: controls,
       },
@@ -106,13 +108,14 @@ export const c2Scenarios: ParityScenario[] = [
       {
         name: 'invalid payment cannot collapse until another method is chosen',
         act: async (page, region) => {
-          await expect(region.getByRole('alert')).toContainText('Your saved card is no longer available');
+          await expect(region.getByRole('alert')).toContainText('Your selected payment method is no longer available');
           await region.getByRole('button', { name: 'Payment Method', exact: true }).focus();
           await page.keyboard.press('Enter');
         },
         verify: async (_page, region) => {
           await expect(region.getByText('Select Payment', { exact: true })).toBeVisible();
-          await region.getByRole('button', { name: 'Bank Transfer', exact: true }).click();
+          await expect(region.getByRole('button', { name: /Bank Transfer/ })).toBeDisabled();
+          await region.getByRole('button', { name: /Pay with a new card/ }).click();
           await expect(region.getByRole('alert')).toHaveCount(0);
         },
         snapshot: controls,

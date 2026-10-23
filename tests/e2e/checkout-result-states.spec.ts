@@ -59,7 +59,7 @@ const assertClearedFailureContext = async (page: Page) => {
 };
 
 const assertDisabledPaymentBoundary = async (page: Page) => {
-  await expect(page.getByRole('heading', { name: /stripe checkout disabled in demo/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /card payments are temporarily unavailable/i })).toBeVisible();
   await expect(page.getByRole('button', { name: /pay now/i })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /back to order summary/i })).toBeEnabled();
   await expect(page.getByRole('button', { name: /back home/i })).toBeEnabled();
@@ -295,9 +295,9 @@ test.describe('Checkout result states', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     await expect(page.getByRole('button', { name: /secure checkout/i })).toBeDisabled();
-    await expect(page.getByRole('alert').filter({ hasText: /saved card is no longer available/i })).toBeVisible();
+    await expect(page.getByRole('alert').filter({ hasText: /selected payment method is no longer available/i })).toBeVisible();
     await page.getByRole('button', { name: /pay by card/i }).click();
-    await expect(page.getByRole('alert').filter({ hasText: /saved card is no longer available/i })).toHaveCount(0);
+    await expect(page.getByRole('alert').filter({ hasText: /selected payment method is no longer available/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /secure checkout/i })).toBeEnabled();
   });
 

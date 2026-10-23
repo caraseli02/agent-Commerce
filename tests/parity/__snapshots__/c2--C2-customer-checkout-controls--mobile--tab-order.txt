@@ -4,8 +4,6 @@
 4. button "Demo Express Standard Delivery 19.90 Lei" [pressed]
 5. button "Fast Lane Next Day 29.90 Lei"
 6. button "Payment Method"
-7. button "visa •••• 4242 Pay by card"
-8. button "Bank Transfer"
-9. button "Pay from credit"
-10. button "3800.00"
-11. button "Cash on delivery"
+7. button "Pay with a new card Your card details will be required at checkout"
+8. button "visa •••• 4242 Pay by card"
+9. button "3800.00"
