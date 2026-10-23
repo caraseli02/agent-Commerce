@@ -58,8 +58,14 @@ const setActiveFilter = (filter: string) => {
 
 watch(
   activeFilter,
-  async (value) => {
+  async (value, _previous, onCleanup) => {
     if (!value) return;
+
+    // A later tab switch makes this request stale, so a slow response never replaces the selected tab's products.
+    let stale = false;
+    onCleanup(() => {
+      stale = true;
+    });
 
     if (value === initialFilter && props.initialProducts) {
       emit('newProducts', props.initialProducts);
@@ -68,8 +74,9 @@ watch(
 
     try {
       const products = await loadProductTabProducts(value);
-      emit('newProducts', products);
+      if (!stale) emit('newProducts', products);
     } catch (error) {
+      if (stale) return;
       console.error('Failed to load product tab', error);
       emit('newProducts', []);
     }
