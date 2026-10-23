@@ -8,17 +8,17 @@
     - img
 - button "Backorder Standard Standard shipping for backorder items" [pressed]:
     - img
-    - heading "Backorder Standard" [level=2]
+    - text: ''
     - paragraph: Standard shipping for backorder items
 - text: Delivery Method
-- button /Demo Express Standard Delivery \d+\.\d+ Lei/:
+- button /Demo Express Standard Delivery \d+\.\d+ Lei/ [pressed]:
     - img
-    - heading "Demo Express" [level=2]
+    - text: ''
     - paragraph: Standard Delivery
     - text: ''
 - button /Fast Lane Next Day \d+\.\d+ Lei/:
     - img
-    - heading "Fast Lane" [level=2]
+    - text: ''
     - paragraph: Next Day
     - text: ''
 - button "Payment Method":
@@ -42,7 +42,7 @@
     - img
     - text: ''
 - text: 'Available:'
-- button /\d+\.\d+/
+- button /\d+\.\d+ Lei/
 - button "Cash on delivery":
     - img
     - img

@@ -1,6 +1,6 @@
 - banner:
     - img
-    - text: "/Sales: \\+1 \\d+ \\d+ \\d+ \\(Mon-Fri 8:00AM - 4:00PM EST\\) Free shipping on orders over \\d+ Lei/"
+    - text: "/Sales: \\+1 \\d+ \\d+ \\d+ \\(Mon-Fri 8:00AM - 4:00PM EST\\) Flat-rate shipping from \\d+\\.\\d+ Lei/"
     - button "Regional preferences":
         - img
         - text: Lei
@@ -9,8 +9,8 @@
     - link "Components Marketplace home":
         - /url: /
         - img: DEMO
-    - searchbox
-    - img
+    - searchbox "Search products"
+    - button "Search"
     - button "Open notifications":
         - img
         - text: ''

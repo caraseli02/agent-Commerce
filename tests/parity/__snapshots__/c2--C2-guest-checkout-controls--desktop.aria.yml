@@ -4,61 +4,27 @@
     - text: ''
     - img
     - img
-- paragraph: Contact information
-- paragraph: We will use this to send order updates.
-- text: First name
-- textbox "First name":
-    - /placeholder: Jane
-- text: Last name
-- textbox "Last name":
-    - /placeholder: Doe
-- text: Email
-- textbox "Email":
-    - /placeholder: jane@example.com
-- text: Phone
-- textbox "Phone":
-    - /placeholder: +1 555 0100
-- paragraph: Shipping address
-- text: Address line 1
-- textbox "Address line 1":
-    - /placeholder: 123 Market Street
-- text: Address line 2 (optional)
-- textbox "Address line 2 (optional)":
-    - /placeholder: Apt 4B
-- text: City
-- textbox "City":
-    - /placeholder: San Francisco
-- text: Region / State
-- textbox "Region / State":
-    - /placeholder: California
-- text: Postcode
-- textbox "Postcode":
-    - /placeholder: '94105'
-- text: Country
-- textbox "Country":
-    - /placeholder: US
-    - text: US
-- paragraph: Billing address
-- checkbox "Same as shipping" [checked]:
-    - img
-- text: Same as shipping
-- paragraph: Billing address will match your shipping address.
+- paragraph:
+    - text: Enter your contact, shipping and billing details in
+    - link "Your details":
+        - /url: '#guest-details'
+    - text: .
 - button "Shipping Preferences":
     - text: ''
     - img
 - button "Backorder Standard Standard shipping for backorder items" [pressed]:
     - img
-    - heading "Backorder Standard" [level=2]
+    - text: ''
     - paragraph: Standard shipping for backorder items
 - text: Delivery Method
-- button /Demo Express Standard Delivery \d+\.\d+ Lei/:
+- button /Demo Express Standard Delivery \d+\.\d+ Lei/ [pressed]:
     - img
-    - heading "Demo Express" [level=2]
+    - text: ''
     - paragraph: Standard Delivery
     - text: ''
 - button /Fast Lane Next Day \d+\.\d+ Lei/:
     - img
-    - heading "Fast Lane" [level=2]
+    - text: ''
     - paragraph: Next Day
     - text: ''
 - button "Payment Method":
@@ -72,13 +38,6 @@
     - img
     - img
     - text: ''
-- button "Pay from credit Credit checkout is unavailable because this account has no active credit facility." [disabled]:
-    - img
-    - img
-    - text: ''
-    - paragraph: Credit checkout is unavailable because this account has no active credit facility.
-- text: 'Available:'
-- button /\d+\.\d+/
 - button "Cash on delivery":
     - img
     - img

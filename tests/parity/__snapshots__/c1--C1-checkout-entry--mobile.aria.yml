@@ -1,14 +1,10 @@
-- link "Continue Shopping":
-    - /url: /search
-    - img
-    - text: ''
 - link "Sign in to Continue Checkout":
     - /url: /?signin=true&redirect=%2Forder-summary
     - img
     - text: ''
 - button "Checkout as Guest"
-- img
-- img
-- img
-- img
-- img
+- link "Continue shopping":
+    - /url: /search
+    - img
+    - text: ''
+- paragraph: 'Demo store: orders use sample data and no money is charged. Pay by cash on delivery, bank transfer.'

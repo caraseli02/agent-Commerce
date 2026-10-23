@@ -16,8 +16,8 @@
     - img
 - text: Search Country
 - img
-- searchbox: Roman
-- img
+- searchbox "Clear search": Roman
+- button "Clear search"
 - button "Romania Romania":
     - img "Romania"
     - text: ''

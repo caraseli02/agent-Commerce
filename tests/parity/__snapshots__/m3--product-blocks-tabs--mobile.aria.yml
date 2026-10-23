@@ -1,4 +1,8 @@
-- heading "Featured Products" [level=2]
+- heading "Featured inventory" [level=2]
+- paragraph:
+    - text: Stock and unit pricing at a glance.
+    - link "Browse the full catalog":
+        - /url: /search
 - paragraph:
     - button "Featured"
 - paragraph:

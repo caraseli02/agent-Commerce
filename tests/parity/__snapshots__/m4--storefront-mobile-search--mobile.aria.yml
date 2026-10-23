@@ -1,6 +1,6 @@
 - banner:
     - img
-    - text: /Free shipping on orders over \d+ Lei/
+    - text: /Flat-rate shipping from \d+\.\d+ Lei/
     - button "Regional preferences":
         - img
         - text: Lei

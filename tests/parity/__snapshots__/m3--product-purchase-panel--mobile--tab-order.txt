@@ -2,4 +2,4 @@
 2. text: Volume prices
 3. spinbutton "Quantity": "1"
 4. button "Increase quantity"
-5. button "Add to cart — selected quantity"
+5. button "Add to cart, selected quantity"

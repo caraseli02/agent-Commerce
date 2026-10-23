@@ -2,7 +2,8 @@
     - heading "Quick buy" [level=2]
     - paragraph: Paste one or more manufacturer part numbers from your BOM. Remove any rows you do not need.
     - text: Part number 1
-    - textbox "Manufacturer part number"
+    - textbox "Part number 1":
+        - /placeholder: Manufacturer part number
     - button "Decrease quantity" [disabled]:
         - img
     - spinbutton "Quantity": '1'
@@ -12,7 +13,8 @@
     - button "Remove part 1":
         - img
     - text: Part number 2
-    - textbox "Manufacturer part number"
+    - textbox "Part number 2":
+        - /placeholder: Manufacturer part number
     - button "Decrease quantity" [disabled]:
         - img
     - spinbutton "Quantity": '1'

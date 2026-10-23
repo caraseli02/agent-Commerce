@@ -3,7 +3,7 @@
 3. button "Connectors 0 items"
 4. button "Audio 3 items"
 5. button "Electronics 4 items"
-6. button "Components 3 items"
+6. button "Peripherals 3 items"
 7. button "Accessories 3 items"
 8. button "Wearables 2 items"
 9. button "Tools 3 items"
