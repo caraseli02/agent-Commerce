@@ -24,7 +24,8 @@ export function checkPushTemplates(
     if (ref.startsWith('refs/heads/')) branches.set(ref.slice('refs/heads/'.length), sha);
   }
   for (const [branch, sha] of branches) {
-    const prs = JSON.parse(run(['pr', 'list', '--head', branch, '--state', 'open', '--limit', '100', '--json', 'number,body,labels']));
+    // REST, not `gh pr list`: GraphQL is blocked in cloud sessions, and both return number, body and labels.
+    const prs = JSON.parse(run(['api', `repos/{owner}/{repo}/pulls?state=open&per_page=100&head={owner}:${encodeURIComponent(branch)}`]));
     if (!Array.isArray(prs) || prs.length >= 100) throw new Error('Incomplete PR metadata lookup.');
     if (!prs.length) process.stdout.write(`No open PR for ${branch}; validate --body-file before creating the PR.\n`);
     for (const pr of prs) {
