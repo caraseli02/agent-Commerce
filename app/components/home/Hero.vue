@@ -210,6 +210,11 @@ const submitSearch = async () => {
   await router.push({ path: '/search', query: { keyword } });
 };
 
+// Once a term is typed the empty-search error no longer applies (#790).
+watch(searchTerm, (term) => {
+  if (term.trim()) searchError.value = '';
+});
+
 onMounted(() => {
   void getCategories();
 });
