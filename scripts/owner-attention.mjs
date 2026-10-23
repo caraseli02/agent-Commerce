@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 import { execFileSync } from 'node:child_process';
 import { assessPrTemplate } from './check-pr-template.mjs';
+import { uiDiff, uiPath } from './ui-evidence.mjs';
 
 export const BOT_LOGIN = 'github-actions[bot]';
 const SELF_LABEL = 'agent:claude-self';
@@ -210,10 +211,39 @@ export function localVerificationMarker(pr) {
   return `<!-- local-verification: head=${pr.head.sha} base=${pr.base.sha} metadata=${metadata} -->`;
 }
 
-export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator }) {
+// The PR's own UI change, so the template check can enforce the ## Screenshots rule. A head that
+// cannot be diffed locally is `unavailable`, which fails the check instead of skipping it.
+export function prUiContext(pr, { diff = uiDiff, fetchHead = fetchPullHead } = {}) {
+  try {
+    return { fingerprint: diff({ head: pr.head.sha }).fingerprint };
+  } catch {
+    try {
+      fetchHead(pr.number);
+      return { fingerprint: diff({ head: pr.head.sha }).fingerprint };
+    } catch {
+      return { unavailable: true };
+    }
+  }
+}
+
+// A PR with no UI file needs no fingerprint, and the file list says so without the head.
+export async function uiContextFor(gh, pr, { local = prUiContext } = {}) {
+  const files = await gh.paginate(`/pulls/${pr.number}/files`);
+  if (files.length < 3000 && !files.some((file) => uiPath(file.filename))) return { fingerprint: null };
+  return local(pr);
+}
+
+function fetchPullHead(number) {
+  execFileSync('git', ['fetch', '--quiet', 'origin', `refs/pull/${number}/head`, '+refs/heads/main:refs/remotes/origin/main'], {
+    stdio: 'ignore',
+    timeout: 60_000,
+  });
+}
+
+export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator, ui }) {
   const pending = [];
   const failing = [];
-  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label) });
+  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label), ui });
   if (template.status === 'failed') failing.push(...template.violations);
   const marker = localVerificationMarker(pr);
   const verified = comments.some((comment) => {
@@ -242,14 +272,14 @@ export function createGhClient(repository) {
   return { get: (path) => api(path), paginate: (path) => api(`${path}${path.includes('?') ? '&' : '?'}per_page=100`, true) };
 }
 
-export async function readLocalEvidence(number, { gh, owner, config, trustedLogins = [owner] }) {
+export async function readLocalEvidence(number, { gh, owner, config, trustedLogins = [owner], uiFor = (pr) => uiContextFor(gh, pr) }) {
   const pr = await gh.get(`/pulls/${number}`);
   const ref = `/git/ref/heads/${encodeURIComponent(pr.base.ref)}`;
   pr.base.sha = (await gh.get(ref)).object.sha;
   const comments = await gh.paginate(`/issues/${number}/comments`);
   const reviews = await gh.paginate(`/pulls/${number}/reviews`);
   const claude = await isClaudeBuiltPr(gh, pr);
-  const checks = assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator: claude ? 'Codex' : 'Claude' });
+  const checks = assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator: claude ? 'Codex' : 'Claude', ui: await uiFor(pr) });
   const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins, contextMarker: localVerificationMarker(pr) });
   const readiness = assessReadiness({ pr, checks, verdict, reviews });
   if (claude) {
@@ -453,9 +483,9 @@ export function claudeQueueState(
 // tip, so the verdict is selected for the current head/base/metadata context the same way
 // local-readiness selects it: an older-context PASS never hides a current-context FAIL.
 // A failed PR-template check is routine step 2 repair work (rewrite the body).
-export function claimPrSummary(pr, comments, { trustedLogins }) {
+export function claimPrSummary(pr, comments, { trustedLogins, ui }) {
   const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins, contextMarker: localVerificationMarker(pr) });
-  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label) });
+  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label), ui });
   return { number: pr.number, mergeable: pr.mergeable, verdict: verdict?.verdict ?? null, templateFailed: template.status === 'failed' };
 }
 
@@ -800,7 +830,7 @@ async function printRoute() {
       const full = await gh.get(`/pulls/${pr.number}`);
       full.base.sha = (await gh.get(`/git/ref/heads/${encodeURIComponent(full.base.ref)}`)).object.sha;
       const comments = await gh.paginate(`/issues/${pr.number}/comments`);
-      summary = claimPrSummary(full, comments, { trustedLogins });
+      summary = claimPrSummary(full, comments, { trustedLogins, ui: await uiContextFor(gh, full) });
     }
     claims.push({ number: issue.number, live: !queuedNumbers.has(issue.number), pr: summary });
   }

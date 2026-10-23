@@ -157,6 +157,27 @@ describe('UI screenshot evidence', () => {
     expect(assessPrTemplate({ body: captured(header), ui: { fingerprint: product } }).violations.join(' ')).toContain('stale');
   });
 
+  it('keeps pure-insertion relocation detectable in files whose names Git quotes', () => {
+    const r = repository();
+    const page = (afterHeader: string, afterProduct: string) =>
+      `<header>\n  <span>Buy</span>\n${afterHeader}</header>\n<article>\n  <span>Buy</span>\n${afterProduct}</article>\n`;
+    const added = '  <button>Add to cart</button>\n';
+    const path = 'app/components/Caf\u00e9.vue';
+    r.write(path, page('', ''));
+    r.git('update-ref', 'refs/remotes/origin/main', r.commit('two identical controls'));
+
+    r.git('checkout', '-qb', 'topic');
+    r.write(path, page(added, ''));
+    r.commit('PR adds a button to the header');
+    const header = uiDiff({ cwd: r.cwd }).fingerprint;
+
+    r.write(path, page('', added));
+    r.commit('PR moves the button to the product');
+    const product = uiDiff({ cwd: r.cwd }).fingerprint;
+    expect(product).not.toBe(header);
+    expect(assessPrTemplate({ body: captured(header), ui: { fingerprint: product } }).violations.join(' ')).toContain('stale');
+  });
+
   it('requires a current before/after section, or a reason, when UI files changed', () => {
     const ui = { fingerprint };
     expect(assessPrTemplate({ body: template, ui: { fingerprint: null } }).status).toBe('passed');

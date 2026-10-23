@@ -49,12 +49,6 @@ export function uiDiff({ cwd = process.cwd(), head = 'HEAD', remote = 'origin' }
     .sort();
   if (!files.length) return { base, head: headSha, files, fingerprint: null };
   const hash = createHash('sha256');
-  const patch = git(
-    ['diff', '--no-ext-diff', '--no-textconv', '--no-renames', '--unified=0', '--no-color', base, headSha, '--', ...files],
-    {
-      encoding: 'buffer',
-    },
-  );
   // A changed line is identified by its text plus which copy of that text it is in its file, so
   // moving an edit between two identical lines changes the fingerprint while main's edits that
   // only shift line numbers do not. A new identical line above the PR's edit makes it stale.
@@ -71,34 +65,35 @@ export function uiDiff({ cwd = process.cwd(), head = 'HEAD', remote = 'origin' }
     const text = content[number - 1];
     return content.slice(0, number - 1).filter((line) => line === text).length;
   };
-  let file;
-  let before = [];
-  let after = [];
-  let removed = 0;
-  let added = 0;
-  for (const line of patch.toString('latin1').split('\n')) {
-    if (line.startsWith('diff --git ')) {
-      file = files.find((path) => line.endsWith(` b/${path}`));
-      before = file ? lines(base, file) : [];
-      after = file ? lines(headSha, file) : [];
-      removed = added = 0;
-    }
-    if (line.startsWith('index ')) continue; // whole-file blob IDs change when main edits other lines
-    const hunk = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,\d+)? @@/.exec(line);
-    if (hunk) {
-      [removed, added] = [Number(hunk[1]), Number(hunk[3])];
-      hash.update('@@\n'); // hunk positions shift with main's edits
-      // A pure insertion has no removed line to say where it went; the line it follows does.
-      if (hunk[2] === '0') {
-        const anchor = removed ? `${copy(before, removed)}${before[removed - 1]}` : 'start';
-        hash.update(`after ${anchor}\n`);
+  // One diff per path: Git quotes non-ASCII names in a combined patch's headers, so matching a
+  // header back to a file is ambiguous. The path comes from the NUL-separated list instead.
+  for (const file of files) {
+    const patch = git(['diff', '--no-ext-diff', '--no-textconv', '--no-renames', '--unified=0', '--no-color', base, headSha, '--', file], {
+      encoding: 'buffer',
+    });
+    const before = lines(base, file);
+    const after = lines(headSha, file);
+    let removed = 0;
+    let added = 0;
+    hash.update(`file ${JSON.stringify(file)}\n`);
+    for (const line of patch.toString('latin1').split('\n')) {
+      if (line.startsWith('diff --git ') || line.startsWith('index ')) continue; // header quoting and whole-file blob IDs
+      const hunk = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,\d+)? @@/.exec(line);
+      if (hunk) {
+        [removed, added] = [Number(hunk[1]), Number(hunk[3])];
+        hash.update('@@\n'); // hunk positions shift with main's edits
+        // A pure insertion has no removed line to say where it went; the line it follows does.
+        if (hunk[2] === '0') {
+          const anchor = removed ? `${copy(before, removed)}${before[removed - 1]}` : 'start';
+          hash.update(`after ${anchor}\n`);
+        }
+      } else if (removed && line.startsWith('-')) {
+        hash.update(`${copy(before, removed++)}${line}\n`);
+      } else if (added && line.startsWith('+')) {
+        hash.update(`${copy(after, added++)}${line}\n`);
+      } else {
+        hash.update(`${line}\n`);
       }
-    } else if (removed && line.startsWith('-')) {
-      hash.update(`${copy(before, removed++)}${line}\n`);
-    } else if (added && line.startsWith('+')) {
-      hash.update(`${copy(after, added++)}${line}\n`);
-    } else {
-      hash.update(`${line}\n`);
     }
   }
   // Text diffs say only "Binary files differ"; the head blob pins the binary content itself.

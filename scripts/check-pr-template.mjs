@@ -103,7 +103,9 @@ function validateVerificationSection(section) {
 
 // UI PRs show before/after images (scripts/pr-screenshots.mjs) bound to their current UI diff,
 // or say why nothing visible changed.
-function validateScreenshots(sections, fingerprint) {
+function validateScreenshots(sections, ui) {
+  if (ui?.unavailable) return ['UI screenshots cannot be checked: the PR head is not available locally; fetch it and rerun.'];
+  const fingerprint = ui?.fingerprint;
   if (!fingerprint) return [];
   const howTo = 'run `pnpm pr:screenshots --routes <affected routes>` and paste its section, or write "No visible change: <reason>"';
   if (!sections.has('Screenshots')) return [`UI files changed but the ## Screenshots section is missing; ${howTo}.`];
@@ -176,7 +178,7 @@ export function assessPrTemplate({ body, labels = [], ui } = {}) {
     violations.push('Known risks section must check at least one option or explicitly say none.');
   }
 
-  violations.push(...validateScreenshots(sections, ui?.fingerprint));
+  violations.push(...validateScreenshots(sections, ui));
 
   // Rubric section must list the five dimensions; numeric scores are filled by
   // the evaluator before PASS, not by the generator in CI.
