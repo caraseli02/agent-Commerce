@@ -325,6 +325,12 @@
       "impact": "none",
       "reason": "#649 changes only checkout structural controls on /order-summary and saved-card controls on the client settings tab. Neither surface is rendered by the existing home/search/product/cart-sheet/order-history screenshot matrix. Affected routes instead have C2 desktop1440/mobile390 ARIA, tab-order, interaction, clean-runtime and before/after screenshot evidence.",
       "consumers": "Traced app/pages/order-summary/index.vue -> OrderStockType -> ShippingPreferencesSection/PaymentMethodSection -> PayByCard/NewCard. PaymentModal also consumes PayByCard/NewCard under the checkout-only payment-management gate; its Change/Edit/action propagation is exercised against compiled real SFC scripts/templates and SSR markup. PayByCard is additionally consumed by dashboard/client/settings/CardsList.vue, rendered only by the settings Payments section, covered in the C2 browser scenarios at both widths. No shared primitive, global CSS, store, composable, route, API, price or payment contract implementation changes. ui-conventions-baseline.json is a development-only native-control ratchet; it removes exactly the five touched entries. Cart-sheet line rendering, product purchase controls and client order history do not import these components."
+    },
+    {
+      "fingerprint": "64b98918bed5310f384da712b0f7f63ccc7589dee8b9111fa211729d7a7d298d",
+      "impact": "uncertain",
+      "reason": "C3 changes live dashboard and confirmation controls outside the standard screenshot matrix; retain the full matrix plus scoped C3 parity rather than claim a narrow matrix group proves these surfaces.",
+      "consumers": "Dashboard client home credit/payment card, client settings add-card dialog, customer profile Recent Transactions, buyer /order-summary/ord-1 and admin /dashboard/orders/ord-1 notes are covered by C3 at390/1440 with keyboard/form and disabled-state checks. Four scoped credit/settings components are currently unreachable and verified by actual-SFC numeric/term/save tests; do not claim route or keyboard coverage for that dormant subtree. No shared primitive, style, API or payment contract changes. Ratchet removes21 native elements only."
     }
   ]
 }

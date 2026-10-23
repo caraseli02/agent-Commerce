@@ -72,7 +72,7 @@ const showErrorMsg = ref(true);
 <template>
   <UiDialog v-model:open="localIsOpen">
     <UiDialogTrigger as-child>
-      <UiButton class="rounded-full" size="icon" variant="ghost">
+      <UiButton class="rounded-full" size="icon" variant="ghost" aria-label="Add new card">
         <PlusCircleIcon class="aspect-square w-10 h-10 stroke-1 text-primary" />
       </UiButton>
     </UiDialogTrigger>
@@ -81,93 +81,6 @@ const showErrorMsg = ref(true);
         <UiDialogTitle>Add New Card</UiDialogTitle>
       </UiDialogHeader>
       <PaymentSetupCardForm />
-      <!--            <section class="flex flex-col self-stretch bg-card rounded-xl shadow-sm max-md:px-5 max-h-[85vh] overflow-y-auto"> -->
-      <!--                <form class="mt-5 flex flex-col gap-y-6 gap-x-9" @submit="onSubmit"> -->
-      <!--                    <FormField v-slot="{ componentField }" name="phoneNumber"> -->
-      <!--                        <FormItem> -->
-      <!--                            <FormLabel>Contact Phone number</FormLabel> -->
-      <!--                            <FormControl> -->
-      <!--                                <div class="relative"> -->
-      <!--                                    <input -->
-      <!--                                        v-model="cardFields.phoneNumber" -->
-      <!--                                        type="tel" -->
-      <!--                                        placeholder="+1 (555) 867-5309" -->
-      <!--                                        class="mt-1 block w-full pr-10 px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
-      <!--                                        v-bind="componentField" -->
-      <!--                                    /> -->
-      <!--                                </div> -->
-      <!--                            </FormControl> -->
-      <!--                            <FormMessage v-if="showErrorMsg" /> -->
-      <!--                        </FormItem> -->
-      <!--                    </FormField> -->
-      <!--                    <FormField v-slot="{ componentField }" name="cardNumber"> -->
-      <!--                        <FormItem> -->
-      <!--                            <FormLabel>Card Number</FormLabel> -->
-      <!--                            <FormControl> -->
-      <!--                                <div class="relative"> -->
-      <!--                                    <input -->
-      <!--                                        v-model="cardFields.cardNumber" -->
-      <!--                                        type="text" -->
-      <!--                                        placeholder="0000-0000-0000-0000" -->
-      <!--                                        class="mt-1 block w-full pr-10 px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
-      <!--                                        v-bind="componentField" -->
-      <!--                                    /> -->
-      <!--                                    <div class="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none"> -->
-      <!--                                        <CreditCardIcon class="h-5 w-5 text-gray-400" /> -->
-      <!--                                    </div> -->
-      <!--                                </div> -->
-      <!--                            </FormControl> -->
-      <!--                            <FormMessage v-if="showErrorMsg" /> -->
-      <!--                        </FormItem> -->
-      <!--                    </FormField> -->
-      <!--                    <div class="flex flex-col md:flex-row gap-4 mb-4"> -->
-      <!--                        <FormField v-slot="{ componentField }" name="expiryDate"> -->
-      <!--                            <FormItem> -->
-      <!--                                <FormLabel>Expiry Date</FormLabel> -->
-      <!--                                <FormControl> -->
-      <!--                                    <div class="relative"> -->
-      <!--                                        <input -->
-      <!--                                            v-model="cardFields.expiryDate" -->
-      <!--                                            type="text" -->
-      <!--                                            placeholder="MM/YY" -->
-      <!--                                            class="mt-1 block w-full pr-10 px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
-      <!--                                            v-bind="componentField" -->
-      <!--                                        /> -->
-      <!--                                        <div class="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none"> -->
-      <!--                                            <CalendarDaysIcon class="h-5 w-5 text-gray-400" /> -->
-      <!--                                        </div> -->
-      <!--                                    </div> -->
-      <!--                                </FormControl> -->
-      <!--                                <FormMessage v-if="showErrorMsg" /> -->
-      <!--                            </FormItem> -->
-      <!--                        </FormField> -->
-      <!--                        <FormField v-slot="{ componentField }" name="cvv"> -->
-      <!--                            <FormItem> -->
-      <!--                                <FormLabel>CVV</FormLabel> -->
-      <!--                                <FormControl> -->
-      <!--                                    <div class="relative"> -->
-      <!--                                        <input -->
-      <!--                                            v-model="cardFields.cvv" -->
-      <!--                                            type="text" -->
-      <!--                                            placeholder="123" -->
-      <!--                                            class="mt-1 block w-full pr-10 px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" -->
-      <!--                                            v-bind="componentField" -->
-      <!--                                        /> -->
-      <!--                                        <div class="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none"> -->
-      <!--                                            <CreditCardIcon class="h-5 w-5 text-gray-400" /> -->
-      <!--                                        </div> -->
-      <!--                                    </div> -->
-      <!--                                </FormControl> -->
-      <!--                                <FormMessage v-if="showErrorMsg" /> -->
-      <!--                            </FormItem> -->
-      <!--                        </FormField> -->
-      <!--                    </div> -->
-      <!--                    <div class="flex justify-end gap-4 col-span-2 sticky bottom-0 bg-card pt-2"> -->
-      <!--                        <UiButton variant="secondary" type="reset" @click="onCloseDialog()"> Cancel</UiButton> -->
-      <!--                        <UiButton type="submit" class="w-60"> Continue</UiButton> -->
-      <!--                    </div> -->
-      <!--                </form> -->
-      <!--            </section> -->
     </UiDialogContent>
   </UiDialog>
 </template>

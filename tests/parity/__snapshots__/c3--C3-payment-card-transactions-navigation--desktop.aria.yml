@@ -1,0 +1,10 @@
+- text: Card
+- button "Edit payment settings":
+    - img
+- img
+- text: /visa •••• \d+/
+- img
+- text: "/Expiration date: \\d+\\/\\d+/"
+- button "Transactions":
+    - text: ''
+    - img
