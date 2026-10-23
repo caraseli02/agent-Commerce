@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { EllipsisVertical, FileText } from '@lucide/vue';
+import { formatReviewerDate } from '~~/helpers/reviewer-dates';
 import { PaymentStatusEnum, PaymentTypeEnum } from '~~/types';
 
 interface OrderTypeValue {
@@ -62,7 +63,7 @@ defineProps<Props>();
         <div v-if="pickupDate" class="flex gap-2">
           <div class="text-muted-foreground">Estimated pick-up date:</div>
           <div class="text-foreground font-medium">
-            {{ pickupDate }}
+            {{ formatReviewerDate(pickupDate) }}
           </div>
         </div>
       </div>
