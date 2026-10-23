@@ -127,7 +127,6 @@
             :order="order"
             :account-credit="accountCredit"
             :requires-payment-reselection="requiresPaymentReselection"
-            :hide-credit="isGuestCheckout"
             class="item"
             @update-payment-details="emits('update-payment-details', $event)"
           />

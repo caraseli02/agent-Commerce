@@ -4,20 +4,11 @@
       class="mx-auto max-w-xl rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm md:p-8"
       aria-labelledby="payment-title"
     >
-      <p class="text-sm font-medium text-primary">{{ isDisabled ? 'Demo checkout' : 'Secure card checkout' }}</p>
-      <p v-if="!isDisabled" class="mt-2 text-sm text-muted-foreground">Stripe test mode. Use a test card; no real money is charged.</p>
+      <p class="text-sm font-medium text-primary">Secure card checkout</p>
+      <p class="mt-2 text-sm text-muted-foreground">Stripe test mode. Use a test card; no real money is charged.</p>
       <h1 id="payment-title" class="mt-2 text-2xl font-semibold text-foreground">{{ title }}</h1>
       <p v-if="orderId" class="mt-2 break-all text-sm text-muted-foreground">Order {{ orderId }}</p>
       <p class="mt-4 text-sm leading-6 text-muted-foreground" role="status" aria-live="polite">{{ description }}</p>
-      <ul
-        v-if="isDisabled"
-        class="mt-4 list-disc space-y-1 pl-5 text-sm leading-6 text-muted-foreground"
-        data-testid="demo-payment-methods"
-      >
-        <li>Bank transfer</li>
-        <li>Cash on delivery</li>
-        <li>Account credit, for signed-in business customers</li>
-      </ul>
       <form v-show="showForm" class="mt-6 space-y-4" @submit.prevent="pay">
         <div class="relative rounded-lg border border-border p-4" :aria-busy="state !== 'ready' || submitting" data-testid="payment-form">
           <div ref="elementHost" :inert="state !== 'ready' || !elementReady || submitting" />
@@ -53,20 +44,19 @@
           @click="check(true)"
           >Check payment status</UiButton
         >
-        <UiButton v-if="isDisabled" @click="router.push('/order-summary')">Back to order summary</UiButton>
         <UiButton
-          v-else-if="state !== 'confirming' && state !== 'completed'"
+          v-if="state !== 'confirming' && state !== 'completed'"
           variant="outline"
           class="bg-card text-card-foreground dark:bg-card dark:text-card-foreground"
           @click="router.push('/order-summary')"
           >Back to order summary</UiButton
         >
         <UiButton
-          v-if="isDisabled"
+          v-if="state === 'disabled'"
           variant="outline"
           class="bg-card text-card-foreground dark:bg-card dark:text-card-foreground"
-          @click="router.push('/search')"
-          >Continue shopping</UiButton
+          @click="router.push('/')"
+          >Back home</UiButton
         >
       </div>
     </section>
@@ -98,10 +88,7 @@ let mountGeneration = 0;
 let disposed = false;
 let pollTimer: ReturnType<typeof setTimeout> | undefined;
 let polls = 0;
-// Without an order there is nothing to check, so render the demo explanation from the first paint.
-const viewState = computed(() => (orderId ? state.value : 'disabled'));
-const isDisabled = computed(() => viewState.value === 'disabled');
-const showForm = computed(() => ['checking', 'ready', 'confirming'].includes(viewState.value));
+const showForm = computed(() => ['checking', 'ready', 'confirming'].includes(state.value));
 const canCheck = computed(() => ['processing', 'paid-finalizing', 'recovery-required', 'compensation'].includes(state.value));
 const title = computed(
   () =>
@@ -115,8 +102,8 @@ const title = computed(
       canceled: 'This payment was canceled',
       'recovery-required': 'Your payment needs review',
       compensation: 'Payment received. Order under review',
-      disabled: 'Card payment is off in this demo',
-    })[viewState.value],
+      disabled: 'Stripe checkout disabled in demo',
+    })[state.value],
 );
 const description = computed(
   () =>
@@ -130,9 +117,8 @@ const description = computed(
       canceled: 'Review the current cart and total before starting a new payment.',
       'recovery-required': 'Payment is disabled while this checkout is reviewed. Check the status again before trying another payment.',
       compensation: 'Your payment is being reviewed for fulfillment or refund. Please do not pay again.',
-      disabled:
-        'This demo never takes card payments. Go back to the order summary and choose one of these payment methods to place a demo order:',
-    })[viewState.value],
+      disabled: 'Online card payment is disabled in this portfolio preview. Use the demo checkout buttons on the order summary.',
+    })[state.value],
 );
 
 watch(clientSecret, async (secret) => {

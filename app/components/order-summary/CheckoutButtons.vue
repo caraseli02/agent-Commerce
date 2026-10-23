@@ -53,7 +53,7 @@
     </UiButton>
 
     <p class="rounded-xl border border-border bg-card p-4 text-xs leading-5 text-muted-foreground" data-testid="checkout-trust-note">
-      Demo store: orders use sample data and no money is charged.{{ paymentMethodsNote }}
+      Demo store: orders use sample data and no money is charged.
     </p>
   </div>
 </template>
@@ -63,9 +63,7 @@ import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import ArrowLeft from '@/assets/icons/arrow-left.svg';
 import ShieldIcon from '@/assets/icons/shield.svg';
-import { PaymentTypeEnum } from '~~/types';
 import { useCheckoutStore } from '~/store/checkoutStore';
-import { useAuthStore } from '~/store/authStore';
 import { useGuestCheckout } from '~/composables/useGuestCheckout';
 
 const props = withDefaults(
@@ -101,19 +99,4 @@ const placeOrder = () => {
   if (props.isCheckoutDisabled || isSubmitting.value) return;
   checkout.value = true;
 };
-
-// Only name the methods this store actually offers; card payment needs Stripe, which the demo keeps off.
-const paymentMethodLabels: Partial<Record<PaymentTypeEnum, string>> = {
-  [PaymentTypeEnum.Bank]: 'bank transfer',
-  [PaymentTypeEnum.Cash]: 'cash on delivery',
-  [PaymentTypeEnum.Credit]: 'account credit',
-};
-const { getGeneralSettings } = storeToRefs(useAuthStore());
-const paymentMethodsNote = computed(() => {
-  const labels = (getGeneralSettings.value?.orderSettings?.paymentMethods ?? [])
-    .filter((method) => method.type !== PaymentTypeEnum.Credit || !props.isGuestCheckout)
-    .map((method) => paymentMethodLabels[method.type])
-    .filter((label): label is string => Boolean(label));
-  return labels.length ? ` Pay by ${labels.join(', ')}.` : '';
-});
 </script>
