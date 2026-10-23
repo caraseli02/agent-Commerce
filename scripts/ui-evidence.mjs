@@ -34,8 +34,8 @@ function gitIn(cwd) {
 /**
  * The PR's own UI change: files under uiPath() between the merge base with main and `head`,
  * plus a fingerprint of that change. The fingerprint hashes only the lines the PR removes and
- * adds, each with which copy of its text it is (zero context, no blob IDs, no hunk positions),
- * and the head blob of binary files. A
+ * adds, each with which copy of its text it is (zero context, no blob IDs, no hunk positions;
+ * a pure insertion also carries the line it follows), and the head blob of binary files. A
  * conflict-free merge of main, even one that edits other lines of the same file, keeps it; any
  * edit to the PR's own UI lines changes it, so screenshots go stale exactly then.
  */
@@ -84,10 +84,15 @@ export function uiDiff({ cwd = process.cwd(), head = 'HEAD', remote = 'origin' }
       removed = added = 0;
     }
     if (line.startsWith('index ')) continue; // whole-file blob IDs change when main edits other lines
-    const hunk = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(line);
+    const hunk = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,\d+)? @@/.exec(line);
     if (hunk) {
-      [removed, added] = [Number(hunk[1]), Number(hunk[2])];
+      [removed, added] = [Number(hunk[1]), Number(hunk[3])];
       hash.update('@@\n'); // hunk positions shift with main's edits
+      // A pure insertion has no removed line to say where it went; the line it follows does.
+      if (hunk[2] === '0') {
+        const anchor = removed ? `${copy(before, removed)}${before[removed - 1]}` : 'start';
+        hash.update(`after ${anchor}\n`);
+      }
     } else if (removed && line.startsWith('-')) {
       hash.update(`${copy(before, removed++)}${line}\n`);
     } else if (added && line.startsWith('+')) {

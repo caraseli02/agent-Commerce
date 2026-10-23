@@ -136,6 +136,27 @@ describe('UI screenshot evidence', () => {
     expect(assessPrTemplate({ body: captured(header), ui: { fingerprint: product } }).violations.join(' ')).toContain('stale');
   });
 
+  it('changes the fingerprint when a pure insertion moves between repeated controls', () => {
+    const r = repository();
+    const page = (afterHeader: string, afterProduct: string) =>
+      `<header>\n  <span>Buy</span>\n${afterHeader}</header>\n<article>\n  <span>Buy</span>\n${afterProduct}</article>\n`;
+    const added = '  <button>Add to cart</button>\n';
+    r.write('app/components/Buy.vue', page('', ''));
+    const base = r.commit('two identical controls');
+    r.git('update-ref', 'refs/remotes/origin/main', base);
+
+    r.git('checkout', '-qb', 'topic');
+    r.write('app/components/Buy.vue', page(added, ''));
+    r.commit('PR adds a button to the header');
+    const header = uiDiff({ cwd: r.cwd }).fingerprint;
+
+    r.write('app/components/Buy.vue', page('', added));
+    r.commit('PR moves the button to the product');
+    const product = uiDiff({ cwd: r.cwd }).fingerprint;
+    expect(product).not.toBe(header);
+    expect(assessPrTemplate({ body: captured(header), ui: { fingerprint: product } }).violations.join(' ')).toContain('stale');
+  });
+
   it('requires a current before/after section, or a reason, when UI files changed', () => {
     const ui = { fingerprint };
     expect(assessPrTemplate({ body: template, ui: { fingerprint: null } }).status).toBe('passed');
