@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -65,6 +66,25 @@ describe('palette contrast', () => {
     for (const surface of ['background', 'card']) {
       expect(contrast(color, hsl(value(dark, surface))), surface).toBeGreaterThanOrEqual(4.5);
     }
+  });
+
+  it.each(['blue', 'green', 'teal', 'orange', 'red', 'rose'])('%s-600 keeps white text at 4.5:1 in both themes', (hue) => {
+    // The dark theme lightens 500 for text, so filled controls with white text use 600, which it leaves alone.
+    expect(dark).not.toMatch(new RegExp(`--color-${hue}-600:`));
+    expect(contrast(hex(value(theme, `color-${hue}-600`)), white)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('no template pairs a lightened 500 fill with white text', () => {
+    const files = execSync("git ls-files 'app/**/*.vue' 'app/**/*.ts'", { cwd: root, encoding: 'utf8' }).split('\n').filter(Boolean);
+    const fill = /(?<![\w:/-])bg-(?:blue|green|teal|orange|red|rose)-500(?![\w/])/;
+    const whiteText = /(?<![\w:-])text-(?:white|slate-50|zinc-50)\b/;
+    const offenders = files.flatMap((file) =>
+      [...readFileSync(`${root}${file}`, 'utf8').matchAll(/(['"`])([^'"`\n]*)\1/g)]
+        .map((match) => match[2]!)
+        .filter((classes) => fill.test(classes) && whiteText.test(classes))
+        .map((classes) => `${file}: ${classes.trim()}`),
+    );
+    expect(offenders).toEqual([]);
   });
 
   it.each([

@@ -26,7 +26,7 @@
         >
           <div
             class="flex items-center justify-center rounded-full w-[22px] h-[22px] transition-colors duration-300 md:w-[25px] md:h-[25px]"
-            :class="[currentStep === index ? 'bg-blue-500 text-white' : 'text-muted-foreground']"
+            :class="[currentStep === index ? 'bg-blue-600 text-white' : 'text-muted-foreground']"
           >
             <Check v-if="index < currentStep" class="h-4 w-4 text-blue-500" aria-label="Completed" />
             <span v-else class="leading-tight font-medium font-Inter">

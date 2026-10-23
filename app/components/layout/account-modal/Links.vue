@@ -23,7 +23,7 @@
       </div>
       <div
         v-if="menuItem.text === 'Notifications' && unreadNotifications > 0"
-        class="text-white text-center text-xs font-medium leading-5 whitespace-nowrap flex justify-center items-center bg-rose-500 aspect-[1.3333333333333333] my-auto px-1 rounded-[100px]"
+        class="text-white text-center text-xs font-medium leading-5 whitespace-nowrap flex justify-center items-center bg-rose-600 aspect-[1.3333333333333333] my-auto px-1 rounded-[100px]"
       >
         {{ unreadNotifications }}
       </div>

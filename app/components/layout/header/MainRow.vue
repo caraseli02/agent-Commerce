@@ -62,7 +62,7 @@
               <div class="relative flex h-6 w-9 shrink-0 items-center">
                 <CartIcon class="h-6 w-6 text-header-foreground" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
                 <span
-                  class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-500 px-1 dark:bg-rose-600 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
+                  class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-600 px-1 dark:bg-rose-600 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
                   :class="[showCartBadge ? 'opacity-100' : 'opacity-0', isCartPulsing ? 'cart-badge-pop' : '']"
                   :aria-hidden="!showCartBadge"
                 >

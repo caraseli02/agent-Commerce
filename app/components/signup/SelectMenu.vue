@@ -7,7 +7,7 @@
     <div class="grid grid-cols-3 gap-3 mb-[30px] md:mb-10">
       <button
         class="flex flex-col items-center p-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'personal' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
+        :class="[props.selectedType === 'personal' ? 'text-white bg-blue-600' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'personal')"
       >
         <PersonalIcon class="w-8 h-8 mb-2.5" />
@@ -15,7 +15,7 @@
       </button>
       <button
         class="flex flex-col items-center px-2.5 py-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'sole-trader' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
+        :class="[props.selectedType === 'sole-trader' ? 'text-white bg-blue-600' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'sole-trader')"
       >
         <SoleTraderIcon class="w-8 h-8 mb-2.5" />
@@ -23,7 +23,7 @@
       </button>
       <button
         class="flex flex-col items-center p-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'business' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
+        :class="[props.selectedType === 'business' ? 'text-white bg-blue-600' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'business')"
       >
         <BusinessIcon class="w-8 h-8 flex-shrink-0 mb-2.5" />
@@ -59,7 +59,7 @@
       :class="[props.selectedType !== 'business' ? 'mt-[200px] md:mt-[188px]' : '']"
     >
       <button
-        class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white transition-colors duration-300 disabled:bg-muted disabled:text-muted-foreground"
+        class="flex items-center rounded bg-blue-600 px-[22px] py-[11px] text-white transition-colors duration-300 disabled:bg-muted disabled:text-muted-foreground"
         :disabled="!props.selectedType"
         @click="$emit('continue')"
       >
