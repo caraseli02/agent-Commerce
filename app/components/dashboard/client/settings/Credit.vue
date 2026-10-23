@@ -51,10 +51,10 @@ const handlePayNow = () => {};
           <p class="text-base font-medium leading-6 text-muted-foreground">Balance:</p>
           <p class="text-lg font-semibold leading-6 text-foreground">{{ balance.toFixed(2) }} Lei</p>
         </div>
-        <button class="flex gap-1 text-base font-semibold leading-6 text-muted-foreground" @click="handlePayNow">
-          <CreditCard class="shrink-0 w-6 aspect-square" />
+        <UiButton variant="bare" size="flush" class="flex" @click="handlePayNow">
+          <CreditCard class="shrink-0 w-6 aspect-square mr-1" />
           <span>Pay now</span>
-        </button>
+        </UiButton>
       </div>
     </div>
   </section>

@@ -5,12 +5,9 @@
     <div class="mb-4">
       <div class="flex items-start justify-between">
         <h2 class="text-xl leading-[1.4] font-semibold">Customer Credit</h2>
-        <button
-          class="flex items-center justify-center rounded-lg w-8 h-8 bg-muted text-muted-foreground transition-colors duration-300 hover:text-blue-500"
-          @click="$emit('toggle-editing')"
-        >
+        <UiButton variant="ghost" size="icon" aria-label="Close credit editor" @click="$emit('toggle-editing')">
           <XIcon class="w-6 h-6" />
-        </button>
+        </UiButton>
       </div>
     </div>
     <p class="text-sm leading-[1.71] mb-8">Change to customer credit account.</p>
@@ -48,27 +45,22 @@
         </div>
       </div>
       <div class="flex items-center gap-4 mb-6">
-        <button
-          class="flex items-center justify-center border-[1.5px] border-[#FA4B4B] rounded-md px-4 py-1 text-rose-500 h-8"
-          @click="switchClose()"
-        >
+        <UiButton variant="destructive" size="xs" @click="switchClose()">
           <TrashIcon class="w-4 h-4 mr-2" />
           <span class="text-sm leading-[1.71] font-medium min-w-max"> Close Credit </span>
-        </button>
-        <button
-          class="flex items-center justify-center border-[1.5px] border-blue-500 rounded-md px-4 py-1 text-blue-500 h-8"
-          @click="switchFreeze()"
-        >
+        </UiButton>
+        <UiButton variant="outline" size="xs" @click="switchFreeze()">
           <FreezeIcon class="w-4 h-4 mr-2" />
           <span class="text-sm leading-[1.71] font-medium min-w-max"> Freeze Credit </span>
-        </button>
+        </UiButton>
       </div>
       <div class="mb-6">
         <div class="relative z-10">
           <div class="text-sm text-muted-foreground mb-1">Credit Term</div>
-          <button
-            class="flex items-center justify-between px-3 text-sm w-full border py-[9px] rounded-lg h-11 transition-colors duration-300 focus:outline-none"
-            :class="[showCreditTermOptions ? 'border-blue-500' : 'border-border']"
+          <UiButton
+            size="lg"
+            class="w-full justify-between"
+            :variant="showCreditTermOptions ? 'option-selected' : 'outline'"
             @click="showCreditTermOptions = !showCreditTermOptions"
           >
             <span
@@ -98,18 +90,19 @@
                 d="m5.836 8.332 4.167 3.333 4.166-3.333"
               />
             </svg>
-          </button>
+          </UiButton>
           <Transition name="fade-full">
             <div
               v-if="showCreditTermOptions"
               v-click-outside="() => (showCreditTermOptions = false)"
               class="grid grid-cols-1 gap-1 absolute -bottom-1 left-0 translate-y-full w-full bg-card rounded-lg overflow-y-auto scrollbar-thin shadow-m p-3 max-h-[250px]"
             >
-              <button
+              <UiButton
                 v-for="option in creditTermOptions"
                 :key="option.value"
-                class="group flex items-center justify-between w-full px-2 py-2 text-left rounded-lg text-sm font-medium leading-[1.71429] transition-colors duration-300 hover:bg-[#F2F2F2] hover:text-blue-500"
-                :class="[option.value === creditTerm?.value ? '' : 'text-foreground']"
+                size="row"
+                class="group w-full justify-between text-left"
+                :variant="option.value === creditTerm?.value ? 'option-selected' : 'ghost'"
                 @click="
                   creditTerm = option;
                   showCreditTermOptions = false;
@@ -124,7 +117,7 @@
                 >
                   <div v-if="option.value === creditTerm?.value" class="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                 </div>
-              </button>
+              </UiButton>
             </div>
           </Transition>
         </div>
@@ -132,28 +125,21 @@
       <div class="mb-10">
         <div class="text-sm text-muted-foreground mb-1">Credit Amount</div>
         <div class="flex border border-border rounded-lg h-11 overflow-hidden">
-          <input
-            v-model="creditAmount"
-            type="number"
-            placeholder="Discount (i.e. 5, 10, 17)"
-            class="bg-transparent px-2 text-sm w-full transition-colors duration-300 focus:outline-none"
-          />
+          <UiInput v-model="creditAmount" type="number" placeholder="Discount (i.e. 5, 10, 17)" />
           <div class="text-xl leading-[1.3] px-3 py-2 border-r border-border bg-muted">Lei</div>
         </div>
       </div>
       <div class="grid grid-cols-[auto_1fr] gap-4">
-        <button class="flex px-8 py-2 rounded-lg bg-muted leading-[1.75] text-muted-foreground font-medium" @click="$emit('cancel')">
-          Cancel
-        </button>
-        <button
-          class="flex items-center justify-center px-5 py-2 rounded-lg bg-blue-500 leading-[1.75] text-white font-medium"
+        <UiButton variant="secondary" size="lg" @click="$emit('cancel')"> Cancel </UiButton>
+        <UiButton
+          size="lg"
           @click="
             $emit('close');
             updateCreditTerm(creditTerm?.value, creditAmount);
           "
         >
           Save
-        </button>
+        </UiButton>
       </div>
     </div>
   </div>
