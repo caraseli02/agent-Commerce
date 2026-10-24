@@ -10,7 +10,7 @@
       :per-page="perPage"
       @reset-products-filters="resetProductsFilters = $event"
     />
-    <div v-if="pending" class="container mb-10 min-h-[200px]" aria-busy="true" aria-live="polite">
+    <div v-if="pending && !products" class="container mb-10 min-h-[200px]" aria-busy="true" aria-live="polite">
       <div class="h-10 w-64 rounded bg-slate-100 animate-pulse motion-reduce:animate-none mb-6" />
       <div class="space-y-4">
         <div v-for="n in 3" :key="n" class="h-[120px] rounded-2xl bg-slate-100 animate-pulse motion-reduce:animate-none" />
@@ -18,7 +18,7 @@
       <span class="sr-only">Loading search results…</span>
     </div>
 
-    <div v-else-if="error" class="container mb-10 min-h-[200px] flex flex-col items-start justify-center gap-4" role="alert">
+    <div v-else-if="error && !pending" class="container mb-10 min-h-[200px] flex flex-col items-start justify-center gap-4" role="alert">
       <p class="text-lg font-semibold text-foreground">We could not load search results</p>
       <p class="text-sm text-muted-foreground max-w-xl">Try again or adjust your filters.</p>
       <UiButton type="button" @click="refresh()">Try again</UiButton>
@@ -29,6 +29,7 @@
       :key="searchResultsKey"
       :products="products"
       :keyword="keyword"
+      :aria-busy="pending"
       @at-page="atPage = $event"
       @per-page="perPage = $event"
       @sort-by-change="onSortByChange"
@@ -43,7 +44,7 @@
 
 <script setup lang="ts">
 import Emitter from 'tiny-emitter/instance.js';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
 import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearchTransfer';
@@ -110,12 +111,23 @@ const {
   },
 );
 
-const products = computed(() => searchData.value ?? null);
+// While sort, page or filters refetch, keep showing the last results of the same search context:
+// unmounting SearchProducts for the skeleton would reset its toolbar and pager to their defaults.
+const lastResults = shallowRef<{ context: string; data: SearchData } | null>(null);
+const products = computed(() => {
+  if (searchData.value) {
+    return searchData.value;
+  }
+  return lastResults.value?.context === searchResultsKey.value ? lastResults.value.data : null;
+});
 const filters = ref<ProductFilters | null>(null);
 
 watch(
   searchData,
   (data) => {
+    if (data) {
+      lastResults.value = { context: searchResultsKey.value, data };
+    }
     if (data?.filters) {
       filters.value = data.filters;
     }
