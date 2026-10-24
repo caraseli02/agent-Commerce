@@ -17,7 +17,17 @@
           <SearchIcon class="w-[18px] h-[18px] text-muted-foreground" />
           <UiInput v-model="searchValue" type="search" placeholder="Search parameters" aria-label="Search parameters" class="flex-1" />
           <Transition name="fade">
-            <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-muted-foreground cursor-pointer" @click="searchValue = ''" />
+            <UiButton
+              v-if="searchValue"
+              type="button"
+              variant="ghost"
+              size="icon"
+              class="h-8 w-8 shrink-0"
+              aria-label="Clear search"
+              @click="searchValue = ''"
+            >
+              <XIcon class="w-[18px] h-[18px] text-muted-foreground" aria-hidden="true" />
+            </UiButton>
           </Transition>
         </UiLabel>
       </div>

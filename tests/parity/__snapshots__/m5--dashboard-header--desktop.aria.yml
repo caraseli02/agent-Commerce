@@ -1,7 +1,6 @@
 - banner:
-    - searchbox
-    - img
-    - button:
+    - searchbox "Search"
+    - button "Create new":
         - img
     - button "Open notifications":
         - img

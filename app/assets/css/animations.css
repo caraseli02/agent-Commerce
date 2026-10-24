@@ -1,7 +1,8 @@
+/* Page and panel transitions: opacity and transform only, 150-200ms, exponential ease-out. */
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity duration-150;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .fade-enter-from,
@@ -11,8 +12,8 @@
 
 .fade-full-enter-active,
 .fade-full-leave-active {
-  @apply transition-all duration-150;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  @apply transition-[opacity,transform] duration-150;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .fade-full-enter-from,
@@ -22,8 +23,8 @@
 
 .fade-bottom-enter-active,
 .fade-bottom-leave-active {
-  @apply transition-all duration-150;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  @apply transition-[opacity,transform] duration-150;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .fade-bottom-enter-from,
@@ -33,8 +34,8 @@
 
 .fade-full-neg-enter-active,
 .fade-full-neg-leave-active {
-  @apply transition-all duration-150;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  @apply transition-[opacity,transform] duration-150;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .fade-full-neg-enter-from,
@@ -44,7 +45,8 @@
 
 .slide-from-right-enter-active,
 .slide-from-right-leave-active {
-  @apply transition-all duration-500 ease-in-out;
+  @apply transition-[opacity,transform] duration-200;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .slide-from-right-enter-from,
@@ -54,7 +56,8 @@
 
 .slide-from-left-enter-active,
 .slide-from-left-leave-active {
-  @apply transition-all duration-500 ease-in-out;
+  @apply transition-[opacity,transform] duration-200;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .slide-from-left-enter-from,
@@ -64,7 +67,8 @@
 
 .slide-from-bottom-enter-active,
 .slide-from-bottom-leave-active {
-  @apply transition-all duration-500 ease-in-out;
+  @apply transition-[opacity,transform] duration-200;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 .slide-from-bottom-enter-from,
 .slide-from-bottom-leave-to {
@@ -73,8 +77,8 @@
 
 .slide-fast-from-bottom-enter-active,
 .slide-fast-from-bottom-leave-active {
-  @apply transition-all duration-150;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  @apply transition-[opacity,transform] duration-150;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 .slide-fast-from-bottom-enter-from,
 .slide-fast-from-bottom-leave-to {
@@ -83,11 +87,34 @@
 
 .slide-from-top-enter-active,
 .slide-from-top-leave-active {
-  @apply transition-all duration-500 ease-in-out;
+  @apply transition-[opacity,transform] duration-200;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 .slide-from-top-enter-from,
 .slide-from-top-leave-to {
   @apply opacity-0 -translate-y-10;
+}
+
+/* Reduced motion: keep the fade, drop the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .fade-full-enter-from,
+  .fade-full-leave-to,
+  .fade-bottom-enter-from,
+  .fade-bottom-leave-to,
+  .fade-full-neg-enter-from,
+  .fade-full-neg-leave-to,
+  .slide-from-right-enter-from,
+  .slide-from-right-leave-to,
+  .slide-from-left-enter-from,
+  .slide-from-left-leave-to,
+  .slide-from-bottom-enter-from,
+  .slide-from-bottom-leave-to,
+  .slide-fast-from-bottom-enter-from,
+  .slide-fast-from-bottom-leave-to,
+  .slide-from-top-enter-from,
+  .slide-from-top-leave-to {
+    transform: none;
+  }
 }
 
 @keyframes ping {
@@ -124,7 +151,7 @@
 }
 
 .cart-badge-pop {
-  animation: cart-badge-pop 360ms cubic-bezier(0.34, 1.3, 0.64, 1);
+  animation: cart-badge-pop 360ms cubic-bezier(0.25, 1, 0.5, 1);
   transform-origin: center;
   /* Keep scale off the document flow so neighboring header items do not shift. */
   will-change: transform;

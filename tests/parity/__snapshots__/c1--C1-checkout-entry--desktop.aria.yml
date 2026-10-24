@@ -1,14 +1,10 @@
-- link "Continue Shopping":
-    - /url: /search
-    - img
-    - text: ''
 - link "Sign in to Continue Checkout":
     - /url: /?signin=true&redirect=%2Forder-summary
     - img
     - text: ''
 - button "Checkout as Guest"
-- img
-- img
-- img
-- img
-- img
+- link "Continue shopping":
+    - /url: /search
+    - img
+    - text: ''
+- paragraph: Card payments via Stripe test mode. No real money is charged.

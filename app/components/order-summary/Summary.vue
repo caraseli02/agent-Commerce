@@ -6,14 +6,18 @@
     <div class="flex flex-col gap-2 relative">
       <div class="flex flex-row justify-between w-full">
         <span class="text-muted-foreground text-sm font-normal leading-6">Subtotal</span>
-        <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ resolvedSubtotal.toFixed(2) }} Lei</span>
+        <span v-if="isSummaryReady" class="whitespace-nowrap text-foreground text-sm font-medium leading-6">{{
+          formatLei(resolvedSubtotal)
+        }}</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div class="flex flex-row justify-between w-full">
         <div class="flex flex-row gap-6">
           <span class="text-muted-foreground text-sm font-normal leading-6">Discount</span>
         </div>
-        <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ resolvedDiscount.toFixed(2) }} Lei</span>
+        <span v-if="isSummaryReady" class="whitespace-nowrap text-foreground text-sm font-medium leading-6">{{
+          formatLei(resolvedDiscount)
+        }}</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div v-if="smallOrder" class="flex flex-row justify-between w-full">
@@ -33,7 +37,9 @@
           <span class="text-foreground italic text-sm font-normal leading-6">Small order charge</span>
         </div>
         <div class="flex flex-col justify-end">
-          <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ smallOrder.toFixed(2) }} Lei</span>
+          <span v-if="isSummaryReady" class="whitespace-nowrap text-foreground text-sm font-medium leading-6">{{
+            formatLei(smallOrder)
+          }}</span>
           <UiSkeleton v-else class="h-4 w-20" />
         </div>
       </div>
@@ -57,7 +63,9 @@
           <span v-if="shipping" class="text-foreground italic text-sm font-normal leading-6">{{ shippingText }}</span>
         </div>
         <div v-if="shipping" class="flex flex-col justify-end">
-          <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ formattedShippingPrice }}</span>
+          <span v-if="isSummaryReady" class="whitespace-nowrap text-foreground text-sm font-medium leading-6">{{
+            formatLei(money?.shippingCost ?? 0)
+          }}</span>
           <UiSkeleton v-else class="h-4 w-20" />
         </div>
       </div>
@@ -69,13 +77,17 @@
           </UiButton>
           <span class="text-foreground text-sm font-normal leading-6 ml-6">(VAT {{ vatPercent }}%)</span>
         </div>
-        <span v-if="isSummaryReady" class="text-foreground text-sm font-medium leading-6">{{ calculatedVAT }} Lei</span>
+        <span v-if="isSummaryReady" class="whitespace-nowrap text-foreground text-sm font-medium leading-6">{{
+          formatLei(calculatedVAT)
+        }}</span>
         <UiSkeleton v-else class="h-4 w-20" />
       </div>
       <div class="w-full h-[1px] bg-accent rounded-lg" />
       <div class="flex flex-row justify-between w-full">
         <span class="text-foreground text-xl font-normal leading-9">Total</span>
-        <span v-if="isSummaryReady" class="text-foreground text-2xl font-semibold leading-9">{{ calculatedTotal }} Lei</span>
+        <span v-if="isSummaryReady" class="whitespace-nowrap text-foreground text-2xl font-semibold leading-9">{{
+          formatLei(calculatedTotal)
+        }}</span>
         <UiSkeleton v-else class="h-8 w-24" />
       </div>
     </div>
@@ -87,12 +99,13 @@ import { storeToRefs } from 'pinia';
 import OrderSummarySmallOrderModal from './SmallOrderModal.vue';
 import InformationIcon from '~/assets/icons/information.svg';
 import { toCheckoutMoneyView, type CheckoutQuote } from '~~/helpers/checkout-quote';
+import { formatLei } from '~~/helpers/money-format';
 import type { CheckoutOrderDraft } from '~~/types';
 import { useCartStore } from '~/store/cartStore';
 
 const cartStore = useCartStore();
 const { hasFetchedCart } = storeToRefs(cartStore);
-// Wait for a completed cart fetch — client mount alone still races the async cart load.
+// Wait for a completed cart fetch; client mount alone still races the async cart load.
 const isSummaryReady = computed(() => hasFetchedCart.value && Boolean(props.quote));
 
 const props = defineProps<{
@@ -114,7 +127,7 @@ const vatPercent = computed(() => Math.round((money.value?.vatRate ?? 0) * 100))
 const shippingText = computed(() => {
   if (!shipping.value) return '';
 
-  return `${shipping.value.service.courierName} (${shipping.value.service.courierName})`;
+  const { courierName, name } = shipping.value.service;
+  return name && name !== courierName ? `${courierName} (${name})` : courierName;
 });
-const formattedShippingPrice = computed(() => `${(money.value?.shippingCost ?? 0).toFixed(2)} Lei`);
 </script>

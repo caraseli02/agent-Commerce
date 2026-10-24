@@ -1,5 +1,5 @@
 <template>
-  <div class="w-[1488px] max-w-full p-4 mx-auto transition-all duration-300 md:py-6 2xl:px-6">
+  <div class="w-[1488px] max-w-full p-4 mx-auto md:py-6 2xl:px-6">
     <DashboardOrdersBreadcrumbs title="Orders">
       <UiButton
         variant="secondary"
@@ -20,9 +20,7 @@
 <script setup lang="ts">
 import DownloadIcon from '@/assets/icons/dashboard/download.svg';
 
-useHead({
-  title: 'Orders',
-});
+usePageSeo({ title: 'Orders', robots: 'noindex,nofollow' });
 
 definePageMeta({
   middleware: 'auth',

@@ -27,7 +27,8 @@ const addProductToCart = async (page: Page) => {
 
 const signInThroughOrderSummary = async (page: Page) => {
   await navigateTo(page, '/order-summary');
-  await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+  // An empty cart offers the empty-state sign-in link; a cart with items offers the checkout one.
+  await page.getByRole('link', { name: /sign in to (continue checkout|see your saved cart)/i }).click();
   await submitCustomerSignIn(page);
   await expect(page).toHaveURL(/\/order-summary$/);
 };
@@ -120,7 +121,8 @@ test.describe('Checkout result states', () => {
     await navigateTo(page, '/product/prod-2');
     await addProductToCart(page);
     await navigateTo(page, '/order-summary');
-    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    // An empty cart offers the empty-state sign-in link; a cart with items offers the checkout one.
+    await page.getByRole('link', { name: /sign in to (continue checkout|see your saved cart)/i }).click();
     await submitCustomerSignIn(page);
 
     await page.route('**/api/orders/new', async (route) => {
@@ -153,7 +155,8 @@ test.describe('Checkout result states', () => {
     await navigateTo(page, '/product/prod-2');
     await addProductToCart(page);
     await navigateTo(page, '/order-summary');
-    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    // An empty cart offers the empty-state sign-in link; a cart with items offers the checkout one.
+    await page.getByRole('link', { name: /sign in to (continue checkout|see your saved cart)/i }).click();
     await submitCustomerSignIn(page);
 
     await page.route('**/api/orders/new', async (route) => {
@@ -319,7 +322,8 @@ test.describe('Checkout result states', () => {
     await navigateTo(page, '/product/prod-2');
     await addProductToCart(page);
     await navigateTo(page, '/order-summary');
-    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    // An empty cart offers the empty-state sign-in link; a cart with items offers the checkout one.
+    await page.getByRole('link', { name: /sign in to (continue checkout|see your saved cart)/i }).click();
     await submitCustomerSignIn(page);
 
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });

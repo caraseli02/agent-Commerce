@@ -9,7 +9,7 @@ export const buttonVariants = cva(
       variant: {
         default: 'bg-blue-700 text-white hover:bg-blue-800 dark:bg-muted dark:text-foreground dark:hover:bg-muted/90',
         cart: 'bg-blue-700 text-white hover:bg-blue-800 dark:!bg-primary dark:!text-primary-foreground dark:hover:!bg-primary/90',
-        // The project's green-800 (#007452) keeps white text above 4.5:1 in both themes; green-700 does not.
+        // The project's green-800 (#005a40) keeps white text above 8:1 in both themes.
         success: 'bg-green-800 text-white hover:bg-green-900',
         destructive: 'bg-red-600 text-slate-50 hover:bg-red-700 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90',
         outline:
@@ -24,6 +24,8 @@ export const buttonVariants = cva(
         'option-dashed-selected': 'rounded-lg border border-dashed border-blue-500 bg-card dark:bg-slate-950',
         // Unframed row whose content supplies its own hover cue (accordion headers, radio rows).
         bare: 'bg-transparent',
+        // Submit segment fused to the right edge of a bordered search field.
+        'input-addon': 'rounded-none bg-primary text-primary-foreground hover:bg-primary/90',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -35,6 +37,7 @@ export const buttonVariants = cva(
         'card-compact': 'h-auto px-3 py-2',
         row: 'h-auto px-0 py-2',
         flush: 'h-auto p-0',
+        addon: 'h-full px-4',
       },
     },
     defaultVariants: {

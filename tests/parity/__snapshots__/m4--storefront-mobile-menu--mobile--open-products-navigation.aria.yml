@@ -21,8 +21,8 @@
     - button "Electronics 4 products":
         - paragraph: Electronics 4 products
         - img
-    - button "Components 3 products":
-        - paragraph: Components 3 products
+    - button "Peripherals 3 products":
+        - paragraph: Peripherals 3 products
         - img
     - button "Accessories 3 products":
         - paragraph: Accessories 3 products

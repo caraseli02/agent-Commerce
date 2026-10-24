@@ -7,7 +7,7 @@
           !item.avatar ? 'bg-gray-100' : '',
           loading
             ? ''
-            : 'after:absolute after:top-0 after:left-0 after:w-full after:h-full after:rounded-full after:border-2 after:border-blue-500 after:opacity-0 after:transition-opacity after:duration-300 group-hover/link:after:opacity-100',
+            : 'after:absolute after:top-0 after:left-0 after:w-full after:h-full after:rounded-full after:border-2 after:border-primary after:opacity-0 after:transition-opacity after:duration-200 group-hover/link:after:opacity-100',
         ]"
       >
         <SkeletonLoader v-if="loading" type="circle" class="w-full h-full" />
@@ -20,7 +20,7 @@
       </div>
       <div :class="[loading ? 'w-full' : 'truncate']">
         <SkeletonLoader v-if="loading" class="block w-2/3 h-4 mb-2" />
-        <div v-else class="text-sm leading-[1.43] font-semibold truncate transition-colors duration-300 group-hover/link:text-blue-500">
+        <div v-else class="text-sm leading-[1.43] font-semibold truncate transition-colors duration-200 group-hover/link:text-primary">
           {{ `${item.name}` }}
         </div>
         <SkeletonLoader v-if="loading" class="w-full h-4" />
@@ -29,7 +29,7 @@
     </NuxtLink>
     <div v-if="!loading" class="relative flex">
       <DemoTooltip v-if="!item.active" theme="black" :position="'top'" class="self-start mx-3">
-        <LockKeyholeIcon class="w-4 h-4 text-muted-foreground transition-colors duration-300 hover:text-blue-500" />
+        <LockKeyholeIcon class="w-4 h-4 text-muted-foreground transition-colors duration-200 hover:text-primary" />
         <template #content>
           <span class="capitalize">Account Locked</span>
         </template>
@@ -38,7 +38,7 @@
       <UiButton
         variant="ghost"
         size="icon"
-        class="flex h-auto w-auto text-[#9296AA] transition-colors duration-300 hover:text-blue-500"
+        class="flex h-auto w-auto text-[#9296AA] transition-colors duration-200 hover:text-primary"
         aria-label="Open customer menu"
         @click="showOptions = !showOptions"
       >

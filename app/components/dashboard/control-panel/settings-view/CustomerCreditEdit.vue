@@ -79,7 +79,7 @@
               width="20"
               height="20"
               fill="none"
-              class="w-5 h-5 text-muted-foreground transition-all duration-300"
+              class="w-5 h-5 text-muted-foreground transition-transform duration-200"
               :class="[showCreditTermOptions ? 'rotate-180' : '']"
             >
               <path
@@ -112,10 +112,10 @@
                   {{ option.label }}
                 </span>
                 <div
-                  class="flex items-center justify-center w-[18px] h-[18px] rounded-full border-2 transition-colors duration-300"
-                  :class="[option.value === creditTerm?.value ? 'border-blue-500' : 'border-border group-hover:border-dark']"
+                  class="flex items-center justify-center w-[18px] h-[18px] rounded-full border-2 transition-colors duration-200"
+                  :class="[option.value === creditTerm?.value ? 'border-primary' : 'border-border group-hover:border-dark']"
                 >
-                  <div v-if="option.value === creditTerm?.value" class="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                  <div v-if="option.value === creditTerm?.value" class="w-2.5 h-2.5 bg-primary rounded-full" />
                 </div>
               </UiButton>
             </div>

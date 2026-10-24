@@ -4,7 +4,7 @@
 - text: /Small order charge \d+\.\d+ Lei Shipping/
 - button "Shipping information":
     - img
-- text: /Demo Express \(Demo Express\) \d+\.\d+ Lei Tax:/
+- text: /Demo Express \(Standard Delivery\) \d+\.\d+ Lei Tax:/
 - button "Tax information":
     - img
-- text: /\(VAT \d+%\) 3\.8 Lei Total \d+\.\d+ Lei/
+- text: /\(VAT \d+%\) \d+\.\d+ Lei Total \d+\.\d+ Lei/

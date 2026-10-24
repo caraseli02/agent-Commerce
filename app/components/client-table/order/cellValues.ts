@@ -1,5 +1,5 @@
 import type { OrderTableColumns } from '~~/types';
-import { formatNumberWithCommas } from '~/utils/numbers';
+import { formatLei, formatNumberWithCommas } from '~/utils/numbers';
 
 const MISSING = 'N/A';
 
@@ -12,4 +12,8 @@ export function orderUserInfo(order: Partial<Pick<OrderTableColumns, 'user'>>): 
 
 export function orderTotal(total: unknown, prefix: string): string {
   return typeof total === 'number' && Number.isFinite(total) ? formatNumberWithCommas(total, prefix) : MISSING;
+}
+
+export function orderTotalLei(total: unknown): string {
+  return typeof total === 'number' && Number.isFinite(total) ? formatLei(total) : MISSING;
 }

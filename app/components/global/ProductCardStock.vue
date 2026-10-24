@@ -11,7 +11,7 @@
     <WarningIcon v-if="outOfStock" class="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" />
     <CheckIcon v-else class="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" />
     <span class="truncate font-semibold leading-tight" :class="floating ? 'text-[11px] md:text-xs' : 'text-[10px] md:text-[11px]'">
-      <span class="md:hidden">{{ outOfStock ? 'Backorder' : stock }}</span>
+      <span class="md:hidden">{{ outOfStock ? 'Backorder' : `${stock} in stock` }}</span>
       <span class="hidden md:inline">{{ outOfStock ? `${stock} in stock backorder only` : `${stock} in stock` }}</span>
     </span>
   </div>

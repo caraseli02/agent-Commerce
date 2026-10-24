@@ -11,6 +11,13 @@ interface DataTableColumnHeaderProps {
 }
 
 defineProps<DataTableColumnHeaderProps>();
+
+const sortLabel = (column: Column<unknown, unknown>, title: string) => {
+  const sorted = column.getIsSorted();
+  if (sorted === 'asc') return `${title}, sorted ascending. Sort descending`;
+  if (sorted === 'desc') return `${title}, sorted descending. Sort ascending`;
+  return `Sort by ${title}`;
+};
 </script>
 
 <script lang="ts">
@@ -20,19 +27,20 @@ export default {
 </script>
 
 <template>
-  <div v-if="column.getCanSort()" :class="cn('flex items-center space-x-2 rounded-xl hover:bg-transparent', $attrs.class ?? '')">
-    <span>{{ title }}</span>
-    <ArrowDownWideNarrowIcon
-      v-if="column.getIsSorted() === 'desc'"
-      class="ml-2 h-4 w-4 cursor-pointer"
-      @click="column.toggleSorting(undefined)"
-    />
-    <ArrowUpWideNarrowIcon
-      v-else-if="column.getIsSorted() === 'asc'"
-      class="ml-2 h-4 w-4 cursor-pointer"
-      @click="column.toggleSorting(true)"
-    />
-    <ChevronsUpDownIcon v-else class="ml-2 h-4 w-4 cursor-pointer" @click="column.toggleSorting(false)" />
+  <div v-if="column.getCanSort()" :class="cn('flex items-center', $attrs.class ?? '')">
+    <UiButton
+      type="button"
+      variant="ghost"
+      size="xs"
+      class="-ml-3"
+      :aria-label="sortLabel(column, title)"
+      @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+    >
+      <span>{{ title }}</span>
+      <ArrowDownWideNarrowIcon v-if="column.getIsSorted() === 'desc'" class="ml-2 h-4 w-4" aria-hidden="true" />
+      <ArrowUpWideNarrowIcon v-else-if="column.getIsSorted() === 'asc'" class="ml-2 h-4 w-4" aria-hidden="true" />
+      <ChevronsUpDownIcon v-else class="ml-2 h-4 w-4" aria-hidden="true" />
+    </UiButton>
     <!-- <UiDropdownMenu>
           <UiDropdownMenuTrigger as-child>
             <UiButton variant="ghost" size="sm" class="-ml-3 font-medium h-8 text-foreground data-[state=open]:bg-accent">

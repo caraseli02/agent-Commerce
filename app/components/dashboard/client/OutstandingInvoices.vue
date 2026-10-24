@@ -23,18 +23,18 @@ defineProps<{
               v-for="item in items"
               :key="item.id"
               :to="`/order-summary/${item.id}`"
-              class="w-fit text-muted-foreground hover:text-blue-500 text-[12px] leading-5 font-medium flex justify-center items-center bg-muted px-[6px] rounded-3xl"
+              class="w-fit text-muted-foreground hover:text-primary text-[12px] leading-5 font-medium flex justify-center items-center bg-muted px-[6px] rounded-3xl"
             >
-              {{ item.shortId }}
+              {{ formatOrderRef(item.shortId) }}
             </NuxtLink>
           </div>
         </div>
       </div>
       <div class="items-stretch flex justify-end gap-3">
-        <UiButton as-child>
+        <UiButton as-child variant="outline">
           <NuxtLink to="/dashboard/client?tab=orders" class="inline-flex items-center justify-center">
-            <FileText class="w-4 h-4 mr-2 text-white" />
-            <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">View All Invoices</div>
+            <FileText class="w-4 h-4 mr-2" />
+            <div class="text-sm font-medium leading-6 grow whitespace-nowrap">View All Invoices</div>
           </NuxtLink>
         </UiButton>
       </div>

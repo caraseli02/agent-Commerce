@@ -1,24 +1,23 @@
 - complementary:
-    - link:
+    - link "Components Marketplace home":
         - /url: /
+    - button "Collapse navigation":
         - img
-    - navigation:
+    - navigation "Dashboard":
         - list:
             - listitem:
-                - link:
+                - link "Dashboard":
                     - /url: /dashboard
-                    - img
             - listitem:
-                - button [disabled]:
-                    - img
-            - listitem:
-                - link:
-                    - /url: /dashboard/customers
-                    - img
-            - listitem:
-                - link:
+                - link "Orders":
                     - /url: /dashboard/orders
-                    - img
-    - button:
-        - img
-    - text: V 1.0.0
+            - listitem:
+                - link "Customers":
+                    - /url: /dashboard/customers
+            - listitem:
+                - link "Products":
+                    - /url: /dashboard/products
+            - listitem:
+                - link "Categories":
+                    - /url: /dashboard/products/categories
+    - text: /© \d+ Components Marketplace Demo V 1\.0\.0/

@@ -108,6 +108,9 @@ const handleBusinessDetailsContinue = async () => {
     ]);
   }
 
+  // Empty fields already show inline errors; only verify a complete address.
+  if (hasError) return;
+
   const addressValid = await isSignupAddressValid({
     country: getCountryTypeValue(businessDetails.value.country),
     region: getCountryTypeValue(businessDetails.value.region),
@@ -122,8 +125,8 @@ const handleBusinessDetailsContinue = async () => {
     hasError = true;
     toast({
       variant: 'destructive',
-      title: 'Error',
-      description: 'Invalid address',
+      title: 'Address not recognised',
+      description: 'Check the city, postcode and street, then continue.',
     });
     return;
   }
@@ -144,6 +147,9 @@ const handlePersonalDetailsContinue = async () => {
     personalDetails.value.addressLine1,
   ]);
 
+  // Empty fields already show inline errors; only verify a complete address.
+  if (hasError) return;
+
   const addressValid = await isSignupAddressValid({
     country: getInputStringValue(personalDetails.value.country),
     region: getInputStringValue(personalDetails.value.region),
@@ -158,8 +164,8 @@ const handlePersonalDetailsContinue = async () => {
     hasError = true;
     toast({
       variant: 'destructive',
-      title: 'Error',
-      description: 'Invalid address',
+      title: 'Address not recognised',
+      description: 'Check the city, postcode and street, then continue.',
     });
     return;
   }

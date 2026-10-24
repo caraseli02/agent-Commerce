@@ -1,7 +1,7 @@
 <template>
   <div class="app-scroll flex min-h-screen flex-col">
     <LayoutHeader />
-    <main class="flex flex-1 flex-col pt-[var(--mobile-header-height,100px)] md:pt-[130px]">
+    <main id="main" tabindex="-1" class="flex flex-1 outline-none flex-col pt-[var(--mobile-header-height,100px)] md:pt-[130px]">
       <slot />
     </main>
     <LayoutFooter />

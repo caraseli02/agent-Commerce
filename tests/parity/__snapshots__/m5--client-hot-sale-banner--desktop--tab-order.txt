@@ -1,1 +1,1 @@
-1. button "Add STM to cart"
+1. button "Add STM32F407VGT6 Microcontroller to cart"

@@ -84,9 +84,20 @@ const fingerprintOrder = (input: CreatePendingOrderInput) =>
 
 const parseOrder = (row: OrderRow) => JSON.parse(row.payload_json) as PersistedOrderResponse;
 
+// Cold admin pages read orders from several widgets at once; share one seed per process so
+// concurrent first requests wait for it instead of racing the same inserts.
+let demoSeedInFlight: Promise<void> | null = null;
+
 const ensureDemoOrdersPersisted = async () => {
   if (process.env.NUXT_PUBLIC_MOCK_MODE !== 'true') return;
 
+  demoSeedInFlight ??= seedDemoOrders().finally(() => {
+    demoSeedInFlight = null;
+  });
+  await demoSeedInFlight;
+};
+
+const seedDemoOrders = async () => {
   const database = await getCheckoutDatabase();
   const demoOrders = getDemoOrders();
   const [seedCount] = await database.query<{ total: number }>(
@@ -109,7 +120,7 @@ const ensureDemoOrdersPersisted = async () => {
          id, customer_id, checkout_request_id, source_cart_id, source_cart_revision,
          fingerprint, payload_json, paid_by_payment_id, created_at, updated_at, grand_total_minor, currency
        ) VALUES ($1, $2, $3, $4, 0, $5, $6, NULL, $7, $8, $9, $10)
-       ON CONFLICT (id) DO NOTHING`,
+       ON CONFLICT DO NOTHING`,
       [
         order._id,
         order.userId || order.user._id,

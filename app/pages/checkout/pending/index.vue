@@ -2,6 +2,8 @@
 import { AlertTriangleIcon, ArrowLeft, LoaderIcon, RefreshCw } from '@lucide/vue';
 
 const route = useRoute();
+
+useHead({ title: 'Order pending' });
 const router = useRouter();
 
 const timeoutSeconds = 15;

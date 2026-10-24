@@ -11,7 +11,7 @@ const buyerPathBrowseSearchSurfaces = [
   'app/pages/product/[slug].vue',
   'app/components/home/FeaturedProducts.vue',
   'app/components/global/ProductTabs.vue',
-  'app/components/global/NewProducts.vue',
+  'app/components/product/Similar.vue',
   'app/components/product/Table.vue',
 ];
 

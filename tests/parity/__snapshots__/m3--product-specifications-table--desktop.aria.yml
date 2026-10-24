@@ -1,19 +1,24 @@
 - button "Specifications"
 - table:
     - rowgroup:
+        - row "Specification Value Find similar":
+            - columnheader "Specification"
+            - columnheader "Value"
+            - columnheader "Find similar"
+    - rowgroup:
         - row "Core ARM Cortex-M4 Include Core in similar-product search":
             - cell "Core"
             - cell "ARM Cortex-M4"
             - cell "Include Core in similar-product search":
                 - checkbox "Include Core in similar-product search"
-        - row /Flash \d+ Include Flash in similar-product search/:
+        - row /Flash \d+ KB Include Flash in similar-product search/:
             - cell "Flash"
-            - cell /\d+/
+            - cell /\d+ KB/
             - cell "Include Flash in similar-product search":
                 - checkbox "Include Flash in similar-product search"
-        - row /SRAM \d+ Include SRAM in similar-product search/:
+        - row /SRAM \d+ KB Include SRAM in similar-product search/:
             - cell "SRAM"
-            - cell /\d+/
+            - cell /\d+ KB/
             - cell "Include SRAM in similar-product search":
                 - checkbox "Include SRAM in similar-product search"
         - row /Package LQFP-\d+ Include Package in similar-product search/:
@@ -21,8 +26,8 @@
             - cell /LQFP-\d+/
             - cell "Include Package in similar-product search":
                 - checkbox "Include Package in similar-product search"
-        - row /Max Clock \d+ Include Max Clock in similar-product search/:
+        - row /Max Clock \d+ MHz Include Max Clock in similar-product search/:
             - cell "Max Clock"
-            - cell /\d+/
+            - cell /\d+ MHz/
             - cell "Include Max Clock in similar-product search":
                 - checkbox "Include Max Clock in similar-product search"

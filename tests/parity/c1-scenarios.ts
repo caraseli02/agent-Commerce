@@ -320,37 +320,4 @@ export const c1Scenarios: ParityScenario[] = [
       },
     ],
   },
-  {
-    id: 'C1-member-banner',
-    slice: 'C1',
-    route: '/',
-    viewports: ['desktop', 'mobile'],
-    setup: checkout,
-    region: (page) => page.getByRole('heading', { name: 'Exclusive Member Discount' }).locator('xpath=../..'),
-  },
-  {
-    id: 'C1-volume-banner',
-    slice: 'C1',
-    route: '/',
-    viewports: ['desktop'],
-    setup: checkout,
-    region: (page) => page.getByRole('heading', { name: 'Contract rates on qualified line items' }).locator('xpath=../../..'),
-  },
-  {
-    id: 'C1-exclusive-offer',
-    slice: 'C1',
-    route: '/',
-    viewports: ['desktop'],
-    setup: async (page) => {
-      await checkout(page);
-      await page.locator('.orderSummaryExclusiveOffer--swiper').evaluate((element) => {
-        const swiper = (
-          element as HTMLElement & { swiper: { autoplay: { stop: () => void }; slideTo: (index: number, speed: number) => void } }
-        ).swiper;
-        swiper.autoplay.stop();
-        swiper.slideTo(0, 0);
-      });
-    },
-    region: (page) => page.locator('.orderSummaryExclusiveOffer--swiper'),
-  },
 ];

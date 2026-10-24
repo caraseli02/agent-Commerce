@@ -23,8 +23,8 @@ const emit = defineEmits<{
         <AlertCircle v-if="error" class="text-rose-500" />
       </h2>
       <div class="flex items-center gap-3">
-        <UiButton variant="secondary" size="icon" @click="emit('refresh', true)">
-          <RefreshCwIcon class="w-4 h-4" />
+        <UiButton variant="secondary" size="icon" aria-label="Refresh table" @click="emit('refresh', true)">
+          <RefreshCwIcon class="w-4 h-4" aria-hidden="true" />
         </UiButton>
         <DataTableViewOptions :table="table" />
         <!-- <UiButton class="bg-accent text-foreground hover:bg-accent" size="icon">
