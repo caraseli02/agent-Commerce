@@ -222,7 +222,8 @@ describe('PR template local preflight (--body-file)', () => {
     try {
       const file = join(dir, 'body.md');
       writeFileSync(file, body);
-      return spawnSync(process.execPath, [checker, '--body-file', file], { encoding: 'utf8', env: { PATH: process.env.PATH } });
+      // Run outside the checkout so the branch's own UI diff never decides these fixtures.
+      return spawnSync(process.execPath, [checker, '--body-file', file], { cwd: dir, encoding: 'utf8', env: { PATH: process.env.PATH } });
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
