@@ -150,6 +150,13 @@ describe('Husky and independent local acceptance', () => {
     const local = () => ({ unavailable: true });
     expect(await uiContextFor(gh('docs/a.md'), pr, { local })).toEqual({ fingerprint: null });
     expect(await uiContextFor(gh('app/pages/index.vue'), pr, { local })).toEqual({ unavailable: true });
+    const rename = [{ filename: 'docs/archive/banner.svg', previous_filename: 'public/banner.svg' }];
+    const viaRename = (pr: unknown) =>
+      uiContextFor({ paginate: async () => rename }, pr as ReturnType<typeof fixture>, { local: () => ({ fingerprint }) });
+    expect((await readiness({ files: rename, uiFor: viaRename })).readiness.ready).toBe(false);
+    const renamed = { paginate: async () => [{ filename: 'docs/archive/banner.svg', previous_filename: 'public/banner.svg' }] };
+    expect(await uiContextFor(renamed, pr, { local })).toEqual({ unavailable: true });
+    expect(await uiContextFor(renamed, pr, { local: () => ({ fingerprint }) })).toEqual({ fingerprint });
     expect(
       prUiContext(pr, {
         diff: () => {

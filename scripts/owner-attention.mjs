@@ -227,9 +227,11 @@ export function prUiContext(pr, { diff = uiDiff, fetchHead = fetchPullHead } = {
 }
 
 // A PR with no UI file needs no fingerprint, and the file list says so without the head.
+// A rename out of a UI path removes a UI file, so the old name counts too.
 export async function uiContextFor(gh, pr, { local = prUiContext } = {}) {
   const files = await gh.paginate(`/pulls/${pr.number}/files`);
-  if (files.length < 3000 && !files.some((file) => uiPath(file.filename))) return { fingerprint: null };
+  if (files.length < 3000 && !files.some((file) => uiPath(file.filename) || (file.previous_filename && uiPath(file.previous_filename))))
+    return { fingerprint: null };
   return local(pr);
 }
 
