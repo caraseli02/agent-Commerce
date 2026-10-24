@@ -118,6 +118,7 @@ import { useCheckoutStore } from '~/store/checkoutStore';
 
 // Utilities
 import { parseProductPriceConfiguration } from '~~/helpers/prices.helper';
+import { isBuyerCheckoutPaymentType } from '~~/helpers/checkout-payment-methods';
 import { createEmptyGuestAddress, isCompleteGuestContact, isCompleteSavedAddress } from '~~/helpers/address.helper';
 import { canSkipAuthenticatedUser, isDemoCheckoutAssistEnabled } from '~~/helpers/mock-integration';
 import type { ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
@@ -223,9 +224,15 @@ const restoreCheckoutDraft = () => {
     if (draft.deliveryMethod) order.value.deliveryMethod = draft.deliveryMethod;
     if (draft.backorderOption) order.value.backorderOption = draft.backorderOption;
     if (draft.paymentDetails?.type !== undefined) {
-      order.value.paymentDetails = { type: draft.paymentDetails.type } as PaymentDetails;
-      const storedCardId = (draft.paymentDetails as PaymentDetails & { cardId?: unknown }).cardId;
-      restoredCardId.value = typeof storedCardId === 'string' ? storedCardId : null;
+      if (isBuyerCheckoutPaymentType(draft.paymentDetails.type)) {
+        order.value.paymentDetails = { type: draft.paymentDetails.type };
+        const storedCardId = (draft.paymentDetails as PaymentDetails & { cardId?: unknown }).cardId;
+        restoredCardId.value = typeof storedCardId === 'string' ? storedCardId : null;
+      } else {
+        order.value.paymentDetails = {} as PaymentDetails;
+        restoredCardId.value = null;
+        requiresPaymentReselection.value = true;
+      }
     }
   } catch {
     sessionStorage.removeItem(CHECKOUT_DRAFT_STORAGE_KEY);
@@ -369,7 +376,8 @@ const applyMockCheckoutDefaults = () => {
     }
 
     order.value.paymentDetails = {
-      type: PaymentTypeEnum.Bank,
+      type: PaymentTypeEnum.Card,
+      card: null,
     };
   }
 };
@@ -387,6 +395,7 @@ const restoreSavedCardSelection = () => {
 };
 
 const updatePaymentDetails = (paymentDetails: PaymentDetails) => {
+  if (!isBuyerCheckoutPaymentType(paymentDetails.type)) return;
   order.value.paymentDetails = paymentDetails;
   requiresPaymentReselection.value = false;
 };
@@ -400,7 +409,7 @@ const isCheckoutDisabled = computed(() => {
   const hasShippingAddress = isCompleteSavedAddress(order.value.shippingDetails.address);
   const hasBillingAddress = isCompleteSavedAddress(order.value.shippingDetails.billingAddress);
   const hasShippingPreference = !!order.value.deliveryMethod;
-  const hasPaymentMethod = !!order.value.paymentDetails && 'type' in order.value.paymentDetails;
+  const hasPaymentMethod = isBuyerCheckoutPaymentType(order.value.paymentDetails?.type);
   const hasGuestContact = !isGuestCheckoutMode.value || isCompleteGuestContact(order.value.guestContact);
   const hasAuthoritativeQuote = Boolean(
     authoritativeQuote.value &&

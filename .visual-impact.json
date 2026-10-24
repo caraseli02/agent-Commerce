@@ -331,6 +331,13 @@
       "impact": "uncertain",
       "reason": "C3 changes live dashboard and confirmation controls outside the standard screenshot matrix; retain the full matrix plus scoped C3 parity rather than claim a narrow matrix group proves these surfaces.",
       "consumers": "Dashboard client home credit/payment card, client settings add-card dialog, customer profile Recent Transactions, buyer /order-summary/ord-1 and admin /dashboard/orders/ord-1 notes are covered by C3 at390/1440 with keyboard/form and disabled-state checks. Four scoped credit/settings components are currently unreachable and verified by actual-SFC numeric/term/save tests; do not claim route or keyboard coverage for that dormant subtree. No shared primitive, style, API or payment contract changes. Ratchet removes21 native elements only."
+    },
+    {
+      "fingerprint": "344c9381b56b84eae1cfeb43fc410a64ecd46793c36c090cf82096160d7d6008",
+      "impact": "targeted",
+      "tests": ["cart"],
+      "reason": "Card-only buyer checkout (#787): visible disabled non-card choices, card/new-card selection, stale-draft reselection, availability copy and new-intent API rejection. No global theme/layout/store, catalog or historical read changes.",
+      "consumers": "CheckoutButtons and PaymentMethodSection render only in /order-summary via the page/OrderStockType; SessionCardForm renders /checkout/session. The shared eligibility helper reaches only these consumers and PlaceOrder via orders/new. Public error copy reaches checkout failure recovery. Guest/signed-in checkout at 390/1440, all stale non-card drafts, actual ARIA/keyboard controls and Payment Element states are covered separately by focused browser/parity evidence; none is represented in the standard matrix. Select cart as the existing matrix regression for checkout entry. History reads, storefront and provider/webhook/refund paths are unchanged."
     }
   ]
 }

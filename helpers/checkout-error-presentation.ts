@@ -72,6 +72,13 @@ export const checkoutErrorPresentation = {
   missing_order_id: { ...paymentFailure, message: 'Checkout completed without a valid order ID. Please try again.' },
   canceled: { ...paymentFailure, message: 'Payment was canceled. Please try again.' },
   unsupported_payment_type: { ...paymentFailure, message: 'Unsupported payment method. Please try again.' },
+  payment_method_unavailable: {
+    ...reviewRequired,
+    title: 'Select a card payment',
+    message: checkoutHttpErrors.payment_method_unavailable.statusMessage,
+    action: 'Choose a card',
+    cancelOnLeave: false,
+  },
   card_declined: { ...paymentFailure, message: 'Card was declined. Please review your payment method.' },
   checkout_failed: paymentFailure,
   checkout_exception: unknownFailure,

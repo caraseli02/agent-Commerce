@@ -65,21 +65,23 @@
     - text: ''
     - img
 - text: Select Payment
-- button "Pay by card":
+- button "Pay with a new card Your card details will be required at checkout":
     - img
-    - img
-- button "Bank Transfer":
+    - text: ''
+- button "Bank Transfer — Temporarily unavailable" [disabled]:
     - img
     - img
     - text: ''
-- button "Pay from credit Credit checkout is unavailable because this account has no active credit facility." [disabled]:
+    - paragraph: Temporarily unavailable
+- button "Pay from credit — Temporarily unavailable" [disabled]:
     - img
     - img
     - text: ''
-    - paragraph: Credit checkout is unavailable because this account has no active credit facility.
+    - paragraph: Temporarily unavailable
 - text: 'Available:'
 - button /\d+\.\d+/
-- button "Cash on delivery":
+- button "Cash on delivery — Temporarily unavailable" [disabled]:
     - img
     - img
     - text: ''
+    - paragraph: Temporarily unavailable
