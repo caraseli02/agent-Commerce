@@ -1,5 +1,3 @@
 - heading "Order Summary" [level=1]
-- button:
-    - img
-- button "Print this page":
-    - img
+- button
+- button "Print this page"

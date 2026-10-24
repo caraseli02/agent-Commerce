@@ -1,10 +1,6 @@
 - heading "Account Details" [level=2]
-- button "Edit":
-    - img
-    - text: ''
-- button "Copy Details":
-    - img
-    - text: ''
+- button "Edit"
+- button "Copy Details"
 - text: First Name
 - textbox "First Name" [disabled]: Demo
 - text: Last Name

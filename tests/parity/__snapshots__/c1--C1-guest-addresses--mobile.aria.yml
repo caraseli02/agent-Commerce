@@ -33,7 +33,6 @@
     - /placeholder: US
     - text: US
 - paragraph: Billing address
-- checkbox "Same as shipping" [checked]:
-    - img
+- checkbox "Same as shipping" [checked]
 - text: Same as shipping
 - paragraph: Billing address will match your shipping address.

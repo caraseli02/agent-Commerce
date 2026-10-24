@@ -1,52 +1,31 @@
 - dialog "Products Close products navigation":
     - heading "Products Close products navigation" [level=2]:
         - text: ''
-        - button "Close products navigation":
-            - img
-    - button "My Account":
-        - img
-        - text: ''
+        - button "Close products navigation"
+    - button "My Account"
     - button "Semiconductors 2 products":
         - paragraph: Semiconductors 2 products
-        - img
     - button "Passives 1 product":
         - paragraph: Passives 1 product
-        - img
     - button "Connectors 0 products":
         - paragraph: Connectors 0 products
-        - img
     - button "Audio 3 products":
         - paragraph: Audio 3 products
-        - img
     - button "Electronics 4 products":
         - paragraph: Electronics 4 products
-        - img
     - button "Peripherals 3 products":
         - paragraph: Peripherals 3 products
-        - img
     - button "Accessories 3 products":
         - paragraph: Accessories 3 products
-        - img
     - button "Wearables 2 products":
         - paragraph: Wearables 2 products
-        - img
     - button "Tools 3 products":
         - paragraph: Tools 3 products
-        - img
     - button "Home 2 products":
         - paragraph: Home 2 products
-        - img
     - button "Office 1 product":
         - paragraph: Office 1 product
-        - img
-    - button "View our discounted offers":
-        - img
-        - text: ''
-        - img
-    - button "Contact Sales":
-        - img
-        - text: ''
+    - button "View our discounted offers"
+    - button "Contact Sales"
     - separator
-    - button "Support":
-        - img
-        - text: ''
+    - button "Support"

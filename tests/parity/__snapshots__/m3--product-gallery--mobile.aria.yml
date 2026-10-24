@@ -1,6 +1,4 @@
-- button "Share product":
-    - img
-- button "View 3D preview":
-    - img
+- button "Share product"
+- button "View 3D preview"
 - button "Open product image gallery":
     - img "STM32F407VGT6 Microcontroller image"

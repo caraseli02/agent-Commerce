@@ -27,6 +27,4 @@
         - /placeholder: W1A5AB
     - button "Cancel"
     - button "Save"
-    - button "Close":
-        - img
-        - text: ''
+    - button "Close"

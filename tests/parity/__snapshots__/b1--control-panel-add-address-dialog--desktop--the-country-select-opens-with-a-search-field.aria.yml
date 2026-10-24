@@ -755,6 +755,4 @@
     - alert: Postcode is required
     - button "Cancel"
     - button "Save"
-    - button "Close":
-        - img
-        - text: ''
+    - button "Close"
