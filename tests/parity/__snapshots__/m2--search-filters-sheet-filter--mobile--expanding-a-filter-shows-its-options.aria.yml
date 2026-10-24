@@ -5,13 +5,11 @@
 - img
 - checkbox /Micro Comercial Components \(\d+\)/
 - text: /Micro Comercial Components \(\d+\)/
-- checkbox /Manufacturer1 \(\d+\)/ [checked]:
-    - img
+- checkbox /Manufacturer1 \(\d+\)/ [checked]
 - text: /Manufacturer1 \(\d+\)/
 - checkbox /Manufacturer2 \(\d+\)/
 - text: /Manufacturer2 \(\d+\)/
-- checkbox /Manufacturer3 \(\d+\)/ [checked]:
-    - img
+- checkbox /Manufacturer3 \(\d+\)/ [checked]
 - text: /Manufacturer3 \(\d+\)/
 - checkbox /Manufacturer4 \(\d+\)/
 - text: /Manufacturer4 \(\d+\)/
