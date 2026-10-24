@@ -168,7 +168,16 @@ const regionalPreferencesSheet = (page: Page) => page.getByRole('dialog', { name
 const addShippingAddressDialog = (page: Page) => page.getByRole('dialog', { name: 'Add Shipping Address' });
 
 const orderSummarySelectAll = (page: Page) =>
-  page.getByText('Select All', { exact: true }).locator('xpath=ancestor::div[contains(@class, "bg-light-500")][1]');
+  page
+    .getByRole('checkbox', { name: 'Select All', exact: true })
+    .locator('xpath=ancestor::div[.//button[normalize-space(.)="Delete Selected"]][1]');
+
+const searchFiltersSheetFilter = (page: Page) =>
+  page
+    .getByRole('dialog', { name: 'Filters', exact: true })
+    .getByRole('button', { name: /^Max\. forward impulse current/ })
+    .first()
+    .locator('xpath=ancestor::div[.//button[@aria-label="Remove filter"]][1]');
 
 /** The PDP quantity stepper (GlobalQuantityButtons, B2): decrease, the number input, increase. */
 const pdpQuantityStepper = (page: Page) =>
@@ -411,12 +420,7 @@ export const scenarios: ParityScenario[] = [
       await page.getByRole('button', { name: 'Filters', exact: true }).click();
       await expect(page.getByRole('dialog')).toBeVisible();
     },
-    region: (page) =>
-      page
-        .getByRole('dialog')
-        .getByRole('button', { name: /^Max\. forward impulse current/ })
-        .first()
-        .locator('xpath=ancestor::div[contains(@class, "bg-white")][1]'),
+    region: searchFiltersSheetFilter,
     steps: [
       {
         name: 'expanding a filter shows its options',
@@ -426,8 +430,7 @@ export const scenarios: ParityScenario[] = [
         verify: async (_page, region) => {
           await expect(region.getByPlaceholder('Type here')).toBeVisible();
         },
-        snapshot: (page) =>
-          page.getByRole('dialog').getByPlaceholder('Type here').locator('xpath=ancestor::div[contains(@class, "bg-white")][1]'),
+        snapshot: searchFiltersSheetFilter,
       },
       {
         name: 'checking an option toggles it',
@@ -581,8 +584,7 @@ export const scenarios: ParityScenario[] = [
     // The product page no longer stacks catalog tabs; the home page keeps them.
     route: '/',
     viewports: ['desktop', 'mobile'],
-    region: (page) =>
-      page.getByRole('button', { name: 'Best Sellers', exact: true }).locator('xpath=ancestor::div[contains(@class, "md:flex-row")][1]'),
+    region: (page) => page.getByRole('heading', { name: 'Featured inventory', exact: true }).locator('xpath=../..'),
     steps: [
       {
         name: 'choosing a tab makes it the active tab',
@@ -590,8 +592,9 @@ export const scenarios: ParityScenario[] = [
           await region.getByRole('button', { name: 'Best Sellers', exact: true }).click();
         },
         verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'Best Sellers', exact: true })).toHaveClass(/text-blue-700/);
-          await expect(region.getByRole('button', { name: 'Featured', exact: true })).toHaveClass(/text-slate-500/);
+          // These legacy buttons expose no selected-state attribute; check the active token, not the inactive palette.
+          await expect(region.getByRole('button', { name: 'Best Sellers', exact: true })).toHaveClass(/(?:^|\s)text-blue-700(?:\s|$)/);
+          await expect(region.getByRole('button', { name: 'Featured', exact: true })).not.toHaveClass(/(?:^|\s)text-blue-700(?:\s|$)/);
         },
       },
     ],
@@ -664,8 +667,7 @@ export const scenarios: ParityScenario[] = [
         },
         verify: async (page) => {
           await expect(page.getByRole('dialog').getByRole('heading', { name: 'Quick buy' })).toBeVisible();
-          // The dialog rows reuse the inline form's input ids, so their labels point at the hidden form (pre-existing).
-          await expect(page.getByRole('dialog').getByPlaceholder('Manufacturer part number').first()).toBeVisible();
+          await expect(page.getByRole('dialog').getByRole('textbox', { name: 'Part number 1', exact: true })).toBeVisible();
         },
         snapshot: (page) => page.getByRole('dialog'),
       },
