@@ -7,7 +7,7 @@ import pathlib
 import subprocess
 import tempfile
 
-FILES = ('native_lease.py', 'recovery.py', 'router.py', 'discover.py', 'scope_check.py', 'runtime.py', 'lease_guard.py', 'config.json', 'dispatcher-workflow.md', 'native-workflow.md', 'investigation-workflow.md', 'automation-prompt.md', 'scripts/owner-attention.mjs', 'scripts/check-pr-template.mjs', '.factory/factory.yaml')
+FILES = ('native_lease.py', 'recovery.py', 'router.py', 'discover.py', 'scope_check.py', 'runtime.py', 'lease_guard.py', 'config.json', 'dispatcher-workflow.md', 'native-workflow.md', 'investigation-workflow.md', 'automation-prompt.md', 'scripts/owner-attention.mjs', 'scripts/check-pr-template.mjs', 'scripts/ui-evidence.mjs', '.factory/factory.yaml')
 
 
 def migrate_registry(registry):

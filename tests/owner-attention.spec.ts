@@ -699,7 +699,7 @@ describe('routine route', () => {
           fixtures[`/pulls/${entry.number}`] = entry;
           fixtures[`/issues/${entry.number}/comments?per_page=100`] = prComments;
           fixtures[`/pulls/${entry.number}/reviews?per_page=100`] = [];
-          fixtures[`/pulls/${entry.number}/files?per_page=100`] = [{ filename: 'app/pages/index.vue' }];
+          fixtures[`/pulls/${entry.number}/files?per_page=100`] = [{ filename: 'docs/notes.md' }];
         }
         return fixtures;
       };

@@ -219,6 +219,7 @@ it('runs the real hook with captured push stdin and stops before visuals when ve
   r.commit();
   r.write('scripts/select-visual-checks.mjs', readFileSync(join(sourceRoot, 'scripts/select-visual-checks.mjs'), 'utf8'));
   r.write('scripts/check-pr-template.mjs', readFileSync(join(sourceRoot, 'scripts/check-pr-template.mjs'), 'utf8'));
+  r.write('scripts/ui-evidence.mjs', readFileSync(join(sourceRoot, 'scripts/ui-evidence.mjs'), 'utf8'));
   const bin = mkdtempSync(join(tmpdir(), 'visual-hook-bin-'));
   roots.push(bin);
   const log = join(bin, 'calls');
