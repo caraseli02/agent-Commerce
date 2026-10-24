@@ -442,7 +442,7 @@ export function claudeQueueState(
 // own conditions before acting.
 // What routeDecision needs from a claim's open PR: the head's verdict, selected the same
 // way local-readiness selects it. A failed PR-template check is routine step 2 repair
-// work (rewrite the body).
+// work: rewrite the body.
 export function claimPrSummary(pr, comments, { trustedLogins }) {
   const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins });
   const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label) });
@@ -451,9 +451,9 @@ export function claimPrSummary(pr, comments, { trustedLogins }) {
 
 // `claims` are { number, live, pr: claimPrSummary | null } for every Claude claim that is
 // neither parked nor waiting; `reviewable` are non-Claude PR numbers whose head has no
-// verdict (never reviewed, or a re-review was requested) or only an INCONCLUSIVE one.
-// A live claim whose head is BLOCKED was unparked by Vlad: its repair is the re-review
-// request (claude-routine.md step 2).
+// verdict, because it was never reviewed or a re-review was requested, or only an
+// INCONCLUSIVE one. A live claim whose head is BLOCKED was unparked by Vlad: its repair
+// is the re-review request, as claude-routine.md step 2 says.
 export function routeDecision({ mode, maxPassQueue, improve, claims, reviewable, eligible, selfClaims }) {
   const build = mode === 'build';
   if (build) {

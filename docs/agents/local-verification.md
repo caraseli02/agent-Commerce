@@ -63,6 +63,12 @@ metadata, mergeability, no change request and Claude protected-path authorizatio
 Payment paths follow normal label ownership and independent review; no Claude-specific exclusion applies (Vlad, 2026-10-20). Payment-contract guardrails and Stripe activation gates still apply. Never infer readiness
 from a PASS on an earlier head.
 
+Missing/failed local checks remain a blocker or repair. Disabled/missing/failed
+`verify`, `check`, `local-ci/verify` and other retired CI statuses are not gates.
+Vercel deployment status is deployment evidence, not a substitute for local tests.
+Local hooks are bypassable and use the local environment: independent review and
+human merge are the accepted safeguards, not an independent hosted CI guarantee.
+
 ## Verdict lifetime
 
 A final report (PASS, FAIL or BLOCKED) belongs to the PR head it names and stands until the
@@ -83,12 +89,6 @@ and need Vlad. A request never reopens a PASS; only a new head does. Codex alrea
 this marker to ask for the first review of each new head; on an unchanged head it means the
 same. Re-reviews of a new head after a FAIL follow the round rules in
 [autonomous-workflow.md](autonomous-workflow.md#blocking-findings-and-re-review-rounds).
-
-Missing/failed local checks remain a blocker or repair. Disabled/missing/failed
-`verify`, `check`, `local-ci/verify` and other retired CI statuses are not gates.
-Vercel deployment status is deployment evidence, not a substitute for local tests.
-Local hooks are bypassable and use the local environment: independent review and
-human merge are the accepted safeguards, not an independent hosted CI guarantee.
 
 ## Owner attention and archive
 
