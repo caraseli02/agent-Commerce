@@ -3,6 +3,8 @@ definePageMeta({
   middleware: ['auth'],
 });
 
+useHead({ title: 'Checkout' });
+
 // Since /checkout is often used as a parent but needs an entry point,
 // we redirect to the first actual checkout step (e.g., payment or summary)
 await navigateTo('/checkout/session');

@@ -93,7 +93,7 @@ test.describe('Scripted Buyer Path — cart chrome store refresh', () => {
 
     await expect(badge).toHaveCSS('opacity', '1');
     await expect(badge).toHaveText('1');
-    await expect(cartButton.getByText(/1499\.99 Lei/)).toBeVisible();
+    await expect(cartButton.getByText(/78\.40\sLei/)).toBeVisible();
 
     await openCartPanel(page);
     const cartSheet = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: /shopping cart/i }) });

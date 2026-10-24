@@ -55,7 +55,7 @@ defineExpose({
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger v-if="props.showTrigger" as-child>
-      <UiButton variant="link" class="text-slate-300 gap-1" :class="props.triggerClass">
+      <UiButton variant="link" class="text-muted-foreground gap-1" :class="props.triggerClass">
         <MessageCircleQuestion class="w-[22px] h-[22px]" />
         <span class="text-xs leading-tight hidden sm:inline">Ask about the product</span>
       </UiButton>

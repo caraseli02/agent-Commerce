@@ -45,19 +45,13 @@ const fetchAndSetOrdersList = async (
   pageCount.value = result.data.page_count;
   listItems.value = result.data.items;
   loading.value = false;
-  activeOrderFilter.value.total_items = totalItems.value;
   return result.data;
 };
 
+// Tab labels reuse the vocabulary of the Status column so a tab count matches the rows it filters.
 const orderFilters = ref<TabFilter[]>([
   {
     label: 'All orders',
-    total_items: 0,
-  },
-  {
-    label: 'Active',
-    value: 'status',
-    key: [OrderStatus.Completed, OrderStatus.Canceled],
     total_items: 0,
   },
   {
@@ -67,23 +61,21 @@ const orderFilters = ref<TabFilter[]>([
     total_items: 0,
   },
   {
-    label: 'Awaiting Processing',
+    label: 'In progress',
     value: 'status',
-    key: [
-      'Verification Required',
-      OrderStatus.Processing,
-      OrderStatus.Pending,
-      'Awaiting Fulfillment',
-      'Awaiting Shipment',
-      'Awaiting Pickup',
-      'Awaiting Payment',
-    ],
+    key: [OrderStatus.Pending, OrderStatus.Processing, OrderStatus.OnHold, OrderStatus.Packaging],
     total_items: 0,
   },
   {
-    label: 'Fulfilled',
+    label: 'Dispatched',
     value: 'status',
-    key: ['Shipped', 'Partially Shipped'],
+    key: [OrderStatus.Dispatched],
+    total_items: 0,
+  },
+  {
+    label: 'Delivered',
+    value: 'status',
+    key: [OrderStatus.Delivered],
     total_items: 0,
   },
   {
@@ -101,8 +93,6 @@ const orderFilters = ref<TabFilter[]>([
 ] as TabFilter[]);
 
 const activeOrderFilter = ref<TabFilter>(orderFilters.value[0] ?? { label: 'All', total_items: 0 });
-const filterHighlightWidth = ref(0);
-const filterHightlightLeft = ref(0);
 
 const getServerFiltersByTab = (filter: TabFilter) => {
   const filterObj = {} as Record<string, string>;
@@ -124,38 +114,15 @@ const getServerFiltersByTab = (filter: TabFilter) => {
 
 const loadTabFilters = async () => {
   loadingFilters.value = true;
-  for (const filter of orderFilters.value) {
-    const filterObj = getServerFiltersByTab(filter);
-    const data = await fetchAndSetOrdersList(pageCount.value, 10, filterObj, {});
-    filter.total_items = data?.total_items ?? 0;
-  }
-  setTimeout(() => {
-    loadingFilters.value = false;
-  }, 500);
-  fetchAndSetOrdersList(1, 10);
+  await Promise.all(
+    orderFilters.value.map(async (filter) => {
+      const result = await fetchOrders(1, 1, getServerFiltersByTab(filter)).catch(() => null);
+      filter.total_items = result?.status === 'success' ? result.data.total_items : 0;
+    }),
+  );
+  loadingFilters.value = false;
+  await fetchAndSetOrdersList(1, 10);
 };
-
-const setActiveFilterHighlight = () => {
-  const activeFilter = activeOrderFilter.value;
-  const index = orderFilters.value.findIndex((filter) => filter.label === activeFilter.label);
-
-  if (index !== -1) {
-    const filterElement = document.querySelectorAll('.ordersFilter')[index] as HTMLElement;
-
-    if (filterElement) {
-      filterHighlightWidth.value = filterElement.clientWidth;
-      filterHightlightLeft.value = filterElement.offsetLeft;
-    }
-  }
-};
-
-watch(
-  activeOrderFilter,
-  async () => {
-    setActiveFilterHighlight();
-  },
-  { deep: true },
-);
 
 const onTabChange = async (filter: TabFilter, table: Table<OrderTableColumns>) => {
   activeOrderFilter.value = filter;
@@ -170,10 +137,6 @@ const debouncedFetchAndSetOrdersList = fetchAndSetOrdersList;
 
 onMounted(() => {
   loadTabFilters();
-  setTimeout(() => {
-    setActiveFilterHighlight();
-    loading.value = false;
-  }, 1000);
 });
 </script>
 
@@ -202,36 +165,30 @@ onMounted(() => {
       </template>
       <template #tabs="{ table }">
         <SharedScrollableRegion class="mb-6" label="Order filters" test-id="order-filter-tabs">
-          <div class="relative flex items-center gap-4 rounded-xl pl-2 md:gap-8">
+          <div class="flex items-center gap-2" role="group" aria-label="Filter orders by status">
             <UiButton
-              v-for="(filter, index) in orderFilters"
-              :key="index"
-              variant="link"
-              class="ordersFilter relative z-10 h-auto flex-shrink-0 gap-3 px-0 py-5 leading-[1.71] md:py-8"
-              :class="[filter.label === activeOrderFilter.label ? 'text-blue-500' : '']"
+              v-for="filter in orderFilters"
+              :key="filter.label"
+              :variant="filter.label === activeOrderFilter.label ? 'secondary' : 'ghost'"
+              :aria-pressed="filter.label === activeOrderFilter.label"
+              class="flex-shrink-0 min-h-11"
               @click="onTabChange(filter, table)"
             >
               <span>
                 {{ filter.label }}
               </span>
+              <UiSkeleton v-if="loadingFilters" class="ml-2 h-5 min-w-[32px]" />
               <span
-                class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-300"
-                :class="filter.label === activeOrderFilter.label ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted'"
+                v-else
+                class="ml-2 px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-200"
+                :class="filter.label === activeOrderFilter.label ? 'text-primary-foreground bg-primary' : 'text-muted-foreground bg-muted'"
               >
                 {{ filter.total_items || '0' }}
               </span>
             </UiButton>
-            <div
-              class="absolute bottom-0 bg-blue-500 h-1 rounded-t-lg transition-all duration-300"
-              :style="{
-                width: filterHighlightWidth + 'px',
-                left: filterHightlightLeft + 'px',
-              }"
-            />
           </div>
         </SharedScrollableRegion>
       </template>
     </DataTable>
-    <UiSkeleton v-if="loadingFilters" class="w-full h-full absolute inset-0 top-24 z-20 animate-none" />
   </div>
 </template>

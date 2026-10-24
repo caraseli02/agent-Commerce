@@ -8,83 +8,69 @@
         <CopyClipboard
           :text="product.name || 'N/A'"
           :label="`Copy ${product.name || 'product name'}`"
-          class="mr-2 text-muted-foreground transition-colors duration-300 hover:text-blue-500"
+          class="mr-2 text-muted-foreground transition-colors duration-300 hover:text-primary"
         />
       </div>
-      <ImageWithFallback
-        :src="product.details?.ProductImage?.ProductImageLarge"
-        alt="Manufacturer logo"
-        class-name="w-[82px] h-[50px] object-contain"
-      />
     </div>
-    <div class="flex items-start justify-between gap-3 rounded-lg bg-muted px-3 py-3">
-      <div class="text-xs leading-tight font-medium flex-shrink-0 text-foreground">Description</div>
-      <div class="text-xs leading-5 text-muted-foreground text-end max-w-[62%]">
-        {{ product.description }}
+    <div class="divide-y divide-border">
+      <div class="flex items-start justify-between gap-3 px-3 py-3">
+        <div class="text-xs leading-tight font-medium flex-shrink-0 text-foreground">Description</div>
+        <div class="text-xs leading-5 text-muted-foreground text-end max-w-[62%]">
+          {{ product.description }}
+        </div>
+      </div>
+      <div class="flex items-center justify-between gap-3 px-3 py-3">
+        <div class="text-xs leading-tight font-medium flex-shrink-0 text-foreground">Manufacturer</div>
+        <div class="text-xs leading-tight text-muted-foreground">
+          {{ product.manufacturer }}
+        </div>
+      </div>
+      <div v-if="product.manufacturerCode" class="flex items-center justify-between gap-3 px-3 py-3">
+        <div class="text-xs leading-tight font-medium flex-shrink-0 text-foreground">Manufacturer part number</div>
+        <div class="text-xs leading-tight text-muted-foreground">
+          {{ product.manufacturerCode }}
+        </div>
+      </div>
+      <div v-if="datasheet" class="flex items-center justify-between gap-3 px-3 py-3">
+        <div class="text-xs leading-tight font-medium flex-shrink-0">EDA / CAD Models</div>
+        <div class="flex items-center">
+          <CADModelsIcon class="w-4 h-4 mr-[5px]" />
+          <span class="text-xs leading-tight text-muted-foreground"> {{ cadModelLabel }} </span>
+        </div>
+      </div>
+      <div v-if="datasheet" class="flex items-center justify-between gap-3 px-3 py-3">
+        <div class="text-xs leading-tight font-medium flex-shrink-0">Technical Datasheet</div>
+        <a
+          v-if="datasheetUrl"
+          class="flex min-h-11 items-center"
+          :href="datasheetUrl"
+          :download="`${product.name} Datasheet`"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <PDFIcon class="w-5 h-5 mr-[5px]" />
+          <span class="text-xs leading-tight text-muted-foreground hover:underline"> {{ product.name }} datasheet </span>
+        </a>
+        <span v-else class="flex min-h-11 items-center">
+          <PDFIcon class="w-5 h-5 mr-[5px]" />
+          <span class="text-xs leading-tight text-muted-foreground"> {{ product.name }} datasheet </span>
+        </span>
       </div>
     </div>
-    <div class="flex items-center justify-between gap-3 px-3 py-3">
-      <div class="text-xs leading-tight font-medium flex-shrink-0 text-foreground">Manufacturer</div>
-      <div class="text-xs leading-tight text-muted-foreground">
-        {{ product.manufacturer }}
-      </div>
-    </div>
-    <div class="flex items-center justify-between gap-3 rounded-lg bg-muted px-3 py-3">
-      <div class="text-xs leading-tight font-medium flex-shrink-0">Customer’s Code</div>
-      <UiButton type="button" variant="link" class="h-auto min-h-11 p-0" @click="showCustomProductPartNumberModal = true">
-        <span class="text-xs leading-tight mr-[5px] text-muted-foreground"> Your Custom Code </span>
-        <SquarePen class="w-4 h-4 stroke-1" />
-      </UiButton>
-    </div>
-    <div class="flex items-center justify-between gap-3 px-3 py-3">
-      <div class="text-xs leading-tight font-medium flex-shrink-0">EDA / CAD Models</div>
-      <div class="flex items-center">
-        <CADModelsIcon class="w-4 h-4 mr-[5px]" />
-        <span class="text-xs leading-tight text-muted-foreground"> {{ cadModelLabel }} </span>
-      </div>
-    </div>
-    <div class="flex items-center justify-between gap-3 rounded-lg bg-muted px-3 py-3">
-      <div class="text-xs leading-tight font-medium flex-shrink-0">Technical Datasheet</div>
-      <a
-        class="flex min-h-11 items-center"
-        :href="product.details?.SummaryData.Datasheet"
-        :download="`${product.name} Datasheet`"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <PDFIcon class="w-5 h-5 mr-[5px]" />
-        <span class="text-xs leading-tight text-muted-foreground hover:underline"> {{ product.name }}-DataSheet </span>
-      </a>
-    </div>
-    <div class="mt-1 flex items-start gap-2 rounded-lg border border-border px-3 py-3">
-      <div class="text-xs leading-tight font-medium flex-shrink-0">Tags:</div>
-      <div class="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-xs leading-tight font-medium text-blue-500">
-        <span> #Diode </span>
-        <span> #Connector </span>
-        <span> #GasDetector </span>
-        <span> #Thermostat </span>
-        <span> #Transistor </span>
-      </div>
-    </div>
-    <LayoutCustomProductPartNumberModal
-      v-if="showCustomProductPartNumberModal"
-      :manufacturer-code="product.manufacturerCode || product.alias"
-      @close="showCustomProductPartNumberModal = false"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { SquarePen } from '@lucide/vue';
 import CADModelsIcon from '@/assets/icons/cad-models.svg';
 import PDFIcon from '@/assets/icons/pdf.svg';
-import ImageWithFallback from '~/components/global/ImageWithFallback.vue';
 import type { ProductDetail } from '~~/types/product';
+import { getProductDatasheet, getProductDatasheetUrl } from '~~/helpers/product-datasheet';
 
 const props = defineProps<{
   product: ProductDetail;
 }>();
 
-const showCustomProductPartNumberModal = ref(false);
+const datasheet = computed(() => getProductDatasheet(props.product));
+const datasheetUrl = computed(() => getProductDatasheetUrl(props.product));
 const cadModelLabel = computed(() => `${props.product.alias || props.product.manufacturerCode || props.product.name}-ECAD-Model`);
 </script>

@@ -1,11 +1,11 @@
 <template>
   <div
     v-click-outside="() => handleClickOutside()"
-    class="grid grid-cols-[0px_1fr] rounded-b-md border border-border shadow-sm max-h-[calc(100vh-178px)] md:h-[448px] xl:h-[550px] transition-all duration-150"
+    class="grid grid-cols-[0px_1fr] rounded-b-md border border-border shadow-sm max-h-[calc(100vh-178px)] md:h-[448px] xl:h-[550px] transition-[grid-template-columns] duration-150 ease-out"
     :class="[isBannerExpanded ? '' : 'grid-cols-[0px_1fr] md:grid-cols-[260px_1fr] lg:grid-cols-[260px_1fr] xl:grid-cols-[290px_1fr]']"
   >
     <div
-      class="relative z-40 flex flex-col gap-1 p-2.5 bg-card border-r border-gray-200 max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-bl-md w-[260px] transition-opacity duration-200 xl:w-[290px] xl:py-[13px] xl:gap-1"
+      class="relative z-40 flex flex-col gap-1 p-2.5 bg-card border-r border-border max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-bl-md w-[260px] transition-opacity duration-200 xl:w-[290px] xl:py-[13px] xl:gap-1"
       :class="[isStatic ? 'hidden h-0 md:h-auto md:flex' : '', isBannerExpanded ? 'md:opacity-0 md:pointer-events-none' : '']"
     >
       <UiButton
@@ -13,14 +13,14 @@
         :key="index"
         variant="ghost"
         class="group h-auto justify-start px-2 py-1.5 rounded-[5px] w-full text-muted-foreground text-left font-Inter hover:text-primary xl:px-2.5 xl:py-2"
-        :class="[selectedCategory === category ? 'text-primary bg-[#F4F4F4]' : '']"
+        :class="[selectedCategory === category ? 'text-primary bg-muted' : '']"
         @click="
           selectedCategory = category;
           selectedSubCategory = null;
           handleCategoryClick(category);
         "
       >
-        <div class="flex items-center justify-center w-8 h-8 rounded bg-gray-100 mr-2 xl:w-10 xl:h-10 xl:mr-2.5">
+        <div class="flex items-center justify-center w-8 h-8 rounded bg-muted mr-2 xl:w-10 xl:h-10 xl:mr-2.5">
           <component :is="category.icon" class="w-[22px] h-[22px]" />
         </div>
         <div>
@@ -37,7 +37,7 @@
       </UiButton>
     </div>
     <div
-      class="relative z-20 col-start-2 row-start-1 flex flex-col items-start px-[15px] pt-[15px] text-white h-full max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin transition-all duration-500 md:h-[448px] md:pt-5 lg:px-5 xl:px-[30px] xl:pt-[45px] xl:h-[550px]"
+      class="relative z-20 col-start-2 row-start-1 flex flex-col items-start px-[15px] pt-[15px] text-white h-full max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin transition-opacity duration-200 ease-out md:h-[448px] md:pt-5 lg:px-5 xl:px-[30px] xl:pt-[45px] xl:h-[550px]"
       :class="[!selectedCategory && !selectedSubCategory ? '' : 'opacity-0 pointer-events-none']"
     >
       <h3 class="relative z-20 font-semibold mb-[5px] md:text-2xl lg:text-[32px] lg:mb-2.5 xl:text-[40px]">
@@ -112,7 +112,7 @@
       />
       <UiButton
         v-if="isStatic"
-        class="hidden absolute z-20 top-[15px] right-0 h-auto px-[3px] py-[5px] bg-primary/70 rounded-none rounded-l overflow-hidden border border-primary/50 transition-all duration-300 hover:px-2 md:flex"
+        class="hidden absolute z-20 top-[15px] right-0 h-auto px-[3px] py-[5px] bg-primary/70 rounded-none rounded-l overflow-hidden border border-primary/50 transition-[padding] duration-200 hover:px-2 md:flex"
         :class="{ 'sideNav--toggler_active': isBannerExpanded }"
         :aria-label="isBannerExpanded ? 'Collapse banner' : 'Expand banner'"
         :aria-expanded="isBannerExpanded"
@@ -138,10 +138,10 @@
       </UiButton>
     </div>
     <div
-      class="relative z-30 col-start-2 row-start-1 flex flex-col bg-card font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:hidden"
+      class="relative z-30 col-start-2 row-start-1 flex flex-col bg-card font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-[opacity,transform] duration-200 ease-out xl:hidden"
       :class="[selectedCategory ? '' : 'opacity-0 pointer-events-none -translate-x-10']"
     >
-      <div class="flex items-center justify-between border-b border-gray-200 px-[15px] py-2.5">
+      <div class="flex items-center justify-between border-b border-border px-[15px] py-2.5">
         <UiButton
           variant="ghost"
           size="icon"
@@ -186,7 +186,7 @@
               v-for="(subCategory, index) in selectedSubCategory?.subcategory"
               :key="index"
               :to="`/search?keyword=${encodeURIComponent(subCategory.name)}`"
-              class="relative flex items-center text-[#6E6E6E] text-left px-[5px] transition-colors duration-300 hover:text-primary"
+              class="relative flex items-center text-muted-foreground text-left px-[5px] transition-colors duration-300 hover:text-primary"
             >
               <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }} items)</div>
               <div
@@ -202,11 +202,11 @@
       </div>
     </div>
     <div
-      class="hidden relative z-30 col-start-2 row-start-1 grid-cols-[1fr_340px] gap-[25px] bg-card font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-all duration-500 xl:grid xl:gap-0"
+      class="hidden relative z-30 col-start-2 row-start-1 grid-cols-[1fr_340px] gap-[25px] bg-card font-Inter max-h-[calc(100vh-178px)] overflow-y-auto scrollbar-thin rounded-br-md transition-[opacity,transform] duration-200 ease-out xl:grid xl:gap-0"
       :class="[selectedCategory ? '' : 'opacity-0 pointer-events-none -translate-x-10']"
     >
       <div>
-        <div class="flex items-center justify-between border-b border-gray-200 px-[15px] pt-5 pb-2.5 xl:pr-0">
+        <div class="flex items-center justify-between border-b border-border px-[15px] pt-5 pb-2.5 xl:pr-0">
           <UiButton
             variant="ghost"
             size="icon"
@@ -228,7 +228,7 @@
                 :key="index"
                 variant="ghost"
                 class="group h-auto px-2 py-1.5 rounded-[5px] text-muted-foreground text-left hover:text-primary"
-                :class="[selectedSubCategory === subCategory ? 'text-primary bg-[#F4F4F4]' : '']"
+                :class="[selectedSubCategory === subCategory ? 'text-primary bg-muted' : '']"
                 @click="selectedSubCategory = subCategory"
               >
                 <div>
@@ -249,7 +249,7 @@
                 v-for="(subCategory, index) in selectedSubCategory.subcategory"
                 :key="index"
                 :to="`/search?keyword=${encodeURIComponent(subCategory.name)}`"
-                class="relative flex items-start text-[#6E6E6E] text-left px-[5px] transition-colors duration-300 hover:text-primary"
+                class="relative flex items-start text-muted-foreground text-left px-[5px] transition-colors duration-300 hover:text-primary"
               >
                 <div class="text-sm font-medium truncate mr-[5px]">{{ subCategory.name }} ({{ subCategory.productCount }} items)</div>
                 <!--                                <div -->
@@ -459,7 +459,7 @@ onMounted(async () => {
 }
 
 .headerSubmenu--swiper .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-all duration-300 md:w-2 md:h-2!;
+  @apply w-1.5 h-1.5 bg-gray-500 rounded-full opacity-100 m-0 transition-[transform,background-color] duration-200 ease-out md:w-2 md:h-2!;
   margin-right: 0 !important;
 }
 

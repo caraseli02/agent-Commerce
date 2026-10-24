@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-card rounded-xl p-4 shadow-xs md:p-6 w-full lg:w-[622px] xl:w-[684px] max-h-[592px] md:h-[474px]">
+  <div class="bg-card rounded-xl p-4 shadow-xs md:p-6 w-full max-h-[592px] md:h-[474px]">
     <div class="flex items-center justify-between mb-8">
       <div class="flex items-center justify-between">
         <div class="font-semibold md:leading-[1.2]">Account Information</div>
@@ -13,7 +13,7 @@
           aria-label="Open account information menu"
           @click="showOptions = !showOptions"
         >
-          <SvgoDotsVertical class="w-6 h-6 text-[#9296AA] transition-colors duration-300 hover:text-blue-500" />
+          <SvgoDotsVertical class="w-6 h-6 text-[#9296AA] transition-colors duration-200 hover:text-primary" />
         </UiButton>
         <Transition name="fade-bottom">
           <ThreeDotMenu
@@ -61,7 +61,7 @@
             <DemoTooltip theme="black" :position="'top'" class="self-start ml-3">
               <LockKeyholeIcon
                 v-if="customerInformation.status === AccountStatusEnum.Inactive"
-                class="w-4 h-4 text-muted-foreground transition-colors duration-300 hover:text-blue-500"
+                class="w-4 h-4 text-muted-foreground transition-colors duration-200 hover:text-primary"
               />
               <template #content>
                 <span class="capitalize">Account Locked</span>
@@ -74,7 +74,7 @@
             <span class="font-medium">{{ AccountType[customerInformation.accountType as unknown as keyof typeof AccountType] }}</span>
           </div>
           <SkeletonLoader v-if="isLoading" class="w-[180px] h-5 mb-2" />
-          <div v-else class="text-sm font-medium text-blue-500 mb-2 md:order-4 md:mb-0">
+          <div v-else class="text-sm font-medium text-primary mb-2 md:order-4 md:mb-0">
             {{ customerInformation?.companyDetails?.name }}
           </div>
           <SkeletonLoader v-if="isLoading" class="w-[180px] h-5" />
@@ -169,7 +169,7 @@
           <SkeletonLoader v-if="isLoading" class="w-[120px] h-10 md:w-[160px] md:h-[18px]" />
           <div v-else class="md:flex md:items-center">
             <div class="flex items-center mb-1 md:mb-0">
-              <div class="w-2 h-2 rounded-full bg-blue-500 mr-2" />
+              <div class="w-2 h-2 rounded-full bg-primary mr-2" />
               <span class="text-sm font-medium leading-tight text-muted-foreground">Email Marketing</span>
             </div>
             <div class="text-sm font-medium leading-tight pl-4">

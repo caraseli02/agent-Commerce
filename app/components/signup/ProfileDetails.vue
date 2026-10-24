@@ -95,7 +95,7 @@
             </button>
             <UiButton
               :disabled="isSubmitDisabled"
-              class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white"
+              class="flex items-center rounded bg-blue-600 px-[22px] py-[11px] text-white"
               @click="$emit('continue')"
             >
               <span class="text-sm font-medium mr-2"> Continue </span>

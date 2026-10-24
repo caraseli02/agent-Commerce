@@ -7,6 +7,8 @@ import { PaymentTypeEnum } from '~~/types';
 import type { OrderInterface } from '~~/types';
 
 const route = useRoute();
+
+useHead({ title: 'Order confirmed' });
 const cartStore = useCartStore();
 
 const loading = ref(true);
@@ -198,7 +200,7 @@ onMounted(() => {
           </div>
 
           <div class="space-y-3">
-            <h1 class="text-3xl font-semibold tracking-tight text-foreground md:text-5xl">Success — your order is locked in.</h1>
+            <h1 class="text-3xl font-semibold tracking-tight text-foreground md:text-5xl">Success: your order is locked in.</h1>
             <p class="max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
               This payment went through. Review the live order details, keep the reference handy, and jump back into shopping whenever you
               want.

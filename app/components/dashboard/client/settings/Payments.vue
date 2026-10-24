@@ -18,7 +18,7 @@ const handleEditCard = (cardInfo: StripeCardInterface) => {
       <h2 class="self-start text-xl font-semibold leading-7 text-foreground">Payments</h2>
     </div>
     <CardsList @edit-card="handleEditCard" />
-    <section class="flex justify-center items-center self-stretch p-4 rounded-xl border border-blue-500 border-dashed max-md:px-5">
+    <section class="flex justify-center items-center self-stretch p-4 rounded-xl border border-primary border-dashed max-md:px-5">
       <PaymentsDialog v-model="isDialogOpen" :card-info="selectedCardInfo" />
     </section>
   </section>

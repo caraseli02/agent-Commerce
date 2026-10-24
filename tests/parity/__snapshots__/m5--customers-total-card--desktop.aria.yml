@@ -1,12 +1,4 @@
-- text: Customers Total
-- img
+- heading "Customers Total" [level=2]
 - text: /\d+/
 - application "area chart with 1 data series"
-- img
-- text: /\d+\.\d+%/
-- button "Last 7 Days":
-    - text: ''
-    - img
-- button "View more" [disabled]:
-    - text: ''
-    - img
+- text: /\+\d+\.\d+% Last 7 days/

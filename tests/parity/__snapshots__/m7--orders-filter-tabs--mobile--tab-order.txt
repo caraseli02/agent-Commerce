@@ -1,7 +1,7 @@
-1. button "All orders 120"
-2. button "Active 20"
-3. button "Last 24h 0"
-4. button "Awaiting Processing 71"
-5. button "Fulfilled 0"
+1. button "All orders 120" [pressed]
+2. button "Last 24h 0"
+3. button "In progress 71"
+4. button "Dispatched 0"
+5. button "Delivered 29"
 6. button "Completed 0"
 7. button "Canceled 20"

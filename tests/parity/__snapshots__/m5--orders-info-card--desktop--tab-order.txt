@@ -1,2 +1,1 @@
-1. button "Open widget menu"
-2. button "This Week"
+

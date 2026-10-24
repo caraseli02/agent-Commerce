@@ -10,7 +10,6 @@ const storefrontSurfaces = [
   'app/components/global/Manufacturers.vue',
   'app/components/global/EcxlusiveOffer.vue',
   'app/components/global/Banner.vue',
-  'app/components/product/Banners.vue',
   'app/components/global/ProductCard.vue',
   'app/components/search/SearchItem.vue',
 ];

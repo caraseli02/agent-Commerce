@@ -5,7 +5,7 @@
         <h2 class="text-xl leading-[1.4] font-semibold">Customer Discount</h2>
         <SkeletonLoader v-if="loading" class="w-[60px] h-7" />
         <WarningIcon v-else-if="error" class="w-6 h-6" />
-        <div v-else class="flex text-white bg-blue-500 text-xs leading-[1.66] font-semibold rounded-full px-2">
+        <div v-else class="flex text-primary-foreground bg-primary text-xs leading-[1.66] font-semibold rounded-full px-2">
           {{ customerDiscount + '%' }}
         </div>
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="col-span-2 min-w-0 h-full min-[1440px]:col-span-1">
+  <div class="col-span-2 min-w-0 h-full xl:col-span-1">
     <div
       data-testid="product-purchase-panel"
       class="relative flex h-full w-full flex-col bg-card rounded-2xl shadow-m px-4 py-4 md:px-5 md:py-5"
@@ -25,7 +25,7 @@
               class="flex items-center justify-between gap-3 text-xs leading-tight text-muted-foreground rounded-lg bg-muted px-3.5 py-3"
             >
               <div class="flex-shrink-0">Quantity</div>
-              <div>Price ( Ex VAT )</div>
+              <div>Price (ex VAT)</div>
             </div>
             <div class="font-Inter mt-1.5 mb-6 space-y-1 lg:mb-[25px]">
               <details v-if="bulkQuantities.size" class="mb-2 rounded-lg border border-border px-3.5 py-1 md:hidden md:py-2">
@@ -89,7 +89,7 @@
                 <div v-if="productDiscount" class="text-sm leading-tight line-through">
                   {{ minPriceConfiguration ? `${minPriceConfiguration.price.toFixed(2)} Lei (${minPriceConfiguration.quantity}+)` : '-' }}
                 </div>
-                <div class="text-xl leading-tight font-semibold" :class="[productDiscount ? 'text-rose-500' : '']">
+                <div class="text-xl leading-tight font-semibold" :class="[productDiscount ? 'text-red-700' : '']">
                   <span>
                     {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : `${minPriceConfiguration?.price.toFixed(2)} Lei` || '-' }}
                   </span>
@@ -98,7 +98,7 @@
               </div>
               <div
                 v-if="productDiscount"
-                class="flex items-center justify-center w-10 h-5 border border-rose-500 text-rose-500 rounded-full font-Inter text-sm leading-tight font-semibold"
+                class="flex items-center justify-center w-10 h-5 border border-red-700 text-red-700 rounded-full font-Inter text-sm leading-tight font-semibold"
               >
                 {{ productDiscount }}%
               </div>
@@ -121,7 +121,7 @@
           <UiButton
             type="button"
             class="min-h-11 flex-1 px-5 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-            aria-label="Add to cart — selected quantity"
+            aria-label="Add to cart, selected quantity"
             :aria-busy="!isCartReady || isAddingToCart"
             :aria-disabled="isAddingToCart"
             :aria-describedby="showAlreadyInCartMessage ? 'cart-qty-unchanged-hint' : undefined"

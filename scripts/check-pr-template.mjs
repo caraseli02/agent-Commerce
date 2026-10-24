@@ -4,24 +4,33 @@ import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 import { execFileSync } from 'node:child_process';
+import { evidenceRef, uiDiff } from './ui-evidence.mjs';
 
 // First pushes may precede PR creation. Existing PRs must validate their live body;
 // creating/editing a body still requires --body-file before publication.
-export function checkPushTemplates(input, { run = (args) => execFileSync('gh', args, { encoding: 'utf8', timeout: 30_000 }) } = {}) {
-  const branches = new Set();
+export function checkPushTemplates(
+  input,
+  {
+    run = (args) => execFileSync('gh', args, { encoding: 'utf8', timeout: 30_000 }),
+    uiFingerprint = (sha) => uiDiff({ head: sha }).fingerprint,
+  } = {},
+) {
+  const branches = new Map();
   for (const line of input.trim().split('\n').filter(Boolean)) {
     const fields = line.trim().split(/\s+/);
     if (fields.length !== 4) throw new Error('Invalid pre-push ref input.');
     const [, sha, ref] = fields;
-    if (/^0+$/.test(sha)) continue;
-    if (ref.startsWith('refs/heads/')) branches.add(ref.slice('refs/heads/'.length));
+    if (/^0+$/.test(sha) || ref === evidenceRef) continue;
+    if (ref.startsWith('refs/heads/')) branches.set(ref.slice('refs/heads/'.length), sha);
   }
-  for (const branch of branches) {
-    const prs = JSON.parse(run(['pr', 'list', '--head', branch, '--state', 'open', '--limit', '100', '--json', 'number,body,labels']));
+  for (const [branch, sha] of branches) {
+    // REST, not `gh pr list`: GraphQL is blocked in cloud sessions, and both return number, body and labels.
+    const prs = JSON.parse(run(['api', `repos/{owner}/{repo}/pulls?state=open&per_page=100&head={owner}:${encodeURIComponent(branch)}`]));
     if (!Array.isArray(prs) || prs.length >= 100) throw new Error('Incomplete PR metadata lookup.');
     if (!prs.length) process.stdout.write(`No open PR for ${branch}; validate --body-file before creating the PR.\n`);
     for (const pr of prs) {
-      const result = assessPrTemplate({ body: pr.body, labels: pr.labels.map((label) => label.name) });
+      const ui = { fingerprint: uiFingerprint(sha) };
+      const result = assessPrTemplate({ body: pr.body, labels: pr.labels.map((label) => label.name), ui });
       if (result.status === 'failed') throw new Error(`PR #${pr.number}: ${result.violations.join(' ')}`);
     }
   }
@@ -92,6 +101,24 @@ function validateVerificationSection(section) {
   return missing;
 }
 
+// UI PRs show before/after images (scripts/pr-screenshots.mjs) bound to their current UI diff,
+// or say why nothing visible changed.
+function validateScreenshots(sections, ui) {
+  if (ui?.unavailable) return ['UI screenshots cannot be checked: the PR head is not available locally; fetch it and rerun.'];
+  const fingerprint = ui?.fingerprint;
+  if (!fingerprint) return [];
+  const howTo = 'run `pnpm pr:screenshots --routes <affected routes>` and paste its section, or write "No visible change: <reason>"';
+  if (!sections.has('Screenshots')) return [`UI files changed but the ## Screenshots section is missing; ${howTo}.`];
+  const section = sectionText(sections, 'Screenshots');
+  if (/^No visible change:\s*\S.{9,}/im.test(section)) return [];
+  const marker = section.match(/<!-- pr-screenshots: ui=([0-9a-f]{64}) -->/);
+  if (!marker) return [`## Screenshots has no pr-screenshots marker; ${howTo}.`];
+  if (marker[1] !== fingerprint) return [`## Screenshots is stale: the PR's UI diff changed since they were captured; ${howTo}.`];
+  const images = section.match(/<img\s[^>]*src="https:\/\/github\.com\/[^"]+\.(?:png|jpg)\?raw=true"/g) ?? [];
+  if (images.length < 2) return ['## Screenshots needs at least one before/after image pair.'];
+  return [];
+}
+
 function validateRubricSection(section) {
   const missing = [];
   const lines = section.split(/\r?\n/).map((line) => line.trim());
@@ -111,7 +138,7 @@ function validateRubricSection(section) {
   return missing;
 }
 
-export function assessPrTemplate({ body, labels = [] } = {}) {
+export function assessPrTemplate({ body, labels = [], ui } = {}) {
   const normalizedLabels = labels.map(normalize);
 
   if (normalizedLabels.some((label) => SKIP_LABELS.has(label))) {
@@ -150,6 +177,8 @@ export function assessPrTemplate({ body, labels = [] } = {}) {
   } else if (!hasCheckedItem(knownRisks) && !/^\s*none\s*$/im.test(knownRisks)) {
     violations.push('Known risks section must check at least one option or explicitly say none.');
   }
+
+  violations.push(...validateScreenshots(sections, ui));
 
   // Rubric section must list the five dimensions; numeric scores are filled by
   // the evaluator before PASS, not by the generator in CI.
@@ -244,7 +273,14 @@ async function main() {
   // Local preflight: check a PR body file before `gh pr create` / `gh pr edit` sends it.
   const bodyFile = bodyFileArgument(process.argv.slice(2));
   if (bodyFile) {
-    report(assessPrTemplate({ body: await readFile(bodyFile, 'utf8') }));
+    // The body describes the checked-out head; a checkout without main's merge base cannot tell.
+    let ui;
+    try {
+      ui = uiDiff();
+    } catch (error) {
+      process.stderr.write(`Screenshot check skipped: ${error.message.split('\n')[0]}\n`);
+    }
+    report(assessPrTemplate({ body: await readFile(bodyFile, 'utf8'), ui }));
     return;
   }
 

@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { checkPushTemplates } from './check-pr-template.mjs';
+import { checkEvidencePush, evidenceRef } from './ui-evidence.mjs';
 
 export const assessmentPath = '.visual-impact.json';
 export const visualTests = {
@@ -23,7 +24,9 @@ export function nonObservable(path) {
     /^(AGENTS\.md|README\.md|PROGRESS\.md|DECISIONS\.md|CONTEXT\.md|feature_list\.json|\.visual-impact\.json)$/.test(path) ||
     /^tests\/(?!visual\/)/.test(path) ||
     path === 'scripts/select-visual-checks.mjs' ||
-    path === 'scripts/check-pr-template.mjs'
+    path === 'scripts/check-pr-template.mjs' ||
+    path === 'scripts/ui-evidence.mjs' ||
+    path === 'scripts/pr-screenshots.mjs'
   );
 }
 
@@ -102,7 +105,12 @@ export function plan({ cwd = process.cwd(), input = '', base, head = 'HEAD', rem
         .flatMap((line) => {
           const fields = line.trim().split(/\s+/);
           if (fields.length !== 4) throw new Error('Invalid pre-push ref input.');
-          const [, localSha, , remoteSha] = fields;
+          const [, localSha, remoteRef, remoteSha] = fields;
+          if (remoteRef === evidenceRef) {
+            // Screenshot evidence is not app code: check it only adds PNGs, then skip the visual suite.
+            checkEvidencePush({ cwd, localSha, remoteSha });
+            return [];
+          }
           if (zero.test(localSha)) return []; // Remote branch deletion has no new UI to verify.
           const before = zero.test(remoteSha) ? git(['merge-base', localSha, `refs/remotes/${remote}/main`]).trim() : remoteSha;
           return [[before, localSha]];
@@ -152,7 +160,7 @@ export function plan({ cwd = process.cwd(), input = '', base, head = 'HEAD', rem
     }
     return decisions;
   });
-  if (!decisions.length) return { mode: 'skip', reason: 'Only remote ref deletions.', tests: [], decisions, ranges };
+  if (!decisions.length) return { mode: 'skip', reason: 'Only remote ref deletions or screenshot evidence.', tests: [], decisions, ranges };
   const mode = decisions.some((decision) => decision.mode === 'full')
     ? 'full'
     : decisions.some((decision) => decision.mode === 'targeted')

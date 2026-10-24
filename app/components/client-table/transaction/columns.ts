@@ -9,7 +9,7 @@ import { paymentStatusOptions, paymentTypeOptions } from '~/components/client-ta
 import { TransactionTableColumnsEnum } from '~/components/client-table/transaction/columns.enum';
 import type { TransactionInterface } from '~~/types/dashboard/transaction';
 import { downloadDocument } from '~/composables/api/documents';
-import { formatNumberWithCommas } from '~/utils/numbers';
+import { formatLei } from '~/utils/numbers';
 // import { useAuthStore } from '~/store/authStore';
 // import { storeToRefs } from 'pinia';
 
@@ -75,8 +75,7 @@ export const columns: ColumnDef<TransactionInterface>[] = [
   {
     accessorKey: TransactionTableColumnsEnum.TOTAL,
     header: ({ column }) => renderColumnHeader(column, 'Total'),
-    cell: ({ row }) =>
-      h('div', { class: 'inline overflow-hidden' }, `lei ${formatNumberWithCommas(row.getValue(TransactionTableColumnsEnum.TOTAL))}`),
+    cell: ({ row }) => h('div', { class: 'inline overflow-hidden' }, formatLei(row.getValue(TransactionTableColumnsEnum.TOTAL))),
   },
   {
     id: TransactionTableColumnsEnum.ACTIONS, // Update the id

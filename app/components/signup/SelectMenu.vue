@@ -7,7 +7,7 @@
     <div class="grid grid-cols-3 gap-3 mb-[30px] md:mb-10">
       <button
         class="flex flex-col items-center p-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'personal' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
+        :class="[props.selectedType === 'personal' ? 'text-white bg-blue-600' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'personal')"
       >
         <PersonalIcon class="w-8 h-8 mb-2.5" />
@@ -15,7 +15,7 @@
       </button>
       <button
         class="flex flex-col items-center px-2.5 py-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'sole-trader' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
+        :class="[props.selectedType === 'sole-trader' ? 'text-white bg-blue-600' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'sole-trader')"
       >
         <SoleTraderIcon class="w-8 h-8 mb-2.5" />
@@ -23,7 +23,7 @@
       </button>
       <button
         class="flex flex-col items-center p-[15px] rounded-md transition-colors duration-300"
-        :class="[props.selectedType === 'business' ? 'text-white bg-blue-500' : 'text-muted-foreground bg-muted']"
+        :class="[props.selectedType === 'business' ? 'text-white bg-blue-600' : 'text-muted-foreground bg-muted']"
         @click="$emit('set-type', 'business')"
       >
         <BusinessIcon class="w-8 h-8 flex-shrink-0 mb-2.5" />
@@ -59,29 +59,13 @@
       :class="[props.selectedType !== 'business' ? 'mt-[200px] md:mt-[188px]' : '']"
     >
       <button
-        class="flex items-center rounded bg-blue-500 px-[22px] py-[11px] text-white transition-colors duration-300 disabled:bg-muted disabled:text-muted-foreground"
+        class="flex items-center rounded bg-blue-600 px-[22px] py-[11px] text-white transition-colors duration-300 disabled:bg-muted disabled:text-muted-foreground"
         :disabled="!props.selectedType"
         @click="$emit('continue')"
       >
         <span class="text-sm font-medium mr-2">Continue</span>
         <ChevronRightIcon class="w-3 h-3" />
       </button>
-    </div>
-    <div class="flex items-center justify-center gap-[15px] mt-auto mb-[30px] md:hidden" aria-hidden="true">
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
-        <TwitterIcon class="w-5" />
-      </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
-        <LinkedInIcon class="w-5" />
-      </span>
-      <span class="flex items-center justify-center w-[38px] h-[38px] rounded-full bg-slate-500/10 text-muted-foreground">
-        <InstagramIcon class="w-5 h-5" />
-      </span>
-    </div>
-    <div class="flex items-center justify-center gap-5 md:hidden">
-      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Terms </NuxtLink>
-      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Help </NuxtLink>
-      <NuxtLink to="/" class="text-sm transition-colors duration-300 hover:text-blue-500"> Contact </NuxtLink>
     </div>
     <div class="text-sm text-center mb-[60px] mt-auto max-md:hidden lg:mb-10">
       Already have an account?
@@ -108,9 +92,6 @@ import SoleTraderIcon from '@/assets/icons/signup/sole-trader.svg';
 import BusinessIcon from '@/assets/icons/signup/business.svg';
 import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
 import AgentIcon from '@/assets/icons/signup/agent.svg';
-import TwitterIcon from '@/assets/icons/social/twitter.svg';
-import LinkedInIcon from '@/assets/icons/social/linkedin.svg';
-import InstagramIcon from '@/assets/icons/social/instagram.svg';
 import type { FormSelectOption, SignupAccountType } from '~~/types';
 
 const emits = defineEmits(['set-type', 'continue', 'set-business-type']);

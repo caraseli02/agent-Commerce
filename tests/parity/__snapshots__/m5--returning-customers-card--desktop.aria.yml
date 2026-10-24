@@ -1,12 +1,4 @@
-- text: Returning Customers
-- img
+- heading "Returning Customers" [level=2]
 - text: '6'
 - application "area chart with 1 data series"
-- img
-- text: 6.2%
-- button "Last 7 Days":
-    - text: ''
-    - img
-- button "View more" [disabled]:
-    - text: ''
-    - img
+- text: +6.2% Last 7 days

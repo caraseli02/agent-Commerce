@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { FileText } from '@lucide/vue';
-import { DotsVerticalIcon } from '@radix-icons/vue';
+import { EllipsisVertical, FileText } from '@lucide/vue';
 import { formatReviewerDate } from '~~/helpers/reviewer-dates';
 import { PaymentStatusEnum, PaymentTypeEnum } from '~~/types';
 
@@ -109,7 +108,7 @@ defineProps<Props>();
         Invoices
       </UiButton>
       <UiButton variant="secondary" size="icon" class="flex gap-2 h-8 justify-center text-muted-foreground rounded-lg bg-muted">
-        <DotsVerticalIcon class="shrink-0 w-4 aspect-square stroke-[1.5]" />
+        <EllipsisVertical class="shrink-0 w-4 aspect-square stroke-[1.5]" />
       </UiButton>
     </div>
   </div>

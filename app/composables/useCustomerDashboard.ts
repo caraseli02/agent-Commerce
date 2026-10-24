@@ -167,7 +167,7 @@ export const useCustomerDashboard = () => {
       return {
         title: `${currMonthName} hot sale`,
         discount: `${discountPrice?.productDiscount || discountPrice?.userDiscount || 0} %`,
-        productCode: slide.manufacturerCode ?? '',
+        productCode: slide.name || slide.manufacturerCode || '',
         description: slide.description ?? '',
         details: slide.variant ?? slide.measure ?? '',
         originalPrice:

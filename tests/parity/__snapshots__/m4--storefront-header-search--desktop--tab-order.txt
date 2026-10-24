@@ -1,7 +1,8 @@
 1. button "Regional preferences"
 2. button "Open products navigation"
 3. link "Components Marketplace home"
-4. searchbox
-5. button "Open notifications"
-6. button "Open my account"
-7. button "Open shopping cart"
+4. searchbox "Search products"
+5. button "Search"
+6. button "Open notifications"
+7. button "Open my account"
+8. button "Open shopping cart"

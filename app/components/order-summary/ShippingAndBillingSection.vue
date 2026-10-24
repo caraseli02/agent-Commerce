@@ -1,6 +1,10 @@
 <template>
   <div class="flex flex-col gap-6 sm:flex-row sm:gap-8 lg:flex-col lg:gap-6 mt-6 mb-2 justify-between">
-    <OrderSummaryGuestCheckoutAddressForm v-if="isGuestMode" :order="order" />
+    <!-- The guest form needs room, so it lives in the main column of the order summary page. -->
+    <p v-if="isGuestMode" class="text-sm leading-6 text-muted-foreground" data-testid="guest-details-pointer">
+      Enter your contact, shipping and billing details in
+      <a href="#guest-details" class="font-medium text-foreground underline underline-offset-4">Your details</a>.
+    </p>
 
     <template v-else>
       <div class="flex flex-col gap-4 w-full">
@@ -17,8 +21,14 @@
           </div>
           <div v-if="hasBillingAddress" class="flex flex-row gap-4">
             <DemoTooltip theme="black" position="top">
-              <UiButton type="button" variant="ghost" size="icon" aria-label="Edit billing address">
-                <EditSmall @click="router.push('/dashboard/client?tab=settings')" />
+              <UiButton
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Edit billing address"
+                @click="router.push('/dashboard/client?tab=settings')"
+              >
+                <EditSmall aria-hidden="true" />
               </UiButton>
               <template #content>
                 <span class="capitalize">Edit</span>
@@ -29,25 +39,25 @@
 
         <div
           v-if="!hasBillingAddress"
-          class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
+          class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
           data-testid="billing-missing-empty"
         >
           <p class="font-medium">No billing address saved</p>
           <p class="mt-1 text-xs opacity-90">
-            <NuxtLink to="/dashboard/client?tab=settings" class="font-semibold underline hover:text-amber-950"
+            <NuxtLink to="/dashboard/client?tab=settings" class="font-semibold underline hover:text-amber-950 dark:hover:text-amber-50"
               >Add a billing address</NuxtLink
             >
             in your account settings to continue checkout.
           </p>
         </div>
         <div v-else class="flex flex-col gap-2">
-          <p class="text-[#5E6278] text-sm font-medium leading-5">
+          <p class="text-muted-foreground text-sm font-medium leading-5">
             {{ order.shippingDetails?.billingAddress?.name1 }}
           </p>
-          <p class="text-[#5E6278] text-sm font-medium leading-5">
+          <p class="text-muted-foreground text-sm font-medium leading-5">
             {{ order.shippingDetails?.billingAddress?.city }}, {{ order.shippingDetails?.billingAddress?.region }}
           </p>
-          <p class="text-[#5E6278] text-sm font-medium leading-5">
+          <p class="text-muted-foreground text-sm font-medium leading-5">
             {{ order.shippingDetails?.billingAddress?.postcode }},
             {{ order.shippingDetails?.billingAddress?.country }}
           </p>
@@ -68,8 +78,14 @@
           </div>
           <div v-if="hasShippingAddress" class="flex flex-row gap-4">
             <DemoTooltip theme="black" position="top">
-              <UiButton type="button" variant="ghost" size="icon" aria-label="Edit shipping address">
-                <EditSmall @click="router.push('/dashboard/client?tab=settings')" />
+              <UiButton
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Edit shipping address"
+                @click="router.push('/dashboard/client?tab=settings')"
+              >
+                <EditSmall aria-hidden="true" />
               </UiButton>
               <template #content>
                 <span class="capitalize">Edit</span>
@@ -80,12 +96,12 @@
 
         <div
           v-if="!hasShippingAddress"
-          class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
+          class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
           data-testid="shipping-missing-empty"
         >
           <p class="font-medium">No shipping address saved</p>
           <p class="mt-1 text-xs opacity-90">
-            <NuxtLink to="/dashboard/client?tab=settings" class="font-semibold underline hover:text-amber-950"
+            <NuxtLink to="/dashboard/client?tab=settings" class="font-semibold underline hover:text-amber-950 dark:hover:text-amber-50"
               >Add a shipping address</NuxtLink
             >
             in your account settings to continue checkout.
@@ -96,20 +112,20 @@
             <span class="text-foreground text-sm font-medium leading-6">{{ order.shippingDetails?.address?.alias }}</span>
             <div
               v-if="order.shippingDetails?.address?.default"
-              class="px-2 py-1 rounded-[100px] border-[1px] border-[#00D395] flex items-center justify-center gap-1"
+              class="px-2 py-1 rounded-[100px] border-[1px] border-green-700 dark:border-green-400 flex items-center justify-center gap-1"
             >
               <CheckCircleSmall />
-              <span class="text-[#00D395] text-xs font-medium leading-4">Default</span>
+              <span class="text-green-700 dark:text-green-400 text-xs font-medium leading-4">Default</span>
             </div>
           </div>
           <div class="flex flex-col gap-2">
-            <p class="text-[#5E6278] text-sm font-medium leading-5">
+            <p class="text-muted-foreground text-sm font-medium leading-5">
               {{ order.shippingDetails?.address?.name1 }}
             </p>
-            <p class="text-[#5E6278] text-sm font-medium leading-5">
+            <p class="text-muted-foreground text-sm font-medium leading-5">
               {{ order.shippingDetails?.address?.city }}, {{ order.shippingDetails?.address?.region }}
             </p>
-            <p class="text-[#5E6278] text-sm font-medium leading-5">
+            <p class="text-muted-foreground text-sm font-medium leading-5">
               {{ order.shippingDetails?.address?.postcode }}, {{ order.shippingDetails?.address?.country }}
             </p>
           </div>

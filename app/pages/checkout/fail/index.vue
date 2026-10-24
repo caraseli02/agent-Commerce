@@ -52,6 +52,8 @@ import { checkoutFailurePresentation } from '~~/helpers/checkout-error-presentat
 import { cancelOrder as cancelOrderApi } from '~/composables/api/orders';
 
 const route = useRoute();
+
+useHead({ title: 'Checkout problem' });
 const router = useRouter();
 
 const cartStore = useCartStore();

@@ -33,8 +33,7 @@ const syncMobileSheetTop = () => {
 };
 
 const mobileSheetTopClass = 'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bottom-0 max-md:!h-auto';
-const mobileSheetOverlayClass =
-  'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bg-[rgba(15,23,42,0.45)] max-md:!backdrop-blur-none';
+const mobileSheetOverlayClass = 'max-md:!top-[var(--mobile-nav-sheet-top,100px)] max-md:!bg-[rgba(15,23,42,0.45)]';
 const updateViewportState = () => {
   isMobileViewport.value = window.innerWidth < 1024;
   if (!isMobileViewport.value) {

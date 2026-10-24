@@ -1,5 +1,5 @@
 <template>
-  <div class="w-[1488px] max-w-full p-4 mx-auto transition-all duration-300 md:py-6 2xl:px-6">
+  <div class="w-[1488px] max-w-full p-4 mx-auto md:py-6 2xl:px-6">
     <DashboardBreadcrumbs :key="String(updateBreadcrumbs)" title="Customer Profile" :customer="customerSlug" :customer-name="customerName">
       <div class="max-lg:hidden max-w-max">
         <div class="grid grid-cols-[repeat(2,auto)] gap-5 text-right">
@@ -17,7 +17,7 @@
             class="relative pl-5 before:absolute before:top-1/2 before:-translate-y-1/2 before:left-0 before:w-px before:h-[85%] before:bg-border before:rounded-[50px]"
           >
             <div class="text-sm leading-relaxed font-medium text-muted-foreground mb-3">Available Credit</div>
-            <div v-if="!isLoading" class="font-semibold leading-tight text-blue-500">
+            <div v-if="!isLoading" class="font-semibold leading-tight text-primary">
               <div v-if="emptyData || error || !credit" class="text-sm font-medium leading-tight text-muted-foreground">
                 No data available
               </div>
@@ -60,7 +60,7 @@
             <div v-if="emptyData || error || !credit" class="text-sm font-medium leading-tight text-muted-foreground">
               No data available
             </div>
-            <div v-else class="text-sm font-semibold leading-tight text-blue-500">{{ credit.available }} Lei</div>
+            <div v-else class="text-sm font-semibold leading-tight text-primary">{{ credit.available }} Lei</div>
             <WarningIcon v-if="error" class="w-5 h-5 ml-auto max-md:hidden" />
           </template>
         </div>
@@ -91,9 +91,7 @@ const { fetchCustomerCredit } = useControlPanel();
 const customerName = ref('');
 const updateBreadcrumbs = ref(false);
 
-useHead({
-  title: 'Dashboard Profile',
-});
+usePageSeo({ title: 'Customer profile', robots: 'noindex,nofollow' });
 
 Emitter.on('customer-info', async (object: { name: string }) => {
   customerName.value = object.name;

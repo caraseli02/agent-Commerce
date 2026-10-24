@@ -53,7 +53,7 @@ const payment = computed(() => {
 <template>
   <div v-if="backOrderItems.length > 0" class="flex flex-col gap-4">
     <p class="flex flex-col gap-2 lg:flex-row">
-      <UiBadge class="bg-rose-500 text-white w-fit rounded-md h-7 text-sm"> Back Order </UiBadge>
+      <UiBadge class="bg-rose-600 text-white w-fit rounded-md h-7 text-sm"> Back Order </UiBadge>
       <span class="text-rose-500"> {{ backOrderItems.length }} Items will pe placed on Backorder </span>
     </p>
     <section class="flex flex-col gap-10 px-4 py-6 md:p-6 border border-border rounded-xl">

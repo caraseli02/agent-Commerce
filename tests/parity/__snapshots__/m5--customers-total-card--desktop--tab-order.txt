@@ -1,2 +1,1 @@
 1. application "area chart with 1 data series"
-2. button "Last 7 Days"

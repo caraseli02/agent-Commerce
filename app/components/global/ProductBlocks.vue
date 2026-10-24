@@ -37,9 +37,12 @@
             <SvgoNotFound class="hidden sm:block" />
             <SvgoNotFoundSmall class="block sm:hidden" />
           </div>
-          <div class="flex flex-col justify-center items-center text-muted-foreground">
-            <h4 class="text-xl text-center text-semibold">No Products Found</h4>
-            <p>Oops! Seems like there’s nothing here yet.</p>
+          <div class="flex flex-col items-center justify-center gap-2 text-center text-muted-foreground">
+            <h3 class="text-xl font-semibold text-foreground">No products found</h3>
+            <p class="max-w-[48ch]">Clear a filter or search by manufacturer part number, for example STM32F407VGT6.</p>
+            <NuxtLink to="/search" class="min-h-11 content-center font-medium text-primary underline-offset-4 hover:underline">
+              Browse the full catalog
+            </NuxtLink>
           </div>
         </div>
       </div>

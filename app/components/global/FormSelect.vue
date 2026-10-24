@@ -73,7 +73,17 @@
               class="h-auto flex-1 border-0 bg-transparent pl-2 pr-8 py-[9px] text-sm font-normal focus-visible:!outline-none"
             />
             <Transition name="fade">
-              <XIcon v-if="searchValue" class="w-[18px] h-[18px] text-muted-foreground cursor-pointer" @click="searchValue = ''" />
+              <UiButton
+                v-if="searchValue"
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="h-8 w-8 shrink-0"
+                aria-label="Clear search"
+                @click="searchValue = ''"
+              >
+                <XIcon class="w-[18px] h-[18px] text-muted-foreground" aria-hidden="true" />
+              </UiButton>
             </Transition>
           </UiLabel>
         </div>

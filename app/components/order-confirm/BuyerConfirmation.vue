@@ -48,7 +48,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container flex flex-col gap-6 p-4 transition-all duration-300 py-6 lg:px-6">
+  <div class="container flex flex-col gap-6 p-4 py-6 lg:px-6">
     <OrderConfirmThankYou
       v-if="props.isNew"
       :order-id="orderResponse.data?.order?.shortId || ''"

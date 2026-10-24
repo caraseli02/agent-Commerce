@@ -1,5 +1,7 @@
-1. link
-2. link
-3. link
-4. link
-5. button "Expand navigation"
+1. link "Components Marketplace home"
+2. button "Collapse navigation"
+3. link "Dashboard"
+4. link "Orders"
+5. link "Customers"
+6. link "Products"
+7. link "Categories"

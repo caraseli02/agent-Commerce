@@ -84,7 +84,9 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'en',
       },
-      titleTemplate: '%s | Components Marketplace',
+      // Client-only routes (dashboard) render this shell title before app.vue's template runs.
+      title: 'Components Marketplace',
+      titleTemplate: '%s',
       meta: [
         {
           name: 'viewport',
