@@ -32,7 +32,8 @@ No token takeover, expiry, lock deletion or resource-scoped lease migration.
    per repository policy. Preserve all real local hooks, normal pushes and one closing
    PR attached to this chat. Same-PR feedback repairs preserve queue identity, invalidate
    stale readiness and request independent Claude once per exact ready head with
-   the external-review-request marker. Read feedback directly; two unsuccessful focused
+   the external-review-request marker, and again for an unchanged head once a FAIL or
+   BLOCKED on it is resolved without a commit. Read feedback directly; two unsuccessful focused
    repairs produce one concrete blocker. Never self-accept, merge, approve, force push,
    enable Stripe or edit shared reviewed snapshots.
 6. Save real outcomes/exact heads, unavailable usage null and required continuation.
@@ -78,7 +79,7 @@ with the same host lease and `--purpose review`. It requires `reviewer_enabled`
 and `native_execution_ready`. It shares Codex's full-run exclusion; its review
 fixture or checkout is separate from a builder's. GitHub exact-head reports and
 the private journal preserve evidence across fresh chats and prevent duplicate
-reviews. A changed context or owner policy permits one new attributed context report, retaining the prior report; unchanged contexts are not reviewed twice. Busy or unknown lease ownership yields.
+reviews. An unchanged head is not reviewed twice, except an INCONCLUSIVE retry or after a comment that starts with `<!-- external-review-request: <sha> -->` follows its newest FAIL or BLOCKED (docs/agents/local-verification.md § Verdict lifetime); a later main, PR body or label change never needs a new report. Busy or unknown lease ownership yields.
 Review only a non-draft PR explicitly owned by Claude (label `agent:claude` or
 verified legacy Claude branch/linked issue), never one implemented by this
 Codex builder or its internal delegates. Missing or contradictory ownership
@@ -87,20 +88,23 @@ yields one specific blocker. Never implement or push to a Claude PR.
 Read current GitHub head, diff, issue, comments, review threads, CI and
 mergeability; compare exact-head evidence and independently verify the affected
 behavior using the repository evaluator contract. One strongest gate and
-necessary focused/UI evidence suffice. Unattended protected-harness work stays
+necessary focused/UI evidence suffice. Only blocking findings can FAIL; a re-review
+after a FAIL checks the earlier findings and the new changes only, and after two FAILs
+posts BLOCKED instead of a third (docs/agents/autonomous-workflow.md § Blocking findings
+and re-review rounds). Unattended protected-harness work stays
 human-led; an explicit human request may authorize an interactive review.
 
-Post one concise structured verdict per head/base/metadata context with attribution, the exact
+Post one concise structured verdict per head with attribution, the exact
 `<!-- evaluator-head: <sha> -->` marker and `## Evaluator verdict`; update its
 linked issue's readiness on PASS, never merge or approve. INCONCLUSIVE is
 nonfinal, uses its distinct marker and retries no sooner than two hours;
 two unresolved prerequisite failures produce one blocker. Read GitHub directly,
 keep private execution logs/actual-usage journal, release last and stay quiet
-while no actionable new context exists. Claude reviews Codex output on its own
+while no new head or re-review request exists. Claude reviews Codex output on its own
 schedule; Codex does not start Claude.
 
 ## Husky acceptance — owner decision 2026-10-19
 
-GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the context report; award PASS only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. Changed head/base/body/labels require revalidation. The context marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.
+GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the report; award PASS only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. A new head requires a new review; a later main, PR body or label change does not (`docs/agents/local-verification.md` § Verdict lifetime). The marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.
 
-A final report suppresses only unchanged current-context work. A same-head PASS with a stale base/body/labels marker, a material mergeability change, or a report blocked solely by the superseded CI policy is eligible for revalidation. Publish one new attributed report for the changed head/base/metadata context, preserving previous reports. Do not duplicate an unchanged context or wait for a new commit. Current-context reports supersede legacy unmarked reports; contradictory reports within the same context still block.
+A final report stands until its head changes. An unchanged head is reviewed again only for an `INCONCLUSIVE` retry or after a re-review request (`docs/agents/local-verification.md` § Verdict lifetime); re-reviews after a FAIL follow the round rules in `docs/agents/autonomous-workflow.md`.

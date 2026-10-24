@@ -32,28 +32,33 @@ describe('Husky and independent local acceptance', () => {
     expect(assessLocalChecks(fixture(), [report()], trust).state).toBe('success');
   });
 
-  it('requires the independent opposite builder, exact context and an unquoted marker', () => {
+  it('requires an attributed PASS from the opposite builder for the exact head', () => {
     const pr = fixture();
     const invalid = [
       { ...report(), user: { login: 'outsider' } },
       report(pr, 'Claude'),
       report(pr, 'Codex', 'FAIL'),
-      { ...report(), body: report().body.replace(localVerificationMarker(pr), `> ${localVerificationMarker(pr)}`) },
-      { ...report(), body: report().body.replace(`base=${base}`, `base=${head}`) },
+      { ...report(), body: report().body.replace(`evaluator-head: ${head}`, `evaluator-head: ${base}`) },
       { ...report(), body: 'Please review\n' + report().body },
     ];
     for (const comment of invalid) expect(assessLocalChecks(pr, [comment], trust).state).toBe('pending');
-    for (const changed of [
-      { ...pr, body: body + '\nchanged' },
-      { ...pr, labels: [] },
-      { ...pr, base: { sha: base, ref: 'other' } },
-    ]) {
-      expect(assessLocalChecks(changed, [report()], trust).state).toBe('pending');
-    }
     expect(assessLocalChecks({ ...pr, body: '' }, [report()], trust).state).toBe('failure');
   });
 
-  it('uses the same metadata marker in the native Python router', () => {
+  it('keeps the PASS when only the base tip, body or labels changed after the review', () => {
+    const pr = fixture();
+    for (const changed of [
+      { ...pr, base: { sha: 'c'.repeat(40), ref: 'main' } },
+      { ...pr, body: body + '\nchanged' },
+      { ...pr, labels: [] },
+    ]) {
+      expect(assessLocalChecks(changed, [report()], trust).state).toBe('success');
+    }
+    const unmarked = { ...report(), body: report().body.split('\n').slice(0, -1).join('\n') };
+    expect(assessLocalChecks(pr, [unmarked], trust).state).toBe('success');
+  });
+
+  it('uses the same audit marker in the native Python router', () => {
     const pr = { ...fixture(), body: body + '\nUnicode: café', labels: [{ name: 'z' }, { name: 'a' }] };
     const result = execFileSync(
       'python3',
@@ -149,17 +154,15 @@ describe('Husky and independent local acceptance', () => {
     expect((await readiness({ files: [...files, { filename: '.factory/factory.yaml' }] })).readiness.ready).toBe(false);
   });
 
-  it('retains old-context and legacy reports without contradicting a new-context result', async () => {
-    const old = report({ ...fixture(), body: body + '\nprevious context' }, 'Codex', 'FAIL');
-    expect((await readiness({ comments: [old, report()] })).readiness.ready).toBe(true);
-    const legacy = {
-      ...old,
-      body: old.body
-        .split('\n')
-        .filter((line) => !line.startsWith('<!-- local-verification:'))
-        .join('\n'),
-    };
-    expect((await readiness({ comments: [legacy, report()] })).readiness.ready).toBe(true);
-    expect((await readiness({ comments: [legacy] })).readiness.ready).toBe(false);
+  it('stays ready after main moves, and needs a re-review request to replace a FAIL on the same head', async () => {
+    const olderBase = report({ ...fixture(), base: { sha: 'c'.repeat(40), ref: 'main' } });
+    expect((await readiness({ comments: [olderBase] })).readiness.ready).toBe(true);
+
+    const fail = report(fixture(), 'Codex', 'FAIL');
+    const request = { user: { login: 'owner' }, body: `<!-- external-review-request: ${head} -->\nPR body fixed; please re-review.` };
+    expect((await readiness({ comments: [fail, report()] })).readiness.ready).toBe(false);
+    expect((await readiness({ comments: [fail, request] })).readiness.ready).toBe(false);
+    expect((await readiness({ comments: [fail, request, report()] })).readiness.ready).toBe(true);
+    expect((await readiness({ comments: [report(), request, fail] })).readiness.ready).toBe(false);
   });
 });

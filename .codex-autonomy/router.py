@@ -48,12 +48,23 @@ def owner(issue, prs):
     return next(iter(signals), 'codex')
 
 
-def evaluator(comments, head, trusted, context_marker=None):
-    reports = []
+def evaluator(comments, head, trusted):
+    """Verdict for the exact head; base, body and label changes never reopen it.
+
+    Same rule as scripts/owner-attention.mjs latestEvaluatorVerdict: contradictory reports
+    for one head fail closed, except that a re-review request for the head posted after a
+    FAIL or BLOCKED without a PASS starts a new round.
+    """
+    request = f'<!-- external-review-request: {head} -->'
+    round_ = []
     for c in comments:
         body = c.get('body', '').lstrip()
         login = c.get('user', {}).get('login', '').lower()
         if login not in {x.lower() for x in trusted} or login.endswith('[bot]'):
+            continue
+        if body.lower().startswith(request):
+            if round_ and 'PASS' not in round_:
+                round_ = []
             continue
         markers = (f'<!-- evaluator-head: {head} -->', f'<!-- local-evaluator sha={head} -->')
         if not body.lower().startswith(markers) or '## Evaluator verdict' not in body:
@@ -65,33 +76,29 @@ def evaluator(comments, head, trusted, context_marker=None):
         match = re.match(r'^[\s*_>]*(PASS|FAIL|BLOCKED|INCONCLUSIVE)\b', first, re.I)
         if not match:
             raise UnsafeEvidence('Unreadable current-head evaluator report')
-        reports.append((match[1].upper(), context_marker in body.splitlines() if context_marker else False, bool(re.search(r'^<!-- local-verification:', body, re.M))))
-    if context_marker:
-        reports = [report for report in reports if report[1]] if any(report[1] for report in reports) else [report for report in reports if not report[2]]
-    reports = [report[0] for report in reports]
-    if len(set(reports)) > 1:
+        round_.append(match[1].upper())
+    if len(set(round_)) > 1:
         raise UnsafeEvidence('Contradictory current-head evaluator reports')
-    return reports[-1] if reports else None
+    return round_[-1] if round_ else None
 
 
 def local_verification_marker(pr):
-    # Same canonical body/labels tuple as scripts/owner-attention.mjs.
+    # Audit line a report records; same canonical body/labels tuple as scripts/owner-attention.mjs.
     metadata = hashlib.sha256(json.dumps([pr.get('body') or '', sorted(labels(pr)), pr['base']['ref']], ensure_ascii=False, separators=(',', ':')).encode()).hexdigest()
     return f"<!-- local-verification: head={pr['head']['sha']} base={pr['base']['sha']} metadata={metadata} -->"
 
 
 def local_checks(pr, trusted):
-    """The independent current-context PASS attests executed local checks."""
-    marker = local_verification_marker(pr)
+    """The independent PASS on the current head attests executed local checks."""
     live = pr.get('local_review', {})
-    if live.get('head') != pr['head']['sha'] or live.get('base') != pr['base']['sha'] or live.get('marker') != marker:
+    if live.get('head') != pr['head']['sha']:
         return 'pending'
     if live.get('checks', {}).get('state') == 'failure':
         return 'failure'
     if live.get('checks', {}).get('state') != 'success' or live.get('readiness', {}).get('ready') is not True:
         return 'pending'
     for comment in pr['comments']:
-        if evaluator([comment], pr['head']['sha'].lower(), trusted) == 'PASS' and marker in comment.get('body', '').splitlines():
+        if evaluator([comment], pr['head']['sha'].lower(), trusted) == 'PASS':
             return 'success'
     return 'pending'
 
@@ -137,7 +144,7 @@ def classify(issue, prs, saved, config):
             return dict(result, state='parked_closed_unmerged')
         if pr['draft']:
             return dict(result, state='implementing_verifying')
-        verdict = evaluator(pr['comments'], pr['head']['sha'].lower(), config['trusted_evaluator_logins'], local_verification_marker(pr))
+        verdict = evaluator(pr['comments'], pr['head']['sha'].lower(), config['trusted_evaluator_logins'])
         ci = local_checks(pr, config['trusted_evaluator_logins'])
         conflict = pr.get('mergeable') is False or pr.get('mergeable_state') == 'dirty'
         repair = ci == 'failure' or conflict or verdict == 'FAIL' or changed_requested(pr)
