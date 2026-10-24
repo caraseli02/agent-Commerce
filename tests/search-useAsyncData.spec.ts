@@ -32,8 +32,8 @@ describe('search useAsyncData contract', () => {
     expect(searchPage).toContain('similarProducts.value = null');
     expect(searchPage).toContain('similarProductFeatures.value = null');
     expect(searchPage).not.toContain('Promise.resolve(null)');
-    expect(searchPage).toContain('v-if="pending"');
-    expect(searchPage).toContain('v-else-if="error"');
+    expect(searchPage).toContain('v-if="pending && !products"');
+    expect(searchPage).toContain('v-else-if="error && !pending"');
     expect(searchPage).toContain('role="alert"');
     expect(searchPage).toContain('motion-reduce:animate-none');
     expect(searchPage).not.toContain('onMounted(');

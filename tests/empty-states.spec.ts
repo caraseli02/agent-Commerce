@@ -31,7 +31,7 @@ describe('empty state UX contract (#194)', () => {
   it('keeps search fetch failures distinct from empty results', () => {
     const searchPage = source('app/pages/search.vue');
 
-    expect(searchPage).toContain('v-else-if="error"');
+    expect(searchPage).toContain('v-else-if="error && !pending"');
     expect(searchPage).toContain('role="alert"');
     expect(searchPage).toContain('SearchProducts');
   });
