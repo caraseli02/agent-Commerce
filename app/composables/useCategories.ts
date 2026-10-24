@@ -23,6 +23,7 @@ const isLocked = ref(false);
 const searchQuery = ref('');
 const sortBy = ref<'name' | 'averageWeight' | 'productCount'>('name');
 const sortOrder = ref<'asc' | 'desc'>('asc');
+let pendingCategoriesRequest: Promise<void> | null = null;
 
 const categoriesOptions = computed(() => {
   if (categories.value && categories.value.length > 0) {
@@ -40,7 +41,8 @@ const setDemoTaxonomy = () => {
 export const useCategories = () => {
   const config = useRuntimeConfig();
 
-  const getCategories = async () => {
+  // Mutation refreshes call this directly so they never reuse a request that started before the change.
+  const fetchCategories = async () => {
     isLoading.value = true;
     selectedCategories.value = [];
     try {
@@ -64,6 +66,14 @@ export const useCategories = () => {
     }
   };
 
+  // The hero and both header menus load categories on mount; concurrent calls share one request (#795).
+  const getCategories = () => {
+    pendingCategoriesRequest ??= fetchCategories().finally(() => {
+      pendingCategoriesRequest = null;
+    });
+    return pendingCategoriesRequest;
+  };
+
   const getCategoriesBySearchQuery = async (): Promise<TaxonomyInterface[]> => {
     const search = (items: TaxonomyInterface[], query: string): TaxonomyInterface[] => {
       return items.filter((category) => {
@@ -83,7 +93,7 @@ export const useCategories = () => {
   const createCategory = async (payload: ICreatePayload) => {
     const response = await createCategoryRequest(taxonomyId.value, payload);
     if (response.status === 'success') {
-      await getCategories();
+      await fetchCategories();
       return response.status;
     }
   };
@@ -91,14 +101,14 @@ export const useCategories = () => {
   const deleteCategories = async (categoryIds: string[]) => {
     const response = await deleteCategoriesRequest(taxonomyId.value, categoryIds);
     if (response.status === 'success') {
-      await getCategories();
+      await fetchCategories();
     }
   };
 
   const updateCategory = async (categoryId: string, payload: ICreatePayload) => {
     const response = await updateCategoryRequest(taxonomyId.value, categoryId, payload);
     if (response.status === 'success') {
-      await getCategories();
+      await fetchCategories();
     }
     return response;
   };
@@ -106,7 +116,7 @@ export const useCategories = () => {
   const toggleCategoryStatus = async (categoryId: string) => {
     const response = await toggleCategoryStatusRequest(taxonomyId.value, categoryId);
     if (response.status === 'success') {
-      await getCategories();
+      await fetchCategories();
       return response.status;
     }
   };
@@ -114,21 +124,21 @@ export const useCategories = () => {
   const duplicateCategory = async (sourceId: string, parentId?: string) => {
     const response = await duplicateCategoryRequest(taxonomyId.value, sourceId, parentId);
     if (response.status === 'success') {
-      await getCategories();
+      await fetchCategories();
     }
   };
 
   const mergeCategories = async (sourceIds: string[], targetID: string) => {
     const response = await mergeCategoriesRequest(taxonomyId.value, sourceIds, targetID);
     if (response.status === 'success') {
-      await getCategories();
+      await fetchCategories();
     }
   };
 
   const moveCategories = async (categoryIds: string[], parentId: string) => {
     const response = await moveCategoriesRequest(taxonomyId.value, categoryIds, parentId);
     if (response.status === 'success') {
-      await getCategories();
+      await fetchCategories();
     }
   };
 
