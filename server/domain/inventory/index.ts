@@ -113,6 +113,59 @@ const ensureInventoryRow = async (productId: string) => {
   return rows[0];
 };
 
+const immediateQuantityOf = (rows: readonly { items_json: string }[], productId: string) =>
+  rows
+    .flatMap((row) => JSON.parse(row.items_json) as ReservationItem[])
+    .filter((item) => item.productId === productId)
+    .reduce((total, item) => total + item.immediateQuantity, 0);
+
+// `reserved` gives an expired reservation's units back only when that reservation is read again
+// (expireIfNeeded), and an abandoned checkout is never read again. Availability therefore adds back
+// the units of `active` reservations that have already expired. Call it after ensureInventoryRow
+// has locked the row; it reads the reservations without locking them.
+const availableQuantity = async (row: InventoryRow | undefined) => {
+  if (!row) return 0;
+  const database = await getCheckoutDatabase();
+  const expired = await database.query<{ items_json: string }>(
+    `SELECT items_json FROM checkout_reservations
+      WHERE status = 'active'
+        AND expires_at::timestamptz <= $1::timestamptz
+        AND items_json::jsonb @> $2::jsonb`,
+    [new Date().toISOString(), JSON.stringify([{ productId: row.product_id }])],
+  );
+  const held = Number(row.reserved || 0) - immediateQuantityOf(expired, row.product_id);
+  return Math.max(0, Number(row.on_hand || 0) - held);
+};
+
+export type ReservedDrift = Readonly<{ productId: string; reserved: number; activeReserved: number }>;
+
+// Drift check: `reserved` must equal the immediate units of all `active` reservations, including
+// expired ones that expireIfNeeded has not released yet. Any product listed here has a counter
+// that no longer matches its reservations. Counters and reservations are read in one statement so
+// both come from the same snapshot; a checkout committing between two reads would look like drift.
+const findReservedDrift = async (): Promise<ReservedDrift[]> => {
+  const database = await getCheckoutDatabase();
+  const rows = await database.query<{ product_id: string; reserved: number; active_reserved: number }>(
+    `SELECT inventory.product_id, inventory.reserved,
+            COALESCE((
+              SELECT SUM((item->>'immediateQuantity')::int)
+                FROM checkout_reservations reservation,
+                     jsonb_array_elements(reservation.items_json::jsonb) item
+               WHERE reservation.status = 'active'
+                 AND item->>'productId' = inventory.product_id
+            ), 0) AS active_reserved
+       FROM checkout_inventory inventory
+      ORDER BY inventory.product_id`,
+  );
+  return rows
+    .map((row) => ({
+      productId: row.product_id,
+      reserved: Number(row.reserved),
+      activeReserved: Number(row.active_reserved),
+    }))
+    .filter((row) => row.reserved !== row.activeReserved);
+};
+
 const reserve = async (input: {
   reservationKey: string;
   items: readonly ReservationItem[];
@@ -129,7 +182,7 @@ const reserve = async (input: {
 
   for (const item of input.items) {
     const row = await ensureInventoryRow(item.productId);
-    const available = Math.max(0, Number(row?.on_hand || 0) - Number(row?.reserved || 0));
+    const available = await availableQuantity(row);
     if (item.immediateQuantity > available) {
       return {
         kind: 'unavailable',
@@ -248,7 +301,7 @@ const recoverPaidReservation = async (input: {
   for (const item of [...input.items].sort((a, b) => a.productId.localeCompare(b.productId))) {
     const row = await ensureInventoryRow(item.productId);
     const quantity = item.immediateQuantity + item.backorderQuantity;
-    const immediateQuantity = Math.min(quantity, Math.max(0, Number(row?.on_hand || 0) - Number(row?.reserved || 0)));
+    const immediateQuantity = Math.min(quantity, await availableQuantity(row));
     plan.push({ productId: item.productId, immediateQuantity, backorderQuantity: quantity - immediateQuantity });
   }
   const backordered = plan.some((item) => item.backorderQuantity > 0);
@@ -275,4 +328,12 @@ const recoverPaidReservation = async (input: {
   return { kind: backordered ? 'backordered' : 'allocated', reservation: { ...reserved.reservation, status: 'committed' } };
 };
 
-export const inventory = { reserve, reestablishReservation, isReservationActive, commit, release, recoverPaidReservation };
+export const inventory = {
+  reserve,
+  reestablishReservation,
+  isReservationActive,
+  commit,
+  release,
+  recoverPaidReservation,
+  findReservedDrift,
+};
