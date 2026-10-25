@@ -90,7 +90,7 @@ mergeability; compare exact-head evidence and independently verify the affected
 behavior using the repository evaluator contract. One strongest gate and
 necessary focused/UI evidence suffice. Only blocking findings can FAIL; a re-review
 after a FAIL checks the earlier findings and the new changes only, and after two FAILs
-posts BLOCKED instead of a third (docs/agents/autonomous-workflow.md § Blocking findings
+on the PR since its latest PASS, on any head, posts BLOCKED instead of a third (docs/agents/autonomous-workflow.md § Blocking findings
 and re-review rounds). Unattended protected-harness work stays
 human-led; an explicit human request may authorize an interactive review.
 

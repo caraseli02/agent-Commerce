@@ -48,14 +48,27 @@ def owner(issue, prs):
     return next(iter(signals), 'codex')
 
 
+def attests_local_verification(body, head):
+    """The report's own audit line for this head; any base tip and metadata digest are accepted."""
+    if not re.fullmatch(r'[0-9a-f]{7,64}', head or ''):
+        return False
+    line = re.compile(rf'<!-- local-verification: head={head} base=[0-9a-f]{{40}} metadata=[0-9a-f]{{64}} -->', re.I)
+    return any(line.fullmatch(entry) for entry in (body or '').splitlines())
+
+
 def evaluator(comments, head, trusted):
     """Verdict for the exact head; base, body and label changes never reopen it.
 
-    Same rule as scripts/owner-attention.mjs latestEvaluatorVerdict: contradictory reports
-    for one head fail closed, except that a re-review request for the head posted after a
-    FAIL or BLOCKED without a PASS starts a new round.
+    Same rule as scripts/owner-attention.mjs latestEvaluatorVerdict: reports with the head's
+    local-verification line supersede legacy unmarked ones, contradictory reports for one
+    head fail closed, and a re-review request for the head posted after a FAIL or BLOCKED
+    without a PASS starts a new round.
     """
     request = f'<!-- external-review-request: {head} -->'
+
+    def counted(reports):
+        return [r for r in reports if r[1]] if any(r[1] for r in reports) else reports
+
     round_ = []
     for c in comments:
         body = c.get('body', '').lstrip()
@@ -63,7 +76,7 @@ def evaluator(comments, head, trusted):
         if login not in {x.lower() for x in trusted} or login.endswith('[bot]'):
             continue
         if body.lower().startswith(request):
-            if round_ and 'PASS' not in round_:
+            if round_ and all(r[0] != 'PASS' for r in counted(round_)):
                 round_ = []
             continue
         markers = (f'<!-- evaluator-head: {head} -->', f'<!-- local-evaluator sha={head} -->')
@@ -76,10 +89,11 @@ def evaluator(comments, head, trusted):
         match = re.match(r'^[\s*_>]*(PASS|FAIL|BLOCKED|INCONCLUSIVE)\b', first, re.I)
         if not match:
             raise UnsafeEvidence('Unreadable current-head evaluator report')
-        round_.append(match[1].upper())
-    if len(set(round_)) > 1:
+        round_.append((match[1].upper(), attests_local_verification(body, head)))
+    verdicts = [r[0] for r in counted(round_)]
+    if len(set(verdicts)) > 1:
         raise UnsafeEvidence('Contradictory current-head evaluator reports')
-    return round_[-1] if round_ else None
+    return verdicts[-1] if verdicts else None
 
 
 def local_verification_marker(pr):
@@ -98,7 +112,8 @@ def local_checks(pr, trusted):
     if live.get('checks', {}).get('state') != 'success' or live.get('readiness', {}).get('ready') is not True:
         return 'pending'
     for comment in pr['comments']:
-        if evaluator([comment], pr['head']['sha'].lower(), trusted) == 'PASS':
+        head = pr['head']['sha'].lower()
+        if evaluator([comment], head, trusted) == 'PASS' and attests_local_verification(comment.get('body', ''), head):
             return 'success'
     return 'pending'
 

@@ -158,13 +158,13 @@ Both reviewers follow this section. It keeps a FAIL from turning into an open-en
 
 Everything else is **non-blocking**: hardening against unlikely inputs, edge cases the acceptance criteria do not name, naming, style and refactors. List it under **Non-blocking** in the report; it never turns a PASS into a FAIL. When an item is worth doing, say so; the builder or Vlad files the follow-up issue.
 
-**Re-review rounds.** A later head on a PR whose previous report is a FAIL gets a re-review, not a fresh review:
+**Re-review rounds.** A later head on a PR whose previous report is a FAIL, or the same head reopened by a re-review request, gets a re-review, not a fresh review:
 
 1. Start the report with `## Earlier findings`: one line per blocking finding of the previous report, fixed (with evidence) or still open (`file:line`).
-2. Look for new blocking findings only in what changed since the previously reviewed head, leaving out what a merge of `main` brought in. A problem in code that was already there at the earlier review is non-blocking, unless it is P0 (security, data loss, or the feature does not work at all).
+2. Look for new blocking findings only in what changed since the previous review (a new head's commits, leaving out what a merge of `main` brought in, or the PR body and labels of a reopened head). A problem in code that was already there at the earlier review is non-blocking, unless it is P0 (security, data loss, or the feature does not work at all).
 3. Run the delivery gate again on the new head.
 
-**Round cap.** Count the FAIL reports on earlier heads of the PR since its latest PASS, or since Vlad's latest go-ahead for another round. With two already, do not post a third FAIL: post `BLOCKED — needs human decision` listing the blocking findings still open. Vlad then merges as is (the open items become a follow-up issue), closes the PR, or asks for another round on the PR. Only he decides; no builder or reviewer session, interactive or unattended, starts a third round on its own.
+**Round cap.** Count every FAIL report on the PR since its latest PASS, or since Vlad's latest go-ahead for another round, whatever head it names: a FAIL on an earlier head and a FAIL on the current head before a re-review request reopened it both count. With two already, do not post a third FAIL: post `BLOCKED — needs human decision` listing the blocking findings still open. Vlad then merges as is (the open items become a follow-up issue), closes the PR, or asks for another round on the PR. Only he decides; no builder or reviewer session, interactive or unattended, starts a third round on its own.
 
 ## Codex builder model assignment
 

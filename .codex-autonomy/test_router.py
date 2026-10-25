@@ -3,7 +3,7 @@ import json
 import pathlib
 import unittest
 
-from router import local_verification_marker, UnsafeEvidence, admit_findings, classify, evaluator, fingerprint, handoff, overlap, route
+from router import attests_local_verification, local_verification_marker, UnsafeEvidence, admit_findings, classify, evaluator, fingerprint, handoff, overlap, route
 from discover import registry_report
 
 CONFIG = json.loads(pathlib.Path(__file__).with_name('config.json').read_text())
@@ -13,6 +13,10 @@ SCOPE = {'paths': ['app/feature.vue'], 'consumers': ['app/pages/feature.vue'], '
 
 def report(verdict='PASS', head=HEAD, login='caraseli02', who='Claude (separate reviewer)'):
     return {'user': {'login': login}, 'body': f'<!-- evaluator-head: {head} -->\nIndependent evaluator: {who}\n## Evaluator verdict\n{verdict} — evidence'}
+
+
+def marked(comment, value):
+    return dict(comment, body=comment['body'] + '\n' + local_verification_marker(value))
 
 
 def issue(number=1, claimed=True):
@@ -102,7 +106,7 @@ class RoutingTests(unittest.TestCase):
         p = pr(); p['local_review']['readiness'] = {'ready': False}
         self.assertEqual(self.state(p=p)['state'], 'waiting_local_verification')
         p = pr(); p['comments'][0]['body'] = report()['body']
-        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+        self.assertEqual(self.state(p=p)['state'], 'waiting_local_verification')
         p = pr(); p['mergeable'] = None
         self.assertNotEqual(self.state(p=p)['state'], 'queued_awaiting_human')
         p = pr(); p['reviews'] = [{'state': 'CHANGES_REQUESTED', 'user': {'login': 'human'}}]
@@ -131,10 +135,23 @@ class RoutingTests(unittest.TestCase):
             self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human', first)
             p = pr(); p['comments'] = [report(first), request]
             self.assertEqual(self.state(p=p)['state'], 'waiting_first_evaluation', first)
+        p = pr(); p['comments'].insert(0, marked(report('FAIL'), p))
+        self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
+        p = pr(); p['comments'] += [request, marked(report('FAIL'), p)]
+        self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
+        fails = [report('FAIL'), request, report('FAIL')]
+        self.assertEqual(evaluator(fails, HEAD, CONFIG['trusted_evaluator_logins']), 'FAIL')
+        self.assertIsNone(evaluator(fails + [request], HEAD, CONFIG['trusted_evaluator_logins']))
+
+    def test_audit_line_attests_and_supersedes_legacy_reports(self):
         p = pr(); p['comments'].insert(0, report('FAIL'))
-        self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
-        p = pr(); p['comments'] += [request, report('FAIL')]
-        self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
+        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+        p = pr(); p['comments'].append(report('FAIL'))
+        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+        line = local_verification_marker(pr())
+        self.assertTrue(attests_local_verification('x\n' + line, HEAD))
+        for body in ('> ' + line, line + ' trailing', line.replace(f'head={HEAD}', 'head=' + 'b' * 40), 'no line'):
+            self.assertFalse(attests_local_verification(body, HEAD), body)
 
     def test_unpublished_drafts_contracts_global_paths_not_exempt(self):
         for path in ['pnpm-lock.yaml', 'tests/shared.spec.ts', 'nuxt.config.ts', 'migrations/001.sql', 'types/shared.ts']:

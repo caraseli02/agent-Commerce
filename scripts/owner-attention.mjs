@@ -158,30 +158,41 @@ const VERDICT_HEADING = '## Evaluator verdict';
 // `Independent evaluator:` at line start (optionally bold) followed by a non-empty attribution.
 const ATTRIBUTION_LINE = /^[ \t>]*(?:[*_]{1,2})?Independent evaluator(?:[*_]{1,2})?[ \t]*:(?:[*_]{1,2})?[ \t]*[^\s*_]/im;
 
-// Structured evaluator verdict for the exact head, as autonomous-workflow.md defines it:
-// it must come from an account the evaluators post through and carry explicit
-// independent-evaluator attribution, so an outsider's look-alike comment never counts.
-// A verdict belongs to the head alone: a later base tip, PR body or label set does not
-// reopen it (local-verification.md § Verdict lifetime). Contradictory reports for the
-// same head need clarification, so they resolve to CONFLICTING rather than letting the
-// newest one win. The one exception is a re-review request for that head
-// (`<!-- external-review-request: <head> -->`) posted after a FAIL or BLOCKED without a
-// PASS: it starts a new round, so the reports before it no longer count, and the head
-// has no verdict until the next report.
-export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
+// The report's own audit line for this head, on a line of its own: proof that the review ran
+// under the local-verification policy. Any base tip and metadata digest are accepted, since
+// the verdict belongs to the head; a legacy report without the line attests nothing.
+export function attestsLocalVerification(body, headSha) {
   const head = String(headSha ?? '').toLowerCase();
-  if (!head) return null;
+  if (!/^[0-9a-f]{7,64}$/.test(head)) return false;
+  const line = new RegExp(`^<!-- local-verification: head=${head} base=[0-9a-f]{40} metadata=[0-9a-f]{64} -->$`, 'i');
+  return String(body ?? '')
+    .split(/\r?\n/)
+    .some((entry) => line.test(entry));
+}
+
+// The reports that decide the head's verdict, oldest first. Reports must come from an
+// account the evaluators post through and carry explicit independent-evaluator attribution,
+// so an outsider's look-alike comment never counts. A verdict belongs to the head alone: a
+// later base tip, PR body or label set does not reopen it (local-verification.md § Verdict
+// lifetime). Reports with the head's local-verification line supersede legacy unmarked
+// ones, which stay as history. A re-review request for the head
+// (`<!-- external-review-request: <head> -->`) posted after a FAIL or BLOCKED without a
+// PASS starts a new round, so the reports before it no longer count.
+function evaluatorRound(comments, headSha, { trustedLogins }) {
+  const head = String(headSha ?? '').toLowerCase();
+  if (!head) return [];
   const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
   trusted.delete(BOT_LOGIN);
   const markers = [`<!-- evaluator-head: ${head} -->`, `<!-- local-evaluator sha=${head} -->`];
   const request = `<!-- external-review-request: ${head} -->`;
+  const counted = (reports) => (reports.some((report) => report.attested) ? reports.filter((report) => report.attested) : reports);
   let round = [];
   for (const comment of comments ?? []) {
     const body = String(comment?.body ?? '');
     const start = body.trimStart().toLowerCase();
     if (!trusted.has(String(comment?.user?.login ?? '').toLowerCase())) continue;
     if (start.startsWith(request)) {
-      if (round.length && !round.some((report) => report.verdict === 'PASS')) round = [];
+      if (round.length && !counted(round).some((report) => report.verdict === 'PASS')) round = [];
       continue;
     }
     if (!markers.some((tag) => start.startsWith(tag)) || !body.includes(VERDICT_HEADING)) continue;
@@ -189,12 +200,27 @@ export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
     const after = body.slice(body.indexOf(VERDICT_HEADING) + VERDICT_HEADING.length);
     const firstLine = after.split(/\r?\n/).find((line) => line.trim()) ?? '';
     const match = firstLine.match(/^[\s*_>]*(PASS|FAIL|BLOCKED|INCONCLUSIVE)\b/i);
-    if (match) round.push({ verdict: match[1].toUpperCase(), url: comment.html_url ?? null });
+    if (match)
+      round.push({ verdict: match[1].toUpperCase(), url: comment.html_url ?? null, attested: attestsLocalVerification(body, head) });
   }
+  return counted(round);
+}
+
+// Structured evaluator verdict for the exact head, as autonomous-workflow.md defines it.
+// Contradictory reports in the deciding round need clarification, so they resolve to
+// CONFLICTING rather than letting the newest one win.
+export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
+  const round = evaluatorRound(comments, headSha, { trustedLogins });
   if (!round.length) return null;
   const latest = round.at(-1);
   const verdicts = [...new Set(round.map((report) => report.verdict))];
   return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : { verdict: latest.verdict, url: latest.url };
+}
+
+// A head whose verdict rests only on legacy unmarked reports has had no review under the
+// local-verification policy yet, so it stays open for one.
+export function hasLocallyAttestedVerdict(comments, headSha, { trustedLogins }) {
+  return evaluatorRound(comments, headSha, { trustedLogins }).some((report) => report.attested);
 }
 
 // Records the head, base tip and metadata a review tested. It is an audit line in the
@@ -249,7 +275,11 @@ export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluat
     const attribution = String(comment.body ?? '').match(
       /^[ \t]*(?:\*{1,2})?Independent evaluator(?:\*{1,2})?\s*:(?:\*{1,2})?[^\S\n]*([^\n]+)/im,
     );
-    return verdict?.verdict === 'PASS' && new RegExp(`\\b${expectedEvaluator}\\b`, 'i').test(attribution?.[1] ?? '');
+    return (
+      verdict?.verdict === 'PASS' &&
+      new RegExp(`\\b${expectedEvaluator}\\b`, 'i').test(attribution?.[1] ?? '') &&
+      attestsLocalVerification(comment.body, pr.head.sha)
+    );
   });
   if (!verified) pending.push('independent local verification for the current head');
   return { state: failing.length ? 'failure' : pending.length ? 'pending' : 'success', failing, pending };
@@ -483,8 +513,8 @@ export function claimPrSummary(pr, comments, { trustedLogins, ui }) {
 
 // `claims` are { number, live, pr: claimPrSummary | null } for every Claude claim that is
 // neither parked nor waiting; `reviewable` are non-Claude PR numbers whose head has no
-// verdict, because it was never reviewed or a re-review was requested, or only an
-// INCONCLUSIVE one. A live claim whose head is BLOCKED was unparked by Vlad: its repair
+// verdict, because it was never reviewed or a re-review was requested, only an
+// INCONCLUSIVE one, or only legacy reports without a local-verification line. A live claim whose head is BLOCKED was unparked by Vlad: its repair
 // is the re-review request, as claude-routine.md step 2 says.
 export function routeDecision({ mode, maxPassQueue, improve, claims, reviewable, eligible, selfClaims }) {
   const build = mode === 'build';
@@ -839,7 +869,8 @@ async function printRoute() {
     if (await isClaudeBuiltPr(gh, pr)) continue;
     const comments = await gh.paginate(`/issues/${pr.number}/comments`);
     const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins });
-    if (!verdict || verdict.verdict === 'INCONCLUSIVE') reviewable.push(pr.number);
+    if (!verdict || verdict.verdict === 'INCONCLUSIVE' || !hasLocallyAttestedVerdict(comments, pr.head.sha, { trustedLogins }))
+      reviewable.push(pr.number);
   }
 
   const decision = routeDecision({

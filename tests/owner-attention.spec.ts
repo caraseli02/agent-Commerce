@@ -20,6 +20,7 @@ import {
   hasClaudeCoauthor,
   hasCurrentSkipRecord,
   hasEvaluatorPassOnAnyHead,
+  hasLocallyAttestedVerdict,
   isClaudeBuilt,
   issueFingerprint,
   latestEvaluatorVerdict,
@@ -138,6 +139,31 @@ describe('evaluator verdict', () => {
       expect(latestEvaluatorVerdict([fail, { ...request(HEAD), body: `Quoting ${request(HEAD).body}` }], HEAD, trusted)?.verdict).toBe(
         'FAIL',
       );
+    });
+
+    it('starts a fresh round on each request, so repeated same-head FAILs stay visible one at a time', () => {
+      const fail = (url: string) => report(HEAD, 'FAIL — needs generator fix.', { html_url: url });
+      expect(latestEvaluatorVerdict([fail('u1'), request(HEAD), fail('u2')], HEAD, trusted)).toEqual({ verdict: 'FAIL', url: 'u2' });
+      expect(latestEvaluatorVerdict([fail('u1'), request(HEAD), fail('u2'), request(HEAD)], HEAD, trusted)).toBeNull();
+    });
+  });
+
+  describe('local-verification audit line', () => {
+    const audit = `<!-- local-verification: head=${HEAD} base=${'b'.repeat(40)} metadata=${'c'.repeat(64)} -->`;
+    const marked = (verdict: string, url: string) =>
+      report(HEAD, verdict, { html_url: url, body: `${report(HEAD, verdict).body}\n${audit}` });
+
+    it('lets marked reports supersede legacy unmarked ones for the same head', () => {
+      const comments = [report(HEAD, 'PASS — ready-for-human.', { html_url: 'u1' }), marked('FAIL — needs generator fix.', 'u2')];
+      expect(latestEvaluatorVerdict(comments, HEAD, trusted)).toEqual({ verdict: 'FAIL', url: 'u2' });
+      expect(hasLocallyAttestedVerdict(comments, HEAD, trusted)).toBe(true);
+    });
+
+    it('leaves a head with only unmarked reports open for a local review', () => {
+      const legacy = [report(HEAD, 'PASS — ready-for-human.')];
+      expect(latestEvaluatorVerdict(legacy, HEAD, trusted)?.verdict).toBe('PASS');
+      expect(hasLocallyAttestedVerdict(legacy, HEAD, trusted)).toBe(false);
+      expect(hasLocallyAttestedVerdict([marked('PASS — ready-for-human.', 'u3')], HEAD, trusted)).toBe(true);
     });
   });
 

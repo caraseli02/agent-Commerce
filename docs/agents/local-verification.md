@@ -84,6 +84,12 @@ is repaired with a new head. So a reviewer never reviews an unchanged head again
   request starts a new round: the head has no verdict until the next report, and then that
   report alone counts.
 
+A report attests the local gate only when it carries the head's audit line on a line of its
+own, `<!-- local-verification: head=<this head> base=<sha> metadata=<digest> -->`, with any
+base and metadata. Reports with that line supersede legacy reports without it for the same
+head. A head whose reports all lack it has had no review under this policy: it stays open for
+one, and its unmarked PASS never makes the PR ready.
+
 Reports for one head that disagree without such a request between them are contradictory
 and need Vlad. A request never reopens a PASS; only a new head does. Codex already posts
 this marker to ask for the first review of each new head; on an unchanged head it means the

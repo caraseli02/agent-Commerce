@@ -61,8 +61,20 @@ describe('Husky and independent local acceptance', () => {
     ]) {
       expect(assessLocalChecks(changed, [report()], trust).state).toBe('success');
     }
-    const unmarked = { ...report(), body: report().body.split('\n').slice(0, -1).join('\n') };
-    expect(assessLocalChecks(pr, [unmarked], trust).state).toBe('success');
+  });
+
+  it('needs the head-naming audit line, on its own line, before a PASS attests the local gate', () => {
+    const pr = fixture();
+    const marker = localVerificationMarker(pr);
+    for (const body of [
+      report().body.replace(`\n${marker}`, ''),
+      report().body.replace(marker, `> ${marker}`),
+      report().body.replace(marker, `${marker} trailing`),
+      report().body.replace(`head=${head}`, `head=${base}`),
+      report().body.replace(/metadata=[0-9a-f]{64}/, 'metadata=short'),
+    ]) {
+      expect(assessLocalChecks(pr, [{ ...report(), body }], trust).state).toBe('pending');
+    }
   });
 
   it('uses the same audit marker in the native Python router', () => {
@@ -207,5 +219,20 @@ describe('Husky and independent local acceptance', () => {
     expect((await readiness({ comments: [fail, request] })).readiness.ready).toBe(false);
     expect((await readiness({ comments: [fail, request, report()] })).readiness.ready).toBe(true);
     expect((await readiness({ comments: [report(), request, fail] })).readiness.ready).toBe(false);
+  });
+
+  it('never makes a PR ready on a legacy PASS without the audit line, and lets marked reports supersede legacy ones', async () => {
+    const strip = (comment: ReturnType<typeof report>) => ({
+      ...comment,
+      body: comment.body
+        .split('\n')
+        .filter((line) => !line.startsWith('<!-- local-verification:'))
+        .join('\n'),
+    });
+    const legacyPass = strip(report());
+    const legacyFail = strip(report(fixture(), 'Codex', 'FAIL'));
+    expect((await readiness({ comments: [legacyPass] })).readiness.ready).toBe(false);
+    expect((await readiness({ comments: [legacyFail, report()] })).readiness.ready).toBe(true);
+    expect((await readiness({ comments: [report(fixture(), 'Codex', 'FAIL'), legacyPass] })).readiness.ready).toBe(false);
   });
 });
