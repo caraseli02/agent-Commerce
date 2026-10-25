@@ -14,16 +14,9 @@
             <UiLabel for="search-filters-visibility" class="mr-[15px] cursor-pointer"> Filters </UiLabel>
             <UiSwitch id="search-filters-visibility" :checked="showFilters" @update:checked="showFilters = $event" />
           </div>
-          <UiButton class="group">
+          <UiButton type="button" class="group" @click="resetFilters">
             <ResetIcon class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-[360deg]" />
-            <span
-              @click="
-                Emitter.emit('reset-products-filters', true);
-                checkedOptions = [];
-              "
-            >
-              Reset Filters
-            </span>
+            <span>Reset Filters</span>
           </UiButton>
         </div>
       </div>
@@ -130,6 +123,12 @@ productFiltersData.value = parseFilters(props.filters);
 
 const filterData = () => {
   filteredData.value = productFiltersData.value?.filter((item) => item.checked) ?? [];
+};
+
+// Bound on the button itself so Enter/Space and clicks on the icon or padding reset too.
+const resetFilters = () => {
+  Emitter.emit('reset-products-filters', true);
+  checkedOptions.value = [];
 };
 
 const removeItem = (index: number) => {
