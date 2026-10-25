@@ -267,4 +267,4 @@ A useful failure message says:
 
 ## Husky acceptance
 
-Follow [local verification](local-verification.md). GitHub Actions remain disabled; no hosted status or standalone CI service is required for acceptance. Independent reviewers execute fresh checks and attest the exact head/current base and live metadata in their structured report.
+Follow [local verification](local-verification.md). GitHub Actions remain disabled; no hosted status or standalone CI service is required for acceptance. Independent reviewers execute fresh checks and attest the exact head/current base and live metadata in their structured report; the verdict then stays with that head ([verdict lifetime](local-verification.md#verdict-lifetime)). Only blocking findings can FAIL, and re-reviews follow the round rules in [autonomous-workflow.md](autonomous-workflow.md#blocking-findings-and-re-review-rounds).

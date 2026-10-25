@@ -20,6 +20,7 @@ import {
   hasClaudeCoauthor,
   hasCurrentSkipRecord,
   hasEvaluatorPassOnAnyHead,
+  hasLocallyAttestedVerdict,
   isClaudeBuilt,
   issueFingerprint,
   latestEvaluatorVerdict,
@@ -106,6 +107,64 @@ describe('evaluator verdict', () => {
     const result = assessReadiness({ pr: openPr, checks: assessChecks(greenRuns, { statuses: [] }), verdict, reviews: [] });
     expect(result.ready).toBe(false);
     expect(result.reasons).toEqual(['contradictory evaluator reports for the current head (FAIL, PASS) need clarification']);
+  });
+
+  describe('re-review request', () => {
+    const request = (sha: string, extra: Record<string, unknown> = {}) => ({
+      user: { login: 'caraseli02' },
+      body: `<!-- external-review-request: ${sha} -->\n\nPR body fixed; please re-review this head.`,
+      ...extra,
+    });
+
+    it('reopens a FAIL or BLOCKED head: no verdict until the next report, which then stands alone', () => {
+      for (const first of ['FAIL — needs generator fix.', 'BLOCKED — needs human decision.']) {
+        const opened = [report(HEAD, first, { html_url: 'u1' }), request(HEAD)];
+        expect(latestEvaluatorVerdict(opened, HEAD, trusted)).toBeNull();
+        expect(latestEvaluatorVerdict([...opened, report(HEAD, 'PASS — ready-for-human.', { html_url: 'u2' })], HEAD, trusted)).toEqual({
+          verdict: 'PASS',
+          url: 'u2',
+        });
+      }
+    });
+
+    it('never reopens a PASS, and ignores requests that come first, name another head or come from outsiders', () => {
+      const pass = report(HEAD, 'PASS — ready-for-human.');
+      const fail = report(HEAD, 'FAIL — needs generator fix.');
+      expect(latestEvaluatorVerdict([pass, request(HEAD), fail], HEAD, trusted)?.verdict).toBe('CONFLICTING');
+      expect(latestEvaluatorVerdict([request(HEAD), fail, pass], HEAD, trusted)?.verdict).toBe('CONFLICTING');
+      expect(latestEvaluatorVerdict([fail, request('deadbeef'), pass], HEAD, trusted)?.verdict).toBe('CONFLICTING');
+      expect(latestEvaluatorVerdict([fail, request(HEAD, { user: { login: 'drive-by' } }), pass], HEAD, trusted)?.verdict).toBe(
+        'CONFLICTING',
+      );
+      expect(latestEvaluatorVerdict([fail, { ...request(HEAD), body: `Quoting ${request(HEAD).body}` }], HEAD, trusted)?.verdict).toBe(
+        'FAIL',
+      );
+    });
+
+    it('starts a fresh round on each request, so repeated same-head FAILs stay visible one at a time', () => {
+      const fail = (url: string) => report(HEAD, 'FAIL — needs generator fix.', { html_url: url });
+      expect(latestEvaluatorVerdict([fail('u1'), request(HEAD), fail('u2')], HEAD, trusted)).toEqual({ verdict: 'FAIL', url: 'u2' });
+      expect(latestEvaluatorVerdict([fail('u1'), request(HEAD), fail('u2'), request(HEAD)], HEAD, trusted)).toBeNull();
+    });
+  });
+
+  describe('local-verification audit line', () => {
+    const audit = `<!-- local-verification: head=${HEAD} base=${'b'.repeat(40)} metadata=${'c'.repeat(64)} -->`;
+    const marked = (verdict: string, url: string) =>
+      report(HEAD, verdict, { html_url: url, body: `${report(HEAD, verdict).body}\n${audit}` });
+
+    it('lets marked reports supersede legacy unmarked ones for the same head', () => {
+      const comments = [report(HEAD, 'PASS — ready-for-human.', { html_url: 'u1' }), marked('FAIL — needs generator fix.', 'u2')];
+      expect(latestEvaluatorVerdict(comments, HEAD, trusted)).toEqual({ verdict: 'FAIL', url: 'u2' });
+      expect(hasLocallyAttestedVerdict(comments, HEAD, trusted)).toBe(true);
+    });
+
+    it('leaves a head with only unmarked reports open for a local review', () => {
+      const legacy = [report(HEAD, 'PASS — ready-for-human.')];
+      expect(latestEvaluatorVerdict(legacy, HEAD, trusted)?.verdict).toBe('PASS');
+      expect(hasLocallyAttestedVerdict(legacy, HEAD, trusted)).toBe(false);
+      expect(hasLocallyAttestedVerdict([marked('PASS — ready-for-human.', 'u3')], HEAD, trusted)).toBe(true);
+    });
   });
 
   it('ignores comments that only quote the marker or lack the verdict heading', () => {
@@ -633,15 +692,26 @@ describe('routine route', () => {
       body: `<!-- evaluator-head: ${HEAD} -->\n\n## Evaluator verdict\n\n${verdict}\n\nIndependent evaluator: Codex.\n${contextMarker}`,
     });
 
-    it('selects the current-context verdict, so an older-context PASS never hides a current FAIL', () => {
-      const old = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
-      const current = localVerificationMarker(pr());
-      const comments = [report('PASS — ready-for-human', old), report('FAIL — needs generator fix', current)];
-      const summary = claimPrSummary(pr(), comments, trusted);
+    it('keeps the head verdict after main moves, and leaves a contradicted PASS for clarification', () => {
+      const olderBase = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
+      const passed = claimPrSummary(pr(), [report('PASS — ready-for-human', olderBase)], trusted);
+      expect(passed).toEqual({ number: 50, mergeable: true, verdict: 'PASS', templateFailed: false });
 
-      expect(summary).toEqual({ number: 50, mergeable: true, verdict: 'FAIL', templateFailed: false });
-      expect(latestEvaluatorVerdict(comments, HEAD, trusted)?.verdict).toBe('CONFLICTING');
-      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: summary }] })).toMatchObject({ route: 'repair', pr: 50 });
+      const contradicted = claimPrSummary(
+        pr(),
+        [report('PASS — ready-for-human', olderBase), report('FAIL — needs generator fix', localVerificationMarker(pr()))],
+        trusted,
+      );
+      expect(contradicted.verdict).toBe('CONFLICTING');
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: contradicted }] })).toMatchObject({ route: 'night' });
+      const failed = claimPrSummary(pr(), [report('FAIL — needs generator fix', olderBase)], trusted);
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: failed }] })).toMatchObject({ route: 'repair', pr: 50 });
+    });
+
+    it('routes a live claim whose head is BLOCKED to repair, so the routine requests the re-review', () => {
+      const blocked = claimPrSummary(pr(), [report('BLOCKED — needs human decision', localVerificationMarker(pr()))], trusted);
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: blocked }] })).toMatchObject({ route: 'repair', pr: 50 });
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: false, pr: blocked }] })).toMatchObject({ route: 'improve' });
     });
 
     it('routes a failed PR-template check to repair even without an evaluator report', () => {
@@ -711,11 +781,19 @@ describe('routine route', () => {
         expect(result.claims[0].pr).toMatchObject({ templateFailed: true, verdict: null });
       });
 
-      it('routes an older-context PASS with a current-context FAIL to repair', async () => {
-        const old = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
-        const current = localVerificationMarker(openPr(validBody));
-        const comments = [report('PASS — ready-for-human', old), report('FAIL — needs generator fix', current)];
-        const result = await runRoute(fixturesFor([openPr(validBody)], [claimIssue], comments));
+      it('keeps a claim queued when its PASS was given on an older main', async () => {
+        const olderBase = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
+        const result = await runRoute(fixturesFor([openPr(validBody)], [claimIssue], [report('PASS — ready-for-human', olderBase)]));
+
+        expect(result.claims).toEqual([
+          { number: 5, live: false, pr: { number: 50, mergeable: true, verdict: 'PASS', templateFailed: false } },
+        ]);
+        expect(result.route).toBe('improve');
+      });
+
+      it('routes a FAIL on the current head to repair whatever main it was given on', async () => {
+        const olderBase = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
+        const result = await runRoute(fixturesFor([openPr(validBody)], [claimIssue], [report('FAIL — needs generator fix', olderBase)]));
 
         expect(result).toMatchObject({ route: 'repair', issue: 5, pr: 50 });
         expect(result.claims[0].pr.verdict).toBe('FAIL');
