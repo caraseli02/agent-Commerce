@@ -43,12 +43,12 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
 import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearchTransfer';
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
+import { useEmitterListener } from '~/composables/useEmitterListener';
 import { useProductStore } from '~/store/productStore';
 
 usePageSeo({
@@ -156,12 +156,12 @@ watch(route, (value) => {
   initializeSearchFromRoute();
 });
 
-Emitter.on('register-filter-option', (filter: ProductParametricDataFeaturesInterface[]) => {
+useEmitterListener('register-filter-option', (filter: ProductParametricDataFeaturesInterface[]) => {
   featureFilters.value = filter;
   atPage.value = 1;
 });
 
-Emitter.on('reset-products-filters', (value: boolean) => {
+useEmitterListener('reset-products-filters', (value: boolean) => {
   if (!value) {
     return;
   }
@@ -184,7 +184,7 @@ Emitter.on('reset-products-filters', (value: boolean) => {
   atPage.value = 1;
 });
 
-Emitter.on('product-keyword-change', (value: { keyword: string; products: SearchData }) => {
+useEmitterListener('product-keyword-change', (value: { keyword: string; products: SearchData }) => {
   keyword.value = value.keyword;
   ignoreCategory.value = true;
   atPage.value = 1;

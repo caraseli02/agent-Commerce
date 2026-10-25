@@ -72,6 +72,7 @@
 <script setup lang="ts">
 import { PlusIcon } from '@lucide/vue';
 import Emitter from 'tiny-emitter/instance.js';
+import { useEmitterListener } from '~/composables/useEmitterListener';
 import FiltersIcon from '@/assets/icons/filters.svg';
 import EyeIcon from '@/assets/icons/eye.svg';
 import EyeClosedIcon from '@/assets/icons/eye-closed.svg';
@@ -151,13 +152,13 @@ watch(
   { deep: true },
 );
 
-Emitter.on('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
+useEmitterListener('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
   productFiltersData.value = parseFilters(value.products.filters);
   checkedOptions.value = [];
   filterData();
 });
 
-Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
+useEmitterListener('add-filter-option', async (options: FilterOptions[]) => {
   for (const option of options) {
     const item = checkedOptions.value.find(
       (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
@@ -173,7 +174,7 @@ Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
   Emitter.emit('register-filter-option', checkedOptions.value);
 });
 
-Emitter.on('remove-filter-option', async (options: FilterOptions[]) => {
+useEmitterListener('remove-filter-option', async (options: FilterOptions[]) => {
   for (const option of options) {
     const itemIndex = checkedOptions.value.findIndex(
       (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
