@@ -141,18 +141,27 @@ export type ReservedDrift = Readonly<{ productId: string; reserved: number; acti
 
 // Drift check: `reserved` must equal the immediate units of all `active` reservations, including
 // expired ones that expireIfNeeded has not released yet. Any product listed here has a counter
-// that no longer matches its reservations.
+// that no longer matches its reservations. Counters and reservations are read in one statement so
+// both come from the same snapshot; a checkout committing between two reads would look like drift.
 const findReservedDrift = async (): Promise<ReservedDrift[]> => {
   const database = await getCheckoutDatabase();
-  const [rows, active] = await Promise.all([
-    database.query<InventoryRow>('SELECT product_id, on_hand, reserved FROM checkout_inventory ORDER BY product_id'),
-    database.query<{ items_json: string }>("SELECT items_json FROM checkout_reservations WHERE status = 'active'"),
-  ]);
+  const rows = await database.query<{ product_id: string; reserved: number; active_reserved: number }>(
+    `SELECT inventory.product_id, inventory.reserved,
+            COALESCE((
+              SELECT SUM((item->>'immediateQuantity')::int)
+                FROM checkout_reservations reservation,
+                     jsonb_array_elements(reservation.items_json::jsonb) item
+               WHERE reservation.status = 'active'
+                 AND item->>'productId' = inventory.product_id
+            ), 0) AS active_reserved
+       FROM checkout_inventory inventory
+      ORDER BY inventory.product_id`,
+  );
   return rows
     .map((row) => ({
       productId: row.product_id,
       reserved: Number(row.reserved),
-      activeReserved: immediateQuantityOf(active, row.product_id),
+      activeReserved: Number(row.active_reserved),
     }))
     .filter((row) => row.reserved !== row.activeReserved);
 };

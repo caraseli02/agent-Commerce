@@ -1,6 +1,34 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { inventory } from '~~/server/domain/inventory';
 import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
+
+// Lets a test run a write before any query after the first one, the way a concurrent checkout can
+// commit between two reads of one call.
+const interleave = vi.hoisted(() => ({ afterFirstQuery: null as null | (() => Promise<unknown>) }));
+
+vi.mock('~~/server/infrastructure/checkout-database', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('~~/server/infrastructure/checkout-database')>();
+  return {
+    ...actual,
+    getCheckoutDatabase: async () => {
+      const database = await actual.getCheckoutDatabase();
+      const write = interleave.afterFirstQuery;
+      if (!write) return database;
+      let queries = 0;
+      return {
+        ...database,
+        query: async (...args: Parameters<typeof database.query>) => {
+          queries += 1;
+          if (queries > 1 && interleave.afterFirstQuery) {
+            interleave.afterFirstQuery = null;
+            await write();
+          }
+          return database.query(...args);
+        },
+      } as typeof database;
+    },
+  };
+});
 
 const future = () => new Date(Date.now() + 15 * 60 * 1000);
 const unit = [{ productId: 'prod-1', immediateQuantity: 1, backorderQuantity: 0 }];
@@ -58,5 +86,13 @@ describe('inventory availability with expired reservations', () => {
     await database.execute("UPDATE checkout_inventory SET reserved = 3 WHERE product_id='prod-1'");
 
     expect(await inventory.findReservedDrift()).toEqual([{ productId: 'prod-1', reserved: 3, activeReserved: 1 }]);
+  });
+
+  it('does not report drift when a checkout commits while the diagnostic is reading', async () => {
+    interleave.afterFirstQuery = () => reserve('buyer-during-check');
+
+    expect(await inventory.findReservedDrift()).toEqual([]);
+    interleave.afterFirstQuery = null;
+    expect(await inventory.findReservedDrift()).toEqual([]);
   });
 });
