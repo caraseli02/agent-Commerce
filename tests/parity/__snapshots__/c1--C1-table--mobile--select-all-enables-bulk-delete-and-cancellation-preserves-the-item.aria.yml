@@ -1,12 +1,10 @@
-- checkbox "Select All" [checked]:
-    - img
+- checkbox "Select All" [checked]
 - text: Select All Items selected 1
 - button "Delete Selected":
     - img
     - text: ''
 - text: 'Stock Items: 1'
-- checkbox /Select ADM2587E RS-\d+ Transceiver/ [checked]:
-    - img
+- checkbox /Select ADM2587E RS-\d+ Transceiver/ [checked]
 - text: /ADM2587E RS-\d+ Transceiver/
 - img
 - img

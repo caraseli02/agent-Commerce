@@ -48,7 +48,6 @@
     - /url: /dashboard/customers/customer-005
     - img "Robert Wilson"
     - text: ''
-- img
 - button "Open customer menu":
     - img
 - link "Emily Davis Emily Davis emily.davis@example.com":

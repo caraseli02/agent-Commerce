@@ -1,13 +1,10 @@
 - dialog:
     - banner:
         - heading "Notifications" [level=2]
-        - button "Close notifications":
-            - img
+        - button "Close notifications"
     - tablist:
         - tab "All 0" [selected]
         - tab "Orders 0"
         - tab "System 0"
     - link "View all":
         - /url: /
-        - text: ''
-        - img

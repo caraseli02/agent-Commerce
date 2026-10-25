@@ -3,8 +3,5 @@
     - img
     - text: ''
     - img
-- button "Delete":
-    - img
-    - text: ''
-- button:
-    - img
+- button "Delete"
+- button "Add new card"

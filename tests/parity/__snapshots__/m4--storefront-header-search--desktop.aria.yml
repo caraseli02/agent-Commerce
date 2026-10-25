@@ -4,8 +4,7 @@
     - button "Regional preferences":
         - img
         - text: Lei
-    - button "Open products navigation":
-        - img
+    - button "Open products navigation"
     - link "Components Marketplace home":
         - /url: /
         - img: DEMO
