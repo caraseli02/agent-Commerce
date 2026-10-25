@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-// Regression for #812: /search listeners on the tiny-emitter bus used to outlive the page, so a
-// revisit answered bus events from every earlier visit. Header search must behave the same after
-// leaving and returning. Mock search returns no facets, so the filter panel and Reset Filters stay hidden.
+// Regression for #812: header search used to reach /search through tiny-emitter listeners that outlived
+// the page. It now goes through the product store and must still drive results after leaving and returning.
+// Mock search returns no facets, so the filter panel and Reset Filters stay hidden.
 
 const viewports = [
   { name: 'desktop', width: 1280, height: 900 },

@@ -26,6 +26,8 @@
             v-for="(filter, index) in filteredData"
             :key="getFilterSlug(filter.feature)"
             :filter="filter.feature"
+            @add-filter-option="addFilterOptions"
+            @remove-filter-option="removeFilterOptions"
             @close="removeItem(index)"
           />
           <div class="flex flex-col items-center pt-[60px] pb-10">
@@ -71,19 +73,22 @@
 
 <script setup lang="ts">
 import { PlusIcon } from '@lucide/vue';
-import Emitter from 'tiny-emitter/instance.js';
-import { useEmitterListener } from '~/composables/useEmitterListener';
 import FiltersIcon from '@/assets/icons/filters.svg';
 import EyeIcon from '@/assets/icons/eye.svg';
 import EyeClosedIcon from '@/assets/icons/eye-closed.svg';
 import ResetIcon from '@/assets/icons/reset.svg';
-import type { FilterOptions, ProductFilters, ProductFiltersWrapper, SearchData, SearchFiltersCategories } from '~~/types/product';
+import type { FilterOptions, ProductFilters, ProductFiltersWrapper, SearchFiltersCategories } from '~~/types/product';
 
 const props = defineProps<{
   filters: ProductFilters | null;
   atPage: number | 1;
   perPage: number | 10;
   keyword: string | '';
+}>();
+
+const emit = defineEmits<{
+  'register-filter-option': [options: SearchFiltersCategories[]];
+  'reset-products-filters': [];
 }>();
 
 const showSearchFiltersModal = ref(false);
@@ -128,7 +133,7 @@ const filterData = () => {
 
 // Bound on the button itself so Enter/Space and clicks on the icon or padding reset too.
 const resetFilters = () => {
-  Emitter.emit('reset-products-filters', true);
+  emit('reset-products-filters');
   checkedOptions.value = [];
 };
 
@@ -152,13 +157,15 @@ watch(
   { deep: true },
 );
 
-useEmitterListener('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
-  productFiltersData.value = parseFilters(value.products.filters);
-  checkedOptions.value = [];
-  filterData();
-});
+// A new keyword starts a new search: the refetched filters arrive through props.filters.
+watch(
+  () => props.keyword,
+  () => {
+    checkedOptions.value = [];
+  },
+);
 
-useEmitterListener('add-filter-option', async (options: FilterOptions[]) => {
+const addFilterOptions = (options: FilterOptions[]) => {
   for (const option of options) {
     const item = checkedOptions.value.find(
       (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
@@ -171,10 +178,10 @@ useEmitterListener('add-filter-option', async (options: FilterOptions[]) => {
     checkedOptions.value.push(option.rawFilter);
   }
 
-  Emitter.emit('register-filter-option', checkedOptions.value);
-});
+  emit('register-filter-option', checkedOptions.value);
+};
 
-useEmitterListener('remove-filter-option', async (options: FilterOptions[]) => {
+const removeFilterOptions = (options: FilterOptions[]) => {
   for (const option of options) {
     const itemIndex = checkedOptions.value.findIndex(
       (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
@@ -187,8 +194,8 @@ useEmitterListener('remove-filter-option', async (options: FilterOptions[]) => {
     checkedOptions.value.splice(itemIndex, 1);
   }
 
-  Emitter.emit('register-filter-option', checkedOptions.value);
-});
+  emit('register-filter-option', checkedOptions.value);
+};
 
 watch([productFiltersData], async ([_productFiltersData]) => {
   filterData();
