@@ -67,7 +67,11 @@
       </div>
       <LazyDashboardCustomersInfoCards :id="customerSlug" />
       <div class="grid grid-cols-1 gap-4 xl:grid-cols-2 xl:grid-rows-[repeat(2,auto)] md:gap-6">
-        <LazyDashboardCustomersCustomerInformation :id="customerSlug" class="xl:col-start-1 xl:row-start-1 xl:row-span-2" />
+        <LazyDashboardCustomersCustomerInformation
+          :id="customerSlug"
+          class="xl:col-start-1 xl:row-start-1 xl:row-span-2"
+          @customer-info="onCustomerInfo"
+        />
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:col-start-2 xl:row-start-1">
           <LazyDashboardCustomersNetMargin />
           <LazyDashboardCustomersRecentTransactions :id="customerSlug" />
@@ -80,7 +84,6 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 import { customerCreditHelper } from '~~/helpers/customer-credit.helper';
@@ -93,10 +96,10 @@ const updateBreadcrumbs = ref(false);
 
 usePageSeo({ title: 'Customer profile', robots: 'noindex,nofollow' });
 
-Emitter.on('customer-info', async (object: { name: string }) => {
-  customerName.value = object.name;
+const onCustomerInfo = (info: { name: string }) => {
+  customerName.value = info.name;
   updateBreadcrumbs.value = !updateBreadcrumbs.value;
-});
+};
 
 definePageMeta({
   middleware: 'auth',

@@ -17,20 +17,6 @@ declare module 'swiper' {
   export const Zoom: unknown;
 }
 
-declare module 'tiny-emitter/instance' {
-  import type TinyEmitter from 'tiny-emitter';
-
-  const emitter: TinyEmitter;
-  export default emitter;
-}
-
-declare module 'tiny-emitter/instance.js' {
-  import type TinyEmitter from 'tiny-emitter';
-
-  const emitter: TinyEmitter;
-  export default emitter;
-}
-
 declare module 'vuejs-paginate-next' {
   import type { DefineComponent } from 'vue';
 

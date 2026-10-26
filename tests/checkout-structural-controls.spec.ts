@@ -43,7 +43,6 @@ const modules: Record<string, unknown> = {
   '~~/helpers/checkout-credit': { resolveCreditUnavailableReason: () => null },
   '~~/helpers/checkout-payment-methods': { isBuyerCheckoutPaymentType, unavailablePaymentMethodMessage },
   '~~/types': { PaymentTypeEnum, OrderType },
-  'tiny-emitter/instance.js': { default: { emit: vi.fn() } },
 };
 
 // Compile the real SFC script and template. Only Nuxt services, icons and the
