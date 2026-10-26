@@ -133,7 +133,6 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
 import { storeToRefs } from 'pinia';
 import Logo from '@/assets/media/logo.svg';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -154,6 +153,7 @@ import {
 } from '~/composables/api/notifications';
 import { useProducts } from '~/composables/useProducts';
 import { useCartStore } from '~/store/cartStore';
+import { useProductStore } from '~/store/productStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
 import { useUiStore } from '~/store/uiStore';
@@ -162,6 +162,7 @@ import { useCartBadgeMotion } from '~/composables/useCartBadgeMotion';
 
 const cartStore = useCartStore();
 const uiStore = useUiStore();
+const productStore = useProductStore();
 const { searchHeaderResults } = useProducts();
 const isClientReady = useClientReady();
 const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
@@ -284,7 +285,7 @@ const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<P
     return [];
   }
 
-  Emitter.emit('product-keyword-change', { keyword, products: result.searchData });
+  productStore.setHeaderSearch(keyword);
 
   isLoading.value = false;
   return result.items;

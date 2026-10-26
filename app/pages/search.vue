@@ -8,7 +8,8 @@
       :keyword="keyword"
       :at-page="atPage"
       :per-page="perPage"
-      @reset-products-filters="resetProductsFilters = $event"
+      @register-filter-option="onFilterOptionsChange"
+      @reset-products-filters="onResetFilters"
     />
     <div v-if="pending && !products" class="container mb-10 min-h-[200px]" aria-busy="true" aria-live="polite">
       <div class="h-10 w-64 rounded bg-slate-100 animate-pulse motion-reduce:animate-none mb-6" />
@@ -43,10 +44,9 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
+import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData, SearchFiltersCategories } from '~~/types/product';
 import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearchTransfer';
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
 import { useProductStore } from '~/store/productStore';
@@ -57,7 +57,7 @@ usePageSeo({
 });
 
 const productStore = useProductStore();
-const { similarProducts, similarProductFeatures } = storeToRefs(productStore);
+const { similarProducts, similarProductFeatures, headerSearch } = storeToRefs(productStore);
 const route = useRoute();
 const keyword = ref((route.query.keyword ?? route.query.q)?.toString() ?? '');
 
@@ -75,7 +75,6 @@ const onSortByChange = (option: { label: string; name: string; order?: 0 | 1 }) 
     order.value = option.order;
   }
 };
-const resetProductsFilters = ref(false);
 const category = ref<string | null>(route.query?.category?.toString() || null);
 const showQuickBuy = computed(() => {
   const isBrowsingCatalog = !keyword.value.trim() && !category.value;
@@ -156,16 +155,20 @@ watch(route, (value) => {
   initializeSearchFromRoute();
 });
 
-Emitter.on('register-filter-option', (filter: ProductParametricDataFeaturesInterface[]) => {
-  featureFilters.value = filter;
+// Facets carry FeatureValueDetails as an object; the search request only needs the feature identity.
+function onFilterOptionsChange(options: SearchFiltersCategories[]) {
+  featureFilters.value = options.map(({ FeatureID, FeatureName, FeatureValue, FeatureUnit, count, checked }) => ({
+    FeatureID,
+    FeatureName,
+    FeatureValue,
+    FeatureUnit,
+    count,
+    checked,
+  }));
   atPage.value = 1;
-});
+}
 
-Emitter.on('reset-products-filters', (value: boolean) => {
-  if (!value) {
-    return;
-  }
-
+function onResetFilters() {
   const obj = _cloneDeep(filters.value);
   if (!obj) {
     return;
@@ -182,10 +185,14 @@ Emitter.on('reset-products-filters', (value: boolean) => {
   additionalFilters.value = {};
   featureFilters.value = [];
   atPage.value = 1;
-});
+}
 
-Emitter.on('product-keyword-change', (value: { keyword: string; products: SearchData }) => {
-  keyword.value = value.keyword;
+// Typing in the header search updates these results live without changing the URL.
+watch(headerSearch, (search) => {
+  if (!search) {
+    return;
+  }
+  keyword.value = search.keyword;
   ignoreCategory.value = true;
   atPage.value = 1;
 });

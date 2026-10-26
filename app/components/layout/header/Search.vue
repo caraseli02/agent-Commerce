@@ -34,13 +34,14 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
 import SearchIcon from '@/assets/icons/search.svg';
 import type { ProductInterface } from '~~/types/product';
 import { useProducts } from '~/composables/useProducts';
+import { useProductStore } from '~/store/productStore';
 
 const route = useRoute();
 const { searchHeaderResults } = useProducts();
+const productStore = useProductStore();
 
 const props = defineProps({
   showResults: {
@@ -77,7 +78,7 @@ const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<P
     return null;
   }
 
-  Emitter.emit('product-keyword-change', { keyword, products: result.searchData });
+  productStore.setHeaderSearch(keyword);
 
   isLoading.value = false;
   return result.items;
