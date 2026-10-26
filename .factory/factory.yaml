@@ -62,12 +62,10 @@ protected_paths:
 automations:
   claude-routine:
     file: .factory/automations/claude-routine.md
-    role: one run does one thing - morning digest when due, else repair Claude's PR, else review one non-Claude PR, else build one agent:claude issue, else self-start one small improvement, else one night-lane item
-    maintenance: .factory/automations/claude-maintenance.md # night lane when nothing is buildable: digest, plan, diagnose, learning, spike, checks; comments and needs-triage issues only, never code
+    role: one run does one thing - repair Claude's PR, else review one non-Claude PR, else build one agent:claude issue, else self-start one small improvement, else one night-lane item
+    maintenance: .factory/automations/claude-maintenance.md # night lane when nothing is buildable: plan, diagnose, learning, spike, checks; comments and needs-triage issues only, never code
     night_lane:
       budget_minutes: 40 # per run, including install and build
-      digest_after: '07:00' # Europe/Madrid; first run at or after it posts the day's digest
-      digest_issue_title: Claude morning digest
       plan_ahead: 2 # upcoming agent:claude issues kept with a current plan comment
       spike_label: spike # created by Vlad; only labeled issues with a stated question are spiked
       owned_server_port: 3205 # Codex investigations use 3206

@@ -2,14 +2,14 @@
 
 The claude-routine follows this file from step 4.3 when nothing is buildable and the improve lane (step 4.4, `claude-improve.md`) does not run: the live claim's PR waits for review, the PASS queue is full, the improve slot is taken or found nothing, or mode `review-only` with no PR to review. The run already holds the run lock and has passed the guards in step 1. When this file is done, return to step 6 (**Finish**) of `.factory/automations/claude-routine.md`; the lock release stays the last action.
 
-The lane does the work a senior engineer does while waiting for review: prepare the next task, explain open failures, keep what was learned, answer explicit spike questions, run the checks the merge pipeline does not run, and hand Vlad a short morning summary. Settings live under `claude-routine.night_lane` in `.factory/factory.yaml`.
+The lane does the work a senior engineer does while waiting for review: prepare the next task, explain open failures, keep what was learned, answer explicit spike questions, and run the checks the merge pipeline does not run. Settings live under `claude-routine.night_lane` in `.factory/factory.yaml`.
 
 ## 1. Limits
 
 The lane writes **only** the GitHub comments and issues named below. It never:
 
 - edits, creates or deletes tracked files in the run's worktree, commits, pushes, opens or comments on PRs;
-- claims, assigns, relabels or closes issues, or comments anywhere except the comments named in §3–§8;
+- claims, assigns, relabels or closes issues, or comments anywhere except the comments named in §3–§7;
 - uses `gh issue comment --edit-last` or edits any existing comment: the gh account is shared with Vlad and Codex, so "last comment" may be theirs. A newer marked comment supersedes an older one;
 - runs `pnpm test:visual`, updates snapshots, or touches payment, Stripe, refund or migration settings;
 - runs `pnpm dlx`, `npx` or any package that is not already in `pnpm-lock.yaml` (a spike may change versions only inside its throwaway worktree, §7);
@@ -23,12 +23,11 @@ Take the **first** item whose condition holds. Read the journal `/Users/work/.lo
 
 | Order | `task`     | Condition                                                                                                                                                                                  |
 | ----- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1     | `digest`   | local Madrid time is at or after `night_lane.digest_after` and today's (Madrid date) digest is due by the rule in §8; normally routine step 1.5 does it                                    |
-| 2     | `plan`     | one of the next `night_lane.plan_ahead` (2) issues in step 4.1 order (eligible except for the claim limit, overlap or queue cap) has no current plan (§3)                                  |
-| 3     | `diagnose` | an open finding issue (body starts with `<!-- claude-maintenance:` or `<!-- codex-maintenance:`) has no diagnosis comment yet and fewer than 2 `diagnose` journal lines (§4); newest first |
-| 4     | `learning` | a learning source from the last 14 days is not yet in any journal line's `sources_assessed` (§5); oldest first                                                                             |
-| 5     | `spike`    | an open issue labeled `night_lane.spike_label` (`spike`) has no current spike result (§7), and no `"task":"spike"` journal line in the last 24 hours                                       |
-| 6     | `check`    | a check from §6 is due                                                                                                                                                                     |
+| 1     | `plan`     | one of the next `night_lane.plan_ahead` (2) issues in step 4.1 order (eligible except for the claim limit, overlap or queue cap) has no current plan (§3)                                  |
+| 2     | `diagnose` | an open finding issue (body starts with `<!-- claude-maintenance:` or `<!-- codex-maintenance:`) has no diagnosis comment yet and fewer than 2 `diagnose` journal lines (§4); newest first |
+| 3     | `learning` | a learning source from the last 14 days is not yet in any journal line's `sources_assessed` (§5); oldest first                                                                             |
+| 4     | `spike`    | an open issue labeled `night_lane.spike_label` (`spike`) has no current spike result (§7), and no `"task":"spike"` journal line in the last 24 hours                                       |
+| 5     | `check`    | a check from §6 is due                                                                                                                                                                     |
 | —     | none       | print `Claude routine: night lane idle` and return with `action: "idle"`                                                                                                                   |
 
 ## 3. `plan`: prepare the next issue
@@ -154,24 +153,9 @@ Only for an open issue labeled `spike` whose body states the question. A result 
 **Risks and unknowns:** what the spike could not settle.
 ```
 
-## 8. `digest`: the morning summary
+## 8. `digest`: retired
 
-The digest is **due** when the Madrid-time date has no journal line with `"task":"digest"` (posted or failed: one attempt per day, so a failing post never takes over the day's runs) and the digest issue has no comment for that date: `gh api repos/caraseli02/agent-Commerce/issues/<digest issue>/comments --paginate --jq '[.[] | select(.body | startswith("<!-- claude-digest: <YYYY-MM-DD> -->"))] | length'` is `0`.
-
-One comment per day on the open issue titled `night_lane.digest_issue_title` (`Claude morning digest`). If it does not exist, create it once without labels (`gh issue create --title "Claude morning digest" --body "Daily summary from claude-routine. Pin this issue to find it fast."`). The comment:
-
-```md
-<!-- claude-digest: <YYYY-MM-DD> -->
-
-**Ready to merge** (evaluator PASS on the current head, local verification current), suggested order: #N title (why first).
-**Needs your decision:** blocked issues and PRs with their Best next move; open questions in plans.
-**Overnight:** builds, repairs, reviews; plans, diagnoses, spikes and learnings written; findings filed (from the journal since the previous digest).
-**Self-started:** improve-lane issues claimed, PRs opened, merged and declined since the previous digest, and `Improvement idea:` proposals waiting for triage.
-**Learnings inbox:** entries waiting for your tick.
-**Idle runs:** count since the previous digest, with the main reason.
-```
-
-Keep it under 25 lines; link, do not repeat.
+The morning digest was stopped on 2026-10-26 (#699). Do not post a digest comment, and do not create the `Claude morning digest` issue.
 
 ## 9. Journal
 
