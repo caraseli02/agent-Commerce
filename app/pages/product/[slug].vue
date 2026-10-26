@@ -46,7 +46,7 @@
             </UiDropdownMenuContent>
           </UiDropdownMenu>
 
-          <ProductAskDialog ref="askDialog" trigger-class="hidden sm:inline-flex" />
+          <ProductAskDialog ref="askDialog" :part-number="product.manufacturerCode" trigger-class="hidden sm:inline-flex" />
           <DialogReportError ref="reportErrorDialog" trigger-class="hidden sm:inline-flex" />
           <UiButton variant="link" class="hidden sm:inline-flex text-muted-foreground gap-1" @click="printPage">
             <PrinterIcon class="w-[22px] h-[22px]" />
