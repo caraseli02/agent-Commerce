@@ -167,13 +167,11 @@ const discountPrice = ref(0);
 const userDiscount = ref(0);
 const productDiscount = ref(0);
 
-watch(
-  [cart],
-  async () => {
-    await fetchCart();
-  },
-  { deep: true },
-);
+// The cart store replaces the cart on every write, so watch by identity: a deep watcher
+// made every result row traverse the whole cart on each change.
+watch(cart, async () => {
+  await fetchCart();
+});
 
 const getPricesConfiguration = () => {
   const discountsHelper = parseProductPriceConfiguration(props.item, getUserDetails.value, quantity.value);
