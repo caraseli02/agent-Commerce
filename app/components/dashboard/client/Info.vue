@@ -184,7 +184,6 @@
 
 <script setup lang="ts">
 import { formatReviewerDate, formatReviewerDateTime } from '~~/helpers/reviewer-dates';
-import Emitter from 'tiny-emitter/instance.js';
 import { LockKeyholeIcon } from '@lucide/vue';
 import Avatar from '@/assets/icons/dashboard/avatar.png';
 import { AccountStatusEnum, type AddressInterface, type UserInterface } from '~~/types/auth/user-interface';
@@ -235,10 +234,6 @@ const fetchInformation = async () => {
       await loadCountries();
       country.value = (countries.value.find((c) => c.value === address.value?.country) ?? null) as CountryInterface | null;
     }
-
-    Emitter.emit('customer-info', {
-      name: customerInformation.value.contactDetails?.firstName + ' ' + customerInformation.value.contactDetails?.lastName,
-    });
 
     customerDetails.value = {
       id: customerInformation.value?._id || '',

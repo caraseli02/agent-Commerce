@@ -20,45 +20,26 @@
   </div>
 </template>
 
-<script lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
+<script setup lang="ts">
 import EditBig from '~/assets/icons/edit-big.svg';
 
-const lastNote = ref('');
+const emit = defineEmits<{
+  note: [note: string];
+}>();
 
-type NoteSectionInstance = {
-  note: string;
-  rows: number;
+const textBoxOpen = ref(false);
+const note = ref('');
+const lastNote = ref('');
+const rows = ref(2);
+
+const adjustHeight = () => {
+  rows.value = Math.min(6, Math.max(2, note.value.split('\n').length));
 };
 
-export default defineComponent({
-  name: 'NoteSection',
-  components: {
-    EditBig,
-  },
-  data() {
-    return {
-      textBoxOpen: false,
-      note: '',
-      rows: 2,
-    };
-  },
-  methods: {
-    adjustHeight(this: NoteSectionInstance) {
-      this.rows = this.note.split('\n').length;
-      if (this.rows > 6) {
-        this.rows = 6;
-      }
-      if (this.rows < 2) {
-        this.rows = 2;
-      }
-    },
-    UpdateNote(this: NoteSectionInstance) {
-      if (this.note !== lastNote.value) {
-        Emitter.emit('note', this.note);
-        lastNote.value = this.note;
-      }
-    },
-  },
-});
+const UpdateNote = () => {
+  if (note.value !== lastNote.value) {
+    emit('note', note.value);
+    lastNote.value = note.value;
+  }
+};
 </script>

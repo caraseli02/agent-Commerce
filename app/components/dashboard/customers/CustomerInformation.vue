@@ -188,7 +188,6 @@
 
 <script setup lang="ts">
 import { formatReviewerDate, formatReviewerDateTime } from '~~/helpers/reviewer-dates';
-import Emitter from 'tiny-emitter/instance.js';
 import { LockKeyholeIcon } from '@lucide/vue';
 import Avatar from '@/assets/icons/dashboard/avatar.png';
 import DotsVerticalIcon from '@/assets/icons/dots-vertical.svg';
@@ -224,6 +223,9 @@ const props = defineProps({
     default: 0,
   },
 });
+const emit = defineEmits<{
+  'customer-info': [info: { name: string }];
+}>();
 const customerInformation = ref<CustomerProfileUser>({} as CustomerProfileUser);
 const customerDetails = ref<DashboardCustomerTableItem>({} as DashboardCustomerTableItem);
 const fetchInformation = async () => {
@@ -256,7 +258,7 @@ const fetchInformation = async () => {
     country.value = (countries.value.find((c) => c.value === address.value?.country) ?? null) as CountryInterface | null;
   }
 
-  Emitter.emit('customer-info', {
+  emit('customer-info', {
     name: customerInformation.value.contactDetails?.firstName + ' ' + customerInformation.value.contactDetails?.lastName,
   });
 

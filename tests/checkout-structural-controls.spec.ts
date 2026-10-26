@@ -43,7 +43,6 @@ const modules: Record<string, unknown> = {
   '~~/helpers/checkout-credit': { resolveCreditUnavailableReason: () => null },
   '~~/helpers/checkout-payment-methods': { isBuyerCheckoutPaymentType, unavailablePaymentMethodMessage },
   '~~/types': { PaymentTypeEnum, OrderType },
-  'tiny-emitter/instance.js': { default: { emit: vi.fn() } },
 };
 
 // Compile the real SFC script and template. Only Nuxt services, icons and the
@@ -288,6 +287,25 @@ describe('C2 structural controls', () => {
       expect(container.textContent).not.toContain('Shipping choices');
       expect(container.textContent).not.toContain('Payment choices');
     });
+  });
+
+  it('emits the derived order type when mounted and whenever the cart mix changes', async () => {
+    const onOrderType = vi.fn();
+    const props = Vue.reactive({
+      order: { paymentDetails: { type: PaymentTypeEnum.Bank }, shippingDetails: {} },
+      items: [{ stock: 1, backorder_stock: 1, productEntity: { stock: 10 } }],
+      accountCredit: {},
+      shippingPreferences: null,
+      'onOrder-type': onOrderType,
+    });
+    mount(OrderStockType, props);
+    expect(onOrderType).toHaveBeenCalledExactlyOnceWith(OrderType.Mixed);
+
+    props.items = [{ stock: 1, backorder_stock: 0, productEntity: { stock: 10 } }];
+    await vi.waitFor(() => expect(onOrderType).toHaveBeenLastCalledWith(OrderType.Stock));
+    props.items = [{ stock: 0, backorder_stock: 2, productEntity: { stock: 10 } }];
+    await vi.waitFor(() => expect(onOrderType).toHaveBeenLastCalledWith(OrderType.Back));
+    expect(onOrderType).toHaveBeenCalledTimes(3);
   });
 
   it('renders valid SSR buttons for card actions, slotted Change, and credit information', async () => {
