@@ -16,6 +16,7 @@ const REPO = 'caraseli02/agent-Commerce';
 const [OWNER, NAME] = REPO.split('/');
 const TITLE = 'agent-Commerce control';
 const SKIP_TITLES = new Set(['Claude morning digest']);
+const log = (message) => process.stdout.write(`${message}\n`);
 
 export const STATUS = [
   { name: 'Needs you: merge', color: 'GREEN', description: 'Evaluator PASS on the current head; only Vlad merges' },
@@ -268,7 +269,7 @@ function ensureProject() {
       `,
       { id: project.id },
     );
-    console.log('created project');
+    log('created project');
   }
   return loadProject(project.id);
 }
@@ -354,7 +355,7 @@ function ensureViews(project) {
         `,
         { p: project.id, name: view.name, layout: view.layout, fields: visible },
       ).createProjectV2View.projectV2View.id;
-      console.log(`created view ${view.name}`);
+      log(`created view ${view.name}`);
     }
     graphql(
       `
@@ -484,13 +485,11 @@ function main(apply) {
     for (const s of STATUS.filter((s) => s.name !== 'Done')) {
       const rows = items.filter((i) => i.status === s.name);
       if (!rows.length) continue;
-      console.log(`\n${s.name} (${rows.length})`);
+      log(`\n${s.name} (${rows.length})`);
       for (const r of rows)
-        console.log(
-          `  ${r.ref.padEnd(8)} [${r.lane}${r.priority ? ' ' + r.priority : ''}] ${r.title.slice(0, 70)}\n           → ${r.next}`,
-        );
+        log(`  ${r.ref.padEnd(8)} [${r.lane}${r.priority ? ' ' + r.priority : ''}] ${r.title.slice(0, 70)}\n           → ${r.next}`);
     }
-    console.log('\nDry run. Pass --apply to write the project.');
+    log('\nDry run. Pass --apply to write the project.');
     return;
   }
 
@@ -544,7 +543,7 @@ function main(apply) {
   }
 
   const attention = STATUS.filter((s) => s.name.startsWith('Needs you')).reduce((n, s) => n + counts[s.name], 0);
-  console.log(`project-sync: ${items.length} open items, ${attention} need Vlad, ${changed} field updates → ${project.url}`);
+  log(`project-sync: ${items.length} open items, ${attention} need Vlad, ${changed} field updates → ${project.url}`);
 }
 
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
