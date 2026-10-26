@@ -13,6 +13,8 @@ Issues and PRDs for this repo live as GitHub issues in `caraseli02/agent-Commerc
 
 `gh` infers the repo from `git remote` when run inside this clone.
 
+**Owner board.** The GitHub Project "agent-Commerce control" (`https://github.com/users/caraseli02/projects/5`) shows who acts next on every open issue and PR, with a "Needs me" view for Vlad. It is derived, not live state: `node scripts/project-sync.mjs` prints it and `--apply` rewrites it from labels, PRs and evaluator comments (the claude-routine runs it at the end of every run). Change labels, never drag cards.
+
 ## Pickup rules
 
 - The controller loop should behave like a standing `/goal`: keep one issue alive until evaluator pass, blocker, or human intervention.
