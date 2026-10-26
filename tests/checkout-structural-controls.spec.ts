@@ -289,6 +289,25 @@ describe('C2 structural controls', () => {
     });
   });
 
+  it('emits the derived order type when mounted and whenever the cart mix changes', async () => {
+    const onOrderType = vi.fn();
+    const props = Vue.reactive({
+      order: { paymentDetails: { type: PaymentTypeEnum.Bank }, shippingDetails: {} },
+      items: [{ stock: 1, backorder_stock: 1, productEntity: { stock: 10 } }],
+      accountCredit: {},
+      shippingPreferences: null,
+      'onOrder-type': onOrderType,
+    });
+    mount(OrderStockType, props);
+    expect(onOrderType).toHaveBeenCalledExactlyOnceWith(OrderType.Mixed);
+
+    props.items = [{ stock: 1, backorder_stock: 0, productEntity: { stock: 10 } }];
+    await vi.waitFor(() => expect(onOrderType).toHaveBeenLastCalledWith(OrderType.Stock));
+    props.items = [{ stock: 0, backorder_stock: 2, productEntity: { stock: 10 } }];
+    await vi.waitFor(() => expect(onOrderType).toHaveBeenLastCalledWith(OrderType.Back));
+    expect(onOrderType).toHaveBeenCalledTimes(3);
+  });
+
   it('renders valid SSR buttons for card actions, slotted Change, and credit information', async () => {
     for (const [surface, props, slots] of [
       [NewCard, {}, { default: () => Vue.h(Button, {}, () => 'Change') }],
