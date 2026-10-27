@@ -21,14 +21,15 @@ const { searchHeaderResults } = useProducts();
 // Same top-level category as the viewed part; the page renders nothing when there is no other part to suggest.
 const category = computed(() => props.product.path?.split('/').filter(Boolean)[0] ?? null);
 
-const { data } = await useAsyncData<ProductInterface[]>(
+// Lazy: client navigation renders the product without waiting for this below-the-fold request; SSR still awaits it.
+const { data } = useAsyncData<ProductInterface[]>(
   () => `similar-products::${props.product.alias ?? props.product._id}`,
   async () => {
     if (!category.value) return [];
     const result = await searchHeaderResults('', category.value, 1, 9);
     return (result?.items ?? []).filter((item) => item._id !== props.product._id).slice(0, 8);
   },
-  { watch: [() => props.product._id], default: () => [] },
+  { lazy: true, watch: [() => props.product._id], default: () => [] },
 );
 
 const items = computed(() => data.value ?? []);
