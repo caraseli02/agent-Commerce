@@ -198,5 +198,16 @@ class OwnerFixture(unittest.TestCase):
             self.assertFalse(recovery.reconcile(*base, delivery, self.chat, self.registry)['send'])
             self.assertEqual(recovery.reconcile(*base, delivery, self.chat, self.registry)['action'], 'wait')
 
+    def test_recorded_delivery_cannot_be_overruled_by_later_absence(self):
+        with patch('recovery.inspect', side_effect=self.work_observation):
+            first = recovery.prepare(self.root, self.registry, self.chat)
+            base = (self.root, self.owner['generation'], first['fingerprint'])
+            delivery = {'state': 'delivered', 'thread_id': 'original-chat', 'fingerprint': first['fingerprint'],
+                        'evidence': 'native delivered', 'observed_at': time.time()}
+            self.assertFalse(recovery.reconcile(*base, delivery, self.chat, self.registry)['send'])
+            absent = delivery | {'state': 'absent', 'absence_proven': True}
+            result = recovery.reconcile(*base, absent, self.chat, self.registry)
+            self.assertFalse(result['send']); self.assertEqual(result['state'], 'delivered')
+
 
 if __name__ == '__main__': unittest.main()

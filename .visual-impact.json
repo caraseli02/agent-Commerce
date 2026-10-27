@@ -338,6 +338,12 @@
       "tests": ["cart"],
       "reason": "Card-only buyer checkout (#787): visible disabled non-card choices, card/new-card selection, stale-draft reselection, availability copy and new-intent API rejection. No global theme/layout/store, catalog or historical read changes.",
       "consumers": "CheckoutButtons and PaymentMethodSection render only in /order-summary via the page/OrderStockType; SessionCardForm renders /checkout/session. The shared eligibility helper reaches only these consumers and PlaceOrder via orders/new. Public error copy reaches checkout failure recovery. Guest/signed-in checkout at 390/1440, all stale non-card drafts, actual ARIA/keyboard controls and Payment Element states are covered separately by focused browser/parity evidence; none is represented in the standard matrix. Select cart as the existing matrix regression for checkout entry. History reads, storefront and provider/webhook/refund paths are unchanged."
+    },
+    {
+      "fingerprint": "5f7264d55cbd6c528b764e9d651054fe423a571699a610ce52bdc627457b6749",
+      "impact": "none",
+      "reason": "Issue830 changes only externally invoked autonomy installation/admission tooling and reviewed policy assets; no observable application behavior changes.",
+      "consumers": "The Python installer is invoked explicitly from a clean source checkout after separate owner approval; recovery/admission run only through native dispatcher metadata tools. The only executable repository consumer is tests/codex-routing.spec.ts, which invokes temporary-host Python fixtures. A search of app/, server/ and nuxt.config.ts finds no imports or references to .codex-autonomy, install.py, admission.py or recovery.py. No route, rendered state, style, API response, database or Nuxt build input changes; existing installed host assets and all automations remain untouched."
     }
   ]
 }

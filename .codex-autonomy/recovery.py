@@ -5,7 +5,6 @@ Native tools supply fresh compact chat evidence and perform the one scoped send.
 """
 import argparse
 import contextlib
-import fcntl
 import json
 import pathlib
 import tempfile
@@ -13,6 +12,7 @@ import time
 
 from native_lease import inspect
 from router import fingerprint, handoff
+from admission import guard, existing
 
 
 @contextlib.contextmanager
@@ -20,8 +20,7 @@ def ledger(host):
     folder = host / 'native'
     folder.mkdir(parents=True, exist_ok=True)
     # Short metadata serialization only. This is not a second execution lease.
-    with open(folder / 'recovery.lock', 'a+') as guard:
-        fcntl.flock(guard, fcntl.LOCK_EX)
+    with guard(host):
         path = folder / 'recovery.json'
         state = json.loads(path.read_text()) if path.exists() else {'version': 1, 'owners': {}}
         if state.get('version') != 1 or not isinstance(state.get('owners'), dict):
@@ -40,7 +39,7 @@ def owner_mapping(registry, observed):
     if len(matches) != 1 or observed.get('purpose') != 'work':
         return None
     n, entry = matches[0]
-    if entry.get('state') in ('human_merged', 'closed') or entry.get('blocker'):
+    if entry.get('state') in ('human_merged', 'closed', 'blocked', 'parked') or entry.get('blocker') or entry.get('parked_at'):
         return None
     return n, entry
 
@@ -63,18 +62,16 @@ def prepare(host, registry, chat, now=None):
     if not eligible(observed, chat, now) or not (mapping := owner_mapping(registry, observed)):
         return {'action': 'wait', 'send': False, 'reason': 'Healthy, surviving command, unproven interruption or unknown ownership retains exclusion'}
     issue, entry = mapping
-    intent = {'action': 'recover_original_owner', 'issue': int(issue), 'thread_id': observed['thread'],
+    intent = {'action': 'recover_original_owner', 'lane_root': str(host.resolve()), 'issue': int(issue), 'thread_id': observed['thread'],
               'generation': observed['generation'], 'interrupted_turn_id': chat['interrupted_turn_id']}
     key = fingerprint(intent)
     with ledger(host) as state:
-        previous = state['owners'].get(observed['generation'])
-        if previous:
-            return {'action': 'reconcile', 'send': False, 'fingerprint': previous['fingerprint'],
-                    'state': previous['state'], 'thread_id': previous['thread_id']}
+        if conflict := existing(host, observed['generation']):
+            return {'action': 'reconcile', 'send': False, **conflict}
         decision = handoff(entry, intent, 'idle')
         if not decision.get('send'):
             return {'action': 'wait', **decision}
-        saved = {'fingerprint': key, **intent, 'state': 'prepared', 'attempts': 1, 'unresolved': 0,
+        saved = {'fingerprint': key, **intent, 'lane_root': str(host.resolve()), 'state': 'prepared', 'attempts': 1, 'unresolved': 0,
                  'prepared_at': now, 'chat_evidence': chat['evidence'], 'blocker_reported': False}
         state['owners'][observed['generation']] = saved
     return {**intent, 'action': 'recover', 'send': True, 'fingerprint': key,
@@ -86,10 +83,12 @@ def reconcile(host, generation, key, delivery, chat, registry, now=None):
     now = time.time() if now is None else now
     observed = inspect(host)
     with ledger(host) as state:
+        if conflict := existing(host, generation, include_recovery=False):
+            return {'action': 'reconcile', 'send': False, **conflict}
         saved = state['owners'].get(generation)
         if not saved or saved['fingerprint'] != key:
             raise ValueError('Recovery generation/fingerprint mismatch')
-        if saved['state'] in ('checkpointed', 'resolved', 'blocked'):
+        if saved['state'] in ('checkpointed', 'resolved', 'blocked', 'delivered'):
             return {'action': 'wait', 'send': False, 'state': saved['state']}
         # A free inode resolves exclusion; never touch old owner metadata or its work.
         if observed.get('state') == 'free':

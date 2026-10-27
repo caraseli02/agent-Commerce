@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "issue": 830,
+  "repo": "caraseli02/agent-Commerce",
+  "policy_sha256": {
+    "native_lease.py": "ae4a028a73fc6dcd960cd69b12257ac0766909c4c633f6c338640309e15e7779",
+    "dispatcher-workflow.md": "a6a42c1a0b3baf2b37f8844805d77789e01bb95d410da121d523b4878dbc0851",
+    "native-workflow.md": "cf18c04943f6745d704c76fb6e8433d4b16219f546dc9686f0d2c7022bfd225b",
+    "lease-cleanup.md": "481da51c5095dfac3bd453a158be5ce872d5b2930d571b9267dd5bdd19420405",
+    "concurrent-review.md": "135537dc883e30f3218b2fe5159988b4e9bd0e3a63804589b497df3aec096751",
+    "husky-verification.md": "72d933e6585bc38f6a2a21c54d67640eb5d539358925b4b56643a276e690674f",
+    "payment-work-authorization.md": "59ad64ebadab92cca5eb5e8bf026e24d6b91b87f3cc778c8e0457da2e675beb1",
+    "model-delegation.md": "ac7efb8ec2375ed329a0b0b5e2989af73feb7c93b77f0d7b3082614562488a82"
+  }
+}

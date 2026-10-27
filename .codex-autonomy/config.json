@@ -8,6 +8,6 @@
   "investigation_minutes": 40,
   "max_findings_per_run": 3,
   "max_open_findings": 5,
-  "cadence_hours": 2,
+  "cadence_hours": 5,
   "runtime_port": 3206
 }

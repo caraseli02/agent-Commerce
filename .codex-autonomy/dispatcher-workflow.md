@@ -1,7 +1,9 @@
 # Native Codex dispatcher — routing version 1
 
-The existing `payments-and-system-design-controller` automation runs every two
-hours, including overnight. It routes; one real native issue chat owns each issue
+The existing `payments-and-system-design-controller` automation runs every five
+hours at :15, including overnight. Apply migration-policy.md and preserved installed
+owner policies first, including separate work/reviewer lanes, actual native Luna
+delegation and cross-ledger cleanup/recovery admission. It routes; one real native issue chat owns each issue
 through implementation and all same-PR repairs until human merge/closure. Sol
 coordinates, Luna provides bounded support and Astra handles a documented concrete
 unresolved risk. Neither internal consultation nor self-auditing is acceptance.
