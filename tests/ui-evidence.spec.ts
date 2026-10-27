@@ -256,6 +256,21 @@ describe('UI screenshot evidence', () => {
     for (const name of names) expect(`topic/abc/${name}-before.jpg`).toMatch(/^[\w.-]+(\/[\w.-]+)+\.(png|jpg)$/);
   });
 
+  it('refuses an unknown --sign-in role before building anything', () => {
+    const r = repository();
+    const result = spawnSync(
+      process.execPath,
+      [resolve('scripts/pr-screenshots.mjs'), '--routes', '/dashboard/client', '--sign-in', 'guest'],
+      {
+        cwd: r.cwd,
+        encoding: 'utf8',
+      },
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('--sign-in takes customer or admin.');
+    expect(r.git('worktree', 'list', '--porcelain').match(/^worktree /gm)).toHaveLength(1);
+  });
+
   it('removes its temporary worktree when installing a side fails', () => {
     const r = repository();
     const bin = mkdtempSync(join(tmpdir(), 'pr-screenshots-bin-'));
