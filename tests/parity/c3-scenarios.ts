@@ -79,14 +79,16 @@ export const c3Scenarios: ParityScenario[] = [
     region: (page) => page.getByText('Card', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
     steps: [
       {
-        name: 'transactions action keeps the current dashboard view',
+        name: 'transactions action switches to the transaction history section',
         act: async (_page, region) => {
           await region.getByRole('button', { name: 'Transactions', exact: true }).click();
         },
         verify: async (page) => {
-          // The current emitter has no active listener in TabBar, so this action is presently a no-op.
-          await expect(page).toHaveURL(/\/dashboard\/client\?tab=home$/);
-          await expect(dashboardCreditCard(page)).toBeVisible();
+          // PaymentCard emits open-tab to the client dashboard (#815), so the home view gives way to Transaction History.
+          await expect(
+            page.getByRole('region', { name: 'Dashboard sections' }).getByRole('button', { name: /^Transaction History/ }),
+          ).toHaveClass(/text-primary/);
+          await expect(dashboardCreditCard(page)).toBeHidden();
         },
       },
     ],
