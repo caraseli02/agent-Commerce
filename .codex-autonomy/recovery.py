@@ -66,12 +66,8 @@ def prepare(host, registry, chat, now=None):
               'generation': observed['generation'], 'interrupted_turn_id': chat['interrupted_turn_id']}
     key = fingerprint(intent)
     with ledger(host) as state:
-        if conflict := existing(host, observed['generation'], include_recovery=False):
+        if conflict := existing(host, observed['generation']):
             return {'action': 'reconcile', 'send': False, **conflict}
-        previous = state['owners'].get(observed['generation'])
-        if previous:
-            return {'action': 'reconcile', 'send': False, 'fingerprint': previous['fingerprint'],
-                    'state': previous['state'], 'thread_id': previous['thread_id']}
         decision = handoff(entry, intent, 'idle')
         if not decision.get('send'):
             return {'action': 'wait', **decision}
@@ -92,7 +88,7 @@ def reconcile(host, generation, key, delivery, chat, registry, now=None):
         saved = state['owners'].get(generation)
         if not saved or saved['fingerprint'] != key:
             raise ValueError('Recovery generation/fingerprint mismatch')
-        if saved['state'] in ('checkpointed', 'resolved', 'blocked'):
+        if saved['state'] in ('checkpointed', 'resolved', 'blocked', 'delivered'):
             return {'action': 'wait', 'send': False, 'state': saved['state']}
         # A free inode resolves exclusion; never touch old owner metadata or its work.
         if observed.get('state') == 'free':

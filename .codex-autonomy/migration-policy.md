@@ -31,9 +31,10 @@ No token sharing, AI subprocesses, additional issue chats or reviewer launch.
 
 Both cleanup and recovery MUST arbitrate canonical lane root plus generation under
 the SAME native/recovery.lock. For cleanup, replace direct exclusive receipt creation
-with installed admission.py --host <lane-root> --receipt <private-intent.json>.
-The receipt retains the existing evidence/fingerprint fields, with terminal_turn
-normalized to {id,status,completedAt}. A send:true reservation is metadata only:
+with <routing_release>/admission.py --host <lane-root> --receipt <private-intent.json>.
+Read routing_release from installed settings; use its recovery.py as well.
+The receipt retains all existing evidence/fingerprint/terminal-turn fields; a
+normalized {id,status,completedAt} terminal_turn is also accepted. A send:true reservation is metadata only:
 perform ALL stopped-owner proofs and immediate pre-send rechecks in lease-cleanup.md.
 Keep send_attempted before native delivery. Any prior intent/delivery or ambiguous
 record in EITHER ledger blocks a competing request, including after resolution.

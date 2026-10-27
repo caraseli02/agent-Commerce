@@ -57,6 +57,20 @@ class CleanupAdmissionTests(unittest.TestCase):
         result = admission.reserve_cleanup(self.host, self.receipt)
         self.assertFalse(result['send'])
 
+    def test_empty_ambiguous_recovery_record_blocks_both_paths_without_overwrite(self):
+        target = self.host / 'native/recovery.json'
+        target.write_text(json.dumps({'version': 1, 'owners': {self.generation: {}}}))
+        before = json.loads(target.read_text())
+        self.assertFalse(admission.reserve_cleanup(self.host, self.receipt)['send'])
+        observation = {'state': 'held', 'active_commands': 0, 'commands': [],
+                       'generation': self.generation, 'thread': 'chat-a', 'purpose': 'work'}
+        chat = {'thread_id': 'chat-a', 'status': 'idle_interrupted', 'prior_turn_stopped': True,
+                'interrupted_turn_id': 'old', 'evidence': 'native', 'observed_at': time.time()}
+        registry = {'issues': {'830': {'thread_id': 'chat-a', 'state': 'implementing'}}}
+        with patch('recovery.inspect', return_value=observation):
+            self.assertFalse(recovery.prepare(self.host, registry, chat)['send'])
+        self.assertEqual(json.loads(target.read_text()), before)
+
     def test_cleanup_first_reservation_blocks_recovery(self):
         admission.reserve_cleanup(self.host, self.receipt)
         observation = {

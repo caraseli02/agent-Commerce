@@ -160,6 +160,20 @@ class InstallTests(unittest.TestCase):
         self.assertEqual((self.host / 'issue-chats.json').read_text(), '{"new":"task"}')
         self.assertFalse((self.host / 'investigation-workflow.md').exists())
 
+    def test_unrecoverable_asset_failure_reports_private_reconciliation_evidence(self):
+        plan = self.plan(); original = install.atomic_write
+        def fail(target, data):
+            if target == self.host / 'dispatcher-workflow.md':
+                raise OSError('controlled activation and rollback failure')
+            return original(target, data)
+        with patch('install.atomic_write', side_effect=fail):
+            with self.assertRaisesRegex(RuntimeError, 'Recoverable partial installation'):
+                self.activate(plan)
+        events = [json.loads(line) for line in (self.host / 'native/installations/journal.jsonl').read_text().splitlines()]
+        self.assertEqual(events[-1]['event'], 'reconciliation_required')
+        self.assertTrue((pathlib.Path(events[-1]['backup']) / 'backup.json').exists())
+        self.assertEqual(json.loads((self.host / 'issue-chats.json').read_text()), self.registry)
+
     def test_unknown_delivery_schema_blocks_plan_without_freezing_valid_append_history(self):
         path = self.host / 'native/recovery.json'
         path.write_text('{"version":99,"owners":{}}')

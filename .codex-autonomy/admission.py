@@ -45,7 +45,8 @@ def existing(host, generation, include_recovery=True):
                 saved = state['owners'][generation]
                 if not isinstance(saved, dict) or saved.get('lane_root', lane) != lane:
                     raise ValueError('Ambiguous recovery identity; owner reconciliation required')
-                return {'kind': 'recovery', 'state': saved.get('state', 'unknown')}
+                return {'kind': 'recovery', 'state': saved.get('state', 'unknown'),
+                        'fingerprint': saved.get('fingerprint'), 'thread_id': saved.get('thread_id')}
     return None
 
 
@@ -57,11 +58,16 @@ def reserve_cleanup(host, receipt):
     """
     generation = generation_name(receipt.get('generation'))
     turn = receipt.get('terminal_turn')
+    # Retain existing installed receipt shape; normalized native snapshots are
+    # also accepted. Never rewrite a legacy terminal-turn identity or fingerprint.
+    terminal = turn if isinstance(turn, dict) else {
+        'id': turn, 'status': receipt.get('terminal_turn_status'),
+        'completedAt': receipt.get('terminal_turn_completedAt')}
     if (receipt.get('version') != 1 or receipt.get('state') != 'intent_recorded' or
             not receipt.get('thread') or receipt.get('purpose') not in ('work', 'review') or
-            not isinstance(turn, dict) or not turn.get('id') or
-            turn.get('status') not in ('completed', 'failed', 'interrupted', 'cancelled') or
-            not turn.get('completedAt')):
+            not terminal.get('id') or
+            terminal.get('status') not in ('completed', 'failed', 'interrupted', 'cancelled') or
+            not terminal.get('completedAt')):
         raise ValueError('Cleanup reservation requires original owner and terminal turn identity')
     with guard(host) as canonical:
         if previous := existing(canonical, generation):
