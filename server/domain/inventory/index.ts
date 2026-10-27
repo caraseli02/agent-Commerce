@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mockProducts } from '~~/server/utils/mockProducts';
-import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
+import { isInventoryQuantity, resolveInventoryProduct } from './identity.mjs';
+import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
 
 export type ReservationItem = Readonly<{
   productId: string;
@@ -48,6 +49,32 @@ type InventoryRow = {
   reserved: number;
 };
 
+// Normalize only new intent. Historical reservation identities are validated, never rewritten.
+const normalizeItems = (items: readonly ReservationItem[], historical = false): ReservationItem[] => {
+  if (!Array.isArray(items) || !items.length) throw new Error('Inventory requires nonempty reservation items.');
+  const normalized = new Map<string, ReservationItem>();
+  for (const item of items) {
+    const product = resolveInventoryProduct(item?.productId);
+    if (!product || (historical && product._id !== item.productId))
+      throw new Error(`Inventory reconciliation required for reservation identity ${item?.productId}.`);
+    if (
+      !isInventoryQuantity(item.immediateQuantity) ||
+      !isInventoryQuantity(item.backorderQuantity) ||
+      !isInventoryQuantity(item.immediateQuantity + item.backorderQuantity) ||
+      item.immediateQuantity + item.backorderQuantity === 0
+    )
+      throw new Error(`Invalid Inventory quantities for ${item.productId}. Expected nonnegative integers with a positive total.`);
+    const previous = normalized.get(product._id);
+    if (historical && previous) throw new Error(`Duplicate historical Inventory identity ${product._id}; reconciliation required.`);
+    const immediateQuantity = (previous?.immediateQuantity ?? 0) + item.immediateQuantity;
+    const backorderQuantity = (previous?.backorderQuantity ?? 0) + item.backorderQuantity;
+    if (!isInventoryQuantity(immediateQuantity + backorderQuantity)) throw new Error('Inventory quantity overflow.');
+    normalized.set(product._id, { productId: product._id, immediateQuantity, backorderQuantity });
+  }
+  return [...normalized.values()].sort((a, b) => a.productId.localeCompare(b.productId));
+};
+const storedItems = (json: string) => normalizeItems(JSON.parse(json) as ReservationItem[], true);
+
 const fingerprintItems = (items: readonly ReservationItem[]) =>
   JSON.stringify(
     [...items]
@@ -58,7 +85,7 @@ const fingerprintItems = (items: readonly ReservationItem[]) =>
 const toPublicReservation = (row: ReservationRow): InventoryReservation => ({
   id: row.id,
   reservationKey: row.reservation_key,
-  items: JSON.parse(row.items_json) as ReservationItem[],
+  items: storedItems(row.items_json),
   expiresAt: new Date(row.expires_at),
   status: row.status,
 });
@@ -76,19 +103,22 @@ const readReservation = async (column: 'id' | 'reservation_key', value: string) 
 const changeReservedQuantity = async (items: readonly ReservationItem[], direction: 1 | -1) => {
   const database = await getCheckoutDatabase();
   for (const item of items) {
-    await database.execute(
+    if (!isInventoryQuantity(item.immediateQuantity) || (direction !== 1 && direction !== -1))
+      throw new Error('Invalid Inventory counter delta.');
+    const changed = await database.execute(
       `UPDATE checkout_inventory
           SET reserved = reserved + $1
-        WHERE product_id = $2`,
+        WHERE product_id = $2 AND reserved::bigint + $1 BETWEEN 0 AND 2147483647`,
       [direction * item.immediateQuantity, item.productId],
     );
+    if (changed !== 1) throw new Error(`Inventory reconciliation required for reserved counter ${item.productId}.`);
   }
 };
 
 const expireIfNeeded = async (row: ReservationRow) => {
   if (row.status !== 'active' || new Date(row.expires_at).getTime() > Date.now()) return row;
 
-  const items = JSON.parse(row.items_json) as ReservationItem[];
+  const items = storedItems(row.items_json);
   await changeReservedQuantity(items, -1);
   const database = await getCheckoutDatabase();
   await database.execute("UPDATE checkout_reservations SET status = 'expired' WHERE id = $1", [row.id]);
@@ -96,32 +126,27 @@ const expireIfNeeded = async (row: ReservationRow) => {
   return row;
 };
 
-const ensureInventoryRow = async (productId: string) => {
-  const product = mockProducts.find((candidate) => candidate._id === productId || candidate.code === productId);
+const readInventoryRow = async (productId: string) => {
   const database = await getCheckoutDatabase();
-  await database.execute(
-    `INSERT INTO checkout_inventory (product_id, on_hand, reserved)
-     VALUES ($1, $2, 0)
-     ON CONFLICT (product_id) DO NOTHING`,
-    [productId, Math.max(0, Number(product?.stock || 0))],
-  );
-
   const rows = await database.query<InventoryRow>(
     'SELECT product_id, on_hand, reserved FROM checkout_inventory WHERE product_id = $1 FOR UPDATE',
     [productId],
   );
-  return rows[0];
+  const row = rows[0];
+  if (row && (!isInventoryQuantity(row.on_hand) || !isInventoryQuantity(row.reserved)))
+    throw new Error(`Inventory reconciliation required for invalid balances on ${productId}.`);
+  return row;
 };
 
 const immediateQuantityOf = (rows: readonly { items_json: string }[], productId: string) =>
   rows
-    .flatMap((row) => JSON.parse(row.items_json) as ReservationItem[])
+    .flatMap((row) => storedItems(row.items_json))
     .filter((item) => item.productId === productId)
     .reduce((total, item) => total + item.immediateQuantity, 0);
 
 // `reserved` gives an expired reservation's units back only when that reservation is read again
 // (expireIfNeeded), and an abandoned checkout is never read again. Availability therefore adds back
-// the units of `active` reservations that have already expired. Call it after ensureInventoryRow
+// the units of `active` reservations that have already expired. Call it after readInventoryRow
 // has locked the row; it reads the reservations without locking them.
 const availableQuantity = async (row: InventoryRow | undefined) => {
   if (!row) return 0;
@@ -171,6 +196,11 @@ const reserve = async (input: {
   items: readonly ReservationItem[];
   expiresAt: Date;
 }): Promise<ReserveInventoryResult> => {
+  for (const item of input.items) {
+    if (!resolveInventoryProduct(item?.productId))
+      return { kind: 'unavailable', productId: item?.productId, requested: item?.immediateQuantity, available: 0 };
+  }
+  input = { ...input, items: normalizeItems(input.items) };
   const fingerprint = fingerprintItems(input.items);
   const existing = await readReservation('reservation_key', input.reservationKey);
 
@@ -180,10 +210,12 @@ const reserve = async (input: {
     return { kind: 'existing', reservation: toPublicReservation(existing) };
   }
 
+  if (!Number.isFinite(input.expiresAt.getTime()) || input.expiresAt.getTime() <= Date.now())
+    throw new Error('Inventory reservation expiry must be in the future.');
   for (const item of input.items) {
-    const row = await ensureInventoryRow(item.productId);
+    const row = await readInventoryRow(item.productId);
     const available = await availableQuantity(row);
-    if (item.immediateQuantity > available) {
+    if (!row || item.immediateQuantity > available) {
       return {
         kind: 'unavailable',
         productId: item.productId,
@@ -220,7 +252,7 @@ const reestablishReservation = async (reservationId: string, expiresAt: Date): P
 
   const next = await reserve({
     reservationKey: `${previous.reservation_key}:after:${previous.id}`,
-    items: JSON.parse(previous.items_json) as ReservationItem[],
+    items: storedItems(previous.items_json),
     expiresAt,
   });
   if (next.kind === 'unavailable') return next;
@@ -231,6 +263,7 @@ const reestablishReservation = async (reservationId: string, expiresAt: Date): P
 const isReservationActive = async (reservationId: string): Promise<boolean> => {
   const row = await readReservation('id', reservationId);
   if (!row) return false;
+  if (row.status === 'active') storedItems(row.items_json);
   await expireIfNeeded(row);
   return row.status === 'active';
 };
@@ -243,15 +276,16 @@ const commit = async (reservationId: string): Promise<CommitReservationResult> =
   if (row.status === 'expired') return { kind: 'expired' };
   if (row.status === 'released') return { kind: 'released' };
 
-  const items = JSON.parse(row.items_json) as ReservationItem[];
+  const items = storedItems(row.items_json);
   const database = await getCheckoutDatabase();
   for (const item of items) {
-    await database.execute(
+    const changed = await database.execute(
       `UPDATE checkout_inventory
           SET reserved = reserved - $1, on_hand = on_hand - $2
-        WHERE product_id = $3`,
+        WHERE product_id = $3 AND reserved >= $1 AND on_hand >= $2`,
       [item.immediateQuantity, item.immediateQuantity, item.productId],
     );
+    if (changed !== 1) throw new Error(`Inventory reconciliation required for commit counters ${item.productId}.`);
   }
   await database.execute("UPDATE checkout_reservations SET status = 'committed' WHERE id = $1", [reservationId]);
   return { kind: 'committed' };
@@ -265,7 +299,7 @@ const release = async (reservationId: string): Promise<ReleaseReservationResult>
   if (row.status === 'committed') return { kind: 'committed' };
   if (row.status === 'expired') return { kind: 'expired' };
 
-  const items = JSON.parse(row.items_json) as ReservationItem[];
+  const items = storedItems(row.items_json);
   await changeReservedQuantity(items, -1);
   const database = await getCheckoutDatabase();
   await database.execute("UPDATE checkout_reservations SET status = 'released' WHERE id = $1", [reservationId]);
@@ -283,14 +317,34 @@ const recoverPaidReservation = async (input: {
   items: readonly ReservationItem[];
   backorderShippingTypeId?: string;
 }): Promise<RecoverPaidInventoryResult> => {
+  try {
+    if (input.items.every((item) => resolveInventoryProduct(item?.productId))) input = { ...input, items: normalizeItems(input.items) };
+  } catch {
+    return { kind: 'retry' };
+  }
   const previous = await readReservation('id', input.reservationId);
   if (!previous) return { kind: 'retry' };
   if (previous.reservation_key !== input.reservationKey && !previous.reservation_key.startsWith(`${input.reservationKey}:after:`))
     return { kind: 'retry' };
   let previousItems: ReservationItem[];
   try {
-    previousItems = JSON.parse(previous.items_json);
+    previousItems = JSON.parse(previous.items_json) as ReservationItem[];
     if (!Array.isArray(previousItems) || fingerprintItems(previousItems) !== fingerprintItems(input.items)) return { kind: 'retry' };
+    // Preserve the existing unsupported-product compensation decision without creating stock.
+    // Corrupt quantities/aliases still require reconciliation and cannot authorize allocation.
+    if (
+      previousItems.some(
+        (item) =>
+          !isInventoryQuantity(item?.immediateQuantity) ||
+          !isInventoryQuantity(item?.backorderQuantity) ||
+          !isInventoryQuantity(item.immediateQuantity + item.backorderQuantity) ||
+          item.immediateQuantity + item.backorderQuantity === 0,
+      )
+    )
+      return { kind: 'retry' };
+    if (previousItems.some((item) => !resolveInventoryProduct(item.productId))) return { kind: 'unavailable' };
+    storedItems(previous.items_json);
+    input = { ...input, items: normalizeItems(input.items) };
   } catch {
     return { kind: 'retry' };
   }
@@ -299,7 +353,8 @@ const recoverPaidReservation = async (input: {
 
   const plan: ReservationItem[] = [];
   for (const item of [...input.items].sort((a, b) => a.productId.localeCompare(b.productId))) {
-    const row = await ensureInventoryRow(item.productId);
+    const row = await readInventoryRow(item.productId);
+    if (!row) return { kind: 'unavailable' };
     const quantity = item.immediateQuantity + item.backorderQuantity;
     const immediateQuantity = Math.min(quantity, await availableQuantity(row));
     plan.push({ productId: item.productId, immediateQuantity, backorderQuantity: quantity - immediateQuantity });
@@ -329,11 +384,13 @@ const recoverPaidReservation = async (input: {
 };
 
 export const inventory = {
-  reserve,
-  reestablishReservation,
-  isReservationActive,
-  commit,
-  release,
-  recoverPaidReservation,
+  reserve: (input: Parameters<typeof reserve>[0]) => withCheckoutTransaction(() => reserve(input)),
+  reestablishReservation: (reservationId: string, expiresAt: Date) =>
+    withCheckoutTransaction(() => reestablishReservation(reservationId, expiresAt)),
+  isReservationActive: (reservationId: string) => withCheckoutTransaction(() => isReservationActive(reservationId)),
+  commit: (reservationId: string) => withCheckoutTransaction(() => commit(reservationId)),
+  release: (reservationId: string) => withCheckoutTransaction(() => release(reservationId)),
+  recoverPaidReservation: (input: Parameters<typeof recoverPaidReservation>[0]) =>
+    withCheckoutTransaction(() => recoverPaidReservation(input)),
   findReservedDrift,
 };

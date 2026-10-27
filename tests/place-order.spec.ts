@@ -158,6 +158,8 @@ describe('PlaceOrder application workflow', () => {
     await database.execute(
       'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
     );
+    const { bootstrapInventory } = await import('../server/domain/inventory/bootstrap.mjs');
+    await bootstrapInventory({ dryRun: false });
   });
 
   it.each([1, 2, 3, undefined, '0', 99])('rejects new ineligible payment type %s before durable side effects', async (type) => {

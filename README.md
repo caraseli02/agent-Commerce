@@ -32,7 +32,7 @@ Mock mode keeps the app self-contained:
 
 - no external backend required
 - local Nitro endpoints answer API requests
-- checkout state uses the configured PostgreSQL database after `pnpm db:migrate`
+- checkout state uses the configured PostgreSQL database after migration and explicit inventory bootstrap
 - demo credentials work out of the box once `.env` is created
 
 ## Demo credentials
@@ -57,7 +57,28 @@ pnpm install
 cp .env.example .env
 ```
 
-### 3. Start the app
+### 3. Prepare the local checkout database
+
+Set `DATABASE_URL` in `.env` or `.env.local`, then create the checkout schema and
+explicitly initialize demo inventory:
+
+```bash
+pnpm db:migrate
+pnpm inventory:bootstrap
+pnpm inventory:bootstrap --apply
+```
+
+The default bootstrap command is a dry-run that reports missing catalog
+inventory rows. `--apply` inserts only those missing canonical product rows.
+Existing stock counts, reservations, and reservation history are preserved.
+Runtime checkout requests never seed inventory. If bootstrap reports aliases,
+unknown products, or corrupt stored inventory/reservation data, stop and arrange
+a separately approved reconciliation before applying changes.
+
+Shared Preview and Production databases require a separately authorized operator
+bootstrap step. Deployments and runtime startup do not bootstrap inventory.
+
+### 4. Start the app
 
 ```bash
 pnpm dev
@@ -132,7 +153,8 @@ If you are reviewing this repo for a case study or portfolio walkthrough, start 
 - `NUXT_PUBLIC_BASE_URL_API=/api`
 
 Checkout persistence requires PostgreSQL in every environment. Set
-`DATABASE_URL`, run `pnpm db:migrate`, then start the app. Tests create an
+`DATABASE_URL`, run `pnpm db:migrate`, review `pnpm inventory:bootstrap`, then
+run `pnpm inventory:bootstrap --apply` before starting the app or its built preview. Tests create an
 isolated PostgreSQL schema for each run, so they exercise the same transaction
 and constraint semantics as deployments. Vercel deployments use the same
 `DATABASE_URL` contract and run migrations during the build; do not provide a

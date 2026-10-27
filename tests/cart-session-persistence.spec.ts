@@ -38,6 +38,8 @@ describe('cart session persistence', () => {
     await database.execute(
       'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
     );
+    const { bootstrapInventory } = await import('../server/domain/inventory/bootstrap.mjs');
+    await bootstrapInventory({ dryRun: false });
   });
 
   it('starts a first-time reviewer cart empty', async () => {
