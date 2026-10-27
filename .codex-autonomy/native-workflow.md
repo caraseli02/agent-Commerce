@@ -1,7 +1,11 @@
 # Native Codex issue worker — routing version 1
 
 This chat implements only its assigned issue and same-PR repairs until human
-merge/closure. Dispatcher runs every two hours; worker never selects another issue.
+merge/closure. Dispatcher runs every five hours at :15; worker never selects another issue.
+Apply migration-policy.md and the preserved installed owner policies first. Work
+and review use separate lanes. Actual native Luna delegation is required for
+eligible bounded tasks; Sol coordinates and integrates. Cleanup/recovery share
+admission.py's canonical lane/generation guard before either native send.
 Read dispatcher-workflow.md, investigation-workflow.md and the repository's current
 main policy. Exactly one live Codex implementation includes pending local verification/first review.
 Queue/parking is classified from live GitHub by discover.py, never a saved PASS.
@@ -72,11 +76,11 @@ first completed proof or a concrete failure; unchanged existing proof is quiet.
 
 ## Codex cross-review loop
 
-The reviewer automation runs every four hours and creates a fresh local project chat for every
+The reviewer automation runs every six hours (03:45/09:45/15:45/21:45 Madrid) and creates a fresh local project chat for every
 scheduled run (Vlad, 2026-10-08). It no longer resumes a standing review chat.
 Each run reviews at most one actionable PR head and uses its own actual chat ID
 with the same host lease and `--purpose review`. It requires `reviewer_enabled`
-and `native_execution_ready`. It shares Codex's full-run exclusion; its review
+and `native_execution_ready`. It uses the dedicated reviewer root from concurrent-review.md, independent of the work lane; its review
 fixture or checkout is separate from a builder's. GitHub exact-head reports and
 the private journal preserve evidence across fresh chats and prevent duplicate
 reviews. An unchanged head is not reviewed twice, except an INCONCLUSIVE retry or after a comment that starts with `<!-- external-review-request: <sha> -->` follows its newest FAIL or BLOCKED (docs/agents/local-verification.md § Verdict lifetime); a later main, PR body or label change never needs a new report. Busy or unknown lease ownership yields.

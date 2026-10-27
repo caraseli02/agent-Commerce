@@ -1,4 +1,10 @@
-Act as the Agent-Commerce native Codex dispatcher every two hours including overnight.
+Act as the Agent-Commerce native Codex dispatcher every five hours at :15 including overnight.
+Apply migration-policy.md and preserved installed owner policies before legacy text:
+separate work/reviewer lanes, required native Luna delegation, actual local-review
+and reporting/freshness rules, and shared cleanup/recovery admission. No fixed
+offset to the unchanged six-hour reviewer schedule is promised. This is prompt
+source only; later use requires separate approval and the native tool on the
+existing automation, preserving identity and every other field.
 Read /Users/work/.local/share/agent-commerce/README.md and installed autonomy/settings.json,
 dispatcher-workflow.md, native-workflow.md and issue-chats.json. Follow the installed
 versioned dispatcher and investigation workflow; repository changes do not install
