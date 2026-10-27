@@ -115,6 +115,28 @@ describe('explicit A1 Inventory bootstrap', () => {
     expect(JSON.parse(historical[0]!.items_json)).toEqual(items());
   });
 
+  it.each(['active', 'committed'])('does not choose unsupported-product compensation for a %s reservation', async (status) => {
+    await apply();
+    const previous = await reserve('unsupported-status');
+    if (previous.kind !== 'created') throw new Error('Expected initial reservation');
+    const database = await getCheckoutDatabase();
+    await database.execute('UPDATE checkout_reservations SET items_json=$1,status=$2 WHERE id=$3', [
+      JSON.stringify(items('unsupported')),
+      status,
+      previous.reservation.id,
+    ]);
+    const before = await balances();
+    expect(
+      await inventory.recoverPaidReservation({
+        reservationId: previous.reservation.id,
+        reservationKey: 'unsupported-status',
+        items: items('unsupported'),
+      }),
+    ).toEqual({ kind: 'retry' });
+    expect(await balances()).toEqual(before);
+    expect((await database.query('SELECT status FROM checkout_reservations'))[0]?.status).toBe(status);
+  });
+
   it('preserves reserved > on_hand during lazy expiry', async () => {
     await apply();
     await (await getCheckoutDatabase()).execute("UPDATE checkout_inventory SET on_hand=0, reserved=2 WHERE product_id='prod-1'");

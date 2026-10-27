@@ -342,7 +342,8 @@ const recoverPaidReservation = async (input: {
       )
     )
       return { kind: 'retry' };
-    if (previousItems.some((item) => !resolveInventoryProduct(item.productId))) return { kind: 'unavailable' };
+    if (previousItems.some((item) => !resolveInventoryProduct(item.productId)))
+      return previous.status === 'expired' || previous.status === 'released' ? { kind: 'unavailable' } : { kind: 'retry' };
     storedItems(previous.items_json);
     input = { ...input, items: normalizeItems(input.items) };
   } catch {
