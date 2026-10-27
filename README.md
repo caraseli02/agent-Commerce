@@ -151,7 +151,7 @@ connection string for `vercel-dev`. Production continues to use the default
 `production` branch. No credentials belong in this repository.
 
 The Vercel/Neon setup is a one-time dashboard action: open **Storage** → the
-`ecas` Neon resource → **Connect Project**, enable Development and Production,
+Neon resource for this project → **Connect Project**, enable Development and Production,
 and leave **Create a database branch for deployment** off for Preview. Then add
 the `vercel-dev` connection string as `DATABASE_URL`, scoped to the Preview
 environment in **Project Settings** → **Environment Variables**. Require the

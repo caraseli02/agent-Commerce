@@ -112,7 +112,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
     const adminConnectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(adminConnectionString).toBeTruthy();
 
-    const schema = `ecas_upgrade_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_upgrade_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const migrationUrl = new URL(adminConnectionString!);
     migrationUrl.searchParams.set('options', `-c search_path=${schema}`);
@@ -154,7 +154,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('applies full Refund uniqueness, identity, amount, reason, and status constraints in PostgreSQL', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_refund_constraints_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_refund_constraints_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);
@@ -358,7 +358,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('expands populated 001–005 claims without changing rows or legacy writer compatibility, and replays safely', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_paid_recovery_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_paid_recovery_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);
@@ -512,7 +512,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('upgrades populated Payments while preserving legacy writes and enforcing Stripe identity', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_stripe_expand_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_stripe_expand_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);
@@ -620,7 +620,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('upgrades a populated legacy checkout without changing its completed tuple and quarantines incomplete results', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_payment_upgrade_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_payment_upgrade_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);
@@ -686,7 +686,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('fails closed when legacy order money is missing or negative', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_payment_invalid_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_payment_invalid_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);

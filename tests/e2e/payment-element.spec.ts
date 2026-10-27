@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// Deterministic SDK boundary double. This proves ECAS browser sequencing and
+// Deterministic SDK boundary double. This proves the checkout browser sequencing and
 // presentation, not real Stripe sandbox confirmation or a bank's 3DS challenge.
 const fakeStripe = `
 window.__paymentTest = { confirms: 0, submits: 0, mode: 'success', options: null };
@@ -299,7 +299,7 @@ test('actual default-off route exposes the demo boundary without loading Stripe'
   expect(stripeLoads).toBe(0);
 });
 
-test('SDK additional authentication keeps ECAS confirmation disabled until the server refreshes', async ({ page }) => {
+test('SDK additional authentication keeps confirmation disabled until the server refreshes', async ({ page }) => {
   const { errors } = await setup(page);
   await page.goto('/checkout/session?id=ord-ui');
   await fillCard(page);
