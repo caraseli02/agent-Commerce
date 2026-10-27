@@ -130,7 +130,7 @@ async function signIn({ browser, url, role }) {
     await page.waitForLoadState('networkidle');
     return await context.storageState();
   } catch (error) {
-    throw new Error(`--sign-in ${role} failed on ${url}: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(`--sign-in ${role} failed on ${url}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
   } finally {
     await context.close();
   }
