@@ -27,7 +27,7 @@
         }"
       />
     </div>
-    <form class="justify-between items-stretch flex w-full gap-5 mt-4">
+    <form class="justify-between items-stretch flex flex-wrap w-full gap-x-5 gap-y-2 mt-4">
       <div class="items-stretch flex justify-between gap-2 text-sm whitespace-nowrap">
         <UiLabel for="balance" class="grow">Credit limit:</UiLabel>
         <div class="text-foreground font-semibold leading-5 grow">{{ Number(balance).toFixed(2) }} Lei</div>

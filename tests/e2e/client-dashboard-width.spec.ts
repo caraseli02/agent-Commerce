@@ -44,6 +44,16 @@ test.describe('Client dashboard width', () => {
       expect(dashboard.right).toBeLessThanOrEqual(header.right + 1);
       if (width >= 1440) expect(Math.abs(dashboard.width - 1328)).toBeLessThanOrEqual(1);
       else expect(Math.abs(dashboard.width - header.width)).toBeLessThanOrEqual(1);
+
+      // The narrower lg/xl grid must not push the credit card's "Pay now" out of the card.
+      const payNow = page.getByRole('button', { name: 'Pay now' });
+      const overflow = await payNow.evaluate((button) => {
+        const card = button.closest('.rounded-xl') as HTMLElement;
+        return (
+          button.getBoundingClientRect().right - (card.getBoundingClientRect().right - parseFloat(getComputedStyle(card).paddingRight))
+        );
+      });
+      expect(overflow).toBeLessThanOrEqual(1);
     });
   }
 });
