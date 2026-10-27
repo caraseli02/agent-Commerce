@@ -85,20 +85,22 @@ onMounted(() => {
 
         <UiCarousel class="relative w-full max-w-xl mt-2" @init-api="(val) => (emblaThumbnailApi = val)">
           <UiCarouselContent class="flex gap-1 ml-0">
-            <UiCarouselItem
-              v-for="(image, index) in images"
-              :key="index"
-              class="pl-0 basis-1/4 cursor-pointer rounded flex justify-center items-center"
-              @click="onThumbClick(index)"
-            >
-              <div class="p-1" :class="index === selectedIndex ? '' : 'opacity-50'">
+            <UiCarouselItem v-for="(image, index) in images" :key="index" class="pl-0 basis-1/4 rounded flex justify-center items-center">
+              <button
+                type="button"
+                class="cursor-pointer rounded p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                :class="index === selectedIndex ? '' : 'opacity-50'"
+                :aria-label="`Show product image ${index + 1}`"
+                :aria-pressed="index === selectedIndex"
+                @click="onThumbClick(index)"
+              >
                 <ImageWithFallback
                   :src="image.ProductImageSmall"
                   :alt="`${alias} product thumbnail`"
                   class-name="w-[60px] h-[50px] object-contain transition-opacity duration-300 lg:w-[56px] lg:h-[48px]"
                   :class="[index !== selectedIndex ? 'opacity-50' : '']"
                 />
-              </div>
+              </button>
             </UiCarouselItem>
           </UiCarouselContent>
         </UiCarousel>

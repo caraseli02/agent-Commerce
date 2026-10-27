@@ -89,6 +89,18 @@ for (const viewport of [
     await expect(page.getByRole('button', { name: 'Show product image 2', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await opener.click();
     await expect(selectedImage).toBeInViewport({ ratio: 0.9 });
+    // Dialog thumbnails are buttons: keyboard selection moves the main carousel.
+    const dialogThumb1 = dialog.getByRole('button', { name: 'Show product image 1', exact: true });
+    const dialogThumb2 = dialog.getByRole('button', { name: 'Show product image 2', exact: true });
+    await expect(dialogThumb2).toHaveAttribute('aria-pressed', 'true');
+    await dialogThumb1.focus();
+    await page.keyboard.press('Space');
+    await expect(dialogThumb1).toHaveAttribute('aria-pressed', 'true');
+    await expect(dialog.locator('.imageContainer img').first()).toBeInViewport({ ratio: 0.9 });
+    await dialogThumb2.focus();
+    await page.keyboard.press('Enter');
+    await expect(dialogThumb2).toHaveAttribute('aria-pressed', 'true');
+    await expect(selectedImage).toBeInViewport({ ratio: 0.9 });
     await mainCarousel.focus();
     await page.keyboard.press('ArrowLeft');
     await expect(mainCarousel.getByRole('button', { name: 'Previous Slide', exact: true })).toBeDisabled();
