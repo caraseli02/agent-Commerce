@@ -31,7 +31,7 @@
                 :account-information="myAccountInformation"
                 class="md:col-span-2 lg:col-span-1"
               />
-              <DashboardClientRecentlyBought :data="myRecentlyBougth" />
+              <DashboardClientRecentlyBought :data="myRecentlyBougth" @open-tab="openTab" />
               <div class="flex flex-col gap-4 md:col-span-2 md:gap-6 lg:col-span-1">
                 <DashboardClientCredit
                   :available-credit="myAccountInformation.adminSettings?.customerCredit?.available || 0"
@@ -41,7 +41,7 @@
               </div>
               <DashboardClientRecentlyBoughtSlider class="md:col-span-2" />
               <DashboardClientAddressCards v-if="myAddresses.length > 0" :addresses="myAddresses" />
-              <DashboardClientPaymentCard :card="myCard" />
+              <DashboardClientPaymentCard :card="myCard" @open-tab="openTab" />
             </div>
           </template>
         </div>
@@ -91,6 +91,10 @@ const {
 } = useCustomerDashboard();
 
 usePageSeo({ title: 'My account', robots: 'noindex,nofollow' });
+
+const openTab = (tab: { label: string; value: string }) => {
+  activeOrderFilter.value = tab;
+};
 
 const route = useRoute();
 const initialTab = typeof route.query.tab === 'string' ? route.query.tab : '';

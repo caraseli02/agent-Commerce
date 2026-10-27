@@ -89,8 +89,9 @@
               :requires-payment-reselection="requiresPaymentReselection"
               :shipping-preferences="shippingPreferences"
               @update-payment-details="updatePaymentDetails"
+              @order-type="orderType = $event"
             />
-            <OrderSummaryNoteSection />
+            <OrderSummaryNoteSection @note="note = $event" />
             <OrderSummary :order="order" :quote="authoritativeQuote" />
             <OrderSummaryCheckoutButtons
               :is-checkout-disabled="isCheckoutDisabled"
@@ -111,7 +112,6 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { cartReadCacheKey, loadCartRead } from '~/composables/loadCartRead';
 import { InfoIcon } from '@lucide/vue';
 import { storeToRefs } from 'pinia';
-import Emitter from 'tiny-emitter/instance.js';
 import { useHead, useRouter, useRuntimeConfig } from '#app';
 import OrderStockType from '~/components/order-summary/OrderStockType.vue';
 import { cartEmptyPreset } from '~/components/global/empty-state-presets';
@@ -217,7 +217,6 @@ const orderItems = computed(() => {
 
 // Payment Processing
 const { card, cards, fetchCards } = usePaymentCards();
-const paymentType = ref({ type: 0, selected: false });
 
 // Order Processing
 const { makeCheckout } = useOrder();
@@ -481,23 +480,6 @@ watch(checkout, async (newVal) => {
     // Some validation exits return before makeCheckout resets the flag.
     checkout.value = false;
   }
-});
-
-// Event Handling
-Emitter.on('order-type', (type: number) => {
-  orderType.value = type;
-});
-
-Emitter.on('payment-type', (object: { type: number; selected: boolean }) => {
-  paymentType.value = { ...object };
-});
-
-Emitter.on('note', (noteText: string) => {
-  note.value = noteText;
-});
-
-Emitter.on('delete-product-item', (object: { id: string }) => {
-  cartItems.value = cartItems.value.filter((product) => product.id !== object.id);
 });
 
 const deleteSelected = () => {

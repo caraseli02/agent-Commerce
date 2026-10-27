@@ -140,11 +140,10 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRuntimeConfig } from '#app';
-import { OrderType, type CheckoutOrderDraft } from '~~/types';
+import { OrderType, type CheckoutOrderDraft, type PaymentDetails } from '~~/types';
 import type { CartProductsInterface } from '~~/types/cart';
 import ChevronDownIcon from '@/assets/icons/dashboard/chevron-down.svg';
 import WarningErrorYellow from '@/assets/icons/warning-error-yellow.svg';
@@ -168,7 +167,10 @@ const props = defineProps<{
   shippingPreferences: ShippingOrderPricingResponse | null;
 }>();
 
-const emits = defineEmits(['update-payment-details']);
+const emits = defineEmits<{
+  'update-payment-details': [paymentDetails: PaymentDetails];
+  'order-type': [type: OrderType];
+}>();
 const config = useRuntimeConfig();
 const paymentManagementVisible = isPaymentManagementVisible(Boolean(config.public.MOCK_MODE));
 
@@ -195,16 +197,15 @@ const backOrder = computed(() => {
 
 const orderType = computed((): OrderType => {
   if (stockOrder.value && backOrder.value) {
-    Emitter.emit('order-type', OrderType.Mixed);
     return OrderType.Mixed;
   }
   if (stockOrder.value) {
-    Emitter.emit('order-type', OrderType.Stock);
     return OrderType.Stock;
   }
-  Emitter.emit('order-type', OrderType.Back);
   return OrderType.Back;
 });
+
+watch(orderType, (type) => emits('order-type', type), { immediate: true });
 
 const shippingAndBillingMissingInfoWarning = computed(() => {
   if (showGuestSignInWall.value) {

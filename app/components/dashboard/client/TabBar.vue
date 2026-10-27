@@ -131,12 +131,6 @@ const activeOrderFilter = defineModel<TabFilter>();
 const filterHighlightWidth = ref(0);
 const filterHightlightLeft = ref(0);
 
-// Emitter.on('customer-dashboard-nav-tab', async (tab: { label: string; value: string }) => {
-//     if (tab) {
-//         activeOrderFilter.value = tab;
-//     }
-// });
-
 // const setActiveFilterHighlight = () => {
 //     const activeFilter = activeOrderFilter.value;
 //     const index = computedOrderFilters.value.findIndex((filter) => filter.value === activeFilter?.value);

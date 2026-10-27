@@ -273,6 +273,7 @@ test.describe('Browse → Product Detail', () => {
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('heading', { level: 4 })).toHaveText('Part No: STM32F407VGT6');
 
     const emailInput = dialog.getByLabel('Email Address');
     await expect(emailInput).toBeVisible();
@@ -300,6 +301,18 @@ test.describe('Browse → Product Detail', () => {
 
     await expect(dialog).toHaveCount(0);
     await expect(page.getByText('Enquiry saved for this demo', { exact: true })).toBeVisible();
+  });
+
+  test('ask about product from the mobile actions menu names the viewed part', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/product/prod-1', { waitUntil: 'networkidle' });
+
+    await page.getByRole('button', { name: 'Product actions' }).click();
+    await page.getByRole('menuitem', { name: 'Ask about the product' }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('heading', { level: 4 })).toHaveText('Part No: STM32F407VGT6');
   });
 
   test('product page shows technical specifications table', async ({ page }) => {

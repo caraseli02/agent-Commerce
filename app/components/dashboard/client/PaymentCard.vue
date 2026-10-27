@@ -32,7 +32,7 @@
         size="flush"
         class="flex mt-6 self-end"
         @click="
-          Emitter.emit('customer-dashboard-nav-tab', {
+          emit('open-tab', {
             label: 'Transaction History',
             value: 'transaction_history',
           })
@@ -52,7 +52,6 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
 import amexIcon from '@/assets/icons/amex58.svg';
 import masterIcon from '@/assets/icons/mastercard58.svg';
 import visaIcon from '@/assets/icons/visa58.svg';
@@ -61,6 +60,10 @@ import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 
 defineProps<{
   card?: StripeCardInterface | null;
+}>();
+
+const emit = defineEmits<{
+  'open-tab': [tab: { label: string; value: string }];
 }>();
 
 const cardImg = {

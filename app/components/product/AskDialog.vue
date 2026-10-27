@@ -19,10 +19,12 @@ const props = withDefaults(
   defineProps<{
     showTrigger?: boolean;
     triggerClass?: string;
+    partNumber?: string;
   }>(),
   {
     showTrigger: true,
     triggerClass: '',
+    partNumber: '',
   },
 );
 
@@ -66,8 +68,8 @@ defineExpose({
         <UiDialogDescription class="sr-only">Save a sample product enquiry in the portfolio demo.</UiDialogDescription>
       </UiDialogHeader>
       <form class="flex flex-col gap-4 w-full bg-card shadow-sm" @submit="onSubmit">
-        <h4 id="price-enquiry-title" class="text-xl text-muted-foreground leading-7 mb-4">
-          Part No: <span class="font-medium text-foreground">XOEIJLSCDA</span>
+        <h4 v-if="props.partNumber" class="text-xl text-muted-foreground leading-7 mb-4">
+          Part No: <span class="font-medium text-foreground">{{ props.partNumber }}</span>
         </h4>
 
         <!-- Email Field -->

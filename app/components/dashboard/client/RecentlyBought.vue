@@ -29,7 +29,7 @@
       <UiButton
         variant="ghost"
         class="h-auto p-0 text-sm font-medium leading-5 grow whitespace-nowrap"
-        @click="Emitter.emit('customer-dashboard-nav-tab', { label: 'Orders', value: 'orders' })"
+        @click="emit('open-tab', { label: 'Orders', value: 'orders' })"
       >
         View Orders
       </UiButton>
@@ -41,13 +41,16 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
 import type { ProductInterface } from '~~/types/product';
 
 type RecentlyBoughtProduct = ProductInterface & { photo?: string };
 
 defineProps<{
   data: RecentlyBoughtProduct[];
+}>();
+
+const emit = defineEmits<{
+  'open-tab': [tab: { label: string; value: string }];
 }>();
 </script>
 
