@@ -9,7 +9,7 @@ Use this file as an input to future UI review iterations to avoid repeatedly rep
 
 ## Skip in UI reviews
 
-- **Signup flow**: explicitly de-scoped for demo (skip all signup-related findings).
+- **Signup flow**: back in scope since 2026-10-27 (#635) as one short registration form; review it like any other flow.
 - **(Former report point #6)** Client dashboard mobile: chip overflow/cut-off on `/dashboard/client?tab=home`.
 - **(Former report point #8)** Mobile promo bar text truncation (“FREE … over $150”) across pages.
 - **(Former report point #9)** Newsletter banner copy truncation/ellipsis near footer on mobile.

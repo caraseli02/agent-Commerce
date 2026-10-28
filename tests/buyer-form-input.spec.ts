@@ -4,15 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 const repoRoot = process.cwd();
 
-const buyerPathFiles = [
-  'app/components/signup/BusinessDetails.vue',
-  'app/components/signup/ContactDetails.vue',
-  'app/components/signup/PersonalDetails.vue',
-  'app/components/signup/ProfileDetails.vue',
-  'app/components/layout/account-modal/Form.vue',
-  'app/pages/forgot-password.vue',
-  'app/pages/password-reset.vue',
-];
+const buyerPathFiles = ['app/components/layout/account-modal/Form.vue', 'app/pages/forgot-password.vue', 'app/pages/password-reset.vue'];
 
 const formInputPattern = /<\s*FormInput\b|from\s+['"][^'"]*FormInput/;
 

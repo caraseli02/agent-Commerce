@@ -1,40 +1,19 @@
-import { registerClassic } from '~/composables/api/auth';
-import { validateAddress as validateAddressApi } from '~/composables/api/orders';
-import type { ShippingAddressInterface } from '~~/types/auth/user-interface';
-import type { FirebaseBusinessAccount as SignupBusinessPayload, FirebasePersonalAccount as SignupPersonalPayload } from '~~/types';
+import { register, type RegisterRequest } from '~/composables/api/auth';
+import { useSessionSignIn } from '~/composables/useSessionSignIn';
+import type { UserInterface } from '~~/types/auth/user-interface';
 
-type SignupPayload = SignupPersonalPayload | SignupBusinessPayload;
+export type { RegisterRequest as SignupInput };
 
-export interface RegisterSignupAccountInput {
-  payload: SignupPayload;
-}
-
-function isAddressValidationResult(value: unknown): value is { data: { valid: boolean } } {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const data = (value as { data?: unknown }).data;
-  return Boolean(data && typeof data === 'object' && typeof (data as { valid?: unknown }).valid === 'boolean');
-}
-
+/** Creates a persistent customer account and signs the new customer in. */
 export function useSignup() {
-  const isSignupAddressValid = async (address: ShippingAddressInterface): Promise<boolean> => {
-    const result = await validateAddressApi(address);
+  const { startSession } = useSessionSignIn();
 
-    if (!isAddressValidationResult(result)) {
-      return false;
-    }
-
-    return result.data.valid;
+  const registerCustomer = async (input: RegisterRequest): Promise<UserInterface> => {
+    const response = await register(input);
+    const user = await startSession(response.token, response.user as UserInterface);
+    if (!user) throw new Error('Account created but the session could not start');
+    return user;
   };
 
-  const registerSignupAccount = async ({ payload }: RegisterSignupAccountInput) => {
-    return await registerClassic(structuredClone(payload) as SignupPayload);
-  };
-
-  return {
-    isSignupAddressValid,
-    registerSignupAccount,
-  };
+  return { registerCustomer };
 }

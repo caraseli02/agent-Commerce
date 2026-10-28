@@ -1,5 +1,5 @@
 import { useAuthStore } from '~/store/authStore';
-import { parseMockToken } from '~/utils/mockAuth';
+import { readSessionToken } from '~/utils/sessionToken';
 import { requiresDemoToken } from '~~/helpers/mock-integration';
 
 export default defineNuxtRouteMiddleware((to) => {
@@ -20,7 +20,7 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo(signinPath);
   }
 
-  if (requiresDemoToken(Boolean(config.public.MOCK_MODE)) && !parseMockToken(authToken)) {
+  if (requiresDemoToken(Boolean(config.public.MOCK_MODE)) && !readSessionToken(authToken)) {
     if (import.meta.client) {
       authStore.signOut();
     }

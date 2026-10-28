@@ -5,24 +5,6 @@
   "app/components/layout/account-modal/Form.vue": {
     "label": 1
   },
-  "app/components/signup/BusinessDetails.vue": {
-    "button": 2,
-    "label": 1
-  },
-  "app/components/signup/ContactDetails.vue": {
-    "button": 2
-  },
-  "app/components/signup/PersonalDetails.vue": {
-    "button": 2
-  },
-  "app/components/signup/ProfileDetails.vue": {
-    "button": 2,
-    "input": 2,
-    "label": 2
-  },
-  "app/components/signup/SelectMenu.vue": {
-    "button": 4
-  },
   "app/error.vue": {
     "button": 1
   }

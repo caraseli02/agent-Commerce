@@ -1,7 +1,7 @@
 import { useAuthStore } from '~/store/authStore';
 import { UserPermissionsEnum } from '~~/types/auth/permissions';
 import { toast } from '~/components/ui/toast';
-import { getMockPermissionsByUserId, parseMockToken } from '~/utils/mockAuth';
+import { readSessionToken } from '~/utils/sessionToken';
 
 const getRequiredPermission = (path: string) => {
   switch (true) {
@@ -47,11 +47,7 @@ export default defineNuxtRouteMiddleware((to) => {
   let permissions = user?.permissions || userDetails?.permissions || [];
 
   if (!permissions.length && config.public.MOCK_MODE) {
-    const parsedMockToken = parseMockToken(token.value ? String(token.value) : null);
-
-    if (parsedMockToken) {
-      permissions = getMockPermissionsByUserId(parsedMockToken.userId) || [];
-    }
+    permissions = readSessionToken(token.value ? String(token.value) : null)?.permissions || [];
   }
 
   if (!permissions.length) {

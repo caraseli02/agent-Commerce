@@ -10,6 +10,7 @@ vi.mock('h3', () => ({ getQuery: (event: { query?: Record<string, string> }) => 
 describe('transaction history route scope', () => {
   beforeAll(() => {
     vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);
+    vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: true } }));
     vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers || {});
     vi.stubGlobal('createError', (input: { statusCode: number; statusMessage: string }) =>
       Object.assign(new Error(input.statusMessage), input),

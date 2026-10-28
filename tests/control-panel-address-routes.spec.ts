@@ -41,6 +41,7 @@ type PersonalResponse = { data: { shippingAddress: Array<{ alias?: string }>; bi
 
 const installH3Mocks = () => {
   vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);
+  vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: true } }));
   vi.stubGlobal('readBody', async (event: { body?: unknown }) => event.body ?? {});
   vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers ?? {});
   vi.stubGlobal('getRouterParam', (event: { params?: Record<string, string> }, name: string) => event.params?.[name]);

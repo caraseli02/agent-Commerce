@@ -1,4 +1,4 @@
-import { parseMockToken } from '~/utils/mockAuth';
+import { readSessionToken } from '~/utils/sessionToken';
 
 const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
   const payload = token.split('.')[1];
@@ -19,7 +19,7 @@ export const resolveSessionUserId = (token: string | null | undefined, mockMode:
   if (!token) return null;
 
   if (mockMode) {
-    return parseMockToken(token)?.userId || null;
+    return readSessionToken(token)?.userId || null;
   }
 
   const userId = decodeJwtPayload(token)?.user_id;

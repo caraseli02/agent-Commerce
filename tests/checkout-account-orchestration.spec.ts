@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const validateAddress = vi.fn();
-const registerClassic = vi.fn();
+const register = vi.fn();
+const startSession = vi.fn();
 const updateAccountDetails = vi.fn();
 const userCards = vi.fn();
 const updateCardAsDefault = vi.fn();
@@ -13,7 +14,11 @@ vi.mock('~/composables/api/orders', () => ({
 }));
 
 vi.mock('~/composables/api/auth', () => ({
-  registerClassic: (...args: unknown[]) => registerClassic(...args),
+  register: (...args: unknown[]) => register(...args),
+}));
+
+vi.mock('~/composables/useSessionSignIn', () => ({
+  useSessionSignIn: () => ({ startSession: (...args: unknown[]) => startSession(...args) }),
 }));
 
 vi.mock('~/composables/api/control-panel', () => ({
@@ -68,48 +73,21 @@ describe('checkout/account domain orchestration', () => {
     vi.clearAllMocks();
   });
 
-  it('useSignup validates addresses and registers the mock-demo account', async () => {
+  it('useSignup registers the customer and starts their session', async () => {
     const { useSignup } = await import('~/composables/useSignup');
-    const { isSignupAddressValid, registerSignupAccount } = useSignup();
+    const { registerCustomer } = useSignup();
+    const user = { _id: 'cus_1', contactDetails: { email: 'a@b.com' } };
 
-    validateAddress.mockResolvedValue({ data: { valid: true } });
-    expect(
-      await isSignupAddressValid({
-        name1: 'Line 1',
-        country: 'RO',
-        region: 'B',
-        city: 'Bucharest',
-        postcode: '010000',
-        default: false,
-      }),
-    ).toBe(true);
+    register.mockResolvedValue({ status: 'success', token: 'signed-token', user });
+    startSession.mockResolvedValue(user);
+    await expect(registerCustomer({ firstName: 'A', lastName: 'B', email: 'a@b.com', password: 'secret-pass' })).resolves.toBe(user);
+    expect(register).toHaveBeenCalledWith({ firstName: 'A', lastName: 'B', email: 'a@b.com', password: 'secret-pass' });
+    expect(startSession).toHaveBeenCalledWith('signed-token', user);
 
-    registerClassic.mockResolvedValue({ status: 'success' });
-    await registerSignupAccount({
-      payload: {
-        account: {
-          accountType: 0,
-          role: 2,
-          profileDetails: { email: 'a@b.com', password: 'secret' },
-          contactDetails: { firstName: 'A', lastName: 'B', phone: '1', email: 'a@b.com' },
-          personalDetails: {
-            firstName: 'A',
-            lastName: 'B',
-            address: {
-              _id: '',
-              name1: 'Line 1',
-              country: 'RO',
-              region: 'B',
-              city: 'Bucharest',
-              postcode: '010000',
-            },
-            shippingAddress: [],
-            billingAddress: [],
-          },
-        },
-      },
-    });
-    expect(registerClassic).toHaveBeenCalledOnce();
+    startSession.mockResolvedValue(null);
+    await expect(registerCustomer({ firstName: 'A', lastName: 'B', email: 'a@b.com', password: 'secret-pass' })).rejects.toThrow(
+      'Account created',
+    );
   });
 
   it('useControlPanel validates then saves organization details', async () => {

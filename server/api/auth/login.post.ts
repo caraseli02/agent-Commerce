@@ -1,5 +1,7 @@
 import { getCookie } from 'h3';
 import { z } from 'zod';
+import { issueCustomerAccountToken, toCustomerAccountUser } from '~~/server/utils/accountSession';
+import { authenticateCustomerAccount, consumeAuthAttempts, normalizeEmail } from '~~/server/utils/customerAccounts';
 import { createMockToken, getMockUserByCredentials } from '~~/server/utils/mockUsers';
 import { mergeGuestCartIntoMockCart } from '~~/server/utils/mockCart';
 import { parseZodBody } from '~~/server/utils/zodBody';
@@ -15,24 +17,37 @@ const loginBodySchema = z
     path: ['email'],
   });
 
+const signedIn = (token: string, user: object) => ({ status: 'success', token, user, data: { token, user } });
+
 export default defineEventHandler(async (event) => {
   const body = parseZodBody(loginBodySchema, await readBody(event));
-  const match = getMockUserByCredentials(body);
+  const guestSessionId = getCookie(event, 'guest-session-id');
 
-  if (!match) {
-    throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
+  // Seeded demo users exist only for the mock-mode portfolio demo.
+  const mockModeEnabled = String(useRuntimeConfig(event).public.MOCK_MODE) === 'true';
+  const demo = mockModeEnabled ? getMockUserByCredentials(body) : undefined;
+  if (demo) {
+    await mergeGuestCartIntoMockCart(demo.user._id, guestSessionId);
+    return signedIn(createMockToken(demo.user._id || 'mock-customer-1'), demo.user);
   }
 
-  const token = createMockToken(match.user._id || 'mock-customer-1');
-  await mergeGuestCartIntoMockCart(match.user._id, getCookie(event, 'guest-session-id'));
+  const email = body.email ? normalizeEmail(body.email) : '';
+  if (email) {
+    const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown';
+    await consumeAuthAttempts(
+      [
+        { scope: 'login-ip', value: ip, limit: 30 },
+        { scope: 'login-email', value: email, limit: 10 },
+      ],
+      15 * 60,
+    );
 
-  return {
-    status: 'success',
-    token,
-    user: match.user,
-    data: {
-      token,
-      user: match.user,
-    },
-  };
+    const account = await authenticateCustomerAccount(email, body.password);
+    if (account) {
+      await mergeGuestCartIntoMockCart(account.id, guestSessionId);
+      return signedIn(issueCustomerAccountToken(account), toCustomerAccountUser(account));
+    }
+  }
+
+  throw createError({ statusCode: 401, statusMessage: 'Invalid credentials' });
 });

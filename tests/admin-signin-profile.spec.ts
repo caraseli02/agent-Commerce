@@ -3,6 +3,7 @@ import { withSessionAuthorization } from '../app/composables/api/authorization';
 
 const installH3Mocks = () => {
   vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);
+  vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: true } }));
   vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers ?? {});
   vi.stubGlobal('getRouterParam', (event: { params?: Record<string, string> }, name: string) => event.params?.[name]);
   vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string }) => {
@@ -12,7 +13,7 @@ const installH3Mocks = () => {
   });
 };
 
-type DetailsHandler = (event: unknown) => { status: string; data: { _id?: string; companyDetails?: { name?: string } } };
+type DetailsHandler = (event: unknown) => Promise<{ status: string; data: { _id?: string; companyDetails?: { name?: string } } }>;
 
 const loadDetailsHandler = async () => (await import('../server/api/user/[userId]/details.get')).default as unknown as DetailsHandler;
 
@@ -36,7 +37,7 @@ describe('Admin Preview sign-in profile', () => {
     const detailsHandler = await loadDetailsHandler();
     const headers = Object.fromEntries(withSessionAuthorization(undefined, createMockToken('mock-admin-1')).entries());
 
-    const response = detailsHandler({ headers, params: { userId: 'mock-admin-1' } });
+    const response = await detailsHandler({ headers, params: { userId: 'mock-admin-1' } });
 
     expect(response.status).toBe('success');
     expect(response.data._id).toBe('mock-admin-1');
@@ -48,6 +49,6 @@ describe('Admin Preview sign-in profile', () => {
     const detailsHandler = await loadDetailsHandler();
     const headers = { authorization: `Bearer ${createMockToken('mock-customer-1')}` };
 
-    expect(() => detailsHandler({ headers, params: { userId: 'mock-admin-1' } })).toThrow(expect.objectContaining({ statusCode: 403 }));
+    await expect(detailsHandler({ headers, params: { userId: 'mock-admin-1' } })).rejects.toMatchObject({ statusCode: 403 });
   });
 });

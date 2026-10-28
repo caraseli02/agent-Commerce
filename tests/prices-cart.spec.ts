@@ -36,6 +36,7 @@ vi.mock('h3', () => ({
 
 const installH3Mocks = () => {
   vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);
+  vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: true } }));
   vi.stubGlobal('readBody', async (event: { body?: unknown }) => event.body ?? {});
   vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers ?? {});
   vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string }) => {
