@@ -1,6 +1,6 @@
 import { getCookie } from 'h3';
 import { z } from 'zod';
-import { issueCustomerAccountToken, toCustomerAccountUser } from '~~/server/utils/accountSession';
+import { assertCustomerSessionsConfigured, issueCustomerAccountToken, toCustomerAccountUser } from '~~/server/utils/accountSession';
 import { consumeAuthAttempts, createCustomerAccount, DuplicateEmailError } from '~~/server/utils/customerAccounts';
 import { mergeGuestCartIntoMockCart } from '~~/server/utils/mockCart';
 import { parseZodBody } from '~~/server/utils/zodBody';
@@ -14,6 +14,7 @@ const registerBodySchema = z.object({
 
 // The only signup route: it creates a persistent customer account or fails; it never reports fake success.
 export default defineEventHandler(async (event) => {
+  assertCustomerSessionsConfigured();
   const body = parseZodBody(registerBodySchema, await readBody(event));
   const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown';
   await consumeAuthAttempts([{ scope: 'register-ip', value: ip, limit: 5 }], 60 * 60);

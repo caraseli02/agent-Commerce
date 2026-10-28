@@ -172,6 +172,26 @@ describe('persistent customer accounts (#635)', () => {
       }
     });
 
+    it('fails closed before creating an account when a deployment lacks a session secret', async () => {
+      vi.stubEnv('VERCEL', '1');
+      vi.stubEnv('AUTH_SESSION_SECRET', '');
+      try {
+        const email = uniqueEmail();
+        const error = await rejection((await register())({ body: signupBody(email), ip: uniqueIp() }));
+        expect(error.statusCode).toBe(503);
+
+        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        try {
+          const rows = await pool.query('SELECT COUNT(*)::int AS total FROM customer_accounts WHERE email = $1', [email]);
+          expect(rows.rows[0].total).toBe(0);
+        } finally {
+          await pool.end();
+        }
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+
     it('rate-limits repeated signups from one address', async () => {
       const handler = await register();
       const ip = uniqueIp();

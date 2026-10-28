@@ -56,6 +56,9 @@ const sessionSecret = () => {
   return DEVELOPMENT_SECRET;
 };
 
+/** Throws 503 before any account write when a deployment has no session secret. */
+export const assertCustomerSessionsConfigured = () => void sessionSecret();
+
 const sign = (input: string) => createHmac('sha256', sessionSecret()).update(input).digest('base64url');
 
 export const issueCustomerAccountToken = (account: { id: string; email: string; firstName: string; lastName: string }) => {
