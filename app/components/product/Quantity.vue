@@ -47,7 +47,7 @@
                   :key="index"
                   class="flex items-center justify-between gap-3 px-3.5 py-3 text-xs leading-tight rounded-md cursor-pointer hover:bg-accent"
                   :class="currentPriceConfiguration?.quantity === bulkQuantity[0] ? 'bg-muted' : ''"
-                  @click="quantity = bulkQuantity[0] + 1"
+                  @click="quantity = bulkQuantity[0]"
                 >
                   <div class="text-muted-foreground">{{ bulkQuantity[0] }}+</div>
                   <div :class="['text-foreground', productDiscount ? 'text-red' : '']">{{ bulkQuantity[1].toFixed(2) }} Lei</div>

@@ -345,6 +345,12 @@
       "tests": ["orders"],
       "reason": "#764: the client dashboard wrapper (and its fallback) uses the header/footer `container` below 2xl and keeps its 1392px/32px box at 2xl; the credit card's limit/Pay now row may wrap when the narrower lg/xl grid would overflow it. No store, composable, layout or shared style changes.",
       "consumers": "Both files render only on /dashboard/client (git grep: DashboardClientCredit is used only by app/pages/dashboard/client/index.vue). Below 640px `container` equals the old w-full + 16px padding, and the credit row fits without wrapping, so the orders group (client dashboard ?tab=orders, mobile 390) is the representative check and should stay pixel-identical. Desktop widths 1024-1536 are outside the matrix and are covered by tests/e2e/client-dashboard-width.spec.ts (header-edge alignment, unchanged 1328px content at 2xl, Pay now inside the card) plus signed-in browser screenshots at 390/768/1024/1200/1440/1536 in light and dark."
+    },
+    {
+      "fingerprint": "5f7264d55cbd6c528b764e9d651054fe423a571699a610ce52bdc627457b6749",
+      "impact": "none",
+      "reason": "Issue830 changes only externally invoked autonomy installation/admission tooling and reviewed policy assets; no observable application behavior changes.",
+      "consumers": "The Python installer is invoked explicitly from a clean source checkout after separate owner approval; recovery/admission run only through native dispatcher metadata tools. The only executable repository consumer is tests/codex-routing.spec.ts, which invokes temporary-host Python fixtures. A search of app/, server/ and nuxt.config.ts finds no imports or references to .codex-autonomy, install.py, admission.py or recovery.py. No route, rendered state, style, API response, database or Nuxt build input changes; existing installed host assets and all automations remain untouched."
     }
   ]
 }
