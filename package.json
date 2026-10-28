@@ -30,7 +30,8 @@
     "verify:full": "node scripts/verify.mjs --full",
     "verify:handoff": "node scripts/verify.mjs --handoff",
     "prepare": "husky",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "inventory:bootstrap": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/inventory-bootstrap.mjs"
   },
   "lint-staged": {
     "*.{js,ts,mjs,cjs,vue,json,md,yml,yaml,css,scss,html}": [

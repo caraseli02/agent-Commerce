@@ -44,8 +44,15 @@ const installH3Mocks = () => {
 };
 
 describe('mock API flow boundaries', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     installH3Mocks();
+    const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
+    const database = await getCheckoutDatabase();
+    await database.execute(
+      'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
+    );
+    const { bootstrapInventory } = await import('../server/domain/inventory/bootstrap.mjs');
+    await bootstrapInventory({ dryRun: false });
   });
 
   it.each(['guest', 'signed-in'])('rejects all disabled methods through order creation for %s buyers', async (buyer) => {
