@@ -340,6 +340,13 @@
       "consumers": "CheckoutButtons and PaymentMethodSection render only in /order-summary via the page/OrderStockType; SessionCardForm renders /checkout/session. The shared eligibility helper reaches only these consumers and PlaceOrder via orders/new. Public error copy reaches checkout failure recovery. Guest/signed-in checkout at 390/1440, all stale non-card drafts, actual ARIA/keyboard controls and Payment Element states are covered separately by focused browser/parity evidence; none is represented in the standard matrix. Select cart as the existing matrix regression for checkout entry. History reads, storefront and provider/webhook/refund paths are unchanged."
     },
     {
+      "fingerprint": "a5de6bbf892f38e77db6433c1d805fb5bcc986176f1de0191d64472e78da0184",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "#764: the client dashboard wrapper (and its fallback) uses the header/footer `container` below 2xl and keeps its 1392px/32px box at 2xl; the credit card's limit/Pay now row may wrap when the narrower lg/xl grid would overflow it. No store, composable, layout or shared style changes.",
+      "consumers": "Both files render only on /dashboard/client (git grep: DashboardClientCredit is used only by app/pages/dashboard/client/index.vue). Below 640px `container` equals the old w-full + 16px padding, and the credit row fits without wrapping, so the orders group (client dashboard ?tab=orders, mobile 390) is the representative check and should stay pixel-identical. Desktop widths 1024-1536 are outside the matrix and are covered by tests/e2e/client-dashboard-width.spec.ts (header-edge alignment, unchanged 1328px content at 2xl, Pay now inside the card) plus signed-in browser screenshots at 390/768/1024/1200/1440/1536 in light and dark."
+    },
+    {
       "fingerprint": "5f7264d55cbd6c528b764e9d651054fe423a571699a610ce52bdc627457b6749",
       "impact": "none",
       "reason": "Issue830 changes only externally invoked autonomy installation/admission tooling and reviewed policy assets; no observable application behavior changes.",
