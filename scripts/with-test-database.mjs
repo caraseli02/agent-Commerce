@@ -11,7 +11,7 @@ if (!command.length) throw new Error('Pass a command to run against the isolated
 const adminConnectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
 if (!adminConnectionString) throw new Error('DATABASE_URL is required for PostgreSQL-backed tests.');
 
-const schema = `ecas_test_${randomUUID().replaceAll('-', '')}`;
+const schema = `commerce_test_${randomUUID().replaceAll('-', '')}`;
 const schemaIdentifier = `"${schema}"`;
 const testUrl = new URL(adminConnectionString);
 testUrl.searchParams.set('options', `-c search_path=${schema}`);

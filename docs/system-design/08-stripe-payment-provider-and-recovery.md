@@ -216,7 +216,7 @@ responsibilities and boundary rules are fixed.
 - `requestFullRefund()` is called when an application workflow has durably selected refund compensation; Payments owns creating/recovering/reconciling the Stripe refund and its durable local Refund state.
 - `completePayment()`, `failPayment()`, and the old vague `continuePayment()` do not remain public application-facing commands in the Stripe contract.
 
-A provider-neutral `recovery-required` result is allowed when ECAS cannot prove
+A provider-neutral `recovery-required` result is allowed when the backend cannot prove
 provider identity safely enough to continue automatically. It is not a new
 Payment status; the checkout claim remains recoverable/manual-intervention state
 until provider truth is established.
@@ -268,7 +268,7 @@ the logical Payment.
 Stripe-specific statuses such as `requires_payment_method`,
 `requires_confirmation`, and `requires_action` remain internal provider
 details. They are translated into provider-neutral results / `PaymentNextAction`
-instead of becoming additional ECAS database states.
+instead of becoming additional database states.
 
 ### Valid transition table
 
@@ -290,7 +290,7 @@ than reading a state and later assuming it is unchanged.
 ### Cancellation versus PaymentIntent creation
 
 A null `stripe_payment_intent_id` does **not** prove that provider creation
-never started. ECAS distinguishes:
+never started. The backend distinguishes:
 
 ```text
 stripe_payment_intent_id = NULL
@@ -480,7 +480,7 @@ derived from the durable local Payment identity:
 payment:pay-123:intent
 ```
 
-Before the provider call, ECAS conditionally persists
+Before the provider call, the backend conditionally persists
 `stripe_payment_intent_create_started_at`. This durable timestamp is the
 linearization marker that says provider creation may have started.
 
@@ -552,7 +552,7 @@ sequenceDiagram
     P-->>A: requires-action + client secret
     A-->>B: Render Payment Element
     B->>S: Confirm payment / 3DS if required
-    B->>A: Ask ECAS for current payment state
+    B->>A: Ask backend for current payment state
     A->>P: reconcilePayment(pay-123)
     P->>DB: Read local state
     P->>S: Retrieve PaymentIntent if local state is uncertain
@@ -582,11 +582,11 @@ Browser
 Card/payment-method details do not pass through the Nitro API.
 
 The browser may display immediate provider UI results, but it must not mark the
-Order or local Payment as paid. After confirmation/return, the browser asks ECAS
+Order or local Payment as paid. After confirmation/return, the browser asks the backend
 for current state; Payments reconciliation and/or the Stripe webhook establish
 provider truth, and the application workflow performs cross-domain finalization.
 
-Do not add an ECAS state-changing request merely because the buyer clicked
+Do not add a backend state-changing request merely because the buyer clicked
 `Pay`. The browser may immediately show a local "Processing payment…" UI, but
 the persisted Payment remains `PENDING` until Stripe truth observed through
 reconciliation/webhook justifies `PROCESSING`, `PAID`, or a return to
@@ -632,14 +632,14 @@ provider outcome**, not proof that Stripe has no PaymentIntent.
 
 ## 10. Browser refresh, 3DS, and reconciliation
 
-The browser asks ECAS for payment/checkout status after refresh, return from
+The browser asks the backend for payment/checkout status after refresh, return from
 authentication, or uncertain UI state.
 
 Recovery order:
 
 ```text
 Browser
-  -> ECAS backend
+  -> backend
        -> PostgreSQL first
        -> Stripe only when local provider state is uncertain
        -> apply valid local Payment transition inside Payments
@@ -656,11 +656,11 @@ If Stripe still reports processing:
 ```text
 Payments.reconcilePayment()
   -> return PROCESSING
-  -> browser may retry ECAS reconciliation for a limited period
+  -> browser may retry backend reconciliation for a limited period
   -> Stripe webhook remains an independent completion path
 ```
 
-The UI may poll ECAS briefly for a smoother experience, but must stop aggressive
+The UI may poll the backend briefly for a smoother experience, but must stop aggressive
 polling after a bounded period and continue showing a safe processing/finalizing
 state. A long-running provider payment must not hold a Vercel request open.
 
@@ -674,7 +674,7 @@ Payment received — finishing your order
 ```
 
 3D Secure and other additional authentication remain Stripe UI/provider
-concerns. They do not create an ECAS `REQUIRES_3DS` persistence state.
+concerns. They do not create a `REQUIRES_3DS` persistence state.
 
 Payments owns interpreting Stripe truth and moving the local Payment to
 `PAID`; Payments does **not** finalize Inventory, Orders, or Cart. Once the
@@ -696,7 +696,7 @@ Required behavior:
 1. Read the raw request body required for Stripe signature verification.
 2. Verify the Stripe signature before trusting the event.
 3. Correlate the event to the local Payment using persisted Stripe IDs and/or
-   non-sensitive ECAS metadata.
+   non-sensitive `paymentId`/`orderId` metadata.
 4. If the provider event is ambiguous or stale, reconcile current Stripe state
    instead of trusting arrival order.
 5. Record the Stripe event ID and its corresponding local Payment transition in
@@ -809,7 +809,7 @@ durable background/outbox mechanism; no queue is added preemptively.
 
 ### Initial event scope
 
-| Stripe event                    | Initial ECAS behavior                                                                                  | Implementation owner |
+| Stripe event                    | Initial backend behavior                                                                               | Implementation owner |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------- |
 | `payment_intent.succeeded`      | Transition/reconcile `PAID`, then retry critical application finalization before `2xx`.                | #557                 |
 | `payment_intent.processing`     | Reconcile and keep/move local Payment to `PROCESSING` when provider work is genuinely in flight.       | #557                 |
@@ -935,7 +935,7 @@ successful refund while Payment remains `PAID`.
 
 ## 13. Payment retry, resume, and terminal re-review
 
-Retry is user initiated; ECAS does not automatically re-charge.
+Retry is user initiated; the backend does not automatically re-charge.
 
 The cross-domain recovery operation is an **application workflow**:
 
@@ -1090,7 +1090,7 @@ allocation remain out of scope.
 | Cancellation races PaymentIntent creation                          | `cancellation_requested_at` prevents a client secret from being returned after cancellation wins; recover/cancel provider object if creation had started. |
 | Stripe succeeds after cancellation races                           | `PAID` wins; application follows durable paid-recovery decision and may refund.                                                                           |
 | Stripe provider-cancels PaymentIntent                              | Existing claim becomes terminal; explicit re-review creates a new Cart revision and new checkout.                                                         |
-| Browser refreshes during 3DS                                       | Browser asks ECAS; ECAS reads PostgreSQL then reconciles Stripe if required.                                                                              |
+| Browser refreshes during 3DS                                       | Browser asks the backend; the backend reads PostgreSQL then reconciles Stripe if required.                                                                |
 | Duplicate non-success webhook                                      | Provider transition is deduplicated safely.                                                                                                               |
 | Success webhook crashes after Payment=PAID but before finalization | Return non-2xx; Stripe retry sees duplicate event ID but retries unfinished application finalization.                                                     |
 | REFUND decision commits, then process crashes before Refund create | Return non-2xx; duplicate success webhook resumes `requestFullRefund()`; fulfillment is forbidden.                                                        |
@@ -1240,7 +1240,7 @@ ordering; merged foundations are complete and are not reimplemented.
 
 ### Slice D / #556 — Payment Element card + 3DS UI
 
-- Payment Element in the ECAS checkout modal/page;
+- Payment Element in the checkout modal/page;
 - card-only + 3DS;
 - Payment Element disabled until `resumeOrderPayment()` returns a safe payable result;
 - provider-neutral processing/finalizing/recovery-required UX;

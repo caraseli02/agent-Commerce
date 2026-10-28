@@ -180,7 +180,7 @@ const pay = async () => {
   submitting.value = true;
   message.value = '';
   try {
-    // Validate fields in the submit gesture, then retain ECAS's fresh safety
+    // Validate fields in the submit gesture, then retain the server's fresh safety
     // authorization immediately before provider confirmation.
     const submitted = await activeElements.submit();
     if (disposed) return;
