@@ -106,7 +106,7 @@ export function usePaymentSession(orderId: string, api = defaults) {
       const result = await submit(mountedSecret);
       if (disposed) return;
       clearAction();
-      // Even success/3DS from Stripe.js is only an observation. ECAS owns payment truth.
+      // Even success/3DS from Stripe.js is only an observation. The server owns payment truth.
       state.value = 'checking';
       await refresh();
       if (result.error && isReady()) message.value = 'Your card could not be confirmed. Check your details or try another card.';

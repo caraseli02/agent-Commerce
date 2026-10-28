@@ -44,7 +44,7 @@ describe('Payment Element session authority', () => {
       refreshPaymentSession('ord-1', vi.fn().mockResolvedValue({ status: 'success', data: { kind: 'PAID' } }) as unknown as $Fetch),
     ).rejects.toThrow();
   });
-  it.each(['success', 'decline', '3ds'])('revalidates before %s confirmation and only trusts ECAS afterwards', async (scenario) => {
+  it.each(['success', 'decline', '3ds'])('revalidates before %s confirmation and only trusts the server afterwards', async (scenario) => {
     const { api, session } = setup();
     await session.check();
     const submit = vi.fn(async () => {

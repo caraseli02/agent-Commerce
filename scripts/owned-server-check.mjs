@@ -138,9 +138,10 @@ export function validateDatabaseUrl(value) {
   if (!LOCAL_DATABASE_HOSTS.includes(host)) throw new EnvironmentFailure('DATABASE_URL host is not local; hosted databases are forbidden');
   const schema = url.searchParams
     .getAll('options')
-    .map((option) => option.match(/(?:^|\s)-c\s*search_path=(ecas_test_[0-9a-f]+)(?:\s|$)/)?.[1])
+    .map((option) => option.match(/(?:^|\s)-c\s*search_path=(commerce_test_[0-9a-f]+)(?:\s|$)/)?.[1])
     .find(Boolean);
-  if (!schema) throw new EnvironmentFailure('DATABASE_URL has no search_path=ecas_test_ option; run inside scripts/with-test-database.mjs');
+  if (!schema)
+    throw new EnvironmentFailure('DATABASE_URL has no search_path=commerce_test_ option; run inside scripts/with-test-database.mjs');
   return { host, schema };
 }
 

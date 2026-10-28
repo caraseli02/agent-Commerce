@@ -29,7 +29,7 @@ const createPostgresExecutor = (client: Pool | PoolClient): CheckoutDatabase => 
 const createPostgresPool = () => {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error('DATABASE_URL is required for checkout persistence. Run `pnpm db:migrate` before starting ECAS.');
+    throw new Error('DATABASE_URL is required for checkout persistence. Run `pnpm db:migrate` before starting the server.');
   }
 
   const pool = new Pool({

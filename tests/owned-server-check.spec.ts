@@ -28,7 +28,7 @@ import {
 const exists = () => true;
 const missing = () => false;
 const parse = (argv: string[], fileExists = exists) => parseArgs(argv, { fileExists });
-const SCHEMA = 'ecas_test_0123456789abcdef0123456789abcdef';
+const SCHEMA = 'commerce_test_0123456789abcdef0123456789abcdef';
 const wrapped = (host: string) => `postgresql://app:secret@${host}:5432/app?options=${encodeURIComponent(`-c search_path=${SCHEMA}`)}`;
 
 describe('parseArgs', () => {
@@ -214,17 +214,19 @@ describe('validateDatabaseUrl', () => {
   });
 
   it('rejects a local URL the wrapper did not set', () => {
-    expect(() => validateDatabaseUrl('postgresql://app:secret@localhost:5432/app')).toThrow(/no search_path=ecas_test_/);
+    expect(() => validateDatabaseUrl('postgresql://app:secret@localhost:5432/app')).toThrow(/no search_path=commerce_test_/);
     expect(() => validateDatabaseUrl(`postgresql://localhost/app?options=${encodeURIComponent('-c search_path=public')}`)).toThrow(
-      /no search_path=ecas_test_/,
+      /no search_path=commerce_test_/,
     );
-    expect(() => validateDatabaseUrl(`postgresql://localhost/app?options=${encodeURIComponent('-c search_path=ecas_test_')}`)).toThrow(
-      /no search_path=ecas_test_/,
+    expect(() => validateDatabaseUrl(`postgresql://localhost/app?options=${encodeURIComponent('-c search_path=commerce_test_')}`)).toThrow(
+      /no search_path=commerce_test_/,
     );
-    expect(() => validateDatabaseUrl(`postgresql://localhost/app?note=search_path%3Decas_test_abc`)).toThrow(/no search_path=ecas_test_/);
-    expect(() => validateDatabaseUrl(`postgresql://localhost/app?options=${encodeURIComponent('-c search_path=xecas_test_abc')}`)).toThrow(
-      /no search_path=ecas_test_/,
+    expect(() => validateDatabaseUrl(`postgresql://localhost/app?note=search_path%3Dcommerce_test_abc`)).toThrow(
+      /no search_path=commerce_test_/,
     );
+    expect(() =>
+      validateDatabaseUrl(`postgresql://localhost/app?options=${encodeURIComponent('-c search_path=xcommerce_test_abc')}`),
+    ).toThrow(/no search_path=commerce_test_/);
   });
 });
 

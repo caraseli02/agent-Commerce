@@ -213,7 +213,7 @@ test.describe('Checkout result states', () => {
         await expect(page.getByText('Internal provider diagnostic must not choose buyer actions', { exact: false })).toHaveCount(0);
         const action = page.getByRole('button', { name: scenario.action, exact: true });
         await expect(action).toBeEnabled();
-        await page.screenshot({ path: `/tmp/ecas-583-browser/${viewport.name}-${scenario.code}.png`, fullPage: true });
+        await page.screenshot({ path: `/tmp/commerce-583-browser/${viewport.name}-${scenario.code}.png`, fullPage: true });
         await action.click();
         await expect(page).toHaveURL(/\/order-summary$/);
         await assertClearedFailureContext(page);
