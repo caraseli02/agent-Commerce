@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import TrashIcon from '@/assets/icons/trash-can.svg';
 import { useCart } from '~/composables/useCart';
-import { resolveCartDeleteDescription, resolveCartDeleteProductIds, resolveCartDeleteTitle } from '~/utils/cartDeleteDialog';
+import { resolveCartDeleteDescription, resolveCartDeleteProductIds, resolveCartDeleteTitle, runCartDelete } from '~/utils/cartDeleteDialog';
 
 const isOpen = defineModel<boolean>();
 
@@ -98,14 +98,27 @@ const confirmDelete = async () => {
 
   isDeleting.value = true;
 
-  try {
-    const removed = (await removeFromCart({
-      products: ids.value,
-    })) as { status?: string } | null;
+  const count = ids.value.length;
 
-    if (removed?.status === 'success') {
+  try {
+    const outcome = await runCartDelete(
+      () =>
+        removeFromCart({
+          products: ids.value,
+        }) as Promise<{ status?: string } | null>,
+    );
+
+    if (outcome === 'removed') {
       isOpen.value = false;
       emits('removed');
+    } else if (outcome === 'failed') {
+      // Keep the dialog open so the shopper can retry.
+      const { toast } = await import('~/components/ui/toast');
+      toast({
+        title: count > 1 ? 'Could not remove items' : 'Could not remove item',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     }
   } finally {
     isDeleting.value = false;

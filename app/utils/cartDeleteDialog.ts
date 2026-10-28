@@ -35,3 +35,19 @@ export function resolveCartDeleteDescription(input: CartDeleteDialogCopyInput): 
 
   return 'Delete selected item?';
 }
+
+export type CartDeleteOutcome = 'removed' | 'cancelled' | 'failed';
+
+/**
+ * Runs the confirmed delete. `null` means the shopper was sent to sign in, so
+ * nothing failed; any other non-success response or a rejection does.
+ */
+export async function runCartDelete(remove: () => Promise<{ status?: string } | null>): Promise<CartDeleteOutcome> {
+  try {
+    const response = await remove();
+    if (response === null) return 'cancelled';
+    return response?.status === 'success' ? 'removed' : 'failed';
+  } catch {
+    return 'failed';
+  }
+}
