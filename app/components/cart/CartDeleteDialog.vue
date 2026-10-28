@@ -60,25 +60,30 @@ const emits = defineEmits<{
 const { removeFromCart } = useCart();
 const isDeleting = ref(false);
 
-const ids = computed(() =>
+const currentIds = () =>
   resolveCartDeleteProductIds({
     productIds: props.productIds,
     productId: props.productId,
-  }),
-);
+  });
+
+// Pinned when the dialog opens: a failed delete still refreshes the cart, which clears the
+// caller's selection, and a retry must target the same items.
+const ids = ref<string[]>(isOpen.value ? currentIds() : []);
+
+watch(isOpen, (open) => {
+  if (open) ids.value = currentIds();
+});
 
 const resolvedTitle = computed(() =>
   resolveCartDeleteTitle({
-    productIds: props.productIds,
-    productId: props.productId,
+    productIds: ids.value,
     title: props.title,
   }),
 );
 
 const resolvedDescription = computed(() =>
   resolveCartDeleteDescription({
-    productIds: props.productIds,
-    productId: props.productId,
+    productIds: ids.value,
     description: props.description,
   }),
 );
