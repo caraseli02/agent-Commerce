@@ -5,8 +5,10 @@
 // on the append-only pr-evidence branch and prints the `## Screenshots` section for the PR body.
 // Storage stays small: JPEGs only, pixel-identical pairs are not stored, a run over MAX_BYTES is
 // refused, and evidence commits carry a vercel.json that turns Vercel deployments off.
+// `--sign-in customer|admin` signs each side in once with that mock demo account, so routes
+// behind sign-in (dashboards, account pages) are captured signed in.
 //
-//   pnpm pr:screenshots --routes "/,/search?keyword=STM32" [--head <ref>] [--body-out <file>] [--no-push]
+//   pnpm pr:screenshots --routes "/,/search?keyword=STM32" [--sign-in customer|admin] [--head <ref>] [--body-out <file>] [--no-push]
 import { execFileSync, spawn } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -16,6 +18,8 @@ import { evidenceBranch, evidenceRef, evidenceVercelConfig, screenshotMarker, sh
 
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 } };
 const SCHEMES = ['light', 'dark'];
+// The sign-in sheet's demo roles (app/components/layout/account-modal/Form.vue), as the e2e helpers use them.
+const DEMO_ROLES = { customer: 'Customer Demo', admin: 'Admin Preview' };
 // Every fetch of the repository downloads pr-evidence, so one run stays under this.
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -34,6 +38,7 @@ function parseArgs(argv) {
     else if (flag === '--port') options.port = Number(value());
     else if (flag === '--schemes') options.schemes = value().split(',');
     else if (flag === '--viewports') options.viewports = value().split(',');
+    else if (flag === '--sign-in') options.signIn = value() ?? '';
     else if (flag === '--no-push') options.push = false;
     else throw new Error(`Unknown option ${argv[i]}.`);
   }
@@ -42,6 +47,8 @@ function parseArgs(argv) {
   }
   if (options.schemes.some((scheme) => !SCHEMES.includes(scheme))) throw new Error(`--schemes takes ${SCHEMES.join(',')}.`);
   if (options.viewports.some((name) => !VIEWPORTS[name])) throw new Error(`--viewports takes ${Object.keys(VIEWPORTS).join(',')}.`);
+  if (options.signIn !== undefined && !Object.hasOwn(DEMO_ROLES, options.signIn))
+    throw new Error(`--sign-in takes ${Object.keys(DEMO_ROLES).join(' or ')}.`);
   return options;
 }
 
@@ -103,8 +110,40 @@ async function stop(child) {
   clearTimeout(timer);
 }
 
-async function capture({ browser, url, route, scheme, viewport, file }) {
-  const context = await browser.newContext({ colorScheme: scheme, viewport: VIEWPORTS[viewport], locale: 'en-US', timezoneId: 'UTC' });
+// Signs in through the sign-in sheet once and returns the session (cookies and storage) for
+// every capture on that side. A failed sign-in stops the run instead of capturing signed out.
+async function signIn({ browser, url, role }) {
+  const context = await browser.newContext({ locale: 'en-US', timezoneId: 'UTC' });
+  try {
+    const page = await context.newPage();
+    await page.goto(`${url}/?signin=true`, { waitUntil: 'networkidle' });
+    await page.getByRole('radio', { name: DEMO_ROLES[role] }).click();
+    const [response] = await Promise.all([
+      page.waitForResponse((answer) => answer.url().includes('/api/auth/login') && answer.request().method() === 'POST'),
+      page
+        .locator('button')
+        .filter({ hasText: /^\s*Sign In\s*$/ })
+        .click(),
+    ]);
+    if (!response.ok()) throw new Error(`login answered HTTP ${response.status()}`);
+    await page.waitForURL(/\/dashboard\//);
+    await page.waitForLoadState('networkidle');
+    return await context.storageState();
+  } catch (error) {
+    throw new Error(`--sign-in ${role} failed on ${url}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+  } finally {
+    await context.close();
+  }
+}
+
+async function capture({ browser, url, route, scheme, viewport, file, storageState }) {
+  const context = await browser.newContext({
+    colorScheme: scheme,
+    viewport: VIEWPORTS[viewport],
+    locale: 'en-US',
+    timezoneId: 'UTC',
+    ...(storageState ? { storageState } : {}),
+  });
   const page = await context.newPage();
   const errors = [];
   page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
@@ -147,17 +186,18 @@ function publish(files, prefix) {
   return commit;
 }
 
-function section({ ui, base, head, routes, pairs, images }) {
+function section({ ui, base, head, routes, pairs, images, signIn }) {
   const lines = ['## Screenshots', ''];
   if (ui.fingerprint) lines.push(screenshotMarker(ui.fingerprint));
+  const session = signIn ? ` signed in as the ${signIn} demo account` : '';
   if (!pairs.some((pair) => pair.changed)) {
     lines.push(
-      `No visible change: \`pnpm pr:screenshots\` found ${routes.map((route) => `\`${route}\``).join(', ')} pixel-identical before (\`${base.slice(0, 7)}\`) and after (\`${head.slice(0, 7)}\`) in every captured scheme and viewport.`,
+      `No visible change: \`pnpm pr:screenshots\`${session} found ${routes.map((route) => `\`${route}\``).join(', ')} pixel-identical before (\`${base.slice(0, 7)}\`) and after (\`${head.slice(0, 7)}\`) in every captured scheme and viewport.`,
     );
     return `${lines.join('\n')}\n`;
   }
   lines.push(
-    `Before is the merge base with main (\`${base.slice(0, 7)}\`), after is the PR head (\`${head.slice(0, 7)}\`). Captured by \`pnpm pr:screenshots\` from fresh builds in mock mode; pixel-identical pairs are listed but not stored.`,
+    `Before is the merge base with main (\`${base.slice(0, 7)}\`), after is the PR head (\`${head.slice(0, 7)}\`). Captured by \`pnpm pr:screenshots\` from fresh builds in mock mode${session}; pixel-identical pairs are listed but not stored.`,
   );
   for (const route of routes) {
     lines.push('', `### \`${route}\``, '', '| | Before | After |', '| --- | --- | --- |');
@@ -196,13 +236,24 @@ async function main() {
     const pairs = [];
     const problems = [];
     try {
+      const sessions = options.signIn
+        ? await Promise.all(servers.map(({ url }) => signIn({ browser, url, role: options.signIn })))
+        : [undefined, undefined];
       for (const route of options.routes) {
         for (const scheme of options.schemes) {
           for (const viewport of options.viewports) {
             const name = shotName(route, scheme, viewport);
             const shot = (side) => [`${name}-${side}.jpg`, join(shots, `${name}-${side}.jpg`)];
-            await capture({ browser, url: servers[0].url, route, scheme, viewport, file: shot('before')[1] });
-            const errors = await capture({ browser, url: servers[1].url, route, scheme, viewport, file: shot('after')[1] });
+            await capture({ browser, url: servers[0].url, route, scheme, viewport, file: shot('before')[1], storageState: sessions[0] });
+            const errors = await capture({
+              browser,
+              url: servers[1].url,
+              route,
+              scheme,
+              viewport,
+              file: shot('after')[1],
+              storageState: sessions[1],
+            });
             problems.push(...errors.map((error) => `${route} ${scheme} ${viewport}: ${error}`));
             const changed = !readFileSync(shot('before')[1]).equals(readFileSync(shot('after')[1]));
             pairs.push({ route, scheme, viewport, name, changed });
@@ -228,7 +279,7 @@ async function main() {
       const commit = publish(files, prefix);
       images = (name) => `https://github.com/${repoSlug()}/blob/${commit}/${prefix}/${name}?raw=true`;
     }
-    const body = section({ ui, base: ui.base, head: ui.head, routes: options.routes, pairs, images });
+    const body = section({ ui, base: ui.base, head: ui.head, routes: options.routes, pairs, images, signIn: options.signIn });
     if (options.bodyOut) writeFileSync(options.bodyOut, body);
     process.stdout.write(`\n${body}`);
     if (problems.length) {
