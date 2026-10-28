@@ -38,7 +38,7 @@ function parseArgs(argv) {
     else if (flag === '--port') options.port = Number(value());
     else if (flag === '--schemes') options.schemes = value().split(',');
     else if (flag === '--viewports') options.viewports = value().split(',');
-    else if (flag === '--sign-in') options.signIn = value();
+    else if (flag === '--sign-in') options.signIn = value() ?? '';
     else if (flag === '--no-push') options.push = false;
     else throw new Error(`Unknown option ${argv[i]}.`);
   }
@@ -47,7 +47,7 @@ function parseArgs(argv) {
   }
   if (options.schemes.some((scheme) => !SCHEMES.includes(scheme))) throw new Error(`--schemes takes ${SCHEMES.join(',')}.`);
   if (options.viewports.some((name) => !VIEWPORTS[name])) throw new Error(`--viewports takes ${Object.keys(VIEWPORTS).join(',')}.`);
-  if (options.signIn !== undefined && !DEMO_ROLES[options.signIn])
+  if (options.signIn !== undefined && !Object.hasOwn(DEMO_ROLES, options.signIn))
     throw new Error(`--sign-in takes ${Object.keys(DEMO_ROLES).join(' or ')}.`);
   return options;
 }
