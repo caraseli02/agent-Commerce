@@ -5,7 +5,7 @@ import { baseParse, NodeTypes, type ElementNode, type RootNode } from '@vue/comp
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { describe, expect, it } from 'vitest';
 
-import { resolveCartDeleteDescription, resolveCartDeleteProductIds, resolveCartDeleteTitle } from '~/utils/cartDeleteDialog';
+import { resolveCartDeleteDescription, resolveCartDeleteProductIds, resolveCartDeleteTitle, runCartDelete } from '~/utils/cartDeleteDialog';
 
 const dialogPath = resolve('app/components/cart/CartDeleteDialog.vue');
 const headPath = resolve('app/components/order-summary/Table/Head.vue');
@@ -95,5 +95,29 @@ describe('cart delete confirmation wiring', () => {
     expect(collectElements(parseTemplate(itemDropdownPath), 'CartDeleteDialog')).toHaveLength(1);
     expect(itemSource).toContain(':product-ids="[item.id]"');
     expect(dropdownSource).toContain(':product-ids="[item.id]"');
+  });
+});
+
+describe('cart delete failure handling', () => {
+  it('reports removed only for a success response', async () => {
+    await expect(runCartDelete(async () => ({ status: 'success' }))).resolves.toBe('removed');
+  });
+
+  it('reports a failed or rejected delete instead of staying silent', async () => {
+    await expect(runCartDelete(async () => ({ status: 'failed' }))).resolves.toBe('failed');
+    await expect(runCartDelete(async () => ({}))).resolves.toBe('failed');
+    await expect(runCartDelete(() => Promise.reject(new Error('500')))).resolves.toBe('failed');
+  });
+
+  it('treats the sign-in redirect as cancelled, not failed', async () => {
+    await expect(runCartDelete(async () => null)).resolves.toBe('cancelled');
+  });
+
+  it('keeps the dialog open and shows a destructive toast when the delete fails', () => {
+    const dialogSource = readFileSync(dialogPath, 'utf8');
+
+    expect(dialogSource).toContain('runCartDelete(');
+    expect(dialogSource).toMatch(/outcome === 'failed'[\s\S]*variant: 'destructive'/);
+    expect(dialogSource).toMatch(/outcome === 'removed'\) \{\s*isOpen\.value = false;/);
   });
 });
