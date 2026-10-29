@@ -1,15 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
+import { testPort } from './scripts/worktree-port.mjs';
 
 /**
  * Playwright configuration for Components Marketplace E2E user-flow specs.
  *
  * Specs live in tests/e2e/ and are excluded from the Vitest suite. The normal
  * `pnpm test:e2e` command starts its own built server so it inherits the
- * isolated PostgreSQL schema created by the test wrapper. Set
- * PLAYWRIGHT_BASE_URL only when deliberately testing an externally managed
- * deployment.
+ * isolated PostgreSQL schema created by the test wrapper, on this checkout's
+ * own port (scripts/worktree-port.mjs). Set PLAYWRIGHT_BASE_URL only when
+ * deliberately testing an externally managed deployment.
  */
-const previewPort = 3000;
+const previewPort = testPort('e2e');
 const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
 const baseURL = externalBaseUrl || `http://localhost:${previewPort}`;
 

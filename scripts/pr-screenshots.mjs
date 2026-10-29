@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import process from 'node:process';
 import { evidenceBranch, evidenceRef, evidenceVercelConfig, screenshotMarker, shotName, uiDiff } from './ui-evidence.mjs';
+import { testPort } from './worktree-port.mjs';
 
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 } };
 const SCHEMES = ['light', 'dark'];
@@ -24,7 +25,7 @@ const DEMO_ROLES = { customer: 'Customer Demo', admin: 'Admin Preview' };
 const MAX_BYTES = 2 * 1024 * 1024;
 
 function parseArgs(argv) {
-  const options = { head: 'HEAD', push: true, port: 3210, schemes: SCHEMES, viewports: Object.keys(VIEWPORTS) };
+  const options = { head: 'HEAD', push: true, port: testPort('screenshots'), schemes: SCHEMES, viewports: Object.keys(VIEWPORTS) };
   for (let i = 0; i < argv.length; i += 1) {
     const [flag, inline] = argv[i].split(/=(.*)/s, 2);
     const value = () => inline ?? argv[++i];

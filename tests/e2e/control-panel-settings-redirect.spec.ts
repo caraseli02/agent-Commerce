@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const signInAsAdmin = async (page: Page) => {
-  const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+  const baseURL = test.info().project.use.baseURL as string;
   const loginResponse = await page.request.post(`${baseURL}/api/auth/login`, {
     data: { email: 'admin@demo.com', password: 'admin123' },
   });

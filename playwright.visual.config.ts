@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import { testPort } from './scripts/worktree-port.mjs';
 
-const previewPort = 3100;
+const previewPort = testPort('visual');
 const baseURL = `http://127.0.0.1:${previewPort}`;
 
 /**

@@ -231,7 +231,7 @@ describe('delivery evidence and documentation selection', () => {
 
 it('runs the real gate, reuses only base checks, and discards evidence after failure', () => {
   const r = repository();
-  for (const file of ['verify.mjs', 'verification-evidence.mjs'])
+  for (const file of ['verify.mjs', 'verification-evidence.mjs', 'worktree-port.mjs'])
     r.write(`scripts/${file}`, readFileSync(join(process.cwd(), 'scripts', file), 'utf8'));
   for (const file of ['check-bundle-size.mjs', 'verify-ui-conventions.mjs']) r.write(`scripts/${file}`, 'process.exit(0);');
   r.write('scripts/validate-feature-list.sh', '#!/bin/sh\nexit "${VALIDATOR_EXIT:-0}"\n');
@@ -269,7 +269,7 @@ it('runs the real gate, reuses only base checks, and discards evidence after fai
 
 it('runs only focused formatting and state validation for a real documentation-only range in CI', () => {
   const r = repository();
-  for (const file of ['verify.mjs', 'verification-evidence.mjs'])
+  for (const file of ['verify.mjs', 'verification-evidence.mjs', 'worktree-port.mjs'])
     r.write(`scripts/${file}`, readFileSync(join(process.cwd(), 'scripts', file), 'utf8'));
   r.write('scripts/validate-feature-list.sh', '#!/bin/sh\nexit "${VALIDATOR_EXIT:-0}"\n');
   r.write('bin/pnpm', '#!/bin/sh\nprintf "%s\\n" "$*" >> "$GATE_LOG"\nexit 0\n');
@@ -289,7 +289,14 @@ it('runs only focused formatting and state validation for a real documentation-o
 
 it('hands off a code-only range with unchanged session notes and archive through the real validators', () => {
   const r = repository();
-  for (const file of ['verify.mjs', 'verification-evidence.mjs', 'check-clean-state.mjs', 'validate-feature-list.sh', 'smoke.mjs'])
+  for (const file of [
+    'verify.mjs',
+    'verification-evidence.mjs',
+    'worktree-port.mjs',
+    'check-clean-state.mjs',
+    'validate-feature-list.sh',
+    'smoke.mjs',
+  ])
     r.write(`scripts/${file}`, readFileSync(join(process.cwd(), 'scripts', file), 'utf8'));
   for (const file of ['check-bundle-size.mjs', 'verify-ui-conventions.mjs', 'check-arch-invariants.mjs'])
     r.write(`scripts/${file}`, 'process.exit(0);');

@@ -11,9 +11,11 @@ import {
   verificationEnvironment,
   assertPushedCheckout,
 } from './verification-evidence.mjs';
+import { testPort } from './worktree-port.mjs';
 
 const mode = process.argv.includes('--handoff') ? 'handoff' : process.argv.includes('--full') ? 'full' : 'fast';
-const previewUrl = 'http://127.0.0.1:3000';
+const previewPort = testPort('smoke');
+const previewUrl = `http://127.0.0.1:${previewPort}`;
 const previewArgs = ['.output/server/index.mjs'];
 
 function run(command, args, options = {}) {
@@ -61,7 +63,7 @@ async function runWithPreview() {
     env: {
       ...process.env,
       HOST: '127.0.0.1',
-      PORT: '3000',
+      PORT: String(previewPort),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

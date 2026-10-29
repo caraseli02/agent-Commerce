@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import { testPort } from './scripts/worktree-port.mjs';
 
-const previewPort = 3150;
+const previewPort = testPort('parity');
 // Set PARITY_BASE_URL only to iterate against a preview you started yourself (with the test database).
 const externalBaseUrl = process.env.PARITY_BASE_URL;
 const baseURL = externalBaseUrl || `http://127.0.0.1:${previewPort}`;
