@@ -47,19 +47,24 @@ const HEADER = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toStrin
 // Local development and tests only; deployed environments must set AUTH_SESSION_SECRET.
 const DEVELOPMENT_SECRET = 'agent-commerce-development-session-secret-not-for-deployments';
 
+// The public development secret is used only when NODE_ENV says local development or tests;
+// every other runtime (any production build, on Vercel or not) needs a configured secret.
 const sessionSecret = () => {
   const secret = process.env.AUTH_SESSION_SECRET;
   if (secret && secret.length >= 32) return secret;
-  if (process.env.VERCEL) {
-    throw createError({ statusCode: 503, statusMessage: 'Account sessions are not configured' });
-  }
-  return DEVELOPMENT_SECRET;
+  return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' ? DEVELOPMENT_SECRET : null;
+};
+
+const requireSessionSecret = () => {
+  const secret = sessionSecret();
+  if (!secret) throw createError({ statusCode: 503, statusMessage: 'Account sessions are not configured' });
+  return secret;
 };
 
 /** Throws 503 before any account write when a deployment has no session secret. */
-export const assertCustomerSessionsConfigured = () => void sessionSecret();
+export const assertCustomerSessionsConfigured = () => void requireSessionSecret();
 
-const sign = (input: string) => createHmac('sha256', sessionSecret()).update(input).digest('base64url');
+const sign = (input: string, secret: string) => createHmac('sha256', secret).update(input).digest('base64url');
 
 export const issueCustomerAccountToken = (account: { id: string; email: string; firstName: string; lastName: string }) => {
   const now = Math.floor(Date.now() / 1000);
@@ -75,18 +80,21 @@ export const issueCustomerAccountToken = (account: { id: string; email: string; 
     exp: now + SESSION_TTL_SECONDS,
   };
   const unsigned = `${HEADER}.${Buffer.from(JSON.stringify(claims)).toString('base64url')}`;
-  return `${unsigned}.${sign(unsigned)}`;
+  return `${unsigned}.${sign(unsigned, requireSessionSecret())}`;
 };
 
-// Verifies signature, type and expiry. A forged, modified or expired token identifies nobody.
+// Verifies signature, type and expiry. A forged, modified or expired token identifies nobody,
+// and without a configured secret no customer token is accepted at all.
 export const verifyCustomerAccountToken = (authorization?: string | null): CustomerAccountClaims | null => {
+  const secret = sessionSecret();
+  if (!secret) return null;
   const token = String(authorization || '')
     .replace(/^Bearer\s+/i, '')
     .trim();
   const [header, payload, signature, ...rest] = token.split('.');
   if (!header || !payload || !signature || rest.length || header !== HEADER) return null;
 
-  const expected = Buffer.from(sign(`${header}.${payload}`));
+  const expected = Buffer.from(sign(`${header}.${payload}`, secret));
   const actual = Buffer.from(signature);
   if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) return null;
 

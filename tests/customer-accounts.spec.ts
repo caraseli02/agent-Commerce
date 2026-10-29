@@ -48,6 +48,15 @@ const rejection = async (promise: Promise<unknown>) => {
   throw new Error('Expected the handler to reject');
 };
 
+const rejectionSync = (run: () => unknown) => {
+  try {
+    run();
+  } catch (error) {
+    return error as HttpError;
+  }
+  throw new Error('Expected the call to throw');
+};
+
 const load = async <T = Handler>(path: string) => (await import(path)).default as T;
 const register = () => load('../server/api/auth/register.post');
 const login = () => load('../server/api/auth/login.post');
@@ -114,6 +123,27 @@ describe('persistent customer accounts (#635)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('never uses the development secret in a production runtime, on Vercel or not', async () => {
+      const { issueCustomerAccountToken, verifyCustomerAccountToken } = await import('../server/utils/accountSession');
+      // Signed with the public development secret, as anyone reading the repository could.
+      const forged = issueCustomerAccountToken(account);
+      vi.stubEnv('NODE_ENV', 'production');
+      vi.stubEnv('VERCEL', '');
+      try {
+        for (const secret of ['', 'too-short']) {
+          vi.stubEnv('AUTH_SESSION_SECRET', secret);
+          expect(rejectionSync(() => issueCustomerAccountToken(account)).statusCode).toBe(503);
+          expect(verifyCustomerAccountToken(`Bearer ${forged}`)).toBeNull();
+        }
+
+        vi.stubEnv('AUTH_SESSION_SECRET', 'p'.repeat(32));
+        expect(verifyCustomerAccountToken(`Bearer ${forged}`)).toBeNull();
+        expect(verifyCustomerAccountToken(`Bearer ${issueCustomerAccountToken(account)}`)?.sub).toBe(account.id);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
   });
 
   describe('POST /api/auth/register', () => {
@@ -173,7 +203,8 @@ describe('persistent customer accounts (#635)', () => {
     });
 
     it('fails closed before creating an account when a deployment lacks a session secret', async () => {
-      vi.stubEnv('VERCEL', '1');
+      vi.stubEnv('NODE_ENV', 'production');
+      vi.stubEnv('VERCEL', '');
       vi.stubEnv('AUTH_SESSION_SECRET', '');
       try {
         const email = uniqueEmail();
