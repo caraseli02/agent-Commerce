@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-row items-center gap-3 py-2 pl-3 pr-4 border-[1.5px] border-l-[7.5px] border-[#FA4B4B] rounded-lg bg-[#FFF] shadow-m"
+    class="flex flex-row items-center gap-3 py-2 pl-3 pr-4 border-[1.5px] border-l-[7.5px] border-[#FA4B4B] rounded-lg bg-[#FFF] shadow-m dark:bg-card"
   >
     <RedWarning class="w-[55px]" />
     <div class="flex flex-col">

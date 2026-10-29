@@ -10,7 +10,9 @@
     </div>
     <template v-else>
       <div class="mb-5">
-        <div class="grid grid-cols-[repeat(2,1fr)_20px] gap-4 bg-[#F2F2F2] rounded px-2 py-1 text-sm font-medium leading-[1.57] mb-2">
+        <div
+          class="grid grid-cols-[repeat(2,1fr)_20px] gap-4 bg-[#F2F2F2] dark:bg-muted rounded px-2 py-1 text-sm font-medium leading-[1.57] mb-2"
+        >
           <div>Amount</div>
           <div>Status</div>
           <div />

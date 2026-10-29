@@ -12,7 +12,7 @@
           <UiButton
             variant="ghost"
             size="icon"
-            class="h-11 w-11 rounded bg-[#F2F2F2] text-muted-foreground hover:bg-[#F2F2F2] hover:text-muted-foreground"
+            class="h-11 w-11 rounded bg-accent text-muted-foreground hover:bg-accent hover:text-muted-foreground"
             aria-label="Close filters"
           >
             <XIcon class="h-[15px] w-[15px]" />

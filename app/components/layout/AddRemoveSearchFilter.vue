@@ -58,7 +58,7 @@
             <div
               v-for="item in filteredItems"
               :key="item.parameter"
-              class="group grid grid-cols-[repeat(2,1fr)_auto] gap-2 rounded-[3px] odd:bg-[#F2F2F2] px-2 pt-[5px] pb-1.5 cursor-pointer transition-colors duration-300 hover:text-blue-500"
+              class="group grid grid-cols-[repeat(2,1fr)_auto] gap-2 rounded-[3px] odd:bg-[#F2F2F2] dark:odd:bg-muted px-2 pt-[5px] pb-1.5 cursor-pointer transition-colors duration-300 hover:text-blue-500"
               @click="toggleItem(item)"
             >
               <div class="text-xs font-medium font-Inter leading-tight">

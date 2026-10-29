@@ -15,7 +15,7 @@
           <UiButton
             variant="ghost"
             size="icon"
-            class="inline-flex h-8 w-8 flex-shrink-0 rounded bg-[#F2F2F2] text-muted-foreground hover:bg-[#F2F2F2] hover:text-muted-foreground"
+            class="inline-flex h-8 w-8 flex-shrink-0 rounded bg-accent text-muted-foreground hover:bg-accent hover:text-muted-foreground"
             aria-label="Close regional preferences"
           >
             <XIcon class="h-5 w-5" />

@@ -36,7 +36,7 @@
             v-for="num in 5"
             :key="num"
             class="rounded-lg h-[5px] transition-colors duration-300"
-            :class="[passwordStrength >= num ? 'bg-green-500' : 'bg-[#E7E7EB]']"
+            :class="[passwordStrength >= num ? 'bg-green-500' : 'bg-[#E7E7EB] dark:bg-muted']"
           />
         </div>
         <div class="text-xs text-muted-foreground">Use 8 or more characters with a mix of letters, numbers & symbols.</div>
