@@ -26,12 +26,6 @@
                 </template>
                 <div class="font-Inter">{{ row.product.name }}</div>
               </div>
-              <div
-                v-if="!row.product.adminSettings?.featured"
-                class="rounded-3xl bg-primary px-1 text-xs leading-[1.33] font-semibold text-primary-foreground flex-shrink-0 lg:translate-y-2.5"
-              >
-                New
-              </div>
             </div>
             <div class="text-xs leading-[1.33] truncate text-muted-foreground lg:w-[calc(100%-50px)] hover:text-primary">
               {{ row.product.description }}
