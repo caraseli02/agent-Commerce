@@ -2,7 +2,7 @@
 import { CopyIcon, FilePenLineIcon } from '@lucide/vue';
 import { onMounted, ref, watch } from 'vue';
 import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
+import { toTypedSchema } from '~/utils/zodFormSchema';
 import { z } from 'zod';
 import { storeToRefs } from 'pinia';
 import { Button } from '@/components/ui/button';
@@ -80,75 +80,75 @@ const findRegionByName = (countryRegions: Country['regions'] | undefined, name: 
 const baseSchema = z.object({
   country: z
     .string({
-      required_error: 'Country is required',
+      error: (issue) => (issue.input === undefined ? 'Country is required' : undefined),
     })
-    .min(1)
-    .default(activeAddress.value?.country || ''),
+    .min(1, 'String must contain at least 1 character(s)')
+    .prefault(activeAddress.value?.country || ''),
   county: z
     .string({
-      required_error: 'County/Region is required',
+      error: (issue) => (issue.input === undefined ? 'County/Region is required' : undefined),
     })
-    .min(1)
-    .default(activeAddress.value?.region || ''),
+    .min(1, 'String must contain at least 1 character(s)')
+    .prefault(activeAddress.value?.region || ''),
   city: z
     .string({
-      required_error: 'City is required',
+      error: (issue) => (issue.input === undefined ? 'City is required' : undefined),
     })
-    .min(1)
-    .default(activeAddress.value?.city || ''),
+    .min(1, 'String must contain at least 1 character(s)')
+    .prefault(activeAddress.value?.city || ''),
   addressLine1: z
     .string({
-      required_error: 'Address Line 1 is required',
+      error: (issue) => (issue.input === undefined ? 'Address Line 1 is required' : undefined),
     })
-    .min(1)
-    .default(activeAddress.value?.name1 || ''),
+    .min(1, 'String must contain at least 1 character(s)')
+    .prefault(activeAddress.value?.name1 || ''),
   addressLine2: z
     .string()
     .optional()
-    .default(activeAddress.value?.name2 || ''),
+    .prefault(activeAddress.value?.name2 || ''),
   postcode: z
     .string({
-      required_error: 'Postcode is required',
+      error: (issue) => (issue.input === undefined ? 'Postcode is required' : undefined),
     })
-    .min(1)
-    .default(activeAddress.value?.postcode || ''),
+    .min(1, 'String must contain at least 1 character(s)')
+    .prefault(activeAddress.value?.postcode || ''),
   phoneNumber: z
     .string({
-      required_error: 'Mobile is required',
+      error: (issue) => (issue.input === undefined ? 'Mobile is required' : undefined),
     })
-    .min(1)
+    .min(1, 'String must contain at least 1 character(s)')
     .regex(/^\+?\d{1,4}[\s-]?\(?\d{1,3}\)?[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,9}$/, 'Invalid phone number')
-    .default(String(getUserDetails.value?.contactDetails?.phone || '')),
+    .prefault(String(getUserDetails.value?.contactDetails?.phone || '')),
   mobile: z
     .string({
-      required_error: 'Mobile is required',
+      error: (issue) => (issue.input === undefined ? 'Mobile is required' : undefined),
     })
-    .min(1)
+    .min(1, 'String must contain at least 1 character(s)')
     .regex(/^\+?\d{1,4}[\s-]?\(?\d{1,3}\)?[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,9}$/, 'Invalid mobile number')
-    .default(String(getUserDetails.value?.contactDetails?.mobile || '')),
+    .prefault(String(getUserDetails.value?.contactDetails?.mobile || '')),
   email: z
     .string({
-      required_error: 'Email is required',
+      error: (issue) => (issue.input === undefined ? 'Email is required' : undefined),
     })
-    .min(1)
+    .min(1, 'String must contain at least 1 character(s)')
     .regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid email')
-    .default(getUserDetails.value?.contactDetails?.email || ''),
+    .prefault(getUserDetails.value?.contactDetails?.email || ''),
 });
 
 const formSchema = toTypedSchema(
   baseSchema.extend({
     firstName: z
       .string({
-        required_error: 'First name is required',
+        error: (issue) => (issue.input === undefined ? 'First name is required' : undefined),
       })
-      .min(1)
-      .default(getUserDetails.value?.personalDetails?.firstName || ''),
+      .min(1, 'String must contain at least 1 character(s)')
+      .prefault(getUserDetails.value?.personalDetails?.firstName || ''),
     lastName: z
       .string({
-        required_error: 'Last name is required',
+        error: (issue) => (issue.input === undefined ? 'Last name is required' : undefined),
       })
-      .min(1)
-      .default(getUserDetails.value?.personalDetails?.lastName || ''),
+      .min(1, 'String must contain at least 1 character(s)')
+      .prefault(getUserDetails.value?.personalDetails?.lastName || ''),
   }),
 );
 
@@ -156,43 +156,40 @@ const formBusinessSchema = toTypedSchema(
   baseSchema.extend({
     companyName: z
       .string({
-        required_error: 'Company Name is required',
+        error: (issue) => (issue.input === undefined ? 'Company Name is required' : undefined),
       })
-      .min(1)
-      .default(getUserDetails.value?.companyDetails?.name || ''),
+      .min(1, 'String must contain at least 1 character(s)')
+      .prefault(getUserDetails.value?.companyDetails?.name || ''),
     registrationNumber: z
       .string({
-        required_error: 'Company Registration Number is required',
+        error: (issue) => (issue.input === undefined ? 'Company Registration Number is required' : undefined),
       })
-      .min(1)
-      .default(getUserDetails.value?.companyDetails?.registrationNumber || ''),
+      .min(1, 'String must contain at least 1 character(s)')
+      .prefault(getUserDetails.value?.companyDetails?.registrationNumber || ''),
     companyEmail: z
       .string({
-        required_error: 'Email is required',
+        error: (issue) => (issue.input === undefined ? 'Email is required' : undefined),
       })
-      .min(1)
+      .min(1, 'String must contain at least 1 character(s)')
       .regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid email')
-      .default(getUserDetails.value?.contactDetails?.email || ''),
+      .prefault(getUserDetails.value?.contactDetails?.email || ''),
     taxId: z
       .string({
-        required_error: 'Tax ID is required',
+        error: (issue) => (issue.input === undefined ? 'Tax ID is required' : undefined),
       })
-      .default(getUserDetails.value?.companyDetails?.taxId || '')
       .optional(),
     vatNumber: z
       .string({
-        required_error: 'V.A.T Number is required',
+        error: (issue) => (issue.input === undefined ? 'V.A.T Number is required' : undefined),
       })
-      .default(getUserDetails.value?.companyDetails?.vat || '')
       .optional(),
     bankName: z
       .string()
       .optional()
-      .default(getUserDetails.value?.companyDetails?.bank_name || '')
+      .prefault(getUserDetails.value?.companyDetails?.bank_name || '')
       .or(z.literal('')),
     iban: z
       .union([z.string().length(0), z.string().regex(/^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$/, 'Invalid IBAN')])
-      .default(getUserDetails.value?.companyDetails?.bank_iban || '')
       .transform((e: string) => (e === '' ? undefined : e))
       .optional(),
   }),

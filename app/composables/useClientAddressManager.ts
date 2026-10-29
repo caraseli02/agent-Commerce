@@ -1,4 +1,4 @@
-import { toTypedSchema } from '@vee-validate/zod';
+import { toTypedSchema } from '~/utils/zodFormSchema';
 import { useForm } from 'vee-validate';
 import { ref, watch, type Ref } from 'vue';
 import { z } from 'zod';
@@ -49,31 +49,31 @@ export function useClientAddressManager<TAddress extends ShippingAddressInterfac
       addressAlias: z
         .string()
         .min(1, 'Address Alias is required')
-        .default(options.address.value?.alias || ''),
+        .prefault(options.address.value?.alias || ''),
       city: z
         .string()
         .min(1, 'City is required')
-        .default(options.address.value?.city || ''),
+        .prefault(options.address.value?.city || ''),
       country: z
         .string()
         .min(1, 'Country is required')
-        .default(options.address.value?.country || ''),
+        .prefault(options.address.value?.country || ''),
       county: z
         .string()
         .min(1, 'Region is required')
-        .default(options.address.value?.region || ''),
+        .prefault(options.address.value?.region || ''),
       addressLine1: z
         .string()
         .min(1, 'Address Line 1 is required')
-        .default(options.address.value?.name1 || ''),
+        .prefault(options.address.value?.name1 || ''),
       addressLine2: z
         .string()
         .optional()
-        .default(options.address.value?.name2 || ''),
+        .prefault(options.address.value?.name2 || ''),
       postcode: z
         .string()
         .min(1, 'Postcode is required')
-        .default(options.address.value?.postcode || ''),
+        .prefault(options.address.value?.postcode || ''),
     }),
   );
 
