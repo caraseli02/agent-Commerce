@@ -171,7 +171,7 @@ def main():
             wrapper_env = dict(os.environ, CODEX_INVESTIGATION_DEADLINE=str(deadline))
             raise SystemExit(bounded_command(command, cwd, wrapper_env, deadline))
         from urllib.parse import parse_qs, urlparse
-        if not parse_qs(urlparse(os.environ.get('DATABASE_URL', '')).query).get('options', [''])[0].startswith('-c search_path=ecas_test_'):
+        if not parse_qs(urlparse(os.environ.get('DATABASE_URL', '')).query).get('options', [''])[0].startswith('-c search_path=commerce_test_'):
             raise EnvironmentFailure('Runtime must be inside existing isolated test-schema wrapper')
         remaining = (deadline - time.monotonic()) / 60
         if remaining <= 0:

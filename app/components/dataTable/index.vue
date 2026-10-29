@@ -164,7 +164,19 @@ const leafColumnCount = computed(() => table.getAllLeafColumns().length);
           <UiTable :table-style="tableMinWidth ? { minWidth: tableMinWidth } : undefined">
             <UiTableHeader class="sticky top-0 z-10 bg-muted">
               <UiTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-                <UiTableHead v-for="header in headerGroup.headers" :key="header.id">
+                <UiTableHead
+                  v-for="header in headerGroup.headers"
+                  :key="header.id"
+                  :aria-sort="
+                    header.column.getCanSort()
+                      ? header.column.getIsSorted() === 'asc'
+                        ? 'ascending'
+                        : header.column.getIsSorted() === 'desc'
+                          ? 'descending'
+                          : 'none'
+                      : undefined
+                  "
+                >
                   <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header" :props="header.getContext()" />
                 </UiTableHead>
               </UiTableRow>

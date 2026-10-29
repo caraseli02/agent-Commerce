@@ -56,7 +56,7 @@ defineExpose({
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger v-if="props.showTrigger" as-child>
-      <UiButton variant="link" class="gap-1 text-slate-300" :class="props.triggerClass">
+      <UiButton variant="link" class="gap-1 text-muted-foreground" :class="props.triggerClass">
         <AlertTriangle class="w-[22px] h-[22px]" />
         <span class="hidden sm:inline">Report an error</span>
       </UiButton>

@@ -124,8 +124,8 @@ for (const viewport of [
     await expect(page.locator('section').filter({ has: page.getByRole('heading', { name: 'Quick Buy', exact: true }) })).toBeVisible();
     await waitForNetworkQuiet();
     await page.goto('/product/stm32f407vgt6', { waitUntil: 'networkidle' });
-    await expect(page.getByRole('heading', { name: 'Quick Buy', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Make a shortlist your team can trust.' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Quick Buy', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Make a shortlist your team can trust.' })).toHaveCount(0);
     await waitForNetworkQuiet();
     await writeFile(
       testInfo.outputPath('runtime.json'),

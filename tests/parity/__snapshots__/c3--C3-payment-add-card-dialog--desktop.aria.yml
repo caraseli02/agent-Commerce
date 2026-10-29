@@ -1,0 +1,7 @@
+- heading "Payments" [level=2]
+- button /•••• \d+/:
+    - img
+    - text: ''
+    - img
+- button "Delete"
+- button "Add new card"

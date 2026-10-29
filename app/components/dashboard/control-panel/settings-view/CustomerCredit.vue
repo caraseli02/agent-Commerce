@@ -5,14 +5,16 @@
     <div class="mb-4">
       <div class="flex items-start justify-between">
         <h2 class="text-xl leading-[1.4] font-semibold">Customer Credit</h2>
-        <button
-          class="flex items-center justify-center rounded-lg w-8 h-8 text-muted-foreground transition-colors duration-300 hover:text-blue-500 disabled:pointer-events-none"
+        <UiButton
+          variant="ghost"
+          size="icon"
+          aria-label="Edit customer credit"
           :disabled="loading || error"
           @click="$emit('toggle-editing')"
         >
           <EditIcon v-if="!loading && !error" class="w-6 h-6" />
           <WarningIcon v-if="error" class="w-6 h-6" />
-        </button>
+        </UiButton>
       </div>
     </div>
     <p class="text-sm leading-[1.71] mb-[68px] md:mb-7 lg:mb-9">Change to customer credit account.</p>
@@ -63,13 +65,7 @@
           <div class="text-sm leading-[1.14]">Available Credit</div>
         </div>
       </div>
-      <button
-        v-if="chartSeries[0] === 0"
-        class="flex items-center justify-center w-full bg-blue-700 rounded-lg px-5 py-2 text-white h-11 md:order-3"
-        @click="$emit('toggle-editing')"
-      >
-        Credit Account
-      </button>
+      <UiButton v-if="chartSeries[0] === 0" size="lg" class="w-full md:order-3" @click="$emit('toggle-editing')"> Credit Account </UiButton>
       <div v-else class="md:order-3">
         <div class="text-sm leading-[1.71] font-semibold mb-6">Total Spent</div>
         <SkeletonLoader v-if="loading" class="w-full h-12" />

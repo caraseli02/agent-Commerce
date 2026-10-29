@@ -40,10 +40,10 @@
                 class="capitalize font-medium"
                 :class="[
                   transaction.status === 'success'
-                    ? 'text-[#00D395]'
+                    ? 'text-green-800 dark:text-green-400'
                     : transaction.status === 'declined'
-                      ? 'text-rose-500'
-                      : 'text-[#FF8A00]',
+                      ? 'text-rose-700 dark:text-rose-400'
+                      : 'text-amber-700 dark:text-amber-400',
                 ]"
                 >{{ transaction.status }}</span
               >
@@ -55,12 +55,10 @@
         </div>
       </div>
       <div class="flex items-center justify-center">
-        <button disabled class="flex items-center disabled:cursor-not-allowed disabled:opacity-60">
-          <span class="text-sm font-medium left-[1.43] text-muted-foreground mr-2">
-            <span class="md:hidden lg:inline-block"> View </span> more
-          </span>
+        <UiButton variant="ghost" size="flush" disabled class="flex items-center disabled:cursor-not-allowed">
+          <span class="text-sm font-medium mr-2"> <span class="md:hidden lg:inline-block"> View </span> more </span>
           <ArrowRightIcon class="w-4 h-4" />
-        </button>
+        </UiButton>
       </div>
     </template>
   </div>

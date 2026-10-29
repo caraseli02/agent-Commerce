@@ -1,4 +1,4 @@
 1. button "For larger quantities ask here."
 2. spinbutton "Quantity": "1"
 3. button "Increase quantity"
-4. button "Add to cart — selected quantity"
+4. button "Add to cart, selected quantity"

@@ -1,5 +1,4 @@
-- checkbox "Select All" [checked]:
-    - img
+- checkbox "Select All" [checked]
 - text: Select All Items selected 2
 - button "Delete Selected":
     - img

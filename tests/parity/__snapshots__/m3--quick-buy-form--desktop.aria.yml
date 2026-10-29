@@ -10,8 +10,7 @@
 - alert
 - button "Increase quantity":
     - img
-- button "Remove part 1":
-    - img
+- button "Remove part 1"
 - text: Part number 2
 - textbox "Part number 2":
     - /placeholder: Manufacturer part number
@@ -21,11 +20,8 @@
 - alert
 - button "Increase quantity":
     - img
-- button "Remove part 2":
-    - img
-- button "Add part":
-    - img
-    - text: ''
+- button "Remove part 2"
+- button "Add part"
 - button "Add to cart":
     - img
     - text: ''

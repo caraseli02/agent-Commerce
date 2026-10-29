@@ -34,5 +34,4 @@
 - text: ARM Cortex-M4 (5)
 - button "Select All"
 - text: Add/Remove Filter
-- button "Add or remove filters":
-    - img
+- button "Add or remove filters"

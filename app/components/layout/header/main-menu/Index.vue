@@ -82,7 +82,7 @@
           v-for="(subCategory, index) in selectedSubCategory.subcategory"
           :key="index"
           :to="categoryBrowseUrl(subCategory)"
-          class="group flex items-center justify-between px-2.5 py-[5px] rounded-[5px] w-full text-muted-foreground text-left transition-colors duration-300 hover:bg-[#F4F4F4] hover:text-primary dark:hover:bg-muted"
+          class="group flex items-center justify-between px-2.5 py-[5px] rounded-[5px] w-full text-muted-foreground text-left transition-colors duration-300 hover:bg-muted hover:text-primary"
         >
           <div>
             <div class="text-[15px] font-semibold mb-px">{{ subCategory.name }}</div>

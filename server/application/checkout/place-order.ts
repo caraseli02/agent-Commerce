@@ -1,5 +1,7 @@
 import { parseCheckoutClaim, type CheckoutState, type PersistedCheckoutState } from './contracts';
 import type { CheckoutErrorCode } from '~~/types/order/checkout-error';
+import { checkoutHttpErrors } from '~~/types/order/checkout-error';
+import { isBuyerCheckoutPaymentType } from '~~/helpers/checkout-payment-methods';
 import { createHash } from 'node:crypto';
 import type { UserInterface } from '~~/types/auth/user-interface';
 import { PaymentStatusEnum, PaymentTypeEnum } from '~~/types/order-summary/item';
@@ -226,6 +228,12 @@ export const createPlaceOrderUseCase =
           if (!bound || bound.request_id !== semantic.request_id)
             throw new PlaceOrderError('idempotency_conflict', 409, 'The checkout alias is bound to another checkout.');
           return bound;
+        }
+        // Existing logical checkouts above retain their replay/recovery semantics.
+        // Reject new ineligible intent before any durable checkout/payment effects.
+        if (!isBuyerCheckoutPaymentType(resolvePaymentType(command.order))) {
+          const error = checkoutHttpErrors.payment_method_unavailable;
+          throw new PlaceOrderError('payment_method_unavailable', error.statusCode, error.statusMessage);
         }
         if (!cartResult.snapshot.items.length) throw new PlaceOrderError('cart_empty', 409, 'An empty cart cannot be checked out.');
         const quoteResult = await dependencies.catalog.quoteCheckout({

@@ -44,7 +44,7 @@
                   signin: 'true',
                 },
               }"
-              class="flex items-center justify-center rounded w-[170px] px-5 py-2 text-white border border-blue-500 bg-blue-500"
+              class="flex items-center justify-center rounded w-[170px] px-5 py-2 text-white border border-blue-500 bg-blue-600"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 mr-2">
                 <path

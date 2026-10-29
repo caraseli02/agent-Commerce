@@ -1,0 +1,9 @@
+- button "Secure Checkout" [disabled]:
+    - img
+    - text: ''
+- paragraph: 'To continue, add: contact details, shipping address, billing address.'
+- link "Continue shopping":
+    - /url: /search
+    - img
+    - text: ''
+- paragraph: Card payments via Stripe test mode. No real money is charged.

@@ -31,7 +31,7 @@ describe('empty state UX contract (#194)', () => {
   it('keeps search fetch failures distinct from empty results', () => {
     const searchPage = source('app/pages/search.vue');
 
-    expect(searchPage).toContain('v-else-if="error"');
+    expect(searchPage).toContain('v-else-if="error && !pending"');
     expect(searchPage).toContain('role="alert"');
     expect(searchPage).toContain('SearchProducts');
   });
@@ -76,6 +76,16 @@ describe('empty state UX contract (#194)', () => {
     expect(existsSync(resolve(repoRoot, 'app/components/layout/favorites-cart-modal/favorites/Index.vue'))).toBe(false);
   });
 
+  it('teaches an empty order summary instead of showing summary skeletons and checkout actions', () => {
+    const orderSummary = source('app/pages/order-summary/index.vue');
+
+    expect(orderSummary).toContain('cartEmptyPreset');
+    expect(orderSummary).toContain('v-else-if="isCartEmpty"');
+    expect(orderSummary).toContain('<EmptyState v-bind="orderSummaryEmptyPreset"');
+    // Summary and CTAs live in the v-else branch, so they never render for an empty cart.
+    expect(orderSummary.indexOf('v-else-if="isCartEmpty"')).toBeLessThan(orderSummary.indexOf('<OrderSummaryCheckoutButtons'));
+  });
+
   it('shows guest-friendly empty states for checkout addresses instead of N/A placeholders', () => {
     const shippingBilling = source('app/components/order-summary/ShippingAndBillingSection.vue');
     const orderStockType = source('app/components/order-summary/OrderStockType.vue');
@@ -85,7 +95,9 @@ describe('empty state UX contract (#194)', () => {
     expect(orderStockType).toContain('guest-address-prompt');
     expect(orderStockType).toContain('Checkout as Guest');
     expect(checkoutButtons).toContain('checkout-as-guest');
-    expect(shippingBilling).toContain('GuestCheckoutAddressForm');
+    // The guest form moved to the main column of the order summary for room; the accordion points to it.
+    expect(shippingBilling).toContain('guest-details-pointer');
+    expect(source('app/pages/order-summary/index.vue')).toContain('<OrderSummaryGuestCheckoutAddressForm');
     expect(shippingBilling).not.toContain('billing-guest-empty');
     expect(shippingBilling).not.toContain('shipping-guest-empty');
     expect(orderStockType).toContain('showGuestSignInWall');

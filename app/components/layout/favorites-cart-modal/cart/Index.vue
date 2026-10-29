@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1 max-w-full h-full">
     <div v-if="cartReadPending" class="flex flex-1 items-center justify-center px-4 py-10" aria-busy="true" aria-live="polite">
-      <div class="h-10 w-48 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />
+      <div class="h-10 w-48 rounded-lg bg-slate-100 animate-pulse motion-reduce:animate-none" />
       <span class="sr-only">Loading cart…</span>
     </div>
 
@@ -33,7 +33,7 @@
         </div>
         <NuxtLink
           v-if="hasItems"
-          class="flex items-center justify-center gap-2 bg-blue-700 text-white rounded-lg px-[15px] py-2 leading-[1.75] font-medium w-full"
+          class="flex items-center justify-center gap-2 bg-blue-600 text-white rounded-lg px-[15px] py-2 leading-[1.75] font-medium w-full"
           to="/order-summary"
           @click="$emit('close')"
         >

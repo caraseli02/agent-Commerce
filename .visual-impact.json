@@ -308,11 +308,56 @@
       "consumers": "git grep finds admin-table/order/columns.ts only in admin-table/order/Order.vue (/dashboard/orders, admin) and client-table/order/columns.ts only in client-table/order/Index.vue (pages/dashboard/client/index.vue and pages/dashboard/customers/[slug]/index.vue). Seeded demo orders all carry user.contactDetails and a numeric total, so no screenshot changes; the orders group (client dashboard, mobile) is the representative check. Admin /dashboard/orders at 1440 and 390 is covered by browser evidence in the PR."
     },
     {
-      "fingerprint": "2fbcd92bbbd8ed448c9a73315229d0a62b61cc6bc70c94294d2da1b44f89eca9",
+      "fingerprint": "a24a0b9941f2eee2ea1e9edd745395e7d3601d5d2404c73ce1dad895391aeaf9",
+      "impact": "none",
+      "reason": "#648 changes controls only on /order-summary. The existing screenshot matrix does not visit that route; C1 parity supplies the affected-route ARIA, keyboard, interaction, runtime and before/after screenshot evidence at 390 and 1440. This assessment skips only unrelated matrix screenshots.",
+      "consumers": "Traced app/pages/order-summary/index.vue -> Header, NoteSection, Summary, CheckoutButtons, BannerCard, BannerImageCard, EcxlusiveOffer and Table -> Head/Item -> ItemHeader/ItemDropdown -> AdditionalDetails; OrderStockType -> ShippingAndBillingSection -> GuestCheckoutAddressForm -> GuestAddressFields. No shared UI primitive, global style, store or API implementation changes. ItemLG has no app/test consumers; ProductCard was already absent. Only the existing local selected flag handler is retained; the checkbox now reflects it. Sidebar cart rows/amounts do not consume that selection presentation. Home/search/product/cart-sheet/customer-order-history matrix routes do not render these controls; guest completion and sign-in checkout entry E2E additionally pass. ui-conventions-baseline.json is dev-only ratchet data."
+    },
+    {
+      "fingerprint": "65a4ac54ed450c5cd44f5683c6ff53077c18257f61f0c52ca89b485616083e2d",
       "impact": "targeted",
-      "tests": ["home", "search", "product", "cart", "orders"],
-      "reason": "Dark-theme follow-up (#759): class-only edits. Light hex surfaces gain dark: pairs (light output unchanged); UiButton sites swap hex for the equal light token (bg-accent = #F2F2F2, bg-secondary ~ #ECEFF3); text-bearing bg-blue-500 moves to bg-blue-700 (white text 3.83:1 -> 6.71:1), a called-out light-mode change. CheckoutButtons, EcxlusiveOffer and Table/AdditionalDetails are left to open PR #768 and follow after it merges.",
-      "consumers": "Touched files render on the storefront header mega-menu (home), /search (skeleton, pagination, filter modals), /product (skeleton, cart sheet checkout button), /order-summary (back-order warning, credit info) and dashboard/control-panel surfaces (orders tab bars, notifications, credit/discount settings). All five groups are selected; the light suite passed 9/9 locally with unchanged baselines. Dark mode is outside the matrix (#762) and is covered by dark Playwright captures at 1440 of the mega-menu, search, product, cart sheet, order summary, admin orders and control panel."
+      "tests": ["orders"],
+      "reason": "Dark-mode button overrides (#761): adds a success Button variant (existing variants unchanged) and moves four call sites off bg-* overrides onto success, destructive and secondary; eslint-suppressions.json only lowers counts.",
+      "consumers": "buttonVariants gains a key, so only callers that pass variant=\"success\" change. DeactivateUserModal renders behind a click from dashboard new-customers/Item, client/Info and customers/CustomerInformation (no matrix screenshot opens it). ActiveOrders renders on the /dashboard/client overview tab (not in the matrix). HeadControls and ViewOptions render in every dataTable header, including the client order table on /dashboard/client?tab=orders that the orders group (mobile) captures, so orders is selected; light-mode secondary (238,239,242) is within a few levels of the old accent (242,242,242). The modal, overview and admin tables are covered by browser evidence at 1440 in light and dark with computed colours."
+    },
+    {
+      "fingerprint": "85a5a3e32c9da16517f449706b0b14a1bcb36cfdd0b1a97ae026decb9b9190b7",
+      "impact": "none",
+      "reason": "#649 changes only checkout structural controls on /order-summary and saved-card controls on the client settings tab. Neither surface is rendered by the existing home/search/product/cart-sheet/order-history screenshot matrix. Affected routes instead have C2 desktop1440/mobile390 ARIA, tab-order, interaction, clean-runtime and before/after screenshot evidence.",
+      "consumers": "Traced app/pages/order-summary/index.vue -> OrderStockType -> ShippingPreferencesSection/PaymentMethodSection -> PayByCard/NewCard. PaymentModal also consumes PayByCard/NewCard under the checkout-only payment-management gate; its Change/Edit/action propagation is exercised against compiled real SFC scripts/templates and SSR markup. PayByCard is additionally consumed by dashboard/client/settings/CardsList.vue, rendered only by the settings Payments section, covered in the C2 browser scenarios at both widths. No shared primitive, global CSS, store, composable, route, API, price or payment contract implementation changes. ui-conventions-baseline.json is a development-only native-control ratchet; it removes exactly the five touched entries. Cart-sheet line rendering, product purchase controls and client order history do not import these components."
+    },
+    {
+      "fingerprint": "64b98918bed5310f384da712b0f7f63ccc7589dee8b9111fa211729d7a7d298d",
+      "impact": "uncertain",
+      "reason": "C3 changes live dashboard and confirmation controls outside the standard screenshot matrix; retain the full matrix plus scoped C3 parity rather than claim a narrow matrix group proves these surfaces.",
+      "consumers": "Dashboard client home credit/payment card, client settings add-card dialog, customer profile Recent Transactions, buyer /order-summary/ord-1 and admin /dashboard/orders/ord-1 notes are covered by C3 at390/1440 with keyboard/form and disabled-state checks. Four scoped credit/settings components are currently unreachable and verified by actual-SFC numeric/term/save tests; do not claim route or keyboard coverage for that dormant subtree. No shared primitive, style, API or payment contract changes. Ratchet removes21 native elements only."
+    },
+    {
+      "fingerprint": "344c9381b56b84eae1cfeb43fc410a64ecd46793c36c090cf82096160d7d6008",
+      "impact": "targeted",
+      "tests": ["cart"],
+      "reason": "Card-only buyer checkout (#787): visible disabled non-card choices, card/new-card selection, stale-draft reselection, availability copy and new-intent API rejection. No global theme/layout/store, catalog or historical read changes.",
+      "consumers": "CheckoutButtons and PaymentMethodSection render only in /order-summary via the page/OrderStockType; SessionCardForm renders /checkout/session. The shared eligibility helper reaches only these consumers and PlaceOrder via orders/new. Public error copy reaches checkout failure recovery. Guest/signed-in checkout at 390/1440, all stale non-card drafts, actual ARIA/keyboard controls and Payment Element states are covered separately by focused browser/parity evidence; none is represented in the standard matrix. Select cart as the existing matrix regression for checkout entry. History reads, storefront and provider/webhook/refund paths are unchanged."
+    },
+    {
+      "fingerprint": "a5de6bbf892f38e77db6433c1d805fb5bcc986176f1de0191d64472e78da0184",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "#764: the client dashboard wrapper (and its fallback) uses the header/footer `container` below 2xl and keeps its 1392px/32px box at 2xl; the credit card's limit/Pay now row may wrap when the narrower lg/xl grid would overflow it. No store, composable, layout or shared style changes.",
+      "consumers": "Both files render only on /dashboard/client (git grep: DashboardClientCredit is used only by app/pages/dashboard/client/index.vue). Below 640px `container` equals the old w-full + 16px padding, and the credit row fits without wrapping, so the orders group (client dashboard ?tab=orders, mobile 390) is the representative check and should stay pixel-identical. Desktop widths 1024-1536 are outside the matrix and are covered by tests/e2e/client-dashboard-width.spec.ts (header-edge alignment, unchanged 1328px content at 2xl, Pay now inside the card) plus signed-in browser screenshots at 390/768/1024/1200/1440/1536 in light and dark."
+    },
+    {
+      "fingerprint": "5f7264d55cbd6c528b764e9d651054fe423a571699a610ce52bdc627457b6749",
+      "impact": "none",
+      "reason": "Issue830 changes only externally invoked autonomy installation/admission tooling and reviewed policy assets; no observable application behavior changes.",
+      "consumers": "The Python installer is invoked explicitly from a clean source checkout after separate owner approval; recovery/admission run only through native dispatcher metadata tools. The only executable repository consumer is tests/codex-routing.spec.ts, which invokes temporary-host Python fixtures. A search of app/, server/ and nuxt.config.ts finds no imports or references to .codex-autonomy, install.py, admission.py or recovery.py. No route, rendered state, style, API response, database or Nuxt build input changes; existing installed host assets and all automations remain untouched."
+    },
+    {
+      "fingerprint": "3881930dd2a481f27804a31002f9291621bd557d6d17ee1d6e5caac61f3f0293",
+      "impact": "targeted",
+      "tests": ["cart"],
+      "reason": "Issue841 changes Inventory reservation identity/counters and explicit setup. Initialized checkout rendering remains compatible; missing bootstrap now refuses reservation. Cart is the representative existing matrix entry, with actual guest purchase separately exercised at1440x900 and390x844.",
+      "consumers": "Inventory reserve/commit/reestablish/recover are consumed by PlaceOrder and checkout payment continuation. Their results reach order-summary checkout and checkout success/failure; no catalog listing, PDP availability field, pricing, theme or historical order presentation changes. Bootstrap is imported only by the explicit CLI, isolated-schema setup and tests; runtime Inventory no longer inserts fixture balances. Focused PostgreSQL tests cover unknown/missing stock, aliases, quantities, expiry and recovery. The existing guest-checkout E2E completed a fresh purchase in a newly bootstrapped isolated schema at both viewports; inspected settled success screenshots are preserved in the private issue841 evidence directory. The later recovery guard changes only unsupported historical identities in active/committed states; final focused tests prove retry without counter writes, leaving the browser-tested known-product path unchanged. vercel.json adds only deploymentEnabled=false for this exact source branch, preventing automatic shared-Preview migrations on push; buildCommand/ignoreCommand and verification gates remain unchanged. This platform publication setting does not render in the application."
     }
   ]
 }

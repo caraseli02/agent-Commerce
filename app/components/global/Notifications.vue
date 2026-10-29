@@ -15,7 +15,7 @@
           </div>
           <span
             v-if="unreadNotifications > 0"
-            class="z-10 -top-1 -right-[9px] -translate-y-2 flex h-[18px] items-center justify-center rounded-[100px] bg-rose-500 font-Inter text-xs font-medium leading-[1.5] text-white xl:-translate-y-[18px]"
+            class="z-10 -top-1 -right-[9px] -translate-y-2 flex h-[18px] items-center justify-center rounded-[100px] bg-rose-600 font-Inter text-xs font-medium leading-[1.5] text-white xl:-translate-y-[18px]"
             :class="[
               unreadNotifications < 10 ? 'w-[18px]' : unreadNotifications < 100 ? 'w-6' : 'w-[31px]',
               adminView ? '-translate-x-1 xl:-translate-x-[8px]' : '-translate-x-2.5 xl:-translate-x-[38px]',
@@ -58,7 +58,7 @@
                 <UiBadge
                   :key="tab.badge"
                   variant="secondary"
-                  :class="{ 'bg-blue-700 text-white': selectedTab === tab.value }"
+                  :class="{ 'bg-blue-600 text-white': selectedTab === tab.value }"
                   class="ml-1 h-5 min-w-5 rounded-full p-1.5 text-xs"
                 >
                   {{ tab.badge }}

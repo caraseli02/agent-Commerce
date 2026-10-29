@@ -18,6 +18,8 @@ describe('durable PlaceOrder persistence', () => {
     await database.execute(
       'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
     );
+    const { bootstrapInventory } = await import('../server/domain/inventory/bootstrap.mjs');
+    await bootstrapInventory({ dryRun: false });
   });
 
   it('persists demo history in Orders with canonical customer ownership and reconciled money', async () => {
@@ -41,6 +43,22 @@ describe('durable PlaceOrder persistence', () => {
       if (!first?.money) throw new Error('Expected persisted demo order money');
       expect(first.money.total).toBe(first.money.subtotal + first.money.shippingCost + first.money.vatAmount);
       expect(first?.shippingDetails.stockorderShippingType.price.total).toBe(first?.money.shippingCost);
+    } finally {
+      if (previousMockMode === undefined) delete process.env.NUXT_PUBLIC_MOCK_MODE;
+      else process.env.NUXT_PUBLIC_MOCK_MODE = previousMockMode;
+    }
+  });
+
+  it('seeds demo history once when a cold dashboard reads orders concurrently', async () => {
+    const previousMockMode = process.env.NUXT_PUBLIC_MOCK_MODE;
+    process.env.NUXT_PUBLIC_MOCK_MODE = 'true';
+
+    try {
+      const { orders } = await import('../server/domain/orders');
+      const reads = await Promise.all([orders.list(), orders.list(), orders.list('mock-customer-1'), orders.list()]);
+
+      expect(reads[0].length).toBeGreaterThan(0);
+      expect(new Set([reads[0].length, reads[1].length, reads[3].length]).size).toBe(1);
     } finally {
       if (previousMockMode === undefined) delete process.env.NUXT_PUBLIC_MOCK_MODE;
       else process.env.NUXT_PUBLIC_MOCK_MODE = previousMockMode;
@@ -113,24 +131,24 @@ describe('durable PlaceOrder persistence', () => {
     expect(independentRead?.order._id).toBe(first.orderId);
     expect(independentRead?.order.products[0]).toMatchObject({
       id: 'prod-1',
-      initialUnitPrice: 999.99,
-      unitPriceAfterDiscounts: 949.99,
-      discount: expect.objectContaining({ value: 5, total: 50 }),
-      subtotal: 949.99,
-      vatTotal: 180.5,
+      initialUnitPrice: 84.9,
+      unitPriceAfterDiscounts: 80.66,
+      discount: expect.objectContaining({ value: 5, total: 4.24 }),
+      subtotal: 80.66,
+      vatTotal: 15.33,
     });
-    expect(independentRead?.order.subtotal).toBe(949.99);
+    expect(independentRead?.order.subtotal).toBe(80.66);
     expect(independentRead?.order.money).toEqual({
       currency: 'RON',
-      subtotal: 949.99,
-      discountAmount: 50,
+      subtotal: 80.66,
+      discountAmount: 4.24,
       shippingCost: 19.9,
       smallOrderCharge: 0,
       vatRate: 0.19,
-      vatAmount: 180.5,
-      total: 1150.39,
+      vatAmount: 15.33,
+      total: 115.89,
     });
-    expect(independentRead?.order.total).toBe(1150.39);
+    expect(independentRead?.order.total).toBe(115.89);
     expect(independentList.some((order) => order._id === first.orderId)).toBe(true);
     expect(crossCustomerRead).toBeNull();
     expect(crossCustomerList.some((order) => order._id === first.orderId)).toBe(false);
@@ -419,6 +437,6 @@ describe('durable PlaceOrder persistence', () => {
     const persisted = await ordersModule.orders.findById(result.orderId);
 
     expect(user.adminSettings?.discount?.value).toBe(0);
-    expect(persisted?.order.subtotal).toBe(999.99);
+    expect(persisted?.order.subtotal).toBe(84.9);
   });
 });

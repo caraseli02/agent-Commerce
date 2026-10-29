@@ -58,7 +58,7 @@ export function buildProductJsonLd(product: ProductDetail, context: ProductJsonL
     url,
     description: clean(product.description),
     image: image ? [toAbsoluteUrl(image)] : undefined,
-    // `manufacturerCode` is a short manufacturer abbreviation in the catalog, not a part number, so no `mpn`.
+    // `manufacturerCode` is a part number only for some seeded components and a SKU code elsewhere, so no `mpn`.
     sku: clean(product.code) || clean(product.alias),
     brand: manufacturer ? { '@type': 'Brand', name: manufacturer } : undefined,
     offers: buildOffer(product, context),

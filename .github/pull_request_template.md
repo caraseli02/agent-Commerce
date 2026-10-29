@@ -23,6 +23,10 @@
 - [ ] `pnpm test` — outcome:
 - [ ] Browser/runtime evidence, if applicable — route / screenshot / notes:
 
+## Screenshots
+
+<!-- Required when the PR changes app/, public/ or UI config: run `pnpm pr:screenshots --routes "<affected routes>"` after the last UI commit and replace this section with its output (before/after, light/dark, desktop/mobile). If UI files changed but nothing visible did, write a line starting "No visible change:" with the reason. Without UI files, write "Not applicable: no UI files changed." -->
+
 ## Known risks
 
 - [ ] None

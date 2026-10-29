@@ -3,7 +3,7 @@ import json
 import pathlib
 import unittest
 
-from router import local_verification_marker, UnsafeEvidence, admit_findings, classify, evaluator, fingerprint, handoff, overlap, route
+from router import attests_local_verification, local_verification_marker, UnsafeEvidence, admit_findings, classify, evaluator, fingerprint, handoff, overlap, route
 from discover import registry_report
 
 CONFIG = json.loads(pathlib.Path(__file__).with_name('config.json').read_text())
@@ -13,6 +13,10 @@ SCOPE = {'paths': ['app/feature.vue'], 'consumers': ['app/pages/feature.vue'], '
 
 def report(verdict='PASS', head=HEAD, login='caraseli02', who='Claude (separate reviewer)'):
     return {'user': {'login': login}, 'body': f'<!-- evaluator-head: {head} -->\nIndependent evaluator: {who}\n## Evaluator verdict\n{verdict} — evidence'}
+
+
+def marked(comment, value):
+    return dict(comment, body=comment['body'] + '\n' + local_verification_marker(value))
 
 
 def issue(number=1, claimed=True):
@@ -99,6 +103,8 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
 
     def test_local_verification_missing_mergeability_and_requests(self):
+        p = pr(); p['local_review']['readiness'] = {'ready': False}
+        self.assertEqual(self.state(p=p)['state'], 'waiting_local_verification')
         p = pr(); p['comments'][0]['body'] = report()['body']
         self.assertEqual(self.state(p=p)['state'], 'waiting_local_verification')
         p = pr(); p['mergeable'] = None
@@ -106,29 +112,46 @@ class RoutingTests(unittest.TestCase):
         p = pr(); p['reviews'] = [{'state': 'CHANGES_REQUESTED', 'user': {'login': 'human'}}]
         self.assertEqual(self.state(p=p)['state'], 'repair')
 
-    def test_context_drift_blocks_and_retired_ci_is_irrelevant(self):
+    def test_base_body_and_label_drift_keep_the_head_verdict_and_retired_ci_is_irrelevant(self):
         for field, value in [('body', 'changed'), ('labels', ['changed'])]:
             p = pr(); p[field] = value
-            self.assertNotEqual(self.state(p=p)['state'], 'queued_awaiting_human', field)
-        for field in ['sha', 'ref']:
-            p = pr(); p['base'][field] = 'f' * 40
-            self.assertNotEqual(self.state(p=p)['state'], 'queued_awaiting_human', field)
+            self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human', field)
+        p = pr(); p['base']['sha'] = 'f' * 40
+        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
         p = pr(); p['checks'] = []; p['statuses'] = [{'context': 'local-ci/verify', 'state': 'failure'}]
         self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
 
     def test_live_template_failure_and_context_race_block_queue_admission(self):
         p = pr(); p['local_review']['checks']['state'] = 'failure'
         self.assertEqual(self.state(p=p)['state'], 'repair')
-        for key, value in [('marker', 'changed'), ('head', 'f' * 40), ('base', 'f' * 40), ('readiness', {'ready': False})]:
+        for key, value in [('head', 'f' * 40), ('readiness', {'ready': False})]:
             p = pr(); p['local_review'][key] = value
             self.assertNotEqual(self.state(p=p)['state'], 'queued_awaiting_human', key)
 
-    def test_new_context_report_preserves_history_without_conflict(self):
-        p = pr(); old = report('FAIL'); old['body'] += '\n' + local_verification_marker(dict(p, body='previous context'))
-        p['comments'].insert(0, old)
-        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+    def test_re_review_request_reopens_fail_or_blocked_but_never_pass(self):
+        request = {'user': {'login': 'caraseli02'}, 'body': f'<!-- external-review-request: {HEAD} -->\nPR body fixed.'}
+        for first in ('FAIL', 'BLOCKED'):
+            p = pr(); p['comments'][:0] = [report(first), request]
+            self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human', first)
+            p = pr(); p['comments'] = [report(first), request]
+            self.assertEqual(self.state(p=p)['state'], 'waiting_first_evaluation', first)
+        p = pr(); p['comments'].insert(0, marked(report('FAIL'), p))
+        self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
+        p = pr(); p['comments'] += [request, marked(report('FAIL'), p)]
+        self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
+        fails = [report('FAIL'), request, report('FAIL')]
+        self.assertEqual(evaluator(fails, HEAD, CONFIG['trusted_evaluator_logins']), 'FAIL')
+        self.assertIsNone(evaluator(fails + [request], HEAD, CONFIG['trusted_evaluator_logins']))
+
+    def test_audit_line_attests_and_supersedes_legacy_reports(self):
         p = pr(); p['comments'].insert(0, report('FAIL'))
         self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+        p = pr(); p['comments'].append(report('FAIL'))
+        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+        line = local_verification_marker(pr())
+        self.assertTrue(attests_local_verification('x\n' + line, HEAD))
+        for body in ('> ' + line, line + ' trailing', line.replace(f'head={HEAD}', 'head=' + 'b' * 40), 'no line'):
+            self.assertFalse(attests_local_verification(body, HEAD), body)
 
     def test_unpublished_drafts_contracts_global_paths_not_exempt(self):
         for path in ['pnpm-lock.yaml', 'tests/shared.spec.ts', 'nuxt.config.ts', 'migrations/001.sql', 'types/shared.ts']:

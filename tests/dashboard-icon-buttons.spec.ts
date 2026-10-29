@@ -13,7 +13,6 @@ const files = [
   'new-customers/Item.vue',
   'customers/CustomerInformation.vue',
   'customers/DefaultShippingAddress.vue',
-  'orders/InfoCards.vue',
   'client/Info.vue',
 ].map((name) => `app/components/dashboard/${name}`);
 

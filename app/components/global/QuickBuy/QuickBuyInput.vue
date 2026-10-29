@@ -2,10 +2,9 @@
 import { Trash2 } from '@lucide/vue';
 import type { QuickBuyItem } from '~~/types/product';
 
-const localQuantity = ref(1);
-
 const props = defineProps<QuickBuyItem & { error?: string; canRemove?: boolean }>();
 const localCode = ref(props.code);
+const localQuantity = ref(props.quantity);
 // Inline and dialog rows render side by side, so IDs come from useId rather than the row index (#700).
 const inputId = useId();
 const errorId = useId();
@@ -20,10 +19,17 @@ const emitUpdate = () => {
 };
 
 watch(localQuantity, (newQuantity) => {
-  if (newQuantity < 1) localQuantity.value = 1;
-  emit('updateProduct', { index: props.index, code: localCode.value, quantity: localQuantity.value });
+  if (newQuantity < 1) {
+    localQuantity.value = 1;
+    return;
+  }
+  // Only shopper changes write back; a sync from the prop must not re-emit a stale code (#792).
+  if (newQuantity !== props.quantity) {
+    emit('updateProduct', { index: props.index, code: props.code, quantity: newQuantity });
+  }
 });
 
+// Rows are keyed by index, so removing a row hands this component the next row's values (#792).
 watch(
   () => props.code,
   (code) => {
@@ -31,9 +37,12 @@ watch(
   },
 );
 
-onMounted(() => {
-  localQuantity.value = props.quantity;
-});
+watch(
+  () => props.quantity,
+  (quantity) => {
+    localQuantity.value = quantity;
+  },
+);
 </script>
 
 <template>

@@ -49,7 +49,7 @@
             </div>
             <div
               v-if="hasFavorites"
-              class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-blue-500 transition-all cursor-pointer"
+              class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-primary transition-colors cursor-pointer"
             >
               <UiButton variant="ghost" class="h-auto p-0 text-sm font-medium leading-5 grow">Favorites</UiButton>
               <SvgoArrowLeft16
@@ -63,9 +63,9 @@
           <div class="justify-between items-stretch self-stretch flex grow flex-col">
             <div class="items-stretch flex justify-between gap-4">
               <div
-                class="justify-center items-center bg-blue-500 bg-opacity-30 flex aspect-square flex-col p-2 w-13 h-13 md:w-11 md:h-11 md:p-1 lg:w-14 lg:h-14 lg:p-2 rounded-[100px]"
+                class="justify-center items-center bg-primary bg-opacity-30 flex aspect-square flex-col p-2 w-13 h-13 md:w-11 md:h-11 md:p-1 lg:w-14 lg:h-14 lg:p-2 rounded-[100px]"
               >
-                <div class="justify-center items-center bg-blue-500 flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]">
+                <div class="justify-center items-center bg-primary flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]">
                   <svg
                     class="w-5 h-5 lg:w-6 lg:h-6 aspect-square object-contain object-center justify-center items-center overflow-hidden"
                     viewBox="0 0 24 24"
@@ -120,7 +120,7 @@
                 </div>
               </div>
             </div>
-            <div class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-blue-500 cursor-pointer">
+            <div class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-primary cursor-pointer">
               <UiButton variant="ghost" size="xs" class="text-sm font-medium leading-5 gap-2" @click="openSettingTab">
                 Orders
                 <SvgoArrowLeft16
@@ -182,7 +182,7 @@
                 </div>
               </div>
             </div>
-            <div class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-blue-500 cursor-pointer">
+            <div class="items-stretch flex gap-2 self-end text-muted-foreground hover:text-primary cursor-pointer">
               <UiButton variant="ghost" class="h-auto p-0 text-sm font-medium leading-5 grow whitespace-nowrap">All Returns</UiButton>
               <SvgoArrowLeft16
                 class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"

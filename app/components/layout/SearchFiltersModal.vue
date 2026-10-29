@@ -3,7 +3,7 @@
     <UiSheetContent
       side="bottom"
       hidde-close-button
-      overlay-class-name="z-[70] bg-[#333333]/70 backdrop-blur-[2px]"
+      overlay-class-name="z-[70] bg-[#333333]/70"
       class="z-[70] flex max-h-[85vh] w-full flex-col gap-0 overflow-hidden rounded-t-[15px] border-none p-0 shadow-xs sm:max-w-none [&>button.fixed]:hidden"
     >
       <div v-touch:drag="onDrag" class="flex items-center justify-between px-5 py-5">
@@ -12,7 +12,7 @@
           <UiButton
             variant="ghost"
             size="icon"
-            class="h-11 w-11 rounded bg-accent text-muted-foreground hover:bg-accent hover:text-muted-foreground"
+            class="h-11 w-11 rounded bg-[#F2F2F2] text-muted-foreground hover:bg-[#F2F2F2] hover:text-muted-foreground"
             aria-label="Close filters"
           >
             <XIcon class="h-[15px] w-[15px]" />
@@ -21,14 +21,14 @@
       </div>
       <div v-touch:drag="onDrag" class="mb-[25px] flex items-center gap-[15px] px-[15px]">
         <UiButton
-          class="flex items-center justify-center rounded bg-blue-700 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-700"
+          class="flex items-center justify-center rounded bg-blue-600 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-700"
           @click="$emit('show-add-filters-modal')"
         >
           <FiltersIcon class="mr-2 h-5 w-5" />
           <span>Add Filters</span>
         </UiButton>
         <UiButton
-          class="flex items-center justify-center rounded bg-blue-700 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-700"
+          class="flex items-center justify-center rounded bg-blue-600 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-700"
         >
           <ResetIcon class="mr-2 h-5 w-5" />
           <span>Reset Filters</span>

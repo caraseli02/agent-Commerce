@@ -29,6 +29,7 @@ export const checkoutErrorCodes = [
   'missing_order_id',
   'canceled',
   'unsupported_payment_type',
+  'payment_method_unavailable',
   'card_declined',
   'checkout_failed',
   'checkout_exception',
@@ -42,6 +43,10 @@ export const checkoutErrorData = (code: CheckoutErrorCode): { code: CheckoutErro
 // Public HTTP copy belongs to this contract; routes select a response by code.
 // UI recovery copy can differ, but identical wording should reuse this owner.
 export const checkoutHttpErrors = {
+  payment_method_unavailable: {
+    statusCode: 422,
+    statusMessage: 'This payment method is temporarily unavailable. Select a card to continue.',
+  },
   stripe_payments_disabled: { statusCode: 503, statusMessage: 'Stripe payments are unavailable.' },
   checkout_not_payable: { statusCode: 409, statusMessage: 'This order cannot accept another payment.' },
   inventory_unavailable: { statusCode: 409, statusMessage: 'The order is no longer available for payment.' },

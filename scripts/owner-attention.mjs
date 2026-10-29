@@ -19,8 +19,11 @@ import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 import { execFileSync } from 'node:child_process';
 import { assessPrTemplate } from './check-pr-template.mjs';
+import { uiDiff, uiPath } from './ui-evidence.mjs';
 
 export const BOT_LOGIN = 'github-actions[bot]';
+const SELF_LABEL = 'agent:claude-self';
+const CLAUDE_OWNER_LABELS = new Set(['agent:claude', SELF_LABEL]);
 export const QUEUE_ISSUE_TITLE = "Owner attention: Claude's build queue is empty";
 const log = (message) => process.stdout.write(`${message}\n`);
 const OWN_CHECK_NAMES = new Set(['owner-attention']);
@@ -45,6 +48,9 @@ export function parseFactoryConfig(yamlText) {
   let group = null;
   let neverClaim = [];
   let mode = null;
+  let maxPassQueue = null;
+  let inImprove = false;
+  const improve = { enabled: false, maxOpen: 0 };
 
   for (const raw of lines) {
     const line = raw.replace(/\s+#.*$/, '');
@@ -71,11 +77,21 @@ export function parseFactoryConfig(yamlText) {
         .filter(Boolean);
       continue;
     }
+    if (/^ {4}\S/.test(line)) inImprove = /^ {4}improve:\s*$/.test(line);
+    if (inImprove) {
+      const enabledMatch = line.match(/^ {6}enabled:\s*(true|false)\s*$/);
+      if (enabledMatch) improve.enabled = enabledMatch[1] === 'true';
+      const maxOpenMatch = line.match(/^ {6}max_open:\s*(\d+)\s*$/);
+      if (maxOpenMatch) improve.maxOpen = Number(maxOpenMatch[1]);
+      continue;
+    }
+    const queueMatch = line.match(/^\s+max_pass_queue:\s*(\d+)\s*$/);
+    if (queueMatch) maxPassQueue = Number(queueMatch[1]);
     const modeMatch = line.match(/^ {4}mode:\s*([\w-]+)/);
     if (modeMatch && mode === null) mode = modeMatch[1];
   }
 
-  return { protectedPaths, neverClaim, mode };
+  return { protectedPaths, neverClaim, mode, maxPassQueue, improve };
 }
 
 export function globToRegExp(pattern) {
@@ -142,51 +158,74 @@ const VERDICT_HEADING = '## Evaluator verdict';
 // `Independent evaluator:` at line start (optionally bold) followed by a non-empty attribution.
 const ATTRIBUTION_LINE = /^[ \t>]*(?:[*_]{1,2})?Independent evaluator(?:[*_]{1,2})?[ \t]*:(?:[*_]{1,2})?[ \t]*[^\s*_]/im;
 
-// Structured evaluator verdict for the exact head, as autonomous-workflow.md defines it:
-// it must come from an account the evaluators post through and carry explicit
-// independent-evaluator attribution, so an outsider's look-alike comment never counts.
-// Contradictory reports for the same head need clarification, so they resolve to
-// CONFLICTING rather than letting the newest one win.
-export function latestEvaluatorVerdict(comments, headSha, { trustedLogins, contextMarker = null }) {
+// The report's own audit line for this head, on a line of its own: proof that the review ran
+// under the local-verification policy. Any base tip and metadata digest are accepted, since
+// the verdict belongs to the head; a legacy report without the line attests nothing.
+export function attestsLocalVerification(body, headSha) {
   const head = String(headSha ?? '').toLowerCase();
-  if (!head) return null;
+  if (!/^[0-9a-f]{7,64}$/.test(head)) return false;
+  const line = new RegExp(`^<!-- local-verification: head=${head} base=[0-9a-f]{40} metadata=[0-9a-f]{64} -->$`, 'i');
+  return String(body ?? '')
+    .split(/\r?\n/)
+    .some((entry) => line.test(entry));
+}
+
+// The reports that decide the head's verdict, oldest first. Reports must come from an
+// account the evaluators post through and carry explicit independent-evaluator attribution,
+// so an outsider's look-alike comment never counts. A verdict belongs to the head alone: a
+// later base tip, PR body or label set does not reopen it (local-verification.md § Verdict
+// lifetime). Reports with the head's local-verification line supersede legacy unmarked
+// ones, which stay as history. A re-review request for the head
+// (`<!-- external-review-request: <head> -->`) posted after a FAIL or BLOCKED without a
+// PASS starts a new round, so the reports before it no longer count.
+function evaluatorRound(comments, headSha, { trustedLogins }) {
+  const head = String(headSha ?? '').toLowerCase();
+  if (!head) return [];
   const trusted = new Set((trustedLogins ?? []).map((login) => String(login).toLowerCase()));
   trusted.delete(BOT_LOGIN);
   const markers = [`<!-- evaluator-head: ${head} -->`, `<!-- local-evaluator sha=${head} -->`];
-  const reports = [];
+  const request = `<!-- external-review-request: ${head} -->`;
+  const counted = (reports) => (reports.some((report) => report.attested) ? reports.filter((report) => report.attested) : reports);
+  let round = [];
   for (const comment of comments ?? []) {
     const body = String(comment?.body ?? '');
     const start = body.trimStart().toLowerCase();
     if (!trusted.has(String(comment?.user?.login ?? '').toLowerCase())) continue;
+    if (start.startsWith(request)) {
+      if (round.length && !counted(round).some((report) => report.verdict === 'PASS')) round = [];
+      continue;
+    }
     if (!markers.some((tag) => start.startsWith(tag)) || !body.includes(VERDICT_HEADING)) continue;
     if (!ATTRIBUTION_LINE.test(body)) continue;
     const after = body.slice(body.indexOf(VERDICT_HEADING) + VERDICT_HEADING.length);
     const firstLine = after.split(/\r?\n/).find((line) => line.trim()) ?? '';
     const match = firstLine.match(/^[\s*_>]*(PASS|FAIL|BLOCKED|INCONCLUSIVE)\b/i);
     if (match)
-      reports.push({
-        verdict: match[1].toUpperCase(),
-        url: comment.html_url ?? null,
-        current: contextMarker !== null && body.split(/\r?\n/).includes(contextMarker),
-        contextual: /^<!-- local-verification:/m.test(body),
-      });
+      round.push({ verdict: match[1].toUpperCase(), url: comment.html_url ?? null, attested: attestsLocalVerification(body, head) });
   }
-  // Append one report for a new context rather than editing an arbitrary comment
-  // posted through the shared owner account. Contradictions in one context block.
-  const selected =
-    contextMarker === null
-      ? reports
-      : reports.some((report) => report.current)
-        ? reports.filter((report) => report.current)
-        : reports.filter((report) => !report.contextual);
-  if (!selected.length) return null;
-  const latest = selected.at(-1);
-  const verdicts = [...new Set(selected.map((report) => report.verdict))];
+  return counted(round);
+}
+
+// Structured evaluator verdict for the exact head, as autonomous-workflow.md defines it.
+// Contradictory reports in the deciding round need clarification, so they resolve to
+// CONFLICTING rather than letting the newest one win.
+export function latestEvaluatorVerdict(comments, headSha, { trustedLogins }) {
+  const round = evaluatorRound(comments, headSha, { trustedLogins });
+  if (!round.length) return null;
+  const latest = round.at(-1);
+  const verdicts = [...new Set(round.map((report) => report.verdict))];
   return verdicts.length > 1 ? { verdict: 'CONFLICTING', url: latest.url, verdicts } : { verdict: latest.verdict, url: latest.url };
 }
 
-// An independent review attests local execution; this is not a separate CI receipt.
-// Include live metadata so a changed description or authorization needs revalidation.
+// A head whose verdict rests only on legacy unmarked reports has had no review under the
+// local-verification policy yet, so it stays open for one.
+export function hasLocallyAttestedVerdict(comments, headSha, { trustedLogins }) {
+  return evaluatorRound(comments, headSha, { trustedLogins }).some((report) => report.attested);
+}
+
+// Records the head, base tip and metadata a review tested. It is an audit line in the
+// report, not a lifetime: the verdict stays with the head (latestEvaluatorVerdict).
+// The Codex router computes the same string (.codex-autonomy/router.py).
 export function localVerificationMarker(pr) {
   const labels = (pr.labels ?? []).map((label) => (typeof label === 'string' ? label : label.name)).sort();
   const metadata = createHash('sha256')
@@ -195,12 +234,42 @@ export function localVerificationMarker(pr) {
   return `<!-- local-verification: head=${pr.head.sha} base=${pr.base.sha} metadata=${metadata} -->`;
 }
 
-export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator }) {
+// The PR's own UI change, so the template check can enforce the ## Screenshots rule. A head that
+// cannot be diffed locally is `unavailable`, which fails the check instead of skipping it.
+export function prUiContext(pr, { diff = uiDiff, fetchHead = fetchPullHead } = {}) {
+  try {
+    return { fingerprint: diff({ head: pr.head.sha }).fingerprint };
+  } catch {
+    try {
+      fetchHead(pr.number);
+      return { fingerprint: diff({ head: pr.head.sha }).fingerprint };
+    } catch {
+      return { unavailable: true };
+    }
+  }
+}
+
+// A PR with no UI file needs no fingerprint, and the file list says so without the head.
+// A rename out of a UI path removes a UI file, so the old name counts too.
+export async function uiContextFor(gh, pr, { local = prUiContext } = {}) {
+  const files = await gh.paginate(`/pulls/${pr.number}/files`);
+  if (files.length < 3000 && !files.some((file) => uiPath(file.filename) || (file.previous_filename && uiPath(file.previous_filename))))
+    return { fingerprint: null };
+  return local(pr);
+}
+
+function fetchPullHead(number) {
+  execFileSync('git', ['fetch', '--quiet', 'origin', `refs/pull/${number}/head`, '+refs/heads/main:refs/remotes/origin/main'], {
+    stdio: 'ignore',
+    timeout: 60_000,
+  });
+}
+
+export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator, ui }) {
   const pending = [];
   const failing = [];
-  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label) });
+  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label), ui });
   if (template.status === 'failed') failing.push(...template.violations);
-  const marker = localVerificationMarker(pr);
   const verified = comments.some((comment) => {
     const verdict = latestEvaluatorVerdict([comment], pr.head.sha, { trustedLogins });
     const attribution = String(comment.body ?? '').match(
@@ -209,10 +278,10 @@ export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluat
     return (
       verdict?.verdict === 'PASS' &&
       new RegExp(`\\b${expectedEvaluator}\\b`, 'i').test(attribution?.[1] ?? '') &&
-      String(comment.body).split(/\r?\n/).includes(marker)
+      attestsLocalVerification(comment.body, pr.head.sha)
     );
   });
-  if (!verified) pending.push('independent local verification for current head/base/metadata');
+  if (!verified) pending.push('independent local verification for the current head');
   return { state: failing.length ? 'failure' : pending.length ? 'pending' : 'success', failing, pending };
 }
 
@@ -227,15 +296,15 @@ export function createGhClient(repository) {
   return { get: (path) => api(path), paginate: (path) => api(`${path}${path.includes('?') ? '&' : '?'}per_page=100`, true) };
 }
 
-export async function readLocalEvidence(number, { gh, owner, config, trustedLogins = [owner] }) {
+export async function readLocalEvidence(number, { gh, owner, config, trustedLogins = [owner], uiFor = (pr) => uiContextFor(gh, pr) }) {
   const pr = await gh.get(`/pulls/${number}`);
   const ref = `/git/ref/heads/${encodeURIComponent(pr.base.ref)}`;
   pr.base.sha = (await gh.get(ref)).object.sha;
   const comments = await gh.paginate(`/issues/${number}/comments`);
   const reviews = await gh.paginate(`/pulls/${number}/reviews`);
   const claude = await isClaudeBuiltPr(gh, pr);
-  const checks = assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator: claude ? 'Codex' : 'Claude' });
-  const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins, contextMarker: localVerificationMarker(pr) });
+  const checks = assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator: claude ? 'Codex' : 'Claude', ui: await uiFor(pr) });
+  const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins });
   const readiness = assessReadiness({ pr, checks, verdict, reviews });
   if (claude) {
     const files = await gh.paginate(`/pulls/${number}/files`);
@@ -246,17 +315,16 @@ export async function readLocalEvidence(number, { gh, owner, config, trustedLogi
       readiness.reasons.push('Claude protected-harness authorization missing');
     }
   }
-  // A changing context during the read is pending, never an old green result.
+  // A head, body or label change during the read is pending, never an old green result.
+  // A moving base tip is not: the verdict belongs to the head.
   const current = await gh.get(`/pulls/${number}`);
-  const base = (await gh.get(ref)).object.sha;
   if (
     current.state !== 'open' ||
     current.draft ||
     current.mergeable !== true ||
     current.base.ref !== pr.base.ref ||
     current.head.sha !== pr.head.sha ||
-    base !== pr.base.sha ||
-    localVerificationMarker({ ...current, base: { ...current.base, sha: base } }) !== localVerificationMarker(pr)
+    localVerificationMarker({ ...current, base: pr.base }) !== localVerificationMarker(pr)
   ) {
     readiness.ready = false;
     readiness.reasons.push('PR context changed during readiness read');
@@ -409,21 +477,70 @@ export function claudeQueueState(
   { neverClaim, openIssueNumbers, claimedNumbers = new Set(), skippedNumbers = new Set(), queuedNumbers = new Set() },
 ) {
   const claude = (issues ?? []).filter(
-    (issue) => !issue.pull_request && (issue.labels ?? []).some((label) => label.name === 'agent:claude'),
+    (issue) => !issue.pull_request && (issue.labels ?? []).some((label) => CLAUDE_OWNER_LABELS.has(label.name)),
   );
   const labelsOf = (issue) => new Set((issue.labels ?? []).map((label) => label.name));
   const claimed = claude.filter((issue) => labelsOf(issue).has('in-progress') && !labelsOf(issue).has('blocked'));
   const queued = claimed.filter((issue) => queuedNumbers.has(issue.number));
   const live = claimed.filter((issue) => !queuedNumbers.has(issue.number));
+  // Only Vlad's agent:claude queues a build; a released self-started issue never comes back.
   const eligible = claude.filter((issue) => {
     const labels = labelsOf(issue);
+    if (!labels.has('agent:claude')) return false;
     if (labels.has('in-progress') || (issue.assignees ?? []).length) return false;
     if (neverClaim.some((label) => labels.has(label))) return false;
     if ((issue.issue_dependencies_summary?.blocked_by ?? 0) > 0) return false;
     if (claimedNumbers.has(issue.number) || skippedNumbers.has(issue.number)) return false;
     return parseDependencies(issue.body).every((number) => !openIssueNumbers.has(number));
   });
-  return { live, queued, eligible, idle: live.length === 0 && eligible.length === 0 };
+  // Parked self claims still hold an improve slot, so blocked ideas never pile up.
+  const selfClaims = claude.filter((issue) => labelsOf(issue).has(SELF_LABEL) && labelsOf(issue).has('in-progress'));
+  return { live, queued, eligible, selfClaims, idle: live.length === 0 && eligible.length === 0 };
+}
+
+// The routine's cheap first look (claude-routine.md step 1.6). It orders the routes the
+// way steps 2-4 do, from GitHub state alone, so a run with nothing to repair, review or
+// build skips the heavy setup and scans. The routine still confirms the chosen route's
+// own conditions before acting.
+// What routeDecision needs from a claim's open PR: the head's verdict, selected the same
+// way local-readiness selects it. A failed PR-template check is routine step 2 repair
+// work: rewrite the body.
+export function claimPrSummary(pr, comments, { trustedLogins, ui }) {
+  const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins });
+  const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label), ui });
+  return { number: pr.number, mergeable: pr.mergeable, verdict: verdict?.verdict ?? null, templateFailed: template.status === 'failed' };
+}
+
+// `claims` are { number, live, pr: claimPrSummary | null } for every Claude claim that is
+// neither parked nor waiting; `reviewable` are non-Claude PR numbers whose head has no
+// verdict, because it was never reviewed or a re-review was requested, only an
+// INCONCLUSIVE one, or only legacy reports without a local-verification line. A live claim whose head is BLOCKED was unparked by Vlad: its repair
+// is the re-review request, as claude-routine.md step 2 says.
+export function routeDecision({ mode, maxPassQueue, improve, claims, reviewable, eligible, selfClaims }) {
+  const build = mode === 'build';
+  if (build) {
+    const repair = claims.find(
+      (claim) =>
+        claim.pr &&
+        (claim.pr.mergeable === false ||
+          claim.pr.verdict === 'FAIL' ||
+          claim.pr.templateFailed === true ||
+          (claim.live && claim.pr.verdict === 'BLOCKED')),
+    );
+    if (repair) return { route: 'repair', issue: repair.number, pr: repair.pr.number };
+    const resume = claims.find((claim) => claim.live && !claim.pr);
+    if (resume) return { route: 'build', issue: resume.number, reason: 'live claim has no PR' };
+  }
+  if (reviewable.length) return { route: 'review', pr: reviewable[0] };
+  if (!build) return { route: 'night', reason: 'review-only mode' };
+  const waiting = claims.find((claim) => claim.live);
+  if (waiting) return { route: 'night', reason: `live claim #${waiting.number} waits for review` };
+  const queued = claims.filter((claim) => !claim.live).length;
+  if (queued >= maxPassQueue) return { route: 'night', reason: `PASS queue full (${queued})` };
+  if (eligible.length) return { route: 'build', issue: eligible[0], reason: 'eligible agent:claude issue (confirm overlap)' };
+  if (!improve?.enabled) return { route: 'night', reason: 'improve lane disabled' };
+  if (selfClaims >= improve.maxOpen) return { route: 'night', reason: `self-started claims at cap (${selfClaims})` };
+  return { route: 'improve', reason: 'nothing labeled is buildable' };
 }
 
 export function readyMessage({ owner, pr, verdict, key = `ready:${pr.head.sha}` }) {
@@ -540,7 +657,7 @@ async function checkReady(gh, owner, number, trustedLogins, evidenceProvider) {
   const sha = pr.head.sha;
   const comments = await gh.paginate(`/issues/${number}/comments`);
   const evidence = await evidenceProvider(number);
-  const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins, contextMarker: evidence.marker ?? null });
+  const verdict = latestEvaluatorVerdict(comments, sha, { trustedLogins });
   const reviews = await gh.paginate(`/pulls/${number}/reviews`);
   const ready =
     evidence.head === sha && evidence.readiness?.ready === true && assessReadiness({ pr, checks: evidence.checks, verdict, reviews }).ready;
@@ -593,12 +710,18 @@ async function claimedIssueNumbers(gh, prs) {
   return claimed;
 }
 
-// Admission is current-context only; historical PASS does not release a WIP slot.
+// Admission needs a PASS on the current head; a PASS on an earlier head does not release a WIP slot.
 async function queuedClaimNumbers(gh, openIssues, prs, trustedLogins, evidenceProvider) {
   const queued = new Set();
   for (const issue of openIssues) {
     const labels = new Set((issue.labels ?? []).map((entry) => entry.name));
-    if (issue.pull_request || !labels.has('agent:claude') || !labels.has('in-progress') || labels.has('blocked')) continue;
+    if (
+      issue.pull_request ||
+      !(labels.has('agent:claude') || labels.has(SELF_LABEL)) ||
+      !labels.has('in-progress') ||
+      labels.has('blocked')
+    )
+      continue;
     const pr = prs.find((candidate) => candidate.head?.ref === `claude/issue-${issue.number}`);
     if (!pr) continue;
     const evidence = await evidenceProvider(pr.number);
@@ -698,6 +821,68 @@ async function printLocalReadiness() {
   const config = parseFactoryConfig(await readFile(new URL('../.factory/factory.yaml', import.meta.url), 'utf8'));
   const result = await readLocalEvidence(number, { gh: createGhClient(repository), owner, config });
   log(JSON.stringify(result));
+}
+
+// `node scripts/owner-attention.mjs route` prints the routeDecision for current GitHub state as
+// one JSON line. Waiting claims (unblocked while another is live) are left to step 2's
+// timeline sort; issues that only look eligible stay a hint until step 4.1's overlap check.
+async function printRoute() {
+  const repository = 'caraseli02/agent-Commerce';
+  const owner = repository.split('/')[0];
+  const trustedLogins = [owner];
+  const config = parseFactoryConfig(await readFile(new URL('../.factory/factory.yaml', import.meta.url), 'utf8'));
+  const gh = createGhClient(repository);
+  const prs = await gh.paginate('/pulls?state=open');
+  const openIssues = await gh.paginate('/issues?state=open');
+  const openIssueNumbers = new Set(openIssues.map((issue) => issue.number));
+  const claimedNumbers = await claimedIssueNumbers(gh, prs);
+  const evidence = new Map();
+  const evidenceProvider = async (number) => {
+    if (!evidence.has(number)) evidence.set(number, await readLocalEvidence(number, { gh, owner, config, trustedLogins }));
+    return evidence.get(number);
+  };
+  const queuedNumbers = await queuedClaimNumbers(gh, openIssues, prs, trustedLogins, evidenceProvider);
+  const options = { neverClaim: config.neverClaim, openIssueNumbers, claimedNumbers, queuedNumbers };
+  const first = claudeQueueState(openIssues, options);
+  const skippedNumbers = new Set();
+  for (const issue of first.eligible) {
+    const comments = await gh.paginate(`/issues/${issue.number}/comments`);
+    if (hasCurrentSkipRecord(issue, comments, { trustedLogins })) skippedNumbers.add(issue.number);
+  }
+  const state = claudeQueueState(openIssues, { ...options, skippedNumbers });
+
+  const claims = [];
+  for (const issue of [...state.queued, ...state.live]) {
+    const pr = prs.find((candidate) => candidate.head?.ref === `claude/issue-${issue.number}`);
+    let summary = null;
+    if (pr) {
+      const full = await gh.get(`/pulls/${pr.number}`);
+      const comments = await gh.paginate(`/issues/${pr.number}/comments`);
+      summary = claimPrSummary(full, comments, { trustedLogins, ui: await uiContextFor(gh, full) });
+    }
+    claims.push({ number: issue.number, live: !queuedNumbers.has(issue.number), pr: summary });
+  }
+
+  const reviewable = [];
+  for (const pr of [...prs].sort((a, b) => String(a.updated_at).localeCompare(String(b.updated_at)))) {
+    if (pr.draft || (pr.labels ?? []).some((label) => label.name === 'skip-eval')) continue;
+    if (await isClaudeBuiltPr(gh, pr)) continue;
+    const comments = await gh.paginate(`/issues/${pr.number}/comments`);
+    const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins });
+    if (!verdict || verdict.verdict === 'INCONCLUSIVE' || !hasLocallyAttestedVerdict(comments, pr.head.sha, { trustedLogins }))
+      reviewable.push(pr.number);
+  }
+
+  const decision = routeDecision({
+    mode: config.mode,
+    maxPassQueue: config.maxPassQueue ?? 2,
+    improve: config.improve,
+    claims,
+    reviewable,
+    eligible: state.eligible.map((issue) => issue.number),
+    selfClaims: state.selfClaims.length,
+  });
+  log(JSON.stringify({ ...decision, claims, reviewable, eligible: state.eligible.map((issue) => issue.number) }));
 }
 
 // `gh issue view <n> --json title,body,labels | node scripts/owner-attention.mjs skip-fingerprint`
@@ -809,6 +994,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
     'checks-green': printChecksGreen,
     'pass-heads': printPassHeads,
     'local-readiness': printLocalReadiness,
+    route: printRoute,
   };
   const run = commands[command] ?? main;
   run().catch((error) => {

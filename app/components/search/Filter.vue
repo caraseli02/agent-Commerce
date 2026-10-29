@@ -48,14 +48,17 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
 import FiltersIcon from '@/assets/icons/filters.svg';
 import CheckIcon from '@/assets/icons/check.svg';
 import XIcon from '@/assets/icons/x.svg';
 import { useTrimText } from '@/composables/text';
 import type { FilterOptions, ProductFilters, SearchFiltersCategories } from '~~/types/product';
 
-defineEmits(['close', 'add-filter-option']);
+const emit = defineEmits<{
+  close: [];
+  'add-filter-option': [options: FilterOptions[]];
+  'remove-filter-option': [options: FilterOptions[]];
+}>();
 
 const props = defineProps<{
   filter: ProductFilters | null;
@@ -119,9 +122,9 @@ const toggleOption = (option: FilterOptions) => {
   option.checked = !option.checked;
 
   if (option.checked) {
-    Emitter.emit('add-filter-option', [option]);
+    emit('add-filter-option', [option]);
   } else {
-    Emitter.emit('remove-filter-option', [option]);
+    emit('remove-filter-option', [option]);
   }
 };
 
@@ -146,9 +149,9 @@ const handleAll = () => {
   });
 
   if (selectedAll.value) {
-    Emitter.emit('add-filter-option', options.value);
+    emit('add-filter-option', options.value);
   } else {
-    Emitter.emit('remove-filter-option', options.value);
+    emit('remove-filter-option', options.value);
   }
 };
 </script>

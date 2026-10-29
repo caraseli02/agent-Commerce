@@ -27,7 +27,8 @@ const addProductToCart = async (page: Page) => {
 
 const signInThroughOrderSummary = async (page: Page) => {
   await navigateTo(page, '/order-summary');
-  await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+  // An empty cart offers the empty-state sign-in link; a cart with items offers the checkout one.
+  await page.getByRole('link', { name: /sign in to (continue checkout|see your saved cart)/i }).click();
   await submitCustomerSignIn(page);
   await expect(page).toHaveURL(/\/order-summary$/);
 };
@@ -58,7 +59,7 @@ const assertClearedFailureContext = async (page: Page) => {
 };
 
 const assertDisabledPaymentBoundary = async (page: Page) => {
-  await expect(page.getByRole('heading', { name: /stripe checkout disabled in demo/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /card payments are temporarily unavailable/i })).toBeVisible();
   await expect(page.getByRole('button', { name: /pay now/i })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /back to order summary/i })).toBeEnabled();
   await expect(page.getByRole('button', { name: /back home/i })).toBeEnabled();
@@ -120,7 +121,8 @@ test.describe('Checkout result states', () => {
     await navigateTo(page, '/product/prod-2');
     await addProductToCart(page);
     await navigateTo(page, '/order-summary');
-    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    // An empty cart offers the empty-state sign-in link; a cart with items offers the checkout one.
+    await page.getByRole('link', { name: /sign in to (continue checkout|see your saved cart)/i }).click();
     await submitCustomerSignIn(page);
 
     await page.route('**/api/orders/new', async (route) => {
@@ -153,7 +155,8 @@ test.describe('Checkout result states', () => {
     await navigateTo(page, '/product/prod-2');
     await addProductToCart(page);
     await navigateTo(page, '/order-summary');
-    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    // An empty cart offers the empty-state sign-in link; a cart with items offers the checkout one.
+    await page.getByRole('link', { name: /sign in to (continue checkout|see your saved cart)/i }).click();
     await submitCustomerSignIn(page);
 
     await page.route('**/api/orders/new', async (route) => {
@@ -210,7 +213,7 @@ test.describe('Checkout result states', () => {
         await expect(page.getByText('Internal provider diagnostic must not choose buyer actions', { exact: false })).toHaveCount(0);
         const action = page.getByRole('button', { name: scenario.action, exact: true });
         await expect(action).toBeEnabled();
-        await page.screenshot({ path: `/tmp/ecas-583-browser/${viewport.name}-${scenario.code}.png`, fullPage: true });
+        await page.screenshot({ path: `/tmp/commerce-583-browser/${viewport.name}-${scenario.code}.png`, fullPage: true });
         await action.click();
         await expect(page).toHaveURL(/\/order-summary$/);
         await assertClearedFailureContext(page);
@@ -292,9 +295,9 @@ test.describe('Checkout result states', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     await expect(page.getByRole('button', { name: /secure checkout/i })).toBeDisabled();
-    await expect(page.getByRole('alert').filter({ hasText: /saved card is no longer available/i })).toBeVisible();
+    await expect(page.getByRole('alert').filter({ hasText: /selected payment method is no longer available/i })).toBeVisible();
     await page.getByRole('button', { name: /pay by card/i }).click();
-    await expect(page.getByRole('alert').filter({ hasText: /saved card is no longer available/i })).toHaveCount(0);
+    await expect(page.getByRole('alert').filter({ hasText: /selected payment method is no longer available/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /secure checkout/i })).toBeEnabled();
   });
 
@@ -319,7 +322,8 @@ test.describe('Checkout result states', () => {
     await navigateTo(page, '/product/prod-2');
     await addProductToCart(page);
     await navigateTo(page, '/order-summary');
-    await page.getByRole('link', { name: /sign in to continue checkout/i }).click();
+    // An empty cart offers the empty-state sign-in link; a cart with items offers the checkout one.
+    await page.getByRole('link', { name: /sign in to (continue checkout|see your saved cart)/i }).click();
     await submitCustomerSignIn(page);
 
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });

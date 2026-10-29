@@ -1,5 +1,5 @@
 <template>
-  <div class="w-[1488px] max-w-full p-4 mx-auto transition-all duration-300 md:py-6 2xl:px-6">
+  <div class="w-[1488px] max-w-full p-4 mx-auto md:py-6 2xl:px-6">
     <DashboardBreadcrumbs
       title="Control Panel"
       :customer="customerSlug"
@@ -23,7 +23,7 @@
             class="relative pl-5 before:absolute before:top-1/2 before:-translate-y-1/2 before:left-0 before:w-px before:h-[85%] before:bg-border before:rounded-[50px]"
           >
             <div class="text-sm leading-relaxed font-medium text-muted-foreground mb-3">Available Credit</div>
-            <div v-if="!isLoading" class="font-semibold leading-tight text-blue-500">
+            <div v-if="!isLoading" class="font-semibold leading-tight text-primary">
               <div v-if="emptyData || error || !credit" class="text-sm font-medium leading-tight text-muted-foreground">
                 No data available
               </div>
@@ -66,7 +66,7 @@
             <div v-if="emptyData || error || !credit" class="text-sm font-medium leading-tight text-muted-foreground">
               No data available
             </div>
-            <div v-else class="text-sm font-semibold leading-tight text-blue-500">{{ credit.available }} Lei</div>
+            <div v-else class="text-sm font-semibold leading-tight text-primary">{{ credit.available }} Lei</div>
             <WarningIcon v-if="error" class="w-5 h-5 ml-auto max-md:hidden" />
           </template>
         </div>
@@ -77,13 +77,13 @@
             v-for="(view, index) in panelViews.filter((item) => item.allowTo.includes(accountType))"
             :key="index"
             :to="`/dashboard/customers/${route.params.slug}/control-panel/${view.path}`"
-            class="panelView relative z-10 text-sm font-medium leading-[1.42857] px-3 py-3 rounded-lg flex-shrink-0 whitespace-nowrap transition-colors duration-300 sm:px-6"
-            :class="[view.path === activeView ? 'text-white ' : 'hover:text-blue-500']"
+            class="panelView relative z-10 text-sm font-medium leading-[1.42857] px-3 py-3 rounded-lg flex-shrink-0 whitespace-nowrap transition-colors duration-200 sm:px-6"
+            :class="[view.path === activeView ? 'text-white ' : 'hover:text-primary']"
           >
             {{ view.name }}
           </NuxtLink>
           <div
-            class="absolute top-1/2 -translate-y-1/2 bg-blue-700 h-11 rounded-lg transition-all duration-300"
+            class="absolute top-1/2 -translate-y-1/2 bg-primary h-11 rounded-lg transition-[left,width] duration-200"
             :style="{
               width: viewHighlightWidth + 'px',
               left: viewHightlightLeft + 'px',
@@ -113,9 +113,7 @@ const customerName = ref('');
 const config = useRuntimeConfig();
 const isMockMode = computed(() => Boolean(config.public.MOCK_MODE));
 
-useHead({
-  title: 'Dashboard Control Panel',
-});
+usePageSeo({ title: 'Customer control panel', robots: 'noindex,nofollow' });
 
 const viewHighlightWidth = ref(0);
 const viewHightlightLeft = ref(0);

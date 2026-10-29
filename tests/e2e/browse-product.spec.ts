@@ -28,12 +28,17 @@ test.describe('Browse → Product Detail', () => {
 
     // Price tiers are displayed in the purchase panel (similar-product cards repeat prices elsewhere)
     const purchasePanel = page.getByTestId('product-purchase-panel');
-    await expect(purchasePanel.getByText('999.99').filter({ visible: true }).first()).toBeVisible();
-    await expect(purchasePanel.getByText('979.99').filter({ visible: true }).first()).toBeVisible();
-    await expect(purchasePanel.getByText('959.99').filter({ visible: true }).first()).toBeVisible();
+    await expect(purchasePanel.getByText('84.90').filter({ visible: true }).first()).toBeVisible();
+    await expect(purchasePanel.getByText('81.50').filter({ visible: true }).first()).toBeVisible();
+    await expect(purchasePanel.getByText('78.00').filter({ visible: true }).first()).toBeVisible();
 
     // Stock information is shown
-    await expect(page.getByText(/150 in stock/i).first()).toBeVisible();
+    await expect(
+      page
+        .getByText(/150 in stock/i)
+        .filter({ visible: true })
+        .first(),
+    ).toBeVisible();
 
     // Add to cart button is present and actionable
     const addToCartButtons = page.getByRole('button', { name: /add to cart/i });
@@ -72,7 +77,7 @@ test.describe('Browse → Product Detail', () => {
     await purchasePanel.getByRole('button', { name: 'Increase Quantity' }).click();
     await expect(quantityInput).toHaveValue('2');
 
-    const updateCartButton = purchasePanel.getByRole('button', { name: 'Add to cart — selected quantity' });
+    const updateCartButton = purchasePanel.getByRole('button', { name: 'Add to cart, selected quantity' });
     const cartPostResponse = page.waitForResponse(
       (response) => response.url().includes('/api/cart') && response.request().method() === 'POST',
     );
@@ -109,7 +114,7 @@ test.describe('Browse → Product Detail', () => {
 
     const purchasePanel = page.getByTestId('product-purchase-panel');
     const quantityInput = purchasePanel.getByRole('spinbutton', { name: 'Quantity' });
-    const cartButton = purchasePanel.getByRole('button', { name: 'Add to cart — selected quantity' });
+    const cartButton = purchasePanel.getByRole('button', { name: 'Add to cart, selected quantity' });
 
     await quantityInput.scrollIntoViewIfNeeded();
     await expect(quantityInput).toHaveValue('1');
@@ -152,7 +157,7 @@ test.describe('Browse → Product Detail', () => {
     const purchasePanel = page.getByTestId('product-purchase-panel');
     const quantityInput = purchasePanel.getByRole('spinbutton', { name: 'Quantity' });
     const increase = purchasePanel.getByRole('button', { name: 'Increase quantity' });
-    const cartButton = purchasePanel.getByRole('button', { name: 'Add to cart — selected quantity' });
+    const cartButton = purchasePanel.getByRole('button', { name: 'Add to cart, selected quantity' });
 
     await quantityInput.scrollIntoViewIfNeeded();
     await expect(quantityInput).toHaveValue('1');
@@ -268,6 +273,7 @@ test.describe('Browse → Product Detail', () => {
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('heading', { level: 4 })).toHaveText('Part No: STM32F407VGT6');
 
     const emailInput = dialog.getByLabel('Email Address');
     await expect(emailInput).toBeVisible();
@@ -279,7 +285,7 @@ test.describe('Browse → Product Detail', () => {
 
     await expect(emailInput).toHaveAttribute('aria-invalid', 'true');
     await expect(emailInput).toHaveClass(/border-red-500/);
-    await expect(emailInput).toHaveCSS('border-color', 'rgb(255, 50, 50)');
+    await expect(emailInput).toHaveCSS('border-color', 'rgb(212, 42, 42)');
     await expect(dialog.getByText('Required')).toBeVisible();
 
     await emailInput.fill('not-an-email');
@@ -287,7 +293,7 @@ test.describe('Browse → Product Detail', () => {
 
     await expect(emailInput).toHaveAttribute('aria-invalid', 'true');
     await expect(emailInput).toHaveClass(/border-red-500/);
-    await expect(emailInput).toHaveCSS('border-color', 'rgb(255, 50, 50)');
+    await expect(emailInput).toHaveCSS('border-color', 'rgb(212, 42, 42)');
     await expect(dialog.getByText('Invalid email address')).toBeVisible();
 
     await emailInput.fill('buyer@example.com');
@@ -295,6 +301,18 @@ test.describe('Browse → Product Detail', () => {
 
     await expect(dialog).toHaveCount(0);
     await expect(page.getByText('Enquiry saved for this demo', { exact: true })).toBeVisible();
+  });
+
+  test('ask about product from the mobile actions menu names the viewed part', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/product/prod-1', { waitUntil: 'networkidle' });
+
+    await page.getByRole('button', { name: 'Product actions' }).click();
+    await page.getByRole('menuitem', { name: 'Ask about the product' }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('heading', { level: 4 })).toHaveText('Part No: STM32F407VGT6');
   });
 
   test('product page shows technical specifications table', async ({ page }) => {

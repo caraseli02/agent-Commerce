@@ -7,6 +7,7 @@ import { payments as realPayments } from '~~/server/domain/payments';
 import { getCheckoutDatabase } from '~~/server/infrastructure/checkout-database';
 import { createCheckoutReviewFingerprint } from '~~/server/application/checkout/review-fingerprint';
 import type { SmallOrderChargeTier } from '~~/helpers/order-money';
+import * as paymentMethodPolicy from '~~/helpers/checkout-payment-methods';
 
 const user = {
   _id: 'customer-1',
@@ -157,6 +158,55 @@ describe('PlaceOrder application workflow', () => {
     await database.execute(
       'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
     );
+    const { bootstrapInventory } = await import('../server/domain/inventory/bootstrap.mjs');
+    await bootstrapInventory({ dryRun: false });
+  });
+
+  it.each([1, 2, 3, undefined, '0', 99])('rejects new ineligible payment type %s before durable side effects', async (type) => {
+    const { dependencies } = makeDependencies();
+    const command = makeCommand();
+    command.order.paymentDetails = { type };
+    await expect(createPlaceOrderUseCase(dependencies)(command)).rejects.toMatchObject({
+      code: 'payment_method_unavailable',
+      statusCode: 422,
+    });
+    for (const effect of [
+      dependencies.catalog.quoteCheckout,
+      dependencies.inventory.reserve,
+      dependencies.orders.createPending,
+      dependencies.payments.preparePayment,
+      dependencies.payments.continuePayment,
+      dependencies.payments.completePayment,
+    ]) {
+      expect(effect).not.toHaveBeenCalled();
+    }
+    const database = await getCheckoutDatabase();
+    for (const table of ['checkout_claims', 'checkout_claim_aliases', 'checkout_orders', 'checkout_payments', 'checkout_reservations']) {
+      expect(await database.query(`SELECT * FROM ${table}`)).toEqual([]);
+    }
+  });
+
+  it.each([1, 2, 3])('preserves historical non-card type %s exact-key and semantic replays', async (type) => {
+    const { dependencies } = makeDependencies();
+    const command = makeCommand();
+    command.order.paymentDetails = { type };
+    const place = createPlaceOrderUseCase(dependencies);
+    // Construct an actual historical checkout under its earlier eligibility policy.
+    const earlierPolicy = vi.spyOn(paymentMethodPolicy, 'isBuyerCheckoutPaymentType').mockReturnValue(true);
+    let original;
+    try {
+      original = await place(command);
+    } finally {
+      earlierPolicy.mockRestore();
+    }
+    vi.clearAllMocks();
+    await expect(place(command)).resolves.toEqual(original);
+    await expect(place({ ...command, checkoutRequestId: 'historical-alias' })).resolves.toEqual(original);
+    expect(dependencies.payments.continuePayment).not.toHaveBeenCalled();
+    expect(dependencies.orders.createPending).not.toHaveBeenCalled();
+    const order = await realOrders.findById(original.orderId, 'customer-1');
+    expect(order?.order.paymentDetails?.type).toBe(type);
+    expect(await (await getCheckoutDatabase()).query('SELECT status FROM checkout_payments')).toEqual([{ status: 'PAID' }]);
   });
 
   it('prepares gated card checkout without entering demo completion, preserves the cart and replays safely', async () => {

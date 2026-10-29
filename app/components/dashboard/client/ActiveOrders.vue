@@ -23,23 +23,23 @@ defineProps<{
               v-for="item in items"
               :key="item.id"
               :to="`/order-summary/${item.id}`"
-              class="w-fit text-muted-foreground hover:text-blue-500 text-[12px] leading-5 font-medium flex justify-center items-center bg-muted px-[6px] rounded-3xl"
+              class="w-fit text-muted-foreground hover:text-primary text-[12px] leading-5 font-medium flex justify-center items-center bg-muted px-[6px] rounded-3xl"
             >
-              {{ item.shortId }}
+              {{ formatOrderRef(item.shortId) }}
             </NuxtLink>
           </div>
         </div>
       </div>
       <div class="items-stretch flex justify-between gap-3">
-        <UiButton as-child class="w-full bg-green-600">
+        <UiButton as-child variant="outline" class="w-full">
           <NuxtLink to="/dashboard/client?tab=orders" class="w-full inline-flex items-center justify-center">
-            <BoxIcon class="w-4 h-4 mr-2 text-white" />
+            <BoxIcon class="w-4 h-4 mr-2" />
             All Active
           </NuxtLink>
         </UiButton>
-        <UiButton as-child class="w-full">
+        <UiButton as-child variant="ghost" class="w-full">
           <NuxtLink to="/order-tracking" class="w-full inline-flex items-center justify-center">
-            <MapPinIcon class="w-4 h-4 mr-2 text-white" />
+            <MapPinIcon class="w-4 h-4 mr-2" />
             Track Order
           </NuxtLink>
         </UiButton>

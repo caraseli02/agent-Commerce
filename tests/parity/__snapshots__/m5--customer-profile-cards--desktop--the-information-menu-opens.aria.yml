@@ -1,5 +1,5 @@
 - text: Customer Information
-- button:
+- button "Open customer information menu":
     - img
 - button "Control Panel":
     - img
@@ -11,6 +11,6 @@
     - img
     - text: ''
 - img "Name"
-- text: "/John Smith Account Type: Personal Last Active: \\d+-\\d+-30T14:\\d+:\\d+\\.000Z Account Details 5 % User Name john\\.smith@example\\.com Name John Surname Smith Country/"
+- text: "/John Smith Account Type: Personal Last Active: 30 June \\d+, 14:\\d+ Account Details 5 % User Name john\\.smith@example\\.com Name John Surname Smith Country/"
 - img "United States"
 - text: /United States Mobile Number \+1-\d+-\d+ Address \d+ Main St Registered \d+ January \d+, \d+:\d+ Email Marketing Subscribed/

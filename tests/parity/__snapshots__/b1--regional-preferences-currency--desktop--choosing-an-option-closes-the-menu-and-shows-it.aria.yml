@@ -3,7 +3,7 @@
     - heading "Regional Preferences" [level=2]
     - button "Close regional preferences":
         - img
-    - paragraph: Choose a demo currency to preview pricing labels on demo.app. This portfolio build does not include locale translation — storefront copy stays in English.
+    - paragraph: Choose a demo currency to preview pricing labels on demo.app. This portfolio build does not include locale translation, so storefront copy stays in English.
     - text: Demo currency
     - button "EURO":
         - text: ''

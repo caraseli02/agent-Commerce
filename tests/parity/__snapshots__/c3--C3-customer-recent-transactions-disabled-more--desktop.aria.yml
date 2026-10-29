@@ -1,0 +1,7 @@
+- text: /Recent Transactions Amount Status \d+\.\d+ Lei Paid/
+- img
+- text: /\d+\.\d+ Lei Declined/
+- img
+- button "View more" [disabled]:
+    - text: ''
+    - img

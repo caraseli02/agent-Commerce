@@ -84,7 +84,9 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'en',
       },
-      titleTemplate: '%s | Components Marketplace',
+      // Client-only routes (dashboard) render this shell title before app.vue's template runs.
+      title: 'Components Marketplace',
+      titleTemplate: '%s',
       meta: [
         {
           name: 'viewport',
@@ -239,7 +241,7 @@ export default defineNuxtConfig({
       md: 768,
       lg: 1024,
       xl: 1280,
-      '2xl': 1536,
+      '2xl': 1440, // Tailwind --breakpoint-2xl (main.css); ProductGrid chunks slides by these names
     },
     // Match the Tailwind breakpoint names during SSR; otherwise Nuxt 4
     // hydrates an empty viewport-dependent product grid before the client

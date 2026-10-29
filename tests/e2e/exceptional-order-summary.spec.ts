@@ -61,8 +61,8 @@ for (const viewport of [
         await page.keyboard.press('Enter');
         const dialog = page.getByRole('dialog');
         await expect(dialog.getByRole('heading', { name: 'Small Order Handling Charge', exact: true })).toBeVisible();
-        await expect(dialog.getByText(/below 50.00 Lei excluding VAT/)).toBeVisible();
-        await expect(dialog.getByText(/4.99 Lei handling charge/)).toBeVisible();
+        await expect(dialog.getByText(/below 50\.00\sLei excluding VAT/)).toBeVisible();
+        await expect(dialog.getByText(/4\.99\sLei handling charge/)).toBeVisible();
         await expect(dialog.getByText(/Delivery is charged separately/)).toBeVisible();
         await expect(dialog.getByText(/\$/)).toHaveCount(0);
         const modalPath = testInfo.outputPath('handling-dialog.png');

@@ -1,143 +1,200 @@
 <template>
-  <section class="mb-10 max-md:pt-4 md:mb-14 xl:mb-16">
-    <div class="container">
-      <div
-        class="relative overflow-hidden rounded-2xl border border-slate-700 bg-[#0b1930] px-5 py-7 text-white shadow-[0_12px_30px_rgba(15,23,42,0.14)] sm:px-8 sm:py-8 md:px-12 md:py-12 xl:px-16 xl:py-14"
-      >
-        <div
-          class="pointer-events-none absolute -right-20 -top-24 hidden h-72 w-72 rounded-full border border-blue-300/15 md:block md:h-96 md:w-96"
-          aria-hidden="true"
-        />
-        <div
-          class="pointer-events-none absolute -bottom-32 right-24 hidden h-64 w-64 rounded-full border border-cyan-200/10 md:block"
-          aria-hidden="true"
-        />
-        <div class="relative z-10 max-w-4xl">
-          <h1 class="max-w-3xl text-3xl font-semibold leading-[1.08] tracking-[-0.025em] sm:text-4xl md:text-5xl xl:text-[56px]">
+  <section class="border-b border-border/60 bg-primary/[0.04] md:-mt-5">
+    <!-- md:-mt-5 cancels the 20px between the fixed 110px header and main's md:pt-[130px] (layouts/default.vue). -->
+    <div class="container pt-8 md:pt-12 lg:pt-14">
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-center lg:gap-12 xl:gap-20">
+        <div class="min-w-0">
+          <h1
+            class="max-w-[16ch] text-balance font-display text-[34px] font-semibold leading-[1.05] tracking-[-0.03em] text-foreground sm:text-[44px] lg:text-[56px]"
+          >
             Source the right part, with evidence.
           </h1>
-          <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:mt-4 sm:text-base md:mt-5 md:text-lg md:leading-7">
-            Search by part number or keyword, then compare specifications, stock, lead times, and manufacturers before you buy.
+          <p class="mt-4 max-w-[60ch] text-base leading-7 text-muted-foreground md:mt-5 md:text-lg">
+            Search by part number or keyword, then compare specifications, stock, volume pricing, and manufacturers before you buy.
           </p>
 
-          <form class="mt-6 max-w-3xl sm:mt-7" novalidate @submit.prevent="submitSearch">
+          <form class="mt-7 max-w-2xl md:mt-8" novalidate @submit.prevent="submitSearch">
             <UiLabel for="homepage-part-search" class="sr-only">Search by part number or keyword</UiLabel>
-            <div class="flex flex-col gap-2 rounded-xl bg-card p-2 shadow-[0_8px_24px_rgba(2,8,23,0.2)] sm:flex-row">
-              <div class="flex min-w-0 flex-1 items-center gap-3 px-3">
-                <SearchIcon class="h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
+            <div class="flex flex-col gap-2 sm:flex-row">
+              <div
+                class="min-w-0 flex-1 rounded-md bg-card text-base text-foreground shadow-sm transition-shadow duration-150 focus-within:ring-2 focus-within:ring-ring/40 motion-reduce:transition-none"
+              >
                 <UiInput
                   id="homepage-part-search"
                   ref="searchInput"
                   v-model="searchTerm"
                   type="search"
                   autocomplete="off"
-                  placeholder="e.g. STM32F407, 10k resistor, USB-C"
-                  class="h-11 min-w-0 flex-1 text-sm text-foreground placeholder:text-slate-400 sm:text-base"
+                  placeholder="e.g. STM32F407, BAT54C, USB-C"
+                  class="h-12 w-full"
                   :aria-invalid="Boolean(searchError)"
                   aria-describedby="homepage-search-help homepage-search-error"
                 />
               </div>
-              <UiButton type="submit" class="min-h-11 gap-2 px-5">
-                <SearchIcon class="h-4 w-4" aria-hidden="true" />
+              <UiButton type="submit" variant="cart" size="lg" class="h-12 w-full sm:w-auto">
+                <SearchIcon class="mr-2 h-4 w-4" aria-hidden="true" />
                 Search catalog
               </UiButton>
             </div>
-            <p id="homepage-search-help" class="mt-2 text-xs text-slate-300">Use a manufacturer part number for the most precise match.</p>
-            <p v-if="searchError" id="homepage-search-error" class="mt-2 text-sm font-medium text-amber-200" role="alert">
+            <p id="homepage-search-help" class="mt-2.5 text-sm text-muted-foreground">
+              Use a manufacturer part number for the most precise match.
+            </p>
+            <p
+              v-if="searchError"
+              id="homepage-search-error"
+              class="mt-2 text-sm font-medium text-destructive dark:text-red-300"
+              role="alert"
+            >
               {{ searchError }}
             </p>
           </form>
 
-          <div class="mt-6 hidden border-t border-white/15 pt-4 sm:mt-8 sm:pt-5 md:mt-10 md:block md:pt-6">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
-              <span class="shrink-0 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Browse categories</span>
-              <nav aria-label="Browse product categories" class="flex flex-wrap gap-2">
+          <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span id="homepage-popular-searches" class="text-sm text-muted-foreground">Popular:</span>
+            <ul aria-labelledby="homepage-popular-searches" class="flex flex-wrap gap-2">
+              <li v-for="term in popularSearches" :key="term">
                 <NuxtLink
-                  v-for="category in categoryLinks"
-                  :key="category.id"
-                  :to="categoryBrowseUrl(category)"
-                  class="inline-flex min-h-10 items-center rounded-lg border border-white/20 px-3 text-sm font-medium text-slate-100 transition-colors hover:border-cyan-200/60 hover:bg-card/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200"
+                  :to="{ path: '/search', query: { keyword: term } }"
+                  class="inline-flex min-h-10 items-center rounded-full md:min-h-8 border border-border bg-card px-3 text-sm font-medium text-foreground transition-colors duration-150 hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
                 >
-                  {{ category.name }}
-                  <span v-if="category.productCount" class="ml-1.5 text-xs text-slate-400">{{
-                    category.productCount.toLocaleString()
-                  }}</span>
+                  {{ term }}
                 </NuxtLink>
-                <NuxtLink
-                  to="/search"
-                  class="inline-flex min-h-10 items-center rounded-lg px-3 text-sm font-semibold text-cyan-200 transition-colors hover:bg-card/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200"
-                >
-                  All categories <span aria-hidden="true" class="ml-1">→</span>
-                </NuxtLink>
-              </nav>
-            </div>
+              </li>
+            </ul>
           </div>
         </div>
-      </div>
-      <nav aria-label="Browse product categories" class="mt-5 border-t border-border pt-4 md:hidden">
-        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Browse categories</p>
-        <div class="mt-3 grid grid-cols-2 gap-2">
-          <NuxtLink
-            v-for="category in categoryLinks"
-            :key="category.id"
-            :to="categoryBrowseUrl(category)"
-            class="inline-flex min-h-11 items-center justify-between rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+
+        <nav aria-labelledby="homepage-categories-heading" class="min-w-0 rounded-2xl border border-border bg-card p-2 sm:p-3">
+          <h2
+            id="homepage-categories-heading"
+            class="px-3 pb-2 pt-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:pt-1"
           >
-            {{ category.name }}
-            <span v-if="category.productCount" class="ml-2 text-xs font-medium text-muted-foreground">{{
-              category.productCount.toLocaleString()
-            }}</span>
-          </NuxtLink>
+            Browse categories
+          </h2>
+          <ul>
+            <li v-for="(category, index) in categoryLinks" :key="category.path" :class="{ 'max-md:hidden': index >= 4 }">
+              <NuxtLink
+                :to="categoryBrowseUrl(category)"
+                class="group flex min-h-14 items-center gap-3 rounded-xl px-3 py-2 transition-colors duration-150 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+              >
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/[0.07] text-primary">
+                  <component :is="category.icon" class="h-[18px] w-[18px]" :stroke-width="1.75" aria-hidden="true" />
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="block text-[15px] font-semibold leading-5 text-foreground">{{ category.name }}</span>
+                  <span v-if="category.hint" class="block truncate text-sm leading-5 text-muted-foreground">{{ category.hint }}</span>
+                </span>
+                <ChevronRight
+                  class="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none"
+                  aria-hidden="true"
+                />
+              </NuxtLink>
+            </li>
+          </ul>
           <NuxtLink
             to="/search"
-            class="col-span-2 inline-flex min-h-11 items-center justify-center rounded-lg bg-slate-100 px-3 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            class="mt-1 flex min-h-11 items-center justify-between rounded-xl border-t border-border/60 px-3 text-sm font-semibold text-primary transition-colors duration-150 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
           >
-            All categories <span aria-hidden="true" class="ml-2">→</span>
+            All categories
+            <ArrowRight class="h-4 w-4" aria-hidden="true" />
           </NuxtLink>
-        </div>
-      </nav>
-      <div
-        class="mt-5 grid grid-cols-1 gap-2 border-t border-border pt-4 text-sm text-muted-foreground sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-slate-200 md:mt-5 md:border-t-0 md:pt-0"
-      >
-        <div class="flex items-center gap-2 px-1 sm:px-4 sm:first:pl-0">
-          <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
-          <span><strong class="font-semibold text-foreground">10,000+</strong> catalog items online</span>
-        </div>
-        <div class="flex items-center gap-2 px-1 sm:px-4">
-          <span class="h-2 w-2 shrink-0 rounded-full bg-blue-500" aria-hidden="true" />
-          <span>Stock and lead-time details</span>
-        </div>
-        <div class="flex items-center gap-2 px-1 sm:px-4 sm:last:pr-0">
-          <span class="h-2 w-2 shrink-0 rounded-full bg-violet-500" aria-hidden="true" />
-          <span>Trusted manufacturer coverage</span>
-        </div>
+        </nav>
       </div>
+
+      <ul
+        class="mt-10 grid gap-3 border-t border-border/60 py-5 text-sm text-muted-foreground md:mt-12 md:grid-cols-3 md:gap-6 md:py-6 lg:mt-14"
+      >
+        <li v-for="fact in facts" :key="fact.text" class="flex items-center gap-2.5">
+          <component :is="fact.icon" class="h-4 w-4 shrink-0 text-primary" :stroke-width="1.75" aria-hidden="true" />
+          <span>{{ fact.text }}</span>
+        </li>
+      </ul>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue';
+import {
+  ArrowRight,
+  Cable,
+  ChevronRight,
+  CircuitBoard,
+  Cpu,
+  FlaskConical,
+  Headphones,
+  House,
+  Lamp,
+  Monitor,
+  Mouse,
+  Package,
+  PackageCheck,
+  Plug,
+  Tags,
+  Watch,
+  Wrench,
+} from '@lucide/vue';
 import SearchIcon from '@/assets/icons/search.svg';
 import { categoryBrowseUrl } from '~~/helpers/categoryPath.helper';
+import { buildDemoTaxonomyTree } from '~~/data/demoTaxonomyTree';
+import type { TaxonomyInterface } from '~~/types/dashboard/categories';
 
 const router = useRouter();
+const config = useRuntimeConfig();
 const { categories, getCategories } = useCategories();
 const searchInput = ref<{ el: HTMLInputElement | null } | null>(null);
 const searchTerm = ref('');
 const searchError = ref('');
 
-type CategoryLink = { id: string; name: string; path: string; productCount?: number };
+// Each term returns results in the sample catalog.
+const popularSearches = ['STM32F407', 'RS-485', 'Schottky', 'USB-C'];
 
-const fallbackCategories: CategoryLink[] = [
-  { id: 'semiconductors', name: 'Semiconductors', path: 'semiconductors' },
-  { id: 'passives', name: 'Passives', path: 'passives' },
-  { id: 'connectors', name: 'Cables & Connectors', path: 'cables-connectors' },
-  { id: 'power-supply', name: 'Power Supply', path: 'power-supply' },
+const facts = [
+  { icon: PackageCheck, text: 'Stock shown on every listing' },
+  { icon: Tags, text: 'Volume price breaks on product pages' },
+  { icon: FlaskConical, text: 'Sample catalog with test checkout. No real payments.' },
 ];
 
+const categoryIcons: Record<string, Component> = {
+  semiconductors: Cpu,
+  passives: CircuitBoard,
+  connectors: Plug,
+  components: Mouse,
+  electronics: Monitor,
+  audio: Headphones,
+  accessories: Cable,
+  tools: Wrench,
+  wearables: Watch,
+  home: House,
+  office: Lamp,
+};
+const preferredOrder = Object.keys(categoryIcons);
+
+type CategoryLink = { name: string; path: string; hint: string; icon: Component };
+
+// In mock mode the store loads this same deterministic demo tree, so server and client
+// render identical rows before it arrives. A live catalog renders its own rows once loaded.
 const categoryLinks = computed<CategoryLink[]>(() => {
-  const source = categories.value.length ? categories.value : fallbackCategories;
-  return source.slice(0, 4);
+  const fallback = config.public.MOCK_MODE ? buildDemoTaxonomyTree() : [];
+  const source: TaxonomyInterface[] = categories.value.length ? categories.value : fallback;
+  const rank = (category: TaxonomyInterface) => {
+    const index = preferredOrder.indexOf(category.alias ?? category.path);
+    return index === -1 ? preferredOrder.length : index;
+  };
+
+  return source
+    .filter((category) => category.productCount !== 0)
+    .sort((a, b) => rank(a) - rank(b) || (b.productCount ?? 0) - (a.productCount ?? 0))
+    .slice(0, 6)
+    .map((category) => ({
+      name: category.name,
+      path: category.path,
+      hint: (category.subcategory ?? [])
+        .slice(0, 3)
+        .map((child) => child.name)
+        .join(', '),
+      icon: categoryIcons[category.alias ?? category.path] ?? Package,
+    }));
 });
 
 const submitSearch = async () => {
@@ -152,6 +209,11 @@ const submitSearch = async () => {
   searchError.value = '';
   await router.push({ path: '/search', query: { keyword } });
 };
+
+// Once a term is typed the empty-search error no longer applies (#790).
+watch(searchTerm, (term) => {
+  if (term.trim()) searchError.value = '';
+});
 
 onMounted(() => {
   void getCategories();

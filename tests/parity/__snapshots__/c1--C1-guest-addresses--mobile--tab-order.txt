@@ -1,0 +1,11 @@
+1. textbox "First name"
+2. textbox "Last name"
+3. textbox "Email"
+4. textbox "Phone"
+5. textbox "Address line 1"
+6. textbox "Address line 2 (optional)"
+7. textbox "City"
+8. textbox "Region / State"
+9. textbox "Postcode"
+10. textbox "Country"
+11. checkbox "Same as shipping" [checked]

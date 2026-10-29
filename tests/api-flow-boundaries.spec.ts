@@ -34,17 +34,69 @@ const installH3Mocks = () => {
     event.cookies ??= {};
     event.cookies[name] = value;
   });
-  vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string }) => {
-    const error = new Error(payload.statusMessage) as Error & { statusCode?: number; statusMessage?: string };
+  vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string; data?: unknown }) => {
+    const error = new Error(payload.statusMessage) as Error & { statusCode?: number; statusMessage?: string; data?: unknown };
     error.statusCode = payload.statusCode;
     error.statusMessage = payload.statusMessage;
+    error.data = payload.data;
     return error;
   });
 };
 
 describe('mock API flow boundaries', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     installH3Mocks();
+    const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
+    const database = await getCheckoutDatabase();
+    await database.execute(
+      'TRUNCATE checkout_claim_aliases, checkout_claims, checkout_payments, checkout_orders, checkout_reservations, checkout_inventory, checkout_carts CASCADE',
+    );
+    const { bootstrapInventory } = await import('../server/domain/inventory/bootstrap.mjs');
+    await bootstrapInventory({ dryRun: false });
+  });
+
+  it.each(['guest', 'signed-in'])('rejects all disabled methods through order creation for %s buyers', async (buyer) => {
+    const { createMockToken } = await import('../server/utils/mockUsers');
+    const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
+    const cartHandler = (await import('../server/api/cart.post')).default as (event: unknown) => Promise<unknown>;
+    const priceHandler = (await import('../server/api/orders/price.post')).default as (event: unknown) => Promise<unknown>;
+    const orderHandler = (await import('../server/api/orders/new.post')).default as (event: unknown) => Promise<unknown>;
+    const session = {
+      headers: buyer === 'guest' ? {} : { authorization: `Bearer ${createMockToken('mock-customer-1')}` },
+      cookies: {} as Record<string, string>,
+    };
+    const cart = (await cartHandler({ ...session, body: { products: [{ id: 'prod-2', stock: 1, isFolder: false }] } })) as {
+      data: { _id: string };
+    };
+    const quote = (await priceHandler({ ...session, body: { order: { cartId: cart.data._id } } })) as {
+      data: { review: { cartRevision: string; quoteFingerprint: string } };
+    };
+    const database = await getCheckoutDatabase();
+    const before = await database.query('SELECT id, status FROM checkout_payments ORDER BY id');
+    const beforeClaims = await database.query('SELECT owner_id, request_id FROM checkout_claims ORDER BY owner_id, request_id');
+    for (const type of [PaymentTypeEnum.Bank, PaymentTypeEnum.Cash, PaymentTypeEnum.Credit]) {
+      await expect(
+        orderHandler({
+          ...session,
+          body: {
+            cartId: cart.data._id,
+            reviewedCartRevision: quote.data.review.cartRevision,
+            reviewedQuoteFingerprint: quote.data.review.quoteFingerprint,
+            paymentDetails: { type },
+          },
+        }),
+      ).rejects.toMatchObject({ statusCode: 422, data: { code: 'payment_method_unavailable' } });
+    }
+    expect(await database.query('SELECT id, status FROM checkout_payments ORDER BY id')).toEqual(before);
+    expect(await database.query('SELECT owner_id, request_id FROM checkout_claims ORDER BY owner_id, request_id')).toEqual(beforeClaims);
+    vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: false } }));
+    try {
+      await expect(orderHandler({ headers: {}, body: { paymentDetails: { type: PaymentTypeEnum.Bank } } })).rejects.toMatchObject({
+        statusCode: 401,
+      });
+    } finally {
+      vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: true } }));
+    }
   });
 
   it('resolves the product detail endpoint used by the product page flow', async () => {

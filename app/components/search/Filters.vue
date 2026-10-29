@@ -14,16 +14,9 @@
             <UiLabel for="search-filters-visibility" class="mr-[15px] cursor-pointer"> Filters </UiLabel>
             <UiSwitch id="search-filters-visibility" :checked="showFilters" @update:checked="showFilters = $event" />
           </div>
-          <UiButton class="group">
+          <UiButton type="button" class="group" @click="resetFilters">
             <ResetIcon class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-[360deg]" />
-            <span
-              @click="
-                Emitter.emit('reset-products-filters', true);
-                checkedOptions = [];
-              "
-            >
-              Reset Filters
-            </span>
+            <span>Reset Filters</span>
           </UiButton>
         </div>
       </div>
@@ -33,6 +26,8 @@
             v-for="(filter, index) in filteredData"
             :key="getFilterSlug(filter.feature)"
             :filter="filter.feature"
+            @add-filter-option="addFilterOptions"
+            @remove-filter-option="removeFilterOptions"
             @close="removeItem(index)"
           />
           <div class="flex flex-col items-center pt-[60px] pb-10">
@@ -78,18 +73,22 @@
 
 <script setup lang="ts">
 import { PlusIcon } from '@lucide/vue';
-import Emitter from 'tiny-emitter/instance.js';
 import FiltersIcon from '@/assets/icons/filters.svg';
 import EyeIcon from '@/assets/icons/eye.svg';
 import EyeClosedIcon from '@/assets/icons/eye-closed.svg';
 import ResetIcon from '@/assets/icons/reset.svg';
-import type { FilterOptions, ProductFilters, ProductFiltersWrapper, SearchData, SearchFiltersCategories } from '~~/types/product';
+import type { FilterOptions, ProductFilters, ProductFiltersWrapper, SearchFiltersCategories } from '~~/types/product';
 
 const props = defineProps<{
   filters: ProductFilters | null;
   atPage: number | 1;
   perPage: number | 10;
   keyword: string | '';
+}>();
+
+const emit = defineEmits<{
+  'register-filter-option': [options: SearchFiltersCategories[]];
+  'reset-products-filters': [];
 }>();
 
 const showSearchFiltersModal = ref(false);
@@ -132,6 +131,12 @@ const filterData = () => {
   filteredData.value = productFiltersData.value?.filter((item) => item.checked) ?? [];
 };
 
+// Bound on the button itself so Enter/Space and clicks on the icon or padding reset too.
+const resetFilters = () => {
+  emit('reset-products-filters');
+  checkedOptions.value = [];
+};
+
 const removeItem = (index: number) => {
   filteredData.value.splice(index, 1);
 };
@@ -152,13 +157,15 @@ watch(
   { deep: true },
 );
 
-Emitter.on('product-keyword-change', async (value: { keyword: string; products: SearchData }) => {
-  productFiltersData.value = parseFilters(value.products.filters);
-  checkedOptions.value = [];
-  filterData();
-});
+// A new keyword starts a new search: the refetched filters arrive through props.filters.
+watch(
+  () => props.keyword,
+  () => {
+    checkedOptions.value = [];
+  },
+);
 
-Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
+const addFilterOptions = (options: FilterOptions[]) => {
   for (const option of options) {
     const item = checkedOptions.value.find(
       (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
@@ -171,10 +178,10 @@ Emitter.on('add-filter-option', async (options: FilterOptions[]) => {
     checkedOptions.value.push(option.rawFilter);
   }
 
-  Emitter.emit('register-filter-option', checkedOptions.value);
-});
+  emit('register-filter-option', checkedOptions.value);
+};
 
-Emitter.on('remove-filter-option', async (options: FilterOptions[]) => {
+const removeFilterOptions = (options: FilterOptions[]) => {
   for (const option of options) {
     const itemIndex = checkedOptions.value.findIndex(
       (x) => x.FeatureName === option.rawFilter.FeatureName && x.FeatureValue === option.rawFilter.FeatureValue,
@@ -187,8 +194,8 @@ Emitter.on('remove-filter-option', async (options: FilterOptions[]) => {
     checkedOptions.value.splice(itemIndex, 1);
   }
 
-  Emitter.emit('register-filter-option', checkedOptions.value);
-});
+  emit('register-filter-option', checkedOptions.value);
+};
 
 watch([productFiltersData], async ([_productFiltersData]) => {
   filterData();

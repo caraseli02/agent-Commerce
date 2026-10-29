@@ -2,7 +2,7 @@
   <div class="mt-6 flex flex-col gap-6">
     <div v-if="!order.backorderOption && isMixedOrBackOrder" class="flex flex-row gap-3 items-center">
       <WarningErrorHuge class="w-6 h-5" />
-      <span class="text-rose-500 text-sm font-medium leading-6">Select backorder shipping preferences</span>
+      <span class="text-red-700 dark:text-red-400 text-sm font-medium leading-6">Select backorder shipping preferences</span>
     </div>
     <template v-if="isMixedOrBackOrder">
       <div
@@ -11,29 +11,33 @@
         class="flex flex-col gap-4"
       >
         <div v-if="backOrderOption.active">
-          <button
+          <UiButton
             type="button"
             :aria-pressed="order.backorderOption?._id === backOrderOption._id"
-            class="flex flex-row gap-3 items-start group"
+            variant="bare"
+            size="flush"
+            class="w-full justify-start items-start whitespace-normal group"
             @click="selectBackorderPreference(backOrderOption)"
           >
-            <RadioButtonChecked
-              v-if="order.backorderOption?._id === backOrderOption._id"
-              class="w-10 sm:w-5 lg:w-10 h-5 my-[3px] text-[#007FFF] group-hover:text-[#007FFF] transition duration-300"
-            />
-            <RadioButton
-              v-else
-              class="w-10 sm:w-5 lg:w-10 h-5 my-[3px] text-[#D4D4D4] group-hover:text-[#5E6278] transition duration-300"
-            />
-            <div class="flex flex-col items-start">
-              <h2 class="text-foreground text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
-                {{ backOrderOption.title }}
-              </h2>
-              <p class="text-foreground text-sm font-normal leading-6 text-start">
-                {{ backOrderOption.description }}
-              </p>
-            </div>
-          </button>
+            <span class="inline-flex items-center gap-3">
+              <RadioButtonChecked
+                v-if="order.backorderOption?._id === backOrderOption._id"
+                class="w-10 sm:w-5 lg:w-10 h-5 my-[3px] text-primary transition duration-300"
+              />
+              <RadioButton
+                v-else
+                class="w-10 sm:w-5 lg:w-10 h-5 my-[3px] text-muted-foreground group-hover:text-foreground transition duration-300"
+              />
+              <div class="flex flex-col items-start">
+                <span class="text-foreground text-sm font-medium leading-6 group-hover:text-primary transition duration-300">
+                  {{ backOrderOption.title }}
+                </span>
+                <p class="text-foreground text-sm font-normal leading-6 text-start">
+                  {{ backOrderOption.description }}
+                </p>
+              </div>
+            </span>
+          </UiButton>
         </div>
       </div>
     </template>
@@ -46,26 +50,33 @@
       <!-- eslint-disable-next-line vue/require-v-for-key -->
       <div v-for="deliveryType in shippingPreferences.list" class="flex flex-col gap-4">
         <div v-if="deliveryType.service">
-          <button class="flex flex-row justify-between group" @click="selectDeliveryMethod(deliveryType)">
+          <UiButton
+            type="button"
+            variant="bare"
+            size="flush"
+            :aria-pressed="isSelectedDeliveryMethod(deliveryType)"
+            class="w-full justify-between whitespace-normal group"
+            @click="selectDeliveryMethod(deliveryType)"
+          >
             <div class="flex flex-row gap-3 items-start">
               <RadioButtonChecked
-                v-if="order.deliveryMethod === deliveryType"
-                class="w-5 h-5 my-[3px] text-[#007FFF] group-hover:text-[#007FFF] transition duration-300"
+                v-if="isSelectedDeliveryMethod(deliveryType)"
+                class="w-5 h-5 my-[3px] text-primary transition duration-300"
               />
-              <RadioButton v-else class="w-5 h-5 my-[3px] text-[#D4D4D4] group-hover:text-[#5E6278] transition duration-300" />
+              <RadioButton v-else class="w-5 h-5 my-[3px] text-muted-foreground group-hover:text-foreground transition duration-300" />
               <div class="flex flex-col items-start">
-                <h2 class="text-foreground text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
-                  {{ deliveryType.service.courierName + ' ' }}
-                </h2>
-                <p class="text-foreground text-sm font-normal leading-6 text-start">
+                <span class="text-foreground text-sm font-medium leading-6 group-hover:text-primary transition duration-300">
+                  {{ deliveryType.service.courierName }}
+                </span>
+                <p class="text-muted-foreground text-sm font-normal leading-6 text-start">
                   {{ deliveryType.service.name }}
                 </p>
               </div>
             </div>
-            <span class="text-foreground text-sm font-medium leading-6 group-hover:text-[#007FFF] transition duration-300">
-              {{ `${deliveryType.price.total} Lei` }}</span
-            >
-          </button>
+            <span class="whitespace-nowrap text-foreground text-sm font-medium leading-6 group-hover:text-primary transition duration-300">
+              {{ formatLei(deliveryType.price.total) }}
+            </span>
+          </UiButton>
         </div>
       </div>
     </div>
@@ -77,6 +88,7 @@ import type { PropType } from 'vue';
 import WarningErrorHuge from '@/assets/icons/warning-error-huge.svg';
 import RadioButton from '@/assets/icons/radio-button.svg';
 import RadioButtonChecked from '@/assets/icons/radio-button-checked.svg';
+import { formatLei } from '~~/helpers/money-format';
 import { DeliveryMethodEnum, OrderType, type CheckoutOrderDraft } from '~~/types';
 import type {
   BackorderShippingTypesInterface,
@@ -134,6 +146,11 @@ export default defineComponent({
         // eslint-disable-next-line vue/no-mutating-props
         this.order.stockorderOption = option;
       }
+    },
+    formatLei,
+    // The quote returns its own copy of the charged option, so compare by service id, not identity.
+    isSelectedDeliveryMethod(this: { order: CheckoutOrderDraft }, option: ShippingOrderPricingOption) {
+      return this.order.deliveryMethod?.service?.id === option.service?.id;
     },
     selectDeliveryMethod(this: { order: CheckoutOrderDraft }, option: ShippingOrderPricingOption) {
       // eslint-disable-next-line vue/no-mutating-props

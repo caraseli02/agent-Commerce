@@ -1,4 +1,4 @@
-1. searchbox
+1. searchbox "Search"
 2. button "Create new"
 3. button "Open notifications"
 4. button "Avatar Demo Admin Admin"

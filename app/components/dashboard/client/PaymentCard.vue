@@ -1,10 +1,10 @@
 <template>
-  <div class="relative items-stretch shadow-xs bg-card flex w-full lg:max-w-[476px] xl:max-w-md flex-col p-6 rounded-xl">
+  <div class="relative items-stretch shadow-xs bg-card flex w-full flex-col p-6 rounded-xl">
     <template v-if="card">
       <section class="justify-between items-stretch flex gap-5">
         <div class="text-foreground text-sm font-medium leading-5 capitalize">Card</div>
-        <UiButton variant="ghost" class="p-1 w-10 h-10" @click="openSettingTab">
-          <SvgoEditGray24 class="text-slate-300 hover:text-blue-500" />
+        <UiButton variant="ghost" class="p-1 w-10 h-10" aria-label="Edit payment settings" @click="openSettingTab">
+          <SvgoEditGray24 class="text-slate-300 hover:text-primary" />
         </UiButton>
       </section>
       <div v-if="card && card.type" class="items-stretch flex justify-between gap-3 mt-6 pr-7">
@@ -27,10 +27,12 @@
           </div>
         </div>
       </div>
-      <button
-        class="items-stretch flex gap-2 mt-6 self-end text-muted-foreground hover:text-blue-500"
+      <UiButton
+        variant="bare"
+        size="flush"
+        class="flex mt-6 self-end"
         @click="
-          Emitter.emit('customer-dashboard-nav-tab', {
+          emit('open-tab', {
             label: 'Transaction History',
             value: 'transaction_history',
           })
@@ -38,9 +40,9 @@
       >
         <div class="text-sm font-medium leading-5 grow">Transactions</div>
         <SvgoArrowLeft16
-          class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto"
+          class="aspect-square object-contain object-center w-4 justify-center items-center overflow-hidden shrink-0 max-w-full my-auto ml-2"
         />
-      </button>
+      </UiButton>
     </template>
     <section v-else class="absolute inset-0 flex flex-col items-center justify-center text-center">
       <EmojiSadIcon class="w-[52px] h-[52px] mb-4" />
@@ -50,7 +52,6 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
 import amexIcon from '@/assets/icons/amex58.svg';
 import masterIcon from '@/assets/icons/mastercard58.svg';
 import visaIcon from '@/assets/icons/visa58.svg';
@@ -59,6 +60,10 @@ import EmojiSadIcon from '@/assets/icons/dashboard/emoji-sad.svg';
 
 defineProps<{
   card?: StripeCardInterface | null;
+}>();
+
+const emit = defineEmits<{
+  'open-tab': [tab: { label: string; value: string }];
 }>();
 
 const cardImg = {

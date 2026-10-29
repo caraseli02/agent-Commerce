@@ -88,24 +88,26 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
 </script>
 
 <template>
-  <section class="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-[0_4px_16px_rgba(15,23,42,0.06)] md:p-6">
+  <section class="flex h-full flex-col rounded-2xl border border-border bg-card p-5 md:p-8 lg:p-6 xl:p-8">
     <div class="flex items-start gap-3">
       <QuickBuyIcon class="mt-0.5 h-9 w-9 shrink-0" />
       <div>
-        <h2 class="text-xl font-semibold text-foreground">Quick Buy</h2>
-        <p class="mt-1 text-sm leading-5 text-muted-foreground">
+        <h2 class="font-display text-xl font-semibold leading-tight tracking-[-0.015em] text-foreground md:text-2xl">Quick Buy</h2>
+        <p class="mt-1.5 max-w-[52ch] text-[15px] leading-6 text-muted-foreground">
           Have a part list ready? Add manufacturer part numbers and quantities directly to your cart.
         </p>
       </div>
     </div>
     <div
       v-if="successMessage"
-      class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800"
+      class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200"
       role="status"
       aria-live="polite"
     >
       {{ successMessage }}
-      <NuxtLink to="/cart" class="ml-1 font-semibold underline underline-offset-2 hover:text-emerald-950">View cart</NuxtLink>
+      <NuxtLink to="/cart" class="ml-1 font-semibold underline underline-offset-2 hover:text-emerald-950 dark:hover:text-emerald-50"
+        >View cart</NuxtLink
+      >
     </div>
     <form class="mt-5 hidden min-h-0 flex-1 flex-col lg:flex" @submit.prevent="addToCart">
       <div class="grid gap-2" aria-live="polite">
@@ -121,7 +123,11 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
           @remove-product="removeProduct"
         />
       </div>
-      <p v-if="formError" class="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" role="alert">
+      <p
+        v-if="formError"
+        class="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-200"
+        role="alert"
+      >
         {{ formError }}
       </p>
       <div class="mt-auto flex gap-2.5 pt-4">
@@ -165,13 +171,17 @@ const isInvalidRow = (product: Omit<QuickBuyItem, 'index'>) => hasSubmitted.valu
               @remove-product="removeProduct"
             />
           </div>
-          <p v-if="formError" class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900" role="alert">
+          <p
+            v-if="formError"
+            class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/40 dark:text-amber-200"
+            role="alert"
+          >
             {{ formError }}
           </p>
           <UiDialogFooter class="mt-auto w-full pb-[max(0.25rem,env(safe-area-inset-bottom))] sm:pb-0">
             <div class="flex gap-2.5 w-full">
-              <UiButton variant="secondary" @click="addProduct">
-                <PlusIcon class="w-5 h-5" />
+              <UiButton variant="secondary" class="min-h-11 min-w-11" aria-label="Add part" @click="addProduct">
+                <PlusIcon class="w-5 h-5" aria-hidden="true" />
               </UiButton>
               <UiButton :disabled="isLoading" class="w-full" @click="addToCart">
                 <CartIcon class="w-6 h-6 mr-2" />

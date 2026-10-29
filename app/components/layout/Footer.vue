@@ -11,19 +11,18 @@
           </div>
           <div class="grid grid-cols-2 gap-5 md:flex md:flex-wrap md:gap-x-[30px] lg:gap-x-[50px]">
             <div v-for="(items, label, index) in navItems" :key="index" class="md:max-w-max md:last:ml-[94px] lg:last:ml-0">
-              <div class="mb-[15px]">
-                <div class="mb-1.5 text-sm font-semibold md:text-base">
-                  {{ label }}
-                </div>
-                <div class="h-0.5 w-[38px] rounded-full bg-blue-500" />
+              <div class="mb-1 text-sm font-semibold md:mb-[15px] md:text-base">
+                {{ label }}
               </div>
-              <ul class="grid grid-cols-1 gap-[3px] md:gap-1.5">
+              <!-- 44px rows on touch layouts; the compact desktop rhythm returns from md. -->
+              <ul class="grid grid-cols-1 md:gap-1.5">
                 <li v-for="(navItem, navItemIndex) in items" :key="navItemIndex">
-                  <NuxtLink
-                    :to="navItem.to"
-                    class="relative text-xs after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-neutral-700 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100 md:text-sm"
-                  >
-                    {{ navItem.label }}
+                  <NuxtLink :to="navItem.to" class="group inline-flex min-h-11 items-center text-xs md:min-h-0 md:text-sm">
+                    <span
+                      class="relative after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-foreground after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-200 after:ease-out group-hover:after:origin-left group-hover:after:scale-x-100"
+                    >
+                      {{ navItem.label }}
+                    </span>
                   </NuxtLink>
                 </li>
               </ul>

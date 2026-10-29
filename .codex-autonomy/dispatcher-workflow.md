@@ -1,7 +1,9 @@
 # Native Codex dispatcher — routing version 1
 
-The existing `payments-and-system-design-controller` automation runs every two
-hours, including overnight. It routes; one real native issue chat owns each issue
+The existing `payments-and-system-design-controller` automation runs every five
+hours at :15, including overnight. Apply migration-policy.md and preserved installed
+owner policies first, including separate work/reviewer lanes, actual native Luna
+delegation and cross-ledger cleanup/recovery admission. It routes; one real native issue chat owns each issue
 through implementation and all same-PR repairs until human merge/closure. Sol
 coordinates, Luna provides bounded support and Astra handles a documented concrete
 unresolved risk. Neither internal consultation nor self-auditing is acceptance.
@@ -33,7 +35,7 @@ unresolved risk. Neither internal consultation nor self-auditing is acceptance.
    local verification/first evaluation, holds the implementation slot. Actionable repairs use the
    original issue/chat/PR before new claims; never interrupt another active worker.
    Initial queue admission requires an open canonical Codex PR, trusted independent
-   exact-head Claude PASS, current head/base local verification, mergeability and no change request.
+   exact-head Claude PASS, current-head local verification, mergeability and no change request.
    `queued_at` retains queue identity through repairs and re-review, never readiness.
    At two queued PRs stop new claims; an already live issue may finish and queue.
    Parked/blocked claims preserve their work and do not hold the live slot. Oldest
@@ -120,6 +122,6 @@ unresponsive keepers are unknown; no compatibility takeover or automatic install
 
 ## Husky acceptance — owner decision 2026-10-19
 
-GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the context report; award PASS only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. Changed head/base/body/labels require revalidation. The context marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.
+GitHub Actions stay disabled. Follow `docs/agents/local-verification.md`: real Husky checks plus independent opposite-builder review of the exact PR head/current base replace all hosted and standalone-CI prerequisites. Before PASS execute the selected fresh local gate and applicable runtime/browser checks; validate the live PR body. Include the `marker` from `node scripts/owner-attention.mjs local-readiness PR_NUMBER` on its own line in the report; award PASS only after those checks pass. Recheck `readiness.ready=true` before labels or queue admission. A new head requires a new review; a later main, PR body or label change does not (`docs/agents/local-verification.md` § Verdict lifetime). The marker alone is not test evidence. No service/client/App/health/reboot proof or hosted green check is required. Retired CI failures and their absence do not consume repair attempts. Actual local failures, conflicts, change requests, ownership, WIP, protected paths, default-off Stripe and human merge remain enforced. Existing chats surface meaningful owner attention; no bot notification or new scheduler is implied.
 
-A final report suppresses only unchanged current-context work. A same-head PASS with a stale base/body/labels marker, a material mergeability change, or a report blocked solely by the superseded CI policy is eligible for revalidation. Publish one new attributed report for the changed head/base/metadata context, preserving previous reports. Do not duplicate an unchanged context or wait for a new commit. Current-context reports supersede legacy unmarked reports; contradictory reports within the same context still block.
+A final report stands until its head changes. An unchanged head is reviewed again only for an `INCONCLUSIVE` retry or after a re-review request (`docs/agents/local-verification.md` § Verdict lifetime); re-reviews after a FAIL follow the round rules in `docs/agents/autonomous-workflow.md`.

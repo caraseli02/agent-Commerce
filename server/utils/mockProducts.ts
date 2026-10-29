@@ -11,20 +11,20 @@ export const mockProducts = [
     description: '32-bit ARM Cortex-M4 MCU with FPU, 1 MB Flash, and rich peripheral set for industrial control.',
     code: 'MCU-001',
     manufacturer: 'STMicroelectronics',
-    manufacturerCode: 'STM',
+    manufacturerCode: 'STM32F407VGT6',
     stock: 150,
     sold: 1250,
     favourite: false,
     priceHistory: [
-      { price: 999.99, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
-      { price: 949.99, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
+      { price: 84.9, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
+      { price: 89.15, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
     ],
     priceConfiguration: {
       smartLinkId: 'smart-price-1',
       configuration: [
-        { price: 999.99, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 979.99, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 959.99, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 84.9, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 81.5, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 78.0, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
       ],
     },
     measure: 'Unit',
@@ -65,20 +65,20 @@ export const mockProducts = [
     description: 'Isolated RS-485 transceiver with integrated power and signal isolation for industrial fieldbus.',
     code: 'IF-002',
     manufacturer: 'Analog Devices',
-    manufacturerCode: 'ADI',
+    manufacturerCode: 'ADM2587EBRWZ',
     stock: 75,
     sold: 890,
     favourite: true,
     priceHistory: [
-      { price: 1499.99, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
-      { price: 1449.99, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
+      { price: 78.4, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
+      { price: 82.32, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
     ],
     priceConfiguration: {
       smartLinkId: 'smart-price-2',
       configuration: [
-        { price: 1499.99, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 1474.99, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 1449.99, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 78.4, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 74.9, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 71.2, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
       ],
     },
     measure: 'Unit',
@@ -87,23 +87,23 @@ export const mockProducts = [
         Datasheet: 'datasheet-lap-002.pdf',
         TaxonomyPath: 'Semiconductors > Interface ICs > RS-485',
         TaxonomyPathIDs: 'cat-001,cat-020,cat-055',
-        SmallImageURL: '/images/products/microcontroller.webp',
+        SmallImageURL: '',
         PartDescription: 'SOIC-16, 500 kbps, 5 kV isolation',
         Manufacturer: 'Analog Devices',
       },
       ParametricData: {
         Features: [
           { FeatureName: 'Interface', FeatureValue: 'RS-485', FeatureUnit: '', FeatureID: 'feat-010' },
-          { FeatureName: 'Isolation', FeatureValue: '5000', FeatureUnit: 'V', FeatureID: 'feat-011' },
+          { FeatureName: 'Isolation', FeatureValue: '5000', FeatureUnit: 'V rms', FeatureID: 'feat-011' },
           { FeatureName: 'Data Rate', FeatureValue: '500', FeatureUnit: 'kbps', FeatureID: 'feat-012' },
           { FeatureName: 'Package', FeatureValue: 'SOIC-16', FeatureUnit: '', FeatureID: 'feat-013' },
           { FeatureName: 'Supply', FeatureValue: '3.0-5.5', FeatureUnit: 'V', FeatureID: 'feat-014' },
         ],
       },
       ProductImage: {
-        ProductImageSmall: '/images/products/microcontroller.webp',
-        ProductImageLarge: '/images/products/microcontroller.webp',
-        images: ['/images/products/microcontroller.webp'],
+        ProductImageSmall: '',
+        ProductImageLarge: '',
+        images: [],
       },
     },
   },
@@ -119,20 +119,20 @@ export const mockProducts = [
     description: 'Dual Schottky barrier diode in SOT-23 for high-speed switching and reverse-polarity protection.',
     code: 'DIO-003',
     manufacturer: 'Nexperia',
-    manufacturerCode: 'NEX',
+    manufacturerCode: 'BAT54C,215',
     stock: 500,
     sold: 2340,
     favourite: false,
     priceHistory: [
-      { price: 149.99, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
-      { price: 139.99, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
+      { price: 0.62, active: true, createdAt: '2024-01-01T00:00:00.000Z' },
+      { price: 0.65, active: false, createdAt: '2024-02-01T00:00:00.000Z' },
     ],
     priceConfiguration: {
       smartLinkId: 'smart-price-3',
       configuration: [
-        { price: 149.99, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 144.99, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
-        { price: 139.99, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 0.62, quantity: 1, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 0.51, quantity: 5, createdAt: '2024-01-15T00:00:00.000Z' },
+        { price: 0.42, quantity: 10, createdAt: '2024-01-15T00:00:00.000Z' },
       ],
     },
     measure: 'Unit',
@@ -141,7 +141,7 @@ export const mockProducts = [
         Datasheet: 'datasheet-dio-003.pdf',
         TaxonomyPath: 'Passives > Diodes > Schottky',
         TaxonomyPathIDs: 'cat-002,cat-021,cat-061',
-        SmallImageURL: '/images/products/microcontroller.webp',
+        SmallImageURL: '',
         PartDescription: 'SOT-23, dual series, 30 V, 200 mA',
         Manufacturer: 'Nexperia',
       },
@@ -153,9 +153,9 @@ export const mockProducts = [
         ],
       },
       ProductImage: {
-        ProductImageSmall: '/images/products/microcontroller.webp',
-        ProductImageLarge: '/images/products/microcontroller.webp',
-        images: ['/images/products/microcontroller.webp'],
+        ProductImageSmall: '',
+        ProductImageLarge: '',
+        images: [],
       },
     },
   },
@@ -171,7 +171,7 @@ export const mockProducts = [
     description: 'High-quality wireless headphones with active noise cancellation.',
     code: 'AUD-004',
     manufacturer: 'SoundMaster Inc',
-    manufacturerCode: 'SMI',
+    manufacturerCode: 'SMI-AUD-004',
     stock: 200,
     sold: 1560,
     favourite: false,
@@ -190,7 +190,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-aud-004.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Audio > Headphones > Wireless',
         TaxonomyPathIDs: 'cat-004,cat-040,cat-070',
         SmallImageURL: '/images/products/headphones.webp',
@@ -223,7 +223,7 @@ export const mockProducts = [
     description: 'Portable Bluetooth speaker with powerful sound and long battery life.',
     code: 'SPK-005',
     manufacturer: 'AudioTech Ltd',
-    manufacturerCode: 'ATL',
+    manufacturerCode: 'ATL-SPK-005',
     stock: 350,
     sold: 1800,
     favourite: true,
@@ -242,7 +242,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-spk-005.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Audio > Speaker > Bluetooth',
         TaxonomyPathIDs: 'cat-004,cat-041,cat-071',
         SmallImageURL: '/images/products/speaker.webp',
@@ -275,7 +275,7 @@ export const mockProducts = [
     description: 'High-end tablet with stunning display and powerful performance.',
     code: 'TAB-006',
     manufacturer: 'TechBrand Inc.',
-    manufacturerCode: 'TBI',
+    manufacturerCode: 'TBI-TAB-006',
     stock: 120,
     sold: 950,
     favourite: false,
@@ -294,7 +294,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-tab-006.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Electronics > Tablet > Premium',
         TaxonomyPathIDs: 'cat-001,cat-013,cat-046',
         SmallImageURL: '/images/products/tablet.webp',
@@ -318,8 +318,8 @@ export const mockProducts = [
   {
     _id: 'prod-7',
     erpItemId: 'ERP-007',
-    path: 'components/mouse',
-    category: 'Components',
+    path: 'peripherals/mouse',
+    category: 'Peripherals',
     active: true,
     class: 'Standard',
     name: 'Gaming Mouse Wireless',
@@ -327,7 +327,7 @@ export const mockProducts = [
     description: 'High-precision wireless gaming mouse with customizable RGB.',
     code: 'MOU-007',
     manufacturer: 'InputDevices Corp',
-    manufacturerCode: 'IDC',
+    manufacturerCode: 'IDC-MOU-007',
     stock: 450,
     sold: 2100,
     favourite: true,
@@ -346,8 +346,8 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-mou-007.pdf',
-        TaxonomyPath: 'Components > Mouse > Gaming',
+        Datasheet: '',
+        TaxonomyPath: 'Peripherals > Mouse > Gaming',
         TaxonomyPathIDs: 'cat-003,cat-031,cat-061',
         SmallImageURL: '/images/products/mouse.webp',
         PartDescription: '16000 DPI, RGB lighting, Wireless',
@@ -379,7 +379,7 @@ export const mockProducts = [
     description: 'Advanced smartwatch with health monitoring and GPS.',
     code: 'SWA-008',
     manufacturer: 'WearableTech Inc',
-    manufacturerCode: 'WTI',
+    manufacturerCode: 'WTI-SWA-008',
     stock: 180,
     sold: 1420,
     favourite: false,
@@ -398,7 +398,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-swa-008.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Wearables > Smartwatch > Premium',
         TaxonomyPathIDs: 'cat-005,cat-050,cat-080',
         SmallImageURL: '/images/products/smartwatch.webp',
@@ -431,7 +431,7 @@ export const mockProducts = [
     description: 'Professional-grade 4K monitor with HDR and color accuracy.',
     code: 'MON-009',
     manufacturer: 'DisplayTech Ltd',
-    manufacturerCode: 'DTL',
+    manufacturerCode: 'DTL-MON-009',
     stock: 95,
     sold: 780,
     favourite: false,
@@ -450,7 +450,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-mon-009.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Electronics > Monitor > 4K',
         TaxonomyPathIDs: 'cat-001,cat-015,cat-047',
         SmallImageURL: '/images/products/monitor.webp',
@@ -483,7 +483,7 @@ export const mockProducts = [
     description: 'Professional-grade cordless drill with brushless motor.',
     code: 'DRILL-010',
     manufacturer: 'PowerTools Co',
-    manufacturerCode: 'PTC',
+    manufacturerCode: 'PTC-DRILL-010',
     stock: 220,
     sold: 1650,
     favourite: false,
@@ -502,7 +502,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-drill-010.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Tools > Power Tools > Drill',
         TaxonomyPathIDs: 'cat-006,cat-060,cat-090',
         SmallImageURL: '/images/products/drill.webp',
@@ -535,7 +535,7 @@ export const mockProducts = [
     description: 'Fast-charging USB-C cable with braided construction.',
     code: 'CBL-011',
     manufacturer: 'CableMaster Inc',
-    manufacturerCode: 'CMI',
+    manufacturerCode: 'CMI-CBL-011',
     stock: 800,
     sold: 3200,
     favourite: true,
@@ -554,7 +554,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-cbl-011.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Accessories > Cables > USB-C',
         TaxonomyPathIDs: 'cat-007,cat-070,cat-095',
         SmallImageURL: '/images/products/usb-c-cable.webp',
@@ -587,7 +587,7 @@ export const mockProducts = [
     description: 'Professional mirrorless camera with advanced autofocus.',
     code: 'CAM-012',
     manufacturer: 'PhotoTech Inc',
-    manufacturerCode: 'PTI',
+    manufacturerCode: 'PTI-CAM-012',
     stock: 85,
     sold: 620,
     favourite: false,
@@ -606,7 +606,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-cam-012.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Electronics > Camera > Mirrorless',
         TaxonomyPathIDs: 'cat-001,cat-018,cat-048',
         SmallImageURL: '/images/products/camera.webp',
@@ -639,7 +639,7 @@ export const mockProducts = [
     description: 'Heavy-duty circular saw for professional carpentry.',
     code: 'SAW-013',
     manufacturer: 'PowerTools Co',
-    manufacturerCode: 'PTC',
+    manufacturerCode: 'PTC-SAW-013',
     stock: 160,
     sold: 1100,
     favourite: false,
@@ -658,7 +658,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-saw-013.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Tools > Power Tools > Saw',
         TaxonomyPathIDs: 'cat-006,cat-062,cat-092',
         SmallImageURL: '/images/products/circular-saw.webp',
@@ -691,7 +691,7 @@ export const mockProducts = [
     description: 'Water-resistant backpack with laptop compartment and USB port.',
     code: 'BPK-014',
     manufacturer: 'TravelGear Ltd',
-    manufacturerCode: 'TGL',
+    manufacturerCode: 'TGL-BPK-014',
     stock: 380,
     sold: 1850,
     favourite: true,
@@ -710,7 +710,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-bpk-014.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Accessories > Bags > Backpacks',
         TaxonomyPathIDs: 'cat-007,cat-072,cat-097',
         SmallImageURL: '/images/products/backpack.webp',
@@ -743,7 +743,7 @@ export const mockProducts = [
     description: 'Premium wireless earbuds with ANC and transparency mode.',
     code: 'EAR-015',
     manufacturer: 'SoundMaster Inc',
-    manufacturerCode: 'SMI',
+    manufacturerCode: 'SMI-EAR-015',
     stock: 350,
     sold: 2890,
     favourite: true,
@@ -762,7 +762,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-ear-015.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Wearables > Earbuds > Premium',
         TaxonomyPathIDs: 'cat-005,cat-052,cat-082',
         SmallImageURL: '/images/products/earbuds.webp',
@@ -795,7 +795,7 @@ export const mockProducts = [
     description: 'Adjustable LED desk lamp with multiple brightness levels.',
     code: 'LAMP-016',
     manufacturer: 'HomeEssentials Inc',
-    manufacturerCode: 'HEI',
+    manufacturerCode: 'HEI-LAMP-016',
     stock: 420,
     sold: 1950,
     favourite: false,
@@ -814,7 +814,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-lamp-016.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Office > Lighting > Desk Lamp',
         TaxonomyPathIDs: 'cat-008,cat-080,cat-100',
         SmallImageURL: '/images/products/desk-lamp.webp',
@@ -847,7 +847,7 @@ export const mockProducts = [
     description: 'Coffee maker with programmable timer and thermal carafe.',
     code: 'CFE-017',
     manufacturer: 'KitchenMaster Co',
-    manufacturerCode: 'KMC',
+    manufacturerCode: 'KMC-CFE-017',
     stock: 175,
     sold: 1420,
     favourite: false,
@@ -866,7 +866,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-cfe-017.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Home > Kitchen > Coffee Maker',
         TaxonomyPathIDs: 'cat-009,cat-090,cat-110',
         SmallImageURL: '/images/products/coffee-maker.webp',
@@ -890,8 +890,8 @@ export const mockProducts = [
   {
     _id: 'prod-18',
     erpItemId: 'ERP-018',
-    path: 'components/headset',
-    category: 'Components',
+    path: 'peripherals/headset',
+    category: 'Peripherals',
     active: true,
     class: 'Standard',
     name: 'Gaming Headset',
@@ -899,7 +899,7 @@ export const mockProducts = [
     description: 'Wired gaming headset with surround sound and microphone.',
     code: 'HST-018',
     manufacturer: 'AudioTech Ltd',
-    manufacturerCode: 'ATL',
+    manufacturerCode: 'ATL-HST-018',
     stock: 290,
     sold: 2280,
     favourite: true,
@@ -918,8 +918,8 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-hst-018.pdf',
-        TaxonomyPath: 'Components > Headset > Gaming',
+        Datasheet: '',
+        TaxonomyPath: 'Peripherals > Headset > Gaming',
         TaxonomyPathIDs: 'cat-003,cat-033,cat-064',
         SmallImageURL: '/images/products/gaming-headset.webp',
         PartDescription: '7.1 surround, Noise-canceling mic, RGB lighting',
@@ -951,7 +951,7 @@ export const mockProducts = [
     description: 'Smart air purifier with HEPA filter and app control.',
     code: 'APU-019',
     manufacturer: 'AirQuality Inc',
-    manufacturerCode: 'AQI',
+    manufacturerCode: 'AQI-APU-019',
     stock: 135,
     sold: 890,
     favourite: false,
@@ -970,7 +970,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-apu-019.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Home > Air Quality > Purifier',
         TaxonomyPathIDs: 'cat-009,cat-092,cat-112',
         SmallImageURL: '/images/products/air-purifier.webp',
@@ -1003,7 +1003,7 @@ export const mockProducts = [
     description: 'High-speed WiFi 6 router with mesh support.',
     code: 'RTR-020',
     manufacturer: 'NetworkTech Inc',
-    manufacturerCode: 'NTI',
+    manufacturerCode: 'NTI-RTR-020',
     stock: 110,
     sold: 980,
     favourite: false,
@@ -1022,7 +1022,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-rtr-020.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Electronics > Networking > Router',
         TaxonomyPathIDs: 'cat-001,cat-025,cat-057',
         SmallImageURL: '/images/products/router.webp',
@@ -1055,7 +1055,7 @@ export const mockProducts = [
     description: 'Ergonomic aluminum laptop stand with adjustable height.',
     code: 'STN-021',
     manufacturer: 'OfficePro Co',
-    manufacturerCode: 'OPC',
+    manufacturerCode: 'OPC-STN-021',
     stock: 520,
     sold: 2450,
     favourite: false,
@@ -1074,7 +1074,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-stn-021.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Accessories > Stands > Laptop',
         TaxonomyPathIDs: 'cat-007,cat-074,cat-099',
         SmallImageURL: '/images/products/laptop-stand.webp',
@@ -1098,8 +1098,8 @@ export const mockProducts = [
   {
     _id: 'prod-22',
     erpItemId: 'ERP-022',
-    path: 'components/ssd',
-    category: 'Components',
+    path: 'peripherals/ssd',
+    category: 'Peripherals',
     active: true,
     class: 'Premium',
     name: 'NVMe SSD 1TB',
@@ -1107,7 +1107,7 @@ export const mockProducts = [
     description: 'High-speed NVMe SSD for professional workstations.',
     code: 'SSD-022',
     manufacturer: 'StorageTech Inc',
-    manufacturerCode: 'STI',
+    manufacturerCode: 'STI-SSD-022',
     stock: 280,
     sold: 1670,
     favourite: true,
@@ -1126,8 +1126,8 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-ssd-022.pdf',
-        TaxonomyPath: 'Components > Storage > SSD',
+        Datasheet: '',
+        TaxonomyPath: 'Peripherals > Storage > SSD',
         TaxonomyPathIDs: 'cat-003,cat-037,cat-067',
         SmallImageURL: '/images/products/nvme-ssd.webp',
         PartDescription: '1TB NVMe, 7000MB/s read, M.2 form factor',
@@ -1159,7 +1159,7 @@ export const mockProducts = [
     description: 'Comprehensive 120-piece mechanic tool set with case.',
     code: 'TLS-023',
     manufacturer: 'ProTools Ltd',
-    manufacturerCode: 'PTL',
+    manufacturerCode: 'PTL-TLS-023',
     stock: 195,
     sold: 1420,
     favourite: false,
@@ -1178,7 +1178,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-tls-023.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Tools > Hand Tools > Mechanic Set',
         TaxonomyPathIDs: 'cat-006,cat-065,cat-094',
         SmallImageURL: '/images/products/tool-set.webp',
@@ -1211,7 +1211,7 @@ export const mockProducts = [
     description: 'Studio-quality USB condenser microphone for streaming and recording.',
     code: 'MIC-024',
     manufacturer: 'SoundMaster Inc',
-    manufacturerCode: 'SMI',
+    manufacturerCode: 'SMI-MIC-024',
     stock: 155,
     sold: 1180,
     favourite: true,
@@ -1230,7 +1230,7 @@ export const mockProducts = [
     measure: 'Unit',
     details: {
       SummaryData: {
-        Datasheet: 'datasheet-mic-024.pdf',
+        Datasheet: '',
         TaxonomyPath: 'Audio > Microphone > USB',
         TaxonomyPathIDs: 'cat-004,cat-043,cat-073',
         SmallImageURL: '/images/products/microphone.webp',

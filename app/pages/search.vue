@@ -8,21 +8,18 @@
       :keyword="keyword"
       :at-page="atPage"
       :per-page="perPage"
-      @reset-products-filters="resetProductsFilters = $event"
+      @register-filter-option="onFilterOptionsChange"
+      @reset-products-filters="onResetFilters"
     />
-    <div v-if="pending" class="container mb-10 min-h-[200px]" aria-busy="true" aria-live="polite">
-      <div class="h-10 w-64 rounded bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none mb-6" />
+    <div v-if="pending && !products" class="container mb-10 min-h-[200px]" aria-busy="true" aria-live="polite">
+      <div class="h-10 w-64 rounded bg-slate-100 animate-pulse motion-reduce:animate-none mb-6" />
       <div class="space-y-4">
-        <div
-          v-for="n in 3"
-          :key="n"
-          class="h-[120px] rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none"
-        />
+        <div v-for="n in 3" :key="n" class="h-[120px] rounded-2xl bg-slate-100 animate-pulse motion-reduce:animate-none" />
       </div>
       <span class="sr-only">Loading search results…</span>
     </div>
 
-    <div v-else-if="error" class="container mb-10 min-h-[200px] flex flex-col items-start justify-center gap-4" role="alert">
+    <div v-else-if="error && !pending" class="container mb-10 min-h-[200px] flex flex-col items-start justify-center gap-4" role="alert">
       <p class="text-lg font-semibold text-foreground">We could not load search results</p>
       <p class="text-sm text-muted-foreground max-w-xl">Try again or adjust your filters.</p>
       <UiButton type="button" @click="refresh()">Try again</UiButton>
@@ -33,37 +30,23 @@
       :key="searchResultsKey"
       :products="products"
       :keyword="keyword"
+      :aria-busy="pending"
       @at-page="atPage = $event"
       @per-page="perPage = $event"
       @sort-by-change="onSortByChange"
       @show-filter="additionalFilters = $event"
     />
 
-    <template v-if="showAdditionalContent">
-      <ProductBlocks
-        :rows-number="2"
-        class="mb-7 lg:mb-[38px] xl:mb-[58px]"
-        :filters="['Featured', 'Best Sellers', 'Hot Deals', 'Top Searched']"
-      />
-      <Banner />
-      <div class="container mb-[30px] lg:mb-10 xl:mb-[60px]">
-        <div class="grid grid-cols-1 gap-[15px] md:grid-cols-[40%_calc(60%-20px)] md:gap-5 xl:grid-cols-[41%_calc(59%-20px)]">
-          <LazyQuickBuy />
-          <LazyEcxlusiveOffer />
-        </div>
-      </div>
-      <NewProducts :row-count="2" />
-      <News />
-      <Manufacturers />
-    </template>
+    <div v-if="showQuickBuy" class="container mb-[30px] lg:mb-10 xl:mb-[60px]">
+      <LazyQuickBuy />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData } from '~~/types/product';
+import type { ProductFilters, ProductParametricDataFeaturesInterface, SearchData, SearchFiltersCategories } from '~~/types/product';
 import { consumeSimilarSearchTransfer } from '~/composables/consumeSimilarSearchTransfer';
 import { loadSearchResults, searchResultsCacheKey } from '~/composables/loadSearchResults';
 import { useProductStore } from '~/store/productStore';
@@ -74,7 +57,7 @@ usePageSeo({
 });
 
 const productStore = useProductStore();
-const { similarProducts, similarProductFeatures } = storeToRefs(productStore);
+const { similarProducts, similarProductFeatures, headerSearch } = storeToRefs(productStore);
 const route = useRoute();
 const keyword = ref((route.query.keyword ?? route.query.q)?.toString() ?? '');
 
@@ -92,9 +75,8 @@ const onSortByChange = (option: { label: string; name: string; order?: 0 | 1 }) 
     order.value = option.order;
   }
 };
-const resetProductsFilters = ref(false);
 const category = ref<string | null>(route.query?.category?.toString() || null);
-const showAdditionalContent = computed(() => {
+const showQuickBuy = computed(() => {
   const isBrowsingCatalog = !keyword.value.trim() && !category.value;
   return isBrowsingCatalog && (products.value?.items?.total_items ?? 0) > 0;
 });
@@ -128,12 +110,23 @@ const {
   },
 );
 
-const products = computed(() => searchData.value ?? null);
+// While sort, page or filters refetch, keep showing the last results of the same search context:
+// unmounting SearchProducts for the skeleton would reset its toolbar and pager to their defaults.
+const lastResults = shallowRef<{ context: string; data: SearchData } | null>(null);
+const products = computed(() => {
+  if (searchData.value) {
+    return searchData.value;
+  }
+  return lastResults.value?.context === searchResultsKey.value ? lastResults.value.data : null;
+});
 const filters = ref<ProductFilters | null>(null);
 
 watch(
   searchData,
   (data) => {
+    if (data) {
+      lastResults.value = { context: searchResultsKey.value, data };
+    }
     if (data?.filters) {
       filters.value = data.filters;
     }
@@ -162,16 +155,20 @@ watch(route, (value) => {
   initializeSearchFromRoute();
 });
 
-Emitter.on('register-filter-option', (filter: ProductParametricDataFeaturesInterface[]) => {
-  featureFilters.value = filter;
+// Facets carry FeatureValueDetails as an object; the search request only needs the feature identity.
+function onFilterOptionsChange(options: SearchFiltersCategories[]) {
+  featureFilters.value = options.map(({ FeatureID, FeatureName, FeatureValue, FeatureUnit, count, checked }) => ({
+    FeatureID,
+    FeatureName,
+    FeatureValue,
+    FeatureUnit,
+    count,
+    checked,
+  }));
   atPage.value = 1;
-});
+}
 
-Emitter.on('reset-products-filters', (value: boolean) => {
-  if (!value) {
-    return;
-  }
-
+function onResetFilters() {
   const obj = _cloneDeep(filters.value);
   if (!obj) {
     return;
@@ -188,10 +185,14 @@ Emitter.on('reset-products-filters', (value: boolean) => {
   additionalFilters.value = {};
   featureFilters.value = [];
   atPage.value = 1;
-});
+}
 
-Emitter.on('product-keyword-change', (value: { keyword: string; products: SearchData }) => {
-  keyword.value = value.keyword;
+// Typing in the header search updates these results live without changing the URL.
+watch(headerSearch, (search) => {
+  if (!search) {
+    return;
+  }
+  keyword.value = search.keyword;
   ignoreCategory.value = true;
   atPage.value = 1;
 });

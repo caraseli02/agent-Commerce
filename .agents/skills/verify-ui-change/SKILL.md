@@ -19,6 +19,8 @@ Use the available browser tool against the correct local dev server or a freshly
 
 Choose impacted routes, interactions, and viewports from the diff and acceptance criteria. Inspect expected rendering, behavior, and relevant loading/empty/error states. Include keyboard/focus behavior when interaction changes and mobile/desktop when responsive layout changes. Shared styles/stores may require representative affected consumers; keep the browser pass scoped to those consumers. Record exact route, viewport, setup, observed outcome, and a screenshot/log when useful. Diagnose console/hydration/request errors relevant to the flow.
 
+For the PR, show the change rather than describe it: after the last UI commit, run `pnpm pr:screenshots --routes "<the routes above>"` and paste its `## Screenshots` section (before/after, light/dark, desktop/mobile) into the PR body. Add `--sign-in customer` or `--sign-in admin` when a route needs a signed-in session (dashboards, account pages); without it those routes are captured signed out. Rerun it after any later UI edit; the template preflight rejects a stale section.
+
 ## Repair and continue
 
 If a check fails, diagnose the observed failure, make a focused repair, then rerun that check and checks whose inputs changed. Preserve passing evidence only when relevant source, dependencies, and environment are demonstrably unchanged; on uncertainty rerun the relevant check. Continue the already authorized task without asking the user to continue. Stop and report a concrete blocker after two focused failed repair attempts, an unavailable required environment, or a required missing decision; do not widen scope.

@@ -72,10 +72,10 @@ void getCategories();
 <template>
   <div class="font-Poppins mt-3">
     <section
-      class="grid grid-cols-[minmax(280px,320px)_1fr] h-[min(480px,70vh)] min-h-[420px] p-2 bg-[#F6F7F9] rounded-2xl border border-[#DEE1E6] dark:border-border dark:bg-background shadow-[0_2px_6px_rgba(15,23,42,0.06)] overflow-hidden"
+      class="grid grid-cols-[minmax(280px,320px)_1fr] h-[min(480px,70vh)] min-h-[420px] p-2 bg-muted rounded-2xl border border-border shadow-[0_2px_6px_rgba(15,23,42,0.06)] overflow-hidden"
     >
       <div
-        class="h-full min-h-0 pr-2 border-r border-[#D5D8DD] dark:border-border overflow-y-auto scrollbar-thin"
+        class="h-full min-h-0 pr-2 border-r border-border overflow-y-auto scrollbar-thin"
         role="navigation"
         aria-label="Product categories"
         :aria-busy="isLoading"
@@ -105,7 +105,7 @@ void getCategories();
           type="button"
           variant="ghost"
           class="group w-full h-[58px] justify-between gap-3 px-3 py-2 rounded-xl text-left"
-          :class="isSelected(category.id) ? 'bg-secondary' : ''"
+          :class="isSelected(category.id) ? 'bg-card' : ''"
           :aria-pressed="isSelected(category.id)"
           @click="handleRootClick(category)"
         >
@@ -113,19 +113,19 @@ void getCategories();
             <component
               :is="getCategoryIcon(category)"
               class="w-6 h-6 flex-shrink-0"
-              :class="isSelected(category.id) ? 'text-primary' : 'text-[#2D3340] dark:text-foreground'"
+              :class="isSelected(category.id) ? 'text-primary' : 'text-foreground'"
               aria-hidden="true"
             />
             <div class="min-w-0">
               <div
                 class="text-[13px] leading-[1.2] font-semibold truncate"
-                :class="isSelected(category.id) ? 'text-primary' : 'text-[#2B303B] dark:text-foreground'"
+                :class="isSelected(category.id) ? 'text-primary' : 'text-foreground'"
               >
                 {{ category.name }}
               </div>
               <div
                 class="text-[11px] leading-[1.2] font-medium mt-0.5"
-                :class="isSelected(category.id) ? 'text-primary/90' : 'text-[#6E7482] dark:text-muted-foreground'"
+                :class="isSelected(category.id) ? 'text-primary/90' : 'text-muted-foreground'"
               >
                 {{ formatItemCount(category.productCount) }}
               </div>
@@ -133,22 +133,20 @@ void getCategories();
           </div>
           <ChevronRight
             class="w-5 h-5 flex-shrink-0 transition-colors duration-200"
-            :class="isSelected(category.id) ? 'text-primary' : 'text-[#2D3340] dark:text-foreground'"
+            :class="isSelected(category.id) ? 'text-primary' : 'text-foreground'"
             aria-hidden="true"
           />
         </UiButton>
       </div>
       <div class="h-full min-h-0 pl-2">
         <LayoutHeaderMainMenuBannerNew v-if="!hasSelection" class="h-full" />
-        <div v-else class="h-full bg-card rounded-xl border border-[#E1E4EA] dark:border-border overflow-hidden flex flex-col">
-          <div class="h-12 px-5 border-b border-[#E8EBEF] dark:border-border flex items-center justify-between gap-3 shrink-0">
-            <div class="text-[15px] leading-none font-medium text-[#5E6572] truncate dark:text-muted-foreground">
-              <span class="text-[#8A90A0] dark:text-muted-foreground">Main Category</span>
+        <div v-else class="h-full bg-card rounded-xl border border-border overflow-hidden flex flex-col">
+          <div class="h-12 px-5 border-b border-border flex items-center justify-between gap-3 shrink-0">
+            <div class="text-[15px] leading-none font-medium text-muted-foreground truncate">
+              <span class="text-muted-foreground">Main Category</span>
               <span v-for="(crumb, index) in breadcrumbTrail" :key="`${crumb}-${index}`">
-                <span class="mx-2 text-[#B1B6C2] dark:text-muted-foreground" aria-hidden="true">&gt;</span>
-                <span :class="index === breadcrumbTrail.length - 1 ? 'text-[#2D3340] font-semibold dark:text-foreground' : ''">{{
-                  crumb
-                }}</span>
+                <span class="mx-2 text-muted-foreground/60" aria-hidden="true">&gt;</span>
+                <span :class="index === breadcrumbTrail.length - 1 ? 'text-foreground font-semibold' : ''">{{ crumb }}</span>
               </span>
             </div>
             <UiButton type="button" variant="outline" size="xs" class="shrink-0" @click="resetSelection"> All Categories </UiButton>
@@ -157,7 +155,7 @@ void getCategories();
           <div class="flex-1 overflow-y-auto p-5 min-h-0">
             <div v-if="selectedDetailColumns.length" class="grid grid-cols-2 gap-x-8 gap-y-5 lg:grid-cols-3 xl:grid-cols-4">
               <div v-for="column in selectedDetailColumns" :key="column.id" class="space-y-2.5">
-                <h4 class="text-[14px] leading-[1.3] font-semibold text-[#2D3340] truncate dark:text-foreground">
+                <h4 class="text-[14px] leading-[1.3] font-semibold text-foreground truncate">
                   {{ column.title }}
                 </h4>
                 <UiButton
@@ -168,12 +166,10 @@ void getCategories();
                   class="group block h-auto w-full p-0 text-left"
                   @click="handleChildClick(entry)"
                 >
-                  <div
-                    class="text-[13px] leading-[1.3] font-medium text-[#464D5A] group-hover:text-primary truncate dark:text-muted-foreground"
-                  >
+                  <div class="text-[13px] leading-[1.3] font-medium text-foreground group-hover:text-primary truncate">
                     {{ entry.name }}
                   </div>
-                  <div class="text-[11px] leading-[1.3] font-medium text-[#8A90A0] mt-0.5 dark:text-muted-foreground">
+                  <div class="text-[11px] leading-[1.3] font-medium text-muted-foreground mt-0.5">
                     {{ formatItemCount(entry.productCount) }}
                   </div>
                 </UiButton>
@@ -182,13 +178,13 @@ void getCategories();
                 </UiButton>
               </div>
             </div>
-            <div v-else class="text-[14px] text-[#7B8290] dark:text-muted-foreground">No subcategories available.</div>
+            <div v-else class="text-[14px] text-muted-foreground">No subcategories available.</div>
           </div>
-          <div class="px-5 py-3 border-t border-[#E8EBEF] bg-[#FBFCFD] dark:border-border dark:bg-muted shrink-0">
+          <div class="px-5 py-3 border-t border-border bg-muted/40 shrink-0">
             <div class="flex items-center gap-4 flex-wrap">
               <NuxtLink
                 to="/search"
-                class="text-[13px] leading-none font-medium text-[#2D3340] hover:text-primary dark:text-foreground inline-flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
+                class="text-[13px] leading-none font-medium text-foreground hover:text-primary inline-flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
               >
                 <GemIcon class="w-4 h-4" aria-hidden="true" />
                 View our discounted offers
@@ -197,14 +193,14 @@ void getCategories();
               <div class="ml-auto flex items-center gap-4">
                 <a
                   href="tel:+18005550199"
-                  class="text-xs leading-none font-medium text-[#6F7685] hover:text-primary dark:text-muted-foreground inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
+                  class="text-xs leading-none font-medium text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
                 >
                   <Building2Icon class="w-4 h-4" aria-hidden="true" />
                   Contact Sales
                 </a>
                 <a
                   href="tel:+18005550199"
-                  class="text-xs leading-none font-medium text-[#6F7685] hover:text-primary dark:text-muted-foreground inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
+                  class="text-xs leading-none font-medium text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
                 >
                   <HeadsetIcon class="w-4 h-4" aria-hidden="true" />
                   Support

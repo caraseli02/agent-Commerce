@@ -1,0 +1,38 @@
+- paragraph: Contact information
+- paragraph: We will use this to send order updates.
+- text: First name
+- textbox "First name":
+    - /placeholder: Jane
+- text: Last name
+- textbox "Last name":
+    - /placeholder: Doe
+- text: Email
+- textbox "Email":
+    - /placeholder: jane@example.com
+- text: Phone
+- textbox "Phone":
+    - /placeholder: +1 555 0100
+- paragraph: Shipping address
+- text: Address line 1
+- textbox "Address line 1":
+    - /placeholder: 123 Market Street
+- text: Address line 2 (optional)
+- textbox "Address line 2 (optional)":
+    - /placeholder: Apt 4B
+- text: City
+- textbox "City":
+    - /placeholder: San Francisco
+- text: Region / State
+- textbox "Region / State":
+    - /placeholder: California
+- text: Postcode
+- textbox "Postcode":
+    - /placeholder: '94105'
+- text: Country
+- textbox "Country":
+    - /placeholder: US
+    - text: US
+- paragraph: Billing address
+- checkbox "Same as shipping" [checked]
+- text: Same as shipping
+- paragraph: Billing address will match your shipping address.

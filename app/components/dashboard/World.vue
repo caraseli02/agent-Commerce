@@ -128,7 +128,7 @@ const onEachFeature = (feature: { properties?: { name?: string } }, layer: Leafl
     z-index: 1;
   }
   .leaflet-interactive {
-    @apply stroke-white dark:stroke-background fill-[#E2E2EA];
+    @apply stroke-white dark:stroke-background;
     stroke-width: 1px;
   }
   .dark & .leaflet-interactive[fill='#D9D9D9'] {
@@ -137,7 +137,7 @@ const onEachFeature = (feature: { properties?: { name?: string } }, layer: Leafl
   .leaflet-control {
     @apply mt-3.5 mr-3.5 flex flex-col gap-2 border-hidden;
     a {
-      @apply flex items-center justify-center w-[26px] h-[26px] border-none bg-muted rounded text-muted-foreground transition-colors duration-300 font-medium hover:text-blue-500;
+      @apply flex items-center justify-center w-[26px] h-[26px] border-none bg-muted rounded text-muted-foreground transition-colors duration-200 font-medium hover:text-primary;
       @media (pointer: coarse) {
         display: block !important;
       }

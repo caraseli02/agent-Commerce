@@ -102,7 +102,7 @@ const title = computed(
       canceled: 'This payment was canceled',
       'recovery-required': 'Your payment needs review',
       compensation: 'Payment received — order under review',
-      disabled: 'Stripe checkout disabled in demo',
+      disabled: 'Card payments are temporarily unavailable',
     })[state.value],
 );
 const description = computed(
@@ -117,7 +117,8 @@ const description = computed(
       canceled: 'Review the current cart and total before starting a new payment.',
       'recovery-required': 'Payment is disabled while this checkout is reviewed. Check the status again before trying another payment.',
       compensation: 'Your payment is being reviewed for fulfillment or refund. Please do not pay again.',
-      disabled: 'Online card payment is disabled in this portfolio preview. Use the demo checkout buttons on the order summary.',
+      disabled:
+        'Card checkout is unavailable in this environment. Return to the order summary and try again later. Other payment methods are temporarily unavailable.',
     })[state.value],
 );
 
@@ -179,7 +180,7 @@ const pay = async () => {
   submitting.value = true;
   message.value = '';
   try {
-    // Validate fields in the submit gesture, then retain ECAS's fresh safety
+    // Validate fields in the submit gesture, then retain the server's fresh safety
     // authorization immediately before provider confirmation.
     const submitted = await activeElements.submit();
     if (disposed) return;

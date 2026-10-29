@@ -1,6 +1,9 @@
 import { expect, type Locator, type Page, type Request } from '@playwright/test';
 import { clearGuestCart, waitForVisualReady } from '../playwright-support/runtime';
 import type { ParityScenario, ParityViewport } from './scenario';
+import { c1Scenarios } from './c1-scenarios';
+import { c2Scenarios } from './c2-scenarios';
+import { c3Scenarios } from './c3-scenarios';
 
 const filterValue = (name: string, value: string, unit: string, id: string, count: number) => ({
   FeatureName: name,
@@ -165,7 +168,16 @@ const regionalPreferencesSheet = (page: Page) => page.getByRole('dialog', { name
 const addShippingAddressDialog = (page: Page) => page.getByRole('dialog', { name: 'Add Shipping Address' });
 
 const orderSummarySelectAll = (page: Page) =>
-  page.getByText('Select All', { exact: true }).locator('xpath=ancestor::div[contains(@class, "bg-light-500")][1]');
+  page
+    .getByRole('checkbox', { name: 'Select All', exact: true })
+    .locator('xpath=ancestor::div[.//button[normalize-space(.)="Delete Selected"]][1]');
+
+const searchFiltersSheetFilter = (page: Page) =>
+  page
+    .getByRole('dialog', { name: 'Filters', exact: true })
+    .getByRole('button', { name: /^Max\. forward impulse current/ })
+    .first()
+    .locator('xpath=ancestor::div[.//button[@aria-label="Remove filter"]][1]');
 
 /** The PDP quantity stepper (GlobalQuantityButtons, B2): decrease, the number input, increase. */
 const pdpQuantityStepper = (page: Page) =>
@@ -208,6 +220,9 @@ const showOrderSummaryWithTwoItems = async (page: Page) => {
 };
 
 export const scenarios: ParityScenario[] = [
+  ...c1Scenarios,
+  ...c2Scenarios,
+  ...c3Scenarios,
   {
     id: 'forgot-password-form',
     slice: 'M1',
@@ -405,12 +420,7 @@ export const scenarios: ParityScenario[] = [
       await page.getByRole('button', { name: 'Filters', exact: true }).click();
       await expect(page.getByRole('dialog')).toBeVisible();
     },
-    region: (page) =>
-      page
-        .getByRole('dialog')
-        .getByRole('button', { name: /^Max\. forward impulse current/ })
-        .first()
-        .locator('xpath=ancestor::div[contains(@class, "bg-white")][1]'),
+    region: searchFiltersSheetFilter,
     steps: [
       {
         name: 'expanding a filter shows its options',
@@ -420,8 +430,7 @@ export const scenarios: ParityScenario[] = [
         verify: async (_page, region) => {
           await expect(region.getByPlaceholder('Type here')).toBeVisible();
         },
-        snapshot: (page) =>
-          page.getByRole('dialog').getByPlaceholder('Type here').locator('xpath=ancestor::div[contains(@class, "bg-white")][1]'),
+        snapshot: searchFiltersSheetFilter,
       },
       {
         name: 'checking an option toggles it',
@@ -528,15 +537,6 @@ export const scenarios: ParityScenario[] = [
           await expect(page.getByText('Text copied!', { exact: true })).toBeVisible();
         },
       },
-      {
-        name: 'the custom code button opens the custom code modal',
-        act: async (_page, region) => {
-          await region.getByRole('button', { name: 'Your Custom Code' }).click();
-        },
-        verify: async (page) => {
-          await expect(page.getByRole('dialog')).toBeVisible();
-        },
-      },
     ],
   },
   {
@@ -581,10 +581,10 @@ export const scenarios: ParityScenario[] = [
   {
     id: 'product-blocks-tabs',
     slice: 'M3',
-    route: '/product/prod-1',
+    // The product page no longer stacks catalog tabs; the home page keeps them.
+    route: '/',
     viewports: ['desktop', 'mobile'],
-    region: (page) =>
-      page.getByRole('button', { name: 'Best Sellers', exact: true }).locator('xpath=ancestor::div[contains(@class, "md:flex-row")][1]'),
+    region: (page) => page.getByRole('heading', { name: 'Featured inventory', exact: true }).locator('xpath=../..'),
     steps: [
       {
         name: 'choosing a tab makes it the active tab',
@@ -592,8 +592,9 @@ export const scenarios: ParityScenario[] = [
           await region.getByRole('button', { name: 'Best Sellers', exact: true }).click();
         },
         verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'Best Sellers', exact: true })).toHaveClass(/text-blue-700/);
-          await expect(region.getByRole('button', { name: 'Featured', exact: true })).toHaveClass(/text-slate-500/);
+          // These legacy buttons expose no selected-state attribute; check the active token, not the inactive palette.
+          await expect(region.getByRole('button', { name: 'Best Sellers', exact: true })).toHaveClass(/(?:^|\s)text-blue-700(?:\s|$)/);
+          await expect(region.getByRole('button', { name: 'Featured', exact: true })).not.toHaveClass(/(?:^|\s)text-blue-700(?:\s|$)/);
         },
       },
     ],
@@ -655,7 +656,7 @@ export const scenarios: ParityScenario[] = [
   {
     id: 'quick-buy-mobile-trigger',
     slice: 'M3',
-    route: '/product/prod-1',
+    route: '/search',
     viewports: ['mobile'],
     region: (page) => page.getByRole('heading', { name: 'Quick Buy', level: 2 }).locator('xpath=ancestor::section[1]'),
     steps: [
@@ -666,8 +667,7 @@ export const scenarios: ParityScenario[] = [
         },
         verify: async (page) => {
           await expect(page.getByRole('dialog').getByRole('heading', { name: 'Quick buy' })).toBeVisible();
-          // The dialog rows reuse the inline form's input ids, so their labels point at the hidden form (pre-existing).
-          await expect(page.getByRole('dialog').getByPlaceholder('Manufacturer part number').first()).toBeVisible();
+          await expect(page.getByRole('dialog').getByRole('textbox', { name: 'Part number 1', exact: true })).toBeVisible();
         },
         snapshot: (page) => page.getByRole('dialog'),
       },
@@ -676,7 +676,7 @@ export const scenarios: ParityScenario[] = [
   {
     id: 'quick-buy-form',
     slice: 'M3',
-    route: '/product/prod-1',
+    route: '/search',
     viewports: ['desktop'],
     region: (page) => page.getByRole('heading', { name: 'Quick Buy', level: 2 }).locator('xpath=ancestor::section[1]'),
   },
@@ -921,23 +921,23 @@ export const scenarios: ParityScenario[] = [
     maxTabStops: 15,
     steps: [
       {
-        name: 'the expand control opens the side navigation',
+        name: 'the collapse control narrows the side navigation to named icons',
         act: async (_page, region) => {
           await region.getByRole('button').last().click();
         },
         verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'Products' })).toBeEnabled();
           await expect(region.getByRole('link', { name: 'Customers' })).toBeVisible();
+          await expect(region.getByText('Customers', { exact: true })).toBeHidden();
         },
         snapshot: (page) => page.getByRole('complementary'),
       },
       {
-        name: 'the products item toggles its submenu',
+        name: 'the expand control shows the labels again',
         act: async (_page, region) => {
-          await region.getByRole('button', { name: 'Products' }).click();
+          await region.getByRole('button').last().click();
         },
         verify: async (_page, region) => {
-          await expect(region.getByRole('link', { name: 'Categories' })).toBeVisible();
+          await expect(region.getByText('Categories', { exact: true })).toBeVisible();
         },
         snapshot: (page) => page.getByRole('complementary'),
       },
@@ -957,7 +957,7 @@ export const scenarios: ParityScenario[] = [
           await region.getByRole('button').first().click();
         },
         verify: async (page) => {
-          await expect(page.getByRole('complementary').getByRole('button', { name: 'Products' })).toBeVisible();
+          await expect(page.getByRole('complementary').getByRole('link', { name: 'Products' })).toBeVisible();
         },
         snapshot: (page) => page.getByRole('complementary'),
       },
@@ -995,65 +995,20 @@ export const scenarios: ParityScenario[] = [
   {
     id: 'customers-total-card',
     slice: 'M5',
-    route: '/dashboard',
+    route: '/dashboard/customers',
     role: 'admin',
     viewports: ['desktop'],
+    // The fake period menu was removed in the UI audit; the card is a plain KPI now.
     region: (page) => page.getByText('Customers Total', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
-    steps: [
-      {
-        name: 'the period menu opens its options',
-        act: async (_page, region) => {
-          await region.getByRole('button', { name: 'Last 7 Days' }).click();
-        },
-        verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'All Time' })).toBeVisible();
-        },
-        snapshot: (page) =>
-          page.getByText('Customers Total', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
-      },
-      {
-        name: 'choosing a period closes the menu and shows it',
-        act: async (_page, region) => {
-          await region.getByRole('button', { name: 'Last 30 Days' }).click();
-        },
-        verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'All Time' })).toBeHidden();
-          await expect(region.getByRole('button', { name: 'Last 30 Days' })).toBeVisible();
-        },
-      },
-    ],
   },
   {
     id: 'returning-customers-card',
     slice: 'M5',
-    route: '/dashboard',
+    route: '/dashboard/customers',
     role: 'admin',
     viewports: ['desktop'],
     region: (page) =>
       page.getByText('Returning Customers', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
-    steps: [
-      {
-        name: 'the period menu opens its options',
-        act: async (_page, region) => {
-          await region.getByRole('button', { name: 'Last 7 Days' }).click();
-        },
-        verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'All Time' })).toBeVisible();
-        },
-        snapshot: (page) =>
-          page.getByText('Returning Customers', { exact: true }).locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
-      },
-      {
-        name: 'choosing a period closes the menu and shows it',
-        act: async (_page, region) => {
-          await region.getByRole('button', { name: 'Last 30 Days' }).click();
-        },
-        verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'All Time' })).toBeHidden();
-          await expect(region.getByRole('button', { name: 'Last 30 Days' })).toBeVisible();
-        },
-      },
-    ],
   },
   {
     id: 'new-customers-card',
@@ -1087,41 +1042,8 @@ export const scenarios: ParityScenario[] = [
     route: '/dashboard/orders',
     role: 'admin',
     viewports: ['desktop'],
-    region: (page) => page.getByRole('button', { name: 'More' }).first().locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
-    steps: [
-      {
-        name: 'the period menu opens its options',
-        act: async (_page, region) => {
-          await region.getByRole('button', { name: 'This Week' }).click();
-        },
-        verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'All Time' })).toBeVisible();
-        },
-        snapshot: (page) =>
-          page.getByRole('button', { name: 'More' }).first().locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
-      },
-      {
-        name: 'choosing a period closes the menu and shows it',
-        act: async (_page, region) => {
-          await region.getByRole('button', { name: 'All Time' }).click();
-        },
-        verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'Last 30 Days' })).toBeHidden();
-          await expect(region.getByRole('button', { name: 'All Time' })).toBeVisible();
-        },
-      },
-      {
-        name: 'the widget menu opens its options',
-        act: async (_page, region) => {
-          await region.getByRole('button').first().click();
-        },
-        verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: 'Revenue Growth' })).toBeVisible();
-        },
-        snapshot: (page) =>
-          page.getByRole('button', { name: 'More' }).first().locator('xpath=ancestor::div[contains(@class, "rounded-xl")][1]'),
-      },
-    ],
+    // The KPI row replaced the per-card period menus and "More" links.
+    region: (page) => page.getByRole('region', { name: 'Order metrics' }),
   },
   {
     id: 'customer-profile-cards',
@@ -1177,7 +1099,7 @@ export const scenarios: ParityScenario[] = [
           await region.getByRole('button', { name: /^Transaction History/ }).click();
         },
         verify: async (_page, region) => {
-          await expect(region.getByRole('button', { name: /^Transaction History/ })).toHaveClass(/(^|\s)text-blue-500(\s|$)/);
+          await expect(region.getByRole('button', { name: /^Transaction History/ })).toHaveClass(/(^|\s)text-primary(\s|$)/);
         },
       },
     ],
@@ -1231,7 +1153,7 @@ export const scenarios: ParityScenario[] = [
         },
         verify: async (page) => {
           await expect(page.getByRole('region', { name: 'Dashboard sections' }).getByRole('button', { name: /^Orders/ })).toHaveClass(
-            /text-blue-500/,
+            /text-primary/,
           );
         },
       },
@@ -1386,12 +1308,12 @@ export const scenarios: ParityScenario[] = [
         act: async (page, region) => {
           await Promise.all([
             page.waitForResponse((response) => response.url().includes('/api/orders') && response.ok()),
-            orderFilterTab(region, 'Fulfilled').click(),
+            orderFilterTab(region, 'Delivered').click(),
           ]);
         },
         verify: async (_page, region) => {
-          await expect(orderFilterTab(region, 'Fulfilled')).toHaveClass(/(^|\s)text-blue-500(\s|$)/);
-          await expect(orderFilterTab(region, 'All orders')).not.toHaveClass(/(^|\s)text-blue-500(\s|$)/);
+          await expect(orderFilterTab(region, 'Delivered')).toHaveAttribute('aria-pressed', 'true');
+          await expect(orderFilterTab(region, 'All orders')).toHaveAttribute('aria-pressed', 'false');
         },
       },
     ],

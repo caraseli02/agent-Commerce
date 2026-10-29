@@ -1,0 +1,9 @@
+1. button "Shipping and Billing"
+2. button "Shipping Preferences"
+3. button "Backorder Standard Standard shipping for backorder items" [pressed]
+4. button "Demo Express Standard Delivery 19.90 Lei" [pressed]
+5. button "Fast Lane Next Day 29.90 Lei"
+6. button "Payment Method"
+7. button "Pay with a new card Your card details will be required at checkout"
+8. button "visa •••• 4242 Pay by card"
+9. button "3800.00"

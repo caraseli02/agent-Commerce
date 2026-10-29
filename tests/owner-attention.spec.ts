@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { parse as parseYaml } from 'yaml';
 import {
   BOT_LOGIN,
   QUEUE_ISSUE_TITLE,
@@ -10,6 +11,7 @@ import {
   assessChecks,
   assessReadiness,
   checksGreenVerdict,
+  claimPrSummary,
   claudeQueueState,
   closingIssueNumbers,
   createClient,
@@ -18,9 +20,11 @@ import {
   hasClaudeCoauthor,
   hasCurrentSkipRecord,
   hasEvaluatorPassOnAnyHead,
+  hasLocallyAttestedVerdict,
   isClaudeBuilt,
   issueFingerprint,
   latestEvaluatorVerdict,
+  localVerificationMarker,
   marker,
   parseDependencies,
   parseCheckRuns,
@@ -28,6 +32,7 @@ import {
   passHeadsFromComments,
   passingEvaluatorHeads,
   protectedFilesTouched,
+  routeDecision,
 } from '../scripts/owner-attention.mjs';
 
 const HEAD = '0c0c9be5a1aa4b77afe25a7bc43fed68367381cc';
@@ -102,6 +107,64 @@ describe('evaluator verdict', () => {
     const result = assessReadiness({ pr: openPr, checks: assessChecks(greenRuns, { statuses: [] }), verdict, reviews: [] });
     expect(result.ready).toBe(false);
     expect(result.reasons).toEqual(['contradictory evaluator reports for the current head (FAIL, PASS) need clarification']);
+  });
+
+  describe('re-review request', () => {
+    const request = (sha: string, extra: Record<string, unknown> = {}) => ({
+      user: { login: 'caraseli02' },
+      body: `<!-- external-review-request: ${sha} -->\n\nPR body fixed; please re-review this head.`,
+      ...extra,
+    });
+
+    it('reopens a FAIL or BLOCKED head: no verdict until the next report, which then stands alone', () => {
+      for (const first of ['FAIL — needs generator fix.', 'BLOCKED — needs human decision.']) {
+        const opened = [report(HEAD, first, { html_url: 'u1' }), request(HEAD)];
+        expect(latestEvaluatorVerdict(opened, HEAD, trusted)).toBeNull();
+        expect(latestEvaluatorVerdict([...opened, report(HEAD, 'PASS — ready-for-human.', { html_url: 'u2' })], HEAD, trusted)).toEqual({
+          verdict: 'PASS',
+          url: 'u2',
+        });
+      }
+    });
+
+    it('never reopens a PASS, and ignores requests that come first, name another head or come from outsiders', () => {
+      const pass = report(HEAD, 'PASS — ready-for-human.');
+      const fail = report(HEAD, 'FAIL — needs generator fix.');
+      expect(latestEvaluatorVerdict([pass, request(HEAD), fail], HEAD, trusted)?.verdict).toBe('CONFLICTING');
+      expect(latestEvaluatorVerdict([request(HEAD), fail, pass], HEAD, trusted)?.verdict).toBe('CONFLICTING');
+      expect(latestEvaluatorVerdict([fail, request('deadbeef'), pass], HEAD, trusted)?.verdict).toBe('CONFLICTING');
+      expect(latestEvaluatorVerdict([fail, request(HEAD, { user: { login: 'drive-by' } }), pass], HEAD, trusted)?.verdict).toBe(
+        'CONFLICTING',
+      );
+      expect(latestEvaluatorVerdict([fail, { ...request(HEAD), body: `Quoting ${request(HEAD).body}` }], HEAD, trusted)?.verdict).toBe(
+        'FAIL',
+      );
+    });
+
+    it('starts a fresh round on each request, so repeated same-head FAILs stay visible one at a time', () => {
+      const fail = (url: string) => report(HEAD, 'FAIL — needs generator fix.', { html_url: url });
+      expect(latestEvaluatorVerdict([fail('u1'), request(HEAD), fail('u2')], HEAD, trusted)).toEqual({ verdict: 'FAIL', url: 'u2' });
+      expect(latestEvaluatorVerdict([fail('u1'), request(HEAD), fail('u2'), request(HEAD)], HEAD, trusted)).toBeNull();
+    });
+  });
+
+  describe('local-verification audit line', () => {
+    const audit = `<!-- local-verification: head=${HEAD} base=${'b'.repeat(40)} metadata=${'c'.repeat(64)} -->`;
+    const marked = (verdict: string, url: string) =>
+      report(HEAD, verdict, { html_url: url, body: `${report(HEAD, verdict).body}\n${audit}` });
+
+    it('lets marked reports supersede legacy unmarked ones for the same head', () => {
+      const comments = [report(HEAD, 'PASS — ready-for-human.', { html_url: 'u1' }), marked('FAIL — needs generator fix.', 'u2')];
+      expect(latestEvaluatorVerdict(comments, HEAD, trusted)).toEqual({ verdict: 'FAIL', url: 'u2' });
+      expect(hasLocallyAttestedVerdict(comments, HEAD, trusted)).toBe(true);
+    });
+
+    it('leaves a head with only unmarked reports open for a local review', () => {
+      const legacy = [report(HEAD, 'PASS — ready-for-human.')];
+      expect(latestEvaluatorVerdict(legacy, HEAD, trusted)?.verdict).toBe('PASS');
+      expect(hasLocallyAttestedVerdict(legacy, HEAD, trusted)).toBe(false);
+      expect(hasLocallyAttestedVerdict([marked('PASS — ready-for-human.', 'u3')], HEAD, trusted)).toBe(true);
+    });
   });
 
   it('ignores comments that only quote the marker or lack the verdict heading', () => {
@@ -517,6 +580,259 @@ describe('Claude build queue', () => {
 
   it('parses Depends on / Blocked by lines only', () => {
     expect(parseDependencies('Related #631\nDepends on #632 and #633\n> Blocked by: #7\nSee #8')).toEqual([632, 633, 7]);
+  });
+  it('counts a self-started claim as live but never as an eligible build', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude-self', 'in-progress']), issue(2, ['agent:claude-self'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1, 2]),
+    });
+
+    expect(state.live.map((entry) => entry.number)).toEqual([1]);
+    expect(state.eligible).toEqual([]);
+    expect(state.selfClaims.map((entry) => entry.number)).toEqual([1]);
+  });
+
+  it('keeps a parked self-started claim in the improve slot count', () => {
+    const state = claudeQueueState([issue(1, ['agent:claude-self', 'in-progress', 'blocked'])], {
+      neverClaim,
+      openIssueNumbers: new Set([1]),
+    });
+
+    expect(state.live).toEqual([]);
+    expect(state.selfClaims.map((entry) => entry.number)).toEqual([1]);
+  });
+});
+
+describe('routine route', () => {
+  const base = {
+    mode: 'build',
+    maxPassQueue: 2,
+    improve: { enabled: true, maxOpen: 1 },
+    claims: [] as {
+      number: number;
+      live: boolean;
+      pr: { number: number; mergeable: boolean | null; verdict: string | null; templateFailed?: boolean } | null;
+    }[],
+    reviewable: [] as number[],
+    eligible: [] as number[],
+    selfClaims: 0,
+  };
+
+  it('reads the improve settings and queue cap from the factory config', async () => {
+    const config = parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8'));
+
+    expect(config.improve).toEqual({ enabled: true, maxOpen: 1 });
+    expect(config.maxPassQueue).toBe(2);
+    expect(config.mode).toBe('build');
+  });
+
+  it('parses the factory file with a standard YAML parser (no duplicate keys)', async () => {
+    const doc = parseYaml(await readFile('.factory/factory.yaml', 'utf8'));
+
+    expect(doc.automations['claude-routine'].improve).toMatchObject({
+      file: '.factory/automations/claude-improve.md',
+      enabled: true,
+      max_open: 1,
+    });
+  });
+
+  it('repairs a conflicting or failed Claude PR before anything else', () => {
+    const claims = [{ number: 5, live: false, pr: { number: 50, mergeable: false, verdict: 'PASS' } }];
+
+    expect(routeDecision({ ...base, claims, reviewable: [9] })).toMatchObject({ route: 'repair', issue: 5, pr: 50 });
+  });
+
+  describe('claim PR summary', () => {
+    const trusted = { trustedLogins: ['caraseli02'] };
+    const validBody = [
+      '## Summary',
+      '',
+      '- Harness change.',
+      '',
+      '## Template evidence',
+      '',
+      '- [x] This PR uses the Components Marketplace PR template / checklist.',
+      '- [x] I filled out every required section, or explained why it does not apply.',
+      '- [x] The checklist is visible in the rendered PR body.',
+      '',
+      '## Review flow',
+      '',
+      '1. Vlad checks verification outcomes and known risks.',
+      '',
+      '## Verification',
+      '',
+      '- [x] `pnpm build` — outcome: pass',
+      '- [x] `pnpm lint` — outcome: pass',
+      '- [x] `pnpm typecheck` — outcome: pass',
+      '- [x] `pnpm test` — outcome: pass',
+      '- [x] Browser/runtime evidence, if applicable — route / screenshot / notes: not applicable',
+      '',
+      '## Known risks',
+      '',
+      '- [x] None',
+      '',
+      '## Evaluator rubric',
+      '',
+      '- Scope control: /10',
+      '- Acceptance criteria: /10',
+      '- Verification evidence: /10',
+      '- Harness hygiene: /10',
+      '- Risk reporting: /10',
+    ].join('\n');
+    const pr = (body = validBody, baseSha = 'b'.repeat(40)) => ({
+      number: 50,
+      mergeable: true,
+      body,
+      labels: [label('agent:claude')],
+      head: { sha: HEAD },
+      base: { ref: 'main', sha: baseSha },
+    });
+    const report = (verdict: string, contextMarker: string) => ({
+      user: { login: 'caraseli02' },
+      body: `<!-- evaluator-head: ${HEAD} -->\n\n## Evaluator verdict\n\n${verdict}\n\nIndependent evaluator: Codex.\n${contextMarker}`,
+    });
+
+    it('keeps the head verdict after main moves, and leaves a contradicted PASS for clarification', () => {
+      const olderBase = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
+      const passed = claimPrSummary(pr(), [report('PASS — ready-for-human', olderBase)], trusted);
+      expect(passed).toEqual({ number: 50, mergeable: true, verdict: 'PASS', templateFailed: false });
+
+      const contradicted = claimPrSummary(
+        pr(),
+        [report('PASS — ready-for-human', olderBase), report('FAIL — needs generator fix', localVerificationMarker(pr()))],
+        trusted,
+      );
+      expect(contradicted.verdict).toBe('CONFLICTING');
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: contradicted }] })).toMatchObject({ route: 'night' });
+      const failed = claimPrSummary(pr(), [report('FAIL — needs generator fix', olderBase)], trusted);
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: failed }] })).toMatchObject({ route: 'repair', pr: 50 });
+    });
+
+    it('routes a live claim whose head is BLOCKED to repair, so the routine requests the re-review', () => {
+      const blocked = claimPrSummary(pr(), [report('BLOCKED — needs human decision', localVerificationMarker(pr()))], trusted);
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: blocked }] })).toMatchObject({ route: 'repair', pr: 50 });
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: false, pr: blocked }] })).toMatchObject({ route: 'improve' });
+    });
+
+    it('routes a failed PR-template check to repair even without an evaluator report', () => {
+      const summary = claimPrSummary(pr('## Summary\n\n- no template'), [], trusted);
+
+      expect(summary).toMatchObject({ verdict: null, templateFailed: true });
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: summary }] })).toMatchObject({ route: 'repair', pr: 50 });
+      expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: claimPrSummary(pr(), [], trusted) }] })).toMatchObject({
+        route: 'night',
+      });
+    });
+
+    // Runs the real `route` command with a fake `gh` first on PATH that answers
+    // `gh api repos/<repo><path>` from fixtures, as Codex reproduced the defects (#769).
+    describe('route CLI', () => {
+      const repo = 'repos/caraseli02/agent-Commerce';
+      const baseSha = 'b'.repeat(40);
+      const claimIssue = { number: 5, title: 'Issue 5', labels: [label('agent:claude'), label('in-progress')], assignees: [], body: '' };
+      const openPr = (body: string) => ({ ...pr(body, baseSha), state: 'open', draft: false, head: { sha: HEAD, ref: 'claude/issue-5' } });
+
+      async function runRoute(fixtures: Record<string, unknown>) {
+        const dir = await mkdtemp(join(tmpdir(), 'route-cli-'));
+        try {
+          await writeFile(join(dir, 'fixtures.json'), JSON.stringify(fixtures));
+          const fakeGh = [
+            '#!/usr/bin/env node',
+            "const fixtures = JSON.parse(require('node:fs').readFileSync(process.env.FAKE_GH_FIXTURES, 'utf8'));",
+            'const [group, path, ...flags] = process.argv.slice(2);',
+            `const key = group === 'api' ? path.replace('${repo}', '') : null;`,
+            "if (!key || !(key in fixtures)) { console.error('fake gh: no fixture for ' + process.argv.slice(2).join(' ')); process.exit(1); }",
+            'const value = fixtures[key];',
+            "process.stdout.write(JSON.stringify(flags.includes('--slurp') ? [value] : value));",
+          ].join('\n');
+          await writeFile(join(dir, 'gh'), fakeGh, { mode: 0o755 });
+          const result = spawnSync('node', ['scripts/owner-attention.mjs', 'route'], {
+            encoding: 'utf8',
+            env: { ...process.env, PATH: `${dir}:${process.env.PATH}`, FAKE_GH_FIXTURES: join(dir, 'fixtures.json') },
+          });
+          expect(result.stderr).toBe('');
+          expect(result.status).toBe(0);
+          return JSON.parse(result.stdout);
+        } finally {
+          await rm(dir, { recursive: true, force: true });
+        }
+      }
+
+      const fixturesFor = (prs: unknown[], issues: unknown[], prComments: unknown[] = []) => {
+        const fixtures: Record<string, unknown> = {
+          '/pulls?state=open&per_page=100': prs,
+          '/issues?state=open&per_page=100': issues,
+          '/git/matching-refs/heads/claude/issue-?per_page=100': [],
+          '/git/ref/heads/main': { object: { sha: baseSha } },
+        };
+        for (const entry of prs as { number: number }[]) {
+          fixtures[`/pulls/${entry.number}`] = entry;
+          fixtures[`/issues/${entry.number}/comments?per_page=100`] = prComments;
+          fixtures[`/pulls/${entry.number}/reviews?per_page=100`] = [];
+          fixtures[`/pulls/${entry.number}/files?per_page=100`] = [{ filename: 'docs/notes.md' }];
+        }
+        return fixtures;
+      };
+
+      it('routes a claimed PR with an invalid template body to repair', async () => {
+        const result = await runRoute(fixturesFor([openPr('## Summary\n\n- no template')], [claimIssue]));
+
+        expect(result).toMatchObject({ route: 'repair', issue: 5, pr: 50 });
+        expect(result.claims[0].pr).toMatchObject({ templateFailed: true, verdict: null });
+      });
+
+      it('keeps a claim queued when its PASS was given on an older main', async () => {
+        const olderBase = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
+        const result = await runRoute(fixturesFor([openPr(validBody)], [claimIssue], [report('PASS — ready-for-human', olderBase)]));
+
+        expect(result.claims).toEqual([
+          { number: 5, live: false, pr: { number: 50, mergeable: true, verdict: 'PASS', templateFailed: false } },
+        ]);
+        expect(result.route).toBe('improve');
+      });
+
+      it('routes a FAIL on the current head to repair whatever main it was given on', async () => {
+        const olderBase = localVerificationMarker(pr(validBody, 'a'.repeat(40)));
+        const result = await runRoute(fixturesFor([openPr(validBody)], [claimIssue], [report('FAIL — needs generator fix', olderBase)]));
+
+        expect(result).toMatchObject({ route: 'repair', issue: 5, pr: 50 });
+        expect(result.claims[0].pr.verdict).toBe('FAIL');
+      });
+
+      it('waits in the night lane for review of a valid claimed PR, and improves when nothing is claimed', async () => {
+        expect(await runRoute(fixturesFor([openPr(validBody)], [claimIssue]))).toMatchObject({ route: 'night' });
+        expect(await runRoute(fixturesFor([], []))).toMatchObject({ route: 'improve', claims: [], reviewable: [], eligible: [] });
+      });
+    });
+  });
+
+  it('resumes a live claim without a PR, then reviews', () => {
+    expect(routeDecision({ ...base, claims: [{ number: 5, live: true, pr: null }], reviewable: [9] })).toMatchObject({
+      route: 'build',
+      issue: 5,
+    });
+    expect(routeDecision({ ...base, reviewable: [9], eligible: [3] })).toMatchObject({ route: 'review', pr: 9 });
+  });
+
+  it('builds a labeled issue before self-starting an improvement', () => {
+    expect(routeDecision({ ...base, eligible: [3] })).toMatchObject({ route: 'build', issue: 3 });
+    expect(routeDecision(base)).toMatchObject({ route: 'improve' });
+  });
+
+  it('sends the run to the night lane while a claim waits, the queue is full or the improve slot is taken', () => {
+    const waiting = [{ number: 5, live: true, pr: { number: 50, mergeable: true, verdict: null } }];
+    const queued = [1, 2].map((number) => ({ number, live: false, pr: { number: number * 10, mergeable: true, verdict: 'PASS' } }));
+
+    expect(routeDecision({ ...base, claims: waiting })).toMatchObject({ route: 'night' });
+    expect(routeDecision({ ...base, claims: queued, eligible: [3] })).toMatchObject({ route: 'night' });
+    expect(routeDecision({ ...base, selfClaims: 1 })).toMatchObject({ route: 'night' });
+    expect(routeDecision({ ...base, improve: { enabled: false, maxOpen: 1 } })).toMatchObject({ route: 'night' });
+  });
+
+  it('only reviews in review-only mode', () => {
+    expect(routeDecision({ ...base, mode: 'review-only', claims: [{ number: 5, live: true, pr: null }] })).toMatchObject({
+      route: 'night',
+    });
   });
 });
 

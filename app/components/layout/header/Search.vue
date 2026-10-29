@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative rounded-lg focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1">
     <UiLabel class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-card font-normal md:flex">
       <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent>
         <UiInput
@@ -7,6 +7,7 @@
           v-model="searchVal"
           type="search"
           placeholder="Search products"
+          aria-label="Search products"
           autocomplete="off"
           class="h-full w-full flex-1 rounded-none border-0 px-3 text-sm leading-5 text-muted-foreground placeholder:text-muted-foreground focus:outline-none"
           @input="onInput"
@@ -17,12 +18,9 @@
           "
         />
       </form>
-      <div
-        class="flex h-full cursor-pointer items-center justify-center bg-primary px-4 transition-colors hover:bg-primary/90"
-        @click="handleEnterButton"
-      >
-        <SearchIcon class="h-5 w-5 text-primary-foreground" />
-      </div>
+      <UiButton type="button" variant="input-addon" size="addon" aria-label="Search" @click="handleEnterButton">
+        <SearchIcon class="h-5 w-5 text-primary-foreground" aria-hidden="true" />
+      </UiButton>
     </UiLabel>
     <Transition name="fade">
       <LayoutHeaderSearchResults
@@ -36,13 +34,14 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
 import SearchIcon from '@/assets/icons/search.svg';
 import type { ProductInterface } from '~~/types/product';
 import { useProducts } from '~/composables/useProducts';
+import { useProductStore } from '~/store/productStore';
 
 const route = useRoute();
 const { searchHeaderResults } = useProducts();
+const productStore = useProductStore();
 
 const props = defineProps({
   showResults: {
@@ -79,7 +78,7 @@ const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<P
     return null;
   }
 
-  Emitter.emit('product-keyword-change', { keyword, products: result.searchData });
+  productStore.setHeaderSearch(keyword);
 
   isLoading.value = false;
   return result.items;

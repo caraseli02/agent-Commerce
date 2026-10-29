@@ -29,16 +29,17 @@ review fixture, inspect the exact PR head and current base tip, execute the appr
 fresh verification gate and affected runtime/browser checks. If the PR is behind its
 base, verify the combined tree in that fixture. Never change the builder's branch.
 
-Run this read-only command to validate the live PR body, view its current context,
+Run this read-only command to validate the live PR body, view its current state,
 and obtain the `marker` string for the report:
 
 ```sh
 node scripts/owner-attention.mjs local-readiness PR_NUMBER
 ```
 
-The marker identifies the exact head, current base and a digest of the current
-body, labels and base ref. It is a context identifier, not proof of test execution.
-Include it on its own line in each attributed context report. Award PASS only after real checks pass:
+The marker records the exact head, the base tip and a digest of the body, labels and
+base ref that the review tested. It is an audit line, not proof of test execution and
+not a lifetime: the verdict belongs to the head ([verdict lifetime](#verdict-lifetime)).
+Include it on its own line in each attributed report. Award PASS only after real checks pass:
 
 ```md
 <!-- evaluator-head: <full-head-sha> -->
@@ -57,16 +58,43 @@ Independent evaluator: Claude (separate reviewer).
 Use Codex attribution when reviewing Claude output. Include the existing rubric,
 Standards/Spec findings and required follow-up. Recheck the command after publishing;
 `readiness.ready=true` is required before readiness labels or new queue admission.
-It requires a trusted, independently attributed current-context PASS, valid live PR
+It requires a trusted, independently attributed PASS on the current head, valid live PR
 metadata, mergeability, no change request and Claude protected-path authorization.
-Payment paths follow normal label ownership and independent review; no Claude-specific exclusion applies (Vlad, 2026-10-20). Payment-contract guardrails and Stripe activation gates still apply. New heads/base tips/body/labels invalidate
-the marker; publish one new report after revalidation for the changed context, preserving prior reports on GitHub. Current-context reports supersede legacy unmarked reports; contradictions within one context still block. Never infer readiness from a historical PASS.
+Payment paths follow normal label ownership and independent review; no Claude-specific exclusion applies (Vlad, 2026-10-20). Payment-contract guardrails and Stripe activation gates still apply. Never infer readiness
+from a PASS on an earlier head.
 
 Missing/failed local checks remain a blocker or repair. Disabled/missing/failed
 `verify`, `check`, `local-ci/verify` and other retired CI statuses are not gates.
 Vercel deployment status is deployment evidence, not a substitute for local tests.
 Local hooks are bypassable and use the local environment: independent review and
 human merge are the accepted safeguards, not an independent hosted CI guarantee.
+
+## Verdict lifetime
+
+A final report (PASS, FAIL or BLOCKED) belongs to the PR head it names and stands until the
+head changes. A later `main`, PR body or label set does not reopen it: readiness checks
+mergeability, the live PR template and protected-path authorization itself, and a conflict
+is repaired with a new head. So a reviewer never reviews an unchanged head again, except:
+
+- its newest report is `INCONCLUSIVE`, retried as before; or
+- its newest report is FAIL or BLOCKED, with no PASS for that head since the last request,
+  and a later comment starts with `<!-- external-review-request: <head> -->`. The builder
+  posts it after a fix that needs no commit (the PR body, a label Vlad added) or once Vlad
+  has recorded his decision on a BLOCKED head, with one line naming what changed. The
+  request starts a new round: the head has no verdict until the next report, and then that
+  report alone counts.
+
+A report attests the local gate only when it carries the head's audit line on a line of its
+own, `<!-- local-verification: head=<this head> base=<sha> metadata=<digest> -->`, with any
+base and metadata. Reports with that line supersede legacy reports without it for the same
+head. A head whose reports all lack it has had no review under this policy: it stays open for
+one, and its unmarked PASS never makes the PR ready.
+
+Reports for one head that disagree without such a request between them are contradictory
+and need Vlad. A request never reopens a PASS; only a new head does. Codex already posts
+this marker to ask for the first review of each new head; on an unchanged head it means the
+same. Re-reviews of a new head after a FAIL follow the round rules in
+[autonomous-workflow.md](autonomous-workflow.md#blocking-findings-and-re-review-rounds).
 
 ## Owner attention and archive
 
@@ -78,5 +106,3 @@ required; never claim that posting through Vlad's account notified him.
 The service, old workflows, tests and previous instructions are preserved in
 [the retirement archive](../archive/local-ci/README.md). Do not reactivate them or
 require their deployment/reboot/health proofs for ordinary autonomous work.
-
-A final report suppresses only unchanged current-context work. A same-head PASS with a stale base/body/labels marker, a material mergeability change, or a report blocked solely by the superseded CI policy is eligible for revalidation. Publish one new attributed report for the changed head/base/metadata context, preserving previous reports. Do not duplicate an unchanged context or wait for a new commit. Current-context reports supersede legacy unmarked reports; contradictory reports within the same context still block.

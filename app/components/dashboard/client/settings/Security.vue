@@ -80,7 +80,7 @@ async function sendResetPasswordLink() {
     <hr class="self-stretch mt-8 w-full border border-grey-100 border-solid stroke-[1px] stroke-gray-200 max-md:max-w-full" />
     <h2 class="mt-8 text-xl font-semibold leading-7 text-foreground">Third party applications logins</h2>
     <p class="mt-4 text-sm leading-5 text-foreground">Connect or disable third party application logins here.</p>
-    <UiButton class="min-w-[320px] border-blue-500 mt-8" size="lg" variant="outline">
+    <UiButton class="min-w-[320px] border-primary mt-8" size="lg" variant="outline">
       <div class="flex gap-2 justify-center">
         <svg class="shrink-0 w-6 aspect-square" width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_1127_52623)">

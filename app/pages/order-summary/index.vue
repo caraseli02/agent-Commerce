@@ -1,10 +1,10 @@
 <template>
-  <OrderSummaryPageSkeleton v-if="!isClientReady || isLoadingCheckout" :show-guest-banner="isGuestCheckout" />
+  <OrderSummaryPageSkeleton v-if="!isClientReady" :show-guest-banner="isGuestCheckout" />
   <div v-else class="pt-[30px] lg:pt-10">
     <div class="grid grid-cols-1">
       <div class="container px-4">
         <div
-          v-if="!cartReadError && isGuestCheckout && !guestCheckoutMode"
+          v-if="!cartReadError && !isCartEmpty && isGuestCheckout && !guestCheckoutMode"
           class="mb-6 mt-4 p-4 bg-blue-50 dark:bg-primary/10 border border-blue-200 dark:border-border rounded-xl flex items-center gap-4 text-blue-800 dark:text-foreground"
         >
           <div
@@ -22,17 +22,21 @@
           </div>
         </div>
         <div
-          v-else-if="!cartReadError && isGuestCheckoutMode"
-          class="mb-6 mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-4 text-emerald-900"
+          v-else-if="!cartReadError && !isCartEmpty && isGuestCheckoutMode"
+          class="mb-6 mt-4 p-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center gap-4 text-emerald-900 dark:text-emerald-100"
         >
-          <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600">
+          <div
+            class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center flex-shrink-0 text-emerald-700 dark:text-emerald-200"
+          >
             <InfoIcon class="w-6 h-6" />
           </div>
           <div class="flex-1">
             <p class="font-bold text-sm md:text-base">Checking out as Guest</p>
             <p class="text-xs md:text-sm opacity-90">
               Enter your contact and address details below to complete your order without an account.
-              <NuxtLink :to="signinHref" class="underline hover:text-emerald-950 transition-colors font-bold">Sign in</NuxtLink>
+              <NuxtLink :to="signinHref" class="underline hover:text-emerald-950 dark:hover:text-emerald-50 transition-colors font-bold"
+                >Sign in</NuxtLink
+              >
               if you have a saved profile.
             </p>
           </div>
@@ -48,6 +52,16 @@
             </NuxtLink>
           </div>
         </div>
+        <section v-else-if="isCartEmpty" class="rounded-2xl border border-border bg-card shadow-xs" data-testid="order-summary-empty">
+          <EmptyState v-bind="orderSummaryEmptyPreset" />
+          <!-- A guest's account cart only appears after sign-in, so keep that route open from an empty cart. -->
+          <p v-if="isGuestCheckout" class="px-4 pb-8 text-center text-sm text-muted-foreground">
+            Have an account?
+            <NuxtLink :to="signinHref" class="font-semibold text-primary underline underline-offset-2"
+              >Sign in to see your saved cart</NuxtLink
+            >
+          </p>
+        </section>
         <div v-else class="gap-6 xl:grid xl:grid-cols-[1fr_392px]">
           <div class="flex flex-col gap-9 max-w-[992px]">
             <OrderSummaryBackOrderWarning v-if="showWarning" />
@@ -57,10 +71,15 @@
               @update-subtotal="updateSubtotal($event, order)"
               @delete-selected="deleteSelected"
             />
-            <div class="hidden lg:flex flex-col">
-              <OrderSummarySimilarProducts :loading="loading" />
-              <OrderSummaryBannerImageCard class="hidden xl:flex" />
-            </div>
+            <section
+              v-if="isGuestCheckoutMode"
+              id="guest-details"
+              class="scroll-mt-24 rounded-xl bg-card p-4 shadow-xs xl:p-6"
+              aria-labelledby="guest-details-heading"
+            >
+              <h2 id="guest-details-heading" class="mb-4 text-base font-medium text-foreground">Your details</h2>
+              <OrderSummaryGuestCheckoutAddressForm :order="order" />
+            </section>
           </div>
           <div class="flex flex-col justify-start">
             <OrderStockType
@@ -70,18 +89,18 @@
               :requires-payment-reselection="requiresPaymentReselection"
               :shipping-preferences="shippingPreferences"
               @update-payment-details="updatePaymentDetails"
+              @order-type="orderType = $event"
             />
-            <OrderSummaryNoteSection />
+            <OrderSummaryNoteSection @note="note = $event" />
             <OrderSummary :order="order" :quote="authoritativeQuote" />
             <OrderSummaryCheckoutButtons
               :is-checkout-disabled="isCheckoutDisabled"
               :is-guest-checkout="isGuestCheckout"
               :signin-href="signinHref"
+              :missing-requirements="checkoutBlockers"
             />
-            <OrderSummaryBannerCard />
-            <OrderSummaryEcxlusiveOffer class="max-lg:hidden" />
-            <OrderSummarySimilarProducts :loading="loading" />
           </div>
+          <OrderSummarySimilarProducts :loading="loading" class="xl:col-span-2" />
         </div>
       </div>
     </div>
@@ -93,9 +112,9 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { cartReadCacheKey, loadCartRead } from '~/composables/loadCartRead';
 import { InfoIcon } from '@lucide/vue';
 import { storeToRefs } from 'pinia';
-import Emitter from 'tiny-emitter/instance.js';
 import { useHead, useRouter, useRuntimeConfig } from '#app';
 import OrderStockType from '~/components/order-summary/OrderStockType.vue';
+import { cartEmptyPreset } from '~/components/global/empty-state-presets';
 
 // Types and Interfaces
 import type { CartProductsInterface } from '~~/types/cart';
@@ -115,9 +134,11 @@ import { fetchSettings } from '~/composables/api/settings';
 // Stores
 import { useAuthStore } from '~/store/authStore';
 import { useCheckoutStore } from '~/store/checkoutStore';
+import { useCartStore } from '~/store/cartStore';
 
 // Utilities
 import { parseProductPriceConfiguration } from '~~/helpers/prices.helper';
+import { isBuyerCheckoutPaymentType } from '~~/helpers/checkout-payment-methods';
 import { createEmptyGuestAddress, isCompleteGuestContact, isCompleteSavedAddress } from '~~/helpers/address.helper';
 import { canSkipAuthenticatedUser, isDemoCheckoutAssistEnabled } from '~~/helpers/mock-integration';
 import type { ShippingOrderPricingResponse } from '~~/types/order-summary/shipping-services';
@@ -142,15 +163,24 @@ const CHECKOUT_DRAFT_STORAGE_KEY = 'checkout-draft-v1';
 const restoredCardId = ref<string | null>(null);
 const requiresPaymentReselection = ref(false);
 
-// Cart Management — refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
+// Cart Management: refreshCart goes through loadCartRead + cartStore.updateAndReturnCart
 // (sets hasFetchedCart) so pages never call composables/api/cart directly.
 const { cartId, cartItems, showWarning, fetchShippingPrices, refreshCart } = useCart();
+const { hasFetchedCart } = storeToRefs(useCartStore());
 
 const {
   pending: cartReadPending,
   error: cartReadError,
   refresh: refreshCartRead,
 } = useAsyncData(cartReadCacheKey('order-summary'), () => loadCartRead(() => refreshCart()), { server: false });
+
+const isCartEmpty = computed(() => hasFetchedCart.value && !cartReadPending.value && cartItems.value.length === 0);
+const orderSummaryEmptyPreset = {
+  ...cartEmptyPreset,
+  description: 'Add products from search or a product page. They will appear here with delivery options, VAT and a total before checkout.',
+  secondaryLabel: 'Back to home',
+  secondaryTo: '/',
+};
 
 const orderItems = computed(() => {
   return cartItems.value.map((item) => {
@@ -187,7 +217,6 @@ const orderItems = computed(() => {
 
 // Payment Processing
 const { card, cards, fetchCards } = usePaymentCards();
-const paymentType = ref({ type: 0, selected: false });
 
 // Order Processing
 const { makeCheckout } = useOrder();
@@ -223,9 +252,15 @@ const restoreCheckoutDraft = () => {
     if (draft.deliveryMethod) order.value.deliveryMethod = draft.deliveryMethod;
     if (draft.backorderOption) order.value.backorderOption = draft.backorderOption;
     if (draft.paymentDetails?.type !== undefined) {
-      order.value.paymentDetails = { type: draft.paymentDetails.type } as PaymentDetails;
-      const storedCardId = (draft.paymentDetails as PaymentDetails & { cardId?: unknown }).cardId;
-      restoredCardId.value = typeof storedCardId === 'string' ? storedCardId : null;
+      if (isBuyerCheckoutPaymentType(draft.paymentDetails.type)) {
+        order.value.paymentDetails = { type: draft.paymentDetails.type };
+        const storedCardId = (draft.paymentDetails as PaymentDetails & { cardId?: unknown }).cardId;
+        restoredCardId.value = typeof storedCardId === 'string' ? storedCardId : null;
+      } else {
+        order.value.paymentDetails = {} as PaymentDetails;
+        restoredCardId.value = null;
+        requiresPaymentReselection.value = true;
+      }
     }
   } catch {
     sessionStorage.removeItem(CHECKOUT_DRAFT_STORAGE_KEY);
@@ -369,7 +404,8 @@ const applyMockCheckoutDefaults = () => {
     }
 
     order.value.paymentDetails = {
-      type: PaymentTypeEnum.Bank,
+      type: PaymentTypeEnum.Card,
+      card: null,
     };
   }
 };
@@ -387,6 +423,7 @@ const restoreSavedCardSelection = () => {
 };
 
 const updatePaymentDetails = (paymentDetails: PaymentDetails) => {
+  if (!isBuyerCheckoutPaymentType(paymentDetails.type)) return;
   order.value.paymentDetails = paymentDetails;
   requiresPaymentReselection.value = false;
 };
@@ -394,14 +431,15 @@ const updatePaymentDetails = (paymentDetails: PaymentDetails) => {
 // Checkout Control
 const checkoutStore = useCheckoutStore();
 const { checkout } = storeToRefs(checkoutStore);
-const stopButtonTrigger = ref(true);
 
-const isCheckoutDisabled = computed(() => {
-  const hasShippingAddress = isCompleteSavedAddress(order.value.shippingDetails.address);
-  const hasBillingAddress = isCompleteSavedAddress(order.value.shippingDetails.billingAddress);
-  const hasShippingPreference = !!order.value.deliveryMethod;
-  const hasPaymentMethod = !!order.value.paymentDetails && 'type' in order.value.paymentDetails;
-  const hasGuestContact = !isGuestCheckoutMode.value || isCompleteGuestContact(order.value.guestContact);
+// Names the details still blocking checkout so the disabled button can say why.
+const checkoutBlockers = computed(() => {
+  const blockers: string[] = [];
+  if (isGuestCheckoutMode.value && !isCompleteGuestContact(order.value.guestContact)) blockers.push('contact details');
+  if (!isCompleteSavedAddress(order.value.shippingDetails.address)) blockers.push('shipping address');
+  if (!isCompleteSavedAddress(order.value.shippingDetails.billingAddress)) blockers.push('billing address');
+  if (!order.value.deliveryMethod) blockers.push('delivery method');
+  if (!isBuyerCheckoutPaymentType(order.value.paymentDetails?.type)) blockers.push('payment method');
   const hasAuthoritativeQuote = Boolean(
     authoritativeQuote.value &&
     authoritativeQuote.value.lines.length === cartItems.value.length &&
@@ -410,62 +448,38 @@ const isCheckoutDisabled = computed(() => {
       return item && line.quantity === Number(item.stock || 0) + Number(item.backorder_stock || 0);
     }),
   );
-
-  return !(
-    hasShippingAddress &&
-    hasBillingAddress &&
-    hasShippingPreference &&
-    hasPaymentMethod &&
-    hasGuestContact &&
-    hasAuthoritativeQuote
-  );
+  if (!hasAuthoritativeQuote) blockers.push('an updated order total');
+  return blockers;
 });
 
-const isLoadingCheckout = ref(false);
+const isCheckoutDisabled = computed(() => checkoutBlockers.value.length > 0);
+
 watch(checkout, async (newVal) => {
-  if (newVal && stopButtonTrigger.value) {
-    try {
-      isLoadingCheckout.value = true;
-      await makeCheckout(
-        orderType.value,
-        cartId.value,
-        order.value.deliveryMethod,
-        order.value.backorderOption,
-        order.value.smallOrder,
-        order.value.paymentDetails,
-        note.value,
-        {
-          products: order.value.products,
-          subtotal: Number(order.value.subtotal || 0),
-          total: Number(order.value.total || 0),
-          guestContact: order.value.guestContact,
-          shippingDetails: order.value.shippingDetails,
-        },
-        checkoutReview.value,
-      );
-      stopButtonTrigger.value = false;
-    } catch {
-      isLoadingCheckout.value = false;
-    }
-    isLoadingCheckout.value = false;
+  if (!newVal) return;
+  try {
+    await makeCheckout(
+      orderType.value,
+      cartId.value,
+      order.value.deliveryMethod,
+      order.value.backorderOption,
+      order.value.smallOrder,
+      order.value.paymentDetails,
+      note.value,
+      {
+        products: order.value.products,
+        subtotal: Number(order.value.subtotal || 0),
+        total: Number(order.value.total || 0),
+        guestContact: order.value.guestContact,
+        shippingDetails: order.value.shippingDetails,
+      },
+      checkoutReview.value,
+    );
+  } catch {
+    // makeCheckout reports its own failures; the reset below keeps the button retryable.
+  } finally {
+    // Some validation exits return before makeCheckout resets the flag.
+    checkout.value = false;
   }
-});
-
-// Event Handling
-Emitter.on('order-type', (type: number) => {
-  orderType.value = type;
-});
-
-Emitter.on('payment-type', (object: { type: number; selected: boolean }) => {
-  paymentType.value = { ...object };
-});
-
-Emitter.on('note', (noteText: string) => {
-  note.value = noteText;
-});
-
-Emitter.on('delete-product-item', (object: { id: string }) => {
-  cartItems.value = cartItems.value.filter((product) => product.id !== object.id);
 });
 
 const deleteSelected = () => {

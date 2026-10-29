@@ -1,5 +1,5 @@
 - text: Account Information
-- button:
+- button "Open account information menu":
     - img
 - button "Lock Account":
     - img
@@ -8,6 +8,6 @@
     - img
     - text: ''
 - img "Name"
-- text: 'Demo Customer Account Type: Personal Last Active: - Account Details User Name customer@demo.com Name Demo Surname Customer Country'
+- text: 'Demo Customer Account Type: Personal Last Active: — Account Details User Name customer@demo.com Name Demo Surname Customer Country'
 - img "United States"
 - text: /United States Mobile Number \+\d+ Address Demo Street \d+ Registered \d+ January \d+, \d+:\d+ Email Marketing Subscribed/

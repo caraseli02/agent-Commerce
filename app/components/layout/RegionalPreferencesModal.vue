@@ -3,7 +3,7 @@
     <UiSheetContent
       side="right"
       hidde-close-button
-      overlay-class-name="z-[60] bg-[#333333]/70 backdrop-blur-[2px]"
+      overlay-class-name="z-[60] bg-[#333333]/70"
       class="z-[60] flex h-full w-full max-w-none flex-col gap-0 overflow-y-auto border-none p-0 shadow-none scrollbar-thin md:w-[450px] sm:max-w-none [&>button.fixed]:hidden"
     >
       <div class="flex items-center justify-between border-b border-gray-200 p-5">
@@ -25,7 +25,7 @@
 
       <div class="mb-10 px-5">
         <p class="mb-5 text-sm text-muted-foreground">
-          Choose a demo currency to preview pricing labels on demo.app. This portfolio build does not include locale translation —
+          Choose a demo currency to preview pricing labels on demo.app. This portfolio build does not include locale translation, so
           storefront copy stays in English.
         </p>
         <FormSelect

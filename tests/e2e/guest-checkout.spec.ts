@@ -24,8 +24,11 @@ test.describe('Guest checkout flow', () => {
     await expect(page.getByText('ADM2587E RS-485 Transceiver', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 
     const addToCartButton = page.getByRole('button', { name: /add to cart/i }).first();
+    const cartPostResponse = page.waitForResponse(
+      (response) => response.url().includes('/api/cart') && response.request().method() === 'POST',
+    );
     await addToCartButton.click();
-    await page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'POST');
+    await cartPostResponse;
 
     await page.goto('/order-summary', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Viewing Summary as Guest/i)).toBeVisible();
@@ -40,6 +43,11 @@ test.describe('Guest checkout flow', () => {
 
     await fillGuestCheckoutForm(page);
 
+    await page.getByRole('button', { name: 'Edit order note', exact: true }).click();
+    const note = page.getByPlaceholder('Type your note here...', { exact: true });
+    await note.fill('Please deliver to reception.');
+    await note.press('Tab');
+
     const secureCheckoutButton = page.getByRole('button', { name: /secure checkout/i });
     await expect(secureCheckoutButton).toBeEnabled();
 
@@ -52,6 +60,9 @@ test.describe('Guest checkout flow', () => {
     const placeOrderJson = (await placeOrderResponse.json()) as { status?: string; data?: { orderId?: string } };
     expect(placeOrderJson.status).toBe('success');
     expect(placeOrderJson.data?.orderId).toMatch(/^ord-/);
+    expect(placeOrderResponse.request().postDataJSON()).toMatchObject({
+      notes: [{ message: 'Please deliver to reception.' }],
+    });
     await expect(page.getByText(/payment confirmed/i)).toBeVisible();
   });
 });

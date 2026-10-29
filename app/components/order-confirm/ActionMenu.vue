@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { DotsVerticalIcon } from '@radix-icons/vue';
-import { CalendarDays, CheckCircle, MapPin, PackageCheck } from '@lucide/vue';
+import { CalendarDays, CheckCircle, EllipsisVertical, MapPin, PackageCheck } from '@lucide/vue';
 
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm } from 'vee-validate';
@@ -157,20 +156,18 @@ const onSubmit = handleSubmit(async (values) => {
         class="flex overflow-hidden justify-center items-center self-stretch p-1 my-auto w-8 h-8 rounded-md bg-muted"
         aria-label="Additional options"
       >
-        <DotsVerticalIcon alt="" class="object-contain self-stretch my-auto w-6 aspect-square" />
+        <EllipsisVertical aria-hidden="true" class="object-contain self-stretch my-auto w-6 aspect-square" />
       </UiButton>
     </UiPopoverTrigger>
     <UiPopoverContent class="w-fit flex flex-col gap-2 p-2 border-none" align="end">
       <UiButton
         :disabled="props.order?.status === OrderStatus.Completed || props.order?.status === OrderStatus.Canceled"
-        class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
+        class="hover:text-primary hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
+        @click="changeStatus(OrderStatus.Dispatched)"
       >
-        <PackageCheck
-          class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square"
-          @click="changeStatus(OrderStatus.Dispatched)"
-        />
+        <PackageCheck class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" aria-hidden="true" />
         Fulfill Order
       </UiButton>
       <UiButton
@@ -179,15 +176,16 @@ const onSubmit = handleSubmit(async (values) => {
           props.order?.status === OrderStatus.Canceled ||
           props.order?.paymentDetails?.status === PaymentStatusEnum.Paid
         "
-        class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
+        class="hover:text-primary hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
+        @click="cancelOrder()"
       >
-        <PackageCheck class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" @click="cancelOrder()" />
+        <PackageCheck class="mr-1 object-contain shrink-0 self-stretch my-auto w-4 aspect-square" aria-hidden="true" />
         Cancel Order
       </UiButton>
       <UiButton
-        class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
+        class="hover:text-primary hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
         :disabled="
@@ -201,7 +199,7 @@ const onSubmit = handleSubmit(async (values) => {
         Mark as Paid
       </UiButton>
       <UiButton
-        class="hover:text-blue-500 hover:bg-accent justify-start gap-2 min-w-[164px]"
+        class="hover:text-primary hover:bg-accent justify-start gap-2 min-w-[164px]"
         variant="ghost"
         size="sm"
         @click="emit('showTrackingDialog')"

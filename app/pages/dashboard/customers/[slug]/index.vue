@@ -1,5 +1,5 @@
 <template>
-  <div class="w-[1488px] max-w-full p-4 mx-auto transition-all duration-300 md:py-6 2xl:px-6">
+  <div class="w-[1488px] max-w-full p-4 mx-auto md:py-6 2xl:px-6">
     <DashboardBreadcrumbs :key="String(updateBreadcrumbs)" title="Customer Profile" :customer="customerSlug" :customer-name="customerName">
       <div class="max-lg:hidden max-w-max">
         <div class="grid grid-cols-[repeat(2,auto)] gap-5 text-right">
@@ -17,7 +17,7 @@
             class="relative pl-5 before:absolute before:top-1/2 before:-translate-y-1/2 before:left-0 before:w-px before:h-[85%] before:bg-border before:rounded-[50px]"
           >
             <div class="text-sm leading-relaxed font-medium text-muted-foreground mb-3">Available Credit</div>
-            <div v-if="!isLoading" class="font-semibold leading-tight text-blue-500">
+            <div v-if="!isLoading" class="font-semibold leading-tight text-primary">
               <div v-if="emptyData || error || !credit" class="text-sm font-medium leading-tight text-muted-foreground">
                 No data available
               </div>
@@ -60,14 +60,18 @@
             <div v-if="emptyData || error || !credit" class="text-sm font-medium leading-tight text-muted-foreground">
               No data available
             </div>
-            <div v-else class="text-sm font-semibold leading-tight text-blue-500">{{ credit.available }} Lei</div>
+            <div v-else class="text-sm font-semibold leading-tight text-primary">{{ credit.available }} Lei</div>
             <WarningIcon v-if="error" class="w-5 h-5 ml-auto max-md:hidden" />
           </template>
         </div>
       </div>
       <LazyDashboardCustomersInfoCards :id="customerSlug" />
       <div class="grid grid-cols-1 gap-4 xl:grid-cols-2 xl:grid-rows-[repeat(2,auto)] md:gap-6">
-        <LazyDashboardCustomersCustomerInformation :id="customerSlug" class="xl:col-start-1 xl:row-start-1 xl:row-span-2" />
+        <LazyDashboardCustomersCustomerInformation
+          :id="customerSlug"
+          class="xl:col-start-1 xl:row-start-1 xl:row-span-2"
+          @customer-info="onCustomerInfo"
+        />
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:col-start-2 xl:row-start-1">
           <LazyDashboardCustomersNetMargin />
           <LazyDashboardCustomersRecentTransactions :id="customerSlug" />
@@ -80,7 +84,6 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance.js';
 import WarningIcon from '@/assets/icons/dashboard/warning.svg';
 import type { CustomerCreditInterface } from '~~/types/auth/account-settings';
 import { customerCreditHelper } from '~~/helpers/customer-credit.helper';
@@ -91,14 +94,12 @@ const { fetchCustomerCredit } = useControlPanel();
 const customerName = ref('');
 const updateBreadcrumbs = ref(false);
 
-useHead({
-  title: 'Dashboard Profile',
-});
+usePageSeo({ title: 'Customer profile', robots: 'noindex,nofollow' });
 
-Emitter.on('customer-info', async (object: { name: string }) => {
-  customerName.value = object.name;
+const onCustomerInfo = (info: { name: string }) => {
+  customerName.value = info.name;
   updateBreadcrumbs.value = !updateBreadcrumbs.value;
-});
+};
 
 definePageMeta({
   middleware: 'auth',

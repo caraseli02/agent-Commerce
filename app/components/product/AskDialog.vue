@@ -19,10 +19,12 @@ const props = withDefaults(
   defineProps<{
     showTrigger?: boolean;
     triggerClass?: string;
+    partNumber?: string;
   }>(),
   {
     showTrigger: true,
     triggerClass: '',
+    partNumber: '',
   },
 );
 
@@ -55,7 +57,7 @@ defineExpose({
 <template>
   <UiDialog v-model:open="isOpen">
     <UiDialogTrigger v-if="props.showTrigger" as-child>
-      <UiButton variant="link" class="text-slate-300 gap-1" :class="props.triggerClass">
+      <UiButton variant="link" class="text-muted-foreground gap-1" :class="props.triggerClass">
         <MessageCircleQuestion class="w-[22px] h-[22px]" />
         <span class="text-xs leading-tight hidden sm:inline">Ask about the product</span>
       </UiButton>
@@ -66,8 +68,8 @@ defineExpose({
         <UiDialogDescription class="sr-only">Save a sample product enquiry in the portfolio demo.</UiDialogDescription>
       </UiDialogHeader>
       <form class="flex flex-col gap-4 w-full bg-card shadow-sm" @submit="onSubmit">
-        <h4 id="price-enquiry-title" class="text-xl text-muted-foreground leading-7 mb-4">
-          Part No: <span class="font-medium text-foreground">XOEIJLSCDA</span>
+        <h4 v-if="props.partNumber" class="text-xl text-muted-foreground leading-7 mb-4">
+          Part No: <span class="font-medium text-foreground">{{ props.partNumber }}</span>
         </h4>
 
         <!-- Email Field -->

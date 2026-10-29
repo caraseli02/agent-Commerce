@@ -7,7 +7,7 @@
       @click="emit('close')"
     >
       <component :is="IconApps" class="w-6 h-6" />
-      <div class="transition-all text-sm font-medium leading-6 whitespace-nowrap">Dashboard</div>
+      <div class="transition-colors text-sm font-medium leading-6 whitespace-nowrap">Dashboard</div>
     </NuxtLink>
     <UiButton
       v-for="(menuItem, index) in menuActions"
@@ -18,18 +18,18 @@
       @click="(emit('close'), menuItem.action())"
     >
       <component :is="menuItem.icon" class="w-6 h-6" />
-      <div class="transition-all text-sm font-medium leading-6 whitespace-nowrap">
+      <div class="transition-colors text-sm font-medium leading-6 whitespace-nowrap">
         {{ menuItem.text }}
       </div>
       <div
         v-if="menuItem.text === 'Notifications' && unreadNotifications > 0"
-        class="text-white text-center text-xs font-medium leading-5 whitespace-nowrap flex justify-center items-center bg-rose-500 aspect-[1.3333333333333333] my-auto px-1 rounded-[100px]"
+        class="text-white text-center text-xs font-medium leading-5 whitespace-nowrap flex justify-center items-center bg-rose-600 aspect-[1.3333333333333333] my-auto px-1 rounded-[100px]"
       >
         {{ unreadNotifications }}
       </div>
     </UiButton>
     <NuxtLink
-      v-for="(menuItem, index) in menuLinks"
+      v-for="(menuItem, index) in menuLinks.filter((link) => !link.disabled)"
       :key="index"
       :to="menuItem.to"
       class="items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
@@ -39,12 +39,12 @@
       <component :is="menuItem.icon" class="w-6 h-6" />
       <div
         v-if="menuItem.disabled"
-        class="transition-all text-sm font-medium leading-6 whitespace-nowrap flex items-center justify-between flex-1"
+        class="transition-colors text-sm font-medium leading-6 whitespace-nowrap flex items-center justify-between flex-1"
       >
         <span>{{ menuItem.text }}</span>
         <span class="text-[10px] bg-muted text-zinc-400 px-1.5 py-0.5 rounded ml-2 font-bold tracking-tight">COMING SOON</span>
       </div>
-      <div v-else class="transition-all text-sm font-medium leading-6 whitespace-nowrap">
+      <div v-else class="transition-colors text-sm font-medium leading-6 whitespace-nowrap">
         {{ menuItem.text }}
       </div>
     </NuxtLink>

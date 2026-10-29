@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import pg from 'pg';
 import { migrate } from './db-migrate.mjs';
+import { bootstrapInventory } from '../server/domain/inventory/bootstrap.mjs';
 
 const { Pool } = pg;
 const command = process.argv.slice(2);
@@ -10,7 +11,7 @@ if (!command.length) throw new Error('Pass a command to run against the isolated
 const adminConnectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
 if (!adminConnectionString) throw new Error('DATABASE_URL is required for PostgreSQL-backed tests.');
 
-const schema = `ecas_test_${randomUUID().replaceAll('-', '')}`;
+const schema = `commerce_test_${randomUUID().replaceAll('-', '')}`;
 const schemaIdentifier = `"${schema}"`;
 const testUrl = new URL(adminConnectionString);
 testUrl.searchParams.set('options', `-c search_path=${schema}`);
@@ -19,6 +20,7 @@ const adminPool = new Pool({ connectionString: adminConnectionString, max: 1 });
 try {
   await adminPool.query(`CREATE SCHEMA ${schemaIdentifier}`);
   await migrate(testUrl.toString());
+  await bootstrapInventory({ connectionString: testUrl.toString(), dryRun: false });
 
   const childEnvironment = {
     ...process.env,

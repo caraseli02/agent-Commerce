@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[474px] max-w-[330px] items-stretch shadow-xs bg-card hidden lg:flex flex-col p-6 rounded-xl">
+  <div class="h-[474px] w-full min-w-0 items-stretch shadow-xs bg-card hidden lg:flex flex-col p-6 rounded-xl">
     <header class="text-foreground text-base font-semibold leading-6">Recently Bought</header>
     <section class="w-[282px] h-[312px] overflow-hidden flex flex-col gap-7 mt-8">
       <div v-for="item in data" :key="item._id" class="items-stretch flex justify-between gap-3">
@@ -25,11 +25,11 @@
         </div>
       </div>
     </section>
-    <div class="self-end align-end flex justify-end items-end gap-2 h-fit grow text-muted-foreground hover:text-blue-500 transition-colors">
+    <div class="self-end align-end flex justify-end items-end gap-2 h-fit grow text-muted-foreground hover:text-primary transition-colors">
       <UiButton
         variant="ghost"
         class="h-auto p-0 text-sm font-medium leading-5 grow whitespace-nowrap"
-        @click="Emitter.emit('customer-dashboard-nav-tab', { label: 'Orders', value: 'orders' })"
+        @click="emit('open-tab', { label: 'Orders', value: 'orders' })"
       >
         View Orders
       </UiButton>
@@ -41,13 +41,16 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
 import type { ProductInterface } from '~~/types/product';
 
 type RecentlyBoughtProduct = ProductInterface & { photo?: string };
 
 defineProps<{
   data: RecentlyBoughtProduct[];
+}>();
+
+const emit = defineEmits<{
+  'open-tab': [tab: { label: string; value: string }];
 }>();
 </script>
 

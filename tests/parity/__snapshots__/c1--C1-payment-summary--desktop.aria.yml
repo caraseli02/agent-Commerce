@@ -1,0 +1,10 @@
+- text: /Payment Summary Subtotal \d+\.\d+ Lei Discount \d+\.\d+ Lei Handling Charge/
+- button "Explain small order handling charge":
+    - img
+- text: /Small order charge \d+\.\d+ Lei Shipping/
+- button "Shipping information":
+    - img
+- text: /Demo Express \(Standard Delivery\) \d+\.\d+ Lei Tax:/
+- button "Tax information":
+    - img
+- text: /\(VAT \d+%\) \d+\.\d+ Lei Total \d+\.\d+ Lei/

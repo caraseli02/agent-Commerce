@@ -1,10 +1,13 @@
-- img
-- text: /Total Orders \d+/
-- button:
-    - img
-- button "This Week":
-    - text: ''
-    - img
-- button "More" [disabled]:
-    - text: ''
-    - img
+- region "Order metrics":
+    - text: Total orders
+    - paragraph: /\d+/
+    - paragraph: All time
+    - text: Gross revenue
+    - paragraph: /\d+\.\d+ Lei/
+    - paragraph: All time
+    - text: Average order value
+    - paragraph: /\d+\.\d+ Lei/
+    - paragraph: All time
+    - text: Products sold
+    - paragraph: /\d+/
+    - paragraph: All time

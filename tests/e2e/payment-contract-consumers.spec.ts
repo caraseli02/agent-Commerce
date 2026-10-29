@@ -61,7 +61,7 @@ for (const viewport of viewports) {
     await expect(panel.getByText('Unknown', { exact: true })).toBeVisible();
     await expect(panel.getByText('undefined', { exact: true })).toHaveCount(0);
     expect(intercepted).toBe(true);
-    await panel.screenshot({ path: `/tmp/ecas-583-browser/${viewport.name}-recent-transactions.png` });
+    await panel.screenshot({ path: `/tmp/commerce-583-browser/${viewport.name}-recent-transactions.png` });
     expect(errors).toEqual([]);
   });
 
@@ -101,7 +101,7 @@ for (const viewport of viewports) {
         await expect(dialog.getByText('Paid', { exact: true })).toHaveCount(0);
         await expect(dialog.locator('.bg-green-500')).toHaveCount(0);
       }
-      await dialog.screenshot({ path: `/tmp/ecas-583-browser/${viewport.name}-tracking-${scenario.label}.png` });
+      await dialog.screenshot({ path: `/tmp/commerce-583-browser/${viewport.name}-tracking-${scenario.label}.png` });
     }
     expect(interceptions).toBeGreaterThanOrEqual(2);
     expect(errors).toEqual([]);

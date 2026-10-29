@@ -1,6 +1,6 @@
 <template>
   <div class="app-scroll">
-    <main>
+    <main id="main" tabindex="-1" class="outline-none">
       <slot />
     </main>
     <Toaster />

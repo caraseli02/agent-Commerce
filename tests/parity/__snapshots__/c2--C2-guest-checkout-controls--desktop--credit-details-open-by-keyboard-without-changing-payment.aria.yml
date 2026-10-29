@@ -1,0 +1,4 @@
+- text: Credit Info
+- button "Credit settings":
+    - img
+- text: /Credit Limit 0 Till Due Credit Term Total Spent \d+\.\d+ Lei Due Date — Available \d+\.\d+ Lei/

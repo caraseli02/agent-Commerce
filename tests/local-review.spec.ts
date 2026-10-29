@@ -2,7 +2,14 @@ import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { assessLocalChecks, localVerificationMarker, parseFactoryConfig, readLocalEvidence } from '../scripts/owner-attention.mjs';
+import {
+  assessLocalChecks,
+  localVerificationMarker,
+  parseFactoryConfig,
+  prUiContext,
+  uiContextFor,
+  readLocalEvidence,
+} from '../scripts/owner-attention.mjs';
 import { checkPushTemplates } from '../scripts/check-pr-template.mjs';
 
 const head = 'a'.repeat(40);
@@ -32,28 +39,45 @@ describe('Husky and independent local acceptance', () => {
     expect(assessLocalChecks(fixture(), [report()], trust).state).toBe('success');
   });
 
-  it('requires the independent opposite builder, exact context and an unquoted marker', () => {
+  it('requires an attributed PASS from the opposite builder for the exact head', () => {
     const pr = fixture();
     const invalid = [
       { ...report(), user: { login: 'outsider' } },
       report(pr, 'Claude'),
       report(pr, 'Codex', 'FAIL'),
-      { ...report(), body: report().body.replace(localVerificationMarker(pr), `> ${localVerificationMarker(pr)}`) },
-      { ...report(), body: report().body.replace(`base=${base}`, `base=${head}`) },
+      { ...report(), body: report().body.replace(`evaluator-head: ${head}`, `evaluator-head: ${base}`) },
       { ...report(), body: 'Please review\n' + report().body },
     ];
     for (const comment of invalid) expect(assessLocalChecks(pr, [comment], trust).state).toBe('pending');
-    for (const changed of [
-      { ...pr, body: body + '\nchanged' },
-      { ...pr, labels: [] },
-      { ...pr, base: { sha: base, ref: 'other' } },
-    ]) {
-      expect(assessLocalChecks(changed, [report()], trust).state).toBe('pending');
-    }
     expect(assessLocalChecks({ ...pr, body: '' }, [report()], trust).state).toBe('failure');
   });
 
-  it('uses the same metadata marker in the native Python router', () => {
+  it('keeps the PASS when only the base tip, body or labels changed after the review', () => {
+    const pr = fixture();
+    for (const changed of [
+      { ...pr, base: { sha: 'c'.repeat(40), ref: 'main' } },
+      { ...pr, body: body + '\nchanged' },
+      { ...pr, labels: [] },
+    ]) {
+      expect(assessLocalChecks(changed, [report()], trust).state).toBe('success');
+    }
+  });
+
+  it('needs the head-naming audit line, on its own line, before a PASS attests the local gate', () => {
+    const pr = fixture();
+    const marker = localVerificationMarker(pr);
+    for (const body of [
+      report().body.replace(`\n${marker}`, ''),
+      report().body.replace(marker, `> ${marker}`),
+      report().body.replace(marker, `${marker} trailing`),
+      report().body.replace(`head=${head}`, `head=${base}`),
+      report().body.replace(/metadata=[0-9a-f]{64}/, 'metadata=short'),
+    ]) {
+      expect(assessLocalChecks(pr, [{ ...report(), body }], trust).state).toBe('pending');
+    }
+  });
+
+  it('uses the same audit marker in the native Python router', () => {
     const pr = { ...fixture(), body: body + '\nUnicode: café', labels: [{ name: 'z' }, { name: 'a' }] };
     const result = execFileSync(
       'python3',
@@ -68,8 +92,12 @@ describe('Husky and independent local acceptance', () => {
 
   it('validates live PR metadata before push and propagates lookup failures', () => {
     const input = `refs/heads/topic ${head} refs/heads/topic ${base}\n`;
-    expect(() => checkPushTemplates(input, { run: () => JSON.stringify([{ number: 10, body, labels: [] }]) })).not.toThrow();
-    expect(() => checkPushTemplates(input, { run: () => JSON.stringify([{ number: 10, body: '', labels: [] }]) })).toThrow('PR #10');
+    expect(() =>
+      checkPushTemplates(input, { uiFingerprint: () => null, run: () => JSON.stringify([{ number: 10, body, labels: [] }]) }),
+    ).not.toThrow();
+    expect(() =>
+      checkPushTemplates(input, { uiFingerprint: () => null, run: () => JSON.stringify([{ number: 10, body: '', labels: [] }]) }),
+    ).toThrow('PR #10');
     expect(() =>
       checkPushTemplates(input, {
         run: () => {
@@ -77,7 +105,7 @@ describe('Husky and independent local acceptance', () => {
         },
       }),
     ).toThrow('GitHub unavailable');
-    expect(() => checkPushTemplates(input, { run: () => '[]' })).not.toThrow();
+    expect(() => checkPushTemplates(input, { uiFingerprint: () => null, run: () => '[]' })).not.toThrow();
     checkPushTemplates(`refs/heads/topic ${'0'.repeat(40)} refs/heads/topic ${base}`, {
       run: () => {
         throw new Error('deletion must not query PRs');
@@ -92,6 +120,7 @@ describe('Husky and independent local acceptance', () => {
     changed = false,
     mergeable = true,
     authorized = false,
+    uiFor = () => ({ fingerprint: null as string | null }),
   }: {
     comments?: ReturnType<typeof report>[];
     reviews?: { state: string; user: { login: string } }[];
@@ -99,6 +128,7 @@ describe('Husky and independent local acceptance', () => {
     changed?: boolean;
     mergeable?: boolean;
     authorized?: boolean;
+    uiFor?: (pr: unknown) => { fingerprint?: string | null; unavailable?: boolean };
   } = {}) {
     const pr = { ...fixture(), mergeable };
     if (authorized) pr.labels.push({ name: 'owner-approved-harness' });
@@ -121,8 +151,38 @@ describe('Husky and independent local acceptance', () => {
       gh,
       owner: 'owner',
       config: parseFactoryConfig(await readFile('.factory/factory.yaml', 'utf8')),
+      uiFor,
     });
   }
+
+  it('applies the screenshot rule to live readiness, and fails closed when the head cannot be diffed', async () => {
+    const fingerprint = 'c'.repeat(64);
+    expect((await readiness({ uiFor: () => ({ fingerprint }) })).readiness.ready).toBe(false);
+    expect((await readiness({ uiFor: () => ({ unavailable: true }) })).readiness.ready).toBe(false);
+    expect((await readiness({ uiFor: () => ({ fingerprint: null }) })).readiness.ready).toBe(true);
+    const pr = fixture();
+    expect(assessLocalChecks(pr, [report()], { ...trust, ui: { fingerprint } }).failing.join(' ')).toContain('## Screenshots');
+    expect(prUiContext(pr, { diff: () => ({ fingerprint }) })).toEqual({ fingerprint });
+    const gh = (filename: string) => ({ paginate: async () => [{ filename }] });
+    const local = () => ({ unavailable: true });
+    expect(await uiContextFor(gh('docs/a.md'), pr, { local })).toEqual({ fingerprint: null });
+    expect(await uiContextFor(gh('app/pages/index.vue'), pr, { local })).toEqual({ unavailable: true });
+    const rename = [{ filename: 'docs/archive/banner.svg', previous_filename: 'public/banner.svg' }];
+    const viaRename = (pr: unknown) =>
+      uiContextFor({ paginate: async () => rename }, pr as ReturnType<typeof fixture>, { local: () => ({ fingerprint }) });
+    expect((await readiness({ files: rename, uiFor: viaRename })).readiness.ready).toBe(false);
+    const renamed = { paginate: async () => [{ filename: 'docs/archive/banner.svg', previous_filename: 'public/banner.svg' }] };
+    expect(await uiContextFor(renamed, pr, { local })).toEqual({ unavailable: true });
+    expect(await uiContextFor(renamed, pr, { local: () => ({ fingerprint }) })).toEqual({ fingerprint });
+    expect(
+      prUiContext(pr, {
+        diff: () => {
+          throw new Error('unknown revision');
+        },
+        fetchHead: () => {},
+      }),
+    ).toEqual({ unavailable: true });
+  });
 
   it('keeps real failures, contradictory reports, changes requested and context races blocking', async () => {
     expect((await readiness()).readiness.ready).toBe(true);
@@ -149,17 +209,30 @@ describe('Husky and independent local acceptance', () => {
     expect((await readiness({ files: [...files, { filename: '.factory/factory.yaml' }] })).readiness.ready).toBe(false);
   });
 
-  it('retains old-context and legacy reports without contradicting a new-context result', async () => {
-    const old = report({ ...fixture(), body: body + '\nprevious context' }, 'Codex', 'FAIL');
-    expect((await readiness({ comments: [old, report()] })).readiness.ready).toBe(true);
-    const legacy = {
-      ...old,
-      body: old.body
+  it('stays ready after main moves, and needs a re-review request to replace a FAIL on the same head', async () => {
+    const olderBase = report({ ...fixture(), base: { sha: 'c'.repeat(40), ref: 'main' } });
+    expect((await readiness({ comments: [olderBase] })).readiness.ready).toBe(true);
+
+    const fail = report(fixture(), 'Codex', 'FAIL');
+    const request = { user: { login: 'owner' }, body: `<!-- external-review-request: ${head} -->\nPR body fixed; please re-review.` };
+    expect((await readiness({ comments: [fail, report()] })).readiness.ready).toBe(false);
+    expect((await readiness({ comments: [fail, request] })).readiness.ready).toBe(false);
+    expect((await readiness({ comments: [fail, request, report()] })).readiness.ready).toBe(true);
+    expect((await readiness({ comments: [report(), request, fail] })).readiness.ready).toBe(false);
+  });
+
+  it('never makes a PR ready on a legacy PASS without the audit line, and lets marked reports supersede legacy ones', async () => {
+    const strip = (comment: ReturnType<typeof report>) => ({
+      ...comment,
+      body: comment.body
         .split('\n')
         .filter((line) => !line.startsWith('<!-- local-verification:'))
         .join('\n'),
-    };
-    expect((await readiness({ comments: [legacy, report()] })).readiness.ready).toBe(true);
-    expect((await readiness({ comments: [legacy] })).readiness.ready).toBe(false);
+    });
+    const legacyPass = strip(report());
+    const legacyFail = strip(report(fixture(), 'Codex', 'FAIL'));
+    expect((await readiness({ comments: [legacyPass] })).readiness.ready).toBe(false);
+    expect((await readiness({ comments: [legacyFail, report()] })).readiness.ready).toBe(true);
+    expect((await readiness({ comments: [report(fixture(), 'Codex', 'FAIL'), legacyPass] })).readiness.ready).toBe(false);
   });
 });

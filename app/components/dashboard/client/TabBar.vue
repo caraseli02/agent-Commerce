@@ -6,8 +6,8 @@
         :key="index"
         variant="ghost"
         :aria-label="filter.label ? undefined : 'Dashboard home'"
-        class="ordersFilter flex h-auto px-0 rounded-none items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 whitespace-nowrap transition-colors duration-300 md:py-8"
-        :class="[filter.label === activeOrderFilter?.label ? 'text-blue-500' : 'hover:text-blue-500']"
+        class="ordersFilter flex h-auto px-0 rounded-none items-center gap-3 relative z-10 text-sm font-medium leading-[1.71] py-5 flex-shrink-0 whitespace-nowrap transition-colors duration-200 md:py-8"
+        :class="[filter.label === activeOrderFilter?.label ? 'text-primary' : 'hover:text-primary']"
         @click="activeOrderFilter = filter"
       >
         <span v-if="filter.label">
@@ -15,8 +15,8 @@
         </span>
         <span
           v-if="filter.total_items"
-          class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-300 text-center"
-          :class="filter.label === activeOrderFilter?.label ? 'text-white bg-blue-700' : 'text-muted-foreground bg-muted'"
+          class="px-2 rounded-[25px] text-xs leading-[1.66] font-medium min-w-[32px] transition-colors duration-200 text-center"
+          :class="filter.label === activeOrderFilter?.label ? 'text-primary-foreground bg-primary' : 'text-muted-foreground bg-muted'"
         >
           {{ filter.total_items }}
         </span>
@@ -25,7 +25,7 @@
         </template>
       </UiButton>
       <div
-        class="absolute bottom-0 bg-blue-500 h-1 rounded-t-lg transition-all duration-300"
+        class="absolute bottom-0 bg-primary h-1 rounded-t-lg transition-[left,width] duration-200"
         :style="{
           width: filterHighlightWidth + 'px',
           left: filterHightlightLeft + 'px',
@@ -130,12 +130,6 @@ const activeOrderFilter = defineModel<TabFilter>();
 
 const filterHighlightWidth = ref(0);
 const filterHightlightLeft = ref(0);
-
-// Emitter.on('customer-dashboard-nav-tab', async (tab: { label: string; value: string }) => {
-//     if (tab) {
-//         activeOrderFilter.value = tab;
-//     }
-// });
 
 // const setActiveFilterHighlight = () => {
 //     const activeFilter = activeOrderFilter.value;

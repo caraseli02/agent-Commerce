@@ -62,7 +62,7 @@
               <div class="relative flex h-6 w-9 shrink-0 items-center">
                 <CartIcon class="h-6 w-6 text-header-foreground" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
                 <span
-                  class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-500 px-1 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
+                  class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-600 px-1 dark:bg-rose-600 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
                   :class="[showCartBadge ? 'opacity-100' : 'opacity-0', isCartPulsing ? 'cart-badge-pop' : '']"
                   :aria-hidden="!showCartBadge"
                 >
@@ -75,14 +75,16 @@
                 :aria-hidden="!showCartTotal"
               >
                 <div class="text-sm font-medium leading-5">{{ formattedCartTotal }}</div>
-                <div class="text-[10px] leading-4">(ex VAT)</div>
+                <div class="text-xs leading-4">(ex VAT)</div>
               </div>
             </UiButton>
           </div>
         </div>
         <Transition name="fade">
           <div v-if="showMobileSearch && isMobile" class="absolute z-50 top-1/2 left-0 w-full -translate-y-1/2 md:hidden">
-            <div class="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3">
+            <div
+              class="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1"
+            >
               <UiLabel class="relative z-10 flex h-10 min-w-0 flex-1 items-center font-normal">
                 <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent="showMobileSearch = false">
                   <UiInput
@@ -90,6 +92,7 @@
                     v-model="searchVal"
                     type="search"
                     placeholder="Search products"
+                    aria-label="Search products"
                     class="h-full w-full min-w-0 rounded-none border-0 bg-transparent py-2 pl-0 text-sm leading-[1.71] placeholder:text-muted-foreground focus:outline-none"
                     @input="onInput"
                     @keypress.enter="
@@ -130,7 +133,6 @@
 </template>
 
 <script setup lang="ts">
-import Emitter from 'tiny-emitter/instance';
 import { storeToRefs } from 'pinia';
 import Logo from '@/assets/media/logo.svg';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -151,6 +153,7 @@ import {
 } from '~/composables/api/notifications';
 import { useProducts } from '~/composables/useProducts';
 import { useCartStore } from '~/store/cartStore';
+import { useProductStore } from '~/store/productStore';
 import { useAuthStore } from '~/store/authStore';
 import { useNotificationStore } from '~/store/notificationStore';
 import { useUiStore } from '~/store/uiStore';
@@ -159,6 +162,7 @@ import { useCartBadgeMotion } from '~/composables/useCartBadgeMotion';
 
 const cartStore = useCartStore();
 const uiStore = useUiStore();
+const productStore = useProductStore();
 const { searchHeaderResults } = useProducts();
 const isClientReady = useClientReady();
 const { isPulsing: isCartPulsing, syncFromCart, resetBaseline } = useCartBadgeMotion();
@@ -281,7 +285,7 @@ const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<P
     return [];
   }
 
-  Emitter.emit('product-keyword-change', { keyword, products: result.searchData });
+  productStore.setHeaderSearch(keyword);
 
   isLoading.value = false;
   return result.items;

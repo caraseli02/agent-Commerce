@@ -1,6 +1,6 @@
 <template>
   <header
-    class="fixed z-50 top-0 left-0 w-full bg-background transition-transform duration-300 md:shadow-[0_1px_0_0_hsl(var(--border)),0_4px_12px_-4px_rgba(15,23,42,0.06)]"
+    class="fixed z-50 top-0 left-0 w-full bg-background transition-transform duration-200 ease-out md:shadow-[0_1px_0_0_hsl(var(--border)),0_4px_12px_-4px_rgba(15,23,42,0.06)]"
   >
     <div class="relative z-10 border-b border-border bg-muted py-1.5 md:py-2">
       <div class="container">
@@ -12,9 +12,15 @@
             </div>
           </div>
           <div class="mr-auto text-xs font-semibold leading-[1.67] text-primary md:mr-0 lg:text-sm lg:leading-[1.43]">
-            <span class="uppercase">Free</span> shipping on orders over {{ freeShippingThreshold }}
+            Flat-rate shipping from {{ flatShippingFrom }}
           </div>
-          <UiButton variant="link" class="h-auto p-0" aria-label="Regional preferences" @click="showRegionalPreferencesModal = true">
+          <!-- Negative margin keeps a 44px hit area without growing the slim bar. -->
+          <UiButton
+            variant="link"
+            class="-my-3 h-auto min-h-11 p-0"
+            aria-label="Regional preferences"
+            @click="showRegionalPreferencesModal = true"
+          >
             <RonFlag class="mr-2.5 h-5 w-6" />
             <span class="text-sm leading-[1.43] text-muted-foreground">{{ regionalLabel }}</span>
           </UiButton>
@@ -37,9 +43,10 @@ const { currency } = storeToRefs(regionalPreferencesStore);
 
 const regionalLabel = computed(() => currency.value?.label || 'Lei');
 
-const freeShippingThreshold = computed(() => {
+// Matches the cheapest catalog shipping quote (Demo Express); the quote has no free tier.
+const flatShippingFrom = computed(() => {
   const curr = currency.value?.label || 'Lei';
-  return `150 ${curr}`;
+  return `19.90 ${curr}`;
 });
 
 const showRegionalPreferencesModal = ref(false);

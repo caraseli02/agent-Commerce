@@ -1,9 +1,9 @@
-- text: New Customers
+- heading "New Customers" [level=2]
 - link "Melissa Anderson Melissa Anderson melissa.anderson@example.com":
     - /url: /dashboard/customers/customer-010
     - img "Melissa Anderson"
     - text: ''
-- button:
+- button "Open customer menu":
     - img
 - button "Profile":
     - img
@@ -24,36 +24,35 @@
     - /url: /dashboard/customers/customer-009
     - img "Kevin Thompson"
     - text: ''
-- button:
+- button "Open customer menu":
     - img
 - link "Jessica Taylor Jessica Taylor jessica.taylor@example.com":
     - /url: /dashboard/customers/customer-008
     - img "Jessica Taylor"
     - text: ''
-- button:
+- button "Open customer menu":
     - img
 - link "David Lee David Lee david.lee@example.com":
     - /url: /dashboard/customers/customer-007
     - img "David Lee"
     - text: ''
-- button:
+- button "Open customer menu":
     - img
 - link "Amanda Brown Amanda Brown amanda.brown@example.com":
     - /url: /dashboard/customers/customer-006
     - img "Amanda Brown"
     - text: ''
-- button:
+- button "Open customer menu":
     - img
 - link "Robert Wilson Robert Wilson robert.wilson@example.com":
     - /url: /dashboard/customers/customer-005
     - img "Robert Wilson"
     - text: ''
-- img
-- button:
+- button "Open customer menu":
     - img
 - link "Emily Davis Emily Davis emily.davis@example.com":
     - /url: /dashboard/customers/customer-004
     - img "Emily Davis"
     - text: ''
-- button:
+- button "Open customer menu":
     - img

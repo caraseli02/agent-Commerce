@@ -20,27 +20,27 @@ describe('checkout PostgreSQL SSL configuration', () => {
     }
 
     const pool = createMigrationPool(
-      'postgresql://checkout:secret@ep-example.neon.tech/ecas?sslmode=require&channel_binding=require',
+      'postgresql://checkout:secret@ep-example.neon.tech/commerce?sslmode=require&channel_binding=require',
       FakePool,
     );
 
     expect(pool).toBeInstanceOf(FakePool);
     expect(receivedOptions).toEqual({
-      connectionString: 'postgresql://checkout:secret@ep-example.neon.tech/ecas?sslmode=verify-full&channel_binding=require',
+      connectionString: 'postgresql://checkout:secret@ep-example.neon.tech/commerce?sslmode=verify-full&channel_binding=require',
       max: 1,
     });
   });
 
   it.each(['prefer', 'require', 'verify-ca'])('keeps pg’s current certificate-verifying behavior for sslmode=%s', (sslmode) => {
-    const connectionString = `postgresql://checkout:secret@ep-example.neon.tech/ecas?sslmode=${sslmode}&channel_binding=require`;
+    const connectionString = `postgresql://checkout:secret@ep-example.neon.tech/commerce?sslmode=${sslmode}&channel_binding=require`;
 
     expect(normalizePostgresConnectionString(connectionString)).toBe(
-      'postgresql://checkout:secret@ep-example.neon.tech/ecas?sslmode=verify-full&channel_binding=require',
+      'postgresql://checkout:secret@ep-example.neon.tech/commerce?sslmode=verify-full&channel_binding=require',
     );
   });
 
   it.each(['verify-full', 'disable', 'no-verify'])('does not change an explicit sslmode=%s policy', (sslmode) => {
-    const connectionString = `postgresql://checkout:secret@ep-example.neon.tech/ecas?sslmode=${sslmode}`;
+    const connectionString = `postgresql://checkout:secret@ep-example.neon.tech/commerce?sslmode=${sslmode}`;
 
     expect(normalizePostgresConnectionString(connectionString)).toBe(connectionString);
   });

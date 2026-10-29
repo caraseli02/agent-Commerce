@@ -1,4 +1,9 @@
 {
   "buildCommand": "pnpm db:migrate && pnpm build",
-  "ignoreCommand": "bash scripts/vercel-ignore-build.sh"
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
+  "git": {
+    "deploymentEnabled": {
+      "codex/issue-841-inventory-bootstrap": false
+    }
+  }
 }

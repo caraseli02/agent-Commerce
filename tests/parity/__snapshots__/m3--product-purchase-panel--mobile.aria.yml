@@ -1,7 +1,7 @@
 - img
-- text: /\d+/
+- text: /\d+ in stock/
 - button "For larger quantities ask here."
-- text: Quantity Price ( Ex VAT )
+- text: Quantity Price (ex VAT)
 - group: Volume prices
 - text: "/Price for: Each Multiple: 1 Minimum Order: 1 \\d+\\.\\d+ Lei \\(1\\+\\)/"
 - button "Decrease quantity" [disabled]:
@@ -10,6 +10,6 @@
 - alert
 - button "Increase quantity":
     - img
-- button "Add to cart — selected quantity":
+- button "Add to cart, selected quantity":
     - img
     - text: ''

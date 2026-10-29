@@ -112,7 +112,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
     const adminConnectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(adminConnectionString).toBeTruthy();
 
-    const schema = `ecas_upgrade_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_upgrade_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const migrationUrl = new URL(adminConnectionString!);
     migrationUrl.searchParams.set('options', `-c search_path=${schema}`);
@@ -133,7 +133,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(10);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(11);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -154,7 +154,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('applies full Refund uniqueness, identity, amount, reason, and status constraints in PostgreSQL', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_refund_constraints_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_refund_constraints_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);
@@ -358,7 +358,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('expands populated 001–005 claims without changing rows or legacy writer compatibility, and replays safely', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_paid_recovery_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_paid_recovery_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);
@@ -477,7 +477,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       );
       const refundsBeforeReplay = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
       const historyBefore = (await pool.query('SELECT * FROM checkout_schema_migrations ORDER BY filename')).rows;
-      expect(historyBefore).toHaveLength(10);
+      expect(historyBefore).toHaveLength(11);
       expect(historyBefore[5]).toMatchObject({
         filename: '006_paid_recovery_claim.sql',
         checksum: createHash('sha256').update(source('server/infrastructure/migrations/006_paid_recovery_claim.sql')).digest('hex'),
@@ -498,6 +498,10 @@ describe('checkout PostgreSQL persistence boundary', () => {
         filename: '010_unrecognized_refund_events.sql',
         checksum: createHash('sha256').update(source('server/infrastructure/migrations/010_unrecognized_refund_events.sql')).digest('hex'),
       });
+      expect(historyBefore[10]).toMatchObject({
+        filename: '011_inventory_counters.sql',
+        checksum: createHash('sha256').update(source('server/infrastructure/migrations/011_inventory_counters.sql')).digest('hex'),
+      });
       await migrate(url.toString());
       expect(await snapshot()).toEqual(replayBefore);
       expect((await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows).toEqual(refundsBeforeReplay);
@@ -512,7 +516,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('upgrades populated Payments while preserving legacy writes and enforcing Stripe identity', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_stripe_expand_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_stripe_expand_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);
@@ -549,7 +553,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrate(url.toString());
       await migrate(url.toString());
       const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
-      expect(Number(migrations.rows[0]?.total)).toBe(10);
+      expect(Number(migrations.rows[0]?.total)).toBe(11);
 
       const existing = await pool.query<{
         status: string;
@@ -620,7 +624,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('upgrades a populated legacy checkout without changing its completed tuple and quarantines incomplete results', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_payment_upgrade_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_payment_upgrade_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);
@@ -686,7 +690,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
   it('fails closed when legacy order money is missing or negative', async () => {
     const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
     expect(connectionString).toBeTruthy();
-    const schema = `ecas_payment_invalid_${randomUUID().replaceAll('-', '')}`;
+    const schema = `commerce_payment_invalid_${randomUUID().replaceAll('-', '')}`;
     const schemaIdentifier = `"${schema}"`;
     const url = new URL(connectionString!);
     url.searchParams.set('options', `-c search_path=${schema}`);

@@ -16,8 +16,8 @@ const columns = computed(() =>
 <template>
   <UiDropdownMenu :modal="false">
     <UiDropdownMenuTrigger as-child>
-      <UiButton class="bg-accent text-foreground hover:bg-accent" size="icon">
-        <EyeIcon class="w-4 h-4" />
+      <UiButton variant="secondary" size="icon" aria-label="Toggle columns">
+        <EyeIcon class="w-4 h-4" aria-hidden="true" />
       </UiButton>
     </UiDropdownMenuTrigger>
     <UiDropdownMenuContent align="end" class="w-[150px]">

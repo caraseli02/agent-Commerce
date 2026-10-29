@@ -6,7 +6,11 @@
       :src="currentSrc"
       :alt="alt"
       :class="mediaClass"
-      loading="lazy"
+      :loading="priority ? 'eager' : 'lazy'"
+      :fetchpriority="priority ? 'high' : undefined"
+      :sizes="sizes"
+      :width="width"
+      :height="height"
       @load="handleLoad"
       @error="handleError"
     />
@@ -41,6 +45,24 @@ const props = defineProps({
   className: {
     type: String,
     default: '',
+  },
+  /** Above-the-fold image (LCP candidate): load eagerly with high fetch priority. */
+  priority: {
+    type: Boolean,
+    default: false,
+  },
+  sizes: {
+    type: String,
+    default: undefined,
+  },
+  /** Intrinsic dimensions reserve the aspect ratio before the file arrives. */
+  width: {
+    type: [Number, String],
+    default: undefined,
+  },
+  height: {
+    type: [Number, String],
+    default: undefined,
   },
 });
 
