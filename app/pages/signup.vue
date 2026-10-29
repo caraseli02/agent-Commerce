@@ -397,8 +397,6 @@ const handleSubmit = async () => {
         description: 'Account created successfully',
       });
 
-      clearFormData();
-
       // TODO: Notification banner
     } catch (error) {
       console.error('Failed to create account', error);
@@ -408,6 +406,8 @@ const handleSubmit = async () => {
         description: 'An error occurred while creating your account',
       });
       return;
+    } finally {
+      clearFormData();
     }
 
     currentStep.value++;
