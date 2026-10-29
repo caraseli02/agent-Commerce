@@ -33,5 +33,5 @@ export function testPort(name, checkout = process.cwd(), env = process.env) {
 }
 
 if (process.argv[1]?.endsWith('worktree-port.mjs')) {
-  for (const name of Object.keys(PORT_OFFSETS)) console.log(`${name}=${testPort(name)}`);
+  for (const name of Object.keys(PORT_OFFSETS)) process.stdout.write(`${name}=${testPort(name)}\n`);
 }
