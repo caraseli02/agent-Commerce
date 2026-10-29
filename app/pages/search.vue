@@ -12,9 +12,13 @@
       @reset-products-filters="onResetFilters"
     />
     <div v-if="pending && !products" class="container mb-10 min-h-[200px]" aria-busy="true" aria-live="polite">
-      <div class="h-10 w-64 rounded bg-slate-100 animate-pulse motion-reduce:animate-none mb-6" />
+      <div class="h-10 w-64 rounded bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none mb-6" />
       <div class="space-y-4">
-        <div v-for="n in 3" :key="n" class="h-[120px] rounded-2xl bg-slate-100 animate-pulse motion-reduce:animate-none" />
+        <div
+          v-for="n in 3"
+          :key="n"
+          class="h-[120px] rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none"
+        />
       </div>
       <span class="sr-only">Loading search results…</span>
     </div>
