@@ -108,10 +108,19 @@ function checkCartItem(itemId: string) {
           <TrashIcon class="w-5 h-5" />
         </UiButton>
       </div>
-      <ChevronDownIcon
-        class="w-5 h-5 flex-shrink-0 roun ded-full transition duration-300 xl:hidden flex"
-        :class="[expanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
-      />
+      <UiButton
+        variant="ghost"
+        size="icon"
+        class="-m-2 xl:hidden"
+        :aria-label="`Show details for ${item.productEntity?.name || item.id}`"
+        :aria-expanded="expanded"
+        @click.stop="emit('toggleExpanded', !expanded)"
+      >
+        <ChevronDownIcon
+          class="w-5 h-5 flex-shrink-0 rounded-full transition duration-300"
+          :class="[expanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
+        />
+      </UiButton>
     </div>
   </div>
 </template>
