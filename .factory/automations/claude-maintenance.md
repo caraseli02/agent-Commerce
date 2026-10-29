@@ -165,7 +165,7 @@ One comment per day on the open issue titled `night_lane.digest_issue_title` (`C
 
 **Ready to merge** (evaluator PASS on the current head, local verification current), suggested order: #N title (why first).
 **Needs your decision:** blocked issues and PRs with their Best next move; open questions in plans.
-**Overnight:** builds, repairs, reviews; plans, diagnoses, spikes and learnings written; findings filed (from the journal since the previous digest).
+**Overnight:** builds, repairs, reviews; plans, diagnoses, spikes and learnings written; findings filed; runs that failed at a guard (`"result":"failed"`) with their reason (from the journal since the previous digest).
 **Self-started:** improve-lane issues claimed, PRs opened, merged and declined since the previous digest, and `Improvement idea:` proposals waiting for triage.
 **Learnings inbox:** entries waiting for your tick.
 **Idle runs:** count since the previous digest, with the main reason.
