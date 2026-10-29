@@ -91,7 +91,13 @@
                 </div>
                 <div class="text-xl leading-tight font-semibold" :class="[productDiscount ? 'text-red-700' : '']">
                   <span>
-                    {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : `${minPriceConfiguration?.price.toFixed(2)} Lei` || '-' }}
+                    {{
+                      discountPrice
+                        ? `${discountPrice.toFixed(2)} Lei`
+                        : minPriceConfiguration
+                          ? `${minPriceConfiguration.price.toFixed(2)} Lei`
+                          : '-'
+                    }}
                   </span>
                   {{ currentPriceConfiguration ? `(${currentPriceConfiguration.quantity}+)` : '-' }}
                 </div>
@@ -121,7 +127,7 @@
           <UiButton
             type="button"
             class="min-h-11 flex-1 px-5 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-            aria-label="Add to cart, selected quantity"
+            :aria-label="cartButtonLabel"
             :aria-busy="!isCartReady || isAddingToCart"
             :aria-disabled="isAddingToCart"
             :aria-describedby="showAlreadyInCartMessage ? 'cart-qty-unchanged-hint' : undefined"
@@ -250,6 +256,7 @@ const addToCart = async (product: ProductInterface) => {
   }
 
   isLocalAddingToCart.value = true;
+  const wasInCart = isInCart.value;
   const stock = initialRequestedQuantity.value > 0 ? quantity.value - initialRequestedQuantity.value : quantity.value;
 
   try {
@@ -260,6 +267,12 @@ const addToCart = async (product: ProductInterface) => {
 
     if (response?.status === 'success' && response.changed !== false) {
       await fetchCart();
+      // The header badge pulses, but nothing announces the change for keyboard and screen-reader users.
+      toast({
+        variant: 'success',
+        title: wasInCart ? 'Cart updated' : 'Added to cart',
+        description: product.name,
+      });
     }
   } finally {
     isLocalAddingToCart.value = false;

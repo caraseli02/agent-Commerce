@@ -182,7 +182,7 @@ onMounted(() => {
             <UiTableCell class="h-auto w-[9.5rem] py-2 pl-3 pr-3 text-muted-foreground align-middle md:w-44 md:pl-4 md:pr-4">
               {{ item.FeatureName }}
             </UiTableCell>
-            <UiTableCell class="h-auto py-2 pl-0 pr-3 text-foreground align-middle break-words">
+            <UiTableCell class="h-auto py-2 pr-3 text-foreground align-middle break-words">
               {{ formatFeatureValue(item) }}
             </UiTableCell>
             <UiTableCell

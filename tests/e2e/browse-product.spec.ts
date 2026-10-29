@@ -77,7 +77,7 @@ test.describe('Browse → Product Detail', () => {
     await purchasePanel.getByRole('button', { name: 'Increase Quantity' }).click();
     await expect(quantityInput).toHaveValue('2');
 
-    const updateCartButton = purchasePanel.getByRole('button', { name: 'Add to cart, selected quantity' });
+    const updateCartButton = purchasePanel.getByRole('button', { name: /^(Add to cart|Update cart)$/ });
     const cartPostResponse = page.waitForResponse(
       (response) => response.url().includes('/api/cart') && response.request().method() === 'POST',
     );
@@ -114,7 +114,7 @@ test.describe('Browse → Product Detail', () => {
 
     const purchasePanel = page.getByTestId('product-purchase-panel');
     const quantityInput = purchasePanel.getByRole('spinbutton', { name: 'Quantity' });
-    const cartButton = purchasePanel.getByRole('button', { name: 'Add to cart, selected quantity' });
+    const cartButton = purchasePanel.getByRole('button', { name: /^(Add to cart|Update cart)$/ });
 
     await quantityInput.scrollIntoViewIfNeeded();
     await expect(quantityInput).toHaveValue('1');
@@ -157,7 +157,7 @@ test.describe('Browse → Product Detail', () => {
     const purchasePanel = page.getByTestId('product-purchase-panel');
     const quantityInput = purchasePanel.getByRole('spinbutton', { name: 'Quantity' });
     const increase = purchasePanel.getByRole('button', { name: 'Increase quantity' });
-    const cartButton = purchasePanel.getByRole('button', { name: 'Add to cart, selected quantity' });
+    const cartButton = purchasePanel.getByRole('button', { name: /^(Add to cart|Update cart)$/ });
 
     await quantityInput.scrollIntoViewIfNeeded();
     await expect(quantityInput).toHaveValue('1');
