@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AlertTriangle } from '@lucide/vue';
 
-import { toTypedSchema } from '@vee-validate/zod';
+import { toTypedSchema } from '~/utils/zodFormSchema';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { toast } from '@/components/ui/toast';

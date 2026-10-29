@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CalendarDays, CheckCircle, EllipsisVertical, MapPin, PackageCheck } from '@lucide/vue';
 
-import { toTypedSchema } from '@vee-validate/zod';
+import { toTypedSchema } from '~/utils/zodFormSchema';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { format } from 'date-fns';
@@ -103,7 +103,7 @@ const formSchema = toTypedSchema(
     amountPaid: z.number().min(0, 'Amount must be a positive number'),
     currency: z.string().nonempty('Currency is required'),
     dop: z.date({
-      required_error: 'Payment date is required',
+      error: (issue) => (issue.input === undefined ? 'Payment date is required' : undefined),
     }),
     reference: z.string().optional(),
     comments: z.string().optional(),

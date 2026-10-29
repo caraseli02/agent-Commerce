@@ -2,7 +2,7 @@
 import { PlusCircleIcon } from '@lucide/vue';
 
 import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
+import { toTypedSchema } from '~/utils/zodFormSchema';
 import { z } from 'zod';
 import type { StripeCardInterface } from '~~/types';
 
