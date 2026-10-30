@@ -8,6 +8,7 @@ import {
   MOCK_CUSTOMER_USER_ID,
   parseMockToken,
 } from '~/utils/mockAuth';
+import { toCustomerAccountUser, verifyCustomerAccountToken } from './accountSession';
 
 type MockUser = UserInterface & {
   permissions: UserPermissionsEnum[];
@@ -214,11 +215,26 @@ export const getMockUserByCredentials = (credentials: { email?: string; clientCo
   });
 };
 
+/**
+ * The signed-in user behind an Authorization header: a seeded demo user (demo token) or a
+ * registered customer (signed account token, built from its verified claims). Null otherwise.
+ */
 export const getMockUserFromAuthHeader = (authorizationHeader?: string) => {
-  const userId = parseMockUserIdFromToken(authorizationHeader);
-  return getMockUserById(userId);
+  const demoUser = getMockUserById(parseDemoUserId(authorizationHeader));
+  if (demoUser) return demoUser;
+
+  const claims = verifyCustomerAccountToken(authorizationHeader);
+  return claims
+    ? toCustomerAccountUser({ id: claims.sub, email: claims.email, firstName: claims.given_name, lastName: claims.family_name })
+    : null;
 };
 
 export const parseMockUserIdFromToken = (authorizationHeader?: string | null) => {
+  return parseDemoUserId(authorizationHeader) || verifyCustomerAccountToken(authorizationHeader)?.sub || null;
+};
+
+// Demo tokens are unsigned and trivially forged, so they identify someone only in mock mode.
+const parseDemoUserId = (authorizationHeader?: string | null) => {
+  if (String(useRuntimeConfig().public.MOCK_MODE) !== 'true') return null;
   return parseMockToken(authorizationHeader)?.userId || null;
 };

@@ -33,7 +33,7 @@
             <p class="mb-4 text-xs leading-5 text-muted-foreground">
               Choose a demo role to continue. Passwords stay private unless you enter one.
             </p>
-            <LayoutAccountModalForm @signed-in="handleSignedIn" />
+            <LayoutAccountModalForm @signed-in="handleSignedIn" @close="handleSignedIn" />
           </section>
           <p class="mt-auto flex flex-wrap items-center justify-center gap-2 pt-5 text-xs text-muted-foreground">
             <SvgoMenuHelp class="h-4 w-4 !text-xs text-muted-foreground" />

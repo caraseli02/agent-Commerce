@@ -48,9 +48,7 @@ describe('checkout and account application seam', () => {
     const useSignupSource = source('app/composables/useSignup.ts');
 
     expect(useSignupSource).toContain("from '~/composables/api/auth'");
-    expect(useSignupSource).toContain("from '~/composables/api/orders'");
-    expect(useSignupSource).toContain('isSignupAddressValid');
-    expect(useSignupSource).toContain('registerSignupAccount');
+    expect(useSignupSource).toContain('registerCustomer');
   });
 
   it('routes control-panel orchestration through useControlPanel', () => {

@@ -48,6 +48,10 @@ _Avoid_: Production launch gate, full security audit, exhaustive route QA
 The Portfolio Demo relies on local mock authentication, checkout, and API data to support a credible reviewer walkthrough. Live Stripe payments, production backend replacement, production auth hardening, and real customer data persistence are outside the Portfolio Demo MVP.
 _Avoid_: Live integration scope, production backend, real payment flow
 
+**Customer Account**:
+A self-registered customer stored in PostgreSQL (`customer_accounts`, id `cus_…`, unique normalized email, scrypt password hash). It signs in with an HS256-signed session token that every server instance verifies with `AUTH_SESSION_SECRET`; it always has customer permissions and never borrows a seeded demo user's profile, addresses or orders. Seeded demo users (`server/utils/mockUsers.ts`) remain the separate, mock-mode-only Admin Preview and Customer Demo identities.
+_Avoid_: Mock registration, demo signup
+
 **Order Confirmation**:
 The post-checkout view of an Order that shows the reviewer or admin the order reference, payment summary, shipping and billing details, stock/backorder items, notes, and invoice action. Buyer-facing and Admin Preview routes may render it differently, but the Order facts should stay consistent.
 _Avoid_: Checkout creation, cart mutation, payment processing, dashboard order table

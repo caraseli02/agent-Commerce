@@ -20,6 +20,7 @@ const installH3Mocks = () => {
   vi.stubGlobal('readBody', async (event: { body?: unknown }) => event.body);
   vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers ?? {});
   vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: 'true' } }));
+  vi.stubGlobal('getRequestIP', () => '127.0.0.1');
   vi.stubGlobal('createError', (payload: { statusCode: number; statusMessage: string; data?: unknown }) =>
     Object.assign(new Error(payload.statusMessage), payload),
   );

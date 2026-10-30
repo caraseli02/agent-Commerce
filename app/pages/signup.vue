@@ -1,428 +1,78 @@
 <template>
-  <div class="min-h-screen md:flex">
-    <SignupSteps :current-step="currentStep" :selected-type="selectedType" />
-    <SignupSelectMenu
-      v-if="currentStep === 0"
-      :selected-type="selectedType"
-      @set-type="setSelectedType"
-      @set-business-type="setSelectedBusinessType"
-      @continue="continueFromSelectMenu"
-    />
-    <SignupBusinessDetails
-      v-if="currentStep === 1 && (selectedType === 'business' || selectedType === 'sole-trader')"
-      v-model="vatPayer"
-      :selected-type="selectedType === 'sole-trader' ? '' : selectedBusinessType"
-      @back="backToSelectMenu()"
-      @continue="handleBusinessDetailsContinue"
-    />
-    <SignupPersonalDetails
-      v-else-if="currentStep === 1 && selectedType === 'personal'"
-      @back="backToSelectMenu()"
-      @continue="handlePersonalDetailsContinue"
-    />
-    <SignupContactDetails v-if="currentStep === 2" @back="currentStep--" @continue="handleContactDetailsContinue" />
-    <SignupProfileDetails v-if="currentStep === 3" @back="currentStep--" @continue="handleSubmit" />
-    <SignupFinish v-if="currentStep === 4" />
-  </div>
+  <main class="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <div class="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+      <h1 class="text-2xl font-semibold text-foreground">Create your account</h1>
+      <p class="mt-1 text-sm text-muted-foreground">
+        Already have one?
+        <NuxtLink to="/?signin=true" class="font-medium text-blue-500 hover:underline">Sign in</NuxtLink>
+      </p>
+
+      <form novalidate class="mt-6 grid gap-4" aria-label="Create account" @submit.prevent="handleSubmit">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormInput v-model="form.firstName" size="lg" label="First name" :error="errors.firstName" />
+          <FormInput v-model="form.lastName" size="lg" label="Last name" :error="errors.lastName" />
+        </div>
+        <FormInput v-model="form.email" size="lg" type="email" label="Email" placeholder="you@example.com" :error="errors.email" />
+        <FormPassword v-model="form.password" size="lg" label="Password" placeholder="At least 8 characters" :error="errors.password" />
+
+        <UiButton type="submit" class="min-h-11 w-full" :disabled="isSubmitting" :aria-busy="isSubmitting">
+          {{ isSubmitting ? 'Creating account…' : 'Create account' }}
+        </UiButton>
+        <p v-if="formError" role="alert" class="rounded bg-rose-600 p-2 text-sm text-white">{{ formError }}</p>
+      </form>
+    </div>
+  </main>
 </template>
 
 <script setup lang="ts">
-import {
-  AccountType,
-  type FirebaseBusinessAccount as SignupBusinessPayload,
-  type FirebasePersonalAccount as SignupPersonalPayload,
-  type InputObject,
-  type SignupAccountType,
-  type CountryType,
-  type SignupBusinessDetails as SignupBusinessDetailsType,
-  type SignupPersonalDetails as SignupPersonalDetailsType,
-  type StringInputObject,
-  getCountryTypeValue,
-  getInputStringValue,
-  toInputObject,
-} from '~~/types';
-import { useToast } from '@/components/ui/toast/use-toast';
 import { useSignup } from '~/composables/useSignup';
-import { useSignupState } from '@/composables/signup/useSignupState';
 
-const { checkForInputErrors, checkContactConfirmationEmail, checkProfileConfirmationEmail } = useFormValidation();
+definePageMeta({ layout: 'empty' });
+useHead({ title: 'Create account' });
 
-const { toast } = useToast();
+type Field = 'firstName' | 'lastName' | 'email' | 'password';
 
-const { isSignupAddressValid, registerSignupAccount } = useSignup();
+const form = reactive<Record<Field, string>>({ firstName: '', lastName: '', email: '', password: '' });
+const errors = reactive<Record<Field, string>>({ firstName: '', lastName: '', email: '', password: '' });
+const formError = ref('');
+const isSubmitting = ref(false);
+const { registerCustomer } = useSignup();
 
-const {
-  currentStep,
-  selectedType,
-  selectedBusinessType,
-  vatPayer,
-  businessDetails,
-  personalDetails,
-  contactDetails,
-  profileDetails,
-  clearFormData,
-} = useSignupState();
-
-const setSelectedType = (value: SignupAccountType | '') => {
-  selectedType.value = value;
-};
-
-const setSelectedBusinessType = (value: string) => {
-  selectedBusinessType.value = value;
-};
-
-const continueFromSelectMenu = () => {
-  if (!selectedType.value) {
-    return;
-  }
-
-  currentStep.value++;
-};
-
-const handleBusinessDetailsContinue = async () => {
-  let hasError = false;
-  if (selectedType.value === 'business') {
-    hasError = checkForInputErrors([
-      businessDetails.value.fullCompanyName,
-      businessDetails.value.companyRegistrationNumber,
-      toInputObject(businessDetails.value.country.value),
-      toInputObject(businessDetails.value.region.value),
-      businessDetails.value.city,
-      businessDetails.value.postcode,
-      businessDetails.value.addressLine1,
-    ]);
-    if (selectedBusinessType.value !== 'agent') {
-      if (vatPayer.value && businessDetails.value.vatNumber) {
-        hasError = checkForInputErrors([businessDetails.value.vatNumber]);
-      }
-    }
-  } else if (selectedType.value === 'sole-trader') {
-    hasError = checkForInputErrors([
-      businessDetails.value.fullCompanyName,
-      businessDetails.value.companyRegistrationNumber,
-      toInputObject(businessDetails.value.country.value),
-      toInputObject(businessDetails.value.region.value),
-      businessDetails.value.city,
-      businessDetails.value.postcode,
-      businessDetails.value.addressLine1,
-    ]);
-  }
-
-  // Empty fields already show inline errors; only verify a complete address.
-  if (hasError) return;
-
-  const addressValid = await isSignupAddressValid({
-    country: getCountryTypeValue(businessDetails.value.country),
-    region: getCountryTypeValue(businessDetails.value.region),
-    city: businessDetails.value.city.value,
-    postcode: businessDetails.value.postcode.value,
-    name1: businessDetails.value.addressLine1.value,
-    name2: businessDetails.value.addressLine2.value,
-    default: false,
-  });
-
-  if (!addressValid) {
-    hasError = true;
-    toast({
-      variant: 'destructive',
-      title: 'Address not recognised',
-      description: 'Check the city, postcode and street, then continue.',
-    });
-    return;
-  }
-
-  if (!hasError) {
-    currentStep.value++;
-  }
-};
-
-const handlePersonalDetailsContinue = async () => {
-  let hasError = checkForInputErrors([
-    personalDetails.value.firstName,
-    personalDetails.value.lastName,
-    toInputObject(personalDetails.value.country),
-    toInputObject(personalDetails.value.region),
-    personalDetails.value.city,
-    personalDetails.value.postcode,
-    personalDetails.value.addressLine1,
-  ]);
-
-  // Empty fields already show inline errors; only verify a complete address.
-  if (hasError) return;
-
-  const addressValid = await isSignupAddressValid({
-    country: getInputStringValue(personalDetails.value.country),
-    region: getInputStringValue(personalDetails.value.region),
-    city: personalDetails.value.city.value,
-    postcode: personalDetails.value.postcode.value,
-    name1: personalDetails.value.addressLine1.value,
-    name2: personalDetails.value.addressLine2.value,
-    default: false,
-  });
-
-  if (!addressValid) {
-    hasError = true;
-    toast({
-      variant: 'destructive',
-      title: 'Address not recognised',
-      description: 'Check the city, postcode and street, then continue.',
-    });
-    return;
-  }
-
-  if (!hasError) {
-    currentStep.value++;
-  }
-};
-
-const handleContactDetailsContinue = () => {
-  let inputsToCheck = [contactDetails.value.phone];
-
-  if (selectedType.value === 'personal') {
-    inputsToCheck.push(contactDetails.value.email, contactDetails.value.confirmEmail);
-  } else if (selectedType.value === 'business' || selectedType.value === 'sole-trader') {
-    inputsToCheck.push(
-      contactDetails.value.firstName,
-      contactDetails.value.lastName,
-      contactDetails.value.companyEmail,
-      contactDetails.value.confirmCompanyEmail,
-    );
-  }
-
-  const hasError =
-    checkForInputErrors(inputsToCheck) ||
-    checkContactConfirmationEmail({
-      email: contactDetails.value.email,
-      confirmEmail: contactDetails.value.confirmEmail,
-    });
-
-  if (!hasError) {
-    currentStep.value++;
-    inputsToCheck = [];
-  }
-};
-
-function mapType(selected: string): AccountType {
-  switch (selected) {
-    case 'personal':
-      return AccountType.Personal;
-    case 'sole-trader':
-      return AccountType.SoleTrader;
-    case 'business':
-      if (selectedBusinessType.value === 'executive') {
-        return AccountType.Business;
-      } else if (selectedBusinessType.value === 'agent') {
-        return AccountType.Agent;
-      }
-      break;
-    default:
-      break;
-  }
-  // Return a general default or handle error, if no cases match
-  throw new Error('Invalid account type selection');
-}
-
-const backToSelectMenu = async () => {
-  const personal = useState<SignupPersonalDetailsType>('signup-personal-details');
-  const business = useState<SignupBusinessDetailsType>('signup-business-details');
-
-  (Object.keys(personal.value) as Array<keyof SignupPersonalDetailsType>).forEach((key) => {
-    personal.value[key].error = '';
-  });
-  (Object.keys(business.value) as Array<keyof SignupBusinessDetailsType>).forEach((key) => {
-    const field = business.value[key];
-    if (!field) {
-      return;
-    }
-
-    if (key === 'country' || key === 'region') {
-      (field as CountryType).value.error = '';
-    } else {
-      (field as StringInputObject).error = '';
-    }
-  });
-  currentStep.value--;
+const validate = () => {
+  errors.firstName = form.firstName.trim() ? '' : 'First name is required';
+  errors.lastName = form.lastName.trim() ? '' : 'Last name is required';
+  errors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()) ? '' : 'Enter a valid email address';
+  errors.password = form.password.length >= 8 ? '' : 'Password must be at least 8 characters';
+  return !Object.values(errors).some(Boolean);
 };
 
 const handleSubmit = async () => {
-  let inputsToCheck: InputObject[] = [];
+  if (isSubmitting.value) return;
+  formError.value = '';
+  if (!validate()) return;
 
-  inputsToCheck = [
-    profileDetails.value.accountEmail,
-    profileDetails.value.confirmAccountEmail,
-    profileDetails.value.password,
-    profileDetails.value.repeatPassword,
-  ];
+  isSubmitting.value = true;
+  try {
+    await registerCustomer({ ...form });
+    await navigateTo('/dashboard/client?tab=home');
+  } catch (error: unknown) {
+    const apiError = error as {
+      statusCode?: number;
+      response?: { status?: number };
+      data?: { data?: { fieldErrors?: Record<string, string[]> } };
+    };
+    const status = apiError.response?.status || apiError.statusCode;
+    const fieldErrors = apiError.data?.data?.fieldErrors || {};
+    for (const field of Object.keys(errors) as Field[]) errors[field] = fieldErrors[field]?.[0] || '';
 
-  const hasError =
-    checkForInputErrors(inputsToCheck) ||
-    checkProfileConfirmationEmail({
-      accountEmail: profileDetails.value.accountEmail,
-      confirmAccountEmail: profileDetails.value.confirmAccountEmail,
-    });
-
-  if (!hasError) {
-    let payload: SignupBusinessPayload | SignupPersonalPayload | null = null;
-
-    if (selectedType.value === 'personal') {
-      const personalPayload: SignupPersonalPayload = {
-        account: {
-          accountType: mapType(selectedType.value),
-          role: 2,
-          profileDetails: {
-            email: profileDetails.value.accountEmail.value,
-            password: profileDetails.value.password.value,
-          },
-          contactDetails: {
-            firstName: personalDetails.value.firstName.value,
-            lastName: personalDetails.value.lastName.value,
-            phone: contactDetails.value.phone.value,
-            email: contactDetails.value.email.value,
-          },
-          personalDetails: {
-            firstName: personalDetails.value.firstName.value,
-            lastName: personalDetails.value.lastName.value,
-            address: {
-              _id: '',
-              name1: personalDetails.value.addressLine1.value,
-              name2: personalDetails.value.addressLine2.value,
-              country: getInputStringValue(personalDetails.value.country),
-              region: getInputStringValue(personalDetails.value.region),
-              city: personalDetails.value.city.value,
-              postcode: personalDetails.value.postcode.value,
-            },
-            shippingAddress: [
-              {
-                name1: personalDetails.value.addressLine1.value,
-                name2: personalDetails.value.addressLine2.value,
-                country: getInputStringValue(personalDetails.value.country),
-                region: getInputStringValue(personalDetails.value.region),
-                city: personalDetails.value.city.value,
-                postcode: personalDetails.value.postcode.value,
-                default: true,
-              },
-            ],
-            billingAddress: [
-              {
-                name1: personalDetails.value.addressLine1.value,
-                name2: personalDetails.value.addressLine2.value,
-                country: getInputStringValue(personalDetails.value.country),
-                region: getInputStringValue(personalDetails.value.region),
-                city: personalDetails.value.city.value,
-                postcode: personalDetails.value.postcode.value,
-                default: true,
-              },
-            ],
-          },
-          adminSettings: {
-            marketingPreferences: {
-              newsletter: { email: profileDetails.value.subscribeToNewsletter },
-              cookiesPolicy: { email: profileDetails.value.agreeToTerms },
-            },
-          },
-        },
-      };
-
-      payload = Object.assign({}, personalPayload);
-    } else {
-      const businessPayload: SignupBusinessPayload = {
-        account: {
-          accountType: mapType(selectedType.value),
-          role: 2,
-          profileDetails: {
-            email: profileDetails.value.accountEmail.value,
-            password: profileDetails.value.password.value,
-          },
-          companyDetails: {
-            name: businessDetails.value.fullCompanyName.value,
-            registrationNumber: businessDetails.value.companyRegistrationNumber.value,
-            vat: businessDetails.value.vatNumber?.value,
-            address: {
-              _id: '',
-              name1: businessDetails.value.addressLine1.value,
-              name2: businessDetails.value.addressLine2.value,
-              country: getCountryTypeValue(businessDetails.value.country),
-              region: getCountryTypeValue(businessDetails.value.region),
-              city: businessDetails.value.city.value,
-              postcode: businessDetails.value.postcode.value,
-            },
-            shippingAddress: [
-              {
-                name1: businessDetails.value.addressLine1.value,
-                name2: businessDetails.value.addressLine2.value,
-                country: getCountryTypeValue(businessDetails.value.country),
-                region: getCountryTypeValue(businessDetails.value.region),
-                city: businessDetails.value.city.value,
-                postcode: businessDetails.value.postcode.value,
-                default: true,
-              },
-            ],
-            billingAddress: [
-              {
-                name1: businessDetails.value.addressLine1.value,
-                name2: businessDetails.value.addressLine2.value,
-                country: getCountryTypeValue(businessDetails.value.country),
-                region: getCountryTypeValue(businessDetails.value.region),
-                city: businessDetails.value.city.value,
-                postcode: businessDetails.value.postcode.value,
-                default: true,
-              },
-            ],
-          },
-          contactDetails: {
-            firstName: contactDetails.value.firstName.value,
-            lastName: contactDetails.value.lastName.value,
-            phone: contactDetails.value.phone.value,
-            email: contactDetails.value.companyEmail.value,
-          },
-          adminSettings: {
-            marketingPreferences: {
-              newsletter: { email: profileDetails.value.subscribeToNewsletter },
-              cookiesPolicy: { email: profileDetails.value.agreeToTerms },
-            },
-          },
-        },
-      };
-      payload = Object.assign({}, businessPayload);
-    }
-
-    try {
-      await registerSignupAccount({
-        payload,
-      });
-
-      toast({
-        variant: 'success',
-        title: 'Success',
-        description: 'Account created successfully',
-      });
-
-      // TODO: Notification banner
-    } catch (error) {
-      console.error('Failed to create account', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'An error occurred while creating your account',
-      });
-      return;
-    } finally {
-      clearFormData();
-    }
-
-    currentStep.value++;
+    if (status === 409) errors.email = 'An account with this email already exists. Sign in instead.';
+    else if (status === 429) formError.value = 'Too many attempts. Please wait a few minutes and try again.';
+    else if (status === 400) return;
+    else if (!status && error instanceof Error && error.message.startsWith('Account created')) {
+      formError.value = 'Your account was created, but we could not sign you in. Please sign in.';
+    } else formError.value = 'We could not create your account right now. Please try again.';
+  } finally {
+    isSubmitting.value = false;
   }
 };
-
-definePageMeta({
-  layout: 'empty',
-});
-
-useHead({
-  title: 'Signup',
-});
-
-onBeforeRouteLeave(() => {
-  clearFormData();
-});
 </script>

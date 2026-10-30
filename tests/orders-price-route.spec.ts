@@ -17,6 +17,7 @@ vi.mock('~~/server/domain/cart', () => ({
 describe('orders pricing route', () => {
   beforeAll(() => {
     vi.stubGlobal('defineEventHandler', (handler: unknown) => handler);
+    vi.stubGlobal('useRuntimeConfig', () => ({ public: { MOCK_MODE: true } }));
     vi.stubGlobal('readBody', (event: { body?: unknown }) => event.body);
     vi.stubGlobal('getHeaders', (event: { headers?: Record<string, string> }) => event.headers || {});
   });

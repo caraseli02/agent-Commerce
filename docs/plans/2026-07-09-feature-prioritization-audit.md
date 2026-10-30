@@ -80,6 +80,7 @@ Start with small, reversible cleanup before deleting large feature folders.
    - Follow-up: delete favorites modal/API code only after confirming no account/dashboard surface depends on it.
 
 5. De-scope Signup and account-action extras.
+   - **Superseded for signup (owner, 2026-10-27, #635):** signup is kept as a minimal persistent customer registration flow instead of being removed.
 
    - Rationale: `docs/ui-review-known-issues.md` already marks signup as de-scoped.
    - Suggested action: keep direct auth sign-in, remove demo links into signup, and delete `/actions` if unused.

@@ -133,7 +133,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
         "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_name LIKE 'checkout_%'",
       );
 
-      expect(Number(migrationCount.rows[0]?.total)).toBe(11);
+      expect(Number(migrationCount.rows[0]?.total)).toBe(12);
       expect(tables.rows.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([
           'checkout_claims',
@@ -477,7 +477,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       );
       const refundsBeforeReplay = (await pool.query('SELECT * FROM checkout_refunds ORDER BY id')).rows;
       const historyBefore = (await pool.query('SELECT * FROM checkout_schema_migrations ORDER BY filename')).rows;
-      expect(historyBefore).toHaveLength(11);
+      expect(historyBefore).toHaveLength(12);
       expect(historyBefore[5]).toMatchObject({
         filename: '006_paid_recovery_claim.sql',
         checksum: createHash('sha256').update(source('server/infrastructure/migrations/006_paid_recovery_claim.sql')).digest('hex'),
@@ -553,7 +553,7 @@ describe('checkout PostgreSQL persistence boundary', () => {
       await migrate(url.toString());
       await migrate(url.toString());
       const migrations = await pool.query<{ total: string }>('SELECT COUNT(*) AS total FROM checkout_schema_migrations');
-      expect(Number(migrations.rows[0]?.total)).toBe(11);
+      expect(Number(migrations.rows[0]?.total)).toBe(12);
 
       const existing = await pool.query<{
         status: string;

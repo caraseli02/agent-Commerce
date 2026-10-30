@@ -71,6 +71,10 @@
       <SignINIcon v-else class="mr-2 h-6 w-6" />
       <span class="text-sm font-medium"> Sign In </span>
     </UiButton>
+    <p class="mt-3 text-center text-xs text-muted-foreground">
+      New here?
+      <NuxtLink to="/signup" class="font-medium text-blue-500 hover:underline" @click="emits('close')">Create an account</NuxtLink>
+    </p>
     <div v-if="errorResponse.show" role="alert" class="bg-rose-600 p-2 mt-3 rounded">
       <p class="text-white">
         {{ errorResponse.description }}
@@ -81,23 +85,15 @@
 
 <script setup lang="ts">
 import SignINIcon from '@/assets/icons/menu/in.svg';
-import { AccountRole, type SigninResponse, type UserInfoJWT } from '~~/types';
-import type { UserPermissionsEnum } from '~~/types/auth/permissions';
-import { useAuthStore } from '~/store/authStore';
-import type { UserInterface } from '~~/types/auth/user-interface';
-import { useCartStore } from '~/store/cartStore';
-import { useNotificationStore } from '~/store/notificationStore';
-import { usePricingStore } from '~/store/pricingStore';
-import { fetchUserDetails as fetchAuthUserDetails, login as authLogin } from '~/composables/api/auth';
-import { fetchSettings as fetchGeneralSettings } from '~/composables/api/settings';
+import { AccountRole, type SigninResponse } from '~~/types';
+import { login as authLogin } from '~/composables/api/auth';
+import { useSessionSignIn } from '~/composables/useSessionSignIn';
 
 const { checkForInputErrors } = useFormValidation();
-const config = useRuntimeConfig();
 const route = useRoute();
-const cartStore = useCartStore();
-const pricingStore = usePricingStore();
+const { startSession } = useSessionSignIn();
 const emits = defineEmits<{
-  (e: 'signed-in'): void;
+  (e: 'signed-in' | 'close'): void;
 }>();
 
 const email = ref({
@@ -157,8 +153,6 @@ const errorResponse = reactive({
   code: 0,
 });
 
-const authStore = useAuthStore();
-
 const setDemoCredentialsByRole = (role: LoginRole) => {
   email.value.value = LOGIN_CREDENTIALS[role].email;
   password.value.value = '';
@@ -186,35 +180,6 @@ const normalizeSigninResponse = (response: SigninResponse | null | undefined) =>
   const user = response?.user || response?.data?.user;
 
   return { token, user };
-};
-
-const buildTokenPayloadFromMockUser = (user: UserInterface): UserInfoJWT => {
-  const now = Math.floor(Date.now() / 1000);
-  const userWithPermissions = user as UserInterface & { permissions?: unknown[] };
-  const safeUserId = user._id || 'mock-user-1';
-  const safeEmail = user.contactDetails?.email || LOGIN_CREDENTIALS[selectedLoginRole.value].email;
-
-  return {
-    aud: 'mock-aud',
-    auth_time: now,
-    email: safeEmail,
-    email_verified: true,
-    exp: now + 60 * 60,
-    firebase: {
-      identities: {
-        email: [safeEmail],
-        'google.com': [safeEmail],
-      },
-      sign_in_provider: 'password',
-    },
-    iat: now,
-    iss: 'mock-issuer',
-    name: `${user.contactDetails?.firstName || 'Demo'} ${user.contactDetails?.lastName || 'User'}`.trim(),
-    picture: 'https://ui-avatars.com/api/?name=Demo+User',
-    sub: safeUserId,
-    user_id: safeUserId,
-    permissions: (userWithPermissions.permissions || []) as UserPermissionsEnum[],
-  };
 };
 
 const getRoleRedirectPath = (role?: AccountRole) => {
@@ -283,13 +248,7 @@ const handleSignIn = async () => {
       throw response;
     }
 
-    const parsedTokenResponse =
-      config.public.MOCK_MODE && user ? buildTokenPayloadFromMockUser(user) : (useParser().parseJwt(token) as UserInfoJWT);
-
-    authStore.addUser(parsedTokenResponse);
-    authStore.addToken(token);
-
-    const userDetails = await fetchUserDetails(parsedTokenResponse.user_id || user?._id, user, token);
+    const userDetails = await startSession(token, user);
     if (!userDetails) {
       throw new Error('Failed to resolve user details');
     }
@@ -309,45 +268,5 @@ const handleSignIn = async () => {
   } finally {
     isLoading.value = false;
   }
-};
-
-const fetchUserDetails = async (userId?: string, fallbackUser?: UserInterface, token?: string) => {
-  let userDetails = fallbackUser || null;
-
-  if (userId) {
-    try {
-      const detailsResponse = await fetchAuthUserDetails(userId, token);
-
-      if (detailsResponse.status === 'success') {
-        userDetails = detailsResponse.data as UserInterface;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  if (!userDetails) {
-    errorResponse.show = true;
-    errorResponse.description = 'Unable to load user details.';
-    return null;
-  }
-
-  await authStore.addUserDetail(userDetails as UserInterface);
-
-  if (userDetails) {
-    try {
-      const response = await fetchGeneralSettings();
-      if (response.status === 'success') {
-        authStore.addGeneralSettings(response.data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  await Promise.allSettled([cartStore.updateAndReturnCart(), authStore.addUserCards(), pricingStore.updateAndReturnPricing()]);
-
-  useNotificationStore().requestRefresh();
-  return userDetails as UserInterface;
 };
 </script>

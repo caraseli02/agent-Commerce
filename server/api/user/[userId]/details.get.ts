@@ -1,12 +1,20 @@
 import { UserPermissionsEnum } from '~~/types/auth/permissions';
 import { getMockUserById, getMockUserFromAuthHeader } from '~~/server/utils/mockUsers';
 import { getRuntimeAddresses } from '~~/server/utils/mockRuntimeAddresses';
+import { isCustomerAccountId, toCustomerAccountUser } from '~~/server/utils/accountSession';
+import { findCustomerAccountById } from '~~/server/utils/customerAccounts';
 
-export default defineEventHandler((event) => {
+// Registered customers come from PostgreSQL; seeded demo users from the mock fixtures.
+const findUser = async (userId?: string) => {
+  if (!isCustomerAccountId(userId)) return getMockUserById(userId);
+  const account = await findCustomerAccountById(userId);
+  return account ? toCustomerAccountUser(account) : null;
+};
+
+export default defineEventHandler(async (event) => {
   const headers = getHeaders(event);
   const requester = getMockUserFromAuthHeader(headers.authorization);
   const userId = getRouterParam(event, 'userId');
-  const user = getMockUserById(userId);
 
   if (!requester) {
     throw createError({
@@ -15,6 +23,7 @@ export default defineEventHandler((event) => {
     });
   }
 
+  const user = await findUser(userId);
   if (!user) {
     throw createError({
       statusCode: 404,

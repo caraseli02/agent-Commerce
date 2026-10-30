@@ -1,6 +1,7 @@
 import { mockCustomers, mockOrders, mockTransactions } from '~~/server/utils/mockDashboardData';
 import { mockProducts } from '~~/server/utils/mockProducts';
 import { MOCK_CUSTOMER_USER_ID } from '~/utils/mockAuth';
+import { isCustomerAccountId } from '~~/server/utils/accountSession';
 
 type MockDashboardOrder = (typeof mockOrders)[number];
 type MockDashboardOrderItem = MockDashboardOrder['itemsDetails'][number];
@@ -98,6 +99,8 @@ export const getDemoCustomer = (userId?: string) => {
 };
 
 export const getDemoAddresses = (userId?: string) => {
+  // Registered customers start with their own (empty) address book, never a demo customer's.
+  if (isCustomerAccountId(userId)) return { shippingAddress: [], billingAddress: [] };
   const customer = getDemoCustomer(userId);
   const name = splitName(customer.name);
 
@@ -131,6 +134,9 @@ export const getDemoAddresses = (userId?: string) => {
 };
 
 export const getDemoCredit = (userId?: string) => {
+  if (isCustomerAccountId(userId)) {
+    return { limit: 0, spent: 0, available: 0, dueDate: '', tillDue: '', term: 0, freeze: false, active: false };
+  }
   const customerOrders = getDemoOrdersForUser(userId);
   const spent = customerOrders.reduce((sum, order) => sum + Number(order.total || 0), 0);
   const limit = Math.max(12000, Math.ceil(spent / 1000) * 1000 + 4000);
@@ -445,6 +451,7 @@ export const getDemoOrders = (userId?: string) => {
 };
 
 export const getDemoOrdersForUser = (userId?: string) => {
+  if (isCustomerAccountId(userId)) return [];
   const customerId = resolveCustomerId(userId);
 
   return getDemoOrders(userId).filter((order) => {
@@ -472,6 +479,7 @@ export const findDemoOrder = (id?: string, userId?: string) => {
 };
 
 export const getDemoTransactions = (userId?: string) => {
+  if (isCustomerAccountId(userId)) return [];
   const customerId = resolveCustomerId(userId);
 
   return mockTransactions
@@ -504,7 +512,8 @@ export const getClientDashboardData = (userId?: string) => {
     .map((item) => item.productEntity)
     .filter(Boolean);
 
-  const viewHistory = mockProducts.slice(0, 8).map((product, index) => ({
+  const isRegisteredCustomer = isCustomerAccountId(userId);
+  const viewHistory = (isRegisteredCustomer ? [] : mockProducts.slice(0, 8)).map((product, index) => ({
     _id: `history-${index + 1}`,
     productId: product._id,
     count: Math.max(1, 8 - index),
@@ -521,8 +530,8 @@ export const getClientDashboardData = (userId?: string) => {
       shortId: order.shortId,
     })),
     favorites: {
-      folders_number: 3,
-      products_number: 12,
+      folders_number: isRegisteredCustomer ? 0 : 3,
+      products_number: isRegisteredCustomer ? 0 : 12,
     },
     totalOrders: {
       total_orders: totalOrders,
@@ -538,12 +547,12 @@ export const getClientDashboardData = (userId?: string) => {
     monthHotSale: hotSale,
     metadata: {
       ordersCount: totalOrders,
-      favoritesCount: 12,
-      messagesCount: 2,
-      organizationCount: 1,
-      agentsCount: 2,
+      favoritesCount: isRegisteredCustomer ? 0 : 12,
+      messagesCount: isRegisteredCustomer ? 0 : 2,
+      organizationCount: isRegisteredCustomer ? 0 : 1,
+      agentsCount: isRegisteredCustomer ? 0 : 2,
       transactionsCount: getDemoTransactions(userId).length,
-      auditLogsCount: 4,
+      auditLogsCount: isRegisteredCustomer ? 0 : 4,
     },
   };
 };

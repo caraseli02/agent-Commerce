@@ -15,7 +15,7 @@ Previous rounds (#313/#315, #394, #401, #410, #421) covered modals only. The mod
 2. **Styling:** use the current `components/ui` variants as they are. Visual drift to the shadcn look is accepted. Avoid adding one-off variants; use `class` overrides only for layout (position, width, display), not to recreate the old look.
 3. **Execution:** research first (done; findings below), then one dedicated PR per slice, run **one after another** (WIP=1 is unchanged). Mechanical slices are implemented by Haiku subagents and reviewed by the orchestrating session; behavior-sensitive slices use Sonnet/Opus.
 4. **Validation:** every slice proves parity with a before/after UI test (see Migration parity harness) in addition to the normal gates.
-5. **Signup is deleted, not migrated.** It is `Won't` in `docs/plans/2026-07-09-feature-prioritization-audit.md`.
+5. **Signup is rebuilt, not deleted (revised 2026-10-27, #635).** The multi-step wizard was replaced by one short persistent customer registration form on `/signup` built from `components/ui` primitives; its 17 native controls left the baseline with it. The earlier deletion decision is superseded.
 6. **#530 (move sources to `app/`) lands first.** Paths in this plan are relative to the Nuxt source directory, which becomes `app/` after #530.
 7. **Tracking:** one GitHub epic plus child issues, and this plan doc.
 
@@ -23,17 +23,17 @@ Previous rounds (#313/#315, #394, #401, #410, #421) covered modals only. The mod
 
 100 files: 216 `<button>`, 34 `<input>`, 47 `<label>`, 3 `<textarea>`, 1 `<table>`, 0 `<select>`.
 
-| Area                              | Elements |
-| --------------------------------- | -------: |
-| components/dashboard              |       91 |
-| components/order-summary          |       51 |
-| components/search                 |       40 |
-| components/layout                 |       36 |
-| components/global                 |       24 |
-| components/signup (deleted in D1) |       17 |
-| components/product                |       11 |
-| components/shared                 |        9 |
-| everything else (14 files)        |      ~21 |
+| Area                               | Elements |
+| ---------------------------------- | -------: |
+| components/dashboard               |       91 |
+| components/order-summary           |       51 |
+| components/search                  |       40 |
+| components/layout                  |       36 |
+| components/global                  |       24 |
+| components/signup (replaced in A1) |       17 |
+| components/product                 |       11 |
+| components/shared                  |        9 |
+| everything else (14 files)         |      ~21 |
 
 Reproduce: parse each tracked `.vue` (minus `components/ui/`) with `@vue/compiler-sfc`, strip HTML comments from `descriptor.template.content`, count `<tag` openings. A line-based grep undercounts by about 60% because many tags break onto a new line after `<button`.
 
@@ -111,7 +111,7 @@ Every slice also adds an `aria-label` to the icon-only buttons in its files that
 |     1 | F0 (#632) | Migration parity harness: spec, scenario manifest, `pnpm test:parity`, docs in `docs/agents/verification.md`                                                                                                                              | Claude   | Sonnet |
 |     2 | F1 (#633) | Ratchet: rewrite `verify-ui-conventions.mjs` to SFC-parse every `.vue` outside `components/ui/`, count the 5 tags, honor `ui-native:` comments, compare against a per-file count baseline JSON that can only shrink; update spec and docs | Claude   | Sonnet |
 |     3 | F2 (#634) | Primitive gaps: add `ui/radio-group` (radix `RadioGroupRoot`), fix the `link` variant hover class, document the `UiInput` ref pattern                                                                                                     | Claude   | Sonnet |
-|     4 | D1 (#635) | Delete signup: `pages/signup.vue`, `components/signup/*`, `composables/signup/*`, links in `layout/account-modal/Links.vue`, specs that reference it                                                                                      | Claude   | Haiku  |
+|     4 | A1 (#635) | Rebuild signup as one persistent customer registration form (`pages/signup.vue`); remove `components/signup/*`, `composables/signup/*` and the mock `/api/auth/signup` route (scope revised 2026-10-27)                                   | Claude   | Opus   |
 |     5 | X1 (#636) | Bug: forgot-password / password-reset run the action twice per click                                                                                                                                                                      | Claude   | Haiku  |
 |     6 | X2 (#637) | Bug: `settings-view/Settings.vue:78` `@:click` never fires                                                                                                                                                                                | Claude   | Haiku  |
 |     7 | M1 (#638) | Auth pages: `pages/forgot-password`, `password-reset`, `verify-email`                                                                                                                                                                     | Claude   | Haiku  |
