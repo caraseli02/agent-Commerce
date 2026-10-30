@@ -365,6 +365,12 @@
       "tests": ["home", "search", "product", "cart", "orders"],
       "reason": "Dark theme follow-up (#759): light hex fills gain dark: pairs (dark:bg-muted / dark:bg-card / dark:bg-slate-800) and three #F2F2F2 close buttons plus one hover become bg-accent / hover:bg-accent, which is hsl(0 0% 95%) = #F2F2F2 in light. Light-mode output is intended to be unchanged; only .dark renders differ. No store, composable, layout or shared style changes.",
       "consumers": "search.vue, SearchFiltersModal and AddRemoveSearchFilter render on /search (search group); product/[slug].vue and CustomProductPartNumberModal on /product (product group); favorites-cart-modal/cart/Index and order-summary BackOrderWarning/AdditionalDetails in the cart sheet and order summary (cart group); client-table/order/Index on the client dashboard orders tab (orders group); FormPassword, FormSelect and RegionalPreferencesModal sit behind the header sheets (home group); control-panel ProgressBar and customers/RecentTransactions are dashboard-only and outside the matrix, covered by the dark-mode browser pass. All five light groups are selected to prove light output is unchanged."
+    },
+    {
+      "fingerprint": "4076b4c7aa5178c4954897b5cddf05ca42c41eec00f2cd3acf9bea2834a25671",
+      "impact": "none",
+      "reason": "Only Vitest and its coverage provider change; clearMocks false preserves prior test semantics.",
+      "consumers": "Vitest config is consumed only by the test runner. Package scripts and application dependencies are unchanged. Traversing all production importer dependencies and optional snapshot edges confirms the same 931 production snapshots before/after; VueUse is unchanged. No storefront, cart, checkout, auth or dashboard route reads this test configuration or the changed test-only dependency cohort."
     }
   ]
 }
