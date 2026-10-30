@@ -59,8 +59,8 @@ The lock script is the installed copy of the reviewed `.factory/bin/run-lock.sh`
 
 1. If the local time (Europe/Madrid) is outside `claude-routine.run_window` in `.factory/factory.yaml`, print `Outside run window — skipped` and stop. Catch-up runs after sleep land here.
 2. Read `claude-routine.mode` from `.factory/factory.yaml`: `review-only` (skip steps 2, 4.1, 4.2 and 4.4; maintenance in 4.3 still runs) or `build`.
-3. **GitHub access.** `gh auth status` must pass; read its output, do not pipe it into other commands, and never print a token. Until Vlad adds the optional repo-only token (README setup step 5), this is his existing gh login, as he decided on 2026-10-07. If it fails, print `Claude routine: gh not authenticated` and stop.
-4. Environment: `node -v` must be 24.x (if not, run `. /Users/work/.local/share/agent-commerce/env.sh` first), `pnpm -v`, and `.env.local` must exist in the worktree (it provides `DATABASE_URL`; never print it). If anything is missing, print the missing prerequisite and stop. Do not install dependencies yet (item 7).
+3. **GitHub access.** `gh auth status` must pass; read its output, do not pipe it into other commands, and never print a token. Until Vlad adds the optional repo-only token (README setup step 5), this is his existing gh login, as he decided on 2026-10-07. If it fails, **fail loudly** (below) with the reason `gh not authenticated`.
+4. Environment: `node -v` must be 24.x (if not, run `. /Users/work/.local/share/agent-commerce/env.sh` first), `pnpm -v`, and `.env.local` must exist in the worktree (it provides `DATABASE_URL`; never print it). If anything is missing, **fail loudly** (below) with the missing prerequisite as the reason. Do not install dependencies yet (item 7).
 5. **Morning digest.** When the Madrid time is at or after `claude-routine.night_lane.digest_after` and the digest is due by the rule in `.factory/automations/claude-maintenance.md` §8 (one attempt per Madrid date, posted or failed), this run's one action is the digest; then finish (step 6).
 6. **Route first, cheaply.** Run `node scripts/owner-attention.mjs route` once (no dependencies needed) and read its one JSON line: `repair`, `build`, `review`, `improve` or `night`, with the issue or PR and a reason. It orders GitHub state the way steps 2–4 do, so it tells this run where to go without repeating every scan:
    - `repair` or `build` with an `issue` that is a current claim → step 2; `review` → step 3; `build` with an eligible issue → step 4.1 (its overlap check still decides); `improve` → step 4.4; `night` → step 4.3.
@@ -68,6 +68,20 @@ The lock script is the installed copy of the reviewed `.factory/bin/run-lock.sh`
    - The routes' own rules remain the authority: confirm the chosen route's conditions as its step describes before acting, and when they do not hold, fall through in the usual order (step 2 → 3 → 4.1 → 4.4 → 4.3).
    - A failing `route` command is not a blocker: say so in the summary and follow steps 2–4 in full.
 7. Run `pnpm install --frozen-lockfile` before the first step that builds, tests or runs the app. A run that only comments (digest, plan, learning) skips it.
+
+**Fail loudly.** A failed item 3 or 4 is a machine outage, not a quiet skip: it repeats every hour until a human fixes it, and Claude Desktop still records the run as succeeded (on 2026-10-29 every run from 12:00 to 16:00 stopped at item 3 and left no trace). Before stopping:
+
+1. Notify Vlad twice, with `<reason>` in plain words (no quotes). Run this on the Mac mini:
+
+   ```zsh
+   osascript -e 'display notification "<reason>. Every run stops here until it is fixed." with title "agent-Commerce routine failed" sound name "Basso"'
+   ```
+
+   Also call the `PushNotification` tool with `agent-Commerce routine failed: <reason>` (load it with ToolSearch when it is deferred). It runs outside the Bash sandbox and reaches his phone when Remote Control is on.
+
+2. Print `Claude routine failed: <reason>`, then finish with step 6, skipping 6.2 (it needs GitHub). The journal line has `action: "skipped"`, `result: "failed"`, `route: null` and `stop_reason: "<reason>"`.
+
+A notification that fails (no permission, sandbox) changes nothing else: say so in the summary; the journal line still records the failure.
 
 ## 2. Repair Claude's own PR (mode `build` only)
 
@@ -230,6 +244,6 @@ Every run works on its own run-local branch `claude/issue-<n>-run-<UTC timestamp
 
 1. `git checkout --detach origin/main` when the tree is clean (leave a dirty tree as it is and say so in the summary).
 2. **Refresh Vlad's board.** Run `node scripts/project-sync.mjs --apply` once. It recomputes the "agent-Commerce control" GitHub Project (who acts next on every open issue and PR) from labels, PRs and evaluator comments, and writes only that project. Record its last line, or the failure, as `project_sync` in the journal. A failure (missing `project` scope, network) never blocks or changes the run: say so in the summary and continue. Never edit the project any other way.
-3. Append one JSON line to Claude's activity journal `/Users/work/.local/share/agent-commerce/claude/events.jsonl` (outside every checkout; create the folder if needed): `time` (UTC ISO), `actor` (`claude-routine`), `mode`, `action` (`repair` | `review` | `build` | `improve` | `maintain` | `idle` | `skipped`), `route` (the step 1.6 output's `route`, or `null` when it failed), `issue`, `pr`, `head`, `verdict` (reviews), `task`, `check`, `findings`, `issues_filed` and `comments` (night lane), `worktrees_removed` (step 0.4), `project_sync` (step 6.2), `verification` (commands with outcomes), `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
+3. Append one JSON line to Claude's activity journal `/Users/work/.local/share/agent-commerce/claude/events.jsonl` (outside every checkout; create the folder if needed): `time` (UTC ISO), `actor` (`claude-routine`), `mode`, `action` (`repair` | `review` | `build` | `improve` | `maintain` | `idle` | `skipped`), `route` (the step 1.6 output's `route`, or `null` when it failed), `result` (`failed` when a guard stopped the run, step 1 **Fail loudly**; otherwise the route's own result, or `null`), `issue`, `pr`, `head`, `verdict` (reviews), `task`, `check`, `findings`, `issues_filed` and `comments` (night lane), `worktrees_removed` (step 0.4), `project_sync` (step 6.2), `verification` (commands with outcomes), `stop_reason`, and `telemetry` with its `source`. Use `null` for usage that is not exposed; never estimate it.
 4. Print a short summary: action, issue/PR, head, checks run with outcomes, and what a human should look at.
 5. **Last action:** the release (step 0.5): mark the run finished, then `/Users/work/.local/share/agent-commerce/bin/claude-run-lock release <LOCK_TOKEN>`.
