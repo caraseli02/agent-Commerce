@@ -16,6 +16,8 @@ export default defineConfig({
     },
   },
   test: {
+    // Preserve Vitest 4 mock history semantics after the Vitest 5 default changed.
+    clearMocks: false,
     fileParallelism: false,
     testTimeout: 30_000,
     include: ['tests/**/*.spec.ts'],
