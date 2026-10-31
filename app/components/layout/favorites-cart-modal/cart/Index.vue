@@ -67,7 +67,6 @@ const {
   refresh: refreshCartRead,
 } = useAsyncData(cartReadCacheKey('cart-panel'), () => loadCartRead(() => refreshCart()), { server: false });
 
-const items = ref<CartLineItem[]>([]);
 const hasItems = computed(() => items.value.length > 0);
 
 type ProductImageLike = { ProductImageSmall?: string | null } | Array<{ ProductImageSmall?: string | null } | null> | null | undefined;
@@ -79,23 +78,16 @@ function getCartProductThumbnail(item: CartProductsInterface) {
   return primaryImage?.ProductImageSmall || undefined;
 }
 
-const mapCartItems = () => {
-  items.value = (cart.value?.products || []).map((item: CartProductsInterface): CartLineItem => ({
+// Tracks only the fields the rows render; a deep cart watcher traversed every productEntity on each write (#875).
+const items = computed(() =>
+  (cart.value?.products || []).map((item: CartProductsInterface): CartLineItem => ({
     id: item.id,
     title: item.productEntity?.name ?? '',
     description: item.productEntity?.description,
     image: getCartProductThumbnail(item),
     productEntity: item.productEntity!,
     quantity: Number(item.stock) + Number(item.backorder_stock || 0),
-  }));
-};
-
-watch(
-  cart,
-  () => {
-    mapCartItems();
-  },
-  { deep: true, immediate: true },
+  })),
 );
 
 const deleteProduct = async (object: { id: string }) => {
