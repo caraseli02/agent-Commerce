@@ -1,5 +1,7 @@
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, chmodSync, symlinkSync, utimesSync, statSync } from 'node:fs';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -13,6 +15,7 @@ import {
   verificationEnvironment,
   assertPushedCheckout,
 } from '../scripts/verification-evidence.mjs';
+import { PORT_OFFSETS } from '../scripts/worktree-port.mjs';
 
 const roots: string[] = [];
 afterEach(() => roots.splice(0).forEach((root) => rmSync(root, { recursive: true, force: true })));
@@ -231,7 +234,7 @@ describe('delivery evidence and documentation selection', () => {
 
 it('runs the real gate, reuses only base checks, and discards evidence after failure', () => {
   const r = repository();
-  for (const file of ['verify.mjs', 'verification-evidence.mjs'])
+  for (const file of ['verify.mjs', 'verification-evidence.mjs', 'worktree-port.mjs', 'owned-server.mjs'])
     r.write(`scripts/${file}`, readFileSync(join(process.cwd(), 'scripts', file), 'utf8'));
   for (const file of ['check-bundle-size.mjs', 'verify-ui-conventions.mjs']) r.write(`scripts/${file}`, 'process.exit(0);');
   r.write('scripts/validate-feature-list.sh', '#!/bin/sh\nexit "${VALIDATOR_EXIT:-0}"\n');
@@ -269,7 +272,7 @@ it('runs the real gate, reuses only base checks, and discards evidence after fai
 
 it('runs only focused formatting and state validation for a real documentation-only range in CI', () => {
   const r = repository();
-  for (const file of ['verify.mjs', 'verification-evidence.mjs'])
+  for (const file of ['verify.mjs', 'verification-evidence.mjs', 'worktree-port.mjs', 'owned-server.mjs'])
     r.write(`scripts/${file}`, readFileSync(join(process.cwd(), 'scripts', file), 'utf8'));
   r.write('scripts/validate-feature-list.sh', '#!/bin/sh\nexit "${VALIDATOR_EXIT:-0}"\n');
   r.write('bin/pnpm', '#!/bin/sh\nprintf "%s\\n" "$*" >> "$GATE_LOG"\nexit 0\n');
@@ -287,9 +290,17 @@ it('runs only focused formatting and state validation for a real documentation-o
   expect(execute({ VALIDATOR_EXIT: '9' }).status).toBe(1);
 });
 
-it('hands off a code-only range with unchanged session notes and archive through the real validators', () => {
+it('hands off a code-only range with unchanged session notes and archive through the real validators, and fails beside a colliding smoke server', async () => {
   const r = repository();
-  for (const file of ['verify.mjs', 'verification-evidence.mjs', 'check-clean-state.mjs', 'validate-feature-list.sh', 'smoke.mjs'])
+  for (const file of [
+    'verify.mjs',
+    'verification-evidence.mjs',
+    'worktree-port.mjs',
+    'owned-server.mjs',
+    'check-clean-state.mjs',
+    'validate-feature-list.sh',
+    'smoke.mjs',
+  ])
     r.write(`scripts/${file}`, readFileSync(join(process.cwd(), 'scripts', file), 'utf8'));
   for (const file of ['check-bundle-size.mjs', 'verify-ui-conventions.mjs', 'check-arch-invariants.mjs'])
     r.write(`scripts/${file}`, 'process.exit(0);');
@@ -298,7 +309,7 @@ it('hands off a code-only range with unchanged session notes and archive through
   r.write('app/pages/index.vue', '<template>Fixture</template>');
   r.write(
     '.output/server/index.mjs',
-    'import { createServer } from "node:http"; createServer((req, res) => res.end("Fixture")).listen(Number(process.env.PORT), process.env.HOST);',
+    'import { createServer } from "node:http"; createServer((req, res) => res.end("Fixture")).listen(process.env.NITRO_UNIX_SOCKET);',
   );
   r.write('bin/pnpm', '#!/bin/sh\nif [ "$1" = "--version" ]; then echo 10.18.3; exit 0; fi\nprintf "%s\\n" "$*" >> "$GATE_LOG"\nexit 0\n');
   chmodSync(join(r.cwd, 'bin/pnpm'), 0o755);
@@ -323,4 +334,31 @@ it('hands off a code-only range with unchanged session notes and archive through
   expect(readFileSync(log, 'utf8').trim().split('\n')).toEqual(['build', 'lint', 'typecheck', 'test:coverage']);
   expect(r.git('diff', '--name-only', `${base}..HEAD`)).toBe('server/payment.ts');
   expect(r.git('status', '--porcelain')).toBe('');
-});
+
+  // A peer checkout already serving the smoke port fails the gate; it is never smoke-tested.
+  const peerHits: string[] = [];
+  const peer = createServer((req, res) => {
+    peerHits.push(req.url ?? '');
+    res.end('PEER CHECKOUT');
+  });
+  await new Promise<void>((resolve) => peer.listen(0, '127.0.0.1', resolve));
+  const { port } = peer.address() as AddressInfo;
+  try {
+    const collided = await new Promise<{ status: number | null; output: string }>((resolve) => {
+      const child = spawn(process.execPath, ['scripts/verify.mjs', '--handoff', '--base', base, '--fresh'], {
+        cwd: r.cwd,
+        env: { ...env, TEST_PORT_BASE: String(port - PORT_OFFSETS.smoke) },
+      });
+      let output = '';
+      child.stdout.on('data', (chunk) => (output += chunk));
+      child.stderr.on('data', (chunk) => (output += chunk));
+      child.once('close', (status) => resolve({ status, output }));
+    });
+    expect(collided.status).toBe(1);
+    expect(collided.output).toContain(`Port ${port} on 127.0.0.1 is already in use`);
+    expect(collided.output).not.toContain('Smoke check passed.');
+    expect(peerHits).toEqual([]);
+  } finally {
+    await new Promise((resolve) => peer.close(resolve));
+  }
+}, 60_000);

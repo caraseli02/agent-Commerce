@@ -293,9 +293,8 @@ describe('UI screenshot evidence', () => {
     const r = repository();
     const bin = mkdtempSync(join(tmpdir(), 'pr-screenshots-bin-'));
     roots.push(bin);
-    // Install succeeds; build writes a preview that listens on the "before" side and exits 9 on "after".
-    const before =
-      "import { createServer } from 'node:http'; createServer((q, s) => s.end('ok')).listen(Number(process.env.PORT), process.env.HOST);";
+    // Install succeeds; build writes a preview that listens on its owner's socket on the "before" side and exits 9 on "after".
+    const before = "import { createServer } from 'node:http'; createServer((q, s) => s.end('ok')).listen(process.env.NITRO_UNIX_SOCKET);";
     writeFileSync(
       join(bin, 'pnpm'),
       `#!/bin/sh\n[ "$1" = build ] || exit 0\nmkdir -p .output/server\nif [ "$(basename "$PWD")" = before ]; then echo "${before}" > .output/server/index.mjs; else echo "process.exit(9);" > .output/server/index.mjs; fi\n`,
@@ -315,7 +314,7 @@ describe('UI screenshot evidence', () => {
     );
     const kept = result.stdout.match(/Screenshots kept in (.+)\/shots/)?.[1];
     if (kept) roots.push(kept);
-    expect(result.stderr).toContain(`Preview on port ${port + 1} exited`);
+    expect(result.stderr).toContain(`Owned server on port ${port + 1} exited (9) before it answered.`);
     expect(result.status).toBe(1);
     await expect(fetch(`http://127.0.0.1:${port}`)).rejects.toThrow();
     expect(r.git('worktree', 'list', '--porcelain').match(/^worktree /gm)).toHaveLength(1);

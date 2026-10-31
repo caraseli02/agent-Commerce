@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ownedWebServer } from './scripts/owned-server.mjs';
+import { testPort } from './scripts/worktree-port.mjs';
 
-const previewPort = 3150;
+const previewPort = testPort('parity');
 // Set PARITY_BASE_URL only to iterate against a preview you started yourself (with the test database).
 const externalBaseUrl = process.env.PARITY_BASE_URL;
 const baseURL = externalBaseUrl || `http://127.0.0.1:${previewPort}`;
@@ -50,17 +52,13 @@ export default defineConfig({
   ],
   webServer: externalBaseUrl
     ? undefined
-    : {
-        command: 'pnpm build && node .output/server/index.mjs',
-        url: baseURL,
+    : ownedWebServer({
+        port: previewPort,
         timeout: 180_000,
-        reuseExistingServer: false,
         env: {
           ...process.env,
-          HOST: '127.0.0.1',
-          PORT: String(previewPort),
           NUXT_PUBLIC_MOCK_MODE: 'true',
           NUXT_PUBLIC_BASE_URL_API: '/api',
         },
-      },
+      }),
 });

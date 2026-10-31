@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ownedWebServer } from './scripts/owned-server.mjs';
+import { testPort } from './scripts/worktree-port.mjs';
 
-const previewPort = 3100;
+const previewPort = testPort('visual');
 const baseURL = `http://127.0.0.1:${previewPort}`;
 
 /**
@@ -46,17 +48,13 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'pnpm build && node .output/server/index.mjs',
-    url: baseURL,
+  webServer: ownedWebServer({
+    port: previewPort,
     timeout: 120_000,
-    reuseExistingServer: false,
     env: {
       ...process.env,
-      HOST: '127.0.0.1',
-      PORT: String(previewPort),
       NUXT_PUBLIC_MOCK_MODE: 'true',
       NUXT_PUBLIC_BASE_URL_API: '/api',
     },
-  },
+  }),
 });

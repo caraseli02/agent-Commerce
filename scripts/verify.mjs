@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { once } from 'node:events';
 import process from 'node:process';
 import {
   documentationChanges,
@@ -11,10 +10,11 @@ import {
   verificationEnvironment,
   assertPushedCheckout,
 } from './verification-evidence.mjs';
+import { startOwnedServer } from './owned-server.mjs';
+import { testPort } from './worktree-port.mjs';
 
 const mode = process.argv.includes('--handoff') ? 'handoff' : process.argv.includes('--full') ? 'full' : 'fast';
-const previewUrl = 'http://127.0.0.1:3000';
-const previewArgs = ['.output/server/index.mjs'];
+const previewPort = testPort('smoke');
 
 function run(command, args, options = {}) {
   return new Promise((resolve, reject) => {
@@ -37,70 +37,23 @@ function run(command, args, options = {}) {
   });
 }
 
-async function waitForPreview(url, timeoutMs = 60_000) {
-  const startedAt = Date.now();
-  while (Date.now() - startedAt < timeoutMs) {
-    try {
-      const response = await fetch(url);
-      if (response.ok) {
-        await response.text();
-        return;
-      }
-    } catch {
-      // Keep polling until the preview server is ready.
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-
-  throw new Error(`Timed out waiting for preview server at ${url}`);
-}
-
+// The smoke preview holds its port itself (scripts/owned-server.mjs), so a colliding checkout fails the gate
+// instead of being smoke-tested.
 async function runWithPreview() {
-  const preview = spawn('node', previewArgs, {
-    env: {
-      ...process.env,
-      HOST: '127.0.0.1',
-      PORT: '3000',
-    },
-    stdio: ['ignore', 'pipe', 'pipe'],
+  const preview = await startOwnedServer({
+    port: previewPort,
+    entry: '.output/server/index.mjs',
+    env: { ...process.env, HOST: '127.0.0.1' },
   });
-
-  let previewLogs = '';
-  preview.stdout.on('data', (chunk) => {
-    process.stdout.write(chunk);
-    previewLogs += chunk.toString();
-  });
-  preview.stderr.on('data', (chunk) => {
-    process.stderr.write(chunk);
-    previewLogs += chunk.toString();
-  });
-
-  const previewExit = once(preview, 'close');
-
   try {
-    await waitForPreview(previewUrl);
     await run('node', ['scripts/smoke.mjs'], {
       env: {
         ...process.env,
-        SMOKE_BASE_URL: previewUrl,
+        SMOKE_BASE_URL: preview.url,
       },
     });
   } finally {
-    if (!preview.killed) {
-      preview.kill('SIGTERM');
-    }
-
-    const exit = await Promise.race([previewExit, new Promise((resolve) => setTimeout(() => resolve(null), 5000))]);
-
-    if (exit === null && !preview.killed) {
-      preview.kill('SIGKILL');
-      await previewExit.catch(() => undefined);
-    }
-  }
-
-  if (preview.exitCode !== 0 && preview.exitCode !== null) {
-    throw new Error(`pnpm preview failed with code ${preview.exitCode}. Logs:\n${previewLogs}`);
+    await preview.close();
   }
 }
 
