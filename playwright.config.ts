@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ownedWebServer } from './scripts/owned-server.mjs';
 import { testPort } from './scripts/worktree-port.mjs';
 
 /**
@@ -7,7 +8,8 @@ import { testPort } from './scripts/worktree-port.mjs';
  * Specs live in tests/e2e/ and are excluded from the Vitest suite. The normal
  * `pnpm test:e2e` command starts its own built server so it inherits the
  * isolated PostgreSQL schema created by the test wrapper, on this checkout's
- * own port (scripts/worktree-port.mjs). Set PLAYWRIGHT_BASE_URL only when
+ * own port (scripts/worktree-port.mjs), held by scripts/owned-server.mjs so a
+ * colliding checkout's server is never tested. Set PLAYWRIGHT_BASE_URL only when
  * deliberately testing an externally managed deployment.
  */
 const previewPort = testPort('e2e');
@@ -39,19 +41,15 @@ export default defineConfig({
   ],
   webServer: externalBaseUrl
     ? undefined
-    : {
-        command: 'pnpm build && node .output/server/index.mjs',
-        url: baseURL,
+    : ownedWebServer({
+        port: previewPort,
         timeout: 120_000,
-        reuseExistingServer: false,
         env: {
           ...process.env,
-          HOST: '127.0.0.1',
-          PORT: String(previewPort),
           NUXT_PUBLIC_MOCK_MODE: 'true',
           NUXT_PUBLIC_BASE_URL_API: '/api',
           // Synthetic public key: Payment Element specs intercept Stripe.js; provider gates remain off.
           NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_browser_contract_only',
         },
-      },
+      }),
 });

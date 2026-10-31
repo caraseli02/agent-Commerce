@@ -9,12 +9,13 @@
 // behind sign-in (dashboards, account pages) are captured signed in.
 //
 //   pnpm pr:screenshots --routes "/,/search?keyword=STM32" [--sign-in customer|admin] [--head <ref>] [--body-out <file>] [--no-push]
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import process from 'node:process';
 import { evidenceBranch, evidenceRef, evidenceVercelConfig, screenshotMarker, shotName, uiDiff } from './ui-evidence.mjs';
+import { startOwnedServer } from './owned-server.mjs';
 import { testPort } from './worktree-port.mjs';
 
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 } };
@@ -79,36 +80,20 @@ function prepare(root, name, sha, worktrees) {
   return dir;
 }
 
-// Registers the preview in `servers` as soon as it is spawned, so a later failure (this preview's
-// own timeout, or the next preview failing to start) still stops it.
+// Serves one side behind a port this run holds (scripts/owned-server.mjs), so a colliding checkout fails the
+// run instead of being captured. startOwnedServer stops what it started when it fails; `stop` (in `servers`)
+// waits for the preview to exit so its worktree can be removed.
 async function serve(dir, port, servers) {
-  const child = spawn(process.execPath, [join(dir, '.output/server/index.mjs')], {
+  const server = await startOwnedServer({
+    port,
+    entry: join(dir, '.output/server/index.mjs'),
     cwd: dir,
-    env: { ...process.env, HOST: '127.0.0.1', PORT: String(port), NUXT_PUBLIC_MOCK_MODE: 'true', NUXT_PUBLIC_BASE_URL_API: '/api' },
+    env: { ...process.env, HOST: '127.0.0.1', NUXT_PUBLIC_MOCK_MODE: 'true', NUXT_PUBLIC_BASE_URL_API: '/api' },
     stdio: ['ignore', 'ignore', 'inherit'],
+    timeoutMs: 30_000,
   });
-  const url = `http://127.0.0.1:${port}`;
-  servers.push({ child, url });
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    if (child.exitCode !== null) throw new Error(`Preview on port ${port} exited (${child.exitCode}).`);
-    try {
-      if ((await fetch(url)).ok) return { child, url };
-    } catch {
-      /* not listening yet */
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-  throw new Error(`Preview on port ${port} did not answer within 30s.`);
-}
-
-// Resolves once the preview has exited, escalating to SIGKILL, so its worktree can be removed.
-async function stop(child) {
-  if (child.exitCode !== null || child.signalCode !== null) return;
-  const exited = new Promise((resolve) => child.once('exit', resolve));
-  child.kill();
-  const timer = setTimeout(() => child.kill('SIGKILL'), 5_000);
-  await exited;
-  clearTimeout(timer);
+  servers.push({ url: server.url, stop: server.close });
+  return server;
 }
 
 // Signs in through the sign-in sheet once and returns the session (cookies and storage) for
@@ -287,7 +272,7 @@ async function main() {
       process.stderr.write(`\nAfter-side runtime errors (report them in the PR):\n${problems.map((line) => `- ${line}`).join('\n')}\n`);
     }
   } finally {
-    await Promise.all(servers.map(({ child }) => stop(child)));
+    await Promise.all(servers.map(({ stop }) => stop()));
     for (const dir of worktrees) {
       try {
         git(['worktree', 'remove', '--force', dir]);
