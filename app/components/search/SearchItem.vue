@@ -27,7 +27,7 @@
             />
           </div>
           <span
-            class="inline-flex shrink-0 items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold leading-tight text-green-800"
+            class="inline-flex shrink-0 items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold leading-tight text-green-800 dark:bg-emerald-950/40 dark:text-emerald-200"
           >
             <CheckIcon class="mr-1 h-[15px] w-[15px] flex-shrink-0" />
             {{ item.stock }} in stock

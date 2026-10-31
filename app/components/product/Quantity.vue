@@ -91,7 +91,13 @@
                 </div>
                 <div class="text-xl leading-tight font-semibold" :class="[productDiscount ? 'text-red-700' : '']">
                   <span>
-                    {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : `${minPriceConfiguration?.price.toFixed(2)} Lei` || '-' }}
+                    {{
+                      discountPrice
+                        ? `${discountPrice.toFixed(2)} Lei`
+                        : minPriceConfiguration
+                          ? `${minPriceConfiguration.price.toFixed(2)} Lei`
+                          : '-'
+                    }}
                   </span>
                   {{ currentPriceConfiguration ? `(${currentPriceConfiguration.quantity}+)` : '-' }}
                 </div>
@@ -121,7 +127,7 @@
           <UiButton
             type="button"
             class="min-h-11 flex-1 px-5 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-            aria-label="Add to cart, selected quantity"
+            :aria-label="cartButtonLabel"
             :aria-busy="!isCartReady || isAddingToCart"
             :aria-disabled="isAddingToCart"
             :aria-describedby="showAlreadyInCartMessage ? 'cart-qty-unchanged-hint' : undefined"

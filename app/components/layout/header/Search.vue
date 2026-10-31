@@ -10,7 +10,7 @@
           aria-label="Search products"
           autocomplete="off"
           class="h-full w-full flex-1 rounded-none border-0 px-3 text-sm leading-5 text-muted-foreground placeholder:text-muted-foreground focus:outline-none"
-          @input="onInput"
+          @input="handleInput"
           @keypress.enter="handleEnterButton"
           @blur="
             showSearchResults = false;
@@ -57,16 +57,23 @@ const props = defineProps({
 defineEmits(['blur']);
 
 const searchDOM = ref<{ el: HTMLInputElement | null } | null>(null);
-const searchVal = ref('');
+// Seeded from the URL so /search?keyword=… shows the query it is answering.
+const searchVal = ref(route.query?.keyword?.toString() || '');
 const isLoading = ref<boolean>(false);
 const productList = ref<ProductInterface[]>([]);
-const showSearchResults = ref(true);
+// Results open only when the visitor types, so a query prefilled from the URL does not pop up an empty list.
+const showSearchResults = ref(false);
 const category = ref<string | null>(route.query?.category?.toString() || null);
 
 const onInput = _debounce(async () => {
   productList.value = (await searchProduct(searchVal.value)) || [];
   isLoading.value = false;
 }, 200);
+
+const handleInput = () => {
+  showSearchResults.value = true;
+  onInput();
+};
 
 const searchProduct = async (keyword: string, page = 1, perPage = 10): Promise<ProductInterface[] | null> => {
   isLoading.value = true;
@@ -92,12 +99,16 @@ function handleEnterButton() {
 const focus = computed(() => props.isVisible);
 
 watch(searchVal, (val) => {
-  if (val) {
-    showSearchResults.value = true;
-  } else {
-    showSearchResults.value = false;
-  }
+  if (!val) showSearchResults.value = false;
 });
+
+// Client-side navigation (for example the home search form) changes the query without remounting the header.
+watch(
+  () => route.query.keyword,
+  (keyword) => {
+    searchVal.value = keyword?.toString() || '';
+  },
+);
 
 watch(focus, (newVal) => {
   if (newVal && window.innerWidth >= 768 && window.innerWidth <= 1024) {

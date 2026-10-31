@@ -212,7 +212,13 @@
                   {{ (user?.contactDetails?.firstName || '') + ' ' + (user?.contactDetails?.lastName || '') }}
                 </div>
                 <div class="text-xs leading-normal text-muted-foreground">
-                  {{ user?.role !== AccountRole.Client ? AccountRole[user.role] : AccountType[user.role] }}
+                  {{
+                    user?.role !== AccountRole.Client
+                      ? AccountRole[user.role]
+                      : user.accountType !== undefined
+                        ? AccountType[user.accountType]
+                        : ''
+                  }}
                 </div>
               </div>
             </UiButton>

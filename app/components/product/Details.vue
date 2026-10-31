@@ -13,9 +13,9 @@
       </div>
     </div>
     <div class="divide-y divide-border">
-      <div class="flex items-start justify-between gap-3 px-3 py-3">
+      <div class="flex flex-col gap-1.5 px-3 py-3">
         <div class="text-xs leading-tight font-medium flex-shrink-0 text-foreground">Description</div>
-        <div class="text-xs leading-5 text-muted-foreground text-end max-w-[62%]">
+        <div class="text-xs leading-5 text-muted-foreground">
           {{ product.description }}
         </div>
       </div>

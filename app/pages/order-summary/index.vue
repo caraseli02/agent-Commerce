@@ -16,7 +16,7 @@
             <p class="font-bold text-sm md:text-base">Viewing Summary as Guest</p>
             <p class="text-xs md:text-sm opacity-90">
               Review your items and configuration here. To finalize the order and apply business discounts, please
-              <NuxtLink :to="signinHref" class="underline hover:text-blue-900 transition-colors font-bold"> Sign In </NuxtLink>
+              <NuxtLink :to="signinHref" class="underline hover:text-blue-900 transition-colors font-bold">Sign In</NuxtLink>
               or choose Checkout as Guest below.
             </p>
           </div>
@@ -41,7 +41,7 @@
             </p>
           </div>
         </div>
-        <OrderSummaryHeader v-if="!cartReadError" />
+        <OrderSummaryHeader v-if="!cartReadError" :printable="!isCartEmpty" />
         <div v-if="cartReadError" class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800" role="alert">
           <p class="font-semibold">We could not load your cart</p>
           <p class="mt-1 text-sm">Try again before continuing checkout.</p>

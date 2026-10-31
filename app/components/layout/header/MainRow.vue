@@ -96,7 +96,7 @@
                     class="h-full w-full min-w-0 rounded-none border-0 bg-transparent py-2 pl-0 text-sm leading-[1.71] placeholder:text-muted-foreground focus:outline-none"
                     @input="onInput"
                     @keypress.enter="
-                      $router.push('/search');
+                      $router.push({ path: '/search', query: { keyword: searchVal } });
                       searchVal = '';
                     "
                     @blur="showMobileSearch = false"

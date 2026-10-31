@@ -1,3 +1,7 @@
+<script setup lang="ts">
+useHead({ title: 'Order Tracking' });
+</script>
+
 <template>
   <div class="container mx-auto flex max-w-2xl flex-col gap-4 py-16 text-center">
     <h1 class="text-2xl font-bold text-foreground">Order tracking is available in your account</h1>
