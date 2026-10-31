@@ -36,6 +36,7 @@ export const useCartStore = defineStore(
     const previousCheckoutError = ref<CheckoutFailure | null>(null);
     /** Product ids with an in-flight add — not persisted (SSR-safe store field). */
     const addToCartInFlightIds = ref<string[]>([]);
+    const removeFromCartInFlightIds = ref<string[]>([]);
 
     const setCart = (nextCart: CartInterface) => {
       cart.value = nextCart;
@@ -90,6 +91,17 @@ export const useCartStore = defineStore(
 
     const isAddingToCart = computed(() => addToCartInFlightIds.value.length > 0);
 
+    const beginRemoveFromCart = (productIds: string[]) => {
+      removeFromCartInFlightIds.value = [...new Set([...removeFromCartInFlightIds.value, ...productIds.filter(Boolean)])];
+    };
+
+    const endRemoveFromCart = (productIds: string[]) => {
+      const remove = new Set(productIds);
+      removeFromCartInFlightIds.value = removeFromCartInFlightIds.value.filter((id) => !remove.has(id));
+    };
+
+    const isProductRemoveInFlight = (productId: string) => removeFromCartInFlightIds.value.includes(productId);
+
     const updateAndReturnCart = async () => {
       const cartResponse = await fetchCartList();
 
@@ -136,6 +148,10 @@ export const useCartStore = defineStore(
       clearAddToCartInFlight,
       isProductAddInFlight,
       isAddingToCart,
+      removeFromCartInFlightIds,
+      beginRemoveFromCart,
+      endRemoveFromCart,
+      isProductRemoveInFlight,
       updateAndReturnCart,
       emptyCart,
       mappedCartItems,

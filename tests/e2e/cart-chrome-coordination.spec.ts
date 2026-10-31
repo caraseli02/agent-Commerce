@@ -100,6 +100,12 @@ test.describe('Scripted Buyer Path — cart chrome store refresh', () => {
     await expect(cartSheet.getByText('ADM2587E RS-485 Transceiver', { exact: true })).toBeVisible();
     await expect(cartSheet.getByRole('link', { name: /go to checkout/i })).toBeVisible();
 
+    // One trash click sends one DELETE, owned by the drawer (#871).
+    let cartDeleteRequests = 0;
+    page.on('request', (request) => {
+      if (request.url().includes('/api/cart') && request.method() === 'DELETE') cartDeleteRequests += 1;
+    });
+
     const [deleteResponse] = await Promise.all([
       page.waitForResponse((response) => response.url().includes('/api/cart') && response.request().method() === 'DELETE', {
         timeout: 15_000,
@@ -111,6 +117,8 @@ test.describe('Scripted Buyer Path — cart chrome store refresh', () => {
     await expect(cartSheet.getByRole('link', { name: /start shopping/i })).toBeVisible();
     await expect(cartSheet.getByRole('heading', { name: /your cart is empty/i })).toBeVisible();
     await expect(cartSheet.getByText('ADM2587E RS-485 Transceiver', { exact: true })).toHaveCount(0);
+    await page.waitForLoadState('networkidle');
+    expect(cartDeleteRequests).toBe(1);
 
     await cartSheet.getByRole('button', { name: 'Close shopping cart' }).click();
     await expect(badge).toHaveCSS('opacity', '0');

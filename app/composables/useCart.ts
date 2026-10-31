@@ -204,9 +204,20 @@ export function useCart() {
       return null;
     }
 
-    const response = await removeEntityFromCart(payload);
-    await refreshCart();
-    return response;
+    const productIds = payload.products.filter(Boolean);
+    if (productIds.some((id) => cartStore.isProductRemoveInFlight(id))) {
+      // A repeated click would send a second DELETE that could land after the line is re-added (#871).
+      return null;
+    }
+
+    cartStore.beginRemoveFromCart(productIds);
+    try {
+      const response = await removeEntityFromCart(payload);
+      await refreshCart();
+      return response;
+    } finally {
+      cartStore.endRemoveFromCart(productIds);
+    }
   };
 
   const fetchShippingPrices = async (order: unknown) => {
