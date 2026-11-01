@@ -7,7 +7,8 @@
 - checkbox /Select ADM2587E RS-\d+ Transceiver/ [checked]
 - text: /ADM2587E RS-\d+ Transceiver/
 - img
-- img
+- button /Show details for ADM2587E RS-\d+ Transceiver/ [expanded]:
+    - img
 - 'link /Product image unavailable prod-2 \d+ in stock Description: Isolated RS-\d+ transceiver with integrated power and signal isolation for industrial fieldbus\./':
     - /url: /product/prod-2
     - img "Product image unavailable"
