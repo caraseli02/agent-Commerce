@@ -2,10 +2,9 @@ import { inventory, MAX_AVAILABILITY_BATCH } from '~~/server/domain/inventory';
 
 const PRODUCT_ID = /^[\w-]{1,64}$/;
 
-// Stock changes with every checkout, so no browser, CDN or server cache may reuse a response.
+// Stock changes with every checkout. server/middleware/api-cache-policy.ts keeps browsers and
+// CDNs from reusing a response; this handler deliberately skips the anonymous catalog cache.
 export default defineEventHandler(async (event) => {
-  setResponseHeader(event, 'Cache-Control', 'no-store');
-
   const raw = getQuery(event).ids;
   const ids = (Array.isArray(raw) ? raw.join(',') : String(raw ?? ''))
     .split(',')
