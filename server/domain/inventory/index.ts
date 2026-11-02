@@ -162,6 +162,49 @@ const availableQuantity = async (row: InventoryRow | undefined) => {
   return Math.max(0, Number(row.on_hand || 0) - held);
 };
 
+export type ProductAvailability =
+  Readonly<{ productId: string; state: 'available'; available: number }> | Readonly<{ productId: string; state: 'unavailable' }>;
+
+export const MAX_AVAILABILITY_BATCH = 50;
+
+// Buyer-facing stock read. It never writes: expired `active` holds are subtracted from `reserved`
+// the same way availableQuantity does, without materializing them, and a product with no counter
+// row is reported unavailable rather than bootstrapped or read from fixture stock. Counters and
+// holds come from one statement, so both belong to the same snapshot.
+const readAvailability = async (productIds: readonly string[]): Promise<ProductAvailability[]> => {
+  const ids = [...new Set(productIds)];
+  if (ids.length > MAX_AVAILABILITY_BATCH) throw new RangeError(`At most ${MAX_AVAILABILITY_BATCH} products per availability read.`);
+  // Only canonical IDs are read; a code alias or unknown ID is answered as unavailable.
+  const canonical = ids.filter((id) => resolveInventoryProduct(id)?._id === id);
+  const balances = new Map<string, number>();
+  if (canonical.length) {
+    const database = await getCheckoutDatabase();
+    const rows = await database.query<{ product_id: string; on_hand: number; reserved: number; expired_held: string | number }>(
+      `SELECT inventory.product_id, inventory.on_hand, inventory.reserved,
+              COALESCE((
+                SELECT SUM((item->>'immediateQuantity')::bigint)
+                  FROM checkout_reservations reservation,
+                       jsonb_array_elements(reservation.items_json::jsonb) item
+                 WHERE reservation.status = 'active'
+                   AND reservation.expires_at::timestamptz <= $2::timestamptz
+                   AND item->>'productId' = inventory.product_id
+              ), 0) AS expired_held
+         FROM checkout_inventory inventory
+        WHERE inventory.product_id IN (SELECT jsonb_array_elements_text($1::jsonb))`,
+      [JSON.stringify(canonical), new Date().toISOString()],
+    );
+    for (const row of rows) {
+      const expiredHeld = Number(row.expired_held);
+      if (!isInventoryQuantity(row.on_hand) || !isInventoryQuantity(row.reserved) || !isInventoryQuantity(expiredHeld)) continue;
+      balances.set(row.product_id, Math.max(0, row.on_hand - Math.max(0, row.reserved - expiredHeld)));
+    }
+  }
+  return ids.map((productId) => {
+    const available = balances.get(productId);
+    return available === undefined ? { productId, state: 'unavailable' } : { productId, state: 'available', available };
+  });
+};
+
 export type ReservedDrift = Readonly<{ productId: string; reserved: number; activeReserved: number }>;
 
 // Drift check: `reserved` must equal the immediate units of all `active` reservations, including
@@ -393,5 +436,6 @@ export const inventory = {
   release: (reservationId: string) => withCheckoutTransaction(() => release(reservationId)),
   recoverPaidReservation: (input: Parameters<typeof recoverPaidReservation>[0]) =>
     withCheckoutTransaction(() => recoverPaidReservation(input)),
+  readAvailability,
   findReservedDrift,
 };

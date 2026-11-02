@@ -9,7 +9,23 @@
             <span class="text-[11px] font-Inter leading-tight font-semibold text-white"> {{ product.stock }} in stock </span>
         </div> -->
       <div class="min-h-0 flex-1">
-        <ProductCardStock :stock="product.stock" />
+        <ProductCardStock v-if="availabilityStatus === 'ready'" :stock="availableStock ?? 0" />
+        <div
+          v-else
+          data-testid="product-stock-status"
+          class="absolute left-0 top-0 z-10 flex items-center gap-2 rounded-br-lg bg-muted px-2 py-1 text-[11px] font-semibold leading-tight text-foreground"
+          role="status"
+        >
+          <span>{{ stockStatusMessage }}</span>
+          <button
+            v-if="availabilityStatus !== 'loading'"
+            type="button"
+            class="underline underline-offset-2 hover:no-underline"
+            @click="refreshAvailability()"
+          >
+            Try again
+          </button>
+        </div>
         <UiButton variant="link" class="flex justify-end text-xs my-1 pr-0 lg:hidden px-0 md:my-3" @click="showLargeQuantitiesModal = true">
           For larger quantities ask
           <span
@@ -120,7 +136,12 @@
               v-model="quantity"
               size="lg"
               :object="
-                { id: product._id, min: minPriceConfiguration.quantity, max: product.stock, action: 'update' } as ProductActionObject
+                {
+                  id: product._id,
+                  min: minPriceConfiguration.quantity,
+                  max: availableStock ?? undefined,
+                  action: 'update',
+                } as ProductActionObject
               "
             />
           </div>
@@ -132,7 +153,7 @@
             :aria-disabled="isAddingToCart"
             :aria-describedby="showAlreadyInCartMessage ? 'cart-qty-unchanged-hint' : undefined"
             :disabled="isCartButtonDisabled && !isAddingToCart"
-            @click="addToCart(props.product)"
+            @click="addToCart(stockedProduct)"
           >
             <CartIcon class="w-6 h-6 mr-2" />
             <span v-if="minPriceConfiguration && quantity" class="text-sm font-medium">
@@ -165,6 +186,7 @@ import { toast } from '~/components/ui/toast';
 import { useAuthStore } from '~/store/authStore';
 import { useCartStore } from '~/store/cartStore';
 import { useCart } from '~/composables/useCart';
+import { useProductAvailability } from '~/composables/useProductAvailability';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
@@ -176,6 +198,19 @@ const { getCart } = storeToRefs(cartStore);
 const props = defineProps<{
   product: ProductInterface;
 }>();
+
+const {
+  status: availabilityStatus,
+  available: availableStock,
+  refresh: refreshAvailability,
+} = useProductAvailability(() => props.product._id ?? '');
+// Clamp and add against Inventory's count, never the catalog fixture's `stock`.
+const stockedProduct = computed<ProductInterface>(() => ({ ...props.product, stock: availableStock.value ?? 0 }));
+const stockStatusMessage = computed(() => {
+  if (availabilityStatus.value === 'loading') return 'Checking stock…';
+  if (availabilityStatus.value === 'unavailable') return 'Stock unavailable';
+  return 'Stock could not be checked';
+});
 
 const quantity = ref(0);
 const initialRequestedQuantity = ref(0);
@@ -191,9 +226,12 @@ const cartButtonLabel = computed(() => {
 // Add stays enabled at the min qty when the line is absent. Update disables only when
 // qty matches the cart baseline (no-op delta). Do not use quantity === initial when
 // initial is 0 — that would block first-unit Add during edge/loading states.
+// Without a current count, or with none in stock, nothing can be bought for immediate delivery.
+const isStockBlocked = computed(() => availabilityStatus.value !== 'ready' || (availableStock.value === 0 && !isInCart.value));
 const isCartButtonDisabled = computed(
   () =>
     !isCartReady.value ||
+    isStockBlocked.value ||
     isAddingToCart.value ||
     quantity.value < 1 ||
     (isInCart.value && quantity.value === initialRequestedQuantity.value),
@@ -235,7 +273,14 @@ const fetchCart = async () => {
 
 getPricesConfiguration();
 quantity.value = minPriceConfiguration.value?.quantity || 1;
-onMounted(() => void fetchCart());
+onMounted(() => {
+  void fetchCart();
+  void refreshAvailability();
+});
+watch(
+  () => props.product._id,
+  () => void refreshAvailability(),
+);
 
 const bulkQuantities = new Map<number, number>();
 
@@ -265,17 +310,17 @@ const addToCart = async (product: ProductInterface) => {
     })) as { status?: string; changed?: boolean } | null;
 
     if (response?.status === 'success' && response.changed !== false) {
-      await fetchCart();
+      await Promise.all([fetchCart(), refreshAvailability()]);
     }
   } finally {
     isLocalAddingToCart.value = false;
   }
 };
 
-watch(quantity, (nextQuantity) => {
-  const { stock: clampedStock, wasClamped, maxStock } = clampCartQuantity(props.product, nextQuantity);
+watch([quantity, availableStock], ([nextQuantity]) => {
+  const { stock: clampedStock, wasClamped, maxStock } = clampCartQuantity(stockedProduct.value, nextQuantity);
 
-  if (wasClamped) {
+  if (availabilityStatus.value === 'ready' && wasClamped) {
     quantity.value = clampedStock;
     toast({
       title: 'Limited stock',
