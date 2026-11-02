@@ -17,14 +17,9 @@
           role="status"
         >
           <span>{{ stockStatusMessage }}</span>
-          <button
-            v-if="availabilityStatus !== 'loading'"
-            type="button"
-            class="underline underline-offset-2 hover:no-underline"
-            @click="refreshAvailability()"
-          >
+          <UiButton v-if="availabilityStatus !== 'loading'" type="button" variant="link" size="xs" @click="refreshAvailability()">
             Try again
-          </button>
+          </UiButton>
         </div>
         <UiButton variant="link" class="flex justify-end text-xs my-1 pr-0 lg:hidden px-0 md:my-3" @click="showLargeQuantitiesModal = true">
           For larger quantities ask
