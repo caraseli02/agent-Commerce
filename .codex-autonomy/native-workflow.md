@@ -1,3 +1,9 @@
+Temporary owner review policy (2026-11-03): follow
+`docs/agents/temporary-codex-review.md`. The existing separate Codex reviewer
+may evaluate Codex-built PRs with distinct verified builder/reviewer chat IDs.
+This supersedes Claude-only/opposite-builder review wording below; all local
+checks, verdict lifetime, ownership, WIP and human merge requirements remain.
+
 # Native Codex issue worker — routing version 1
 
 This chat implements only its assigned issue and same-PR repairs until human

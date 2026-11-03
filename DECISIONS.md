@@ -1,5 +1,16 @@
 # DECISIONS
 
+## 2026-11-03 — Temporarily use a separate Codex reviewer for Codex PRs
+
+Claude PR review is unavailable. Vlad chose a separately operated Codex reviewer
+for Codex PRs. Reuse the existing reviewer automation and lane; preserve exact-head
+fresh local verification, independence, ownership, WIP and human merge. Same-builder
+reports record distinct real builder/reviewer chat IDs corroborated by the reviewer.
+Existing Claude verdicts remain historical/live evidence under the existing lifetime
+rules. See [the temporary policy](docs/agents/temporary-codex-review.md). This does
+not activate the uninstalled routing/recovery migration or reassign Claude issues.
+An explicit owner decision is required to restore the former reviewer policy.
+
 Use this file for durable cross-session decisions that should survive context resets.
 
 ## Verdicts belong to the head; review rounds end — 2026-10-24
