@@ -4,6 +4,7 @@ import { calculateCartLinePricing, clampCartQuantity } from '~~/helpers/cart-pri
 import { mockProducts } from '~~/server/utils/mockProducts';
 import { parseMockUserIdFromToken } from '~~/server/utils/mockUsers';
 import { getCheckoutDatabase, withCheckoutTransaction } from '~~/server/infrastructure/checkout-database';
+import { inventory, MAX_AVAILABILITY_BATCH } from '~~/server/domain/inventory';
 import type { DiscountInterface } from '~~/types/auth/account-settings';
 
 const GUEST_CART_USER_ID = 'guest-user-session';
@@ -75,7 +76,27 @@ const calculatePricing = (productEntity: ProductEntityLike | null | undefined, s
   return calculateCartLinePricing(productEntity, stock, backorderStock);
 };
 
-const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: CartProductsInterface, mode: 'add' | 'set' = 'add') => {
+type StockByProduct = ReadonlyMap<string, number>;
+
+// Immediate stock comes from Inventory, never from fixture `product.stock`. A product Inventory
+// cannot vouch for (unknown, uninitialized) counts as 0, so it can only be added as backorder.
+const readStock = async (ids: readonly string[]): Promise<StockByProduct> => {
+  const unique = [...new Set(ids.filter(Boolean))];
+  const stock = new Map<string, number>();
+  for (let start = 0; start < unique.length; start += MAX_AVAILABILITY_BATCH) {
+    for (const entry of await inventory.readAvailability(unique.slice(start, start + MAX_AVAILABILITY_BATCH)))
+      stock.set(entry.productId, entry.state === 'available' ? entry.available : 0);
+  }
+  return stock;
+};
+
+const normalizeCartProduct = (
+  input: Partial<CartProductsInterface>,
+  existing: CartProductsInterface | undefined,
+  mode: 'add' | 'set',
+  availableStock: StockByProduct,
+  clamp = true,
+) => {
   const normalizedIncoming = normalizeIncomingProductId(String(input.id || ''));
   const resolvedEntity = normalizedIncoming.entity;
 
@@ -94,9 +115,11 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
       ? previousBackorder + incomingBackorder
       : incomingBackorder || 0;
 
-  const productEntity = resolvedEntity || previous.productEntity;
+  const id = normalizedIncoming.id || String(previous.id || '');
+  const catalogEntity = resolvedEntity || previous.productEntity;
+  const productEntity = catalogEntity && { ...catalogEntity, stock: availableStock.get(id) ?? 0 };
 
-  if (!input.updateOnlyBackorderStock && productEntity) {
+  if (clamp && !input.updateOnlyBackorderStock && productEntity) {
     const clampResult = clampCartQuantity(productEntity, stock, {
       existingBackorderStock: backorder_stock,
     });
@@ -106,7 +129,7 @@ const normalizeCartProduct = (input: Partial<CartProductsInterface>, existing?: 
   const pricing = calculatePricing(productEntity, stock, backorder_stock);
 
   return {
-    id: normalizedIncoming.id || String(previous.id || ''),
+    id,
     isFolder: Boolean(input.isFolder ?? previous.isFolder ?? false),
     stock,
     backorder_stock,
@@ -128,26 +151,33 @@ const serializeCartForStorage = ({ revision: _revision, ...cart }: CartInterface
   products: (cart.products || []).map(({ productEntity: _productEntity, ...product }) => product),
 });
 
-const hydrateCartFromStorage = (cart: CartInterface): CartInterface => ({
-  ...cart,
-  products: (cart.products || []).map((product) => {
-    const productEntity = product.productEntity || resolveMockProduct(product.id);
-    if (!productEntity) {
-      return product;
-    }
+// Stored quantities are the buyer's intent, not a reservation: reading them attaches current
+// availability for display but never clamps them. Checkout's reservation decides at submit.
+const hydrateCartFromStorage = async (cart: CartInterface): Promise<CartInterface> => {
+  const availableStock = await readStock((cart.products || []).map((product) => String(product.id || '')));
+  return {
+    ...cart,
+    products: (cart.products || []).map((product) => {
+      const productEntity = product.productEntity || resolveMockProduct(product.id);
+      if (!productEntity) {
+        return product;
+      }
 
-    return normalizeCartProduct(
-      {
-        id: product.id,
-        stock: product.stock,
-        backorder_stock: product.backorder_stock,
-        isFolder: product.isFolder,
-      },
-      { ...product, productEntity },
-      'set',
-    );
-  }),
-});
+      return normalizeCartProduct(
+        {
+          id: product.id,
+          stock: product.stock,
+          backorder_stock: product.backorder_stock,
+          isFolder: product.isFolder,
+        },
+        { ...product, productEntity },
+        'set',
+        availableStock,
+        false,
+      );
+    }),
+  };
+};
 
 type CartRow = {
   owner_id: string;
@@ -156,8 +186,8 @@ type CartRow = {
   payload_json: string;
 };
 
-const parseCartRow = (row: CartRow) => {
-  const cart = hydrateCartFromStorage(JSON.parse(row.payload_json) as CartInterface);
+const parseCartRow = async (row: CartRow) => {
+  const cart = await hydrateCartFromStorage(JSON.parse(row.payload_json) as CartInterface);
   cart.products = Array.isArray(cart.products) ? cart.products : [];
   cart.revision = String(row.revision);
   return cart;
@@ -209,7 +239,7 @@ export const getMockCartForUser = async (userId: string) =>
       throw new Error(`Checkout cart ${cart._id} could not be loaded after creation.`);
     }
 
-    return parseCartRow(row);
+    return await parseCartRow(row);
   });
 
 export const findMockCartById = async (cartId?: string | null) => {
@@ -224,7 +254,7 @@ export const findMockCartById = async (cartId?: string | null) => {
     'SELECT owner_id, cart_id, revision, payload_json FROM checkout_carts WHERE cart_id = $1 FOR UPDATE',
     [normalizedId],
   );
-  return rows[0] ? parseCartRow(rows[0]) : null;
+  return rows[0] ? await parseCartRow(rows[0]) : null;
 };
 
 export const requireMockCartUserId = (event: H3Event, authorizationHeader?: string | null) => {
@@ -246,6 +276,7 @@ export const requireMockCartUserId = (event: H3Event, authorizationHeader?: stri
 
 export const addProductsToMockCart = async (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
   const list = Array.isArray(cart.products) ? cart.products : [];
+  const availableStock = await readStock(products.map((raw) => normalizeIncomingProductId(String(raw?.id || '')).id));
 
   for (const raw of products) {
     if (!raw?.id) {
@@ -255,7 +286,7 @@ export const addProductsToMockCart = async (cart: CartInterface, products: Parti
     const incoming = normalizeIncomingProductId(String(raw.id));
     const index = list.findIndex((item) => item.id === incoming.id);
     const existing = index >= 0 ? list[index] : undefined;
-    const normalized = normalizeCartProduct({ ...raw, id: incoming.id }, existing, 'add');
+    const normalized = normalizeCartProduct({ ...raw, id: incoming.id }, existing, 'add', availableStock);
 
     if (index >= 0) {
       list[index] = normalized;
@@ -304,6 +335,7 @@ export const mergeGuestCartIntoMockCart = async (userId?: string | null, guestSe
 
 export const setProductsInMockCart = async (cart: CartInterface, products: Partial<CartProductsInterface>[] = []) => {
   const list = Array.isArray(cart.products) ? cart.products : [];
+  const availableStock = await readStock(products.map((raw) => normalizeIncomingProductId(String(raw?.id || '')).id));
 
   for (const raw of products) {
     if (!raw?.id) {
@@ -313,7 +345,7 @@ export const setProductsInMockCart = async (cart: CartInterface, products: Parti
     const incoming = normalizeIncomingProductId(String(raw.id));
     const index = list.findIndex((item) => item.id === incoming.id);
     const existing = index >= 0 ? list[index] : undefined;
-    const normalized = normalizeCartProduct({ ...raw, id: incoming.id }, existing, 'set');
+    const normalized = normalizeCartProduct({ ...raw, id: incoming.id }, existing, 'set', availableStock);
 
     if (index >= 0) {
       list[index] = normalized;

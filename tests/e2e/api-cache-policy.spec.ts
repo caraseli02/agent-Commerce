@@ -13,6 +13,10 @@ test('built Nitro applies private headers to guest/authenticated reads, mutation
   expect(catalog.ok()).toBe(true);
   expectPrivate(catalog);
 
+  const availability = await request.get('/api/inventory/availability?ids=prod-1,prod-2');
+  expect(availability.ok()).toBe(true);
+  expectPrivate(availability);
+
   const guestCart = await request.get('/api/cart');
   expect(guestCart.ok()).toBe(true);
   expectPrivate(guestCart);

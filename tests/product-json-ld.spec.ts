@@ -66,7 +66,6 @@ describe('buildProductJsonLd', () => {
         url: `${SITE}/product/stm32f407vgt6`,
         price: 999.99,
         priceCurrency: 'RON',
-        availability: 'https://schema.org/InStock',
       },
     });
   });
@@ -83,10 +82,10 @@ describe('buildProductJsonLd', () => {
     expect(buildProductJsonLd(product, context).offers).toMatchObject({ price: 949.99 });
   });
 
-  it('reports out-of-stock products as backorder, matching the stock badge', () => {
-    expect(buildProductJsonLd(makeProduct({ stock: 0 }), context).offers).toMatchObject({
-      availability: 'https://schema.org/BackOrder',
-    });
+  it('never promises availability from catalog stock in cacheable markup', () => {
+    for (const stock of [0, 5, 500]) {
+      expect(buildProductJsonLd(makeProduct({ stock }), context).offers).not.toHaveProperty('availability');
+    }
   });
 
   it('omits fields the product does not have instead of emitting empty values', () => {
@@ -120,13 +119,6 @@ describe('buildProductJsonLd', () => {
       sku: 'stm32f407vgt6',
       brand: { '@type': 'Brand', name: 'STMicroelectronics' },
     });
-  });
-
-  it('emits an offer without availability when stock is unknown', () => {
-    const offers = buildProductJsonLd(makeProduct({ stock: undefined as unknown as number }), context).offers as Record<string, unknown>;
-
-    expect(offers.price).toBe(999.99);
-    expect(offers).not.toHaveProperty('availability');
   });
 });
 
