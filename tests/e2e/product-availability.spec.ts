@@ -48,6 +48,29 @@ for (const viewport of [
       await expect(addToCart(page)).toBeDisabled();
     });
 
+    test('rechecks a zero count on the open page and unlocks a restock', async ({ page }) => {
+      let count = 0;
+      await answerAvailability(page, () => available(count));
+      await page.goto('/product/prod-1');
+
+      const panel = page.getByTestId('product-purchase-panel');
+      await expect(panel.getByText(/backorder/i).filter({ visible: true })).toBeVisible();
+      await expect(addToCart(page)).toBeDisabled();
+
+      count = 900;
+      await panel.getByRole('button', { name: 'Check stock again' }).click();
+      await expect(panel.getByText('900 in stock').filter({ visible: true })).toBeVisible();
+      await expect(panel.getByRole('button', { name: 'Check stock again' })).toHaveCount(0);
+      await expect(addToCart(page)).toBeEnabled();
+
+      const input = panel.getByRole('spinbutton', { name: 'Quantity' });
+      await expect(input).toHaveAttribute('max', '900');
+      await input.fill('20');
+      await input.blur();
+      await expect(panel.getByRole('spinbutton', { name: 'Quantity' })).toHaveValue('20');
+      await expect(addToCart(page)).toBeEnabled();
+    });
+
     test('blocks purchase while the read fails and recovers on retry', async ({ page }) => {
       let fail = true;
       await answerAvailability(page, () => (fail ? { status: 503, body: { statusMessage: 'down' } } : available(12)));

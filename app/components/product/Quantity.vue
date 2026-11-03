@@ -21,6 +21,10 @@
             Try again
           </UiButton>
         </div>
+        <!-- None left blocks Add, so let the buyer recheck for a restock without reloading. -->
+        <div v-if="availabilityStatus === 'ready' && availableStock === 0" class="flex justify-end">
+          <UiButton type="button" variant="link" size="xs" @click="refreshAvailability()">Check stock again</UiButton>
+        </div>
         <UiButton variant="link" class="flex justify-end text-xs my-1 pr-0 lg:hidden px-0 md:my-3" @click="showLargeQuantitiesModal = true">
           For larger quantities ask
           <span
@@ -312,7 +316,14 @@ const addToCart = async (product: ProductInterface) => {
   }
 };
 
-watch([quantity, availableStock], ([nextQuantity]) => {
+watch([quantity, availableStock], ([nextQuantity, nextStock]) => {
+  // A zero count clamps the quantity to 0, which hides the controls; a restock starts again from
+  // the cart line or the minimum order quantity (clamped on the next pass).
+  if (availabilityStatus.value === 'ready' && nextQuantity < 1 && (nextStock ?? 0) > 0) {
+    quantity.value = initialRequestedQuantity.value || minPriceConfiguration.value?.quantity || 1;
+    return;
+  }
+
   const { stock: clampedStock, wasClamped, maxStock } = clampCartQuantity(stockedProduct.value, nextQuantity);
 
   if (availabilityStatus.value === 'ready' && wasClamped) {

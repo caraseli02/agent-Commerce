@@ -79,6 +79,36 @@ describe('Inventory availability read', () => {
     expect(await database.query("SELECT product_id FROM checkout_inventory WHERE product_id = 'prod-2'")).toEqual([]);
   });
 
+  // The expired-hold rule lives in both the read (SQL) and reservation admission (availableQuantity),
+  // so each fixture checks that the count a buyer sees is exactly what a reservation admits.
+  it.each([
+    { name: 'a live hold', onHand: 10, seed: () => reserve('buyer-live', 'prod-1', 3).then(() => undefined), expected: 7 },
+    { name: 'an expired but still active hold', onHand: 10, seed: () => seedAbandoned('res-abandoned', 'prod-1', 4), expected: 10 },
+    { name: 'a restock above fixture stock', onHand: 900, seed: async () => {}, expected: 900 },
+    {
+      name: 'live and expired holds together',
+      onHand: 10,
+      seed: async () => {
+        await seedAbandoned('res-abandoned', 'prod-1', 4);
+        await reserve('buyer-live', 'prod-1', 3);
+      },
+      expected: 7,
+    },
+  ])('agrees with reservation admission for $name', async ({ onHand, seed, expected }) => {
+    await setCounter('prod-1', onHand);
+    await seed();
+
+    expect(await inventory.readAvailability(['prod-1'])).toEqual([{ productId: 'prod-1', state: 'available', available: expected }]);
+    expect(await reserve('parity-over', 'prod-1', expected + 1)).toEqual({
+      kind: 'unavailable',
+      productId: 'prod-1',
+      requested: expected + 1,
+      available: expected,
+    });
+    expect((await reserve('parity-exact', 'prod-1', expected)).kind).toBe('created');
+    expect(await inventory.readAvailability(['prod-1'])).toEqual([{ productId: 'prod-1', state: 'available', available: 0 }]);
+  });
+
   it('bounds the batch size', async () => {
     const ids = Array.from({ length: MAX_AVAILABILITY_BATCH + 1 }, (_, index) => `prod-${index + 1}`);
 
