@@ -2,6 +2,8 @@
 
 **Status:** planning document. Nothing here grants implementation, label, claim, provider-write, shared-database or deployment authorization. GitHub issue labels, assignments and linked PRs stay the only live task state; this file is the reviewed step list that those issues point to.
 
+**Decisions:** the owner answered D1–D10 and the lane questions on 2026-11-03 (§4). They are recorded in the owner-decisions comment on #797, and new children #892–#894 were opened.
+
 **Inputs checked:** the #797 body and its four comments, all 16 native sub-issues (#805, #828, #841–#846, #881–#888), open PRs (#889 for #842), the #828 investigation report, and the source on `main` at `48f1add`. Every claim below cites the file it was checked against.
 
 ## 1. Summary
@@ -12,31 +14,34 @@
   2. #887 would break the customer checkout-failure page.
   3. #844 has no operator identity to reuse.
   4. #883 does not make the delivery address an input to the quote.
-- **Ten owner decisions are open** (§4). Each has a recommendation.
-- **Three children are missing** (§5): demo data off the critical path, the deployed acceptance run, and a home for workstream D.
-- **The builder lanes are unbalanced:** about 15 PRs for Codex and 4 for Claude. §6 proposes a rebalance; the owner decides.
+- **Ten owner decisions were answered on 2026-11-03** (§4): eight as recommended; D5 and D9 chose the simpler option.
+- **Three children were opened** (§5): #893 (inert demo orders), #894 (deployed acceptance run) and #892 (live-money epic for workstream D).
+- **Lanes rebalanced** (§6): #845 moved to Claude after #844.
 - **§7 breaks every open child into atomic steps.** Each step is one reviewable commit that leaves `main` green.
 
-## 2. Live state of the children (2026-11-02)
+## 2. Live state of the children (updated 2026-11-03)
 
-| Issue | Scope                                 | Labels / owner                      | Depends on       | Actual state                                                                 |
-| ----- | ------------------------------------- | ----------------------------------- | ---------------- | ---------------------------------------------------------------------------- |
-| #828  | A1/A2 investigation                   | closed                              | —                | Report delivered; A1 approved                                                |
-| #841  | Canonical identity + bootstrap        | closed                              | —                | Merged (`server/domain/inventory/bootstrap.mjs`, `pnpm inventory:bootstrap`) |
-| #842  | PDP/cart authoritative stock          | `agent:claude`, in-progress         | #841             | **PR #889 open**, head `8b0458c`, waiting for Codex review                   |
-| #843  | Listing availability                  | `ready-for-agent` (Codex)           | #842             | Blocked on #842 merge                                                        |
-| #844  | Operator auth + read-only stock view  | `agent:claude`, p1                  | #842, #841, #635 | Blocked on #842 merge                                                        |
-| #845  | Audited receipts/adjustments          | `ready-for-agent` (Codex)           | #842, #844       | Blocked                                                                      |
-| #846  | Two-process A1 proof                  | `ready-for-agent` (Codex)           | #843, #845       | Blocked                                                                      |
-| #881  | In-stock only, no new backorders      | `ready-for-agent`, p2               | #842             | Blocked on #842 merge                                                        |
-| #882  | EUR, VAT, totals                      | `ready-for-agent`, p1, payments     | —                | **Unblocked now**                                                            |
-| #883  | Spain zones + shipping fees           | `ready-for-agent`, p1, payments     | #882             | Blocked                                                                      |
-| #884  | Manual fulfillment lifecycle          | `ready-for-agent`, p2, payments     | #844             | Blocked                                                                      |
-| #885  | EasyPost Spain feasibility (research) | `ready-for-agent`, p1               | —                | **Unblocked now**                                                            |
-| #886  | EasyPost integration                  | `ready-for-human`, p2               | #882–#885, #844  | Split after #885                                                             |
-| #887  | Durable cancel + payment recovery     | `agent:claude`, p2, payments        | #844             | Blocked                                                                      |
-| #888  | Outbox notifications                  | `ready-for-agent`, p2               | #884             | Blocked                                                                      |
-| #805  | Admin order actions                   | `agent:claude`, `blocked`, payments | #844, #884, #887 | Blocked                                                                      |
+| Issue | Scope                                 | Labels / owner                      | Depends on             | Actual state                                                                                            |
+| ----- | ------------------------------------- | ----------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| #828  | A1/A2 investigation                   | closed                              | —                      | Report delivered; A1 approved                                                                           |
+| #841  | Canonical identity + bootstrap        | closed                              | —                      | Merged (`server/domain/inventory/bootstrap.mjs`, `pnpm inventory:bootstrap`)                            |
+| #842  | PDP/cart authoritative stock          | `agent:claude`, in-progress         | #841                   | **PR #889 open.** Codex FAILed `8b0458c`; repair `ac85162` adds the parity test and waits for re-review |
+| #843  | Listing availability                  | `ready-for-agent` (Codex)           | #842                   | Blocked on #842 merge                                                                                   |
+| #844  | Operator auth + read-only stock view  | `agent:claude`, p1                  | #842, #841, #635       | Blocked on #842 merge                                                                                   |
+| #845  | Audited receipts/adjustments          | `agent:claude` (moved 2026-11-03)   | #842, #844             | Blocked                                                                                                 |
+| #846  | Two-process A1 proof                  | `ready-for-agent` (Codex)           | #843, #845             | Blocked                                                                                                 |
+| #881  | In-stock only, no new backorders      | `ready-for-agent`, p2               | #842                   | Blocked on #842 merge                                                                                   |
+| #882  | EUR, VAT, totals                      | `ready-for-agent`, p1, payments     | —                      | **Unblocked now**                                                                                       |
+| #883  | Spain zones + shipping fees           | `ready-for-agent`, p1, payments     | #882                   | Blocked                                                                                                 |
+| #884  | Manual fulfillment lifecycle          | `ready-for-agent`, p2, payments     | #844                   | Blocked                                                                                                 |
+| #885  | EasyPost Spain feasibility (research) | `ready-for-agent`, p1               | —                      | **Unblocked now**                                                                                       |
+| #886  | EasyPost integration                  | `ready-for-human`, p2               | #882–#885, #844        | Split after #885                                                                                        |
+| #887  | Durable cancel + payment recovery     | `agent:claude`, p2, payments        | #844                   | Blocked                                                                                                 |
+| #888  | Outbox notifications                  | `ready-for-agent`, p2               | #884                   | Blocked                                                                                                 |
+| #805  | Admin order actions                   | `agent:claude`, `blocked`, payments | #844, #884, #887, #893 | Blocked                                                                                                 |
+| #893  | Inert demo seed orders (N1)           | `ready-for-agent`, p2               | —                      | Opened 2026-11-03                                                                                       |
+| #894  | Deployed acceptance run (N2)          | `ready-for-human`, p2               | all children           | Opened 2026-11-03; owner-run                                                                            |
+| #892  | Live-money readiness epic (N3)        | `epic`                              | after #797             | Opened 2026-11-03; not a #797 sub-issue                                                                 |
 
 ## 3. Claims checked against the code
 
@@ -77,7 +82,24 @@
 - The address book is a process-local Map (`server/utils/mockRuntimeAddresses.ts:11`).
 - `DECISIONS.md:74` ("Claude never builds payment, checkout or migration work") is stale; the 2026-10-20 owner decision in `docs/agents/payment-contracts.md` and `docs/agents/autonomous-workflow.md` superseded it. #844 and #887 both need migrations, so the owner should fix this protected file.
 
-## 4. Owner decisions needed before the affected child starts
+## 4. Owner decisions (answered 2026-11-03)
+
+| ID    | Decision                                                                                                                                                             | Applied to                                 |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| D1    | The order owner may cancel their own unpaid order; an operator with `orders:cancel` may cancel any unpaid order. One domain operation, one route.                    | #887 acceptance criterion changed; #805    |
+| D2    | Operator = registered account plus an `operator_grants` row, checked in the database on every request. Grants via a dry-run-by-default CLI. Demo admin never passes. | #844                                       |
+| D3    | The small-order charge is dropped for the EUR MVP.                                                                                                                   | #882                                       |
+| D4    | Demo seed orders stay visible as sample history but are inert: no operator actions, excluded from KPIs. Exit criterion reworded.                                     | #893 (new); #884; #805 now depends on #893 |
+| D5    | **Adjustments only:** #845 logs operator receipts and corrections. Sales and releases stay unlogged in this MVP, as a documented limitation. No N4.                  | #845, #846, #892                           |
+| D6    | Workstream D moves to a separate live-money epic.                                                                                                                    | #892 (new); #797 body                      |
+| D7    | A new owner-run child runs the deployed acceptance scenario and closes #797.                                                                                         | #894 (new)                                 |
+| D8    | The address book is out of the MVP; checkout snapshots the submitted, server-validated address.                                                                      | #883                                       |
+| D9    | **After-commit plus manual retry, no cron.** A failed attempt stays pending until an operator retries it.                                                            | #888, #886, #885                           |
+| D10   | One formatter takes the currency from each product, quote or order; the regional currency selector is fixed to EUR.                                                  | #882                                       |
+| Lanes | #845 moves to Claude after #844 (`agent:claude` added at the owner's instruction).                                                                                   | #845                                       |
+| #882  | Ships as three PRs.                                                                                                                                                  | #882                                       |
+
+### 4.1 Options as asked (for reference)
 
 | ID  | Question                                        | Recommendation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Blocks                        |
 | --- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
@@ -97,21 +119,21 @@
 - **O1.** Run `pnpm inventory:bootstrap` (dry-run) against Neon `vercel-dev` and `production`. Apply only if rows are missing. Do this **before merging #889** (F9).
 - **O2.** Fix `DECISIONS.md:74` (protected path).
 
-## 5. Missing children to open
+## 5. Children opened on 2026-11-03
 
-- **N1 — Keep demo seed orders off operator actions and KPIs** (D4). Small. Must land before #884's API is reachable from the admin UI.
-- **N2 — Deployed MVP acceptance run** (D7). Owner-authorized. Steps 1–8 of the epic scenario plus the failure checks, on an isolated product or isolated Neon branch. Includes Stripe test webhooks and the cache behavior. Closes #797.
-- **N3 — Live-money readiness epic** (D6). Takes over workstream D.
-- **N4 (optional, D5)** — Record `sale` and `release` stock movements.
+- **N1 = #893 — Keep demo seed orders off operator actions and KPIs** (D4). Small. Must land before #805 wires admin actions.
+- **N2 = #894 — Deployed MVP acceptance run** (D7). Owner-authorized. Steps 1–8 of the epic scenario plus the failure checks, on an isolated product or isolated Neon branch. Includes Stripe test webhooks and the cache behavior. Closes #797.
+- **N3 = #892 — Live-money readiness epic** (D6). Takes over workstream D. Not a sub-issue of #797.
+- ~~N4 — record `sale` and `release` stock movements~~: dropped (D5: adjustments only).
 
-**Epic body edits:**
+**Epic body edits** (applied 2026-11-03):
 
 - Link the workstream A bullets to #842–#846.
 - Replace the stale "paid → preparing → shipped" bullet with the approved Processing → Packaging → Dispatched → Delivered lifecycle.
 - Point C's "Validate address handling" at #883 and #888.
 - Move D out.
 - Rewrite the mock-data exit criterion (D4).
-- Add N1/N2.
+- Add #893 and #894; link #892.
 
 ## 6. Dependency graph and builder lanes
 
@@ -120,10 +142,10 @@
 #841 ✓ ─> #842 (PR #889) ─┬─> #881 (in-stock only)         ├─> #846 (2-process proof) ─┐
                           └─> #844 (operator auth) ─┬─> #845 (receipts) ──────────────┘  │
                                                     ├─> #887 (cancel) ──┐                │
-                                                    └─> #884 (fulfil) ──┼─> #805 (admin) ├─> N2 acceptance
+                                                    └─> #884 (fulfil) ──┼─> #805 (admin) ├─> #894 acceptance
                                                          │  └─> #888 (outbox)            │
 #882 (EUR/VAT) ─> #883 (zones) ──────────────────────────┴─> #886.a–d (EasyPost) <─ #885 ┘
-N1 (demo seeds) ─> before #884's admin wiring and #805
+#893 (demo seeds) ─> before #805
 ```
 
 **Overlap hazards** (shared files, so serialize them or keep them in separate modules):
@@ -131,14 +153,14 @@ N1 (demo seeds) ─> before #884's admin wiring and #805
 - #882, #883 and #881 all edit the Catalog quote, `place-order` and the order-summary UI. Keep them in one lane, in that order.
 - #884 and #887 both touch Orders and add migrations, and they are planned for different builders. Put fulfillment in its **own module** (`server/domain/fulfillment/`) that reads Orders through its public API. #887 stays in `server/application/checkout/`. Assign migration numbers at rebase time.
 
-**Lanes:** each builder has WIP=1, the other builder reviews, and the owner merges. Rebalancing is the owner's call.
+**Lanes:** each builder has WIP=1, the other builder reviews, and the owner merges. The owner approved the recommended queues on 2026-11-03.
 
 | Lane   | Current queue                                                  | Recommended queue                                                        |
 | ------ | -------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | Claude | #842 → #844 → #887 → #805                                      | #842 → #844 → #845 → #887 → #805                                         |
 | Codex  | #885, #882, #883, #881, #843, #845, #884, #888, #846, #886.a–d | #885 → #882 (3 PRs) → #883 → #884 → #881 → #843 → #888 → #846 → #886.a–d |
 
-Moving #845 to Claude keeps the operator write surface with the builder that built its guard (#844).
+#845 moved to Claude, which keeps the operator write surface with the builder that built its guard (#844). #893 is in the default Codex pool.
 
 ## 7. Atomic steps per child
 
@@ -153,11 +175,8 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
 
 ### #842 — PDP/cart availability (PR #889, in review)
 
-1. **Codex evaluates head `8b0458c`.** Check:
-   - (a) A parity test proving `readAvailability` and reservation admission agree on the same fixtures (live hold, expired-but-`active` hold, restock above the fixture).
-   - (b) The order-summary copy when a cart's intended quantity is above current availability (reads no longer clamp).
-   - (c) Unknown or uninitialized products are blocked consistently: 0 immediate in the cart, "Stock unavailable" on the PDP.
-2. **Repair on the same PR** if (a) is missing.
+1. ~~Codex evaluates head `8b0458c`~~: done, FAIL. Repair `ac85162` adds the read/admission parity test and a "Check stock again" control for zero stock.
+2. **Codex re-reviews `ac85162`.** Still check (b) the order-summary copy when a cart's intended quantity is above current availability, and (c) consistent blocking of unknown or uninitialized products.
 3. **Owner runs O1, then merges.**
 
 ### #885 — EasyPost Spain feasibility (research only; deliverable is one issue comment)
@@ -167,6 +186,7 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
 3. Define fixtures: one parcel, the Madrid demo origin, and mainland and Balearic destinations. No real data.
 4. List the owner actions: accounts, carrier test credentials, rate cards, webhook secret, environment variable names.
 5. Verdict: go, no-go or go-with-fallback. Propose names and scope for #886.a–d.
+6. Because D9 chose no scheduler, also report whether and how EasyPost redelivers webhooks that fail, with the official source.
 
 ### #882 — EUR, VAT and totals (split into 3 PRs; the order matters, so each merge leaves the store consistent)
 
@@ -176,9 +196,19 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
 2. Migration: relax `checkout_refunds.currency` to `IN ('RON','EUR')` (expand-only).
 3. Refund adapter and payment-state reader: replace the RON-only checks with "payment currency = order currency = refund currency, and the currency is supported". Tests: an EUR refund succeeds; historic RON refunds and payment state read back unchanged.
 
-**PR 882-2: currency-aware display, still RON** 4. Add a `formatMoney(amount, currency)` helper. Migrate the 19 `formatLei` calls to take the currency from the product, quote or order. Keep `formatLei` as a RON alias only where a historic snapshot is rendered. 5. Fix the regional currency store to the storefront currency (D10). Group or filter the admin KPIs by currency instead of summing across currencies. 6. Visual check: pixel-identical while the store is still RON.
+**PR 882-2: currency-aware display, still RON**
 
-**PR 882-3: switch new quotes to EUR, VAT-inclusive 21%** (payments path) 7. Add explicit per-category tax config in Catalog (every current category maps to 0.21). An unknown category fails the quote closed. 8. VAT-inclusive arithmetic in integer cents. Per line: `vat = gross − round_half_up(gross / 1.21)`; order VAT = sum of line VAT. Extract shipping VAT separately. Write the rule in a code comment and in `docs/system-design/`. Add rounding boundary tests. 9. New quotes use EUR and reuse the current numeric prices (no FX). Small-order charge per D3. The quote and the snapshot carry `currency`, `pricesIncludeVat`, per-line `vatRate`, `vatTotal`. The review fingerprint covers the currency. 10. `place-order` rejects mixed currency, stale revision or a stale fingerprint before payment preparation. PaymentIntent `amount` = Order `grandTotalMinor`, currency `eur`. Test the agreement per sample. 11. JSON-LD `priceCurrency` comes from Catalog. Browser evidence: PDP, cart, summary, confirmation and admin order (mainland).
+4. Add a `formatMoney(amount, currency)` helper. Migrate the 19 `formatLei` calls to take the currency from the product, quote or order. Keep `formatLei` as a RON alias only where a historic snapshot is rendered.
+5. Fix the regional currency selector to EUR (D10). Group or filter the admin KPIs by currency instead of summing across currencies.
+6. Visual check: pixel-identical while the store is still RON.
+
+**PR 882-3: switch new quotes to EUR, VAT-inclusive 21%** (payments path)
+
+7. Add explicit per-category tax config in Catalog (every current category maps to 0.21). An unknown category fails the quote closed.
+8. VAT-inclusive arithmetic in integer cents. Per line: `vat = gross − round_half_up(gross / 1.21)`; order VAT = sum of line VAT. Extract shipping VAT separately. Write the rule in a code comment and in `docs/system-design/`. Add rounding boundary tests.
+9. New quotes use EUR and reuse the current numeric prices (no FX). **No small-order charge (D3).** The quote and the snapshot carry `currency`, `pricesIncludeVat`, per-line `vatRate`, `vatTotal`. The review fingerprint covers the currency.
+10. `place-order` rejects mixed currency, stale revision or a stale fingerprint before payment preparation. PaymentIntent `amount` = Order `grandTotalMinor`, currency `eur`. Test the agreement per sample.
+11. JSON-LD `priceCurrency` comes from Catalog. Browser evidence: PDP, cart, summary, confirmation and admin order (mainland).
 
 ### #883 — Spain zones and shipping (after #882)
 
@@ -190,7 +220,7 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
 6. Order summary: options per zone; a changed address triggers a re-quote. Historic orders keep rendering their snapshot options.
 7. Tests and browser evidence: mainland, Balearics, unsupported postcode, stale address.
 
-### #844 — Operator principal and read-only stock view (Claude; needs D2)
+### #844 — Operator principal and read-only stock view (Claude; D2 decided)
 
 1. **Inventory contract:** add `readStockLevels(ids)` returning `{onHand, effectiveHeld, available}` from the **same** statement as `readAvailability`: one query, two projections, no copied SQL. Parity test.
 2. **Migration:** `operator_grants(account_id → customer_accounts.id, permission CHECK IN ('inventory:read','inventory:write','orders:fulfil','orders:cancel'), granted_by, granted_at)`, with primary key (account, permission).
@@ -201,11 +231,11 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
 7. **Docs:** record the guard contract (bearer header, so no CSRF; revocation semantics; the XSS limitation) in `docs/system-design/`.
 8. **Evidence:** HTTP authorization matrix, two-instance check (stateless token plus database grant), and browser evidence.
 
-### #845 — Audited receipts and corrections (needs #844; D5)
+### #845 — Audited receipts and corrections (Claude after #844; D5: adjustments only)
 
 1. **Migration:** append-only `inventory_movements`:
    - Columns: `id`, `product_id`, `kind`, `delta`, `reason`, `actor_id`, `idempotency_key UNIQUE`, `request_fingerprint`, `on_hand_before`, `on_hand_after`, `created_at`.
-   - `kind`: `receipt` and `correction` now; `sale` and `release` reserved for N4.
+   - `kind`: `receipt` and `correction` only (D5). Document in `docs/system-design/` that sales and releases are not logged in this MVP.
 2. **Inventory `adjustStock`:** runs in the shared serializable transaction with a row lock.
    - A positive delta is a receipt; a negative delta is a correction.
    - Same key with the same payload replays the original outcome. Same key with a different payload conflicts.
@@ -239,7 +269,7 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
 
    Browser evidence on the PDP and cart at 0 and low stock.
 
-### #887 — Durable cancel and payment recovery (Claude; needs #844 and D1)
+### #887 — Durable cancel and payment recovery (Claude; needs #844; D1 decided)
 
 1. Read and record the existing machinery before designing: `cancellation_requested_at` on payments, `terminalize-canceled-checkout`, `restart-canceled-checkout`, PaymentIntent cancel in `stripe-intents.ts`, and the failure-page policy.
 2. **Migration** (only if the existing columns can't hold it): `order_cancellations(order_id PK, actor_id, actor_kind, idempotency_key UNIQUE, request_fingerprint, requested_at, outcome, completed_at)`.
@@ -248,7 +278,7 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
    - Mark the cancellation requested, then call the provider **outside** the transaction.
    - On a confirmed cancel, terminalize through the existing path; the reservation is released exactly once.
    - On an unknown outcome, persist the intent and return `pending`. Refresh or a webhook reconciles it.
-4. **Route:** `POST /api/orders/:id/cancel` moves off `runtimeOrders` onto the workflow. Owner-of-own-unpaid or operator (`orders:cancel`); idempotency key from the client.
+4. **Route:** `POST /api/orders/:id/cancel` moves off `runtimeOrders` onto the workflow. The order owner (own unpaid order) or an operator with `orders:cancel` (D1); idempotency key from the client. Sample orders (#893) are refused.
 5. **Race tests** with a Stripe fake:
    - Payment succeeded before the cancel.
    - Timeout after the provider cancelled.
@@ -257,7 +287,7 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
    - The failure page still makes one attempt per exit and ignores errors.
 6. Publish the response contract (`canceled` / `paid` / `pending` / `conflict`) for #805.
 
-### #884 — Manual fulfillment (needs #844; D4 and N1 before admin exposure)
+### #884 — Manual fulfillment (needs #844; #893 before admin exposure)
 
 1. New module `server/domain/fulfillment/`. **Migration:**
    - `order_fulfillment(order_id PK → checkout_orders, state CHECK IN ('Processing','Packaging','Dispatched','Delivered'), version, tracking_provider, tracking_number, shipment_reference, updated_by, updated_at)`.
@@ -281,7 +311,7 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
    - Unpaid, `OnHold` and demo-seed orders are rejected.
    - `payload_json` is byte-identical before and after every transition.
 
-### #805 — Admin order actions (Claude; needs #884, #887 and N1)
+### #805 — Admin order actions (Claude; needs #884, #887 and #893)
 
 1. Remove **Mark as Paid** from the UI (`ActionMenu.vue`), the client call and the types. Update the tests.
 2. Wire **Cancel** to the #887 contract and show `pending` and `paid` outcomes truthfully. No success toast unless the persisted state changed.
@@ -305,8 +335,8 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
    - Columns: `id`, `dedupe_key UNIQUE`, `order_id`, `kind`, `recipient`, `body`, `status`, `attempts`, `next_attempt_at`, `lease_owner`, `lease_until`, `last_error`, `created_at`, `sent_at`.
    - `dedupe_key` = order + kind.
 3. **Enqueue in the same transaction** as payment confirmation (a payment path, so payment contracts apply) and as the #884 Dispatched transition.
-4. **Dispatcher:** claim with `FOR UPDATE SKIP LOCKED` plus a lease. The sink adapter logs by default; local Mailpit is opt-in through environment config only. Backoff; terminal failure after N attempts.
-5. **Triggers (D9):** a best-effort kick after the commit, a secret-protected sweep route, and a Vercel Cron entry in `vercel.json`. The owner sets the secret.
+4. **Dispatcher:** claim with `FOR UPDATE SKIP LOCKED` plus a lease. The sink adapter logs by default; local Mailpit is opt-in through environment config only. Backoff applies between attempts that actually happen (after commit, manual retry); terminal failure after N attempts.
+5. **Triggers (D9: no cron):** one attempt right after the commit, then manual retry from the operator view. No sweep route and no `vercel.json` change.
 6. **Operator view:** list pending and failed notifications, with a retry button.
 7. **Tests:**
    - A duplicate webhook, and a duplicate transition.
@@ -326,12 +356,12 @@ Moving #845 to Claude keeps the operator write surface with the builder that bui
    - Hold expiry.
    - Stale cached metadata vs live stock.
    - `kill -9` between stages, then restart.
-5. **Deployment checklist** for N2. Don't claim it passed.
+5. **Deployment checklist** for #894. Don't claim it passed.
 
 ### #886 — EasyPost test mode (split after #885 reports)
 
 - **886.a** Shipping adapter, durable shipment identity, reconcile-before-retry on unknown outcomes. Provider fake only.
-- **886.b** Webhook ingestion: HMAC over the raw body, provider-event dedupe, no regression of terminal states, no duplicate notifications. Reconciler trigger per D9.
+- **886.b** Webhook ingestion: HMAC over the raw body, provider-event dedupe, no regression of terminal states, no duplicate notifications. No scheduler (D9): failed processing is retried by provider redelivery (if #885 confirms it) or by an operator.
 - **886.c** Customer and operator tracking views, plus the deterministic failure simulator. Simulated progress is labeled as simulation.
 - **886.d** Sandbox smoke, run or authorized by the owner.
 
@@ -339,19 +369,19 @@ Each one consumes the #884 contract and never changes the frozen shipping charge
 
 ## 8. Order of work
 
-| Wave    | Owner                                                                     | Claude                       | Codex                |
-| ------- | ------------------------------------------------------------------------- | ---------------------------- | -------------------- |
-| 0 (now) | D1–D10, O1, O2; open N1–N3; edit the #797 body and the affected child ACs | —                            | Review PR #889       |
-| 1       | Merge #889 after O1                                                       | #844                         | #885, then 882-1     |
-| 2       | —                                                                         | #845 (if rebalanced) or wait | 882-2, 882-3         |
-| 3       | —                                                                         | #887                         | #883                 |
-| 4       | —                                                                         | N1 (or Codex)                | #884                 |
-| 5       | —                                                                         | #805                         | #881, #843           |
-| 6       | —                                                                         | —                            | #888, #846, #886.a–c |
-| 7       | 886.d smoke, N2 acceptance run, close #797                                | —                            | —                    |
+| Wave | Owner                                                                       | Claude        | Codex                |
+| ---- | --------------------------------------------------------------------------- | ------------- | -------------------- |
+| 0    | ~~D1–D10~~ answered; #892–#894 opened; #797 body edited. Still open: O1, O2 | —             | Re-review PR #889    |
+| 1    | Merge #889 after O1                                                         | #844          | #885, then 882-1     |
+| 2    | —                                                                           | #845          | 882-2, 882-3         |
+| 3    | —                                                                           | #887          | #883                 |
+| 4    | —                                                                           | wait for #884 | #884, #893           |
+| 5    | —                                                                           | #805          | #881, #843           |
+| 6    | —                                                                           | —             | #888, #846, #886.a–c |
+| 7    | 886.d smoke, #894 acceptance run, close #797                                | —             | —                    |
 
 **#797 is done when:**
 
 - every child above is merged with an independent PASS;
-- N2 has run the eight-step scenario on the deployed test-mode environment;
-- workstream D lives in its own epic.
+- #894 has run the eight-step scenario on the deployed test-mode environment;
+- workstream D lives in its own epic (#892, done).
