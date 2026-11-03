@@ -1,6 +1,27 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Account modal accessibility', () => {
+  for (const width of [1440, 390]) {
+    for (const entry of ['header', 'signin-query']) {
+      test(`signup link navigates and closes the ${entry} panel at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(entry === 'header' ? '/' : '/?signin=true&redirect=%2Forder-summary', { waitUntil: 'networkidle' });
+        if (entry === 'header') await page.getByRole('button', { name: 'Open my account' }).click();
+
+        const dialog = page.getByRole('dialog', { name: 'Sign in' });
+        const signup = dialog.getByRole('link', { name: 'Create an account' });
+        await expect(signup).toHaveAttribute('href', '/signup');
+        await signup.focus();
+        await expect(signup).toBeFocused();
+        await page.keyboard.press('Enter');
+
+        await expect(page).toHaveURL(/\/signup$/);
+        await expect(dialog).toHaveCount(0);
+        await expect(page.getByRole('heading', { name: 'Create your account', exact: true })).toBeVisible();
+      });
+    }
+  }
+
   test('traps focus, supports role keyboard navigation, and restores the opener', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
