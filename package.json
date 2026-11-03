@@ -16,6 +16,8 @@
     "pretty": "prettier --write .",
     "typecheck": "nuxt typecheck",
     "db:migrate": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-migrate.mjs",
+    "operator:grant": "node --env-file-if-exists=.env --env-file-if-exists=.env.local server/infrastructure/operator-grant.mjs grant",
+    "operator:revoke": "node --env-file-if-exists=.env --env-file-if-exists=.env.local server/infrastructure/operator-grant.mjs revoke",
     "test": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/with-test-database.mjs pnpm exec vitest run",
     "test:coverage": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/with-test-database.mjs pnpm exec vitest run --coverage",
     "test:performance": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/with-test-database.mjs pnpm exec playwright test --config=playwright.performance.config.ts",

@@ -167,16 +167,23 @@ export type ProductAvailability =
 
 export const MAX_AVAILABILITY_BATCH = 50;
 
-// Buyer-facing stock read. It never writes: expired `active` holds are subtracted from `reserved`
+export type ProductStockLevel =
+  | Readonly<{ productId: string; state: 'tracked'; onHand: number; effectiveHeld: number; available: number }>
+  | Readonly<{ productId: string; state: 'untracked' }>;
+
+type StockBalance = Readonly<{ onHand: number; effectiveHeld: number; available: number }>;
+
+// The one stock statement. It never writes: expired `active` holds are subtracted from `reserved`
 // the same way availableQuantity does, without materializing them, and a product with no counter
-// row is reported unavailable rather than bootstrapped or read from fixture stock. Counters and
-// holds come from one statement, so both belong to the same snapshot.
-const readAvailability = async (productIds: readonly string[]): Promise<ProductAvailability[]> => {
+// row has no balance rather than one bootstrapped or read from fixture stock. Counters and holds
+// come from one statement, so both belong to the same snapshot. readAvailability (buyers) and
+// readStockLevels (operators) are projections of it.
+const readBalances = async (productIds: readonly string[]) => {
   const ids = [...new Set(productIds)];
   if (ids.length > MAX_AVAILABILITY_BATCH) throw new RangeError(`At most ${MAX_AVAILABILITY_BATCH} products per availability read.`);
-  // Only canonical IDs are read; a code alias or unknown ID is answered as unavailable.
+  // Only canonical IDs are read; a code alias or unknown ID has no balance.
   const canonical = ids.filter((id) => resolveInventoryProduct(id)?._id === id);
-  const balances = new Map<string, number>();
+  const balances = new Map<string, StockBalance>();
   if (canonical.length) {
     const database = await getCheckoutDatabase();
     const rows = await database.query<{ product_id: string; on_hand: number; reserved: number; expired_held: string | number }>(
@@ -196,12 +203,28 @@ const readAvailability = async (productIds: readonly string[]): Promise<ProductA
     for (const row of rows) {
       const expiredHeld = Number(row.expired_held);
       if (!isInventoryQuantity(row.on_hand) || !isInventoryQuantity(row.reserved) || !isInventoryQuantity(expiredHeld)) continue;
-      balances.set(row.product_id, Math.max(0, row.on_hand - Math.max(0, row.reserved - expiredHeld)));
+      const effectiveHeld = Math.max(0, row.reserved - expiredHeld);
+      balances.set(row.product_id, { onHand: row.on_hand, effectiveHeld, available: Math.max(0, row.on_hand - effectiveHeld) });
     }
   }
+  return { ids, balances };
+};
+
+// Buyer-facing stock read: a product without a balance is unavailable.
+const readAvailability = async (productIds: readonly string[]): Promise<ProductAvailability[]> => {
+  const { ids, balances } = await readBalances(productIds);
   return ids.map((productId) => {
-    const available = balances.get(productId);
-    return available === undefined ? { productId, state: 'unavailable' } : { productId, state: 'available', available };
+    const balance = balances.get(productId);
+    return balance ? { productId, state: 'available', available: balance.available } : { productId, state: 'unavailable' };
+  });
+};
+
+// Operator stock read: the same statement with on-hand and effective held quantities.
+const readStockLevels = async (productIds: readonly string[]): Promise<ProductStockLevel[]> => {
+  const { ids, balances } = await readBalances(productIds);
+  return ids.map((productId) => {
+    const balance = balances.get(productId);
+    return balance ? { productId, state: 'tracked', ...balance } : { productId, state: 'untracked' };
   });
 };
 
@@ -437,5 +460,6 @@ export const inventory = {
   recoverPaidReservation: (input: Parameters<typeof recoverPaidReservation>[0]) =>
     withCheckoutTransaction(() => recoverPaidReservation(input)),
   readAvailability,
+  readStockLevels,
   findReservedDrift,
 };
