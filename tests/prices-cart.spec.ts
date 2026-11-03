@@ -162,8 +162,14 @@ describe('cart pricing and stock helpers', () => {
 });
 
 describe('mock cart stock and volume pricing enforcement', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     installH3Mocks();
+    // The cart clamps to Inventory's counters, so start them from the catalog's initial stock.
+    const { getCheckoutDatabase } = await import('../server/infrastructure/checkout-database');
+    const database = await getCheckoutDatabase();
+    await database.execute('TRUNCATE checkout_reservations, checkout_inventory CASCADE');
+    const { bootstrapInventory } = await import('../server/domain/inventory/bootstrap.mjs');
+    await bootstrapInventory({ dryRun: false });
   });
 
   it('clamps overstock updates and applies volume pricing on the server cart', async () => {
