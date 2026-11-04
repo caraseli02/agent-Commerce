@@ -413,6 +413,11 @@ describe('durable PlaceOrder persistence', () => {
 
     expect(counts).toEqual({ orders: '1', payments: '1', paid: '1' });
     expect(inventory).toEqual({ on_hand: 50, reserved: 0 });
+
+    // The losing buyer reviews a refreshed cart: their intent is kept and the remaining stock is shown.
+    const loserId = results[0].status === 'rejected' ? 'stock-race-customer-1' : 'stock-race-customer-2';
+    const refreshed = await getMockCartForUser(loserId);
+    expect(refreshed.products?.[0]).toMatchObject({ id: 'prod-1', stock: 100, productEntity: { stock: 50 } });
   });
 
   it('keeps a guest quote and persisted snapshot on the zero-discount guest policy', async () => {

@@ -14,10 +14,6 @@ export interface ProductJsonLdContext {
 /** The catalog prices in Lei; checkout (`useOrder`) places orders with the same ISO code. */
 export const PRODUCT_PRICE_CURRENCY = 'RON';
 
-const IN_STOCK = 'https://schema.org/InStock';
-// The stock badge labels sold-out products "backorder only", so structured data says the same.
-const BACK_ORDER = 'https://schema.org/BackOrder';
-
 const clean = (value: string | null | undefined) => (typeof value === 'string' ? value.trim() : '');
 
 /** Drops keys that carry no data so absent product fields never serialize as empty strings. */
@@ -32,15 +28,13 @@ const buildOffer = (product: ProductDetail, { toAbsoluteUrl, pageUrl }: ProductJ
     return undefined;
   }
 
-  const stock = Number(product.stock);
-  const hasStock = product.stock !== undefined && product.stock !== null && Number.isFinite(stock);
-
   return compact({
     '@type': 'Offer',
     url: toAbsoluteUrl(pageUrl),
     price,
     priceCurrency: PRODUCT_PRICE_CURRENCY,
-    availability: hasStock ? (stock > 0 ? IN_STOCK : BACK_ORDER) : undefined,
+    // No availability: this node is server-rendered into cacheable HTML, and only Inventory's
+    // uncached read (fetched in the browser) knows current stock. Catalog `stock` is a fixture.
   });
 };
 
