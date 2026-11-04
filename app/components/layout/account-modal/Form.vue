@@ -11,7 +11,9 @@
           :tabindex="selectedLoginRole === 'customer' ? 0 : -1"
           class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors"
           :class="
-            selectedLoginRole === 'customer' ? 'bg-card text-blue-500 shadow-sm hover:bg-card' : 'text-muted-foreground hover:text-blue-500'
+            selectedLoginRole === 'customer'
+              ? 'bg-card text-foreground shadow-sm hover:bg-card'
+              : 'text-muted-foreground hover:text-foreground'
           "
           @click="selectDemoRole('customer')"
           @keydown="handleDemoRoleKeydown($event, 'customer')"
@@ -26,7 +28,9 @@
           :tabindex="selectedLoginRole === 'admin' ? 0 : -1"
           class="min-h-11 rounded-md px-3 py-2 text-sm font-medium transition-colors"
           :class="
-            selectedLoginRole === 'admin' ? 'bg-card text-blue-500 shadow-sm hover:bg-card' : 'text-muted-foreground hover:text-blue-500'
+            selectedLoginRole === 'admin'
+              ? 'bg-card text-foreground shadow-sm hover:bg-card'
+              : 'text-muted-foreground hover:text-foreground'
           "
           @click="selectDemoRole('admin')"
           @keydown="handleDemoRoleKeydown($event, 'admin')"
@@ -73,7 +77,7 @@
     </UiButton>
     <p class="mt-3 text-center text-xs text-muted-foreground">
       New here?
-      <NuxtLink to="/signup" class="font-medium text-blue-500 hover:underline" @click="emits('close')">Create an account</NuxtLink>
+      <NuxtLink to="/signup" class="font-medium text-signal-text hover:underline" @click="emits('close')">Create an account</NuxtLink>
     </p>
     <div v-if="errorResponse.show" role="alert" class="bg-rose-600 p-2 mt-3 rounded">
       <p class="text-white">

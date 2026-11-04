@@ -70,11 +70,11 @@ for (const surface of ['storefront', 'admin'] as const) {
       await expect(markNew).toBeFocused();
       await page.keyboard.press('Enter');
       await expect.poll(() => mutations.slice()).toEqual(['PUT /api/notification/notification-0']);
-      await expect(newRow.locator('.bg-blue-500')).toHaveCount(0);
+      await expect(newRow.locator('.bg-signal')).toHaveCount(0);
       await expect(newDelete).toBeVisible();
       await markCompleted.press('Space');
       await expect.poll(() => mutations.slice()).toEqual(['PUT /api/notification/notification-0', 'PUT /api/notification/notification-1']);
-      await expect(completedRow.locator('.bg-blue-500')).toHaveCount(0);
+      await expect(completedRow.locator('.bg-signal')).toHaveCount(0);
 
       const markPending = dialog.getByRole('button', { name: 'Mark notification as read: Pending', exact: true });
       await markPending.getByText('Notification 3:', { exact: false }).click();

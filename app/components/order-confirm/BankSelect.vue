@@ -32,7 +32,7 @@ const selectedBank = computed(() => banks.find((bank) => bank.value === value.va
 <template>
   <UiPopover v-model:open="open">
     <UiPopoverTrigger class="border-border" as-child>
-      <UiButton variant="outline" role="combobox" :aria-expanded="open" class="min-w-[326px] justify-between">
+      <UiButton variant="outline" role="combobox" :aria-expanded="open" class="w-full max-w-[326px] min-w-0 justify-between">
         <p class="flex justify-between w-full text-muted-foreground pr-2">
           <span>{{ selectedBank?.label }}</span>
           <span>{{ selectedBank?.currency }}</span>
@@ -40,7 +40,7 @@ const selectedBank = computed(() => banks.find((bank) => bank.value === value.va
         <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </UiButton>
     </UiPopoverTrigger>
-    <UiPopoverContent class="min-w-[326px] p-0 border-border">
+    <UiPopoverContent class="w-[var(--radix-popper-anchor-width)] max-w-[calc(100vw-2rem)] p-0 border-border">
       <UiCommand>
         <UiCommandInput class="h-9" placeholder="Search bank..." />
         <UiCommandEmpty>No bank found.</UiCommandEmpty>

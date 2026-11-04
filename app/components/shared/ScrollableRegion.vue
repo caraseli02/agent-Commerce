@@ -62,7 +62,7 @@ onBeforeUnmount(() => {
       :data-testid="testId"
       :class="
         cn(
-          'max-w-full overflow-x-auto rounded-xl scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+          'max-w-full overflow-x-auto rounded-xl scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           props.class,
         )
       "

@@ -42,12 +42,12 @@ const onEditClick = () => {
 </script>
 
 <template>
-  <div class="flex w-full min-w-[326px] flex-col gap-3">
+  <div class="flex w-full min-w-0 flex-col gap-3">
     <UiButton
       type="button"
       :variant="isSelected ? 'option-selected' : 'option'"
       size="card"
-      class="w-full min-w-[326px] min-h-[100px] flex-col whitespace-normal group"
+      class="w-full min-w-0 min-h-[100px] flex-col whitespace-normal group"
       :aria-label="!hasCard && !showPayWithLabel ? 'Pay by card' : undefined"
       @click="paymentMethods(cardInfo, $event)"
     >
@@ -55,7 +55,7 @@ const onEditClick = () => {
         <div class="flex flex-row justify-between w-full gap-3">
           <SvgoRadioButtonChecked
             v-if="isSelected"
-            class="w-5 h-5 my-[3px] text-blue-500 group-hover:text-blue-500 transition duration-300"
+            class="w-5 h-5 my-[3px] text-primary group-hover:text-primary transition duration-300"
           />
           <SvgoRadioButton v-else class="w-5 h-5 my-[3px] text-gray-300 group-hover:text-foreground transition duration-300" />
           <div v-if="hasCard" class="justify-between items-center self-stretch flex gap-5 w-full">

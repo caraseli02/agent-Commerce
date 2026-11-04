@@ -1,17 +1,14 @@
 <template>
-  <header
-    class="fixed z-50 top-0 left-0 w-full bg-background transition-transform duration-200 ease-out md:shadow-[0_1px_0_0_hsl(var(--border)),0_4px_12px_-4px_rgba(15,23,42,0.06)]"
-  >
-    <div class="relative z-10 border-b border-border bg-muted py-1.5 md:py-2">
+  <header class="fixed z-50 top-0 left-0 w-full bg-header text-header-foreground transition-transform duration-200 ease-out">
+    <div class="relative z-10 border-b border-border bg-sidebar py-1.5 md:py-2">
       <div class="container">
         <div class="flex items-center text-muted-foreground md:justify-between">
           <div class="mr-4 flex items-center gap-2 md:mr-0">
-            <HeadphonesIcon class="h-5 w-5" />
-            <div class="hidden text-xs leading-[1.67] md:flex lg:text-sm lg:leading-tight">
-              Sales: +1 800 555 0199 (Mon-Fri 8:00AM - 4:00PM EST)
-            </div>
+            <HeadphonesIcon class="h-4 w-4" />
+            <div class="hidden text-xs leading-5 md:flex">Sales: +1 800 555 0199 (Mon-Fri 8:00AM - 4:00PM EST)</div>
           </div>
-          <div class="mr-auto text-xs font-semibold leading-[1.67] text-primary md:mr-0 lg:text-sm lg:leading-[1.43]">
+          <div class="mr-auto flex items-center gap-2 text-xs font-medium leading-5 text-foreground md:mr-0">
+            <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-signal" aria-hidden="true" />
             Flat-rate shipping from {{ flatShippingFrom }}
           </div>
           <!-- Negative margin keeps a 44px hit area without growing the slim bar. -->
@@ -21,8 +18,8 @@
             aria-label="Regional preferences"
             @click="showRegionalPreferencesModal = true"
           >
-            <RonFlag class="mr-2.5 h-5 w-6" />
-            <span class="text-sm leading-[1.43] text-muted-foreground">{{ regionalLabel }}</span>
+            <RonFlag class="mr-2 h-4 w-5 rounded-[2px]" />
+            <span class="text-xs leading-5 text-muted-foreground">{{ regionalLabel }}</span>
           </UiButton>
         </div>
       </div>

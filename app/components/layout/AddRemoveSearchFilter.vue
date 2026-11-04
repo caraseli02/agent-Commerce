@@ -58,7 +58,7 @@
             <div
               v-for="item in filteredItems"
               :key="item.parameter"
-              class="group grid grid-cols-[repeat(2,1fr)_auto] gap-2 rounded-[3px] odd:bg-[#F2F2F2] dark:odd:bg-muted px-2 pt-[5px] pb-1.5 cursor-pointer transition-colors duration-300 hover:text-blue-500"
+              class="group grid grid-cols-[repeat(2,1fr)_auto] gap-2 rounded-[3px] odd:bg-[#F2F2F2] dark:odd:bg-muted px-2 pt-[5px] pb-1.5 cursor-pointer transition-colors duration-300 hover:text-signal-text"
               @click="toggleItem(item)"
             >
               <div class="text-xs font-medium font-Inter leading-tight">
@@ -70,10 +70,13 @@
               <div
                 class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300"
                 :class="[
-                  item.checked ? 'bg-blue-500 border-blue-500 group-hover:bg-card' : 'bg-card  border-border group-hover:border-border',
+                  item.checked ? 'bg-primary border-primary group-hover:bg-card' : 'bg-card  border-border group-hover:border-border',
                 ]"
               >
-                <CheckIcon v-if="item.checked" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
+                <CheckIcon
+                  v-if="item.checked"
+                  class="w-4 text-primary-foreground transition-colors duration-300 group-hover:text-primary"
+                />
               </div>
             </div>
           </div>

@@ -18,14 +18,14 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
 <template>
   <SliderRoot :class="cn('relative flex w-full touch-none select-none items-center rounded-full', props.class)" v-bind="forwarded">
-    <SliderTrack :step="10" class="relative h-2 w-full grow overflow-hidden rounded-full bg-accent dark:bg-slate-800">
-      <SliderRange class="absolute h-full bg-blue-500 dark:bg-muted" />
+    <SliderTrack :step="10" class="relative h-2 w-full grow overflow-hidden rounded-full bg-accent">
+      <SliderRange class="absolute h-full bg-primary" />
     </SliderTrack>
     <SliderThumb
-      class="block h-5 w-5 rounded-full border-2 border-blue-500 bg-card ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-50 dark:bg-slate-950 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300"
+      class="block h-5 w-5 rounded-full border-2 border-primary bg-card ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
     />
     <SliderThumb
-      class="block h-5 w-5 rounded-full border-2 border-blue-500 bg-card ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-50 dark:bg-slate-950 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300"
+      class="block h-5 w-5 rounded-full border-2 border-primary bg-card ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
     />
   </SliderRoot>
 </template>

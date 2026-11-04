@@ -81,7 +81,7 @@ defineExpose({
                 type="email"
                 placeholder="Enter email address"
                 v-bind="componentField"
-                :class="cn(errorMessage ? 'border-red-500 focus-visible:ring-red-500' : '')"
+                :class="cn(errorMessage ? 'border-red-500 focus-visible:border-red-500' : '')"
               />
             </FormControl>
             <FormMessage />

@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-semibold text-foreground">Create your account</h1>
       <p class="mt-1 text-sm text-muted-foreground">
         Already have one?
-        <NuxtLink to="/?signin=true" class="font-medium text-blue-500 hover:underline">Sign in</NuxtLink>
+        <NuxtLink to="/?signin=true" class="font-medium text-signal-text hover:underline">Sign in</NuxtLink>
       </p>
 
       <form novalidate class="mt-6 grid gap-4" aria-label="Create account" @submit.prevent="handleSubmit">

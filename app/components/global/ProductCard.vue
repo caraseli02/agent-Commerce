@@ -1,14 +1,14 @@
 <template>
   <div
-    class="relative grid h-full grid-cols-[88px_minmax(0,1fr)] xs:grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl border border-border bg-card p-3 font-Inter transition-[border-color,box-shadow] duration-200 hover:border-primary/30 hover:shadow-md motion-reduce:transition-none md:flex md:flex-col md:grid-rows-none md:gap-3 md:p-4"
+    class="relative grid h-full grid-cols-[88px_minmax(0,1fr)] xs:grid-cols-[108px_minmax(0,1fr)] grid-rows-[auto_1fr] items-start gap-x-3 gap-y-2 overflow-hidden rounded-xl border border-border bg-card p-3 font-Inter transition-[border-color,box-shadow] duration-200 ease-out hover:border-input/60 hover:shadow-md motion-reduce:transition-none md:flex md:flex-col md:grid-rows-none md:gap-3 md:p-3.5"
   >
     <NuxtLink
       :to="productRoute"
       :aria-label="`View ${product.name}`"
-      class="group relative col-start-1 row-start-1 row-span-2 w-full max-w-[88px] xs:max-w-[108px] self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 md:max-w-none md:row-span-auto md:self-auto"
+      class="group relative col-start-1 row-start-1 row-span-2 w-full max-w-[88px] xs:max-w-[108px] self-start rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:max-w-none md:row-span-auto md:self-auto"
     >
       <!-- Catalog media frame: card backdrop; cover fills the frame -->
-      <div class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-muted/50 md:aspect-[4/3]">
+      <div class="relative mx-auto aspect-square w-full overflow-hidden rounded-lg bg-muted/60 md:aspect-[4/3]">
         <ProductCardStock floating :stock="product.stock" />
         <ImageWithFallback
           :src="productCardImageSrc"
@@ -18,18 +18,24 @@
       </div>
       <div
         v-if="productDiscount"
-        class="pointer-events-none absolute right-1.5 top-1.5 z-10 rounded-full bg-rose-700 px-2 py-0.5 text-xs font-semibold leading-tight text-white shadow-sm md:right-2 md:top-2"
+        class="pointer-events-none absolute bottom-1.5 right-1.5 z-10 rounded-full bg-primary px-2 py-0.5 text-xs font-bold leading-tight text-primary-foreground tabular-nums shadow-xs md:bottom-auto md:right-2 md:top-2"
       >
         {{ productDiscount ?? 0 }}%
       </div>
     </NuxtLink>
 
-    <div class="relative col-start-2 row-start-1 flex w-full min-w-0 max-w-full flex-col gap-1 md:min-h-[64px]">
+    <div class="relative col-start-2 row-start-1 flex w-full min-w-0 max-w-full flex-col gap-1 md:min-h-[64px] md:px-0.5">
+      <p
+        v-if="productCategory"
+        class="hidden break-words text-[11px] font-semibold uppercase leading-tight tracking-[0.08em] text-muted-foreground md:block"
+      >
+        {{ productCategory }}
+      </p>
       <div class="flex w-full min-w-0 max-w-full items-start gap-1 md:items-center md:gap-2">
-        <h3 class="min-w-0 flex-1 break-words text-sm font-semibold leading-snug text-foreground md:text-base">
+        <h3 class="min-w-0 flex-1 break-words text-sm font-semibold leading-snug tracking-[-0.005em] text-foreground md:text-[15px]">
           <NuxtLink
             :to="productRoute"
-            class="cursor-pointer rounded-sm text-inherit transition-colors hover:text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            class="cursor-pointer rounded-sm text-inherit underline-offset-[3px] transition-colors hover:text-signal-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {{ product.name }}
           </NuxtLink>
@@ -53,19 +59,23 @@
           </UiDropdownMenu>
         </div>
       </div>
+      <p
+        v-if="product.manufacturerCode"
+        class="truncate font-mono text-xs leading-5 text-muted-foreground"
+        :title="product.manufacturer ? `${product.manufacturerCode}, ${product.manufacturer}` : product.manufacturerCode"
+      >
+        {{ product.manufacturerCode }}
+      </p>
       <div class="hidden flex-col gap-1 md:flex">
-        <p v-if="productCategory" class="break-words text-xs font-semibold uppercase leading-tight tracking-[0.06em] text-muted-foreground">
-          {{ productCategory }}
-        </p>
         <p class="line-clamp-2 min-h-10 text-sm leading-5 text-muted-foreground" :title="product.description">{{ product.description }}</p>
       </div>
     </div>
 
     <div
-      class="relative col-start-2 row-start-2 flex min-w-0 items-end justify-between gap-3 self-stretch md:col-start-auto md:row-start-auto md:mt-auto md:border-t md:border-border/60 md:pt-3"
+      class="relative col-start-2 row-start-2 flex min-w-0 items-end justify-between gap-3 self-stretch md:col-start-auto md:row-start-auto md:mt-auto md:border-t md:border-border md:px-0.5 md:pt-3"
     >
       <div class="min-w-0">
-        <div class="min-h-[14px] text-xs leading-tight text-muted-foreground line-through">
+        <div class="min-h-[14px] text-xs leading-tight text-muted-foreground line-through tabular-nums">
           <template v-if="productDiscount">
             {{
               priceConfiguration
@@ -75,8 +85,8 @@
             }}
           </template>
         </div>
-        <div class="flex flex-wrap items-center gap-1" :class="[productDiscount ? 'text-red-700' : '']">
-          <strong class="text-base leading-tight md:text-lg">
+        <div class="flex flex-wrap items-baseline gap-1">
+          <strong class="text-base font-semibold leading-tight tracking-[-0.01em] tabular-nums md:text-lg">
             {{ discountPrice ? `${discountPrice.toFixed(2)} Lei` : priceConfiguration?.price.toFixed(2) || '-' }}
           </strong>
           <span class="text-xs text-muted-foreground">
@@ -86,7 +96,6 @@
       </div>
       <UiButton
         type="button"
-        variant="cart"
         aria-label="Add product to cart"
         :aria-labelledby="`add-to-cart-${product._id}`"
         :aria-busy="isThisProductAdding"

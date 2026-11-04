@@ -79,7 +79,7 @@ const chartOptions: ApexOptions = {
   },
   fill: {
     type: 'solid',
-    colors: ['white'],
+    colors: ['transparent'],
     opacity: 0,
   },
   xaxis: {

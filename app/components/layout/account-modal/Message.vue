@@ -32,7 +32,7 @@
           </div>
           <NuxtLink v-if="message.actionTo" :to="message.actionTo" class="items-center flex gap-2 mt-2">
             <svgo-menu-icon-setting-blue class="w-4 h-4" />
-            <div class="text-blue-500 hover:text-blue-400 text-sm font-medium leading-5 self-stretch grow whitespace-nowrap">
+            <div class="text-signal-text hover:text-signal-text text-sm font-medium leading-5 self-stretch grow whitespace-nowrap">
               {{ message.actionLabel }}
             </div>
           </NuxtLink>

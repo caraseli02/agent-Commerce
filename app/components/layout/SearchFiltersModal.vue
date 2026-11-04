@@ -21,14 +21,14 @@
       </div>
       <div v-touch:drag="onDrag" class="mb-[25px] flex items-center gap-[15px] px-[15px]">
         <UiButton
-          class="flex items-center justify-center rounded bg-blue-600 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-700"
+          class="flex items-center justify-center rounded bg-primary px-3 py-1.5 font-Inter text-sm font-medium text-primary-foreground hover:bg-primary/90"
           @click="$emit('show-add-filters-modal')"
         >
           <FiltersIcon class="mr-2 h-5 w-5" />
           <span>Add Filters</span>
         </UiButton>
         <UiButton
-          class="flex items-center justify-center rounded bg-blue-600 px-3 py-1.5 font-Inter text-sm font-medium text-white hover:bg-blue-700"
+          class="flex items-center justify-center rounded bg-primary px-3 py-1.5 font-Inter text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           <ResetIcon class="mr-2 h-5 w-5" />
           <span>Reset Filters</span>

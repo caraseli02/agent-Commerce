@@ -44,10 +44,10 @@
                   <div class="text-base leading-6">
                     {{ item.productCode }}
                   </div>
-                  <div class="leading-[20px] mt-1">
+                  <div class="leading-[20px] mt-1 line-clamp-1">
                     {{ item.description }}
                   </div>
-                  <div class="overflow-hidden text-muted-foreground text-ellipsis leading-[16px] mt-1">
+                  <div class="truncate text-muted-foreground leading-[16px] mt-1">
                     {{ item.details }}
                   </div>
                 </div>
@@ -86,23 +86,23 @@
               >
                 <path
                   d="M11.5 20.5C11.5 21.3284 10.8284 22 10 22C9.17157 22 8.5 21.3284 8.5 20.5C8.5 19.6716 9.17157 19 10 19C10.8284 19 11.5 19.6716 11.5 20.5Z"
-                  stroke="white"
+                  stroke="currentColor"
                   stroke-width="1.5"
                 />
                 <path
                   d="M20.5 20.5C20.5 21.3284 19.8284 22 19 22C18.1716 22 17.5 21.3284 17.5 20.5C17.5 19.6716 18.1716 19 19 19C19.8284 19 20.5 19.6716 20.5 20.5Z"
-                  stroke="white"
+                  stroke="currentColor"
                   stroke-width="1.5"
                 />
                 <path
                   d="M6.5 4H18.5C20.7091 4 22.5 5.79086 22.5 8V13C22.5 15.2091 20.7091 17 18.5 17H10.5C8.29086 17 6.5 15.2091 6.5 13V4ZM6.5 4C6.5 2.89543 5.60457 2 4.5 2H2.5M6.5 8H22"
-                  stroke="white"
+                  stroke="currentColor"
                   stroke-width="1.5"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
               </svg>
-              <div class="text-white text-sm font-medium leading-6 grow whitespace-nowrap">
+              <div class="text-primary-foreground text-sm font-medium leading-6 grow whitespace-nowrap">
                 {{ isSlideAdding(item) ? 'Adding…' : item.addToCartText || 'Add to cart' }}
               </div>
             </UiButton>

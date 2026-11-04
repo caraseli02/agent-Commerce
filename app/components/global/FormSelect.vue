@@ -8,7 +8,7 @@
       variant="outline"
       class="w-full justify-between px-3"
       :class="[
-        error ? 'border-red' : showOptions ? 'border-blue-500' : '',
+        error ? 'border-red' : showOptions ? 'border-primary' : '',
         disabled && showDisabledStyles
           ? 'disabled:bg-muted disabled:text-muted-foreground disabled:border-border disabled:shadow-none'
           : 'disabled:opacity-100',
@@ -64,7 +64,7 @@
         <div v-if="search" class="mb-[15px]">
           <div class="text-sm text-muted-foreground mb-[5px]">Search {{ label }}</div>
           <!-- The label draws the border and focus state (and focuses the input from the icon), so the input drops its own. -->
-          <UiLabel class="relative flex items-center border border-border rounded px-3 focus-within:border-blue-500">
+          <UiLabel class="relative flex items-center border border-border rounded px-3 focus-within:border-ring">
             <SearchIcon class="w-[18px] h-[18px] text-muted-foreground" />
             <UiInput
               v-model="searchValue"
@@ -97,10 +97,10 @@
             <div
               class="flex items-center justify-center flex-shrink-0 w-[18px] h-[18px] rounded mt-px border transition-colors duration-300 mr-2.5"
               :class="[
-                option.value === modelValue?.value ? 'bg-blue-500 border-blue-500 ' : 'bg-card  border-border group-hover:border-border',
+                option.value === modelValue?.value ? 'bg-primary border-primary ' : 'bg-card  border-border group-hover:border-border',
               ]"
             >
-              <CheckIcon v-if="option.value === modelValue?.value" class="w-4 text-white" />
+              <CheckIcon v-if="option.value === modelValue?.value" class="w-4 text-primary-foreground" />
             </div>
             <component :is="option.icon" v-if="option.icon" class="w-6 h-6 text-muted-foreground mr-2" />
             <span
@@ -118,7 +118,7 @@
             type="button"
             variant="ghost"
             class="h-auto w-full justify-start whitespace-normal px-2.5 py-[9px] text-left"
-            :class="[option.value === modelValue?.value ? 'text-blue-500' : '']"
+            :class="[option.value === modelValue?.value ? 'text-signal-text' : '']"
             @click="inputHandler(option)"
           >
             <img

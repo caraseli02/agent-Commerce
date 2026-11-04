@@ -166,6 +166,6 @@ describe('storefront product card image fallback', () => {
     expect(source).not.toContain('absolute inset-0');
     expect(source).toContain('group-hover:scale-[1.03]');
     expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:underline');
-    expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:text-blue-600');
+    expect(getStaticAttrValue(titleLink!, 'class')).toContain('hover:text-signal-text');
   });
 });

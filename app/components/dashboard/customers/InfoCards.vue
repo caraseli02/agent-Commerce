@@ -6,7 +6,7 @@
           <EmojiSadIcon v-if="emptyData || error.lastOrder" class="w-[52px] h-[52px]" />
           <div v-else class="flex items-center justify-center w-14 h-14 bg-primary/25 rounded-full">
             <div class="flex items-center justify-center w-10 h-10 bg-primary rounded-full">
-              <LastOrderIcon class="w-6 h-6 text-white" />
+              <LastOrderIcon class="w-6 h-6 text-primary-foreground" />
             </div>
           </div>
         </div>

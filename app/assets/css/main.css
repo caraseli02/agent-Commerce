@@ -22,19 +22,24 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1440px;
 
-  /* Typography */
-  --font-sans: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Archivo', var(--font-sans);
-  --font-Inter: 'Source Sans 3', sans-serif;
-  --font-Poppins: 'Archivo', sans-serif;
+  /* Typography: one UI family carries headings, labels and data; codes (part numbers, order IDs) use the mono. */
+  --font-sans: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Legacy family utilities (font-Inter, font-Poppins) resolve to the UI family. */
+  --font-Inter: var(--font-sans);
+  --font-Poppins: var(--font-sans);
 
-  /* Shadows */
-  --shadow-xs: 0px 0px 8px rgba(133, 133, 133, 0.25);
-  --shadow-s: 0px 0px 8px rgba(133, 133, 133, 0.25);
-  --shadow-m: 0px 0px 16px rgba(133, 133, 133, 0.25);
-  --shadow-l: 0px 0px 24px rgba(133, 133, 133, 0.25);
-  --shadow-xl: 0px 0px 32px rgba(133, 133, 133, 0.25);
-  --shadow-xxl: 0px 0px 48px rgba(133, 133, 133, 0.25);
+  /* Shadows: warm-tinted and layered; resting surfaces rely on borders, raised ones on these. */
+  --shadow-xs: 0 1px 2px rgb(28 25 22 / 0.06);
+  --shadow-sm: 0 1px 2px rgb(28 25 22 / 0.05), 0 1px 3px rgb(28 25 22 / 0.07);
+  --shadow-md: 0 4px 10px -2px rgb(28 25 22 / 0.08), 0 2px 4px -2px rgb(28 25 22 / 0.05);
+  --shadow-lg: 0 12px 24px -6px rgb(28 25 22 / 0.12), 0 4px 8px -4px rgb(28 25 22 / 0.06);
+  --shadow-s: var(--shadow-sm);
+  --shadow-m: var(--shadow-md);
+  --shadow-l: var(--shadow-lg);
+  --shadow-xl: 0 20px 40px -12px rgb(28 25 22 / 0.18), 0 6px 12px -6px rgb(28 25 22 / 0.08);
+  --shadow-xxl: 0 32px 64px -16px rgb(28 25 22 / 0.24);
 
   /* Animations */
   --animate-ping-once: ping 1s cubic-bezier(0, 0, 0.2, 1) 1;
@@ -68,6 +73,11 @@
   --color-card-foreground: hsl(var(--card-foreground));
   --color-header: hsl(var(--header));
   --color-header-foreground: hsl(var(--header-foreground));
+  /* The signal key: the one orange reserved for the decisive commerce action. */
+  --color-signal: hsl(var(--signal));
+  --color-signal-foreground: hsl(var(--signal-foreground));
+  --color-signal-text: hsl(var(--signal-text));
+  --color-sidebar: hsl(var(--sidebar));
 
   /* Light scale */
   --color-light-50: #fdfdfd;
@@ -117,17 +127,30 @@
   --color-dark-800: #1f202a;
   --color-dark-900: #181920;
 
-  /* Slate scale */
-  --color-slate-50: #efeff2;
-  --color-slate-100: #cdced5;
-  --color-slate-200: #b5b7c1;
-  --color-slate-300: #9396a5;
-  --color-slate-400: #7e8193;
-  --color-slate-500: #5e6278;
-  --color-slate-600: #56596d;
-  --color-slate-700: #434655;
-  --color-slate-800: #343642;
-  --color-slate-900: #272932;
+  /* Slate and gray scales: the warm-neutral ramp the semantic surfaces are drawn from. */
+  --color-slate-50: #f8f7f4;
+  --color-slate-100: #ebe9e6;
+  --color-slate-200: #d7d5d2;
+  --color-slate-300: #bcbab6;
+  --color-slate-400: #9b9894;
+  --color-slate-500: #797571;
+  --color-slate-600: #625e5a;
+  --color-slate-700: #4b4743;
+  --color-slate-800: #2d2b28;
+  --color-slate-900: #1c1a18;
+  --color-slate-950: #0f0e0c;
+
+  --color-gray-50: #fbfaf9;
+  --color-gray-100: #f4f3f1;
+  --color-gray-200: #e7e6e3;
+  --color-gray-300: #d6d4d1;
+  --color-gray-400: #a4a19d;
+  --color-gray-500: #76726e;
+  --color-gray-600: #585551;
+  --color-gray-700: #44403d;
+  --color-gray-800: #2b2826;
+  --color-gray-900: #1a1816;
+  --color-gray-950: #0a0908;
 
   /* Neutral scale */
   --color-neutral-50: #ececec;
@@ -335,75 +358,89 @@
   }
 }
 
+/*
+ * Bench palette. Instrument-gray surfaces, graphite ink for actions and selection, and one
+ * signal-orange key for the decisive commerce action (search, add to cart, checkout).
+ * Designed in OKLCH (warm-neutral hue ~75, chroma <= 0.009) and stored as HSL triplets, the
+ * shadcn-vue convention tests/control-boundary-contrast.spec.ts reads.
+ */
 :root {
   color-scheme: light;
-  --font-sans: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Archivo', var(--font-sans);
-  /* Semantic tokens, shadcn-vue convention. Light values match the project palette. */
-  /* A faint brand-hue tint, so white cards and popovers lift off the page. */
-  --background: 220 20% 99.5%;
-  --foreground: 229 12% 17%;
-  --card: 0 0% 100%;
-  --card-foreground: 229 12% 17%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 229 12% 17%;
-  --primary: 215 55% 38%;
-  --primary-foreground: 210 20% 98%;
-  --secondary: 220 12% 94%;
-  --secondary-foreground: 229 12% 17%;
-  --muted: 240 10% 94%;
-  --muted-foreground: 231 12% 42%;
-  --accent: 0 0% 95%;
-  --accent-foreground: 229 12% 17%;
-  --destructive: 0 72% 46%;
-  --destructive-foreground: 0 0% 98%;
+  --background: 40 14.7% 96.5%;
+  --foreground: 31 12.9% 9.7%;
+  --card: 40 43.3% 99.5%;
+  --card-foreground: 31 12.9% 9.7%;
+  --popover: 40 43.3% 99.5%;
+  --popover-foreground: 31 12.9% 9.7%;
+  /* Graphite ink: primary buttons, checked controls, selected borders. */
+  --primary: 31 11.1% 11.5%;
+  --primary-foreground: 40 19.2% 97.9%;
+  --secondary: 40 9.9% 91.8%;
+  --secondary-foreground: 31 12.9% 9.7%;
+  --muted: 40 9.2% 93.3%;
+  /* 4.5:1 or more on background, card, muted, secondary and sidebar. */
+  --muted-foreground: 31 4.8% 35.8%;
+  --accent: 40 9.5% 92.5%;
+  --accent-foreground: 31 12.9% 9.7%;
+  --destructive: 360 69.6% 48.1%;
+  --destructive-foreground: 0 0% 100%;
   /* Error text (form messages, invalid labels): 4.5:1 on background, card, popover and muted. */
-  --destructive-text: 0 72% 42%;
+  --destructive-text: 0 68.8% 44.1%;
   /* Status fills; each pairs with its foreground at 4.5:1 or more. */
-  --success: 162 100% 24%;
+  --success: 156 89.5% 24.5%;
   --success-foreground: 0 0% 100%;
-  --warning: 32 100% 60%;
-  --warning-foreground: 229 12% 17%;
-  --border: 230 9% 73%;
+  --warning: 37 87.9% 57.9%;
+  --warning-foreground: 31 12.9% 9.7%;
+  --border: 40 5.7% 86%;
   /* Control boundaries (inputs, outline buttons): 3:1 on background, card, muted and secondary (WCAG 1.4.11, #760). */
-  --input: 230 9% 56%;
-  --ring: 215 40% 52%;
-  --radius: 0.5rem;
-  /* Brand header: blue in light mode, page background in dark mode. */
-  --header: 215 55% 38%;
-  --header-foreground: 0 0% 100%;
+  --input: 34 3.2% 51%;
+  /* Focus rings: 3:1 or more on background and card. */
+  --ring: 21 100% 42.3%;
+  --radius: 0.625rem;
+  /* Signal key fill carries ink text at 6.5:1; signal text is the 4.5:1 orange for links on light surfaces. */
+  --signal: 24 94.5% 54.5%;
+  --signal-foreground: 24 22.1% 8.5%;
+  --signal-text: 20 100% 37.5%;
+  /* Header sits on the card surface; the sidebar is the second neutral layer for dashboards. */
+  --header: 40 43.3% 99.5%;
+  --header-foreground: 31 12.9% 9.7%;
+  --sidebar: 40 10.6% 94.3%;
 }
 
 .dark {
   color-scheme: dark;
-  --background: 225 14% 8%;
-  --foreground: 210 15% 96%;
-  --card: 225 14% 10%;
-  --card-foreground: 210 15% 96%;
-  --popover: 225 14% 10%;
-  --popover-foreground: 210 15% 96%;
-  --primary: 210 18% 92%;
-  --primary-foreground: 225 14% 12%;
-  --secondary: 225 10% 16%;
-  --secondary-foreground: 210 15% 96%;
-  --muted: 225 10% 16%;
-  --muted-foreground: 220 8% 62%;
-  --accent: 225 10% 16%;
-  --accent-foreground: 210 15% 96%;
+  --background: 31 10.7% 5.5%;
+  --foreground: 40 10% 93.9%;
+  --card: 31 9.1% 8.5%;
+  --card-foreground: 40 10% 93.9%;
+  --popover: 31 9.1% 8.5%;
+  --popover-foreground: 40 10% 93.9%;
+  --primary: 40 9% 93.2%;
+  --primary-foreground: 31 10.9% 8.4%;
+  --secondary: 31 7.5% 13%;
+  --secondary-foreground: 40 10% 93.9%;
+  --muted: 31 7.7% 12.5%;
+  --muted-foreground: 37 4.6% 65.2%;
+  --accent: 31 7.3% 13.4%;
+  --accent-foreground: 40 10% 93.9%;
   /* A fill only; error text uses the lighter --destructive-text. */
-  --destructive: 0 55% 32%;
+  --destructive: 1 69.4% 32.6%;
   --destructive-foreground: 0 85% 97%;
-  --destructive-text: 0 85% 72%;
-  --success: 162 100% 24%;
+  --destructive-text: 3 94.5% 73.1%;
+  --success: 156 89.5% 24.5%;
   --success-foreground: 0 0% 100%;
-  --warning: 32 100% 60%;
-  --warning-foreground: 229 12% 17%;
-  --border: 225 10% 18%;
+  --warning: 37 87.9% 57.9%;
+  --warning-foreground: 31 12.9% 9.7%;
+  --border: 31 6% 16.8%;
   /* 3:1 on background, card, muted and secondary; decorative --border dividers stay subtle. */
-  --input: 225 10% 47%;
-  --ring: 215 25% 70%;
-  --header: 225 14% 8%;
-  --header-foreground: 210 15% 96%;
+  --input: 34 3.6% 42.4%;
+  --ring: 24 98.2% 60.4%;
+  --signal: 24 96.9% 58.1%;
+  --signal-foreground: 24 22.4% 6.8%;
+  --signal-text: 24 95% 64.4%;
+  --header: 31 10.5% 7.1%;
+  --header-foreground: 40 10% 93.9%;
+  --sidebar: 31 10.5% 7.1%;
   /*
    * Most 500 shades are used as text without a dark: variant, so the dark theme lightens them to
    * 4.5:1 on background and card. White text on these fills stays above 3:1; use 600 for filled
@@ -425,6 +462,8 @@
 
   body {
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1,
@@ -434,5 +473,18 @@
   h5,
   h6 {
     font-family: var(--font-display);
+    text-wrap: balance;
   }
+
+  ::selection {
+    background-color: hsl(var(--signal) / 0.3);
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Datasheet dot grid behind product media placeholders. */
+@utility bg-dot-grid {
+  background-image: radial-gradient(hsl(var(--foreground) / 0.13) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+  background-position: 7px 7px;
 }

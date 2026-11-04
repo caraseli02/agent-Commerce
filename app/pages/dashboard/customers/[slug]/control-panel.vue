@@ -78,7 +78,7 @@
             :key="index"
             :to="`/dashboard/customers/${route.params.slug}/control-panel/${view.path}`"
             class="panelView relative z-10 text-sm font-medium leading-[1.42857] px-3 py-3 rounded-lg flex-shrink-0 whitespace-nowrap transition-colors duration-200 sm:px-6"
-            :class="[view.path === activeView ? 'text-white ' : 'hover:text-primary']"
+            :class="[view.path === activeView ? 'text-primary-foreground' : 'hover:text-primary']"
           >
             {{ view.name }}
           </NuxtLink>
