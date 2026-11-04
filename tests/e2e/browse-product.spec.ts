@@ -41,7 +41,9 @@ test.describe('Browse → Product Detail', () => {
     await expect(purchasePanel.getByText('78.00').filter({ visible: true }).first()).toBeVisible();
 
     // Earlier checkout specs can consume stock; show Inventory's live count, not the catalog seed.
-    await expect(purchasePanel.getByText(`${productAvailability.available} in stock`, { exact: true })).toBeVisible();
+    await expect(
+      purchasePanel.getByText(`${productAvailability.available} in stock`, { exact: true }).filter({ visible: true }),
+    ).toBeVisible();
 
     // Add to cart button is present and actionable
     const addToCartButtons = page.getByRole('button', { name: /add to cart/i });
