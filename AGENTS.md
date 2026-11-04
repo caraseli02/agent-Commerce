@@ -6,6 +6,11 @@ The existing separate Codex reviewer covers both builders; no self-review, local
 verification and human merge remain mandatory. This supersedes conflicting
 opposite-builder/Claude-only requirements below.
 
+Owner queue transfer, 2026-11-04: existing Claude-labeled open issues were moved
+to `agent:codex` + `ready-for-agent`; follow the transfer section in the temporary
+policy above. Preserve blockers, existing claims/PRs and unpublished work. Current
+owner-authorized labels supersede older Claude allocation prose for those issues.
+
 GitHub Actions stay disabled. Husky and independent local review govern acceptance; follow [local verification](docs/agents/local-verification.md). The standalone CI migration is retired.
 
 agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailwind, Stripe hooks, and local Nitro mock endpoints.
@@ -21,7 +26,7 @@ agent-Commerce is a Nuxt 4 + TypeScript e-commerce demo with Vue 3, Pinia, Tailw
 - WIP=1 applies per builder. Claude owns issues labeled `agent:claude` or `agent:claude-self` (self-started by its improve lane); Codex owns other eligible issues. Internal model delegation shares its builder's claim. Payment work follows the same label ownership and independent review rules; Claude’s routines are defined in `.factory/`. See `docs/agents/autonomous-workflow.md` for ownership and independent cross-review.
 - GitHub issue labels, assignments and linked PRs are the only live task state. `PROGRESS.md` is a short historical session note, `feature_list.json` archives validation/evidence without task statuses, and `DECISIONS.md` / `CONTEXT.md` preserve durable decisions/context. Ordinary feature PRs leave session notes and the archive unchanged.
 
-Codex uses the reviewed native queue/parking policy in [Codex routing](.codex-autonomy/README.md): one live implementation including waiting local verification/first evaluation, at most two queued PRs for new claims, independent exact-head independent PASS plus current-head local verification for admission, original-chat repairs, preserved parked work and oldest eligible unparked priority. Versioned source does not activate host routing; human merge precedes watched installation. Report-only investigations remain exclusive under the existing native global lease.
+Codex uses the reviewed native queue/parking policy in [Codex routing](.codex-autonomy/README.md): one live implementation including waiting local verification/first evaluation, at most two queued PRs for new claims, independent exact-head PASS plus current-head local verification for admission, original-chat repairs, preserved parked work and oldest eligible unparked priority. Versioned source does not activate host routing; human merge precedes watched installation. Report-only investigations remain exclusive under the existing native global lease.
 
 ## The 5 questions every fresh session must answer
 

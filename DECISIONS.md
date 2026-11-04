@@ -1,5 +1,15 @@
 # DECISIONS
 
+## 2026-11-04 — Move the existing Claude issue queue to Codex
+
+Vlad requested moving all Claude-labeled open issues to `ready-for-agent`.
+Eight issues (#651, #696, #777, #805, #844, #845, #870, #887) now carry
+`agent:codex` and `ready-for-agent`, with Claude ownership labels removed.
+Existing blockers, assignees, claims, PRs and unpublished work remain. This later
+owner instruction supersedes the previous no-transfer scope, not verification,
+dependency or WIP safeguards. See the transfer section in
+[the temporary policy](docs/agents/temporary-codex-review.md).
+
 ## 2026-11-03 — Temporarily use a separate Codex reviewer for Codex PRs
 
 Claude PR review is unavailable. Vlad chose a separately operated Codex reviewer

@@ -3,8 +3,8 @@
 Claude PR review is unavailable. Vlad selected a separate Codex reviewer for
 Codex-built PRs. This takes precedence over older opposite-builder/Claude-only
 review requirements until Vlad explicitly restores or replaces it. The existing
-Codex reviewer also continues reviewing Claude-built PRs; ownership labels and
-Claude's build queue do not transfer to Codex.
+Codex reviewer also continues reviewing Claude-built PRs. The later owner-approved
+queue transfer below replaces the original no-transfer scope for eight open issues.
 
 - Reuse the existing scheduled Codex reviewer, one PR per fresh review chat in the
   dedicated reviewer lease lane. Keep its cadence, model, permissions and isolation.
@@ -39,3 +39,25 @@ Claude's build queue do not transfer to Codex.
 Restoring Claude requires an explicit owner decision and a coordinated update to
 reviewer selection, readiness checks and installed automation policy. Availability
 alone does not automatically revert this temporary policy.
+
+## Owner-approved issue queue transfer — 2026-11-04
+
+Vlad subsequently requested moving all Claude-labeled issues to `ready-for-agent`.
+The eight open issues observed at transfer were #651, #696, #777, #805, #844,
+#845, #870 and #887. Their Claude ownership labels were replaced with
+`agent:codex` and `ready-for-agent`; other labels and assignees were preserved.
+Closed issues and PR provenance were not relabeled.
+
+Read live GitHub before acting. For these explicit transfers, the current Codex
+ownership label supersedes historical Claude allocation prose/claim comments.
+It does not clear `blocked`, unresolved dependencies or an existing claim/PR,
+award acceptance, or authorize a parallel implementation. #870 retains PR #880;
+#844 retains its published Claude branch and any unpublished work until safely
+reconciled. Preserve original work and use the same PR for any authorized repair.
+Unknown/running ownership requires reconciliation, never checkout takeover.
+
+The dispatcher must reconcile existing transferred claims under WIP=1 before new
+pickup. The transfer does not activate the uninstalled native routing/recovery
+classifier; any future installation must reconcile these transferred identities
+and branch provenance before dispatch. A legacy branch remains evidence of who
+implemented it for review independence and protected-path checks.
