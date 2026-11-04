@@ -1,14 +1,17 @@
 <template>
-  <div data-mobile-main-row class="bg-header py-3 max-md:py-3.5 md:border-b md:border-black/10 md:py-[14px]">
+  <div data-mobile-main-row class="border-b border-border bg-header py-3 max-md:py-3.5 md:py-[14px]">
     <div class="container">
       <div class="relative">
-        <div class="flex items-center justify-between gap-4 lg:gap-[35px] xl:gap-[78px]">
+        <div class="flex items-center justify-between gap-4 lg:gap-8 xl:gap-12">
           <div class="flex items-center">
-            <div class="flex items-center md:mr-4 lg:mr-6">
+            <div class="flex items-center md:mr-4 lg:mr-2">
               <LayoutHeaderMainMenuItems />
-              <NuxtLink to="/" aria-label="Components Marketplace home" class="ml-2 flex items-center md:ml-4 lg:ml-6">
-                <Logo class="h-5 w-[85px] grayscale brightness-0 invert md:hidden" />
-                <Logo class="hidden w-[82px] grayscale brightness-0 invert md:flex lg:w-[102px]" />
+              <NuxtLink
+                to="/"
+                aria-label="Components Marketplace home"
+                class="ml-2 flex items-center rounded-md text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background md:ml-3"
+              >
+                <LayoutBrandLogo hide-second-word-on-mobile aria-hidden="true" />
               </NuxtLink>
             </div>
           </div>
@@ -22,7 +25,7 @@
           <div class="flex items-center gap-2 md:ml-4 md:gap-6 lg:gap-9">
             <UiButton
               variant="ghost"
-              class="flex min-h-11 min-w-11 p-0 hover:bg-card/10 xl:hidden"
+              class="flex min-h-11 min-w-11 p-0 hover:bg-accent xl:hidden"
               :class="[showMobileSearch ? 'md:hidden lg:hidden' : 'md:flex lg:flex']"
               aria-label="Search products"
               @click="showMobileSearch = true"
@@ -43,7 +46,7 @@
             <UiButton
               type="button"
               variant="ghost"
-              class="flex h-auto min-h-11 min-w-11 flex-col p-0 hover:bg-card/10"
+              class="flex h-auto min-h-11 min-w-11 flex-col p-0 hover:bg-accent"
               :class="[showMobileSearch ? 'max-md:hidden md:hidden lg:flex' : '']"
               aria-label="Open my account"
               @click="openAccountModal()"
@@ -53,7 +56,7 @@
             </UiButton>
             <UiButton
               variant="ghost"
-              class="relative h-auto min-h-11 min-w-11 justify-start gap-2 p-0 text-left hover:bg-card/10"
+              class="relative h-auto min-h-11 min-w-11 justify-start gap-2 p-0 text-left hover:bg-accent"
               :class="[showMobileSearch ? 'max-md:hidden md:flex' : 'flex']"
               aria-label="Open shopping cart"
               @click="openCartModal()"
@@ -62,7 +65,7 @@
               <div class="relative flex h-6 w-9 shrink-0 items-center">
                 <CartIcon class="h-6 w-6 text-header-foreground" :class="isCartPulsing ? 'cart-icon-bump' : ''" />
                 <span
-                  class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-[100px] bg-rose-600 px-1 dark:bg-rose-600 font-Inter text-xs font-medium leading-[1.5] text-white tabular-nums transition-opacity duration-150"
+                  class="pointer-events-none absolute left-3.5 -top-1.5 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-signal px-1 text-xs font-bold leading-[1.5] text-signal-foreground tabular-nums ring-2 ring-header transition-opacity duration-150"
                   :class="[showCartBadge ? 'opacity-100' : 'opacity-0', isCartPulsing ? 'cart-badge-pop' : '']"
                   :aria-hidden="!showCartBadge"
                 >
@@ -134,9 +137,6 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import Logo from '@/assets/media/logo.svg';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import LogoSM from '@/assets/media/logo-sm.svg';
 import SearchIcon from '@/assets/icons/search.svg';
 import UserIcon from '@/assets/icons/user.svg';
 import CartIcon from '@/assets/icons/cart.svg';

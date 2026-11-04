@@ -23,7 +23,7 @@ const taxonomyCrumbs = computed(() => {
             <CaretRightIcon v-if="index > 0" class="w-4 h-4" />
             <NuxtLink
               :to="`/search?category=${encodeURIComponent(crumb.path)}`"
-              class="text-xs leading-[1.33] font-Inter transition-colors duration-300 hover:text-blue-500"
+              class="text-xs leading-[1.33] font-Inter transition-colors duration-300 hover:text-signal-text"
             >
               {{ crumb.name }}
             </NuxtLink>

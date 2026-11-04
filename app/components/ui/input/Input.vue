@@ -29,7 +29,10 @@ defineExpose({ el });
     ref="el"
     v-model="modelValue"
     :class="
-      cn('focus-visible:!outline-[0.5px] focus-visible:outline-blue-500 pl-2 flex h-11 w-full rounded-md border border-input', props.class)
+      cn(
+        'flex h-11 w-full rounded-lg border border-input bg-card pl-3 text-foreground placeholder:text-muted-foreground transition-[border-color,box-shadow] duration-150 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50',
+        props.class,
+      )
     "
   />
 </template>

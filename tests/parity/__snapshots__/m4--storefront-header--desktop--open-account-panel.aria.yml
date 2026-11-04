@@ -24,6 +24,10 @@
         - img
         - text: ''
     - paragraph:
+        - text: New here?
+        - link "Create an account":
+            - /url: /signup
+    - paragraph:
         - img
         - text: For assistance please contact
         - link "support@demo.app":

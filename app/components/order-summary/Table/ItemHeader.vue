@@ -118,7 +118,7 @@ function checkCartItem(itemId: string) {
       >
         <ChevronDownIcon
           class="w-5 h-5 flex-shrink-0 rounded-full transition duration-300"
-          :class="[expanded ? 'rotate-180 text-blue-500' : 'text-muted-foreground']"
+          :class="[expanded ? 'rotate-180 text-signal-text' : 'text-muted-foreground']"
         />
       </UiButton>
     </div>

@@ -1,17 +1,13 @@
 <template>
   <UiSheet :key="userDetails?._id" v-model:open="showNotifications">
     <UiSheetTrigger as-child>
-      <UiButton
-        type="button"
-        variant="ghost"
-        class="h-auto -mr-2.5 p-0 xl:-mr-4"
-        :class="adminView ? '' : 'hover:bg-card/10'"
-        aria-label="Open notifications"
-      >
+      <UiButton type="button" variant="ghost" class="h-auto min-h-11 min-w-11 -mr-2.5 p-0 xl:-mr-4" aria-label="Open notifications">
         <div class="flex items-center">
           <div class="flex flex-col items-center">
-            <BellIcon :class="adminView ? 'text-muted-foreground' : 'text-white'" class="mb-0 h-6 w-6 xl:mb-1" />
-            <span v-if="!adminView" class="hidden text-xs font-medium leading-[1.33] text-white xl:inline-block"> Notifications </span>
+            <BellIcon :class="adminView ? 'text-muted-foreground' : 'text-header-foreground'" class="mb-0 h-6 w-6 xl:mb-1" />
+            <span v-if="!adminView" class="hidden text-xs font-medium leading-[1.33] text-header-foreground xl:inline-block">
+              Notifications
+            </span>
           </div>
           <span
             v-if="unreadNotifications > 0"
@@ -53,17 +49,17 @@
             class="min-h-9 w-full justify-start overflow-x-scroll overflow-y-hidden rounded-none bg-card p-0 scrollbar-none lg:overscroll-x-none"
           >
             <template v-for="tab in tabs" :key="tab.value">
-              <UiTabsTrigger class="relative pb-3 data-[state=active]:text-blue-500 data-[state=active]:shadow-none" :value="tab.value">
+              <UiTabsTrigger class="relative pb-3 data-[state=active]:text-foreground data-[state=active]:shadow-none" :value="tab.value">
                 {{ tab.label }}
                 <UiBadge
                   :key="tab.badge"
                   variant="secondary"
-                  :class="{ 'bg-blue-600 text-white': selectedTab === tab.value }"
+                  :class="{ 'bg-primary text-primary-foreground': selectedTab === tab.value }"
                   class="ml-1 h-5 min-w-5 rounded-full p-1.5 text-xs"
                 >
                   {{ tab.badge }}
                 </UiBadge>
-                <div v-if="selectedTab === tab.value" class="absolute bottom-0 h-1 w-full rounded-t-full bg-blue-500" />
+                <div v-if="selectedTab === tab.value" class="absolute bottom-0 h-[3px] w-full rounded-t-full bg-signal" />
               </UiTabsTrigger>
             </template>
           </UiTabsList>
@@ -82,7 +78,7 @@
             <span class="flex w-full items-center justify-between px-2 py-3">
               <span class="flex items-center">
                 <NotificationIcon class="mr-2 h-5 w-5" :class="getNotificationClass(notification.title)" />
-                <span v-if="!notification.seen" class="mr-2 flex h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+                <span v-if="!notification.seen" class="mr-2 flex h-2 w-2 flex-shrink-0 rounded-full bg-signal" />
                 <span class="text-sm font-medium capitalize leading-[1.43]">
                   {{ notification.title }}
                 </span>
@@ -102,7 +98,7 @@
             type="button"
             variant="ghost"
             size="icon"
-            class="absolute right-4 top-[22px] h-auto w-auto text-muted-foreground hover:text-blue-500"
+            class="absolute right-4 top-[22px] h-auto w-auto text-muted-foreground hover:text-signal-text"
             aria-label="Delete notification"
             @click.stop.prevent="deleteNotification(notification, index)"
           >
@@ -112,9 +108,9 @@
       </div>
 
       <div class="sticky bottom-0 z-10 flex shrink-0 items-center justify-between border-t border-border bg-card px-4 py-4">
-        <NuxtLink to="/" class="flex items-center text-blue-500">
+        <NuxtLink to="/" class="flex items-center text-signal-text">
           <span class="mr-2 text-sm font-medium leading-[1.43]"> View all </span>
-          <ArrowRight class="h-5 w-5 text-blue-500" />
+          <ArrowRight class="h-5 w-5 text-signal-text" />
         </NuxtLink>
         <Settings class="h-5 w-5 text-muted-foreground" aria-hidden="true" />
       </div>

@@ -1,37 +1,48 @@
 <template>
-  <footer>
-    <div class="bg-muted pt-[30px] pb-6 md:pb-8">
-      <div class="container">
-        <div class="mb-8 md:flex md:items-start md:gap-[45px] md:mb-6 lg:justify-between">
-          <div class="mb-[30px] md:mb-0">
-            <NuxtLink to="/" aria-label="Components Marketplace home" class="mb-3 flex">
-              <Logo class="w-[121px]" />
-            </NuxtLink>
-            <p class="max-w-[220px] text-sm leading-5 text-muted-foreground">Portfolio demo with sample products and accounts.</p>
-          </div>
-          <div class="grid grid-cols-2 gap-5 md:flex md:flex-wrap md:gap-x-[30px] lg:gap-x-[50px]">
-            <div v-for="(items, label, index) in navItems" :key="index" class="md:max-w-max md:last:ml-[94px] lg:last:ml-0">
-              <div class="mb-1 text-sm font-semibold md:mb-[15px] md:text-base">
-                {{ label }}
-              </div>
-              <!-- 44px rows on touch layouts; the compact desktop rhythm returns from md. -->
-              <ul class="grid grid-cols-1 md:gap-1.5">
-                <li v-for="(navItem, navItemIndex) in items" :key="navItemIndex">
-                  <NuxtLink :to="navItem.to" class="group inline-flex min-h-11 items-center text-xs md:min-h-0 md:text-sm">
-                    <span
-                      class="relative after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-foreground after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-200 after:ease-out group-hover:after:origin-left group-hover:after:scale-x-100"
-                    >
-                      {{ navItem.label }}
-                    </span>
-                  </NuxtLink>
-                </li>
-              </ul>
+  <footer class="bg-[hsl(31_11%_9%)] text-[hsl(40_10%_94%)] dark:border-t dark:border-border dark:bg-sidebar">
+    <div class="container pb-6 pt-12 md:pb-8 md:pt-14">
+      <div class="mb-10 grid gap-10 md:mb-12 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16">
+        <div class="max-w-xs">
+          <NuxtLink
+            to="/"
+            aria-label="Components Marketplace home"
+            class="mb-4 inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(31_11%_9%)]"
+          >
+            <LayoutBrandLogo aria-hidden="true" />
+          </NuxtLink>
+          <p class="text-sm leading-6 text-[hsl(37_5%_68%)]">Portfolio demo with sample products and accounts.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-6 sm:gap-x-16">
+          <div v-for="(items, label, index) in navItems" :key="index">
+            <div class="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-[hsl(37_5%_68%)] md:mb-3">
+              {{ label }}
             </div>
+            <!-- 44px rows on touch layouts; the compact desktop rhythm returns from md. -->
+            <ul class="grid grid-cols-1 md:gap-2">
+              <li v-for="(navItem, navItemIndex) in items" :key="navItemIndex">
+                <NuxtLink
+                  :to="navItem.to"
+                  class="group inline-flex min-h-11 items-center rounded-sm text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:min-h-0"
+                >
+                  <span
+                    class="relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-right after:scale-x-0 after:bg-signal after:transition-transform after:duration-200 after:ease-out group-hover:after:origin-left group-hover:after:scale-x-100 motion-reduce:after:transition-none"
+                  >
+                    {{ navItem.label }}
+                  </span>
+                </NuxtLink>
+              </li>
+            </ul>
           </div>
         </div>
-        <div>
-          <p class="text-[15px] text-center text-muted-foreground">&copy; {{ new Date().getFullYear() }} Components Marketplace</p>
-        </div>
+      </div>
+      <div
+        class="flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-[hsl(37_5%_68%)] sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p>&copy; {{ new Date().getFullYear() }} Components Marketplace</p>
+        <p class="flex items-center gap-2">
+          <span class="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden="true" />
+          Sample catalog and test checkout. No real orders or payments.
+        </p>
       </div>
     </div>
   </footer>
@@ -40,7 +51,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
-import Logo from '@/assets/media/logo.svg';
 import { useAuthStore } from '~/store/authStore';
 
 const authStore = useAuthStore();

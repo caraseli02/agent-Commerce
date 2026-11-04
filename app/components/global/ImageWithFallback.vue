@@ -18,9 +18,14 @@
       v-else
       role="img"
       :aria-label="alt || 'Product image unavailable'"
-      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] bg-muted ring-1 ring-inset ring-grey-200"
+      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] bg-muted bg-dot-grid ring-1 ring-inset ring-border"
     >
-      <Package class="h-[36%] w-[36%] min-h-8 min-w-8 max-h-12 max-w-12 text-slate-400" :stroke-width="1.5" aria-hidden="true" />
+      <!-- A datasheet-style placeholder: the package glyph on a plate over a dot grid. -->
+      <span
+        class="flex aspect-square w-[42%] max-w-20 min-w-12 items-center justify-center rounded-xl bg-card shadow-xs ring-1 ring-border"
+      >
+        <Package class="h-[52%] w-[52%] text-slate-400" :stroke-width="1.5" aria-hidden="true" />
+      </span>
     </div>
   </div>
 </template>

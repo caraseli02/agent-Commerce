@@ -3,16 +3,14 @@ import { type VariantProps, cva } from 'class-variance-authority';
 export { default as Badge } from './Badge.vue';
 
 export const badgeVariants = cva(
-  'inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 dark:border-slate-800 dark:focus:ring-slate-300',
+  'inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     variants: {
       variant: {
-        default:
-          'border-transparent bg-slate-900 text-slate-50 hover:bg-slate-900/80 dark:bg-muted dark:text-foreground dark:hover:bg-muted/80',
-        secondary:
-          'border-transparent bg-slate-100 text-foreground hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80',
+        default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
+        secondary: 'border-transparent bg-muted text-foreground hover:bg-secondary/80',
         destructive: 'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'text-slate-950 dark:text-slate-50',
+        outline: 'text-foreground',
       },
     },
     defaultVariants: {

@@ -18,7 +18,7 @@
         size="icon"
         class="group"
       >
-        <SettingCog class="text-muted-foreground group-hover:text-blue-500 transition duration-300" />
+        <SettingCog class="text-muted-foreground group-hover:text-signal-text transition duration-300" />
       </UiButton>
     </div>
     <div class="flex flex-col gap-4 relative">
@@ -95,7 +95,7 @@
         <div class="flex flex-row items-center justify-end gap-2">
           <span class="text-foreground text-sm font-normal leading-6">Available:</span>
           <UiButton type="button" variant="link" size="xs" @click="showCreditInfoModal = true">
-            <span class="text-blue-500 text-sm font-semibold leading-6">{{ accountCredit?.available?.toFixed(2) || 0 }}</span>
+            <span class="text-signal-text text-sm font-semibold leading-6">{{ accountCredit?.available?.toFixed(2) || 0 }}</span>
           </UiButton>
         </div>
       </div>

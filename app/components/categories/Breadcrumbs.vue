@@ -4,7 +4,7 @@
       <div class="flex flex-wrap gap-y-2 items-center mb-3">
         <NuxtLink
           to="/dashboard"
-          class="flex items-center flex-shrink-0 font-medium text-muted-foreground transition-colors duration-300 hover:text-blue-500"
+          class="flex items-center flex-shrink-0 font-medium text-muted-foreground transition-colors duration-300 hover:text-signal-text"
         >
           <HomeIcon class="w-[18px] h-[18px] mr-2" />
           <span class="text-xs leading-[1.33]">Home</span>
@@ -12,7 +12,7 @@
         <span class="text-xs leading-[1.33] flex-shrink-0 mx-1">/</span>
         <NuxtLink
           :to="breadcrumbTo"
-          class="text-xs leading-[1.33] flex-shrink-0 font-medium transition-colors duration-300 hover:text-blue-500 text-blue-500"
+          class="text-xs leading-[1.33] flex-shrink-0 font-medium transition-colors duration-300 hover:text-signal-text text-signal-text"
         >
           {{ title }}
         </NuxtLink>

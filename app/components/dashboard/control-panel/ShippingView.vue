@@ -80,8 +80,8 @@
         @click="addAddressModal = true"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 40 40" class="w-8 h-8 text-primary md:w-10 md:h-10">
-          <path stroke="#007FFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12v16m8-8H12" />
-          <rect width="38" height="38" x="1" y="1" stroke="#007FFF" stroke-width="2" rx="19" />
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12v16m8-8H12" />
+          <rect width="38" height="38" x="1" y="1" stroke="currentColor" stroke-width="2" rx="19" />
         </svg>
       </UiButton>
     </div>

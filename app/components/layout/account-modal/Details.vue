@@ -14,7 +14,7 @@
         <DemoTooltip theme="black" position="bottom">
           <component
             :is="getIconBadgeByAccountType()"
-            class="h-5 w-5 shrink-0 text-muted-foreground transition-colors duration-300 hover:text-blue-500"
+            class="h-5 w-5 shrink-0 text-muted-foreground transition-colors duration-300 hover:text-signal-text"
           />
           <template #content>
             <span class="text-sm">{{
@@ -34,7 +34,7 @@
         <CopyClipboard
           :text="getUserDetails?.clientCode || ''"
           :label="`Copy client code ${getUserDetails?.clientCode || ''}`"
-          class="!min-h-8 !min-w-8 -my-1 shrink-0 text-slate-400 transition-colors duration-300 hover:text-blue-500"
+          class="!min-h-8 !min-w-8 -my-1 shrink-0 text-slate-400 transition-colors duration-300 hover:text-signal-text"
         />
       </div>
     </div>

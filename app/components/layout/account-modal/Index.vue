@@ -19,7 +19,7 @@
             class="inline-flex h-11 w-11 shrink-0 rounded-lg bg-accent hover:bg-secondary"
             aria-label="Close account panel"
           >
-            <XIcon class="h-5 w-5 text-muted-foreground hover:text-blue-500" />
+            <XIcon class="h-5 w-5 text-muted-foreground hover:text-signal-text" />
           </UiButton>
         </UiSheetClose>
       </header>
@@ -38,7 +38,7 @@
           <p class="mt-auto flex flex-wrap items-center justify-center gap-2 pt-5 text-xs text-muted-foreground">
             <SvgoMenuHelp class="h-4 w-4 !text-xs text-muted-foreground" />
             For assistance please contact
-            <a href="mailto:support@demo.app" class="text-blue-500 hover:text-blue-400 hover:underline"> support@demo.app </a>
+            <a href="mailto:support@demo.app" class="text-signal-text hover:text-signal-text hover:underline"> support@demo.app </a>
           </p>
         </div>
         <section v-else class="flex h-full flex-col justify-between">
@@ -49,7 +49,7 @@
           <div class="mt-auto flex flex-col gap-6 pb-2.5 pt-6 text-center text-xs text-gray-300">
             <UiButton
               variant="outline"
-              class="sticky bottom-0 min-h-11 w-full border-[1.5px] border-blue-500 px-16 py-2 text-base font-medium leading-7 text-blue-500 hover:bg-blue-50"
+              class="sticky bottom-0 min-h-11 w-full border-[1.5px] border-primary px-16 py-2 text-base font-medium leading-7 text-foreground hover:bg-accent"
               @click="handleSignOut"
             >
               <SignOutIcon class="mr-2 h-6 w-6" />
@@ -58,7 +58,7 @@
             <p class="flex items-center justify-center gap-2 text-muted-foreground">
               <SvgoMenuHelp class="h-4 w-4 text-xs text-muted-foreground" />
               For assistance please contact
-              <a href="mailto:support@demo.app" class="text-blue-500 hover:text-blue-400 hover:underline"> support@demo.app </a>
+              <a href="mailto:support@demo.app" class="text-signal-text hover:text-signal-text hover:underline"> support@demo.app </a>
             </p>
           </div>
         </section>

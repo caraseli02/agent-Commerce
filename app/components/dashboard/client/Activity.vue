@@ -67,14 +67,14 @@
               >
                 <div class="justify-center items-center bg-primary flex aspect-square flex-col w-full h-9 lg:h-10 px-2 rounded-[100px]">
                   <svg
-                    class="w-5 h-5 lg:w-6 lg:h-6 aspect-square object-contain object-center justify-center items-center overflow-hidden"
+                    class="w-5 h-5 lg:w-6 lg:h-6 aspect-square object-contain object-center justify-center items-center overflow-hidden text-primary-foreground"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       d="M21 7V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V7C3 4 4.5 2 8 2H16C19.5 2 21 4 21 7Z"
-                      stroke="white"
+                      stroke="currentColor"
                       stroke-width="1.5"
                       stroke-miterlimit="10"
                       stroke-linecap="round"
@@ -82,7 +82,7 @@
                     />
                     <path
                       d="M14.5 4.5V6.5C14.5 7.6 15.4 8.5 16.5 8.5H18.5"
-                      stroke="white"
+                      stroke="currentColor"
                       stroke-width="1.5"
                       stroke-miterlimit="10"
                       stroke-linecap="round"
@@ -90,7 +90,7 @@
                     />
                     <path
                       d="M8 13H12"
-                      stroke="white"
+                      stroke="currentColor"
                       stroke-width="1.5"
                       stroke-miterlimit="10"
                       stroke-linecap="round"
@@ -98,7 +98,7 @@
                     />
                     <path
                       d="M8 17H16"
-                      stroke="white"
+                      stroke="currentColor"
                       stroke-width="1.5"
                       stroke-miterlimit="10"
                       stroke-linecap="round"

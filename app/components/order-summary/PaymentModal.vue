@@ -55,16 +55,22 @@
         <div class="text-foreground text-sm leading-6 self-center grow whitespace-nowrap my-auto">Secure credit card payment</div>
       </div>
       <UiButton
-        class="justify-center items-center self-stretch bg-blue-500 flex w-full flex-col mt-4 px-16 py-2 h-11 rounded-lg hover:bg-blue-500"
+        class="justify-center items-center self-stretch bg-primary flex w-full flex-col mt-4 px-16 py-2 h-11 rounded-lg hover:bg-primary/90"
         @click="
           paymentStore.toggleCardModal();
           exitCardModal(false);
         "
       >
         <span class="flex items-center gap-2">
-          <span class="text-white text-base font-medium leading-7 grow whitespace-nowrap">Continue</span>
+          <span class="text-primary-foreground text-base font-medium leading-7 grow whitespace-nowrap">Continue</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 8L18 12M18 12L14 16M18 12L6 12" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              d="M14 8L18 12M18 12L14 16M18 12L6 12"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </span>
       </UiButton>

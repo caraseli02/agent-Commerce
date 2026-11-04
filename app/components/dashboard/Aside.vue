@@ -1,27 +1,31 @@
 <template>
   <aside
-    class="dashboard-aside fixed top-0 left-0 z-40 bg-(--sidebar) h-screen flex flex-col items-center"
+    class="dashboard-aside fixed top-0 left-0 z-40 bg-sidebar border-r border-border h-screen flex flex-col items-center"
     :class="[isCollapsedOnDesktop ? 'collapsed' : '']"
   >
     <Transition name="fade">
       <div
         v-if="showTopNavLayer && !isCollapsedOnDesktop"
-        class="absolute top-[106px] left-0 w-full h-[52px] pointer-events-none bg-gradient-to-t from-transparent to-(--sidebar) md:top-[112px]"
+        class="absolute top-[106px] left-0 w-full h-[52px] pointer-events-none bg-gradient-to-t from-transparent to-sidebar md:top-[112px]"
       />
     </Transition>
     <Transition name="fade">
       <div
         v-if="showBottomNavLayer && !isCollapsedOnDesktop"
-        class="absolute left-0 bottom-[153px] w-full h-[52px] pointer-events-none bg-gradient-to-b from-transparent to-(--sidebar)"
+        class="absolute left-0 bottom-[153px] w-full h-[52px] pointer-events-none bg-gradient-to-b from-transparent to-sidebar"
       />
     </Transition>
     <div
       class="flex items-center w-full transition-[padding] duration-200"
       :class="[isCollapsedOnDesktop ? 'px-6 pt-6 pb-[96px] justify-center' : 'px-4 pt-6 pb-[50px] justify-between md:pb-[60px]']"
     >
-      <NuxtLink to="/" class="flex text-white" aria-label="Components Marketplace home">
-        <LogoSmall v-if="isCollapsedOnDesktop" class="w-8 h-8" aria-hidden="true" />
-        <Logo v-else class="w-[102px] h-8" aria-hidden="true" />
+      <NuxtLink
+        to="/"
+        class="flex rounded-md text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label="Components Marketplace home"
+      >
+        <LayoutBrandLogo v-if="isCollapsedOnDesktop" compact aria-hidden="true" />
+        <LayoutBrandLogo v-else size="sm" aria-hidden="true" />
       </NuxtLink>
       <template v-if="!isCollapsedOnDesktop">
         <UiButton
@@ -31,10 +35,10 @@
           aria-label="Close navigation"
           @click="$emit('close')"
         >
-          <XIcon class="w-6 h-6 text-gray-100" />
+          <XIcon class="w-6 h-6 text-muted-foreground" />
         </UiButton>
         <UiButton variant="ghost" class="flex h-auto p-0 max-md:hidden" aria-label="Collapse navigation" @click="$emit('close')">
-          <CollapseIcon class="w-6 h-6" />
+          <CollapseIcon class="w-6 h-6 text-muted-foreground" />
         </UiButton>
       </template>
     </div>
@@ -50,12 +54,16 @@
             :to="item.to"
             :aria-label="isCollapsedOnDesktop ? item.label : undefined"
             :aria-current="isActive(item) ? 'page' : undefined"
-            class="group flex items-center text-gray-100 p-3 rounded-lg transition-colors duration-200 hover:text-(--sidebar-accent) hover:bg-(--sidebar-hover) aria-[current=page]:bg-(--sidebar-hover) aria-[current=page]:text-white"
+            class="group flex items-center text-muted-foreground p-3 rounded-lg transition-[color,background-color,box-shadow] duration-150 hover:text-foreground hover:bg-accent aria-[current=page]:bg-card aria-[current=page]:text-foreground aria-[current=page]:shadow-xs aria-[current=page]:ring-1 aria-[current=page]:ring-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             :class="[isCollapsedOnDesktop ? 'justify-center w-12 h-12 mx-auto' : '']"
             @mouseenter="handleNavItemMouseEnter($event, item)"
             @mouseleave="hoveredNavItem = null"
           >
-            <component :is="item.icon" class="w-6 h-6 shrink-0" aria-hidden="true" />
+            <component
+              :is="item.icon"
+              class="w-6 h-6 shrink-0 transition-colors duration-150 group-aria-[current=page]:text-signal-text"
+              aria-hidden="true"
+            />
             <span v-if="!isCollapsedOnDesktop" class="text-sm leading-[1.43] font-medium ml-3">
               {{ item.label }}
             </span>
@@ -70,18 +78,18 @@
       aria-label="Expand navigation"
       @click="$emit('close')"
     >
-      <Collapse2Icon class="w-6 h-6" />
+      <Collapse2Icon class="w-6 h-6 text-muted-foreground" />
     </UiButton>
-    <div class="w-full pt-5 px-4 pb-4 text-center" :class="[isCollapsedOnDesktop ? 'mt-2' : 'border-t border-(--sidebar-hover)']">
-      <div v-if="!isCollapsedOnDesktop" class="text-xs text-(--sidebar-muted) leading-normal mb-1">
+    <div class="w-full pt-5 px-4 pb-4 text-center" :class="[isCollapsedOnDesktop ? 'mt-2' : 'border-t border-border']">
+      <div v-if="!isCollapsedOnDesktop" class="text-xs text-muted-foreground leading-normal mb-1">
         © {{ new Date().getFullYear() }} Components Marketplace Demo
       </div>
-      <div class="text-xs leading-normal text-(--sidebar-muted)">V 1.0.0</div>
+      <div class="text-xs leading-normal text-muted-foreground">V 1.0.0</div>
     </div>
     <Transition name="fade">
       <div
         v-if="isCollapsedOnDesktop && hoveredNavItem"
-        class="absolute -right-2 translate-y-1/2 translate-x-full bg-(--sidebar) rounded p-2 text-xs leading-tight font-Inter text-white min-w-max pointer-events-none"
+        class="absolute -right-2 translate-y-1/2 translate-x-full bg-primary rounded-md px-2 py-1.5 text-xs font-medium leading-tight text-primary-foreground shadow-md min-w-max pointer-events-none"
         :style="{
           top: `${hoveredNavItemTop - 7}px`,
         }"
@@ -95,7 +103,7 @@
           viewBox="0 0 5 8"
           class="absolute top-1/2 left-px -translate-x-full -translate-y-1/2 w-2"
         >
-          <path fill="var(--sidebar)" d="M5 8V0L1.496 2.336a2 2 0 0 0 0 3.328L5 8Z" />
+          <path fill="hsl(var(--primary))" d="M5 8V0L1.496 2.336a2 2 0 0 0 0 3.328L5 8Z" />
         </svg>
       </div>
     </Transition>
@@ -104,8 +112,6 @@
 
 <script setup lang="ts">
 import { markRaw } from 'vue';
-import Logo from '@/assets/media/logo.svg';
-import LogoSmall from '@/assets/media/logo-sm.svg';
 import XIcon from '@/assets/icons/dashboard/x.svg';
 import CollapseIcon from '@/assets/icons/dashboard/collapse.svg';
 import Collapse2Icon from '@/assets/icons/dashboard/collapse-2.svg';
@@ -185,22 +191,14 @@ onBeforeUnmount(() => {
 
 <style>
 @reference "../../assets/css/main.css";
-/* Sidebar palette lives here until main.css grows --sidebar tokens. */
-.dashboard-aside {
-  --sidebar: #1b1b28;
-  --sidebar-hover: #2f3241;
-  --sidebar-muted: #a8acbf;
-  --sidebar-accent: #5cb8ff;
-}
-
 .scrollbar-custom {
   &::-webkit-scrollbar-thumb {
-    background-color: #383b4d !important;
+    background-color: hsl(var(--border)) !important;
     border-radius: 100px !important;
   }
 
   @supports (scrollbar-color: red blue) {
-    scrollbar-color: #383b4d transparent;
+    scrollbar-color: hsl(var(--border)) transparent;
   }
 }
 

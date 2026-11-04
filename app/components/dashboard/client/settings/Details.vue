@@ -302,7 +302,7 @@ watch(region, (newRegion) => {
         <h2 class="self-start text-xl font-semibold leading-7 text-foreground">Account Details</h2>
         <div class="flex flex-col md:flex-row gap-3 text-sm font-medium leading-6 text-muted-foreground">
           <UiButton
-            :class="openEdit ? 'text-white' : 'text-muted-foreground'"
+            :class="openEdit ? 'text-primary-foreground' : 'text-muted-foreground'"
             :variant="openEdit ? 'default' : 'secondary'"
             :disabled="getUserDetails.accountType === AccountType.Agent"
           >
