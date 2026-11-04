@@ -56,6 +56,14 @@ def attests_local_verification(body, head):
     return any(line.fullmatch(entry) for entry in (body or '').splitlines())
 
 
+def separate_codex_review(body):
+    # Same audit record as scripts/owner-attention.mjs; identity/non-involvement
+    # must also be checked by the separately operated reviewer.
+    uuid = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+    match = re.search(rf'^<!-- codex-review-session: builder=({uuid}) reviewer=({uuid}) -->$', body or '', re.M | re.I)
+    return bool(match and match[1].lower() != match[2].lower())
+
+
 def evaluator(comments, head, trusted):
     """Verdict for the exact head; base, body and label changes never reopen it.
 
@@ -83,8 +91,8 @@ def evaluator(comments, head, trusted):
         if not body.lower().startswith(markers) or '## Evaluator verdict' not in body:
             continue
         attribution = re.search(r'^[ \t>]*(?:\*{1,2})?Independent evaluator(?:\*{1,2})?\s*:(?:\*{1,2})?\s*(.+)$', body, re.M | re.I)
-        if not attribution or not re.search(r'\bClaude\b', attribution[1], re.I):
-            raise UnsafeEvidence('Current report lacks independent Claude attribution')
+        if not attribution or not (re.search(r'\bClaude\b', attribution[1], re.I) or (re.search(r'\bCodex\b', attribution[1], re.I) and separate_codex_review(body))):
+            raise UnsafeEvidence('Current report lacks independent reviewer attribution/session identity')
         first = next((x.strip() for x in body.split('## Evaluator verdict', 1)[1].splitlines() if x.strip()), '')
         match = re.match(r'^[\s*_>]*(PASS|FAIL|BLOCKED|INCONCLUSIVE)\b', first, re.I)
         if not match:

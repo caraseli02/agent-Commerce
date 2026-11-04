@@ -1,5 +1,11 @@
 # Autonomous workflow: planner, generator, evaluator
 
+Temporary owner policy, 2026-11-03: [separate Codex review](temporary-codex-review.md)
+replaces Claude-only review of Codex PRs while Claude review is unavailable.
+The existing separate Codex reviewer covers both builders; no self-review, local
+verification and human merge remain mandatory. This supersedes conflicting
+opposite-builder/Claude-only requirements below.
+
 Components Marketplace autonomous work follows the Learn Harness Engineering recommendation to separate planning, generation, and evaluation. The generator must not be the final judge of completion.
 
 ## Goal-shaped controller loop
@@ -196,7 +202,7 @@ Existing local agent chats surface meaningful readiness, failures, blockers, pro
 The versioned [.codex-autonomy source](../../.codex-autonomy/README.md) supplies the live classifier, read-only GitHub adapter, scope refresh, bounded investigation and post-merge host migration. It is activated only after human merge in a watched installation; old installed host policy remains authoritative until then.
 
 - One live Codex implementation includes implementing/verifying, waiting local verification and waiting first independent evaluation. No second issue starts while that slot is occupied. Queued actionable repairs return to their original chat/PR before new claims, without interrupting an active worker.
-- Queue admission requires an open canonical Codex PR, trusted independent current-head Claude PASS, current-head local verification, known mergeability and no change request. At two queued PRs stop new claims; an already live issue may finish and queue. Queue identity survives repairs/re-review, but stale PASS never establishes readiness.
+- Queue admission requires an open canonical Codex PR, trusted independent current-head PASS, current-head local verification, known mergeability and no change request. At two queued PRs stop new claims; an already live issue may finish and queue. Queue identity survives repairs/re-review, but stale PASS never establishes readiness.
 - Park blocked claims and closed-unmerged PRs, preserving chat/branch/worktree and unpublished scope. Closed-unmerged work needs Vlad's explicit decision. Oldest eligible unparked claim precedes new claims. Reconcile merged/closed work without reviving its claim.
 - Check actual files, consumers/contracts against every open PR including drafts/Claude/human and registered unpublished work, during implementation and before publication. Unknown or expanded overlap requires a complete rescope or blocker; disclosures do not permit overlap. No global-file exceptions.
 - At unavailable implementation/capacity select one report-only unanswered risk by impact, evidence, independence and cost, capped to 40 minutes by default (maximum 45). Reuse valid evidence. Runtime uses a separate pinned mock checkout, existing local test-schema wrapper and owned built server/explicit URL, with listener identity and cleanup proof. Busy/missing prerequisites yield environment evidence, no app findings. Preserve the global lease; no parallel runtime migration.

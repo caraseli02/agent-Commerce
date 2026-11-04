@@ -265,7 +265,17 @@ function fetchPullHead(number) {
   });
 }
 
-export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator, ui }) {
+// Temporary owner policy, 2026-11-03: same-builder review needs two distinct
+// real chat IDs. The reviewer must corroborate them against the issue registry
+// and its own identity; this audit record alone cannot prove non-involvement.
+export function separateCodexReview(body) {
+  const id = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+  const line = new RegExp(`^<!-- codex-review-session: builder=(${id}) reviewer=(${id}) -->$`, 'im');
+  const match = String(body ?? '').match(line);
+  return Boolean(match && match[1].toLowerCase() !== match[2].toLowerCase());
+}
+
+export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator, allowSeparateCodex = false, ui }) {
   const pending = [];
   const failing = [];
   const template = assessPrTemplate({ body: pr.body, labels: (pr.labels ?? []).map((label) => label.name ?? label), ui });
@@ -277,7 +287,8 @@ export function assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluat
     );
     return (
       verdict?.verdict === 'PASS' &&
-      new RegExp(`\\b${expectedEvaluator}\\b`, 'i').test(attribution?.[1] ?? '') &&
+      (new RegExp(`\\b${expectedEvaluator}\\b`, 'i').test(attribution?.[1] ?? '') ||
+        (allowSeparateCodex && /\bCodex\b/i.test(attribution?.[1] ?? '') && separateCodexReview(comment.body))) &&
       attestsLocalVerification(comment.body, pr.head.sha)
     );
   });
@@ -303,7 +314,12 @@ export async function readLocalEvidence(number, { gh, owner, config, trustedLogi
   const comments = await gh.paginate(`/issues/${number}/comments`);
   const reviews = await gh.paginate(`/pulls/${number}/reviews`);
   const claude = await isClaudeBuiltPr(gh, pr);
-  const checks = assessLocalChecks(pr, comments, { trustedLogins, expectedEvaluator: claude ? 'Codex' : 'Claude', ui: await uiFor(pr) });
+  const checks = assessLocalChecks(pr, comments, {
+    trustedLogins,
+    expectedEvaluator: claude ? 'Codex' : 'Claude',
+    allowSeparateCodex: !claude,
+    ui: await uiFor(pr),
+  });
   const verdict = latestEvaluatorVerdict(comments, pr.head.sha, { trustedLogins });
   const readiness = assessReadiness({ pr, checks, verdict, reviews });
   if (claude) {

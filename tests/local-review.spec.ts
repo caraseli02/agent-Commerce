@@ -121,8 +121,10 @@ describe('Husky and independent local acceptance', () => {
     mergeable = true,
     authorized = false,
     uiFor = () => ({ fingerprint: null as string | null }),
+    codexBuilt = false,
   }: {
     comments?: ReturnType<typeof report>[];
+    codexBuilt?: boolean;
     reviews?: { state: string; user: { login: string } }[];
     files?: { filename: string }[];
     changed?: boolean;
@@ -131,6 +133,10 @@ describe('Husky and independent local acceptance', () => {
     uiFor?: (pr: unknown) => { fingerprint?: string | null; unavailable?: boolean };
   } = {}) {
     const pr = { ...fixture(), mergeable };
+    if (codexBuilt) {
+      pr.labels = [];
+      pr.head.ref = 'codex/issue-1';
+    }
     if (authorized) pr.labels.push({ name: 'owner-approved-harness' });
     if (authorized) comments = [report(pr)];
     let reads = 0;
@@ -141,6 +147,7 @@ describe('Husky and independent local acceptance', () => {
         throw new Error('Unexpected path ' + path);
       },
       paginate: async (path: string) => {
+        if (path.endsWith('/commits')) return [];
         if (path.endsWith('/comments')) return comments;
         if (path.endsWith('/reviews')) return reviews;
         if (path.endsWith('/files')) return files;
@@ -154,6 +161,30 @@ describe('Husky and independent local acceptance', () => {
       uiFor,
     });
   }
+
+  it('accepts a separate Codex review of Codex work, while rejecting missing/same-session identity and stale or untrusted PASS', async () => {
+    const builder = '01a1a32d-072b-73c1-b3f7-879bd7bb2318';
+    const reviewer = '01a1a32d-072b-73c1-b3f7-879bd7bb2319';
+    const session = `<!-- codex-review-session: builder=${builder} reviewer=${reviewer} -->`;
+    const independent = { ...report(), body: report().body + '\n' + session };
+    expect((await readiness({ codexBuilt: true, comments: [independent] })).readiness.ready).toBe(true);
+    for (const comment of [
+      report(),
+      { ...independent, body: independent.body.replace(reviewer, builder) },
+      { ...independent, body: independent.body.replace(reviewer, 'unknown') },
+      { ...independent, body: independent.body.replace('\n' + session, '\n> ' + session) },
+      { ...independent, user: { login: 'outsider' } },
+      { ...independent, body: independent.body.replaceAll(head, base) },
+      { ...independent, body: independent.body.replace('\nPASS\n', '\nFAIL\n') },
+    ])
+      expect((await readiness({ codexBuilt: true, comments: [comment] })).readiness.ready).toBe(false);
+    expect((await readiness({ codexBuilt: true, comments: [report(fixture(), 'Claude')] })).readiness.ready).toBe(true);
+    expect((await readiness({ codexBuilt: true, comments: [independent], mergeable: false })).readiness.ready).toBe(false);
+    expect(
+      (await readiness({ codexBuilt: true, comments: [independent], reviews: [{ state: 'CHANGES_REQUESTED', user: { login: 'human' } }] }))
+        .readiness.ready,
+    ).toBe(false);
+  });
 
   it('applies the screenshot rule to live readiness, and fails closed when the head cannot be diffed', async () => {
     const fingerprint = 'c'.repeat(64);

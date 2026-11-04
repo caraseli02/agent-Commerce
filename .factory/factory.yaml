@@ -26,7 +26,7 @@ agents:
     reviews: ready PRs WITHOUT the agent:claude label (Codex and human PRs, including payments)
   codex:
     builds: ready-for-agent issues without agent:claude, payments first (configured outside this repo)
-    reviews: ready PRs WITH the agent:claude label
+    reviews: ready Claude-built and Codex-built PRs in a separate non-implementing review chat (temporary owner policy 2026-11-03; docs/agents/temporary-codex-review.md)
 
 labels:
   eligible: ready-for-agent # Codex's pool; Claude's is agent:claude alone

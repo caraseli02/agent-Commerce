@@ -1,5 +1,11 @@
 # agent-Commerce factory
 
+Temporary owner policy, 2026-11-03: [separate Codex review](../docs/agents/temporary-codex-review.md)
+replaces Claude-only review of Codex PRs while Claude review is unavailable.
+The existing separate Codex reviewer covers both builders; no self-review, local
+verification and human merge remain mandatory. This supersedes conflicting
+opposite-builder/Claude-only requirements below.
+
 Two coding agents work this repo from Vlad's Mac mini: **Claude** (one Claude Desktop local routine defined here) and **Codex** (its own heartbeat, configured outside the repo). Everything runs locally; there are no cloud runners.
 
 The Claude agent is defined here, as code. The routine's prompt points at a file in this folder, so changing how it works means opening a PR against these files.

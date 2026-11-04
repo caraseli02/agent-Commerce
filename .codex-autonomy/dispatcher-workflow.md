@@ -1,3 +1,9 @@
+Temporary owner review policy (2026-11-03): follow
+`docs/agents/temporary-codex-review.md`. The existing separate Codex reviewer
+may evaluate Codex-built PRs with distinct verified builder/reviewer chat IDs.
+This supersedes Claude-only/opposite-builder review wording below; all local
+checks, verdict lifetime, ownership, WIP and human merge requirements remain.
+
 # Native Codex dispatcher — routing version 1
 
 The existing `payments-and-system-design-controller` automation runs every five
@@ -35,7 +41,7 @@ unresolved risk. Neither internal consultation nor self-auditing is acceptance.
    local verification/first evaluation, holds the implementation slot. Actionable repairs use the
    original issue/chat/PR before new claims; never interrupt another active worker.
    Initial queue admission requires an open canonical Codex PR, trusted independent
-   exact-head Claude PASS, current-head local verification, mergeability and no change request.
+   exact-head independent PASS, current-head local verification, mergeability and no change request.
    `queued_at` retains queue identity through repairs and re-review, never readiness.
    At two queued PRs stop new claims; an already live issue may finish and queue.
    Parked/blocked claims preserve their work and do not hold the live slot. Oldest

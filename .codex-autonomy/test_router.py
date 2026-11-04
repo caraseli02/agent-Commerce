@@ -41,6 +41,26 @@ class RoutingTests(unittest.TestCase):
         candidate['scope'] = SCOPE
         self.assertEqual(route([queued, candidate], [], [], [], HEAD, CONFIG), {'action': 'initialize', 'issue': 2})
 
+    def test_separate_codex_reviewer_can_admit_but_self_review_cannot(self):
+        builder = '01a1a32d-072b-73c1-b3f7-879bd7bb2318'
+        reviewer = '01a1a32d-072b-73c1-b3f7-879bd7bb2319'
+        marker = f'<!-- codex-review-session: builder={builder} reviewer={reviewer} -->'
+        p = pr()
+        independent = marked(report(who='Codex (separate reviewer)'), p)
+        independent['body'] += '\n' + marker
+        p['comments'] = [independent]
+        self.assertEqual(self.state(p=p)['state'], 'queued_awaiting_human')
+        for body in (independent['body'].replace(reviewer, builder),
+                     independent['body'].replace(reviewer, 'unknown'),
+                     independent['body'].replace('\n' + marker, '\n> ' + marker),
+                     independent['body'].replace('\n' + marker, '')):
+            p['comments'] = [dict(independent, body=body)]
+            self.assertEqual(self.state(p=p)['state'], 'evidence_blocked')
+        p['comments'] = [dict(independent, user={'login': 'outsider'})]
+        self.assertEqual(self.state(p=p)['state'], 'waiting_first_evaluation')
+        p['comments'] = [dict(independent, body=independent['body'].replace(HEAD, 'f' * 40))]
+        self.assertEqual(self.state(p=p)['state'], 'waiting_first_evaluation')
+
     def test_two_queued_select_one_risk_investigation(self):
         second = self.state(issue(2))
         candidates = [{'key': 'risk', 'head': HEAD, 'question': 'Can keyboard open cart?', 'kind': 'accessibility', 'independent': True, 'minutes': 30, 'impact': 4, 'uncertainty': 3}]
