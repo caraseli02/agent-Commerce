@@ -1,5 +1,5 @@
 - group "1 / 5":
-    - text: October hot sale 5 %
+    - text: /(January|February|March|April|May|June|July|August|September|October|November|December) hot sale 5 %/
     - img
     - text: /STM32F407VGT6 Microcontroller \d+-bit ARM Cortex-M4 MCU with FPU, 1 MB Flash, and rich peripheral set for industrial control\. Unit \d+\.\d+ Lei \(1\+\) \d+\.\d+ Lei \(1\+\)/
     - button "Add STM32F407VGT6 Microcontroller to cart":

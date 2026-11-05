@@ -254,15 +254,18 @@ test.describe('Checkout result states', () => {
   ]) {
     test(`public contract known failure ${exit} exit attempts cancellation once and clears local context (${status})`, async ({ page }) => {
       await signInThroughOrderSummary(page);
-      await page.evaluate(() =>
+      // Seed the next document before Pinia hydrates. The current page may still
+      // persist a cart refresh after sign-in, overwriting a live localStorage edit.
+      await page.addInitScript(() => {
+        if (location.pathname !== '/checkout/fail') return;
         localStorage.setItem(
           'cart-store',
           JSON.stringify({
             previousCheckoutError: { code: 'card_declined' },
             orderClientSecret: 'stale-demo-secret',
           }),
-        ),
-      );
+        );
+      });
       const cancellations: string[] = [];
       await page.route('**/api/orders/known-order/cancel', async (route) => {
         cancellations.push(route.request().url());

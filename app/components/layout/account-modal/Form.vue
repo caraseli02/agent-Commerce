@@ -73,7 +73,7 @@
     </UiButton>
     <p class="mt-3 text-center text-xs text-muted-foreground">
       New here?
-      <NuxtLink to="/signup" class="font-medium text-blue-500 hover:underline" @click="emits('close')">Create an account</NuxtLink>
+      <NuxtLink to="/signup" class="font-medium text-blue-500 hover:underline" @click="handleCreateAccount">Create an account</NuxtLink>
     </p>
     <div v-if="errorResponse.show" role="alert" class="bg-rose-600 p-2 mt-3 rounded">
       <p class="text-white">
@@ -95,6 +95,16 @@ const { startSession } = useSessionSignIn();
 const emits = defineEmits<{
   (e: 'signed-in' | 'close'): void;
 }>();
+
+const handleCreateAccount = async (event: MouseEvent) => {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+
+  // Finish navigation before closing: dismissing a ?signin=true panel also
+  // replaces its query, which would otherwise race the signup navigation.
+  await navigateTo('/signup');
+  if (route.path === '/signup') emits('close');
+};
 
 const email = ref({
   value: '',
