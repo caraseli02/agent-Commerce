@@ -1,5 +1,11 @@
 # Native routing/recovery source
 
+Temporary owner policy, 2026-11-03: [separate Codex review](../docs/agents/temporary-codex-review.md)
+replaces Claude-only review of Codex PRs while Claude review is unavailable.
+The existing separate Codex reviewer covers both builders; no self-review, local
+verification and human merge remain mandatory. This supersedes conflicting
+opposite-builder/Claude-only requirements below.
+
 This directory is reviewed source, not the installed dispatcher. Source publication
 and human merge never activate it. Follow the installed owner policy until a
 separately approved watched installation. #830 is the corrective prerequisite for

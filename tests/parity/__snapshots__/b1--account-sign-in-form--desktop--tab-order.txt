@@ -4,3 +4,4 @@
 4. button "Show password"
 5. checkbox "Remember me"
 6. button "Sign In"
+7. link "Create an account"

@@ -1,5 +1,11 @@
 # Husky and independent local verification
 
+Temporary owner policy, 2026-11-03: [separate Codex review](temporary-codex-review.md)
+replaces Claude-only review of Codex PRs while Claude review is unavailable.
+The existing separate Codex reviewer covers both builders; no self-review, local
+verification and human merge remain mandatory. This supersedes conflicting
+opposite-builder/Claude-only requirements below.
+
 Owner decision, 2026-10-19: GitHub Actions stay disabled. Husky and independent
 local review replace hosted checks and the retired standalone CI service. This
 supersedes the disabled-Actions acceptance blocker and Phase 1/2 deployment gates.

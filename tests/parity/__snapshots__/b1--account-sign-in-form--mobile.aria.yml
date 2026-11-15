@@ -17,3 +17,7 @@
 - button "Sign In":
     - img
     - text: ''
+- paragraph:
+    - text: New here?
+    - link "Create an account":
+        - /url: /signup

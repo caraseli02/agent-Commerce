@@ -1,0 +1,23 @@
+- complementary:
+    - link "Components Marketplace home":
+        - /url: /
+    - navigation "Dashboard":
+        - list:
+            - listitem:
+                - link "Dashboard":
+                    - /url: /dashboard
+            - listitem:
+                - link "Orders":
+                    - /url: /dashboard/orders
+            - listitem:
+                - link "Customers":
+                    - /url: /dashboard/customers
+            - listitem:
+                - link "Products":
+                    - /url: /dashboard/products
+            - listitem:
+                - link "Categories":
+                    - /url: /dashboard/products/categories
+    - button "Expand navigation":
+        - img
+    - text: V 1.0.0

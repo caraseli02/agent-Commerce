@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import type { ProductAvailabilityResponse } from '../../types/inventory';
 
 type PrintTestWindow = Window & {
   __printCalls: number[];
@@ -21,7 +22,14 @@ test.describe('Browse → Product Detail', () => {
       if (message.type() === 'error' || message.type() === 'warning') runtimeErrors.push(message.text());
     });
 
+    const availabilityResponse = page.waitForResponse(
+      (response) => new URL(response.url()).pathname === '/api/inventory/availability' && response.ok(),
+    );
     await page.goto('/product/prod-1');
+    const availability = (await (await availabilityResponse).json()) as ProductAvailabilityResponse;
+    const productAvailability = availability.data.find((product) => product.productId === 'prod-1');
+    expect(productAvailability?.state).toBe('available');
+    if (productAvailability?.state !== 'available') throw new Error('Expected prod-1 inventory to be available');
 
     // Product name is visible
     await expect(page.getByRole('heading', { level: 1, name: 'STM32F407VGT6 Microcontroller' })).toBeVisible();
@@ -32,12 +40,9 @@ test.describe('Browse → Product Detail', () => {
     await expect(purchasePanel.getByText('81.50').filter({ visible: true }).first()).toBeVisible();
     await expect(purchasePanel.getByText('78.00').filter({ visible: true }).first()).toBeVisible();
 
-    // Stock information is shown
+    // Earlier checkout specs can consume stock; show Inventory's live count, not the catalog seed.
     await expect(
-      page
-        .getByText(/150 in stock/i)
-        .filter({ visible: true })
-        .first(),
+      purchasePanel.getByText(`${productAvailability.available} in stock`, { exact: true }).filter({ visible: true }),
     ).toBeVisible();
 
     // Add to cart button is present and actionable

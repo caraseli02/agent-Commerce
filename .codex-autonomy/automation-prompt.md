@@ -1,3 +1,9 @@
+Temporary owner review policy (2026-11-03): follow
+`docs/agents/temporary-codex-review.md`. The existing separate Codex reviewer
+may evaluate Codex-built PRs with distinct verified builder/reviewer chat IDs.
+This supersedes Claude-only/opposite-builder review wording below; all local
+checks, verdict lifetime, ownership, WIP and human merge requirements remain.
+
 Act as the Agent-Commerce native Codex dispatcher every five hours at :15 including overnight.
 Apply migration-policy.md and preserved installed owner policies before legacy text:
 separate work/reviewer lanes, required native Luna delegation, actual local-review
@@ -19,7 +25,7 @@ retry and emit one blocker after two unresolved reconciliations. No takeover, ag
 or lock deletion; legacy keepers remain unknown, never auto-migrate.
 Use registered native commands, live GitHub and the one classifier for dispatch and
 registry reporting. Exactly one live implementation; pending first evaluation holds
-its slot. Trusted exact-head Claude PASS plus current-head local verification admits an open canonical
+its slot. Trusted exact-head independent PASS plus current-head local verification admits an open canonical
 PR to the human queue. Two queued PRs stop new claims; repairs remain in original chats
 and queue identity survives re-review. Parked work remains intact; oldest eligible
 unparked work precedes new claims. Check all PR and unpublished file/consumer/contract
