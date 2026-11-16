@@ -7,7 +7,6 @@
     - button "Open products navigation"
     - link "Components Marketplace home":
         - /url: /
-        - img: DEMO
     - button "Search products":
         - img
     - searchbox "Search products"

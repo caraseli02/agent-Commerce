@@ -5,7 +5,7 @@
     </UiLabel>
     <div
       class="relative border w-full transition-colors duration-300"
-      :class="[error ? 'border-rose-500' : 'border-border focus-within:border-blue-500', size === 'lg' ? 'rounded-lg' : 'rounded']"
+      :class="[error ? 'border-rose-500' : 'border-input focus-within:border-ring', size === 'lg' ? 'rounded-lg' : 'rounded']"
     >
       <!-- The wrapper draws the border and focus state, so the input drops its own. -->
       <UiInput

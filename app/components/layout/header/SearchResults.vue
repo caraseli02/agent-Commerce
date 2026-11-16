@@ -1,10 +1,7 @@
 <template>
   <div
     v-if="isLoading || props.products"
-    class="absolute z-50 -bottom-2.5 translate-y-full left-0 w-full bg-card border border-light-300 rounded-lg py-2 pl-2 pr-0.5 shadow-md md:rounded-xl md:-bottom-0.5"
-    :style="{
-      boxShadow: '0px 4px 12px rgba(51, 51, 51, 0.1)',
-    }"
+    class="absolute z-50 -bottom-2.5 translate-y-full left-0 w-full bg-popover border border-border rounded-lg py-2 pl-2 pr-0.5 shadow-lg md:rounded-xl md:-bottom-1.5"
   >
     <div v-if="isLoading">
       <p class="p-2 rounded text-muted-foreground transition-colors duration-300">Loading...</p>

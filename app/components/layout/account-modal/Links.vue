@@ -3,7 +3,7 @@
     <NuxtLink
       v-show="!route.path.includes('dashboard')"
       :to="isAdmin ? '/dashboard' : '/dashboard/client'"
-      class="hover:bg-muted text-foreground hover:text-blue-500 items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
+      class="hover:bg-muted text-foreground hover:text-signal-text items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
       @click="emit('close')"
     >
       <component :is="IconApps" class="w-6 h-6" />
@@ -14,7 +14,7 @@
       :key="index"
       type="button"
       variant="ghost"
-      class="w-full items-stretch justify-start gap-3 rounded-lg py-3 pl-3 pr-20 text-foreground hover:bg-muted hover:text-blue-500"
+      class="w-full items-stretch justify-start gap-3 rounded-lg py-3 pl-3 pr-20 text-foreground hover:bg-muted hover:text-signal-text"
       @click="(emit('close'), menuItem.action())"
     >
       <component :is="menuItem.icon" class="w-6 h-6" />
@@ -33,7 +33,7 @@
       :key="index"
       :to="menuItem.to"
       class="items-stretch flex justify-start gap-3 pl-3 pr-20 py-3 rounded-lg"
-      :class="menuItem.disabled ? 'text-neutral-200 cursor-not-allowed' : 'hover:bg-muted text-foreground hover:text-blue-500'"
+      :class="menuItem.disabled ? 'text-neutral-200 cursor-not-allowed' : 'hover:bg-muted text-foreground hover:text-signal-text'"
       @click="emit('close')"
     >
       <component :is="menuItem.icon" class="w-6 h-6" />

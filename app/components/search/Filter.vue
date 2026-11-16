@@ -34,14 +34,14 @@
       </div>
     </div>
     <UiButton variant="secondary" class="group justify-between" @click="handleAll">
-      <span class="text-xs transition-colors duration-300 group-hover:text-blue-500">
+      <span class="text-xs transition-colors duration-300 group-hover:text-signal-text">
         {{ selectedAll ? 'Unselect All' : 'Select All' }}
       </span>
       <div
         class="flex items-center justify-center w-[18px] h-[18px] rounded border transition-colors duration-300"
-        :class="[selectedAll ? 'bg-blue-500 border-blue-500 group-hover:bg-card' : 'bg-card  border-border group-hover:border-border']"
+        :class="[selectedAll ? 'bg-primary border-primary group-hover:bg-card' : 'bg-card  border-border group-hover:border-border']"
       >
-        <CheckIcon v-if="selectedAll" class="w-4 text-white transition-colors duration-300 group-hover:text-blue-500" />
+        <CheckIcon v-if="selectedAll" class="w-4 text-primary-foreground transition-colors duration-300 group-hover:text-primary" />
       </div>
     </UiButton>
   </div>

@@ -25,6 +25,7 @@
       <UiButton
         :disabled="isCheckoutDisabled || isSubmitting"
         :aria-describedby="showMissingRequirements ? 'checkout-missing-requirements' : undefined"
+        variant="cart"
         size="lg"
         class="w-full min-h-[52px]"
         data-testid="secure-checkout"

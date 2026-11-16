@@ -119,7 +119,7 @@ const showTrackingDialog = ref(false);
           <UiButton
             v-if="!isAdmin"
             size="xs"
-            class="flex overflow-hidden justify-center items-center self-stretch px-4 py-0 my-auto text-sm font-medium leading-6 text-white bg-sky-500 rounded-md"
+            class="flex overflow-hidden justify-center items-center self-stretch px-4 py-0 my-auto text-sm font-medium leading-6 text-primary-foreground bg-primary rounded-md"
             @click="showTrackingDialog = true"
           >
             <MapPin class="object-contain shrink-0 self-stretch my-auto w-4 aspect-square" />

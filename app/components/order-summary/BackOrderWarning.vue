@@ -6,7 +6,7 @@
     <div class="flex flex-col">
       <div class="">
         <h2 class="text-foreground text-sm font-semibold leading-5">
-          There are Back Order items in your cart. <span class="text-[#007FFF]">View items</span>
+          There are Back Order items in your cart. <span class="text-signal-text">View items</span>
         </h2>
       </div>
       <p class="text-foreground text-xs font-normal leading-[18px]">

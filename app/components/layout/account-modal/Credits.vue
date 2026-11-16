@@ -17,8 +17,8 @@
         </div>
       </div>
       <NuxtLink to="#" class="items-center flex justify-between gap-2">
-        <div class="text-blue-500 hover:text-blue-400 text-sm font-medium leading-5 grow whitespace-nowrap">View more</div>
-        <ArrowRightIcon class="w-4 h-4" />
+        <div class="text-signal-text hover:text-signal-text text-sm font-medium leading-5 grow whitespace-nowrap">View more</div>
+        <ArrowRightIcon class="w-4 h-4 text-signal-text" />
       </NuxtLink>
     </div>
   </div>

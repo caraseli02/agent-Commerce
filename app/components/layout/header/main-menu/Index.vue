@@ -94,7 +94,7 @@
       </template>
     </div>
     <div v-if="!selectedCategory">
-      <div class="bg-header px-5 pt-[17px] pb-[21px] text-xs font-semibold text-header-foreground text-center">
+      <div class="border-t border-border bg-sidebar px-5 pt-[17px] pb-[21px] text-xs font-semibold text-muted-foreground text-center">
         Sales: +1 800 555 0199 (Mon-Fri 8:00AM - 4:00PM EST)
       </div>
     </div>

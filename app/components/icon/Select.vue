@@ -54,15 +54,23 @@ function selectIcon(icon: IconName): void {
           id="search"
           v-model="search"
           type="text"
+          aria-label="Search icons"
           placeholder="Search..."
-          class="rounded-xl pl-10 border-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          class="rounded-xl pl-10 border-none focus-visible:ring-inset"
         />
         <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
           <SearchIcon class="size-5 stroke-1 text-muted-foreground" />
         </span>
       </div>
       <div :key="search" class="flex content-start flex-wrap gap-2 px-2 pb-4 h-[200px] overflow-y-auto">
-        <UiButton v-for="icon in filteredIcons" :key="icon" variant="ghost" size="icon" @click="selectIcon(icon as IconName)">
+        <UiButton
+          v-for="icon in filteredIcons"
+          :key="icon"
+          variant="ghost"
+          size="icon"
+          :aria-label="`Select ${icon} icon`"
+          @click="selectIcon(icon as IconName)"
+        >
           <IconAsync :name="icon as IconName" class="h-6 w-6 stroke-1" />
         </UiButton>
       </div>

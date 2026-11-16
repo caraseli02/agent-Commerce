@@ -8,7 +8,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <span role="link" aria-disabled="true" aria-current="page" :class="cn('font-normal text-slate-950 dark:text-slate-50', props.class)">
+  <span role="link" aria-disabled="true" aria-current="page" :class="cn('font-normal text-foreground', props.class)">
     <slot />
   </span>
 </template>

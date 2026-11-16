@@ -12,15 +12,15 @@
       <p v-for="(filter, index) in filters" :key="index" class="relative overflow-hidden shrink-0">
         <UiButton
           variant="link"
-          class="relative h-auto p-0 pb-[13px] text-sm font-medium motion-reduce:transition-none hover:text-blue-700 md:text-base md:pb-3"
-          :class="[activeFilter === textUtil.slugify(filter) ? 'text-blue-700' : 'text-muted-foreground after:opacity-0']"
+          class="relative h-auto p-0 pb-[13px] text-sm font-medium motion-reduce:transition-none hover:text-foreground md:text-base md:pb-3"
+          :class="[activeFilter === textUtil.slugify(filter) ? 'text-foreground' : 'text-muted-foreground after:opacity-0']"
           @click="setActiveFilter(filter)"
         >
           {{ filter }}
         </UiButton>
         <span
           :class="activeFilter === textUtil.slugify(filter) ? 'scale-x-100' : 'scale-x-0'"
-          class="absolute bottom-0 left-0 h-[4px] w-full origin-left scale-x-0 bg-blue-700 dark:bg-primary rounded-full transition-transform duration-300 motion-reduce:transition-none"
+          class="absolute bottom-0 left-0 h-[3px] w-full origin-left scale-x-0 bg-signal rounded-full transition-transform duration-300 motion-reduce:transition-none"
         />
       </p>
     </div>

@@ -29,7 +29,7 @@
           For larger quantities ask
           <span
             to="/"
-            class="relative text-blue-500 font-medium ml-1 after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100"
+            class="relative text-signal-text font-medium ml-1 after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-current after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100"
           >
             here.
           </span>
@@ -76,7 +76,7 @@
             >
               For larger quantities ask
               <span
-                class="relative text-blue-500 font-medium ml-1 after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100"
+                class="relative text-signal-text font-medium ml-1 after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-current after:origin-right after:scale-x-0 after:rounded-full after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-100"
               >
                 here.
               </span>
@@ -101,10 +101,10 @@
             </div>
             <div class="flex items-center justify-between font-Inter mb-4 lg:justify-start lg:items-end">
               <div class="lg:mr-[15px]">
-                <div v-if="productDiscount" class="text-sm leading-tight line-through">
+                <div v-if="productDiscount" class="text-sm leading-tight text-muted-foreground line-through tabular-nums">
                   {{ minPriceConfiguration ? `${minPriceConfiguration.price.toFixed(2)} Lei (${minPriceConfiguration.quantity}+)` : '-' }}
                 </div>
-                <div class="text-xl leading-tight font-semibold" :class="[productDiscount ? 'text-red-700' : '']">
+                <div class="text-2xl leading-tight font-semibold tracking-[-0.015em] tabular-nums">
                   <span>
                     {{
                       discountPrice
@@ -119,7 +119,7 @@
               </div>
               <div
                 v-if="productDiscount"
-                class="flex items-center justify-center w-10 h-5 border border-red-700 text-red-700 rounded-full font-Inter text-sm leading-tight font-semibold"
+                class="flex h-6 items-center justify-center rounded-full bg-primary px-2 font-Inter text-xs font-bold leading-tight text-primary-foreground tabular-nums"
               >
                 {{ productDiscount }}%
               </div>
@@ -146,6 +146,7 @@
           </div>
           <UiButton
             type="button"
+            variant="cart"
             class="min-h-11 flex-1 px-5 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
             :aria-label="cartButtonLabel"
             :aria-busy="!isCartReady || isAddingToCart"

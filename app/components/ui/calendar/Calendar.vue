@@ -79,10 +79,10 @@ const vCalendarSlots = computed(() => {
 <template>
   <div class="relative">
     <div v-if="$attrs.mode !== 'time'" class="absolute flex justify-between w-full px-4 top-3 z-[1]">
-      <UiButton variant="outline" size="sm" class="h-7 w-7 p-0 opacity-50 hover:opacity-100" @click="handleNav('prev')">
+      <UiButton variant="outline" size="sm" class="h-7 w-7 p-0" aria-label="Previous month" @click="handleNav('prev')">
         <ChevronLeft class="w-4 h-4" />
       </UiButton>
-      <UiButton variant="outline" size="sm" class="h-7 w-7 p-0 opacity-50 hover:opacity-100" @click="handleNav('next')">
+      <UiButton variant="outline" size="sm" class="h-7 w-7 p-0" aria-label="Next month" @click="handleNav('next')">
         <ChevronRight class="w-4 h-4" />
       </UiButton>
     </div>
@@ -116,6 +116,19 @@ const vCalendarSlots = computed(() => {
 @reference "../../../assets/css/main.css";
 .calendar {
   @apply p-3 text-center !rounded-[0.3rem];
+}
+/* V-calendar defaults to its light palette even when the app is in dark mode. */
+.calendar.vc-light {
+  --vc-bg: hsl(var(--card));
+  --vc-color: hsl(var(--card-foreground));
+  --vc-border: hsl(var(--border));
+  --vc-header-title-color: hsl(var(--card-foreground));
+}
+.calendar.vc-light .vc-attr {
+  --vc-highlight-light-bg: hsl(var(--accent));
+  --vc-highlight-light-content-color: hsl(var(--accent-foreground));
+  --vc-highlight-solid-bg: hsl(var(--primary));
+  --vc-highlight-solid-content-color: hsl(var(--primary-foreground));
 }
 .calendar .vc-pane-layout {
   @apply !flex !flex-col md:!grid gap-4;
@@ -305,13 +318,13 @@ const vCalendarSlots = computed(() => {
   @apply flex items-center text-sm font-semibold uppercase mt-1 px-1 leading-6;
 }
 .vc-time-select-group {
-  @apply inline-flex items-center px-1 rounded-lg bg-primary-foreground border border-solid border-secondary;
+  @apply inline-flex items-center px-1 rounded-lg bg-card border border-solid border-input;
 }
 .vc-time-select-group .vc-base-icon {
   @apply mr-1 text-primary stroke-primary;
 }
 .vc-time-select-group select {
-  @apply bg-primary-foreground p-1 appearance-none outline-none text-center;
+  @apply bg-card text-foreground p-1 appearance-none text-center focus-visible:outline-2 focus-visible:outline-ring;
 }
 .vc-time-weekday {
   @apply text-muted-foreground tracking-wide;

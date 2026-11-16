@@ -85,7 +85,7 @@ const model = computed({
 const inputClasses = computed(() =>
   cn(
     'w-full bg-transparent text-sm !placeholder:text-muted-foreground transition-colors duration-300',
-    props.error ? 'border-rose-500 focus-visible:outline-rose-500' : 'focus-visible:outline-blue-500',
+    props.error ? 'border-rose-500 focus-visible:border-rose-500' : 'focus-visible:outline-ring',
     // Icon rail is w-12 (3rem); pad with spacing-scale pl-14.
     props.icon ? 'pl-14' : undefined,
     props.size === 'lg' ? 'h-12 rounded-lg py-2.5' : 'h-11 rounded-md py-2',

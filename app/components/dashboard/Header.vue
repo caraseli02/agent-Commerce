@@ -1,6 +1,6 @@
 <template>
   <header
-    class="fixed z-30 top-0 left-0 w-full bg-card shadow-xs md:transition-[margin,width] md:duration-200"
+    class="fixed z-30 top-0 left-0 w-full border-b border-border bg-card md:transition-[margin,width] md:duration-200"
     :class="[isCollapsedOnDesktop ? 'md:ml-[96px] md:w-[calc(100%-96px)]' : 'md:ml-[280px] md:w-[calc(100%-280px)]']"
   >
     <div class="max-w-full mx-auto flex items-center justify-between px-4 py-3 md:py-4 2xl:px-6">

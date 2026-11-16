@@ -101,7 +101,7 @@
                 v-if="customerInformation.adminSettings?.discount"
                 :title="`Customer Discount: ${customerInformation.adminSettings?.discount?.value}%`"
               >
-                <div class="border-[#007FFF] border-[1px] px-2 rounded-[50px] text-xs leading-[20px] font-semibold text-[#007FFF]">
+                <div class="border-primary border-[1px] px-2 rounded-[50px] text-xs leading-[20px] font-semibold text-foreground">
                   {{ customerInformation.adminSettings?.discount?.value }} %
                 </div>
               </div>

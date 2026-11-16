@@ -71,11 +71,9 @@ export default defineNuxtConfig({
   },
   fonts: {
     families: [
-      // Google Fonts retired one Archivo subset URL; resolving it at build time
-      // makes otherwise deterministic production builds fail. Keep the existing
-      // display stack, which falls back to Source Sans 3 when Archivo is absent.
-      { name: 'Archivo', provider: 'none' },
-      { name: 'Source Sans 3', provider: 'google', weights: [400, 500, 600, 700] },
+      // One UI family for headings, labels and data, plus a mono for part numbers and order IDs.
+      { name: 'Hanken Grotesk', provider: 'google', weights: [400, 500, 600, 700] },
+      { name: 'JetBrains Mono', provider: 'google', weights: [500] },
     ],
   },
 

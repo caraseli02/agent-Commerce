@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1 max-w-full h-full">
     <div v-if="cartReadPending" class="flex flex-1 items-center justify-center px-4 py-10" aria-busy="true" aria-live="polite">
-      <div class="h-10 w-48 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse motion-reduce:animate-none" />
+      <div class="h-10 w-48 rounded-lg bg-foreground/[0.07] animate-pulse motion-reduce:animate-none" />
       <span class="sr-only">Loading cart…</span>
     </div>
 
@@ -18,22 +18,17 @@
       <div v-else class="flex flex-1 items-center px-4 py-6">
         <EmptyState v-bind="cartEmptyPreset" class="w-full" @primary-click="$emit('close')" />
       </div>
-      <div
-        class="px-4 pt-4 pb-6 md:p-6"
-        :style="{
-          boxShadow: '0px 0px 8px 0px rgba(133, 133, 133, 0.25)',
-        }"
-      >
+      <div class="border-t border-border bg-card px-4 pt-4 pb-6 md:p-6">
         <div
           v-if="hasItems"
-          class="flex items-center justify-between leading-[1.25] font-semibold mb-4 md:text-xl md:leading-[1.2] md:mb-6"
+          class="flex items-baseline justify-between leading-[1.25] font-semibold tabular-nums mb-4 md:text-xl md:leading-[1.2] md:mb-5"
         >
           <div>Subtotal</div>
           <div class="text-right">{{ getCartSubtotal.toFixed(2) }} Lei</div>
         </div>
         <NuxtLink
           v-if="hasItems"
-          class="flex items-center justify-center gap-2 bg-blue-600 text-white rounded-lg px-[15px] py-2 leading-[1.75] font-medium w-full"
+          class="flex min-h-12 items-center justify-center gap-2 bg-signal text-signal-foreground rounded-lg px-[15px] py-2 leading-[1.75] font-semibold w-full shadow-xs transition-colors duration-150 hover:bg-signal/88 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           to="/order-summary"
           @click="$emit('close')"
         >

@@ -24,7 +24,7 @@ const toggleAndClose = (id: string) => {
   </div>
   <UiPopover v-model:open="isOpen">
     <UiPopoverTrigger as-child>
-      <UiButton variant="secondary" class="bg-dark-50" size="icon">
+      <UiButton variant="secondary" size="icon" :aria-label="`Actions for ${category.name}`">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"

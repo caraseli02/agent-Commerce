@@ -10,6 +10,7 @@
       >
         <component :is="icon" class="w-5 h-5 text-muted-foreground" />
       </div>
+      <!-- The error border is important so it outlasts the primitive's focus-visible border. -->
       <UiInput
         :id="inputId"
         :model-value="modelValue"
@@ -19,7 +20,7 @@
         :aria-describedby="error ? errorId : undefined"
         :class="[
           'pr-3 text-sm',
-          error ? 'border-rose-500' : '',
+          error ? '!border-rose-500' : '',
           disabled && showDisabledStyles
             ? 'disabled:bg-muted disabled:text-muted-foreground disabled:border-border disabled:shadow-none'
             : '',

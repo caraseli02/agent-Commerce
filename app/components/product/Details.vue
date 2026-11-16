@@ -1,8 +1,8 @@
 <template>
   <div class="col-span-2 lg:col-span-1 min-w-0 w-full relative bg-card rounded-2xl font-Inter px-4 py-4 shadow-m md:px-5 md:py-5 lg:h-full">
-    <div class="flex items-start justify-between gap-4 mb-5">
+    <div class="mb-5 flex items-start justify-between gap-4 md:mb-6">
       <div class="flex min-w-0 items-center">
-        <h1 class="mr-2 min-w-0 text-xl font-semibold leading-tight">
+        <h1 class="mr-2 min-w-0 text-2xl font-semibold leading-tight tracking-[-0.02em]">
           {{ product.name }}
         </h1>
         <CopyClipboard
@@ -27,7 +27,7 @@
       </div>
       <div v-if="product.manufacturerCode" class="flex items-center justify-between gap-3 px-3 py-3">
         <div class="text-xs leading-tight font-medium flex-shrink-0 text-foreground">Manufacturer part number</div>
-        <div class="text-xs leading-tight text-muted-foreground">
+        <div class="font-mono text-xs leading-tight text-foreground">
           {{ product.manufacturerCode }}
         </div>
       </div>

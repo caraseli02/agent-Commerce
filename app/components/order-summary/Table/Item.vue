@@ -104,6 +104,6 @@ onMounted(setupMediaQuery);
 }
 
 .custom-shadow {
-  box-shadow: 0px 3px 8px 0px rgba(133, 133, 133, 0.25);
+  box-shadow: var(--shadow-md);
 }
 </style>

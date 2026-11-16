@@ -593,8 +593,8 @@ export const scenarios: ParityScenario[] = [
         },
         verify: async (_page, region) => {
           // These legacy buttons expose no selected-state attribute; check the active token, not the inactive palette.
-          await expect(region.getByRole('button', { name: 'Best Sellers', exact: true })).toHaveClass(/(?:^|\s)text-blue-700(?:\s|$)/);
-          await expect(region.getByRole('button', { name: 'Featured', exact: true })).not.toHaveClass(/(?:^|\s)text-blue-700(?:\s|$)/);
+          await expect(region.getByRole('button', { name: 'Best Sellers', exact: true })).toHaveClass(/(?:^|\s)text-foreground(?:\s|$)/);
+          await expect(region.getByRole('button', { name: 'Featured', exact: true })).not.toHaveClass(/(?:^|\s)text-foreground(?:\s|$)/);
         },
       },
     ],

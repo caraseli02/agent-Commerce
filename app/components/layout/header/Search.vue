@@ -1,6 +1,8 @@
 <template>
-  <div class="relative rounded-lg focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1">
-    <UiLabel class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-border bg-card font-normal md:flex">
+  <div
+    class="relative rounded-lg transition-shadow duration-150 focus-within:ring-3 focus-within:ring-ring/20 [&:focus-within>label]:border-ring motion-reduce:transition-none"
+  >
+    <UiLabel class="relative hidden h-11 items-center overflow-hidden rounded-lg border border-input bg-card font-normal md:flex">
       <form action="" class="flex h-full min-w-0 flex-1 items-center" @submit.prevent>
         <UiInput
           ref="searchDOM"
@@ -9,7 +11,7 @@
           placeholder="Search products"
           aria-label="Search products"
           autocomplete="off"
-          class="h-full w-full flex-1 rounded-none border-0 px-3 text-sm leading-5 text-muted-foreground placeholder:text-muted-foreground focus:outline-none"
+          class="h-full w-full flex-1 rounded-none border-0 px-3.5 text-sm leading-5 text-foreground focus-visible:ring-0"
           @input="handleInput"
           @keypress.enter="handleEnterButton"
           @blur="
@@ -19,7 +21,7 @@
         />
       </form>
       <UiButton type="button" variant="input-addon" size="addon" aria-label="Search" @click="handleEnterButton">
-        <SearchIcon class="h-5 w-5 text-primary-foreground" aria-hidden="true" />
+        <SearchIcon class="h-5 w-5 text-signal-foreground" aria-hidden="true" />
       </UiButton>
     </UiLabel>
     <Transition name="fade">
