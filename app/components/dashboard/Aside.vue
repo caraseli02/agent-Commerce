@@ -120,6 +120,11 @@ import ProductsIcon from '@/assets/icons/dashboard/products.svg';
 import CategoriesIcon from '@/assets/icons/dashboard/categories.svg';
 import CustomersIcon from '@/assets/icons/dashboard/customers.svg';
 import OrdersIcon from '@/assets/icons/dashboard/orders.svg';
+import StockIcon from '@/assets/icons/dashboard/stock.svg';
+import { fetchOperatorMe } from '~/composables/api/operator';
+import { useAuthStore } from '~/store/authStore';
+import { readCustomerAccountClaims } from '~/utils/sessionToken';
+import type { OperatorPermission } from '~~/types/inventory';
 
 defineProps({
   isCollapsedOnDesktop: {
@@ -139,17 +144,61 @@ interface NavItem {
 }
 
 const route = useRoute();
+const authStore = useAuthStore();
 const navDOM = ref<HTMLElement>();
 const showTopNavLayer = ref(false);
 const showBottomNavLayer = ref(false);
 
-const nav: NavItem[] = [
+const baseNav: NavItem[] = [
   { label: 'Dashboard', to: '/dashboard', icon: markRaw(OverviewIcon), exact: true },
   { label: 'Orders', to: '/dashboard/orders', icon: markRaw(OrdersIcon) },
   { label: 'Customers', to: '/dashboard/customers', icon: markRaw(CustomersIcon) },
   { label: 'Products', to: '/dashboard/products', icon: markRaw(ProductsIcon), exact: true },
   { label: 'Categories', to: '/dashboard/products/categories', icon: markRaw(CategoriesIcon) },
 ];
+
+const operatorPermissions = useState<OperatorPermission[]>('operator-permissions', () => []);
+const operatorPermissionsToken = useState<string | null>('operator-permissions-token', () => null);
+
+const syncOperatorPermissions = async (tokenValue?: string | null) => {
+  const normalized = tokenValue ? String(tokenValue) : null;
+  if (!readCustomerAccountClaims(normalized)) {
+    operatorPermissions.value = [];
+    operatorPermissionsToken.value = null;
+    return;
+  }
+
+  if (operatorPermissionsToken.value === normalized) {
+    return;
+  }
+
+  try {
+    const response = await fetchOperatorMe();
+    if (authStore.getToken() === normalized) {
+      operatorPermissions.value = response.data?.permissions ?? [];
+      operatorPermissionsToken.value = normalized;
+    }
+  } catch {
+    if (authStore.getToken() === normalized) {
+      operatorPermissions.value = [];
+      operatorPermissionsToken.value = normalized;
+    }
+  }
+};
+
+const nav = computed<NavItem[]>(() =>
+  operatorPermissions.value.includes('inventory:read')
+    ? [...baseNav, { label: 'Inventory', to: '/dashboard/operator/inventory', icon: markRaw(StockIcon) }]
+    : baseNav,
+);
+
+watch(
+  () => authStore.getToken(),
+  (tokenValue) => {
+    void syncOperatorPermissions(tokenValue);
+  },
+  { immediate: true },
+);
 
 const isActive = (item: NavItem) => (item.exact ? route.path === item.to : route.path === item.to || route.path.startsWith(`${item.to}/`));
 

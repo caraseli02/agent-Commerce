@@ -371,6 +371,20 @@
       "impact": "none",
       "reason": "Only Vitest and its coverage provider change; clearMocks false preserves prior test semantics.",
       "consumers": "Vitest config is consumed only by the test runner. Package scripts and application dependencies are unchanged. Traversing all production importer dependencies and optional snapshot edges confirms the same 931 production snapshots before/after; VueUse is unchanged. No storefront, cart, checkout, auth or dashboard route reads this test configuration or the changed test-only dependency cohort."
+    },
+    {
+      "fingerprint": "2314e2ca834d5fc170126639d590e7768b708872b579064eaa698b649dd2acb4",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "Inventory A1 (#844): adds durable operator_grants authorization, readStockLevels domain query, GET /api/operator/me and GET /api/operator/inventory, and the read-only /dashboard/operator/inventory page plus operator-only sidebar navigation. Public storefront, cart, product, search, and demo customer/admin flows are visually unchanged; orders is selected as the representative dashboard visual check.",
+      "consumers": "server/utils/requireOperator.ts, server/api/operator/{me,inventory}.get.ts, and app/composables/api/operator.ts are consumed only by app/pages/dashboard/operator/inventory.vue and app/components/dashboard/Aside.vue. In Aside.vue, readCustomerAccountClaims(token) skips fetchOperatorMe() for anonymous and demo-token sessions, so existing demo customer/admin sidebar rendering and request traffic are unchanged. router.global.ts adds a branch only for /dashboard/operator/**. The operator inventory table is outside the storefront visual matrix and is covered at 1280x900 and 390x844 by tests/e2e/operator-inventory.spec.ts alongside tests/operator-authorization.spec.ts and tests/inventory-stock-levels.spec.ts."
+    },
+    {
+      "fingerprint": "ab7c9cc4bb05e681f2c9efd2e91a7c6928b5bcebc69fd37fcbe1b8959c78c9ba",
+      "impact": "targeted",
+      "tests": ["orders"],
+      "reason": "Inventory A1 (#844) rebased onto origin/main: adds operator composable, read-only /dashboard/operator/inventory page, and operator-gated dashboard sidebar/router guard on top of the server foundation. Select orders as the representative dashboard visual check.",
+      "consumers": "app/composables/api/operator.ts and app/pages/dashboard/operator/inventory.vue render only on /dashboard/operator/inventory for signed customer-account tokens with an active operator_grants row; Aside.vue and router.global.ts leave anonymous, demo customer, and demo admin flows visually and behaviorally unchanged. Covered by tests/e2e/operator-inventory.spec.ts at desktop (1280x900) and mobile (390x844) plus tests/e2e/admin-smoke-path.spec.ts."
     }
   ]
 }
